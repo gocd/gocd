@@ -80,10 +80,12 @@ public class SubprocessLoggerTest {
             }
             allLogs = result;
         }
-        Assertions.assertThat(allLogs).isEqualToNormalizingNewlines("WARN foo bar baz\n" +
-                "101\n" +
-                "103\n" +
-                "\n");
+        Assertions.assertThat(allLogs).isEqualToNormalizingNewlines("""
+                WARN foo bar baz
+                101
+                103
+
+                """);
         assertThat(allLogs, not(containsString("102")));
     }
 

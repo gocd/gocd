@@ -54,15 +54,16 @@ public class CRApprovalTest extends AbstractCRTest<CRApproval> {
 
     @Test
     public void shouldDeserializeFromAPILikeObject() {
-        String json = "{\n" +
-            "    \"type\": \"manual\",\n" +
-            "      \"roles\": [\n" +
-            "\n" +
-            "      ],\n" +
-            "      \"users\": [\n" +
-            "\n\"joe\"" +
-            "      ]\n" +
-            "  }";
+        String json = """
+                {
+                    "type": "manual",
+                      "roles": [
+
+                      ],
+                      "users": [
+
+                "joe"      ]
+                  }""";
         CRApproval deserializedValue = gson.fromJson(json, CRApproval.class);
 
         assertThat(deserializedValue.getType()).isEqualTo(CRApprovalCondition.manual);

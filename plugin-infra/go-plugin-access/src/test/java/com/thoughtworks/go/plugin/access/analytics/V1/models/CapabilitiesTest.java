@@ -25,11 +25,12 @@ public class CapabilitiesTest {
 
     @Test
     public void shouldDeserializeFromJSON() throws Exception {
-        String json = "{\n" +
-                "\"supported_analytics\": [\n" +
-                "  {\"type\": \"dashboard\", \"id\": \"abc\",  \"title\": \"Title 1\"},\n" +
-                "  {\"type\": \"pipeline\", \"id\": \"abc\",  \"title\": \"Title 1\"}\n" +
-                "]}";
+        String json = """
+                {
+                "supported_analytics": [
+                  {"type": "dashboard", "id": "abc",  "title": "Title 1"},
+                  {"type": "pipeline", "id": "abc",  "title": "Title 1"}
+                ]}""";
 
         Capabilities capabilities = Capabilities.fromJSON(json);
 
@@ -39,11 +40,12 @@ public class CapabilitiesTest {
 
     @Test
     public void shouldConvertToDomainCapabilities() throws Exception {
-        String json = "{\n" +
-                "\"supported_analytics\": [\n" +
-                "  {\"type\": \"dashboard\", \"id\": \"abc\",  \"title\": \"Title 1\"},\n" +
-                "  {\"type\": \"pipeline\", \"id\": \"abc\",  \"title\": \"Title 1\"}\n" +
-                "]}";
+        String json = """
+                {
+                "supported_analytics": [
+                  {"type": "dashboard", "id": "abc",  "title": "Title 1"},
+                  {"type": "pipeline", "id": "abc",  "title": "Title 1"}
+                ]}""";
 
         Capabilities capabilities = Capabilities.fromJSON(json);
         com.thoughtworks.go.plugin.domain.analytics.Capabilities domain = capabilities.toCapabilities();

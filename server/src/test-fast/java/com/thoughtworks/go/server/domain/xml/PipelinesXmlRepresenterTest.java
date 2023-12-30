@@ -52,10 +52,11 @@ public class PipelinesXmlRepresenterTest {
 
         Document document = representer.toXml(context);
 
-        String expectedXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<pipelines>\n" +
-            "  <link rel=\"self\" href=\"https://go-server/go/api/feed/pipelines.xml\"/>\n" +
-            "</pipelines>";
+        String expectedXML = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <pipelines>
+                  <link rel="self" href="https://go-server/go/api/feed/pipelines.xml"/>
+                </pipelines>""";
 
         XmlAssert.assertThat(document.asXML()).and(expectedXML)
             .ignoreWhitespace()

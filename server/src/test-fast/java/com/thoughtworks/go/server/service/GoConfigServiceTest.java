@@ -84,7 +84,6 @@ public class GoConfigServiceTest {
     private GoCache goCache;
     private ConfigRepository configRepo;
     private InstanceFactory instanceFactory;
-    private SystemEnvironment systemEnvironment;
 
     @BeforeEach
     public void setup() throws Exception {
@@ -92,7 +91,6 @@ public class GoConfigServiceTest {
 
         configRepo = mock(ConfigRepository.class);
         goConfigDao = mock(GoConfigDao.class);
-        systemEnvironment = mock(SystemEnvironment.class);
 
         cruiseConfig = unchangedConfig();
         expectLoad(cruiseConfig);
@@ -101,9 +99,8 @@ public class GoConfigServiceTest {
         instanceFactory = mock(InstanceFactory.class);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        goConfigService = new GoConfigService(goConfigDao, this.clock, new GoConfigMigration(new TimeProvider()
-        ), goCache, configRepo, registry,
-                instanceFactory, mock(CachedGoPartials.class));
+        goConfigService = new GoConfigService(goConfigDao, this.clock, new GoConfigMigration(new TimeProvider()),
+            goCache, configRepo, registry, instanceFactory, mock(CachedGoPartials.class));
     }
 
     @Test
@@ -273,14 +270,15 @@ public class GoConfigServiceTest {
     public void shouldReturnInvalidWhenWholeConfigIsInvalidAndShouldUpgrade() {
         CruiseConfig config = configWithPipeline();
         when(goConfigDao.loadForEditing()).thenReturn(config);
-        String configContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"14\">\n"
-                + "<server>"
-                + "  <artifacts>"
-                + "    <artifactsDir>artifacts</artifactsDir>"
-                + "  </artifacts>"
-                + "</server>"
-                + "<unknown/></cruise>";
+        String configContent = """
+                <?xml version="1.0" encoding="utf-8"?>
+                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="14">
+                <server>
+                  <artifacts>
+                    <artifactsDir>artifacts</artifactsDir>
+                  </artifacts>
+                </server>
+                <unknown/></cruise>""";
         GoConfigValidity validity = goConfigService.fileSaver(true).saveXml(configContent, "md5");
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), is("Cruise config file with version 14 is invalid. Unable to upgrade."));
     }
@@ -289,11 +287,12 @@ public class GoConfigServiceTest {
     public void shouldReturnInvalidWhenWholeConfigIsInvalid() {
         CruiseConfig config = configWithPipeline();
         when(goConfigDao.loadForEditing()).thenReturn(config);
-        String configContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
-                + "<server><artifacts>"
-                + "<artifactsDir>artifacts</artifactsDir>"
-                + "</artifacts></server><unknown/></cruise>";
+        String configContent = ("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
+                <server><artifacts>
+                <artifactsDir>artifacts</artifactsDir>
+                </artifacts></server><unknown/></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(configContent, "md5");
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
     }
@@ -341,9 +340,10 @@ public class GoConfigServiceTest {
     public void shouldProvideDetailsWhenXmlConfigDomIsInvalid() {
         expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
         GoConfigService.XmlPartialSaver<?>saver = goConfigService.fileSaver(false);
-        String configContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
-                + "<server artifactsdir='artifactsDir></cruise>";
+        String configContent = ("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
+                <server artifactsdir='artifactsDir></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         GoConfigValidity validity = saver.saveXml(configContent, "junk_md5");
         assertThat(validity.isValid(), is(false));
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(),
@@ -1137,72 +1137,76 @@ public class GoConfigServiceTest {
     }
 
     private String groupXml(final String groupName) {
-        return "<pipelines group=\"" + groupName + "\">\n"
-                + "  <pipeline name=\"new_name\" labeltemplate=\"${COUNT}-#{foo}\">\n"
-                + "     <params>\n"
-                + "      <param name=\"foo\">test</param>\n"
-                + "    </params>"
-                + "    <materials>\n"
-                + "      <svn url=\"file:///tmp/foo\" />\n"
-                + "    </materials>\n"
-                + "    <stage name=\"stage_name\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"job_name\" />\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines>";
+        return ("""
+                <pipelines group="%s">
+                  <pipeline name="new_name" labeltemplate="${COUNT}-#{foo}">
+                     <params>
+                      <param name="foo">test</param>
+                    </params>
+                    <materials>
+                      <svn url="file:///tmp/foo" />
+                    </materials>
+                    <stage name="stage_name">
+                      <jobs>
+                        <job name="job_name" />
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </pipelines>""").formatted(groupName);
     }
 
     private String groupXmlWithEntity(String filePathToReferToInEntity) {
-        return "<!DOCTYPE foo [  \n" +
-                "<!ELEMENT param ANY >\n" +
-                "<!ENTITY myentity SYSTEM \"file://" + filePathToReferToInEntity + "\" >]>" +
-                "<pipelines group=\"group_name\">\n"
-                + "  <pipeline name=\"pipeline1\" labeltemplate=\"${COUNT}-#{foo}\">\n"
-                + "     <params>\n"
-                + "      <param name=\"foo\">&myentity;</param>\n"
-                + "    </params>"
-                + "    <materials>\n"
-                + "      <svn url=\"file:///tmp/foo\" />\n"
-                + "    </materials>\n"
-                + "    <stage name=\"stage_name\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"job_name\" />\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines>";
+        return ("""
+                <!DOCTYPE foo [ \s
+                <!ELEMENT param ANY >
+                <!ENTITY myentity SYSTEM "file://%s" >]>
+                <pipelines group="group_name">
+                  <pipeline name="pipeline1" labeltemplate="${COUNT}-#{foo}">
+                     <params>
+                      <param name="foo">&myentity;</param>
+                    </params>
+                    <materials>
+                      <svn url="file:///tmp/foo" />
+                    </materials>
+                    <stage name="stage_name">
+                      <jobs>
+                        <job name="job_name" />
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </pipelines>""").formatted(filePathToReferToInEntity);
     }
 
     private String groupXmlWithInvalidElement(final String groupName) {
-        return "<pipelines group='" + groupName + "'>"
-                + "  <unknown/>"
-                + "<pipeline name='pipeline'>\n"
-                + "    <materials>\n"
-                + "         <svn url ='svnurl' dest='a'/>\n"
-                + "    </materials>\n"
-                + "  <stage name='firstStage'>"
-                + "     <jobs>"
-                + "         <job name='jobName'/>"
-                + "      </jobs>"
-                + "  </stage>"
-                + "</pipeline>"
-                + "</pipelines>";
+        return ("""
+                <pipelines group='%s'>
+                  <unknown/>
+                <pipeline name='pipeline'>
+                    <materials>
+                         <svn url ='svnurl' dest='a'/>
+                    </materials>
+                  <stage name='firstStage'>
+                     <jobs>
+                         <job name='jobName'/>
+                      </jobs>
+                  </stage>
+                </pipeline>
+                </pipelines>""").formatted(groupName);
     }
 
     private String groupXmlWithInvalidAttributeValue(final String groupName) {
-        return "<pipelines group='" + groupName + "'>"
-                + "<pipeline name='pipeline@$^'>\n"
-                + "    <materials>\n"
-                + "         <svn url ='svnurl' dest='a'/>\n"
-                + "    </materials>\n"
-                + "  <stage name='firstStage'>"
-                + "     <jobs>"
-                + "         <job name='jobName'/>"
-                + "      </jobs>"
-                + "  </stage>"
-                + "</pipeline>"
-                + "</pipelines>";
+        return ("""
+                <pipelines group='%s'>
+                <pipeline name='pipeline@$^'>
+                    <materials>
+                         <svn url ='svnurl' dest='a'/>
+                    </materials>
+                  <stage name='firstStage'>
+                     <jobs>
+                         <job name='jobName'/>
+                      </jobs>
+                  </stage>
+                </pipeline>
+                </pipelines>""").formatted(groupName);
     }
 }

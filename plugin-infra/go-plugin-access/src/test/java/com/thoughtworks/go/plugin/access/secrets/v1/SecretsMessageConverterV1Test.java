@@ -32,15 +32,16 @@ class SecretsMessageConverterV1Test {
             final String requestBody = new SecretsMessageConverterV1().lookupSecretsRequestBody(Sets.newLinkedHashSet(List.of("username", "password")), Map.of("FilePath", "/var/lib/secret.config"));
 
             JsonFluentAssert.assertThatJson(requestBody)
-                    .isEqualTo("{\n" +
-                            "  \"configuration\": {\n" +
-                            "    \"FilePath\": \"/var/lib/secret.config\"\n" +
-                            "  },\n" +
-                            "  \"keys\": [\n" +
-                            "    \"username\",\n" +
-                            "    \"password\"\n" +
-                            "  ]\n" +
-                            "}");
+                    .isEqualTo("""
+                            {
+                              "configuration": {
+                                "FilePath": "/var/lib/secret.config"
+                              },
+                              "keys": [
+                                "username",
+                                "password"
+                              ]
+                            }""");
         }
     }
 }

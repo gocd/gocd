@@ -136,9 +136,10 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @Test
     public void shouldBeInProgressUntilParsedWhenInvalid() throws Exception {
         configTestRepo.addCodeToRepositoryAndPush("bogus.gocd.xml", "added bad config file",
-                "<?xml ve\"?>\n"
-                        + "<cru>\n"
-                        + "</cruise>");
+                """
+                        <?xml ve"?>
+                        <cru>
+                        </cruise>""");
 
         materialUpdateService.updateMaterial(material);
 
@@ -299,17 +300,17 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()), is(true));
         assertThat(goConfigService.pipelineConfigNamed(pipelineConfig.name()), is(pipelineConfig));
 
-        configTestRepo.addCodeToRepositoryAndPush("badPipe.gocd.xml", "added bad config file", "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"38\">\n"
-                + "<pipelines group=\"changed\">\n"
-                + "  <pipeline name=\"badPipe\">\n"
-                + "    <materials>\n"
-                + "      <svn url=\"file:///tmp/foo\" />\n"
-                + "      <svn url=\"file:///tmp/foo\" />\n"
-                + "    </materials>\n"
-                + "  </pipeline>\n"
-                + "</pipelines>"
-                + "</cruise>");
+        configTestRepo.addCodeToRepositoryAndPush("badPipe.gocd.xml", "added bad config file", """
+                <?xml version="1.0" encoding="utf-8"?>
+                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="38">
+                <pipelines group="changed">
+                  <pipeline name="badPipe">
+                    <materials>
+                      <svn url="file:///tmp/foo" />
+                      <svn url="file:///tmp/foo" />
+                    </materials>
+                  </pipeline>
+                </pipelines></cruise>""");
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
         waitForMaterialNotInProgress();

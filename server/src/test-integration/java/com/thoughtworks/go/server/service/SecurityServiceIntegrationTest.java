@@ -399,67 +399,64 @@ public class SecurityServiceIntegrationTest {
         }
     }
 
-    private static final String CONFIG_WITH_2_GROUPS = "<cruise schemaVersion='16'>\n"
-        + "<server artifactsdir='artifacts' >"
-        + "<license user=\"Cruise team internal\">E+2WI6OuZ6hQ9wnNZGaiIQzGaLerbJR73qC+4OXlTDhC3Vafq8phXVPjFzUWXzpeBjcyytmQetqKG0TCKSoOhlDKdVrO982jHv7Gal6fz1kD0KbKoNnWo9vwqTEXndOfr+qoVr9KydLtyC3WdpDyjw7fPTBmB/eZmaTHKvZvJHHeYbKsvX8kZPYwhQT6oxbzwylqOPhJAiq6EKxS2S0jk1h0Uy5c07IiE4+y8PmwoElnfl3kpAARHMv40vfxamttp6IljBCuJ2fXQ0rXuukA/jIkv1i78A6dqL0Ii3RAIjRvglVHeI9HT9a0SyOR0eUMorFJJPDoqUnb1TVu/Ij3EQ==</license>\n"
-        + "    <security>\n"
-        + " <passwordFile path=\"/home/cruise/admins.properties\"/>\n"
-        + "      <roles>\n"
-        + "        <role name=\"simple\" >\n"
-        + "           <user>admin</user>\n"
-        + "           <user>pavan</user>\n"
-        + "        </role>\n"
-        + "      </roles>\n"
-        + "      <admins>\n"
-        + "           <user>raghu</user>\n"
-        + "           <user>jumble</user>\n"
-        + "      </admins>\n"
-        + "    </security>\n"
-        + "</server>\n"
-        + "<pipelines group=\"first\">\n"
-        + " <authorization>\n"
-        + "        <view>\n"
-        + "           <user>admin</user>\n"
-        + "        </view>\n"
-        + "    </authorization>"
-        + "<pipeline name='pipeline1'>\n"
-        + "    <materials>\n"
-        + "      <svn url =\"svnurl\"/>"
-        + "    </materials>\n"
-        + "  <stage name='mingle'>\n"
-        + "    <jobs>\n"
-        + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
-        + "    </jobs>\n"
-        + "  </stage>\n"
-        + "</pipeline>\n"
-        + "<pipeline name='pipeline2'>\n"
-        + "    <materials>\n"
-        + "      <svn url =\"svnurl\"/>"
-        + "    </materials>\n"
-        + "  <stage name='mingle'>\n"
-        + "    <jobs>\n"
-        + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
-        + "    </jobs>\n"
-        + "  </stage>\n"
-        + "</pipeline>\n"
-        + "</pipelines>\n"
-        + "<pipelines group='second'>\n"
-        + " <authorization>\n"
-        + "        <view>\n"
-        + "           <user>pavan</user>\n"
-        + "        </view>\n"
-        + "    </authorization>"
-        + "<pipeline name='pipeline3'>\n"
-
-        + "    <materials>\n"
-        + "      <svn url =\"svnurl\"/>"
-        + "    </materials>\n"
-        + "  <stage name='mingle'>\n"
-        + "    <jobs>\n"
-        + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
-        + "    </jobs>\n"
-        + "  </stage>\n"
-        + "</pipeline>\n"
-        + "</pipelines>\n"
-        + "</cruise>";
+    private static final String CONFIG_WITH_2_GROUPS = """
+            <cruise schemaVersion='16'>
+            <server artifactsdir='artifacts' ><license user="Cruise team internal">E+2WI6OuZ6hQ9wnNZGaiIQzGaLerbJR73qC+4OXlTDhC3Vafq8phXVPjFzUWXzpeBjcyytmQetqKG0TCKSoOhlDKdVrO982jHv7Gal6fz1kD0KbKoNnWo9vwqTEXndOfr+qoVr9KydLtyC3WdpDyjw7fPTBmB/eZmaTHKvZvJHHeYbKsvX8kZPYwhQT6oxbzwylqOPhJAiq6EKxS2S0jk1h0Uy5c07IiE4+y8PmwoElnfl3kpAARHMv40vfxamttp6IljBCuJ2fXQ0rXuukA/jIkv1i78A6dqL0Ii3RAIjRvglVHeI9HT9a0SyOR0eUMorFJJPDoqUnb1TVu/Ij3EQ==</license>
+                <security>
+             <passwordFile path="/home/cruise/admins.properties"/>
+                  <roles>
+                    <role name="simple" >
+                       <user>admin</user>
+                       <user>pavan</user>
+                    </role>
+                  </roles>
+                  <admins>
+                       <user>raghu</user>
+                       <user>jumble</user>
+                  </admins>
+                </security>
+            </server>
+            <pipelines group="first">
+             <authorization>
+                    <view>
+                       <user>admin</user>
+                    </view>
+                </authorization><pipeline name='pipeline1'>
+                <materials>
+                  <svn url ="svnurl"/>
+                </materials>
+              <stage name='mingle'>
+                <jobs>
+                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                </jobs>
+              </stage>
+            </pipeline>
+            <pipeline name='pipeline2'>
+                <materials>
+                  <svn url ="svnurl"/>
+                </materials>
+              <stage name='mingle'>
+                <jobs>
+                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                </jobs>
+              </stage>
+            </pipeline>
+            </pipelines>
+            <pipelines group='second'>
+             <authorization>
+                    <view>
+                       <user>pavan</user>
+                    </view>
+                </authorization><pipeline name='pipeline3'>
+                <materials>
+                  <svn url ="svnurl"/>
+                </materials>
+              <stage name='mingle'>
+                <jobs>
+                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                </jobs>
+              </stage>
+            </pipeline>
+            </pipelines>
+            </cruise>""";
 }

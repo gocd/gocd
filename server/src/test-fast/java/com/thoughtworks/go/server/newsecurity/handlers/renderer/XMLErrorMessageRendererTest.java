@@ -26,8 +26,10 @@ class XMLErrorMessageRendererTest {
     void shouldHandleRequest() {
         final XMLErrorMessageRenderer messageRenderer = new XMLErrorMessageRenderer(MediaType.APPLICATION_XML);
         assertThat(messageRenderer.getContentType()).isEqualTo(MediaType.APPLICATION_XML);
-        assertThat(messageRenderer.getFormattedMessage("You are not authorized to access this URL. Some<xml>!")).isEqualTo("<access-denied>\n" +
-                "  <message>You are not authorized to access this URL. Some&lt;xml&gt;!</message>\n" +
-                "</access-denied>\n");
+        assertThat(messageRenderer.getFormattedMessage("You are not authorized to access this URL. Some<xml>!")).isEqualTo("""
+                <access-denied>
+                  <message>You are not authorized to access this URL. Some&lt;xml&gt;!</message>
+                </access-denied>
+                """);
     }
 }

@@ -86,59 +86,61 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     @Test
     public void shouldContainPipelineConfig() {
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-            "  \"groups\": [\n" +
-            "    {\n" +
-            "      \"config\": {\n" +
-            "        \"stages\": [\n" +
-            "          {\n" +
-            "            \"name\": \"dev\",\n" +
-            "            \"isAutoApproved\": \"true\"\n" +
-            "          },\n" +
-            "          {\n" +
-            "            \"name\": \"ft\",\n" +
-            "            \"isAutoApproved\": \"false\"\n" +
-            "          }\n" +
-            "        ]\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}");
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "groups": [
+                    {
+                      "config": {
+                        "stages": [
+                          {
+                            "name": "dev",
+                            "isAutoApproved": "true"
+                          },
+                          {
+                            "name": "ft",
+                            "isAutoApproved": "false"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }""");
     }
 
     @Test
     public void shouldContainPipelineHistory() {
         Map json = presenter.toJson();
-        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-            "  \"groups\": [\n" +
-            "    {\n" +
-            "      \"history\": [\n" +
-            "        {\n" +
-            "          \"pipelineId\": 1,\n" +
-            "          \"stages\": [\n" +
-            "            {\n" +
-            "              \"stageStatus\": \"Passed\",\n" +
-            "              \"stageName\": \"dev\",\n" +
-            "              \"stageId\": 0,\n" +
-            "              \"approvedBy\": \"changes\",\n" +
-            "              \"getCanRun\": \"false\",\n" +
-            "              \"scheduled\": \"true\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"stageStatus\": \"Passed\",\n" +
-            "              \"stageName\": \"ft\",\n" +
-            "              \"stageId\": 0,\n" +
-            "              \"approvedBy\": \"lgao\",\n" +
-            "              \"getCanRun\": \"false\",\n" +
-            "              \"getCanCancel\": \"false\",\n" +
-            "              \"scheduled\": \"true\"\n" +
-            "            }\n" +
-            "          ]\n" +
-            "        }\n" +
-            "      ]\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}");
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "groups": [
+                    {
+                      "history": [
+                        {
+                          "pipelineId": 1,
+                          "stages": [
+                            {
+                              "stageStatus": "Passed",
+                              "stageName": "dev",
+                              "stageId": 0,
+                              "approvedBy": "changes",
+                              "getCanRun": "false",
+                              "scheduled": "true"
+                            },
+                            {
+                              "stageStatus": "Passed",
+                              "stageName": "ft",
+                              "stageId": 0,
+                              "approvedBy": "lgao",
+                              "getCanRun": "false",
+                              "getCanCancel": "false",
+                              "scheduled": "true"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }""");
     }
 
     @Test
@@ -148,37 +150,38 @@ public class PipelineHistoryJsonPresentationModelTest {
             pipelineConfig,
             pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
         Map json = presenter.toJson();
-        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-            "  \"groups\": [\n" +
-            "    {\n" +
-            "      \"history\": [\n" +
-            "        {\n" +
-            "          \"pipelineId\": 1,\n" +
-            "          \"stages\": [\n" +
-            "            {\n" +
-            "              \"stageStatus\": \"Cancelled\",\n" +
-            "              \"stageName\": \"dev\",\n" +
-            "              \"stageId\": 0,\n" +
-            "              \"approvedBy\": \"changes\",\n" +
-            "              \"getCanRun\": \"true\",\n" +
-            "              \"scheduled\": \"true\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"stageStatus\": \"Unknown\",\n" +
-            "              \"stageName\": \"ft\",\n" +
-            "              \"stageId\": 0,\n" +
-            "              \"approvedBy\": \"\",\n" +
-            "              \"getCanRun\": \"false\",\n" +
-            "              \"errorMessage\":\"Cannot schedule ft as the previous stage dev has Cancelled!\",\n" +
-            "              \"getCanCancel\": \"false\",\n" +
-            "              \"scheduled\": \"false\"\n" +
-            "            }\n" +
-            "          ]\n" +
-            "        }\n" +
-            "      ]\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}");
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "groups": [
+                    {
+                      "history": [
+                        {
+                          "pipelineId": 1,
+                          "stages": [
+                            {
+                              "stageStatus": "Cancelled",
+                              "stageName": "dev",
+                              "stageId": 0,
+                              "approvedBy": "changes",
+                              "getCanRun": "true",
+                              "scheduled": "true"
+                            },
+                            {
+                              "stageStatus": "Unknown",
+                              "stageName": "ft",
+                              "stageId": 0,
+                              "approvedBy": "",
+                              "getCanRun": "false",
+                              "errorMessage":"Cannot schedule ft as the previous stage dev has Cancelled!",
+                              "getCanCancel": "false",
+                              "scheduled": "false"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }""");
     }
 
     @Test
@@ -186,30 +189,32 @@ public class PipelineHistoryJsonPresentationModelTest {
         Map json = presenter.toJson();
         assertThatJson(new Gson().toJson(json))
             .when(IGNORING_EXTRA_FIELDS)
-            .isEqualTo("{\n" +
-                "  \"groups\": [\n" +
-                "    {\n" +
-                "      \"history\": [\n" +
-                "        {\n" +
-                "          \"pipelineId\": 1,\n" +
-                "          \"comment\": \"build comment\"\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}");
+            .isEqualTo("""
+                    {
+                      "groups": [
+                        {
+                          "history": [
+                            {
+                              "pipelineId": 1,
+                              "comment": "build comment"
+                            }
+                          ]
+                        }
+                      ]
+                    }""");
 
     }
 
     @Test
     public void shouldContainPipelinePageInfo() {
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-            "  \"pipelineName\": \"mingle\",\n" +
-            "  \"count\": 1,\n" +
-            "  \"canForce\": \"false\",\n" +
-            "  \"start\": 1,\n" +
-            "  \"perPage\": 10\n" +
-            "}");
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "pipelineName": "mingle",
+                  "count": 1,
+                  "canForce": "false",
+                  "start": 1,
+                  "perPage": 10
+                }""");
     }
 
     @Test
@@ -248,15 +253,18 @@ public class PipelineHistoryJsonPresentationModelTest {
         pipelinePauseInfo.setPauseCause("pauseCause");
         pipelinePauseInfo.setPauseBy("pauseBy");
 
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-                "  \"paused\": \"true\"\n" +
-                "}");
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-                "  \"pauseCause\": \"pauseCause\"\n" +
-                "}");
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-                "  \"pauseBy\": \"pauseBy\"\n" +
-                "}");
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "paused": "true"
+                }""");
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "pauseCause": "pauseCause"
+                }""");
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "pauseBy": "pauseBy"
+                }""");
     }
 
     @Test
@@ -267,38 +275,39 @@ public class PipelineHistoryJsonPresentationModelTest {
                 historyGroups,
                 newConfig,
                 pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-                "  \"groups\": [\n" +
-                "    {\n" +
-                "      \"config\": {\n" +
-                "        \"stages\": [\n" +
-                "          {\n" +
-                "            \"name\": \"stage1\",\n" +
-                "            \"isAutoApproved\": \"true\"\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"name\": \"stage2\",\n" +
-                "            \"isAutoApproved\": \"true\"\n" +
-                "          }\n" +
-                "        ]\n" +
-                "      }\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"config\": {\n" +
-                "        \"stages\": [\n" +
-                "          {\n" +
-                "            \"name\": \"dev\",\n" +
-                "            \"isAutoApproved\": \"true\"\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"name\": \"ft\",\n" +
-                "            \"isAutoApproved\": \"false\"\n" +
-                "          }\n" +
-                "        ]\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}");
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "groups": [
+                    {
+                      "config": {
+                        "stages": [
+                          {
+                            "name": "stage1",
+                            "isAutoApproved": "true"
+                          },
+                          {
+                            "name": "stage2",
+                            "isAutoApproved": "true"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "config": {
+                        "stages": [
+                          {
+                            "name": "dev",
+                            "isAutoApproved": "true"
+                          },
+                          {
+                            "name": "ft",
+                            "isAutoApproved": "false"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }""");
     }
 
     @Test

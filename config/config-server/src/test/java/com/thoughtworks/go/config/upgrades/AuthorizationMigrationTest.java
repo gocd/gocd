@@ -29,50 +29,52 @@ import static org.hamcrest.Matchers.is;
 // test for 14.xsl
 public class AuthorizationMigrationTest {
 
-    private static final String OLD_AUTH = "          <auth>\n"
-            + "            <role>admin</role>\n"
-            + "            <role>qa_lead</role>\n"
-            + "            <user>jez</user>\n"
-            + "          </auth>\n";
-    private static final String NEW_AUTHORIZATION = "          <authorization>\n"
-            + "            <role>admin</role>\n"
-            + "            <role>qa_lead</role>\n"
-            + "            <user>jez</user>\n"
-            + "          </authorization>\n";
+    private static final String OLD_AUTH = """
+                      <auth>
+                        <role>admin</role>
+                        <role>qa_lead</role>
+                        <user>jez</user>
+                      </auth>
+            """;
+    private static final String NEW_AUTHORIZATION = """
+                      <authorization>
+                        <role>admin</role>
+                        <role>qa_lead</role>
+                        <user>jez</user>
+                      </authorization>
+            """;
 
-    private static final String CONFIG_WITH_AUTH = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-            + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-            + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"13\">\n"
-            + "  <server artifactsdir=\"other-artifacts\">\n"
-            + "    <security>\n"
-            + "      <roles>\n"
-            + "        <role name=\"admin\" />\n"
-            + "        <role name=\"qa_lead\" />\n"
-            + "      </roles>\n"
-            + "    </security>\n"
-            + "  </server>\n"
-            + "  <pipelines group=\"defaultGroup\">\n"
-            + "    <pipeline name=\"pipeline1\" labeltemplate=\"alpha.${COUNT}\">\n"
-            + "       <materials>\n"
-            + "         <svn url=\"foobar\" checkexternals=\"true\" />\n"
-            + "       </materials>\n"
-            + "      <stage name=\"stage1\">\n"
-            + "       <approval type=\"manual\">\n"
-            + OLD_AUTH
-            + "       </approval>\n"
-            + "       <jobs>\n"
-            + "         <job name=\"functional\">\n"
-            + "           <artifacts>\n"
-            + "             <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-            + "           </artifacts>\n"
-            + "         </job>\n"
-            + "         <job name=\"unit\">\n"
-            + "         </job>\n"
-            + "        </jobs>\n"
-            + "      </stage>\n"
-            + "    </pipeline>\n"
-            + "  </pipelines>\n"
-            + "</cruise>";
+    private static final String CONFIG_WITH_AUTH = ("""
+            <?xml version="1.0" encoding="utf-8"?><cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="13">
+              <server artifactsdir="other-artifacts">
+                <security>
+                  <roles>
+                    <role name="admin" />
+                    <role name="qa_lead" />
+                  </roles>
+                </security>
+              </server>
+              <pipelines group="defaultGroup">
+                <pipeline name="pipeline1" labeltemplate="alpha.${COUNT}">
+                   <materials>
+                     <svn url="foobar" checkexternals="true" />
+                   </materials>
+                  <stage name="stage1">
+                   <approval type="manual">
+            %s       </approval>
+                   <jobs>
+                     <job name="functional">
+                       <artifacts>
+                         <log src="artifact1.xml" dest="cruise-output" />
+                       </artifacts>
+                     </job>
+                     <job name="unit">
+                     </job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+              </pipelines>
+            </cruise>""").formatted(OLD_AUTH);
 
     @Test
     public void shouldMigrateAuthToAuthorization() throws Exception {

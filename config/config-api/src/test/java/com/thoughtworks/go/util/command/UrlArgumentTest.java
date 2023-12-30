@@ -249,28 +249,29 @@ class UrlArgumentTest {
 
         @Test
         void shouldReplaceAllThePasswordsInSvnInfo() {
-            String output = "<?xml version=\"1.0\"?>\n"
-                    + "<info>\n"
-                    + "<entry\n"
-                    + "   kind=\"dir\"\n"
-                    + "   path=\".\"\n"
-                    + "   revision=\"294\">\n"
-                    + "<url>http://cce:password@10.18.3.171:8080/svn/connect4/trunk</url>\n"
-                    + "<repository>\n"
-                    + "<root>http://cce:password@10.18.3.171:8080/svn/connect4</root>\n"
-                    + "<uuid>b7cc39fa-2f96-0d44-9079-2001927d4b22</uuid>\n"
-                    + "</repository>\n"
-                    + "<wc-info>\n"
-                    + "<schedule>normal</schedule>\n"
-                    + "<depth>infinity</depth>\n"
-                    + "</wc-info>\n"
-                    + "<commit\n"
-                    + "   revision=\"294\">\n"
-                    + "<author>cce</author>\n"
-                    + "<date>2009-06-09T06:13:05.109375Z</date>\n"
-                    + "</commit>\n"
-                    + "</entry>\n"
-                    + "</info>";
+            String output = """
+                    <?xml version="1.0"?>
+                    <info>
+                    <entry
+                       kind="dir"
+                       path="."
+                       revision="294">
+                    <url>http://cce:password@10.18.3.171:8080/svn/connect4/trunk</url>
+                    <repository>
+                    <root>http://cce:password@10.18.3.171:8080/svn/connect4</root>
+                    <uuid>b7cc39fa-2f96-0d44-9079-2001927d4b22</uuid>
+                    </repository>
+                    <wc-info>
+                    <schedule>normal</schedule>
+                    <depth>infinity</depth>
+                    </wc-info>
+                    <commit
+                       revision="294">
+                    <author>cce</author>
+                    <date>2009-06-09T06:13:05.109375Z</date>
+                    </commit>
+                    </entry>
+                    </info>""";
 
             UrlArgument url = new UrlArgument("http://cce:password@10.18.3.171:8080/svn/connect4/trunk");
             String result = url.replaceSecretInfo(output);

@@ -710,15 +710,16 @@ public class GitCommandTest {
             assertEquals("46cceff864c830bbeab0a7aaa31707ae2302762f", mod.getRevision());
             assertEquals(DateUtils.parseISO8601("2009-08-11 12:37:09 -0700"), mod.getModifiedTime());
             assertEquals("Cruise Developer <cruise@cruise-sf3.(none)>", mod.getUserDisplayName());
-            final String expected = "author:cruise <cceuser@CceDev01.(none)>\n"
-                    + "node:ecfab84dd4953105e3301c5992528c2d381c1b8a\n"
-                    + "date:2008-12-31 14:32:40 +0800\n"
-                    + "description:Moving rakefile to build subdirectory for #2266\n"
-                    + "\n"
-                    + "author:CceUser <cceuser@CceDev01.(none)>\n"
-                    + "node:fd16efeb70fcdbe63338c49995ce9ff7659e6e77\n"
-                    + "date:2008-12-31 14:17:06 +0800\n"
-                    + "description:Adding rakefile";
+            final String expected = """
+                    author:cruise <cceuser@CceDev01.(none)>
+                    node:ecfab84dd4953105e3301c5992528c2d381c1b8a
+                    date:2008-12-31 14:32:40 +0800
+                    description:Moving rakefile to build subdirectory for #2266
+
+                    author:CceUser <cceuser@CceDev01.(none)>
+                    node:fd16efeb70fcdbe63338c49995ce9ff7659e6e77
+                    date:2008-12-31 14:17:06 +0800
+                    description:Adding rakefile""";
             assertEquals(expected, mod.getComment());
         }
 

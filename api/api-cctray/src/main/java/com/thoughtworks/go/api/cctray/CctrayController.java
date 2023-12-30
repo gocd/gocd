@@ -37,9 +37,10 @@ import static spark.Spark.*;
 @Component
 public class CctrayController implements SparkSpringController, SparkController {
 
-    private static final String ACCESS_DENIED_XML_RESPONSE = "<access-denied>\n" +
-            "  <message>You are not authenticated!</message>\n" +
-            "</access-denied>";
+    private static final String ACCESS_DENIED_XML_RESPONSE = """
+            <access-denied>
+              <message>You are not authenticated!</message>
+            </access-denied>""";
 
     private final SecurityService securityService;
     private final CcTrayService ccTrayService;

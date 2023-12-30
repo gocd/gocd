@@ -74,11 +74,12 @@ public class ArtifactMessageConverterV2Test {
     public void publishArtifactResponse_shouldDeserializeFromJson() {
         final ArtifactMessageConverterV2 converter = new ArtifactMessageConverterV2();
 
-        final PublishArtifactResponse response = converter.publishArtifactResponse("{\n" +
-                "  \"metadata\": {\n" +
-                "    \"artifact-version\": \"10.12.0\"\n" +
-                "  }\n" +
-                "}");
+        final PublishArtifactResponse response = converter.publishArtifactResponse("""
+                {
+                  "metadata": {
+                    "artifact-version": "10.12.0"
+                  }
+                }""");
 
 
         MatcherAssert.assertThat(response.getMetadata().size(), is(1));
@@ -117,18 +118,19 @@ public class ArtifactMessageConverterV2Test {
 
         final String fetchArtifactMessage = converter.fetchArtifactMessage(artifactStore, pluggableArtifactTask.getConfiguration(), metadata, "/temp");
 
-        final String expectedStr = "{\n" +
-                "  \"artifact_metadata\": {\n" +
-                "    \"Version\": \"10.12.0\"\n" +
-                "  },\n" +
-                "  \"store_configuration\": {\n" +
-                "    \"Foo\": \"Bar\"\n" +
-                "  },\n" +
-                "  \"fetch_artifact_configuration\": {\n" +
-                "      \"Filename\": \"build/libs/foo.jar\"\n" +
-                "    },\n" +
-                "  \"agent_working_directory\": \"/temp\"\n" +
-                "}";
+        final String expectedStr = """
+                {
+                  "artifact_metadata": {
+                    "Version": "10.12.0"
+                  },
+                  "store_configuration": {
+                    "Foo": "Bar"
+                  },
+                  "fetch_artifact_configuration": {
+                      "Filename": "build/libs/foo.jar"
+                    },
+                  "agent_working_directory": "/temp"
+                }""";
 
         assertThatJson(expectedStr).isEqualTo(fetchArtifactMessage);
     }

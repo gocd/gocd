@@ -539,12 +539,13 @@ class ElasticAgentPluginServiceTest {
 
             verifyNoInteractions(createAgentQueue);
             verify(scheduleService).cancelJob(jobPlan.getIdentifier());
-            verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), "\n" +
-                    "This job was cancelled by GoCD. The version of your GoCD server requires elastic profiles to be associated with a cluster(required from Version 19.3.0). This job is configured to run on an Elastic Agent, but the associated elastic profile does not have information about the cluster.  \n" +
-                    "\n" +
-                    "The possible reason for the missing cluster information on the elastic profile could be, an upgrade of the GoCD server to a version >= 19.3.0 before the completion of the job.\n" +
-                    "\n" +
-                    "A re-run of this job should fix this issue.");
+            verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), """
+
+                    This job was cancelled by GoCD. The version of your GoCD server requires elastic profiles to be associated with a cluster(required from Version 19.3.0). This job is configured to run on an Elastic Agent, but the associated elastic profile does not have information about the cluster. \s
+
+                    The possible reason for the missing cluster information on the elastic profile could be, an upgrade of the GoCD server to a version >= 19.3.0 before the completion of the job.
+
+                    A re-run of this job should fix this issue.""");
         }
     }
 

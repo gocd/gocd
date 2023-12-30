@@ -205,47 +205,45 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteConfigWithTemplates() throws Exception {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "     <artifacts>" +
-                "           <artifactsDir>artifactsDir</artifactsDir> " +
-                "       </artifacts>"
-                + "</server>"
-                + "<pipelines>\n"
-                + "<pipeline name='pipeline1' template='abc'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "</pipeline>\n"
-                + "<pipeline name='pipeline2'>\n"
-                + "    <materials>\n"
-                + "      <pipeline pipelineName='pipeline1' stageName='stage1'/>"
-                + "    </materials>\n"
-                + "    <stage name='badstage'>"
-                + "      <jobs>"
-                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "<templates>\n"
-                + "  <pipeline name='abc'>\n"
-                + "    <stage name='stage1'>"
-                + "      <jobs>"
-                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>\n"
-                + "</templates>\n"
-                + "</cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server>
+                     <artifacts>
+                           <artifactsDir>artifactsDir</artifactsDir>
+                     </artifacts>
+                </server>
+                <pipelines>
+                <pipeline name='pipeline1' template='abc'>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                </pipeline>
+                <pipeline name='pipeline2'>
+                    <materials>
+                      <pipeline pipelineName='pipeline1' stageName='stage1'/>
+                    </materials>
+                    <stage name='badstage'>
+                      <jobs>
+                        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      </jobs>
+                    </stage>
+                </pipeline>
+                </pipelines>
+                <templates>
+                  <pipeline name='abc'>
+                    <stage name='stage1'>
+                      <jobs>
+                        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </templates>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
         xmlWriter.write(config, output, false);
         assertThat(output.toString().replaceAll("\\s+", " "), containsString(
-                "<pipeline name=\"pipeline1\" template=\"abc\">"
-                        + " <materials>"
-                        + " <svn url=\"svnurl\" />"
-                        + " </materials>"
-                        + " </pipeline>"));
+            """
+                <pipeline name="pipeline1" template="abc"> <materials> <svn url="svnurl" /> </materials> </pipeline>"""));
     }
 
     @Test
@@ -257,62 +255,65 @@ public class MagicalGoConfigXmlWriterTest {
         JobConfig build = stageConfig.jobConfigByInstanceName("functional", true);
 
         assertThat(xmlWriter.toXmlPartial(pipelineConfig), is(
-                "<pipeline name=\"pipeline1\">\n"
-                        + "  <materials>\n"
-                        + "    <svn url=\"foobar\" checkexternals=\"true\" />\n"
-                        + "  </materials>\n"
-                        + "  <stage name=\"stage\">\n"
-                        + "    <jobs>\n"
-                        + "      <job name=\"functional\">\n"
-                        + "        <tasks>\n"
-                        + "          <ant />\n"
-                        + "        </tasks>\n"
-                        + "        <artifacts>\n"
-                        + "          <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "        </artifacts>\n"
-                        + "      </job>\n"
-                        + "    </jobs>\n"
-                        + "  </stage>\n"
-                        + "</pipeline>"
+                """
+                        <pipeline name="pipeline1">
+                          <materials>
+                            <svn url="foobar" checkexternals="true" />
+                          </materials>
+                          <stage name="stage">
+                            <jobs>
+                              <job name="functional">
+                                <tasks>
+                                  <ant />
+                                </tasks>
+                                <artifacts>
+                                  <artifact type="build" src="artifact1.xml" dest="cruise-output" />
+                                </artifacts>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>"""
         ));
 
         assertThat(xmlWriter.toXmlPartial(stageConfig), is(
-                "<stage name=\"stage\">\n"
-                        + "  <jobs>\n"
-                        + "    <job name=\"functional\">\n"
-                        + "      <tasks>\n"
-                        + "        <ant />\n"
-                        + "      </tasks>\n"
-                        + "      <artifacts>\n"
-                        + "        <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "      </artifacts>\n"
-                        + "    </job>\n"
-                        + "  </jobs>\n"
-                        + "</stage>"
+                """
+                        <stage name="stage">
+                          <jobs>
+                            <job name="functional">
+                              <tasks>
+                                <ant />
+                              </tasks>
+                              <artifacts>
+                                <artifact type="build" src="artifact1.xml" dest="cruise-output" />
+                              </artifacts>
+                            </job>
+                          </jobs>
+                        </stage>"""
         ));
 
         assertThat(xmlWriter.toXmlPartial(build), is(
-                "<job name=\"functional\">\n"
-                        + "  <tasks>\n"
-                        + "    <ant />\n"
-                        + "  </tasks>\n"
-                        + "  <artifacts>\n"
-                        + "    <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "  </artifacts>\n"
-                        + "</job>"
+                """
+                        <job name="functional">
+                          <tasks>
+                            <ant />
+                          </tasks>
+                          <artifacts>
+                            <artifact type="build" src="artifact1.xml" dest="cruise-output" />
+                          </artifacts>
+                        </job>"""
         ));
-
     }
 
     @Test
     public void shouldWriteEmptyOnCancelTaskWhenDefined() throws Exception {
-        String partial = "<job name=\"functional\">\n"
-                + "  <tasks>\n"
-                + "    <exec command=\"echo\">\n"
-                + "      <oncancel />\n"
-                + "    </exec>\n"
-                + "  </tasks>\n"
-                + "</job>";
+        String partial = """
+                <job name="functional">
+                  <tasks>
+                    <exec command="echo">
+                      <oncancel />
+                    </exec>
+                  </tasks>
+                </job>""";
         JobConfig jobConfig = xmlLoader.fromXmlPartial(partial, JobConfig.class);
         assertThat(xmlWriter.toXmlPartial(jobConfig), is(partial));
     }
@@ -349,30 +350,31 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldEncryptPasswordBeforeWriting(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "     <artifacts>" +
-                "           <artifactsDir>artifactsDir</artifactsDir> " +
-                "       </artifacts>"
-                + "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" password=\"password\" tls=\"false\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"
-                + "</server>"
-                + "<pipelines>\n"
-                + "<pipeline name='pipeline1' template='abc'>\n"
-                + "    <materials>\n"
-                + "      <svn url ='svnurl' username='foo' password='password'/>"
-                + "    </materials>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "<templates>\n"
-                + "  <pipeline name='abc'>\n"
-                + "    <stage name='stage1'>"
-                + "      <jobs>"
-                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>\n"
-                + "</templates>\n"
-                + "</cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server>
+                    <artifacts>
+                        <artifactsDir>artifactsDir</artifactsDir>
+                    </artifacts>
+                    <mailhost hostname="10.18.3.171" port="25" username="cruise2" password="password" tls="false" from="cruise2@cruise.com" admin="ps@somewhere.com" />
+                </server>
+                <pipelines>
+                <pipeline name='pipeline1' template='abc'>
+                    <materials>
+                      <svn url ='svnurl' username='foo' password='password'/>
+                    </materials>
+                </pipeline>
+                </pipelines>
+                <templates>
+                  <pipeline name='abc'>
+                    <stage name='stage1'>
+                      <jobs>
+                        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </templates>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
         xmlWriter.write(config, output, false);
         assertThat(output.toString().replaceAll("\\s+", " "), containsString(
@@ -392,11 +394,10 @@ public class MagicalGoConfigXmlWriterTest {
                 P4MaterialConfig.VIEW, "//depot/dir1/... //lumberjack/...",
                 P4MaterialConfig.AUTO_UPDATE, "true"));
         assertThat(xmlWriter.toXmlPartial(p4MaterialConfig), is(
-                "<p4 port=\"localhost:1666\" username=\"cruise\" encryptedPassword=\"" + encryptedPassword + "\">\n"
-                        + "  <view><![CDATA["
-                        + "//depot/dir1/... //lumberjack/..."
-                        + "]]></view>\n"
-                        + "</p4>"));
+                ("""
+                        <p4 port="localhost:1666" username="cruise" encryptedPassword="%s">
+                          <view><![CDATA[//depot/dir1/... //lumberjack/...]]></view>
+                        </p4>""").formatted(encryptedPassword)));
     }
 
     @Test
@@ -422,18 +423,21 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWritePipelineGroupAdmins() throws Exception {
-        String content = ConfigFileFixture.configWithPipelines("<pipelines group=\"first\">\n"
-                + "<authorization>"
-                + "     <admins>\n"
-                + "         <user>foo</user>\n"
-                + "      </admins>"
-                + "</authorization>"
-                + "<pipeline name='pipeline1'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n<stage name='stage'><jobs><job name='job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job></jobs></stage>"
-                + "</pipeline>\n"
-                + "</pipelines>\n", CONFIG_SCHEMA_VERSION);
+        String content = ConfigFileFixture.configWithPipelines("""
+                <pipelines group="first">
+                <authorization>
+                     <admins>
+                         <user>foo</user>
+                      </admins>
+                </authorization>
+                <pipeline name='pipeline1'>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                <stage name='stage'><jobs><job name='job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job></jobs></stage>
+                </pipeline>
+                </pipelines>
+                """, CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         xmlWriter.write(cruiseConfig, out, false);
@@ -443,31 +447,31 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldAllowParamsInsidePipeline() throws Exception {
-        String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "     <artifacts>" +
-                "           <artifactsDir>artifactsDir</artifactsDir> " +
-                "       </artifacts>"
-                + "</server>"
-                + "<pipelines>\n"
-                + "<pipeline name='framework'>\n"
-                + "    <params>\n"
-                + "      <param name='first'>foo</param>\n"
-                + "      <param name='second'>bar</param>\n"
-                + "    </params>"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "  <stage name='dist' fetchMaterials='true'>\n"
-                + "    <jobs>\n"
-                + "      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
-                + "    </jobs>\n"
-                + "  </stage>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "</cruise>";
+        String content = ("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
+                <server>
+                     <artifacts>
+                           <artifactsDir>artifactsDir</artifactsDir>
+                      </artifacts>
+                </server>
+                <pipelines>
+                <pipeline name='framework'>
+                    <params>
+                      <param name='first'>foo</param>
+                      <param name='second'>bar</param>
+                    </params>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                  <stage name='dist' fetchMaterials='true'>
+                    <jobs>
+                      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+                </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework"));
@@ -485,27 +489,27 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteFetchMaterialsFlagToStage() throws Exception {
-        String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "     <artifacts>" +
-                "           <artifactsDir>artifactsDir</artifactsDir> " +
-                "       </artifacts>"
-                + "</server>"
-                + "<pipelines>\n"
-                + "<pipeline name='framework'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "  <stage name='dist' fetchMaterials='true'>\n"
-                + "    <jobs>\n"
-                + "      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
-                + "    </jobs>\n"
-                + "  </stage>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "</cruise>";
+        String content = ("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
+                <server>
+                     <artifacts>
+                           <artifactsDir>artifactsDir</artifactsDir>
+                     </artifacts>
+                </server>
+                <pipelines>
+                <pipeline name='framework'>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                  <stage name='dist' fetchMaterials='true'>
+                    <jobs>
+                      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+                </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).get(0);
@@ -518,27 +522,27 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteCleanWorkingDirFlagToStage() throws Exception {
-        String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "     <artifacts>" +
-                "           <artifactsDir>artifactsDir</artifactsDir> " +
-                "       </artifacts>"
-                + "</server>"
-                + "<pipelines>\n"
-                + "<pipeline name='framework'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "  <stage name='dist' cleanWorkingDir='false'>\n"
-                + "    <jobs>\n"
-                + "      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
-                + "    </jobs>\n"
-                + "  </stage>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "</cruise>";
+        String content = ("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
+                <server>
+                     <artifacts>
+                           <artifactsDir>artifactsDir</artifactsDir>
+                     </artifacts>
+                </server>
+                <pipelines>
+                <pipeline name='framework'>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                  <stage name='dist' cleanWorkingDir='false'>
+                    <jobs>
+                      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+                </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         xmlWriter.write(cruiseConfig, out, false);
@@ -552,26 +556,27 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteArtifactPurgeSettings() throws Exception {
-        String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "     <artifacts>" +
-                "           <artifactsDir>other-artifacts</artifactsDir> " +
-                "       </artifacts>"
-                + "</server>"
-                + "<pipelines>\n"
-                + "<pipeline name='framework'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "  <stage name='dist'>\n"
-                + "    <jobs>\n"
-                + "      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
-                + "    </jobs>\n"
-                + "  </stage>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "</cruise>";
+        String content = ("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
+                <server>
+                     <artifacts>
+                           <artifactsDir>other-artifacts</artifactsDir>
+                     </artifacts>
+                </server>
+                <pipelines>
+                <pipeline name='framework'>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                  <stage name='dist'>
+                    <jobs>
+                      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+                </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).get(0);

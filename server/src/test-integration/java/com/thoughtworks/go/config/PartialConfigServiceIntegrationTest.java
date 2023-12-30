@@ -284,12 +284,13 @@ public class PartialConfigServiceIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(false));
         ServerHealthState healthStateForInvalidConfigMerge = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0);
         assertThat(healthStateForInvalidConfigMerge.getMessage(), is("Invalid Merged Configuration"));
-        assertThat(healthStateForInvalidConfigMerge.getDescription(), is("Number of errors: 1+\n" +
-                "I. Rule Validation Errors: \n" +
-                "\t1. Not allowed to refer to pipeline group 'group'. Check the 'Rules' of this config repository.\n" +
-                "\n" +
-                "II. Config Validation Errors: \n" +
-                "- For Config Repo: url1 at revision 1"));
+        assertThat(healthStateForInvalidConfigMerge.getDescription(), is("""
+                Number of errors: 1+
+                I. Rule Validation Errors:\s
+                \t1. Not allowed to refer to pipeline group 'group'. Check the 'Rules' of this config repository.
+
+                II. Config Validation Errors:\s
+                - For Config Repo: url1 at revision 1"""));
         assertThat(healthStateForInvalidConfigMerge.getLogLevel(), is(HealthStateLevel.ERROR));
 
         cachedGoPartials.clear();
@@ -311,12 +312,13 @@ public class PartialConfigServiceIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(false));
         ServerHealthState healthStateForInvalidConfigMerge = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0);
         assertThat(healthStateForInvalidConfigMerge.getMessage(), is("Invalid Merged Configuration"));
-        assertThat(healthStateForInvalidConfigMerge.getDescription(), is("Number of errors: 1+\n" +
-                "I. Rule Validation Errors: \n" +
-                "\t1. Not allowed to refer to pipeline group 'group'. Check the 'Rules' of this config repository.\n" +
-                "\n" +
-                "II. Config Validation Errors: \n" +
-                "- For Config Repo: url1 at revision 1"));
+        assertThat(healthStateForInvalidConfigMerge.getDescription(), is("""
+                Number of errors: 1+
+                I. Rule Validation Errors:\s
+                \t1. Not allowed to refer to pipeline group 'group'. Check the 'Rules' of this config repository.
+
+                II. Config Validation Errors:\s
+                - For Config Repo: url1 at revision 1"""));
         assertThat(healthStateForInvalidConfigMerge.getLogLevel(), is(HealthStateLevel.ERROR));
 
         repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");

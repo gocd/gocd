@@ -116,10 +116,11 @@ public class CcTrayServiceTest {
         String xml = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), etag -> {
         }).toString();
 
-        assertThat(xml).isEqualTo("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<Projects>\n" +
-                "  <Project name=\"proj1\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"" + "prefix1" + "/web-url\" />\n" +
-                "</Projects>");
+        assertThat(xml).isEqualTo("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <Projects>
+                  <Project name="proj1" activity="activity1" lastBuildStatus="build-status-1" lastBuildLabel="build-label-1" lastBuildTime="2010-05-23T08:00:00Z" webUrl="prefix1/web-url" />
+                </Projects>""");
     }
 
     @Test

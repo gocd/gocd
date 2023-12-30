@@ -44,18 +44,18 @@ public class EmailMessageDrafter {
                     + docsUrl("/installation/configuring_server_details.html") + "\n";
 
     private static final String LOW_DATABASE_DISK_SPACE_EMAIL =
-            "The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
-                    + "\n"
-                    + "This server has less than %sMb of disk space available at %s to store data. "
-                    + "When the available space goes below %sMb, Go will stop scheduling. "
-                    + "Please ensure enough space is available.\n";
+            """
+                    The email has been sent out automatically by the Go server at (%s) to Go administrators.
+
+                    This server has less than %sMb of disk space available at %s to store data. When the available space goes below %sMb, Go will stop scheduling. Please ensure enough space is available.
+                    """;
 
     private static final String NO_DATABASE_DISK_SPACE_EMAIL =
-            "The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
-                    + "\n"
-                    + "This server has stopped scheduling "
-                    + "because it has less than %sMb of disk space available at %s to store data. "
-                    + "Please ensure enough space is available.\n";
+            """
+                    The email has been sent out automatically by the Go server at (%s) to Go administrators.
+
+                    This server has stopped scheduling because it has less than %sMb of disk space available at %s to store data. Please ensure enough space is available.
+                    """;
 
     public static SendEmailMessage lowArtifactsDiskSpaceMessage(SystemEnvironment systemEnvironment, String adminMail,
                                                                 String targetFolder) {
@@ -109,19 +109,20 @@ public class EmailMessageDrafter {
     public static SendEmailMessage agentLostContact(AgentInstance agentInstance, Set<String> environments, final String adminEmail) {
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         return new SendEmailMessage(String.format("[Lost Contact] Go agent host: %s", agentInstance.getHostname()),
-                String.format("The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
-                        + "\n"
-                        + "The Go server has lost contact with agent:\n"
-                        + "\n"
-                        + "Agent name: %s\n"
-                        + "Free Space: %s\n"
-                        + "Sandbox: %s\n"
-                        + "IP Address: %s\n"
-                        + "OS: %s\n"
-                        + "Resources: %s\n"
-                        + "Environments: %s\n"
-                        + "\n"
-                        + "Lost contact at: %s",
+                String.format("""
+                                The email has been sent out automatically by the Go server at (%s) to Go administrators.
+
+                                The Go server has lost contact with agent:
+
+                                Agent name: %s
+                                Free Space: %s
+                                Sandbox: %s
+                                IP Address: %s
+                                OS: %s
+                                Resources: %s
+                                Environments: %s
+
+                                Lost contact at: %s""",
                         ipAddress,
                         agentInstance.getHostname(),
                         agentInstance.freeDiskSpace(),

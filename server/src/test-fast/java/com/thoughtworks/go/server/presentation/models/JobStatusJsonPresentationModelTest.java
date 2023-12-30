@@ -47,12 +47,13 @@ public class JobStatusJsonPresentationModelTest {
                 agent, mock(DurationBean.class));
         Map<String, Object> json = presenter.toJsonHash();
 
-        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-                "  \"name\": \"test\",\n" +
-                "  \"id\": \"12\",\n" +
-                "  \"agent\": \"localhost\",\n" +
-                "  \"current_status\": \"assigned\"\n" +
-                "}");
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "name": "test",
+                  "id": "12",
+                  "agent": "localhost",
+                  "current_status": "assigned"
+                }""");
     }
 
     @Test
@@ -62,10 +63,11 @@ public class JobStatusJsonPresentationModelTest {
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
         Map<String, Object> json = presenter.toJsonHash();
 
-        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-                "  \"name\": \"test\",\n" +
-                "  \"current_status\": \"passed\"\n" +
-                "}");
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "name": "test",
+                  "current_status": "passed"
+                }""");
     }
 
     @Test
@@ -76,12 +78,13 @@ public class JobStatusJsonPresentationModelTest {
                 new DurationBean(instance.getId(), 10L));
         Map<String, Object> json = presenter.toJsonHash();
 
-        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-                "  \"name\": \"test\",\n" +
-                "  \"current_status\": \"building\",\n" +
-                "  \"current_build_duration\": \"5\",\n" +
-                "  \"last_build_duration\": \"10\"\n" +
-                "}");
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "name": "test",
+                  "current_status": "building",
+                  "current_build_duration": "5",
+                  "last_build_duration": "10"
+                }""");
     }
 
     @Test
@@ -104,9 +107,10 @@ public class JobStatusJsonPresentationModelTest {
         JobStatusJsonPresentationModel presenter =
                 new JobStatusJsonPresentationModel(instance,
                         new Agent("1234", "localhost", "address", "cookie"), mock(DurationBean.class));
-        assertThatJson(new Gson().toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-                "  \"agent\": \"localhost\"\n" +
-                "}");
+        assertThatJson(new Gson().toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+                {
+                  "agent": "localhost"
+                }""");
     }
 
     @Test

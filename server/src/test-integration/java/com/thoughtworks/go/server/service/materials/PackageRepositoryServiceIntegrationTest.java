@@ -72,16 +72,16 @@ public class PackageRepositoryServiceIntegrationTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        String content = ConfigFileFixture.configWithSecurity("<security>\n" +
-                "      <authConfigs>\n" +
-                "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
-                "          <property>\n" +
-                "            <key>PasswordFilePath</key>\n" +
-                "            <value>../manual-testing/ant_hg/password.properties</value>\n" +
-                "          </property>\n" +
-                "        </authConfig>\n" +
-                "      </authConfigs>" +
-                "</security>");
+        String content = ConfigFileFixture.configWithSecurity("""
+                <security>
+                      <authConfigs>
+                        <authConfig id="9cad79b0-4d9e-4a62-829c-eb4d9488062f" pluginId="cd.go.authentication.passwordfile">
+                          <property>
+                            <key>PasswordFilePath</key>
+                            <value>../manual-testing/ant_hg/password.properties</value>
+                          </property>
+                        </authConfig>
+                      </authConfigs></security>""");
 
         configHelper = new GoConfigFileHelper(content);
         configHelper.usingCruiseConfigDao(goConfigDao);

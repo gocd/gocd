@@ -50,24 +50,25 @@ class AuthorizationMessageConverterV2Test {
 
         String requestBody = converter.getUserRolesRequestBody("foo", authConfig, roleConfigs);
 
-        assertThatJson(requestBody).isEqualTo("{\n" +
-                "  \"auth_config\": {\n" +
-                "      \"configuration\": {\n" +
-                "        \"key1\": \"value2\"\n" +
-                "      },\n" +
-                "      \"id\": \"p1\"\n" +
-                "    },\n" +
-                "  \"username\": \"foo\",\n" +
-                "  \"role_configs\": [\n" +
-                "    {\n" +
-                "      \"auth_config_id\": \"p1\",\n" +
-                "      \"configuration\": {\n" +
-                "        \"key2\": \"value2\"\n" +
-                "      },\n" +
-                "      \"name\": \"role1\"\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}");
+        assertThatJson(requestBody).isEqualTo("""
+                {
+                  "auth_config": {
+                      "configuration": {
+                        "key1": "value2"
+                      },
+                      "id": "p1"
+                    },
+                  "username": "foo",
+                  "role_configs": [
+                    {
+                      "auth_config_id": "p1",
+                      "configuration": {
+                        "key2": "value2"
+                      },
+                      "name": "role1"
+                    }
+                  ]
+                }""");
     }
 
     @Test
@@ -76,15 +77,16 @@ class AuthorizationMessageConverterV2Test {
 
         String requestBody = converter.isValidUserRequestBody("foo", authConfig);
 
-        assertThatJson(requestBody).isEqualTo("{\n" +
-                "  \"auth_config\": {\n" +
-                "      \"configuration\": {\n" +
-                "        \"key1\": \"value2\"\n" +
-                "      },\n" +
-                "      \"id\": \"p1\"\n" +
-                "    },\n" +
-                "  \"username\": \"foo\"\n" +
-                "}");
+        assertThatJson(requestBody).isEqualTo("""
+                {
+                  "auth_config": {
+                      "configuration": {
+                        "key1": "value2"
+                      },
+                      "id": "p1"
+                    },
+                  "username": "foo"
+                }""");
     }
 
     @Test
@@ -100,19 +102,20 @@ class AuthorizationMessageConverterV2Test {
     void grantAccessRequestBodyTests() {
         String json = converter.grantAccessRequestBody(List.of(new SecurityAuthConfig("github", "cd.go.github", create("url", false, "some-url"))), Map.of("foo", "bar"));
 
-        String expectedRequestBody = "{\n" +
-            "  \"auth_configs\": [\n" +
-            "    {\n" +
-            "      \"id\": \"github\",\n" +
-            "      \"configuration\": {\n" +
-            "        \"url\": \"some-url\"\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ],\n" +
-            "  \"auth_session\": {\n" +
-            "       \"foo\": \"bar\"\n" +
-            "  }\n" +
-            "}";
+        String expectedRequestBody = """
+                {
+                  "auth_configs": [
+                    {
+                      "id": "github",
+                      "configuration": {
+                        "url": "some-url"
+                      }
+                    }
+                  ],
+                  "auth_session": {
+                       "foo": "bar"
+                  }
+                }""";
         assertThatJson(json).isEqualTo(expectedRequestBody);
     }
 }

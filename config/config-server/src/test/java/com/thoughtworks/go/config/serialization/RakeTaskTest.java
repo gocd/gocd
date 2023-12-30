@@ -37,9 +37,7 @@ public class RakeTaskTest {
     @Test
     public void shouldNotKillAllChildrenWhenEmptyOnCancel() throws Exception {
         RakeTask rakeTask = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial(
-                "<rake>"
-                + "  <oncancel />"
-                + "</rake>", RakeTask.class
+                "<rake><oncancel /></rake>", RakeTask.class
         );
         assertThat(rakeTask.cancelTask(), is(instanceOf(NullTask.class)));
     }

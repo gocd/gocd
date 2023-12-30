@@ -41,9 +41,10 @@ class RequestRejectedExceptionHandlerTest {
 
         assertThat(response)
                 .isBadRequest()
-                .hasBody("{\n" +
-                        "  \"message\": \"Something went wrong\"\n" +
-                        "}");
+                .hasBody("""
+                        {
+                          "message": "Something went wrong"
+                        }""");
     }
 
     @Test

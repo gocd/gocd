@@ -69,9 +69,10 @@ public class AgentStatusReportingTest {
         return info;
     }
 
-    private static final String WILL_PASS = "<job name=\"run-ant\">\n"
-            + "  <tasks>\n"
-            + "    <ant target=\"--help\" />\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String WILL_PASS = """
+            <job name="run-ant">
+              <tasks>
+                <ant target="--help" />
+              </tasks>
+            </job>""";
 }

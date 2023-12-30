@@ -56,11 +56,12 @@ public class CRPluggableArtifactTest extends AbstractCRTest<CRPluggableArtifact>
 
     @Test
     public void shouldDeserializeWhenConfigurationIsNull() {
-        String json = "{\n" +
-                "           \"id\" : \"id\",\n" +
-                "           \"store_id\" : \"s3\",\n" +
-                "           \"type\": \"external\"\n" +
-                "            }";
+        String json = """
+                {
+                           "id" : "id",
+                           "store_id" : "s3",
+                           "type": "external"
+                            }""";
 
         CRPluggableArtifact crPluggableArtifact = gson.fromJson(json, CRPluggableArtifact.class);
 
@@ -73,10 +74,11 @@ public class CRPluggableArtifactTest extends AbstractCRTest<CRPluggableArtifact>
 
     @Test
     public void shouldCheckForTypeWhileDeserializing() {
-        String json = "{\n" +
-                "           \"id\" : \"id\",\n" +
-                "           \"store_id\" : \"s3\"\n" +
-                "            }";
+        String json = """
+                {
+                           "id" : "id",
+                           "store_id" : "s3"
+                            }""";
 
         CRPluggableArtifact crPluggableArtifact = gson.fromJson(json, CRPluggableArtifact.class);
 
@@ -90,12 +92,12 @@ public class CRPluggableArtifactTest extends AbstractCRTest<CRPluggableArtifact>
 
     @Test
     public void shouldDeserializePluggableArtifacts() {
-        String json = "{\n" +
-                "              \"id\" : \"id\",\n" +
-                "              \"store_id\" : \"s3\",\n" +
-                "              \"type\": \"external\",\n" +
-                "              \"configuration\": [{\"key\":\"image\", \"value\": \"gocd-agent\"}]" +
-                "            }";
+        String json = """
+                {
+                              "id" : "id",
+                              "store_id" : "s3",
+                              "type": "external",
+                              "configuration": [{"key":"image", "value": "gocd-agent"}]            }""";
 
         CRPluggableArtifact crPluggableArtifact = gson.fromJson(json, CRPluggableArtifact.class);
 

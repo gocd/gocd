@@ -128,9 +128,10 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile {
             MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
             if (allMaterialsByFingerPrint.stream().anyMatch(m -> material.isAutoUpdate() != m.isAutoUpdate())) {
                 String message = format(
-                    "The material of type %s (%s) is used elsewhere with a different value for autoUpdate (poll for changes). " +
-                        "All copies of this material must have the same autoUpdate setting or configuration repository must be removed.\n" +
-                        "Config Repository: %s (%s).\n",
+                        """
+                                The material of type %s (%s) is used elsewhere with a different value for autoUpdate (poll for changes). All copies of this material must have the same autoUpdate setting or configuration repository must be removed.
+                                Config Repository: %s (%s).
+                                """,
                     material.getTypeForDisplay(),
                     material.getDescription(),
                     getId(), MaterialErrors.autoUpdateDisplayStatus(material.isAutoUpdate()));

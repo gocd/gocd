@@ -146,13 +146,14 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldValidateCruiseConfigFileIrrespectiveOfUpgrade() {
-        String configString = ConfigFileFixture.configWithEnvironments("<environments>"
-                + "  <environment name='foo'>"
-                + "<pipelines>"
-                + " <pipeline name='does_not_exist'/>"
-                + "</pipelines>"
-                + "</environment>"
-                + "</environments>", CONFIG_SCHEMA_VERSION);
+        String configString = ConfigFileFixture.configWithEnvironments("""
+                <environments>
+                  <environment name='foo'>
+                <pipelines>
+                 <pipeline name='does_not_exist'/>
+                </pipelines>
+                </environment>
+                </environments>""", CONFIG_SCHEMA_VERSION);
         try {
             loadConfigFileWithContent(configString);
             fail("Should not upgrade invalid config file");
@@ -295,17 +296,18 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldEncryptPasswordsOnMigration() throws Exception {
         String configContent = ConfigFileFixture.configWithPipeline(String.format(
-                "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl' username='admin' password='%s'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", "hello"), 32);
+                """
+                        <pipeline name='pipeline1'>
+                            <materials>
+                              <svn url='svnurl' username='admin' password='%s'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", "hello"), 32);
         FileUtils.writeStringToFile(configFile, configContent, UTF_8);
 
         goConfigMigrator.migrate();
@@ -316,31 +318,32 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldMergeRolesWithMatchingCaseInsensitiveNames() throws Exception {
-        final String configContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion=\"39\">\n"
-                + "    <server artifactsdir=\"artifacts\">\n"
-                + "        <security>\n"
-                + "             <roles>\n"
-                + "                 <role name=\"bAr\">\n"
-                + "                     <user>quux</user>\n"
-                + "                     <user>bang</user>\n"
-                + "                     <user>LoSeR</user>\n"
-                + "                 </role>\n"
-                + "                 <role name=\"Foo\">\n"
-                + "                     <user>foo</user>\n"
-                + "                     <user>LoSeR</user>\n"
-                + "                     <user>bar</user>\n"
-                + "                     <user>LOsER</user>\n"
-                + "                 </role>\n"
-                + "                 <role name=\"BaR\">\n"
-                + "                     <user>baz</user>\n"
-                + "                     <user>bang</user>\n"
-                + "                     <user>lOsEr</user>\n"
-                + "                 </role>\n"
-                + "             </roles>\n"
-                + "        </security>"
-                + "    </server>"
-                + " </cruise>";
+        final String configContent = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <cruise schemaVersion="39">
+                    <server artifactsdir="artifacts">
+                        <security>
+                             <roles>
+                                 <role name="bAr">
+                                     <user>quux</user>
+                                     <user>bang</user>
+                                     <user>LoSeR</user>
+                                 </role>
+                                 <role name="Foo">
+                                     <user>foo</user>
+                                     <user>LoSeR</user>
+                                     <user>bar</user>
+                                     <user>LOsER</user>
+                                 </role>
+                                 <role name="BaR">
+                                     <user>baz</user>
+                                     <user>bang</user>
+                                     <user>lOsEr</user>
+                                 </role>
+                             </roles>
+                        </security>
+                    </server>
+                 </cruise>""";
 
         File configFile = new File(systemEnvironment.getCruiseConfigFile());
         FileUtils.writeStringToFile(configFile, configContent, UTF_8);
@@ -362,26 +365,27 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldAllowParamsInP4ServerAndPortField() throws Exception {
-        String configContent = ConfigFileFixture.configWithPipeline(String.format(
-                "<pipeline name='pipeline1'>"
-                        + "<params>"
-                        + "        <param name='param_foo'>a:3</param>"
-                        + "      </params>"
-                        + "    <materials>"
-                        + "<p4 port='#{param_foo}' username='' dest='blah' materialName='boo'>"
-                        + "<view><![CDATA[blah]]></view>"
-                        + "<filter>"
-                        + "<ignore pattern='' />"
-                        + "</filter>"
-                        + "</p4>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", "hello"), 34);
+        String configContent = ConfigFileFixture.configWithPipeline(
+                """
+                        <pipeline name='pipeline1'>
+                        <params>
+                                <param name='param_foo'>a:3</param>
+                              </params>
+                            <materials>
+                        <p4 port='#{param_foo}' username='' dest='blah' materialName='boo'>
+                        <view><![CDATA[blah]]></view>
+                        <filter>
+                        <ignore pattern='' />
+                        </filter>
+                        </p4>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", 34);
         FileUtils.writeStringToFile(configFile, configContent, UTF_8);
 
         goConfigMigrator.migrate();
@@ -391,26 +395,27 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldIntroduceAWrapperTagForUsersOfRole() throws Exception {
-        String content = "<cruise schemaVersion='" + 47 + "'>\n"
-                + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url\" jobTimeout=\"60\">\n"
-                + "    <security>\n"
-                + "      <roles>\n"
-                + "        <role name=\"admins\">\n"
-                + "            <user>admin_one</user>\n"
-                + "            <user>admin_two</user>\n"
-                + "        </role>\n"
-                + "        <role name=\"devs\">\n"
-                + "            <user>dev_one</user>\n"
-                + "            <user>dev_two</user>\n"
-                + "            <user>dev_three</user>\n"
-                + "        </role>\n"
-                + "      </roles>\n"
-                + "      <admins>\n"
-                + "        <role>admins</role>\n"
-                + "      </admins>\n"
-                + "    </security>\n"
-                + "  </server>"
-                + "</cruise>";
+        String content = """
+                <cruise schemaVersion='47'>
+                <server artifactsdir="logs" siteUrl="http://go-server-site-url:8153" secureSiteUrl="https://go-server-site-url" jobTimeout="60">
+                    <security>
+                      <roles>
+                        <role name="admins">
+                            <user>admin_one</user>
+                            <user>admin_two</user>
+                        </role>
+                        <role name="devs">
+                            <user>dev_one</user>
+                            <user>dev_two</user>
+                            <user>dev_three</user>
+                        </role>
+                      </roles>
+                      <admins>
+                        <role>admins</role>
+                      </admins>
+                    </security>
+                  </server>
+                </cruise>""";
 
         FileUtils.writeStringToFile(configFile, content, UTF_8);
 
@@ -446,10 +451,11 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldSetServerId_toARandomUUID_ifOneDoesntExist() {
         GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(true);
-        GoConfigValidity configValidity = fileSaver.saveXml("<cruise schemaVersion='" + 55 + "'>\n"
-                + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url\" jobTimeout=\"60\">\n"
-                + "  </server>"
-                + "</cruise>", goConfigService.configFileMd5());
+        GoConfigValidity configValidity = fileSaver.saveXml("""
+                <cruise schemaVersion='55'>
+                <server artifactsdir="logs" siteUrl="http://go-server-site-url:8153" secureSiteUrl="https://go-server-site-url" jobTimeout="60">
+                  </server>
+                </cruise>""", goConfigService.configFileMd5());
         assertThat(configValidity.isValid()).as("Has no error").isTrue();
 
         CruiseConfig config = goConfigService.getCurrentConfig();
@@ -460,17 +466,18 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldMigrateFrom62_ToAddOnChangesAttributeToTimerWithDefaultValueOff() throws Exception {
-        final String oldContent = ConfigFileFixture.configWithPipeline("<pipeline name='old-timer'>"
-                + "  <timer>0 0 1 * * ?</timer>"
-                + "  <materials>"
-                + "    <git url='/tmp/git' />"
-                + "  </materials>"
-                + "  <stage name='dist'>"
-                + "    <jobs>"
-                + "      <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "    </jobs>"
-                + "  </stage>"
-                + "</pipeline>", 62);
+        final String oldContent = ConfigFileFixture.configWithPipeline("""
+                <pipeline name='old-timer'>
+                  <timer>0 0 1 * * ?</timer>
+                  <materials>
+                    <git url='/tmp/git' />
+                  </materials>
+                  <stage name='dist'>
+                    <jobs>
+                      <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                    </jobs>
+                  </stage>
+                </pipeline>""", 62);
         CruiseConfig configAfterMigration = migrateConfigAndLoadTheNewConfig(oldContent);
         String currentContent = FileUtils.readFileToString(new File(goConfigService.fileLocation()), UTF_8);
 
@@ -524,25 +531,26 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldValidatePackageRepositoriesConfiguration() throws Exception {
         String configString =
-                "<cruise schemaVersion='66'>"
-                        + "<repositories>"
-                        + "<repository id='go-repo' name='go-repo'>"
-                        + "     <pluginConfiguration id='plugin-id' version='1.0'/>"
-                        + "     <configuration>"
-                        + "         <property><key>url</key><value>http://fake-yum-repo</value></property>"
-                        + "         <property><key>username</key><value>godev</value></property>"
-                        + "         <property><key>password</key><value>password</value></property>"
-                        + "     </configuration>"
-                        + "     <packages>"
-                        + "         <package id='go-server' name='go-server'>"
-                        + "             <configuration>"
-                        + "                 <property><key>name</key><value>go-server-13.2.0-1-i386</value></property>"
-                        + "             </configuration>"
-                        + "         </package>"
-                        + "     </packages>"
-                        + "</repository>"
-                        + "</repositories>"
-                        + "</cruise>";
+                """
+                        <cruise schemaVersion='66'>
+                        <repositories>
+                        <repository id='go-repo' name='go-repo'>
+                             <pluginConfiguration id='plugin-id' version='1.0'/>
+                             <configuration>
+                                 <property><key>url</key><value>http://fake-yum-repo</value></property>
+                                 <property><key>username</key><value>godev</value></property>
+                                 <property><key>password</key><value>password</value></property>
+                             </configuration>
+                             <packages>
+                                 <package id='go-server' name='go-server'>
+                                     <configuration>
+                                         <property><key>name</key><value>go-server-13.2.0-1-i386</value></property>
+                                     </configuration>
+                                 </package>
+                             </packages>
+                        </repository>
+                        </repositories>
+                        </cruise>""";
 
         CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configString);
         PackageRepositories packageRepositories = cruiseConfig.getPackageRepositories();
@@ -573,18 +581,19 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldAllowOnlyRepositoryConfiguration() throws Exception {
         String configString =
-                "<cruise schemaVersion='66'>"
-                        + "<repositories>"
-                        + "<repository id='go-repo' name='go-repo'>"
-                        + "     <pluginConfiguration id='plugin-id' version='1.0'/>"
-                        + "     <configuration>"
-                        + "         <property><key>url</key><value>http://fake-yum-repo</value></property>"
-                        + "         <property><key>username</key><value>godev</value></property>"
-                        + "         <property><key>password</key><value>password</value></property>"
-                        + "     </configuration>"
-                        + "</repository>"
-                        + "</repositories>"
-                        + "</cruise>";
+                """
+                        <cruise schemaVersion='66'>
+                        <repositories>
+                        <repository id='go-repo' name='go-repo'>
+                             <pluginConfiguration id='plugin-id' version='1.0'/>
+                             <configuration>
+                                 <property><key>url</key><value>http://fake-yum-repo</value></property>
+                                 <property><key>username</key><value>godev</value></property>
+                                 <property><key>password</key><value>password</value></property>
+                             </configuration>
+                        </repository>
+                        </repositories>
+                        </cruise>""";
         CruiseConfig cruiseConfig = loadConfigFileWithContent(configString);
         PackageRepositories packageRepositories = cruiseConfig.getPackageRepositories();
         assertThat(packageRepositories.size()).isEqualTo(1);
@@ -608,27 +617,28 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldAllowPluggableTaskConfiguration_asPartOfMigration70() throws Exception {
         String configString =
-                "<cruise schemaVersion='70'> <pipelines>"
-                        + "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl' username='admin' password='%s'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks>"
-                        + "        <task name='run-curl'>"
-                        + "          <pluginConfiguration id='plugin-id' version='1.0' />"
-                        + "          <configuration>"
-                        + "            <property><key>url</key><value>http://fake-yum-repo</value></property>"
-                        + "            <property><key>username</key><value>godev</value></property>"
-                        + "            <property><key>password</key><value>password</value></property>"
-                        + "          </configuration>"
-                        + "        </task> </tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline></pipelines>"
-                        + "</cruise>";
+                """
+                        <cruise schemaVersion='70'> <pipelines>
+                        <pipeline name='pipeline1'>
+                            <materials>
+                              <svn url='svnurl' username='admin' password='%s'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'><tasks>
+                                <task name='run-curl'>
+                                  <pluginConfiguration id='plugin-id' version='1.0' />
+                                  <configuration>
+                                    <property><key>url</key><value>http://fake-yum-repo</value></property>
+                                    <property><key>username</key><value>godev</value></property>
+                                    <property><key>password</key><value>password</value></property>
+                                  </configuration>
+                                </task> </tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline></pipelines>
+                        </cruise>""";
         CruiseConfig cruiseConfig = loadConfigFileWithContent(configString);
         PipelineConfig pipelineConfig = cruiseConfig.getAllPipelineConfigs().get(0);
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
@@ -640,24 +650,25 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldTrimLeadingAndTrailingWhitespaceFromCommands_asPartOfMigration73() throws Exception {
         String configXml =
-                "<cruise schemaVersion='72'>" +
-                        "  <pipelines group='first'>" +
-                        "    <pipeline name='Test'>" +
-                        "      <materials>" +
-                        "        <hg url='manual-testing/ant_hg/dummy' />" +
-                        "      </materials>" +
-                        "      <stage name='Functional'>" +
-                        "        <jobs>" +
-                        "          <job name='Functional'>" +
-                        "            <tasks>" +
-                        "              <exec command='  c:\\program files\\cmd.exe    ' args='arguments' />" +
-                        "            </tasks>" +
-                        "           </job>" +
-                        "        </jobs>" +
-                        "      </stage>" +
-                        "    </pipeline>" +
-                        "  </pipelines>" +
-                        "</cruise>";
+                """
+                        <cruise schemaVersion='72'>
+                          <pipelines group='first'>
+                            <pipeline name='Test'>
+                              <materials>
+                                <hg url='manual-testing/ant_hg/dummy' />
+                              </materials>
+                              <stage name='Functional'>
+                                <jobs>
+                                  <job name='Functional'>
+                                    <tasks>
+                                      <exec command='  c:\\program files\\cmd.exe    ' args='arguments' />
+                                    </tasks>
+                                   </job>
+                                </jobs>
+                              </stage>
+                            </pipeline>
+                          </pipelines>
+                        </cruise>""";
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
         Assertions.assertThat(task).isInstanceOf(ExecTask.class);
@@ -667,28 +678,29 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldTrimLeadingAndTrailingWhitespaceFromCommandsInTemplates_asPartOfMigration73() throws Exception {
         String configXml =
-                "<cruise schemaVersion='72'>" +
-                        "  <pipelines group='first'>" +
-                        "    <pipeline name='Test' template='test_template'>" +
-                        "      <materials>" +
-                        "        <hg url='manual-testing/ant_hg/dummy' />" +
-                        "      </materials>" +
-                        "     </pipeline>" +
-                        "  </pipelines>" +
-                        "  <templates>" +
-                        "    <pipeline name='test_template'>" +
-                        "      <stage name='Functional'>" +
-                        "        <jobs>" +
-                        "          <job name='Functional'>" +
-                        "            <tasks>" +
-                        "              <exec command='  c:\\program files\\cmd.exe    ' args='arguments' />" +
-                        "            </tasks>" +
-                        "           </job>" +
-                        "        </jobs>" +
-                        "      </stage>" +
-                        "    </pipeline>" +
-                        "  </templates>" +
-                        "</cruise>";
+                """
+                        <cruise schemaVersion='72'>
+                          <pipelines group='first'>
+                            <pipeline name='Test' template='test_template'>
+                              <materials>
+                                <hg url='manual-testing/ant_hg/dummy' />
+                              </materials>
+                             </pipeline>
+                          </pipelines>
+                          <templates>
+                            <pipeline name='test_template'>
+                              <stage name='Functional'>
+                                <jobs>
+                                  <job name='Functional'>
+                                    <tasks>
+                                      <exec command='  c:\\program files\\cmd.exe    ' args='arguments' />
+                                    </tasks>
+                                   </job>
+                                </jobs>
+                              </stage>
+                            </pipeline>
+                          </templates>
+                        </cruise>""";
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
         Assertions.assertThat(task).isInstanceOf(ExecTask.class);
@@ -697,28 +709,29 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void ShouldTrimEnvironmentVariables_asPartOfMigration85() throws Exception {
-        String configXml = "<cruise schemaVersion='84'>"
-                + "  <pipelines group='first'>"
-                + "    <pipeline name='up42'>"
-                + "      <environmentvariables>"
-                + "        <variable name=\" test  \">"
-                + "          <value>foobar</value>"
-                + "        </variable>"
-                + "        <variable name=\"   PATH \" secure=\"true\">\n" +
-                "          <encryptedValue>trMHp15AjUE=</encryptedValue>\n" +
-                "        </variable>"
-                + "      </environmentvariables>"
-                + "      <materials>"
-                + "        <hg url='manual-testing/ant_hg/dummy' />"
-                + "      </materials>"
-                + "  <stage name='dist'>"
-                + "    <jobs>"
-                + "      <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "    </jobs>"
-                + "  </stage>"
-                + "     </pipeline>"
-                + "  </pipelines>"
-                + "</cruise>";
+        String configXml = """
+                <cruise schemaVersion='84'>
+                  <pipelines group='first'>
+                    <pipeline name='up42'>
+                      <environmentvariables>
+                        <variable name=" test  ">
+                          <value>foobar</value>
+                        </variable>
+                        <variable name="   PATH " secure="true">
+                          <encryptedValue>trMHp15AjUE=</encryptedValue>
+                        </variable>
+                      </environmentvariables>
+                      <materials>
+                        <hg url='manual-testing/ant_hg/dummy' />
+                      </materials>
+                  <stage name='dist'>
+                    <jobs>
+                      <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                    </jobs>
+                  </stage>
+                     </pipeline>
+                  </pipelines>
+                </cruise>""";
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
@@ -731,29 +744,30 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldCreateProfilesFromAgentConfig_asPartOfMigration86And87() throws Exception {
-        String configXml = "<cruise schemaVersion='85'>"
-                + "  <server serverId='dev-id'>"
-                + "  </server>"
-                + "  <pipelines group='first'>"
-                + "    <pipeline name='up42'>"
-                + "      <materials>"
-                + "        <hg url='manual-testing/ant_hg/dummy' />"
-                + "      </materials>"
-                + "  <stage name='dist'>"
-                + "    <jobs>"
-                + "      <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                + "       <agentConfig pluginId='docker'>"
-                + "         <property>"
-                + "           <key>instance-type</key>"
-                + "           <value>m1.small</value>"
-                + "         </property>"
-                + "       </agentConfig>"
-                + "      </job>"
-                + "    </jobs>"
-                + "  </stage>"
-                + "   </pipeline>"
-                + "  </pipelines>"
-                + "</cruise>";
+        String configXml = """
+                <cruise schemaVersion='85'>
+                  <server serverId='dev-id'>
+                  </server>
+                  <pipelines group='first'>
+                    <pipeline name='up42'>
+                      <materials>
+                        <hg url='manual-testing/ant_hg/dummy' />
+                      </materials>
+                  <stage name='dist'>
+                    <jobs>
+                      <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                       <agentConfig pluginId='docker'>
+                         <property>
+                           <key>instance-type</key>
+                           <value>m1.small</value>
+                         </property>
+                       </agentConfig>
+                      </job>
+                    </jobs>
+                  </stage>
+                   </pipeline>
+                  </pipelines>
+                </cruise>""";
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
@@ -773,45 +787,46 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldCreateProfilesFromMultipleAgentConfigs_asPartOfMigration86And87() throws Exception {
-        String configXml = "<cruise schemaVersion='85'>"
-                + "  <server serverId='dev-id'>"
-                + "  </server>"
-                + "  <pipelines group='first'>"
-                + "    <pipeline name='up42'>"
-                + "      <materials>"
-                + "        <hg url='manual-testing/ant_hg/dummy' />"
-                + "      </materials>"
-                + "  <stage name='dist'>"
-                + "    <jobs>"
-                + "      <job name='test1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                + "       <agentConfig pluginId='docker'>"
-                + "         <property>"
-                + "           <key>instance-type</key>"
-                + "           <value>m1.small</value>"
-                + "         </property>"
-                + "       </agentConfig>"
-                + "      </job>"
-                + "      <job name='test2'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                + "       <agentConfig pluginId='aws'>"
-                + "         <property>"
-                + "           <key>ami</key>"
-                + "           <value>some.ami</value>"
-                + "         </property>"
-                + "         <property>"
-                + "           <key>ram</key>"
-                + "           <value>1024</value>"
-                + "         </property>"
-                + "         <property>"
-                + "           <key>diskSpace</key>"
-                + "           <value>10G</value>"
-                + "         </property>"
-                + "       </agentConfig>"
-                + "      </job>"
-                + "    </jobs>"
-                + "  </stage>"
-                + "   </pipeline>"
-                + "  </pipelines>"
-                + "</cruise>";
+        String configXml = """
+                <cruise schemaVersion='85'>
+                  <server serverId='dev-id'>
+                  </server>
+                  <pipelines group='first'>
+                    <pipeline name='up42'>
+                      <materials>
+                        <hg url='manual-testing/ant_hg/dummy' />
+                      </materials>
+                  <stage name='dist'>
+                    <jobs>
+                      <job name='test1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                       <agentConfig pluginId='docker'>
+                         <property>
+                           <key>instance-type</key>
+                           <value>m1.small</value>
+                         </property>
+                       </agentConfig>
+                      </job>
+                      <job name='test2'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                       <agentConfig pluginId='aws'>
+                         <property>
+                           <key>ami</key>
+                           <value>some.ami</value>
+                         </property>
+                         <property>
+                           <key>ram</key>
+                           <value>1024</value>
+                         </property>
+                         <property>
+                           <key>diskSpace</key>
+                           <value>10G</value>
+                         </property>
+                       </agentConfig>
+                      </job>
+                    </jobs>
+                  </stage>
+                   </pipeline>
+                  </pipelines>
+                </cruise>""";
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
@@ -833,57 +848,58 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldCreateProfilesFromMultipleAgentConfigsAcrossStages_asPartOfMigration86And87() throws Exception {
-        String configXml = "<cruise schemaVersion='85'>"
-                + " <server serverId='dev-id'>"
-                + " </server>"
-                + " <pipelines group='first'>"
-                + "   <pipeline name='up42'>"
-                + "     <materials>"
-                + "       <hg url='manual-testing/ant_hg/dummy' />"
-                + "     </materials>"
-                + "  <stage name='build'>"
-                + "    <jobs>"
-                + "      <job name='test1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                + "       <agentConfig pluginId='docker'>"
-                + "         <property>"
-                + "           <key>instance-type</key>"
-                + "           <value>m1.small</value>"
-                + "         </property>"
-                + "       </agentConfig>"
-                + "      </job>"
-                + "      <job name='test2'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                + "       <agentConfig pluginId='aws'>"
-                + "         <property>"
-                + "           <key>ami</key>"
-                + "           <value>some.ami</value>"
-                + "         </property>"
-                + "         <property>"
-                + "           <key>ram</key>"
-                + "           <value>1024</value>"
-                + "         </property>"
-                + "         <property>"
-                + "           <key>diskSpace</key>"
-                + "           <value>10G</value>"
-                + "         </property>"
-                + "       </agentConfig>"
-                + "      </job>"
-                + "    </jobs>"
-                + "  </stage>"
-                + "  <stage name='dist'>"
-                + "    <jobs>"
-                + "      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                + "       <agentConfig pluginId='docker'>"
-                + "         <property>"
-                + "           <key>instance-type</key>"
-                + "           <value>m1.small</value>"
-                + "         </property>"
-                + "       </agentConfig>"
-                + "      </job>"
-                + "    </jobs>"
-                + "  </stage>"
-                + "   </pipeline>"
-                + "  </pipelines>"
-                + "</cruise>";
+        String configXml = """
+                <cruise schemaVersion='85'>
+                 <server serverId='dev-id'>
+                 </server>
+                 <pipelines group='first'>
+                   <pipeline name='up42'>
+                     <materials>
+                       <hg url='manual-testing/ant_hg/dummy' />
+                     </materials>
+                  <stage name='build'>
+                    <jobs>
+                      <job name='test1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                       <agentConfig pluginId='docker'>
+                         <property>
+                           <key>instance-type</key>
+                           <value>m1.small</value>
+                         </property>
+                       </agentConfig>
+                      </job>
+                      <job name='test2'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                       <agentConfig pluginId='aws'>
+                         <property>
+                           <key>ami</key>
+                           <value>some.ami</value>
+                         </property>
+                         <property>
+                           <key>ram</key>
+                           <value>1024</value>
+                         </property>
+                         <property>
+                           <key>diskSpace</key>
+                           <value>10G</value>
+                         </property>
+                       </agentConfig>
+                      </job>
+                    </jobs>
+                  </stage>
+                  <stage name='dist'>
+                    <jobs>
+                      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                       <agentConfig pluginId='docker'>
+                         <property>
+                           <key>instance-type</key>
+                           <value>m1.small</value>
+                         </property>
+                       </agentConfig>
+                      </job>
+                    </jobs>
+                  </stage>
+                   </pipeline>
+                  </pipelines>
+                </cruise>""";
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
@@ -910,54 +926,55 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldCreateProfilesFromMultipleAgentConfigsAcrossPipelines_asPartOfMigration86And87() throws Exception {
-        String configXml = "<cruise schemaVersion='85'>"
-                + " <server serverId='dev-id'>"
-                + " </server>"
-                + " <pipelines group='first'>"
-                + "   <pipeline name='up42'>"
-                + "     <materials>"
-                + "       <hg url='manual-testing/ant_hg/dummy' />"
-                + "     </materials>"
-                + "  <stage name='build'>"
-                + "    <jobs>"
-                + "      <job name='test1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                + "       <agentConfig pluginId='docker'>"
-                + "         <property>"
-                + "           <key>instance-type</key>"
-                + "           <value>m1.small</value>"
-                + "         </property>"
-                + "       </agentConfig>"
-                + "      </job>"
-                + "    </jobs>"
-                + "  </stage>"
-                + "   </pipeline>"
-                + "   <pipeline name='up43'>"
-                + "     <materials>"
-                + "       <hg url='manual-testing/ant_hg/dummy' />"
-                + "     </materials>"
-                + "  <stage name='build'>"
-                + "    <jobs>"
-                + "      <job name='test2'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                + "       <agentConfig pluginId='aws'>"
-                + "         <property>"
-                + "           <key>ami</key>"
-                + "           <value>some.ami</value>"
-                + "         </property>"
-                + "         <property>"
-                + "           <key>ram</key>"
-                + "           <value>1024</value>"
-                + "         </property>"
-                + "         <property>"
-                + "           <key>diskSpace</key>"
-                + "           <value>10G</value>"
-                + "         </property>"
-                + "       </agentConfig>"
-                + "      </job>"
-                + "    </jobs>"
-                + "  </stage>"
-                + "   </pipeline>"
-                + "  </pipelines>"
-                + "</cruise>";
+        String configXml = """
+                <cruise schemaVersion='85'>
+                 <server serverId='dev-id'>
+                 </server>
+                 <pipelines group='first'>
+                   <pipeline name='up42'>
+                     <materials>
+                       <hg url='manual-testing/ant_hg/dummy' />
+                     </materials>
+                  <stage name='build'>
+                    <jobs>
+                      <job name='test1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                       <agentConfig pluginId='docker'>
+                         <property>
+                           <key>instance-type</key>
+                           <value>m1.small</value>
+                         </property>
+                       </agentConfig>
+                      </job>
+                    </jobs>
+                  </stage>
+                   </pipeline>
+                   <pipeline name='up43'>
+                     <materials>
+                       <hg url='manual-testing/ant_hg/dummy' />
+                     </materials>
+                  <stage name='build'>
+                    <jobs>
+                      <job name='test2'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                       <agentConfig pluginId='aws'>
+                         <property>
+                           <key>ami</key>
+                           <value>some.ami</value>
+                         </property>
+                         <property>
+                           <key>ram</key>
+                           <value>1024</value>
+                         </property>
+                         <property>
+                           <key>diskSpace</key>
+                           <value>10G</value>
+                         </property>
+                       </agentConfig>
+                      </job>
+                    </jobs>
+                  </stage>
+                   </pipeline>
+                  </pipelines>
+                </cruise>""";
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig up42 = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
@@ -982,25 +999,26 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldAddTokenGenerationKeyAttributeOnServerAsPartOf99To100Migration() throws Exception {
         try {
-            String configXml = "<cruise schemaVersion='99'><server artifactsdir=\"artifacts\" agentAutoRegisterKey=\"041b5c7e-dab2-11e5-a908-13f95f3c6ef6\" webhookSecret=\"5f8b5eac-1148-4145-aa01-7b2934b6e1ab\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">\n" +
-                    "    <security>\n" +
-                    "      <authConfigs>\n" +
-                    "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
-                    "          <property>\n" +
-                    "            <key>PasswordFilePath</key>\n" +
-                    "            <value>../manual-testing/ant_hg/password.properties</value>\n" +
-                    "          </property>\n" +
-                    "        </authConfig>\n" +
-                    "      </authConfigs>\n" +
-                    "      <roles>\n" +
-                    "        <role name=\"xyz\" />\n" +
-                    "      </roles>\n" +
-                    "      <admins>\n" +
-                    "        <user>admin</user>\n" +
-                    "      </admins>\n" +
-                    "    </security>\n" +
-                    "  </server>" +
-                    "</cruise>";
+            String configXml = """
+                    <cruise schemaVersion='99'><server artifactsdir="artifacts" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" webhookSecret="5f8b5eac-1148-4145-aa01-7b2934b6e1ab" commandRepositoryLocation="default" serverId="dev-id">
+                        <security>
+                          <authConfigs>
+                            <authConfig id="9cad79b0-4d9e-4a62-829c-eb4d9488062f" pluginId="cd.go.authentication.passwordfile">
+                              <property>
+                                <key>PasswordFilePath</key>
+                                <value>../manual-testing/ant_hg/password.properties</value>
+                              </property>
+                            </authConfig>
+                          </authConfigs>
+                          <roles>
+                            <role name="xyz" />
+                          </roles>
+                          <admins>
+                            <user>admin</user>
+                          </admins>
+                        </security>
+                      </server>
+                    </cruise>""";
 
             final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
             assertThat(StringUtils.isNotBlank(cruiseConfig.server().getTokenGenerationKey())).isTrue();
@@ -1011,40 +1029,41 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldMigrateElasticProfilesOutOfServerConfig_asPartOf100To101Migration() throws Exception {
-        String configXml = "<cruise schemaVersion='100'>" +
-                "<server artifactsdir=\"artifactsDir\" agentAutoRegisterKey=\"041b5c7e-dab2-11e5-a908-13f95f3c6ef6\" webhookSecret=\"5f8b5eac-1148-4145-aa01-7b2934b6e1ab\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">\n" +
-                "<elastic jobStarvationTimeout=\"3\">\n" +
-                "      <profiles>\n" +
-                "        <profile id=\"dev-build\" pluginId=\"cd.go.contrib.elastic-agent.docker-swarm\">\n" +
-                "          <property>\n" +
-                "            <key>Image</key>\n" +
-                "            <value>bar</value>\n" +
-                "          </property>\n" +
-                "          <property>\n" +
-                "            <key>ReservedMemory</key>\n" +
-                "            <value>3GB</value>\n" +
-                "          </property>\n" +
-                "          <property>\n" +
-                "            <key>MaxMemory</key>\n" +
-                "            <value>3GB</value>\n" +
-                "          </property>\n" +
-                "        </profile>\n" +
-                "      </profiles>\n" +
-                "    </elastic>\n" +
-                "    <security allowOnlyKnownUsersToLogin=\"true\"></security>\n" +
-                "  </server>\n" +
-                "  <scms>\n" +
-                "    <scm id=\"c0758880-10f7-4f38-a0b0-f3dc31e5d907\" name=\"gocd\">\n" +
-                "      <pluginConfiguration id=\"github.pr\" version=\"1\"/>\n" +
-                "      <configuration>\n" +
-                "        <property>\n" +
-                "          <key>url</key>\n" +
-                "          <value>https://foo/bar</value>\n" +
-                "        </property>\n" +
-                "      </configuration>\n" +
-                "    </scm>\n" +
-                "  </scms>" +
-                "</cruise>";
+        String configXml = """
+                <cruise schemaVersion='100'>
+                <server artifactsdir="artifactsDir" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" webhookSecret="5f8b5eac-1148-4145-aa01-7b2934b6e1ab" commandRepositoryLocation="default" serverId="dev-id">
+                <elastic jobStarvationTimeout="3">
+                      <profiles>
+                        <profile id="dev-build" pluginId="cd.go.contrib.elastic-agent.docker-swarm">
+                          <property>
+                            <key>Image</key>
+                            <value>bar</value>
+                          </property>
+                          <property>
+                            <key>ReservedMemory</key>
+                            <value>3GB</value>
+                          </property>
+                          <property>
+                            <key>MaxMemory</key>
+                            <value>3GB</value>
+                          </property>
+                        </profile>
+                      </profiles>
+                    </elastic>
+                    <security allowOnlyKnownUsersToLogin="true"></security>
+                  </server>
+                  <scms>
+                    <scm id="c0758880-10f7-4f38-a0b0-f3dc31e5d907" name="gocd">
+                      <pluginConfiguration id="github.pr" version="1"/>
+                      <configuration>
+                        <property>
+                          <key>url</key>
+                          <value>https://foo/bar</value>
+                        </property>
+                      </configuration>
+                    </scm>
+                  </scms>
+                </cruise>""";
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
         Assertions.assertThat(cruiseConfig.getElasticConfig()).isNotNull();
@@ -1061,40 +1080,41 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldRetainAllOtherServerConfigElements_asPartOf100To101Migration() throws Exception {
-        String configXml = "<cruise schemaVersion='100'>" +
-                "<server artifactsdir=\"artifactsDir\" agentAutoRegisterKey=\"041b5c7e-dab2-11e5-a908-13f95f3c6ef6\" webhookSecret=\"5f8b5eac-1148-4145-aa01-7b2934b6e1ab\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">\n" +
-                "<elastic jobStarvationTimeout=\"3\">\n" +
-                "      <profiles>\n" +
-                "        <profile id=\"dev-build\" pluginId=\"cd.go.contrib.elastic-agent.docker-swarm\">\n" +
-                "          <property>\n" +
-                "            <key>Image</key>\n" +
-                "            <value>bar</value>\n" +
-                "          </property>\n" +
-                "          <property>\n" +
-                "            <key>ReservedMemory</key>\n" +
-                "            <value>3GB</value>\n" +
-                "          </property>\n" +
-                "          <property>\n" +
-                "            <key>MaxMemory</key>\n" +
-                "            <value>3GB</value>\n" +
-                "          </property>\n" +
-                "        </profile>\n" +
-                "      </profiles>\n" +
-                "    </elastic>\n" +
-                "    <security allowOnlyKnownUsersToLogin=\"false\"></security>\n" +
-                "  </server>\n" +
-                "  <scms>\n" +
-                "    <scm id=\"c0758880-10f7-4f38-a0b0-f3dc31e5d907\" name=\"gocd\">\n" +
-                "      <pluginConfiguration id=\"github.pr\" version=\"1\"/>\n" +
-                "      <configuration>\n" +
-                "        <property>\n" +
-                "          <key>url</key>\n" +
-                "          <value>https://foo/bar</value>\n" +
-                "        </property>\n" +
-                "      </configuration>\n" +
-                "    </scm>\n" +
-                "  </scms>" +
-                "</cruise>";
+        String configXml = """
+                <cruise schemaVersion='100'>
+                <server artifactsdir="artifactsDir" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" webhookSecret="5f8b5eac-1148-4145-aa01-7b2934b6e1ab" commandRepositoryLocation="default" serverId="dev-id">
+                <elastic jobStarvationTimeout="3">
+                      <profiles>
+                        <profile id="dev-build" pluginId="cd.go.contrib.elastic-agent.docker-swarm">
+                          <property>
+                            <key>Image</key>
+                            <value>bar</value>
+                          </property>
+                          <property>
+                            <key>ReservedMemory</key>
+                            <value>3GB</value>
+                          </property>
+                          <property>
+                            <key>MaxMemory</key>
+                            <value>3GB</value>
+                          </property>
+                        </profile>
+                      </profiles>
+                    </elastic>
+                    <security allowOnlyKnownUsersToLogin="false"></security>
+                  </server>
+                  <scms>
+                    <scm id="c0758880-10f7-4f38-a0b0-f3dc31e5d907" name="gocd">
+                      <pluginConfiguration id="github.pr" version="1"/>
+                      <configuration>
+                        <property>
+                          <key>url</key>
+                          <value>https://foo/bar</value>
+                        </property>
+                      </configuration>
+                    </scm>
+                  </scms>
+                </cruise>""";
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
         assertThat(cruiseConfig.server().getAgentAutoRegisterKey()).isEqualTo("041b5c7e-dab2-11e5-a908-13f95f3c6ef6");
@@ -1106,20 +1126,21 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldSkipParamResoulutionForElasticConfig_asPartOf100To101Migration() throws Exception {
-        String configXml = "<cruise schemaVersion='100'>" +
-                "<server artifactsdir=\"artifactsDir\" agentAutoRegisterKey=\"041b5c7e-dab2-11e5-a908-13f95f3c6ef6\" webhookSecret=\"5f8b5eac-1148-4145-aa01-7b2934b6e1ab\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">\n" +
-                "<elastic jobStarvationTimeout=\"3\">\n" +
-                "      <profiles>\n" +
-                "        <profile id=\"dev-build\" pluginId=\"cd.go.contrib.elastic-agent.docker-swarm\">\n" +
-                "          <property>\n" +
-                "            <key>Image</key>\n" +
-                "            <value>#bar</value>\n" +
-                "          </property>\n" +
-                "        </profile>\n" +
-                "      </profiles>\n" +
-                "    </elastic>\n" +
-                "  </server>\n" +
-                "</cruise>";
+        String configXml = """
+                <cruise schemaVersion='100'>
+                <server artifactsdir="artifactsDir" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" webhookSecret="5f8b5eac-1148-4145-aa01-7b2934b6e1ab" commandRepositoryLocation="default" serverId="dev-id">
+                <elastic jobStarvationTimeout="3">
+                      <profiles>
+                        <profile id="dev-build" pluginId="cd.go.contrib.elastic-agent.docker-swarm">
+                          <property>
+                            <key>Image</key>
+                            <value>#bar</value>
+                          </property>
+                        </profile>
+                      </profiles>
+                    </elastic>
+                  </server>
+                </cruise>""";
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
         assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0)).isEqualTo(new ElasticProfile("dev-build", "no-op-cluster-for-cd.go.contrib.elastic-agent.docker-swarm",
@@ -1129,72 +1150,74 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldAddHttpPrefixToTrackingToolUrlsIfProtocolNotPresent() throws Exception {
-        String configXml = "<cruise schemaVersion='104'>\n" +
-                "<pipelines group='first'>" +
-                "    <pipeline name='up42'>\n" +
-                "      <trackingtool link='github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>" +
-                "      <materials>\n" +
-                "        <git url='test-repo' />\n" +
-                "      </materials>\n" +
-                "      <stage name='up42_stage'>\n" +
-                "        <jobs>\n" +
-                "          <job name='up42_job'>\n" +
-                "            <tasks>\n" +
-                "              <exec command='ls' />\n" +
-                "            </tasks>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "    <pipeline name='up43'>\n" +
-                "      <trackingtool link='https://github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>" +
-                "      <materials>\n" +
-                "        <git url='test-repo' />\n" +
-                "      </materials>\n" +
-                "      <stage name='up43_stage'>\n" +
-                "        <jobs>\n" +
-                "          <job name='up43_job'>\n" +
-                "            <tasks>\n" +
-                "              <exec command='ls' />\n" +
-                "            </tasks>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "  </pipelines>" +
-                "<pipelines group='second'>" +
-                "    <pipeline name='up12'>\n" +
-                "      <trackingtool link='http://github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>" +
-                "      <materials>\n" +
-                "        <git url='test-repo' />\n" +
-                "      </materials>\n" +
-                "      <stage name='up42_stage'>\n" +
-                "        <jobs>\n" +
-                "          <job name='up42_job'>\n" +
-                "            <tasks>\n" +
-                "              <exec command='ls' />\n" +
-                "            </tasks>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "    <pipeline name='up13'>\n" +
-                "      <trackingtool link='github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>" +
-                "      <materials>\n" +
-                "        <git url='test-repo' />\n" +
-                "      </materials>\n" +
-                "      <stage name='up43_stage'>\n" +
-                "        <jobs>\n" +
-                "          <job name='up43_job'>\n" +
-                "            <tasks>\n" +
-                "              <exec command='ls' />\n" +
-                "            </tasks>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "  </pipelines>" +
-                "</cruise>\n";
+        String configXml = """
+                <cruise schemaVersion='104'>
+                <pipelines group='first'>
+                    <pipeline name='up42'>
+                      <trackingtool link='github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>
+                      <materials>
+                        <git url='test-repo' />
+                      </materials>
+                      <stage name='up42_stage'>
+                        <jobs>
+                          <job name='up42_job'>
+                            <tasks>
+                              <exec command='ls' />
+                            </tasks>
+                          </job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                    <pipeline name='up43'>
+                      <trackingtool link='https://github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>
+                      <materials>
+                        <git url='test-repo' />
+                      </materials>
+                      <stage name='up43_stage'>
+                        <jobs>
+                          <job name='up43_job'>
+                            <tasks>
+                              <exec command='ls' />
+                            </tasks>
+                          </job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                  </pipelines>
+                <pipelines group='second'>
+                    <pipeline name='up12'>
+                      <trackingtool link='http://github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>
+                      <materials>
+                        <git url='test-repo' />
+                      </materials>
+                      <stage name='up42_stage'>
+                        <jobs>
+                          <job name='up42_job'>
+                            <tasks>
+                              <exec command='ls' />
+                            </tasks>
+                          </job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                    <pipeline name='up13'>
+                      <trackingtool link='github.com/gocd/gocd/issues/${ID}' regex='##(\\d+)'/>
+                      <materials>
+                        <git url='test-repo' />
+                      </materials>
+                      <stage name='up43_stage'>
+                        <jobs>
+                          <job name='up43_job'>
+                            <tasks>
+                              <exec command='ls' />
+                            </tasks>
+                          </job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                  </pipelines>
+                </cruise>
+                """;
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
 
@@ -1224,27 +1247,28 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldRemoveNameFromPluggableTask_asPartOfMigration71() throws Exception {
         String oldConfigWithNameInTask =
-                "<cruise schemaVersion='70'> <pipelines>"
-                        + "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl' username='admin' password='%s'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks>"
-                        + "        <task name='run-curl'>"
-                        + "          <pluginConfiguration id='plugin-id' version='1.0' />"
-                        + "          <configuration>"
-                        + "            <property><key>url</key><value>http://fake-yum-repo</value></property>"
-                        + "            <property><key>username</key><value>godev</value></property>"
-                        + "            <property><key>password</key><value>password</value></property>"
-                        + "          </configuration>"
-                        + "      </task> </tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline></pipelines>"
-                        + "</cruise>";
+                """
+                        <cruise schemaVersion='70'> <pipelines>
+                        <pipeline name='pipeline1'>
+                            <materials>
+                              <svn url='svnurl' username='admin' password='%s'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'><tasks>
+                                <task name='run-curl'>
+                                  <pluginConfiguration id='plugin-id' version='1.0' />
+                                  <configuration>
+                                    <property><key>url</key><value>http://fake-yum-repo</value></property>
+                                    <property><key>username</key><value>godev</value></property>
+                                    <property><key>password</key><value>password</value></property>
+                                  </configuration>
+                              </task> </tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline></pipelines>
+                        </cruise>""";
 
         CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(oldConfigWithNameInTask);
         String newConfigWithoutNameInTask = FileUtils.readFileToString(configFile, UTF_8);
@@ -1266,42 +1290,44 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldDefineNoOpClustersAsPartOfMigration119() throws Exception {
-        String configContent = " <elastic>\n" +
-                "    <profiles>\n" +
-                "      <profile id=\"profile1\" pluginId=\"cd.go.contrib.elastic-agent.docker\">\n" +
-                "        <property>\n" +
-                "          <key>Image</key>\n" +
-                "          <value>alpine:latest</value>\n" +
-                "        </property>\n" +
-                "      </profile>" +
-                "      <profile id=\"profile2\" pluginId=\"cd.go.contrib.elasticagent.kubernetes\">\n" +
-                "        <property>\n" +
-                "          <key>Image</key>\n" +
-                "          <value>alpine:latest</value>\n" +
-                "        </property>\n" +
-                "      </profile>" +
-                "      <profile id=\"profile3\" pluginId=\"cd.go.contrib.elastic-agent.docker\">\n" +
-                "        <property>\n" +
-                "          <key>Image</key>\n" +
-                "          <value>alpine:latest</value>\n" +
-                "        </property>\n" +
-                "      </profile>" +
-                "      <profile id=\"profile4\" pluginId=\"com.thoughtworks.gocd.elastic-agent.azure\">\n" +
-                "        <property>\n" +
-                "          <key>Image</key>\n" +
-                "          <value>alpine:latest</value>\n" +
-                "        </property>\n" +
-                "      </profile>" +
-                "      <profile id=\"profile5\" pluginId=\"com.thoughtworks.gocd.elastic-agent.azure\">\n" +
-                "        <property>\n" +
-                "          <key>Image</key>\n" +
-                "          <value>alpine:latest</value>\n" +
-                "        </property>\n" +
-                "      </profile>" +
-                "    </profiles>" +
-                "  </elastic>";
+        String configContent = """
+                 <elastic>
+                    <profiles>
+                      <profile id="profile1" pluginId="cd.go.contrib.elastic-agent.docker">
+                        <property>
+                          <key>Image</key>
+                          <value>alpine:latest</value>
+                        </property>
+                      </profile>
+                      <profile id="profile2" pluginId="cd.go.contrib.elasticagent.kubernetes">
+                        <property>
+                          <key>Image</key>
+                          <value>alpine:latest</value>
+                        </property>
+                      </profile>
+                      <profile id="profile3" pluginId="cd.go.contrib.elastic-agent.docker">
+                        <property>
+                          <key>Image</key>
+                          <value>alpine:latest</value>
+                        </property>
+                      </profile>
+                      <profile id="profile4" pluginId="com.thoughtworks.gocd.elastic-agent.azure">
+                        <property>
+                          <key>Image</key>
+                          <value>alpine:latest</value>
+                        </property>
+                      </profile>
+                      <profile id="profile5" pluginId="com.thoughtworks.gocd.elastic-agent.azure">
+                        <property>
+                          <key>Image</key>
+                          <value>alpine:latest</value>
+                        </property>
+                      </profile>
+                    </profiles>
+                  </elastic>\
+                """;
 
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 + "<cruise schemaVersion=\"118\">\n"
                 + configContent
                 + "</cruise>";
@@ -1335,43 +1361,44 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldMigrateAgentsOutOfXMLIntoDBAsPartOf128() throws Exception {
-        String configContent = "" +
-                "  <environments>\n" +
-                "    <environment name=\"bar\">\n" +
-                "    </environment>\n" +
-                "    <environment name=\"baz\">\n" +
-                "      <agents>\n" +
-                "        <physical uuid=\"elastic-one\" />\n" +
-                "        <physical uuid=\"elastic-two\" />\n" +
-                "      </agents>\n" +
-                "    </environment>\n" +
-                "    <environment name=\"foo\">\n" +
-                "      <agents>\n" +
-                "        <physical uuid=\"one\" />\n" +
-                "        <physical uuid=\"two\" />\n" +
-                "        <physical uuid=\"elastic-two\" />\n" +
-                "      </agents>\n" +
-                "    </environment>\n" +
-                "  </environments>" +
-                "  <agents>" +
-                "    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1' >" +
-                "        <resources>" +
-                "           <resource>repos</resource>" +
-                "           <resource>db</resource>" +
-                "        </resources>" +
-                "    </agent>" +
-                "    <agent uuid='two' hostname='two-host' ipaddress='127.0.0.2'/>" +
-                "    <agent uuid='elastic-one' hostname='one-elastic-host' ipaddress='172.10.20.30' elasticAgentId='docker.foo1' elasticPluginId='docker'/>" +
-                "    <agent uuid='elastic-two' hostname='two-elastic-host' ipaddress='172.10.20.31' elasticAgentId='docker.foo2' elasticPluginId='docker'/>" +
-                "  </agents>";
+        String configContent = """
+                  <environments>
+                    <environment name="bar">
+                    </environment>
+                    <environment name="baz">
+                      <agents>
+                        <physical uuid="elastic-one" />
+                        <physical uuid="elastic-two" />
+                      </agents>
+                    </environment>
+                    <environment name="foo">
+                      <agents>
+                        <physical uuid="one" />
+                        <physical uuid="two" />
+                        <physical uuid="elastic-two" />
+                      </agents>
+                    </environment>
+                  </environments>
+                  <agents>
+                    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1' >
+                        <resources>
+                           <resource>repos</resource>
+                           <resource>db</resource>
+                        </resources>
+                    </agent>
+                    <agent uuid='two' hostname='two-host' ipaddress='127.0.0.2'/>
+                    <agent uuid='elastic-one' hostname='one-elastic-host' ipaddress='172.10.20.30' elasticAgentId='docker.foo1' elasticPluginId='docker'/>
+                    <agent uuid='elastic-two' hostname='two-elastic-host' ipaddress='172.10.20.31' elasticAgentId='docker.foo2' elasticPluginId='docker'/>
+                  </agents>\
+                """;
 
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 + "<cruise schemaVersion=\"127\">\n"
                 + configContent
                 + "</cruise>";
 
         int initialAgentCountInDb = agentDao.getAllAgents().size();
-        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
+        migrateConfigAndLoadTheNewConfig(configXml);
         String newConfigFile = FileUtils.readFileToString(configFile, UTF_8);
 
         // clearing out the hibernate cache so that the service fetches from the DB
@@ -1426,24 +1453,25 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldUpdateAnExistingAgentRecordInDBAsPartOfXMLToDBMigration_128() throws Exception {
-        String configContent = "" +
-                "  <environments>\n" +
-                "    <environment name=\"foo\">\n" +
-                "      <agents>\n" +
-                "        <physical uuid=\"one\" />\n" +
-                "      </agents>\n" +
-                "    </environment>\n" +
-                "  </environments>" +
-                "  <agents>" +
-                "    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1' >" +
-                "        <resources>" +
-                "           <resource>repos</resource>" +
-                "           <resource>db</resource>" +
-                "        </resources>" +
-                "    </agent>" +
-                "  </agents>";
+        String configContent = """
+                  <environments>
+                    <environment name="foo">
+                      <agents>
+                        <physical uuid="one" />
+                      </agents>
+                    </environment>
+                  </environments>
+                  <agents>
+                    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1' >
+                        <resources>
+                           <resource>repos</resource>
+                           <resource>db</resource>
+                        </resources>
+                    </agent>
+                  </agents>\
+                """;
 
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 + "<cruise schemaVersion=\"127\">\n"
                 + configContent
                 + "</cruise>";
@@ -1451,7 +1479,7 @@ public class GoConfigMigratorIntegrationTest {
         Agent agent = new Agent("one", "old-host", "old-ip", "cookie");
         agentDao.saveOrUpdate(agent);
 
-        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
+        migrateConfigAndLoadTheNewConfig(configXml);
         String newConfigFile = FileUtils.readFileToString(configFile, UTF_8);
 
         Agent staticAgent = agentDao.fetchAgentFromDBByUUID("one");
@@ -1475,16 +1503,16 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     private String configWithTimerBasedPipeline(String valueForOnChangesInTimer) {
-        return ConfigFileFixture.configWithPipeline("<pipeline name='old-timer'>"
-                + "  <timer " + valueForOnChangesInTimer + ">0 0 1 * * ?</timer>"
-                + "  <materials>"
-                + "    <git url='/tmp/git' />"
-                + "  </materials>"
-                + "  <stage name='dist'>"
-                + "    <jobs>"
-                + "      <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "    </jobs>"
-                + "  </stage>"
+        return ConfigFileFixture.configWithPipeline("<pipeline name='old-timer'>\n"
+                + "  <timer " + valueForOnChangesInTimer + ">0 0 1 * * ?</timer>\n"
+                + "  <materials>\n"
+                + "    <git url='/tmp/git' />\n"
+                + "  </materials>\n"
+                + "  <stage name='dist'>\n"
+                + "    <jobs>\n"
+                + "      <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
+                + "    </jobs>\n"
+                + "  </stage>\n"
                 + "</pipeline>", 63);
     }
 

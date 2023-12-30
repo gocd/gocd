@@ -182,11 +182,13 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadConfigWithConfigRepoAndPluginName() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(configWithConfigRepos(
-                "  <config-repos>\n"
-                        + "    <config-repo pluginId=\"myplugin\" id=\"repo-id\">\n"
-                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
-                        + "    </config-repo >\n"
-                        + "  </config-repos>\n"
+                """
+                          <config-repos>
+                            <config-repo pluginId="myplugin" id="repo-id">
+                              <git url="https://github.com/tomzo/gocd-indep-config-part.git" />
+                            </config-repo >
+                          </config-repos>
+                        """
         )).config;
         assertThat(cruiseConfig.getConfigRepos().size()).isEqualTo(1);
         ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
@@ -196,14 +198,16 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadConfigWith2ConfigRepos() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(configWithConfigRepos(
-                "  <config-repos>\n"
-                        + "    <config-repo pluginId=\"myplugin\" id=\"repo-id1\">\n"
-                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
-                        + "    </config-repo >\n"
-                        + "    <config-repo pluginId=\"myplugin\" id=\"repo-id2\">\n"
-                        + "      <git url=\"https://github.com/tomzo/gocd-refmain-config-part.git\" />\n"
-                        + "    </config-repo >\n"
-                        + "  </config-repos>\n"
+                """
+                          <config-repos>
+                            <config-repo pluginId="myplugin" id="repo-id1">
+                              <git url="https://github.com/tomzo/gocd-indep-config-part.git" />
+                            </config-repo >
+                            <config-repo pluginId="myplugin" id="repo-id2">
+                              <git url="https://github.com/tomzo/gocd-refmain-config-part.git" />
+                            </config-repo >
+                          </config-repos>
+                        """
         )).config;
         assertThat(cruiseConfig.getConfigRepos().size()).isEqualTo(2);
         ConfigRepoConfig configRepo1 = cruiseConfig.getConfigRepos().get(0);
@@ -215,17 +219,19 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadConfigWithConfigRepoAndConfiguration() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(configWithConfigRepos(
-                "  <config-repos>\n"
-                        + "    <config-repo id=\"id1\" pluginId=\"gocd-xml\">\n"
-                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
-                        + "      <configuration>\n"
-                        + "        <property>\n"
-                        + "          <key>pattern</key>\n"
-                        + "          <value>*.gocd.xml</value>\n"
-                        + "        </property>\n"
-                        + "      </configuration>\n"
-                        + "    </config-repo >\n"
-                        + "  </config-repos>\n"
+                """
+                          <config-repos>
+                            <config-repo id="id1" pluginId="gocd-xml">
+                              <git url="https://github.com/tomzo/gocd-indep-config-part.git" />
+                              <configuration>
+                                <property>
+                                  <key>pattern</key>
+                                  <value>*.gocd.xml</value>
+                                </property>
+                              </configuration>
+                            </config-repo >
+                          </config-repos>
+                        """
         )).config;
         assertThat(cruiseConfig.getConfigRepos().size()).isEqualTo(1);
         ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
@@ -237,36 +243,42 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldThrowXsdValidationException_WhenNoRepository() {
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(configWithConfigRepos(
-                "  <config-repos>\n"
-                        + "    <config-repo pluginId=\"myplugin\">\n"
-                        + "    </config-repo >\n"
-                        + "  </config-repos>\n"
+                """
+                          <config-repos>
+                            <config-repo pluginId="myplugin">
+                            </config-repo >
+                          </config-repos>
+                        """
         ))).isInstanceOf(XsdValidationException.class);
     }
 
     @Test
     void shouldThrowXsdValidationException_When2RepositoriesInSameConfigElement() {
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(configWithConfigRepos(
-                "  <config-repos>\n"
-                        + "    <config-repo pluginId=\"myplugin\">\n"
-                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
-                        + "      <git url=\"https://github.com/tomzo/gocd-refmain-config-part.git\" />\n"
-                        + "    </config-repo >\n"
-                        + "  </config-repos>\n"
+                """
+                          <config-repos>
+                            <config-repo pluginId="myplugin">
+                              <git url="https://github.com/tomzo/gocd-indep-config-part.git" />
+                              <git url="https://github.com/tomzo/gocd-refmain-config-part.git" />
+                            </config-repo >
+                          </config-repos>
+                        """
         ))).isInstanceOf(XsdValidationException.class);
     }
 
     @Test
     void shouldFailValidation_WhenSameMaterialUsedBy2ConfigRepos() {
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(configWithConfigRepos(
-                "  <config-repos>\n"
-                        + "    <config-repo pluginId=\"myplugin\" id=\"id1\">\n"
-                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
-                        + "    </config-repo >\n"
-                        + "    <config-repo pluginId=\"myotherplugin\" id=\"id2\">\n"
-                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
-                        + "    </config-repo >\n"
-                        + "  </config-repos>\n"
+                """
+                          <config-repos>
+                            <config-repo pluginId="myplugin" id="id1">
+                              <git url="https://github.com/tomzo/gocd-indep-config-part.git" />
+                            </config-repo >
+                            <config-repo pluginId="myotherplugin" id="id2">
+                              <git url="https://github.com/tomzo/gocd-indep-config-part.git" />
+                            </config-repo >
+                          </config-repos>
+                        """
         )))
                 .isInstanceOf(GoConfigInvalidException.class);
     }
@@ -288,10 +300,11 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldSetConfigOriginInEnvironment_AfterLoadingConfigFile() throws Exception {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "  </environment>"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat'>
+                          </environment>
+                        </environments>""", CONFIG_SCHEMA_VERSION);
         EnvironmentsConfig environmentsConfig = xmlLoader.deserializeConfig(content).getEnvironments();
         EnvironmentConfig uat = environmentsConfig.get(0);
         assertThat(uat.getOrigin()).isEqualTo(new FileConfigOrigin());
@@ -352,11 +365,12 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadBuildPlanFromXmlPartial() throws Exception {
         String buildXmlPartial =
-                "<job name=\"functional\">\n"
-                        + "  <artifacts>\n"
-                        + "    <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "  </artifacts>\n"
-                        + "</job>";
+                """
+                        <job name="functional">
+                          <artifacts>
+                            <artifact type="build" src="artifact1.xml" dest="cruise-output" />
+                          </artifacts>
+                        </job>""";
         JobConfig build = xmlLoader.fromXmlPartial(buildXmlPartial, JobConfig.class);
         assertThat(build.name()).isEqualTo(new CaseInsensitiveString("functional"));
         assertThat(build.artifactTypeConfigs().size()).isEqualTo(1);
@@ -366,11 +380,12 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadIgnoresFromSvnPartial() throws Exception {
         String buildXmlPartial =
-                "<svn url=\"file:///tmp/testSvnRepo/project1/trunk\" >\n"
-                        + "            <filter>\n"
-                        + "                <ignore pattern=\"x\"/>\n"
-                        + "            </filter>\n"
-                        + "        </svn>";
+                """
+                        <svn url="file:///tmp/testSvnRepo/project1/trunk" >
+                                    <filter>
+                                        <ignore pattern="x"/>
+                                    </filter>
+                                </svn>""";
         MaterialConfig svnMaterial = xmlLoader.fromXmlPartial(buildXmlPartial, SvnMaterialConfig.class);
         Filter parsedFilter = svnMaterial.filter();
         Filter expectedFilter = new Filter();
@@ -381,11 +396,12 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadIgnoresFromHgPartial() throws Exception {
         String buildXmlPartial =
-                "<hg url=\"file:///tmp/testSvnRepo/project1/trunk\" >\n"
-                        + "            <filter>\n"
-                        + "                <ignore pattern=\"x\"/>\n"
-                        + "            </filter>\n"
-                        + "        </hg>";
+                """
+                        <hg url="file:///tmp/testSvnRepo/project1/trunk" >
+                                    <filter>
+                                        <ignore pattern="x"/>
+                                    </filter>
+                                </hg>""";
         MaterialConfig hgMaterial = xmlLoader.fromXmlPartial(buildXmlPartial, HgMaterialConfig.class);
         Filter parsedFilter = hgMaterial.filter();
         Filter expectedFilter = new Filter();
@@ -420,38 +436,48 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldValidateBooleanAutoUpdateOnMaterials() throws Exception {
         String noAutoUpdate =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo2\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo2" />
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertValid(noAutoUpdate);
         String validAutoUpdate =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo2\" autoUpdate='true'/>\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo2" autoUpdate='true'/>
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertValid(validAutoUpdate);
         String invalidautoUpdate =
-                "  <materials>\n"
-                        + "    <git url=\"/hgrepo2\" autoUpdate=\"fooo\"/>\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <git url="/hgrepo2" autoUpdate="fooo"/>
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertNotValid("'fooo' is not a valid value for 'boolean'.", invalidautoUpdate);
     }
 
     @Test
     void shouldInvalidateAutoUpdateOnDependencyMaterial() {
         String noAutoUpdate =
-                "  <materials>\n"
-                        + "    <pipeline pipelineName=\"pipeline\" stageName=\"stage\" autoUpdate=\"true\"/>\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <pipeline pipelineName="pipeline" stageName="stage" autoUpdate="true"/>
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertNotValid("Attribute 'autoUpdate' is not allowed to appear in element 'pipeline'.", noAutoUpdate);
     }
 
     @Test
     void shouldInvalidateAutoUpdateIfTheSameMaterialHasDifferentValuesForAutoUpdate() {
         String noAutoUpdate =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo2\" autoUpdate='true' dest='first'/>\n"
-                        + "    <svn url=\"/hgrepo2\" autoUpdate='false' dest='second'/>\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo2" autoUpdate='true' dest='first'/>
+                            <svn url="/hgrepo2" autoUpdate='false' dest='second'/>
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertNotValid(
                 "The material of type Subversion (/hgrepo2) is used elsewhere with a different value for autoUpdate (poll for changes). Those values should be the same. Pipelines:\n pipeline (auto update enabled)",
                 noAutoUpdate);
@@ -470,13 +496,14 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadGetFromSvnPartialForDir() throws Exception {
         String buildXmlPartial =
-                "<jobs>\n"
-                        + "  <job name=\"functional\">\n"
-                        + "     <tasks>\n"
-                        + "         <fetchartifact artifactOrigin='gocd' stage='dev' job='unit' srcdir='dist' dest='lib' />\n"
-                        + "      </tasks>\n"
-                        + "    </job>\n"
-                        + "</jobs>";
+                """
+                        <jobs>
+                          <job name="functional">
+                             <tasks>
+                                 <fetchartifact artifactOrigin='gocd' stage='dev' job='unit' srcdir='dist' dest='lib' />
+                              </tasks>
+                            </job>
+                        </jobs>""";
 
         JobConfigs jobs = xmlLoader.fromXmlPartial(buildXmlPartial, JobConfigs.class);
         JobConfig job = jobs.first();
@@ -492,15 +519,16 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowEmptyOnCancel() throws Exception {
         String buildXmlPartial =
-                "<jobs>\n"
-                        + "  <job name=\"functional\">\n"
-                        + "     <tasks>\n"
-                        + "         <exec command='ls'>\n"
-                        + "             <oncancel/>\n"
-                        + "         </exec>\n"
-                        + "      </tasks>\n"
-                        + "    </job>\n"
-                        + "</jobs>";
+                """
+                        <jobs>
+                          <job name="functional">
+                             <tasks>
+                                 <exec command='ls'>
+                                     <oncancel/>
+                                 </exec>
+                              </tasks>
+                            </job>
+                        </jobs>""";
 
         JobConfigs jobs = xmlLoader.fromXmlPartial(buildXmlPartial, JobConfigs.class);
         JobConfig job = jobs.first();
@@ -513,11 +541,12 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadIgnoresFromGitPartial() throws Exception {
         String gitPartial =
-                "<git url='file:///tmp/testGitRepo/project1' >\n"
-                        + "            <filter>\n"
-                        + "                <ignore pattern='x'/>\n"
-                        + "            </filter>\n"
-                        + "        </git>";
+                """
+                        <git url='file:///tmp/testGitRepo/project1' >
+                                    <filter>
+                                        <ignore pattern='x'/>
+                                    </filter>
+                                </git>""";
         GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(gitPartial, GitMaterialConfig.class);
         assertThat(gitMaterial.getBranch()).isEqualTo(GitMaterialConfig.DEFAULT_BRANCH);
         Filter parsedFilter = gitMaterial.filter();
@@ -543,12 +572,13 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadIgnoresFromP4Partial() throws Exception {
         String gitPartial =
-                "<p4 port=\"localhost:8080\">\n"
-                        + "            <filter>\n"
-                        + "                <ignore pattern=\"x\"/>\n"
-                        + "            </filter>\n"
-                        + " <view></view>\n"
-                        + "</p4>";
+                """
+                        <p4 port="localhost:8080">
+                                    <filter>
+                                        <ignore pattern="x"/>
+                                    </filter>
+                         <view></view>
+                        </p4>""";
         MaterialConfig p4Material = xmlLoader.fromXmlPartial(gitPartial, P4MaterialConfig.class);
         Filter parsedFilter = p4Material.filter();
         Filter expectedFilter = new Filter();
@@ -559,15 +589,17 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadStageFromXmlPartial() throws Exception {
         String stageXmlPartial =
-                "<stage name=\"mingle\">\n"
-                        + "  <jobs>\n"
-                        + "    <job name=\"functional\">\n"
-                        + "      <artifacts>\n"
-                        + "        <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "      </artifacts>\n"
-                        + "    </job>\n"
-                        + "  </jobs>\n"
-                        + "</stage>\n";
+                """
+                        <stage name="mingle">
+                          <jobs>
+                            <job name="functional">
+                              <artifacts>
+                                <log src="artifact1.xml" dest="cruise-output" />
+                              </artifacts>
+                            </job>
+                          </jobs>
+                        </stage>
+                        """;
         StageConfig stage = xmlLoader.fromXmlPartial(stageXmlPartial, StageConfig.class);
         assertThat(stage.name()).isEqualTo(new CaseInsensitiveString("mingle"));
         assertThat(stage.allBuildPlans().size()).isEqualTo(1);
@@ -577,41 +609,47 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadStageArtifactPurgeSettingsFromXmlPartial() throws Exception {
         String stageXmlPartial =
-                "<stage name=\"mingle\" artifactCleanupProhibited=\"true\">\n"
-                        + "  <jobs>\n"
-                        + "    <job name=\"functional\">\n"
-                        + "      <artifacts>\n"
-                        + "        <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "      </artifacts>\n"
-                        + "    </job>\n"
-                        + "  </jobs>\n"
-                        + "</stage>\n";
+                """
+                        <stage name="mingle" artifactCleanupProhibited="true">
+                          <jobs>
+                            <job name="functional">
+                              <artifacts>
+                                <log src="artifact1.xml" dest="cruise-output" />
+                              </artifacts>
+                            </job>
+                          </jobs>
+                        </stage>
+                        """;
         StageConfig stage = xmlLoader.fromXmlPartial(stageXmlPartial, StageConfig.class);
         assertThat(stage.isArtifactCleanupProhibited()).isTrue();
 
         stageXmlPartial =
-                "<stage name=\"mingle\" artifactCleanupProhibited=\"false\">\n"
-                        + "  <jobs>\n"
-                        + "    <job name=\"functional\">\n"
-                        + "      <artifacts>\n"
-                        + "        <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "      </artifacts>\n"
-                        + "    </job>\n"
-                        + "  </jobs>\n"
-                        + "</stage>\n";
+                """
+                        <stage name="mingle" artifactCleanupProhibited="false">
+                          <jobs>
+                            <job name="functional">
+                              <artifacts>
+                                <log src="artifact1.xml" dest="cruise-output" />
+                              </artifacts>
+                            </job>
+                          </jobs>
+                        </stage>
+                        """;
         stage = xmlLoader.fromXmlPartial(stageXmlPartial, StageConfig.class);
         assertThat(stage.isArtifactCleanupProhibited()).isFalse();
 
         stageXmlPartial =
-                "<stage name=\"mingle\">\n"
-                        + "  <jobs>\n"
-                        + "    <job name=\"functional\">\n"
-                        + "      <artifacts>\n"
-                        + "        <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "      </artifacts>\n"
-                        + "    </job>\n"
-                        + "  </jobs>\n"
-                        + "</stage>\n";
+                """
+                        <stage name="mingle">
+                          <jobs>
+                            <job name="functional">
+                              <artifacts>
+                                <log src="artifact1.xml" dest="cruise-output" />
+                              </artifacts>
+                            </job>
+                          </jobs>
+                        </stage>
+                        """;
         stage = xmlLoader.fromXmlPartial(stageXmlPartial, StageConfig.class);
         assertThat(stage.isArtifactCleanupProhibited()).isFalse();
     }
@@ -619,24 +657,26 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadPartialConfigWithPipeline() throws Exception {
         String partialConfigWithPipeline =
-                "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                        + "<pipelines group=\"first\">\n"
-                        + "<pipeline name=\"pipeline\">\n"
-                        + "  <materials>\n"
-                        + "    <hg url=\"/hgrepo\"/>\n"
-                        + "  </materials>\n"
-                        + "  <stage name=\"mingle\">\n"
-                        + "    <jobs>\n"
-                        + "      <job name=\"functional\">\n"
-                        + "        <artifacts>\n"
-                        + "          <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "        </artifacts>\n"
-                        + "      </job>\n"
-                        + "    </jobs>\n"
-                        + "  </stage>\n"
-                        + "</pipeline>\n"
-                        + "</pipelines>\n"
-                        + "</cruise>\n";
+                ("""
+                        <cruise schemaVersion='%d'>
+                        <pipelines group="first">
+                        <pipeline name="pipeline">
+                          <materials>
+                            <hg url="/hgrepo"/>
+                          </materials>
+                          <stage name="mingle">
+                            <jobs>
+                              <job name="functional">
+                                <artifacts>
+                                  <log src="artifact1.xml" dest="cruise-output" />
+                                </artifacts>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        </pipelines>
+                        </cruise>
+                        """).formatted(CONFIG_SCHEMA_VERSION);
         PartialConfig partialConfig = xmlLoader.fromXmlPartial(partialConfigWithPipeline, PartialConfig.class);
         assertThat(partialConfig.getGroups().size()).isEqualTo(1);
         PipelineConfig pipeline = partialConfig.getGroups().get(0).getPipelines().get(0);
@@ -648,14 +688,15 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadPartialConfigWithEnvironment() throws Exception {
         String partialConfigWithPipeline = configWithEnvironments(
-                "<environments>\n"
-                        + "  <environment name='uat'>\n"
-                        + "     <pipelines>\n"
-                        + "         <pipeline name='pipeline1' />\n"
-                        + "     </pipelines>\n"
-                        + "  </environment>\n"
-                        + "  <environment name='prod' />\n"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat'>
+                             <pipelines>
+                                 <pipeline name='pipeline1' />
+                             </pipelines>
+                          </environment>
+                          <environment name='prod' />
+                        </environments>""", CONFIG_SCHEMA_VERSION);
         PartialConfig partialConfig = xmlLoader.fromXmlPartial(partialConfigWithPipeline, PartialConfig.class);
         EnvironmentsConfig environmentsConfig = partialConfig.getEnvironments();
         assertThat(environmentsConfig.size()).isEqualTo(2);
@@ -666,20 +707,22 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadPipelineFromXmlPartial() throws Exception {
         String pipelineXmlPartial =
-                "<pipeline name=\"pipeline\">\n"
-                        + "  <materials>\n"
-                        + "    <hg url=\"/hgrepo\"/>\n"
-                        + "  </materials>\n"
-                        + "  <stage name=\"mingle\">\n"
-                        + "    <jobs>\n"
-                        + "      <job name=\"functional\">\n"
-                        + "        <artifacts>\n"
-                        + "          <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "        </artifacts>\n"
-                        + "      </job>\n"
-                        + "    </jobs>\n"
-                        + "  </stage>\n"
-                        + "</pipeline>\n";
+                """
+                        <pipeline name="pipeline">
+                          <materials>
+                            <hg url="/hgrepo"/>
+                          </materials>
+                          <stage name="mingle">
+                            <jobs>
+                              <job name="functional">
+                                <artifacts>
+                                  <log src="artifact1.xml" dest="cruise-output" />
+                                </artifacts>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        """;
         PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineXmlPartial, PipelineConfig.class);
         assertThat(pipeline.name()).isEqualTo(new CaseInsensitiveString("pipeline"));
         assertThat(pipeline.size()).isEqualTo(1);
@@ -689,20 +732,22 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldBeAbleToExplicitlyLockAPipeline() throws Exception {
         String pipelineXmlPartial =
-                "<pipeline name=\"pipeline\" lockBehavior=\"" + LOCK_VALUE_LOCK_ON_FAILURE + "\">\n"
-                        + "  <materials>\n"
-                        + "    <hg url=\"/hgrepo\"/>\n"
-                        + "  </materials>\n"
-                        + "  <stage name=\"mingle\">\n"
-                        + "    <jobs>\n"
-                        + "      <job name=\"functional\">\n"
-                        + "        <artifacts>\n"
-                        + "          <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "        </artifacts>\n"
-                        + "      </job>\n"
-                        + "    </jobs>\n"
-                        + "  </stage>\n"
-                        + "</pipeline>\n";
+                ("""
+                        <pipeline name="pipeline" lockBehavior="%s">
+                          <materials>
+                            <hg url="/hgrepo"/>
+                          </materials>
+                          <stage name="mingle">
+                            <jobs>
+                              <job name="functional">
+                                <artifacts>
+                                  <log src="artifact1.xml" dest="cruise-output" />
+                                </artifacts>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        """).formatted(LOCK_VALUE_LOCK_ON_FAILURE);
         PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineXmlPartial, PipelineConfig.class);
 
         assertThat(pipeline.hasExplicitLock()).isTrue();
@@ -712,20 +757,22 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldBeAbleToExplicitlyUnlockAPipeline() throws Exception {
         String pipelineXmlPartial =
-                "<pipeline name=\"pipeline\" lockBehavior=\"" + PipelineConfig.LOCK_VALUE_NONE + "\">\n"
-                        + "  <materials>\n"
-                        + "    <hg url=\"/hgrepo\"/>\n"
-                        + "  </materials>\n"
-                        + "  <stage name=\"mingle\">\n"
-                        + "    <jobs>\n"
-                        + "      <job name=\"functional\">\n"
-                        + "        <artifacts>\n"
-                        + "          <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "        </artifacts>\n"
-                        + "      </job>\n"
-                        + "    </jobs>\n"
-                        + "  </stage>\n"
-                        + "</pipeline>\n";
+                ("""
+                        <pipeline name="pipeline" lockBehavior="%s">
+                          <materials>
+                            <hg url="/hgrepo"/>
+                          </materials>
+                          <stage name="mingle">
+                            <jobs>
+                              <job name="functional">
+                                <artifacts>
+                                  <log src="artifact1.xml" dest="cruise-output" />
+                                </artifacts>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        """).formatted(PipelineConfig.LOCK_VALUE_NONE);
         PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineXmlPartial, PipelineConfig.class);
 
         assertThat(pipeline.hasExplicitLock()).isTrue();
@@ -735,20 +782,22 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldUnderstandNoExplicitLockOnAPipeline() throws Exception {
         String pipelineXmlPartial =
-                "<pipeline name=\"pipeline\">\n"
-                        + "  <materials>\n"
-                        + "    <hg url=\"/hgrepo\"/>\n"
-                        + "  </materials>\n"
-                        + "  <stage name=\"mingle\">\n"
-                        + "    <jobs>\n"
-                        + "      <job name=\"functional\">\n"
-                        + "        <artifacts>\n"
-                        + "          <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "        </artifacts>\n"
-                        + "      </job>\n"
-                        + "    </jobs>\n"
-                        + "  </stage>\n"
-                        + "</pipeline>\n";
+                """
+                        <pipeline name="pipeline">
+                          <materials>
+                            <hg url="/hgrepo"/>
+                          </materials>
+                          <stage name="mingle">
+                            <jobs>
+                              <job name="functional">
+                                <artifacts>
+                                  <log src="artifact1.xml" dest="cruise-output" />
+                                </artifacts>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        """;
         PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineXmlPartial, PipelineConfig.class);
 
         assertThat(pipeline.hasExplicitLock()).isFalse();
@@ -760,23 +809,24 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadPipelineWithP4MaterialFromXmlPartial() throws Exception {
         String pipelineWithP4MaterialXmlPartial =
-                "<pipeline name=\"pipeline\">\n"
-                        + "  <materials>\n"
-                        + "    <p4 port=\"10.18.3.241:9999\" username=\"cruise\" password=\"password\" "
-                        + "        useTickets=\"true\">\n"
-                        + "          <view><![CDATA[//depot/dev/... //lumberjack/...]]></view>\n"
-                        + "    </p4>"
-                        + "  </materials>\n"
-                        + "  <stage name=\"mingle\">\n"
-                        + "    <jobs>\n"
-                        + "      <job name=\"functional\">\n"
-                        + "        <artifacts>\n"
-                        + "          <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "        </artifacts>\n"
-                        + "      </job>\n"
-                        + "    </jobs>\n"
-                        + "  </stage>\n"
-                        + "</pipeline>\n";
+                """
+                        <pipeline name="pipeline">
+                          <materials>
+                            <p4 port="10.18.3.241:9999" username="cruise" password="password"         useTickets="true">
+                                  <view><![CDATA[//depot/dev/... //lumberjack/...]]></view>
+                            </p4>
+                          </materials>
+                          <stage name="mingle">
+                            <jobs>
+                              <job name="functional">
+                                <artifacts>
+                                  <log src="artifact1.xml" dest="cruise-output" />
+                                </artifacts>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        """;
         PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineWithP4MaterialXmlPartial, PipelineConfig.class);
         assertThat(pipeline.name()).isEqualTo(new CaseInsensitiveString("pipeline"));
         MaterialConfig material = pipeline.materialConfigs().first();
@@ -787,15 +837,17 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldThrowExceptionWhenXmlDoesNotMapToXmlPartial() {
         String stageXmlPartial =
-                "<stage name=\"mingle\">\n"
-                        + "  <jobs>\n"
-                        + "    <job name=\"functional\">\n"
-                        + "      <artifacts>\n"
-                        + "        <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "      </artifacts>\n"
-                        + "    </job>\n"
-                        + "  </jobs>\n"
-                        + "</stage>\n";
+                """
+                        <stage name="mingle">
+                          <jobs>
+                            <job name="functional">
+                              <artifacts>
+                                <log src="artifact1.xml" dest="cruise-output" />
+                              </artifacts>
+                            </job>
+                          </jobs>
+                        </stage>
+                        """;
 
         assertThatThrownBy(() -> xmlLoader.fromXmlPartial(stageXmlPartial, JobConfig.class))
             .as("Should not be able to load stage into jobConfig")
@@ -806,11 +858,13 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldThrowExceptionWhenCommandIsEmpty() {
         String jobWithCommand =
-                "<job name=\"functional\">\n"
-                        + "      <tasks>\n"
-                        + "        <exec command=\"\" arguments=\"\" />\n"
-                        + "      </tasks>\n"
-                        + "    </job>\n";
+                """
+                        <job name="functional">
+                              <tasks>
+                                <exec command="" arguments="" />
+                              </tasks>
+                            </job>
+                        """;
         String configWithInvalidCommand = withCommand(jobWithCommand);
 
         assertThatThrownBy(() -> xmlLoader.deserializeConfig(configWithInvalidCommand))
@@ -821,24 +875,25 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldThrowExceptionWhenCommandsContainTrailingSpaces() {
         String configXml =
-                "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
-                        "  <pipelines group='first'>" +
-                        "    <pipeline name='Test'>" +
-                        "      <materials>" +
-                        "        <hg url='../manual-testing/ant_hg/dummy' />" +
-                        "      </materials>" +
-                        "      <stage name='Functional'>" +
-                        "        <jobs>" +
-                        "          <job name='Functional'>" +
-                        "            <tasks>" +
-                        "              <exec command='bundle  ' args='arguments' />" +
-                        "            </tasks>" +
-                        "           </job>" +
-                        "        </jobs>" +
-                        "      </stage>" +
-                        "    </pipeline>" +
-                        "  </pipelines>" +
-                        "</cruise>";
+                ("""
+                        <cruise schemaVersion='%d'>
+                          <pipelines group='first'>
+                            <pipeline name='Test'>
+                              <materials>
+                                <hg url='../manual-testing/ant_hg/dummy' />
+                              </materials>
+                              <stage name='Functional'>
+                                <jobs>
+                                  <job name='Functional'>
+                                    <tasks>
+                                      <exec command='bundle  ' args='arguments' />
+                                    </tasks>
+                                   </job>
+                                </jobs>
+                              </stage>
+                            </pipeline>
+                          </pipelines>
+                        </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> xmlLoader.deserializeConfig(configXml))
             .as("Should not allow command with trailing spaces")
@@ -848,24 +903,25 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldThrowExceptionWhenCommandsContainLeadingSpaces() {
         String configXml =
-                "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
-                        "  <pipelines group='first'>" +
-                        "    <pipeline name='Test'>" +
-                        "      <materials>" +
-                        "        <hg url='../manual-testing/ant_hg/dummy' />" +
-                        "      </materials>" +
-                        "      <stage name='Functional'>" +
-                        "        <jobs>" +
-                        "          <job name='Functional'>" +
-                        "            <tasks>" +
-                        "              <exec command='    bundle' args='arguments' />" +
-                        "            </tasks>" +
-                        "           </job>" +
-                        "        </jobs>" +
-                        "      </stage>" +
-                        "    </pipeline>" +
-                        "  </pipelines>" +
-                        "</cruise>";
+                ("""
+                        <cruise schemaVersion='%d'>
+                          <pipelines group='first'>
+                            <pipeline name='Test'>
+                              <materials>
+                                <hg url='../manual-testing/ant_hg/dummy' />
+                              </materials>
+                              <stage name='Functional'>
+                                <jobs>
+                                  <job name='Functional'>
+                                    <tasks>
+                                      <exec command='    bundle' args='arguments' />
+                                    </tasks>
+                                   </job>
+                                </jobs>
+                              </stage>
+                            </pipeline>
+                          </pipelines>
+                        </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> xmlLoader.deserializeConfig(configXml))
             .as("Should not allow command with trailing spaces")
@@ -875,11 +931,13 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldSupportCommandWithWhiteSpace() throws Exception {
         String jobWithCommand =
-                "<job name=\"functional\">\n"
-                        + "      <tasks>\n"
-                        + "        <exec command=\"c:\\program files\\cmd.exe\" args=\"arguments\" />\n"
-                        + "      </tasks>\n"
-                        + "    </job>\n";
+                """
+                        <job name="functional">
+                              <tasks>
+                                <exec command="c:\\program files\\cmd.exe" args="arguments" />
+                              </tasks>
+                            </job>
+                        """;
         String configWithCommand = withCommand(jobWithCommand);
         CruiseConfig cruiseConfig = xmlLoader.deserializeConfig(configWithCommand);
         Task task = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).first().allBuildPlans().first().tasks().first();
@@ -972,22 +1030,24 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadPipelineWithMultipleMaterials() throws Exception {
         String pipelineXmlPartial =
-                "<pipeline name=\"pipeline\">\n"
-                        + "  <materials>\n"
-                        + "    <svn url=\"/hgrepo1\" dest=\"folder1\" />\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"folder2\" />\n"
-                        + "    <svn url=\"/hgrepo3\" dest=\"folder3\" />\n"
-                        + "  </materials>\n"
-                        + "  <stage name=\"mingle\">\n"
-                        + "    <jobs>\n"
-                        + "      <job name=\"functional\">\n"
-                        + "        <artifacts>\n"
-                        + "          <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "        </artifacts>\n"
-                        + "      </job>\n"
-                        + "    </jobs>\n"
-                        + "  </stage>\n"
-                        + "</pipeline>\n";
+                """
+                        <pipeline name="pipeline">
+                          <materials>
+                            <svn url="/hgrepo1" dest="folder1" />
+                            <svn url="/hgrepo2" dest="folder2" />
+                            <svn url="/hgrepo3" dest="folder3" />
+                          </materials>
+                          <stage name="mingle">
+                            <jobs>
+                              <job name="functional">
+                                <artifacts>
+                                  <log src="artifact1.xml" dest="cruise-output" />
+                                </artifacts>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        """;
         PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineXmlPartial, PipelineConfig.class);
         assertThat(pipeline.materialConfigs().size()).isEqualTo(3);
         ScmMaterialConfig material = (ScmMaterialConfig) pipeline.materialConfigs().get(0);
@@ -997,20 +1057,24 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldThrowErrorIfMultipleMaterialsHaveSameFolders() {
         String materials =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo1\" dest=\"folder1\" />\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"folder1\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo1" dest="folder1" />
+                            <svn url="/hgrepo2" dest="folder1" />
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertNotValid(INVALID_DESTINATION_DIRECTORY_MESSAGE, materials);
     }
 
     @Test
     void shouldThrowErrorIfOneOfMultipleMaterialsHasNoFolder() {
         String materials =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo1\" />\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"folder1\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo1" />
+                            <svn url="/hgrepo2" dest="folder1" />
+                          </materials>
+                        """;
         String message = "Destination directory is required when a pipeline has multiple SCM materials.";
         MagicalGoConfigXmlLoaderFixture.assertNotValid(message, materials);
     }
@@ -1018,10 +1082,12 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldThrowErrorIfOneOfMultipleMaterialsIsNested() {
         String materials =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo1\" dest=\"folder1\"/>\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"folder1/folder2\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo1" dest="folder1"/>
+                            <svn url="/hgrepo2" dest="folder1/folder2" />
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertNotValid(INVALID_DESTINATION_DIRECTORY_MESSAGE, materials);
     }
 
@@ -1029,10 +1095,12 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotThrowErrorIfMultipleMaterialsHaveSimilarNamesBug2337() throws Exception {
         String materials =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo1\" dest=\"folder1/folder2\"/>\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"folder1/folder2different\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo1" dest="folder1/folder2"/>
+                            <svn url="/hgrepo2" dest="folder1/folder2different" />
+                          </materials>
+                        """;
         assertValidMaterials(materials);
     }
 
@@ -1040,24 +1108,30 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotThrowErrorIfMultipleMaterialsHaveSimilarNamesInDifferentOrder() throws Exception {
         String materials =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"folder1/folder2different\" />\n"
-                        + "    <svn url=\"/hgrepo1\" dest=\"folder1/folder2\"/>\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo2" dest="folder1/folder2different" />
+                            <svn url="/hgrepo1" dest="folder1/folder2"/>
+                          </materials>
+                        """;
         assertValidMaterials(materials);
     }
 
     @Test
     void shouldNotAllowfoldersOutsideWorkingDirectory() throws Exception {
         String materials =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"folder1/folder2/../folder3\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo2" dest="folder1/folder2/../folder3" />
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertValid(materials);
         String materials2 =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"../../..\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo2" dest="../../.." />
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertNotValid(
                 "File path is invalid. \"../../..\" should conform to the pattern - (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])", materials2);
     }
@@ -1065,24 +1139,30 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowPathStartWithDotSlash() throws Exception {
         String materials =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"./folder3\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo2" dest="./folder3" />
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertValid(materials);
     }
 
     @Test
     void shouldAllowHiddenFolders() throws Exception {
         String materials =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\".folder3\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo2" dest=".folder3" />
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertValid(materials);
 
         materials =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"./.folder3\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo2" dest="./.folder3" />
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertValid(materials);
     }
 
@@ -1090,9 +1170,11 @@ public class MagicalGoConfigXmlLoaderTest {
     @DisabledOnOs(OS.WINDOWS)
     void shouldNotAllowAbsoluteDestFolderNamesOnLinux() {
         String materials1 =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"/tmp/foo\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo2" dest="/tmp/foo" />
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertNotValid("Dest folder '/tmp/foo' is not valid. It must be a sub-directory of the working folder.",
                 materials1);
     }
@@ -1101,9 +1183,11 @@ public class MagicalGoConfigXmlLoaderTest {
     @DisabledOnOs(OS.WINDOWS)
     void shouldNotAllowAbsoluteDestFolderNamesOnWindows() {
         String materials1 =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"C:\\tmp\\foo\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo2" dest="C:\\tmp\\foo" />
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertNotValid("Dest folder 'C:\\tmp\\foo' is not valid. It must be a sub-directory of the working folder.",
                 materials1);
     }
@@ -1111,24 +1195,28 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotThrowErrorIfMultipleMaterialsHaveSameNames() {
         String materials =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo1\" dest=\"folder1/folder2\"/>\n"
-                        + "    <svn url=\"/hgrepo2\" dest=\"folder1/folder2\" />\n"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo1" dest="folder1/folder2"/>
+                            <svn url="/hgrepo2" dest="folder1/folder2" />
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertNotValid(INVALID_DESTINATION_DIRECTORY_MESSAGE, materials);
     }
 
     @Test
     void shouldSupportHgGitSvnP4ForMultipleMaterials() throws Exception {
         String materials =
-                "  <materials>\n"
-                        + "    <svn url=\"/hgrepo1\" dest=\"folder1\"/>\n"
-                        + "    <git url=\"/hgrepo2\" dest=\"folder2\"/>\n"
-                        + "    <hg url=\"/hgrepo2\" dest=\"folder3\"/>\n"
-                        + "    <p4 port=\"localhost:1666\" dest=\"folder4\">\n"
-                        + "          <view>asd</view>"
-                        + "    </p4>"
-                        + "  </materials>\n";
+                """
+                          <materials>
+                            <svn url="/hgrepo1" dest="folder1"/>
+                            <git url="/hgrepo2" dest="folder2"/>
+                            <hg url="/hgrepo2" dest="folder3"/>
+                            <p4 port="localhost:1666" dest="folder4">
+                                  <view>asd</view>
+                            </p4>
+                          </materials>
+                        """;
         MagicalGoConfigXmlLoaderFixture.assertValid(materials);
     }
 
@@ -1212,10 +1300,11 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadConfigWithEnvironment() throws Exception {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat' />"
-                        + "  <environment name='prod' />"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat' />
+                          <environment name='prod' />
+                        </environments>""", CONFIG_SCHEMA_VERSION);
         EnvironmentsConfig environmentsConfig = xmlLoader.loadConfigHolder(content).config.getEnvironments();
         EnvironmentPipelineMatchers matchers = environmentsConfig.matchers();
         assertThat(matchers.size()).isEqualTo(2);
@@ -1233,7 +1322,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotLoadConfigWithEmptyTemplates() {
         String content = configWithTemplates(
-                "<templates>"
+                "<templates>\n"
                         + "</templates>");
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
@@ -1243,16 +1332,17 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotLoadConfigWhenPipelineHasNoStages() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server />"
-                + "<pipelines>\n"
-                + "<pipeline name='pipeline1'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "</cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server />
+                <pipelines>
+                <pipeline name='pipeline1'>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                </pipeline>
+                </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow Pipeline with No Stages")
@@ -1261,16 +1351,17 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotAllowReferencingTemplateThatDoesNotExist() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server />"
-                + "<pipelines>\n"
-                + "<pipeline name='pipeline1' template='abc'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "</cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server />
+                <pipelines>
+                <pipeline name='pipeline1' template='abc'>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                </pipeline>
+                </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("should not allow referencing template that does not exist")
@@ -1279,26 +1370,27 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowPipelineToReferenceTemplate() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "</server>"
-                + "<pipelines>\n"
-                + "<pipeline name='pipeline1' template='abc'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "<templates>\n"
-                + "  <pipeline name='abc'>\n"
-                + "    <stage name='stage1'>"
-                + "      <jobs>"
-                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>\n"
-                + "</templates>\n"
-                + "</cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server>
+                </server>
+                <pipelines>
+                <pipeline name='pipeline1' template='abc'>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                </pipeline>
+                </pipelines>
+                <templates>
+                  <pipeline name='abc'>
+                    <stage name='stage1'>
+                      <jobs>
+                        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </templates>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         assertThat(pipelineConfig.size()).isEqualTo(1);
@@ -1306,31 +1398,32 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowAdminInPipelineGroups() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server >"
-                + "</server>"
-                + "<pipelines group=\"first\">\n"
-                + "<authorization>"
-                + "     <admins>\n"
-                + "         <user>foo</user>\n"
-                + "      </admins>"
-                + "</authorization>"
-                + "<pipeline name='pipeline1' template='abc'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "<templates>\n"
-                + "  <pipeline name='abc'>\n"
-                + "    <stage name='stage1'>"
-                + "      <jobs>"
-                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>\n"
-                + "</templates>\n"
-                + "</cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server >
+                </server>
+                <pipelines group="first">
+                <authorization>
+                     <admins>
+                         <user>foo</user>
+                      </admins>
+                </authorization>
+                <pipeline name='pipeline1' template='abc'>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                </pipeline>
+                </pipelines>
+                <templates>
+                  <pipeline name='abc'>
+                    <stage name='stage1'>
+                      <jobs>
+                        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </templates>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
         assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), new ArrayList<>())).isTrue();
@@ -1338,40 +1431,41 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowAdminWithRoleInPipelineGroups() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server >"
-                + "<security>\n"
-                + "      <roles>\n"
-                + "        <role name=\"bar\">\n"
-                + "          <users>"
-                + "             <user>foo</user>"
-                + "          </users>"
-                + "        </role>"
-                + "      </roles>"
-                + "</security>"
-                + "</server>"
-                + "<pipelines group=\"first\">\n"
-                + "<authorization>"
-                + "     <admins>\n"
-                + "         <role>bar</role>\n"
-                + "      </admins>"
-                + "</authorization>"
-                + "<pipeline name='pipeline1' template='abc'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "<templates>\n"
-                + "  <pipeline name='abc'>\n"
-                + "    <stage name='stage1'>"
-                + "      <jobs>"
-                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>\n"
-                + "</templates>\n"
-                + "</cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server >
+                <security>
+                      <roles>
+                        <role name="bar">
+                          <users>
+                             <user>foo</user>
+                          </users>
+                        </role>
+                      </roles>
+                </security>
+                </server>
+                <pipelines group="first">
+                <authorization>
+                     <admins>
+                         <role>bar</role>
+                      </admins>
+                </authorization>
+                <pipeline name='pipeline1' template='abc'>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                </pipeline>
+                </pipelines>
+                <templates>
+                  <pipeline name='abc'>
+                    <stage name='stage1'>
+                      <jobs>
+                        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </templates>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
         assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), List.of(new RoleConfig(new CaseInsensitiveString("bar"))))).isTrue();
@@ -1379,26 +1473,27 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAddJobTimeoutAttributeToServerTagAndDefaultItTo60_37xsl() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
-                "<server>" +
-                "<siteUrls>" +
-                "<siteUrl>https://www.someurl.com/go</siteUrl>" +
-                "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl> " +
-                "</siteUrls>" +
-                "</server></cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server>
+                <siteUrls>
+                <siteUrl>https://www.someurl.com/go</siteUrl>
+                <secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl> </siteUrls>
+                </server></cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getJobTimeout()).isEqualTo("0");
     }
 
     @Test
     void shouldGetTheJobTimeoutFromServerTag_37xsl() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
-                "<server jobTimeout='30'>" +
-                "<siteUrls>" +
-                "<siteUrl>https://www.someurl.com/go</siteUrl>" +
-                "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>" +
-                "</siteUrls>" +
-                "</server></cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server jobTimeout='30'>
+                <siteUrls>
+                <siteUrl>https://www.someurl.com/go</siteUrl>
+                <secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>
+                </siteUrls>
+                </server></cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getJobTimeout()).isEqualTo("30");
     }
@@ -1412,13 +1507,14 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowSiteUrlAndSecureSiteUrlAttributes() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
-                "<server>" +
-                "<siteUrls>" +
-                "<siteUrl>https://www.someurl.com/go</siteUrl>" +
-                "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>" +
-                "</siteUrls>" +
-                "</server></cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server>
+                <siteUrls>
+                <siteUrl>https://www.someurl.com/go</siteUrl>
+                <secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>
+                </siteUrls>
+                </server></cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getSiteUrl()).isEqualTo(new SiteUrl("https://www.someurl.com/go"));
         assertThat(cruiseConfig.server().getSecureSiteUrl()).isEqualTo(new SecureSiteUrl("https://www.someotherurl.com/go"));
@@ -1426,16 +1522,17 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowPurgeStartAndPurgeUptoAttributes() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "<artifacts>"
-                + " <purgeSettings>"
-                + "   <purgeStartDiskSpace>1</purgeStartDiskSpace>"
-                + "   <purgeUptoDiskSpace>3</purgeUptoDiskSpace>"
-                + " </purgeSettings>"
-                + "</artifacts>"
-                + "</server>" +
-                "</cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server>
+                <artifacts>
+                 <purgeSettings>
+                   <purgeStartDiskSpace>1</purgeStartDiskSpace>
+                   <purgeUptoDiskSpace>3</purgeUptoDiskSpace>
+                 </purgeSettings>
+                </artifacts>
+                </server>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getPurgeStart()).isEqualTo(1.0);
         assertThat(cruiseConfig.server().getPurgeUpto()).isEqualTo(3.0);
@@ -1443,15 +1540,16 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowDoublePurgeStartAndPurgeUptoAttributes() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "<artifacts>"
-                + " <purgeSettings>"
-                + "   <purgeStartDiskSpace>1.2</purgeStartDiskSpace>"
-                + "   <purgeUptoDiskSpace>3.4</purgeUptoDiskSpace>"
-                + " </purgeSettings>"
-                + "</artifacts>"
-                + "</server></cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server>
+                <artifacts>
+                 <purgeSettings>
+                   <purgeStartDiskSpace>1.2</purgeStartDiskSpace>
+                   <purgeUptoDiskSpace>3.4</purgeUptoDiskSpace>
+                 </purgeSettings>
+                </artifacts>
+                </server></cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getPurgeStart()).isEqualTo(1.2);
         assertThat(cruiseConfig.server().getPurgeUpto()).isEqualTo(3.4);
@@ -1459,9 +1557,10 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowNullPurgeStartAndEnd() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "</server></cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server>
+                </server></cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getPurgeStart()).isNull();
         assertThat(cruiseConfig.server().getPurgeUpto()).isNull();
@@ -1470,30 +1569,31 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotAllowAPipelineThatReferencesATemplateToHaveStages() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server />"
-                + "<pipelines>\n"
-                + "<pipeline name='pipeline1' template='abc'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "    <stage name='badstage'>"
-                + "      <jobs>"
-                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "<templates>\n"
-                + "  <pipeline name='abc'>\n"
-                + "    <stage name='stage1'>"
-                + "      <jobs>"
-                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>\n"
-                + "</templates>\n"
-                + "</cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server />
+                <pipelines>
+                <pipeline name='pipeline1' template='abc'>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                    <stage name='badstage'>
+                      <jobs>
+                        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      </jobs>
+                    </stage>
+                </pipeline>
+                </pipelines>
+                <templates>
+                  <pipeline name='abc'>
+                    <stage name='stage1'>
+                      <jobs>
+                        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </templates>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("shouldn't have stages and template")
@@ -1503,15 +1603,16 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadConfigWithPipelineTemplate() {
         String content = configWithTemplates(
-                "<templates>"
-                        + "  <pipeline name='erbshe'>"
-                        + "    <stage name='stage1'>"
-                        + "      <jobs>"
-                        + "        <job name='job1'><tasks><ant /></tasks></job>"
-                        + "      </jobs>"
-                        + "    </stage>"
-                        + "  </pipeline>"
-                        + "</templates>");
+                """
+                        <templates>
+                          <pipeline name='erbshe'>
+                            <stage name='stage1'>
+                              <jobs>
+                                <job name='job1'><tasks><ant /></tasks></job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                        </templates>""");
         TemplatesConfig templates = ConfigMigrator.loadWithMigration(content).config.getTemplates();
         assertThat(templates.size()).isEqualTo(1);
         assertThat(templates.get(0).size()).isEqualTo(1);
@@ -1521,22 +1622,23 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadConfigWith2PipelineTemplates() {
         String content = configWithTemplates(
-                "<templates>"
-                        + "  <pipeline name='erbshe'>"
-                        + "    <stage name='stage1'>"
-                        + "      <jobs>"
-                        + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                        + "      </jobs>"
-                        + "    </stage>"
-                        + "  </pipeline>"
-                        + "  <pipeline name='erbshe2'>"
-                        + "    <stage name='stage1'>"
-                        + "      <jobs>"
-                        + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                        + "      </jobs>"
-                        + "    </stage>"
-                        + "  </pipeline>"
-                        + "</templates>");
+                """
+                        <templates>
+                          <pipeline name='erbshe'>
+                            <stage name='stage1'>
+                              <jobs>
+                                <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                          <pipeline name='erbshe2'>
+                            <stage name='stage1'>
+                              <jobs>
+                                <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                        </templates>""");
         TemplatesConfig templates = ConfigMigrator.loadWithMigration(content).config.getTemplates();
         assertThat(templates.size()).isEqualTo(2);
         assertThat(templates.get(0).name()).isEqualTo(new CaseInsensitiveString("erbshe"));
@@ -1547,22 +1649,23 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldOnlySupportUniquePipelineTemplates() {
         String content = configWithTemplates(
-                "<templates>"
-                        + "  <pipeline name='erbshe'>"
-                        + "    <stage name='stage1'>"
-                        + "      <jobs>"
-                        + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                        + "      </jobs>"
-                        + "    </stage>"
-                        + "  </pipeline>"
-                        + "  <pipeline name='erbshe'>"
-                        + "    <stage name='stage1'>"
-                        + "      <jobs>"
-                        + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                        + "      </jobs>"
-                        + "    </stage>"
-                        + "  </pipeline>"
-                        + "</templates>");
+                """
+                        <templates>
+                          <pipeline name='erbshe'>
+                            <stage name='stage1'>
+                              <jobs>
+                                <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                          <pipeline name='erbshe'>
+                            <stage name='stage1'>
+                              <jobs>
+                                <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                        </templates>""");
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("should not allow same template names")
@@ -1572,10 +1675,11 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowEmptyPipelineTemplates() {
         String content = configWithTemplates(
-                "<templates>"
-                        + "  <pipeline name='erbshe'>"
-                        + "  </pipeline>"
-                        + "</templates>");
+                """
+                        <templates>
+                          <pipeline name='erbshe'>
+                          </pipeline>
+                        </templates>""");
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("should NotAllowEmptyPipelineTemplates")
@@ -1596,20 +1700,22 @@ public class MagicalGoConfigXmlLoaderTest {
 
     private void testForInvalidJobName(String invalidJobName, String marker) {
         String content = configWithPipeline(
-                "    <pipeline name=\"dev\">\n"
-                        + "      <materials>\n"
-                        + "        <svn url=\"file:///tmp/svn/repos/fifth\" />\n"
-                        + "      </materials>\n"
-                        + "      <stage name=\"AutoStage\">\n"
-                        + "        <jobs>\n"
-                        + "          <job name=\"" + invalidJobName + "\">\n"
-                        + "            <tasks>\n"
-                        + "              <exec command=\"ls\" args=\"-lah\" />\n"
-                        + "            </tasks>\n"
-                        + "          </job>\n"
-                        + "        </jobs>\n"
-                        + "      </stage>\n"
-                        + "    </pipeline>"
+                ("""
+                            <pipeline name="dev">
+                              <materials>
+                                <svn url="file:///tmp/svn/repos/fifth" />
+                              </materials>
+                              <stage name="AutoStage">
+                                <jobs>
+                                  <job name="%s">
+                                    <tasks>
+                                      <exec command="ls" args="-lah" />
+                                    </tasks>
+                                  </job>
+                                </jobs>
+                              </stage>
+                            </pipeline>
+                        """).formatted(invalidJobName)
         );
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
@@ -1620,38 +1726,41 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllow_NonRunOnAllAgentJobToHavePartsOfTheRunOnAll_and_NonRunMultipleInstanceJobToHavePartsOfTheRunInstance_AgentsMarkerInItsName() {
         String content = configWithPipeline(
-                "    <pipeline name=\"dev\">\n"
-                        + "      <materials>\n"
-                        + "        <svn url=\"file:///tmp/svn/repos/fifth\" />\n"
-                        + "      </materials>\n"
-                        + "      <stage name=\"AutoStage\">\n"
-                        + "        <jobs>\n"
-                        + "          <job name=\"valid-name-runOnAll\" >\n"
-                        + "            <tasks>\n"
-                        + "              <exec command=\"ls\" args=\"-lah\" />\n"
-                        + "            </tasks>\n"
-                        + "          </job>\n"
-                        + "          <job name=\"valid-name-runInstance\" >\n"
-                        + "            <tasks>\n"
-                        + "              <exec command=\"ls\" args=\"-lah\" />\n"
-                        + "            </tasks>\n"
-                        + "          </job>\n"
-                        + "        </jobs>\n"
-                        + "      </stage>\n"
-                        + "    </pipeline>");
+                """
+                            <pipeline name="dev">
+                              <materials>
+                                <svn url="file:///tmp/svn/repos/fifth" />
+                              </materials>
+                              <stage name="AutoStage">
+                                <jobs>
+                                  <job name="valid-name-runOnAll" >
+                                    <tasks>
+                                      <exec command="ls" args="-lah" />
+                                    </tasks>
+                                  </job>
+                                  <job name="valid-name-runInstance" >
+                                    <tasks>
+                                      <exec command="ls" args="-lah" />
+                                    </tasks>
+                                  </job>
+                                </jobs>
+                              </stage>
+                            </pipeline>\
+                        """);
         ConfigMigrator.loadWithMigration(content); // should not fail with a validation exception
     }
 
     @Test
     void shouldLoadConfigWithPipelinesMatchingUpWithPipelineDefinitionCaseInsensitively() {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <pipelines>"
-                        + "      <pipeline name='pipeline1'/>"
-                        + "    </pipelines>"
-                        + "  </environment>"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat'>
+                            <pipelines>
+                              <pipeline name='pipeline1'/>
+                            </pipelines>
+                          </environment>
+                        </environments>""", CONFIG_SCHEMA_VERSION);
         EnvironmentsConfig environmentsConfig = ConfigMigrator.loadWithMigration(content).config.getEnvironments();
         EnvironmentPipelineMatcher matcher = environmentsConfig.matchersForPipeline("pipeline1");
         assertThat(matcher).isEqualTo(new EnvironmentPipelineMatcher(new CaseInsensitiveString("uat"), new ArrayList<>(),
@@ -1661,13 +1770,14 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadConfigWithPipelinesNotMatchingUpWithPipelineDefinitionCaseInsensitively() {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <pipelines>"
-                        + "      <pipeline name='pipeline1'/>"
-                        + "    </pipelines>"
-                        + "  </environment>"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat'>
+                            <pipelines>
+                              <pipeline name='pipeline1'/>
+                            </pipelines>
+                          </environment>
+                        </environments>""", CONFIG_SCHEMA_VERSION);
         EnvironmentsConfig environmentsConfig = ConfigMigrator.loadWithMigration(content).config.getEnvironments();
         EnvironmentPipelineMatcher matcher = environmentsConfig.matchersForPipeline("non-existing-pipeline");
         assertThat(matcher).isNull();
@@ -1676,13 +1786,14 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadConfigWithPipelinesMatchingUpWithFirstPipelineDefinitionCaseInsensitively() {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <pipelines>"
-                        + "      <pipeline name='pipeline1'/>"
-                        + "    </pipelines>"
-                        + "  </environment>"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat'>
+                            <pipelines>
+                              <pipeline name='pipeline1'/>
+                            </pipelines>
+                          </environment>
+                        </environments>""", CONFIG_SCHEMA_VERSION);
 
         EnvironmentsConfig environmentsConfig = ConfigMigrator.loadWithMigration(content).config.getEnvironments();
         EnvironmentPipelineMatcher matcher = environmentsConfig.matchersForPipeline("pipeline1");
@@ -1693,13 +1804,14 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowConfigWithUnknownPipeline() {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <pipelines>"
-                        + "      <pipeline name='notpresent'/>"
-                        + "    </pipelines>"
-                        + "  </environment>"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat'>
+                            <pipelines>
+                              <pipeline name='notpresent'/>
+                            </pipelines>
+                          </environment>
+                        </environments>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not have allowed referencing of an unknown pipeline under an environment.")
@@ -1709,18 +1821,19 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowDuplicatePipelineAcrossEnvironments() {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <pipelines>"
-                        + "      <pipeline name='pipeline1'/>"
-                        + "    </pipelines>"
-                        + "  </environment>"
-                        + "  <environment name='prod'>"
-                        + "    <pipelines>"
-                        + "      <pipeline name='Pipeline1'/>"
-                        + "    </pipelines>"
-                        + "  </environment>"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat'>
+                            <pipelines>
+                              <pipeline name='pipeline1'/>
+                            </pipelines>
+                          </environment>
+                          <environment name='prod'>
+                            <pipelines>
+                              <pipeline name='Pipeline1'/>
+                            </pipelines>
+                          </environment>
+                        </environments>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not have allowed duplicate pipeline reference across environments")
@@ -1730,14 +1843,15 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowDuplicatePipelinesInASingleEnvironment() {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <pipelines>"
-                        + "      <pipeline name='pipeline1'/>"
-                        + "      <pipeline name='Pipeline1'/>"
-                        + "    </pipelines>"
-                        + "  </environment>"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat'>
+                            <pipelines>
+                              <pipeline name='pipeline1'/>
+                              <pipeline name='Pipeline1'/>
+                            </pipelines>
+                          </environment>
+                        </environments>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not have allowed duplicate pipeline reference under an environment")
@@ -1747,10 +1861,11 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowConfigWithEnvironmentsWithSameNames() {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat' />"
-                        + "  <environment name='uat' />"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat' />
+                          <environment name='uat' />
+                        </environments>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("Should not support 2 environments with the same same")
@@ -1763,9 +1878,10 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowConfigWithInvalidName() {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='exclamation is invalid !' />"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='exclamation is invalid !' />
+                        </environments>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("XSD should not allow invalid characters")
@@ -1775,11 +1891,12 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowConfigWithEmptyPipeline() {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <pipelines/>"
-                        + "  </environment>"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat'>
+                            <pipelines/>
+                          </environment>
+                        </environments>""", CONFIG_SCHEMA_VERSION);
 
         assertThatCode(() -> ConfigMigrator.loadWithMigration(content))
             .as("should not allow empty pipelines block under an environment")
@@ -1788,14 +1905,15 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotAllowConfigWithDuplicateAgentUuidInEnvironment() {
-        String content = configWithEnvironments("<environments>"
-                + "  <environment name='uat'>"
-                + "    <agents>"
-                + "      <physical uuid='1' />"
-                + "      <physical uuid='1' />"
-                + "    </agents>"
-                + "  </environment>"
-                + "</environments>", 110);
+        String content = configWithEnvironments("""
+                <environments>
+                  <environment name='uat'>
+                    <agents>
+                      <physical uuid='1' />
+                      <physical uuid='1' />
+                    </agents>
+                  </environment>
+                </environments>""", 110);
 
         assertThatThrownBy(() ->  ConfigMigrator.migrate(content, 110, CONFIG_SCHEMA_VERSION))
             .as("XSD should not allow duplicate agent uuid in environment")
@@ -1809,7 +1927,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowConfigWithEmptyEnvironmentsBlock() {
         String content = configWithEnvironments(
-                "<environments>"
+                "<environments>\n"
                         + "</environments>", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
@@ -1820,23 +1938,25 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowConfigWithNoAgentsAndNoPipelinesInEnvironment() {
         String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat' />"
-                        + "</environments>", CONFIG_SCHEMA_VERSION);
+                """
+                        <environments>
+                          <environment name='uat' />
+                        </environments>""", CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.getEnvironments().size()).isEqualTo(1);
     }
 
     @Test
     void shouldSupportEnvironmentVariablesInEnvironment() {
-        String content = configWithEnvironments("<environments>"
-                + "  <environment name='uat'>"
-                + "     <environmentvariables> "
-                + "         <variable name='VAR_NAME_1'><value>variable_name_value_1</value></variable>"
-                + "         <variable name='CRUISE_ENVIRONEMNT_NAME'><value>variable_name_value_2</value></variable>"
-                + "     </environmentvariables> "
-                + "  </environment>"
-                + "</environments>", CONFIG_SCHEMA_VERSION);
+        String content = configWithEnvironments("""
+                <environments>
+                  <environment name='uat'>
+                     <environmentvariables>
+                         <variable name='VAR_NAME_1'><value>variable_name_value_1</value></variable>
+                         <variable name='CRUISE_ENVIRONEMNT_NAME'><value>variable_name_value_2</value></variable>
+                     </environmentvariables>
+                   </environment>
+                </environments>""", CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         EnvironmentConfig element = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
         element.addEnvironmentVariable("VAR_NAME_1", "variable_name_value_1");
@@ -1849,13 +1969,14 @@ public class MagicalGoConfigXmlLoaderTest {
         //TODO : This should be fixed as part of #4865
         //String multiLinedata = "\nsome data\nfoo bar";
         String multiLinedata = "some data\nfoo bar";
-        String content = configWithEnvironments("<environments>"
-                + "  <environment name='uat'>"
-                + "     <environmentvariables> "
-                + "         <variable name='cdata'><value><![CDATA[" + multiLinedata + "]]></value></variable>"
-                + "     </environmentvariables> "
-                + "  </environment>"
-                + "</environments>", CONFIG_SCHEMA_VERSION);
+        String content = configWithEnvironments(("""
+                <environments>
+                  <environment name='uat'>
+                     <environmentvariables>
+                       <variable name='cdata'><value><![CDATA[%s]]></value></variable>
+                     </environmentvariables>   
+                  </environment>
+                </environments>""").formatted(multiLinedata), CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         EnvironmentConfig element = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
         element.addEnvironmentVariable("cdata", multiLinedata);
@@ -1865,18 +1986,19 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowOnlyOneTimerOnAPipeline() {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "    <timer>1 1 1 * * ? *</timer>"
-                        + "    <timer>2 2 2 * * ? *</timer>"
-                        + "    <materials>"
-                        + "      <svn url ='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='pipeline1'>
+                            <timer>1 1 1 * * ? *</timer>
+                            <timer>2 2 2 * * ? *</timer>
+                            <materials>
+                              <svn url ='svnurl'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("XSD should not allow duplicate timer in pipeline")
@@ -1886,17 +2008,18 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldValidateTimerSpec() {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "    <timer>BAD BAD TIMER!!!!!</timer>"
-                        + "    <materials>"
-                        + "      <svn url ='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='pipeline1'>
+                            <timer>BAD BAD TIMER!!!!!</timer>
+                            <materials>
+                              <svn url ='svnurl'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("XSD should validate timer spec")
@@ -1927,20 +2050,21 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldSupportEnvironmentVariablesInAJob() {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url ='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      <environmentvariables>"
-                        + "         <variable name='JOB_VARIABLE'><value>job variable</value></variable>"
-                        + "      </environmentvariables>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='pipeline1'>
+                            <materials>
+                              <svn url ='svnurl'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              <environmentvariables>
+                                 <variable name='JOB_VARIABLE'><value>job variable</value></variable>
+                              </environmentvariables>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
 
         JobConfig jobConfig = new JobConfig("do-something");
@@ -1954,20 +2078,21 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldSupportEnvironmentVariablesInAPipeline() {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "  <environmentvariables>"
-                        + "    <variable name='PIPELINE_VARIABLE'><value>pipeline variable</value></variable>"
-                        + "  </environmentvariables>"
-                        + "  <materials>"
-                        + "    <svn url ='svnurl'/>"
-                        + "  </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='pipeline1'>
+                          <environmentvariables>
+                            <variable name='PIPELINE_VARIABLE'><value>pipeline variable</value></variable>
+                          </environmentvariables>
+                          <materials>
+                            <svn url ='svnurl'/>
+                          </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
 
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getVariables()).contains(new EnvironmentVariableConfig("PIPELINE_VARIABLE", "pipeline variable"));
@@ -1976,20 +2101,21 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldSupportEnvironmentVariablesInAStage() {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "  <materials>"
-                        + "    <svn url ='svnurl'/>"
-                        + "  </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <environmentvariables>"
-                        + "      <variable name='STAGE_VARIABLE'><value>stage variable</value></variable>"
-                        + "    </environmentvariables>"
-                        + "    <jobs>"
-                        + "      <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='pipeline1'>
+                          <materials>
+                            <svn url ='svnurl'/>
+                          </materials>
+                          <stage name='mingle'>
+                            <environmentvariables>
+                              <variable name='STAGE_VARIABLE'><value>stage variable</value></variable>
+                            </environmentvariables>
+                            <jobs>
+                              <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
 
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getFirstStageConfig().getVariables()).contains(new EnvironmentVariableConfig("STAGE_VARIABLE", "stage variable"));
@@ -1998,21 +2124,22 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowDuplicateEnvironmentVariablesInAJob() {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url ='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      <environmentvariables>"
-                        + "         <variable name='JOB_VARIABLE'><value>job variable</value></variable>"
-                        + "         <variable name='JOB_VARIABLE'><value>job variable</value></variable>"
-                        + "      </environmentvariables>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='pipeline1'>
+                            <materials>
+                              <svn url ='svnurl'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              <environmentvariables>
+                                 <variable name='JOB_VARIABLE'><value>job variable</value></variable>
+                                 <variable name='JOB_VARIABLE'><value>job variable</value></variable>
+                              </environmentvariables>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
@@ -2021,25 +2148,26 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotAllowDuplicateParamsInAPipeline() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server />"
-                + "<pipelines>\n"
-                + "<pipeline name='dev'>\n"
-                + "    <params>"
-                + "        <param name='same-name'>ls</param>"
-                + "        <param name='same-name'>/tmp</param>"
-                + "    </params>"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "    <stage name='mingle'>"
-                + "      <jobs>"
-                + "        <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "</cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server />
+                <pipelines>
+                <pipeline name='dev'>
+                    <params>
+                        <param name='same-name'>ls</param>
+                        <param name='same-name'>/tmp</param>
+                    </params>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                    <stage name='mingle'>
+                      <jobs>
+                        <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      </jobs>
+                    </stage>
+                </pipeline>
+                </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate params")
@@ -2048,28 +2176,29 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotAllowParamsToBeUsedInNames() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server />"
-                + "<pipelines>\n"
-                + "<pipeline name='dev'>\n"
-                + "    <params>"
-                + "        <param name='command'>ls</param>"
-                + "    </params>"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "    <stage name='stage#{command}ab'>"
-                + "      <jobs>"
-                + "        <job name='job1'>"
-                + "            <tasks>"
-                + "                <exec command='/bin/#{command}##{b}' args='#{dir}'/>"
-                + "            </tasks>"
-                + "        </job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "</cruise>";
+        String content = ("""
+                <cruise schemaVersion='%d'>
+                <server />
+                <pipelines>
+                <pipeline name='dev'>
+                    <params>
+                        <param name='command'>ls</param>
+                    </params>
+                    <materials>
+                      <svn url ="svnurl"/>
+                    </materials>
+                    <stage name='stage#{command}ab'>
+                      <jobs>
+                        <job name='job1'>
+                            <tasks>
+                                <exec command='/bin/#{command}##{b}' args='#{dir}'/>
+                            </tasks>
+                        </job>
+                      </jobs>
+                    </stage>
+                </pipeline>
+                </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() ->  xmlLoader.loadConfigHolder(content))
             .as("Should not allow params in stage name")
@@ -2079,21 +2208,22 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowDuplicateEnvironmentVariablesInAPipeline() {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "      <environmentvariables>"
-                        + "         <variable name='PIPELINE_VARIABLE'><value>pipeline variable</value></variable>"
-                        + "         <variable name='PIPELINE_VARIABLE'><value>pipeline variable</value></variable>"
-                        + "      </environmentvariables>"
-                        + "    <materials>"
-                        + "      <svn url ='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='pipeline1'>
+                              <environmentvariables>
+                                 <variable name='PIPELINE_VARIABLE'><value>pipeline variable</value></variable>
+                                 <variable name='PIPELINE_VARIABLE'><value>pipeline variable</value></variable>
+                              </environmentvariables>
+                            <materials>
+                              <svn url ='svnurl'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
@@ -2103,21 +2233,22 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowDuplicateEnvironmentVariablesInAStage() {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url ='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "      <environmentvariables>"
-                        + "         <variable name='STAGE_VARIABLE'><value>stage variable</value></variable>"
-                        + "         <variable name='STAGE_VARIABLE'><value>stage variable</value></variable>"
-                        + "      </environmentvariables>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='pipeline1'>
+                            <materials>
+                              <svn url ='svnurl'/>
+                            </materials>
+                          <stage name='mingle'>
+                              <environmentvariables>
+                                 <variable name='STAGE_VARIABLE'><value>stage variable</value></variable>
+                                 <variable name='STAGE_VARIABLE'><value>stage variable</value></variable>
+                              </environmentvariables>
+                            <jobs>
+                              <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
@@ -2126,14 +2257,15 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotAllowDuplicateEnvironmentVariablesInAnEnvironment() {
-        String content = configWithEnvironments("<environments>"
-                + "  <environment name='uat'>"
-                + "     <environmentvariables> "
-                + "         <variable name='FOO'><value>foo</value></variable>"
-                + "         <variable name='FOO'><value>foo</value></variable>"
-                + "     </environmentvariables> "
-                + "  </environment>"
-                + "</environments>", CONFIG_SCHEMA_VERSION);
+        String content = configWithEnvironments("""
+                <environments>
+                  <environment name='uat'>
+                     <environmentvariables>
+                         <variable name='FOO'><value>foo</value></variable>
+                         <variable name='FOO'><value>foo</value></variable>
+                     </environmentvariables>
+                   </environment>
+                </environments>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
@@ -2143,23 +2275,24 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowParamsInEnvironmentVariablesInAPipeline() {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "    <params>"
-                        + "         <param name=\"some_param\">param_name</param>"
-                        + "    </params>"
-                        + "      <environmentvariables>"
-                        + "         <variable name='#{some_param}'><value>stage variable</value></variable>"
-                        + "      </environmentvariables>"
-                        + "    <materials>"
-                        + "      <svn url ='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='pipeline1'>
+                            <params>
+                                 <param name="some_param">param_name</param>
+                            </params>
+                              <environmentvariables>
+                                 <variable name='#{some_param}'><value>stage variable</value></variable>
+                              </environmentvariables>
+                            <materials>
+                              <svn url ='svnurl'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
 
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getVariables()).contains(new EnvironmentVariableConfig("param_name", "stage variable"));
@@ -2194,17 +2327,18 @@ public class MagicalGoConfigXmlLoaderTest {
         String password = "abc";
         String encryptedPassword = new GoCipher().encrypt(password);
         String content = configWithPipeline(format(
-                "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl' username='admin' encryptedPassword='%s'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", encryptedPassword), CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='pipeline1'>
+                            <materials>
+                              <svn url='svnurl' username='admin' encryptedPassword='%s'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", encryptedPassword), CONFIG_SCHEMA_VERSION);
         GoConfigHolder configHolder = ConfigMigrator.loadWithMigration(content);
         CruiseConfig cruiseConfig = configHolder.config;
         SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).materialConfigs().get(0);
@@ -2231,66 +2365,66 @@ public class MagicalGoConfigXmlLoaderTest {
 
     private CruiseConfig loadJobWithRunOnAllAgents(String value) throws Exception {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url ='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something' runOnAllAgents='" + value + "'>"
-                        + "         <tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                ("""
+                        <pipeline name='pipeline1'>
+                            <materials>
+                              <svn url ='svnurl'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something' runOnAllAgents='%s'>
+                                 <tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""").formatted(value), CONFIG_SCHEMA_VERSION);
         return xmlLoader.loadConfigHolder(content).config;
     }
 
     private CruiseConfig loadJobWithRunMultipleInstance(String value) throws Exception {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url ='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something' runInstanceCount='" + value + "'>"
-                        + "         <tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                ("""
+                        <pipeline name='pipeline1'>
+                            <materials>
+                              <svn url ='svnurl'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something' runInstanceCount='%s'>
+                                 <tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""").formatted(value), CONFIG_SCHEMA_VERSION);
         return xmlLoader.loadConfigHolder(content).config;
     }
 
     private void assertValidMaterials(String materials) {
         String pipelineXmlPartial =
-                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                        + "<cruise "
-                        + "        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                        + "        xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" "
-                        + "        schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                        + "  <server>\n"
-                        + "    <artifacts>"
-                        + "      <artifactsDir>logs</artifactsDir>"
-                        + "    </artifacts>"
-                        + "  </server>\n"
-                        + "<pipelines>\n"
-                        + "  <pipeline name=\"pipeline-name\">\n"
-                        + materials
-                        + "    <stage name=\"mingle\">\n"
-                        + "      <jobs>\n"
-                        + "        <job name=\"functional\">\n"
-                        + "          <tasks><exec command='echo'><runif status='passed' /></exec></tasks>\n"
-                        + "          <artifacts>\n"
-                        + "            <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-                        + "          </artifacts>\n"
-                        + "        </job>\n"
-                        + "      </jobs>\n"
-                        + "    </stage>\n"
-                        + "  </pipeline>\n"
-                        + "</pipelines>"
-                        + "</cruise>\n";
+                ("""
+                        <?xml version="1.0" encoding="utf-8"?>
+                        <cruise         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:noNamespaceSchemaLocation="cruise-config.xsd"         schemaVersion='%d'>
+                          <server>
+                            <artifacts>
+                              <artifactsDir>logs</artifactsDir>
+                            </artifacts>
+                          </server>
+                        <pipelines>
+                          <pipeline name="pipeline-name">
+                        %s    <stage name="mingle">
+                              <jobs>
+                                <job name="functional">
+                                  <tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                                  <artifacts>
+                                    <artifact type="build" src="artifact1.xml" dest="cruise-output" />
+                                  </artifacts>
+                                </job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                        </pipelines>
+                        </cruise>
+                        """).formatted(CONFIG_SCHEMA_VERSION, materials);
 
         ConfigMigrator.loadWithMigration(pipelineXmlPartial);
     }
@@ -2339,21 +2473,22 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowOnlyOneOfTrackingToolOrMingleConfigInSourceXml() {
         String content = configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "<trackingtool link=\"https://some-tracking-tool/projects/go/cards/${ID}\" regex=\"##(\\d+)\" />"
-                        + "      <mingle baseUrl=\"https://some-tracking-tool/\" projectIdentifier=\"go\">"
-                        + "        <mqlGroupingConditions>status &gt; 'In Dev'</mqlGroupingConditions>"
-                        + "      </mingle>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='(.*)'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='pipeline1'>
+                        <trackingtool link="https://some-tracking-tool/projects/go/cards/${ID}" regex="##(\\d+)" />
+                              <mingle baseUrl="https://some-tracking-tool/" projectIdentifier="go">
+                                <mqlGroupingConditions>status &gt; 'In Dev'</mqlGroupingConditions>
+                              </mingle>
+                            <materials>
+                              <svn url='svnurl'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='(.*)'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("Should not allow mingle config and tracking tool together")
@@ -2363,17 +2498,18 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowTFSMaterial() {
         String content = configWithPipeline(
-                "<pipeline name='some_pipeline'>"
-                        + "    <materials>"
-                        + "      <tfs url='tfsurl' username='foo' password='bar' projectPath='project-path' />"
-                        + "    </materials>"
-                        + "  <stage name='some_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='some_pipeline'>
+                            <materials>
+                              <tfs url='tfsurl' username='foo' password='bar' projectPath='project-path' />
+                            </materials>
+                          <stage name='some_stage'>
+                            <jobs>
+                              <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
         GoConfigHolder goConfigHolder = ConfigMigrator.loadWithMigration(content);
         MaterialConfigs materialConfigs = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("some_pipeline")).materialConfigs();
         assertThat(materialConfigs.size()).isEqualTo(1);
@@ -2385,20 +2521,21 @@ public class MagicalGoConfigXmlLoaderTest {
     void shouldAllowAnEnvironmentVariableToBeMarkedAsSecure_WithValueInItsOwnTag() throws Exception {
         String cipherText = new GoCipher().encrypt("plainText");
         String content = configWithPipeline(
-                "<pipeline name='some_pipeline'>"
-                        + "<environmentvariables>\n"
-                        + "        <variable name=\"var_name\" secure=\"true\"><encryptedValue>" + cipherText + "</encryptedValue></variable>\n"
-                        + "      </environmentvariables>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='some_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                ("""
+                        <pipeline name='some_pipeline'>
+                        <environmentvariables>
+                                <variable name="var_name" secure="true"><encryptedValue>%s</encryptedValue></variable>
+                              </environmentvariables>
+                            <materials>
+                              <svn url='svnurl'/>
+                            </materials>
+                          <stage name='some_stage'>
+                            <jobs>
+                              <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""").formatted(cipherText), CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("some_pipeline"));
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
@@ -2411,20 +2548,21 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldMigrateEmptyEnvironmentVariable() {
         String content = configWithPipeline(
-                "<pipeline name='some_pipeline'>"
-                        + "<environmentvariables>\n"
-                        + "        <variable name=\"var_name\" />\n"
-                        + "      </environmentvariables>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='some_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", 48);
+                """
+                        <pipeline name='some_pipeline'>
+                        <environmentvariables>
+                                <variable name="var_name" />
+                              </environmentvariables>
+                            <materials>
+                              <svn url='svnurl'/>
+                            </materials>
+                          <stage name='some_stage'>
+                            <jobs>
+                              <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", 48);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("some_pipeline"));
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
@@ -2439,20 +2577,21 @@ public class MagicalGoConfigXmlLoaderTest {
         String value = "abc";
         String encryptedValue = new GoCipher().encrypt(value);
         String content = configWithPipeline(format(
-                "<pipeline name='some_pipeline'>"
-                        + "<environmentvariables>\n"
-                        + "        <variable name=\"var_name\" secure=\"true\"><encryptedValue>%s</encryptedValue></variable>\n"
-                        + "      </environmentvariables>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='some_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", encryptedValue), CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='some_pipeline'>
+                        <environmentvariables>
+                                <variable name="var_name" secure="true"><encryptedValue>%s</encryptedValue></variable>
+                              </environmentvariables>
+                            <materials>
+                              <svn url='svnurl'/>
+                            </materials>
+                          <stage name='some_stage'>
+                            <jobs>
+                              <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", encryptedValue), CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("some_pipeline"));
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
@@ -2465,17 +2604,18 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowWorkspaceOwnerAndWorkspaceAsAttributesOnTfsMaterial() {
         String content = configWithPipeline(
-                "<pipeline name='some_pipeline'>"
-                        + "    <materials>"
-                        + "      <tfs url='tfsurl' username='foo' password='bar' projectPath='project-path' />"
-                        + "    </materials>"
-                        + "  <stage name='some_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='some_pipeline'>
+                            <materials>
+                              <tfs url='tfsurl' username='foo' password='bar' projectPath='project-path' />
+                            </materials>
+                          <stage name='some_stage'>
+                            <jobs>
+                              <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
 
         assertThatCode(() -> ConfigMigrator.loadWithMigration(content))
             .as("Valid TFS tag for migration 51 and above")
@@ -2485,17 +2625,18 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldMigrateConfigToSplitUsernameAndDomainAsAttributeOnTfsMaterial() {
         String content = configWithPipeline(
-                "<pipeline name='some_pipeline'>"
-                        + "    <materials>"
-                        + "      <tfs url='tfsurl' username='domain\\username' password='bar' projectPath='project-path' />"
-                        + "    </materials>"
-                        + "  <stage name='some_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", 52);
+                """
+                        <pipeline name='some_pipeline'>
+                            <materials>
+                              <tfs url='tfsurl' username='domain\\username' password='bar' projectPath='project-path' />
+                            </materials>
+                          <stage name='some_stage'>
+                            <jobs>
+                              <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", 52);
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipeline = config.pipelineConfigByName(new CaseInsensitiveString("some_pipeline"));
@@ -2507,53 +2648,54 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowUserToSpecify_PathFromAncestor_forFetchArtifactFromAncestor() {
         String content = configWithPipeline(
-                "<pipeline name='uppest_pipeline'>"
-                        + "    <materials>"
-                        + "      <git url=\"foo\" />"
-                        + "    </materials>"
-                        + "  <stage name='uppest_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='uppest_job'><tasks><ant /></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>"
-                        + "<pipeline name='up_pipeline'>"
-                        + "    <materials>"
-                        + "      <pipeline pipelineName=\"uppest_pipeline\" stageName=\"uppest_stage\"/>"
-                        + "    </materials>"
-                        + "  <stage name='up_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='up_job'><tasks><ant /></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>"
-                        + "<pipeline name='down_pipeline'>"
-                        + "    <materials>"
-                        + "      <pipeline pipelineName=\"up_pipeline\" stageName=\"up_stage\"/>"
-                        + "    </materials>"
-                        + "  <stage name='down_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='down_job'><tasks><ant /></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>"
-                        + "<pipeline name='downest_pipeline'>"
-                        + "    <materials>"
-                        + "      <pipeline pipelineName=\"down_pipeline\" stageName=\"down_stage\"/>"
-                        + "    </materials>"
-                        + "  <stage name='downest_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='downest_job'>"
-                        + "        <tasks>"
-                        + "          <fetchartifact artifactOrigin='gocd' pipeline=\"uppest_pipeline/up_pipeline/down_pipeline\" stage=\"uppest_stage\" job=\"uppest_job\" srcfile=\"src\" dest=\"dest\"/>"
-                        + "        </tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='uppest_pipeline'>
+                            <materials>
+                              <git url="foo" />
+                            </materials>
+                          <stage name='uppest_stage'>
+                            <jobs>
+                              <job name='uppest_job'><tasks><ant /></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        <pipeline name='up_pipeline'>
+                            <materials>
+                              <pipeline pipelineName="uppest_pipeline" stageName="uppest_stage"/>
+                            </materials>
+                          <stage name='up_stage'>
+                            <jobs>
+                              <job name='up_job'><tasks><ant /></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        <pipeline name='down_pipeline'>
+                            <materials>
+                              <pipeline pipelineName="up_pipeline" stageName="up_stage"/>
+                            </materials>
+                          <stage name='down_stage'>
+                            <jobs>
+                              <job name='down_job'><tasks><ant /></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        <pipeline name='downest_pipeline'>
+                            <materials>
+                              <pipeline pipelineName="down_pipeline" stageName="down_stage"/>
+                            </materials>
+                          <stage name='downest_stage'>
+                            <jobs>
+                              <job name='downest_job'>
+                                <tasks>
+                                  <fetchartifact artifactOrigin='gocd' pipeline="uppest_pipeline/up_pipeline/down_pipeline" stage="uppest_stage" job="uppest_job" srcfile="src" dest="dest"/>
+                                </tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(content);
         assertThat(holder.config.pipelineConfigByName(new CaseInsensitiveString("downest_pipeline")).getFetchTasks().get(0)).isEqualTo(new FetchTask(new CaseInsensitiveString("uppest_pipeline/up_pipeline/down_pipeline"), new CaseInsensitiveString("uppest_stage"), new CaseInsensitiveString("uppest_job"), "src", "dest"));
@@ -2562,43 +2704,44 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void should_NOT_allowUserToSpecifyFetchStage_afterUpstreamStage() {
         String content = configWithPipeline(
-                "<pipeline name='up_pipeline'>"
-                        + "  <materials>"
-                        + "    <git url=\"/tmp/git\"/>"
-                        + "  </materials>"
-                        + "  <stage name='up_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='up42_job'><tasks><ant /></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "  <stage name='up_stage_2'>"
-                        + "    <jobs>"
-                        + "      <job name='up_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "  <stage name='up_stage_3'>"
-                        + "    <jobs>"
-                        + "      <job name='up_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>"
-                        + "<pipeline name='down_pipeline'>"
-                        + "    <materials>"
-                        + "      <pipeline pipelineName=\"up_pipeline\" stageName=\"up_stage\"/>"
-                        + "    </materials>"
-                        + "  <stage name='down_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='down_job'>"
-                        + "        <tasks>"
-                        + "          <fetchartifact artifactOrigin='gocd' pipeline=\"up_pipeline\" stage=\"up_stage_2\" job=\"up_job\" srcfile=\"src\" dest=\"dest\"/>"
-                        + "        </tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipeline name='up_pipeline'>
+                          <materials>
+                            <git url="/tmp/git"/>
+                          </materials>
+                          <stage name='up_stage'>
+                            <jobs>
+                              <job name='up42_job'><tasks><ant /></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                          <stage name='up_stage_2'>
+                            <jobs>
+                              <job name='up_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                          <stage name='up_stage_3'>
+                            <jobs>
+                              <job name='up_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        <pipeline name='down_pipeline'>
+                            <materials>
+                              <pipeline pipelineName="up_pipeline" stageName="up_stage"/>
+                            </materials>
+                          <stage name='down_stage'>
+                            <jobs>
+                              <job name='down_job'>
+                                <tasks>
+                                  <fetchartifact artifactOrigin='gocd' pipeline="up_pipeline" stage="up_stage_2" job="up_job" srcfile="src" dest="dest"/>
+                                </tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("should not have permitted fetch from parent pipeline's stage after the one downstream depends on")
@@ -2607,18 +2750,19 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldDeserializeGroupXml() throws Exception {
-        String partialXml = "<pipelines group=\"group_name\">\n"
-                + "  <pipeline name=\"new_name\">\n"
-                + "    <materials>\n"
-                + "      <svn url=\"file:///tmp/foo\" />\n"
-                + "    </materials>\n"
-                + "    <stage name=\"stage_name\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"job_name\" />\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines>";
+        String partialXml = """
+                <pipelines group="group_name">
+                  <pipeline name="new_name">
+                    <materials>
+                      <svn url="file:///tmp/foo" />
+                    </materials>
+                    <stage name="stage_name">
+                      <jobs>
+                        <job name="job_name" />
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </pipelines>""";
         PipelineConfigs pipelineConfigs = xmlLoader.fromXmlPartial(partialXml, BasicPipelineConfigs.class);
         PipelineConfig pipeline = pipelineConfigs.findBy(new CaseInsensitiveString("new_name"));
         assertThat(pipeline).isNotNull();
@@ -2641,46 +2785,47 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldResolvePackageReferenceElementForAMaterialInConfig() throws Exception {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<repositories>\n"
-                + "    <repository id='repo-id' name='name'>\n"
-                + "		<pluginConfiguration id='plugin-id' version='1.0'/>\n"
-                + "      <configuration>\n"
-                + "        <property>\n"
-                + "          <key>url</key>\n"
-                + "          <value>https://go</value>\n"
-                + "        </property>\n"
-                + "      </configuration>\n"
-                + "      <packages>\n"
-                + "        <package id='package-id' name='name'>\n"
-                + "          <configuration>\n"
-                + "            <property>\n"
-                + "              <key>name</key>\n"
-                + "              <value>go-agent</value>\n"
-                + "            </property>\n"
-                + "          </configuration>\n"
-                + "        </package>\n"
-                + "      </packages>\n"
-                + "    </repository>\n"
-                + "  </repositories>"
-                + "<pipelines group=\"group_name\">\n"
-                + "  <pipeline name=\"new_name\">\n"
-                + "    <materials>\n"
-                + "      <package ref='package-id' />\n"
-                + "    </materials>\n"
-                + "    <stage name=\"stage_name\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"job_name\">\n"
-                + "            <tasks>\n"
-                + "              <exec command=\"echo\">\n"
-                + "                <runif status=\"passed\" />\n"
-                + "              </exec>\n"
-                + "            </tasks>"
-                + "          </job>\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines></cruise>";
+        String xml = ("""
+                <cruise schemaVersion='%d'>
+                <repositories>
+                    <repository id='repo-id' name='name'>
+                    <pluginConfiguration id='plugin-id' version='1.0'/>
+                      <configuration>
+                        <property>
+                          <key>url</key>
+                          <value>https://go</value>
+                        </property>
+                      </configuration>
+                      <packages>
+                        <package id='package-id' name='name'>
+                          <configuration>
+                            <property>
+                              <key>name</key>
+                              <value>go-agent</value>
+                            </property>
+                          </configuration>
+                        </package>
+                      </packages>
+                    </repository>
+                  </repositories>
+                <pipelines group="group_name">
+                  <pipeline name="new_name">
+                    <materials>
+                      <package ref='package-id' />
+                    </materials>
+                    <stage name="stage_name">
+                      <jobs>
+                        <job name="job_name">
+                            <tasks>
+                              <exec command="echo">
+                                <runif status="passed" />
+                              </exec>
+                            </tasks>
+                          </job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </pipelines></cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PackageDefinition packageDefinition = goConfigHolder.config.getPackageRepositories().first().getPackages().first();
@@ -2692,62 +2837,63 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldBeAbleToResolveSecureConfigPropertiesForPackages() throws Exception {
         String encryptedValue = new GoCipher().encrypt("secure-two");
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<repositories>\n"
-                + "    <repository id='repo-id' name='name'>\n"
-                + "		<pluginConfiguration id='plugin-id' version='1.0'/>\n"
-                + "      <configuration>\n"
-                + "        <property>\n"
-                + "          <key>plain</key>\n"
-                + "          <value>value</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>secure-one</key>\n"
-                + "          <value>secure-value</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>secure-two</key>\n"
-                + "          <encryptedValue>" + encryptedValue + "</encryptedValue>\n"
-                + "        </property>\n"
-                + "      </configuration>\n"
-                + "      <packages>\n"
-                + "        <package id='package-id' name='name'>\n"
-                + "          <configuration>\n"
-                + "              <property>\n"
-                + "                <key>plain</key>\n"
-                + "                <value>value</value>\n"
-                + "              </property>\n"
-                + "              <property>\n"
-                + "                <key>secure-one</key>\n"
-                + "                <value>secure-value</value>\n"
-                + "              </property>\n"
-                + "              <property>\n"
-                + "                <key>secure-two</key>\n"
-                + "                <encryptedValue>" + encryptedValue + "</encryptedValue>\n"
-                + "              </property>\n"
-                + "          </configuration>\n"
-                + "        </package>\n"
-                + "      </packages>\n"
-                + "    </repository>\n"
-                + "  </repositories>"
-                + "<pipelines group=\"group_name\">\n"
-                + "  <pipeline name=\"new_name\">\n"
-                + "    <materials>\n"
-                + "      <package ref='package-id' />\n"
-                + "    </materials>\n"
-                + "    <stage name=\"stage_name\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"job_name\">\n"
-                + "            <tasks>\n"
-                + "              <exec command=\"echo\">\n"
-                + "                <runif status=\"passed\" />\n"
-                + "              </exec>\n"
-                + "            </tasks>"
-                + "          </job>\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines></cruise>";
+        String xml = ("""
+                <cruise schemaVersion='%d'>
+                <repositories>
+                    <repository id='repo-id' name='name'>
+                    <pluginConfiguration id='plugin-id' version='1.0'/>
+                      <configuration>
+                        <property>
+                          <key>plain</key>
+                          <value>value</value>
+                        </property>
+                        <property>
+                          <key>secure-one</key>
+                          <value>secure-value</value>
+                        </property>
+                        <property>
+                          <key>secure-two</key>
+                          <encryptedValue>%s</encryptedValue>
+                        </property>
+                      </configuration>
+                      <packages>
+                        <package id='package-id' name='name'>
+                          <configuration>
+                              <property>
+                                <key>plain</key>
+                                <value>value</value>
+                              </property>
+                              <property>
+                                <key>secure-one</key>
+                                <value>secure-value</value>
+                              </property>
+                              <property>
+                                <key>secure-two</key>
+                                <encryptedValue>%s</encryptedValue>
+                              </property>
+                          </configuration>
+                        </package>
+                      </packages>
+                    </repository>
+                  </repositories>
+                <pipelines group="group_name">
+                  <pipeline name="new_name">
+                    <materials>
+                      <package ref='package-id' />
+                    </materials>
+                    <stage name="stage_name">
+                      <jobs>
+                        <job name="job_name">
+                            <tasks>
+                              <exec command="echo">
+                                <runif status="passed" />
+                              </exec>
+                            </tasks>
+                          </job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </pipelines></cruise>""").formatted(CONFIG_SCHEMA_VERSION, encryptedValue, encryptedValue);
 
         //meta data of package
         PackageConfigurations packageConfigurations = new PackageConfigurations();
@@ -2774,28 +2920,29 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldResolvePackageRepoReferenceElementForAPackageInConfig() throws Exception {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<repositories>\n"
-                + "    <repository id='repo-id' name='name'>\n"
-                + "		<pluginConfiguration id='plugin-id' version='1.0'/>\n"
-                + "      <configuration>\n"
-                + "        <property>\n"
-                + "          <key>url</key>\n"
-                + "          <value>https://go</value>\n"
-                + "        </property>\n"
-                + "      </configuration>\n"
-                + "      <packages>\n"
-                + "        <package id='package-id' name='name'>\n"
-                + "          <configuration>\n"
-                + "            <property>\n"
-                + "              <key>name</key>\n"
-                + "              <value>go-agent</value>\n"
-                + "            </property>\n"
-                + "          </configuration>\n"
-                + "        </package>\n"
-                + "      </packages>\n"
-                + "    </repository>\n"
-                + "  </repositories></cruise>";
+        String xml = ("""
+                <cruise schemaVersion='%d'>
+                <repositories>
+                    <repository id='repo-id' name='name'>
+                    <pluginConfiguration id='plugin-id' version='1.0'/>
+                      <configuration>
+                        <property>
+                          <key>url</key>
+                          <value>https://go</value>
+                        </property>
+                      </configuration>
+                      <packages>
+                        <package id='package-id' name='name'>
+                          <configuration>
+                            <property>
+                              <key>name</key>
+                              <value>go-agent</value>
+                            </property>
+                          </configuration>
+                        </package>
+                      </packages>
+                    </repository>
+                  </repositories></cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PackageRepository packageRepository = goConfigHolder.config.getPackageRepositories().first();
@@ -2814,64 +2961,65 @@ public class MagicalGoConfigXmlLoaderTest {
         PackageMetadataStore.getInstance().addMetadataFor("plugin-1", new PackageConfigurations(packageConfiguration));
         RepositoryMetadataStore.getInstance().addMetadataFor("plugin-1", new PackageConfigurations(repositoryConfiguration));
 
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<repositories>\n"
-                + "    <repository id='repo-id-1' name='name-1'>\n"
-                + "		<pluginConfiguration id='plugin-1' version='1.0'/>\n"
-                + "      <configuration>\n"
-                + "        <property>\n"
-                + "          <key>REPO-KEY1</key>\n"
-                + "          <value>repo-key1</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>REPO-KEY2</key>\n"
-                + "          <value>repo-key2</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>REPO-KEY3</key>\n"
-                + "          <value>repo-key3</value>\n"
-                + "        </property>\n"
-                + "      </configuration>\n"
-                + "      <packages>\n"
-                + "        <package id='package-id-1' name='name-1'>\n"
-                + "          <configuration>\n"
-                + "            <property>\n"
-                + "              <key>PKG-KEY1</key>\n"
-                + "              <value>pkg-key1</value>\n"
-                + "            </property>\n"
-                + "          </configuration>\n"
-                + "        </package>\n"
-                + "      </packages>\n"
-                + "    </repository>\n"
-                + "    <repository id='repo-id-2' name='name-2'>\n"
-                + "		<pluginConfiguration id='plugin-1' version='1.0'/>\n"
-                + "      <configuration>\n"
-                + "        <property>\n"
-                + "          <key>REPO-KEY1</key>\n"
-                + "          <value>repo-key1</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>REPO-KEY2</key>\n"
-                + "          <value>another-repo-key2</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>REPO-KEY3</key>\n"
-                + "          <value>another-repo-key3</value>\n"
-                + "        </property>\n"
-                + "      </configuration>\n"
-                + "      <packages>\n"
-                + "        <package id='package-id-2' name='name-2'>\n"
-                + "          <configuration>\n"
-                + "            <property>\n"
-                + "              <key>PKG-KEY1</key>\n"
-                + "              <value>pkg-key1</value>\n"
-                + "            </property>\n"
-                + "          </configuration>\n"
-                + "        </package>\n"
-                + "      </packages>\n"
-                + "    </repository>\n"
-                + "  </repositories>"
-                + "</cruise>";
+        String xml = ("""
+                <cruise schemaVersion='%d'>
+                <repositories>
+                    <repository id='repo-id-1' name='name-1'>
+                    <pluginConfiguration id='plugin-1' version='1.0'/>
+                      <configuration>
+                        <property>
+                          <key>REPO-KEY1</key>
+                          <value>repo-key1</value>
+                        </property>
+                        <property>
+                          <key>REPO-KEY2</key>
+                          <value>repo-key2</value>
+                        </property>
+                        <property>
+                          <key>REPO-KEY3</key>
+                          <value>repo-key3</value>
+                        </property>
+                      </configuration>
+                      <packages>
+                        <package id='package-id-1' name='name-1'>
+                          <configuration>
+                            <property>
+                              <key>PKG-KEY1</key>
+                              <value>pkg-key1</value>
+                            </property>
+                          </configuration>
+                        </package>
+                      </packages>
+                    </repository>
+                    <repository id='repo-id-2' name='name-2'>
+                    <pluginConfiguration id='plugin-1' version='1.0'/>
+                      <configuration>
+                        <property>
+                          <key>REPO-KEY1</key>
+                          <value>repo-key1</value>
+                        </property>
+                        <property>
+                          <key>REPO-KEY2</key>
+                          <value>another-repo-key2</value>
+                        </property>
+                        <property>
+                          <key>REPO-KEY3</key>
+                          <value>another-repo-key3</value>
+                        </property>
+                      </configuration>
+                      <packages>
+                        <package id='package-id-2' name='name-2'>
+                          <configuration>
+                            <property>
+                              <key>PKG-KEY1</key>
+                              <value>pkg-key1</value>
+                            </property>
+                          </configuration>
+                        </package>
+                      </packages>
+                    </repository>
+                  </repositories>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertFailureDuringLoad(xml,
                 GoConfigInvalidException.class, "Cannot save package or repo, found duplicate packages. [Repo Name: 'name-1', Package Name: 'name-1'], [Repo Name: 'name-2', Package Name: 'name-2']"
@@ -3003,29 +3151,30 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldLoadAutoUpdateValueForPackageWhenLoadedFromConfigFile() throws Exception {
-        String configTemplate = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<repositories>" +
-                "	<repository id='2ef830d7-dd66-42d6-b393-64a84646e557' name='GoYumRepo'>" +
-                "		<pluginConfiguration id='yum' version='1' />" +
-                "       <configuration>" +
-                "           <property>" +
-                "               <key>REPO_URL</key>" +
-                "               <value>https://fake-yum-repo/go/yum/no-arch</value>" +
-                "               </property>" +
-                "       </configuration>" +
-                "	    <packages>" +
-                "           <package id='88a3beca-cbe2-4c4d-9744-aa0cda3f371c' name='1' autoUpdate='%s'>" +
-                "               <configuration>" +
-                "                   <property>" +
-                "                       <key>REPO_URL</key>" +
-                "                       <value>https://fake-yum-repo/go/yum/no-arch</value>" +
-                "                   </property>" +
-                "               </configuration>" +
-                "           </package>" +
-                "	     </packages>" +
-                "   </repository>" +
-                "</repositories>" +
-                "</cruise>";
+        String configTemplate = ("""
+                <cruise schemaVersion='%d'>
+                <repositories>
+                  <repository id='2ef830d7-dd66-42d6-b393-64a84646e557' name='GoYumRepo'>
+                    <pluginConfiguration id='yum' version='1' />
+                       <configuration>
+                           <property>
+                               <key>REPO_URL</key>
+                               <value>https://fake-yum-repo/go/yum/no-arch</value>
+                               </property>
+                       </configuration>
+                      <packages>
+                           <package id='88a3beca-cbe2-4c4d-9744-aa0cda3f371c' name='1' autoUpdate='%%s'>
+                               <configuration>
+                                   <property>
+                                       <key>REPO_URL</key>
+                                       <value>https://fake-yum-repo/go/yum/no-arch</value>
+                                   </property>
+                               </configuration>
+                           </package>
+                       </packages>
+                   </repository>
+                </repositories>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         String configContent = String.format(configTemplate, false);
         GoConfigHolder holder = xmlLoader.loadConfigHolder(configContent);
         PackageRepository packageRepository = holder.config.getPackageRepositories().find("2ef830d7-dd66-42d6-b393-64a84646e557");
@@ -3041,42 +3190,43 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowColonsInPipelineLabelTemplate() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<repositories>\n"
-                + "    <repository id='repo-id' name='repo_name'>\n"
-                + "		<pluginConfiguration id='plugin-id' version='1.0'/>\n"
-                + "      <configuration>\n"
-                + "        <property>\n"
-                + "          <key>url</key>\n"
-                + "          <value>https://go</value>\n"
-                + "        </property>\n"
-                + "      </configuration>\n"
-                + "      <packages>\n"
-                + "        <package id='package-id' name='pkg_name'>\n"
-                + "          <configuration>\n"
-                + "            <property>\n"
-                + "              <key>name</key>\n"
-                + "              <value>go-agent</value>\n"
-                + "            </property>\n"
-                + "          </configuration>\n"
-                + "        </package>\n"
-                + "      </packages>\n"
-                + "    </repository>\n"
-                + "  </repositories>"
-                + "<pipelines group=\"group_name\">\n"
-                + "  <pipeline name=\"new_name\" labeltemplate=\"${COUNT}:${repo_name_pkg_name}\">\n"
-                + "    <materials>\n"
-                + "      <package ref='package-id' />\n"
-                + "    </materials>\n"
-                + "    <stage name=\"stage_name\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"job_name\">\n"
-                + "         <tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                + "        </job>"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines></cruise>";
+        String xml = ("""
+                <cruise schemaVersion='%d'>
+                <repositories>
+                    <repository id='repo-id' name='repo_name'>
+                    <pluginConfiguration id='plugin-id' version='1.0'/>
+                      <configuration>
+                        <property>
+                          <key>url</key>
+                          <value>https://go</value>
+                        </property>
+                      </configuration>
+                      <packages>
+                        <package id='package-id' name='pkg_name'>
+                          <configuration>
+                            <property>
+                              <key>name</key>
+                              <value>go-agent</value>
+                            </property>
+                          </configuration>
+                        </package>
+                      </packages>
+                    </repository>
+                  </repositories>
+                <pipelines group="group_name">
+                  <pipeline name="new_name" labeltemplate="${COUNT}:${repo_name_pkg_name}">
+                    <materials>
+                      <package ref='package-id' />
+                    </materials>
+                    <stage name="stage_name">
+                      <jobs>
+                        <job name="job_name">
+                         <tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                        </job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </pipelines></cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(xml);
         assertThat(holder.config.getAllPipelineConfigs().get(0).materialConfigs().get(0).getName().toString()).isEqualTo("repo_name_pkg_name");
     }
@@ -3084,21 +3234,22 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowEmptyAuthorizationTagUnderEachTemplateWhileLoading() {
         String configString =
-                "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
-                        "   <templates>" +
-                        "       <pipeline name='template-name'>" +
-                        "           <authorization>" +
-                        "               <admins>" +
-                        "               </admins>" +
-                        "           </authorization>" +
-                        "           <stage name='stage-name'>" +
-                        "               <jobs>" +
-                        "                   <job name='job-name'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>" +
-                        "               </jobs>" +
-                        "           </stage>" +
-                        "       </pipeline>" +
-                        "   </templates>" +
-                        "</cruise>";
+                ("""
+                        <cruise schemaVersion='%d'>
+                           <templates>
+                               <pipeline name='template-name'>
+                                   <authorization>
+                                       <admins>
+                                       </admins>
+                                   </authorization>
+                                   <stage name='stage-name'>
+                                       <jobs>
+                                           <job name='job-name'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                                       </jobs>
+                                   </stage>
+                               </pipeline>
+                           </templates>
+                        </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig configForEdit = ConfigMigrator.loadWithMigration(configString).configForEdit;
         PipelineTemplateConfig template = configForEdit.getTemplateByName(new CaseInsensitiveString("template-name"));
         Authorization authorization = template.getAuthorization();
@@ -3110,28 +3261,29 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowPluggableTaskConfiguration() {
         String configString =
-                "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                        + " <pipelines>"
-                        + "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl' username='admin' password='%s'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks>"
-                        + "        <task>"
-                        + "          <pluginConfiguration id='plugin-id-1' version='1.0'/>"
-                        + "          <configuration>"
-                        + "            <property><key>url</key><value>https://fake-go-server</value></property>"
-                        + "            <property><key>username</key><value>godev</value></property>"
-                        + "            <property><key>password</key><value>password</value></property>"
-                        + "          </configuration>"
-                        + "        </task> </tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline></pipelines>"
-                        + "</cruise>";
+                ("""
+                        <cruise schemaVersion='%d'>
+                         <pipelines>
+                        <pipeline name='pipeline1'>
+                            <materials>
+                              <svn url='svnurl' username='admin' password='%%s'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'><tasks>
+                                <task>
+                                  <pluginConfiguration id='plugin-id-1' version='1.0'/>
+                                  <configuration>
+                                    <property><key>url</key><value>https://fake-go-server</value></property>
+                                    <property><key>username</key><value>godev</value></property>
+                                    <property><key>password</key><value>password</value></property>
+                                  </configuration>
+                                </task> </tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline></pipelines>
+                        </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configString).configForEdit;
 
         PipelineConfig pipelineConfig = cruiseConfig.getAllPipelineConfigs().get(0);
@@ -3155,27 +3307,28 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldBeAbleToResolveSecureConfigPropertiesForPluggableTasks() throws Exception {
         String configString =
-                "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                        + " <pipelines>"
-                        + "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl' username='admin' password='%s'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'><tasks>"
-                        + "        <task>"
-                        + "          <pluginConfiguration id='plugin-id-1' version='1.0'/>"
-                        + "          <configuration>"
-                        + "            <property><key>username</key><value>godev</value></property>"
-                        + "            <property><key>password</key><value>password</value></property>"
-                        + "          </configuration>"
-                        + "        </task> </tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline></pipelines>"
-                        + "</cruise>";
+                ("""
+                        <cruise schemaVersion='%d'>
+                         <pipelines>
+                        <pipeline name='pipeline1'>
+                            <materials>
+                              <svn url='svnurl' username='admin' password='%%s'/>
+                            </materials>
+                          <stage name='mingle'>
+                            <jobs>
+                              <job name='do-something'><tasks>
+                                <task>
+                                  <pluginConfiguration id='plugin-id-1' version='1.0'/>
+                                  <configuration>
+                                    <property><key>username</key><value>godev</value></property>
+                                    <property><key>password</key><value>password</value></property>
+                                  </configuration>
+                                </task> </tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline></pipelines>
+                        </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         //meta data of package
         PluggableTaskConfigStore.store().setPreferenceFor("plugin-id-1", new TaskPreference(new com.thoughtworks.go.plugin.api.task.Task() {
@@ -3214,41 +3367,41 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowTemplateViewConfigToBeSpecified() {
-        String configXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "    <artifacts>"
-                + "      <artifactsDir>artifactsDir</artifactsDir> "
-                + "    </artifacts>"
-                + "     <security>"
-                + "         <roles>"
-                + "             <role name='role1'>"
-                + "                 <users>"
-                + "                     <user>jyoti</user>"
-                + "                     <user>duck</user>"
-                + "                 </users>"
-                + "             </role>"
-                + "         </roles>"
-                + "     </security>"
-                + " </server>"
-                + " <templates>"
-                + "   <pipeline name='template1'>"
-                + "     <authorization>"
-                + "       <view>"
-                + "         <user>foo</user>"
-                + "         <role>role1</role>"
-                + "       </view>"
-                + "     </authorization>"
-                + "  <stage name='build'>"
-                + "    <jobs>"
-                + "      <job name='test1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                + "      </job>"
-                + "    </jobs>"
-                + "  </stage>"
-                + "   </pipeline>"
-                + "  </templates>"
-                + "</cruise>";
+        String configXml = ("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
+                <server>
+                    <artifacts>
+                      <artifactsDir>artifactsDir</artifactsDir>
+                    </artifacts>
+                     <security>
+                         <roles>
+                             <role name='role1'>
+                                 <users>
+                                     <user>jyoti</user>
+                                     <user>duck</user>
+                                 </users>
+                             </role>
+                         </roles>
+                     </security>
+                 </server>
+                 <templates>
+                   <pipeline name='template1'>
+                     <authorization>
+                       <view>
+                         <user>foo</user>
+                         <role>role1</role>
+                       </view>
+                     </authorization>
+                  <stage name='build'>
+                    <jobs>
+                      <job name='test1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                      </job>
+                    </jobs>
+                  </stage>
+                   </pipeline>
+                  </templates>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).config;
         ViewConfig expectedViewConfig = new ViewConfig(new AdminUser(new CaseInsensitiveString("foo")), new AdminRole(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser("duck"), new RoleUser("jyoti"))));
@@ -3258,46 +3411,46 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowPipelineGroupAdminsToViewTemplateByDefault() {
-        String configXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "     <security>"
-                + "         <roles>"
-                + "             <role name='role1'>"
-                + "                 <users>"
-                + "                     <user>jyoti</user>"
-                + "                     <user>duck</user>"
-                + "                 </users>"
-                + "             </role>"
-                + "         </roles>"
-                + "     </security>"
-                + "     <artifacts>"
-                + "         <artifactsDir>artifactsDir</artifactsDir> "
-                + "     </artifacts>"
-                + " </server>"
-                + " <templates>"
-                + "   <pipeline name='template1'>"
-                + "     <authorization>"
-                + "       <admins>"
-                + "         <user>foo</user>"
-                + "         <role>role1</role>"
-                + "       </admins>"
-                + "     </authorization>"
-                + "  <stage name='build'>"
-                + "    <jobs>"
-                + "        <job name=\"test1\">\n"
-                + "            <tasks>\n"
-                + "              <exec command=\"echo\">\n"
-                + "                <runif status=\"passed\" />\n"
-                + "              </exec>\n"
-                + "            </tasks>"
-                + "          </job>\n"
-                + "    </jobs>"
-                + "  </stage>"
-                + "   </pipeline>"
-                + "  </templates>"
-                + "</cruise>";
+        String configXml = ("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
+                <server>
+                     <security>
+                         <roles>
+                             <role name='role1'>
+                                 <users>
+                                     <user>jyoti</user>
+                                     <user>duck</user>
+                                 </users>
+                             </role>
+                         </roles>
+                     </security>
+                     <artifacts>
+                         <artifactsDir>artifactsDir</artifactsDir>
+                     </artifacts>
+                 </server>
+                 <templates>
+                   <pipeline name='template1'>
+                     <authorization>
+                       <admins>
+                         <user>foo</user>
+                         <role>role1</role>
+                       </admins>
+                     </authorization>
+                  <stage name='build'>
+                    <jobs>
+                        <job name="test1">
+                            <tasks>
+                              <exec command="echo">
+                                <runif status="passed" />
+                              </exec>
+                            </tasks>
+                          </job>
+                    </jobs>
+                  </stage>
+                   </pipeline>
+                  </templates>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).config;
 
@@ -3306,46 +3459,46 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotAllowGroupAdminsToViewTemplateIfTheOptionIsDisabled() {
-        String configXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "    <artifacts>"
-                + "      <artifactsDir>artifactsDir</artifactsDir> "
-                + "    </artifacts>"
-                + "     <security>"
-                + "         <roles>"
-                + "             <role name='role1'>"
-                + "                 <users>"
-                + "                     <user>jyoti</user>"
-                + "                     <user>duck</user>"
-                + "                 </users>"
-                + "             </role>"
-                + "         </roles>"
-                + "     </security>"
-                + " </server>"
-                + " <templates>"
-                + "   <pipeline name='template1'>"
-                + "     <authorization allGroupAdminsAreViewers='false'>"
-                + "       <admins>"
-                + "         <user>foo</user>"
-                + "         <role>role1</role>"
-                + "       </admins>"
-                + "     </authorization>"
-                + "  <stage name='build'>"
-                + "    <jobs>"
-                + "        <job name=\"test1\">\n"
-                + "            <tasks>\n"
-                + "              <exec command=\"echo\">\n"
-                + "                <runif status=\"passed\" />\n"
-                + "              </exec>\n"
-                + "            </tasks>"
-                + "          </job>\n"
-                + "    </jobs>"
-                + "  </stage>"
-                + "   </pipeline>"
-                + "  </templates>"
-                + "</cruise>";
+        String configXml = ("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
+                <server>
+                    <artifacts>
+                      <artifactsDir>artifactsDir</artifactsDir>
+                    </artifacts>
+                    <security>
+                        <roles>
+                            <role name='role1'>
+                                <users>
+                                     <user>jyoti</user>
+                                     <user>duck</user>
+                                </users>
+                            </role>
+                        </roles>
+                     </security>
+                 </server>
+                 <templates>
+                   <pipeline name='template1'>
+                     <authorization allGroupAdminsAreViewers='false'>
+                       <admins>
+                         <user>foo</user>
+                         <role>role1</role>
+                       </admins>
+                     </authorization>
+                  <stage name='build'>
+                    <jobs>
+                        <job name="test1">
+                            <tasks>
+                              <exec command="echo">
+                                <runif status="passed" />
+                              </exec>
+                            </tasks>
+                          </job>
+                    </jobs>
+                  </stage>
+                   </pipeline>
+                  </templates>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).config;
 
@@ -3355,39 +3508,41 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldSerializeJobElasticProfileId() {
         String configWithJobElasticProfileId =
-                "<cruise schemaVersion='119'>\n"
-                        + "  <elastic jobStarvationTimeout=\"10\">\n"
-                        + "    <profiles>\n"
-                        + "      <profile clusterProfileId='blah' id='unit-test' pluginId='aws'>\n"
-                        + "        <property>\n"
-                        + "          <key>instance-type</key>\n"
-                        + "          <value>m1.small</value>\n"
-                        + "        </property>\n"
-                        + "      </profile>\n"
-                        + "    </profiles>\n"
-                        + "    <clusterProfiles>"
-                        + "      <clusterProfile id=\"blah\" pluginId=\"aws\"/>"
-                        + "    </clusterProfiles>\n"
-                        + "  </elastic>\n"
-                        + "<pipelines group=\"first\">\n"
-                        + "<pipeline name=\"pipeline\">\n"
-                        + "  <materials>\n"
-                        + "    <hg url=\"/hgrepo\"/>\n"
-                        + "  </materials>\n"
-                        + "  <stage name=\"mingle\">\n"
-                        + "    <jobs>\n"
-                        + "      <job name=\"functional\" elasticProfileId=\"unit-test\">\n"
-                        + "            <tasks>\n"
-                        + "              <exec command=\"echo\">\n"
-                        + "                <runif status=\"passed\" />\n"
-                        + "              </exec>\n"
-                        + "            </tasks>"
-                        + "          </job>\n"
-                        + "    </jobs>\n"
-                        + "  </stage>\n"
-                        + "</pipeline>\n"
-                        + "</pipelines>\n"
-                        + "</cruise>\n";
+                """
+                        <cruise schemaVersion='119'>
+                          <elastic jobStarvationTimeout="10">
+                            <profiles>
+                              <profile clusterProfileId='blah' id='unit-test' pluginId='aws'>
+                                <property>
+                                  <key>instance-type</key>
+                                  <value>m1.small</value>
+                                </property>
+                              </profile>
+                            </profiles>
+                            <clusterProfiles>
+                              <clusterProfile id="blah" pluginId="aws"/>
+                            </clusterProfiles>
+                          </elastic>
+                        <pipelines group="first">
+                        <pipeline name="pipeline">
+                          <materials>
+                            <hg url="/hgrepo"/>
+                          </materials>
+                          <stage name="mingle">
+                            <jobs>
+                              <job name="functional" elasticProfileId="unit-test">
+                                    <tasks>
+                                      <exec command="echo">
+                                        <runif status="passed" />
+                                      </exec>
+                                    </tasks>
+                                  </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        </pipelines>
+                        </cruise>
+                        """;
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobElasticProfileId).configForEdit;
 
@@ -3399,21 +3554,23 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldSerializeElasticAgentProfiles() {
         String configWithElasticProfile =
-                "<cruise schemaVersion='119'>\n"
-                        + "  <elastic jobStarvationTimeout=\"2\">\n"
-                        + "    <profiles>\n"
-                        + "      <profile clusterProfileId='blah' id=\"foo\" pluginId=\"docker\">\n"
-                        + "          <property>\n"
-                        + "           <key>USERNAME</key>\n"
-                        + "           <value>bob</value>\n"
-                        + "          </property>\n"
-                        + "      </profile>\n"
-                        + "    </profiles>\n"
-                        + "    <clusterProfiles>"
-                        + "      <clusterProfile id=\"blah\" pluginId=\"docker\"/>"
-                        + "    </clusterProfiles>\n"
-                        + "  </elastic>\n"
-                        + "</cruise>\n";
+                """
+                        <cruise schemaVersion='119'>
+                          <elastic jobStarvationTimeout="2">
+                            <profiles>
+                              <profile clusterProfileId='blah' id="foo" pluginId="docker">
+                                  <property>
+                                   <key>USERNAME</key>
+                                   <value>bob</value>
+                                  </property>
+                              </profile>
+                            </profiles>
+                            <clusterProfiles>
+                              <clusterProfile id="blah" pluginId="docker"/>
+                            </clusterProfiles>
+                          </elastic>
+                        </cruise>
+                        """;
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithElasticProfile).configForEdit;
 
@@ -3429,29 +3586,31 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowJobElasticProfileIdAndResourcesTogether() {
         String configWithJobElasticProfile =
-                "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                        + "<pipelines group=\"first\">\n"
-                        + "<pipeline name=\"pipeline\">\n"
-                        + "  <materials>\n"
-                        + "    <hg url=\"/hgrepo\"/>\n"
-                        + "  </materials>\n"
-                        + "  <stage name=\"mingle\">\n"
-                        + "    <jobs>\n"
-                        + "      <job name=\"functional\" elasticProfileId=\"docker.unit-test\">\n"
-                        + "        <resources>\n"
-                        + "          <resource>foo</resource>\n"
-                        + "        </resources>\n"
-                        + "        <tasks>\n"
-                        + "          <exec command=\"echo\">\n"
-                        + "            <runif status=\"passed\" />\n"
-                        + "          </exec>\n"
-                        + "        </tasks>"
-                        + "      </job>\n"
-                        + "    </jobs>\n"
-                        + "  </stage>\n"
-                        + "</pipeline>\n"
-                        + "</pipelines>\n"
-                        + "</cruise>\n";
+                ("""
+                        <cruise schemaVersion='%d'>
+                        <pipelines group="first">
+                        <pipeline name="pipeline">
+                          <materials>
+                            <hg url="/hgrepo"/>
+                          </materials>
+                          <stage name="mingle">
+                            <jobs>
+                              <job name="functional" elasticProfileId="docker.unit-test">
+                                <resources>
+                                  <resource>foo</resource>
+                                </resources>
+                                <tasks>
+                                  <exec command="echo">
+                                    <runif status="passed" />
+                                  </exec>
+                                </tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        </pipelines>
+                        </cruise>
+                        """).formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(configWithJobElasticProfile))
             .hasMessage("Job cannot have both `resource` and `elasticProfileId`, No profile defined corresponding to profile_id 'docker.unit-test', Job cannot have both `resource` and `elasticProfileId`");
@@ -3475,25 +3634,26 @@ public class MagicalGoConfigXmlLoaderTest {
                 "                        ").toString();
 
         String content = configWithPipeline(
-                "<pipeline name='some_pipeline'>"
-                        + "<environmentvariables>\n"
-                        + "        <variable name=\"var_name\" secure=\"true\"><encryptedValue>" + encryptedValueWithWhitespaceAndNewline + "</encryptedValue></variable>\n"
-                        + "      </environmentvariables>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='some_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='some_job'>"
-                        + "            <tasks>\n"
-                        + "              <exec command=\"echo\">\n"
-                        + "                <runif status=\"passed\" />\n"
-                        + "              </exec>\n"
-                        + "            </tasks>"
-                        + "          </job>\n"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", 88);
+                ("""
+                        <pipeline name='some_pipeline'>
+                        <environmentvariables>
+                                <variable name="var_name" secure="true"><encryptedValue>%s</encryptedValue></variable>
+                              </environmentvariables>
+                            <materials>
+                              <svn url='svnurl'/>
+                            </materials>
+                          <stage name='some_stage'>
+                            <jobs>
+                              <job name='some_job'>
+                                    <tasks>
+                                      <exec command="echo">
+                                        <runif status="passed" />
+                                      </exec>
+                                    </tasks>
+                                  </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""").formatted(encryptedValueWithWhitespaceAndNewline), 88);
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.allPipelines().get(0).getVariables().get(0).getValue()).isEqualTo(plainText);
@@ -3511,19 +3671,20 @@ public class MagicalGoConfigXmlLoaderTest {
                 "                        ").toString();
 
         String content = configWithPluggableScm(
-                "<scm id=\"f7c309f5-ea4d-41c5-9c43-95d79fa9ec7b\" name=\"gocd-private\">\n" +
-                        "      <pluginConfiguration id=\"github.pr\" version=\"1\" />\n" +
-                        "      <configuration>\n" +
-                        "        <property>\n" +
-                        "          <key>plainTextKey</key>\n" +
-                        "          <value>https://url/some_path</value>\n" +
-                        "        </property>\n" +
-                        "        <property>\n" +
-                        "          <key>secureKey</key>\n" +
-                        "          <encryptedValue>" + encryptedValueWithWhitespaceAndNewline + "</encryptedValue>\n" +
-                        "        </property>\n" +
-                        "      </configuration>\n" +
-                        "    </scm>", 88);
+                ("""
+                        <scm id="f7c309f5-ea4d-41c5-9c43-95d79fa9ec7b" name="gocd-private">
+                              <pluginConfiguration id="github.pr" version="1" />
+                              <configuration>
+                                <property>
+                                  <key>plainTextKey</key>
+                                  <value>https://url/some_path</value>
+                                </property>
+                                <property>
+                                  <key>secureKey</key>
+                                  <encryptedValue>%s</encryptedValue>
+                                </property>
+                              </configuration>
+                            </scm>""").formatted(encryptedValueWithWhitespaceAndNewline), 88);
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.getSCMs().get(0).getConfiguration().getProperty("secureKey").getValue()).isEqualTo(plainText);
@@ -3542,30 +3703,31 @@ public class MagicalGoConfigXmlLoaderTest {
                 "                        ").toString();
 
         String content = configWithPipeline(
-                "<pipeline name='some_pipeline'>"
-                        + "    <materials>"
-                        + "      <svn url='asdsa' username='user' encryptedPassword='" + encryptedValueWithWhitespaceAndNewline + "' dest='svn'>"
-                        + "<filter>\n" +
-                        "            <ignore pattern='**/*' />\n" +
-                        "          </filter>"
-                        + "</svn>"
-                        + "<tfs url='tfsurl' username='user' domain='domain' encryptedPassword='" + encryptedValueWithWhitespaceAndNewline + "' projectPath='path' dest='tfs' />"
-                        + "<p4 port='host:9999' username='user' encryptedPassword='" + encryptedValueWithWhitespaceAndNewline + "' dest='perforce'>\n" +
-                        "          <view><![CDATA[view]]></view>\n" +
-                        "        </p4>"
-                        + "    </materials>"
-                        + "  <stage name='some_stage'>"
-                        + "    <jobs>"
-                        + "        <job name=\"some_job\">\n"
-                        + "            <tasks>\n"
-                        + "              <exec command=\"echo\">\n"
-                        + "                <runif status=\"passed\" />\n"
-                        + "              </exec>\n"
-                        + "            </tasks>"
-                        + "          </job>\n"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", 88);
+                ("""
+                        <pipeline name='some_pipeline'>
+                            <materials>
+                              <svn url='asdsa' username='user' encryptedPassword='%s' dest='svn'>
+                        <filter>
+                                    <ignore pattern='**/*' />
+                                  </filter>
+                        </svn>
+                        <tfs url='tfsurl' username='user' domain='domain' encryptedPassword='%s' projectPath='path' dest='tfs' />
+                        <p4 port='host:9999' username='user' encryptedPassword='%s' dest='perforce'>
+                                  <view><![CDATA[view]]></view>
+                                </p4>
+                            </materials>
+                          <stage name='some_stage'>
+                            <jobs>
+                                <job name="some_job">
+                                    <tasks>
+                                      <exec command="echo">
+                                        <runif status="passed" />
+                                      </exec>
+                                    </tasks>
+                                  </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""").formatted(encryptedValueWithWhitespaceAndNewline, encryptedValueWithWhitespaceAndNewline, encryptedValueWithWhitespaceAndNewline), 88);
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         MaterialConfigs materialConfigs = config.allPipelines().get(0).materialConfigs();
@@ -3594,9 +3756,10 @@ public class MagicalGoConfigXmlLoaderTest {
                 "                        ").toString();
 
         String content = config(
-                "<server>\n" +
-                        "    <mailhost hostname='host' port='25' username='user' encryptedPassword='" + encryptedValueWithWhitespaceAndNewline + "' tls='false' from='user@domain.com' admin='admin@domain.com' />\n" +
-                        "  </server>", 88);
+                ("""
+                        <server>
+                            <mailhost hostname='host' port='25' username='user' encryptedPassword='%s' tls='false' from='user@domain.com' admin='admin@domain.com' />
+                          </server>""").formatted(encryptedValueWithWhitespaceAndNewline), 88);
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.server().mailHost().getPassword()).isEqualTo(plainText);
@@ -3646,31 +3809,33 @@ public class MagicalGoConfigXmlLoaderTest {
 
     private String configWithTokenGenerationKey(final String key) {
         final ServerIdImmutabilityValidator serverIdImmutabilityValidator = (ServerIdImmutabilityValidator) MagicalGoConfigXmlLoader.VALIDATORS.stream().filter(goConfigValidator -> goConfigValidator instanceof ServerIdImmutabilityValidator).findFirst().orElseThrow();
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><cruise schemaVersion=\"" + CONFIG_SCHEMA_VERSION + "\">\n" +
-                "<server serverId=\"" + serverIdImmutabilityValidator.getInitialServerId() + "\" tokenGenerationKey=\"" + key + "\"/>" +
-                "<pipelines>\n" +
-                "</pipelines>\n" +
-                "</cruise>";
+        return ("""
+                <?xml version="1.0" encoding="UTF-8"?><cruise schemaVersion="%d">
+                <server serverId="%s" tokenGenerationKey="%s"/>
+                <pipelines>
+                </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION, serverIdImmutabilityValidator.getInitialServerId(), key);
     }
 
     @Test
     void shouldDeserializeArtifactStores() {
-        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<artifactStores>\n" +
-                "    <artifactStore pluginId=\"foo\" id=\"bar\">\n" +
-                "        <property>\n" +
-                "            <key>ACCESS_KEY</key>\n" +
-                "            <value>dasdas</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "    <artifactStore pluginId=\"bar\" id=\"foo\">\n" +
-                "        <property>\n" +
-                "            <key>SECRET_ACCESS_KEY</key>\n" +
-                "            <value>$rrhsdhjf</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "</artifactStores>" +
-                "</cruise>";
+        String configXml = ("""
+                <cruise schemaVersion='%d'>
+                <artifactStores>
+                    <artifactStore pluginId="foo" id="bar">
+                        <property>
+                            <key>ACCESS_KEY</key>
+                            <value>dasdas</value>
+                        </property>
+                    </artifactStore>
+                    <artifactStore pluginId="bar" id="foo">
+                        <property>
+                            <key>SECRET_ACCESS_KEY</key>
+                            <value>$rrhsdhjf</value>
+                        </property>
+                    </artifactStore>
+                </artifactStores>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).configForEdit;
         assertThat(cruiseConfig.getArtifactStores()).hasSize(2);
@@ -3679,16 +3844,17 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotDeserializeArtifactStoreWhenIdIsNotDefined() {
-        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<artifactStores>\n" +
-                "    <artifactStore pluginId=\"foo\">\n" +
-                "        <property>\n" +
-                "            <key>ACCESS_KEY</key>\n" +
-                "            <value>dasdas</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "</artifactStores>" +
-                "</cruise>";
+        String configXml = ("""
+                <cruise schemaVersion='%d'>
+                <artifactStores>
+                    <artifactStore pluginId="foo">
+                        <property>
+                            <key>ACCESS_KEY</key>
+                            <value>dasdas</value>
+                        </property>
+                    </artifactStore>
+                </artifactStores>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(configXml))
             .hasMessage("\"Id\" is required for ArtifactStore");
@@ -3696,16 +3862,17 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotDeserializeArtifactStoreWhenPluginIdIsNotDefined() {
-        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<artifactStores>\n" +
-                "    <artifactStore id=\"foo\">\n" +
-                "        <property>\n" +
-                "            <key>ACCESS_KEY</key>\n" +
-                "            <value>dasdas</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "</artifactStores>" +
-                "</cruise>";
+        String configXml = ("""
+                <cruise schemaVersion='%d'>
+                <artifactStores>
+                    <artifactStore id="foo">
+                        <property>
+                            <key>ACCESS_KEY</key>
+                            <value>dasdas</value>
+                        </property>
+                    </artifactStore>
+                </artifactStores>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(configXml))
             .hasMessage("\"Plugin id\" is required for ArtifactStore");
@@ -3713,50 +3880,51 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldDeserializePluggableArtifactConfig() {
-        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<artifactStores>\n" +
-                "    <artifactStore pluginId=\"cd.go.s3\" id=\"s3\">\n" +
-                "        <property>\n" +
-                "            <key>ACCESS_KEY</key>\n" +
-                "            <value>dasdas</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "    <artifactStore pluginId=\"bar\" id=\"foo\">\n" +
-                "        <property>\n" +
-                "            <key>SECRET_ACCESS_KEY</key>\n" +
-                "            <value>$rrhsdhjf</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "</artifactStores>" +
-                "<pipelines group=\"first\">\n" +
-                "    <pipeline name=\"up42\">\n" +
-                "      <materials>\n" +
-                "        <git url=\"test-repo\" />\n" +
-                "      </materials>\n" +
-                "      <stage name=\"up42_stage\">\n" +
-                "        <jobs>\n" +
-                "          <job name=\"up42_job\">\n" +
-                "            <tasks>\n" +
-                "              <exec command=\"ls\">\n" +
-                "                <runif status=\"passed\" />\n" +
-                "              </exec>\n" +
-                "            </tasks>\n" +
-                "            <artifacts>\n" +
-                "              <artifact id=\"installer\" storeId=\"s3\" type=\"external\">\n" +
-                "               <configuration>" +
-                "                <property>\n" +
-                "                  <key>filename</key>\n" +
-                "                  <value>foo.xml</value>\n" +
-                "                </property>\n" +
-                "               </configuration>" +
-                "              </artifact>\n" +
-                "            </artifacts>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "  </pipelines>" +
-                "</cruise>";
+        String configXml = ("""
+                <cruise schemaVersion='%d'>
+                <artifactStores>
+                    <artifactStore pluginId="cd.go.s3" id="s3">
+                        <property>
+                            <key>ACCESS_KEY</key>
+                            <value>dasdas</value>
+                        </property>
+                    </artifactStore>
+                    <artifactStore pluginId="bar" id="foo">
+                        <property>
+                            <key>SECRET_ACCESS_KEY</key>
+                            <value>$rrhsdhjf</value>
+                        </property>
+                    </artifactStore>
+                </artifactStores>
+                <pipelines group="first">
+                    <pipeline name="up42">
+                      <materials>
+                        <git url="test-repo" />
+                      </materials>
+                      <stage name="up42_stage">
+                        <jobs>
+                          <job name="up42_job">
+                            <tasks>
+                              <exec command="ls">
+                                <runif status="passed" />
+                              </exec>
+                            </tasks>
+                            <artifacts>
+                              <artifact id="installer" storeId="s3" type="external">
+                               <configuration>
+                                <property>
+                                  <key>filename</key>
+                                  <value>foo.xml</value>
+                                </property>
+                               </configuration>
+                              </artifact>
+                            </artifacts>
+                          </job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                  </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).configForEdit;
         final ArtifactTypeConfigs artifactTypeConfigs = cruiseConfig.pipelineConfigByName(
@@ -3769,50 +3937,51 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotDeserializePluggableArtifactConfigWhenIdIsNotDefined() {
-        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<artifactStores>\n" +
-                "    <artifactStore pluginId=\"cd.go.s3\" id=\"s3\">\n" +
-                "        <property>\n" +
-                "            <key>ACCESS_KEY</key>\n" +
-                "            <value>dasdas</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "    <artifactStore pluginId=\"bar\" id=\"foo\">\n" +
-                "        <property>\n" +
-                "            <key>SECRET_ACCESS_KEY</key>\n" +
-                "            <value>$rrhsdhjf</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "</artifactStores>" +
-                "<pipelines group=\"first\">\n" +
-                "    <pipeline name=\"up42\">\n" +
-                "      <materials>\n" +
-                "        <git url=\"test-repo\" />\n" +
-                "      </materials>\n" +
-                "      <stage name=\"up42_stage\">\n" +
-                "        <jobs>\n" +
-                "          <job name=\"up42_job\">\n" +
-                "            <tasks>\n" +
-                "              <exec command=\"ls\">\n" +
-                "                <runif status=\"passed\" />\n" +
-                "              </exec>\n" +
-                "            </tasks>\n" +
-                "            <artifacts>\n" +
-                "              <artifact type=\"external\" storeId=\"s3\">\n" +
-                "               <configuration>" +
-                "                <property>\n" +
-                "                  <key>filename</key>\n" +
-                "                  <value>foo.xml</value>\n" +
-                "                </property>\n" +
-                "               </configuration>" +
-                "              </artifact>\n" +
-                "            </artifacts>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "  </pipelines>" +
-                "</cruise>";
+        String configXml = ("""
+                <cruise schemaVersion='%d'>
+                <artifactStores>
+                    <artifactStore pluginId="cd.go.s3" id="s3">
+                        <property>
+                            <key>ACCESS_KEY</key>
+                            <value>dasdas</value>
+                        </property>
+                    </artifactStore>
+                    <artifactStore pluginId="bar" id="foo">
+                        <property>
+                            <key>SECRET_ACCESS_KEY</key>
+                            <value>$rrhsdhjf</value>
+                        </property>
+                    </artifactStore>
+                </artifactStores>
+                <pipelines group="first">
+                    <pipeline name="up42">
+                      <materials>
+                        <git url="test-repo" />
+                      </materials>
+                      <stage name="up42_stage">
+                        <jobs>
+                          <job name="up42_job">
+                            <tasks>
+                              <exec command="ls">
+                                <runif status="passed" />
+                              </exec>
+                            </tasks>
+                            <artifacts>
+                              <artifact type="external" storeId="s3">
+                               <configuration>
+                                <property>
+                                  <key>filename</key>
+                                  <value>foo.xml</value>
+                                </property>
+                               </configuration>
+                              </artifact>
+                            </artifacts>
+                          </job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                  </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(configXml))
@@ -3821,50 +3990,51 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotDeserializePluggableArtifactConfigWhenStoreIdIsNotDefined() {
-        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<artifactStores>\n" +
-                "    <artifactStore pluginId=\"cd.go.s3\" id=\"s3\">\n" +
-                "        <property>\n" +
-                "            <key>ACCESS_KEY</key>\n" +
-                "            <value>dasdas</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "    <artifactStore pluginId=\"bar\" id=\"foo\">\n" +
-                "        <property>\n" +
-                "            <key>SECRET_ACCESS_KEY</key>\n" +
-                "            <value>$rrhsdhjf</value>\n" +
-                "        </property>\n" +
-                "    </artifactStore>\n" +
-                "</artifactStores>" +
-                "<pipelines group=\"first\">\n" +
-                "    <pipeline name=\"up42\">\n" +
-                "      <materials>\n" +
-                "        <git url=\"test-repo\" />\n" +
-                "      </materials>\n" +
-                "      <stage name=\"up42_stage\">\n" +
-                "        <jobs>\n" +
-                "          <job name=\"up42_job\">\n" +
-                "            <tasks>\n" +
-                "              <exec command=\"ls\">\n" +
-                "                <runif status=\"passed\" />\n" +
-                "              </exec>\n" +
-                "            </tasks>\n" +
-                "            <artifacts>\n" +
-                "              <artifact type=\"external\" id=\"installer\">\n" +
-                "               <configuration>" +
-                "                <property>\n" +
-                "                  <key>filename</key>\n" +
-                "                  <value>foo.xml</value>\n" +
-                "                </property>\n" +
-                "               </configuration>" +
-                "              </artifact>\n" +
-                "            </artifacts>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "  </pipelines>" +
-                "</cruise>";
+        String configXml = ("""
+                <cruise schemaVersion='%d'>
+                <artifactStores>
+                    <artifactStore pluginId="cd.go.s3" id="s3">
+                        <property>
+                            <key>ACCESS_KEY</key>
+                            <value>dasdas</value>
+                        </property>
+                    </artifactStore>
+                    <artifactStore pluginId="bar" id="foo">
+                        <property>
+                            <key>SECRET_ACCESS_KEY</key>
+                            <value>$rrhsdhjf</value>
+                        </property>
+                    </artifactStore>
+                </artifactStores>
+                <pipelines group="first">
+                    <pipeline name="up42">
+                      <materials>
+                        <git url="test-repo" />
+                      </materials>
+                      <stage name="up42_stage">
+                        <jobs>
+                          <job name="up42_job">
+                            <tasks>
+                              <exec command="ls">
+                                <runif status="passed" />
+                              </exec>
+                            </tasks>
+                            <artifacts>
+                              <artifact type="external" id="installer">
+                               <configuration>
+                                <property>
+                                  <key>filename</key>
+                                  <value>foo.xml</value>
+                                </property>
+                               </configuration>
+                              </artifact>
+                            </artifacts>
+                          </job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                  </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(configXml))
             .hasMessageContaining("\"Store id\" is required for PluggableArtifact");
@@ -3872,36 +4042,37 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotDeserializePluggableArtifactConfigWhenStoreWithIdNotFound() {
-        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
-                "<pipelines group=\"first\">\n" +
-                "    <pipeline name=\"up42\">\n" +
-                "      <materials>\n" +
-                "        <git url=\"test-repo\" />\n" +
-                "      </materials>\n" +
-                "      <stage name=\"up42_stage\">\n" +
-                "        <jobs>\n" +
-                "          <job name=\"up42_job\">\n" +
-                "            <tasks>\n" +
-                "              <exec command=\"ls\">\n" +
-                "                <runif status=\"passed\" />\n" +
-                "              </exec>\n" +
-                "            </tasks>\n" +
-                "            <artifacts>\n" +
-                "              <artifact type=\"external\" id=\"installer\" storeId=\"s3\">\n" +
-                "               <configuration>" +
-                "                <property>\n" +
-                "                  <key>filename</key>\n" +
-                "                  <value>foo.xml</value>\n" +
-                "                </property>\n" +
-                "               </configuration>" +
-                "              </artifact>\n" +
-                "            </artifacts>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "  </pipelines>" +
-                "</cruise>";
+        String configXml = ("""
+                <cruise schemaVersion='%d'>
+                <pipelines group="first">
+                    <pipeline name="up42">
+                      <materials>
+                        <git url="test-repo" />
+                      </materials>
+                      <stage name="up42_stage">
+                        <jobs>
+                          <job name="up42_job">
+                            <tasks>
+                              <exec command="ls">
+                                <runif status="passed" />
+                              </exec>
+                            </tasks>
+                            <artifacts>
+                              <artifact type="external" id="installer" storeId="s3">
+                               <configuration>
+                                <property>
+                                  <key>filename</key>
+                                  <value>foo.xml</value>
+                                </property>
+                               </configuration>
+                              </artifact>
+                            </artifacts>
+                          </job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                  </pipelines>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(configXml))
@@ -3917,22 +4088,23 @@ public class MagicalGoConfigXmlLoaderTest {
         String desEncryptedPassword = "mvcX9yrQsM4iPgm1tDxN1A==";
 
         String content = configWithPipeline(
-                        "<pipeline name='some_pipeline'>"
-                        + "  <environmentvariables>"
-                        + "    <variable name='var_name' secure='true'>"
-                        + "      <encryptedValue>" + desEncryptedPassword + "</encryptedValue>"
-                        + "    </variable>"
-                        + "   </environmentvariables>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='some_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", 108);
+                ("""
+                        <pipeline name='some_pipeline'>
+                          <environmentvariables>
+                            <variable name='var_name' secure='true'>
+                              <encryptedValue>%s</encryptedValue>
+                            </variable>
+                           </environmentvariables>
+                            <materials>
+                              <svn url='svnurl'/>
+                            </materials>
+                          <stage name='some_stage'>
+                            <jobs>
+                              <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""").formatted(desEncryptedPassword), 108);
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.allPipelines().get(0).getVariables().get(0).getValue()).isEqualTo(clearText);
@@ -3946,26 +4118,27 @@ public class MagicalGoConfigXmlLoaderTest {
         resetCipher.setupDESCipherFile();
 
         String content = configWithPipeline(
-                "<pipeline name='some_pipeline'>"
-                        + "    <materials>"
-                        + "      <svn url='svn1' username='bob' encryptedPassword='' dest='svn1'/>"
-                        + "      <svn url='svn2' username='bob' password='' dest='svn2'/>"
-                        + "      <tfs url='tfsurl1' username='user' domain='domain' encryptedPassword='' projectPath='path' dest='tfs1' />"
-                        + "      <tfs url='tfsurl2' username='user' domain='domain' password='' projectPath='path' dest='tfs2' />"
-                        + "      <p4 port='host:9999' username='user' encryptedPassword='' dest='perforce1'>" +
-                        "          <view><![CDATA[view]]></view>" +
-                        "        </p4>"
-                        + "      <p4 port='host:9999' username='user' password='' dest='perforce2'>" +
-                        "          <view><![CDATA[view]]></view>" +
-                        "        </p4>"
-                        + "    </materials>"
-                        + "  <stage name='some_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='some_job'>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", 109);
+                """
+                        <pipeline name='some_pipeline'>
+                            <materials>
+                              <svn url='svn1' username='bob' encryptedPassword='' dest='svn1'/>
+                              <svn url='svn2' username='bob' password='' dest='svn2'/>
+                              <tfs url='tfsurl1' username='user' domain='domain' encryptedPassword='' projectPath='path' dest='tfs1' />
+                              <tfs url='tfsurl2' username='user' domain='domain' password='' projectPath='path' dest='tfs2' />
+                              <p4 port='host:9999' username='user' encryptedPassword='' dest='perforce1'>
+                                  <view><![CDATA[view]]></view>
+                                </p4>
+                              <p4 port='host:9999' username='user' password='' dest='perforce2'>
+                                  <view><![CDATA[view]]></view>
+                                </p4>
+                            </materials>
+                          <stage name='some_stage'>
+                            <jobs>
+                              <job name='some_job'>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""", 109);
 
         assertThat(XpathUtils.nodeExists(content, "//*[@password='']")).isTrue();
         assertThat(XpathUtils.nodeExists(content, "//*[@encryptedPassword='']")).isTrue();
@@ -3988,19 +4161,20 @@ public class MagicalGoConfigXmlLoaderTest {
         String desEncryptedPassword = "mvcX9yrQsM4iPgm1tDxN1A==";
 
         String content = configWithPluggableScm(
-                        "  <scm id='f7c309f5-ea4d-41c5-9c43-95d79fa9ec7b' name='gocd-private'>" +
-                        "      <pluginConfiguration id='github.pr' version='1' />" +
-                        "      <configuration>" +
-                        "        <property>" +
-                        "          <key>plainTextKey</key>" +
-                        "          <value>https://url/some_path</value>" +
-                        "        </property>" +
-                        "        <property>" +
-                        "          <key>secureKey</key>" +
-                        "          <encryptedValue>" + desEncryptedPassword + "</encryptedValue>" +
-                        "        </property>" +
-                        "      </configuration>" +
-                        "    </scm>", 108);
+                ("""
+                          <scm id='f7c309f5-ea4d-41c5-9c43-95d79fa9ec7b' name='gocd-private'>
+                              <pluginConfiguration id='github.pr' version='1' />
+                              <configuration>
+                                <property>
+                                  <key>plainTextKey</key>
+                                  <value>https://url/some_path</value>
+                                </property>
+                                <property>
+                                  <key>secureKey</key>
+                                  <encryptedValue>%s</encryptedValue>
+                                </property>
+                              </configuration>
+                            </scm>""").formatted(desEncryptedPassword), 108);
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.getSCMs().get(0).getConfiguration().getProperty("secureKey").getValue()).isEqualTo(clearText);
@@ -4021,21 +4195,22 @@ public class MagicalGoConfigXmlLoaderTest {
         String desEncryptedPassword = "mvcX9yrQsM4iPgm1tDxN1A==";
 
         String content = configWithPipeline(
-                "<pipeline name='some_pipeline'>"
-                        + "    <materials>"
-                        + "      <svn url='asdsa' username='user' encryptedPassword='" + desEncryptedPassword + "' dest='svn'/>"
-                        + "      <tfs url='tfsurl' username='user' domain='domain' encryptedPassword='" + desEncryptedPassword + "' projectPath='path' dest='tfs' />"
-                        + "      <p4 port='host:9999' username='user' encryptedPassword='" + desEncryptedPassword + "' dest='perforce'>" +
-                        "          <view><![CDATA[view]]></view>" +
-                        "        </p4>"
-                        + "    </materials>"
-                        + "  <stage name='some_stage'>"
-                        + "    <jobs>"
-                        + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", 108);
+                ("""
+                        <pipeline name='some_pipeline'>
+                            <materials>
+                              <svn url='asdsa' username='user' encryptedPassword='%s' dest='svn'/>
+                              <tfs url='tfsurl' username='user' domain='domain' encryptedPassword='%s' projectPath='path' dest='tfs' />
+                              <p4 port='host:9999' username='user' encryptedPassword='%s' dest='perforce'>
+                                  <view><![CDATA[view]]></view>
+                                </p4>
+                            </materials>
+                          <stage name='some_stage'>
+                            <jobs>
+                              <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                              </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>""").formatted(desEncryptedPassword, desEncryptedPassword, desEncryptedPassword), 108);
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         MaterialConfigs materialConfigs = config.allPipelines().get(0).materialConfigs();
@@ -4061,9 +4236,10 @@ public class MagicalGoConfigXmlLoaderTest {
         String desEncryptedPassword = "mvcX9yrQsM4iPgm1tDxN1A==";
 
         String content = config(
-                "<server>" +
-                        "    <mailhost hostname='host' port='25' username='user' encryptedPassword='" + desEncryptedPassword + "' tls='false' from='user@domain.com' admin='admin@domain.com' />" +
-                        "  </server>", 108);
+                ("""
+                        <server>
+                            <mailhost hostname='host' port='25' username='user' encryptedPassword='%s' tls='false' from='user@domain.com' admin='admin@domain.com' />
+                          </server>""").formatted(desEncryptedPassword), 108);
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.server().mailHost().getPassword()).isEqualTo(clearText);
@@ -4132,21 +4308,22 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadSecretConfigs() {
         String content = config(
-                "<secretConfigs>" +
-                        "<secretConfig id=\"my_secret\" pluginId=\"gocd_file_based_plugin\">\n" +
-                        "    <description>All secrets for env1</description>" +
-                        "    <configuration>" +
-                        "       <property>\n" +
-                        "           <key>PasswordFilePath</key>\n" +
-                        "           <value>/godata/config/password.properties</value>\n" +
-                        "       </property>\n" +
-                        "    </configuration>" +
-                        "    <rules>\n" +
-                        "        <deny action=\"refer\" type=\"pipeline_group\">my_group</deny>\n" +
-                        "        <allow action=\"refer\" type=\"pipeline_group\">other_group</allow>  \n" +
-                        "    </rules>\n" +
-                        "</secretConfig>" +
-                        "</secretConfigs>", 116);
+                """
+                        <secretConfigs>
+                        <secretConfig id="my_secret" pluginId="gocd_file_based_plugin">
+                            <description>All secrets for env1</description>
+                            <configuration>
+                               <property>
+                                   <key>PasswordFilePath</key>
+                                   <value>/godata/config/password.properties</value>
+                               </property>
+                            </configuration>
+                            <rules>
+                                <deny action="refer" type="pipeline_group">my_group</deny>
+                                <allow action="refer" type="pipeline_group">other_group</allow> \s
+                            </rules>
+                        </secretConfig>
+                        </secretConfigs>""", 116);
 
         CruiseConfig config = ConfigMigrator.load(content);
         SecretConfigs secretConfigs = config.getSecretConfigs();
@@ -4169,39 +4346,40 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotAllowMoreThanOneOnCancelTaskWhenDefined() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "    <artifacts>"
-                + "      <artifactsDir>artifactsDir</artifactsDir> "
-                + "    </artifacts>"
-                + "</server>"
-                + "<pipelines>\n"
-                + "<pipeline name='pipeline1' template='abc'>\n"
-                + "    <materials>\n"
-                + "      <svn url ='svnurl' username='foo' password='password'/>"
-                + "    </materials>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "<templates>\n"
-                + "  <pipeline name='abc'>\n"
-                + "    <stage name='stage1'>"
-                + "      <jobs>"
-                + "        <job name='job1'>"
-                + "         <tasks>"
-                + "             <exec command=\"rake\">\n"
-                + "                 <arg>all_test</arg>\n"
-                + "                 <oncancel>\n"
-                + "                     <ant target='kill' />\n"
-                + "                     <ant target='kill' />\n"
-                + "                 </oncancel>\n"
-                + "             </exec>"
-                + "         </tasks>"
-                + "        </job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>\n"
-                + "</templates>\n"
-                + "</cruise>";
+        String xml = ("""
+                <cruise schemaVersion='%d'>
+                <server>
+                    <artifacts>
+                      <artifactsDir>artifactsDir</artifactsDir>
+                    </artifacts>
+                </server>
+                <pipelines>
+                <pipeline name='pipeline1' template='abc'>
+                    <materials>
+                      <svn url ='svnurl' username='foo' password='password'/>
+                    </materials>
+                </pipeline>
+                </pipelines>
+                <templates>
+                  <pipeline name='abc'>
+                    <stage name='stage1'>
+                      <jobs>
+                        <job name='job1'>
+                         <tasks>
+                             <exec command="rake">
+                                 <arg>all_test</arg>
+                                 <oncancel>
+                                     <ant target='kill' />
+                                     <ant target='kill' />
+                                 </oncancel>
+                             </exec>
+                         </tasks>
+                        </job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </templates>
+                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(xml))
                 .hasMessage("Invalid content was found starting with element 'ant'. No child element is expected at this point.");
@@ -4210,31 +4388,32 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadHgConfigWithBranchAttributePostSchemaVersion123() throws Exception {
         String content = config(
-                "<config-repos>" +
-                        "    <config-repo id=\"Test\" pluginId=\"cd.go.json\">" +
-                        "        <hg url=\"https://domain.com\" branch=\"feature\" />" +
-                        "     </config-repo>" +
-                        "</config-repos>" +
-                        "<pipelines group=\"first\">" +
-                        "    <pipeline name=\"Test\" template=\"test_template\">" +
-                        "      <materials>" +
-                        "          <hg url=\"https://domain.com\" branch=\"feature\" />" +
-                        "      </materials>" +
-                        "     </pipeline>" +
-                        "</pipelines>" +
-                        "<templates>" +
-                        "    <pipeline name=\"test_template\">" +
-                        "      <stage name=\"Functional\">" +
-                        "        <jobs>" +
-                        "          <job name=\"Functional\">" +
-                        "            <tasks>" +
-                        "              <exec command=\"echo\" args=\"Hello World!!!\" />" +
-                        "            </tasks>" +
-                        "           </job>" +
-                        "        </jobs>" +
-                        "      </stage>" +
-                        "    </pipeline>" +
-                        "</templates>", CONFIG_SCHEMA_VERSION);
+                """
+                        <config-repos>
+                            <config-repo id="Test" pluginId="cd.go.json">
+                                <hg url="https://domain.com" branch="feature" />
+                             </config-repo>
+                        </config-repos>
+                        <pipelines group="first">
+                            <pipeline name="Test" template="test_template">
+                              <materials>
+                                  <hg url="https://domain.com" branch="feature" />
+                              </materials>
+                             </pipeline>
+                        </pipelines>
+                        <templates>
+                            <pipeline name="test_template">
+                              <stage name="Functional">
+                                <jobs>
+                                  <job name="Functional">
+                                    <tasks>
+                                      <exec command="echo" args="Hello World!!!" />
+                                    </tasks>
+                                   </job>
+                                </jobs>
+                              </stage>
+                            </pipeline>
+                        </templates>""", CONFIG_SCHEMA_VERSION);
 
         CruiseConfig config = xmlLoader.loadConfigHolder(content).config;
 
@@ -4250,21 +4429,22 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadRulesConfigWhereActionAndTypeHasWildcardForSchemaVersion124() throws Exception {
         String content = config(
-                "<secretConfigs>\n" +
-                        " <secretConfig id=\"example\" pluginId=\"vault_based_plugin\">\n" +
-                        "  <description>All secrets for env1</description>\n" +
-                        "  <configuration>\n" +
-                        "   <property>\n" +
-                        "      <key>path</key>\n" +
-                        "     <value>secret/dev/teamA</value>\n" +
-                        "   </property>\n" +
-                        "  </configuration>\n" +
-                        "  <rules>\n" +
-                        "   <deny action=\"*\" type=\"environment\">up42</deny>  \n" +
-                        "   <deny action=\"refer\" type=\"*\">up43</deny>  \n" +
-                        "  </rules>\n" +
-                        " </secretConfig>\n" +
-                        "</secretConfigs>", CONFIG_SCHEMA_VERSION);
+                """
+                        <secretConfigs>
+                         <secretConfig id="example" pluginId="vault_based_plugin">
+                          <description>All secrets for env1</description>
+                          <configuration>
+                           <property>
+                              <key>path</key>
+                             <value>secret/dev/teamA</value>
+                           </property>
+                          </configuration>
+                          <rules>
+                           <deny action="*" type="environment">up42</deny> \s
+                           <deny action="refer" type="*">up43</deny> \s
+                          </rules>
+                         </secretConfig>
+                        </secretConfigs>""", CONFIG_SCHEMA_VERSION);
 
         CruiseConfig config = xmlLoader.loadConfigHolder(content).config;
 
@@ -4285,25 +4465,26 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadAllowOnlySuccessOnSuccessApprovalType() throws Exception {
         String content = config(
-                "<pipelines group=\"first\">"
-                        + "<pipeline name=\"pipeline\">"
-                        + "  <materials>"
-                        + "    <hg url=\"/hgrepo\"/>"
-                        + "  </materials>"
-                        + "  <stage name=\"mingle\">" +
-                        "      <approval type=\"success\" allowOnlyOnSuccess=\"true\" /> "
-                        + "    <jobs>"
-                        + "        <job name=\"functional\">\n"
-                        + "            <tasks>\n"
-                        + "              <exec command=\"echo\">\n"
-                        + "                <runif status=\"passed\" />\n"
-                        + "              </exec>\n"
-                        + "            </tasks>"
-                        + "        </job>\n"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>"
-                        + "</pipelines>", CONFIG_SCHEMA_VERSION);
+                """
+                        <pipelines group="first">
+                        <pipeline name="pipeline">
+                          <materials>
+                            <hg url="/hgrepo"/>
+                          </materials>
+                          <stage name="mingle">
+                            <approval type="success" allowOnlyOnSuccess="true" />
+                            <jobs>
+                                <job name="functional">
+                                    <tasks>
+                                      <exec command="echo">
+                                        <runif status="passed" />
+                                      </exec>
+                                    </tasks>
+                                </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        </pipelines>""", CONFIG_SCHEMA_VERSION);
 
         CruiseConfig config = xmlLoader.loadConfigHolder(goConfigMigration.upgradeIfNecessary(content)).config;
 
@@ -4319,35 +4500,36 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadInvertFilterForScmMaterial() throws Exception {
         String content = config(
-                "<scms>"
-                        + "<scm id=\"abcd\" name=\"scm_name\">"
-                        + "  <pluginConfiguration id=\"GitPathMaterial\" version=\"1\" />"
-                        + "  <configuration>"
-                        + "    <property>"
-                        + "      <key>url</key>"
-                        + "      <value>git@github.com:gocd/gocd.git</value>"
-                        + "    </property>"
-                        + "  </configuration>"
-                        + "</scm>"
-                        + "</scms>"
-                        + "<pipelines group=\"first\">"
-                        + "<pipeline name=\"pipeline\">"
-                        + "  <materials>"
-                        + "    <scm ref=\"abcd\" invertFilter=\"true\"/>"
-                        + "  </materials>"
-                        + "  <stage name=\"stage\">"
-                        + "    <jobs>"
-                        + "        <job name=\"functional\">"
-                        + "            <tasks>\n"
-                        + "              <exec command=\"echo\">\n"
-                        + "                <runif status=\"passed\" />\n"
-                        + "              </exec>\n"
-                        + "            </tasks>"
-                        + "        </job>\n"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>"
-                        + "</pipelines>", CONFIG_SCHEMA_VERSION);
+                """
+                        <scms>
+                        <scm id="abcd" name="scm_name">
+                          <pluginConfiguration id="GitPathMaterial" version="1" />
+                          <configuration>
+                            <property>
+                              <key>url</key>
+                              <value>git@github.com:gocd/gocd.git</value>
+                            </property>
+                          </configuration>
+                        </scm>
+                        </scms>
+                        <pipelines group="first">
+                        <pipeline name="pipeline">
+                          <materials>
+                            <scm ref="abcd" invertFilter="true"/>
+                          </materials>
+                          <stage name="stage">
+                            <jobs>
+                                <job name="functional">
+                                    <tasks>
+                                      <exec command="echo">
+                                        <runif status="passed" />
+                                      </exec>
+                                    </tasks>
+                                </job>
+                            </jobs>
+                          </stage>
+                        </pipeline>
+                        </pipelines>""", CONFIG_SCHEMA_VERSION);
 
         CruiseConfig config = xmlLoader.loadConfigHolder(goConfigMigration.upgradeIfNecessary(content)).config;
 

@@ -42,21 +42,23 @@ public class UniqueOnCancelValidatorTest {
         when(registry.implementersOf(Task.class)).thenReturn(tasks(ExecTask.class));
 
         String content =
-                "<cruise>"
-                + "  <pipeline>"
-                + "    <stage>"
-                + "      <jobs>"
-                + "        <job>"
-                + "          <tasks>"
-                + "            <exec command=\"install_addons.sh\">"
-                + "              <runif status=\"passed\" />\n"
-                + "            </exec>"
-                + "          </tasks>"
-                + "        </job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>"
-                + "</cruise>";
+                """
+                        <cruise>
+                          <pipeline>
+                            <stage>
+                              <jobs>
+                                <job>
+                                  <tasks>
+                                    <exec command="install_addons.sh">
+                                      <runif status="passed" />
+                                    </exec>
+                                  </tasks>
+                                </job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                        </cruise>
+                        """;
 
         UniqueOnCancelValidator validator = new UniqueOnCancelValidator();
         validator.validate(elementFor(content), registry);
@@ -68,24 +70,26 @@ public class UniqueOnCancelValidatorTest {
         when(registry.implementersOf(Task.class)).thenReturn(tasks(ExecTask.class));
 
         String content =
-                "<cruise>"
-                + "  <pipeline>"
-                + "    <stage>"
-                + "      <jobs>"
-                + "        <job>"
-                + "          <tasks>"
-                + "            <exec command=\"install_addons.sh\">"
-                + "              <runif status=\"passed\" />"
-                + "               <oncancel>\n"
-                + "                 <ant buildfile=\"build.xml\" />\n"
-                + "               </oncancel>"
-                + "            </exec>"
-                + "          </tasks>"
-                + "        </job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>"
-                + "</cruise>";
+                """
+                        <cruise>
+                          <pipeline>
+                            <stage>
+                              <jobs>
+                                <job>
+                                  <tasks>
+                                    <exec command="install_addons.sh">
+                                      <runif status="passed" />
+                                       <oncancel>
+                                         <ant buildfile="build.xml" />
+                                       </oncancel>
+                                    </exec>
+                                  </tasks>
+                                </job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                        </cruise>
+                        """;
 
         UniqueOnCancelValidator validator = new UniqueOnCancelValidator();
         validator.validate(elementFor(content), registry);
@@ -97,27 +101,29 @@ public class UniqueOnCancelValidatorTest {
         when(registry.implementersOf(Task.class)).thenReturn(tasks(ExecTask.class));
 
         String content =
-                "<cruise>"
-                + "  <pipeline>"
-                + "    <stage>"
-                + "      <jobs>"
-                + "        <job>"
-                + "          <tasks>"
-                + "            <exec command=\"install_addons.sh\">"
-                + "              <runif status=\"passed\" />"
-                + "               <oncancel>\n"
-                + "                 <ant buildfile=\"build1.xml\" />\n"
-                + "               </oncancel>"
-                + "               <oncancel>\n"
-                + "                 <ant buildfile=\"build2.xml\" />\n"
-                + "               </oncancel>"
-                + "            </exec>"
-                + "          </tasks>"
-                + "        </job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>"
-                + "</cruise>";
+                """
+                        <cruise>
+                          <pipeline>
+                            <stage>
+                              <jobs>
+                                <job>
+                                  <tasks>
+                                    <exec command="install_addons.sh">
+                                      <runif status="passed" />
+                                       <oncancel>
+                                         <ant buildfile="build1.xml" />
+                                       </oncancel>
+                                       <oncancel>
+                                         <ant buildfile="build2.xml" />
+                                       </oncancel>
+                                    </exec>
+                                  </tasks>
+                                </job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                        </cruise>
+                        """;
 
         try {
             UniqueOnCancelValidator validator = new UniqueOnCancelValidator();
@@ -133,28 +139,30 @@ public class UniqueOnCancelValidatorTest {
         when(registry.implementersOf(Task.class)).thenReturn(tasks(ExecTask.class));
 
         String content =
-                "<cruise>"
-                + "  <pipeline>"
-                + "    <stage>"
-                + "      <jobs>"
-                + "        <job>"
-                + "          <tasks>"
-                + "            <task name=\"\">\n"
-                + "              <pluginConfiguration id=\"curl.task.plugin\" version=\"1\" />\n"
-                + "              <configuration>\n"
-                + "                <property>\n"
-                + "                  <key>Url</key>\n"
-                + "                  <value>URL</value>\n"
-                + "                </property>\n"
-                + "              </configuration>\n"
-                + "              <runif status=\"passed\" />\n"
-                + "            </task>"
-                + "          </tasks>"
-                + "        </job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>"
-                + "</cruise>";
+                """
+                        <cruise>
+                          <pipeline>
+                            <stage>
+                              <jobs>
+                                <job>
+                                  <tasks>
+                                    <task name="">
+                                      <pluginConfiguration id="curl.task.plugin" version="1" />
+                                      <configuration>
+                                        <property>
+                                          <key>Url</key>
+                                          <value>URL</value>
+                                        </property>
+                                      </configuration>
+                                      <runif status="passed" />
+                                    </task>
+                                  </tasks>
+                                </job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                        </cruise>
+                        """;
 
         UniqueOnCancelValidator validator = new UniqueOnCancelValidator();
         validator.validate(elementFor(content), registry);
@@ -166,31 +174,33 @@ public class UniqueOnCancelValidatorTest {
         when(registry.implementersOf(Task.class)).thenReturn(tasks(ExecTask.class, PluggableTask.class));
 
         String content =
-                "<cruise>"
-                + "  <pipeline>"
-                + "    <stage>"
-                + "      <jobs>"
-                + "        <job>"
-                + "          <tasks>"
-                + "              <task name=\"\">\n"
-                + "                <pluginConfiguration id=\"curl.task.plugin\" version=\"1\" />\n"
-                + "                <configuration>\n"
-                + "                  <property>\n"
-                + "                    <key>Url</key>\n"
-                + "                    <value>With_On_Cancel</value>\n"
-                + "                  </property>\n"
-                + "                </configuration>\n"
-                + "                <runif status=\"passed\" />\n"
-                + "                <oncancel>\n"
-                + "                  <ant buildfile=\"blah\" target=\"blah\" />\n"
-                + "                </oncancel>\n"
-                + "              </task>"
-                + "          </tasks>"
-                + "        </job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>"
-                + "</cruise>";
+                """
+                        <cruise>
+                          <pipeline>
+                            <stage>
+                              <jobs>
+                                <job>
+                                  <tasks>
+                                      <task name="">
+                                        <pluginConfiguration id="curl.task.plugin" version="1" />
+                                        <configuration>
+                                          <property>
+                                            <key>Url</key>
+                                            <value>With_On_Cancel</value>
+                                          </property>
+                                        </configuration>
+                                        <runif status="passed" />
+                                        <oncancel>
+                                          <ant buildfile="blah" target="blah" />
+                                        </oncancel>
+                                      </task>
+                                  </tasks>
+                                </job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                        </cruise>
+                        """;
 
         UniqueOnCancelValidator validator = new UniqueOnCancelValidator();
         validator.validate(elementFor(content), registry);
@@ -202,34 +212,36 @@ public class UniqueOnCancelValidatorTest {
         when(registry.implementersOf(Task.class)).thenReturn(tasks(ExecTask.class, PluggableTask.class));
 
         String content =
-                "<cruise>"
-                + "  <pipeline>"
-                + "    <stage>"
-                + "      <jobs>"
-                + "        <job>"
-                + "          <tasks>"
-                + "              <task name=\"\">\n"
-                + "                <pluginConfiguration id=\"curl.task.plugin\" version=\"1\" />\n"
-                + "                <configuration>\n"
-                + "                  <property>\n"
-                + "                    <key>Url</key>\n"
-                + "                    <value>With_On_Cancel</value>\n"
-                + "                  </property>\n"
-                + "                </configuration>\n"
-                + "                <runif status=\"passed\" />\n"
-                + "                <oncancel>\n"
-                + "                  <ant buildfile=\"blah\" target=\"blah1\" />\n"
-                + "                </oncancel>\n"
-                + "                <oncancel>\n"
-                + "                  <ant buildfile=\"blah\" target=\"blah2\" />\n"
-                + "                </oncancel>\n"
-                + "              </task>"
-                + "          </tasks>"
-                + "        </job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>"
-                + "</cruise>";
+                """
+                        <cruise>
+                          <pipeline>
+                            <stage>
+                              <jobs>
+                                <job>
+                                  <tasks>
+                                      <task name="">
+                                        <pluginConfiguration id="curl.task.plugin" version="1" />
+                                        <configuration>
+                                          <property>
+                                            <key>Url</key>
+                                            <value>With_On_Cancel</value>
+                                          </property>
+                                        </configuration>
+                                        <runif status="passed" />
+                                        <oncancel>
+                                          <ant buildfile="blah" target="blah1" />
+                                        </oncancel>
+                                        <oncancel>
+                                          <ant buildfile="blah" target="blah2" />
+                                        </oncancel>
+                                      </task>
+                                  </tasks>
+                                </job>
+                              </jobs>
+                            </stage>
+                          </pipeline>
+                        </cruise>
+                        """;
 
         try {
             UniqueOnCancelValidator validator = new UniqueOnCancelValidator();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.server.service.builders;
 
-import java.io.File;
-
 import com.thoughtworks.go.config.ExecTask;
+import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.builder.CommandBuilderWithArgList;
-import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
 
 import static com.thoughtworks.go.util.FileUtil.applyBaseDirIfRelativeAndNormalize;
 

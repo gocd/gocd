@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.domain.materials.packagematerial;
 
+import com.thoughtworks.go.domain.materials.Revision;
+
 import java.util.Date;
 import java.util.Map;
-
-import com.thoughtworks.go.domain.materials.Revision;
 
 public class PackageMaterialRevision implements Revision {
 

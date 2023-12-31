@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.domain;
 
-import static com.thoughtworks.go.config.RunIfConfig.PASSED;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import com.thoughtworks.go.config.RunIfConfig;
 import org.junit.jupiter.api.Test;
+
+import static com.thoughtworks.go.config.RunIfConfig.PASSED;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class RunIfConfigsTest {
 

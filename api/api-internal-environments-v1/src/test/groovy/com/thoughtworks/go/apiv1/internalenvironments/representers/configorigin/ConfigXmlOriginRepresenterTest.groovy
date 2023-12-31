@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.apiv1.internalenvironments.representers.configorigin
 
-import com.thoughtworks.go.apiv1.internalenvironments.representers.configorigin.ConfigXmlOriginRepresenter
+
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import org.junit.jupiter.api.Test
 

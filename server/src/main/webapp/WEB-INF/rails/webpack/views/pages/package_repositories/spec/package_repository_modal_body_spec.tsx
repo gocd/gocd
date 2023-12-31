@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 import m from "mithril";
 import {PackageRepository} from "models/package_repositories/package_repositories";
-import {getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
+import {
+  getPackageRepository,
+  pluginInfoWithPackageRepositoryExtension
+} from "models/package_repositories/spec/test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PackageRepositoryModalBody} from "../package_repository_modal_body";

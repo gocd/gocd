@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.service.TaskFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class NullTask implements Task {

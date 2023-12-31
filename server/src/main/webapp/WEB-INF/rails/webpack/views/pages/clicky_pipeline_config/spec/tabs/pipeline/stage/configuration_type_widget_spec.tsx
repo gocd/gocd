@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ import Stream from "mithril/stream";
 import * as simulateEvent from "simulate-event";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
-import {ConfigurationTypeWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/configuration_type_widget";
+import {
+  ConfigurationTypeWidget
+} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/configuration_type_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Pipeline Template Configuration Type Widget", () => {

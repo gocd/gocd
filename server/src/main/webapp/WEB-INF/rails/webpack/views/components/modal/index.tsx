@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 
-import { v4 as uuid4 } from 'uuid';
+import {v4 as uuid4} from 'uuid';
 import {Spinner} from "views/components/spinner";
 import * as Buttons from "../buttons";
 import styles from "./index.scss";

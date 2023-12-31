@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import m from "mithril";
 import {AgentConfigState} from "models/agents/agents";
 import {EnvironmentsService, ResourcesService} from "models/agents/agents_crud";
 import {StaticAgentsVM} from "models/agents/agents_vm";
-import {ButtonGroup} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
+import {ButtonGroup} from "views/components/buttons";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {KeyValuePair} from "views/components/key_value_pair";

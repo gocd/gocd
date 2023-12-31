@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,15 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {FetchTaskAttributes} from "models/pipeline_configs/task";
 import {AutocompleteField} from "views/components/forms/autocomplete";
-import {JobsAutocompletionProvider} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/jobs_autocompletion_provider";
-import {PipelinesAutocompletionProvider} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/pipelines_autocompletion_provider";
-import {StagesAutocompletionProvider} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/stages_autocompletion_provider";
+import {
+  JobsAutocompletionProvider
+} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/jobs_autocompletion_provider";
+import {
+  PipelinesAutocompletionProvider
+} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/pipelines_autocompletion_provider";
+import {
+  StagesAutocompletionProvider
+} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/stages_autocompletion_provider";
 
 export interface Attrs {
   attributes: FetchTaskAttributes;

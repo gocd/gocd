@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,11 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineGroupCRUD} from "models/admin_pipelines/pipeline_groups_crud";
 import {headerMeta} from "models/current_user_permissions";
-import {PipelineGroup, PipelineGroups, PipelineStructureWithAdditionalInfo} from "models/internal_pipeline_structure/pipeline_structure";
+import {
+  PipelineGroup,
+  PipelineGroups,
+  PipelineStructureWithAdditionalInfo
+} from "models/internal_pipeline_structure/pipeline_structure";
 import {PipelineStructureCRUD} from "models/internal_pipeline_structure/pipeline_structure_crud";
 import {PipelineGroupCRUD as PipelineGroupCacheCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
@@ -35,7 +39,14 @@ import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Attrs, PipelineGroupsWidget, PipelinesScrollOptions} from "views/pages/admin_pipelines/admin_pipelines_widget";
-import {ClonePipelineConfigModal, CreatePipelineGroupModal, DeletePipelineGroupModal, DownloadPipelineModal, ExtractTemplateModal, MoveConfirmModal} from "views/pages/admin_pipelines/modals";
+import {
+  ClonePipelineConfigModal,
+  CreatePipelineGroupModal,
+  DeletePipelineGroupModal,
+  DownloadPipelineModal,
+  ExtractTemplateModal,
+  MoveConfirmModal
+} from "views/pages/admin_pipelines/modals";
 import configRepoStyles from "views/pages/config_repos/index.scss";
 import {Page, PageState} from "views/pages/page";
 import buttonStyle from "views/pages/pipelines/actions.scss";

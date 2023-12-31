@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { normalizePath } from "helpers/url";
-import { cascading } from "helpers/utils";
-import { SiteUrls } from "models/server-configuration/server_configuration";
+import {normalizePath} from "helpers/url";
+import {cascading} from "helpers/utils";
+import {SiteUrls} from "models/server-configuration/server_configuration";
 
 // a subset of both Location and URL
 interface LocationLike {

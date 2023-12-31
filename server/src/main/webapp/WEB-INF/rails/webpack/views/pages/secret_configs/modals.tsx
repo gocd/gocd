@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,13 @@ import {SecretExtension} from "models/shared/plugin_infos_new/extensions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Form, FormHeader} from "views/components/forms/form";
-import {SelectField, SelectFieldOptions, Size as TextAreaSize, TextAreaField, TextField} from "views/components/forms/input_fields";
+import {
+  SelectField,
+  SelectFieldOptions,
+  Size as TextAreaSize,
+  TextAreaField,
+  TextField
+} from "views/components/forms/input_fields";
 import {Size} from "views/components/modal";
 import {EntityModal} from "views/components/modal/entity_modal";
 import {ConfigureRulesWidget, RulesType} from "views/components/rules/configure_rules_widget";

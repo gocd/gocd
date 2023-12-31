@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,17 @@
  * limitations under the License.
  */
 
-import {ChangeMaterial, DependencyMaterialAttributes, GitMaterialAttributes, HgMaterialAttributes, P4MaterialAttributes, PackageMaterialAttributes, PluggableScmMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "../material";
+import {
+  ChangeMaterial,
+  DependencyMaterialAttributes,
+  GitMaterialAttributes,
+  HgMaterialAttributes,
+  P4MaterialAttributes,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes,
+  SvnMaterialAttributes,
+  TfsMaterialAttributes
+} from "../material";
 import {MaterialData} from "./test_data";
 
 describe('MaterialModelSpec', () => {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,12 @@
 import _ from "lodash";
 import Stream from "mithril/stream";
 import {Accessor} from "models/base/accessor";
-import {ConfigRepoJSON, ConfigReposJSON, MaterialModificationJSON, ParseInfoJSON,} from "models/config_repos/serialization";
+import {
+  ConfigRepoJSON,
+  ConfigReposJSON,
+  MaterialModificationJSON,
+  ParseInfoJSON,
+} from "models/config_repos/serialization";
 import {Material, Materials} from "models/materials/types";
 import {ConfigurationProperties, PropertyLike, PropertyNamesValidator} from "models/mixins/configuration_properties";
 import {Errors} from "models/mixins/errors";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,19 @@
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {BuildCauseJSON, dateOrUndefined, JobJSON, MaterialJSON, MaterialRevisionJSON, ModificationJSON, PipelineHistoryJSON, PipelineInstanceJSON, StageJSON, stringOrNull, stringOrUndefined} from "./pipeline_instance_json";
+import {
+  BuildCauseJSON,
+  dateOrUndefined,
+  JobJSON,
+  MaterialJSON,
+  MaterialRevisionJSON,
+  ModificationJSON,
+  PipelineHistoryJSON,
+  PipelineInstanceJSON,
+  StageJSON,
+  stringOrNull,
+  stringOrUndefined
+} from "./pipeline_instance_json";
 
 export class PipelineHistory {
   pipelineName: string;

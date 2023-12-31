@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { asSelector } from "helpers/css_proxies";
+import {asSelector} from "helpers/css_proxies";
 import m from "mithril";
 import copyStyles from "views/components/click_2_copy/index.scss";
 import tabStyles from "views/components/tab/index.scss";
 import styles from "views/pages/config_repos/index.scss";
-import { TestHelper } from "views/pages/spec/test_helper";
-import { WebhookUrlGenerator } from "../config_repo_view_model";
-import { WebhookSuggestions } from "../webhook_suggestions";
+import {TestHelper} from "views/pages/spec/test_helper";
+import {WebhookUrlGenerator} from "../config_repo_view_model";
+import {WebhookSuggestions} from "../webhook_suggestions";
 
 const sel = asSelector(styles);
 const tabs = asSelector(tabStyles);

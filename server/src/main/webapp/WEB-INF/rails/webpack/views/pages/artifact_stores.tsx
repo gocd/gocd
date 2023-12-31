@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,14 @@ import {
   EditArtifactStoreModal
 } from "views/pages/artifact_stores/modals";
 import {Page, PageState} from "views/pages/page";
-import {AddOperation, CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
+import {
+  AddOperation,
+  CloneOperation,
+  DeleteOperation,
+  EditOperation,
+  RequiresPluginInfos,
+  SaveOperation
+} from "views/pages/page_operations";
 
 interface State extends RequiresPluginInfos, AddOperation<ArtifactStore>, EditOperation<ArtifactStore>, CloneOperation<ArtifactStore>, DeleteOperation<ArtifactStore>, SaveOperation {
   artifactStores: ArtifactStores;

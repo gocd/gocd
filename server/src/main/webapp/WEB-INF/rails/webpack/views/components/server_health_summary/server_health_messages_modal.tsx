@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,7 @@
 import classNames from "classnames/bind";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {
-  ServerHealthMessage,
-  ServerHealthMessages
-} from "models/shared/server_health_messages/server_health_messages";
+import {ServerHealthMessage, ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
 import s from "underscore.string";
 import {Modal, Size} from "../modal";
 import styles from "./server_health_messages_count_widget.scss";

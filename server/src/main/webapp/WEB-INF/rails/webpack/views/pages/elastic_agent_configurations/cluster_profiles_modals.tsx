@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 import classNames from "classnames/bind";
-import { ApiResult, ErrorResponse, ObjectWithEtag } from "helpers/api_request_builder";
+import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import { ClusterProfilesCRUD } from "models/elastic_profiles/cluster_profiles_crud";
-import { ClusterProfile } from "models/elastic_profiles/types";
-import { Configurations } from "models/shared/configuration";
-import { ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
+import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
+import {ClusterProfile} from "models/elastic_profiles/types";
+import {Configurations} from "models/shared/configuration";
+import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
-import { PluginInfo, PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
-import { FlashMessage, MessageType } from "views/components/flash_message";
-import { Form, FormHeader } from "views/components/forms/form";
-import { SelectField, SelectFieldOptions, TextField } from "views/components/forms/input_fields";
-import { Modal, Size } from "views/components/modal";
-import { Spinner } from "views/components/spinner";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Form, FormHeader} from "views/components/forms/form";
+import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {Modal, Size} from "views/components/modal";
+import {Spinner} from "views/components/spinner";
 import styles from "views/pages/elastic_agent_configurations/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 

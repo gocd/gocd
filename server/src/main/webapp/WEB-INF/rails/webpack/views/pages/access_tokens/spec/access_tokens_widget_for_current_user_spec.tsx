@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import {
   AccessTokensWidgetForCurrentUser,
   formatTimeInformation,
-  getLastUsedInformation, getRevokedBy
+  getLastUsedInformation,
+  getRevokedBy
 } from "views/pages/access_tokens/access_tokens_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 

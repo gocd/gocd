@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 package com.thoughtworks.go.apiv1.serversiteurlsconfig.representers
 
 import com.thoughtworks.go.api.representers.JsonReader
+import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.SiteUrls
 import com.thoughtworks.go.domain.SecureSiteUrl
-import com.thoughtworks.go.domain.ServerSiteUrlConfig
 import com.thoughtworks.go.domain.SiteUrl
 import org.junit.jupiter.api.Test
+
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
-import com.thoughtworks.go.api.util.GsonTransformer
 import static org.assertj.core.api.Assertions.assertThat
 
 class ServerSiteUrlsConfigRepresenterTest {

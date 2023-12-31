@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,21 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {AuthConfigsWidget} from "views/pages/auth_configs/auth_configs_widget";
-import {CloneAuthConfigModal, CreateAuthConfigModal, DeleteAuthConfigModal, EditAuthConfigModal} from "views/pages/auth_configs/modals";
+import {
+  CloneAuthConfigModal,
+  CreateAuthConfigModal,
+  DeleteAuthConfigModal,
+  EditAuthConfigModal
+} from "views/pages/auth_configs/modals";
 import {Page, PageState} from "views/pages/page";
-import {AddOperation, CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
+import {
+  AddOperation,
+  CloneOperation,
+  DeleteOperation,
+  EditOperation,
+  RequiresPluginInfos,
+  SaveOperation
+} from "views/pages/page_operations";
 
 interface State extends AddOperation<AuthConfig>, RequiresPluginInfos, EditOperation<AuthConfig>, CloneOperation<AuthConfig>, DeleteOperation<AuthConfig>, SaveOperation {
   authConfigs: AuthConfigs;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,11 @@ import {Errors} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {AutoSuggestions} from "models/roles/auto_suggestion";
 import {Rules} from "models/rules/rules";
-import {SecretConfigJSON, SecretConfigsJSON, SecretConfigsWithSuggestionsJSON} from "models/secret_configs/secret_configs_json";
+import {
+  SecretConfigJSON,
+  SecretConfigsJSON,
+  SecretConfigsWithSuggestionsJSON
+} from "models/secret_configs/secret_configs_json";
 import {Configurations} from "models/shared/configuration";
 
 export class SecretConfig extends ValidatableMixin {

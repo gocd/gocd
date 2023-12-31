@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
  */
 package com.thoughtworks.go.apiv2.stageoperations.representers
 
+import com.thoughtworks.go.domain.JobResult
+import com.thoughtworks.go.domain.JobState
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel
-import com.thoughtworks.go.domain.JobResult
-import com.thoughtworks.go.domain.JobState
-
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString

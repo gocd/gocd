@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import java.util.Collection;
-import java.util.Map;
-
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
+
+import java.util.Collection;
+import java.util.Map;
 
 public class PipelineInstanceGroupModel {
     private StageConfigurationModels stages;

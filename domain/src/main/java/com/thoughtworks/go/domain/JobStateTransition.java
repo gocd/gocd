@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 package com.thoughtworks.go.domain;
-import java.util.Date;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.Date;
 
 public class JobStateTransition extends PersistentObject {
 

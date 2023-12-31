@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  */
 
 import Stream from "mithril/stream";
-import {ArtifactIdAutocompletionProvider} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/artifact_id_autocompletion_provider";
+import {
+  ArtifactIdAutocompletionProvider
+} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/artifact_id_autocompletion_provider";
 import {suggestions} from "./auto_suggestions_test_data";
 
 describe("Artifact Id AutoCompletion Provider", () => {

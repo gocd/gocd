@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.plugin.access.packagematerial;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.thoughtworks.go.plugin.api.config.PluginPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class PackageConfigurations implements PluginPreference {
     private List<PackageConfiguration> packageConfigurations = new ArrayList<>();

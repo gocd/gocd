@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,7 @@ import {
 } from "views/components/buttons";
 import {Counts, CountsAttr} from "views/components/counts";
 import {Form} from "views/components/forms/form";
-import {
-  CheckboxField,
-  QuickAddField,
-  SearchField,
-  TriStateCheckboxField
-} from "views/components/forms/input_fields";
+import {CheckboxField, QuickAddField, SearchField, TriStateCheckboxField} from "views/components/forms/input_fields";
 import {DeleteOperation, DisableOperation, EnableOperation, OperationState} from "views/pages/page_operations";
 import styles from "./index.scss";
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import { MithrilViewComponent } from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import { AuthConfig, AuthConfigs } from "models/auth_configs/auth_configs";
-import { GoCDAttributes, GoCDRole, PluginAttributes, PluginRole } from "models/roles/roles";
-import { AuthorizationExtension} from "models/shared/plugin_infos_new/extensions";
-import { ExtensionTypeString } from "models/shared/plugin_infos_new/extension_type";
-import { PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
+import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
+import {GoCDAttributes, GoCDRole, PluginAttributes, PluginRole} from "models/roles/roles";
+import {AuthorizationExtension} from "models/shared/plugin_infos_new/extensions";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
-import { Form } from "views/components/forms/form";
-import { Option, SelectField, SelectFieldOptions, TextField } from "views/components/forms/input_fields";
-import { UsersWidget } from "views/pages/roles/users_widget";
+import {Form} from "views/components/forms/form";
+import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {UsersWidget} from "views/pages/roles/users_widget";
 import styles from "./index.scss";
 
 const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;

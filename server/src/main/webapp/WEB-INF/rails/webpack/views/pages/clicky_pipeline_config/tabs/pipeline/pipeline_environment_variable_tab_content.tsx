@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  */
 
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {EnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/common/environment_variables_tab_content";
+import {
+  EnvironmentVariablesTabContent
+} from "views/pages/clicky_pipeline_config/tabs/common/environment_variables_tab_content";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 
 export class PipelineEnvironmentVariablesTabContent extends EnvironmentVariablesTabContent {

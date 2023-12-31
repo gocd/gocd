@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,12 @@ import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Pipeline, PipelineGroup, PipelineGroups, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
+import {
+  Pipeline,
+  PipelineGroup,
+  PipelineGroups,
+  PipelineWithOrigin
+} from "models/internal_pipeline_structure/pipeline_structure";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {ModelWithNameIdentifierValidator} from "models/shared/name_validation";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";

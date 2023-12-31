@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import {Stage} from "models/pipeline_configs/stage";
 import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {Form, FormBody} from "views/components/forms/form";
 import {SwitchBtn} from "views/components/switch/index";
-import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
+import {TooltipSize} from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.mail;
 
-import com.thoughtworks.go.util.command.StreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import com.thoughtworks.go.util.command.StreamConsumer;
 
 public class SysOutStreamConsumer extends ProcessOutputStreamConsumer {
 

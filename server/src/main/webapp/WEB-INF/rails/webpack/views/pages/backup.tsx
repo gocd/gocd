@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import {ServerBackupAPI} from "models/backups/server_backup_api";
 import {BackupStatus, ServerBackup} from "models/backups/types";
 import {BackupConfigCrud} from "models/backup_config/backup_config_crud";
 import {BackupConfig} from "models/backup_config/types";
-import {ButtonIcon} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
+import {ButtonIcon} from "views/components/buttons";
 import {HeaderPanel} from "views/components/header_panel";
 import {BackupConfigModal} from "views/pages/backup/backup_config_modal";
 import {Attrs, BackupWidget} from "views/pages/backup/backup_widget";

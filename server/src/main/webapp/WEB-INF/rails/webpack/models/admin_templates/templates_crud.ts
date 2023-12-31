@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,12 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {Template, TemplateAuthorization, TemplateAuthorizationJSON, TemplateSummary} from "models/admin_templates/templates";
+import {
+  Template,
+  TemplateAuthorization,
+  TemplateAuthorizationJSON,
+  TemplateSummary
+} from "models/admin_templates/templates";
 import TemplateSummaryRootObject = TemplateSummary.TemplateSummaryRootObject;
 
 export class TemplatesCRUD {

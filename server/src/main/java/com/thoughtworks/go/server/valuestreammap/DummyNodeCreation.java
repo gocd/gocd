@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.server.valuestreammap;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
-import java.util.UUID;
-
 import com.thoughtworks.go.domain.valuestreammap.DummyNode;
 import com.thoughtworks.go.domain.valuestreammap.Node;
 import com.thoughtworks.go.domain.valuestreammap.NodeLevelMap;
 import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static java.lang.Math.abs;
 

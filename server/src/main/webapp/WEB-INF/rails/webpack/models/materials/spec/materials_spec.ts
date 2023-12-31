@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,22 @@
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {MaterialModification} from "models/config_repos/types";
-import {GitMaterialAttributes, HgMaterialAttributes, MaterialAPIs, MaterialMessages, MaterialModifications, Materials, MaterialUsages, MaterialWithFingerprint, MaterialWithModification, P4MaterialAttributes, PackageMaterialAttributes, PluggableScmMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "../materials";
+import {
+  GitMaterialAttributes,
+  HgMaterialAttributes,
+  MaterialAPIs,
+  MaterialMessages,
+  MaterialModifications,
+  Materials,
+  MaterialUsages,
+  MaterialWithFingerprint,
+  MaterialWithModification,
+  P4MaterialAttributes,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes,
+  SvnMaterialAttributes,
+  TfsMaterialAttributes
+} from "../materials";
 
 describe('MaterialsAPISpec', () => {
   beforeEach(() => jasmine.Ajax.install());

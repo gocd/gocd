@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.util;
 
-import com.thoughtworks.go.util.command.*;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
+import com.thoughtworks.go.util.command.ErrorConsumer;
+import com.thoughtworks.go.util.command.OutputConsumer;
+import com.thoughtworks.go.util.command.StreamPumper;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

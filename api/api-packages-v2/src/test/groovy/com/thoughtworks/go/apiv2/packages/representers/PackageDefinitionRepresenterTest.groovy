@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,7 @@
 package com.thoughtworks.go.apiv2.packages.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.domain.config.Configuration
-import com.thoughtworks.go.domain.config.ConfigurationKey
-import com.thoughtworks.go.domain.config.ConfigurationProperty
-import com.thoughtworks.go.domain.config.ConfigurationValue
-import com.thoughtworks.go.domain.config.PluginConfiguration
+import com.thoughtworks.go.domain.config.*
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition
 import com.thoughtworks.go.domain.packagerepository.PackageRepository
 import org.junit.jupiter.api.Test

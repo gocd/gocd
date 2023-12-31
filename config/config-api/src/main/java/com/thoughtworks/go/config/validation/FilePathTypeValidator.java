@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.config.validation;
 
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.util.XmlUtils;
+
+import java.util.regex.Pattern;
 
 public class FilePathTypeValidator {
     public static final String PATH_PATTERN = "(([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])";

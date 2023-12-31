@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,25 @@
 import {JsonUtils} from "helpers/json_utils";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {ArtifactConfigCRUD, JobTimeoutManagementCRUD, MailServerCrud, ServerManagementCRUD} from "models/server-configuration/server_configuartion_crud";
-import {ArtifactConfig, DefaultJobTimeout, MailServer, SiteUrls} from "models/server-configuration/server_configuration";
-import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, ServerConfigVM, SiteUrlsVM} from "models/server-configuration/server_configuration_vm";
+import {
+  ArtifactConfigCRUD,
+  JobTimeoutManagementCRUD,
+  MailServerCrud,
+  ServerManagementCRUD
+} from "models/server-configuration/server_configuartion_crud";
+import {
+  ArtifactConfig,
+  DefaultJobTimeout,
+  MailServer,
+  SiteUrls
+} from "models/server-configuration/server_configuration";
+import {
+  ArtifactConfigVM,
+  DefaultJobTimeoutVM,
+  MailServerVM,
+  ServerConfigVM,
+  SiteUrlsVM
+} from "models/server-configuration/server_configuration_vm";
 import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Page, PageState} from "views/pages/page";

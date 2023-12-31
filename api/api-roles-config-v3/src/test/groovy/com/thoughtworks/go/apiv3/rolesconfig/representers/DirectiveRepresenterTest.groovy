@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,15 @@
  */
 package com.thoughtworks.go.apiv3.rolesconfig.representers
 
-import com.google.gson.JsonParseException
+
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.policy.Allow
 import com.thoughtworks.go.config.policy.Deny
-import org.assertj.core.api.ThrowableAssert
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType
 
 class DirectiveRepresenterTest {
   def allow_json = [

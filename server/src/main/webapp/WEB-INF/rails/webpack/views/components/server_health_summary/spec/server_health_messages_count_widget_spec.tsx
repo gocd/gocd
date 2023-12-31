@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ import Stream from "mithril/stream";
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
 import s from "underscore.string";
 import {ModalManager} from "views/components/modal/modal_manager";
-import {ServerHealthMessagesCountWidget} from "views/components/server_health_summary/server_health_messages_count_widget";
+import {
+  ServerHealthMessagesCountWidget
+} from "views/components/server_health_summary/server_health_messages_count_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ServerHealthMessagesCountWidget", () => {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 import "jasmine-ajax";
 import _ from "lodash";
 import mockDate from "mockdate";
-import {SystemNotifications} from "models/notifications/system_notifications";
-import {Notification} from "models/notifications/system_notifications";
+import {Notification, SystemNotifications} from "models/notifications/system_notifications";
 import {VersionUpdater} from "models/shared/version_updater";
 
 describe("VersionUpdater", () => {

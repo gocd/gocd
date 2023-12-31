@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,13 @@
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialWithFingerprint, MaterialWithModification, P4MaterialAttributes, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
+import {
+  MaterialWithFingerprint,
+  MaterialWithModification,
+  P4MaterialAttributes,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes
+} from "models/materials/materials";
 import headerStyles from "views/pages/config_repos/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";

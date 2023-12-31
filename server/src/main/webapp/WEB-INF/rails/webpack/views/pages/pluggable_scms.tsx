@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,20 @@ import configRepoStyles from "views/pages/config_repos/index.scss";
 import {Page, PageState} from "views/pages/page";
 import {PluggableSCMScrollOptions, PluggableScmsWidget} from "views/pages/pluggable_scms/pluggable_scms_widget";
 import {UsagePackageModal} from "./package_repositories/package_modals";
-import {AddOperation, CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos, SaveOperation} from "./page_operations";
-import {ClonePluggableScmModal, CreatePluggableScmModal, DeletePluggableScmModal, EditPluggableScmModal} from "./pluggable_scms/modals";
+import {
+  AddOperation,
+  CloneOperation,
+  DeleteOperation,
+  EditOperation,
+  RequiresPluginInfos,
+  SaveOperation
+} from "./page_operations";
+import {
+  ClonePluggableScmModal,
+  CreatePluggableScmModal,
+  DeletePluggableScmModal,
+  EditPluggableScmModal
+} from "./pluggable_scms/modals";
 
 const sm: ScrollManager = new AnchorVM();
 

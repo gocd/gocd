@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,12 @@ import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PackagesCRUD} from "models/package_repositories/packages_crud";
-import {Package, PackageRepositories, PackageRepository, PackageUsages} from "models/package_repositories/package_repositories";
+import {
+  Package,
+  PackageRepositories,
+  PackageRepository,
+  PackageUsages
+} from "models/package_repositories/package_repositories";
 import {PackageJSON} from "models/package_repositories/package_repositories_json";
 import {Configurations} from "models/shared/configuration";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";

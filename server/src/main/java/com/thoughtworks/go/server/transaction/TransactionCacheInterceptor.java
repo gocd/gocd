@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.server.transaction;
 
-import java.io.Serializable;
-
 import com.thoughtworks.go.server.cache.GoCache;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
+
+import java.io.Serializable;
 
 public class TransactionCacheInterceptor extends EmptyInterceptor {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@ import Stream from "mithril/stream";
 import {ClusterProfiles} from "models/elastic_profiles/types";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {ClusterProfileWidget} from "views/pages/elastic_agent_configurations/cluster_profile_widget";
-import {Attrs as ClusterProfileWidgetAttrs} from "views/pages/elastic_agent_configurations/cluster_profile_widget";
+import {
+  Attrs as ClusterProfileWidgetAttrs,
+  ClusterProfileWidget
+} from "views/pages/elastic_agent_configurations/cluster_profile_widget";
 
 interface Attrs {
   pluginInfos: Stream<PluginInfos>;

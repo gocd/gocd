@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import { MithrilViewComponent } from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import { ArtifactStore } from "models/artifact_stores/artifact_stores";
-import { ArtifactExtension } from "models/shared/plugin_infos_new/extensions";
+import {ArtifactStore} from "models/artifact_stores/artifact_stores";
+import {ArtifactExtension} from "models/shared/plugin_infos_new/extensions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
-import { PluginInfo, PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
-import { Form, FormHeader } from "views/components/forms/form";
-import { SelectField, SelectFieldOptions, TextField } from "views/components/forms/input_fields";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {Form, FormHeader} from "views/components/forms/form";
+import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 
 const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
 

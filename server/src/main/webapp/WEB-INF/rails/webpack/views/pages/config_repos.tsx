@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import {AbstractObjCache, ObjectCache} from "models/base/cache";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {DefinedStructures} from "models/config_repos/defined_structures";
 import {ConfigRepo} from "models/config_repos/types";
-import { baseUrlProvider, currentUrlOriginAndPath } from "models/server-configuration/base_url_provider";
+import {baseUrlProvider, currentUrlOriginAndPath} from "models/server-configuration/base_url_provider";
 import {SiteUrls} from "models/server-configuration/server_configuration";
 import {Permissions, SupportedEntity} from "models/shared/permissions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";

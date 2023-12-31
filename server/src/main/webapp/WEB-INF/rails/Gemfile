@@ -9,12 +9,7 @@ platforms :jruby do
   gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
   group :assets do
-    gem 'sassc-rails'
-    # Switch sassc to be able to use sass-embedded (and dart-sass) rather than libsass.
-    # See https://github.com/sass/sassc-ruby/pull/233
-    gem 'sassc', github: 'sass/sassc-ruby', ref: 'refs/pull/233/head'
-    gem 'sassc-embedded'
-
+    gem 'dartsass-sprockets'
     gem 'js-routes'
     gem 'ts_routes'
   end

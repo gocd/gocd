@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.config.merge;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ConfigCollection;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.domain.BaseCollection;
 
 @ConfigTag("pipelines")

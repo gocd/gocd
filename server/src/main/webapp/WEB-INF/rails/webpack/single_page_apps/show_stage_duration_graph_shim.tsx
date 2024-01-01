@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,18 @@
 // Invoked when when a template that is associated with a pipeline see `_stage_details_chart.html.erb`
 
 import {
-    CategoryScale,
-    Chart,
-    ChartConfiguration,
-    ChartEvent,
-    Legend,
-    LinearScale,
-    LineController,
-    LineElement,
-    PointElement,
-    Title,
-    Tooltip,
-    TooltipItem
+  CategoryScale,
+  Chart,
+  ChartConfiguration,
+  ChartEvent,
+  Legend,
+  LinearScale,
+  LineController,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  TooltipItem
 } from 'chart.js';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import _ from 'lodash';

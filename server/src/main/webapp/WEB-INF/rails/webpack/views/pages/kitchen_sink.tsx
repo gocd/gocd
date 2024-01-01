@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { MithrilComponent } from "jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
-import { asPromise } from "models/base/accessor";
-import { TriStateCheckbox, TristateState } from "models/tri_state_checkbox";
+import {asPromise} from "models/base/accessor";
+import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import Prism from "prismjs";
 import "prismjs/components/prism-markdown";
 import "prismjs/plugins/autoloader/prism-autoloader";
@@ -33,18 +33,18 @@ import {
   Reset,
   Secondary
 } from "views/components/buttons";
-import { DummyDropdownButton } from "views/components/buttons/sample";
-import { Click2Copy, CopySnippet } from "views/components/click_2_copy";
-import { CollapsiblePanel } from "views/components/collapsible_panel";
-import { Dropdown } from "views/components/dropdown";
-import { Ellipsize } from "views/components/ellipsize";
-import { KeyValEditor } from "views/components/encryptable_key_value/editor";
-import { EntriesVM } from "views/components/encryptable_key_value/vms";
-import { FlashMessage, MessageType } from "views/components/flash_message";
-import { AutocompleteField, SuggestionProvider } from "views/components/forms/autocomplete";
-import { IdentifierInputField } from "views/components/forms/common_validating_inputs";
-import { EncryptedValue } from "views/components/forms/encrypted_value";
-import { Form } from "views/components/forms/form";
+import {DummyDropdownButton} from "views/components/buttons/sample";
+import {Click2Copy, CopySnippet} from "views/components/click_2_copy";
+import {CollapsiblePanel} from "views/components/collapsible_panel";
+import {Dropdown} from "views/components/dropdown";
+import {Ellipsize} from "views/components/ellipsize";
+import {KeyValEditor} from "views/components/encryptable_key_value/editor";
+import {EntriesVM} from "views/components/encryptable_key_value/vms";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
+import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
+import {EncryptedValue} from "views/components/forms/encrypted_value";
+import {Form} from "views/components/forms/form";
 import {
   CheckboxField,
   CopyField,
@@ -57,20 +57,20 @@ import {
   TextField,
   TriStateCheckboxField
 } from "views/components/forms/input_fields";
-import { LiveValidatingInputField } from "views/components/forms/live_validating_input";
-import { HeaderPanel } from "views/components/header_panel";
-import { IconGroup } from "views/components/icons";
+import {LiveValidatingInputField} from "views/components/forms/live_validating_input";
+import {HeaderPanel} from "views/components/header_panel";
+import {IconGroup} from "views/components/icons";
 import * as Icons from "views/components/icons/index";
-import { KeyValuePair } from "views/components/key_value_pair";
-import { Size } from "views/components/modal";
-import { SampleModal } from "views/components/modal/sample";
-import { PaginationWidget } from "views/components/pagination";
-import { Pagination } from "views/components/pagination/models/pagination";
-import { Tabs } from "views/components/tab";
-import { SortOrder, Table, TableSortHandler } from "views/components/table";
+import {KeyValuePair} from "views/components/key_value_pair";
+import {Size} from "views/components/modal";
+import {SampleModal} from "views/components/modal/sample";
+import {PaginationWidget} from "views/components/pagination";
+import {Pagination} from "views/components/pagination/models/pagination";
+import {Tabs} from "views/components/tab";
+import {SortOrder, Table, TableSortHandler} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
-import { TooltipSize } from "views/components/tooltip";
-import { Step, Wizard } from "views/components/wizard";
+import {TooltipSize} from "views/components/tooltip";
+import {Step, Wizard} from "views/components/wizard";
 import * as pacStyles from "views/pages/pac/styles.scss";
 
 Prism.plugins.customClass.map(pacStyles);

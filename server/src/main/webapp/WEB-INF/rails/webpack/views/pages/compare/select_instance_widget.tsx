@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,12 @@ import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MaterialRevision, MaterialRevisions, PipelineInstance, PipelineInstances} from "models/compare/pipeline_instance";
+import {
+  MaterialRevision,
+  MaterialRevisions,
+  PipelineInstance,
+  PipelineInstances
+} from "models/compare/pipeline_instance";
 import {Dropdown, DropdownAttrs} from "views/components/buttons";
 import {HelpText, SearchField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";

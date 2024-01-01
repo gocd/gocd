@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,13 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PackagesCRUD} from "models/package_repositories/packages_crud";
-import {Package, PackageRepositories, PackageRepository, PackageRepositorySummary, Packages} from "models/package_repositories/package_repositories";
+import {
+  Package,
+  PackageRepositories,
+  PackageRepository,
+  PackageRepositorySummary,
+  Packages
+} from "models/package_repositories/package_repositories";
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {ExtensionTypeString, PackageRepoExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
@@ -30,7 +36,10 @@ import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import configRepoStyles from "views/pages/config_repos/index.scss";
-import {PackageRepoScrollOptions, PackageRepositoriesWidget} from "views/pages/package_repositories/package_repositories_widget";
+import {
+  PackageRepoScrollOptions,
+  PackageRepositoriesWidget
+} from "views/pages/package_repositories/package_repositories_widget";
 import {
   ClonePackageRepositoryModal,
   CreatePackageRepositoryModal,
@@ -39,7 +48,13 @@ import {
 } from "views/pages/package_repositories/package_repository_modals";
 import {Page, PageState} from "views/pages/page";
 import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
-import {ClonePackageModal, CreatePackageModal, DeletePackageModal, EditPackageModal, UsagePackageModal} from "./package_repositories/package_modals";
+import {
+  ClonePackageModal,
+  CreatePackageModal,
+  DeletePackageModal,
+  EditPackageModal,
+  UsagePackageModal
+} from "./package_repositories/package_modals";
 
 const pkgRepoAnchorVm: ScrollManager = new AnchorVM();
 const pkgAnchorVM: ScrollManager     = new AnchorVM();

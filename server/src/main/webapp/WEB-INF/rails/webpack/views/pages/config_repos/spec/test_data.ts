@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import {DefinedStructures} from "models/config_repos/defined_structures";
 import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {LinksJSON, PluginInfoJSON} from "models/shared/plugin_infos_new/serialization";
-import { v4 as uuid } from 'uuid';
+import {v4 as uuid} from 'uuid';
 
 class MockCache implements ObjectCache<DefinedStructures> {
   ready: () => boolean;

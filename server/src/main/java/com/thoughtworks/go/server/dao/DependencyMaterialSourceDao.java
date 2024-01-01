@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.util.Pagination;
+
+import java.util.List;
 
 public interface DependencyMaterialSourceDao {
     List<Modification> getPassedStagesByName(DependencyMaterial dependencyMaterial, Pagination pagination);

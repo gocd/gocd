@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.domain.materials;
 
+import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
+import com.thoughtworks.go.util.SystemEnvironment;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
-import com.thoughtworks.go.util.SystemEnvironment;
 
 public class TestSubprocessExecutionContext implements SubprocessExecutionContext {
     private SystemEnvironment systemEnvironment;

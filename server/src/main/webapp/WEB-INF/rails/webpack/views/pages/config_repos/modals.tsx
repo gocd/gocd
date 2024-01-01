@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,19 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
-import {ConfigRepo, humanizedMaterialAttributeName, humanizedMaterialNameForMaterialType} from "models/config_repos/types";
-import {GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
+import {
+  ConfigRepo,
+  humanizedMaterialAttributeName,
+  humanizedMaterialNameForMaterialType
+} from "models/config_repos/types";
+import {
+  GitMaterialAttributes,
+  HgMaterialAttributes,
+  Material,
+  P4MaterialAttributes,
+  SvnMaterialAttributes,
+  TfsMaterialAttributes
+} from "models/materials/types";
 import {USER_NS} from "models/mixins/configuration_properties";
 import {Configuration} from "models/shared/configuration";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -32,7 +43,15 @@ import {KeyValEditor} from "views/components/encryptable_key_value/editor";
 import {EntriesVM} from "views/components/encryptable_key_value/vms";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody, FormHeader} from "views/components/forms/form";
-import {CheckboxField, Option, PasswordField, SelectField, SelectFieldOptions, TextAreaField, TextField} from "views/components/forms/input_fields";
+import {
+  CheckboxField,
+  Option,
+  PasswordField,
+  SelectField,
+  SelectFieldOptions,
+  TextAreaField,
+  TextField
+} from "views/components/forms/input_fields";
 import {InfoCircle} from "views/components/icons";
 import {Link} from "views/components/link";
 import {TestConnection} from "views/components/materials/test_connection";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import { showIf } from "helpers/utils";
-import { MithrilComponent } from "jsx/mithril-component";
+import {showIf} from "helpers/utils";
+import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import { CopySnippet } from "views/components/click_2_copy";
-import { FlashMessage, MessageType } from "views/components/flash_message";
-import { Link } from "views/components/link";
-import { Tabs } from "views/components/tab";
-import { WebhookUrlGenerator } from "./config_repo_view_model";
+import {CopySnippet} from "views/components/click_2_copy";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Link} from "views/components/link";
+import {Tabs} from "views/components/tab";
+import {WebhookUrlGenerator} from "./config_repo_view_model";
 import styles from "./index.scss";
 
 /** Represents a git provider choice with a display name and underlying ID */

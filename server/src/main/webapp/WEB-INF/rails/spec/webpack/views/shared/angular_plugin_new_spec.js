@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
 import {AngularPluginNew} from "views/shared/angular_plugin_new.js.msx";
 import {TestHelper} from "views/pages/spec/test_helper";
 import Stream from "mithril/stream";
-import {Configurations, Configuration} from "models/shared/configuration";
-import {PlainTextValue, EncryptedValue} from "models/shared/config_value";
+import {Configuration, Configurations} from "models/shared/configuration";
+import {EncryptedValue, PlainTextValue} from "models/shared/config_value";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import m from "mithril";

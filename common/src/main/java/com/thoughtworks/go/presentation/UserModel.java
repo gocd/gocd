@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.presentation;
 
-import java.util.List;
+import com.thoughtworks.go.domain.User;
+
 import java.util.ArrayList;
 import java.util.Collections;
-
-import com.thoughtworks.go.domain.User;
+import java.util.List;
 
 public class UserModel {
     private final User user;

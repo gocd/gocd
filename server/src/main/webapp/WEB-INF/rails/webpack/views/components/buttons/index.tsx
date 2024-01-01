@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 import classnames from "classnames";
-import { RestyleAttrs, RestyleComponent, RestyleViewComponent } from "jsx/mithril-component";
+import {RestyleAttrs, RestyleComponent, RestyleViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
-import { OperationState } from "views/pages/page_operations";
+import {OperationState} from "views/pages/page_operations";
 import * as defaultStyles from "./index.scss";
 
 type Styles = typeof defaultStyles;

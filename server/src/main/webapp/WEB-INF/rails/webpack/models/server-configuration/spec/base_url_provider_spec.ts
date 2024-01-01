@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { baseUrlProvider, currentUrlOriginAndPath } from "../base_url_provider";
-import { SiteUrls } from "../server_configuration";
+import {baseUrlProvider, currentUrlOriginAndPath} from "../base_url_provider";
+import {SiteUrls} from "../server_configuration";
 
 describe("basic_url_provider", () => {
   describe("baseUrlProvider()", () => {

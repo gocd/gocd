@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import {SparkRoutes} from "helpers/spark_routes";
-import m from "mithril" ;
+import m from "mithril";
 import {ConfigRepoLink} from "views/pages/new-environments/config_repo_link";
 import {TestHelper} from "views/pages/spec/test_helper";
 

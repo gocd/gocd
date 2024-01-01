@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,13 @@ import {ServerConfigVM} from "models/server-configuration/server_configuration_v
 import style from "views/pages/agents/index.scss";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
 import {ServerManagementWidget} from "views/pages/server-configuration/server_management_widget";
-import {ArtifactManagementAttrs, JobTimeoutAttrs, MailServerManagementAttrs, Routing, ServerManagementAttrs} from "views/pages/server_configuration";
+import {
+  ArtifactManagementAttrs,
+  JobTimeoutAttrs,
+  MailServerManagementAttrs,
+  Routing,
+  ServerManagementAttrs
+} from "views/pages/server_configuration";
 import {ArtifactsManagementWidget} from "./artifacts_management_widget";
 import styles from "./index.scss";
 import {JobTimeoutConfigurationWidget} from "./job_timeout_configuration_widget";

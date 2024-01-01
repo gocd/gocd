@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import * as Buttons from "views/components/buttons/index";
 import {ModalManager} from "views/components/modal/modal_manager";
 import styles from "./index.scss";
 
-import { v4 as uuid4 } from 'uuid';
+import {v4 as uuid4} from 'uuid';
 
 const classnames = classNames.bind(styles);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,17 @@
 import Stream from "mithril/stream";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 import {Filter} from "../maintenance_mode/material";
-import {DependencyMaterialAttributesJSON, GitMaterialAttributesJSON, HgMaterialAttributesJSON, MaterialJSON, P4MaterialAttributesJSON, PackageMaterialAttributesJSON, PluggableScmMaterialAttributesJSON, SvnMaterialAttributesJSON, TfsMaterialAttributesJSON} from "./material_json";
+import {
+  DependencyMaterialAttributesJSON,
+  GitMaterialAttributesJSON,
+  HgMaterialAttributesJSON,
+  MaterialJSON,
+  P4MaterialAttributesJSON,
+  PackageMaterialAttributesJSON,
+  PluggableScmMaterialAttributesJSON,
+  SvnMaterialAttributesJSON,
+  TfsMaterialAttributesJSON
+} from "./material_json";
 import {stringOrNull} from "./pipeline_instance_json";
 
 export class ChangeMaterial {

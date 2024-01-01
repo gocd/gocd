@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.server.controller;
 
-import java.util.HashMap;
-
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
 
 public final class Message {
     private final String level;

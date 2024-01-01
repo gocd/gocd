@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.server.messaging.EmailMessageDrafter;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.server.service.result.OperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

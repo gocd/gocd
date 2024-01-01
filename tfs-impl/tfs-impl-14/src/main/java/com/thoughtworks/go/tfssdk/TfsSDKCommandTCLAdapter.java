@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.tfssdk;
 
-import java.io.File;
-import java.util.List;
-
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
 import com.thoughtworks.go.tfssdk14.TfsSDKCommand;
 import com.thoughtworks.go.util.command.CommandArgument;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * Adapter class that sets the thread context classloader to appropriate value

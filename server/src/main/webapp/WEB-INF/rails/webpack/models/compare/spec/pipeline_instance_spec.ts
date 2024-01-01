@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import {BuildCause, MaterialRevision, MaterialRevisions, PipelineHistory, PipelineInstance, PipelineInstances} from "../pipeline_instance";
+import {
+  BuildCause,
+  MaterialRevision,
+  MaterialRevisions,
+  PipelineHistory,
+  PipelineInstance,
+  PipelineInstances
+} from "../pipeline_instance";
 import {MaterialRevisionJSON, PipelineHistoryJSON} from "../pipeline_instance_json";
 import {PipelineInstanceData} from "./test_data";
 

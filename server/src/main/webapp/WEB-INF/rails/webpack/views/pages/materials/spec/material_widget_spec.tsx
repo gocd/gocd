@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,13 @@
 import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialMessages, MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
+import {
+  MaterialMessages,
+  MaterialWithFingerprint,
+  MaterialWithModification,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes
+} from "models/materials/materials";
 import {materialMessages} from "models/materials/spec/materials_spec";
 import {Origin, OriginType} from "models/origin";
 import headerStyles from "views/pages/config_repos/index.scss";

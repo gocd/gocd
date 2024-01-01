@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.Stages;
-import com.thoughtworks.go.domain.valuestreammap.SCMDependencyNode;
-import com.thoughtworks.go.domain.valuestreammap.Node;
-import com.thoughtworks.go.domain.valuestreammap.VSMTestHelper;
-import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
-import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
-import com.thoughtworks.go.domain.valuestreammap.PipelineRevision;
+import com.thoughtworks.go.domain.valuestreammap.*;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.dao.StageDao;
 import org.junit.jupiter.api.BeforeEach;

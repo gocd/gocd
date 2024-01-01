@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@ package com.thoughtworks.go.apiv1.artifactconfig.represernter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ArtifactConfig;
+import com.thoughtworks.go.config.ArtifactDirectory;
+import com.thoughtworks.go.config.PurgeStart;
+import com.thoughtworks.go.config.PurgeUpto;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.HashMap;

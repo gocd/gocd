@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.server.controller.actions;
 
-import javax.servlet.http.HttpServletResponse;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-
 import com.thoughtworks.go.domain.JobIdentifier;
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
+
+import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 public class BasicRestfulAction implements RestfulAction {
     private final int status;

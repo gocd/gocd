@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import {IdentifierInputField} from "views/components/forms/common_validating_inp
 import {Form, FormBody} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
-import { PipelineParametersEditor } from "views/pages/pipelines/parameters_editor";
+import {PipelineParametersEditor} from "views/pages/pipelines/parameters_editor";
 import {TemplateEditor} from "views/pages/pipelines/template_editor";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 

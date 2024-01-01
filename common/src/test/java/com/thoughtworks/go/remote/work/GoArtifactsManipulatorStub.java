@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.agent.HttpService;
+import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.domain.FetchHandler;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.matchers.UploadEntry;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.agent.HttpService;
-import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 

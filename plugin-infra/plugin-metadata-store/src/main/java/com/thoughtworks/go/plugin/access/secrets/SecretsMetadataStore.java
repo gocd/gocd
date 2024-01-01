@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.access.secrets;
 
 import com.thoughtworks.go.plugin.access.common.MetadataStore;
-
 import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 
 public class SecretsMetadataStore extends MetadataStore<SecretsPluginInfo> {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,19 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Page, PageState} from "views/pages/page";
-import {AddOperation, CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
-import {CloneSecretConfigModal, CreateSecretConfigModal, EditSecretConfigModal} from "views/pages/secret_configs/modals";
+import {
+  AddOperation,
+  CloneOperation,
+  DeleteOperation,
+  EditOperation,
+  RequiresPluginInfos,
+  SaveOperation
+} from "views/pages/page_operations";
+import {
+  CloneSecretConfigModal,
+  CreateSecretConfigModal,
+  EditSecretConfigModal
+} from "views/pages/secret_configs/modals";
 import {SecretConfigsWidget} from "views/pages/secret_configs/secret_configs_widget";
 
 interface State extends RequiresPluginInfos, AddOperation<SecretConfig>, EditOperation<SecretConfig>, CloneOperation<SecretConfig>, DeleteOperation<SecretConfig>, SaveOperation {

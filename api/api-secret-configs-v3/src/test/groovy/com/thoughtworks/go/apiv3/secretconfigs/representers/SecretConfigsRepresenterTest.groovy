@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  */
 package com.thoughtworks.go.apiv3.secretconfigs.representers
 
-import com.thoughtworks.go.config.*
+
+import com.thoughtworks.go.config.SecretConfig
+import com.thoughtworks.go.config.SecretConfigs
 import com.thoughtworks.go.config.rules.Allow
 import com.thoughtworks.go.config.rules.Deny
 import com.thoughtworks.go.config.rules.Rules

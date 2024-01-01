@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.agent.testhelpers;
 
-import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.remote.work.Work;
 
 public interface WorkCreator {
     Work work(AgentIdentifier agentIdentifier);

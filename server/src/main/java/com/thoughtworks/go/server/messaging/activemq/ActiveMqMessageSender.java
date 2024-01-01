@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.server.messaging.activemq;
 
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.JMSException;
-
 import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.MessageSender;
+
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 

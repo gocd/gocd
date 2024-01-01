@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server.web;
 
-import org.springframework.web.servlet.ModelAndView;
 import com.thoughtworks.go.domain.JobIdentifier;
+import org.springframework.web.servlet.ModelAndView;
 
 public interface ArtifactFolderViewFactory {
     ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) throws Exception;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import { MithrilViewComponent } from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import { AuthConfig } from "models/auth_configs/auth_configs";
-import { AuthorizationExtension } from "models/shared/plugin_infos_new/extensions";
+import {AuthConfig} from "models/auth_configs/auth_configs";
+import {AuthorizationExtension} from "models/shared/plugin_infos_new/extensions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
-import { PluginInfo, PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
-import { FlashMessage } from "views/components/flash_message";
-import { Form, FormHeader } from "views/components/forms/form";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {FlashMessage} from "views/components/flash_message";
+import {Form, FormHeader} from "views/components/forms/form";
 import {CheckboxField, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
-import { Message } from "views/pages/maintenance_mode";
+import {Message} from "views/pages/maintenance_mode";
 
 const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
 

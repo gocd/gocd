@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  */
 package com.thoughtworks.go.server;
 
+import com.thoughtworks.go.util.validators.ServerPortValidator;
+import com.thoughtworks.go.util.validators.Validation;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import org.junit.jupiter.api.Test;
-import com.thoughtworks.go.util.validators.Validation;
-import com.thoughtworks.go.util.validators.ServerPortValidator;
+import static org.hamcrest.Matchers.is;
 
 public class GoServerValidatorTest {
     private ServerPortValidator serverPortValidator;

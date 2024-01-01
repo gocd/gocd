@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.domain.activity;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageConfigIdentifier;
 import com.thoughtworks.go.domain.StageEvent;
@@ -26,6 +23,9 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.messaging.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class StageResultCache implements GoMessageListener<StageStatusMessage> {

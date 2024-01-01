@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,17 @@ import Stream from "mithril/stream";
 import {Filter} from "models/maintenance_mode/material";
 import {Scm, Scms} from "models/materials/pluggable_scm";
 import {Material, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
-import {Package, PackageRepositories, PackageRepository, Packages} from "models/package_repositories/package_repositories";
-import {getPackage, getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
+import {
+  Package,
+  PackageRepositories,
+  PackageRepository,
+  Packages
+} from "models/package_repositories/package_repositories";
+import {
+  getPackage,
+  getPackageRepository,
+  pluginInfoWithPackageRepositoryExtension
+} from "models/package_repositories/spec/test_data";
 import {Materials, PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";

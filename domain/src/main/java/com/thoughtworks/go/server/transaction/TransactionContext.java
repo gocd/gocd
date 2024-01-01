@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
+ * Copyright 2024 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.server.transaction;
 
+import org.springframework.transaction.support.TransactionSynchronization;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import org.springframework.transaction.support.TransactionSynchronization;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;

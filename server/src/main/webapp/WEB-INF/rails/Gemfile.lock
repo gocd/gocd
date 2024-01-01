@@ -190,7 +190,7 @@ GEM
       rake (>= 13.0.0)
     sass-embedded (1.69.6-x86_64-linux-gnu)
       google-protobuf (~> 3.25)
-    sassc-embedded (1.69.0)
+    sassc-embedded (1.69.1)
       sass-embedded (~> 1.69)
     sprockets (4.2.1)
       concurrent-ruby (~> 1.0)

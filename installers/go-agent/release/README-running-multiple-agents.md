@@ -53,6 +53,7 @@ Each agent needs to be configured to run in its own separate directory so that e
         # can write to these directories
         chown -R go:go /var/{lib,log}/${AGENT_ID}
         chmod -R 0750 /var/{lib,log}/${AGENT_ID}
+        chmod 0755 /usr/share/${AGENT_ID}
 
         # tweak the scripts and configs to use the correct directories
         sed -i -e "s@go-agent@${AGENT_ID}@g" /usr/share/${AGENT_ID}/bin/go-agent

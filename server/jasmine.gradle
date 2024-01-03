@@ -29,7 +29,7 @@ Architecture currentArch = Architecture.current()
 //                https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
 final Map<String, String> seleniumDrivers = [
   chromedriver: '120.0.6099.109',
-  geckodriver : '0.33.0',
+  geckodriver : '0.34.0',
 ]
 
 def execute = { String path, String... argv ->

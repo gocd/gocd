@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.thoughtworks.go.api.base.JsonOutputWriter
 import com.thoughtworks.go.spark.mocks.TestRequestContext
-import org.assertj.core.api.ThrowableAssert
 import org.junit.jupiter.api.Test
 
 import java.time.ZoneOffset
@@ -231,19 +230,19 @@ class JsonOutputWriterTest {
       }
     }
 
-    assertInvalidJSONOutput { Writer outputWriter ->
+    assertInvalidJSONOutput { outputWriter ->
       new JsonOutputWriter(outputWriter, new TestRequestContext()).forTopLevelObject { writer ->
         writer.add("key", someObjectWhichWillThrowOnToString.toString())
       }
     }
 
-    assertInvalidJSONOutput { Writer outputWriter ->
+    assertInvalidJSONOutput { outputWriter ->
       new JsonOutputWriter(outputWriter, new TestRequestContext()).forTopLevelObject { writer ->
         writer.addChild("child1") { childWriter -> childWriter.add("key", someObjectWhichWillThrowOnToString.toString()) }
       }
     }
 
-    assertInvalidJSONOutput { Writer outputWriter ->
+    assertInvalidJSONOutput { outputWriter ->
       new JsonOutputWriter(outputWriter, new TestRequestContext()).forTopLevelArray { writer ->
         writer.addChild { childWriter -> childWriter.add("key", "value1") }
         writer.addChild { childWriter -> childWriter.add("key", someObjectWhichWillThrowOnToString.toString()) }
@@ -251,7 +250,7 @@ class JsonOutputWriterTest {
       }
     }
 
-    assertInvalidJSONOutput { Writer outputWriter ->
+    assertInvalidJSONOutput { outputWriter ->
       new JsonOutputWriter(outputWriter, new TestRequestContext()).forTopLevelArray { writer ->
         writer.value("value1")
         writer.value(someObjectWhichWillThrowOnToString.toString())
@@ -277,11 +276,11 @@ class JsonOutputWriterTest {
   def assertInvalidJSONOutput(Closure closure) {
     def result = new StringWriter()
 
-    assertThatThrownBy ({ closure.call(result) } as ThrowableAssert.ThrowingCallableWithValue)
+    assertThatThrownBy { closure.call(result) }
       .isInstanceOf(RuntimeException.class)
       .hasMessageContaining("THROWS!")
 
-    assertThatThrownBy ({ OBJECT_MAPPER.readValue(result.toString(), Object.class) } as ThrowableAssert.ThrowingCallableWithValue)
+    assertThatThrownBy { OBJECT_MAPPER.readValue(result.toString(), Object.class) }
       .isInstanceOfAny(JsonParseException.class, JsonMappingException.class)
       .hasMessageContaining("Failed due to an exception.")
   }

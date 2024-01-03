@@ -17,7 +17,7 @@ function StageDetailAjaxRefresher(url, after_callback_map) {
   const replicator = new FieldStateReplicator();
   let oldCheckboxes = null;
 
-  function registerAgentSelectorsUnder(elementOrSelector) {
+  function registerCheckboxStatesToRememberUnder(elementOrSelector) {
     const element = $(elementOrSelector);
     if (element.length > 0) {
       element.find('.job_selector').each(function (i, elem) {
@@ -26,13 +26,20 @@ function StageDetailAjaxRefresher(url, after_callback_map) {
     }
   }
 
-  registerAgentSelectorsUnder('#jobs_grid');
+  // Remember checkbox selections between refreshes. Currently the re-run checkboxes are only displayed 
+  // when the stage is completed. Arguably we could stop updating/refreshing the jobs grid once the 
+  // stage is completed and avoid all of this, however not sure of the implications of doing so.
+  // Historically (prior to April 2011 commit fa93257e07c3a7d) the checkboxes were available even when the 
+  // stage was still running, so remembering the state UI side was definitely needed earlier, but that is 
+  // not possible now so it's not clear if this (and FieldStateReplicator) is really needed at all.
+  registerCheckboxStatesToRememberUnder('#jobs_grid');
 
   return new AjaxRefresher(url, {
     afterRefresh: function (receiver_id) {
       const callback = after_callback_map[receiver_id];
       callback && callback();
       if (receiver_id === 'jobs_grid') {
+        // We've refreshed the grid. Stop watching the old elements we have now removed
         oldCheckboxes.each(function (i, elem) {
           replicator.unregister(elem, elem.value);
         });
@@ -47,7 +54,9 @@ function StageDetailAjaxRefresher(url, after_callback_map) {
     },
     manipulateReplacement: function (receiver_id, replaceElement) {
       if (receiver_id === 'jobs_grid') {
-        registerAgentSelectorsUnder(replaceElement);
+        // We are about to replace HTML in the jobs grid. We now need to watch these so we can remember checkbox
+        // selections between refreshes.
+        registerCheckboxStatesToRememberUnder(replaceElement);
         oldCheckboxes = $('.job_selector');
       }
     }

@@ -56,19 +56,21 @@ Each agent needs to be configured to run in its own separate directory so that e
         chmod 0755 /usr/share/${AGENT_ID}
 
         # tweak the scripts and configs to use the correct directories
-        sed -i -e "s@go-agent@${AGENT_ID}@g" /usr/share/${AGENT_ID}/bin/go-agent
+        sed -i -e "s@go-agent@${AGENT_ID}@g" \
+            /usr/share/${AGENT_ID}/bin/go-agent
         sed -i -e "s@=go-agent\$@=${AGENT_ID}@g" \
-              -e "s@/var/lib/go-agent@/var/lib/${AGENT_ID}@g" \
-              -e "s@/var/log/go-agent@/var/log/${AGENT_ID}@g" \
-              -e "s@../wrapper-config/wrapper-properties.conf@/usr/share/${AGENT_ID}/wrapper-config/wrapper-properties.conf@g" \
-                /usr/share/${AGENT_ID}/wrapper-config/wrapper.conf
-        sed -i -e "s@/var/lib/go-agent@/var/lib/${AGENT_ID}@g" /usr/share/${AGENT_ID}/wrapper-config/wrapper-properties.conf
+               -e "s@/var/lib/go-agent@/var/lib/${AGENT_ID}@g" \
+               -e "s@/var/log/go-agent@/var/log/${AGENT_ID}@g" \
+               -e "s@../wrapper-config/wrapper-properties.conf@/usr/share/${AGENT_ID}/wrapper-config/wrapper-properties.conf@g" \
+            /usr/share/${AGENT_ID}/wrapper-config/wrapper.conf
+        sed -i -e "s@/var/lib/go-agent@/var/lib/${AGENT_ID}@g" \
+            /usr/share/${AGENT_ID}/wrapper-config/wrapper-properties.conf
 
         if [ "${RUN_AS_SERVICE}" == "true" ]; then
           if [ "${START_SERVICE_NOW}" == "true" ]; then
             /usr/share/${AGENT_ID}/bin/go-agent installstart
           else
-          /usr/share/${AGENT_ID}/bin/go-agent install
+            /usr/share/${AGENT_ID}/bin/go-agent install
           fi
         fi
       done

@@ -24,18 +24,26 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.MockedStatic;
+import oshi.util.GlobalConfig;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockStatic;
+import static oshi.util.GlobalConfig.OSHI_OS_LINUX_ALLOWUDEV;
 
 @ExtendWith(SystemStubsExtension.class)
 class SystemInfoTest {
 
     @SystemStub
     SystemProperties props;
+
+    @Test
+    public void shouldDisableUdevUsage() {
+        SystemInfo.determineOperatingSystemCompleteName();
+        assertThat(GlobalConfig.get(OSHI_OS_LINUX_ALLOWUDEV, true)).isFalse();
+    }
 
     @Test
     public void shouldDefaultJnaTmpDirIfUnset() {

@@ -221,7 +221,6 @@ enum Distro implements DistroBehavior {
       return alpine.getInstallPrerequisitesCommands(v) +
         [
           'apk add --no-cache sudo',
-          'rm -rf /lib/libudev.so*', // btrfs is installed by Docker, but requires eudev-libs, which causes issues with OSHI JNA libary on Alpine with glibc and JVM crashes. Dont think we need udev as it's only needed by btrfs for multipath support.
         ]
     }
 

@@ -20,9 +20,12 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.software.os.OperatingSystem;
+import oshi.util.GlobalConfig;
 import oshi.util.Util;
 
 import java.util.Optional;
+
+import static oshi.util.GlobalConfig.OSHI_OS_LINUX_ALLOWUDEV;
 
 public class SystemInfo {
     private static final Logger LOG = LoggerFactory.getLogger(SystemInfo.class);
@@ -54,6 +57,11 @@ public class SystemInfo {
     }
 
     static oshi.SystemInfo newSystemInfo() {
+        // Allowing OSHI to load information from udev causes issues on Alpine due to use of glibc JVMs,
+        // if the musl udev is installed. Since we don't rely on this hardware info, we can disable it
+        // but better to remove this if Alpine is no longer supported for agents, or we have a more MUSL
+        // Alpine environment.
+        GlobalConfig.set(OSHI_OS_LINUX_ALLOWUDEV, "false");
         return new oshi.SystemInfo();
     }
 

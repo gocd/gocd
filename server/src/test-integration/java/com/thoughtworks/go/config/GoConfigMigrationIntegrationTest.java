@@ -31,7 +31,6 @@ import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Document;
 import org.jdom2.filter.ElementFilter;
@@ -47,7 +46,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.xmlunit.assertj.XmlAssert;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
+import java.util.Objects;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
@@ -113,7 +115,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision22() throws Exception {
-        final String content = IOUtils.toString(getClass().getResource("cruise-config-escaping-migration-test-fixture.xml"), UTF_8);
+        final String content = contentFromResource("cruise-config-escaping-migration-test-fixture.xml");
 
         String migratedContent = ConfigMigrator.migrate(content, 21, 22);
 
@@ -123,7 +125,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision28() throws Exception {
-        final String content = IOUtils.toString(getClass().getResource("no-tracking-tool-group-holder-config.xml"), UTF_8);
+        final String content = contentFromResource("no-tracking-tool-group-holder-config.xml");
 
         String migratedContent = migrateXmlString(content, 27);
 
@@ -133,7 +135,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision34() throws Exception {
-        final String content = IOUtils.toString(getClass().getResource("svn-p4-with-parameterized-passwords.xml"), UTF_8);
+        final String content = contentFromResource("svn-p4-with-parameterized-passwords.xml");
 
         String migratedContent = ConfigMigrator.migrate(content, 22, 34);
 
@@ -145,7 +147,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision35_escapeHash() throws Exception {
-        final String content = IOUtils.toString(getClass().getResource("escape_param_for_nant_p4.xml"), UTF_8).trim();
+        final String content = contentFromResource("escape_param_for_nant_p4.xml").trim();
 
         String migratedContent = ConfigMigrator.migrate(content, 22, 35);
 
@@ -909,8 +911,8 @@ public class GoConfigMigrationIntegrationTest {
                                          </property>
                                      </artifact>""";
         assertThat(migratedContent).contains("<artifact type=\"external\" id=\"artifactId1\" storeId=\"foo\"/>");
-        assertThat(migratedContent).contains(artifactId2);
-        assertThat(migratedContent).contains(artifactId3);
+        assertThat(migratedContent).containsIgnoringNewLines(artifactId2);
+        assertThat(migratedContent).containsIgnoringNewLines(artifactId3);
     }
 
     @Test
@@ -1041,8 +1043,8 @@ public class GoConfigMigrationIntegrationTest {
                                      </fetchartifact>""").formatted(new GoCipher().encrypt("abcd"));
 
         assertThat(migratedContent).contains("<fetchartifact artifactOrigin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId1\"");
-        assertThat(migratedContent).contains(artifactId2);
-        assertThat(migratedContent).contains(artifactId3);
+        assertThat(migratedContent).containsIgnoringNewLines(artifactId2);
+        assertThat(migratedContent).containsIgnoringNewLines(artifactId3);
     }
 
     @Test
@@ -1097,7 +1099,7 @@ public class GoConfigMigrationIntegrationTest {
                                      </configuration></artifact>""";
 
         assertThat(migratedContent).contains(migratedArtifact1);
-        assertThat(migratedContent).contains(migratedArtifact2);
+        assertThat(migratedContent).containsIgnoringNewLines(migratedArtifact2);
 
     }
 
@@ -1129,7 +1131,7 @@ public class GoConfigMigrationIntegrationTest {
         String migratedContent = ConfigMigrator.migrate(configXml, 113, 114);
 
         assertThat(migratedContent).contains("<cruise schemaVersion=\"114\"");
-        assertThat(migratedContent).contains(configContent);
+        assertThat(migratedContent).containsIgnoringNewLines(configContent);
     }
 
     @Test
@@ -1268,7 +1270,7 @@ public class GoConfigMigrationIntegrationTest {
         String migratedContent = ConfigMigrator.migrate(configXml, 115, 116);
 
         assertThat(migratedContent).contains("<cruise schemaVersion=\"116\"");
-        assertThat(migratedContent).contains(configContent);
+        assertThat(migratedContent).containsIgnoringNewLines(configContent);
     }
 
     @Test
@@ -2263,6 +2265,12 @@ public class GoConfigMigrationIntegrationTest {
 
     private String migrateXmlString(String content, int fromVersion) {
         return ConfigMigrator.migrate(content, fromVersion, GoConfigSchema.currentSchemaVersion());
+    }
+
+    private String contentFromResource(String resource) throws IOException {
+        try (InputStream is = getClass().getResourceAsStream(resource)) {
+            return new String(Objects.requireNonNull(is).readAllBytes(), UTF_8);
+        }
     }
 
 }

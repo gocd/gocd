@@ -77,7 +77,7 @@ function configuration(env: any, argv: any): webpack.Configuration {
     output: {
       path: configOptions.outputDir,
       publicPath: "/go/assets/webpack/",
-      filename: configOptions.production ? "[name]-[chunkhash].js" : "[name].js"
+      filename: configOptions.production ? "[name]-[contenthash].js" : "[name].js"
     },
     cache: true,
     bail: !argv.watch,

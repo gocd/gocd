@@ -22,32 +22,17 @@ public enum AgentRuntimeStatus {
     Idle, Building, LostContact, Missing, Cancelled, Unknown;
 
     public AgentRuntimeStatus buildState() {
-        switch (this) {
-            case Idle:
-                return this;
-            case Building:
-                return this;
-            case Cancelled:
-                return this;
-            default:
-                return Unknown;
-        }
+        return switch (this) {
+            case Idle, Cancelled, Building -> this;
+            default -> Unknown;
+        };
     }
 
     public AgentRuntimeStatus agentState() {
-        switch (this) {
-            case Idle:
-                return this;
-            case Building:
-                return this;
-            case LostContact:
-                return this;
-            case Missing:
-                return this;
-            case Cancelled:
-                return Building;
-            default:
-                return Unknown;
-        }
+        return switch (this) {
+            case Idle, Missing, LostContact, Building -> this;
+            case Cancelled -> Building;
+            default -> Unknown;
+        };
     }
 }

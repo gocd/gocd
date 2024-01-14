@@ -68,8 +68,7 @@ public class CRSvnMaterialTest extends AbstractCRTest<CRSvnMaterial> {
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
-        CRMaterial value = customSvn;
-        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(customSvn);
         assertThat(jsonObject.get("type").getAsString(), is(CRSvnMaterial.TYPE_NAME));
     }
 

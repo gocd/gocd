@@ -72,7 +72,7 @@ public class CommandLineTest {
         assertEquals(ARG_SPACES_NOQUOTES + separator + ARG_NOSPACES,
                 CommandLine.toString(new String[]{ARG_SPACES_NOQUOTES, ARG_NOSPACES}, false, separator));
 
-        assertEquals(ARG_SPACES_NOQUOTES + separator + ARG_NOSPACES + separator + ARG_SPACES,
+        assertEquals(String.join(separator, ARG_SPACES_NOQUOTES, ARG_NOSPACES, ARG_SPACES),
                 CommandLine.toString(new String[]{ARG_SPACES_NOQUOTES, ARG_NOSPACES, ARG_SPACES},
                         false, separator));
     }

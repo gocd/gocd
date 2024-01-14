@@ -302,8 +302,7 @@ public class AgentRegistrationController {
     }
 
     private String getErrorMessage(Exception e) {
-        if (e instanceof GoConfigInvalidException) {
-            GoConfigInvalidException exception = (GoConfigInvalidException) e;
+        if (e instanceof GoConfigInvalidException exception) {
             return StringUtils.join(exception.getAllErrors(), ", ");
         }
         return e.getMessage();

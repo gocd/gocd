@@ -196,29 +196,30 @@ public class AuthorizationExtensionTest {
 
     @Test
     void shouldTalkToPlugin_To_AuthenticateUser() {
-        String requestBody = "{\n" +
-            "  \"credentials\": {\n" +
-            "    \"username\": \"bob\",\n" +
-            "    \"password\": \"secret\"\n" +
-            "  },\n" +
-            "  \"auth_configs\": [\n" +
-            "    {\n" +
-            "      \"id\": \"ldap\",\n" +
-            "      \"configuration\": {\n" +
-            "        \"url\": \"some-url\"\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ],\n" +
-            "  \"role_configs\": [\n" +
-            "    {\n" +
-            "      \"name\": \"foo\",\n" +
-            "      \"auth_config_id\": \"ldap\",\n" +
-            "      \"configuration\": {\n" +
-            "        \"memberOf\": \"ou=some-value\"\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}";
+        String requestBody = """
+                {
+                  "credentials": {
+                    "username": "bob",
+                    "password": "secret"
+                  },
+                  "auth_configs": [
+                    {
+                      "id": "ldap",
+                      "configuration": {
+                        "url": "some-url"
+                      }
+                    }
+                  ],
+                  "role_configs": [
+                    {
+                      "name": "foo",
+                      "auth_config_id": "ldap",
+                      "configuration": {
+                        "memberOf": "ou=some-value"
+                      }
+                    }
+                  ]
+                }""";
 
         String responseBody = "{\"user\":{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"},\"roles\":[\"blackbird\"]}";
 
@@ -239,21 +240,22 @@ public class AuthorizationExtensionTest {
 
     @Test
     void shouldTalkToPlugin_To_AuthenticateUserWithEmptyListIfRoleConfigsAreNotProvided() {
-        String requestBody = "{\n" +
-            "  \"credentials\": {\n" +
-            "    \"username\": \"bob\",\n" +
-            "    \"password\": \"secret\"\n" +
-            "  },\n" +
-            "  \"auth_configs\": [\n" +
-            "    {\n" +
-            "      \"id\": \"ldap\",\n" +
-            "      \"configuration\": {\n" +
-            "        \"url\": \"some-url\"\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ],\n" +
-            "  \"role_configs\": []\n" +
-            "}";
+        String requestBody = """
+                {
+                  "credentials": {
+                    "username": "bob",
+                    "password": "secret"
+                  },
+                  "auth_configs": [
+                    {
+                      "id": "ldap",
+                      "configuration": {
+                        "url": "some-url"
+                      }
+                    }
+                  ],
+                  "role_configs": []
+                }""";
 
         String responseBody = "{\"user\":{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"},\"roles\":[\"blackbird\"]}";
 
@@ -281,17 +283,18 @@ public class AuthorizationExtensionTest {
 
     @Test
     void shouldTalkToPlugin_To_SearchUsers() {
-        String requestBody = "{\n" +
-            "  \"search_term\": \"bob\",\n" +
-            "  \"auth_configs\": [\n" +
-            "    {\n" +
-            "      \"id\": \"ldap\",\n" +
-            "      \"configuration\": {\n" +
-            "        \"foo\": \"bar\"\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}";
+        String requestBody = """
+                {
+                  "search_term": "bob",
+                  "auth_configs": [
+                    {
+                      "id": "ldap",
+                      "configuration": {
+                        "foo": "bar"
+                      }
+                    }
+                  ]
+                }""";
         String responseBody = "[{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
@@ -307,17 +310,18 @@ public class AuthorizationExtensionTest {
 
         @Test
         void shouldTalkToPlugin_To_GetAuthorizationServerUrl_HandlingPluginOnlyReturningServerUrl() {
-            String requestBody = "{\n" +
-                "  \"auth_configs\": [\n" +
-                "    {\n" +
-                "      \"id\": \"github\",\n" +
-                "      \"configuration\": {\n" +
-                "        \"url\": \"some-url\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"authorization_server_callback_url\": \"http://go.site.url/go/plugin/plugin-id/authenticate\"\n" +
-                "}";
+            String requestBody = """
+                    {
+                      "auth_configs": [
+                        {
+                          "id": "github",
+                          "configuration": {
+                            "url": "some-url"
+                          }
+                        }
+                      ],
+                      "authorization_server_callback_url": "http://go.site.url/go/plugin/plugin-id/authenticate"
+                    }""";
             String responseBody = "{\"authorization_server_url\":\"url_to_authorization_server\"}";
             SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", create("url", false, "some-url"));
 
@@ -332,17 +336,18 @@ public class AuthorizationExtensionTest {
 
         @Test
         void shouldTalkToPlugin_To_GetAuthorizationServerUrl_HandlingPluginReturningAuthSession() {
-            String requestBody = "{\n" +
-                "  \"auth_configs\": [\n" +
-                "    {\n" +
-                "      \"id\": \"github\",\n" +
-                "      \"configuration\": {\n" +
-                "        \"url\": \"some-url\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"authorization_server_callback_url\": \"http://go.site.url/go/plugin/plugin-id/authenticate\"\n" +
-                "}";
+            String requestBody = """
+                    {
+                      "auth_configs": [
+                        {
+                          "id": "github",
+                          "configuration": {
+                            "url": "some-url"
+                          }
+                        }
+                      ],
+                      "authorization_server_callback_url": "http://go.site.url/go/plugin/plugin-id/authenticate"
+                    }""";
             String responseBody = "{\"authorization_server_url\":\"url_to_authorization_server\", \"auth_session\":{\"foo\":\"bar\"}}";
             SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", create("url", false, "some-url"));
 
@@ -377,19 +382,20 @@ public class AuthorizationExtensionTest {
             Map<String, String> fetchAccessTokenResponse = authorizationExtension.fetchAccessToken(PLUGIN_ID, requestHeaders, requestParams, authSessionContext, List.of(authConfig));
 
             // Then
-            String expectedRequestBody = "{\n" +
-                "  \"auth_configs\": [\n" +
-                "    {\n" +
-                "      \"id\": \"github\",\n" +
-                "      \"configuration\": {\n" +
-                "        \"url\": \"some-url\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"auth_session\": {\n" +
-                "       \"auth-session\": \"context\"\n" +
-                "  }\n" +
-                "}";
+            String expectedRequestBody = """
+                    {
+                      "auth_configs": [
+                        {
+                          "id": "github",
+                          "configuration": {
+                            "url": "some-url"
+                          }
+                        }
+                      ],
+                      "auth_session": {
+                           "auth-session": "context"
+                      }
+                    }""";
 
             GoPluginApiRequest capturedPluginRequest = requestArgumentCaptor.getValue();
             assertRequest(capturedPluginRequest, AUTHORIZATION_EXTENSION, "2.0", REQUEST_ACCESS_TOKEN, expectedRequestBody);

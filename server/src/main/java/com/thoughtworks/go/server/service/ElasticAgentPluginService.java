@@ -212,10 +212,13 @@ public class ElasticAgentPluginService {
             ClusterProfile clusterProfile = plan.getClusterProfile();
             JobIdentifier jobIdentifier = plan.getIdentifier();
             if (clusterProfile == null) {
-                String cancellationMessage = "\nThis job was cancelled by GoCD. The version of your GoCD server requires elastic profiles to be associated with a cluster(required from Version 19.3.0). " +
-                        "This job is configured to run on an Elastic Agent, but the associated elastic profile does not have information about the cluster.  \n\n" +
-                        "The possible reason for the missing cluster information on the elastic profile could be, an upgrade of the GoCD server to a version >= 19.3.0 before the completion of the job.\n\n" +
-                        "A re-run of this job should fix this issue.";
+                String cancellationMessage = """
+
+                        This job was cancelled by GoCD. The version of your GoCD server requires elastic profiles to be associated with a cluster(required from Version 19.3.0). This job is configured to run on an Elastic Agent, but the associated elastic profile does not have information about the cluster. \s
+
+                        The possible reason for the missing cluster information on the elastic profile could be, an upgrade of the GoCD server to a version >= 19.3.0 before the completion of the job.
+
+                        A re-run of this job should fix this issue.""";
                 logToJobConsole(jobIdentifier, cancellationMessage);
                 scheduleService.cancelJob(jobIdentifier);
             } else if (elasticAgentPluginRegistry.has(clusterProfile.getPluginId())) {

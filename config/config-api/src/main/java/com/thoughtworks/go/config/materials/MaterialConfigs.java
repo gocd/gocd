@@ -60,8 +60,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
 
     public DependencyMaterialConfig findDependencyMaterial(final CaseInsensitiveString upstreamPipeline) {
         for (MaterialConfig material : this) {
-            if (material instanceof DependencyMaterialConfig) {
-                DependencyMaterialConfig dependencyMaterialConfig = (DependencyMaterialConfig) material;
+            if (material instanceof DependencyMaterialConfig dependencyMaterialConfig) {
                 if (upstreamPipeline.equals(dependencyMaterialConfig.getPipelineName())) {
                     return dependencyMaterialConfig;
                 }

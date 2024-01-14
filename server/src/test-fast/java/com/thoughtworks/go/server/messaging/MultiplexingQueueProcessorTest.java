@@ -123,24 +123,21 @@ public class MultiplexingQueueProcessorTest {
     }
 
     private Thread setupNewThreadToAddActionIn(final ThreadNameAccumulator threadNameAccumulator) {
-        return new Thread() {
-            @Override
-            public void run() {
-                threadNameAccumulator.threadOfQueueAdd = Thread.currentThread().getName();
+        return new Thread(() -> {
+            threadNameAccumulator.threadOfQueueAdd = Thread.currentThread().getName();
 
-                queueProcessor.add(new Action() {
-                    @Override
-                    public void call() {
-                        threadNameAccumulator.threadOfCall = Thread.currentThread().getName();
-                    }
+            queueProcessor.add(new Action() {
+                @Override
+                public void call() {
+                    threadNameAccumulator.threadOfCall = Thread.currentThread().getName();
+                }
 
-                    @Override
-                    public String description() {
-                        return "some-action";
-                    }
-                });
-            }
-        };
+                @Override
+                public String description() {
+                    return "some-action";
+                }
+            });
+        });
     }
 
     private void waitForProcessingToHappen() throws InterruptedException {

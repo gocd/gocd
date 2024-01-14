@@ -78,11 +78,12 @@ public class AnalyticsExtensionTest {
 
     @Test
     public void shouldTalkToPlugin_To_GetCapabilities() throws Exception {
-        String responseBody = "{\n" +
-                "\"supported_analytics\": [\n" +
-                "  {\"type\": \"dashboard\", \"id\": \"abc\",  \"title\": \"Title 1\"},\n" +
-                "  {\"type\": \"pipeline\", \"id\": \"abc\",  \"title\": \"Title 1\"}\n" +
-                "]}";
+        String responseBody = """
+                {
+                "supported_analytics": [
+                  {"type": "dashboard", "id": "abc",  "title": "Title 1"},
+                  {"type": "pipeline", "id": "abc",  "title": "Title 1"}
+                ]}""";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ANALYTICS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         com.thoughtworks.go.plugin.domain.analytics.Capabilities capabilities = analyticsExtension.getCapabilities(PLUGIN_ID);

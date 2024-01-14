@@ -36,11 +36,12 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldErrorWhenMissingTargetVersionInResponse() {
-        String json = "{\n" +
-                "  \"environments\" : [],\n" +
-                "  \"pipelines\" : [],\n" +
-                "  \"errors\" : []\n" +
-                "}";
+        String json = """
+                {
+                  "environments" : [],
+                  "pipelines" : [],
+                  "errors" : []
+                }""";
 
         CRParseResult result = handler.responseMessageForParseDirectory(json);
         assertThat(result.getErrors().getErrorsAsText()).contains("missing 'target_version' field");
@@ -48,11 +49,12 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldNotErrorWhenTargetVersionInResponse() {
-        String json = "{\n" +
-                "  \"target_version\" : 1,\n" +
-                "  \"pipelines\" : [],\n" +
-                "  \"errors\" : []\n" +
-                "}";
+        String json = """
+                {
+                  "target_version" : 1,
+                  "pipelines" : [],
+                  "errors" : []
+                }""";
 
         makeMigratorReturnSameJSON();
         CRParseResult result = handler.responseMessageForParseDirectory(json);
@@ -62,11 +64,12 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldAppendPluginErrorsToAllErrors() {
-        String json = "{\n" +
-                "  \"target_version\" : 1,\n" +
-                "  \"pipelines\" : [],\n" +
-                "  \"errors\" : [{\"location\" : \"somewhere\", \"message\" : \"failed to parse pipeline.json\"}]\n" +
-                "}";
+        String json = """
+                {
+                  "target_version" : 1,
+                  "pipelines" : [],
+                  "errors" : [{"location" : "somewhere", "message" : "failed to parse pipeline.json"}]
+                }""";
         CRParseResult result = handler.responseMessageForParseDirectory(json);
         assertThat(result.hasErrors()).isTrue();
     }

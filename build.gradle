@@ -43,13 +43,13 @@ if (file('build-ext.gradle').exists()) {
 
 def script = this
 
-def gitRevision = { ->
+def determineGitRevision = { ->
   def process = "git rev-list HEAD --max-count=1".execute(null, project.file(script.buildscript.sourceFile.canonicalFile.parent))
   process.waitFor()
   return process.text.stripIndent().trim()
 }
 
-def releaseRevision = { ->
+def determineReleaseRevision = { ->
   def process = "git rev-list HEAD --count".execute(null, project.file(script.buildscript.sourceFile.canonicalFile.parent))
   process.waitFor()
   return process.text.stripIndent().trim()
@@ -97,8 +97,8 @@ def GO_VERSION_SEGMENTS = [year: 24, releaseInYear: 1, patch: 0]
 def GO_VERSION_NEXT = '24.2.0'
 
 def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
-def DIST_VERSION = releaseRevision()
-def GIT_REVISION = gitRevision()
+def DIST_VERSION = determineReleaseRevision()
+def GIT_REVISION = determineGitRevision()
 
 if (System.getenv().containsKey("GO_SERVER_URL")) {
   def separator = "=".multiply(72)
@@ -127,34 +127,33 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println("")
 }
 
-rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
-rootProject.ext.nextVersion = GO_VERSION_NEXT
-rootProject.ext.goVersionSegments = GO_VERSION_SEGMENTS
-rootProject.ext.goVersion = GO_VERSION
-rootProject.ext.distVersion = DIST_VERSION
-rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
-rootProject.ext.gitRevision = GIT_REVISION
-rootProject.ext.copyrightYear = Calendar.getInstance().get(Calendar.YEAR)
+ext {
+  previousVersion = GO_VERSION_PREVIOUS
+  nextVersion = GO_VERSION_NEXT
+  goVersionSegments = GO_VERSION_SEGMENTS
+  goVersion = GO_VERSION
+  distVersion = DIST_VERSION
+  fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
+  gitRevision = GIT_REVISION
+  copyrightYear = Calendar.getInstance().get(Calendar.YEAR)
 
-project.ext.compilerOptions = [
-  // source and target compatibility
-  release: 11,
-]
+  // Default target version. Can be overridden by sub-projects.
+  targetJavaVersion = 17
 
-project.ext.toolchains = [
-  compilerVersion    : 17,
-  testLauncherVersion: 17,
-]
+  // Version of JVM to compile and test using.
+  buildJavaVersion = 17
 
-project.ext.packaging = [
-  adoptiumJavaVersion: new AdoptiumVersion(
-    feature: 17,
-    interim: 0,    // set to `null` for the first release of a new featureVersion
-    update : 9,    // set to `null` for the first release of a new featureVersion
-    patch  : null, // set to `null` for most releases. Patch releases are "exceptional".
-    build  : 9
-  )
-]
+  // Version to package with installers and container images by default
+  packaging = [
+    adoptiumJavaVersion: new AdoptiumVersion(
+      feature: 17,
+      interim: 0,    // set to `null` for the first release of a new featureVersion
+      update : 9,    // set to `null` for the first release of a new featureVersion
+      patch  : null, // set to `null` for most releases. Patch releases are "exceptional".
+      build  : 9
+    )
+  ]
+}
 
 allprojects {
   apply plugin: 'idea'
@@ -184,9 +183,9 @@ allprojects {
 
 idea {
   project {
-    jdkName = project.toolchains.compilerVersion
-    targetBytecodeVersion = JavaVersion.toVersion(project.compilerOptions.release)
-    languageLevel = new IdeaLanguageLevel(project.compilerOptions.release)
+    jdkName = project.buildJavaVersion
+    targetBytecodeVersion = JavaVersion.toVersion(project.targetJavaVersion)
+    languageLevel = new IdeaLanguageLevel(project.targetJavaVersion)
   }
 }
 
@@ -412,12 +411,9 @@ subprojects {
     manifest {
       attributes(
         'Go-Version': project.version,
-        'ImplementationVersion': project.version,
         'Go-Revision': project.gitRevision,
         'Implementation-Title': project.name,
-        'Implementation-Version': project.version,
-        'Source-Compatibility': project.compilerOptions.release,
-        'Target-Compatibility': project.compilerOptions.release
+        'Implementation-Version': project.version
       )
     }
 
@@ -453,14 +449,14 @@ subprojects {
     options.incremental = true
   }
 
-  tasks.withType(JavaCompile) { compileTask ->
+  tasks.withType(JavaCompile) {
     options.warnings = false
     options.encoding = "UTF-8"
     options.compilerArgs += '-Xlint:-deprecation'
-    options.release.set(project.compilerOptions.release as Integer)
+    options.release.set(project.targetJavaVersion as Integer)
 
     javaCompiler = javaToolchains.compilerFor {
-      languageVersion = JavaLanguageVersion.of(project.toolchains.compilerVersion)
+      languageVersion = JavaLanguageVersion.of(project.buildJavaVersion)
     }
   }
 
@@ -489,7 +485,7 @@ subprojects {
 
     testTask.useJUnitPlatform()
     javaLauncher = javaToolchains.launcherFor {
-      languageVersion = JavaLanguageVersion.of(project.toolchains.testLauncherVersion)
+      languageVersion = JavaLanguageVersion.of(project.buildJavaVersion)
     }
 
     def allTestClasses

@@ -20,6 +20,12 @@ plugins {
 
 description = 'Interfaces necessary for GoCD to access plugins'
 
+compileJava {
+  // Use older source compatibility for Plugin API consumed by plugins. No need to break this compatibility
+  // for a while yet, so plugins work on older versions.
+  options.release.set(11)
+}
+
 dependencies {
   api project(path: ':plugin-infra:go-plugin-api-internal', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api

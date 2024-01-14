@@ -599,8 +599,7 @@ public class GoFileConfigDataSource {
 
     private boolean shouldMergeConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
         LOGGER.debug("[Config Save] Checking whether config should be merged");
-        if (updatingCommand instanceof NoOverwriteUpdateConfigCommand) {
-            NoOverwriteUpdateConfigCommand noOverwriteCommand = (NoOverwriteUpdateConfigCommand) updatingCommand;
+        if (updatingCommand instanceof NoOverwriteUpdateConfigCommand noOverwriteCommand) {
             return !configHolder.configForEdit.getMd5().equals(noOverwriteCommand.unmodifiedMd5());
         }
         return false;

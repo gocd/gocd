@@ -84,7 +84,7 @@ public class Matcher {
 
     public boolean matches(String comment) {
         for (String escapedMatcher : escapeMatchers()) {
-            Pattern pattern = Pattern.compile("\\B" + escapedMatcher + "\\B|\\b" + escapedMatcher + "\\b");
+            Pattern pattern = Pattern.compile(String.join(escapedMatcher, "\\B", "\\B|\\b", "\\b"));
             if (pattern.matcher(comment).find()) {
                 return true;
             }

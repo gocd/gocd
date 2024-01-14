@@ -36,8 +36,7 @@ public class RunStagesPopulator {
     public void apply(ValueStreamMap graph) {
         for (Node node : graph.allNodes()) {
             for (Revision revision : node.revisions()) {
-                if (revision instanceof PipelineRevision) {
-                    PipelineRevision pipelineRevision = (PipelineRevision) revision;
+                if (revision instanceof PipelineRevision pipelineRevision) {
                     Stages latestStages = latestRunStagesForRevsion(pipelineRevision);
                     pipelineRevision.addStages(latestStages);
                 }

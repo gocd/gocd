@@ -86,22 +86,15 @@ public class TaskRepresenter {
         if (attributesObject.isPresent()) {
             attributes = attributesObject.get();
         }
-        switch (type) {
-            case AntTask.TYPE:
-                return AntTaskRepresenter.fromJSON(attributes);
-            case NantTask.TYPE:
-                return NantTaskRepresenter.fromJSON(attributes);
-            case RakeTask.TYPE:
-                return RakeTaskRepresenter.fromJSON(attributes);
-            case ExecTask.TYPE:
-                return ExecTaskRepresenter.fromJSON(attributes);
-            case FetchTask.TYPE:
-                return FetchTaskRepresenter.fromJSON(attributes);
-            case PluggableTask.TYPE:
-                return PluggableTaskRepresenter.fromJSON(attributes);
-            default:
-                throw new UnprocessableEntityException(String.format("Invalid task type %s. It has to be one of '%s'.", type, String.join(",", ExecTask.TYPE, AntTask.TYPE, NantTask.TYPE, RakeTask.TYPE, FetchTask.TYPE, PluggableTask.TYPE)));
-
-        }
+        return switch (type) {
+            case AntTask.TYPE -> AntTaskRepresenter.fromJSON(attributes);
+            case NantTask.TYPE -> NantTaskRepresenter.fromJSON(attributes);
+            case RakeTask.TYPE -> RakeTaskRepresenter.fromJSON(attributes);
+            case ExecTask.TYPE -> ExecTaskRepresenter.fromJSON(attributes);
+            case FetchTask.TYPE -> FetchTaskRepresenter.fromJSON(attributes);
+            case PluggableTask.TYPE -> PluggableTaskRepresenter.fromJSON(attributes);
+            default ->
+                    throw new UnprocessableEntityException(String.format("Invalid task type %s. It has to be one of '%s'.", type, String.join(",", ExecTask.TYPE, AntTask.TYPE, NantTask.TYPE, RakeTask.TYPE, FetchTask.TYPE, PluggableTask.TYPE)));
+        };
     }
 }

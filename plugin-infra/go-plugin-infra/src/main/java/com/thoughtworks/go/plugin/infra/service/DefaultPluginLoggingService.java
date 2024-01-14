@@ -144,7 +144,7 @@ public class DefaultPluginLoggingService implements LoggingService {
 
     private Logger getLogger(String pluginId, String loggerName) {
         initializeLoggerForPluginId(pluginId);
-        return LoggerFactory.getLogger(PLUGIN_LOGGER_PREFIX + "." + pluginId + "." + loggerName);
+        return LoggerFactory.getLogger(String.join(".", PLUGIN_LOGGER_PREFIX, pluginId, loggerName));
     }
 
     private boolean alreadyInitialized(String pluginId) {

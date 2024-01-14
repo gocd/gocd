@@ -38,48 +38,58 @@ public class P4MaterialViewTest {
 
     @Test
     public void shouldSetCorrectTabs() {
-        String from = "\n"
-            + "    //depot/dir1/... //cws/...\n"
-            + "//depot/dir1/... //cws/...\n"
-            + "//foo/dir1/... //cws/...\n"
-            + "//foo/dir2/... //cws/foo2/...\n"
-            + "    //depot/dir1/... //cws/...\r\n"
-            + "    //depot/dir1/...    //cws/...\n"
-            + "\t\t//depot/rel1/... //cws/release1/...";
-        String to = "\n"
-            + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
-            + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
-            + "\t//foo/dir1/... //" + CLIENT_NAME + "/...\n"
-            + "\t//foo/dir2/... //" + CLIENT_NAME + "/foo2/...\n"
-            + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
-            + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
-            + "\t//depot/rel1/... //" + CLIENT_NAME + "/release1/...";
+        String from = """
+
+                    //depot/dir1/... //cws/...
+                //depot/dir1/... //cws/...
+                //foo/dir1/... //cws/...
+                //foo/dir2/... //cws/foo2/...
+                    //depot/dir1/... //cws/...\r
+                    //depot/dir1/...    //cws/...
+                \t\t//depot/rel1/... //cws/release1/...""";
+        String to = ("""
+
+                \t//depot/dir1/... //%s/...
+                \t//depot/dir1/... //%s/...
+                \t//foo/dir1/... //%s/...
+                \t//foo/dir2/... //%s/foo2/...
+                \t//depot/dir1/... //%s/...
+                \t//depot/dir1/... //%s/...
+                \t//depot/rel1/... //%s/release1/...""").formatted(CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME);
         assertMapsTo(from, to);
     }
 
     @Test
     public void shouldSupportExcludedAndIncludeMappings() {
-        String from = "//depot/dir1/... //cws/...\n"
-            + "-//depot/dir1/exclude/... //cws/dir1/exclude/...\n"
-            + "+//depot/dir1/include/... //cws/dir1/include/...";
-        String to = "\n"
-            + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
-            + "\t-//depot/dir1/exclude/... //" + CLIENT_NAME + "/dir1/exclude/...\n"
-            + "\t+//depot/dir1/include/... //" + CLIENT_NAME + "/dir1/include/...";
+        String from = """
+                //depot/dir1/... //cws/...
+                -//depot/dir1/exclude/... //cws/dir1/exclude/...
+                +//depot/dir1/include/... //cws/dir1/include/...""";
+        String to = ("""
+
+                \t//depot/dir1/... //%s/...
+                \t-//depot/dir1/exclude/... //%s/dir1/exclude/...
+                \t+//depot/dir1/include/... //%s/dir1/include/...""").formatted(CLIENT_NAME, CLIENT_NAME, CLIENT_NAME);
         assertMapsTo(from, to);
     }
 
     @Test
     public void shouldSupportMappingsWithSpecialCharacters() {
-        String from = "//depot/dir1/old.* //cws/renamed/new.*\n"
-            + "//depot/dir1/%1.%2 //cws/dir1/%2.%1\n"
-            + "\t//foobar/dir1/%1.%2 //cws/dir1/%2.%1\n"
-            + "\"-//depot/with spaces/...\" \"//cws/with spaces/...\"\n\n";
-        String to = "\n"
-            + "\t//depot/dir1/old.* //" + CLIENT_NAME + "/renamed/new.*\n"
-            + "\t//depot/dir1/%1.%2 //" + CLIENT_NAME + "/dir1/%2.%1\n"
-            + "\t//foobar/dir1/%1.%2 //" + CLIENT_NAME + "/dir1/%2.%1\n"
-            + "\t\"-//depot/with spaces/...\" \"//" + CLIENT_NAME + "/with spaces/...\"\n\n";
+        String from = """
+                //depot/dir1/old.* //cws/renamed/new.*
+                //depot/dir1/%1.%2 //cws/dir1/%2.%1
+                \t//foobar/dir1/%1.%2 //cws/dir1/%2.%1
+                "-//depot/with spaces/..." "//cws/with spaces/..."
+
+                """;
+        String to = ("""
+
+                \t//depot/dir1/old.* //%s/renamed/new.*
+                \t//depot/dir1/%%1.%%2 //%s/dir1/%%2.%%1
+                \t//foobar/dir1/%%1.%%2 //%s/dir1/%%2.%%1
+                \t"-//depot/with spaces/..." "//%s/with spaces/..."
+
+                """).formatted(CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME);
         assertMapsTo(from, to);
     }
 

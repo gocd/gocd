@@ -60,23 +60,17 @@ public class ElasticAgentExtensionConverterV4Test {
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
         String json = new ElasticAgentExtensionConverterV4().createAgentRequestBody("secret-key", "prod", configuration, jobIdentifier);
-        assertThatJson(json).isEqualTo("{" +
-                "  \"auto_register_key\":\"secret-key\"," +
-                "  \"properties\":{" +
-                "    \"key1\":\"value1\"," +
-                "    \"key2\":\"value2\"" +
-                "    }," +
-                "  \"environment\":\"prod\"," +
-                "  \"job_identifier\": {\n" +
-                "    \"pipeline_name\": \"test-pipeline\",\n" +
-                "    \"pipeline_counter\": 1,\n" +
-                "    \"pipeline_label\": \"Test Pipeline\",\n" +
-                "    \"stage_name\": \"test-stage\",\n" +
-                "    \"stage_counter\": \"1\",\n" +
-                "    \"job_name\": \"test-job\",\n" +
-                "    \"job_id\": 100\n" +
-                "  }\n" +
-                "}");
+        assertThatJson(json).isEqualTo("""
+                {  "auto_register_key":"secret-key",  "properties":{    "key1":"value1",    "key2":"value2"    },  "environment":"prod",  "job_identifier": {
+                    "pipeline_name": "test-pipeline",
+                    "pipeline_counter": 1,
+                    "pipeline_label": "Test Pipeline",
+                    "stage_name": "test-stage",
+                    "stage_counter": "1",
+                    "job_name": "test-job",
+                    "job_id": 100
+                  }
+                }""");
     }
 
     @Test
@@ -84,27 +78,17 @@ public class ElasticAgentExtensionConverterV4Test {
         HashMap<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
         String actual = new ElasticAgentExtensionConverterV4().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration, jobIdentifier);
-        String expected = "{" +
-                "  \"environment\":\"prod\"," +
-                "  \"agent\":{" +
-                "    \"agent_id\":\"42\"," +
-                "    \"agent_state\":\"Idle\"," +
-                "    \"build_state\":\"Idle\"," +
-                "    \"config_state\":\"Enabled\"" +
-                "  }," +
-                "  \"properties\":{" +
-                "    \"property_name\":\"property_value\"" +
-                "  }," +
-                "  \"job_identifier\": {\n" +
-                "    \"pipeline_name\": \"test-pipeline\",\n" +
-                "    \"pipeline_counter\": 1,\n" +
-                "    \"pipeline_label\": \"Test Pipeline\",\n" +
-                "    \"stage_name\": \"test-stage\",\n" +
-                "    \"stage_counter\": \"1\",\n" +
-                "    \"job_name\": \"test-job\",\n" +
-                "    \"job_id\": 100\n" +
-                "  }\n" +
-                "}";
+        String expected = """
+                {  "environment":"prod",  "agent":{    "agent_id":"42",    "agent_state":"Idle",    "build_state":"Idle",    "config_state":"Enabled"  },  "properties":{    "property_name":"property_value"  },  "job_identifier": {
+                    "pipeline_name": "test-pipeline",
+                    "pipeline_counter": 1,
+                    "pipeline_label": "Test Pipeline",
+                    "stage_name": "test-stage",
+                    "stage_counter": "1",
+                    "job_name": "test-job",
+                    "job_id": 100
+                  }
+                }""";
 
         assertThatJson(expected).isEqualTo(actual);
     }
@@ -113,18 +97,17 @@ public class ElasticAgentExtensionConverterV4Test {
     public void shouldJSONizeJobCompletionRequestBody() throws Exception {
         String actual = new ElasticAgentExtensionConverterV4().getJobCompletionRequestBody("ea1", jobIdentifier);
 
-        String expected = "{" +
-                "  \"elastic_agent_id\":\"ea1\"," +
-                "  \"job_identifier\": {\n" +
-                "    \"pipeline_name\": \"test-pipeline\",\n" +
-                "    \"pipeline_counter\": 1,\n" +
-                "    \"pipeline_label\": \"Test Pipeline\",\n" +
-                "    \"stage_name\": \"test-stage\",\n" +
-                "    \"stage_counter\": \"1\",\n" +
-                "    \"job_name\": \"test-job\",\n" +
-                "    \"job_id\": 100\n" +
-                "  }\n" +
-                "}";
+        String expected = """
+                {  "elastic_agent_id":"ea1",  "job_identifier": {
+                    "pipeline_name": "test-pipeline",
+                    "pipeline_counter": 1,
+                    "pipeline_label": "Test Pipeline",
+                    "stage_name": "test-stage",
+                    "stage_counter": "1",
+                    "job_name": "test-job",
+                    "job_id": 100
+                  }
+                }""";
 
         assertThatJson(expected).isEqualTo(actual);
     }
@@ -143,17 +126,17 @@ public class ElasticAgentExtensionConverterV4Test {
     @Test
     public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenJobIdentifierIsProvided() throws Exception {
         String actual = new ElasticAgentExtensionConverterV4().getAgentStatusReportRequestBody(jobIdentifier, null);
-        String expected = "{" +
-                "  \"job_identifier\": {\n" +
-                "    \"pipeline_name\": \"test-pipeline\",\n" +
-                "    \"pipeline_counter\": 1,\n" +
-                "    \"pipeline_label\": \"Test Pipeline\",\n" +
-                "    \"stage_name\": \"test-stage\",\n" +
-                "    \"stage_counter\": \"1\",\n" +
-                "    \"job_name\": \"test-job\",\n" +
-                "    \"job_id\": 100\n" +
-                "  }\n" +
-                "}";
+        String expected = """
+                {  "job_identifier": {
+                    "pipeline_name": "test-pipeline",
+                    "pipeline_counter": 1,
+                    "pipeline_label": "Test Pipeline",
+                    "stage_name": "test-stage",
+                    "stage_counter": "1",
+                    "job_name": "test-job",
+                    "job_id": 100
+                  }
+                }""";
 
         assertThatJson(expected).isEqualTo(actual);
     }

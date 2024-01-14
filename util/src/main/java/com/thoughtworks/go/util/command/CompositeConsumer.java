@@ -16,7 +16,6 @@
 package com.thoughtworks.go.util.command;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,9 +37,7 @@ public class CompositeConsumer implements TaggedStreamConsumer {
 
     @Override
     public void taggedConsumeLine(String tag, String line) {
-        Iterator i = consumers.iterator();
-        while (i.hasNext()) {
-            StreamConsumer consumer = (StreamConsumer) i.next();
+        for (StreamConsumer consumer : consumers) {
             if (null != tag && consumer instanceof TaggedStreamConsumer) {
                 ((TaggedStreamConsumer) consumer).taggedConsumeLine(tag, line);
             } else {

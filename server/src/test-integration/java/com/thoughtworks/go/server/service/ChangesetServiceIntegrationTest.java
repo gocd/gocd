@@ -740,7 +740,6 @@ public class ChangesetServiceIntegrationTest {
         //Schedule second upstream
         List<MaterialRevision> revisionsForUpstream2 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream2, git);
-        List<MaterialRevision> expectedGitRevision = revisionsForUpstream2;
         Pipeline upstreamTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream2);
 
         //Schedule second downstream

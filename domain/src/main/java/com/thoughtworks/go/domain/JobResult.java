@@ -57,13 +57,10 @@ public enum JobResult implements ViewableStatus {
     }
 
     public String toCctrayStatus() {
-        switch (this) {
-            case Failed:
-            case Cancelled:
-                return "Failure";
-            default:
-                return "Success";
-        }
+        return switch (this) {
+            case Failed, Cancelled -> "Failure";
+            default -> "Success";
+        };
     }
 
     public static final Comparator<JobResult> JOB_RESULT_COMPARATOR = (o1, o2) -> {

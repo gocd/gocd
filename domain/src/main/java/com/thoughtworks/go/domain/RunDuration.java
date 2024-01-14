@@ -62,10 +62,9 @@ public abstract class RunDuration  {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof RunDuration)) {
+        if (!(o instanceof RunDuration that)) {
             return false;
         }
-        RunDuration that = (RunDuration) o;
         return !(duration != null ? !duration.equals(that.duration) : that.duration != null);
     }
 

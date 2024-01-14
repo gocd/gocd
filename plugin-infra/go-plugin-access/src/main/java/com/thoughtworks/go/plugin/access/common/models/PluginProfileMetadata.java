@@ -49,9 +49,7 @@ public class PluginProfileMetadata {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PluginProfileMetadata)) return false;
-
-        PluginProfileMetadata that = (PluginProfileMetadata) o;
+        if (!(o instanceof PluginProfileMetadata that)) return false;
 
         if (required != that.required) return false;
         return secure == that.secure;

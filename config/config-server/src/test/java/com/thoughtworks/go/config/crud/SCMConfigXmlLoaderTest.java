@@ -146,44 +146,45 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
         scmConfiguration.add(new SCMProperty("SCM-KEY3").with(REQUIRED, false).with(PART_OF_IDENTITY, false).with(SECURE, true));
         SCMMetadataStore.getInstance().addMetadataFor("plugin-1", new SCMConfigurations(scmConfiguration), null);
 
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<scms>\n"
-                + "    <scm id='scm-id-1' name='name-1'>\n"
-                + "		<pluginConfiguration id='plugin-1' version='1.0'/>\n"
-                + "      <configuration>\n"
-                + "        <property>\n"
-                + "          <key>SCM-KEY1</key>\n"
-                + "          <value>scm-key1</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>SCM-KEY2</key>\n"
-                + "          <value>scm-key2</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>SCM-KEY3</key>\n"
-                + "          <value>scm-key3</value>\n"
-                + "        </property>\n"
-                + "      </configuration>\n"
-                + "    </scm>\n"
-                + "    <scm id='scm-id-2' name='name-2'>\n"
-                + "		<pluginConfiguration id='plugin-1' version='1.0'/>\n"
-                + "      <configuration>\n"
-                + "        <property>\n"
-                + "          <key>SCM-KEY1</key>\n"
-                + "          <value>scm-key1</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>SCM-KEY2</key>\n"
-                + "          <value>another-scm-key2</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>SCM-KEY3</key>\n"
-                + "          <value>another-scm-key3</value>\n"
-                + "        </property>\n"
-                + "      </configuration>\n"
-                + "    </scm>\n"
-                + "  </scms>"
-                + "</cruise>";
+        String xml = ("""
+                <cruise schemaVersion='%d'>
+                <scms>
+                    <scm id='scm-id-1' name='name-1'>
+                    <pluginConfiguration id='plugin-1' version='1.0'/>
+                      <configuration>
+                        <property>
+                          <key>SCM-KEY1</key>
+                          <value>scm-key1</value>
+                        </property>
+                        <property>
+                          <key>SCM-KEY2</key>
+                          <value>scm-key2</value>
+                        </property>
+                        <property>
+                          <key>SCM-KEY3</key>
+                          <value>scm-key3</value>
+                        </property>
+                      </configuration>
+                    </scm>
+                    <scm id='scm-id-2' name='name-2'>
+                    <pluginConfiguration id='plugin-1' version='1.0'/>
+                      <configuration>
+                        <property>
+                          <key>SCM-KEY1</key>
+                          <value>scm-key1</value>
+                        </property>
+                        <property>
+                          <key>SCM-KEY2</key>
+                          <value>another-scm-key2</value>
+                        </property>
+                        <property>
+                          <key>SCM-KEY3</key>
+                          <value>another-scm-key3</value>
+                        </property>
+                      </configuration>
+                    </scm>
+                  </scms>
+                </cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
         try {
             xmlLoader.loadConfigHolder(xml);
@@ -195,19 +196,20 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadAutoUpdateValueForSCMWhenLoadedFromConfigFile() throws Exception {
-        String configTemplate = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>" +
-                "<scms>" +
-                "	<scm id='2ef830d7-dd66-42d6-b393-64a84646e557' name='scm-name' autoUpdate='%s' >" +
-                "		<pluginConfiguration id='yum' version='1' />" +
-                "       <configuration>" +
-                "           <property>" +
-                "               <key>SCM_URL</key>" +
-                "               <value>http://fake-scm/git/go-cd</value>" +
-                "               </property>" +
-                "       </configuration>" +
-                "   </scm>" +
-                "</scms>" +
-                "</cruise>";
+        String configTemplate = ("""
+                <cruise schemaVersion='%d'>
+                <scms>
+                  <scm id='2ef830d7-dd66-42d6-b393-64a84646e557' name='scm-name' autoUpdate='%%s' >
+                    <pluginConfiguration id='yum' version='1' />
+                       <configuration>
+                           <property>
+                               <key>SCM_URL</key>
+                               <value>http://fake-scm/git/go-cd</value>
+                               </property>
+                       </configuration>
+                   </scm>
+                </scms>
+                </cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         String configContent = String.format(configTemplate, false);
         GoConfigHolder holder = xmlLoader.loadConfigHolder(configContent);
         SCM scm = holder.config.getSCMs().find("2ef830d7-dd66-42d6-b393-64a84646e557");
@@ -221,32 +223,33 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
     @Test
     public void shouldResolveSCMReferenceElementForAMaterialInConfig() throws Exception {
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<scms>\n"
-                + "    <scm id='scm-id' name='scm-name'>\n"
-                + "		<pluginConfiguration id='plugin-id' version='1.0'/>\n"
-                + "      <configuration>\n"
-                + "        <property>\n"
-                + "          <key>url</key>\n"
-                + "          <value>http://go</value>\n"
-                + "        </property>\n"
-                + "      </configuration>\n"
-                + "    </scm>\n"
-                + "  </scms>"
-                + "<pipelines group=\"group_name\">\n"
-                + "  <pipeline name=\"new_name\">\n"
-                + "    <materials>\n"
-                + "      <scm ref='scm-id' />\n"
-                + "    </materials>\n"
-                + "    <stage name=\"stage_name\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"job_name\">\n"
-                + "           <tasks><ant /></tasks>\n"
-                + "        </job>\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines></cruise>";
+        String xml = ("""
+                <cruise schemaVersion='%d'>
+                <scms>
+                    <scm id='scm-id' name='scm-name'>
+                    <pluginConfiguration id='plugin-id' version='1.0'/>
+                      <configuration>
+                        <property>
+                          <key>url</key>
+                          <value>http://go</value>
+                        </property>
+                      </configuration>
+                    </scm>
+                  </scms>
+                <pipelines group="group_name">
+                  <pipeline name="new_name">
+                    <materials>
+                      <scm ref='scm-id' />
+                    </materials>
+                    <stage name="stage_name">
+                      <jobs>
+                        <job name="job_name">
+                           <tasks><ant /></tasks>
+                        </job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </pipelines></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
@@ -258,37 +261,38 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
     @Test
     public void shouldReadFolderAndFilterForPluggableSCMMaterialConfig() throws Exception {
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<scms>\n"
-                + "    <scm id='scm-id' name='scm-name'>\n"
-                + "		<pluginConfiguration id='plugin-id' version='1.0'/>\n"
-                + "      <configuration>\n"
-                + "        <property>\n"
-                + "          <key>url</key>\n"
-                + "          <value>http://go</value>\n"
-                + "        </property>\n"
-                + "      </configuration>\n"
-                + "    </scm>\n"
-                + "  </scms>"
-                + "<pipelines group=\"group_name\">\n"
-                + "  <pipeline name=\"new_name\">\n"
-                + "    <materials>\n"
-                + "      <scm ref='scm-id' dest='dest'>\n"
-                + "            <filter>\n"
-                + "                <ignore pattern=\"x\"/>\n"
-                + "                <ignore pattern=\"y\"/>\n"
-                + "            </filter>\n"
-                + "      </scm>\n"
-                + "    </materials>\n"
-                + "    <stage name=\"stage_name\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"job_name\">\n"
-                + "           <tasks><ant /></tasks>\n"
-                + "        </job>\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines></cruise>";
+        String xml = ("""
+                <cruise schemaVersion='%d'>
+                <scms>
+                    <scm id='scm-id' name='scm-name'>
+                    <pluginConfiguration id='plugin-id' version='1.0'/>
+                      <configuration>
+                        <property>
+                          <key>url</key>
+                          <value>http://go</value>
+                        </property>
+                      </configuration>
+                    </scm>
+                  </scms>
+                <pipelines group="group_name">
+                  <pipeline name="new_name">
+                    <materials>
+                      <scm ref='scm-id' dest='dest'>
+                            <filter>
+                                <ignore pattern="x"/>
+                                <ignore pattern="y"/>
+                            </filter>
+                      </scm>
+                    </materials>
+                    <stage name="stage_name">
+                      <jobs>
+                        <job name="job_name">
+                           <tasks><ant /></tasks>
+                        </job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </pipelines></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
@@ -301,40 +305,41 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
     @Test
     public void shouldBeAbleToResolveSecureConfigPropertiesForSCMs() throws Exception {
         String encryptedValue = new GoCipher().encrypt("secure-two");
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<scms>\n"
-                + "    <scm id='scm-id' name='name'>\n"
-                + "		<pluginConfiguration id='plugin-id' version='1.0'/>\n"
-                + "      <configuration>\n"
-                + "        <property>\n"
-                + "          <key>plain</key>\n"
-                + "          <value>value</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>secure-one</key>\n"
-                + "          <value>secure-value</value>\n"
-                + "        </property>\n"
-                + "        <property>\n"
-                + "          <key>secure-two</key>\n"
-                + "          <encryptedValue>" + encryptedValue + "</encryptedValue>\n"
-                + "        </property>\n"
-                + "      </configuration>\n"
-                + "    </scm>\n"
-                + "  </scms>"
-                + "<pipelines group=\"group_name\">\n"
-                + "  <pipeline name=\"new_name\">\n"
-                + "    <materials>\n"
-                + "      <scm ref='scm-id' />\n"
-                + "    </materials>\n"
-                + "    <stage name=\"stage_name\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"job_name\">\n"
-                + "           <tasks><ant /></tasks>\n"
-                + "        </job>\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines></cruise>";
+        String xml = ("""
+                <cruise schemaVersion='%d'>
+                <scms>
+                    <scm id='scm-id' name='name'>
+                    <pluginConfiguration id='plugin-id' version='1.0'/>
+                      <configuration>
+                        <property>
+                          <key>plain</key>
+                          <value>value</value>
+                        </property>
+                        <property>
+                          <key>secure-one</key>
+                          <value>secure-value</value>
+                        </property>
+                        <property>
+                          <key>secure-two</key>
+                          <encryptedValue>%s</encryptedValue>
+                        </property>
+                      </configuration>
+                    </scm>
+                  </scms>
+                <pipelines group="group_name">
+                  <pipeline name="new_name">
+                    <materials>
+                      <scm ref='scm-id' />
+                    </materials>
+                    <stage name="stage_name">
+                      <jobs>
+                        <job name="job_name">
+                           <tasks><ant /></tasks>
+                        </job>
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </pipelines></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION, encryptedValue);
 
         //meta data of scm
         SCMPropertyConfiguration scmConfiguration = new SCMPropertyConfiguration();

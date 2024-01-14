@@ -201,25 +201,26 @@ public class ElasticAgentExtensionV5Test {
 
         extensionV5.createAgent(PLUGIN_ID, "auto-registration-key", "test-env", profile, clusterProfile, jobIdentifier);
 
-        String expectedRequestBody = "{\n" +
-                "  \"auto_register_key\": \"auto-registration-key\",\n" +
-                "  \"elastic_agent_profile_properties\": {\n" +
-                "    \"Image\": \"alpine:latest\"\n" +
-                "  },\n" +
-                "  \"cluster_profile_properties\": {\n" +
-                "    \"ServerURL\": \"https://example.com/go\"\n" +
-                "  },\n" +
-                "  \"environment\": \"test-env\",\n" +
-                "  \"job_identifier\": {\n" +
-                "    \"pipeline_name\": \"up42\",\n" +
-                "    \"pipeline_label\": \"Test\",\n" +
-                "    \"pipeline_counter\": 2,\n" +
-                "    \"stage_name\": \"up42_stage\",\n" +
-                "    \"stage_counter\": \"10\",\n" +
-                "    \"job_name\": \"up42_job\",\n" +
-                "    \"job_id\": -1\n" +
-                "  }\n" +
-                "}";
+        String expectedRequestBody = """
+                {
+                  "auto_register_key": "auto-registration-key",
+                  "elastic_agent_profile_properties": {
+                    "Image": "alpine:latest"
+                  },
+                  "cluster_profile_properties": {
+                    "ServerURL": "https://example.com/go"
+                  },
+                  "environment": "test-env",
+                  "job_identifier": {
+                    "pipeline_name": "up42",
+                    "pipeline_label": "Test",
+                    "pipeline_counter": 2,
+                    "stage_name": "up42_stage",
+                    "stage_counter": "10",
+                    "job_name": "up42_job",
+                    "job_id": -1
+                  }
+                }""";
         assertExtensionRequest("5.0", REQUEST_CREATE_AGENT, expectedRequestBody);
     }
 
@@ -233,24 +234,25 @@ public class ElasticAgentExtensionV5Test {
 
         extensionV5.jobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier, profile, clusterProfile);
 
-        String expectedRequestBody = "{\n" +
-                "  \"elastic_agent_id\": \"ea1\",\n" +
-                "  \"elastic_agent_profile_properties\": {\n" +
-                "    \"Image\": \"alpine:latest\"\n" +
-                "  },\n" +
-                "  \"cluster_profile_properties\": {\n" +
-                "    \"ServerURL\": \"https://example.com/go\"\n" +
-                "  },\n" +
-                "  \"job_identifier\": {\n" +
-                "    \"pipeline_name\": \"up42\",\n" +
-                "    \"pipeline_label\": \"Test\",\n" +
-                "    \"pipeline_counter\": 2,\n" +
-                "    \"stage_name\": \"up42_stage\",\n" +
-                "    \"stage_counter\": \"10\",\n" +
-                "    \"job_name\": \"up42_job\",\n" +
-                "    \"job_id\": -1\n" +
-                "  }\n" +
-                "}";
+        String expectedRequestBody = """
+                {
+                  "elastic_agent_id": "ea1",
+                  "elastic_agent_profile_properties": {
+                    "Image": "alpine:latest"
+                  },
+                  "cluster_profile_properties": {
+                    "ServerURL": "https://example.com/go"
+                  },
+                  "job_identifier": {
+                    "pipeline_name": "up42",
+                    "pipeline_label": "Test",
+                    "pipeline_counter": 2,
+                    "stage_name": "up42_stage",
+                    "stage_counter": "10",
+                    "job_name": "up42_job",
+                    "job_id": -1
+                  }
+                }""";
 
         assertExtensionRequest("5.0", REQUEST_JOB_COMPLETION, expectedRequestBody);
     }
@@ -281,11 +283,12 @@ public class ElasticAgentExtensionV5Test {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
         extensionV5.serverPing(PLUGIN_ID, List.of(clusterProfileProperties));
 
-        String expectedRequestBody = "{\n" +
-                "  \"all_cluster_profile_properties\": [{\n" +
-                "    \"ServerURL\": \"https://example.com/go\"\n" +
-                "  }]\n" +
-                "}";
+        String expectedRequestBody = """
+                {
+                  "all_cluster_profile_properties": [{
+                    "ServerURL": "https://example.com/go"
+                  }]
+                }""";
 
         assertExtensionRequest("5.0", REQUEST_SERVER_PING, expectedRequestBody);
     }
@@ -300,22 +303,23 @@ public class ElasticAgentExtensionV5Test {
 
         assertTrue(shouldAssignWork);
 
-        String expectedRequestBody = "{\n" +
-                "  \"cluster_profile_properties\": {\n" +
-                "    \"ServerURL\": \"https://example.com/go\"\n" +
-                "  },\n" +
-                "  \"elastic_agent_profile_properties\": {\n" +
-                "    \"Image\": \"alpine:latest\"\n" +
-                "  },\n" +
-                "  \"environment\": \"test-env\",\n" +
-                "  \"agent\": {\n" +
-                "    \"agent_id\": \"foo-agent-id\",\n" +
-                "    \"agent_state\": \"Idle\",\n" +
-                "    \"build_state\": \"Idle\",\n" +
-                "    \"config_state\": \"Enabled\"\n" +
-                "  },\n" +
-                "  \"job_identifier\": {}\n" +
-                "}";
+        String expectedRequestBody = """
+                {
+                  "cluster_profile_properties": {
+                    "ServerURL": "https://example.com/go"
+                  },
+                  "elastic_agent_profile_properties": {
+                    "Image": "alpine:latest"
+                  },
+                  "environment": "test-env",
+                  "agent": {
+                    "agent_id": "foo-agent-id",
+                    "agent_state": "Idle",
+                    "build_state": "Idle",
+                    "config_state": "Enabled"
+                  },
+                  "job_identifier": {}
+                }""";
 
         assertExtensionRequest("5.0", REQUEST_SHOULD_ASSIGN_WORK, expectedRequestBody);
     }
@@ -365,21 +369,19 @@ public class ElasticAgentExtensionV5Test {
 
         extensionV5.getAgentStatusReport(PLUGIN_ID, jobIdentifier, "GoCD193659b3b930480287b898eeef0ade37", clusterProfile);
 
-        final String requestBody = "{\n" +
-                "  \"job_identifier\": {\n" +
-                "    \"pipeline_name\": \"up42\",\n" +
-                "    \"pipeline_label\": \"Test\",\n" +
-                "    \"pipeline_counter\": 2,\n" +
-                "    \"stage_name\": \"up42_stage\",\n" +
-                "    \"stage_counter\": \"10\",\n" +
-                "    \"job_name\": \"up42_job\",\n" +
-                "    \"job_id\": -1\n" +
-                "  },\n" +
-                "  \"cluster_profile_properties\":{" +
-                "       \"go-server-url\":\"server-url-value\"" +
-                "  }," +
-                "  \"elastic_agent_id\": \"GoCD193659b3b930480287b898eeef0ade37\"\n" +
-                "}";
+        final String requestBody = """
+                {
+                  "job_identifier": {
+                    "pipeline_name": "up42",
+                    "pipeline_label": "Test",
+                    "pipeline_counter": 2,
+                    "stage_name": "up42_stage",
+                    "stage_counter": "10",
+                    "job_name": "up42_job",
+                    "job_id": -1
+                  },
+                  "cluster_profile_properties":{       "go-server-url":"server-url-value"  },  "elastic_agent_id": "GoCD193659b3b930480287b898eeef0ade37"
+                }""";
 
         assertExtensionRequest("5.0", REQUEST_AGENT_STATUS_REPORT, requestBody);
     }
@@ -396,9 +398,7 @@ public class ElasticAgentExtensionV5Test {
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
         extensionV5.migrateConfig(PLUGIN_ID, elasticAgentInformation);
 
-        final String expectedRequestBody = responseBody;
-
-        assertExtensionRequest("5.0", REQUEST_MIGRATE_CONFIGURATION, expectedRequestBody);
+        assertExtensionRequest("5.0", REQUEST_MIGRATE_CONFIGURATION, responseBody);
     }
 
     @Test

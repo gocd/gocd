@@ -49,10 +49,11 @@ public class CRTabTest extends AbstractCRTest<CRTab> {
 
     @Test
     public void shouldDeserializeFromAPILikeObject() {
-        String json = "{\n" +
-                "      \"name\": \"cobertura\",\n" +
-                "      \"path\": \"target/site/cobertura/index.html\"\n" +
-                "    }";
+        String json = """
+                {
+                      "name": "cobertura",
+                      "path": "target/site/cobertura/index.html"
+                    }""";
         CRTab deserializedValue = gson.fromJson(json,CRTab.class);
 
         assertThat(deserializedValue.getName(),is("cobertura"));

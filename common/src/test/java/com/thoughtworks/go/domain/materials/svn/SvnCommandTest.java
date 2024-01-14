@@ -55,24 +55,25 @@ public class SvnCommandTest {
     private File checkoutFolder;
     private SvnCommand subversion;
     private ProcessOutputStreamConsumer outputStreamConsumer;
-    private final String svnInfoOutput = "<?xml version=\"1.0\"?>\n"
-            + "<info>\n"
-            + "<entry\n"
-            + "   kind=\"dir\"\n"
-            + "   path=\"project1\"\n"
-            + "   revision=\"27\">\n"
-            + "<url>http://localhost/svn/project1</url>\n"
-            + "<repository>\n"
-            + "<root>http://localhost/svn/project1</root>\n"
-            + "<uuid>b51fe673-20c0-4205-a07b-5deb54bb09f3</uuid>\n"
-            + "</repository>\n"
-            + "<commit\n"
-            + "   revision=\"27\">\n"
-            + "<author>anthill</author>\n"
-            + "<date>2012-10-18T07:54:06.487895Z</date>\n"
-            + "</commit>\n"
-            + "</entry>\n"
-            + "</info>";
+    private final String svnInfoOutput = """
+            <?xml version="1.0"?>
+            <info>
+            <entry
+               kind="dir"
+               path="project1"
+               revision="27">
+            <url>http://localhost/svn/project1</url>
+            <repository>
+            <root>http://localhost/svn/project1</root>
+            <uuid>b51fe673-20c0-4205-a07b-5deb54bb09f3</uuid>
+            </repository>
+            <commit
+               revision="27">
+            <author>anthill</author>
+            <date>2012-10-18T07:54:06.487895Z</date>
+            </commit>
+            </entry>
+            </info>""";
 
     @BeforeEach
     void setup() throws IOException {
@@ -259,24 +260,25 @@ public class SvnCommandTest {
 
     @Test
     void shouldParseSvnInfoWithParthDifferentFromUrl() {
-        String output = "<?xml version=\"1.0\"?>\n"
-                + "<info>\n"
-                + "<entry\n"
-                + "   kind=\"dir\"\n"
-                + "   path=\"PurchaseDeliverables\"\n"
-                + "   revision=\"36788\">\n"
-                + "<url>http://svn.somewhere.com/someotherline/bloresvn/TISSIP/branch/DEV/PurchaseDeliverables</url>\n"
-                + "<repository>\n"
-                + "<root>http://svn.somewhere.com/someotherline</root>\n"
-                + "<uuid>f6689194-972b-e749-89bf-11ebdadc4dc5</uuid>\n"
-                + "</repository>\n"
-                + "<commit\n"
-                + "   revision=\"26449\">\n"
-                + "<author>nigelfer</author>\n"
-                + "<date>2009-02-03T15:43:08.059944Z</date>\n"
-                + "</commit>\n"
-                + "</entry>\n"
-                + "</info>";
+        String output = """
+                <?xml version="1.0"?>
+                <info>
+                <entry
+                   kind="dir"
+                   path="PurchaseDeliverables"
+                   revision="36788">
+                <url>http://svn.somewhere.com/someotherline/bloresvn/TISSIP/branch/DEV/PurchaseDeliverables</url>
+                <repository>
+                <root>http://svn.somewhere.com/someotherline</root>
+                <uuid>f6689194-972b-e749-89bf-11ebdadc4dc5</uuid>
+                </repository>
+                <commit
+                   revision="26449">
+                <author>nigelfer</author>
+                <date>2009-02-03T15:43:08.059944Z</date>
+                </commit>
+                </entry>
+                </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getPath()).isEqualTo("/bloresvn/TISSIP/branch/DEV/PurchaseDeliverables");
@@ -285,24 +287,25 @@ public class SvnCommandTest {
 
     @Test
     void shouldParseSvnInfo() {
-        String output = "<?xml version=\"1.0\"?>\n"
-                + "<info>\n"
-                + "<entry\n"
-                + "   kind=\"dir\"\n"
-                + "   path=\"someotherline\"\n"
-                + "   revision=\"36788\">\n"
-                + "<url>http://svn.somewhere.com/svn/someotherline</url>\n"
-                + "<repository>\n"
-                + "<root>http://svn.somewhere.com/svn</root>\n"
-                + "<uuid>f6689194-972b-e749-89bf-11ebdadc4dc5</uuid>\n"
-                + "</repository>\n"
-                + "<commit\n"
-                + "   revision=\"36788\">\n"
-                + "<author>csebasti</author>\n"
-                + "<date>2009-05-30T17:47:27.435599Z</date>\n"
-                + "</commit>\n"
-                + "</entry>\n"
-                + "</info>";
+        String output = """
+                <?xml version="1.0"?>
+                <info>
+                <entry
+                   kind="dir"
+                   path="someotherline"
+                   revision="36788">
+                <url>http://svn.somewhere.com/svn/someotherline</url>
+                <repository>
+                <root>http://svn.somewhere.com/svn</root>
+                <uuid>f6689194-972b-e749-89bf-11ebdadc4dc5</uuid>
+                </repository>
+                <commit
+                   revision="36788">
+                <author>csebasti</author>
+                <date>2009-05-30T17:47:27.435599Z</date>
+                </commit>
+                </entry>
+                </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getPath()).isEqualTo("/someotherline");
@@ -312,24 +315,25 @@ public class SvnCommandTest {
 
     @Test
     void shouldParseSvnInfoWithUTF8ChineseNameInUrl() {
-        String output = "<?xml version=\"1.0\"?>\n"
-                + "<info>\n"
-                + "<entry\n"
-                + "  kind=\"dir\"\n"
-                + "  path=\"司徒空在此\"\n"
-                + "  revision=\"4\">\n"
-                + "<url>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4</url>\n"
-                + "<repository>\n"
-                + "<root>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end</root>\n"
-                + "<uuid>f953918e-915c-4459-8d4c-83860cce9d9a</uuid>\n"
-                + "</repository>\n"
-                + "<commit\n"
-                + "  revision=\"4\">\n"
-                + "<author></author>\n"
-                + "<date>2009-05-31T04:14:44.223393Z</date>\n"
-                + "</commit>\n"
-                + "</entry>\n"
-                + "</info>";
+        String output = """
+                <?xml version="1.0"?>
+                <info>
+                <entry
+                  kind="dir"
+                  path="司徒空在此"
+                  revision="4">
+                <url>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4</url>
+                <repository>
+                <root>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end</root>
+                <uuid>f953918e-915c-4459-8d4c-83860cce9d9a</uuid>
+                </repository>
+                <commit
+                  revision="4">
+                <author></author>
+                <date>2009-05-31T04:14:44.223393Z</date>
+                </commit>
+                </entry>
+                </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getPath()).isEqualTo("/司徒空在此");
@@ -338,24 +342,25 @@ public class SvnCommandTest {
 
     @Test
     void shouldParseEncodedUrl() {
-        String output = "<?xml version=\"1.0\"?>\n"
-                + "<info>\n"
-                + "<entry\n"
-                + "   kind=\"dir\"\n"
-                + "   path=\"trunk\"\n"
-                + "   revision=\"8650\">\n"
-                + "<url>https://217.45.214.17:8443/svn/Entropy%20System/Envoy%20Enterprise/trunk</url>\n"
-                + "<repository>\n"
-                + "<root>https://217.45.214.17:8443/svn</root>\n"
-                + "<uuid>3ed677eb-f12f-3343-ac77-786e4d01a301</uuid>\n"
-                + "</repository>\n"
-                + "<commit\n"
-                + "   revision=\"8650\">\n"
-                + "<author>BuildServer</author>\n"
-                + "<date>2009-04-03 15:52:16 +0800 (Fri, 03 Apr 2009)</date>\n"
-                + "</commit>\n"
-                + "</entry>\n"
-                + "</info>";
+        String output = """
+                <?xml version="1.0"?>
+                <info>
+                <entry
+                   kind="dir"
+                   path="trunk"
+                   revision="8650">
+                <url>https://217.45.214.17:8443/svn/Entropy%20System/Envoy%20Enterprise/trunk</url>
+                <repository>
+                <root>https://217.45.214.17:8443/svn</root>
+                <uuid>3ed677eb-f12f-3343-ac77-786e4d01a301</uuid>
+                </repository>
+                <commit
+                   revision="8650">
+                <author>BuildServer</author>
+                <date>2009-04-03 15:52:16 +0800 (Fri, 03 Apr 2009)</date>
+                </commit>
+                </entry>
+                </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getUrl()).isEqualTo("https://217.45.214.17:8443/svn/Entropy%20System/Envoy%20Enterprise/trunk");
@@ -364,24 +369,25 @@ public class SvnCommandTest {
 
     @Test
     void shouldParseEncodedUrlAndPath() {
-        String output = "<?xml version=\"1.0\"?>\n"
-                + "<info>\n"
-                + "<entry\n"
-                + "   kind=\"dir\"\n"
-                + "   path=\"unit-reports\"\n"
-                + "   revision=\"3\">\n"
-                + "<url>file:///C:/Documents%20and%20Settings/cceuser/Local%20Settings/Temp/testSvnRepo-1243722556125/end2end/unit-reports</url>\n"
-                + "<repository>\n"
-                + "<root>file:///C:/Documents%20and%20Settings/cceuser/Local%20Settings/Temp/testSvnRepo-1243722556125/end2end</root>\n"
-                + "<uuid>f953918e-915c-4459-8d4c-83860cce9d9a</uuid>\n"
-                + "</repository>\n"
-                + "<commit\n"
-                + "   revision=\"1\">\n"
-                + "<author>cceuser</author>\n"
-                + "<date>2008-03-20T04:00:43.976517Z</date>\n"
-                + "</commit>\n"
-                + "</entry>\n"
-                + "</info>";
+        String output = """
+                <?xml version="1.0"?>
+                <info>
+                <entry
+                   kind="dir"
+                   path="unit-reports"
+                   revision="3">
+                <url>file:///C:/Documents%20and%20Settings/cceuser/Local%20Settings/Temp/testSvnRepo-1243722556125/end2end/unit-reports</url>
+                <repository>
+                <root>file:///C:/Documents%20and%20Settings/cceuser/Local%20Settings/Temp/testSvnRepo-1243722556125/end2end</root>
+                <uuid>f953918e-915c-4459-8d4c-83860cce9d9a</uuid>
+                </repository>
+                <commit
+                   revision="1">
+                <author>cceuser</author>
+                <date>2008-03-20T04:00:43.976517Z</date>
+                </commit>
+                </entry>
+                </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getUrl()).isEqualTo("file:///C:/Documents%20and%20Settings/cceuser/Local%20Settings/Temp/testSvnRepo-1243722556125/end2end/unit-reports");
@@ -390,24 +396,25 @@ public class SvnCommandTest {
 
     @Test
     void shouldParsePartlyEncodedUrlAndPath() {
-        String output = "<?xml version=\"1.0\"?>\n"
-                + "<info>\n"
-                + "<entry\n"
-                + "   kind=\"dir\"\n"
-                + "   path=\"unit-reports\"\n"
-                + "   revision=\"3\">\n"
-                + "<url>svn+ssh://hostname/foo%20bar%20baz/end2end</url>\n"
-                + "<repository>\n"
-                + "<root>svn+ssh://hostname/foo%20bar%20baz</root>\n"
-                + "<uuid>f953918e-915c-4459-8d4c-83860cce9d9a</uuid>\n"
-                + "</repository>\n"
-                + "<commit\n"
-                + "   revision=\"1\">\n"
-                + "<author>cceuser</author>\n"
-                + "<date>2008-03-20T04:00:43.976517Z</date>\n"
-                + "</commit>\n"
-                + "</entry>\n"
-                + "</info>";
+        String output = """
+                <?xml version="1.0"?>
+                <info>
+                <entry
+                   kind="dir"
+                   path="unit-reports"
+                   revision="3">
+                <url>svn+ssh://hostname/foo%20bar%20baz/end2end</url>
+                <repository>
+                <root>svn+ssh://hostname/foo%20bar%20baz</root>
+                <uuid>f953918e-915c-4459-8d4c-83860cce9d9a</uuid>
+                </repository>
+                <commit
+                   revision="1">
+                <author>cceuser</author>
+                <date>2008-03-20T04:00:43.976517Z</date>
+                </commit>
+                </entry>
+                </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getUrl()).isEqualTo("svn+ssh://hostname/foo%20bar%20baz/end2end");
@@ -463,24 +470,25 @@ public class SvnCommandTest {
 
     @Test
     void shouldGetSvnInfoAndReturnMapOfUrlToUUID() {
-        final String svnInfoOutput = "<?xml version=\"1.0\"?>\n"
-                + "<info>\n"
-                + "<entry\n"
-                + "   kind=\"dir\"\n"
-                + "   path=\"project1\"\n"
-                + "   revision=\"27\">\n"
-                + "<url>http://localhost/svn/project1</url>\n"
-                + "<repository>\n"
-                + "<root>http://localhost/svn/project1</root>\n"
-                + "<uuid>b51fe673-20c0-4205-a07b-5deb54bb09f3</uuid>\n"
-                + "</repository>\n"
-                + "<commit\n"
-                + "   revision=\"27\">\n"
-                + "<author>anthill</author>\n"
-                + "<date>2012-10-18T07:54:06.487895Z</date>\n"
-                + "</commit>\n"
-                + "</entry>\n"
-                + "</info>";
+        final String svnInfoOutput = """
+                <?xml version="1.0"?>
+                <info>
+                <entry
+                   kind="dir"
+                   path="project1"
+                   revision="27">
+                <url>http://localhost/svn/project1</url>
+                <repository>
+                <root>http://localhost/svn/project1</root>
+                <uuid>b51fe673-20c0-4205-a07b-5deb54bb09f3</uuid>
+                </repository>
+                <commit
+                   revision="27">
+                <author>anthill</author>
+                <date>2012-10-18T07:54:06.487895Z</date>
+                </commit>
+                </entry>
+                </info>""";
         final SvnMaterial svnMaterial = mock(SvnMaterial.class);
         when(svnMaterial.urlForCommandLine()).thenReturn("http://localhost/svn/project1");
         when(svnMaterial.getUserName()).thenReturn("user");

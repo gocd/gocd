@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 // Copied verbatim from gradle's source and unused bits removed.
-// https://github.com/gradle/gradle/blob/master/subprojects/base-services/src/main/java/org/gradle/api/JavaVersion.java
+// https://github.com/gradle/gradle/blob/master/platforms/core-runtime/base-services/src/main/java/org/gradle/api/JavaVersion.java
 package com.thoughtworks.gocd;
 
 import java.util.ArrayList;
@@ -94,7 +94,6 @@ public enum JavaVersion {
 
     /**
      * Java 20 major version.
-     * Not officially supported by Gradle. Use at your own risk.
      *
      * @since 7.0
      */
@@ -102,7 +101,6 @@ public enum JavaVersion {
 
     /**
      * Java 21 major version.
-     * Not officially supported by Gradle. Use at your own risk.
      *
      * @since 7.6
      */
@@ -131,6 +129,13 @@ public enum JavaVersion {
      * @since 7.6
      */
     VERSION_24,
+
+    /**
+     * Java 25 major version.
+     *
+     * @since 8.4
+     */
+    VERSION_25,
 
     /**
      * Higher version of Java.

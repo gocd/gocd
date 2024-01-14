@@ -191,11 +191,12 @@ public abstract class ArtifactExtensionTestBase {
 
     @Test
     public void shouldSubmitPublishArtifactRequest() {
-        final String responseBody = "{\n" +
-                "  \"metadata\": {\n" +
-                "    \"artifact-version\": \"10.12.0\"\n" +
-                "  }\n" +
-                "}";
+        final String responseBody = """
+                {
+                  "metadata": {
+                    "artifact-version": "10.12.0"
+                  }
+                }""";
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 

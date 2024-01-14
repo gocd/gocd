@@ -27,10 +27,11 @@ public class VerifyConnectionResponseDTOTest {
 
     @Test
     public void shouldDeserializeSuccessResponseFromJSON() throws Exception {
-        String json = "{\n" +
-                "  \"status\": \"success\",\n" +
-                "  \"message\": \"Connection check passed\"\n" +
-                "}";
+        String json = """
+                {
+                  "status": "success",
+                  "message": "Connection check passed"
+                }""";
 
         VerifyConnectionResponse response = VerifyConnectionResponseDTO.fromJSON(json).response();
 
@@ -41,10 +42,11 @@ public class VerifyConnectionResponseDTOTest {
 
     @Test
     public void shouldDeserializeFailureResponseFromJSON() throws Exception {
-        String json = "{\n" +
-                "  \"status\": \"failure\",\n" +
-                "  \"message\": \"Connection check failed\"\n" +
-                "}";
+        String json = """
+                {
+                  "status": "failure",
+                  "message": "Connection check failed"
+                }""";
 
         VerifyConnectionResponse response = VerifyConnectionResponseDTO.fromJSON(json).response();
 
@@ -55,20 +57,19 @@ public class VerifyConnectionResponseDTOTest {
 
     @Test
     public void shouldDeserializeValidationFailedResponseFromJSON() throws Exception {
-        String json = "{\n" +
-                "  \"status\": \"validation-failed\",\n" +
-                "  \"message\": \"Validation failed\",\n" +
-                "  \"errors\": [\n" +
-                "    {" +
-                "      \"key\": \"url\",\n" +
-                "      \"message\": \"URL cannot be blank\"\n" +
-                "    },\n" +
-                "    {" +
-                "      \"key\": \"password\",\n" +
-                "      \"message\": \"Password cannot be blank\"\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
+        String json = """
+                {
+                  "status": "validation-failed",
+                  "message": "Validation failed",
+                  "errors": [
+                    {      "key": "url",
+                      "message": "URL cannot be blank"
+                    },
+                    {      "key": "password",
+                      "message": "Password cannot be blank"
+                    }
+                  ]
+                }""";
 
         VerifyConnectionResponse response = VerifyConnectionResponseDTO.fromJSON(json).response();
 

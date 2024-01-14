@@ -70,7 +70,7 @@ public class PipelinePauseService {
             pauseCause = "";
         }
         if (isPipelinePaused(pipelineName)) {
-            result.conflict("Failed to pause pipeline '" +pipelineName + "'. Pipeline '" +pipelineName + "' is already paused.");
+            result.conflict(String.join(pipelineName, "Failed to pause pipeline '", "'. Pipeline '", "' is already paused."));
             return;
         }
         try {
@@ -96,7 +96,7 @@ public class PipelinePauseService {
             return;
         }
         if (!isPipelinePaused(pipelineName)) {
-            result.conflict("Failed to unpause pipeline '" + pipelineName + "'. Pipeline '" + pipelineName + "' is already unpaused.");
+            result.conflict(String.join(pipelineName, "Failed to unpause pipeline '", "'. Pipeline '", "' is already unpaused."));
             return;
         }
         try {

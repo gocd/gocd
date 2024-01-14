@@ -95,14 +95,12 @@ public class NantTask extends BuildTask {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof NantTask)) {
+        if (!(o instanceof NantTask nantTask)) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
-
-        NantTask nantTask = (NantTask) o;
 
         return nantPath != null ? nantPath.equals(nantTask.nantPath) : nantTask.nantPath == null;
     }

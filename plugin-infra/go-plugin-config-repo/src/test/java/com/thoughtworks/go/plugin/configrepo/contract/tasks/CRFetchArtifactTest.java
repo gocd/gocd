@@ -73,15 +73,16 @@ public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
 
     @Test
     public void shouldDeserializeWhenDestinationIsNull() {
-        String json = "{\n" +
-            "              \"type\" : \"fetch\",\n" +
-            "              \"pipeline\" : \"pip\",\n" +
-            "              \"stage\" : \"build1\",\n" +
-            "              \"job\" : \"build\",\n" +
-            "              \"source\" : \"bin\",\n" +
-            "              \"run_if\" : \"passed\",\n" +
-            "              \"artifact_origin\" : \"gocd\"\n" +
-            "            }";
+        String json = """
+                {
+                              "type" : "fetch",
+                              "pipeline" : "pip",
+                              "stage" : "build1",
+                              "job" : "build",
+                              "source" : "bin",
+                              "run_if" : "passed",
+                              "artifact_origin" : "gocd"
+                            }""";
         CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask) gson.fromJson(json, CRTask.class);
 
         assertThat(deserializedValue.getPipeline(), is("pip"));
@@ -96,14 +97,15 @@ public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
 
     @Test
     public void shouldDeserializeWhenArtifactOriginIsNull() {
-        String json = "{\n" +
-            "              \"type\" : \"fetch\",\n" +
-            "              \"pipeline\" : \"pip\",\n" +
-            "              \"stage\" : \"build1\",\n" +
-            "              \"job\" : \"build\",\n" +
-            "              \"source\" : \"bin\",\n" +
-            "              \"run_if\" : \"passed\"\n" +
-            "            }";
+        String json = """
+                {
+                              "type" : "fetch",
+                              "pipeline" : "pip",
+                              "stage" : "build1",
+                              "job" : "build",
+                              "source" : "bin",
+                              "run_if" : "passed"
+                            }""";
         CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask) gson.fromJson(json, CRTask.class);
 
         assertThat(deserializedValue.getPipeline(), is("pip"));

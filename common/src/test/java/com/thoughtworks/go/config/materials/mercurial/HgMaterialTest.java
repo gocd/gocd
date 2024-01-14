@@ -252,11 +252,12 @@ public class HgMaterialTest {
         // #3103
         @Test
         void shouldParseComplexCommitMessage() throws Exception {
-            String comment = "changeset:   8139:b1a0b0bbb4d1\n"
-                    + "branch:      trunk\n"
-                    + "user:        QYD\n"
-                    + "date:        Tue Jun 30 14:56:37 2009 +0800\n"
-                    + "summary:     add story #3001 - 'Pipelines should use the latest version of ...";
+            String comment = """
+                    changeset:   8139:b1a0b0bbb4d1
+                    branch:      trunk
+                    user:        QYD
+                    date:        Tue Jun 30 14:56:37 2009 +0800
+                    summary:     add story #3001 - 'Pipelines should use the latest version of ...""";
             hgTestRepo.commitAndPushFile("SomeDocumentation.txt", comment);
 
             List<Modification> modification = hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());

@@ -47,11 +47,12 @@ public class CRBuiltInArtifactTest extends AbstractCRTest<CRBuiltInArtifact> {
 
     @Test
     public void shouldDeserializeFromAPILikeObject() {
-        String json = "{\n" +
-                "      \"source\": \"test\",\n" +
-                "      \"destination\": \"res1\",\n" +
-                "      \"type\": \"test\"\n" +
-                "    }";
+        String json = """
+                {
+                      "source": "test",
+                      "destination": "res1",
+                      "type": "test"
+                    }""";
         CRArtifact deserializedValue = gson.fromJson(json,CRArtifact.class);
         CRBuiltInArtifact crBuiltInArtifact = (CRBuiltInArtifact) deserializedValue;
         assertThat(crBuiltInArtifact.getSource(),is("test"));
@@ -64,11 +65,12 @@ public class CRBuiltInArtifactTest extends AbstractCRTest<CRBuiltInArtifact> {
 
     @Test
     public void shouldHandleBadArtifactTypeWhenDeserializing() {
-        String json = "{\n" +
-                "      \"source\": \"test\",\n" +
-                "      \"destination\": \"res1\",\n" +
-                "      \"type\": \"bla\"\n" +
-                "    }";
+        String json = """
+                {
+                      "source": "test",
+                      "destination": "res1",
+                      "type": "bla"
+                    }""";
 
         assertThatThrownBy(() -> gson.fromJson(json,CRArtifact.class))
                 .isInstanceOf(JsonParseException.class)

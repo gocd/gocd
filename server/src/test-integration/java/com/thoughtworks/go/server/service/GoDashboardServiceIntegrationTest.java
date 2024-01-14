@@ -45,7 +45,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -214,9 +213,7 @@ public class GoDashboardServiceIntegrationTest {
     private void assertThereIsExactlyOneInstanceOfEachPipelineOnDashboard(List<GoDashboardPipelineGroup> dashboardAfterPipelineCreationViaApi) {
         assertThat(dashboardAfterPipelineCreationViaApi, hasSize(1));//pipeline group
         assertThat(dashboardAfterPipelineCreationViaApi.get(0).allPipelines(), hasSize(goConfigService.cruiseConfig().getAllPipelineNames().size()));
-        Iterator<GoDashboardPipeline> iterator = dashboardAfterPipelineCreationViaApi.get(0).allPipelines().iterator();
-        while (iterator.hasNext()){
-            GoDashboardPipeline dashboardPipeline = iterator.next();
+        for (GoDashboardPipeline dashboardPipeline : dashboardAfterPipelineCreationViaApi.get(0).allPipelines()) {
             assertThat(dashboardPipeline.model().getName(), dashboardPipeline.model().getActivePipelineInstances(), hasSize(1));
         }
     }

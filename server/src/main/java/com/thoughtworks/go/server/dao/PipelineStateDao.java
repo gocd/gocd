@@ -180,8 +180,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
             Criteria criteria = sessionFactory.getCurrentSession().createCriteria(PipelineState.class).setProjection(pipelineName).add(
                     Restrictions.eq("locked", true));
             criteria.setCacheable(false);
-            List<String> list = criteria.list();
-            return list;
+            return (List<String>) criteria.list();
         });
     }
 }

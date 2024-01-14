@@ -35,35 +35,37 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SvnLogXmlParserTest {
 
-    private static final String XML = "<?xml version=\"1.0\"?>\n"
-        + "<log>\n"
-        + "<logentry\n"
-        + "   revision=\"3\">\n"
-        + "<author>cceuser</author>\n"
-        + "<date>2008-03-11T07:52:41.162075Z</date>\n"
-        + "<paths>\n"
-        + "<path\n"
-        + "   action=\"A\">/trunk/revision3.txt</path>\n"
-        + "</paths>\n"
-        + "<msg>[Liyanhui &amp; Gabbar] Checked in new file for test</msg>\n"
-        + "</logentry>\n"
-        + "</log>";
+    private static final String XML = """
+            <?xml version="1.0"?>
+            <log>
+            <logentry
+               revision="3">
+            <author>cceuser</author>
+            <date>2008-03-11T07:52:41.162075Z</date>
+            <paths>
+            <path
+               action="A">/trunk/revision3.txt</path>
+            </paths>
+            <msg>[Liyanhui &amp; Gabbar] Checked in new file for test</msg>
+            </logentry>
+            </log>""";
 
-    private static final String MULTIPLE_FILES = "<?xml version=\"1.0\"?>\n"
-        + "<log>\n"
-        + "<logentry\n"
-        + "   revision=\"3\">\n"
-        + "<author>cceuser</author>\n"
-        + "<date>2008-03-11T07:52:41.162075Z</date>\n"
-        + "<paths>\n"
-        + "<path\n"
-        + "   action=\"A\">/trunk/revision3.txt</path>\n"
-        + "<path\n"
-        + "   action=\"D\">/branch/1.1/readme.txt</path>\n"
-        + "</paths>\n"
-        + "<msg>[Liyanhui &amp; Gabbar] Checked in new file for test</msg>\n"
-        + "</logentry>\n"
-        + "</log>";
+    private static final String MULTIPLE_FILES = """
+            <?xml version="1.0"?>
+            <log>
+            <logentry
+               revision="3">
+            <author>cceuser</author>
+            <date>2008-03-11T07:52:41.162075Z</date>
+            <paths>
+            <path
+               action="A">/trunk/revision3.txt</path>
+            <path
+               action="D">/branch/1.1/readme.txt</path>
+            </paths>
+            <msg>[Liyanhui &amp; Gabbar] Checked in new file for test</msg>
+            </logentry>
+            </log>""";
 
     @Test
     public void shouldParseSvnLogContainingNullComments() throws IOException {
@@ -97,18 +99,19 @@ public class SvnLogXmlParserTest {
     @Test
     public void shouldParseLogEntryWithoutComment() {
         SvnLogXmlParser parser = new SvnLogXmlParser();
-        List<Modification> materialRevisions = parser.parse("<?xml version=\"1.0\"?>\n"
-            + "<log>\n"
-            + "<logentry\n"
-            + "   revision=\"3\">\n"
-            + "<author>cceuser</author>\n"
-            + "<date>2008-03-11T07:52:41.162075Z</date>\n"
-            + "<paths>\n"
-            + "<path\n"
-            + "   action=\"A\">/trunk/revision3.txt</path>\n"
-            + "</paths>\n"
-            + "</logentry>\n"
-            + "</log>", "", new SAXBuilder());
+        List<Modification> materialRevisions = parser.parse("""
+                <?xml version="1.0"?>
+                <log>
+                <logentry
+                   revision="3">
+                <author>cceuser</author>
+                <date>2008-03-11T07:52:41.162075Z</date>
+                <paths>
+                <path
+                   action="A">/trunk/revision3.txt</path>
+                </paths>
+                </logentry>
+                </log>""", "", new SAXBuilder());
         assertThat(materialRevisions.size()).isEqualTo(1);
         Modification mod = materialRevisions.get(0);
         assertThat(mod.getRevision()).isEqualTo("3");
@@ -118,21 +121,22 @@ public class SvnLogXmlParserTest {
     @Test
     public void shouldParseLogWithEmptyRevision() {
         SvnLogXmlParser parser = new SvnLogXmlParser();
-        List<Modification> materialRevisions = parser.parse("<?xml version=\"1.0\"?>\n"
-            + "<log>\n"
-            + "<logentry\n"
-            + "   revision=\"2\">\n"
-            + "</logentry>\n"
-            + "<logentry\n"
-            + "   revision=\"3\">\n"
-            + "<author>cceuser</author>\n"
-            + "<date>2008-03-11T07:52:41.162075Z</date>\n"
-            + "<paths>\n"
-            + "<path\n"
-            + "   action=\"A\">/trunk/revision3.txt</path>\n"
-            + "</paths>\n"
-            + "</logentry>\n"
-            + "</log>", "", new SAXBuilder());
+        List<Modification> materialRevisions = parser.parse("""
+                <?xml version="1.0"?>
+                <log>
+                <logentry
+                   revision="2">
+                </logentry>
+                <logentry
+                   revision="3">
+                <author>cceuser</author>
+                <date>2008-03-11T07:52:41.162075Z</date>
+                <paths>
+                <path
+                   action="A">/trunk/revision3.txt</path>
+                </paths>
+                </logentry>
+                </log>""", "", new SAXBuilder());
         assertThat(materialRevisions.size()).isEqualTo(1);
         Modification mod = materialRevisions.get(0);
         assertThat(mod.getRevision()).isEqualTo("3");
@@ -142,47 +146,49 @@ public class SvnLogXmlParserTest {
 
     @Test
     public void shouldParseBJCruiseLogCorrectly() {
-        String firstChangeLog = "<?xml version=\"1.0\"?>\n"
-            + "<log>\n"
-            + "<logentry\n"
-            + "   revision=\"11238\">\n"
-            + "<author>yxchu</author>\n"
-            + "<date>2008-10-21T14:00:16.598195Z</date>\n"
-            + "<paths>\n"
-            + "<path\n"
-            + "   action=\"M\">/trunk/test/unit/card_selection_test.rb</path>\n"
-            + "<path\n"
-            + "   action=\"M\">/trunk/test/functional/cards_controller_quick_add_test.rb</path>\n"
-            + "<path\n"
-            + "   action=\"M\">/trunk/app/controllers/cards_controller.rb</path>\n"
-            + "</paths>\n"
-            + "<msg>#2761, fix random test failure and add quick add card type to session</msg>\n"
-            + "</logentry>\n"
-            + "</log>";
+        String firstChangeLog = """
+                <?xml version="1.0"?>
+                <log>
+                <logentry
+                   revision="11238">
+                <author>yxchu</author>
+                <date>2008-10-21T14:00:16.598195Z</date>
+                <paths>
+                <path
+                   action="M">/trunk/test/unit/card_selection_test.rb</path>
+                <path
+                   action="M">/trunk/test/functional/cards_controller_quick_add_test.rb</path>
+                <path
+                   action="M">/trunk/app/controllers/cards_controller.rb</path>
+                </paths>
+                <msg>#2761, fix random test failure and add quick add card type to session</msg>
+                </logentry>
+                </log>""";
 
-        String secondChangeLog = "<?xml version=\"1.0\"?>\n"
-            + "<log>\n"
-            + "<logentry\n"
-            + "   revision=\"11239\">\n"
-            + "<author>yxchu</author>\n"
-            + "<date>2008-10-21T14:00:36.209014Z</date>\n"
-            + "<paths>\n"
-            + "<path\n"
-            + "   action=\"M\">/trunk/test/unit/card_selection_test.rb</path>\n"
-            + "</paths>\n"
-            + "<msg>still fix test</msg>\n"
-            + "</logentry>\n"
-            + "<logentry\n"
-            + "   revision=\"11240\">\n"
-            + "<author>yxchu</author>\n"
-            + "<date>2008-10-21T14:00:47.614448Z</date>\n"
-            + "<paths>\n"
-            + "<path\n"
-            + "   action=\"M\">/trunk/test/unit/card_selection_test.rb</path>\n"
-            + "</paths>\n"
-            + "<msg>fix test remove messaging helper</msg>\n"
-            + "</logentry>\n"
-            + "</log>";
+        String secondChangeLog = """
+                <?xml version="1.0"?>
+                <log>
+                <logentry
+                   revision="11239">
+                <author>yxchu</author>
+                <date>2008-10-21T14:00:36.209014Z</date>
+                <paths>
+                <path
+                   action="M">/trunk/test/unit/card_selection_test.rb</path>
+                </paths>
+                <msg>still fix test</msg>
+                </logentry>
+                <logentry
+                   revision="11240">
+                <author>yxchu</author>
+                <date>2008-10-21T14:00:47.614448Z</date>
+                <paths>
+                <path
+                   action="M">/trunk/test/unit/card_selection_test.rb</path>
+                </paths>
+                <msg>fix test remove messaging helper</msg>
+                </logentry>
+                </log>""";
 
         SvnLogXmlParser parser = new SvnLogXmlParser();
         List<Modification> mods = parser.parse(firstChangeLog, ".", new SAXBuilder());
@@ -234,24 +240,25 @@ public class SvnLogXmlParserTest {
     @Test
     public void shouldParseSvnInfoOutputToConstructUrlToRemoteUUIDMapping() {
         final SvnLogXmlParser svnLogXmlParser = new SvnLogXmlParser();
-        final String svnInfoOutput = "<?xml version=\"1.0\"?>\n"
-            + "<info>\n"
-            + "<entry\n"
-            + "   kind=\"dir\"\n"
-            + "   path=\"trunk\"\n"
-            + "   revision=\"3432\">\n"
-            + "<url>http://gears.googlecode.com/svn/trunk</url>\n"
-            + "<repository>\n"
-            + "<root>http://gears.googlecode.com/svn</root>\n"
-            + "<uuid>fe895e04-df30-0410-9975-d76d301b4276</uuid>\n"
-            + "</repository>\n"
-            + "<commit\n"
-            + "   revision=\"3430\">\n"
-            + "<author>gears.daemon</author>\n"
-            + "<date>2010-10-06T02:00:50.517477Z</date>\n"
-            + "</commit>\n"
-            + "</entry>\n"
-            + "</info>";
+        final String svnInfoOutput = """
+                <?xml version="1.0"?>
+                <info>
+                <entry
+                   kind="dir"
+                   path="trunk"
+                   revision="3432">
+                <url>http://gears.googlecode.com/svn/trunk</url>
+                <repository>
+                <root>http://gears.googlecode.com/svn</root>
+                <uuid>fe895e04-df30-0410-9975-d76d301b4276</uuid>
+                </repository>
+                <commit
+                   revision="3430">
+                <author>gears.daemon</author>
+                <date>2010-10-06T02:00:50.517477Z</date>
+                </commit>
+                </entry>
+                </info>""";
         final HashMap<String, String> map = svnLogXmlParser.parseInfoToGetUUID(svnInfoOutput, "http://gears.googlecode.com/svn/trunk", new SAXBuilder());
         assertThat(map.size()).isEqualTo(1);
         assertThat(map.get("http://gears.googlecode.com/svn/trunk")).isEqualTo("fe895e04-df30-0410-9975-d76d301b4276");

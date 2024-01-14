@@ -83,160 +83,175 @@ class BuildWorkTest {
     private static final String SERVER_URL = "somewhere-does-not-matter";
     private static final JobIdentifier JOB_IDENTIFIER = new JobIdentifier(PIPELINE_NAME, -3, PIPELINE_LABEL, STAGE_NAME, String.valueOf(STAGE_COUNTER), JOB_PLAN_NAME, 1L);
 
-    private static final String NANT = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <nant target=\"-help\"/>\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String NANT = ("""
+            <job name="%s">
+              <tasks>
+                <nant target="-help"/>
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME);
 
-    private static final String NANT_WITH_WORKING_DIR = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <nant target=\"-help\" workingdir=\"not-exists\" />\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String NANT_WITH_WORKING_DIR = ("""
+            <job name="%s">
+              <tasks>
+                <nant target="-help" workingdir="not-exists" />
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME);
 
-    private static final String RAKE = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <rake target=\"--help\"/>\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String RAKE = ("""
+            <job name="%s">
+              <tasks>
+                <rake target="--help"/>
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME);
 
-    private static final String WILL_FAIL = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <ant target=\"something-not-really-exist\" />\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String WILL_FAIL = ("""
+            <job name="%s">
+              <tasks>
+                <ant target="something-not-really-exist" />
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME);
 
-    private static final String WILL_PASS = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <ant target=\"-help\" />\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String WILL_PASS = ("""
+            <job name="%s">
+              <tasks>
+                <ant target="-help" />
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME);
 
-    private static final String WITH_ENV_VAR = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <environmentvariables>\n"
-            + "    <variable name=\"JOB_ENV\">\n"
-            + "      <value>foobar</value>\n"
-            + "    </variable>\n"
-            + "    <variable name=\"" + (SystemUtils.IS_OS_WINDOWS ? "Path" : "PATH") + "\">\n"
-            + "      <value>/tmp</value>\n"
-            + "    </variable>\n"
-            + "  </environmentvariables>\n"
-            + "  <tasks>\n"
-            + "    <ant target=\"-help\" />\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String WITH_ENV_VAR = ("""
+            <job name="%s">
+              <environmentvariables>
+                <variable name="JOB_ENV">
+                  <value>foobar</value>
+                </variable>
+                <variable name="%s">
+                  <value>/tmp</value>
+                </variable>
+              </environmentvariables>
+              <tasks>
+                <ant target="-help" />
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME, SystemUtils.IS_OS_WINDOWS ? "Path" : "PATH");
 
-    private static final String WITH_SECRET_ENV_VAR = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <environmentvariables>\n"
-            + "    <variable name=\"foo\">\n"
-            + "      <value>foo(i am a secret)</value>\n"
-            + "    </variable>\n"
-            + "    <variable name=\"bar\" secure=\"true\">\n"
-            + "      <value>i am a secret</value>\n"
-            + "    </variable>\n"
-            + "  </environmentvariables>\n"
-            + "  <tasks>\n"
-            + "    <ant target=\"-help\" />\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String WITH_SECRET_ENV_VAR = ("""
+            <job name="%s">
+              <environmentvariables>
+                <variable name="foo">
+                  <value>foo(i am a secret)</value>
+                </variable>
+                <variable name="bar" secure="true">
+                  <value>i am a secret</value>
+                </variable>
+              </environmentvariables>
+              <tasks>
+                <ant target="-help" />
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME);
 
     private static final String SOMETHING_NOT_EXIST = "something-not-exist";
 
-    private static final String CMD_NOT_EXIST = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <exec command=\"" + SOMETHING_NOT_EXIST + "\" />\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String CMD_NOT_EXIST = ("""
+            <job name="%s">
+              <tasks>
+                <exec command="%s" />
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME, SOMETHING_NOT_EXIST);
 
-    private static final String WILL_NOT_RUN = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <exec command=\"echo\" args=\"run when status is failed\">\n"
-            + "      <runif status=\"failed\" />\n"
-            + "    </exec>\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String WILL_NOT_RUN = ("""
+            <job name="%s">
+              <tasks>
+                <exec command="echo" args="run when status is failed">
+                  <runif status="failed" />
+                </exec>
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME);
 
-    private static final String MULTIPLE_TASKS = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <exec command=\"command-not-found\" >\n"
-            + "    </exec>\n"
-            + "    <exec command=\"echo\" args=\"run when status is failed\">\n"
-            + "      <runif status=\"failed\" />\n"
-            + "    </exec>\n"
-            + "    <exec command=\"echo\" args=\"run when status is passed\">\n"
-            + "      <runif status=\"passed\" />\n"
-            + "    </exec>\n"
-            + "    <exec command=\"echo\" args=\"run when status is any\">\n"
-            + "      <runif status=\"any\" />\n"
-            + "    </exec>\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String MULTIPLE_TASKS = ("""
+            <job name="%s">
+              <tasks>
+                <exec command="command-not-found" >
+                </exec>
+                <exec command="echo" args="run when status is failed">
+                  <runif status="failed" />
+                </exec>
+                <exec command="echo" args="run when status is passed">
+                  <runif status="passed" />
+                </exec>
+                <exec command="echo" args="run when status is any">
+                  <runif status="any" />
+                </exec>
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME);
 
-    private static final String MULTIPLE_RUN_IFS = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <exec command=\"echo\" args=\"run when status is failed, passed or cancelled\">\n"
-            + "      <runif status=\"failed\" />\n"
-            + "      <runif status=\"passed\" />\n"
-            + "    </exec>\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String MULTIPLE_RUN_IFS = ("""
+            <job name="%s">
+              <tasks>
+                <exec command="echo" args="run when status is failed, passed or cancelled">
+                  <runif status="failed" />
+                  <runif status="passed" />
+                </exec>
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME);
 
-    private static final String WITH_GO_SERVER_URL_ENV_VAR = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <environmentvariables>\n"
-            + "    <variable name=\"GO_SERVER_URL\">\n"
-            + "      <value>go_server_url_from_job</value>\n"
-            + "    </variable>\n"
-            + "  </environmentvariables>\n"
-            + "  <tasks>\n"
-            + "    <ant target=\"-help\" />\n"
-            + "  </tasks>\n"
-            + "</job>";
+    private static final String WITH_GO_SERVER_URL_ENV_VAR = ("""
+            <job name="%s">
+              <environmentvariables>
+                <variable name="GO_SERVER_URL">
+                  <value>go_server_url_from_job</value>
+                </variable>
+              </environmentvariables>
+              <tasks>
+                <ant target="-help" />
+              </tasks>
+            </job>""").formatted(JOB_PLAN_NAME);
 
     private static final BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(),
         new RakeTaskBuilder(), new PluggableTaskBuilderCreator(), new KillAllChildProcessTaskBuilder(),
         new FetchTaskBuilder(mock(GoConfigService.class)), new NullTaskBuilder());
     private static String willUpload(String file) {
-        return "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-                + "   <artifacts>\n"
-                + "      <artifact type=\"build\" src=\"something-not-there.txt\" dest=\"dist\" />\n"
-                + "      <artifact type=\"build\" src=\"" + file + "\" dest=\"dist\\test\" />\n"
-                + "   </artifacts>"
-                + "  <tasks>\n"
-                + "    <ant target=\"-help\" />\n"
-                + "  </tasks>\n"
-                + "</job>";
+        return ("""
+                <job name="%s">
+                   <artifacts>
+                      <artifact type="build" src="something-not-there.txt" dest="dist" />
+                      <artifact type="build" src="%s" dest="dist\\test" />
+                   </artifacts>
+                  <tasks>
+                    <ant target="-help" />
+                  </tasks>
+                </job>""").formatted(JOB_PLAN_NAME, file);
 
     }
 
     private static String pluggableArtifact() {
-        return "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-                + "   <artifacts>\n"
-                + "      <artifact type=\"external\" id=\"installers\" storeId=\"s3\">\n"
-                + "      <configuration>"
-                + "       <property>\n"
-                + "         <key>FileName</key>\n"
-                + "         <value>build/lib/foo.jar</value>\n"
-                + "         </property>\n"
-                + "      </configuration>"
-                + "      </artifact>"
-                + "   </artifacts>"
-                + "  <tasks>\n"
-                + "    <ant target=\"-help\" />\n"
-                + "  </tasks>\n"
-                + "</job>";
+        return ("""
+                <job name="%s">
+                   <artifacts>
+                      <artifact type="external" id="installers" storeId="s3">
+                      <configuration>
+                       <property>
+                         <key>FileName</key>
+                         <value>build/lib/foo.jar</value>
+                         </property>
+                      </configuration>
+                      </artifact>
+                   </artifacts>
+                  <tasks>
+                    <ant target="-help" />
+                  </tasks>
+                </job>""").formatted(JOB_PLAN_NAME);
 
     }
 
     private static String willUploadToDest(String file, String dest) {
-        return "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-                + "   <artifacts>\n"
-                + "      <artifact type= \"build\" src=\"" + file + "\" dest=\"" + dest + "\" />\n"
-                + "   </artifacts>"
-                + "  <tasks>\n"
-                + "    <ant target=\"-help\" />\n"
-                + "  </tasks>\n"
-                + "</job>";
+        return ("""
+                <job name="%s">
+                   <artifacts>
+                      <artifact type= "build" src="%s" dest="%s" />
+                   </artifacts>
+                  <tasks>
+                    <ant target="-help" />
+                  </tasks>
+                </job>""").formatted(JOB_PLAN_NAME, file, dest);
 
     }
 

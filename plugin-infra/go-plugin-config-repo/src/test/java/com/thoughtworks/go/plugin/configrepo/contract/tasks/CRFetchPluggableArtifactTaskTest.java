@@ -65,15 +65,16 @@ public class CRFetchPluggableArtifactTaskTest extends AbstractCRTest<CRFetchPlug
 
     @Test
     public void shouldDeserializeWhenConfigurationIsNull() {
-        String json = "{\n" +
-                "              \"type\" : \"fetch\",\n" +
-                "              \"pipeline\" : \"pip\",\n" +
-                "              \"stage\" : \"build1\",\n" +
-                "              \"job\" : \"build\",\n" +
-                "              \"artifact_id\" : \"s3\",\n" +
-                "              \"run_if\" : \"passed\",\n" +
-                "              \"artifact_origin\" : \"external\"\n" +
-                "            }";
+        String json = """
+                {
+                              "type" : "fetch",
+                              "pipeline" : "pip",
+                              "stage" : "build1",
+                              "job" : "build",
+                              "artifact_id" : "s3",
+                              "run_if" : "passed",
+                              "artifact_origin" : "external"
+                            }""";
         CRFetchPluggableArtifactTask deserializedValue = (CRFetchPluggableArtifactTask) gson.fromJson(json, CRTask.class);
 
         assertThat(deserializedValue.getPipeline(), is("pip"));

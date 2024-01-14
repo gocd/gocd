@@ -726,19 +726,20 @@ public class AgentServiceIntegrationTest {
 
             AgentInstance agentInstance = agents.findAgentAndRefreshStatus(idleAgentInstance.getAgent().getUuid());
             assertThat(agentInstance.getStatus(), is(AgentStatus.LostContact));
-            String body = format("The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
-                    + "\n"
-                    + "The Go server has lost contact with agent:\n"
-                    + "\n"
-                    + "Agent name: CCeDev01\n"
-                    + "Free Space: 10.0 KB\n"
-                    + "Sandbox: /var/lib/foo\n"
-                    + "IP Address: 10.18.5.1\n"
-                    + "OS: Minix\n"
-                    + "Resources: \n"
-                    + "Environments: \n"
-                    + "\n"
-                    + "Lost contact at: %s", SystemUtil.getFirstLocalNonLoopbackIpAddress(), date);
+            String body = format("""
+                    The email has been sent out automatically by the Go server at (%s) to Go administrators.
+
+                    The Go server has lost contact with agent:
+
+                    Agent name: CCeDev01
+                    Free Space: 10.0 KB
+                    Sandbox: /var/lib/foo
+                    IP Address: 10.18.5.1
+                    OS: Minix
+                    Resources:\s
+                    Environments:\s
+
+                    Lost contact at: %s""", SystemUtil.getFirstLocalNonLoopbackIpAddress(), date);
             verify(mailSender, never()).sendEmail(new SendEmailMessage("[Lost Contact] Go agent host: " + idleAgentInstance.getHostname(), body, "admin@foo.mail.com"));
         }
     }

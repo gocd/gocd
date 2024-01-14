@@ -26,54 +26,58 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class BasicPipelineConfigsTest {
-    private static final String PIPELINES_WITH_PERMISSION = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-            + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-            + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
-            + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server>"
-            + "  <artifacts>"
-            + "     <artifactsDir>other-artifacts</artifactsDir>"
-            + "  </artifacts>"
-            + "    <security>\n"
-            + "      <roles>\n"
-            + "        <role name=\"admin\" />\n"
-            + "        <role name=\"mingle\" />\n"
-            + "      </roles>\n"
-            + "    </security>\n"
-            + "  </server>\n"
-            + "  <pipelines group=\"defaultGroup\">\n"
-            + " <authorization>\n"
-            + " %s "
-            + "  </authorization>"
-            + "    <pipeline name=\"pipeline1\" labeltemplate=\"alpha.${COUNT}\">\n"
-            + "       <materials>\n"
-            + "         <svn url=\"foobar\" checkexternals=\"true\" />\n"
-            + "       </materials>\n"
-            + "      <stage name=\"mingle\">\n"
-            + "       <jobs>\n"
-            + "         <job name=\"functional\">\n"
-            + "           <tasks><ant /></tasks>\n"
-            + "           <artifacts>\n"
-            + "             <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
-            + "           </artifacts>\n"
-            + "         </job>\n"
-            + "        </jobs>\n"
-            + "      </stage>\n"
-            + "    </pipeline>\n"
-            + "  </pipelines>\n"
-            + "</cruise>\n\n";
+    private static final String PIPELINES_WITH_PERMISSION = ("""
+            <?xml version="1.0" encoding="utf-8"?>
+            <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
+              <server>
+              <artifacts>
+                 <artifactsDir>other-artifacts</artifactsDir>
+              </artifacts>
+                <security>
+                  <roles>
+                    <role name="admin" />
+                    <role name="mingle" />
+                  </roles>
+                </security>
+              </server>
+              <pipelines group="defaultGroup">
+             <authorization>
+             %%s   </authorization>
+                <pipeline name="pipeline1" labeltemplate="alpha.${COUNT}">
+                   <materials>
+                     <svn url="foobar" checkexternals="true" />
+                   </materials>
+                  <stage name="mingle">
+                   <jobs>
+                     <job name="functional">
+                       <tasks><ant /></tasks>
+                       <artifacts>
+                         <artifact type="build" src="artifact1.xml" dest="cruise-output" />
+                       </artifacts>
+                     </job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+              </pipelines>
+            </cruise>
 
-    private static final String VIEW_PERMISSION = "    <view>\n"
-            + "      <user>jez</user>\n"
-            + "      <user>lqiao</user>\n"
-            + "      <role>mingle</role>\n"
-            + "    </view>\n";
+            """).formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
-    private static final String OPERATION_PERMISSION = "    <operate>\n"
-            + "      <user>jez</user>\n"
-            + "      <user>lqiao</user>\n"
-            + "      <role>mingle</role>\n"
-            + "    </operate>\n";
+    private static final String VIEW_PERMISSION = """
+                <view>
+                  <user>jez</user>
+                  <user>lqiao</user>
+                  <role>mingle</role>
+                </view>
+            """;
+
+    private static final String OPERATION_PERMISSION = """
+                <operate>
+                  <user>jez</user>
+                  <user>lqiao</user>
+                  <role>mingle</role>
+                </operate>
+            """;
 
     @Test
     public void shouldWriteOperatePermissionForGroupCorrectly() {
@@ -85,23 +89,24 @@ public class BasicPipelineConfigsTest {
         MagicalGoConfigXmlWriter xmlWriter = new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()
         );
         String xml = xmlWriter.toXmlPartial(pipelineConfigs);
-        assertThat(xml, is("<pipelines>\n"
-                + "  <authorization>\n"
-                + "    <operate>\n"
-                + "      <user>jez</user>\n"
-                + "      <user>lqiao</user>\n"
-                + "      <role>mingle</role>\n"
-                + "    </operate>\n"
-                + "  </authorization>\n"
-                + "  <pipeline name=\"pipeline1\">\n"
-                + "    <materials>\n"
-                + "      <svn url=\"http://some/svn/url\" dest=\"svnDir\" materialName=\"http___some_svn_url\" />\n"
-                + "    </materials>\n"
-                + "    <stage name=\"mingle\">\n"
-                + "      <jobs />\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines>"));
+        assertThat(xml, is("""
+                <pipelines>
+                  <authorization>
+                    <operate>
+                      <user>jez</user>
+                      <user>lqiao</user>
+                      <role>mingle</role>
+                    </operate>
+                  </authorization>
+                  <pipeline name="pipeline1">
+                    <materials>
+                      <svn url="http://some/svn/url" dest="svnDir" materialName="http___some_svn_url" />
+                    </materials>
+                    <stage name="mingle">
+                      <jobs />
+                    </stage>
+                  </pipeline>
+                </pipelines>"""));
 
     }
 

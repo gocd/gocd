@@ -467,8 +467,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public Node getDependenciesAsNode() {
         List<Node.DependencyNode> pipelineDeps = new ArrayList<>();
         for (MaterialConfig material : materialConfigs) {
-            if (material instanceof DependencyMaterialConfig) {
-                DependencyMaterialConfig dependencyMaterialConfig = (DependencyMaterialConfig) material;
+            if (material instanceof DependencyMaterialConfig dependencyMaterialConfig) {
                 pipelineDeps.add(new Node.DependencyNode(dependencyMaterialConfig.getPipelineName(), dependencyMaterialConfig.getStageName()));
             }
         }
@@ -521,8 +520,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         for (StageConfig stage : clone) {
             for (JobConfig job : stage.getJobs()) {
                 for (Task task : job.getTasks()) {
-                    if (task instanceof FetchTask) {
-                        FetchTask fetchTask = (FetchTask) task;
+                    if (task instanceof FetchTask fetchTask) {
                         if (this.name().equals(fetchTask.getTargetPipelineName())) {
                             fetchTask.setPipelineName(new CaseInsensitiveString(""));
                         }

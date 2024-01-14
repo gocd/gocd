@@ -43,16 +43,12 @@ public class ElasticAgentRequestProcessorV1 extends AbstractVersionableElasticAg
 
     @Override
     public GoApiResponse process(final GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
-        switch (goPluginApiRequest.api()) {
-            case REQUEST_DISABLE_AGENTS:
-                return processDisableAgent(pluginDescriptor, goPluginApiRequest);
-            case REQUEST_DELETE_AGENTS:
-                return processDeleteAgent(pluginDescriptor, goPluginApiRequest);
-            case REQUEST_SERVER_LIST_AGENTS:
-                return processListAgents(pluginDescriptor, goPluginApiRequest);
-            default:
-                return DefaultGoApiResponse.error("Illegal api request");
-        }
+        return switch (goPluginApiRequest.api()) {
+            case REQUEST_DISABLE_AGENTS -> processDisableAgent(pluginDescriptor, goPluginApiRequest);
+            case REQUEST_DELETE_AGENTS -> processDeleteAgent(pluginDescriptor, goPluginApiRequest);
+            case REQUEST_SERVER_LIST_AGENTS -> processListAgents(pluginDescriptor, goPluginApiRequest);
+            default -> DefaultGoApiResponse.error("Illegal api request");
+        };
     }
 
     @Override

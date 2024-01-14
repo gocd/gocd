@@ -43,8 +43,7 @@ public abstract class PersistentObject implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PersistentObject)) return false;
-        PersistentObject that = (PersistentObject) o;
+        if (!(o instanceof PersistentObject that)) return false;
         return id == that.id;
     }
 

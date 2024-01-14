@@ -56,8 +56,7 @@ public class CRNantTaskTest extends AbstractCRTest<CRNantTask> {
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingNantTask() {
-        CRTask value = nantWithPath;
-        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(nantWithPath);
         assertThat(jsonObject.get("type").getAsString(), is("nant"));
     }
 

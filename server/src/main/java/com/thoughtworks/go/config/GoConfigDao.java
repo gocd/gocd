@@ -109,8 +109,7 @@ public class GoConfigDao {
         synchronized (GoConfigWriteLock.class) {
             try {
                 LOGGER.info("Config update request {} by {} is being processed", command, SessionUtils.currentUsername().getUsername());
-                if (command instanceof CheckedUpdateCommand) {
-                    CheckedUpdateCommand checkedCommand = (CheckedUpdateCommand) command;
+                if (command instanceof CheckedUpdateCommand checkedCommand) {
                     if (!checkedCommand.canContinue(cachedConfigService.currentConfig())) {
                         throw new ConfigUpdateCheckFailedException();
                     }

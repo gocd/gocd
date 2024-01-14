@@ -40,11 +40,9 @@ public class DeleteTemplateCommand implements NoOverwriteUpdateConfigCommand {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof DeleteTemplateCommand)) {
+        if (!(o instanceof DeleteTemplateCommand command)) {
             return false;
         }
-
-        DeleteTemplateCommand command = (DeleteTemplateCommand) o;
 
         if (md5 != null ? !md5.equals(command.md5) : command.md5 != null) {
             return false;

@@ -25,14 +25,15 @@ public class AuthenticationResponseDTOTest {
     @Test
     public void shouldAbleToDeserializeJSON() throws Exception {
 
-        String json = "{\n" +
-                "  \"user\": {\n" +
-                "      \"username\":\"gocd\",\n" +
-                "      \"display_name\": \"GoCD Admin\",\n" +
-                "      \"email\": \"gocd@go.cd\"\n" +
-                "  },\n" +
-                "  \"roles\": [\"admin\",\"blackbird\"]\n" +
-                "}";
+        String json = """
+                {
+                  "user": {
+                      "username":"gocd",
+                      "display_name": "GoCD Admin",
+                      "email": "gocd@go.cd"
+                  },
+                  "roles": ["admin","blackbird"]
+                }""";
 
         com.thoughtworks.go.plugin.access.authorization.v2.AuthenticationResponseDTO authenticationResponse = com.thoughtworks.go.plugin.access.authorization.v2.AuthenticationResponseDTO.fromJSON(json);
 

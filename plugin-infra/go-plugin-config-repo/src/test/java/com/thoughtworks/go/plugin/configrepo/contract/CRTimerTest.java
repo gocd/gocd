@@ -46,10 +46,11 @@ public class CRTimerTest extends AbstractCRTest<CRTimer> {
 
     @Test
     public void shouldDeserializeFromAPILikeObject() {
-        String json = "{\n" +
-                "    \"spec\": \"0 0 22 ? * MON-FRI\",\n" +
-                "    \"only_on_changes\": true\n" +
-                "  }";
+        String json = """
+                {
+                    "spec": "0 0 22 ? * MON-FRI",
+                    "only_on_changes": true
+                  }""";
         CRTimer deserializedValue = gson.fromJson(json,CRTimer.class);
 
         assertThat(deserializedValue.getSpec(),is("0 0 22 ? * MON-FRI"));

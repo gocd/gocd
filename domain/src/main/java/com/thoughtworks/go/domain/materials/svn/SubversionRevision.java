@@ -40,11 +40,10 @@ public class SubversionRevision extends StringRevision {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SubversionRevision)) {
+        if (!(o instanceof SubversionRevision that)) {
             return false;
         }
 
-        SubversionRevision that = (SubversionRevision) o;
         return StringUtils.equalsIgnoreCase(revision, that.revision);
     }
 

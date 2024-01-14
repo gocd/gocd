@@ -25,13 +25,13 @@ public class CapabilitiesDTOTest {
 
     @Test
     public void shouldDeserializeFromJSON() {
-        String json = "" +
-                "{\n" +
-                "  \"supported_auth_type\": \"web\",\n" +
-                "  \"can_search\": true,\n" +
-                "  \"can_authorize\": true,\n" +
-                "  \"can_get_user_roles\": true\n" +
-                "}";
+        String json = """
+                {
+                  "supported_auth_type": "web",
+                  "can_search": true,
+                  "can_authorize": true,
+                  "can_get_user_roles": true
+                }""";
 
         CapabilitiesDTO capabilities = CapabilitiesDTO.fromJSON(json);
 

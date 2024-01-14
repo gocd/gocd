@@ -246,7 +246,6 @@ class EnvironmentVariablesConfigTest {
 
     private EnvironmentVariableConfig secureVariable(final GoCipher goCipher, String key, String plainText, String cipherText) throws CryptoException {
         when(goCipher.encrypt(plainText)).thenReturn(cipherText);
-        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, key, plainText, true);
-        return environmentVariableConfig;
+        return new EnvironmentVariableConfig(goCipher, key, plainText, true);
     }
 }

@@ -39,11 +39,9 @@ public class StageArtifactCleanupProhibited extends PersistentObject {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof StageArtifactCleanupProhibited)) {
+        if (!(o instanceof StageArtifactCleanupProhibited that)) {
             return false;
         }
-
-        StageArtifactCleanupProhibited that = (StageArtifactCleanupProhibited) o;
 
         if (prohibited != that.prohibited) {
             return false;

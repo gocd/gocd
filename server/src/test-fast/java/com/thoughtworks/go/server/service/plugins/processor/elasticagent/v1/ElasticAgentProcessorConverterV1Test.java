@@ -43,40 +43,42 @@ public class ElasticAgentProcessorConverterV1Test {
 
         final String responseBody = elasticAgentProcessorConverterV1.listAgentsResponseBody(agentMetadataList);
 
-        final String expectedStr = "[\n" +
-                "  {\n" +
-                "    \"agent_id\": \"foo-id\",\n" +
-                "    \"agent_state\": \"Idle\",\n" +
-                "    \"build_state\": \"Idle\",\n" +
-                "    \"config_state\": \"Enabled\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"agent_id\": \"bar-id\",\n" +
-                "    \"agent_state\": \"Idle\",\n" +
-                "    \"build_state\": \"Building\",\n" +
-                "    \"config_state\": \"Enabled\"\n" +
-                "  }\n" +
-                "]";
+        final String expectedStr = """
+                [
+                  {
+                    "agent_id": "foo-id",
+                    "agent_state": "Idle",
+                    "build_state": "Idle",
+                    "config_state": "Enabled"
+                  },
+                  {
+                    "agent_id": "bar-id",
+                    "agent_state": "Idle",
+                    "build_state": "Building",
+                    "config_state": "Enabled"
+                  }
+                ]""";
 
         assertThatJson(expectedStr).isEqualTo(responseBody);
     }
 
     @Test
     public void shouldDeserializeDeleteAndDisableAgentRequestBodyToAgentMetadataList() {
-        final String responseBody = "[\n" +
-                "  {\n" +
-                "    \"agent_id\": \"foo-id\",\n" +
-                "    \"agent_state\": \"Idle\",\n" +
-                "    \"build_state\": \"Idle\",\n" +
-                "    \"config_state\": \"Enabled\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"agent_id\": \"bar-id\",\n" +
-                "    \"agent_state\": \"Idle\",\n" +
-                "    \"build_state\": \"Idle\",\n" +
-                "    \"config_state\": \"Enabled\"\n" +
-                "  }\n" +
-                "]";
+        final String responseBody = """
+                [
+                  {
+                    "agent_id": "foo-id",
+                    "agent_state": "Idle",
+                    "build_state": "Idle",
+                    "config_state": "Enabled"
+                  },
+                  {
+                    "agent_id": "bar-id",
+                    "agent_state": "Idle",
+                    "build_state": "Idle",
+                    "config_state": "Enabled"
+                  }
+                ]""";
 
         final Collection<AgentMetadata> agentMetadataList = elasticAgentProcessorConverterV1.deleteAndDisableAgentRequestBody(responseBody);
         assertThat(agentMetadataList, contains(

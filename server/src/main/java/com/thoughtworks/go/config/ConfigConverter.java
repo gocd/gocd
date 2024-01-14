@@ -170,17 +170,11 @@ public class ConfigConverter {
         if (runIf == null)
             return new RunIfConfigs(RunIfConfig.PASSED);
 
-        switch (runIf) {
-            case any:
-                return new RunIfConfigs(RunIfConfig.ANY);
-            case passed:
-                return new RunIfConfigs(RunIfConfig.PASSED);
-            case failed:
-                return new RunIfConfigs(RunIfConfig.FAILED);
-            default:
-                throw new RuntimeException(
-                        String.format("unknown run if condition '%s'", runIf));
-        }
+        return switch (runIf) {
+            case any -> new RunIfConfigs(RunIfConfig.ANY);
+            case passed -> new RunIfConfigs(RunIfConfig.PASSED);
+            case failed -> new RunIfConfigs(RunIfConfig.FAILED);
+        };
     }
 
     public AbstractTask toAbstractTask(CRTask crTask) {
@@ -245,23 +239,15 @@ public class ConfigConverter {
     }
 
     public BuildTask toBuildTask(CRBuildTask crBuildTask) {
-        BuildTask buildTask;
-        switch (crBuildTask.getType()) {
-            case rake:
-                buildTask = new RakeTask();
-                break;
-            case ant:
-                buildTask = new AntTask();
-                break;
-            case nant:
+        BuildTask buildTask = switch (crBuildTask.getType()) {
+            case rake -> new RakeTask();
+            case ant -> new AntTask();
+            case nant -> {
                 NantTask nantTask = new NantTask();
-                nantTask.setNantPath(((CRNantTask)crBuildTask).getNantPath());
-                buildTask = nantTask;
-                break;
-            default:
-                throw new RuntimeException(
-                        String.format("unknown type of build task '%s'", crBuildTask.getType()));
-        }
+                nantTask.setNantPath(((CRNantTask) crBuildTask).getNantPath());
+                yield nantTask;
+            }
+        };
         setCommonBuildTaskMembers(buildTask, crBuildTask);
         setCommonTaskMembers(buildTask, crBuildTask);
         return buildTask;
@@ -309,25 +295,20 @@ public class ConfigConverter {
 
         if (crMaterial instanceof CRDependencyMaterial)
             return toDependencyMaterialConfig((CRDependencyMaterial) crMaterial);
-        else if (crMaterial instanceof CRScmMaterial) {
-            CRScmMaterial crScmMaterial = (CRScmMaterial) crMaterial;
+        else if (crMaterial instanceof CRScmMaterial crScmMaterial) {
             return toScmMaterialConfig(crScmMaterial);
-        } else if (crMaterial instanceof CRPluggableScmMaterial) {
-            CRPluggableScmMaterial crPluggableScmMaterial = (CRPluggableScmMaterial) crMaterial;
+        } else if (crMaterial instanceof CRPluggableScmMaterial crPluggableScmMaterial) {
             return toPluggableScmMaterialConfig(crPluggableScmMaterial, context, newSCMs);
-        } else if (crMaterial instanceof CRPackageMaterial) {
-            CRPackageMaterial crPackageMaterial = (CRPackageMaterial) crMaterial;
+        } else if (crMaterial instanceof CRPackageMaterial crPackageMaterial) {
             return toPackageMaterial(crPackageMaterial);
-        } else if (crMaterial instanceof CRConfigMaterial) {
-            CRConfigMaterial crConfigMaterial = (CRConfigMaterial) crMaterial;
+        } else if (crMaterial instanceof CRConfigMaterial crConfigMaterial) {
             MaterialConfig repoMaterial = cloner.deepClone(context.configMaterial());
             if (isNotEmpty(crConfigMaterial.getName()))
                 repoMaterial.setName(new CaseInsensitiveString(crConfigMaterial.getName()));
             if (isNotEmpty(crConfigMaterial.getDestination()))
                 setDestination(repoMaterial, crConfigMaterial.getDestination());
             if (crConfigMaterial.getFilter() != null && !crConfigMaterial.getFilter().isEmpty()) {
-                if (repoMaterial instanceof ScmMaterialConfig) {
-                    ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) repoMaterial;
+                if (repoMaterial instanceof ScmMaterialConfig scmMaterialConfig) {
                     scmMaterialConfig.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
                     scmMaterialConfig.setInvertFilter(crConfigMaterial.getFilter().isIncluded());
                 } else { //must be a pluggable SCM
@@ -380,10 +361,9 @@ public class ConfigConverter {
             SCM alreadyKnownToServer = existingServerSCMs().findDuplicate(scmConfig);
             if (alreadyKnownToServer != null) {
                 // We have a duplicate within the existing SCMs
-                if (alreadyKnownToServer.getOrigin() instanceof RepoConfigOrigin) {
+                if (alreadyKnownToServer.getOrigin() instanceof RepoConfigOrigin origin) {
                     // The duplicate was from a config repo, but it's still a new SCM if it comes from this
                     // config repo, and we have not already added it
-                    RepoConfigOrigin origin = (RepoConfigOrigin) alreadyKnownToServer.getOrigin();
                     if (origin.getMaterial().equals(context.configMaterial()) && newSCMs.findDuplicate(alreadyKnownToServer) == null) {
                         newSCMs.add(alreadyKnownToServer);
                     }
@@ -411,8 +391,7 @@ public class ConfigConverter {
     }
 
     private ScmMaterialConfig toScmMaterialConfig(CRScmMaterial crScmMaterial) {
-        if (crScmMaterial instanceof CRGitMaterial) {
-            CRGitMaterial git = (CRGitMaterial) crScmMaterial;
+        if (crScmMaterial instanceof CRGitMaterial git) {
             String gitBranch = git.getBranch();
             if (StringUtils.isBlank(gitBranch))
                 gitBranch = GitMaterialConfig.DEFAULT_BRANCH;
@@ -423,16 +402,14 @@ public class ConfigConverter {
             setCommonMaterialMembers(gitConfig, crScmMaterial);
             setCommonScmMaterialMembers(gitConfig, git);
             return gitConfig;
-        } else if (crScmMaterial instanceof CRHgMaterial) {
-            CRHgMaterial hg = (CRHgMaterial) crScmMaterial;
+        } else if (crScmMaterial instanceof CRHgMaterial hg) {
             HgMaterialConfig hgConfig = new HgMaterialConfig();
             hgConfig.setUrl(hg.getUrl());
             hgConfig.setBranchAttribute(hg.getBranch());
             setCommonMaterialMembers(hgConfig, crScmMaterial);
             setCommonScmMaterialMembers(hgConfig, hg);
             return hgConfig;
-        } else if (crScmMaterial instanceof CRP4Material) {
-            CRP4Material crp4Material = (CRP4Material) crScmMaterial;
+        } else if (crScmMaterial instanceof CRP4Material crp4Material) {
             P4MaterialConfig p4MaterialConfig = new P4MaterialConfig();
             p4MaterialConfig.setServerAndPort(crp4Material.getPort());
             p4MaterialConfig.setView(crp4Material.getView());
@@ -440,16 +417,14 @@ public class ConfigConverter {
             setCommonMaterialMembers(p4MaterialConfig, crScmMaterial);
             setCommonScmMaterialMembers(p4MaterialConfig, crp4Material);
             return p4MaterialConfig;
-        } else if (crScmMaterial instanceof CRSvnMaterial) {
-            CRSvnMaterial crSvnMaterial = (CRSvnMaterial) crScmMaterial;
+        } else if (crScmMaterial instanceof CRSvnMaterial crSvnMaterial) {
             SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
             svnMaterialConfig.setUrl(crSvnMaterial.getUrl());
             svnMaterialConfig.setCheckExternals(crSvnMaterial.isCheckExternals());
             setCommonMaterialMembers(svnMaterialConfig, crScmMaterial);
             setCommonScmMaterialMembers(svnMaterialConfig, crSvnMaterial);
             return svnMaterialConfig;
-        } else if (crScmMaterial instanceof CRTfsMaterial) {
-            CRTfsMaterial crTfsMaterial = (CRTfsMaterial) crScmMaterial;
+        } else if (crScmMaterial instanceof CRTfsMaterial crTfsMaterial) {
             TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
             tfsMaterialConfig.setUrl(crTfsMaterial.getUrl());
             tfsMaterialConfig.setDomain(crTfsMaterial.getDomain());
@@ -915,14 +890,11 @@ public class ConfigConverter {
     }
 
     private CRArtifact artifactConfigToCRArtifact(ArtifactTypeConfig artifactTypeConfig) {
-        if (artifactTypeConfig instanceof BuildArtifactConfig) {
-            BuildArtifactConfig buildArtifact = (BuildArtifactConfig) artifactTypeConfig;
+        if (artifactTypeConfig instanceof BuildArtifactConfig buildArtifact) {
             return new CRBuiltInArtifact(buildArtifact.getSource(), buildArtifact.getDestination(), CRArtifactType.build);
-        } else if (artifactTypeConfig instanceof TestArtifactConfig) {
-            TestArtifactConfig testArtifact = (TestArtifactConfig) artifactTypeConfig;
+        } else if (artifactTypeConfig instanceof TestArtifactConfig testArtifact) {
             return new CRBuiltInArtifact(testArtifact.getSource(), testArtifact.getDestination(), CRArtifactType.test);
-        } else if (artifactTypeConfig instanceof PluggableArtifactConfig) {
-            PluggableArtifactConfig pluggableArtifact = (PluggableArtifactConfig) artifactTypeConfig;
+        } else if (artifactTypeConfig instanceof PluggableArtifactConfig pluggableArtifact) {
             List<CRConfigurationProperty> crConfigurationProperties = configurationToCRConfiguration(pluggableArtifact.getConfiguration());
             return new CRPluggableArtifact(pluggableArtifact.getId(), pluggableArtifact.getStoreId(), crConfigurationProperties);
         } else {
@@ -1064,14 +1036,11 @@ public class ConfigConverter {
 
         if (materialConfig instanceof DependencyMaterialConfig) {
             return dependencyMaterialConfigToCRDependencyMaterial((DependencyMaterialConfig) materialConfig);
-        } else if (materialConfig instanceof ScmMaterialConfig) {
-            ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) materialConfig;
+        } else if (materialConfig instanceof ScmMaterialConfig scmMaterialConfig) {
             return scmMaterialToCRScmMaterial(scmMaterialConfig);
-        } else if (materialConfig instanceof PluggableSCMMaterialConfig) {
-            PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) materialConfig;
+        } else if (materialConfig instanceof PluggableSCMMaterialConfig pluggableSCMMaterialConfig) {
             return pluggableScmMaterialConfigToCRPluggableScmMaterial(pluggableSCMMaterialConfig);
-        } else if (materialConfig instanceof PackageMaterialConfig) {
-            PackageMaterialConfig packageMaterial = (PackageMaterialConfig) materialConfig;
+        } else if (materialConfig instanceof PackageMaterialConfig packageMaterial) {
             return packageMaterialToCRPackageMaterial(packageMaterial);
         } else {
             throw new ConfigConvertionException(

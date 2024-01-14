@@ -290,10 +290,12 @@ public class ArtifactsPublisherTest {
     private File prepareTestFolder(File workingFolder, String folderName) throws Exception {
         File testFolder = TestFileUtil.createTestFolder(workingFolder, folderName);
         File testFile = TestFileUtil.createTestFile(testFolder, "testFile.xml");
-        String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<testsuite errors=\"0\" failures=\"0\" tests=\"7\" time=\"0.429\" >\n"
-                + "<testcase/>\n"
-                + "</testsuite>\n";
+        String content = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <testsuite errors="0" failures="0" tests="7" time="0.429" >
+                <testcase/>
+                </testsuite>
+                """;
         FileUtils.writeStringToFile(testFile, content, StandardCharsets.UTF_8);
         return testFolder;
     }

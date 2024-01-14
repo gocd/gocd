@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.List;
 import java.util.Properties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -147,7 +148,7 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
                     scrubWithMessage("The autoregister key has been intentionally removed by Go as a security measure.");
                 }
 
-                if (key.equals(AGENT_AUTO_REGISTER_RESOURCES) || key.equals(AGENT_AUTO_REGISTER_ENVIRONMENTS) || key.equals(AGENT_AUTO_REGISTER_HOSTNAME)) {
+                if (List.of(AGENT_AUTO_REGISTER_RESOURCES, AGENT_AUTO_REGISTER_ENVIRONMENTS, AGENT_AUTO_REGISTER_HOSTNAME).contains(key)) {
                     scrubWithMessage("This property has been removed by Go after attempting to auto-register with the Go server.");
                 }
                 super.writeProperty(key, value, forceSingleLine);

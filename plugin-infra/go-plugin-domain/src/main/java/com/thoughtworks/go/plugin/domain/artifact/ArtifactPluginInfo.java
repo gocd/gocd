@@ -54,10 +54,8 @@ public class ArtifactPluginInfo extends PluginInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ArtifactPluginInfo)) return false;
+        if (!(o instanceof ArtifactPluginInfo that)) return false;
         if (!super.equals(o)) return false;
-
-        ArtifactPluginInfo that = (ArtifactPluginInfo) o;
 
         if (storeConfigSettings != null ? !storeConfigSettings.equals(that.storeConfigSettings) : that.storeConfigSettings != null)
             return false;

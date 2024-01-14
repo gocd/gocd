@@ -241,15 +241,13 @@ public class BuildCause implements Serializable {
     }
 
     public static BuildCause fromDbString(String text) {
-        switch (text) {
-            case BuildTrigger.FORCED_BUILD_CAUSE:
-                return BuildCause.createManualForced(MaterialRevisions.EMPTY, Username.ANONYMOUS);
-            case BuildTrigger.MODIFICATION_BUILD_CAUSE:
-                return createWithEmptyModifications();
-            case BuildTrigger.EXTERNAL_BUILD_CAUSE:
-                return createExternal();
-        }
-        return createWithEmptyModifications();
+        return switch (text) {
+            case BuildTrigger.FORCED_BUILD_CAUSE ->
+                    BuildCause.createManualForced(MaterialRevisions.EMPTY, Username.ANONYMOUS);
+            case BuildTrigger.MODIFICATION_BUILD_CAUSE -> createWithEmptyModifications();
+            case BuildTrigger.EXTERNAL_BUILD_CAUSE -> createExternal();
+            default -> createWithEmptyModifications();
+        };
     }
 
     public String toDbString() {

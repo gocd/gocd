@@ -33,13 +33,14 @@ class DatabaseMigratorPostgreSQLTest extends AbstractMigratorIntegrationTest {
     @Test
     void shouldMigrate() throws Exception {
         migrate(postgresqlContainer,
-                "SELECT\n" +
-                        "    table_schema || '.' || table_name\n" +
-                        "FROM\n" +
-                        "    information_schema.tables\n" +
-                        "WHERE\n" +
-                        "    table_type = 'BASE TABLE'\n" +
-                        "AND\n" +
-                        "    table_schema NOT IN ('pg_catalog', 'information_schema');", postgresqlContainer.getUsername(), postgresqlContainer.getPassword());
+                """
+                        SELECT
+                            table_schema || '.' || table_name
+                        FROM
+                            information_schema.tables
+                        WHERE
+                            table_type = 'BASE TABLE'
+                        AND
+                            table_schema NOT IN ('pg_catalog', 'information_schema');""", postgresqlContainer.getUsername(), postgresqlContainer.getPassword());
     }
 }

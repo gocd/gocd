@@ -310,8 +310,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             }
 
             Map data = (Map) map.get("data");
-            PackageRevision packageRevision = new PackageRevision(revision, timestamp, user, revisionComment, trackbackUrl, data);
-            return packageRevision;
+            return new PackageRevision(revision, timestamp, user, revisionComment, trackbackUrl, data);
         } catch (Exception e) {
             throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
         }

@@ -56,10 +56,9 @@ public class JSONResultMessageHandler {
             }
 
             for (Object errorObj : errors) {
-                if (!(errorObj instanceof Map)) {
+                if (!(errorObj instanceof Map errorMap)) {
                     throw new RuntimeException("Each validation error should be represented as a map");
                 }
-                Map errorMap = (Map) errorObj;
 
                 String key;
                 try {

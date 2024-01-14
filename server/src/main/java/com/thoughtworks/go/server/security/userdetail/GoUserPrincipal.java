@@ -56,9 +56,7 @@ public class GoUserPrincipal {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GoUserPrincipal)) return false;
-
-        GoUserPrincipal that = (GoUserPrincipal) o;
+        if (!(o instanceof GoUserPrincipal that)) return false;
 
         if (authorities != null ? !authorities.equals(that.authorities) : that.authorities != null) return false;
         if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;

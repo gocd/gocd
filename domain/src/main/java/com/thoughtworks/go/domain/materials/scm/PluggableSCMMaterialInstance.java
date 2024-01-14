@@ -45,14 +45,12 @@ public class PluggableSCMMaterialInstance extends MaterialInstance {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PluggableSCMMaterialInstance)) {
+        if (!(o instanceof PluggableSCMMaterialInstance that)) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
-
-        PluggableSCMMaterialInstance that = (PluggableSCMMaterialInstance) o;
 
         if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) {
             return false;

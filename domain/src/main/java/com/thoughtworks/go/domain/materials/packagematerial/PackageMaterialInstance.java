@@ -44,15 +44,13 @@ public class PackageMaterialInstance extends MaterialInstance {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PackageMaterialInstance)) {
+        if (!(o instanceof PackageMaterialInstance that)) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
 
-
-        PackageMaterialInstance that = (PackageMaterialInstance) o;
 
         if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) {
             return false;

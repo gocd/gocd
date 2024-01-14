@@ -179,8 +179,7 @@ public class PipelineLockServiceTest {
         pipelineLockService.initialize();
         List<ConfigChangedListener> listeners = captor.getAllValues();
         assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
-        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
-        return pipelineConfigChangeListener;
+        return (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
     }
 
     @Test

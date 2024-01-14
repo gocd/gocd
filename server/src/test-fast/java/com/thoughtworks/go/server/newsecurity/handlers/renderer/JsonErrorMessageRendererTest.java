@@ -26,8 +26,9 @@ class JsonErrorMessageRendererTest {
     void shouldHandleRequest() {
         final JsonErrorMessageRenderer messageRenderer = new JsonErrorMessageRenderer(MediaType.APPLICATION_JSON);
         assertThat(messageRenderer.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(messageRenderer.getFormattedMessage("You are not authorized to access this URL. \"escape\"!")).isEqualTo("{\n" +
-                "  \"message\": \"You are not authorized to access this URL. \\\"escape\\\"!\"\n" +
-                "}");
+        assertThat(messageRenderer.getFormattedMessage("You are not authorized to access this URL. \"escape\"!")).isEqualTo("""
+                {
+                  "message": "You are not authorized to access this URL. \\"escape\\"!"
+                }""");
     }
 }

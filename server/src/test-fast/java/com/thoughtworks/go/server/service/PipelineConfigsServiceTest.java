@@ -442,18 +442,19 @@ public class PipelineConfigsServiceTest {
     }
 
     private String groupXml() {
-        return "<pipelines group=\"renamed_group_name\">\n"
-                + "  <pipeline name=\"new_name\">\n"
-                + "    <materials>\n"
-                + "      <svn url=\"file:///tmp/foo\" />\n"
-                + "    </materials>\n"
-                + "    <stage name=\"stage_name\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"job_name\" />\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines>";
+        return """
+                <pipelines group="renamed_group_name">
+                  <pipeline name="new_name">
+                    <materials>
+                      <svn url="file:///tmp/foo" />
+                    </materials>
+                    <stage name="stage_name">
+                      <jobs>
+                        <job name="job_name" />
+                      </jobs>
+                    </stage>
+                  </pipeline>
+                </pipelines>""";
     }
 
 }

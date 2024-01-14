@@ -116,8 +116,7 @@ public class StageConfigMother {
         ArtifactTypeConfigs artifactConfigsWithTests = new ArtifactTypeConfigs();
         artifactConfigsWithTests.add(createArtifactConfig(artifactType));
         JobConfig job1 = new JobConfig(new CaseInsensitiveString(jobName), new ResourceConfigs("abc"), artifactConfigsWithTests);
-        StageConfig stage = new StageConfig(new CaseInsensitiveString(stageName), new JobConfigs(job1));
-        return stage;
+        return new StageConfig(new CaseInsensitiveString(stageName), new JobConfigs(job1));
     }
 
     private static ArtifactTypeConfig createArtifactConfig(ArtifactType artifactType) {

@@ -68,9 +68,7 @@ public class Resource extends PersistentObject implements Comparable<Resource> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Resource)) return false;
-
-        Resource resource = (Resource) o;
+        if (!(o instanceof Resource resource)) return false;
 
         return getName() != null ? getName().equalsIgnoreCase(resource.getName()) : resource.getName() == null;
     }

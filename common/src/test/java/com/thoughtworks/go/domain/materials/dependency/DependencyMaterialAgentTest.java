@@ -38,8 +38,7 @@ public class DependencyMaterialAgentTest {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
         DependencyMaterialRevision revision = DependencyMaterialRevision.create(pipelineName, pipelineCounter,
                 pipelineLabel, stageName, stageCounter);
-        MaterialRevision materialRevision = revision.convert(material, new Date());
-        return materialRevision;
+        return revision.convert(material, new Date());
     }
 
     @Test

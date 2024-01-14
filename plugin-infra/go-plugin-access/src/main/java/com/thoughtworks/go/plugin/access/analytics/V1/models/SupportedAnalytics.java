@@ -54,8 +54,7 @@ public class SupportedAnalytics {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SupportedAnalytics)) return false;
-        SupportedAnalytics that = (SupportedAnalytics) o;
+        if (!(o instanceof SupportedAnalytics that)) return false;
         return Objects.equals(getType(), that.getType()) &&
                 Objects.equals(getId(), that.getId()) &&
                 Objects.equals(getTitle(), that.getTitle());

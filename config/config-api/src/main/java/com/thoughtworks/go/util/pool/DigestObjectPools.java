@@ -21,6 +21,7 @@ import org.jetbrains.annotations.TestOnly;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.stream.Stream;
 
 public class DigestObjectPools {
 
@@ -41,7 +42,7 @@ public class DigestObjectPools {
     }
 
     public String computeDigest(String algorithm, DigestOperation operation) {
-        if (!SHA_512_256.equals(algorithm) && !SHA_256.equals(algorithm) && !MD5.equals(algorithm)) {
+        if (Stream.of(SHA_512_256, SHA_256, MD5).noneMatch(s -> s.equals(algorithm))) {
             throw new IllegalArgumentException("Algorithm not supported");
         }
         try {
@@ -65,16 +66,12 @@ public class DigestObjectPools {
     }
 
     private ThreadLocal<MessageDigest> get(String algorithm) {
-        switch (algorithm) {
-            case SHA_512_256:
-                return sha512DigestLocal;
-            case SHA_256:
-                return sha256DigestLocal;
-            case MD5:
-                return md5DigestLocal;
-            default:
-                throw new IllegalArgumentException("Algorithm not supported");
-        }
+        return switch (algorithm) {
+            case SHA_512_256 -> sha512DigestLocal;
+            case SHA_256 -> sha256DigestLocal;
+            case MD5 -> md5DigestLocal;
+            default -> throw new IllegalArgumentException("Algorithm not supported");
+        };
     }
 
     public interface DigestOperation {

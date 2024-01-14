@@ -358,16 +358,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean matches(FilterBy filter) {
-        switch (filter) {
-            case Pending:
-                return isPending();
-            case Elastic:
-                return isElastic();
-            case Null:
-                return isNullAgent();
-            default:
-                return false;
-        }
+        return switch (filter) {
+            case Pending -> isPending();
+            case Elastic -> isElastic();
+            case Null -> isNullAgent();
+        };
     }
 
     public Date cancelledAt() {

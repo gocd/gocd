@@ -348,8 +348,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         artifactConfigs.forEach(artifactConfig -> artifactConfig.encryptSecureProperties(preprocessedConfig, artifactConfig));
 
         tasks.forEach(task -> {
-            if (task instanceof FetchPluggableArtifactTask) {
-                FetchPluggableArtifactTask fetchPluggableArtifactTask = (FetchPluggableArtifactTask) task;
+            if (task instanceof FetchPluggableArtifactTask fetchPluggableArtifactTask) {
                 fetchPluggableArtifactTask.encryptSecureProperties(preprocessedConfig, pipelineTemplateConfig);
             }
         });

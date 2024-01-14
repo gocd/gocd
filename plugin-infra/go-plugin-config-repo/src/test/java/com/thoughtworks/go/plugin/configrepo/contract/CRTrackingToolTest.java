@@ -48,10 +48,11 @@ public class CRTrackingToolTest extends AbstractCRTest<CRTrackingTool> {
 
     @Test
     public void shouldDeserializeFromAPILikeObject() {
-        String json = "{\n" +
-                "    \"link\": \"https://github.com/gocd/api.go.cd/issues/${ID}\",\n" +
-                "    \"regex\": \"##(d+)\"\n" +
-                "  }";
+        String json = """
+                {
+                    "link": "https://github.com/gocd/api.go.cd/issues/${ID}",
+                    "regex": "##(d+)"
+                  }""";
         CRTrackingTool deserializedValue = gson.fromJson(json,CRTrackingTool.class);
 
         assertThat(deserializedValue.getLink(),is("https://github.com/gocd/api.go.cd/issues/${ID}"));

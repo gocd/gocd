@@ -70,14 +70,10 @@ public class RulesRepresenter {
             return new Unknown(directive, action, type, resource);
         }
 
-        switch (directiveType.get()) {
-            case ALLOW:
-                return new Allow(action, type, resource);
-            case DENY:
-                return new Deny(action, type, resource);
-            default:
-                return new Unknown(directive, action, type, resource);
-        }
+        return switch (directiveType.get()) {
+            case ALLOW -> new Allow(action, type, resource);
+            case DENY -> new Deny(action, type, resource);
+        };
     }
 
     static class Unknown extends AbstractDirective {

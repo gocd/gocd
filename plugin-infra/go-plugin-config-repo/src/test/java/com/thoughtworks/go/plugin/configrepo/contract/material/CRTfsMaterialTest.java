@@ -64,8 +64,7 @@ public class CRTfsMaterialTest extends AbstractCRTest<CRTfsMaterial> {
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
-        CRMaterial value = customTfs;
-        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(customTfs);
         assertThat(jsonObject.get("type").getAsString(), is(CRTfsMaterial.TYPE_NAME));
     }
 

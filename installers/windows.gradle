@@ -24,13 +24,13 @@ private File destFile(String url) {
 }
 
 task downloadWindowsJreChecksum(type: DownloadFile) {
-  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(OperatingSystem.windows, Architecture.x64)
+  src project.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
 }
 
 task downloadWindowsJre(type: DownloadFile) {
   dependsOn downloadWindowsJreChecksum
-  src project.packaging.adoptiumJavaVersion.toDownloadURLFor(OperatingSystem.windows, Architecture.x64)
+  src project.packagedJavaVersion.toDownloadURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
   checksum = { downloadWindowsJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
@@ -166,7 +166,7 @@ task agentWindows64bitExe { DefaultTask thisTask ->
 
   finalizedBy(project.tasks.create("${thisTask.name}Metadata", InstallerMetadataTask.class) {
     architecture = Architecture.x64
-    adoptiumVersion = project.packaging.adoptiumJavaVersion
+    adoptiumVersion = project.packagedJavaVersion
     packageTask = thisTask
     type = installerType
   })
@@ -186,7 +186,7 @@ task serverWindows64bitExe { DefaultTask thisTask ->
 
   finalizedBy(project.tasks.create("${thisTask.name}Metadata", InstallerMetadataTask.class) {
     architecture = Architecture.x64
-    adoptiumVersion = project.packaging.adoptiumJavaVersion
+    adoptiumVersion = project.packagedJavaVersion
     packageTask = thisTask
     type = installerType
   })

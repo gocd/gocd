@@ -124,7 +124,7 @@ class LicenseReport {
             renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
           }
 
-          def jreLicense = project.packaging.adoptiumJavaVersion.toLicenseMetadata()
+          def jreLicense = project.packagedJavaVersion.toLicenseMetadata()
           renderModuleData(markup, counter.incrementAndGet(), jreLicense.moduleName, jreLicense)
         }
       }

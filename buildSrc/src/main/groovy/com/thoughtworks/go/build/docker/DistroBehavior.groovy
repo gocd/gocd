@@ -59,7 +59,7 @@ trait DistroBehavior {
   }
 
   List<String> getInstallJavaCommands(Project project) {
-    def downloadUrl = project.packaging.adoptiumJavaVersion.toDownloadURLFor(getOperatingSystem(), Architecture.dockerDynamic)
+    def downloadUrl = project.packagedJavaVersion.toDownloadURLFor(getOperatingSystem(), Architecture.dockerDynamic)
 
     return [
       "curl --fail --location --silent --show-error \"${downloadUrl}\" --output /tmp/jre.tar.gz",

@@ -97,13 +97,13 @@ private File destFile(String url) {
 }
 
 task downloadLinuxJreChecksum(type: DownloadFile) {
-  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(OperatingSystem.linux, Architecture.x64)
+  src project.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.linux, Architecture.x64)
   dest destFile(src.toString())
 }
 
 task downloadLinuxJre(type: DownloadFile) {
   dependsOn downloadLinuxJreChecksum
-  src project.packaging.adoptiumJavaVersion.toDownloadURLFor(OperatingSystem.linux, Architecture.x64)
+  src project.packagedJavaVersion.toDownloadURLFor(OperatingSystem.linux, Architecture.x64)
   dest destFile(src.toString())
   checksum = { downloadLinuxJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }

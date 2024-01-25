@@ -59,6 +59,7 @@ class AdoptiumVersion implements Serializable {
       "OpenJDK${feature}${featureSuffix()}-jre_${arch.canonicalName}_${os.adoptiumAlias}_hotspot_${fileSafeDisplayVersion()}.${os.extension}"
   }
 
+  @SuppressWarnings('unused') // Used in Gradle build scripts
   def toSha256SumURLFor(OperatingSystem os, Architecture arch) {
     "${toDownloadURLFor(os, arch)}.sha256.txt"
   }

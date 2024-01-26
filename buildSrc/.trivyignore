@@ -6,12 +6,6 @@
 # GoCD is not vulnerable since it does not use STOMP over WebSockets via the framework
 CVE-2022-22971
 
-# org.springframework:spring-core (go.jar) Fixed: 6.1.2, 6.0.15
-# https://avd.aquasec.com/nvd/2024/cve-2024-22233/
-#
-# This is a false positive; earlier Spring versions than 6.x are not vulnerable.
-CVE-2024-22233
-
 # Leave whitespace at the end of the file for appending suppressions from OWASP dependency check :-)
 # Augment to this file with
 # grep -oE '<(cve|vulnerabilityName)>[^<]*</(cve|vulnerabilityName)>' buildSrc/dependency-check-suppress.xml | sed -E 's/<(cve|vulnerabilityName)>(.*)<\/(cve|vulnerabilityName)>/\2/' >> buildSrc/.trivyignore

@@ -223,10 +223,12 @@
     <cve>CVE-2022-42920</cve>
   </suppress>
 
-  <suppress until="2024-04-01Z">
+  <suppress>
     <notes><![CDATA[
     Time-limited suppression of issues from nokogiri-java via embedded neko-htmlunit-2.63.0.jar pending https://github.com/sparklemotion/nokogiri/issues/2565
-    and corresponding release of nokogiri. We are probably not affected, but there is no mitigation we can apply right now either. Needs upgrade to neko-htmlunit 3.0.0+.
+    and corresponding release of nokogiri. The issues highlighted here appear to affect only htmlunit, not neko-htmlunit however
+    due to them sharing a CPE are grouped here. https://github.com/jeremylong/DependencyCheck/issues/5656#issuecomment-1846504862 has
+    an assessment so GoCD is not believed to be affected by the suppressed CVEs.
     ]]></notes>
     <sha1>d4d159a789c5446eea7edc184cab9adab12baa1c</sha1>
     <cve>CVE-2023-2798</cve>

@@ -90,6 +90,7 @@ public class UrlRewriterIntegrationTest {
     private static final ResponseAssertion ARTIFACT_API_JSON_LISTING = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job.json", HTTP_URL + "/go/repository/restful/artifact/GET/json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=", true);
     private static final ResponseAssertion ARTIFACT_API_GET_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=tmp%2Ffile", true);
     private static final ResponseAssertion ARTIFACT_API_PUSH_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=tmp%2Ffile", METHOD.POST, true);
+    private static final ResponseAssertion ARTIFACT_API_PUSH_FILE_AGENT_REMOTING = new ResponseAssertion(HTTP_URL + "/go/remoting/files/pipeline/1/stage/2/job/file%25?attempt=100&buildId=1000", HTTP_URL + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=file%25&attempt=100&buildId=1000", METHOD.POST, true);
     private static final ResponseAssertion ARTIFACT_API_CHANGE_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job/file", HTTP_URL + "/go/repository/restful/artifact/PUT/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=file", METHOD.PUT, true);
     private static final ResponseAssertion ARTIFACT_API_CONSOLE_LOG = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job/cruise-output/console.log?startLineNumber=1000", HTTP_URL + "/go/consoleout.json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=cruise-output%2Fconsole.log&startLineNumber=1000");
 
@@ -128,6 +129,7 @@ public class UrlRewriterIntegrationTest {
             ARTIFACT_API_JSON_LISTING,
             ARTIFACT_API_GET_FILE,
             ARTIFACT_API_PUSH_FILE,
+            ARTIFACT_API_PUSH_FILE_AGENT_REMOTING,
             ARTIFACT_API_CHANGE_FILE,
             ARTIFACT_API_CONSOLE_LOG,
             PIPELINES_STAGE_DETAILS,

@@ -82,7 +82,7 @@ GEM
       tilt
     date (3.3.4)
     date (3.3.4-java)
-    diff-lcs (1.5.0)
+    diff-lcs (1.5.1)
     erubi (1.12.0)
     ffi (1.16.3-java)
     ffi-compiler (1.0.1)

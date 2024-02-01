@@ -150,7 +150,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/com\.h2database/h2@1\.4\.200$</packageUrl>
     <cve>CVE-2021-42392</cve>
-    <vulnerabilityName>GHSA-h376-j262-vhq6</vulnerabilityName> <!-- CVE-2021-42392 is picked up by Trivy under GHSA id -->
     <cve>CVE-2022-23221</cve>
     <cve>CVE-2022-45868</cve>
     <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
@@ -187,8 +186,8 @@
     <cve>CVE-2023-26116</cve>
     <cve>CVE-2023-26117</cve>
     <cve>CVE-2023-26118</cve>
-    <vulnerabilityName>DOS in $sanitize</vulnerabilityName>
     <vulnerabilityName>Cross-Site Scripting via JSONP</vulnerabilityName>
+    <vulnerabilityName>DOS in $sanitize</vulnerabilityName>
     <vulnerabilityName>The attribute usemap can be used as a security exploit</vulnerabilityName>
     <vulnerabilityName>Universal CSP bypass via add-on in Firefox</vulnerabilityName>
     <vulnerabilityName>XSS via JQLite DOM manipulation functions in AngularJS</vulnerabilityName>

@@ -5859,7 +5859,7 @@ __metadata:
     speed-measure-webpack-plugin: "npm:^1.5.0"
     stats-webpack-plugin: "npm:^0.7.0"
     style-loader: "npm:^2.0.0"
-    stylelint: "npm:^16.2.0"
+    stylelint: "npm:^16.2.1"
     stylelint-config-standard-scss: "npm:^13.0.0"
     stylelint-webpack-plugin: "npm:^2.5.0"
     thread-loader: "npm:^3.0.4"
@@ -10906,9 +10906,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^16.2.0":
-  version: 16.2.0
-  resolution: "stylelint@npm:16.2.0"
+"stylelint@npm:^16.2.1":
+  version: 16.2.1
+  resolution: "stylelint@npm:16.2.1"
   dependencies:
     "@csstools/css-parser-algorithms": "npm:^2.5.0"
     "@csstools/css-tokenizer": "npm:^2.2.3"
@@ -10950,7 +10950,7 @@ __metadata:
     write-file-atomic: "npm:^5.0.1"
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: 10/7a99c265e7a72f0e9c9e4cad4c4c2cab6d6fee9728d2016b9988c53fa504802fd2b21e49e9da7858f01c8b11e8e84c30a16d0aec928e5af26485cd9b0f23bd94
+  checksum: 10/e2f8a5d273788239f4c5bd5c4d9a9737ec8062ebd6d247a51466bfce434e5da28e6346cfcf00a1b9f45738070a65d90675624288a9afe8346f7c1027821005a1
   languageName: node
   linkType: hard
 

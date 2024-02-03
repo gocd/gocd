@@ -322,9 +322,9 @@ public class SvnCommandTest {
                   kind="dir"
                   path="司徒空在此"
                   revision="4">
-                <url>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4</url>
+                <url>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/repos/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4</url>
                 <repository>
-                <root>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end</root>
+                <root>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/repos/svnrepo/end2end</root>
                 <uuid>f953918e-915c-4459-8d4c-83860cce9d9a</uuid>
                 </repository>
                 <commit
@@ -337,7 +337,7 @@ public class SvnCommandTest {
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getPath()).isEqualTo("/司徒空在此");
-        assertThat(svnInfo.getUrl()).isEqualTo("file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4");
+        assertThat(svnInfo.getUrl()).isEqualTo("file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/repos/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4");
     }
 
     @Test

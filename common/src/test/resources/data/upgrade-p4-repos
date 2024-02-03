@@ -2,7 +2,7 @@
 set -e
 WORKING_DIR=$(cd `dirname $0` && pwd)
 
-pushd "${WORKING_DIR}"
+pushd "${WORKING_DIR}/repos"
 for repo in p4* ; do
   echo $repo
   p4d -C0 -r "$repo" -p 10000 -xu

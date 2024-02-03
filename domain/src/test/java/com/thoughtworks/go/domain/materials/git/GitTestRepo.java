@@ -41,10 +41,10 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GitTestRepo extends TestRepo {
-    private static final String GIT_3_REVISIONS_BUNDLE = "../common/src/test/resources/data/git/git-3-revisions.git";
-    public static final String GIT_FOO_BRANCH_BUNDLE = "../common/src/test/resources/data/git/foo-branch.git";
-    public static final String GIT_SUBMODULE_REF_BUNDLE = "../common/src/test/resources/data/git/referenced-submodule.git";
-    public static final String GIT_CUSTOM_REFS_BUNDLE = "../common/src/test/resources/data/git/custom-refs.git";
+    private static final String GIT_3_REVISIONS_BUNDLE = "../common/src/test/resources/data/repos/git/git-3-revisions.git";
+    public static final String GIT_FOO_BRANCH_BUNDLE = "../common/src/test/resources/data/repos/git/foo-branch.git";
+    public static final String GIT_SUBMODULE_REF_BUNDLE = "../common/src/test/resources/data/repos/git/referenced-submodule.git";
+    public static final String GIT_CUSTOM_REFS_BUNDLE = "../common/src/test/resources/data/repos/git/custom-refs.git";
 
     public static final StringRevision REVISION_0 = new StringRevision("55502a724dd8574f1e4bcf19b605a1f4f182e892");
     public static final StringRevision REVISION_1 = new StringRevision("b613aee673d96e967100306222246aa9decbc53c");

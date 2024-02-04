@@ -65,6 +65,7 @@ class BuildDockerImageTask extends DefaultTask {
     }
 
     project.delete(gitRepoDirectory)
+    project.mkdir(gitRepoDirectory)
     def credentials = "${System.getenv("GIT_USER")}:${System.getenv("GIT_PASSWORD")}"
     project.exec {
       workingDir = project.rootProject.projectDir
@@ -210,33 +211,15 @@ class BuildDockerImageTask extends DefaultTask {
 
   @Internal
   String getGitHubRepoName() {
-    if (imageType == ImageType.agent) {
-      if (distro == Distro.docker) {
-        return "docker-gocd-agent-dind"
-      } else {
-        return "docker-gocd-agent-${distro.name()}-${distroVersion.version}"
-      }
-    }
-    if (distro == Distro.alpine) {
-      return "docker-gocd-server"
-    } else {
-      return "docker-gocd-server-${distro.name()}-${distroVersion.version}"
-    }
+    return "docker-${dockerImageName}"
   }
 
   @Internal
   String getDockerImageName() {
     if (imageType == ImageType.agent) {
-      if (distro == Distro.docker) {
-        return "gocd-agent-${distro.name()}-dind"
-      } else {
-        return "gocd-agent-${distro.name()}-${distroVersion.version}"
-      }
-    }
-    if (distro == Distro.alpine) {
-      return "gocd-server"
-    } else {
-      return "gocd-server-${distro.name()}-${distroVersion.version}"
+      return distro.isContinuousRelease() ? "gocd-agent-${distro.name()}" : "gocd-agent-${distro.name()}-${distroVersion.version}"
+    } else if (imageType == ImageType.server) {
+      return distro == Distro.wolfi ? "gocd-server" : "gocd-server-${distro.name()}-${distroVersion.version}"
     }
   }
 

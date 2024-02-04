@@ -89,4 +89,8 @@ trait DistroBehavior {
     return false
   }
 
+  boolean isContinuousRelease() {
+    return false
+  }
+
 }

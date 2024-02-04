@@ -1,6 +1,6 @@
-# GoCD Agent Docker image
+# GoCD Agent ${distro.name()?capitalize} Container image
 
-[GoCD agent](https://www.gocd.org) docker image based on ${distro} ${distroVersion.version}.
+[GoCD agent](https://www.gocd.org) container image based on ${distro.name()?capitalize} ${distroVersion.version}.
 
 <#if distroVersion.aboutToEol>
 # This image is deprecated
@@ -109,10 +109,6 @@ In this case, as the docker deamon will be the one mounting the volumes you defi
 
 If you run several agents container, you will need to overwrite the `VOLUME_DIR` environment variable to have a different path for your `/godata` for each of your GoCD agent containers (to avoid issues). For example, if the volume on your host for the first container is `/go-agent1/godata`, you will set the `VOLUME_DIR` environment data on your container to `/go-agent1/godata` and the `docker-entrypoint.sh` script will automatically manage it and make sure the agent stores its configuration, logs and pipelines there.
 </#if>
-
-# Running GoCD Containers as Non Root
-
-With release `v19.6.0`, GoCD containers will run as non-root user, by default. The Dockerized GoCD application will run with user `go` (uid: `1000`) and group `root` (gid: `0`) instead of running as user `root` (uid: `0`) and group `root` (gid: `0`). For more information, checkout [Running Dockerized GoCD Containers as Non Root](https://www.gocd.org/2019/06/25/GoCD-non-root-containers/) blog post.
 
 # Troubleshooting
 

@@ -99,8 +99,7 @@ public class ProcessManager {
             process = processBuilder.start();
             LOG.debug("[Command Line] END command {}", commandLineForDisplay);
         } catch (IOException e) {
-            LOG.error("[Command Line] Failed executing [{}]", commandLineForDisplay);
-            LOG.error("[Command Line] Agent's Environment Variables: {}", System.getenv());
+            LOG.warn("[Command Line] Failed executing [{}]", commandLineForDisplay);
             throw new CommandLineException(String.format("Error while executing [%s] \n Make sure this command can execute manually.", commandLineForDisplay), e);
         }
         return process;

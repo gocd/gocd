@@ -134,7 +134,8 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
         // procps is needed for tanuki wrapper shell script
-        'apk add --no-cache git openssh-client bash curl procps'
+        // Manually install libexpat1 to workaround https://github.com/wolfi-dev/os/issues/12556
+        'apk add --no-cache libexpat1 git openssh-client bash curl procps'
       ]
     }
   },

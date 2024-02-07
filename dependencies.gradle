@@ -48,7 +48,7 @@ final Map<String, String> libraries = [
   commonsText         : 'org.apache.commons:commons-text:1.11.0',
   dbunit              : 'org.dbunit:dbunit:2.7.3',
   dom4j               : 'org.dom4j:dom4j:2.1.4',
-  ehcache             : 'net.sf.ehcache.internal:ehcache-core:2.11.0.8.17', // See https://repo.terracotta.org/maven2/net/sf/ehcache/internal/ehcache-core/maven-metadata.xml
+  ehcache             : 'net.sf.ehcache.internal:ehcache-core:2.11.0.9.6', // See https://repo.terracotta.org/maven2/net/sf/ehcache/internal/ehcache-core/maven-metadata.xml
   felix               : 'org.apache.felix:org.apache.felix.framework:7.0.5',
   freemarker          : 'org.freemarker:freemarker:2.3.32',
   gradleDownload      : 'de.undercouch:gradle-download-task:5.5.0',

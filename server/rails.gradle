@@ -84,7 +84,7 @@ task createJRubyBinstubs {
     project.delete(outputDir)
     project.mkdir(outputDir)
 
-    ['jgem', 'rspec', 'ruby', 'gem'].each { file ->
+    ['rspec'].each { file ->
       copy {
         from "script-templates/${file}"
         into outputDir

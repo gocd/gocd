@@ -191,7 +191,7 @@
     <vulnerabilityName>The attribute usemap can be used as a security exploit</vulnerabilityName>
     <vulnerabilityName>Universal CSP bypass via add-on in Firefox</vulnerabilityName>
     <vulnerabilityName>XSS via JQLite DOM manipulation functions in AngularJS</vulnerabilityName>
-    <vulnerabilityName>End-of-Life: Long term support for AngularJS has been discontinued</vulnerabilityName>
+    <vulnerabilityName>End-of-Life: Long term support for AngularJS has been discontinued as of December 31, 2021</vulnerabilityName>
     <vulnerabilityName>XSS in $sanitize in Safari/Firefox</vulnerabilityName>
   </suppress>
 

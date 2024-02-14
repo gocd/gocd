@@ -52,9 +52,7 @@ export class AgentJobRunHistoryWidget extends MithrilComponent<Attrs, State> {
       const stageName    = jobHistoryItem.stage_name;
       const jobName      = jobHistoryItem.job_name;
 
-      const jobNameLink = <Link
-        href={`/go/tab/build/detail/${pipelineName}/${jobHistoryItem.pipeline_counter}/${stageName}/${jobHistoryItem.stage_counter}/${jobName}`}
-        target="_blank">
+      const jobNameLink = <Link href={`/go/tab/build/detail/${pipelineName}/${jobHistoryItem.pipeline_counter}/${stageName}/${jobHistoryItem.stage_counter}/${jobName}`}>
         {jobName}
       </Link>;
 

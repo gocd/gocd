@@ -72,7 +72,7 @@ export class JobEditor extends MithrilViewComponent<Attrs> {
       <TextField label={["Elastic profile id", <Help content={
         [
           "Elastic Profile that this job requires to run. ",
-          <Link target="_blank" href={"/go/admin/elastic_agent_configurations"}>Click here</Link>,
+          <Link href={"/go/admin/elastic_agent_configurations"}>Click here</Link>,
           " to see and manage all elastic profiles."]}/>
       ]}
                  dataTestId={"elastic-profile-id-input"}

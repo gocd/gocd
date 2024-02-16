@@ -707,10 +707,6 @@ public class Routes {
         public static final String PROCESS_LIST = "/process_list";
     }
 
-    public static class ClusterProfiles {
-        public static final String SPA_BASE = "/admin/cluster_profiles";
-    }
-
     public static class ServerInfo {
         public static final String SPA_BASE = "/about";
     }

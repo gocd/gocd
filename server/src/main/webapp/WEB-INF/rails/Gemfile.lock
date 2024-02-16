@@ -90,10 +90,10 @@ GEM
       rake
     globalid (1.2.1)
       activesupport (>= 6.1)
-    google-protobuf (3.25.2-java)
+    google-protobuf (3.25.3-java)
       ffi (~> 1)
       ffi-compiler (~> 1)
-    google-protobuf (3.25.2-x86_64-linux)
+    google-protobuf (3.25.3-x86_64-linux)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     js-routes (1.4.14)

@@ -142,7 +142,7 @@ task downloadChromeDriver(type: DownloaderTask) { thisTask ->
       osURIPart = 'linux64'
       break
   }
-  url = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${packageVersion}/${osURIPart}/chromedriver-${osURIPart}.zip"
+  url = "https://storage.googleapis.com/chrome-for-testing-public/${packageVersion}/${osURIPart}/chromedriver-${osURIPart}.zip"
 }
 
 task jasmineKarma(type: YarnRunTask) {

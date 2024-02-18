@@ -43,16 +43,12 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
-import java.util.stream.Stream
-
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.util.HaltApiMessages.confirmHeaderMissing
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.remote
 import static java.util.Collections.emptyList
-import static java.util.Collections.emptySet
-import static java.util.stream.Collectors.toSet
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 
@@ -92,10 +88,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       def instances = new AgentInstances(null, null, instance)
       when(agentService.getAgentInstances()).thenReturn(instances)
 
-      def environmentConfigs = new HashSet<EnvironmentConfig>()
-      environmentConfigs.add(environment("env1"))
-      environmentConfigs.add(environment("env2"))
-      when(environmentConfigService.getAgentEnvironments(instance.getUuid())).thenReturn(environmentConfigs)
+      def environmentConfigs = List.of(environment("env1"), environment("env2")) as List<EnvironmentConfig>
+      when(environmentConfigService.getAgentEnvironmentsByUuid()).thenReturn(Map.of(instance.getUuid(), environmentConfigs))
 
       getWithApiHeader(controller.controllerPath())
 
@@ -182,6 +176,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
     @Test
     void "should return an empty list of agents if there are no agents available"() {
       def mockAgentInstances = mock(AgentInstances.class)
+      when(mockAgentInstances.spliterator()).thenReturn(emptyList().spliterator() as Spliterator<AgentInstance>)
       when(agentService.getAgentInstances()).thenReturn(mockAgentInstances)
 
       getWithApiHeader(controller.controllerPath())
@@ -225,7 +220,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       def agentInstance = idle()
       agentInstance.getAgent().setEnvironments("env1,env2,unknown-env")
       when(agentService.findAgent("uuid2")).thenReturn(agentInstance)
-      def environments = Stream.of(environment("env1"), environment("env2")).collect(toSet())
+      def environments = List.of(environment("env1"), environment("env2"))
       when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(environments)
 
       getWithApiHeader(controller.controllerPath("/uuid2"))
@@ -333,7 +328,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       def envsConfig = new EnvironmentsConfig()
       def envConfig = environment("env1")
       when(environmentConfigService.find("env1")).thenReturn(envConfig)
-      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(Set.of(envConfig))
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(List.of(envConfig))
 
       envsConfig.add(envConfig)
       when(agentService.updateAgentAttributes(
@@ -433,7 +428,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       def resources = List.of("psql", "java")
       AgentInstance agentWithoutEnvs = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources, "20.3.0-1234", "20.5.0-2345")
 
-      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptySet())
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptyList())
       when(agentService.updateAgentAttributes(
         eq("uuid2"),
         eq("agent02.example.com"),
@@ -488,8 +483,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       def resources = emptyList()
       AgentInstance agentWithoutEnvsAndResources = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources, "20.3.0-1234", "20.5.0-2345")
 
-      def emptyEnvsConfig = new EnvironmentsConfig()
-      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptySet())
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptyList())
       when(agentService.updateAgentAttributes(
         eq("uuid2"),
         eq("agent02.example.com"),
@@ -783,12 +777,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         def configRepoConfig = mock(ConfigRepoConfig.class)
         remoteEnvConfig.setOrigins(new RepoConfigOrigin(configRepoConfig, "revision"))
         remoteEnvConfig.addAgent("uuid2")
-        def envsConfig = new HashSet<EnvironmentConfig>()
-        envsConfig.add(envConfig)
-        envsConfig.add(remoteEnvConfig)
         when(environmentConfigService.find(localEnvName)).thenReturn(envConfig)
         when(environmentConfigService.find(remoteEnvName)).thenReturn(remoteEnvConfig)
-        when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(envsConfig)
+        when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(List.of(envConfig, remoteEnvConfig))
         when(configRepoConfig.id).thenReturn("id")
 
         when(agentService.updateAgentAttributes(
@@ -888,10 +879,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         def localEnvName = "env1"
         def undefinedEnvName = "non-existent-env"
         def envConfig = environment(localEnvName)
-        def envsConfig = new HashSet<EnvironmentConfig>()
-        envsConfig.add(envConfig)
         when(environmentConfigService.find(localEnvName)).thenReturn(envConfig)
-        when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(envsConfig)
+        when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(List.of(envConfig))
 
         def envs = "$localEnvName,$undefinedEnvName".toString()
         when(agentService.updateAgentAttributes(

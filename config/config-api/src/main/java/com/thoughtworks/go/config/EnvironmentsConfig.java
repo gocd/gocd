@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
+import com.thoughtworks.go.util.Pair;
 
 import java.util.*;
 
@@ -142,20 +143,22 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return this.stream()
                 .filter(envConfig -> envConfig.hasAgent(uuid))
                 .map(envConfig -> str(envConfig.name()))
-                .collect(toCollection(HashSet::new));
+                .collect(toSet());
     }
 
-    public Set<EnvironmentConfig> getAgentEnvironments(String uuid) {
-        return this.stream().filter(envConfig -> envConfig.hasAgent(uuid)).collect(toSet());
+    public List<EnvironmentConfig> getAgentEnvironments(String uuid) {
+        return this.stream().filter(envConfig -> envConfig.hasAgent(uuid)).collect(toList());
+    }
+
+    public Map<String, List<EnvironmentConfig>> getAgentEnvironmentsByUuid() {
+        return this.stream()
+            .flatMap(env  -> env.getAgents().stream().map(agent -> Pair.pair(agent.getUuid(), env)))
+                .collect(groupingBy(Pair::first, mapping(Pair::last, toList())));
     }
 
     public boolean hasEnvironmentNamed(CaseInsensitiveString environmentName) {
         EnvironmentConfig environmentConfig = find(environmentName);
         return environmentConfig != null;
-    }
-
-    public void removeAgentFromAllEnvironments(String uuid) {
-        this.forEach(envConfig -> envConfig.removeAgent(uuid));
     }
 
     public EnvironmentsConfig getLocal() {

@@ -700,7 +700,7 @@ dependencyCheck {
 dependencyCheckAggregate {
   doFirst {
     project.exec {
-      commandLine = [ "gem", "install", "bundle-audit", "--no-document" ]
+      commandLine = [ "gem", "install", "bundler-audit", "--no-document" ]
       standardOutput = System.out
       errorOutput = System.err
     }

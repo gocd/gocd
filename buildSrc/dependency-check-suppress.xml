@@ -79,6 +79,14 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
     <cve>CVE-2022-22970</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+    According to https://spring.io/security/cve-2024-22243 this only affects applications that use UriComponentsBuilder
+    along with validation checks on the host. GoCD and its dependencies don't use UriComponentsBuilder at all.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
+    <cve>CVE-2024-22243</cve>
+  </suppress>
 
   <suppress>
     <notes><![CDATA[
@@ -242,6 +250,15 @@
     does not have a Maven identifier.
     ]]></notes>
     <cpe>cpe:/a:json-c:json-c</cpe>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+    Based on https://discuss.rubyonrails.org/t/possible-xss-vulnerability-in-action-controller/84947 GoCD is not
+    affected by CVE-2024-26143 as we do not use translation/translation helpers.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:gem/actionpack@6.*$</packageUrl>
+    <vulnerabilityName>CVE-2024-26143</vulnerabilityName>
   </suppress>
 
 </suppressions>

@@ -691,10 +691,20 @@ dependencyCheck {
   }
 
   analyzers {
-    bundleAuditEnabled = false // Currently there is a separate bundle audit security check job independent of Gradle
     nodeAudit.yarnEnabled = false // Doesn't work correctly with Yarn 3+ https://github.com/jeremylong/DependencyCheck/issues/4894
-    assemblyEnabled = false
+    assemblyEnabled = false // Avoid dotnet false positives
     retirejs.filterNonVulnerable = true // Reduces effort/memory processing retirejs results
+  }
+}
+
+dependencyCheckAggregate {
+  doFirst {
+    project.exec {
+      workingDir = projectDir
+      commandLine = [ "gem", "install", "bundle-audit" ]
+      standardOutput = System.out
+      errorOutput = System.err
+    }
   }
 }
 

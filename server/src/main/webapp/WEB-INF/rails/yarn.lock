@@ -5851,7 +5851,7 @@ __metadata:
     jasmine-core: "npm:^5.1.2"
     jasmine-jquery: "npm:^2.1.1"
     jquery: "npm:^3.7.1"
-    karma: "npm:^6.4.2"
+    karma: "npm:^6.4.3"
     karma-chrome-launcher: "npm:^3.2.0"
     karma-firefox-launcher: "npm:^2.1.2"
     karma-html-reporter: "https://github.com/dtabuenc/karma-html-reporter.git#4247dc16129a9b90bb92f7f386515d4d8c1563c3"
@@ -7198,9 +7198,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"karma@npm:^6.4.2":
-  version: 6.4.2
-  resolution: "karma@npm:6.4.2"
+"karma@npm:^6.4.3":
+  version: 6.4.3
+  resolution: "karma@npm:6.4.3"
   dependencies:
     "@colors/colors": "npm:1.5.0"
     body-parser: "npm:^1.19.0"
@@ -7221,14 +7221,14 @@ __metadata:
     qjobs: "npm:^1.2.0"
     range-parser: "npm:^1.2.1"
     rimraf: "npm:^3.0.2"
-    socket.io: "npm:^4.4.1"
+    socket.io: "npm:^4.7.2"
     source-map: "npm:^0.6.1"
     tmp: "npm:^0.2.1"
     ua-parser-js: "npm:^0.7.30"
     yargs: "npm:^16.1.1"
   bin:
     karma: bin/karma
-  checksum: 10/4289783fdc188929aaae27f97c26b14992b391027703d4fc3d53034fcedd385e1fdb66af61daca8364e151407527f197923076845f0a4988db20ed78c5533845
+  checksum: 10/7fc194f5d4b0dae27e97375d0e005a7b74a6bee3c6ad676c3e21ec7c6309f32202d62cf0f0645ea99aa5adea455d79afe1d32e8aa28ac3c09609f16d0e2120ca
   languageName: node
   linkType: hard
 
@@ -10402,7 +10402,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socket.io@npm:^4.4.1":
+"socket.io@npm:^4.7.2":
   version: 4.7.4
   resolution: "socket.io@npm:4.7.4"
   dependencies:

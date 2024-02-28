@@ -167,11 +167,12 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
           eachLine = newLines.join('\n')
         }
 
-        if (eachLine == 'wrapper.java.classpath.1=../lib/wrapper.jar') {
-          eachLine = [
-            'wrapper.java.classpath.1=wrapper/wrapper.jar',
-            "wrapper.java.classpath.2=lib/${installerType.jarFileName}",
-          ].join("\n")
+        if (eachLine == 'wrapper.jarfile=../lib/wrapper.jar') {
+          eachLine = "wrapper.jarfile=wrapper/wrapper.jar"
+        }
+
+        if (eachLine == '#wrapper.java.classpath.1=') {
+          eachLine = "wrapper.java.classpath.1=lib/${installerType.jarFileName}"
         }
 
         if (eachLine == 'wrapper.java.library.path.1=../lib') {

@@ -228,11 +228,12 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
               eachLine = "wrapper.java.command=/usr/share/${installerType.baseName}/jre/bin/java"
             }
 
-            if (eachLine == 'wrapper.java.classpath.1=../lib/wrapper.jar') {
-              eachLine = [
-                "wrapper.java.classpath.1=/usr/share/${installerType.baseName}/wrapper/wrapper.jar",
-                "wrapper.java.classpath.2=/usr/share/${installerType.baseName}/lib/${installerType.jarFileName}",
-              ].join("\n")
+            if (eachLine == 'wrapper.jarfile=../lib/wrapper.jar') {
+              eachLine = "wrapper.jarfile=/usr/share/${installerType.baseName}/wrapper/wrapper.jar"
+            }
+
+            if (eachLine == '#wrapper.java.classpath.1=') {
+              eachLine = "wrapper.java.classpath.1=/usr/share/${installerType.baseName}/lib/${installerType.jarFileName}"
             }
 
             if (eachLine == 'wrapper.java.library.path.1=../lib') {

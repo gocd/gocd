@@ -173,8 +173,8 @@ final Map<String, String> v = [
   ztExec              : versionOf(libraries.ztExec),
 
   // misc
-  tanuki              : '3.5.54-st', // https://wrapper.tanukisoftware.com/doc/english/download.jsp#stable
-  tanukiSha256sum     : '37cc32b74004c14651c5039d5e6491e1c0912570cf7706aa772a66c6ed69cbe6',
+  tanuki              : '3.5.56-st', // https://wrapper.tanukisoftware.com/doc/english/download.jsp#stable
+  tanukiSha256sum     : '249d81ebe5b66a3a6c8437a92d3169f648bdd6e9564993c5b9d10fc7a7ed53fb',
   tfsSdk              : '14.139.0', // https://github.com/microsoft/team-explorer-everywhere/releases
   tfsSdkSha256sum     : '744df70f70d28f6039938917ce02b07cbe07a577bdd662a64bb7dffb42512b90',
   tini                : '0.19.0', // https://github.com/krallin/tini/releases

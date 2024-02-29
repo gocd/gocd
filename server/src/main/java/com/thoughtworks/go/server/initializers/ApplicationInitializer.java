@@ -158,8 +158,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
                 dashboardActivityListener.startDaemon();
                 ccTrayActivityListener.startDaemon();
             }
-
-            throw new RuntimeException("dfdjsfjdfs");
         } catch (Throwable throwable) {
             // Raise a Spring exception to ensure that existing beans are disposed of cleanly
             throw new ApplicationContextException("Unable to initialize Go Server after initial load", throwable);

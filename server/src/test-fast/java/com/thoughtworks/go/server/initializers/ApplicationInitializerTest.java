@@ -45,8 +45,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
@@ -184,5 +186,16 @@ public class ApplicationInitializerTest {
         InOrder inOrder = inOrder(pluginsInitializer, pluginsZip);
         inOrder.verify(pluginsInitializer).initialize();
         inOrder.verify(pluginsZip).create();
+    }
+
+    @Test
+    public void shouldRaiseAppropriateExceptionToCauseCleanShutdownOnInitializationFailure() {
+        Throwable failureCause = new Error("Boom");
+        doThrow(failureCause).when(pluginsInitializer).initialize();
+
+        assertThatThrownBy(() -> initializer.onApplicationEvent(contextRefreshedEvent))
+            .isInstanceOf(ApplicationContextException.class)
+            .hasMessageContaining("Unable to initialize Go Server after initial load")
+            .hasCause(failureCause);
     }
 }

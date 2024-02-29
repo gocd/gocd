@@ -40,6 +40,7 @@ import com.thoughtworks.go.service.ConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -152,21 +153,16 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             backupService.initialize();
 
             revokeStaleAccessTokenService.initialize();
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
-        }
 
-        if (this.daemonsEnabled) {
-            startDaemons();
-        }
-    }
+            if (this.daemonsEnabled) {
+                dashboardActivityListener.startDaemon();
+                ccTrayActivityListener.startDaemon();
+            }
 
-    private void startDaemons() {
-        try {
-            dashboardActivityListener.startDaemon();
-            ccTrayActivityListener.startDaemon();
+            throw new RuntimeException("dfdjsfjdfs");
         } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
+            // Raise a Spring exception to ensure that existing beans are disposed of cleanly
+            throw new ApplicationContextException("Unable to initialize Go Server after initial load", throwable);
         }
     }
 

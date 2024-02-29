@@ -51,7 +51,7 @@ final Map<String, String> libraries = [
   ehcache             : 'net.sf.ehcache.internal:ehcache-core:2.11.0.9.6', // See https://repo.terracotta.org/maven2/net/sf/ehcache/internal/ehcache-core/maven-metadata.xml
   felix               : 'org.apache.felix:org.apache.felix.framework:7.0.5',
   freemarker          : 'org.freemarker:freemarker:2.3.32',
-  gradleDownload      : 'de.undercouch:gradle-download-task:5.5.0',
+  gradleDownload      : 'de.undercouch:gradle-download-task:5.6.0',
   grolifant           : 'org.ysb33r.gradle:grolifant-herd:3.0.0',
   gson                : 'com.google.code.gson:gson:2.10.1',
   guava               : 'com.google.guava:guava:33.0.0-jre',

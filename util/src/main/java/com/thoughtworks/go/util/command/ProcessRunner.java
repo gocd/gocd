@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.util.command;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 public class ProcessRunner {
@@ -56,9 +56,9 @@ public class ProcessRunner {
         System.out.println("Finished command: " + Arrays.toString(builder.command().toArray()) + ". Exit code: " + exitCode);
         if (exitCode != 0) {
             if (failOnError) {
-                throw new RuntimeException(String.format("Command exited with code %s. \n Exception: %s", exitCode, IOUtils.toString(process.getErrorStream())));
+                throw new RuntimeException(String.format("Command exited with code %s. \n Exception: %s", exitCode, new String(process.getErrorStream().readAllBytes(), Charset.defaultCharset())));
             } else {
-                LOGGER.error("Command exited with code {}. \n Exception: {}", exitCode, IOUtils.toString(process.getErrorStream()));
+                LOGGER.error("Command exited with code {}. \n Exception: {}", exitCode, new String(process.getErrorStream().readAllBytes(), Charset.defaultCharset()));
             }
         }
         return exitCode;

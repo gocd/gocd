@@ -15,14 +15,10 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.UnixLineEndingInputStream;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -60,8 +56,8 @@ public class CommandUtils {
     }
 
     private static void dump(StringWriter result, InputStream inputStream) throws IOException {
-        try (UnixLineEndingInputStream unixLineEndingInputStream = new UnixLineEndingInputStream(inputStream, true)) {
-            IOUtils.copy(unixLineEndingInputStream, result, StandardCharsets.UTF_8);
+        try (InputStreamReader inputStreamReader = new InputStreamReader(new UnixLineEndingInputStream(inputStream, true), StandardCharsets.UTF_8)) {
+            inputStreamReader.transferTo(result);
         }
     }
 

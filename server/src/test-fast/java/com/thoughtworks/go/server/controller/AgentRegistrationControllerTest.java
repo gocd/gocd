@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +45,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Base64;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
@@ -54,8 +52,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Base64.getEncoder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.CONFLICT;
 
@@ -68,7 +65,6 @@ public class AgentRegistrationControllerTest {
     private AgentRegistrationController controller;
     private SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
-    private File pluginZipFile;
     private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
 
     @BeforeEach
@@ -77,7 +73,7 @@ public class AgentRegistrationControllerTest {
         systemEnvironment = mock(SystemEnvironment.class);
         goConfigService = mock(GoConfigService.class);
         ephemeralAutoRegisterKeyService = mock(EphemeralAutoRegisterKeyService.class);
-        pluginZipFile = Files.createFile(temporaryFolder.resolve("plugins.zip")).toFile();
+        File pluginZipFile = Files.createFile(temporaryFolder.resolve("plugins.zip")).toFile();
         FileUtils.writeStringToFile(pluginZipFile, "content", UTF_8);
         when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
         when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn("");
@@ -207,7 +203,7 @@ public class AgentRegistrationControllerTest {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
         try (InputStream is = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar").invoke()) {
-            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+            assertArrayEquals(is.readAllBytes(), response.getContentAsByteArray());
         }
     }
 
@@ -245,7 +241,7 @@ public class AgentRegistrationControllerTest {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
         try (InputStream is = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar").invoke()) {
-            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+            assertArrayEquals(is.readAllBytes(), response.getContentAsByteArray());
         }
     }
 
@@ -286,7 +282,7 @@ public class AgentRegistrationControllerTest {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
         try (InputStream is = JarDetector.tfsJar(systemEnvironment).getJarURL().openStream()) {
-            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+            assertArrayEquals(is.readAllBytes(), response.getContentAsByteArray());
         }
     }
 
@@ -297,7 +293,7 @@ public class AgentRegistrationControllerTest {
         when(agentService.findAgent("uuid-from-agent")).thenReturn(AgentInstanceMother.idle());
         when(agentService.isRegistered("uuid-from-agent")).thenReturn(false);
 
-        final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
+        ResponseEntity<String> responseEntity = controller.getToken("uuid-from-agent");
 
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody(), is("JCmJaW6YbEA4fIUqf8L9lRV81ua10wV+wRYOFdaBLcM="));
@@ -310,7 +306,7 @@ public class AgentRegistrationControllerTest {
         when(agentService.findAgent("uuid-from-agent")).thenReturn(AgentInstanceMother.pendingInstance());
         when(agentService.isRegistered("uuid-from-agent")).thenReturn(false);
 
-        final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
+        ResponseEntity<String> responseEntity = controller.getToken("uuid-from-agent");
 
         assertThat(responseEntity.getStatusCode(), is(CONFLICT));
         assertThat(responseEntity.getBody(), is("A token has already been issued for this agent."));
@@ -323,7 +319,7 @@ public class AgentRegistrationControllerTest {
         when(agentService.findAgent("uuid-from-agent")).thenReturn(AgentInstanceMother.idle());
         when(agentService.isRegistered("uuid-from-agent")).thenReturn(true);
 
-        final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
+        ResponseEntity<String> responseEntity = controller.getToken("uuid-from-agent");
 
         assertThat(responseEntity.getStatusCode(), is(CONFLICT));
         assertThat(responseEntity.getBody(), is("A token has already been issued for this agent."));
@@ -331,7 +327,7 @@ public class AgentRegistrationControllerTest {
 
     @Test
     public void shouldRejectGenerateTokenRequestIfUUIDIsEmpty() {
-        final ResponseEntity responseEntity = controller.getToken("               ");
+        ResponseEntity<String> responseEntity = controller.getToken("               ");
 
         assertThat(responseEntity.getStatusCode(), is(CONFLICT));
         assertThat(responseEntity.getBody(), is("UUID cannot be blank."));
@@ -344,7 +340,7 @@ public class AgentRegistrationControllerTest {
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.createAgentUsername("blahAgent-uuid", request.getRemoteAddr(), "blahAgent-host")).thenReturn(new Username("some-agent-login-name"));
 
-        ResponseEntity responseEntity = controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", "an-invalid-token", request);
+        ResponseEntity<String> responseEntity = controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", "an-invalid-token", request);
 
         assertThat(responseEntity.getBody(), is("Not a valid token."));
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.FORBIDDEN));

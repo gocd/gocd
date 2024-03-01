@@ -15,15 +15,14 @@
  */
 package com.thoughtworks.go.junit5;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.support.AnnotationConsumer;
 import org.junit.platform.commons.util.Preconditions;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
@@ -35,18 +34,18 @@ public class FileSourceProvider implements ArgumentsProvider, AnnotationConsumer
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
         Object[] files = Arrays.stream(jsonFiles)
-                .filter(Objects::nonNull)
-                .map(file -> this.readFile(file, context))
-                .toArray();
+            .filter(Objects::nonNull)
+            .map(file -> this.readFile(file, context))
+            .toArray();
 
         return Stream.of(Arguments.of(files));
     }
 
     private String readFile(String file, ExtensionContext context) {
         Preconditions.notBlank(file, "Classpath resource [" + file + "] must not be null or blank");
-        try {
-            Class<?> testClass = context.getRequiredTestClass();
-            return FileUtils.readFileToString(new File(testClass.getResource(file).getFile()), StandardCharsets.UTF_8);
+        Class<?> testClass = context.getRequiredTestClass();
+        try (InputStream resourceAsStream = testClass.getResourceAsStream(file)) {
+            return new String(resourceAsStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

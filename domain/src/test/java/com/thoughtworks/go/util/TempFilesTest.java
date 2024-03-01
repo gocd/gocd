@@ -77,7 +77,7 @@ public class TempFilesTest {
     }
 
     @Test
-    public void shouldForgetFolders() throws IOException {
+    public void shouldForgetFolders() {
         File file = files.mkdir("foo");
 
         files.cleanUp();
@@ -97,7 +97,7 @@ public class TempFilesTest {
     }
 
     @Test
-    public void shouldCreateDirsInTempDirectory() throws IOException {
+    public void shouldCreateDirsInTempDirectory() {
         File dir = files.mkdir("foo");
         File parentFile = dir.getParentFile();
         assertThat(parentFile.getName(), is("cruise"));
@@ -105,7 +105,7 @@ public class TempFilesTest {
     }
 
     @Test
-    public void shouldCreateUniqueFilesEveryTime() throws IOException {
+    public void shouldCreateUniqueFilesEveryTime() {
         TestingClock clock = new TestingClock();
         files.setClock(clock);
         File file1 = files.createUniqueFile("foo");
@@ -114,7 +114,7 @@ public class TempFilesTest {
     }
 
     @Test
-    public void shouldCreateUniqueFilesParentDirectoryIfDoesNotExist() throws IOException {
+    public void shouldCreateUniqueFilesParentDirectoryIfDoesNotExist() {
         String newTmpDir = original.getProperty("java.io.tmpdir") + "/" + UUID.randomUUID();
         System.setProperty("java.io.tmpdir", newTmpDir);
         File file = files.createUniqueFile("foo");
@@ -122,7 +122,7 @@ public class TempFilesTest {
     }
 
     @Test
-    public void shouldCreateUniqueFolders() throws IOException {
+    public void shouldCreateUniqueFolders() {
         TestingClock clock = new TestingClock();
         files.setClock(clock);
         File file1 = files.createUniqueFolder("foo");

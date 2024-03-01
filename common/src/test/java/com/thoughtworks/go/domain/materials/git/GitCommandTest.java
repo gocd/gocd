@@ -28,7 +28,6 @@ import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -41,7 +40,7 @@ import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
@@ -697,10 +696,7 @@ public class GitCommandTest {
 
         @Test
         void shouldParseGitOutputCorrectly() throws IOException {
-            List<String> stringList;
-            try (InputStream resourceAsStream = getClass().getResourceAsStream("git_sample_output.text")) {
-                stringList = IOUtils.readLines(resourceAsStream, UTF_8);
-            }
+            List<String> stringList = Files.readAllLines(Path.of(getClass().getResource("git_sample_output.text").getPath()));
 
             GitModificationParser parser = new GitModificationParser();
             List<Modification> mods = parser.parse(stringList);

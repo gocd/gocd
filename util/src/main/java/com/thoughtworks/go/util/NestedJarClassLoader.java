@@ -16,7 +16,6 @@
 package com.thoughtworks.go.util;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +83,7 @@ public class NestedJarClassLoader extends ClassLoader {
         File nestedJarFile = new File(jarDir, entry.getName());
         nestedJarFile.getParentFile().mkdirs();
         try (FileOutputStream out = new FileOutputStream(nestedJarFile)) {
-            IOUtils.copy(jarStream, out);
+            jarStream.transferTo(out);
         }
         LOGGER.info("Exploded Entry {} from to {}", entry.getName(), nestedJarFile);
         return nestedJarFile.toURI().toURL();

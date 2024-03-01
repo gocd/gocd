@@ -25,6 +25,7 @@ dependencies {
   api project.deps.apacheHttpMime
   api project.deps.commonsCollections4
   api project.deps.commonsText
+  implementation project.deps.commonsIO
   implementation project.deps.jodaTime
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok

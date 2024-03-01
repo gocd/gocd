@@ -25,7 +25,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.validation.SchemaFactory;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 public final class GoPluginDescriptorParser {
@@ -53,14 +52,14 @@ public final class GoPluginDescriptorParser {
     }
 
     public static GoPluginBundleDescriptor parseXML(InputStream pluginXml,
-                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws IOException, JAXBException, XMLStreamException, SAXException {
+                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws JAXBException, XMLStreamException, SAXException {
         return parseXML(pluginXml, bundleOrPluginJarFile.file().getAbsolutePath(), bundleOrPluginJarFile.extractionLocation(), bundleOrPluginJarFile.isBundledPlugin());
     }
 
     static GoPluginBundleDescriptor parseXML(InputStream pluginXML,
                                              String pluginJarFileLocation,
                                              File pluginBundleLocation,
-                                             boolean isBundledPlugin) throws IOException, JAXBException, XMLStreamException, SAXException {
+                                             boolean isBundledPlugin) throws JAXBException, XMLStreamException, SAXException {
         GoPluginDescriptor plugin = deserializeXML(pluginXML, GoPluginDescriptor.class);
         plugin.pluginJarFileLocation(pluginJarFileLocation);
         plugin.bundleLocation(pluginBundleLocation);

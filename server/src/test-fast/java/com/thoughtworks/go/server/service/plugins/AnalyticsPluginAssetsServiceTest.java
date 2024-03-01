@@ -23,7 +23,6 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,10 +33,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Objects;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -163,8 +164,9 @@ public class AnalyticsPluginAssetsServiceTest {
 
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(actualPath.toFile().exists());
-        byte[] expected = IOUtils.toByteArray(getClass().getResource("/plugin-endpoint.js"));
-        assertArrayEquals(expected, Files.readAllBytes(actualPath), "Content of plugin-endpoint.js should be preserved");
+        try (InputStream is = getClass().getResourceAsStream("/plugin-endpoint.js")) {
+            assertArrayEquals(Objects.requireNonNull(is).readAllBytes(), Files.readAllBytes(actualPath), "Content of plugin-endpoint.js should be preserved");
+        }
     }
 
     @Test
@@ -239,7 +241,9 @@ public class AnalyticsPluginAssetsServiceTest {
     }
 
     private String testDataZipArchive() throws IOException {
-        return new String(Base64.getEncoder().encode(IOUtils.toByteArray(getClass().getResource("/plugin_cache_test.zip"))));
+        try (InputStream is = getClass().getResourceAsStream("/plugin_cache_test.zip")) {
+            return new String(Base64.getEncoder().encode(Objects.requireNonNull(is).readAllBytes()));
+        }
     }
 
     private void addAnalyticsPluginInfoToStore(String pluginId) {

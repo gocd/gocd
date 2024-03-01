@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.plugin.access.secrets.v1;
 
-import com.google.common.collect.Sets;
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +29,7 @@ class SecretsMessageConverterV1Test {
     class lookupSecretsRequestBody {
         @Test
         void shouldSendLookupKeysWithSecretConfiguration() {
-            final String requestBody = new SecretsMessageConverterV1().lookupSecretsRequestBody(Sets.newLinkedHashSet(List.of("username", "password")), Map.of("FilePath", "/var/lib/secret.config"));
+            final String requestBody = new SecretsMessageConverterV1().lookupSecretsRequestBody(new LinkedHashSet<>(List.of("username", "password")), Map.of("FilePath", "/var/lib/secret.config"));
 
             JsonFluentAssert.assertThatJson(requestBody)
                     .isEqualTo("""

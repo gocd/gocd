@@ -17,7 +17,6 @@ package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.http.MimeTypes;
@@ -29,6 +28,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -36,8 +36,9 @@ import java.util.Objects;
 import static com.thoughtworks.go.util.SystemEnvironment.LOADING_PAGE;
 import static org.eclipse.jetty.http.MimeTypes.Type.*;
 
-/** When GoCD is starting. This is the only handler that will be active (till the web application context handler is up).
- *  During that time, this handler shows a 503 for all requests, while waiting for the rest of the server to be up.
+/**
+ * When GoCD is starting. This is the only handler that will be active (till the web application context handler is up).
+ * During that time, this handler shows a 503 for all requests, while waiting for the rest of the server to be up.
  */
 class GoServerLoadingIndicationHandler extends ContextHandler {
     private final WebAppContext webAppContext;
@@ -107,8 +108,8 @@ class GoServerLoadingIndicationHandler extends ContextHandler {
     }
 
     private String loadingPage() {
-        try {
-            return IOUtils.toString(Objects.requireNonNull(getClass().getResource(systemEnvironment.get(LOADING_PAGE))), StandardCharsets.UTF_8);
+        try (InputStream resourceAsStream = Objects.requireNonNull(getClass().getResourceAsStream(systemEnvironment.get(LOADING_PAGE)))) {
+            return new String(resourceAsStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             return "<h2>GoCD is starting up. Please wait ....</h2>";
         }

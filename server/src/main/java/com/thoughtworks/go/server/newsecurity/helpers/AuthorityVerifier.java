@@ -19,16 +19,15 @@ import com.google.common.collect.Sets;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class AuthorityVerifier {
-    private final HashSet<GrantedAuthority> grantedAuthorities;
+    private final Set<GrantedAuthority> grantedAuthorities;
 
     public AuthorityVerifier(Set<GrantedAuthority> grantedAuthorities) {
         Assert.notEmpty(grantedAuthorities, "granted authority must not be empty");
         Assert.noNullElements(grantedAuthorities.toArray(), "granted authority must not contain null elements");
-        this.grantedAuthorities = new HashSet<>(grantedAuthorities);
+        this.grantedAuthorities = Set.copyOf(grantedAuthorities);
     }
 
     public boolean hasAnyAuthorityMatching(Set<GrantedAuthority> userAuthorities) {

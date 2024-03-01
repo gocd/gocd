@@ -16,21 +16,21 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import jakarta.xml.bind.JAXBException;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GoPluginDescriptorParserTest {
     @Test
     void shouldPerformPluginXsdValidationAndFailWhenIDIsNotPresent() {
-        InputStream pluginXml = IOUtils.toInputStream("<go-plugin version=\"1\"></go-plugin>", StandardCharsets.UTF_8);
+        InputStream pluginXml = new ByteArrayInputStream("<go-plugin version=\"1\"></go-plugin>".getBytes(UTF_8));
         final JAXBException e = assertThrows(JAXBException.class, () ->
                 GoPluginDescriptorParser.parseXML(pluginXml, "/tmp/", new File("/tmp/"), true));
         assertTrue(e.getCause().getMessage().contains("Attribute 'id' must appear on element 'go-plugin'"), format("Message not correct: [%s]", e.getCause().getMessage()));
@@ -38,7 +38,7 @@ class GoPluginDescriptorParserTest {
 
     @Test
     void shouldPerformPluginXsdValidationAndFailWhenVersionIsNotPresent() {
-        InputStream pluginXml = IOUtils.toInputStream("<go-plugin id=\"some\"></go-plugin>", StandardCharsets.UTF_8);
+        InputStream pluginXml = new ByteArrayInputStream("<go-plugin id=\"some\"></go-plugin>".getBytes(UTF_8));
         final JAXBException e = assertThrows(JAXBException.class, () ->
                 GoPluginDescriptorParser.parseXML(pluginXml, "/tmp/", new File("/tmp/"), true));
         assertTrue(e.getCause().getMessage().contains("Attribute 'version' must appear on element 'go-plugin'"), format("Message not correct: [%s]", e.getCause().getMessage()));
@@ -46,7 +46,7 @@ class GoPluginDescriptorParserTest {
 
     @Test
     void shouldValidatePluginVersion() {
-        InputStream pluginXml = IOUtils.toInputStream("<go-plugin version=\"10\"></go-plugin>", StandardCharsets.UTF_8);
+        InputStream pluginXml = new ByteArrayInputStream("<go-plugin version=\"10\"></go-plugin>".getBytes(UTF_8));
         final JAXBException e = assertThrows(JAXBException.class, () ->
                 GoPluginDescriptorParser.parseXML(pluginXml, "/tmp/", new File("/tmp/"), true));
         assertTrue(e.getCause().getMessage().contains("Value '10' of attribute 'version' of element 'go-plugin' is not valid"), format("Message not correct: [%s]", e.getCause().getMessage()));

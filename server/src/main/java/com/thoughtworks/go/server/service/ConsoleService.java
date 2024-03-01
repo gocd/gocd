@@ -25,7 +25,6 @@ import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,8 +90,8 @@ public class ConsoleService {
         parentFile.mkdirs();
 
         LOGGER.trace("Updating console log [{}]", dest.getAbsolutePath());
-        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(dest, dest.exists()))) {
-            IOUtils.copy(in, out);
+        try (OutputStream out = new FileOutputStream(dest, dest.exists())) {
+            in.transferTo(out);
         } catch (IOException e) {
             LOGGER.error("Failed to update console log at : [{}]", dest.getAbsolutePath(), e);
             return false;

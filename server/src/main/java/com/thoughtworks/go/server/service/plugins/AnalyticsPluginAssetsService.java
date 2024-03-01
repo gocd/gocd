@@ -24,7 +24,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,7 @@ import org.springframework.web.context.ServletContextAware;
 import javax.servlet.ServletContext;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,6 +42,7 @@ import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
 
 @Service
@@ -116,9 +117,9 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
             return;
         }
 
-        try {
+        try (InputStream js = getClass().getResourceAsStream("/" + PLUGIN_ENDPOINT_JS)) {
             byte[] payload = Base64.getDecoder().decode(data.getBytes());
-            byte[] pluginEndpointJsContent = IOUtils.toByteArray(getClass().getResource("/" + PLUGIN_ENDPOINT_JS));
+            byte[] pluginEndpointJsContent = js.readAllBytes();
 
             try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(payload))) {
                 String assetsHash = calculateHash(payload, pluginEndpointJsContent);
@@ -144,8 +145,8 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
             return;
         }
 
-        try {
-            Files.list(externalAssetsPath).forEach(path -> {
+        try (Stream<Path> list = Files.list(externalAssetsPath)) {
+            list.forEach(path -> {
                 try {
                     Files.copy(path, Paths.get(pluginAssetsRoot, path.getFileName().toString()));
                 } catch (Exception e) {

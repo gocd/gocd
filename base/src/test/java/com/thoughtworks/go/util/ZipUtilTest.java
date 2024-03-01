@@ -16,7 +16,6 @@
 package com.thoughtworks.go.util;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -234,16 +233,16 @@ public class ZipUtilTest {
     }
 
     @Test
-    void shouldReadContentFromFileInsideZip() throws IOException, URISyntaxException {
-        try (ZipInputStream zip = new ZipInputStream(new FileInputStream(new File(getClass().getResource("/dummy-plugins.zip").toURI())))) {
+    void shouldReadContentFromFileInsideZip() throws IOException {
+        try (ZipInputStream zip = new ZipInputStream(getClass().getResourceAsStream("/dummy-plugins.zip"))) {
             String contents = zipUtil.getFileContentInsideZip(zip, "version.txt");
             assertThat(contents).isEqualTo("13.3.0(17222-4c7fabcb9c9e9c)");
         }
     }
 
     @Test
-    void shouldReturnNullIfTheFileByTheNameDoesNotExistInsideZip() throws IOException, URISyntaxException {
-        try (ZipInputStream zip = new ZipInputStream(new FileInputStream(new File(getClass().getResource("/dummy-plugins.zip").toURI())))) {
+    void shouldReturnNullIfTheFileByTheNameDoesNotExistInsideZip() throws IOException {
+        try (ZipInputStream zip = new ZipInputStream(getClass().getResourceAsStream("/dummy-plugins.zip"))) {
             String contents = zipUtil.getFileContentInsideZip(zip, "does_not_exist.txt");
             assertThat(contents).isNull();
         }
@@ -254,7 +253,7 @@ public class ZipUtilTest {
             ZipEntry entry = actualZip.getEntry(file);
             assertThat(entry).isNotNull();
             try (InputStream entryStream = actualZip.getInputStream(entry)) {
-                assertThat(IOUtils.toString(entryStream, UTF_8)).isEqualTo(expectedContent);
+                assertThat(new String(entryStream.readAllBytes(), UTF_8)).isEqualTo(expectedContent);
             }
         }
     }

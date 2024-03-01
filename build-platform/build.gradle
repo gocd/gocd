@@ -31,7 +31,7 @@ dependencies {
   // This is following https://docs.gradle.org/current/userguide/platforms.html#sub:bom_import
   api enforcedPlatform(project.deps.slf4jBom)
   api enforcedPlatform(project.deps.jacksonBom)
-  api enforcedPlatform(project.deps.jaxbBom)
+  api platform(project.deps.jaxbBom)
 
   constraints {
     api project.deps.angusActivation

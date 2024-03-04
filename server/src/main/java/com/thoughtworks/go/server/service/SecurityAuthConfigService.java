@@ -24,35 +24,22 @@ import com.thoughtworks.go.config.update.SecurityAuthConfigDeleteCommand;
 import com.thoughtworks.go.config.update.SecurityAuthConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.ValidationError;
 import com.thoughtworks.go.plugin.domain.common.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.server.ui.AuthPluginInfoViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @Component
 public class SecurityAuthConfigService extends PluginProfilesService<SecurityAuthConfig> {
     private final AuthorizationExtension authorizationExtension;
-    private final AuthorizationMetadataStore authorizationMetadataStore;
 
     @Autowired
     public SecurityAuthConfigService(GoConfigService goConfigService, EntityHashingService hashingService, AuthorizationExtension authorizationExtension) {
-        this(goConfigService, hashingService, authorizationExtension, AuthorizationMetadataStore.instance());
-    }
-
-    protected SecurityAuthConfigService(GoConfigService goConfigService, EntityHashingService hashingService, AuthorizationExtension authorizationExtension, AuthorizationMetadataStore authorizationMetadataStore) {
         super(goConfigService, hashingService);
         this.authorizationExtension = authorizationExtension;
-        this.authorizationMetadataStore = authorizationMetadataStore;
     }
 
     @Override
@@ -113,18 +100,5 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
             }
             property.addError(error.getKey(), error.getMessage());
         }
-    }
-
-    public List<AuthPluginInfoViewModel> getAllConfiguredWebBasedAuthorizationPlugins() {
-        List<AuthPluginInfoViewModel> result = new ArrayList<>();
-        Set<AuthorizationPluginInfo> loadedWebBasedAuthPlugins = authorizationMetadataStore.getPluginsThatSupportsWebBasedAuthentication();
-        SecurityAuthConfigs configuredAuthPluginProfiles = getPluginProfiles();
-        for (SecurityAuthConfig authConfig : configuredAuthPluginProfiles) {
-            loadedWebBasedAuthPlugins.stream()
-                .filter(authorizationPluginInfo1 -> authorizationPluginInfo1.getDescriptor().id().equals(authConfig.getPluginId()))
-                .findFirst()
-                .ifPresent(authorizationPluginInfo -> result.add(new AuthPluginInfoViewModel(authorizationPluginInfo)));
-        }
-        return result;
     }
 }

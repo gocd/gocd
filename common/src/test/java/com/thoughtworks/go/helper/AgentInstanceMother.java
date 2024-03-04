@@ -134,18 +134,6 @@ public class AgentInstanceMother {
         return createFromLiveAgent(runtimeInfo, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
     }
 
-    public static AgentInstance updateUuid(AgentInstance agent, String uuid) {
-        agent.syncAgentFrom(new Agent(uuid, agent.getHostname(), agent.getIpAddress()));
-        return agent;
-    }
-
-
-    public static AgentInstance updateResources(AgentInstance agentInstance, String commaSeparatedResources) {
-        agentInstance.getAgent().setResources(commaSeparatedResources);
-        return agentInstance;
-    }
-
-
     public static AgentInstance updateUsableSpace(AgentInstance agentInstance, Long freeDiskSpace) {
         Agent agent = agentInstance.getAgent();
         agentInstance.update(fromServer(agent, true, agentInstance.getLocation(), freeDiskSpace, "linux"));
@@ -157,23 +145,6 @@ public class AgentInstanceMother {
         AgentRuntimeInfo newRuntimeInfo = fromServer(agent, true, agentInstance.getLocation(), agentInstance.freeDiskSpace().space(), operatingSystem);
         newRuntimeInfo.setStatus(agentInstance.getStatus());
         agentInstance.update(newRuntimeInfo);
-        return agentInstance;
-    }
-
-    public static AgentInstance updateIpAddress(AgentInstance agentInstance, String ip) {
-        agentInstance.getAgent().setIpaddress(ip);
-        return agentInstance;
-    }
-
-    public static AgentInstance updateLocation(AgentInstance agentInstance, String location) {
-        Agent agent = agentInstance.getAgent();
-        agentInstance.update(fromServer(agent, true, location, agentInstance.freeDiskSpace().space(), "linux"));
-        return agentInstance;
-    }
-
-    public static AgentInstance updateHostname(AgentInstance agentInstance, String hostname) {
-        Agent original = agentInstance.getAgent();
-        agentInstance.syncAgentFrom(new Agent(original.getUuid(), hostname, original.getIpaddress(), original.getResourcesAsList()));
         return agentInstance;
     }
 

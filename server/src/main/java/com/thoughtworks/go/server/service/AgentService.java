@@ -33,8 +33,6 @@ import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.notifications.AgentStatusChangeNotifier;
 import com.thoughtworks.go.server.persistence.AgentDao;
-import com.thoughtworks.go.server.ui.AgentViewModel;
-import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -126,10 +124,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public Map<AgentInstance, Collection<String>> getAgentInstanceToSortedEnvMap() {
         return Streams.stream(agentInstances.getAllAgents()).collect(toMap(Function.identity(), AgentService::getSortedEnvironmentList));
-    }
-
-    public AgentsViewModel getRegisteredAgentsViewModel() {
-        return toAgentViewModels(agentInstances.findRegisteredAgents());
     }
 
     public AgentInstances findRegisteredAgents() {
@@ -338,14 +332,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             agent = agentDao.fetchAgentFromDBByUUIDIncludingDeleted(uuid);
         }
         return agent;
-    }
-
-    public AgentsViewModel filterAgentsViewModel(List<String> uuids) {
-        return agentInstances.filter(uuids).stream().map(AgentViewModel::new).collect(toCollection(AgentsViewModel::new));
-    }
-
-    public AgentViewModel findAgentViewModel(String uuid) {
-        return toAgentViewModel(findAgentAndRefreshStatus(uuid));
     }
 
     public LinkedMultiValueMap<String, ElasticAgentMetadata> allElasticAgents() {
@@ -633,16 +619,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             throw new UnprocessableEntityException(getFailedToDeleteMessage(totalAgentToValidate));
         }
         return true;
-    }
-
-    private AgentsViewModel toAgentViewModels(AgentInstances agentInstances) {
-        return stream(agentInstances.spliterator(), false)
-                .map(this::toAgentViewModel)
-                .collect(toCollection(AgentsViewModel::new));
-    }
-
-    private AgentViewModel toAgentViewModel(AgentInstance instance) {
-        return new AgentViewModel(instance, instance.getAgent().getEnvironmentsAsList());
     }
 
     private String getFailedToDeleteMessage(int numOfAgents) {

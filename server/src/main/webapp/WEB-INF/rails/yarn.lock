@@ -5891,7 +5891,7 @@ __metadata:
     jquery: "npm:^3.7.1"
     karma: "npm:^6.4.3"
     karma-chrome-launcher: "npm:^3.2.0"
-    karma-firefox-launcher: "npm:^2.1.2"
+    karma-firefox-launcher: "npm:^2.1.3"
     karma-html-reporter: "https://github.com/dtabuenc/karma-html-reporter.git#4247dc16129a9b90bb92f7f386515d4d8c1563c3"
     karma-jasmine: "npm:^5.1.0"
     karma-jasmine-html-reporter: "npm:^2.1.0"
@@ -7155,13 +7155,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"karma-firefox-launcher@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "karma-firefox-launcher@npm:2.1.2"
+"karma-firefox-launcher@npm:^2.1.3":
+  version: 2.1.3
+  resolution: "karma-firefox-launcher@npm:2.1.3"
   dependencies:
     is-wsl: "npm:^2.2.0"
-    which: "npm:^2.0.1"
-  checksum: 10/1e326ffa3f724525ec40efc953eafcc4e366883a36079ec8d83bf9cfcbae37533764a7cf858b0dcc17697e2b89f013eae08b7b415d45ebf2fc68399b260986ee
+    which: "npm:^3.0.0"
+  checksum: 10/0ad4c6c37e4c1a3649eb542e6f2acf1c4b6f45ceedc424c26abb2621a7f7cb6222b8c56cf53e5b39e18057bfe2b320f2aa080f5311f49f38f068d3c5e37b9aad
   languageName: node
   linkType: hard
 
@@ -12154,6 +12154,17 @@ __metadata:
   bin:
     node-which: ./bin/node-which
   checksum: 10/4782f8a1d6b8fc12c65e968fea49f59752bf6302dc43036c3bf87da718a80710f61a062516e9764c70008b487929a73546125570acea95c5b5dcc8ac3052c70f
+  languageName: node
+  linkType: hard
+
+"which@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "which@npm:3.0.1"
+  dependencies:
+    isexe: "npm:^2.0.0"
+  bin:
+    node-which: bin/which.js
+  checksum: 10/adf720fe9d84be2d9190458194f814b5e9015ae4b88711b150f30d0f4d0b646544794b86f02c7ebeec1db2029bc3e83a7ff156f542d7521447e5496543e26890
   languageName: node
   linkType: hard
 

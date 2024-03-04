@@ -36,8 +36,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
-import com.thoughtworks.go.server.ui.AgentViewModel;
-import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -1412,41 +1410,6 @@ class AgentServiceTest {
             when(agentInstances.spliterator()).thenReturn(List.of(agentInstance, agentInstance1, agentInstance2).spliterator());
 
             assertEquals(List.of("a", "b", "c"), agentService.getListOfResourcesAcrossAgents());
-        }
-    }
-
-    @Nested
-    class FilterAgentsViewModel {
-        @Test
-        void filterShouldReturnAgentsViewModelForSpecifiedUUIDs() {
-            SystemEnvironment sysEnv = new SystemEnvironment();
-
-            Agent agent1 = new Agent("uuid-1", "host-1", "192.168.1.2");
-            AgentRuntimeInfo runtimeInfo1 = fromServer(agent1, true, "/foo/bar", 100L, "linux");
-            AgentInstance instance1 = createFromLiveAgent(runtimeInfo1, sysEnv, null);
-
-            Agent agent3 = new Agent("uuid-3", "host-3", "192.168.1.4");
-            AgentRuntimeInfo runtimeInfo3 = fromServer(agent3, true, "/baz/quux", 300L, "linux");
-            AgentInstance instance3 = createFromLiveAgent(runtimeInfo3, sysEnv, null);
-
-            List<String> uuids = List.of("uuid-1", "uuid-3");
-            when(agentInstances.filter(uuids)).thenReturn(List.of(instance1, instance3));
-
-            AgentsViewModel agentsViewModel = agentService.filterAgentsViewModel(uuids);
-            AgentViewModel view1 = new AgentViewModel(instance1);
-            AgentViewModel view2 = new AgentViewModel(instance3);
-
-            assertThat(agentsViewModel, is(new AgentsViewModel(view1, view2)));
-            verify(agentInstances).filter(uuids);
-        }
-
-        @Test
-        void filterShouldEmptyAgentsViewModelForNullOrEmptyListOfUUIDs() {
-            AgentsViewModel agentsViewModel = agentService.filterAgentsViewModel(emptyList());
-            assertThat(agentsViewModel, is(emptyList()));
-
-            agentsViewModel = agentService.filterAgentsViewModel(null);
-            assertThat(agentsViewModel, is(emptyList()));
         }
     }
 

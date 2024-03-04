@@ -28,7 +28,6 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
-import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
@@ -38,8 +37,6 @@ import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.messaging.notifications.AgentStatusChangeNotifier;
 import com.thoughtworks.go.server.persistence.AgentDao;
-import com.thoughtworks.go.server.ui.AgentViewModel;
-import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -69,7 +66,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
-import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
@@ -192,20 +188,6 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        void shouldFindAgentViewModelForAnExistingAgent() {
-            Agent agent = createEnabledAgent(UUID);
-            String env = "prod";
-            agent.setEnvironments(env);
-            agentDao.saveOrUpdate(agent);
-
-            AgentViewModel actual = agentService.findAgentViewModel(UUID);
-            assertThat(actual.getUuid(), is(UUID));
-            HashSet<String> envSet = new HashSet<>();
-            envSet.add(env);
-            assertThat(actual.getEnvironments(), is(envSet));
-        }
-
-        @Test
         void shouldBeAbleToDeleteDisabledAgentInIdleState() {
             createAnIdleAgentAndDisableIt(UUID);
             createEnabledAgent(UUID2);
@@ -223,30 +205,6 @@ public class AgentServiceIntegrationTest {
             RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.deleteAgents(List.of(unknownUUID)));
             assertThat(e.getMessage(), is("Agent with uuid 'unknown-agent-id' was not found!"));
         }
-    }
-
-    @Test
-    void getRegisteredAgentsViewModelShouldNotReturnNotRegisteredAgentsViewModel() {
-        AgentInstance idle = AgentInstanceMother.updateUuid(idle(new Date(), "CCeDev01"), UUID);
-        AgentInstance pending = pending();
-        AgentInstance building = building();
-        AgentInstance denied = disabled();
-
-        AgentInstances instances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), idle, pending, building, denied);
-        AgentService agentService = newAgentService(instances);
-
-        AgentsViewModel agentViewModels = agentService.getRegisteredAgentsViewModel();
-        assertThat(agentViewModels.size(), is(3));
-        agentViewModels.forEach(agentViewModel -> assertThat(agentViewModel.getStatus().getConfigStatus(), not(is(Pending))));
-    }
-
-    @Test
-    void getRegisteredAgentsViewModelShouldReturnEmptyRegisteredAgentsViewModelWhenThereAreNoRegisteredAgents() {
-        AgentInstances agentInstances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener());
-        AgentService agentService = newAgentService(agentInstances);
-
-        AgentsViewModel agentViewModels = agentService.getRegisteredAgentsViewModel();
-        assertThat(agentViewModels.size(), is(0));
     }
 
     @Test

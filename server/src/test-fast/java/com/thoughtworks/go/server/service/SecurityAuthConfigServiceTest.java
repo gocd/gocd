@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
@@ -36,11 +35,11 @@ import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.ui.AuthPluginInfoViewModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -54,19 +53,17 @@ public class SecurityAuthConfigServiceTest {
     private EntityHashingService hashingService;
     private GoConfigService goConfigService;
     private SecurityAuthConfigService securityAuthConfigService;
-    private AuthorizationMetadataStore authorizationMetadataStore;
 
     @BeforeEach
     public void setUp() throws Exception {
         extension = mock(AuthorizationExtension.class);
         hashingService = mock(EntityHashingService.class);
         goConfigService = mock(GoConfigService.class);
-        authorizationMetadataStore = mock(AuthorizationMetadataStore.class);
-        securityAuthConfigService = new SecurityAuthConfigService(goConfigService, hashingService, extension, authorizationMetadataStore);
+        securityAuthConfigService = new SecurityAuthConfigService(goConfigService, hashingService, extension);
     }
 
     @Test
-    public void verifyConnection_shouldSendSuccessResponseOnSuccessfulVerification() throws Exception {
+    public void verifyConnection_shouldSendSuccessResponseOnSuccessfulVerification() {
         VerifyConnectionResponse success = new VerifyConnectionResponse("success", "Connection check passed", new ValidationResult());
         SecurityAuthConfig ldap = new SecurityAuthConfig("ldap", "cd.go.ldap");
 
@@ -78,7 +75,7 @@ public class SecurityAuthConfigServiceTest {
     }
 
     @Test
-    public void verifyConnection_shouldFailForAInvalidAuthConfig() throws Exception {
+    public void verifyConnection_shouldFailForAInvalidAuthConfig() {
         SecurityAuthConfig ldap = new SecurityAuthConfig("ldap", "cd.go.ldap",
                 new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue()));
         ValidationResult validationResult = new ValidationResult();
@@ -97,7 +94,7 @@ public class SecurityAuthConfigServiceTest {
     }
 
     @Test
-    public void verifyConnection_shouldSendConnectionFailedResponseOnUnSuccessfulVerification() throws Exception {
+    public void verifyConnection_shouldSendConnectionFailedResponseOnUnSuccessfulVerification() {
         VerifyConnectionResponse success = new VerifyConnectionResponse("failure", "Connection check failed", new ValidationResult());
         SecurityAuthConfig ldap = new SecurityAuthConfig("ldap", "cd.go.ldap");
 
@@ -109,7 +106,7 @@ public class SecurityAuthConfigServiceTest {
     }
 
     @Test
-    public void verifyConnection_shouldFailInAbsenceOfPlugin() throws Exception {
+    public void verifyConnection_shouldFailInAbsenceOfPlugin() {
         SecurityAuthConfig ldap = new SecurityAuthConfig("ldap", "cd.go.ldap");
 
         when(extension.verifyConnection("cd.go.ldap", ldap.getConfigurationAsMap(true))).thenThrow(new RecordNotFoundException(""));
@@ -151,7 +148,7 @@ public class SecurityAuthConfigServiceTest {
     }
 
     @Test
-    public void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginIdWhileCreating() throws Exception {
+    public void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginIdWhileCreating() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("some-id", "non-existent-plugin", create("key", false, "value"));
 
         Username username = new Username("username");
@@ -184,7 +181,7 @@ public class SecurityAuthConfigServiceTest {
     }
 
     @Test
-    public void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginId() throws Exception {
+    public void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginId() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("some-id", "non-existent-plugin", create("key", false, "value"));
 
         Username username = new Username("username");
@@ -207,7 +204,7 @@ public class SecurityAuthConfigServiceTest {
     }
 
     @Test
-    public void shouldGetSecurityAuthConfigByGivenId() throws Exception {
+    public void shouldGetSecurityAuthConfigByGivenId() {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
         SecurityConfig securityConfig = new SecurityConfig();
         securityConfig.securityAuthConfigs().add(authConfig);
@@ -231,7 +228,7 @@ public class SecurityAuthConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnAMapOfSecurityAuthConfigs() throws Exception {
+    public void shouldReturnAMapOfSecurityAuthConfigs() {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
         SecurityConfig securityConfig = new SecurityConfig();
         securityConfig.securityAuthConfigs().add(authConfig);
@@ -243,32 +240,6 @@ public class SecurityAuthConfigServiceTest {
         Map<String, SecurityAuthConfig> authConfigMap = securityAuthConfigService.listAll();
         assertThat(authConfigMap.size(), is(1));
         assertThat(authConfigMap, is(expectedMap));
-    }
-
-    @Test
-    public void shouldGetAListOfAllConfiguredWebBasedAuthorizationPlugins() {
-        Set<AuthorizationPluginInfo> installedWebBasedPlugins = new HashSet<>();
-        String githubPluginId = "cd.go.github";
-        AuthorizationPluginInfo githubPluginInfo = pluginInfo(githubPluginId, "GitHub Auth Plugin", SupportedAuthType.Web);
-        installedWebBasedPlugins.add(githubPluginInfo);
-        installedWebBasedPlugins.add(pluginInfo(githubPluginId, "Google Auth Plugin", SupportedAuthType.Web));
-        when(authorizationMetadataStore.getPluginsThatSupportsWebBasedAuthentication()).thenReturn(installedWebBasedPlugins);
-        when(authorizationMetadataStore.getPluginInfo(githubPluginId)).thenReturn(githubPluginInfo);
-
-        SecurityConfig securityConfig = new SecurityConfig();
-        SecurityAuthConfig github = new SecurityAuthConfig("github", githubPluginId);
-        SecurityAuthConfig ldap = new SecurityAuthConfig("ldap", "cd.go.ldap");
-        securityConfig.securityAuthConfigs().add(github);
-
-        securityConfig.securityAuthConfigs().add(ldap);
-        when(goConfigService.security()).thenReturn(securityConfig);
-
-        List<AuthPluginInfoViewModel> allWebBasedAuthorizationConfigs = securityAuthConfigService.getAllConfiguredWebBasedAuthorizationPlugins();
-        assertThat(allWebBasedAuthorizationConfigs.size(), is(1));
-        AuthPluginInfoViewModel pluginInfoViewModel = allWebBasedAuthorizationConfigs.get(0);
-        assertThat(pluginInfoViewModel.pluginId(), is(githubPluginId));
-        assertThat(pluginInfoViewModel.name(), is("GitHub Auth Plugin"));
-        assertThat(pluginInfoViewModel.imageUrl(), is("/go/api/plugin_images/cd.go.github/hash"));
     }
 
     private AuthorizationPluginInfo pluginInfo(String githubPluginId, String name, SupportedAuthType supportedAuthType) {

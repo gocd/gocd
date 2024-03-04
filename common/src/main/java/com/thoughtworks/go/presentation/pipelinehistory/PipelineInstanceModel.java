@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.util.TimeConverter;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.Date;
 
@@ -341,7 +342,7 @@ public class PipelineInstanceModel implements PipelineInfo {
         return String.format("%s: %s", latestStage.getState(), latestStage.getName());
     }
 
-    @Deprecated(since = "use the other construction methods")
+    @TestOnly
     public static PipelineInstanceModel createEmptyModel() {
         return new PipelineInstanceModel();
     }

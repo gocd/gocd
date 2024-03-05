@@ -131,5 +131,5 @@
     "webpack@npm:4.47.0/terser-webpack-plugin": "^4.2.3",
     "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1"
   },
-  "packageManager": "yarn@4.1.0"
+  "packageManager": "yarn@4.1.1"
 }

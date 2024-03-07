@@ -34,7 +34,6 @@ dependencies {
   api platform(project.deps.jaxbBom)
 
   constraints {
-    api project.deps.angusActivation
     api project.deps.commonsCodec
     api project.deps.commonsIO
     api project.deps.commonsPool

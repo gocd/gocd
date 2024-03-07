@@ -118,7 +118,7 @@ task verifyJar(type: VerifyJarTask) {
     "lib": [
       "agent-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
-      "angus-activation-${project.versions.angusActivation}.jar",
+      "angus-activation-2.0.2.jar",
       "animal-sniffer-annotations-1.9.jar",
       "ant-${project.versions.apacheAnt}.jar",
       "base-${project.version}.jar",
@@ -153,7 +153,7 @@ task verifyJar(type: VerifyJarTask) {
       "istack-commons-runtime-4.1.2.jar",
       "jakarta.activation-api-2.1.3.jar",
       "jakarta.annotation-api-${project.versions.jakartaAnnotation}.jar",
-      "jakarta.xml.bind-api-4.0.1.jar",
+      "jakarta.xml.bind-api-4.0.2.jar",
       "jaxb-core-${project.versions.jaxb}.jar",
       "jaxb-runtime-${project.versions.jaxb}.jar",
       "jcl-over-slf4j-${project.versions.slf4jBom}.jar",

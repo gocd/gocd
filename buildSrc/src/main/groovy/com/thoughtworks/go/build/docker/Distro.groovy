@@ -69,7 +69,7 @@ enum Distro implements DistroBehavior {
         '  apk add --no-cache tzdata --virtual .build-deps curl binutils zstd',
         '  GLIBC_VER="2.34-r0"',
         '  ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download"',
-        '  ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.3.1-1-x86_64.pkg.tar.zst"',
+        '  ZLIB_URL="https://america.archive.pkgbuild.com/packages/z/zlib/zlib-1%3A1.3.1-1-x86_64.pkg.tar.zst"',
         '  ZLIB_SHA256=a46c58aa1d1cb4a1def7aa27acf03db61e6a7f85ad0a3d8103f9463a453e2b02',
         '  curl -LfsS https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub',
         '  SGERRAND_RSA_SHA256="823b54589c93b02497f1ba4dc622eaef9c813e6b0f0ebbb2f771e32adf9f4ef2"',

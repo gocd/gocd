@@ -38,7 +38,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SystemStubsExtension.class)
-abstract class BaseGitCommandIntegrationTest {
+abstract class GitCommandIntegrationTestBase {
     protected static final String TEST_BRANCH = "foo";
     protected static final String TEST_SUBMODULE = "submodule-1";
     @SystemStub

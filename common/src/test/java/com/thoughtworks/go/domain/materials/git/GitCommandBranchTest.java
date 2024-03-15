@@ -33,7 +33,7 @@ import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GitCommandBranchTest extends BaseGitCommandIntegrationTest {
+public class GitCommandBranchTest extends GitCommandIntegrationTestBase {
 
     @Test
     void shouldCloneFromBranchWhenMaterialPointsToABranch() throws IOException {

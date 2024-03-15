@@ -44,7 +44,7 @@ public class GitCommandTest {
     }
 
     @Nested
-    class BasicCloneIntegration extends BaseGitCommandIntegrationTest {
+    class BasicCloneIntegration extends GitCommandIntegrationTestBase {
 
         @Test
         void shouldCloneFromMasterWhenNoBranchIsSpecified() {

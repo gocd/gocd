@@ -44,7 +44,7 @@ import static java.util.regex.Pattern.quote;
 import static org.apache.commons.io.filefilter.FileFilterUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GitCommandSubmodulesTest extends BaseGitCommandIntegrationTest {
+public class GitCommandSubmodulesTest extends GitCommandIntegrationTestBase {
 
     @Test
     void shouldOutputSubmoduleRevisionsAfterUpdate() throws Exception {

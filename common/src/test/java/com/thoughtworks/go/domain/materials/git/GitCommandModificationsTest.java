@@ -43,7 +43,7 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GitCommandModificationsTest extends BaseGitCommandIntegrationTest {
+public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
 
     @Test
     void shouldRetrieveLatestModification() {

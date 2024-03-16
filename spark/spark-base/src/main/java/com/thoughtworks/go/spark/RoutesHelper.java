@@ -63,7 +63,7 @@ public class RoutesHelper {
     }
 
     public void init() {
-        before("/*", (request, response) -> request.attribute(TIMER_START, new RuntimeHeaderEmitter(request, response)));
+        before("/*", (request, response) -> request.attribute(TIMER_START, new RuntimeHeaderEmitter(response)));
         before("/*", (request, response) -> response.header("Cache-Control", "max-age=0, private, must-revalidate"));
 
         controllers.forEach(this::addDeprecationHeaders);
@@ -75,15 +75,8 @@ public class RoutesHelper {
 
         exception(JsonParseException.class, this::invalidJsonPayload);
         exception(UnprocessableEntityException.class, this::unprocessableEntity);
+        exception(Exception.class, this::unhandledException);
 
-        exception(Exception.class, (e, req, res) -> {
-            final String query = req.queryString();
-            final String uri = req.requestMethod() + " " + (isNotBlank(query) ? req.pathInfo() + "?" + query : req.pathInfo());
-            LOG.error(format("Unhandled exception on [%s]: %s", uri, e.getMessage()), e);
-
-            res.status(HttpURLConnection.HTTP_INTERNAL_ERROR);
-            res.body(GSON.toJson(Map.of("error", e.getMessage())));
-        });
         afterAfter("/*", (request, response) -> request.<RuntimeHeaderEmitter>attribute(TIMER_START).render());
     }
 
@@ -111,11 +104,6 @@ public class RoutesHelper {
         });
     }
 
-    private void unprocessableEntity(UnprocessableEntityException exception, Request request, Response response) {
-        response.status(HttpStatus.SC_UNPROCESSABLE_ENTITY);
-        response.body(GSON.toJson(Map.of("message", "Your request could not be processed. " + exception.getMessage())));
-    }
-
     void httpException(HttpException ex, Request req, Response res) {
         res.status(ex.getStatus().value());
         List<String> acceptedTypes = getAcceptedTypesFromRequest(req);
@@ -127,6 +115,20 @@ public class RoutesHelper {
         } else {
             res.body(GSON.toJson(Map.of("message", ex.getMessage())));
         }
+    }
+
+    private void unprocessableEntity(UnprocessableEntityException ex, Request request, Response response) {
+        response.status(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        response.body(GSON.toJson(Map.of("message", "Your request could not be processed. " + ex.getMessage())));
+    }
+
+    void unhandledException(Exception ex, Request req, Response res) {
+        final String query = req.queryString();
+        final String uri = req.requestMethod() + " " + (isNotBlank(query) ? req.pathInfo() + "?" + query : req.pathInfo());
+        LOG.error(format("Unhandled exception on [%s]: %s", uri, ex.getMessage()), ex);
+
+        res.status(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        res.body(GSON.toJson(Map.of("error", ex.getMessage() == null ? "Internal server error" : ex.getMessage())));
     }
 
     private boolean containsAny(List<String> list, String... strs) {
@@ -147,14 +149,12 @@ public class RoutesHelper {
         res.body(GSON.toJson(Map.of("error", "Payload data is not valid JSON: " + ex.getMessage())));
     }
 
-    private class RuntimeHeaderEmitter {
-        private final Request request;
+    private static class RuntimeHeaderEmitter {
         private final Response response;
         private final long timerStart;
 
-        public RuntimeHeaderEmitter(Request request, Response response) {
+        public RuntimeHeaderEmitter(Response response) {
             this.timerStart = System.currentTimeMillis();
-            this.request = request;
             this.response = response;
         }
 

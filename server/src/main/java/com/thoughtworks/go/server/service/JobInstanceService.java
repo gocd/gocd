@@ -38,7 +38,6 @@ import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -292,27 +291,18 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        for (ServerHealthState state : serverHealthService.logs()) {
-            HealthStateScope currentScope = state.getType().getScope();
-            if (currentScope.isForJob()) {
-                serverHealthService.removeByScope(currentScope);
-            }
-        }
+        serverHealthService.removeByScopeMatcher(HealthStateScope::isForJob);
     }
 
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
         @Override
         public void onEntityConfigChange(PipelineConfig pipelineConfig) {
-            for (ServerHealthState state : serverHealthService.logs()) {
-                HealthStateScope currentScope = state.getType().getScope();
-                if (currentScope.isForJob()) {
-                    String[] split = currentScope.getScope().split("/");
-                    if (split.length > 0 && new CaseInsensitiveString(split[0]).equals(pipelineConfig.name())) {
-                        serverHealthService.removeByScope(currentScope);
-                    }
-                }
-            }
+            serverHealthService.removeByScopeMatcher(scope -> scope.isForJob() && isForThisPipelineConfig(scope, pipelineConfig.name()));
+        }
 
+        private static boolean isForThisPipelineConfig(HealthStateScope currentScope, CaseInsensitiveString pipelineConfigName) {
+            String[] split = currentScope.getScope().split("/");
+            return split.length > 0 && new CaseInsensitiveString(split[0]).equals(pipelineConfigName);
         }
     }
 

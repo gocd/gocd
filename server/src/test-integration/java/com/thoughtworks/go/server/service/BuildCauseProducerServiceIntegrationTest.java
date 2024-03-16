@@ -57,6 +57,9 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.serverhealth.HealthStateLevel;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthMatcher;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
@@ -283,8 +286,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials();
 
-        assertThat(serverHealthService.getLogsAsText(),
-                containsString("GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
+        assertThat(serverHealthService, ServerHealthMatcher.containsState(HealthStateType.artifactsDiskFull(), HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), not(hasItem(new CaseInsensitiveString(MINGLE_PIPELINE_NAME))));
     }
 
@@ -297,8 +299,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()),
                 new ServerHealthStateOperationResult());
 
-        assertThat(serverHealthService.getLogsAsText(),
-                containsString("GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
+        assertThat(serverHealthService, ServerHealthMatcher.containsState(HealthStateType.artifactsDiskFull(), HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), not(hasItem(new CaseInsensitiveString(MINGLE_PIPELINE_NAME))));
     }
 

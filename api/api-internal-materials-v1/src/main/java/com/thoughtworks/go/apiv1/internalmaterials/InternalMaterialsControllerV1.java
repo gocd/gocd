@@ -102,7 +102,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         Map<MaterialConfig, Boolean> materialConfigs = materialConfigService.getMaterialConfigsWithPermissions(currentUsernameString());
         Map<String, Modification> modifications = materialService.getLatestModificationForEachMaterial();
         Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs = maintenanceModeService.getRunningMDUs();
-        ServerHealthStates logs = serverHealthService.logs();
+        ServerHealthStates logs = serverHealthService.logsSorted();
         Map<MaterialConfig, MaterialInfo> mergedMap = createMergedMap(materialConfigs, modifications, runningMDUs, logs);
 
         final String etag = etagFor(mergedMap);

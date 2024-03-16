@@ -89,8 +89,8 @@ public class CachedGoPartialsTest {
         serverHealthService.update(ServerHealthState.error("err_repo2", "err desc", HealthStateType.general(HealthStateScope.forPartialConfigRepo(configRepo2))));
         partials.removeKnown(configRepo1.getRepo().getFingerprint());
         assertFalse(partials.lastKnownPartials().contains(part1));
-        assertTrue(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo1)).isEmpty());
-        assertFalse(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo2)).isEmpty());
+        assertTrue(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(configRepo1)).isEmpty());
+        assertFalse(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(configRepo2)).isEmpty());
     }
 
     @Test
@@ -98,10 +98,10 @@ public class CachedGoPartialsTest {
         serverHealthService.update(ServerHealthState.error("error-repo-1", "error-desc-1", HealthStateType.general(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1))));
         serverHealthService.update(ServerHealthState.error("error-repo-2", "error-desc-2", HealthStateType.general(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2))));
         partials.markAsValid(fingerprintForRepo1, part1);
-        assertTrue(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty());
-        assertEquals("error-repo-2", serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).get(0).getMessage());
+        assertTrue(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty());
+        assertEquals("error-repo-2", serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).get(0).getMessage());
         partials.markAllKnownAsValid();
-        assertTrue(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty());
-        assertTrue(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).isEmpty());
+        assertTrue(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty());
+        assertTrue(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).isEmpty());
     }
 }

@@ -135,7 +135,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
         } catch (CannotScheduleException e) {
 
         }
-        List<ServerHealthState> stateList = serverHealthService.filterByScope(HealthStateScope.forStage("blahPipeline", "blahStage"));
+        List<ServerHealthState> stateList = serverHealthService.logsSortedForScope(HealthStateScope.forStage("blahPipeline", "blahStage"));
         assertThat(stateList.size(), is(1));
         assertThat(stateList.get(0).getMessage(), is("Failed to trigger stage [blahStage] pipeline [blahPipeline]"));
         assertThat(stateList.get(0).getDescription(), is("Could not find matching agents to run job [job2] of stage [blahStage]."));
@@ -145,7 +145,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     public void shouldUpdateServerHealthWhenSchedulePipelineFails() {
         pipelineScheduleQueue.schedule(new CaseInsensitiveString("blahPipeline"), saveMaterials(modifySomeFiles(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("blahPipeline")))));
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
-        List<ServerHealthState> stateList = serverHealthService.filterByScope(HealthStateScope.forStage("blahPipeline", "blahStage"));
+        List<ServerHealthState> stateList = serverHealthService.logsSortedForScope(HealthStateScope.forStage("blahPipeline", "blahStage"));
         assertThat(stateList.size(), is(1));
         assertThat(stateList.get(0).getMessage(), is("Failed to trigger stage [blahStage] pipeline [blahPipeline]"));
         assertThat(stateList.get(0).getDescription(), is("Could not find matching agents to run job [job2] of stage [blahStage]."));

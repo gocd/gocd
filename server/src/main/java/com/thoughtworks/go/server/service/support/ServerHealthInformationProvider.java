@@ -46,7 +46,7 @@ public class ServerHealthInformationProvider implements ServerInfoProvider {
     @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
-        ServerHealthStates allLogs = service.logs();
+        ServerHealthStates allLogs = service.logsSorted();
         json.put("Messages Count", allLogs.size());
 
         ArrayList<Map<String, String>> messages = new ArrayList<>();

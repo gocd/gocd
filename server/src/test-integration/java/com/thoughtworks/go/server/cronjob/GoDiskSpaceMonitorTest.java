@@ -221,7 +221,7 @@ public class GoDiskSpaceMonitorTest {
     }
 
     private ServerHealthState findByLogType(HealthStateType healthStateType) {
-        for (ServerHealthState serverHealthState : serverHealthService.logs()) {
+        for (ServerHealthState serverHealthState : serverHealthService.logsSorted()) {
             if (serverHealthState.getType().equals(healthStateType)) {
                 return serverHealthState;
             }

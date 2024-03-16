@@ -68,24 +68,24 @@ public class ServerHealthServiceTest {
     @Test
     public void shouldRemoveExpiredLogMessages() {
         testingClock.setTime(new DateTime(2002,10,10,10,10,10,10));
-        ServerHealthState expiresInNintySecs = warning("hg-message1", "description", HealthStateType.databaseDiskFull(), Timeout.NINETY_SECONDS);
-        ServerHealthState expiresInThreeMins = warning("hg-message2", "description", HealthStateType.artifactsDirChanged(), Timeout.THREE_MINUTES);
+        ServerHealthState expiresInNinetySecs = warning("hg-message1", "description", HealthStateType.databaseDiskFull(), Timeout.NINETY_SECONDS);
+        ServerHealthState expiresInThreeMinutes = warning("hg-message2", "description", HealthStateType.artifactsDirChanged(), Timeout.THREE_MINUTES);
         ServerHealthState expiresNever = warning("hg-message3", "description", HealthStateType.artifactsDiskFull(), Timeout.NEVER);
-        serverHealthService.update(expiresInThreeMins);
-        serverHealthService.update(expiresInNintySecs);
+        serverHealthService.update(expiresInThreeMinutes);
+        serverHealthService.update(expiresInNinetySecs);
         serverHealthService.update(expiresNever);
         serverHealthService.purgeStaleHealthMessages(new BasicCruiseConfig());
-        ServerHealthStates logs = serverHealthService.logs();
+        ServerHealthStates logs = serverHealthService.logsSorted();
         assertThat(logs.size(), is(3));
-        assertThat(logs, hasItems(expiresInThreeMins,expiresInNintySecs, expiresNever));
+        assertThat(logs, hasItems(expiresInThreeMinutes,expiresInNinetySecs, expiresNever));
         testingClock.addSeconds(100);
         serverHealthService.purgeStaleHealthMessages(new BasicCruiseConfig());
-        logs = serverHealthService.logs();
+        logs = serverHealthService.logsSorted();
         assertThat(logs.size(), is(2));
-        assertThat(logs,hasItems(expiresInThreeMins, expiresNever));
+        assertThat(logs,hasItems(expiresInThreeMinutes, expiresNever));
         testingClock.addMillis((int) Timeout.TWO_MINUTES.inMillis());
         serverHealthService.purgeStaleHealthMessages(new BasicCruiseConfig());
-        logs = serverHealthService.logs();
+        logs = serverHealthService.logsSorted();
         assertThat(logs.size(), is(1));
         assertThat(logs,hasItem(expiresNever));
     }
@@ -98,7 +98,7 @@ public class ServerHealthServiceTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addPipeline("defaultGroup", new PipelineConfig(new CaseInsensitiveString("dev"), new MaterialConfigs(svnMaterialConfig), new StageConfig(new CaseInsensitiveString("first"), new JobConfigs())));
         serverHealthService.purgeStaleHealthMessages(cruiseConfig);
-        assertThat(serverHealthService.logs().size(), is(1));
+        assertThat(serverHealthService.logsSorted().size(), is(1));
     }
 
     @Test
@@ -107,7 +107,7 @@ public class ServerHealthServiceTest {
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forPipeline("other"))));
 
         serverHealthService.purgeStaleHealthMessages(new BasicCruiseConfig());
-        assertThat(serverHealthService.logs().size(), is(0));
+        assertThat(serverHealthService.logsSorted().size(), is(0));
     }
 
     @Test
@@ -115,7 +115,7 @@ public class ServerHealthServiceTest {
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forGroup("group"))));
 
         serverHealthService.purgeStaleHealthMessages(new BasicCruiseConfig());
-        assertThat(serverHealthService.logs().size(), is(0));
+        assertThat(serverHealthService.logsSorted().size(), is(0));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ServerHealthServiceTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         new GoConfigMother().addPipeline(cruiseConfig, PIPELINE_NAME, "stageName", "jon");
         serverHealthService.purgeStaleHealthMessages(cruiseConfig);
-        assertThat(serverHealthService.logs().size(), is(1));
+        assertThat(serverHealthService.logsSorted().size(), is(1));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class ServerHealthServiceTest {
         ServerHealthState newServerHealthState = ServerHealthState.error("updated message", "updated description", globalId);
         serverHealthService.update(newServerHealthState);
 
-        assertThat(serverHealthService.logs().size(), is(1));
+        assertThat(serverHealthService.logsSorted().size(), is(1));
         assertThat(serverHealthService, ServerHealthMatcher.containsState(globalId, HealthStateLevel.ERROR, "updated message"));
     }
 
@@ -144,7 +144,7 @@ public class ServerHealthServiceTest {
         assertThat(serverHealthService.update(ServerHealthState.error("message", "description", globalId)), is(globalId));
         assertThat(serverHealthService.update(ServerHealthState.error("message", "description", pipelineId)), is(pipelineId));
 
-        assertThat(serverHealthService.logs().size(), is(2));
+        assertThat(serverHealthService.logsSorted().size(), is(2));
         assertThat(serverHealthService, ServerHealthMatcher.containsState(globalId));
         assertThat(serverHealthService, ServerHealthMatcher.containsState(pipelineId));
     }
@@ -165,10 +165,10 @@ public class ServerHealthServiceTest {
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(scope)));
         serverHealthService.update(ServerHealthState.error("message", "description", globalId));
 
-        assertThat(serverHealthService.logs().size(), is(2));
+        assertThat(serverHealthService.logsSorted().size(), is(2));
 
         serverHealthService.removeByScope(scope);
-        assertThat(serverHealthService.logs().size(), is(1));
+        assertThat(serverHealthService.logsSorted().size(), is(1));
         assertThat(serverHealthService, ServerHealthMatcher.containsState(globalId));
     }
 
@@ -182,16 +182,16 @@ public class ServerHealthServiceTest {
 
         serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forPipeline(PIPELINE_NAME))));
-        assertThat((serverHealthService.logs().get(0)).getPipelineNames(config), equalTo(Set.of(PIPELINE_NAME)));
+        assertThat((serverHealthService.logsSorted().get(0)).getPipelineNames(config), equalTo(Set.of(PIPELINE_NAME)));
 
         serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forStage(PIPELINE_NAME, "stage1"))));
-        assertThat((serverHealthService.logs().get(0)).getPipelineNames(config), equalTo(Set.of(PIPELINE_NAME)));
+        assertThat((serverHealthService.logsSorted().get(0)).getPipelineNames(config), equalTo(Set.of(PIPELINE_NAME)));
 
 
         serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forJob(PIPELINE_NAME, "stage1", "job1"))));
-        assertThat((serverHealthService.logs().get(0)).getPipelineNames(config), equalTo(Set.of(PIPELINE_NAME)));
+        assertThat((serverHealthService.logsSorted().get(0)).getPipelineNames(config), equalTo(Set.of(PIPELINE_NAME)));
     }
 
     @Test
@@ -203,7 +203,7 @@ public class ServerHealthServiceTest {
         config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.invalidConfig()));
-        assertTrue((serverHealthService.logs().get(0)).getPipelineNames(config).isEmpty());
+        assertTrue((serverHealthService.logsSorted().get(0)).getPipelineNames(config).isEmpty());
 
     }
 
@@ -216,7 +216,7 @@ public class ServerHealthServiceTest {
         config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterial(MaterialsMother.p4Material()))));
-        assertTrue((serverHealthService.logs().get(0)).getPipelineNames(config).isEmpty());
+        assertTrue((serverHealthService.logsSorted().get(0)).getPipelineNames(config).isEmpty());
     }
 
     @Test
@@ -228,7 +228,7 @@ public class ServerHealthServiceTest {
         config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterial(hgMaterial))));
-        Set<String> pipelines = (serverHealthService.logs().get(0)).getPipelineNames(config);
+        Set<String> pipelines = (serverHealthService.logsSorted().get(0)).getPipelineNames(config);
         assertEquals(Sets.newHashSet("pipeline", "pipeline2"), pipelines);
     }
 
@@ -241,7 +241,7 @@ public class ServerHealthServiceTest {
         config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterialUpdate(hgMaterial))));
-        Set<String> pipelines = (serverHealthService.logs().get(0)).getPipelineNames(config);
+        Set<String> pipelines = (serverHealthService.logsSorted().get(0)).getPipelineNames(config);
         assertEquals(Sets.newHashSet("pipeline", "pipeline2"), pipelines);
     }
 
@@ -254,7 +254,7 @@ public class ServerHealthServiceTest {
         config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forFanin("pipeline2"))));
-        Set<String> pipelines = (serverHealthService.logs().get(0)).getPipelineNames(config);
+        Set<String> pipelines = (serverHealthService.logsSorted().get(0)).getPipelineNames(config);
         assertEquals(Sets.newHashSet("pipeline2"), pipelines);
     }
 }

@@ -56,8 +56,7 @@ public class ConfigReposMaterialParseResultManager {
 
         //config repository was parsed, but does not have merge or clone related errors.
         if (result != null && result.isSuccessful()) {
-            HealthStateScope healthStateScope = HealthStateScope.forPartialConfigRepo(fingerprint);
-            List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(healthStateScope);
+            List<ServerHealthState> serverHealthStates = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprint));
             if (!serverHealthStates.isEmpty()) {
                 result.setException(asError(serverHealthStates.get(0)));
 
@@ -94,7 +93,7 @@ public class ConfigReposMaterialParseResultManager {
             PartialConfigParseResult result = entry.getValue();
 
             HealthStateScope scope = HealthStateScope.forPartialConfigRepo(fingerprint);
-            List<ServerHealthState> serverHealthErrors = serverHealthService.filterByScope(scope);
+            List<ServerHealthState> serverHealthErrors = serverHealthService.logsSortedForScope(scope);
 
             if (!serverHealthErrors.isEmpty() || !result.isSuccessful()) {
                 result.setLatestParsedModification(null); // clear modification to allow a reparse to happen
@@ -103,9 +102,9 @@ public class ConfigReposMaterialParseResultManager {
     }
 
     private PartialConfigParseResult checkForMaterialErrors(String fingerprint) {
-        MaterialConfig naterial = configRepoService.findByFingerprint(fingerprint).getRepo();
-        HealthStateScope healthStateScope = HealthStateScope.forMaterialConfig(naterial);
-        List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(healthStateScope);
+        MaterialConfig material = configRepoService.findByFingerprint(fingerprint).getRepo();
+        HealthStateScope healthStateScope = HealthStateScope.forMaterialConfig(material);
+        List<ServerHealthState> serverHealthStates = serverHealthService.logsSortedForScope(healthStateScope);
 
         return serverHealthStates.isEmpty() ?
                 null :

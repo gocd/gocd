@@ -23,39 +23,30 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class ServerHealthService implements ApplicationContextAware {
-    private final Map<HealthStateType, ServerHealthState> serverHealth;
+    private final ConcurrentMap<HealthStateType, ServerHealthState> serverHealth = new ConcurrentHashMap<>();
     private ApplicationContext applicationContext;
 
-    public ServerHealthService() {
-        this.serverHealth = new ConcurrentHashMap<>();
+    public List<ServerHealthState> logsSortedForScope(HealthStateScope scope) {
+        return serverHealth.entrySet().stream()
+            .filter(entry -> entry.getKey().isSameScope(scope))
+            .sorted(Map.Entry.comparingByKey())
+            .map(Map.Entry::getValue)
+            .collect(toList());
     }
 
-    public void removeByScope(HealthStateScope scope) {
-        for (HealthStateType healthStateType : entryKeys()) {
-            if (healthStateType.isSameScope(scope)) {
-                serverHealth.remove(healthStateType);
-            }
-        }
-    }
-
-    private Set<HealthStateType> entryKeys() {
-        return new HashSet<>(serverHealth.keySet());
-    }
-
-    public List<ServerHealthState> filterByScope(HealthStateScope scope) {
-        List<ServerHealthState> filtered = new ArrayList<>();
-        for (Map.Entry<HealthStateType, ServerHealthState> entry : sortedEntries()) {
-            HealthStateType type = entry.getKey();
-            if (type.isSameScope(scope)) {
-                filtered.add(entry.getValue());
-            }
-        }
-        return filtered;
+    public ServerHealthStates logsSorted() {
+        return new ServerHealthStates(sortedEntries().map(Map.Entry::getValue).collect(toList()));
     }
 
     public HealthStateType update(ServerHealthState serverHealthState) {
@@ -85,60 +76,28 @@ public class ServerHealthService implements ApplicationContextAware {
         serverHealth.clear();
     }
 
+    public void removeByScope(HealthStateScope scope) {
+       removeByScopeMatcher(scope::equals);
+    }
+
+    public void removeByScopeMatcher(Predicate<HealthStateScope> matcher) {
+        serverHealth.keySet().removeIf(healthStateType -> matcher.test(healthStateType.getScope()));
+    }
+
     private void removeMessagesForElementsNoLongerInConfig(CruiseConfig cruiseConfig) {
-        for (HealthStateType type : entryKeys()) {
-            if (type.isRemovedFromConfig(cruiseConfig)) {
-                this.removeByScope(type);
-            }
-        }
+        serverHealth.keySet().removeIf(healthStateType -> healthStateType.isRemovedFromConfig(cruiseConfig));
     }
 
     private void removeExpiredMessages() {
-        for (Map.Entry<HealthStateType, ServerHealthState> entry : new HashSet<>(serverHealth.entrySet())) {
-            ServerHealthState value = entry.getValue();
-            if (value.hasExpired()) {
-                serverHealth.remove(entry.getKey());
-            }
-        }
+        serverHealth.entrySet().removeIf(typeHealthEntry -> typeHealthEntry.getValue().hasExpired());
     }
 
-    private void removeByScope(HealthStateType type) {
-        removeByScope(type.getScope());
-    }
-
-    public ServerHealthStates logs() {
-        ArrayList<ServerHealthState> logs = new ArrayList<>();
-        for (Map.Entry<HealthStateType, ServerHealthState> entry : sortedEntries()) {
-            logs.add(entry.getValue());
-        }
-        return new ServerHealthStates(logs);
-    }
-
-    private List<Map.Entry<HealthStateType, ServerHealthState>> sortedEntries() {
-        List<Map.Entry<HealthStateType, ServerHealthState>> entries = new ArrayList<>(serverHealth.entrySet());
-        entries.sort(Map.Entry.comparingByKey());
-        return entries;
-    }
-
-    public String getLogsAsText() {
-        StringBuilder text = new StringBuilder();
-        for (ServerHealthState state : logs()) {
-            text.append(state.getDescription());
-            text.append("\n\t");
-            text.append(state.getMessage());
-            text.append("\n");
-        }
-        return text.toString();
+    private Stream<Map.Entry<HealthStateType, ServerHealthState>> sortedEntries() {
+        return serverHealth.entrySet().stream().sorted(Map.Entry.comparingByKey());
     }
 
     public boolean containsError(HealthStateType type, HealthStateLevel level) {
-        ServerHealthStates allLogs = logs();
-        for (ServerHealthState log : allLogs) {
-            if (log.getType().equals(type) && log.getLogLevel() == level) {
-                return true;
-            }
-        }
-        return false;
+        return serverHealth.values().stream().anyMatch(state -> state.getType().equals(type) && state.getLogLevel() == level);
     }
 
     @Override

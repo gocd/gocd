@@ -113,7 +113,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
     void setUp() {
       loginAsUser()
       when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
-      when(serverHealthService.logs()).thenReturn(new ServerHealthStates())
+      when(serverHealthService.logsSorted()).thenReturn(new ServerHealthStates())
     }
 
     @Nested

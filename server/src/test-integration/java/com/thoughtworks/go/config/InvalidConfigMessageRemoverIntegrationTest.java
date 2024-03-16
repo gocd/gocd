@@ -81,9 +81,9 @@ public class InvalidConfigMessageRemoverIntegrationTest {
         serverHealthService.update(ServerHealthState.warning("Invalid Configuration", "something",HealthStateType.general(HealthStateScope.forInvalidConfig())));
         InvalidConfigMessageRemover remover = new InvalidConfigMessageRemover(goConfigService, serverHealthService);
         remover.initialize();
-        assertThat(serverHealthService.logs().isEmpty(), is(false));
+        assertThat(serverHealthService.logsSorted().isEmpty(), is(false));
         configHelper.addEnvironments("uat"); //Any change to the config file
         cachedGoConfig.forceReload();
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forInvalidConfig()).isEmpty(), is(true));
+        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forInvalidConfig()).isEmpty(), is(true));
     }
 }

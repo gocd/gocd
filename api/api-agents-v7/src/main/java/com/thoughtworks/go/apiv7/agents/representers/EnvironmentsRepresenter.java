@@ -45,7 +45,7 @@ public class EnvironmentsRepresenter {
                 .collect(Collectors.toSet())
                 .stream()
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
 
         for (String envName : sortedEnvNames) {
             EnvironmentConfig envConfig = envConfigs.find(new CaseInsensitiveString(envName));

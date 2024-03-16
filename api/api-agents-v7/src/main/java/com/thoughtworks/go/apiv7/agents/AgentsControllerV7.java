@@ -44,6 +44,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -67,6 +68,8 @@ import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToList;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 import static spark.Spark.*;
@@ -118,10 +121,12 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
     }
 
     public String index(Request request, Response response) throws IOException {
+        Map<String, List<EnvironmentConfig>> agentEnvironmentsByUuid = environmentConfigService.getAgentEnvironmentsByUuid();
 
-        Map<AgentInstance, Collection<EnvironmentConfig>> agentToEnvConfigsMap = new HashMap<>();
-
-        agentService.getAgentInstances().forEach(instance -> agentToEnvConfigsMap.put(instance, environmentConfigService.getAgentEnvironments(instance.getUuid())));
+        Map<AgentInstance, Collection<EnvironmentConfig>> agentToEnvConfigsMap =
+            stream(agentService.getAgentInstances().spliterator(), false)
+                .map(agent -> Pair.pair(agent, agentEnvironmentsByUuid.getOrDefault(agent.getUuid(), Collections.emptyList())))
+                .collect(toMap(Pair::first, Pair::last));
 
         return writerForTopLevelObject(request, response, outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentToEnvConfigsMap, securityService, currentUsername()));
     }

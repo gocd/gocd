@@ -42,10 +42,7 @@ import com.thoughtworks.go.util.ClonerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
@@ -57,14 +54,14 @@ import static java.util.stream.Collectors.toList;
  */
 @Service
 public class EnvironmentConfigService implements ConfigChangedListener, AgentChangeListener {
-    public GoConfigService goConfigService;
+    private static final Cloner cloner = ClonerFactory.instance();
+    private GoConfigService goConfigService;
     private SecurityService securityService;
     private EntityHashingService entityHashingService;
     private AgentService agentService;
 
     private EnvironmentsConfig environments;
     private EnvironmentPipelineMatchers matchers;
-    private static final Cloner cloner = ClonerFactory.instance();
 
     public EnvironmentConfigService() {
     }
@@ -147,8 +144,12 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return environments.getAgentEnvironmentNames(uuid);
     }
 
-    public Set<EnvironmentConfig> getAgentEnvironments(String uuid) {
+    public List<EnvironmentConfig> getAgentEnvironments(String uuid) {
         return environments.getAgentEnvironments(uuid);
+    }
+
+    public Map<String, List<EnvironmentConfig>> getAgentEnvironmentsByUuid() {
+        return environments.getAgentEnvironmentsByUuid();
     }
 
     public EnvironmentConfig getEnvironmentConfig(String envName) {

@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -305,37 +305,22 @@ class EnvironmentsConfigTest {
 
         @Test
         void shouldFindEnvironmentConfigsForAgent() {
-            Set<EnvironmentConfig> environmentConfigs = envsConfig.getAgentEnvironments("agent-one");
+            List<EnvironmentConfig> environmentConfigs = envsConfig.getAgentEnvironments("agent-one");
             assertThat(environmentConfigs, hasItem(basicEnvConfig));
             assertThat(environmentConfigs, hasSize(1));
         }
 
         @Test
-        void shouldRemoveAgentFromAllEnvironments() {
-            BasicEnvironmentConfig env2 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"));
-            env2.addPipeline(new CaseInsensitiveString("test"));
-            env2.addAgent("agent-one");
-            env2.addAgent("agent-two");
-            envsConfig.add(env2);
+        void shouldMapAgentsToEnvironments() {
+            EnvironmentConfig secondEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"));
+            secondEnv.addAgent("agent-one");
+            secondEnv.addAgent("agent-two");
+            envsConfig.add(secondEnv);
 
-            BasicEnvironmentConfig env3 = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
-            env3.addPipeline(new CaseInsensitiveString("build"));
-            env3.addAgent("agent-two");
-            env3.addAgent("agent-three");
-            envsConfig.add(env3);
-
-            assertThat(envsConfig.get(0).getAgents().size(), is(1));
-            assertThat(envsConfig.get(1).getAgents().size(), is(2));
-            assertThat(envsConfig.getAgentEnvironmentNames("agent-one").size(), is(2));
-
-            envsConfig.removeAgentFromAllEnvironments("agent-one");
-
-            assertThat(envsConfig.get(0).getAgents().size(), is(0));
-            assertThat(envsConfig.get(1).getAgents().size(), is(1));
-            assertThat(envsConfig.get(2).getAgents().size(), is(2));
-            assertThat(envsConfig.getAgentEnvironmentNames("agent-one").size(), is(0));
-            assertThat(envsConfig.getAgentEnvironmentNames("agent-two").size(), is(2));
-            assertThat(envsConfig.getAgentEnvironmentNames("agent-three").size(), is(1));
+            Map<String, List<EnvironmentConfig>> agentEnvironmentsByUuid = envsConfig.getAgentEnvironmentsByUuid();
+            assertThat(agentEnvironmentsByUuid, hasEntry(is("agent-one"), containsInAnyOrder(basicEnvConfig, secondEnv)));
+            assertThat(agentEnvironmentsByUuid, hasEntry(is("agent-two"), containsInAnyOrder(secondEnv)));
+            assertThat(agentEnvironmentsByUuid.keySet(), hasSize(2));
         }
 
         @Test

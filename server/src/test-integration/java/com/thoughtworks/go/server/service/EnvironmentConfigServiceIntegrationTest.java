@@ -27,7 +27,6 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,11 +68,9 @@ public class EnvironmentConfigServiceIntegrationTest {
     @Autowired
     private ConfigRepoService configRepoService;
     @Autowired
-    private UuidGenerator uuidGenerator;
-    @Autowired
     private DatabaseAccessHelper dbHelper;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
 
     @BeforeEach
@@ -159,11 +156,10 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateExistingEnvironment_ForNewUpdateEnvironmentMethod() throws Exception {
+    public void shouldUpdateExistingEnvironment_ForNewUpdateEnvironmentMethod() {
         BasicEnvironmentConfig uat = environmentConfig("uat");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("bar", "dev", "job"), "foo-grp");
-        Username user = Username.ANONYMOUS;
         uat.addPipeline(new CaseInsensitiveString("foo"));
         uat.addEnvironmentVariable("env-one", "ONE");
         uat.addEnvironmentVariable("env-two", "TWO");
@@ -272,7 +268,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldPatchAnEnvironment() throws Exception {
+    public void shouldPatchAnEnvironment() {
         String environmentName = "env";
 
         BasicEnvironmentConfig env = environmentConfig(environmentName);

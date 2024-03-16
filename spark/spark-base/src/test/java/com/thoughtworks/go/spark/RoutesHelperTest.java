@@ -32,15 +32,16 @@ import static org.springframework.http.MediaType.*;
 
 class RoutesHelperTest {
     private static final String JSON_MESSAGE = "{\"message\":\"Boom!!\"}";
+    public static final RecordNotFoundException RECORD_NOT_FOUND = new RecordNotFoundException("Boom!!");
 
     private static Stream<Data> data() {
         return Stream.of(
                 new Data(TEXT_HTML_VALUE, HtmlErrorPage.errorPage(404, "Boom!!")),
                 new Data(APPLICATION_XHTML_XML_VALUE, HtmlErrorPage.errorPage(404, "Boom!!")),
-                new Data(APPLICATION_XML_VALUE, new RecordNotFoundException("Boom!!").asXML()),
-                new Data(TEXT_XML_VALUE, new RecordNotFoundException("Boom!!").asXML()),
-                new Data(APPLICATION_RSS_XML_VALUE, new RecordNotFoundException("Boom!!").asXML()),
-                new Data(APPLICATION_ATOM_XML_VALUE, new RecordNotFoundException("Boom!!").asXML()),
+                new Data(APPLICATION_XML_VALUE, RECORD_NOT_FOUND.asXML()),
+                new Data(TEXT_XML_VALUE, RECORD_NOT_FOUND.asXML()),
+                new Data(APPLICATION_RSS_XML_VALUE, RECORD_NOT_FOUND.asXML()),
+                new Data(APPLICATION_ATOM_XML_VALUE, RECORD_NOT_FOUND.asXML()),
                 new Data(APPLICATION_JSON_VALUE, JSON_MESSAGE),
                 new Data("BAR", JSON_MESSAGE)
         );
@@ -53,9 +54,29 @@ class RoutesHelperTest {
         Response response = mock(Response.class);
         when(request.headers("Accept")).thenReturn(data.mimeType);
 
-        new RoutesHelper(mock(SparkController.class)).httpException(new RecordNotFoundException("Boom!!"), request, response);
+        new RoutesHelper(mock(SparkController.class)).httpException(RECORD_NOT_FOUND, request, response);
 
         verify(response).body(data.responseText);
+    }
+
+    @Test
+    void shouldSendUnhandledExceptionResponseWithMessage() {
+        Response response = mock(Response.class);
+
+        new RoutesHelper(mock(SparkController.class)).unhandledException(RECORD_NOT_FOUND, mock(Request.class), response);
+
+        verify(response).status(500);
+        verify(response).body("{\"error\":\"Boom!!\"}");
+    }
+
+    @Test
+    void shouldSendUnhandledExceptionResponseWithoutMessage() {
+        Response response = mock(Response.class);
+
+        new RoutesHelper(mock(SparkController.class)).unhandledException(new NullPointerException(), mock(Request.class), response);
+
+        verify(response).status(500);
+        verify(response).body("{\"error\":\"Internal server error\"}");
     }
 
     static class Data {
@@ -88,7 +109,7 @@ class RoutesHelperTest {
     }
 
     @DeprecatedAPI(deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.v2, deprecatedIn = "20.2.0", removalIn = "20.5.0", entityName = "Do Nothing")
-    private class DoNothingApiV1 implements SparkSpringController {
+    private static class DoNothingApiV1 implements SparkSpringController {
         @Override
         public void setupRoutes() {
         }

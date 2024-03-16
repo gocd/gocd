@@ -4882,9 +4882,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react@npm:^7.34.0":
-  version: 7.34.0
-  resolution: "eslint-plugin-react@npm:7.34.0"
+"eslint-plugin-react@npm:^7.34.1":
+  version: 7.34.1
+  resolution: "eslint-plugin-react@npm:7.34.1"
   dependencies:
     array-includes: "npm:^3.1.7"
     array.prototype.findlast: "npm:^1.2.4"
@@ -4906,7 +4906,7 @@ __metadata:
     string.prototype.matchall: "npm:^4.0.10"
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
-  checksum: 10/e09623d715e25e012cc442648616ea5f8029c17a397e7b4f54c47da7cc4edb0ffec91af3269c259c1a92b8d83802b10f9c7148280a0c8d7659b15724ee8b50d8
+  checksum: 10/ee059971065ea7e73ab5d8728774235c7dbf7a5e9f937c3b47e97f8fa9a5a96ab511d2ae6d5ec76a7e705ca666673d454f1e75a94033720819d041827f50f9c8
   languageName: node
   linkType: hard
 
@@ -5896,7 +5896,7 @@ __metadata:
     cross-env: "npm:^7.0.3"
     css-loader: "npm:^5.2.7"
     eslint: "npm:^8.57.0"
-    eslint-plugin-react: "npm:^7.34.0"
+    eslint-plugin-react: "npm:^7.34.1"
     eslint-webpack-plugin: "npm:^2.7.0"
     file-loader: "npm:^6.2.0"
     filesize: "npm:^10.1.0"

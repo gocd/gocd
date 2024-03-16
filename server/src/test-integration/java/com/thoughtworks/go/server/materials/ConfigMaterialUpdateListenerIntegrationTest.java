@@ -152,7 +152,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     private void assertInProgressState() throws InterruptedException {
         HealthStateScope healthStateScope = HealthStateScope.forPartialConfigRepo(material.config().getFingerprint());
         int i = 0;
-        while (serverHealthService.filterByScope(healthStateScope).isEmpty() && goConfigRepoConfigDataSource.getRevisionAtLastAttempt(material.config()) == null) {
+        while (serverHealthService.logsSortedForScope(healthStateScope).isEmpty() && goConfigRepoConfigDataSource.getRevisionAtLastAttempt(material.config()) == null) {
             if (!materialUpdateService.isInProgress(material))
                 fail("should be still in progress");
 

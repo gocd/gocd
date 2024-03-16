@@ -133,7 +133,7 @@ public class PipelineSchedulerIntegrationTest {
         serverHealthService.update(ServerHealthState.failToScheduling(HealthStateType.general(HealthStateScope.forPipeline(PIPELINE_MINGLE)), PIPELINE_MINGLE, "should wait till cleared"));
         pipelineScheduler.manualProduceBuildCauseAndSave(PIPELINE_MINGLE, Username.ANONYMOUS, scheduleOptions, operationResult);
         assertThat(operationResult.message(), operationResult.canContinue(),is(true));
-        Assertions.waitUntil(Timeout.ONE_MINUTE, () -> serverHealthService.filterByScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).isEmpty());
+        Assertions.waitUntil(Timeout.ONE_MINUTE, () -> serverHealthService.logsSortedForScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).isEmpty());
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(PIPELINE_MINGLE));
 
         EnvironmentVariables overriddenVariables = buildCause.getVariables();
@@ -152,7 +152,7 @@ public class PipelineSchedulerIntegrationTest {
 
     @SuppressWarnings("SameParameterValue")
     private void assertCurrentErrorLogNumberIs(String pipelineName, int number) {
-        List<ServerHealthState> entries = serverHealthService.filterByScope(HealthStateScope.forPipeline(pipelineName));
+        List<ServerHealthState> entries = serverHealthService.logsSortedForScope(HealthStateScope.forPipeline(pipelineName));
         assertThat(entries.toString(), entries.size(), is(number));
     }
 

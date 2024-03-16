@@ -38,7 +38,7 @@ public class ServerHealthMatcher {
 
             @Override
             public boolean matchesSafely(ServerHealthService item) {
-                allLogs = item.logs();
+                allLogs = item.logsSorted();
                 for (ServerHealthState serverHealthState : allLogs) {
                     if (serverHealthState.getType().equals(healthStateType)) {
                         entry = serverHealthState;
@@ -75,7 +75,7 @@ public class ServerHealthMatcher {
 
             @Override
             public boolean matchesSafely(ServerHealthService item) {
-                for (ServerHealthState serverHealthState : item.logs()) {
+                for (ServerHealthState serverHealthState : item.logsSorted()) {
                     if (serverHealthState.getType().equals(healthStateType)) {
                         entry = serverHealthState;
                         return false;

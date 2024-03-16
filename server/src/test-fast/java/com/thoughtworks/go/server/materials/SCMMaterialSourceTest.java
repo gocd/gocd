@@ -243,7 +243,7 @@ public class SCMMaterialSourceTest {
         schedulableMaterialConfigs = Set.of(svnMaterial.config(), gitMaterial.config());
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(Set.of(svnMaterial, gitMaterial));
-        when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
+        when(serverHealthService.logsSorted()).thenReturn(new ServerHealthStates());
 
         source.onConfigChange(mock(CruiseConfig.class));
         materials = source.materialsForUpdate();
@@ -258,7 +258,7 @@ public class SCMMaterialSourceTest {
         Set<MaterialConfig> schedulableMaterialConfigs = Set.of(svnMaterial.config(), gitMaterial.config());
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(Set.of(svnMaterial, gitMaterial));
-        when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
+        when(serverHealthService.logsSorted()).thenReturn(new ServerHealthStates());
 
         source.onEntityConfigChange(mock(ConfigRepoConfig.class));
         Set<Material> materials = source.materialsForUpdate();
@@ -285,7 +285,7 @@ public class SCMMaterialSourceTest {
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(goConfigService.getCurrentConfig()).thenReturn(mock(CruiseConfig.class));
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(Set.of(svnMaterial, gitMaterial));
-        when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
+        when(serverHealthService.logsSorted()).thenReturn(new ServerHealthStates());
 
         source.pipelineConfigChangedListener().onEntityConfigChange(mock(PipelineConfig.class));
         materials = source.materialsForUpdate();

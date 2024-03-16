@@ -182,7 +182,7 @@ public class GoConfigMigratorIntegrationTest {
         try {
             loadConfigFileWithContent(ConfigFileFixture.MINIMAL);
             loadConfigFileWithContent("<cruise></cruise>");
-            ServerHealthStates states = serverHealthService.logs();
+            ServerHealthStates states = serverHealthService.logsSorted();
             assertThat(states.size()).isEqualTo(1);
             assertThat(states.get(0).getDescription()).contains("Go encountered an invalid configuration file while starting up. The invalid configuration file has been renamed to &lsquo;");
             assertThat(states.get(0).getDescription()).contains("&rsquo; and a new configuration file has been automatically created using the last good configuration.");

@@ -49,7 +49,7 @@ public class ConfigRepositoryGCWarningServiceTest {
         when(configRepository.getLooseObjectCount()).thenReturn(20L);
 
         service.checkRepoAndAddWarningIfRequired();
-        List<ServerHealthState> healthStates = serverHealthService.filterByScope(HealthStateScope.forConfigRepo("GC"));
+        List<ServerHealthState> healthStates = serverHealthService.logsSortedForScope(HealthStateScope.forConfigRepo("GC"));
         String message = "Action required: Run 'git gc' on config.git repo";
         String description = "Number of loose objects in your Configuration repository(config.git) has grown beyond " +
                 "the configured threshold. As the size of config repo increases, the config save operations tend to slow down " +
@@ -68,20 +68,20 @@ public class ConfigRepositoryGCWarningServiceTest {
         when(configRepository.getLooseObjectCount()).thenReturn(1L);
 
         service.checkRepoAndAddWarningIfRequired();
-        List<ServerHealthState> healthStates = serverHealthService.filterByScope(HealthStateScope.forConfigRepo("GC"));
+        List<ServerHealthState> healthStates = serverHealthService.logsSortedForScope(HealthStateScope.forConfigRepo("GC"));
         assertThat(healthStates.isEmpty(), is(true));
     }
 
     @Test
     public void shouldRemoteExistingWarningAboutGCIfLooseObjectCountGoesBelowTheSetThreshold() throws Exception {
         serverHealthService.update(ServerHealthState.warning("message", "description", HealthStateType.general(HealthStateScope.forConfigRepo("GC"))));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forConfigRepo("GC")).isEmpty(), is(false));
+        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forConfigRepo("GC")).isEmpty(), is(false));
 
         when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD)).thenReturn(10L);
         when(configRepository.getLooseObjectCount()).thenReturn(1L);
 
         service.checkRepoAndAddWarningIfRequired();
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forConfigRepo("GC")).isEmpty(), is(true));
+        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forConfigRepo("GC")).isEmpty(), is(true));
     }
 
 }

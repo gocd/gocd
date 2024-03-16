@@ -63,7 +63,7 @@ public class ServerHealthMessagesController extends ApiController implements Spa
     }
 
     public String show(Request request, Response response) {
-        ServerHealthStates allLogs = serverHealthService.logs();
+        ServerHealthStates allLogs = serverHealthService.logsSorted();
         String json = jsonizeAsTopLevelArray(request, outputListWriter -> ServerHealthMessagesRepresenter.toJSON(outputListWriter, allLogs));
         String etag = etagFor(json);
 

@@ -263,7 +263,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         cfg.removeMaterialConfig(cfg.materialConfigs().get(1));
         configHelper.writeConfigFile(cruiseConfig);
 
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPipeline("last")).size(), is(0));
+        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPipeline("last")).size(), is(0));
 
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
 
@@ -285,8 +285,8 @@ public class ScheduledPipelineLoaderIntegrationTest {
         assertThat(reloadedJobInstance.getResult(), is(JobResult.Failed));
 
         HealthStateScope scope = HealthStateScope.forJob("last", "stage", "job-one");
-        assertThat(serverHealthService.filterByScope(scope).size(), is(1));
-        ServerHealthState error = serverHealthService.filterByScope(HealthStateScope.forJob("last", "stage", "job-one")).get(0);
+        assertThat(serverHealthService.logsSortedForScope(scope).size(), is(1));
+        ServerHealthState error = serverHealthService.logsSortedForScope(HealthStateScope.forJob("last", "stage", "job-one")).get(0);
         assertThat(error, is(ServerHealthState.error("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.", "Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed.", HealthStateType.general(HealthStateScope.forJob("last", "stage", "job-one")))));
         DateTime expiryTime = ReflectionUtil.getField(error, "expiryTime");
         assertThat(expiryTime.toDate().after(currentTime), is(true));

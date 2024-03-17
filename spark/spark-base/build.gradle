@@ -25,9 +25,7 @@ dependencies {
 
   implementation platform(project.deps.jacksonBom)
   implementation project.deps.jacksonCore
-  implementation(project.deps.jacksonDatabind) {
-    exclude(module: 'byte-buddy') // Workaround https://github.com/FasterXML/jackson-databind/issues/4428 until Jackson 2.17.1
-  }
+  implementation project.deps.jacksonDatabind
   implementation project.deps.springWeb
   implementation project.deps.guava
 

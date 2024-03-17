@@ -30,8 +30,8 @@ dependencies {
   implementation project(path: ':domain', configuration: 'runtimeElements')
   implementation project(path: ':base', configuration: 'runtimeElements')
   implementation project(path: ':config:config-api', configuration: 'runtimeElements')
-  api project.deps.jolt
-  api project.deps.joltJsonUtils
+  implementation project.deps.jolt
+  implementation project.deps.joltJsonUtils
   api project.deps.commonsCollections4
   implementation project.deps.commonsCodec
   implementation project.deps.gson

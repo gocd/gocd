@@ -105,11 +105,10 @@ class GoServerLoadingIndicationHandlerTest {
         @ValueSource(strings = {"/", "/go/pipelines", "/this/doesnt/exist"})
         void shouldRespondWithMessageInHTMLWhenRequestAcceptHeaderIsHTML(String target) throws Exception {
             webAppIsStarting();
-            loadingPageIsSetTo("/test.loading.page.html");
 
             MockResponse response = request(target, "text/html");
 
-            assertLoadingResponseInHTML(response, "<div><b>GoCD server is starting. This comes from test.loading.page.html</b></div>");
+            assertLoadingResponseInHTML(response);
         }
 
         @ParameterizedTest
@@ -129,11 +128,10 @@ class GoServerLoadingIndicationHandlerTest {
         @ValueSource(strings = {"text/html", "something/html", "application/json;q=0.5,text/html;q=0.8", "something-with-html-in-it", ""})
         void shouldRespondWithMessageInHTMLWhenAcceptHeaderContainsHTML(String acceptHeaderValue) throws Exception {
             webAppIsStarting();
-            loadingPageIsSetTo("/test.loading.page.html");
 
             MockResponse response = request("/go/pipelines", acceptHeaderValue);
 
-            assertLoadingResponseInHTML(response, "<div><b>GoCD server is starting. This comes from test.loading.page.html</b></div>");
+            assertLoadingResponseInHTML(response);
         }
 
         @ParameterizedTest
@@ -150,21 +148,10 @@ class GoServerLoadingIndicationHandlerTest {
         @Test
         void shouldRespondWithMessageInHTMLWhenAcceptHeaderIsMissing() throws Exception {
             webAppIsStarting();
-            loadingPageIsSetTo("/test.loading.page.html");
 
             MockResponse response = request("/go/pipelines", null);
 
-            assertLoadingResponseInHTML(response, "<div><b>GoCD server is starting. This comes from test.loading.page.html</b></div>");
-        }
-
-        @Test
-        void shouldRespondWithSimpleMessageIfLoadingHTMLFileCannotBeLoaded() throws Exception {
-            webAppIsStarting();
-            loadingPageIsSetTo("/some-non-existent-file");
-
-            MockResponse response = request("/go/pipelines", "text/html");
-
-            assertLoadingResponseInHTML(response, "<h2>GoCD is starting up. Please wait ....</h2>");
+            assertLoadingResponseInHTML(response);
         }
     }
 
@@ -186,11 +173,11 @@ class GoServerLoadingIndicationHandlerTest {
                 done());
     }
 
-    private void assertLoadingResponseInHTML(MockResponse response, String expectedBody) {
+    private void assertLoadingResponseInHTML(MockResponse response) throws IOException {
         assertTrue(response.
                 hasStatus(503).
                 withContentType("text/html").
-                withBody(expectedBody).
+                withBody(GoServerLoadingIndicationHandler.loadingPage()).
                 withNoCaching().
                 done());
     }
@@ -222,13 +209,9 @@ class GoServerLoadingIndicationHandlerTest {
         when(systemEnvironment.landingPage()).thenReturn(landingPage);
     }
 
-    private void loadingPageIsSetTo(String loadingPageResourcePath) {
-        when(systemEnvironment.get(SystemEnvironment.LOADING_PAGE)).thenReturn(loadingPageResourcePath);
-    }
-
     private static class MockResponse {
-        private HttpServletResponse response;
-        private PrintWriter printWriter;
+        private final HttpServletResponse response;
+        private final PrintWriter printWriter;
 
         MockResponse(HttpServletResponse response, PrintWriter printWriter) {
             this.response = response;

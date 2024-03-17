@@ -188,5 +188,19 @@
         "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
       }
     ]
+  },
+  "glide.js": {
+    "moduleName": "glide.js",
+    "moduleVersion": "3.6.1",
+    "moduleUrls": [
+      "https://github.com/glidejs/glide",
+      "https://glidejs.com/"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
   }
 }

@@ -39,7 +39,7 @@ public class PluginRoleUsersStore {
     }
 
     public List<RoleUser> usersInRole(PluginRoleConfig pluginRoleConfig) {
-        return new ArrayList(roleToUsersMappings.get(pluginRoleConfig));
+        return new ArrayList<>(roleToUsersMappings.get(pluginRoleConfig));
     }
 
     public void removePluginRolesNotIn(List<PluginRoleConfig> pluginRoles) {

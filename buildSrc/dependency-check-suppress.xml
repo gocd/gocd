@@ -262,13 +262,4 @@
     <cpe>cpe:/a:json-c:json-c</cpe>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-    Based on https://discuss.rubyonrails.org/t/possible-xss-vulnerability-in-action-controller/84947 GoCD is not
-    affected by CVE-2024-26143 as we do not use translation/translation helpers.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:gem/actionpack@6.*$</packageUrl>
-    <vulnerabilityName>CVE-2024-26143</vulnerabilityName>
-  </suppress>
-
 </suppressions>

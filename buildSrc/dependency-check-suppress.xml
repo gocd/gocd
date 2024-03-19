@@ -81,11 +81,13 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    According to https://spring.io/security/cve-2024-22243 this only affects applications that use UriComponentsBuilder
-    along with validation checks on the host. GoCD and its dependencies don't use UriComponentsBuilder at all.
+    According to https://spring.io/security/cve-2024-22243 and https://spring.io/security/cve-2024-22259 theses only
+    affect applications that use UriComponentsBuilder along with validation checks on the host. GoCD and its dependencies
+    don't use UriComponentsBuilder at all.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
     <cve>CVE-2024-22243</cve>
+    <cve>CVE-2024-22259</cve>
   </suppress>
 
   <suppress>
@@ -119,6 +121,14 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@4.*$</packageUrl>
     <cve>CVE-2023-20862</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    According to https://spring.io/security/cve-2024-22257 this only affects applications that use AuthenticatedVoter which
+    GoCD does not use.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@4.*$</packageUrl>
+    <cve>CVE-2024-22257</cve>
   </suppress>
 
   <suppress>

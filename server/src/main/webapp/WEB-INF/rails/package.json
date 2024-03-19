@@ -28,7 +28,7 @@
     "chart.js": "^3.9.1",
     "chartjs-plugin-zoom": "^2.0.1",
     "classnames": "^2.5.1",
-    "core-js": "^3.36.0",
+    "core-js": "^3.36.1",
     "filesize": "^10.1.0",
     "foundation-sites": "^6.8.1",
     "hack-font": "^3.3.0",

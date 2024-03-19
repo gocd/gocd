@@ -253,4 +253,13 @@
     <cve>CVE-2023-49093</cve>
   </suppress>
 
+  <suppress>
+    <notes><![CDATA[
+    Suppress false positive from the JSON Config repo plugin at plugins-{version}.zip/gocd-json-config-plugin.jar. This plugin is being mis-identified as the json-c project which is completely different.
+    Not sure if/how this can be fixed upstream in OWASP Dependency Check as in our case it's being reported against a SHA for the plugin jar itself which
+    does not have a Maven identifier.
+    ]]></notes>
+    <cpe>cpe:/a:json-c:json-c</cpe>
+  </suppress>
+
 </suppressions>

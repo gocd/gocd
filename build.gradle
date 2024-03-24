@@ -235,7 +235,7 @@ subprojects {
 
     // used by intellij for type hints when editing ftl files, intellij gets confused if it sees a license header in this file
     exclude '**/freemarker_implicit.ftl'
-    header rootProject.file('buildSrc/Apache-2.0.txt')
+    header rootProject.file('build-platform/Apache-2.0.txt')
     headerDefinitions {
       intellijStyleXML {
         firstLine = "<!--"
@@ -308,7 +308,6 @@ subprojects {
 
   if (hasJavaSources) {
     apply plugin: 'java-library'
-    apply plugin: 'pmd'
 
     buildDir = "${projectDir}/target"
 
@@ -326,13 +325,6 @@ subprojects {
     task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
       archiveClassifier = 'tests'
       from sourceSets.test.output
-    }
-
-    pmd {
-      ignoreFailures = true
-      ruleSetFiles = files(rootProject.file('buildSrc/pmd.xml'))
-      ruleSets = []
-      incrementalAnalysis = true
     }
 
     dependencies {
@@ -687,8 +679,7 @@ static List<String> getTestClassesForTask(List<String> testsToRun) {
 
 dependencyCheck {
   failBuildOnCVSS = 1
-  skipConfigurations = ['pmd']
-  suppressionFile = rootProject.file('buildSrc/dependency-check-suppress.xml').toPath().toString()
+  suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
 
   nvd {
     apiKey = System.getenv("NVD_API_KEY") ?: ""

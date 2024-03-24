@@ -47,7 +47,7 @@ import static org.apache.commons.lang3.StringUtils.upperCase;
 public class PluggableSCMMaterial extends AbstractMaterial implements SecretParamAware {
     public static final String TYPE = "PluggableSCMMaterial";
 
-    @SuppressWarnings("PMD.UnusedPrivateField")
+    @SuppressWarnings("unused")
     private String scmId;
 
     @Expose

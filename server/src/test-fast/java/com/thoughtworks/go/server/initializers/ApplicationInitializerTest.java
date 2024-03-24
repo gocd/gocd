@@ -54,7 +54,6 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings({"unused", "PMD.UnusedPrivateField"})
 public class ApplicationInitializerTest {
     @Mock
     private ConfigElementImplementationRegistrar configElementImplementationRegistrar;
@@ -150,13 +149,13 @@ public class ApplicationInitializerTest {
     }
 
     @Test
-    public void shouldCallInitializeOfPluginZipInitializerOnlyAfterInitializeOfPluginInitializer() throws Exception {
+    public void shouldCallInitializeOfPluginZipInitializerOnlyAfterInitializeOfPluginInitializer() {
         assertThat(ReflectionUtil.getField(new Toggles(), "service"), is(featureToggleService));
         verifyOrder(pluginsInitializer, pluginsZip);
     }
 
     @Test
-    public void shouldInitializeCcTrayAndDashboardActivityListenersAfterGoConfigServiceAndPipelineSqlMapDaoAreInitialized() throws Exception {
+    public void shouldInitializeCcTrayAndDashboardActivityListenersAfterGoConfigServiceAndPipelineSqlMapDaoAreInitialized() {
         verifyOrder(goConfigService, pipelineSqlMapDao, ccTrayActivityListener, dashboardActivityListener);
     }
     @Test
@@ -165,7 +164,7 @@ public class ApplicationInitializerTest {
     }
 
     @Test
-    public void shouldRunConfigCipherUpdaterBeforeInitializationOfOtherConfigRelatedServicesAndDatastores() throws Exception {
+    public void shouldRunConfigCipherUpdaterBeforeInitializationOfOtherConfigRelatedServicesAndDataStores() throws Exception {
         InOrder inOrder = inOrder(configCipherUpdater, configElementImplementationRegistrar, configRepository, goFileConfigDataSource, cachedGoConfig, goConfigService);
         inOrder.verify(configCipherUpdater).migrate();
         inOrder.verify(configElementImplementationRegistrar).initialize();

@@ -39,8 +39,8 @@ still have some EOL dependencies with known vulnerabilities that GoCD is not vul
 
 While this is a moving target the GoCD team maintain documented suppressions with commentary via:
 - [OWASP Dependency Check](https://owasp.org/www-project-dependency-check/) - Java, JavaScript & Ruby/JRuby dependencies
-  - [current suppressions](https://github.com/gocd/gocd/blob/master/buildSrc/dependency-check-suppress.xml)
+  - [current suppressions](https://github.com/gocd/gocd/blob/master/build-platform/dependency-check-suppress.xml)
   - [build.gocd.org report off master](https://build.gocd.org/go/files/Security-Checks/latest/Security-Checks/latest/dependency-check/dependency-check-report.html) (use _Guest_ login)
 - [Trivy](https://trivy.dev/) - built container images (OS and packaged dependencies), especially server
-  - [current suppressions](https://github.com/gocd/gocd/blob/master/buildSrc/.trivyignore)
+  - [current suppressions](https://github.com/gocd/gocd/blob/master/build-platform/.trivyignore.yaml)
   - [build.gocd.org Security-Checks-Containers pipeline](https://build.gocd.org/) (use _Guest_ login)

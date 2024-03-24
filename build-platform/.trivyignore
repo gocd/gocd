@@ -8,4 +8,4 @@ CVE-2022-22971
 
 # Leave whitespace at the end of the file for appending suppressions from OWASP dependency check :-)
 # Augment to this file with
-# grep -oE '<(cve|vulnerabilityName)>[^<]*</(cve|vulnerabilityName)>' buildSrc/dependency-check-suppress.xml | sed -E 's/<(cve|vulnerabilityName)>(.*)<\/(cve|vulnerabilityName)>/\2/' >> buildSrc/.trivyignore
+# grep -oE '<(cve|vulnerabilityName)>[^<]*</(cve|vulnerabilityName)>' build-platform/dependency-check-suppress.xml | sed -E 's/<(cve|vulnerabilityName)>(.*)<\/(cve|vulnerabilityName)>/\2/' >> build-platform/.trivyignore

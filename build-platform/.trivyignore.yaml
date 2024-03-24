@@ -1,0 +1,12 @@
+# Additional suppressions for issues detected by Trivy that are not found by OWASP dependency check
+
+vulnerabilities:
+  - id: CVE-2022-22971
+    statement: >
+      GoCD is not vulnerable since it does not use STOMP over WebSockets via the framework.
+      org.springframework:spring-core (go.jar) Fixed: 5.2.22.RELEASE, 5.3.20.RELEASE
+      https://avd.aquasec.com/nvd/2022/cve-2022-22971/
+
+  # Leave whitespace at the end of the file for appending suppressions from OWASP dependency check :-)
+  # Augment to this file with
+  # grep -oE '<(cve|vulnerabilityName)>(CVE|GHSA).*</(cve|vulnerabilityName)>' build-platform/dependency-check-suppress.xml | sed -E 's/<(cve|vulnerabilityName)>(.*)<\/(cve|vulnerabilityName)>/  - id: \2/' >> build-platform/.trivyignore.yaml

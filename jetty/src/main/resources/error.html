@@ -1,46 +1,66 @@
-
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{status_code}} {{error_message}}</title>
-    <meta name="viewport" content="width=device-width">
     <style>
-        .error-page-wrap {
-            width: 400px;
-            height: 400px;
-            border-radius: 50%;
-            background: #94399E;
-            position: absolute;
-            transform: translate(-50%, -50%);
-            left: 50%;
-            top: 50%;
-            text-align: Center;
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
             display: flex;
-            flex-direction: column;
             justify-content: center;
-        }
-        .error-page-wrap h1 {
-            font-size: 100px;
-            margin: 0;
-            color: #fff;
-        }
-        .error-page-wrap h2 {
-            margin: 0;
-            color: #fff;
-            margin: 20px 0;
-        }
-        .error-page-wrap a {
-            color: #fff;
-            display: block;
+            align-items: center;
+            height: 100vh;
         }
 
+        .error-container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .error-code {
+            font-size: 3em;
+            color: #ff6666;
+            margin-bottom: 10px;
+        }
+
+        .error-message {
+            font-size: 1.5em;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        .error-description {
+            font-size: 1em;
+            color: #666666;
+            margin-bottom: 20px;
+        }
+
+        .back-link {
+            color: #337ab7;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-<div class="error-page-wrap">
-    <h1>{{status_code}}</h1>
-    <h2>{{error_message}}</h2>
-</div>
+    <div class="error-container">
+        <div class="error-code">{{status_code}}</div>
+        <div class="error-message">{{error_message}}</div>
+        <div class="error-description">Oops! It seems something went wrong.</div>
+        <a href="/" class="back-link">Back to Home</a>
+    </div>
 </body>
 </html>

@@ -20,7 +20,7 @@
     "tslint:fix": "yarn run tslint:prod --fix && yarn run tslint:spec --fix"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.5.1",
+    "@fortawesome/fontawesome-free": "^6.5.2",
     "@shopify/draggable": "1.0.0-beta.12",
     "angular": "file:node-vendor/angular",
     "awesomplete": "^1.1.5",

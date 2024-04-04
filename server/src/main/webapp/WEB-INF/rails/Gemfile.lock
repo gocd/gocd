@@ -1,3 +1,12 @@
+GIT
+  remote: https://github.com/sass-contrib/sassc-embedded-shim-ruby.git
+  revision: efbba5f659a61a56b7dbf448f48c3ca053593bcd
+  ref: unique-import-id
+  submodules: true
+  specs:
+    sassc-embedded (1.74.0)
+      sass-embedded (~> 1.74)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -187,13 +196,11 @@ GEM
     rspec-support (3.13.1)
     rspec_junit_formatter (0.6.0)
       rspec-core (>= 2, < 4, != 2.12.0)
-    sass-embedded (1.72.0)
+    sass-embedded (1.74.1)
       google-protobuf (>= 3.25, < 5.0)
       rake (>= 13.0.0)
-    sass-embedded (1.72.0-x86_64-linux-gnu)
+    sass-embedded (1.74.1-x86_64-linux-gnu)
       google-protobuf (>= 3.25, < 5.0)
-    sassc-embedded (1.70.1)
-      sass-embedded (~> 1.70)
     sprockets (4.2.1)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
@@ -232,6 +239,7 @@ DEPENDENCIES
   rails-controller-testing
   rspec-rails
   rspec_junit_formatter
+  sassc-embedded!
   sprockets-rails
   ts_routes
   tzinfo-data

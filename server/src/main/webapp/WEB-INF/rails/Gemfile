@@ -10,6 +10,7 @@ platforms :jruby do
 
   group :assets do
     gem 'dartsass-sprockets'
+    gem 'sassc-embedded', github: 'sass-contrib/sassc-embedded-shim-ruby', ref: 'unique-import-id', submodules: true
     gem 'js-routes'
     gem 'ts_routes'
   end

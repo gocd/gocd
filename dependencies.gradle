@@ -80,7 +80,7 @@ final Map<String, String> libraries = [
   logback             : 'ch.qos.logback:logback-classic:1.5.3',
   lombok              : 'org.projectlombok:lombok:1.18.32',
   mockitoBom          : 'org.mockito:mockito-bom:5.11.0',
-  mybatis             : 'org.mybatis:mybatis:3.5.15',
+  mybatis             : 'org.mybatis:mybatis:3.5.16',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.1.2',
   mysql               : 'com.mysql:mysql-connector-j:8.3.0',
   objenesis           : 'org.objenesis:objenesis:3.3',

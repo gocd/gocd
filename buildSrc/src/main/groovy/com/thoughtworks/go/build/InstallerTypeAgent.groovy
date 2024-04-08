@@ -80,7 +80,8 @@ class InstallerTypeAgent implements InstallerType {
       '/var/lib/go-agent'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
       '/var/lib/go-agent/run'             : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
       '/var/log/go-agent'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
-      '/var/run/go-agent'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true]
+      '/var/run/go-agent'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
+      '/var/go'                           : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
     ]
   }
 

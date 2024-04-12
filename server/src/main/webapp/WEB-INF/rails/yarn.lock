@@ -5990,7 +5990,7 @@ __metadata:
     opensans: "file:vendor/assets/fonts/opensans"
     optimize-css-assets-webpack-plugin: "npm:^6.0.1"
     prismjs: "npm:^1.29.0"
-    sass-embedded: "npm:^1.74.1"
+    sass-embedded: "npm:^1.75.0"
     sass-loader: "npm:^10.5.2"
     shell-quote: "npm:^1.8.1"
     shellwords-ts: "npm:^3.0.1"
@@ -9950,176 +9950,176 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-embedded-android-arm64@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-android-arm64@npm:1.74.1"
+"sass-embedded-android-arm64@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-android-arm64@npm:1.75.0"
   bin:
     sass: dart-sass/sass
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-android-arm@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-android-arm@npm:1.74.1"
+"sass-embedded-android-arm@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-android-arm@npm:1.75.0"
   bin:
     sass: dart-sass/sass
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-android-ia32@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-android-ia32@npm:1.74.1"
+"sass-embedded-android-ia32@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-android-ia32@npm:1.75.0"
   bin:
     sass: dart-sass/sass
   conditions: os=android & cpu=ia32
   languageName: node
   linkType: hard
 
-"sass-embedded-android-x64@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-android-x64@npm:1.74.1"
+"sass-embedded-android-x64@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-android-x64@npm:1.75.0"
   bin:
     sass: dart-sass/sass
   conditions: os=android & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-darwin-arm64@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-darwin-arm64@npm:1.74.1"
+"sass-embedded-darwin-arm64@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-darwin-arm64@npm:1.75.0"
   bin:
     sass: dart-sass/sass
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-darwin-x64@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-darwin-x64@npm:1.74.1"
+"sass-embedded-darwin-x64@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-darwin-x64@npm:1.75.0"
   bin:
     sass: dart-sass/sass
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-arm64@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-linux-arm64@npm:1.74.1"
+"sass-embedded-linux-arm64@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-linux-arm64@npm:1.75.0"
   bin:
     sass: dart-sass/sass
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-arm@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-linux-arm@npm:1.74.1"
+"sass-embedded-linux-arm@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-linux-arm@npm:1.75.0"
   bin:
     sass: dart-sass/sass
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-ia32@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-linux-ia32@npm:1.74.1"
+"sass-embedded-linux-ia32@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-linux-ia32@npm:1.75.0"
   bin:
     sass: dart-sass/sass
   conditions: os=linux & cpu=ia32
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-arm64@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-linux-musl-arm64@npm:1.74.1"
+"sass-embedded-linux-musl-arm64@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-linux-musl-arm64@npm:1.75.0"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-arm@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-linux-musl-arm@npm:1.74.1"
+"sass-embedded-linux-musl-arm@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-linux-musl-arm@npm:1.75.0"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-ia32@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-linux-musl-ia32@npm:1.74.1"
+"sass-embedded-linux-musl-ia32@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-linux-musl-ia32@npm:1.75.0"
   conditions: os=linux & cpu=ia32
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-x64@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-linux-musl-x64@npm:1.74.1"
+"sass-embedded-linux-musl-x64@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-linux-musl-x64@npm:1.75.0"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-x64@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-linux-x64@npm:1.74.1"
+"sass-embedded-linux-x64@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-linux-x64@npm:1.75.0"
   bin:
     sass: dart-sass/sass
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-win32-arm64@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-win32-arm64@npm:1.74.1"
+"sass-embedded-win32-arm64@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-win32-arm64@npm:1.75.0"
   bin:
     sass: dart-sass/sass.bat
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-win32-ia32@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-win32-ia32@npm:1.74.1"
+"sass-embedded-win32-ia32@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-win32-ia32@npm:1.75.0"
   bin:
     sass: dart-sass/sass.bat
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"sass-embedded-win32-x64@npm:1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded-win32-x64@npm:1.74.1"
+"sass-embedded-win32-x64@npm:1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded-win32-x64@npm:1.75.0"
   bin:
     sass: dart-sass/sass.bat
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded@npm:^1.74.1":
-  version: 1.74.1
-  resolution: "sass-embedded@npm:1.74.1"
+"sass-embedded@npm:^1.75.0":
+  version: 1.75.0
+  resolution: "sass-embedded@npm:1.75.0"
   dependencies:
     "@bufbuild/protobuf": "npm:^1.0.0"
     buffer-builder: "npm:^0.2.0"
     immutable: "npm:^4.0.0"
     rxjs: "npm:^7.4.0"
-    sass-embedded-android-arm: "npm:1.74.1"
-    sass-embedded-android-arm64: "npm:1.74.1"
-    sass-embedded-android-ia32: "npm:1.74.1"
-    sass-embedded-android-x64: "npm:1.74.1"
-    sass-embedded-darwin-arm64: "npm:1.74.1"
-    sass-embedded-darwin-x64: "npm:1.74.1"
-    sass-embedded-linux-arm: "npm:1.74.1"
-    sass-embedded-linux-arm64: "npm:1.74.1"
-    sass-embedded-linux-ia32: "npm:1.74.1"
-    sass-embedded-linux-musl-arm: "npm:1.74.1"
-    sass-embedded-linux-musl-arm64: "npm:1.74.1"
-    sass-embedded-linux-musl-ia32: "npm:1.74.1"
-    sass-embedded-linux-musl-x64: "npm:1.74.1"
-    sass-embedded-linux-x64: "npm:1.74.1"
-    sass-embedded-win32-arm64: "npm:1.74.1"
-    sass-embedded-win32-ia32: "npm:1.74.1"
-    sass-embedded-win32-x64: "npm:1.74.1"
+    sass-embedded-android-arm: "npm:1.75.0"
+    sass-embedded-android-arm64: "npm:1.75.0"
+    sass-embedded-android-ia32: "npm:1.75.0"
+    sass-embedded-android-x64: "npm:1.75.0"
+    sass-embedded-darwin-arm64: "npm:1.75.0"
+    sass-embedded-darwin-x64: "npm:1.75.0"
+    sass-embedded-linux-arm: "npm:1.75.0"
+    sass-embedded-linux-arm64: "npm:1.75.0"
+    sass-embedded-linux-ia32: "npm:1.75.0"
+    sass-embedded-linux-musl-arm: "npm:1.75.0"
+    sass-embedded-linux-musl-arm64: "npm:1.75.0"
+    sass-embedded-linux-musl-ia32: "npm:1.75.0"
+    sass-embedded-linux-musl-x64: "npm:1.75.0"
+    sass-embedded-linux-x64: "npm:1.75.0"
+    sass-embedded-win32-arm64: "npm:1.75.0"
+    sass-embedded-win32-ia32: "npm:1.75.0"
+    sass-embedded-win32-x64: "npm:1.75.0"
     supports-color: "npm:^8.1.1"
     varint: "npm:^6.0.0"
   dependenciesMeta:
@@ -10157,7 +10157,7 @@ __metadata:
       optional: true
     sass-embedded-win32-x64:
       optional: true
-  checksum: 10/bf5208a4fe5ec1a5525a040ba10a28538f0564642cbb99d66601a6eb0a9bebc0dacfa5e3efe726ff6efca0ff1a660c9711e6264cb5a7d240454a2ee282d72c44
+  checksum: 10/a2171d3434fefb78b0fbc1be1c21062cf431e8ebff9ec8bd5a5a9977dc4ae3e8552be73b9bfbe2eca659606a93df21b27872855cb20cf51ccf7642ea617fe30a
   languageName: node
   linkType: hard
 

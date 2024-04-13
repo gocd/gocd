@@ -81,13 +81,14 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    According to https://spring.io/security/cve-2024-22243 and https://spring.io/security/cve-2024-22259 theses only
-    affect applications that use UriComponentsBuilder along with validation checks on the host. GoCD and its dependencies
+    According to https://spring.io/security/cve-2024-22243 / https://spring.io/security/cve-2024-22259 / https://spring.io/security/cve-2024-22262
+    these only affect applications that use UriComponentsBuilder along with validation checks on the host. GoCD and its dependencies
     don't use UriComponentsBuilder at all.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
     <cve>CVE-2024-22243</cve>
     <cve>CVE-2024-22259</cve>
+    <cve>CVE-2024-22262</cve>
   </suppress>
 
   <suppress>

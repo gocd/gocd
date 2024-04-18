@@ -14,11 +14,13 @@ Please report any issues to https://hackerone.com/gocd according to the listed p
 
 ## Baseline
 
-This represents the oldest version which has **no known exploitable vulnerabilities**. Users are strongly recommended to be on at least this version; and preferably the latest version. 
+This represents the oldest versions which have **no known exploitable vulnerabilities** of a given severity, as assessed by GoCD maintainers and/or NIST NVD via CVSS 3.1. Users are strongly recommended to be on at least these version; and preferably the latest version. 
 
-| Baseline Version |
-| ---------------- |
-| `23.1.0`         |
+| Without known vulns    | Version                                           |
+| ---------------------- | ------------------------------------------------- |
+| No >= **high** vulns   | [`22.1.0`](https://www.gocd.org/releases/#22-1-0) |
+| No >= **medium** vulns | [`23.1.0`](https://www.gocd.org/releases/#23-1-0) |
+| No >= **low** vulns    | [`23.1.0`](https://www.gocd.org/releases/#23-1-0) |
 
 Please note that this does *not* mean that there are zero potential vulnerabilities known from GoCD's dependencies
 in this or subsequent versions. However where such vulnerabilities exist, none have been confirmed to be exploitable via GoCD

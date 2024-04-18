@@ -110,8 +110,6 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println separator
   println("")
 
-  def isWindows = org.gradle.internal.os.OperatingSystem.current().isWindows()
-
   println("Tool Versions")
   println(separator)
   println("node: ${getVersion("node", "--version")}")

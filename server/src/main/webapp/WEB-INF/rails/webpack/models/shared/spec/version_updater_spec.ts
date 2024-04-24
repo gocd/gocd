@@ -263,7 +263,7 @@ describe("VersionUpdater", () => {
       expect(notifications[0].message).toBe("A new version of GoCD - 18.7.0-1234 is available.");
       expect(notifications[0].type).toBe("UpdateCheck");
       expect(notifications[0].link).toBe("https://www.gocd.org/download/");
-      expect(notifications[0].linkText).toBe("Learn more ...");
+      expect(notifications[0].linkText).toBe("Learn More");
       expect(notifications[0].read).toBe(false);
       expect(notifications[0].id).not.toBeUndefined();
     });

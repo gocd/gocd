@@ -254,7 +254,7 @@ export class ShowUsagesModal extends Modal {
                        .map((pipeline: string, index) => {
                          return [
                            <span>{pipeline}</span>,
-                           <Link href={SparkRoutes.pipelineEditPath('pipelines', pipeline, 'materials')} target={"_blank"}
+                           <Link href={SparkRoutes.pipelineEditPath('pipelines', pipeline, 'materials')}
                                  dataTestId={`material-link-${index}`}>View/Edit Material</Link>
                          ];
                        }));

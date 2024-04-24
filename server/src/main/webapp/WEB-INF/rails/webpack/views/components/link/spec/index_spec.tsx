@@ -40,7 +40,7 @@ describe("Link", () => {
   });
 
   it("should show external link icon when specified", () => {
-    helper.mount(() => <Link target="_blank" href="docs.gocd.org" externalLinkIcon={true}/>);
+    helper.mount(() => <Link href="docs.gocd.org" target="_blank" externalLinkIcon={true}/>);
     const anchor = helper.q("a");
     expect(anchor).toHaveClass(styles.externalIcon);
   });

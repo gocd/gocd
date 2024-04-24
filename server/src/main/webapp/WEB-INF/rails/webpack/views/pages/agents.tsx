@@ -128,7 +128,7 @@ export class AgentsPage extends Page<null, State> {
   helpText(): m.Children {
     return <span>
       GoCD Agents are the workers in the GoCD ecosystem. Agents pick up jobs which are assigned to them, execute the tasks in the job and report the status of the job to the GoCD Server.
-      <Link href={docsUrl("introduction/concepts_in_go.html#agent")} externalLinkIcon={true}> Learn More</Link>
+      <Link href={docsUrl("introduction/concepts_in_go.html#agent")} target="_blank" externalLinkIcon={true}> Learn More</Link>
     </span>;
   }
 

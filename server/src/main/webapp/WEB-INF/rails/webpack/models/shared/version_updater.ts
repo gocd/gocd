@@ -93,7 +93,7 @@ export class VersionUpdater {
     VersionUpdater.markUpdateDone();
     const latestVersionNumber = await VersionUpdater.get();
     if (latestVersionNumber !== undefined) {
-      SystemNotifications.notifyNewMessage("UpdateCheck", `A new version of GoCD - ${latestVersionNumber} is available.`, "https://www.gocd.org/download/", "Learn more ...");
+      SystemNotifications.notifyNewMessage("UpdateCheck", `A new version of GoCD - ${latestVersionNumber} is available.`, "https://www.gocd.org/download/", "Learn More");
     }
   }
 

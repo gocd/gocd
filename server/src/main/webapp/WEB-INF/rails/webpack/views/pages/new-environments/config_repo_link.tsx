@@ -29,7 +29,7 @@ export class ConfigRepoLink extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return <span data-test-id={vnode.attrs.dataTestId} className={styles.configRepoLink}>
                                       (Config Repository:
-                                      <Link target="_blank" href={SparkRoutes.ConfigRepoViewPath(vnode.attrs.configRepoId)}>
+                                      <Link href={SparkRoutes.ConfigRepoViewPath(vnode.attrs.configRepoId)}>
                                         {vnode.attrs.configRepoId}
                                       </Link>
                                       )

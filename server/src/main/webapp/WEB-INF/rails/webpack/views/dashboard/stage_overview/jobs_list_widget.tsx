@@ -20,6 +20,7 @@ import * as Icons from "views/components/icons";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import {Agents} from "../../../models/agents/agents";
 import {CheckboxField} from "../../components/forms/input_fields";
+import {Link} from "../../components/link";
 import * as styles from "./index.scss";
 import {JobAgentWidget} from "./job_agent_widget";
 import {JobProgressBarWidget} from "./job_progress_bar_widget";
@@ -68,7 +69,9 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
           <span title={job.name} className={styles.jobName}>{job.name}</span>
         </div>
         <div class={styles.consoleLogIconCell}  data-test-id={`console-log-icon-for-${job.name}`}>
-          <Icons.ConsoleLog title="Go to Job Console Log" onclick={() => window.open(jobDetailsPageLink)} target={"_blank"} iconOnly={true}/>
+          <Link href={jobDetailsPageLink}>
+            <Icons.ConsoleLog title="Go to Job Console Log" iconOnly={true}/>
+          </Link>
         </div>
         <div class={styles.stateCell} data-test-id={`state-for-${job.name}`}>
           <JobStateWidget job={job}/>

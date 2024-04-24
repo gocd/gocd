@@ -109,7 +109,7 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
       <li>An Environment is a grouping of pipelines and agents.</li>
       <li>By assigning an agent to an environment, it will be used to run only those jobs that belong to the pipelines of that environment.</li>
       <li>An agent can belong to more than one environment. A pipeline can, however, only be assigned to a single environment.
-        <Link href={docsUrl('configuration/managing_environments.html')} externalLinkIcon={true}> Learn More</Link>
+        <Link href={docsUrl('configuration/managing_environments.html')} target="_blank" externalLinkIcon={true}> Learn More</Link>
       </li>
     </ul> ;
   }

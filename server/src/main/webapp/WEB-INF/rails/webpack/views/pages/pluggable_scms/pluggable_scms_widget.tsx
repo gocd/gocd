@@ -48,7 +48,7 @@ export class PluggableScmsWidget extends MithrilViewComponent<Attrs> {
     return <ul>
       <li>Click on "Create Pluggable Scm" to add new SCM.</li>
       <li>An SCM can be set up and used as a material in the pipelines. You can read more
-        from <Link target="_blank" href={docsUrl("extension_points/scm_extension.html")}>here</Link>.
+        from <Link href={docsUrl("extension_points/scm_extension.html")} target="_blank" externalLinkIcon={true}>here</Link>.
       </li>
     </ul>;
   }

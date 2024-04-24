@@ -44,7 +44,7 @@ export class PluginsPage extends Page {
   helpText(): m.Children {
     return <div>
       Plugins allow users to extend the functionality of GoCD. You can read more about them from
-      <Link href={docsUrl("extension_points/plugin_user_guide.html")} externalLinkIcon={true}> here.</Link>
+      <Link href={docsUrl("extension_points/plugin_user_guide.html")} target="_blank" externalLinkIcon={true}>here.</Link>
     </div>;
   }
 

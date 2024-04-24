@@ -55,7 +55,7 @@ export class RolesWidget extends MithrilViewComponent<Attrs> {
       <li>Click on "Add" to add new role configuration.</li>
       <li>A role configuration is used to define a group of users, along with the access permissions, who perform
         similar tasks. You can read more about roles based access control in GoCD
-        from <Link target="_blank"
+        from <Link target="_blank" externalLinkIcon={true}
                    href={docsUrl("configuration/dev_authorization.html#role-based-security")}>here</Link>.
       </li>
     </ul>;

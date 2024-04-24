@@ -70,7 +70,7 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
     return <ul data-test-id="access-token-info">
       <li>Click on "Generate Token" to create new personal access token.</li>
       <li>A Generated token can be used to access the GoCD API.
-        <Link href={docsUrl('configuration/access_tokens.html')} externalLinkIcon={true}> Learn More</Link>
+        <Link href={docsUrl('configuration/access_tokens.html')} target="_blank" externalLinkIcon={true}> Learn More</Link>
       </li>
     </ul>;
   }
@@ -163,7 +163,7 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
       <li>Navigate to <a href="/go/access_tokens">Personal Access Tokens</a>.</li>
       <li>Click on "Generate Token" to create new personal access token.</li>
       <li>The generated token can be used to access the GoCD API.
-        <Link href={docsUrl('configuration/access_tokens.html')} externalLinkIcon={true}> Learn More</Link>
+        <Link href={docsUrl('configuration/access_tokens.html')} target="_blank" externalLinkIcon={true}> Learn More</Link>
       </li>
     </ul>;
   }

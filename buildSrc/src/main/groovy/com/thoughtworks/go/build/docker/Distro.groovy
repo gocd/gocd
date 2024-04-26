@@ -231,11 +231,18 @@ enum Distro implements DistroBehavior {
       return debian.getInstallPrerequisitesCommands(v)
     }
 
+    List<String> getCreateUserAndGroupCommands() {
+      return [
+        '(userdel --remove --force ubuntu || true)',
+      ] + super.getCreateUserAndGroupCommands()
+    }
+
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [ // See https://endoflife.date/ubuntu "Maintenance & Security Support"
         new DistroVersion(version: '20.04', releaseName: 'focal', eolDate: parseDate('2025-04-02')),
         new DistroVersion(version: '22.04', releaseName: 'jammy', eolDate: parseDate('2027-04-01')),
+        new DistroVersion(version: '24.04', releaseName: 'noble', eolDate: parseDate('2029-04-01')),
       ]
     }
   },

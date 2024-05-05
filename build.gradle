@@ -355,10 +355,6 @@ subprojects {
             }
           }
         })
-        // Workaround https://github.com/FasterXML/jackson-databind/issues/4428 until Jackson 2.17.1
-        withModule('com.fasterxml.jackson.core:jackson-databind', { details ->
-          details.allVariants { withDependencies { removeAll {it.name == "byte-buddy" } } }
-        })
       }
     }
   }

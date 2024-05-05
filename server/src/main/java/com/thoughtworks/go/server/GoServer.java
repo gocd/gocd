@@ -60,6 +60,7 @@ public class GoServer {
             LOG.error("ERROR: Failed to start GoCD server.", exceptionAtServerStart);
             throw new RuntimeException("Failed to start GoCD server.", exceptionAtServerStart);
         }
+        LOG.info("GoCD server started successfully.");
     }
 
     AppServer configureServer() throws Exception {

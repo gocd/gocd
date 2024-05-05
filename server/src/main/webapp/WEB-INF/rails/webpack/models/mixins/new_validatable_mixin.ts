@@ -279,6 +279,7 @@ export class ValidatableMixin extends BaseErrorsConsumer implements Validatable,
     if (_.has(this.__attrToValidators, attr)) {
       this.__attrToValidators[attr].push(validator);
     } else {
+      // @ts-ignore
       this.__attrToValidators[attr] = [validator];
     }
   }

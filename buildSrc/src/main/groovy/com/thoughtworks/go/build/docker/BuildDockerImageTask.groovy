@@ -23,6 +23,7 @@ import freemarker.template.Configuration
 import freemarker.template.Template
 import freemarker.template.TemplateExceptionHandler
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -109,7 +110,7 @@ class BuildDockerImageTask extends DefaultTask {
         )
 
         logger.lifecycle("\nVerifying ${imageNameWithTag} image for ${distro.dockerVerifyArchitecture}. (Current build architecture is ${Architecture.current()}).\n")
-        verifyHelper.call(isNativeVerify)
+        verifyHelper.call()
         logger.lifecycle("\nVerification of ${imageNameWithTag} image on ${distro.dockerVerifyArchitecture} successful.")
       }
 
@@ -138,6 +139,38 @@ class BuildDockerImageTask extends DefaultTask {
       } else {
         logger.lifecycle("No changes to Docker build for ${imageNameWithTag} at ${gitHubRepoName}.")
       }
+    }
+  }
+
+  def verifyProcessInContainerStarted(String expectedProcess, String expectedOutput = "") {
+    // run a `ps aux`
+    ByteArrayOutputStream psOutput = new ByteArrayOutputStream()
+    project.exec {
+      workingDir = project.rootProject.projectDir
+      commandLine = ["docker", "exec", dockerImageName, "ps", "aux"]
+      standardOutput = psOutput
+      errorOutput = psOutput
+      ignoreExitValue = true
+    }
+
+    ByteArrayOutputStream containerOutput = new ByteArrayOutputStream()
+    project.exec {
+      workingDir = project.rootProject.projectDir
+      commandLine = ["docker", "logs", dockerImageName]
+      standardOutput = containerOutput
+      errorOutput = containerOutput
+      ignoreExitValue = true
+    }
+
+    // assert if process was running
+    def processList = psOutput.toString()
+    def containerLog = containerOutput.toString()
+
+    if (!processList.contains(expectedProcess)) {
+      throw new GradleException("Expected process output to contain [${expectedProcess}], but was: [${processList}]\n\nContainer output:\n${containerOutput.toString()}")
+    }
+    if (expectedOutput != "" && !(containerLog =~ expectedOutput)) {
+      throw new GradleException("Process was up, but expected container output to match /${expectedOutput}/. Was: \n${containerOutput.toString()}")
     }
   }
 

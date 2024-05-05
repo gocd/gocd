@@ -3,7 +3,10 @@ import com.thoughtworks.go.build.docker.Distro
 import com.thoughtworks.go.build.docker.DistroVersion
 import com.thoughtworks.go.build.docker.ImageType
 import groovy.json.JsonOutput
-import org.apache.tools.ant.util.TeeOutputStream
+import io.github.resilience4j.retry.Retry
+import io.github.resilience4j.retry.RetryConfig
+
+import java.time.Duration
 
 /*
  * Copyright 2024 Thoughtworks, Inc.
@@ -94,18 +97,19 @@ subprojects {
     }
 
     // test image
-    task.verifyHelper = { boolean isNative ->
-      def cleanContainer = {     // remove the container
+    task.verifyHelper = {
+      def cleanContainer = { OutputStream errorStream = System.err ->
         project.exec {
           workingDir = project.rootProject.projectDir
           commandLine = ["docker", "rm", "--force", docker.dockerImageName]
           standardOutput = System.out
-          errorOutput = System.err
+          errorOutput = errorStream
         }
       }
 
+      cleanContainer.call(OutputStream.nullOutputStream()) // Clean-up after any previous aborted runs
+
       // daemonize the container
-      cleanContainer.call() // Clean-up after any previous aborted runs
       project.exec {
         workingDir = project.rootProject.projectDir
         commandLine = ["docker", "run", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
@@ -113,39 +117,20 @@ subprojects {
         errorOutput = System.err
       }
 
-      // Need to wait for start. Would be better to have some polling mechanism here with a timeout.
-      def sleep = isNative ? 10000 : 15000
-      logger.lifecycle("\nWaiting ${sleep}ms for ${isNative ? 'native' : 'emulated'} container to start...")
-      Thread.sleep(sleep)
-      logger.lifecycle("Should be started now...")
-
-      // run a `ps aux`
-      ByteArrayOutputStream psOutput = new ByteArrayOutputStream()
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "exec", docker.dockerImageName, "ps", "aux"]
-        standardOutput = new TeeOutputStream(psOutput, System.out)
-        errorOutput = new TeeOutputStream(psOutput, System.err)
-        ignoreExitValue = true
-      }
-
-      ByteArrayOutputStream containerOutput = new ByteArrayOutputStream()
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "logs", docker.dockerImageName]
-        standardOutput = containerOutput
-        errorOutput = containerOutput
-        ignoreExitValue = true
-      }
-
-      // remove the container
-      cleanContainer.call()
-
-      // assert if process was running
-      def expectedProcess = "lib/go.jar"
-      def processList = psOutput.toString()
-      if (!processList.contains(expectedProcess)) {
-        throw new GradleException("Expected process output to contain ${expectedProcess}, but was: [${processList}]\n\nContainer output:\n${containerOutput.toString()}")
+      def start = System.currentTimeMillis()
+      try {
+        Retry.of("wait-for-container-to-start",
+          RetryConfig.custom().maxAttempts(30).waitDuration(Duration.ofMillis(500)).failAfterMaxAttempts(true).build()
+        ).executeRunnable {
+          task.verifyProcessInContainerStarted(
+            "lib/go.jar",
+            /GoCD server started successfully/
+          )
+        }
+      } finally {
+        logger.lifecycle("Took ${System.currentTimeMillis() - start} ms to verify [${docker.dockerImageName}] container started.")
+        // remove the container
+        cleanContainer.call()
       }
     }
   }

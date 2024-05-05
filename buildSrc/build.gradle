@@ -31,4 +31,5 @@ dependencies {
   implementation project.deps.gradleDownload
   implementation project.deps.grolifant
   implementation project.deps.freemarker
+  implementation project.deps.resilience4jRetry
 }

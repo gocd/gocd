@@ -7,6 +7,14 @@ vulnerabilities:
       org.springframework:spring-core (go.jar) Fixed: 5.2.22.RELEASE, 5.3.20.RELEASE
       https://avd.aquasec.com/nvd/2022/cve-2022-22971/
 
+  - id: CVE-2024-34447
+    statement: >
+      org.bouncycastle:bcprov-jdk18on (go.jar) Severity: LOW Fixed Version: 1.78
+      Suppression for issue coming via JRuby and jruby-openssl's embedded BouncyCastle. This does not affect
+      GoCD as JRuby does not use the TLS/SSL functionality within BC. This likely requires jruby-openssl to be updated
+      to included https://github.com/jruby/jruby-openssl/commit/fcf584773a966373ae7fa6706196e0f8c8cefba4 i.e `0.15.0`
+      and at minimum JRuby 9.4.8.0
+
   # Leave whitespace at the end of the file for appending suppressions from OWASP dependency check :-)
   # Augment to this file with
   # grep -oE '<(cve|vulnerabilityName)>(CVE|GHSA).*</(cve|vulnerabilityName)>' build-platform/dependency-check-suppress.xml | sed -E 's/<(cve|vulnerabilityName)>(.*)<\/(cve|vulnerabilityName)>/  - id: \2/' >> build-platform/.trivyignore.yaml

@@ -120,7 +120,7 @@ subprojects {
       def start = System.currentTimeMillis()
       try {
         Retry.of("wait-for-container-to-start",
-          RetryConfig.custom().maxAttempts(30).waitDuration(Duration.ofMillis(500)).failAfterMaxAttempts(true).build()
+          RetryConfig.custom().maxAttempts(40).waitDuration(Duration.ofMillis(500)).failAfterMaxAttempts(true).build()
         ).executeRunnable {
           task.verifyProcessInContainerStarted(
             "lib/go.jar",

@@ -66,12 +66,12 @@
   },
   "jquery-ui": {
     "moduleName": "jquery-ui",
-    "moduleVersion": "1.13.2",
+    "moduleVersion": "1.13.3",
     "moduleUrls": [
       "https://github.com/jquery/jquery-ui"
     ],
     "filenames": [
-      "jquery-ui-1.13.2.js"
+      "jquery-ui-1.13.3.js"
     ],
     "moduleLicenses": [
       {

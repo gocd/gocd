@@ -113,7 +113,7 @@ GEM
     method_source (1.1.0)
     mini_mime (1.1.5)
     minitest (5.22.3)
-    net-imap (0.4.10)
+    net-imap (0.4.11)
       date
       net-protocol
     net-pop (0.1.2)

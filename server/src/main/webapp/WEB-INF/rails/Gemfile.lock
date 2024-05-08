@@ -122,8 +122,8 @@ GEM
       timeout
     net-smtp (0.5.0)
       net-protocol
-    nio4r (2.7.1)
-    nio4r (2.7.1-java)
+    nio4r (2.7.3)
+    nio4r (2.7.3-java)
     nokogiri (1.16.4-java)
       racc (~> 1.4)
     nokogiri (1.16.4-x86_64-linux)

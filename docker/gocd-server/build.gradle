@@ -33,7 +33,7 @@ subprojects {
   project.buildDir = file("${parent.buildDir}/${project.name}")
 
   // detect the distro name and version from the project name.
-  // For e.g. `centos-6` will map to `Distro.centos` and version `6` as returned by `Distro.centos.supportedVersions`
+  // For e.g. `ubuntu-20.04` will map to `Distro.ubuntu` and version `20.04` as returned by `Distro.ubuntu.supportedVersions`
   def distroName = project.name.split('-').first()
   Distro distro = Distro.valueOf(distroName)
 

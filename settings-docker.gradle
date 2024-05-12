@@ -30,4 +30,3 @@ Distro.values().each { distro ->
 }
 
 include ":docker:gocd-server:${Distro.wolfi.projectName(Distro.wolfi.getVersion('latest'))}"
-include ":docker:gocd-server:${Distro.centos.projectName(Distro.centos.getVersion('9'))}"

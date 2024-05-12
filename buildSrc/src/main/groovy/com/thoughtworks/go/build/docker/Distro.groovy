@@ -139,49 +139,6 @@ enum Distro implements DistroBehavior {
     }
   },
 
-  centos {
-    @Override
-    Set<Architecture> getSupportedArchitectures() {
-      [Architecture.x64, Architecture.aarch64]
-    }
-
-    @Override
-    String getBaseImageRegistry(DistroVersion v) {
-      "quay.io/centos"
-    }
-
-    @Override
-    List<String> getBaseImageUpdateCommands(DistroVersion v) {
-      return [
-        "echo 'fastestmirror=1' >> /etc/dnf/dnf.conf",
-        "echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf",
-        "${pkgFor(v)} upgrade -y",
-        "${pkgFor(v)} install -y shadow-utils",
-      ]
-    }
-
-    @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion v) {
-      return [
-        "${pkgFor(v)} install -y git-core openssh-clients bash unzip procps-ng coreutils-single glibc-langpack-en ${v.lessThan(9) ? ' curl' : ' curl-minimal'}",
-        "${pkgFor(v)} clean all",
-        "rm -rf /var/cache/yum /var/cache/dnf",
-      ]
-    }
-
-    private String pkgFor(DistroVersion v) {
-      v.lessThan(9) ? 'dnf' : 'microdnf'
-    }
-
-    @Override
-    List<DistroVersion> getSupportedVersions() {
-      return [ // See https://endoflife.date/centos
-        new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31')),
-        new DistroVersion(version: '9', releaseName: 'stream9-minimal', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['microdnf install -y tar tzdata']),
-      ]
-    }
-  },
-
   debian {
     @Override
     Set<Architecture> getSupportedArchitectures() {

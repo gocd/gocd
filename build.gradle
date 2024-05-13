@@ -136,13 +136,13 @@ ext {
   targetJavaVersion = 17
 
   // Version of JVM to compile and test using.
-  buildJavaVersion = 17
+  buildJavaVersion = 21
 
   // Version to package with installers and container images by default
   packagedJavaVersion = new AdoptiumVersion(
-    feature: 17,
+    feature: 21,
     interim: 0,    // set to `null` for the first release of a new featureVersion
-    update : 11,   // set to `null` for the first release of a new featureVersion
+    update : 3,    // set to `null` for the first release of a new featureVersion
     patch  : null, // set to `null` for most releases. Patch releases are "exceptional".
     build  : 9
   )
@@ -482,6 +482,7 @@ subprojects {
     systemProperty 'java.io.tmpdir', tmpDir
     systemProperty 'jdk.attach.allowAttachSelf', 'true'
     jvmArgs += testTask.project.name.startsWith("agent") ? InstallerType.agent.jvmModuleOpensArgs : InstallerType.server.jvmModuleOpensArgs
+    jvmArgs += '-XX:+EnableDynamicAgentLoading' // Needed for byte-buddy-agent (and maybe others?) to avoid warnings/errors on Java 21+
 
     doFirst {
       // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40

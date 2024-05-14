@@ -25,11 +25,13 @@ enum PackageType {
 
   deb {
     String jreBinaryLocation(Project project) {
-      "/usr/lib/jvm/java-${project.packagedJavaVersion.feature}-openjdk-\$(dpkg --print-architecture)/bin/java"
+      // TODO need to revert to ${project.packagedJavaVersion.feature} when Java 21 available for Debian 11/12
+      "/usr/lib/jvm/java-17-openjdk-\$(dpkg --print-architecture)/bin/java"
     }
 
     String jreDependency(Project project) {
-      "openjdk-${project.packagedJavaVersion.feature}-jre-headless"
+      // TODO need to revert to ${project.packagedJavaVersion.feature} when Java 21 available for Debian 11/12
+      "openjdk-17-jre-headless"
     }
 
     List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {

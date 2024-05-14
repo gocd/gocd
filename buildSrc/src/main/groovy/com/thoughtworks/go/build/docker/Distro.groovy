@@ -229,7 +229,10 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<String> getCreateUserAndGroupCommands() {
-      return alpine.getCreateUserAndGroupCommands()
+      return alpine.getCreateUserAndGroupCommands() +
+        [
+          'adduser go docker' // Add user to the docker group used to control access to the Docker daemon unix socket
+        ]
     }
 
     @Override

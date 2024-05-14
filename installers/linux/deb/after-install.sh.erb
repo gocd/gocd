@@ -20,8 +20,7 @@
     # initialize init script symlinks on first install
     /usr/share/<%= name %>/bin/<%= name %> install 2>&1
 
-    arch=$(dpkg --print-architecture)
-    java=/usr/lib/jvm/java-17-openjdk-$arch/bin/java
-    sed -ie "s:^\\(wrapper.java.command=\\).*:\\1$java:" /usr/share/<%= name %>/wrapper-config/wrapper.conf
+    java="<%= ENV['JRE_BINARY_LOCATION'] %>"
+    sed -ie "s:^\\(wrapper.java.command=\\).*:\\1${java}:" /usr/share/<%= name %>/wrapper-config/wrapper.conf
 
     <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}_post_install_message.sh.erb")), trim_mode: '-', eoutvar: "_#{SecureRandom.hex}").result(binding) %>

@@ -221,7 +221,7 @@ GEM
 
 PLATFORMS
   java
-  universal-java-17
+  universal-java-21
   x86_64-linux
 
 DEPENDENCIES

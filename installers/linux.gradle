@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.*
+import com.thoughtworks.go.build.Architecture
+import com.thoughtworks.go.build.InstallerMetadataTask
+import com.thoughtworks.go.build.InstallerType
 import groovy.json.JsonOutput
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.tools.ant.filters.ConcatFilter
 
 enum PackageType {
 
-  deb{
+  deb {
+    String jreBinaryLocation(Project project) {
+      "/usr/lib/jvm/java-${project.packagedJavaVersion.feature}-openjdk-\$(dpkg --print-architecture)/bin/java"
+    }
+
+    String jreDependency(Project project) {
+      "openjdk-${project.packagedJavaVersion.feature}-jre-headless"
+    }
+
     List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {
       List<String> fpmArgs = []
       fpmArgs += ['-t', 'deb']
@@ -33,7 +43,7 @@ enum PackageType {
       // for `ps`
       fpmArgs += ['--depends', 'procps']
 
-      fpmArgs += ['--depends', 'openjdk-17-jre-headless']
+      fpmArgs += ['--depends', jreDependency(project)]
 
       // HACK: for debian packages :(, since manifests cannot contain fine grained ownership
       def tmpDir = project.file("${project.buildDir}/tmp")
@@ -50,7 +60,15 @@ enum PackageType {
       return fpmArgs
     }
   },
-  rpm{
+  rpm {
+    String jreBinaryLocation(Project project) {
+      "/etc/alternatives/jre_${project.packagedJavaVersion.feature}/bin/java"
+    }
+
+    String jreDependency(Project project) {
+      "java-${project.packagedJavaVersion.feature}-openjdk-headless"
+    }
+
     List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {
       List<String> fpmArgs = []
 
@@ -63,7 +81,7 @@ enum PackageType {
       // for `ps`
       fpmArgs += ['--depends', 'procps']
 
-      fpmArgs += ['--depends', 'java-17-openjdk-headless']
+      fpmArgs += ['--depends', jreDependency(project)]
 
       fpmArgs += ['--rpm-defattrfile', '0444']
       fpmArgs += ['--rpm-defattrdir', '0755']
@@ -93,7 +111,8 @@ enum PackageType {
     }
   }
 
-  abstract List<String> configureFpm(Project project, File buildRoot, InstallerType installerType);
+  abstract jreBinaryLocation(Project project)
+  abstract List<String> configureFpm(Project project, File buildRoot, InstallerType installerType)
 }
 
 private File destFile(String url) {
@@ -215,13 +234,6 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
               eachLine = newLines.join('\n')
             }
 
-            if (eachLine == 'wrapper.java.command=java') {
-              // Debian Package post install script sets command depending on the architecture
-              if (packageType == PackageType.rpm) {
-                eachLine = 'wrapper.java.command=/etc/alternatives/jre_17/bin/java'
-              }
-            }
-
             if (eachLine == 'wrapper.jarfile=../lib/wrapper.jar') {
               eachLine = "wrapper.jarfile=/usr/share/${installerType.baseName}/wrapper/wrapper.jar"
             }
@@ -320,6 +332,8 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
         cmd += packageType.configureFpm(project, buildRoot, installerType)
 
         commandLine = cmd
+
+        environment += ['JRE_BINARY_LOCATION': packageType.jreBinaryLocation(project)]
 
         workingDir "${project.buildDir}/distributions/${packageType}"
 

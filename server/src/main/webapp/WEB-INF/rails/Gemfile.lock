@@ -112,7 +112,7 @@ GEM
     matrix (0.4.2)
     method_source (1.1.0)
     mini_mime (1.1.5)
-    minitest (5.22.3)
+    minitest (5.23.0)
     net-imap (0.4.11)
       date
       net-protocol

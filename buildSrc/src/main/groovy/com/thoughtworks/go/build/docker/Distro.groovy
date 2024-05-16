@@ -252,6 +252,13 @@ enum Distro implements DistroBehavior {
     Map<String, String> getEnvironmentVariables(DistroVersion v) {
       return alpine.getEnvironmentVariables(v)
     }
+
+    @Override
+    List<List<String>> getAdditionalVerifyCommands() {
+      return [
+        ['docker', 'run', 'hello-world']
+      ]
+    }
   }
 
   static Date parseDate(String date) {

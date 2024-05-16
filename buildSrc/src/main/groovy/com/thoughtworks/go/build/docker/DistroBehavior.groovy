@@ -93,4 +93,8 @@ trait DistroBehavior {
     return false
   }
 
+  List<List<String>> getAdditionalVerifyCommands() {
+    []
+  }
+
 }

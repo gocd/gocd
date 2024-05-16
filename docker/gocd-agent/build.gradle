@@ -137,6 +137,15 @@ subprojects {
             /Connect to localhost:8153.*Connection refused/
           )
         }
+
+        distro.additionalVerifyCommands.each { command ->
+          project.exec {
+            workingDir = project.rootProject.projectDir
+            commandLine = ["docker", "exec", docker.dockerImageName] + command
+            standardOutput = System.out
+            errorOutput = System.err
+          }
+        }
       } finally {
         logger.lifecycle("Took ${System.currentTimeMillis() - start} ms to verify [${docker.dockerImageName}] container started.")
         // remove the container

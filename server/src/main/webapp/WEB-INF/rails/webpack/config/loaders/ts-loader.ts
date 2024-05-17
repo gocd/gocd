@@ -17,7 +17,6 @@
 import path from "path";
 import webpack from "webpack";
 import {ConfigOptions} from "../variables";
-import {getCacheLoader} from "./cache-loader";
 import {threadLoader} from "./thread-loader";
 
 export function getTypescriptLoader(configOptions: ConfigOptions): webpack.RuleSetRule {
@@ -30,7 +29,6 @@ export function getTypescriptLoader(configOptions: ConfigOptions): webpack.RuleS
   }
 
   loaders.push(
-    getCacheLoader(configOptions),
     {
       loader: "babel-loader",
       options: {

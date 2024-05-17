@@ -104,7 +104,7 @@
     "mini-css-extract-plugin": "^1.6.2",
     "mockdate": "^3.0.5",
     "optimize-css-assets-webpack-plugin": "^6.0.1",
-    "sass-embedded": "^1.77.1",
+    "sass-embedded": "^1.77.2",
     "sass-loader": "^10.5.2",
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.11",

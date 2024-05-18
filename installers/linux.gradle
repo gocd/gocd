@@ -31,7 +31,6 @@ enum PackageType {
     }
 
     String jreBinaryLocator(Project project) {
-      // ls /usr/lib/jvm/java-{21,17,11}-openjdk-$(dpkg --print-architecture)/bin/java 2>/dev/null | tail -1
       // Find the most recent version that was installed
       """ls /usr/lib/jvm/java-${project.packagedJavaVersion.feature}-openjdk-\$(dpkg --print-architecture)/bin/java \
             /usr/lib/jvm/java-${project.targetJavaVersion}-openjdk-\$(dpkg --print-architecture)/bin/java \

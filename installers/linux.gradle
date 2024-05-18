@@ -24,14 +24,18 @@ import org.apache.tools.ant.filters.ConcatFilter
 enum PackageType {
 
   deb {
-    String jreBinaryLocation(Project project) {
-      // TODO need to revert to ${project.packagedJavaVersion.feature} when Java 21 available for Debian 11/12
-      "/usr/lib/jvm/java-17-openjdk-\$(dpkg --print-architecture)/bin/java"
+    // Debian packages allow either most recent or minimum Java version in dependencies because
+    // Java 21 was not available on Debian releases despite it being preferred, although was available for Ubuntu.
+    String jreDependency(Project project) {
+      "openjdk-${project.packagedJavaVersion.feature}-jre-headless | openjdk-${project.targetJavaVersion}-jre-headless"
     }
 
-    String jreDependency(Project project) {
-      // TODO need to revert to ${project.packagedJavaVersion.feature} when Java 21 available for Debian 11/12
-      "openjdk-17-jre-headless"
+    String jreBinaryLocator(Project project) {
+      // ls /usr/lib/jvm/java-{21,17,11}-openjdk-$(dpkg --print-architecture)/bin/java 2>/dev/null | tail -1
+      // Find the most recent version that was installed
+      """ls /usr/lib/jvm/java-${project.packagedJavaVersion.feature}-openjdk-\$(dpkg --print-architecture)/bin/java \
+            /usr/lib/jvm/java-${project.targetJavaVersion}-openjdk-\$(dpkg --print-architecture)/bin/java \
+         2>/dev/null | tail -1"""
     }
 
     List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {
@@ -63,12 +67,12 @@ enum PackageType {
     }
   },
   rpm {
-    String jreBinaryLocation(Project project) {
-      "/etc/alternatives/jre_${project.packagedJavaVersion.feature}/bin/java"
-    }
-
     String jreDependency(Project project) {
       "java-${project.packagedJavaVersion.feature}-openjdk-headless"
+    }
+
+    String jreBinaryLocator(Project project) {
+      "echo \"/etc/alternatives/jre_${project.packagedJavaVersion.feature}/bin/java\""
     }
 
     List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {
@@ -113,7 +117,10 @@ enum PackageType {
     }
   }
 
-  abstract jreBinaryLocation(Project project)
+  /**
+   * @return POSIX shell script that will find a path to the optimal JRE java binary for the relevant package
+   */
+  abstract jreBinaryLocator(Project project)
   abstract List<String> configureFpm(Project project, File buildRoot, InstallerType installerType)
 }
 
@@ -335,7 +342,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
         commandLine = cmd
 
-        environment += ['JRE_BINARY_LOCATION': packageType.jreBinaryLocation(project)]
+        environment += ['JRE_BINARY_LOCATOR': packageType.jreBinaryLocator(project)]
 
         workingDir "${project.buildDir}/distributions/${packageType}"
 

@@ -39,10 +39,8 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage;
-import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
 @Component
@@ -84,25 +82,24 @@ public class PluginInfosControllerV7 extends ApiController implements SparkSprin
     }
 
     public String index(Request request, Response response) throws IOException {
-        List<CombinedPluginInfo> pluginInfos = new ArrayList<>();
         String pluginType = request.queryParams("type");
-        Boolean includeBad = Boolean.valueOf(request.queryParams("include_bad"));
+        boolean includeBad = Boolean.parseBoolean(request.queryParams("include_bad"));
 
         if (StringUtils.isNotBlank(pluginType) && !extensionsRegistry.allRegisteredExtensions().contains(pluginType)) {
             throw new UnprocessableEntityException(String.format("Invalid plugin type '%s'. It has to be one of '%s'.", pluginType, String.join(", ", extensionsRegistry.allRegisteredExtensions())));
         }
 
-        Collection<CombinedPluginInfo> validPluginInfos = this.pluginInfoFinder.allPluginInfos(pluginType).stream()
+        List<CombinedPluginInfo> pluginInfos = new ArrayList<>(
+            this.pluginInfoFinder.allPluginInfos(pluginType).stream()
                 .filter(pluginInfo -> !hasUnsupportedExtensionType(pluginInfo))
-                .collect(Collectors.toList());
-
-        pluginInfos.addAll(validPluginInfos);
+                .toList()
+        );
 
         if (includeBad) {
             List<BadPluginInfo> badPluginInfos = defaultPluginManager.plugins().stream()
                     .filter(GoPluginDescriptor::isInvalid)
                     .map(BadPluginInfo::new)
-                    .collect(toList());
+                    .toList();
 
             pluginInfos.addAll(badPluginInfos);
         }
@@ -144,7 +141,7 @@ public class PluginInfosControllerV7 extends ApiController implements SparkSprin
     private boolean hasUnsupportedExtensionType(CombinedPluginInfo pluginInfo) {
         Set<String> extensionTypes = extensionsRegistry.allRegisteredExtensions();
 
-        List<String> invalidExtensions = pluginInfo.extensionNames().stream().filter(extensionName -> !extensionTypes.contains(extensionName)).collect(toList());
+        List<String> invalidExtensions = pluginInfo.extensionNames().stream().filter(extensionName -> !extensionTypes.contains(extensionName)).toList();
         return !invalidExtensions.isEmpty();
     }
 

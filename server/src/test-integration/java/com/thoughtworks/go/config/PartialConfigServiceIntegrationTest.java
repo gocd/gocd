@@ -395,6 +395,6 @@ public class PartialConfigServiceIntegrationTest {
     }
 
     private boolean cacheContainsPartial(List<PartialConfig> partialConfigs, final PartialConfig partialConfig) {
-        return partialConfigs.stream().filter(item -> partialConfig.getEnvironments().equals(item.getEnvironments()) && partialConfig.getGroups().equals(item.getGroups()) && partialConfig.getOrigin().equals(item.getOrigin())).findFirst().isPresent();
+        return partialConfigs.stream().anyMatch(item -> partialConfig.getEnvironments().equals(item.getEnvironments()) && partialConfig.getGroups().equals(item.getGroups()) && partialConfig.getOrigin().equals(item.getOrigin()));
     }
 }

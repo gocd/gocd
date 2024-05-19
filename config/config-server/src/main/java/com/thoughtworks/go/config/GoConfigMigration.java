@@ -60,6 +60,8 @@ public class GoConfigMigration {
         File backupFile = getBackupFile(configFile, "invalid.");
         try {
             backup(configFile, backupFile);
+            // FIXME the lack of charset here looks rather suspicious. But unclear how to fix without possible regressions.
+            // Related to similar issue in MagicalGoConfigXmlWriter?
             FileUtils.writeStringToFile(configFile, currentConfigRevision.getContent());
         } catch (IOException e1) {
             throw new RuntimeException(String.format("Could not write to config file '%s'.", configFile.getAbsolutePath()), e1);

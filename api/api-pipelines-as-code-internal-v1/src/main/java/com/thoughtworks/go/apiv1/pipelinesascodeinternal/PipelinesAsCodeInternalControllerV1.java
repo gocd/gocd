@@ -219,8 +219,8 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
         long timeout = systemEnvironment.getPacCloneTimeout();
 
         subprocessExecutionContext.setGitShallowClone(true);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future future = executor.submit(() -> {
+        @SuppressWarnings("resource") ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<?> future = executor.submit(() -> {
             List<Modification> modifications = materialService.latestModification(material, folder, subprocessExecutionContext);
             materialService.checkout(material, folder, Modification.latestRevision(modifications), subprocessExecutionContext);
         });
@@ -230,6 +230,8 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             LOGGER.debug(format("Failed to clone material %s in %d ms", material.getDescription(), timeout), e);
             future.cancel(true);
             throw e;
+        } finally {
+            executor.shutdownNow();
         }
     }
 
@@ -272,7 +274,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
         return (ConfigRepoPlugin) pluginService.partialConfigProviderFor(pluginId);
     }
 
-    private String requiredParam(final Request req, final String name) {
+    private String requiredParam(final Request req, @SuppressWarnings("SameParameterValue") final String name) {
         String value = req.params(name);
 
         if (StringUtils.isBlank(value)) {
@@ -282,7 +284,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
         return value;
     }
 
-    private String requiredQueryParam(final Request req, final String name) {
+    private String requiredQueryParam(final Request req, @SuppressWarnings("SameParameterValue") final String name) {
         String value = req.queryParams(name);
 
         if (StringUtils.isBlank(value)) {

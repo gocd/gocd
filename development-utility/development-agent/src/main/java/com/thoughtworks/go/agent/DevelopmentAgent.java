@@ -16,7 +16,6 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.command.ProcessRunner;
 
 /**
  * Understands how to run a local development mode agent so we can develop live

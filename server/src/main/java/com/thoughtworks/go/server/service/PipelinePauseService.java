@@ -78,7 +78,7 @@ public class PipelinePauseService {
             result.setMessage("Pipeline '" + pipelineName + "' paused successfully.");
         } catch (Exception e) {
             LOGGER.error("[Pipeline Pause] Failed to pause pipeline", e);
-            result.internalServerError("Server error occured. Check log for details.");
+            result.internalServerError("Server error occurred. Check log for details.");
         }
     }
 
@@ -104,7 +104,7 @@ public class PipelinePauseService {
             result.setMessage("Pipeline '" + pipelineName + "' unpaused successfully.");
         } catch (Exception e) {
             LOGGER.error("[Pipeline Unpause] Failed to unpause pipeline", e);
-            result.internalServerError("Server error occured. Check log for details.");
+            result.internalServerError("Server error occurred. Check log for details.");
         }
     }
 

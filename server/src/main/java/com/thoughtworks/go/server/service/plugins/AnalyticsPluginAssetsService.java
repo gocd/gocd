@@ -42,6 +42,7 @@ import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
 
 @Service
@@ -144,8 +145,8 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
             return;
         }
 
-        try {
-            Files.list(externalAssetsPath).forEach(path -> {
+        try (Stream<Path> directoryStream = Files.list(externalAssetsPath)) {
+            directoryStream.forEach(path -> {
                 try {
                     Files.copy(path, Paths.get(pluginAssetsRoot, path.getFileName().toString()));
                 } catch (Exception e) {

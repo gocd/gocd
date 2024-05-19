@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ConfigConstants;
@@ -49,6 +50,7 @@ import static org.mockito.Mockito.when;
 public class ConfigRepositoryTest {
     private ConfigRepository configRepo;
     private SystemEnvironment systemEnvironment;
+    private Git configRepoRawGit;
 
     @BeforeEach
     public void setUp(@TempDir File configRepoDir) throws IOException {
@@ -58,11 +60,12 @@ public class ConfigRepositoryTest {
         when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).thenReturn(true);
         configRepo = new ConfigRepository(systemEnvironment);
         configRepo.initialize();
+        configRepoRawGit = configRepo.git();
     }
 
     @AfterEach
     public void tearDown() throws Exception {
-        configRepo.git().close();
+        configRepoRawGit.close();
         configRepo.getGitRepo().close();
     }
 
@@ -352,41 +355,41 @@ public class ConfigRepositoryTest {
         configRepo.checkin(goConfigRevision("v1", "md5-1"));
         configRepo.createBranch(ConfigRepository.BRANCH_AT_HEAD, configRepo.getCurrentRevCommit());
         configRepo.createBranch(ConfigRepository.BRANCH_AT_REVISION, configRepo.getCurrentRevCommit());
-        configRepo.git().checkout().setName(ConfigRepository.BRANCH_AT_REVISION).call();
-        assertThat(configRepo.git().getRepository().getBranch(), is(ConfigRepository.BRANCH_AT_REVISION));
-        assertThat(configRepo.git().branchList().call().size(), is(3));
+        configRepoRawGit.checkout().setName(ConfigRepository.BRANCH_AT_REVISION).call();
+        assertThat(configRepoRawGit.getRepository().getBranch(), is(ConfigRepository.BRANCH_AT_REVISION));
+        assertThat(configRepoRawGit.branchList().call().size(), is(3));
         configRepo.cleanAndResetToMaster();
-        assertThat(configRepo.git().getRepository().getBranch(), is("master"));
-        assertThat(configRepo.git().branchList().call().size(), is(1));
+        assertThat(configRepoRawGit.getRepository().getBranch(), is("master"));
+        assertThat(configRepoRawGit.branchList().call().size(), is(1));
     }
 
     @Test
     public void shouldCleanAndResetToMasterDuringInitialization() throws Exception {
         configRepo.checkin(goConfigRevision("v1", "md5-1"));
         configRepo.createBranch(ConfigRepository.BRANCH_AT_REVISION, configRepo.getCurrentRevCommit());
-        configRepo.git().checkout().setName(ConfigRepository.BRANCH_AT_REVISION).call();
-        assertThat(configRepo.git().getRepository().getBranch(), is(ConfigRepository.BRANCH_AT_REVISION));
+        configRepoRawGit.checkout().setName(ConfigRepository.BRANCH_AT_REVISION).call();
+        assertThat(configRepoRawGit.getRepository().getBranch(), is(ConfigRepository.BRANCH_AT_REVISION));
 
         new ConfigRepository(systemEnvironment).initialize();
 
-        assertThat(configRepo.git().getRepository().getBranch(), is("master"));
-        assertThat(configRepo.git().branchList().call().size(), is(1));
+        assertThat(configRepoRawGit.getRepository().getBranch(), is("master"));
+        assertThat(configRepoRawGit.branchList().call().size(), is(1));
     }
 
     @Test
     void shouldCleanButIgnoreMasterResetIfRepoExistsButNoMasterBranch() throws Exception {
         // Start with an empty repo
-        assertThat(configRepo.git().getRepository().getDirectory().exists(), is(true));
+        assertThat(configRepoRawGit.getRepository().getDirectory().exists(), is(true));
 
         ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
         configRepository.initialize();
 
-        assertThat(configRepo.git().getRepository().getBranch(), is("master"));
-        assertThat(configRepo.git().branchList().call(), hasSize(0));
+        assertThat(configRepoRawGit.getRepository().getBranch(), is("master"));
+        assertThat(configRepoRawGit.branchList().call(), hasSize(0));
 
         // Ensure we can still use the config repo
         configRepository.checkin(goConfigRevision("v1", "md5-1"));
-        assertThat(configRepo.git().branchList().call(), hasSize(1));
+        assertThat(configRepoRawGit.branchList().call(), hasSize(1));
     }
 
     @Test
@@ -399,17 +402,17 @@ public class ConfigRepositoryTest {
         configRepo.checkin(goConfigRevision(changeOnMaster, "md5-2"));
 
         configRepo.getConfigMergedWithLatestRevision(goConfigRevision(changeOnBranch, "md5-3"), oldMd5);
-        assertThat(configRepo.git().getRepository().getBranch(), is("master"));
-        assertThat(configRepo.git().branchList().call().size(), is(1));
+        assertThat(configRepoRawGit.getRepository().getBranch(), is("master"));
+        assertThat(configRepoRawGit.branchList().call().size(), is(1));
     }
 
     @Test
     public void shouldPerformGC() throws Exception {
         configRepo.checkin(goConfigRevision("v1", "md5-1"));
-        Long numberOfLooseObjects = (Long) configRepo.git().gc().getStatistics().get("sizeOfLooseObjects");
+        Long numberOfLooseObjects = (Long) configRepoRawGit.gc().getStatistics().get("sizeOfLooseObjects");
         assertThat(numberOfLooseObjects > 0L, is(true));
         configRepo.garbageCollect();
-        numberOfLooseObjects = (Long) configRepo.git().gc().getStatistics().get("sizeOfLooseObjects");
+        numberOfLooseObjects = (Long) configRepoRawGit.gc().getStatistics().get("sizeOfLooseObjects");
         assertThat(numberOfLooseObjects, is(0L));
     }
 
@@ -417,16 +420,16 @@ public class ConfigRepositoryTest {
     public void shouldNotPerformGCWhenPeriodicGCIsTurnedOff() throws Exception {
         when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).thenReturn(false);
         configRepo.checkin(goConfigRevision("v1", "md5-1"));
-        Long numberOfLooseObjectsOld = (Long) configRepo.git().gc().getStatistics().get("sizeOfLooseObjects");
+        Long numberOfLooseObjectsOld = (Long) configRepoRawGit.gc().getStatistics().get("sizeOfLooseObjects");
         configRepo.garbageCollect();
-        Long numberOfLooseObjectsNow = (Long) configRepo.git().gc().getStatistics().get("sizeOfLooseObjects");
+        Long numberOfLooseObjectsNow = (Long) configRepoRawGit.gc().getStatistics().get("sizeOfLooseObjects");
         assertThat(numberOfLooseObjectsNow, is(numberOfLooseObjectsOld));
     }
 
     @Test
     public void shouldGetLooseObjectCount() throws Exception {
         configRepo.checkin(goConfigRevision("v1", "md5-1"));
-        Long numberOfLooseObjects = (Long) configRepo.git().gc().getStatistics().get("numberOfLooseObjects");
+        Long numberOfLooseObjects = (Long) configRepoRawGit.gc().getStatistics().get("numberOfLooseObjects");
         assertThat(configRepo.getLooseObjectCount(), is(numberOfLooseObjects));
     }
 
@@ -443,16 +446,16 @@ public class ConfigRepositoryTest {
     }
 
     private String getLatestConfigAt(String branchName) throws GitAPIException {
-        configRepo.git().checkout().setName(branchName).call();
+        configRepoRawGit.checkout().setName(branchName).call();
 
         String content = configRepo.getCurrentRevision().getContent();
 
-        configRepo.git().checkout().setName("master").call();
+        configRepoRawGit.checkout().setName("master").call();
 
         return content;
     }
 
-    Ref getBranch(String branchName) throws GitAPIException {
+    Ref getBranch(@SuppressWarnings("SameParameterValue") String branchName) throws GitAPIException {
         List<Ref> branches = getAllBranches();
         for (Ref branch : branches) {
             if (branch.getName().endsWith(branchName)) {
@@ -463,6 +466,6 @@ public class ConfigRepositoryTest {
     }
 
     private List<Ref> getAllBranches() throws GitAPIException {
-        return configRepo.git().branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
+        return configRepoRawGit.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
     }
 }

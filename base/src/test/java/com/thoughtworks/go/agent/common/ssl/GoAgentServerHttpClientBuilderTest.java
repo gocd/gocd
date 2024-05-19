@@ -39,6 +39,7 @@ import static com.thoughtworks.go.util.TestFileUtil.resourceToTempFile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@SuppressWarnings("resource")
 @ExtendWith(FakeGoServerExtension.class)
 class GoAgentServerHttpClientBuilderTest {
 
@@ -90,6 +91,7 @@ class GoAgentServerHttpClientBuilderTest {
                     .hasMessage("Certificate for <127.0.0.1> doesn't match any of the subject alternative names: [localhost]");
         }
     }
+
 
     @Nested
     class AgentCertMtlsVerification {

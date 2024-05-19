@@ -58,19 +58,21 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 @Component
 public class ConfigRepository {
-    private static final String CRUISE_CONFIG_XML = "cruise-config.xml";
-    private static final String COMMIT_EMAIL = "go-cd-dev@googlegroups.com";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepository.class.getName());
+
+    public static final String CURRENT = "current";
+
     static final String BRANCH_AT_REVISION = "branch-at-revision";
     static final String BRANCH_AT_HEAD = "branch-at-head";
-    public static final String CURRENT = "current";
+
+    private static final String CRUISE_CONFIG_XML = "cruise-config.xml";
+    private static final String COMMIT_EMAIL = "go-cd-dev@googlegroups.com";
     private static final String REFS_MASTER = "refs/heads/master";
+
     private final SystemEnvironment systemEnvironment;
-
-    private File workingDir;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepository.class.getName());
-    private Git git;
-    private Repository gitRepo;
+    private final File workingDir;
+    private final Git git;
+    private final Repository gitRepo;
 
     @Autowired
     public ConfigRepository(SystemEnvironment systemEnvironment) throws IOException {

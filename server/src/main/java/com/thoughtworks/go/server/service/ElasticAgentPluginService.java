@@ -202,7 +202,7 @@ public class ElasticAgentPluginService {
         jobsThatRequireAgent.addAll(Sets.difference(new HashSet<>(newPlan), new HashSet<>(old)));
         jobsThatRequireAgent.addAll(starvingJobs);
 
-        List<JobPlan> plansThatRequireElasticAgent = jobsThatRequireAgent.stream().filter(isElasticAgent()).collect(toList());
+        List<JobPlan> plansThatRequireElasticAgent = jobsThatRequireAgent.stream().filter(isElasticAgent()).toList();
 //      messageTimeToLive is lesser than the starvation threshold to ensure there are no duplicate create agent message
         long messageTimeToLive = goConfigService.elasticJobStarvationThreshold() - 10000;
 

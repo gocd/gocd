@@ -22,7 +22,7 @@ module ActionRescue
       redirect_to :root
       return
     end
-    render_error_template 'Server error occured. Check log for details.', 500
+    render_error_template 'Server error occurred. Check log for details.', 500
   end
 
   def format_exception(exception)

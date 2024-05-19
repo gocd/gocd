@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -109,8 +110,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final GoSystemProperty<Integer> PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS = new GoIntSystemProperty("pluginLocationMonitor.sleepTimeInSecs", -1);
     public static final String PLUGINS_PATH = "plugins";
-    public static final GoSystemProperty<String> PLUGIN_GO_PROVIDED_PATH = new GoStringSystemProperty("plugins.go.provided.path", PLUGINS_PATH + System.getProperty("file.separator") + "bundled");
-    public static final GoSystemProperty<String> PLUGIN_EXTERNAL_PROVIDED_PATH = new GoStringSystemProperty("plugins.external.provided.path", PLUGINS_PATH + System.getProperty("file.separator") + "external");
+    public static final GoSystemProperty<String> PLUGIN_GO_PROVIDED_PATH = new GoStringSystemProperty("plugins.go.provided.path", PLUGINS_PATH + FileSystems.getDefault().getSeparator() + "bundled");
+    public static final GoSystemProperty<String> PLUGIN_EXTERNAL_PROVIDED_PATH = new GoStringSystemProperty("plugins.external.provided.path", PLUGINS_PATH + FileSystems.getDefault().getSeparator() + "external");
     public static final GoSystemProperty<String> PLUGIN_WORK_DIR = new CachedProperty<>(new GoStringSystemProperty("plugins.work.path", "plugins_work"));
     public static final GoSystemProperty<String> PLUGIN_ACTIVATOR_JAR_PATH = new CachedProperty<>(new GoStringSystemProperty("plugins.activator.jar.path", "lib/go-plugin-activator.jar"));
     public static final GoSystemProperty<String> ALL_PLUGINS_ZIP_PATH = new GoStringSystemProperty("plugins.all.zip.path", new File(PLUGINS_PATH, "go-plugins-all.zip").getAbsolutePath());
@@ -166,12 +167,12 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<Boolean> CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS = new GoBooleanSystemProperty("go.modifications.removeDuplicates", true);
     public static final GoSystemProperty<Boolean> GO_DIAGNOSTICS_MODE = new GoBooleanSystemProperty("go.diagnostics.mode", false);
 
-    public static final GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
+    public static final GoSystemProperty<Integer> DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
 
-    public static final GoIntSystemProperty CONFIG_MATERIAL_POST_UPDATE_LISTENERS = new GoIntSystemProperty("config.material.post.update.threads", 2);
+    public static final GoSystemProperty<Integer> CONFIG_MATERIAL_POST_UPDATE_LISTENERS = new GoIntSystemProperty("config.material.post.update.threads", 2);
 
     public static final GoSystemProperty<String> GO_SERVER_MODE = new GoStringSystemProperty("go.server.mode", "production");
-    public static final GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", true);
+    public static final GoSystemProperty<Boolean> REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", true);
     public static final GoSystemProperty<Long> REAUTHENTICATION_TIME_INTERVAL_IN_MILLIS = new GoLongSystemProperty("go.security.reauthentication.interval", MINUTES.toMillis(30));
     public static final GoSystemProperty<Boolean> CONSOLE_OUT_TO_STDOUT = new GoBooleanSystemProperty("go.console.stdout", false);
     private static final GoSystemProperty<String> CONSOLE_LOG_CHARSET = new GoStringSystemProperty("go.console.log.charset", "utf-8");
@@ -185,7 +186,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static final GoSystemProperty<Long> GO_PAC_CLONE_TIMEOUT_IN_MILLIS = new GoLongSystemProperty("go.pac.clone.timeout", SECONDS.toMillis(30));
 
     private static final GoSystemProperty<Boolean> ENABLE_ANALYTICS_ONLY_FOR_ADMINS = new GoBooleanSystemProperty("go.enable.analytics.only.for.admins", false);
-    public static final GoSystemProperty<Boolean> FAIL_STARTUP_ON_DATA_ERROR = new GoBooleanSystemProperty("gocd.fail.startup.on.data.error", false);
     public static final GoSystemProperty<Long> NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS = new GoLongSystemProperty("plugins.notification.message.ttl.millis", MINUTES.toMillis(2));
     public static final GoSystemProperty<Boolean> ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP = new GoBooleanSystemProperty("allow.everyone.to.view.operate.groups.with.no.authorization.setup", false);
 
@@ -649,10 +649,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean hstsHeaderPreload() {
         return HSTS_HEADER_PRELOAD.getValue();
-    }
-
-    public boolean shouldFailStartupOnDataError() {
-        return get(FAIL_STARTUP_ON_DATA_ERROR);
     }
 
     public Optional<String> wrapperConfigDirPath() {

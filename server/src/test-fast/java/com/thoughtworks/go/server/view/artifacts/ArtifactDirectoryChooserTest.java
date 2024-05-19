@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.file.FileSystems;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -111,7 +112,7 @@ public class ArtifactDirectoryChooserTest {
     @Test
     public void shouldFetchATemporaryConsoleOutLocation() throws Exception {
         File consoleFile = chooser.temporaryConsoleFile(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
-        String filePathSeparator = System.getProperty("file.separator");
+        String filePathSeparator = FileSystems.getDefault().getSeparator();
         assertThat(consoleFile.getPath(), is(String.format("data%sconsole%sd0132b209429f7dc5b9ffffe87b02a7c.log", filePathSeparator, filePathSeparator)));
     }
 }

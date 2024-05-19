@@ -29,7 +29,6 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @ConfigTag("materials")
 @ConfigCollection(MaterialConfig.class)
@@ -404,7 +403,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         List<MaterialConfig> materialConfigs = this
                 .stream()
                 .filter(materialConfig -> materialConfig.getFingerprint().equals(materialFingerprint))
-                .collect(Collectors.toList());
+                .toList();
         if (!materialConfigs.isEmpty()) {
             return materialConfigs.get(0);
         }

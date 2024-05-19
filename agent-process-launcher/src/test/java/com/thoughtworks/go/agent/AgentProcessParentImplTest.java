@@ -33,6 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.util.*;
 
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
@@ -89,7 +90,7 @@ public class AgentProcessParentImplTest {
         int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), new HashMap<>(), context());
         assertThat(returnCode, is(42));
         assertThat(cmd.toArray(new String[]{}), equalTo(new String[]{
-                (getProperty("java.home") + getProperty("file.separator") + "bin" + getProperty("file.separator") + "java"),
+                (getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java"),
                 "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
                 "-Dagent.binary.md5=" + expectedAgentMd5,
                 "-Dagent.launcher.md5=bar",
@@ -120,7 +121,7 @@ public class AgentProcessParentImplTest {
 
         assertThat(returnCode, is(42));
         assertThat(cmd.toArray(new String[]{}), equalTo(new String[]{
-                (getProperty("java.home") + getProperty("file.separator") + "bin" + getProperty("file.separator") + "java"),
+                (getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java"),
                 "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
                 "-Dagent.binary.md5=" + expectedAgentMd5,
                 "-Dagent.launcher.md5=bar",
@@ -150,7 +151,7 @@ public class AgentProcessParentImplTest {
 
         assertThat(returnCode, is(42));
         assertThat(cmd.toArray(new String[]{}), equalTo(new String[]{
-                (getProperty("java.home") + getProperty("file.separator") + "bin" + getProperty("file.separator") + "java"),
+                (getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java"),
                 "-Dextra.property=value1 with space",
                 "-Dextra property with space=value2 with space",
                 "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
@@ -186,7 +187,7 @@ public class AgentProcessParentImplTest {
 
         assertThat(returnCode, is(42));
         assertThat(cmd.toArray(new String[]{}), equalTo(new String[]{
-                (getProperty("java.home") + getProperty("file.separator") + "bin" + getProperty("file.separator") + "java"),
+                (getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java"),
                 "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
                 "-Dagent.binary.md5=" + expectedAgentMd5,
                 "-Dagent.launcher.md5=bar",
@@ -233,7 +234,7 @@ public class AgentProcessParentImplTest {
 
         assertThat(returnCode, is(42));
         assertThat(cmd.toArray(new String[]{}), equalTo(new String[]{
-                (getProperty("java.home") + getProperty("file.separator") + "bin" + getProperty("file.separator") + "java"),
+                (getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java"),
                 "foo",
                 "bar",
                 "baz",

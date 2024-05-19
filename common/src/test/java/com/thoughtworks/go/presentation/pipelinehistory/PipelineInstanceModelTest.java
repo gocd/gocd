@@ -30,6 +30,8 @@ import com.thoughtworks.go.helper.PipelineHistoryMother;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -201,11 +203,11 @@ class PipelineInstanceModelTest {
 
     //Pipeline: Red -> Green -> Has_Not_Run_Yet
     @Test
-    void shouldBeSucessfulOnAForceContinuedPass_Red_AND_Green_AND_Has_Not_Run_Yet() {
-        Date occuredFirst = new Date(2008, 12, 13);
-        Date occuredSecond = new Date(2008, 12, 14);
+    void shouldBeSuccessfulOnAForceContinuedPass_Red_AND_Green_AND_Has_Not_Run_Yet() {
+        Date occurredFirst = newDate(2008, 12, 13);
+        Date occurredSecond = newDate(2008, 12, 14);
 
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occuredFirst), job(JobResult.Passed, occuredSecond));
+        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occurredFirst), job(JobResult.Passed, occurredSecond));
         stageInstanceModels.add(new NullStageHistoryItem("stage-3", false));
 
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
@@ -217,11 +219,11 @@ class PipelineInstanceModelTest {
 
     //Pipeline: Red(Rerun after second stage passed i.e. latest stage) -> Green -> Has_Not_Run_Yet
     @Test
-    void shouldReturnStatusOfAfailedRerunAndIncompleteStage() {
-        Date occuredFirst = new Date(2008, 12, 13);
-        Date occuredSecond = new Date(2008, 12, 14);
+    void shouldReturnStatusOfAFailedRerunAndIncompleteStage() {
+        Date occurredFirst = newDate(2008, 12, 13);
+        Date occurredSecond = newDate(2008, 12, 14);
 
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occuredSecond), job(JobResult.Passed, occuredFirst));
+        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occurredSecond), job(JobResult.Passed, occurredFirst));
         stageInstanceModels.add(new NullStageHistoryItem("stage-3", false));
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
 
@@ -232,10 +234,10 @@ class PipelineInstanceModelTest {
 
     @Test
     void shouldReturnStatusOfAFailedRerun() {
-        Date occuredFirst = new Date(2008, 12, 13);
-        Date occuredSecond = new Date(2008, 12, 14);
+        Date occurredFirst = newDate(2008, 12, 13);
+        Date occurredSecond = newDate(2008, 12, 14);
 
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occuredSecond), job(JobResult.Passed, occuredFirst));
+        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occurredSecond), job(JobResult.Passed, occurredFirst));
 
 
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
@@ -247,10 +249,10 @@ class PipelineInstanceModelTest {
 
     @Test
     void shouldReturnStatusOfAPassedForceThrough() {
-        Date occuredFirst = new Date(2008, 12, 13);
-        Date occuredSecond = new Date(2008, 12, 14);
+        Date occurredFirst = newDate(2008, 12, 13);
+        Date occurredSecond = newDate(2008, 12, 14);
 
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occuredFirst), job(JobResult.Passed, occuredSecond));
+        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occurredFirst), job(JobResult.Passed, occurredSecond));
 
 
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
@@ -262,10 +264,10 @@ class PipelineInstanceModelTest {
 
     @Test
     void shouldReturnPipelineStatusAsPassedWhenAllTheStagesPass() {
-        Date occuredFirst = new Date(2008, 12, 13);
-        Date occuredSecond = new Date(2008, 12, 14);
+        Date occurredFirst = newDate(2008, 12, 13);
+        Date occurredSecond = newDate(2008, 12, 14);
 
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Passed, occuredSecond), job(JobResult.Passed, occuredFirst));
+        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Passed, occurredSecond), job(JobResult.Passed, occurredFirst));
 
 
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
@@ -275,11 +277,16 @@ class PipelineInstanceModelTest {
         assertThat(instanceModel.isRunning()).isFalse();
     }
 
+    @SuppressWarnings("SameParameterValue")
+    private static Date newDate(int year, int month, int dayOfMonth) {
+        return new Date(LocalDateTime.of(year, month, dayOfMonth, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli());
+    }
+
     @Test
     void shouldReturnTheLatestStageEvenWhenThereIsANullStage() {
-        Date occuredFirst = new DateTime().minusDays(1).toDate();
-        Date occuredSecond = new DateTime().toDate();
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Passed, occuredSecond), job(JobResult.Passed, occuredFirst));
+        Date occurredFirst = new DateTime().minusDays(1).toDate();
+        Date occurredSecond = new DateTime().toDate();
+        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Passed, occurredSecond), job(JobResult.Passed, occurredFirst));
         NullStageHistoryItem stageHistoryItem = new NullStageHistoryItem("not_yet_run", false);
         stageInstanceModels.add(stageHistoryItem);
 
@@ -290,10 +297,10 @@ class PipelineInstanceModelTest {
 
     @Test
     void shouldReturnIfAStageIsLatest() {
-        Date occuredFirst = new DateTime().minusDays(1).toDate();
-        Date occuredSecond = new DateTime().toDate();
+        Date occurredFirst = new DateTime().minusDays(1).toDate();
+        Date occurredSecond = new DateTime().toDate();
 
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Passed, occuredSecond), job(JobResult.Passed, occuredFirst));
+        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Passed, occurredSecond), job(JobResult.Passed, occurredFirst));
         NullStageHistoryItem stageHistoryItem = new NullStageHistoryItem("not_yet_run", false);
         stageInstanceModels.add(stageHistoryItem);
 

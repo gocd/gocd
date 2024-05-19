@@ -34,7 +34,6 @@ import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 
 public class JarUtil {
     private static final Logger LOG = LoggerFactory.getLogger(JarUtil.class);
@@ -83,7 +82,7 @@ public class JarUtil {
                         File targetFile = new File(outputTmpDir, jarFileBaseName);
                         return extractJarEntry(jarFile, jarEntry, targetFile);
                     })
-                    .collect(Collectors.toList());
+                    .toList();
 
             // add deps in dir specified by `libDirManifestKey`
             newClassPath.addAll(extractedJars);

@@ -161,7 +161,7 @@ class FeatureTogglesControllerV1Test implements SecurityServiceTrait, Controller
     }
 
     @Test
-    void 'should render any errors occured during updating feature toggle value'() {
+    void 'should render any errors occurred during updating feature toggle value'() {
       when(featureToggleService.changeValueOfToggle('key', false)).thenThrow(new RecordNotFoundException("Boom!"))
 
       putWithApiHeader(controller.controllerPath('/key'), [:], [toggle_value: 'OFF'])

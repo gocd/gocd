@@ -22,7 +22,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,19 +33,18 @@ import java.util.Map;
 
 @Service
 public class PipelineLabelCorrector {
-    private GoConfigService goConfigService;
-    private PipelineSqlMapDao pipelineSqlMapDao;
-    private ServerHealthService serverHealthService;
-    private SystemEnvironment systemEnvironment;
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineLabelCorrector.class);
+
+    private final GoConfigService goConfigService;
+    private final PipelineSqlMapDao pipelineSqlMapDao;
+    private final ServerHealthService serverHealthService;
 
     @Autowired
     public PipelineLabelCorrector(GoConfigService goConfigService, PipelineSqlMapDao pipelineSqlMapDao,
-                                  ServerHealthService serverHealthService, SystemEnvironment systemEnvironment) {
+                                  ServerHealthService serverHealthService) {
         this.goConfigService = goConfigService;
         this.pipelineSqlMapDao = pipelineSqlMapDao;
         this.serverHealthService = serverHealthService;
-        this.systemEnvironment = systemEnvironment;
     }
 
     public void correctPipelineLabelCountEntries() {
@@ -57,7 +55,7 @@ public class PipelineLabelCorrector {
                 StringUtils.join(pipelinesWithMultipleEntriesForLabelCount.toArray()));
 
         Map<CaseInsensitiveString, PipelineConfig> pipelineConfigHashMap = goConfigService.cruiseConfig().pipelineConfigsAsMap();
-        pipelinesWithMultipleEntriesForLabelCount.stream().forEach(pipelineWithIssue -> {
+        pipelinesWithMultipleEntriesForLabelCount.forEach(pipelineWithIssue -> {
             CaseInsensitiveString key = new CaseInsensitiveString(pipelineWithIssue);
             if (pipelineConfigHashMap.containsKey(key)) {
                 PipelineConfig pipelineConfig = pipelineConfigHashMap.get(key);
@@ -77,9 +75,6 @@ public class PipelineLabelCorrector {
             LOGGER.error(message);
             serverHealthService.update(ServerHealthState.error("Data Error: pipeline operations will fail", message,
                     HealthStateType.general(HealthStateScope.forDuplicatePipelineLabel())));
-            if (systemEnvironment.shouldFailStartupOnDataError()) {
-                throw new RuntimeException(message);
-            }
         }
     }
 }

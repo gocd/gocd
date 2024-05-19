@@ -111,7 +111,7 @@ public class ConfigReposInternalControllerV4 extends AbstractMaterialTestControl
         List<PipelineConfigs> groupsForUser = pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString());
         groupsForUser.forEach((grp) -> {
             pipelineGroupNames.add(grp.getGroup());
-            pipelineNames.addAll(grp.getPipelines().stream().map((pipelineConfig) -> pipelineConfig.name().toString()).collect(toList()));
+            pipelineNames.addAll(grp.getPipelines().stream().map((pipelineConfig) -> pipelineConfig.name().toString()).toList());
         });
 
         autoSuggestions.put("environment", envNames);

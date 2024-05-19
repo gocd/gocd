@@ -25,7 +25,6 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DeleteEnvironmentCommand extends EnvironmentCommand {
     public DeleteEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, String actionFailed, HttpLocalizedOperationResult result) {
@@ -48,7 +47,7 @@ public class DeleteEnvironmentCommand extends EnvironmentCommand {
             List<String> displayNames = ((MergeConfigOrigin) environmentConfig.getOrigin())
                     .stream().filter(configOrigin -> !configOrigin.isLocal())
                     .map(configOrigin -> ((RepoConfigOrigin) configOrigin).getConfigRepo().getId())
-                    .collect(Collectors.toList());
+                    .toList();
 
             String message = String.format("Environment is partially defined in %s config repositories", displayNames);
             result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));

@@ -120,6 +120,8 @@ public class MagicalGoConfigXmlWriter {
 
         try (ByteArrayOutputStream output = new ByteArrayOutputStream(32 * 1024)) {
             XmlUtils.writeXml(element, output);
+            // FIXME the lack of charset here looks rather suspicious. But unclear how to fix without possible regressions.
+            // Related to similar issue in GoConfigMigration?
             return output.toString();
         } catch (IOException e) {
             throw bomb("Unable to write xml to String");

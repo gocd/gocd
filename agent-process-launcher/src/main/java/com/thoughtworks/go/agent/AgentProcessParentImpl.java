@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -174,7 +175,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
 
     private String javaCmd() {
         String javaHome = System.getProperty("java.home");
-        String pathSep = System.getProperty("file.separator");
+        String pathSep = FileSystems.getDefault().getSeparator();
         return String.join(pathSep, javaHome, "bin", "java");
     }
 

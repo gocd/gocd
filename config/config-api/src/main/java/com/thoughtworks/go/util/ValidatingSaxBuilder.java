@@ -16,6 +16,7 @@
 package com.thoughtworks.go.util;
 
 import org.jdom2.input.SAXBuilder;
+import org.jdom2.input.sax.XMLReaders;
 
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -23,7 +24,7 @@ import java.net.URL;
 class ValidatingSaxBuilder extends SAXBuilder {
     public ValidatingSaxBuilder() {
         this.setFeature("http://apache.org/xml/features/validation/schema", true);
-        this.setValidation(true);
+        this.setXMLReaderFactory(XMLReaders.DTDVALIDATING);
         this.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
     }
 

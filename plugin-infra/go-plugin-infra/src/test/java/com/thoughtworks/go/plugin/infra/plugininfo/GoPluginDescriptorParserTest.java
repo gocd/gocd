@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -29,27 +30,30 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GoPluginDescriptorParserTest {
     @Test
-    void shouldPerformPluginXsdValidationAndFailWhenIDIsNotPresent() {
-        InputStream pluginXml = IOUtils.toInputStream("<go-plugin version=\"1\"></go-plugin>", StandardCharsets.UTF_8);
-        final JAXBException e = assertThrows(JAXBException.class, () ->
+    void shouldPerformPluginXsdValidationAndFailWhenIDIsNotPresent() throws IOException {
+        try (InputStream pluginXml = IOUtils.toInputStream("<go-plugin version=\"1\"></go-plugin>", StandardCharsets.UTF_8)) {
+            JAXBException e = assertThrows(JAXBException.class, () ->
                 GoPluginDescriptorParser.parseXML(pluginXml, "/tmp/", new File("/tmp/"), true));
-        assertTrue(e.getCause().getMessage().contains("Attribute 'id' must appear on element 'go-plugin'"), format("Message not correct: [%s]", e.getCause().getMessage()));
+            assertTrue(e.getCause().getMessage().contains("Attribute 'id' must appear on element 'go-plugin'"), format("Message not correct: [%s]", e.getCause().getMessage()));
+        }
     }
 
     @Test
-    void shouldPerformPluginXsdValidationAndFailWhenVersionIsNotPresent() {
-        InputStream pluginXml = IOUtils.toInputStream("<go-plugin id=\"some\"></go-plugin>", StandardCharsets.UTF_8);
-        final JAXBException e = assertThrows(JAXBException.class, () ->
+    void shouldPerformPluginXsdValidationAndFailWhenVersionIsNotPresent() throws IOException {
+        try (InputStream pluginXml = IOUtils.toInputStream("<go-plugin id=\"some\"></go-plugin>", StandardCharsets.UTF_8)) {
+            JAXBException e = assertThrows(JAXBException.class, () ->
                 GoPluginDescriptorParser.parseXML(pluginXml, "/tmp/", new File("/tmp/"), true));
-        assertTrue(e.getCause().getMessage().contains("Attribute 'version' must appear on element 'go-plugin'"), format("Message not correct: [%s]", e.getCause().getMessage()));
+            assertTrue(e.getCause().getMessage().contains("Attribute 'version' must appear on element 'go-plugin'"), format("Message not correct: [%s]", e.getCause().getMessage()));
+        }
     }
 
     @Test
-    void shouldValidatePluginVersion() {
-        InputStream pluginXml = IOUtils.toInputStream("<go-plugin version=\"10\"></go-plugin>", StandardCharsets.UTF_8);
-        final JAXBException e = assertThrows(JAXBException.class, () ->
+    void shouldValidatePluginVersion() throws IOException {
+        try (InputStream pluginXml = IOUtils.toInputStream("<go-plugin version=\"10\"></go-plugin>", StandardCharsets.UTF_8)) {
+            JAXBException e = assertThrows(JAXBException.class, () ->
                 GoPluginDescriptorParser.parseXML(pluginXml, "/tmp/", new File("/tmp/"), true));
-        assertTrue(e.getCause().getMessage().contains("Value '10' of attribute 'version' of element 'go-plugin' is not valid"), format("Message not correct: [%s]", e.getCause().getMessage()));
+            assertTrue(e.getCause().getMessage().contains("Value '10' of attribute 'version' of element 'go-plugin' is not valid"), format("Message not correct: [%s]", e.getCause().getMessage()));
+        }
     }
 
     @Test
@@ -61,8 +65,8 @@ class GoPluginDescriptorParserTest {
 
         final GoPluginDescriptor pluginDescriptor = bundleDescriptor.descriptors().get(0);
         assertPluginDescriptor(pluginDescriptor, "testplugin.descriptorValidator", "Plugin Descriptor Validator",
-                "1.0.1", "17.12", "Validates its own plugin descriptor",
-                "GoCD Team", "https://gocd.org", List.of("Linux", "Windows"));
+            "1.0.1", "17.12", "Validates its own plugin descriptor",
+            "GoCD Team", "https://gocd.org", List.of("Linux", "Windows"));
 
         assertTrue(pluginDescriptor.extensionClasses().isEmpty());
     }

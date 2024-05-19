@@ -1227,30 +1227,35 @@ public class AgentServiceIntegrationTest {
     void whenMultipleThreadsUpdateAgentDetailsInDBTheAgentsCacheShouldAlwaysBeInSyncWithAgentsInDB() {
         final int numOfThreads = 30;
 
+        @SuppressWarnings("resource")
         ExecutorService execService = Executors.newFixedThreadPool(numOfThreads);
-        Collection<Future<?>> futures = new ArrayList<>(numOfThreads);
+        try {
+            Collection<Future<?>> futures = new ArrayList<>(numOfThreads);
 
-        final Agent agent1 = AgentMother.localAgent();
-        final Agent agent2 = AgentMother.localAgent();
-        final Agent agent3 = AgentMother.localAgent();
+            final Agent agent1 = AgentMother.localAgent();
+            final Agent agent2 = AgentMother.localAgent();
+            final Agent agent3 = AgentMother.localAgent();
 
-        agentDao.saveOrUpdate(agent1);
-        agentDao.saveOrUpdate(agent2);
-        agentDao.saveOrUpdate(agent3);
+            agentDao.saveOrUpdate(agent1);
+            agentDao.saveOrUpdate(agent2);
+            agentDao.saveOrUpdate(agent3);
 
-        for (int i = 0; i < (numOfThreads / 2); i++) {
-            futures.add(execService.submit(() -> bulkUpdateEnvironments(agent1)));
-            futures.add(execService.submit(() -> bulkUpdateResources(agent1, agent2, agent3)));
-            futures.add(execService.submit(() -> updateAgentHostnames(agent1)));
-            futures.add(execService.submit(() -> agentService.getAgentByUUID(agent1.getUuid())));
-            futures.add(execService.submit(() -> agentService.register(AgentMother.localAgent())));
+            for (int i = 0; i < (numOfThreads / 2); i++) {
+                futures.add(execService.submit(() -> bulkUpdateEnvironments(agent1)));
+                futures.add(execService.submit(() -> bulkUpdateResources(agent1, agent2, agent3)));
+                futures.add(execService.submit(() -> updateAgentHostnames(agent1)));
+                futures.add(execService.submit(() -> agentService.getAgentByUUID(agent1.getUuid())));
+                futures.add(execService.submit(() -> agentService.register(AgentMother.localAgent())));
+            }
+
+            joinFutures(futures, numOfThreads);
+
+            assertThat(agentDao.fetchAgentFromDBByUUID(agent1.getUuid()), is(agentService.findAgent(agent1.getUuid()).getAgent()));
+            assertThat(agentDao.fetchAgentFromDBByUUID(agent2.getUuid()), is(agentService.findAgent(agent2.getUuid()).getAgent()));
+            assertThat(agentDao.fetchAgentFromDBByUUID(agent3.getUuid()), is(agentService.findAgent(agent3.getUuid()).getAgent()));
+        } finally {
+            execService.shutdownNow();
         }
-
-        joinFutures(futures, numOfThreads);
-
-        assertThat(agentDao.fetchAgentFromDBByUUID(agent1.getUuid()), is(agentService.findAgent(agent1.getUuid()).getAgent()));
-        assertThat(agentDao.fetchAgentFromDBByUUID(agent2.getUuid()), is(agentService.findAgent(agent2.getUuid()).getAgent()));
-        assertThat(agentDao.fetchAgentFromDBByUUID(agent3.getUuid()), is(agentService.findAgent(agent3.getUuid()).getAgent()));
     }
 
     private void joinFutures(Collection<Future<?>> futures, int numOfThreads) {
@@ -1268,8 +1273,7 @@ public class AgentServiceIntegrationTest {
     }
 
     private AgentStatusChangeListener agentStatusChangeListener() {
-        return agentInstance -> {
-        };
+        return agentInstance -> {};
     }
 
     private void createEnvironment(String... environmentNames) {

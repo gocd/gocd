@@ -35,24 +35,24 @@ class GoPluginBundleDescriptorParserTest {
 
         final GoPluginDescriptor pluginDescriptor1 = bundle.descriptors().get(0);
         assertPluginDescriptor(pluginDescriptor1, "testplugin.multipluginbundle.plugin1",
-                "Plugin 1", "1.0.0", "19.5",
-                "Example plugin 1", "GoCD Team", "https://gocd.org", List.of("Linux", "Windows"),
-                List.of("cd.go.contrib.package1.TaskExtension", "cd.go.contrib.package1.ElasticAgentExtension"));
+            "Plugin 1", "1.0.0", "19.5",
+            "Example plugin 1", "GoCD Team", "https://gocd.org", List.of("Linux", "Windows"),
+            List.of("cd.go.contrib.package1.TaskExtension", "cd.go.contrib.package1.ElasticAgentExtension"));
 
         final GoPluginDescriptor pluginDescriptor2 = bundle.descriptors().get(1);
         assertPluginDescriptor(pluginDescriptor2, "testplugin.multipluginbundle.plugin2",
-                "Plugin 2", "2.0.0", "19.5",
-                "Example plugin 2", "Some other org", "www.example.com", List.of("Linux"),
-                List.of("cd.go.contrib.package2.TaskExtension", "cd.go.contrib.package2.AnalyticsExtension"));
+            "Plugin 2", "2.0.0", "19.5",
+            "Example plugin 2", "Some other org", "www.example.com", List.of("Linux"),
+            List.of("cd.go.contrib.package2.TaskExtension", "cd.go.contrib.package2.AnalyticsExtension"));
     }
 
     @Test
-    void shouldNotAllowPluginWithEmptyListOfExtensionsInABundle() {
-        InputStream pluginXml = getClass().getClassLoader().getResourceAsStream("defaultFiles/gocd-bundle-with-no-extension-classes.xml");
-
-        final JAXBException e = assertThrows(JAXBException.class, () ->
+    void shouldNotAllowPluginWithEmptyListOfExtensionsInABundle() throws Exception {
+        try (InputStream pluginXml = getClass().getClassLoader().getResourceAsStream("defaultFiles/gocd-bundle-with-no-extension-classes.xml")) {
+            final JAXBException e = assertThrows(JAXBException.class, () ->
                 parseXML(pluginXml, "/tmp/a.jar", new File("/tmp/"), true));
-        assertTrue(e.getCause().getMessage().contains("The content of element 'extensions' is not complete. One of '{extension}' is expected"), format("Message not correct: [%s]", e.getCause().getMessage()));
+            assertTrue(e.getCause().getMessage().contains("The content of element 'extensions' is not complete. One of '{extension}' is expected"), format("Message not correct: [%s]", e.getCause().getMessage()));
+        }
     }
 
     @SuppressWarnings("SameParameterValue")

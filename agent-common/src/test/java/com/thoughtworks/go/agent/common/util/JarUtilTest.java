@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.TEST_AGENT;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -63,11 +64,13 @@ public class JarUtilTest {
         File sourceFile = new File(PATH_WITH_HASHES + "test-agent.jar");
         Set<File> files = new HashSet<>(JarUtil.extractFilesInLibDirAndReturnFiles(sourceFile, jarEntry -> jarEntry.getName().endsWith(".class"), temporaryFolder));
 
-        Set<File> actualFiles = Files.list(temporaryFolder.toPath()).map(Path::toFile).collect(Collectors.toSet());
+        try (Stream<Path> directoryStream = Files.list(temporaryFolder.toPath())) {
+            Set<File> actualFiles = directoryStream.map(Path::toFile).collect(Collectors.toSet());
 
-        assertEquals(files, actualFiles);
-        assertEquals(files.size(), 2);
-        Set<String> fileNames = files.stream().map(File::getName).collect(Collectors.toSet());
-        assertEquals(fileNames, Set.of("ArgPrintingMain.class", "HelloWorldStreamWriter.class"));
+            assertEquals(files, actualFiles);
+            assertEquals(files.size(), 2);
+            Set<String> fileNames = files.stream().map(File::getName).collect(Collectors.toSet());
+            assertEquals(fileNames, Set.of("ArgPrintingMain.class", "HelloWorldStreamWriter.class"));
+        }
     }
 }

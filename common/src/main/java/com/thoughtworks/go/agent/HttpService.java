@@ -111,6 +111,7 @@ public class HttpService {
     }
 
     public CloseableHttpResponse execute(HttpRequestBase httpMethod) throws IOException {
+        @SuppressWarnings("resource") // Believe this is intentional to re-use the client
         GoAgentServerHttpClient client = httpClientFactory.httpClient();
 
         httpMethod.setHeader("X-Agent-GUID", agentRegistry.uuid());

@@ -29,7 +29,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -120,7 +119,7 @@ public class RailsAssetsServiceTest {
                 return false;
             }
             return false;
-        }).collect(Collectors.toList());
+        }).toList();
         assertThat("Expected a field annotated with SerializedName 'assets'", fieldsAnnotatedWithSerializedNameAsAssets.isEmpty(), is(false));
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.size(), is(1));
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.get(0).getType().getCanonicalName(), is(HashMap.class.getCanonicalName()));

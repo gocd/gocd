@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.config.exceptions.EntityType.RULE_ERROR_PREFIX;
-import static java.util.stream.Collectors.toList;
 
 public class GoConfigInvalidMergeException extends GoConfigInvalidException {
     public GoConfigInvalidMergeException(CruiseConfig cruiseConfig, List<ConfigErrors> allErrors) {
@@ -46,7 +45,7 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
 
         List<String> ruleValidationErrors = allErrors.stream()
                 .filter((error) -> error.startsWith(RULE_ERROR_PREFIX))
-                .collect(toList());
+                .toList();
 
         if (ruleValidationErrors.isEmpty()) {
             for (int i = 1; i <= allErrors.size(); i++) {

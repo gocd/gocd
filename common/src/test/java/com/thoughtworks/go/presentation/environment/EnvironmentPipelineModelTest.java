@@ -18,7 +18,6 @@ package com.thoughtworks.go.presentation.environment;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -69,7 +68,7 @@ public class EnvironmentPipelineModelTest {
         EnvironmentPipelineModel bar = new EnvironmentPipelineModel("bar");
         EnvironmentPipelineModel baz = new EnvironmentPipelineModel("baz");
 
-        List<EnvironmentPipelineModel> models = Stream.of(foo, bar, baz).sorted().collect(Collectors.toList());
+        List<EnvironmentPipelineModel> models = Stream.of(foo, bar, baz).sorted().toList();
 
         assertThat(models.get(0), is(bar));
         assertThat(models.get(1), is(baz));
@@ -83,7 +82,7 @@ public class EnvironmentPipelineModelTest {
         EnvironmentPipelineModel Third = new EnvironmentPipelineModel("Third");
         EnvironmentPipelineModel second = new EnvironmentPipelineModel("second");
 
-        List<EnvironmentPipelineModel> models = Stream.of(first, First, Third, second).sorted().collect(Collectors.toList());
+        List<EnvironmentPipelineModel> models = Stream.of(first, First, Third, second).sorted().toList();
 
         assertThat(models.get(0), is(first));
         assertThat(models.get(1), is(First));

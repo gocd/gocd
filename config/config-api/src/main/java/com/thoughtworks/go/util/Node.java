@@ -65,7 +65,7 @@ public class Node {
     }
 
     public boolean hasDependency(final CaseInsensitiveString pipelineName) {
-        return dependencies.stream().filter(item -> item.getPipelineName().equals(pipelineName)).findFirst().isPresent();
+        return dependencies.stream().anyMatch(item -> item.getPipelineName().equals(pipelineName));
     }
 
     public Optional<DependencyNode> getDependency(final CaseInsensitiveString pipelineName) {
@@ -73,8 +73,8 @@ public class Node {
     }
 
     public static class DependencyNode {
-        private CaseInsensitiveString pipelineName;
-        private CaseInsensitiveString stageName;
+        private final CaseInsensitiveString pipelineName;
+        private final CaseInsensitiveString stageName;
 
         public DependencyNode(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName) {
             this.pipelineName = pipelineName;

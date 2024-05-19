@@ -32,7 +32,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 
 public class BuildAssignment implements Serializable, SecretParamAware {
@@ -188,7 +187,7 @@ public class BuildAssignment implements Serializable, SecretParamAware {
 
     private SecretParams secretParamsInMaterials() {
         final List<Material> materials = stream(this.materialRevisions().spliterator(), true)
-                .map(MaterialRevision::getMaterial).collect(toList());
+                .map(MaterialRevision::getMaterial).toList();
 
         return materials.stream()
                 .filter(material -> material instanceof SecretParamAware && !(material instanceof PluggableSCMMaterial || material instanceof PackageMaterial))

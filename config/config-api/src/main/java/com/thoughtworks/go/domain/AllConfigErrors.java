@@ -28,6 +28,6 @@ public class AllConfigErrors extends ArrayList<ConfigErrors> {
     }
 
     public String asString() {
-        return String.join(", ", this.stream().map(ConfigErrors::asString).collect(Collectors.toList()));
+        return this.stream().map(ConfigErrors::asString).collect(Collectors.joining(", "));
     }
 }

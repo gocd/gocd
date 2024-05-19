@@ -64,7 +64,6 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
-import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -773,7 +772,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldReturnLatestPipelineHistory() {
         List<Pipeline> pipelineList = IntStream.range(0, 5)
                 .mapToObj(i -> pipelineTwo.createdPipelineWithAllStagesPassed())
-                .collect(toList());
+                .toList();
 
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(new CaseInsensitiveString("admin1")), pipelineTwo.pipelineName, 0, 0, 10);
 
@@ -786,7 +785,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldReturnThePipelineHistoryAfterTheSpecifiedCursor() {
         List<Pipeline> pipelineList = IntStream.range(0, 5)
                 .mapToObj(i -> pipelineTwo.createdPipelineWithAllStagesPassed())
-                .collect(toList());
+                .toList();
 
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(new CaseInsensitiveString("admin1")), pipelineTwo.pipelineName, pipelineList.get(2).getId(), 0, 10);
 
@@ -799,7 +798,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldReturnThePipelineHistoryBeforeTheSpecifiedCursor() {
         List<Pipeline> pipelineList = IntStream.range(0, 5)
                 .mapToObj(i -> pipelineTwo.createdPipelineWithAllStagesPassed())
-                .collect(toList());
+                .toList();
 
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(new CaseInsensitiveString("admin1")), pipelineTwo.pipelineName, 0, pipelineList.get(2).getId(), 10);
 

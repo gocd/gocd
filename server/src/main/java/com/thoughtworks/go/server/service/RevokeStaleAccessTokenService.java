@@ -67,7 +67,7 @@ public class RevokeStaleAccessTokenService extends EntityConfigChangedListener<S
         if (this.existingSecurityAuthConfigs != null && !this.existingSecurityAuthConfigs.equals(updatedSecurityAuthConfigs)) {
             List<String> existing = getIds(existingSecurityAuthConfigs);
             List<String> updated = getIds(updatedSecurityAuthConfigs);
-            List<String> removed = existing.stream().filter(id -> !updated.contains(id)).collect(Collectors.toList());
+            List<String> removed = existing.stream().filter(id -> !updated.contains(id)).toList();
 
             this.accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active).forEach(token -> {
                 if (removed.contains(token.getAuthConfigId())) {

@@ -1215,7 +1215,7 @@ public class AgentServiceIntegrationTest {
     }
 
     private void updateAgentHostnames(Agent... agents) {
-        List<String> uuids = Stream.of(agents).map(Agent::getUuid).collect(toList());
+        List<String> uuids = Stream.of(agents).map(Agent::getUuid).toList();
         uuids.forEach(uuid -> agentService.updateAgentAttributes(uuid, randomName("hostname"), null, null, TRUE));
     }
 

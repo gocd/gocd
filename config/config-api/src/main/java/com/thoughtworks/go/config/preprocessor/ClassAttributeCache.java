@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
 public abstract class ClassAttributeCache<K, T> {
     private final ConcurrentMap<K, T> valueCache = new ConcurrentHashMap<>();
@@ -47,7 +46,7 @@ public abstract class ClassAttributeCache<K, T> {
         }
 
         void populateValueInto(Class klass, List<Field> fields) {
-            fields.addAll(Arrays.stream(klass.getDeclaredFields()).filter(field -> !field.isSynthetic()).collect(Collectors.toList()));
+            fields.addAll(Arrays.stream(klass.getDeclaredFields()).filter(field -> !field.isSynthetic()).toList());
             Class superClass = klass.getSuperclass();
             if (superClass != Object.class) {
                 populateValueInto(superClass, fields);

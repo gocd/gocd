@@ -21,7 +21,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.util.StatusPrinter2;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
@@ -108,7 +108,7 @@ public class LogConfigurator {
             configurator.doConfigure(resource);
         } catch (JoranException ignore) {
         }
-        StatusPrinter.printIfErrorsOccured((Context) loggerFactory);
+        new StatusPrinter2().printIfErrorsOccured((Context) loggerFactory);
     }
 
     private void configureWith(File logbackFile) {

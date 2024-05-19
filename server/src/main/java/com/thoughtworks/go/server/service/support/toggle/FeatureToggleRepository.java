@@ -87,7 +87,7 @@ public class FeatureToggleRepository {
 
     private FeatureToggles readTogglesFromStream(InputStream streamForToggles, String kindOfToggle) {
         try {
-            String existingToggleJSONContent = IOUtils.toString(streamForToggles);
+            String existingToggleJSONContent = IOUtils.toString(streamForToggles, UTF_8);
 
             FeatureToggleFileContentRepresentation toggleContent = gson.fromJson(existingToggleJSONContent, FeatureToggleFileContentRepresentation.class);
             return new FeatureToggles(toggleContent.toggles);

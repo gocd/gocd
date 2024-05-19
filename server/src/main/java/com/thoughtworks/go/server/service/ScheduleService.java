@@ -611,7 +611,7 @@ public class ScheduleService {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("Error occured during reschedule hung builds: ", e);
+            LOGGER.error("Error occurred during reschedule hung builds: ", e);
         }
     }
 

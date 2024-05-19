@@ -91,7 +91,7 @@ public class GoDiskSpaceMonitor {
             }
             return outOfDisk;
         } catch (Exception e) {
-            LOG.error("Error occured during checking filesystems low disk space", e);
+            LOG.error("Error occurred during checking filesystems low disk space", e);
         }
         return currentlyLowOnDisk;
     }

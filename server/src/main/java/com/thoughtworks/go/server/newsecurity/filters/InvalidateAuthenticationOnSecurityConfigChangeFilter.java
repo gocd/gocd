@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -89,8 +88,7 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
             return;
         }
 
-        final AuthenticationToken<?> authenticationToken = SessionUtils.getAuthenticationToken(request);
-        Assert.notNull(authenticationToken);
+        final AuthenticationToken<?> authenticationToken = Objects.requireNonNull(SessionUtils.getAuthenticationToken(request), "Authentication token must not be null.");
         synchronized (request.getSession(false).getId().intern()) {
             long localCopyOfLastChangedTime = lastChangedTime;//This is so that the volatile variable is accessed only once.
             Long previousLastChangedTime = (Long) request.getSession().getAttribute(SECURITY_CONFIG_LAST_CHANGE);

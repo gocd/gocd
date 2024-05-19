@@ -46,6 +46,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -121,11 +122,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     private static CacheConfiguration cacheConfiguration(String cacheName) {
         return new CacheConfiguration(cacheName, 1024)
-                .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
-                .overflowToDisk(false)
-                .diskPersistent(false);
+            .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
+            .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE));
     }
-
 
     @Override
     public void initialize() {

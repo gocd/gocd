@@ -52,7 +52,7 @@ final Map<String, String> libraries = [
   freemarker          : 'org.freemarker:freemarker:2.3.32',
   gradleDownload      : 'de.undercouch:gradle-download-task:5.6.0',
   grolifant           : 'org.ysb33r.gradle:grolifant-herd:3.0.1',
-  gson                : 'com.google.code.gson:gson:2.10.1',
+  gson                : 'com.google.code.gson:gson:2.11.0',
   guava               : 'com.google.guava:guava:33.2.0-jre',
   h2                  : 'com.h2database:h2:1.4.200',
   hamcrest            : 'org.hamcrest:hamcrest:2.2',

@@ -355,6 +355,15 @@ subprojects {
             }
           }
         })
+        withModule('com.google.code.gson:gson', { details ->
+          details.allVariants {
+            withDependencies {
+              removeAll {
+                it.name in [ "error_prone_annotations" ]
+              }
+            }
+          }
+        })
       }
     }
   }

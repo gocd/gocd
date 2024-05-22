@@ -20,3 +20,9 @@
     if [ -e /etc/init.d/<%= name %>-new ]; then
       mv /etc/init.d/<%= name %>-new /etc/init.d/<%= name %>
     fi
+
+    # Locating the JRE is done post-trans on RPM since we rely on /etc/alternatives locations
+    # which are only done post-trans within the standard upstream packages
+    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_set-jre-location.sh.erb")), trim_mode: '-', eoutvar: "_#{SecureRandom.hex}").result(binding) %>
+
+    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-post-install-message.sh.erb")), trim_mode: '-', eoutvar: "_#{SecureRandom.hex}").result(binding) %>

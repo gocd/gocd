@@ -15,11 +15,14 @@
 # limitations under the License.
 #########################################################################
 -%>
-    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared' ,'partials', '_set-debian-permissions.sh.erb')), trim_mode: '-', eoutvar: "_#{SecureRandom.hex}").result(binding) %>
 
-    # initialize init script symlinks on first install
-    /usr/share/<%= name %>/bin/<%= name %> install 2>&1
+    echo "Installation of GoCD server completed."
+    echo "--> Please edit /usr/share/go-server/wrapper-config/wrapper-properties.conf to add or override environment variables."
+    if [ -f "/etc/init.d/go-server" ]; then
+      echo "--> Once that is done start the GoCD Server with '/etc/init.d/go-server start'"
+    elif [ -f "/etc/systemd/system/go-server.service" ]; then
+      echo "--> Once that is done start the GoCD Server with 'systemctl start go-server'"
+    elif [ -f "/etc/init/go-server.conf" ]; then
+      echo "--> Once that is done start the GoCD Server with 'start go-server'"
+    fi
 
-    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_set-jre-location.sh.erb")), trim_mode: '-', eoutvar: "_#{SecureRandom.hex}").result(binding) %>
-
-    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-post-install-message.sh.erb")), trim_mode: '-', eoutvar: "_#{SecureRandom.hex}").result(binding) %>

@@ -48,7 +48,7 @@ enum PackageType {
       // for `ps`
       fpmArgs += ['--depends', 'procps']
 
-      fpmArgs += ['--depends', jreDependency(project)]
+      fpmArgs += ['--deb-recommends', jreDependency(project)]
 
       // HACK: for debian packages :(, since manifests cannot contain fine grained ownership
       def tmpDir = project.file("${project.buildDir}/tmp")
@@ -67,11 +67,14 @@ enum PackageType {
   },
   rpm {
     String jreDependency(Project project) {
-      "java-${project.packagedJavaVersion.feature}-openjdk-headless"
+      "(java-${project.packagedJavaVersion.feature}-openjdk-headless or java-${project.targetJavaVersion}-openjdk-headless)"
     }
 
     String jreBinaryLocator(Project project) {
-      "echo \"/etc/alternatives/jre_${project.packagedJavaVersion.feature}/bin/java\""
+      // Find the most recent version that was installed
+      """ls /etc/alternatives/jre_${project.packagedJavaVersion.feature}/bin/java \
+            /etc/alternatives/jre_${project.targetJavaVersion}/bin/java \
+         2>/dev/null | tail -1"""
     }
 
     List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {
@@ -86,7 +89,7 @@ enum PackageType {
       // for `ps`
       fpmArgs += ['--depends', 'procps']
 
-      fpmArgs += ['--depends', jreDependency(project)]
+      fpmArgs += ['--rpm-tag', "Recommends: ${jreDependency(project)}"]
 
       fpmArgs += ['--rpm-defattrfile', '0444']
       fpmArgs += ['--rpm-defattrdir', '0755']

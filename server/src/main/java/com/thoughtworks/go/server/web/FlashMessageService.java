@@ -27,7 +27,7 @@ import java.util.UUID;
  */
 @Service
 public class FlashMessageService {
-    private static ThreadLocal<Flash> requestFlash = new ThreadLocal<>();
+    private static final ThreadLocal<Flash> requestFlash = new ThreadLocal<>();
 
     public String add(FlashMessageModel message) {
         String key = UUID.randomUUID().toString();

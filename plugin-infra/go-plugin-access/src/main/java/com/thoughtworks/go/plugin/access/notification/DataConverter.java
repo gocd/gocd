@@ -19,10 +19,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public abstract class DataConverter<T> {
+
+    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls().create();
+
     protected abstract T transformData();
 
     public String createRequest() {
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls().create();
-        return gson.toJson(this.transformData());
+        return GSON.toJson(this.transformData());
     }
 }

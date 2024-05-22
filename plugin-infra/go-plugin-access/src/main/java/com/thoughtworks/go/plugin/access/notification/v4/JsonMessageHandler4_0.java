@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.access.notification.v4;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
 import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
@@ -31,6 +32,9 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class JsonMessageHandler4_0 implements JsonMessageHandler {
+
+    private static final Gson GSON = new GsonBuilder().create();
+
     @Override
     public List<String> responseMessageForNotificationsInterestedIn(String responseBody) {
         try {
@@ -88,7 +92,7 @@ public class JsonMessageHandler4_0 implements JsonMessageHandler {
     }
 
     private Map parseResponseToMap(String responseBody) {
-        return (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
+        return (Map) GSON.fromJson(responseBody, Object.class);
     }
 
     Result toResult(String responseBody) {

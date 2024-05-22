@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.ElasticProfileUsage;
 import java.util.Collection;
 
 public class ElasticProfileUsageRepresenter {
-    private static Gson GSON = new GsonBuilder().
+    private static final Gson GSON = new GsonBuilder().
             setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .create();
 

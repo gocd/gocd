@@ -37,6 +37,7 @@ import java.util.Map;
 public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionHandler {
     public static final String VERSION = "1.0";
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonBasedTaskExtensionHandler_V1.class);
+    private static final Gson GSON = new GsonBuilder().create();
 
     @Override
     public String version() {
@@ -53,7 +54,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         final TaskConfig taskConfig = new TaskConfig();
         ArrayList<String> exceptions = new ArrayList<>();
         try {
-            Map<String, Object> configMap = (Map) new GsonBuilder().create().fromJson(configJson, Object.class);
+            Map<String, Object> configMap = (Map) GSON.fromJson(configJson, Object.class);
             if (configMap.isEmpty()) {
                 exceptions.add("The Json for Task Config cannot be empty");
             }
@@ -116,7 +117,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         ValidationResult validationResult = new ValidationResult();
         ArrayList<String> exceptions = new ArrayList<>();
         try {
-            Map result = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
+            Map result = (Map) GSON.fromJson(responseBody, Object.class);
             if (result == null) return validationResult;
             final Map<String, Object> errors = (Map<String, Object>) result.get("errors");
             if (errors != null) {
@@ -142,7 +143,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     public TaskView toTaskView(String responseBody) {
         ArrayList<String> exceptions = new ArrayList<>();
         try {
-            final Map map = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
+            final Map map = (Map) GSON.fromJson(responseBody, Object.class);
             if (map.isEmpty()) {
                 exceptions.add("The Json for Task View cannot be empty");
             } else {
@@ -178,7 +179,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         ExecutionResult executionResult = new ExecutionResult();
         ArrayList<String> exceptions = new ArrayList<>();
         try {
-            Map result = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
+            Map result = (Map) GSON.fromJson(responseBody, Object.class);
             if (!(result.containsKey("success") && result.get("success") instanceof Boolean)) {
                 exceptions.add("The Json for Execution Result must contain a not-null 'success' field of type Boolean");
             }

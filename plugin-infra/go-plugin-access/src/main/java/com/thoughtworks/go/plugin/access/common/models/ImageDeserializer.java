@@ -24,8 +24,10 @@ import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 
 public class ImageDeserializer {
 
+    private static final Gson GSON = new Gson();
+
     public com.thoughtworks.go.plugin.domain.common.Image fromJSON(String jsonString) {
-        Map<String, String> json = new Gson().fromJson(jsonString, new TypeToken<Map<String, String>>() {
+        Map<String, String> json = GSON.fromJson(jsonString, new TypeToken<Map<String, String>>() {
         }.getType());
         String contentType = json.get("content_type");
         String data = json.get("data");

@@ -33,7 +33,7 @@ public enum GoAuthority {
     ROLE_TEMPLATE_VIEW_USER,
     ROLE_AGENT;
 
-    public static Set<GrantedAuthority> ALL_AUTHORITIES = Arrays.stream(values()).map(GoAuthority::asAuthority).collect(Collectors.toSet());
+    public static final Set<GrantedAuthority> ALL_AUTHORITIES = Arrays.stream(values()).map(GoAuthority::asAuthority).collect(Collectors.toSet());
 
     private final GrantedAuthority authority;
 

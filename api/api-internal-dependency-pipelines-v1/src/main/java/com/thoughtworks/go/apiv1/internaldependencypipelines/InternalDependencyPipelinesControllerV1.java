@@ -40,9 +40,9 @@ import static spark.Spark.*;
 public class InternalDependencyPipelinesControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private SystemEnvironment systemEnvironment;
-    private GoConfigService goConfigService;
-    private Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+    private final SystemEnvironment systemEnvironment;
+    private final GoConfigService goConfigService;
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
     @Autowired
     public InternalDependencyPipelinesControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,

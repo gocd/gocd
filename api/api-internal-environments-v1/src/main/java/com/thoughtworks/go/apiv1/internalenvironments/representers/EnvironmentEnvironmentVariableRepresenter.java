@@ -24,7 +24,7 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 
 public class EnvironmentEnvironmentVariableRepresenter {
-    private static FileConfigOrigin FILE_CONFIG_ORIGIN = new FileConfigOrigin();
+    private static final FileConfigOrigin FILE_CONFIG_ORIGIN = new FileConfigOrigin();
 
     public static void toJSON(OutputWriter writer, EnvironmentVariableConfig envVar, EnvironmentConfig environmentConfig) {
         EnvironmentVariableRepresenter.toJSON(writer, envVar);

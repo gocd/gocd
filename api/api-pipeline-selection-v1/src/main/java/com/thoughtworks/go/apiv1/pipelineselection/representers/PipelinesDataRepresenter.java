@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class PipelinesDataRepresenter {
-    private static Type GROUPS_TYPE = new TypeToken<List<PipelineConfigs>>() {}.getType();
-    private static Gson GSON = new GsonBuilder().
+    private static final Type GROUPS_TYPE = new TypeToken<List<PipelineConfigs>>() {}.getType();
+    private static final Gson GSON = new GsonBuilder().
             registerTypeAdapter(PipelinesDataResponse.class, new PersonalizationResponseSerializer()).
             registerTypeAdapter(GROUPS_TYPE, new PipelineGroupsSerializer()).
             registerTypeAdapter(CaseInsensitiveString.class, new Marshaling.CaseInsensitiveStringSerializer()).

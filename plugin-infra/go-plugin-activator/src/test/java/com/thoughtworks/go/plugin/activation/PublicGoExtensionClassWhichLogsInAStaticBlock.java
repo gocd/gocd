@@ -31,7 +31,7 @@ import java.util.List;
 
 @Extension
 public class PublicGoExtensionClassWhichLogsInAStaticBlock implements GoPlugin {
-    private static Logger logger;
+    private static final Logger logger;
 
     static {
         logger = Logger.getLoggerFor(PublicGoExtensionClassWhichLogsInAStaticBlock.class);

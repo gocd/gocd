@@ -34,6 +34,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
+    public static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     private final JSONResultMessageHandler jsonResultMessageHandler;
@@ -121,7 +122,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     public String requestMessageForIsSCMConfigurationValid(SCMPropertyConfiguration scmConfiguration) {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
-        return toJsonString(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
@@ -133,7 +134,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     public String requestMessageForCheckConnectionToSCM(SCMPropertyConfiguration scmConfiguration) {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
-        return toJsonString(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
@@ -147,7 +148,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
         configuredValues.put("scm-data", materialData);
         configuredValues.put("flyweight-folder", flyweightFolder);
-        return toJsonString(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
@@ -163,7 +164,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         configuredValues.put("scm-data", materialData);
         configuredValues.put("flyweight-folder", flyweightFolder);
         configuredValues.put("previous-revision", scmRevisionToMap(previousRevision));
-        return toJsonString(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
@@ -179,7 +180,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
         configuredValues.put("destination-folder", destinationFolder);
         configuredValues.put("revision", scmRevisionToMap(revision));
-        return toJsonString(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
@@ -189,11 +190,6 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     private Map parseResponseToMap(String responseBody) {
         return (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
-    }
-
-    private static String toJsonString(Object object) {
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        return gson.toJson(object);
     }
 
     private SCMProperty toSCMProperty(String key, Map configuration) {

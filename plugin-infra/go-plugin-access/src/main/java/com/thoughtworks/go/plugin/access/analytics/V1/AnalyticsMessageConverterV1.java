@@ -56,7 +56,7 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
 
     @Override
     public String getStaticAssetsFromResponseBody(String responseBody) {
-        String assets = (String) new Gson().fromJson(responseBody, Map.class).get("assets");
+        String assets = (String) GSON.fromJson(responseBody, Map.class).get("assets");
 
         if (StringUtils.isBlank(assets)) {
             throw new RuntimeException("No assets defined!");

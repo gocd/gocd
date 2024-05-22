@@ -17,12 +17,14 @@ package com.thoughtworks.go.util.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 
 public class JsonHelper {
+
+    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+
     public static void addDeveloperErrorMessage(Map<String, Object> jsonMap, Exception e) {
         addFriendlyErrorMessage(jsonMap, e.getMessage() + ": " + e.getCause() + " at " + e.getStackTrace()[0]);
     }
@@ -32,16 +34,15 @@ public class JsonHelper {
     }
 
     public static String toJsonString(Object object) {
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        return gson.toJson(object);
+        return GSON.toJson(object);
     }
 
     public static <T> T fromJson(final String jsonString, final Class<T> clazz) {
-        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().fromJson(jsonString, clazz);
+        return GSON.fromJson(jsonString, clazz);
     }
 
     public static <T> T fromJson(final String jsonString, Type type) {
-        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().fromJson(jsonString, type);
+        return GSON.fromJson(jsonString, type);
     }
 
     public static <T> T safeFromJson(final String jsonString, final Class<T> clazz) {
@@ -58,9 +59,5 @@ public class JsonHelper {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public static <T> T safeFromJson(final String jsonString) {
-        return safeFromJson(jsonString, new TypeToken<T>() {}.getType());
     }
 }

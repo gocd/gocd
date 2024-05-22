@@ -43,9 +43,9 @@ import static spark.Spark.path;
 
 @Component
 public class ApiSupportController implements SparkController, ControllerMethods, SparkSpringController {
-    private ServerStatusService serverStatusService;
+    private final ServerStatusService serverStatusService;
 
-    private Gson gson = new GsonBuilder()
+    private final Gson gson = new GsonBuilder()
         .setPrettyPrinting()
         .addSerializationExclusionStrategy(excludeLocks())
         .serializeNulls()

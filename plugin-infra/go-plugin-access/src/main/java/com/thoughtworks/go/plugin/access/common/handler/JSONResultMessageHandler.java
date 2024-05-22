@@ -15,7 +15,9 @@
  */
 package com.thoughtworks.go.plugin.access.common.handler;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -32,10 +34,13 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 
 public class JSONResultMessageHandler {
-    public Map configurationToMap(Configuration configuration) {
-        Map configuredValuesForRepo = new LinkedHashMap();
+
+    private static final Gson GSON = new GsonBuilder().create();
+
+    public Map<String, Object> configurationToMap(Configuration configuration) {
+        Map<String, Object> configuredValuesForRepo = new LinkedHashMap<>();
         for (Property property : configuration.list()) {
-            Map map = new LinkedHashMap();
+            Map<String, String> map = new LinkedHashMap<>();
             map.put("value", property.getValue());
             configuredValuesForRepo.put(property.getKey(), map);
         }
@@ -48,28 +53,24 @@ public class JSONResultMessageHandler {
 
             if (isEmpty(responseBody)) return validationResult;
 
-            List errors;
+            List<Map<String, Object>> errors;
             try {
-                errors = (List<Map>) new GsonBuilder().create().fromJson(responseBody, Object.class);
+                errors = GSON.fromJson(responseBody, new TypeToken<List<Map<String, Object>>>() {}.getType());
             } catch (Exception e) {
-                throw new RuntimeException("Validation errors should be returned as list or errors, with each error represented as a map");
+                throw new RuntimeException("Validation errors should be returned as list of errors, with each error represented as a map");
             }
 
-            for (Object errorObj : errors) {
-                if (!(errorObj instanceof Map errorMap)) {
-                    throw new RuntimeException("Each validation error should be represented as a map");
-                }
-
+            for (Map<String, Object> error : errors) {
                 String key;
                 try {
-                    key = (String) errorMap.get("key");
+                    key = (String) error.get("key");
                 } catch (Exception e) {
                     throw new RuntimeException("Validation error key should be of type string");
                 }
 
                 String message;
                 try {
-                    message = (String) errorMap.get("message");
+                    message = (String) error.get("message");
                 } catch (Exception e) {
                     throw new RuntimeException("Validation message should be of type string");
                 }
@@ -91,11 +92,11 @@ public class JSONResultMessageHandler {
         try {
             Result result = new Result();
 
-            Map map;
+            Map<String, Object> map;
             try {
-                map = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
+                map = GSON.fromJson(responseBody, new TypeToken<Map<String, Object>>() {}.getType());
             } catch (Exception e) {
-                throw new RuntimeException("Check connection result should be returned as map, with key represented as string and messages represented as list");
+                throw new RuntimeException("Check connection result should be returned as map, with status represented as string and messages represented as list");
             }
             if (map == null || map.isEmpty()) {
                 throw new RuntimeException("Empty response body");
@@ -119,9 +120,9 @@ public class JSONResultMessageHandler {
             }
 
             if (map.containsKey("messages") && map.get("messages") != null) {
-                List messages = null;
+                List<?> messages;
                 try {
-                    messages = (List) map.get("messages");
+                    messages = (List<?>) map.get("messages");
                 } catch (Exception e) {
                     throw new RuntimeException("Check connection 'messages' should be of type list of string");
                 }
@@ -134,9 +135,11 @@ public class JSONResultMessageHandler {
                     }
 
                     if (result.isSuccessful()) {
-                        result.withSuccessMessages(messages);
+                        //noinspection unchecked
+                        result.withSuccessMessages((List<String>) messages);
                     } else {
-                        result.withErrorMessages(messages);
+                        //noinspection unchecked
+                        result.withErrorMessages((List<String>) messages);
                     }
                 }
             }

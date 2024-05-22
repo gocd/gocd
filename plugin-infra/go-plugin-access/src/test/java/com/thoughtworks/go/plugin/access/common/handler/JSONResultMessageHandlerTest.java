@@ -36,7 +36,7 @@ public class JSONResultMessageHandlerTest {
     }
 
     @Test
-    public void shouldBuildValidationResultFromResponseBody() throws Exception {
+    public void shouldBuildValidationResultFromResponseBody() {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
         ValidationResult validationResult = messageHandler.toValidationResult(responseBody);
         assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
@@ -44,14 +44,14 @@ public class JSONResultMessageHandlerTest {
     }
 
     @Test
-    public void shouldBuildSuccessResultFromResponseBody() throws Exception {
+    public void shouldBuildSuccessResultFromResponseBody() {
         String responseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.toResult(responseBody);
         assertSuccessResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
-    public void shouldBuildFailureResultFromResponseBody() throws Exception {
+    public void shouldBuildFailureResultFromResponseBody() {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.toResult(responseBody);
         assertFailureResult(result, List.of("message-one", "message-two"));
@@ -59,8 +59,8 @@ public class JSONResultMessageHandlerTest {
 
     @Test
     public void shouldValidateIncorrectJsonForValidationResult() {
-        assertThat(errorMessageForValidationResult("{{\"key\":\"abc\",\"message\":\"msg\"}}"), is("Unable to de-serialize json response. Validation errors should be returned as list or errors, with each error represented as a map"));
-        assertThat(errorMessageForValidationResult("[[{\"key\":\"abc\",\"message\":\"msg\"}]]"), is("Unable to de-serialize json response. Each validation error should be represented as a map"));
+        assertThat(errorMessageForValidationResult("{{\"key\":\"abc\",\"message\":\"msg\"}}"), is("Unable to de-serialize json response. Validation errors should be returned as list of errors, with each error represented as a map"));
+        assertThat(errorMessageForValidationResult("[[{\"key\":\"abc\",\"message\":\"msg\"}]]"), is("Unable to de-serialize json response. Validation errors should be returned as list of errors, with each error represented as a map"));
         assertThat(errorMessageForValidationResult("[{\"key\":true,\"message\":\"msg\"}]"), is("Unable to de-serialize json response. Validation error key should be of type string"));
         assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":{}}]"), is("Unable to de-serialize json response. Validation message should be of type string"));
         assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":[]}]"), is("Unable to de-serialize json response. Validation message should be of type string"));
@@ -69,7 +69,7 @@ public class JSONResultMessageHandlerTest {
     @Test
     public void shouldValidateIncorrectJsonForCheckConnectionResult() {
         assertThat(errorMessageForCheckConnectionResult(""), is("Unable to de-serialize json response. Empty response body"));
-        assertThat(errorMessageForCheckConnectionResult("[{\"result\":\"success\"}]"), is("Unable to de-serialize json response. Check connection result should be returned as map, with key represented as string and messages represented as list"));
+        assertThat(errorMessageForCheckConnectionResult("[{\"result\":\"success\"}]"), is("Unable to de-serialize json response. Check connection result should be returned as map, with status represented as string and messages represented as list"));
         assertThat(errorMessageForCheckConnectionResult("{\"status\":true}"), is("Unable to de-serialize json response. Check connection 'status' should be of type string"));
         assertThat(errorMessageForCheckConnectionResult("{\"result\":true}"), is("Unable to de-serialize json response. Check connection 'status' is a required field"));
         assertThat(errorMessageForCheckConnectionResult("{\"status\":\"success\",\"messages\":[{},{}]}"), is("Unable to de-serialize json response. Check connection 'message' should be of type string"));

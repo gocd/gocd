@@ -28,7 +28,7 @@ public class ContentTypeNegotiationMessageRenderer {
     private static final ContentTypeAwareResponse TEXT_XML_REQUEST_HANDLER = new XMLErrorMessageRenderer(MediaType.TEXT_XML);
     private static final ContentTypeAwareResponse APPLICATION_XML_REQUEST_HANDLER = new XMLErrorMessageRenderer(MediaType.APPLICATION_XML);
     private static final Map<MediaType, ContentTypeAwareResponse> ACCESS_DENIED_HANDLER_MAP = new HashMap<>();
-    private static ContentTypeAwareResponse JSON_ACCESS_DENIED_HANDLER = new JsonErrorMessageRenderer(MediaType.APPLICATION_JSON);
+    private static final ContentTypeAwareResponse JSON_ACCESS_DENIED_HANDLER = new JsonErrorMessageRenderer(MediaType.APPLICATION_JSON);
 
     static {
         ACCESS_DENIED_HANDLER_MAP.put(MediaType.TEXT_XML, TEXT_XML_REQUEST_HANDLER);

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.plugin.access.configrepo.v1;
 
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
@@ -39,6 +40,7 @@ import java.util.Map;
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
     public static final int CURRENT_CONTRACT_VERSION = 11;
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler1_0.class);
+    private static final Gson MIGRATION_GSON = new GsonBuilder().create();
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;
 
@@ -67,7 +69,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     private ResponseScratch parseResponseForMigration(String responseBody) {
-        return new GsonBuilder().create().fromJson(responseBody, ResponseScratch.class);
+        return MIGRATION_GSON.fromJson(responseBody, ResponseScratch.class);
     }
 
     @Override
@@ -153,7 +155,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         throw new UnsupportedOperationException("V1 Config Repo plugins don't support pipeline export");
     }
 
-    class ResponseScratch {
+    static class ResponseScratch {
         public Integer target_version;
     }
 

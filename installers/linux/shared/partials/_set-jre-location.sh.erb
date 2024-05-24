@@ -16,13 +16,11 @@
 #########################################################################
 -%>
 
-    echo "Installation of GoCD server completed."
-    echo "Please edit /usr/share/go-server/wrapper-config/wrapper-properties.conf to add or override environment variables."
-    if [ -f "/etc/init.d/go-server" ]; then
-      echo "Once that is done start the GoCD Server with '/etc/init.d/go-server start'"
-    elif [ -f "/etc/systemd/system/go-server.service" ]; then
-      echo "Once that is done start the GoCD Server with 'systemctl start go-server'"
-    elif [ -f "/etc/init/go-server.conf" ]; then
-      echo "Once that is done start the GoCD Server with 'start go-server'"
+    java="$(<%= ENV['JRE_BINARY_LOCATOR'] %>)"
+    if [ -n "${java}" ]; then
+      echo "(info) <%= name %> will use the JRE installed at ${java}"
+      sed -ie "s:^\\(wrapper.java.command=\\).*:\\1${java}:" /usr/share/<%= name %>/wrapper-config/wrapper.conf
+    else
+      echo "(info) <%= name %> cannot locate a JRE package dependency. Using default 'java' available on the path, unless overridden by user config."
+      echo "(info) Configure user-controlled path to a Java binary using 'wrapper.java.command' in /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf"
     fi
-

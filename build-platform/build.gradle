@@ -47,9 +47,3 @@ dependencies {
   api enforcedPlatform(project.deps.mockitoBom)
   api enforcedPlatform(project.deps.testcontainersBom)
 }
-
-publishing {
-  publications {
-    maven(MavenPublication)
-  }
-}

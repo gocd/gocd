@@ -19,17 +19,3 @@ plugins {
 }
 
 description = 'Internal interfaces for GoCD Plugins'
-
-compileJava {
-  // Use older source compatibility for Plugin API consumed by plugins. No need to break this compatibility
-  // for a while yet, so plugins work on older versions.
-  options.release.set(11)
-}
-
-publishing {
-  publications {
-    maven(MavenPublication) {
-      from components.java
-    }
-  }
-}

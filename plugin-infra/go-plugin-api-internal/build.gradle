@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-plugins {
-  id 'maven-publish'
-}
-
 description = 'Internal interfaces for GoCD Plugins'
 
 compileJava {

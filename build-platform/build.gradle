@@ -16,7 +16,6 @@
 
 plugins {
   id 'java-platform'
-  id 'maven-publish'
 }
 
 description = 'Internal platform constraining dependency resolution for GoCD'

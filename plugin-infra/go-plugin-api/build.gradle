@@ -58,8 +58,14 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 publishing {
   publications {
-    maven(MavenPublication) {
-      from components.java
+    mavenJava(MavenPublication) {
+      groupId = 'cd.go.plugin'
+
+      versionMapping {
+        usage('java-runtime') {
+          fromResolutionResult()
+        }
+      }
     }
   }
 }

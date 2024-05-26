@@ -38,10 +38,7 @@ public class UnitTestReportGenerator {
     private static final String TEST_RESULTS_FILE = "index.html";
     private static final Pattern LINE_STARTING_WITH_XML_DECLARATION = Pattern.compile("^\\s*<\\?xml.*?\\?>");
 
-    private final File folderToUpload;
-    private final GoPublisher publisher;
     private static Templates templates;
-
 
     static {
         try (InputStream xslt = UnitTestReportGenerator.class.getResourceAsStream("unittests.xsl")) {
@@ -50,6 +47,9 @@ public class UnitTestReportGenerator {
             LOG.error("Could not load unit test converters", e);
         }
     }
+
+    private final File folderToUpload;
+    private final GoPublisher publisher;
 
     public UnitTestReportGenerator(GoPublisher publisher, File folderToUpload) {
         this.publisher = publisher;

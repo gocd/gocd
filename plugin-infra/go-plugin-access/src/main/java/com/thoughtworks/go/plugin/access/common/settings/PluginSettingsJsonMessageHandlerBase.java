@@ -15,7 +15,9 @@
  */
 package com.thoughtworks.go.plugin.access.common.settings;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -30,6 +32,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public abstract class PluginSettingsJsonMessageHandlerBase implements PluginSettingsJsonMessageHandler {
+    private static final Gson GSON = new GsonBuilder().create();
     private final JSONResultMessageHandler jsonResultMessageHandler;
 
     public PluginSettingsJsonMessageHandlerBase() {
@@ -40,7 +43,7 @@ public abstract class PluginSettingsJsonMessageHandlerBase implements PluginSett
     public PluginSettingsConfiguration responseMessageForPluginSettingsConfiguration(String responseBody) {
         try {
             PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
-            Map<String, Map> configurations;
+            Map<String, Object> configurations;
             try {
                 configurations = parseResponseToMap(responseBody);
             } catch (Exception e) {
@@ -53,10 +56,10 @@ public abstract class PluginSettingsJsonMessageHandlerBase implements PluginSett
                 if (isEmpty(key)) {
                     throw new RuntimeException("Plugin Settings Configuration key cannot be empty");
                 }
-                if (!(configurations.get(key) instanceof Map)) {
+                if (!(configurations.get(key) instanceof Map<?, ?> config)) {
                     throw new RuntimeException(format("Plugin Settings Configuration properties for key '%s' should be represented as a Map", key));
                 }
-                configuration.add(toPluginSettingsProperty(key, configurations.get(key)));
+                configuration.add(toPluginSettingsProperty(key, config));
             }
             return configuration;
         } catch (Exception e) {
@@ -67,7 +70,7 @@ public abstract class PluginSettingsJsonMessageHandlerBase implements PluginSett
     @Override
     public String responseMessageForPluginSettingsView(String responseBody) {
         try {
-            final Map map = parseResponseToMap(responseBody);
+            final Map<String, Object> map = parseResponseToMap(responseBody);
 
             if (map.isEmpty()) {
                 throw new RuntimeException("The JSON for Plugin Settings View cannot be empty");
@@ -92,14 +95,14 @@ public abstract class PluginSettingsJsonMessageHandlerBase implements PluginSett
 
     @Override
     public String requestMessageForPluginSettingsValidation(PluginSettingsConfiguration configuration) {
-        Map configuredValues = new LinkedHashMap();
+        Map<String, Map<String, Object>> configuredValues = new LinkedHashMap<>();
         configuredValues.put("plugin-settings", jsonResultMessageHandler.configurationToMap(configuration));
-        return new GsonBuilder().create().toJson(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
     public String requestMessageForNotifyPluginSettingsChange(Map<String, String> pluginSettings) {
-        return new GsonBuilder().create().toJson(pluginSettings);
+        return GSON.toJson(pluginSettings);
     }
 
     @Override
@@ -107,11 +110,11 @@ public abstract class PluginSettingsJsonMessageHandlerBase implements PluginSett
         return jsonResultMessageHandler.toValidationResult(responseBody);
     }
 
-    private Map parseResponseToMap(String responseBody) {
-        return (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
+    private Map<String, Object> parseResponseToMap(String responseBody) {
+        return GSON.fromJson(responseBody, new TypeToken<Map<String, Object>>() {}.getType());
     }
 
-    private PluginSettingsProperty toPluginSettingsProperty(String key, Map configuration) {
+    private PluginSettingsProperty toPluginSettingsProperty(String key, Map<?, ?> configuration) {
         List<String> errors = new ArrayList<>();
         String defaultValue = null;
         try {

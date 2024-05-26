@@ -92,7 +92,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MaterialServiceTest {
-    private static List MODIFICATIONS = new ArrayList<Modification>();
+    private static final List<Modification> MODIFICATIONS = new ArrayList<>();
 
     @Mock
     private MaterialRepository materialRepository;
@@ -125,42 +125,42 @@ public class MaterialServiceTest {
 
     @Test
     public void shouldNotBeAuthorizedToViewAPipeline() {
-        Username pavan = Username.valueOf("pavan");
-        when(securityService.hasViewPermissionForPipeline(pavan, "pipeline")).thenReturn(false);
+        Username username = Username.valueOf("some-user");
+        when(securityService.hasViewPermissionForPipeline(username, "pipeline")).thenReturn(false);
         LocalizedOperationResult operationResult = mock(LocalizedOperationResult.class);
-        materialService.searchRevisions("pipeline", "sha", "search-string", pavan, operationResult);
-        verify(operationResult).forbidden(EntityType.Pipeline.forbiddenToView("pipeline", pavan.getUsername()), HealthStateType.general(HealthStateScope.forPipeline("pipeline")));
+        materialService.searchRevisions("pipeline", "sha", "search-string", username, operationResult);
+        verify(operationResult).forbidden(EntityType.Pipeline.forbiddenToView("pipeline", username.getUsername()), HealthStateType.general(HealthStateScope.forPipeline("pipeline")));
     }
 
     @Test
     public void shouldReturnTheRevisionsThatMatchTheGivenSearchString() {
-        Username pavan = Username.valueOf("pavan");
-        when(securityService.hasViewPermissionForPipeline(pavan, "pipeline")).thenReturn(true);
+        Username username = Username.valueOf("some-user");
+        when(securityService.hasViewPermissionForPipeline(username, "pipeline")).thenReturn(true);
         LocalizedOperationResult operationResult = mock(LocalizedOperationResult.class);
         MaterialConfig materialConfig = mock(MaterialConfig.class);
         when(goConfigService.materialForPipelineWithFingerprint("pipeline", "sha")).thenReturn(materialConfig);
 
         List<MatchedRevision> expected = List.of(new MatchedRevision("23", "revision", "revision", "user", new DateTime(2009, 10, 10, 12, 0, 0, 0).toDate(), "comment"));
         when(materialRepository.findRevisionsMatching(materialConfig, "23")).thenReturn(expected);
-        assertThat(materialService.searchRevisions("pipeline", "sha", "23", pavan, operationResult), is(expected));
+        assertThat(materialService.searchRevisions("pipeline", "sha", "23", username, operationResult), is(expected));
     }
 
     @Test
     public void shouldReturnNotFoundIfTheMaterialDoesNotBelongToTheGivenPipeline() {
-        Username pavan = Username.valueOf("pavan");
-        when(securityService.hasViewPermissionForPipeline(pavan, "pipeline")).thenReturn(true);
+        Username username = Username.valueOf("some-user");
+        when(securityService.hasViewPermissionForPipeline(username, "pipeline")).thenReturn(true);
         LocalizedOperationResult operationResult = mock(LocalizedOperationResult.class);
 
         when(goConfigService.materialForPipelineWithFingerprint("pipeline", "sha")).thenThrow(new RuntimeException("Not found"));
 
-        materialService.searchRevisions("pipeline", "sha", "23", pavan, operationResult);
+        materialService.searchRevisions("pipeline", "sha", "23", username, operationResult);
         verify(operationResult).notFound("Pipeline '" + "pipeline" + "' does not contain material with fingerprint '" + "sha" + "'.", HealthStateType.general(HealthStateScope.forPipeline("pipeline")));
     }
 
-    private static Arguments GIT_LATEST_MODIFICATIONS = Arguments.of(new GitMaterial("url") {
+    private static final Arguments GIT_LATEST_MODIFICATIONS = Arguments.of(new GitMaterial("url") {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
 
         @Override
@@ -170,68 +170,68 @@ public class MaterialServiceTest {
 
         @Override
         public List<Modification> modificationsSince(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
     }, GitMaterial.class);
 
-    private static Arguments SVN_LATEST_MODIFICATIONS = Arguments.of(new SvnMaterial("url", "username", "password", true) {
+    private static final Arguments SVN_LATEST_MODIFICATIONS = Arguments.of(new SvnMaterial("url", "username", "password", true) {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
 
         @Override
         public List<Modification> modificationsSince(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
     }, SvnMaterial.class);
 
-    private static Arguments HG_LATEST_MODIFICATIONS = Arguments.of(new HgMaterial("url", null) {
+    private static final Arguments HG_LATEST_MODIFICATIONS = Arguments.of(new HgMaterial("url", null) {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
 
         @Override
         public List<Modification> modificationsSince(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
     }, HgMaterial.class);
 
-    private static Arguments TFS_LATEST_MODIFICATIONS = Arguments.of(new TfsMaterial() {
+    private static final Arguments TFS_LATEST_MODIFICATIONS = Arguments.of(new TfsMaterial() {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
 
         @Override
         public List<Modification> modificationsSince(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
 
     }, TfsMaterial.class);
 
-    private static Arguments P4_LATEST_MODIFICATIONS = Arguments.of(new P4Material("url", "view", "user") {
+    private static final Arguments P4_LATEST_MODIFICATIONS = Arguments.of(new P4Material("url", "view", "user") {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
 
         @Override
         public List<Modification> modificationsSince(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
     }, P4Material.class);
 
-    private static Arguments DEPENDENCY_LATEST_MODIFICATIONS = Arguments.of(new DependencyMaterial(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")) {
+    private static final Arguments DEPENDENCY_LATEST_MODIFICATIONS = Arguments.of(new DependencyMaterial(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")) {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
 
         @Override
         public List<Modification> modificationsSince(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-            return (List<Modification>) MODIFICATIONS;
+            return MODIFICATIONS;
         }
     }, DependencyMaterial.class);
 
@@ -252,7 +252,7 @@ public class MaterialServiceTest {
 
     @ParameterizedTest
     @ArgumentsSource(MaterialRequests.class)
-    public void shouldGetLatestModificationsForGivenMaterial(Material material, Class klass) {
+    public void shouldGetLatestModificationsForGivenMaterial(Material material, Class<?> klass) {
         MaterialService spy = spy(materialService);
         SubprocessExecutionContext execCtx = mock(SubprocessExecutionContext.class);
         doReturn(klass).when(spy).getMaterialClass(material);
@@ -262,7 +262,7 @@ public class MaterialServiceTest {
 
     @ParameterizedTest
     @ArgumentsSource(MaterialRequests.class)
-    public void shouldGetModificationsSinceARevisionForGivenMaterial(Material material, Class klass) {
+    public void shouldGetModificationsSinceARevisionForGivenMaterial(Material material, Class<?> klass) {
         Revision revision = mock(Revision.class);
         SubprocessExecutionContext execCtx = mock(SubprocessExecutionContext.class);
         MaterialService spy = spy(materialService);
@@ -275,7 +275,7 @@ public class MaterialServiceTest {
     @ArgumentsSource(MaterialRequests.class)
     public void shouldCheckoutAGivenRevision(Material material) {
         Revision revision = mock(Revision.class);
-        MaterialPoller materialPoller = mock(MaterialPoller.class);
+        @SuppressWarnings("unchecked") MaterialPoller<Material> materialPoller = mock(MaterialPoller.class);
         MaterialService spy = spy(materialService);
         File baseDir = mock(File.class);
         SubprocessExecutionContext execCtx = mock(SubprocessExecutionContext.class);
@@ -316,7 +316,6 @@ public class MaterialServiceTest {
         GitMaterial gitMaterial = spy(new GitMaterial("https://example.com"));
         MaterialService spy = spy(materialService);
         GitPoller gitPoller = mock(GitPoller.class);
-        Class<GitMaterial> toBeReturned = GitMaterial.class;
 
         doReturn(gitPoller).when(spy).getPollerImplementation(gitMaterial);
         when(gitPoller.modificationsSince(any(), any(), any(), any())).thenReturn(new ArrayList<>());
@@ -361,7 +360,7 @@ public class MaterialServiceTest {
         MaterialInstance materialInstance = pluggableSCMMaterial.createMaterialInstance();
         when(materialRepository.findMaterialInstance(any(Material.class))).thenReturn(materialInstance);
         MaterialPollResult materialPollResult = new MaterialPollResult(null, new SCMRevision("blah-123", new Date(), "user", "comment", null, null));
-        when(scmExtension.getLatestRevision(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class))).thenReturn(materialPollResult);
+        when(scmExtension.getLatestRevision(any(String.class), any(SCMPropertyConfiguration.class), any(), any(String.class))).thenReturn(materialPollResult);
 
         List<Modification> modifications = materialService.latestModification(pluggableSCMMaterial, new File("/tmp/flyweight"), null);
 
@@ -374,7 +373,7 @@ public class MaterialServiceTest {
         MaterialInstance materialInstance = pluggableSCMMaterial.createMaterialInstance();
         when(materialRepository.findMaterialInstance(any(Material.class))).thenReturn(materialInstance);
         MaterialPollResult materialPollResult = new MaterialPollResult(null, List.of(new SCMRevision("new-revision-456", new Date(), "user", "comment", null, null)));
-        when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class),
+        when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(), any(String.class),
                 any(SCMRevision.class))).thenReturn(materialPollResult);
 
         PluggableSCMMaterialRevision previouslyKnownRevision = new PluggableSCMMaterialRevision("revision-124", new Date());
@@ -468,7 +467,7 @@ public class MaterialServiceTest {
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
         when(materialRepository.loadHistory(anyLong(), any(), anyLong(), anyInt())).thenReturn(modifications);
 
-        List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, "", 2, 0, 3);
+        materialService.getModificationsFor(materialConfig, "", 2, 0, 3);
 
         verify(materialRepository).loadHistory(anyLong(), eq(FeedModifier.After), eq(2L), eq(3));
     }
@@ -483,7 +482,7 @@ public class MaterialServiceTest {
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
         when(materialRepository.loadHistory(anyLong(), any(), anyLong(), anyInt())).thenReturn(modifications);
 
-        List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, "", 0, 2, 3);
+        materialService.getModificationsFor(materialConfig, "", 0, 2, 3);
 
         verify(materialRepository).loadHistory(anyLong(), eq(FeedModifier.Before), eq(2L), eq(3));
     }

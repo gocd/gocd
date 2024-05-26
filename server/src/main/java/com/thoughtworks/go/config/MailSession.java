@@ -63,7 +63,7 @@ public class MailSession {
 
     private Session createSession(Properties props, String username, String password) {
         Session session;
-        if (username == null || password == null || username.equals("") || password.equals("")) {
+        if (username == null || password == null || username.isBlank() || password.isBlank()) {
             session = Session.getInstance(props);
         } else {
             props.put("mail.smtp.auth", "true");

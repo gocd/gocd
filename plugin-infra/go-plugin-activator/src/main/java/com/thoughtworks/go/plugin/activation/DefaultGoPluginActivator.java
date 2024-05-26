@@ -44,7 +44,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     private final List<UnloadMethodInvoker> unloadMethodInvokers = new ArrayList<>();
     private PluginRegistryService pluginRegistryService;
     private static String bundleSymbolicName;
-    @SuppressWarnings("unused") /* Used through reflection (see Logger class). */
+    @SuppressWarnings({"unused", "FieldCanBeLocal"}) /* Used through reflection (see Logger class). */
     private static String pluginId;
     private static final PluginContext DUMMY_PLUGIN_CONTEXT = new PluginContext() {
     };

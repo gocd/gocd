@@ -248,7 +248,7 @@ public class AuthorizationMessageConverterV2 implements AuthorizationMessageConv
     }
 
     private String getTemplateFromResponse(String responseBody, String message) {
-        String template = (String) new Gson().fromJson(responseBody, Map.class).get("template");
+        String template = (String) GSON.fromJson(responseBody, Map.class).get("template");
         if (StringUtils.isBlank(template)) {
             throw new RuntimeException(message);
         }

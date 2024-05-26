@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.NullPlugin;
@@ -46,6 +47,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 @Service
 public class PluginService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
+    private static final Gson GSON = new GsonBuilder().serializeNulls().create();
     private final List<GoPluginExtension> extensions;
     private final PluginDao pluginDao;
     private final SecurityService securityService;
@@ -151,7 +153,7 @@ public class PluginService {
             plugin = new Plugin(pluginSettings.getPluginId(), null);
         }
         Map<String, String> settingsMap = pluginSettings.getSettingsAsKeyValuePair();
-        plugin.setConfiguration(toJSON(settingsMap));
+        plugin.setConfiguration(GSON.toJson(settingsMap));
         pluginDao.saveOrUpdate(plugin);
     }
 
@@ -192,10 +194,6 @@ public class PluginService {
         } catch (Exception e) {
             LOGGER.warn("Error notifying plugin - {} with settings change", pluginId, e);
         }
-    }
-
-    private String toJSON(Map<String, String> settingsMap) {
-        return new GsonBuilder().serializeNulls().create().toJson(settingsMap);
     }
 
     private String keyToLockOn(String pluginId) {

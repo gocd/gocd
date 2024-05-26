@@ -48,8 +48,7 @@ public interface PostHelper {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return PostHelper.GSON.fromJson(json, new TypeToken<>() {
-        }.getType());
+        return GSON.fromJson(json, new TypeToken<>() {}.getType());
     }
 
     interface Mixin {

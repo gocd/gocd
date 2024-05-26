@@ -67,34 +67,29 @@ public class Serialization {
     private static final GoCipher DUMMY_CIPHER = new GoCipher(new DoNotEncrypter());
 
     private static class SingletonHolder {
-        private static final Gson INSTANCE = create();
+        private static final Gson INSTANCE = new GsonBuilder()
+            .registerTypeAdapter(Date.class, new IsoInstantDateTypeAdapter())
+            .registerTypeAdapter(GoCipher.class, new SecurityRejectingAdapter<GoCipher>())
+            .registerTypeAdapter(AESEncrypter.class, new SecurityRejectingAdapter<AESEncrypter>())
+            .registerTypeAdapter(AESCipherProvider.class, new SecurityRejectingAdapter<AESCipherProvider>())
+            .registerTypeAdapter(DESEncrypter.class, new SecurityRejectingAdapter<DESEncrypter>())
+            .registerTypeAdapter(DESCipherProvider.class, new SecurityRejectingAdapter<DESCipherProvider>())
+            .registerTypeAdapter(ArtifactStore.class, new ArtifactStoreAdapter())
+            .registerTypeAdapter(ConfigurationProperty.class, new ConfigurationPropertyAdapter())
+            .registerTypeAdapter(File.class, new FileAdapter())
+            .registerTypeHierarchyAdapter(Charset.class, new CharsetAdapter())
+            .registerTypeAdapterFactory(builderAdapter())
+            .registerTypeAdapterFactory(materialAdapter())
+            .registerTypeAdapterFactory(workAdapter())
+            .registerTypeAdapterFactory(materialInstanceAdapter())
+            .registerTypeAdapterFactory(agentRuntimeInfoAdapter())
+            .registerTypeAdapterFactory(fetchHandlerAdapter())
+            .registerTypeAdapterFactory(agentRequestAdapter())
+            .create();
     }
 
     public static Gson instance() {
         return SingletonHolder.INSTANCE;
-    }
-
-    @SuppressWarnings("deprecation")
-    public static Gson create() {
-        return new GsonBuilder()
-                .registerTypeAdapter(Date.class, new IsoInstantDateTypeAdapter())
-                .registerTypeAdapter(GoCipher.class, new SecurityRejectingAdapter<GoCipher>())
-                .registerTypeAdapter(AESEncrypter.class, new SecurityRejectingAdapter<AESEncrypter>())
-                .registerTypeAdapter(AESCipherProvider.class, new SecurityRejectingAdapter<AESCipherProvider>())
-                .registerTypeAdapter(DESEncrypter.class, new SecurityRejectingAdapter<DESEncrypter>())
-                .registerTypeAdapter(DESCipherProvider.class, new SecurityRejectingAdapter<DESCipherProvider>())
-                .registerTypeAdapter(ArtifactStore.class, new ArtifactStoreAdapter())
-                .registerTypeAdapter(ConfigurationProperty.class, new ConfigurationPropertyAdapter())
-                .registerTypeAdapter(File.class, new FileAdapter())
-                .registerTypeHierarchyAdapter(Charset.class, new CharsetAdapter())
-                .registerTypeAdapterFactory(builderAdapter())
-                .registerTypeAdapterFactory(materialAdapter())
-                .registerTypeAdapterFactory(workAdapter())
-                .registerTypeAdapterFactory(materialInstanceAdapter())
-                .registerTypeAdapterFactory(agentRuntimeInfoAdapter())
-                .registerTypeAdapterFactory(fetchHandlerAdapter())
-                .registerTypeAdapterFactory(agentRequestAdapter())
-                .create();
     }
 
     private static RuntimeTypeAdapterFactory<Builder> builderAdapter() {

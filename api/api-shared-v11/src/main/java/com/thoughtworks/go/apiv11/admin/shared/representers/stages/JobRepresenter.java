@@ -33,7 +33,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class JobRepresenter {
-    private static JsonReader jsonReader;
 
     public static void toJSON(OutputWriter jsonWriter, JobConfig jobConfig) {
         if (!jobConfig.errors().isEmpty() || !jobConfig.resourceConfigs().errors().isEmpty()) {
@@ -88,35 +87,34 @@ public class JobRepresenter {
     }
 
     public static JobConfig fromJSON(JsonReader jsonReader) {
-        JobRepresenter.jsonReader = jsonReader;
         JobConfig jobConfig = new JobConfig();
         jsonReader.readCaseInsensitiveStringIfPresent("name", jobConfig::setName);
-        setRunInstanceCount(jobConfig);
-        setTimeout(jobConfig);
+        setRunInstanceCount(jsonReader, jobConfig);
+        setTimeout(jsonReader, jobConfig);
         jsonReader.readStringIfPresent("elastic_profile_id", jobConfig::setElasticProfileId);
-        setArtifacts(jobConfig);
+        setArtifacts(jsonReader, jobConfig);
         jobConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
-        setResources(jobConfig);
+        setResources(jsonReader, jobConfig);
         jobConfig.setTabs(TabConfigRepresenter.fromJSONArray(jsonReader));
         jobConfig.setTasks(TaskRepresenter.fromJSONArray(jsonReader));
 
         return jobConfig;
     }
 
-    private static void setResources(JobConfig jobConfig) {
+    private static void setResources(JsonReader jsonReader, JobConfig jobConfig) {
         ResourceConfigs resourceConfigs = new ResourceConfigs();
         jsonReader.readArrayIfPresent("resources", resources -> resources.forEach(resource -> resourceConfigs.add(new ResourceConfig(resource.getAsString()))));
 
         jobConfig.setResourceConfigs(resourceConfigs);
     }
 
-    private static void setArtifacts(JobConfig jobConfig) {
+    private static void setArtifacts(JsonReader jsonReader, JobConfig jobConfig) {
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         jsonReader.readArrayIfPresent("artifacts", artifacts -> artifacts.forEach(artifact -> artifactTypeConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject())))));
         jobConfig.setArtifactTypeConfigs(artifactTypeConfigs);
     }
 
-    private static void setTimeout(JobConfig jobConfig) {
+    private static void setTimeout(JsonReader jsonReader, JobConfig jobConfig) {
         String timeout = null;
         if (jsonReader.hasJsonObject("timeout")) {
             timeout = jsonReader.getString("timeout");
@@ -129,7 +127,7 @@ public class JobRepresenter {
         }
     }
 
-    private static void setRunInstanceCount(JobConfig jobConfig) {
+    private static void setRunInstanceCount(JsonReader jsonReader, JobConfig jobConfig) {
         String runInstanceCount = null;
         if (jsonReader.hasJsonObject("run_instance_count")) {
             runInstanceCount = jsonReader.getString("run_instance_count");

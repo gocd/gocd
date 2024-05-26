@@ -34,6 +34,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
+    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     private final JSONResultMessageHandler jsonResultMessageHandler;
@@ -74,7 +75,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     public String requestMessageForIsRepositoryConfigurationValid(RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
-        return toJsonString(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
@@ -86,7 +87,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     public String requestMessageForCheckConnectionToRepository(RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
-        return toJsonString(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
@@ -127,7 +128,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
         configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
-        return toJsonString(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
@@ -140,7 +141,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
         configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
-        return toJsonString(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
@@ -153,7 +154,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
         configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
-        return toJsonString(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
@@ -170,7 +171,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
         configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
         configuredValues.put("previous-revision", packageRevisionToMap(previousRevision));
-        return toJsonString(configuredValues);
+        return GSON.toJson(configuredValues);
     }
 
     @Override
@@ -182,12 +183,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         return (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
     }
 
-    private static String toJsonString(Object object) {
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        return gson.toJson(object);
-    }
-
-    private PackageMaterialProperty toPackageMaterialProperty(String key, Map configuration) {
+    private PackageMaterialProperty toPackageMaterialProperty(String key, Map<?, ?> configuration) {
         List<String> errors = new ArrayList<>();
         String defaultValue = null;
         try {
@@ -316,8 +312,8 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         }
     }
 
-    private Map packageRevisionToMap(PackageRevision packageRevision) {
-        Map map = new LinkedHashMap();
+    private Map<String, Object> packageRevisionToMap(PackageRevision packageRevision) {
+        Map<String, Object> map = new LinkedHashMap<>();
         map.put("revision", packageRevision.getRevision());
         map.put("timestamp", new SimpleDateFormat(DATE_PATTERN).format(packageRevision.getTimestamp()));
         map.put("data", packageRevision.getData());

@@ -19,7 +19,7 @@ import com.thoughtworks.go.plugin.access.common.MetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 
 public class ElasticAgentMetadataStore extends MetadataStore<ElasticAgentPluginInfo> {
-    private static ElasticAgentMetadataStore store = new ElasticAgentMetadataStore();
+    private static final ElasticAgentMetadataStore store = new ElasticAgentMetadataStore();
 
     private ElasticAgentMetadataStore() {
     }

@@ -44,20 +44,20 @@ class MultipleExtensionPluginWithPluginManagerIntegrationTest {
     private static final String EXTENSION_2_PROPERTY_PREFIX = "valid-plugin-with-multiple-extensions.analytics_extension.";
     private static final String PLUGIN_ID = "valid-plugin-with-multiple-extensions";
 
+    private static File pluginWorkDir;
+
     @Autowired
     DefaultPluginManager pluginManager;
     @Autowired
     DefaultPluginJarChangeListener jarChangeListener;
     @Autowired
     SystemEnvironment systemEnvironment;
-    private static File bundleDir;
-    private static File pluginWorkDir;
-    private static FileHelper temporaryFolder;
+
 
     @BeforeAll
     static void overrideProperties(@TempDir File rootDir) {
-        temporaryFolder = new FileHelper(rootDir);
-        bundleDir = temporaryFolder.newFolder("bundleDir");
+        FileHelper temporaryFolder = new FileHelper(rootDir);
+        File bundleDir = temporaryFolder.newFolder("bundleDir");
         pluginWorkDir = temporaryFolder.newFolder("pluginDir");
 
         System.setProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName(), "defaultFiles/go-plugin-activator.jar");

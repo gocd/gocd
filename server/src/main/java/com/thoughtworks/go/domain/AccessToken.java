@@ -46,16 +46,13 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AccessToken extends PersistentObject implements Validatable {
 
+    private static final Logger ACCESS_TOKEN_LOGGER = LoggerFactory.getLogger(AccessToken.class);
     private static final int DEFAULT_ITERATIONS = 4096;
     private static final int DESIRED_KEY_LENGTH = 256;
     private static final int SALT_LENGTH = 32;
     private static final String KEY_ALGORITHM = "PBKDF2WithHmacSHA256";
-    private static SecureRandom SECURE_RANDOM;
-    private static final Logger ACCESS_TOKEN_LOGGER = LoggerFactory.getLogger(AccessToken.class);
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    static {
-        SECURE_RANDOM = new SecureRandom();
-    }
 
     //this is the hashed token value
     private String value;

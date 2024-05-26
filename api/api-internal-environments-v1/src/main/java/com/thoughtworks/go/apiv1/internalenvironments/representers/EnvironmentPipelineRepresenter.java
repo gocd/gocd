@@ -23,7 +23,7 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 
 class EnvironmentPipelineRepresenter {
-    private static FileConfigOrigin FILE_CONFIG_ORIGIN = new FileConfigOrigin();
+    private static final FileConfigOrigin FILE_CONFIG_ORIGIN = new FileConfigOrigin();
 
     static void toJSON(OutputWriter writer, EnvironmentPipelineConfig pipeline, EnvironmentConfig environmentConfig) {
         writer.add("name", pipeline.getName());

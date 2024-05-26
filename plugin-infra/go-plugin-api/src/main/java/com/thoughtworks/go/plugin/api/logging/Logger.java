@@ -26,16 +26,16 @@ import java.lang.reflect.Field;
  * @see <a href="https://developer.gocd.org/current/writing_go_plugins/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
  */
 public class Logger {
-    private String pluginId;
     private static LoggingService loggingService;
 
+    private final String pluginId;
     private final String loggerName;
 
-    public static Logger getLoggerFor(Class loggerClass) {
+    public static Logger getLoggerFor(Class<?> loggerClass) {
         String id;
         try {
             Class<?> defaultGoPluginActivator = loggerClass.getClassLoader().loadClass("com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator");
-            id = (String) getStaticField(defaultGoPluginActivator, "pluginId");
+            id = (String) getPluginIdStaticFieldFrom(defaultGoPluginActivator);
         } catch (Exception e) {
             id = "UNKNOWN";
             System.err.println("Could not find pluginId for logger: " + loggerClass.toString());
@@ -43,7 +43,7 @@ public class Logger {
         return getLoggerFor(loggerClass, id);
     }
 
-    public static Logger getLoggerFor(Class loggerClass, String pluginId) {
+    public static Logger getLoggerFor(Class<?> loggerClass, String pluginId) {
         return new Logger(loggerClass.getName(), pluginId);
     }
 
@@ -73,7 +73,7 @@ public class Logger {
      * Messages to be logged in debug mode.
      *
      * @param message a string containing the message to be logged.
-     * @param throwable
+     * @param throwable error to be logged
      */
     public void debug(String message, Throwable throwable) {
         if (loggingService == null) {
@@ -155,7 +155,7 @@ public class Logger {
      * Messages to be logged in info mode.
      *
      * @param message a string containing the message to be logged.
-     * @param throwable
+     * @param throwable error to be lgoged
      */
     public void info(String message, Throwable throwable) {
         if (loggingService == null) {
@@ -237,7 +237,7 @@ public class Logger {
      * Messages to be logged in warn mode.
      *
      * @param message a string containing the message to be logged.
-     * @param throwable
+     * @param throwable error to be lgoged
      */
     public void warn(String message, Throwable throwable) {
         if (loggingService == null) {
@@ -319,7 +319,7 @@ public class Logger {
      * Messages to be logged in error mode.
      *
      * @param message a string containing the message to be logged.
-     * @param throwable
+     * @param throwable error to be lgoged
      */
     public void error(String message, Throwable throwable) {
         if (loggingService == null) {
@@ -384,13 +384,12 @@ public class Logger {
         loggingService.error(pluginId, loggerName, message, arguments);
     }
 
-    private static Object getStaticField(Class kls, String name) {
+    private static Object getPluginIdStaticFieldFrom(Class<?> kls) {
         try {
-            Field field = kls.getDeclaredField(name);
+            Field field = kls.getDeclaredField("pluginId");
             field.setAccessible(true);
             return field.get(null);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

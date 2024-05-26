@@ -33,9 +33,10 @@ import java.util.List;
 import java.util.Map;
 
 class ElasticAgentExtensionConverterV4 {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    private CapabilitiesConverterV4 capabilitiesConverterV4 = new CapabilitiesConverterV4();
-    private AgentMetadataConverterV4 agentMetadataConverterV4 = new AgentMetadataConverterV4();
+    private static final Gson FORCED_EXPOSE_GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    private static final Gson DEFAULT_GSON = new Gson();
+    private final CapabilitiesConverterV4 capabilitiesConverterV4 = new CapabilitiesConverterV4();
+    private final AgentMetadataConverterV4 agentMetadataConverterV4 = new AgentMetadataConverterV4();
 
     String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier) {
         JsonObject jsonObject = new JsonObject();
@@ -44,7 +45,7 @@ class ElasticAgentExtensionConverterV4 {
         jsonObject.addProperty("environment", environment);
         jsonObject.add("job_identifier", jobIdentifierJson(jobIdentifier));
 
-        return GSON.toJson(jsonObject);
+        return FORCED_EXPOSE_GSON.toJson(jsonObject);
     }
 
     String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration, JobIdentifier identifier) {
@@ -53,23 +54,20 @@ class ElasticAgentExtensionConverterV4 {
         jsonObject.addProperty("environment", environment);
         jsonObject.add("agent", agentMetadataConverterV4.toDTO(elasticAgent).toJSON());
         jsonObject.add("job_identifier", jobIdentifierJson(identifier));
-        return GSON.toJson(jsonObject);
+        return FORCED_EXPOSE_GSON.toJson(jsonObject);
     }
-
 
     List<PluginConfiguration> getElasticProfileMetadataResponseFromBody(String responseBody) {
         return PluginProfileMetadataKeys.fromJSON(responseBody).toPluginConfigurations();
     }
 
-
     String getProfileViewResponseFromBody(String responseBody) {
-        String template = (String) new Gson().fromJson(responseBody, Map.class).get("template");
+        String template = (String) DEFAULT_GSON.fromJson(responseBody, Map.class).get("template");
         if (StringUtils.isBlank(template)) {
             throw new RuntimeException("Template was blank!");
         }
         return template;
     }
-
 
     Image getImageResponseFromBody(String responseBody) {
         return new ImageDeserializer().fromJSON(responseBody);
@@ -81,27 +79,24 @@ class ElasticAgentExtensionConverterV4 {
             jsonObject.add("job_identifier", jobIdentifierJson(identifier));
         }
         jsonObject.addProperty("elastic_agent_id", elasticAgentId);
-        return GSON.toJson(jsonObject);
+        return FORCED_EXPOSE_GSON.toJson(jsonObject);
     }
-
 
     ValidationResult getElasticProfileValidationResultResponseFromBody(String responseBody) {
         return new JSONResultMessageHandler().toValidationResult(responseBody);
     }
-
 
     String validateElasticProfileRequestBody(Map<String, String> configuration) {
         JsonObject properties = mapToJsonObject(configuration);
         return new GsonBuilder().serializeNulls().create().toJson(properties);
     }
 
-
     Boolean shouldAssignWorkResponseFromBody(String responseBody) {
-        return new Gson().fromJson(responseBody, Boolean.class);
+        return DEFAULT_GSON.fromJson(responseBody, Boolean.class);
     }
 
     String getStatusReportView(String responseBody) {
-        String statusReportView = (String) new Gson().fromJson(responseBody, Map.class).get("view");
+        String statusReportView = (String) DEFAULT_GSON.fromJson(responseBody, Map.class).get("view");
         if (StringUtils.isBlank(statusReportView)) {
             throw new RuntimeException("Status Report is blank!");
         }
@@ -109,7 +104,7 @@ class ElasticAgentExtensionConverterV4 {
     }
 
     Capabilities getCapabilitiesFromResponseBody(String responseBody) {
-        final CapabilitiesDTO capabilitiesDTO = GSON.fromJson(responseBody, CapabilitiesDTO.class);
+        final CapabilitiesDTO capabilitiesDTO = FORCED_EXPOSE_GSON.fromJson(responseBody, CapabilitiesDTO.class);
         return capabilitiesConverterV4.fromDTO(capabilitiesDTO);
     }
 
@@ -137,7 +132,7 @@ class ElasticAgentExtensionConverterV4 {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("elastic_agent_id", elasticAgentId);
         jsonObject.add("job_identifier", jobIdentifierJson(jobIdentifier));
-        return GSON.toJson(jsonObject);
+        return FORCED_EXPOSE_GSON.toJson(jsonObject);
     }
 }
 

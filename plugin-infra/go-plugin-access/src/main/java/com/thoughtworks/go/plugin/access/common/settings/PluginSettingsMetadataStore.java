@@ -27,7 +27,7 @@ import java.util.Set;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class PluginSettingsMetadataStore extends PluginPreferenceStore<PluginSettingsMetadata> {
-    private static PluginSettingsMetadataStore metadataStore = new PluginSettingsMetadataStore();
+    private static final PluginSettingsMetadataStore metadataStore = new PluginSettingsMetadataStore();
 
     private PluginSettingsMetadataStore() {
     }

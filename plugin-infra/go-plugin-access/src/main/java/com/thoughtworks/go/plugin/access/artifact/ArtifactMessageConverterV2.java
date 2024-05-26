@@ -39,7 +39,8 @@ import java.util.Optional;
 
 public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
     public static final String VERSION = ArtifactExtensionConstants.V2;
-    private static final Gson GSON = new GsonBuilder().serializeNulls().create();
+    private static final Gson NULLS_GSON = new GsonBuilder().serializeNulls().create();
+    public static final Gson DEFAULT_GSON = new Gson();
 
     @Override
     public String publishArtifactMessage(ArtifactPlan artifactPlan, ArtifactStore artifactStore, String agentWorkingDirectory,
@@ -49,7 +50,7 @@ public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
         messageObject.put("artifact_plan", artifactPlan.getPluggableArtifactConfiguration());
         messageObject.put("agent_working_directory", agentWorkingDirectory);
         messageObject.put("environment_variables", environmentVariables);
-        return GSON.toJson(messageObject);
+        return NULLS_GSON.toJson(messageObject);
     }
 
     private Map getArtifactStore(ArtifactStore artifactStore) {
@@ -76,7 +77,7 @@ public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
 
     @Override
     public String validateConfigurationRequestBody(Map<String, String> configuration) {
-        return GSON.toJson(configuration);
+        return NULLS_GSON.toJson(configuration);
     }
 
     @Override
@@ -91,7 +92,7 @@ public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
         map.put("fetch_artifact_configuration", configuration.getConfigurationAsMap(true));
         map.put("artifact_metadata", metadata);
         map.put("agent_working_directory", agentWorkingDirectory);
-        return GSON.toJson(map);
+        return NULLS_GSON.toJson(map);
     }
 
     @Override
@@ -106,12 +107,12 @@ public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
 
     @Override
     public List<FetchArtifactEnvironmentVariable> getFetchArtifactEnvironmentVariablesFromResponseBody(String responseBody) {
-        List<FetchArtifactEnvironmentVariable> result = new Gson().fromJson(responseBody, new TypeToken<List<FetchArtifactEnvironmentVariable>>() {}.getType());
+        List<FetchArtifactEnvironmentVariable> result = DEFAULT_GSON.fromJson(responseBody, new TypeToken<List<FetchArtifactEnvironmentVariable>>() {}.getType());
         return Optional.ofNullable(result).orElse(List.of());
     }
 
     private String getTemplateFromResponse(String responseBody, String message) {
-        String template = (String) new Gson().fromJson(responseBody, Map.class).get("template");
+        String template = (String) DEFAULT_GSON.fromJson(responseBody, Map.class).get("template");
         if (StringUtils.isBlank(template)) {
             throw new RuntimeException(message);
         }

@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo.v2;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList;
@@ -51,6 +52,7 @@ import java.util.Map;
 public class JsonMessageHandler2_0 implements JsonMessageHandler {
     public static final int CURRENT_CONTRACT_VERSION = 11;
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler2_0.class);
+    private static final Gson GSON = new GsonBuilder().create();
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;
 
@@ -105,7 +107,7 @@ public class JsonMessageHandler2_0 implements JsonMessageHandler {
     }
 
     private ResponseScratch parseResponseForMigration(String responseBody) {
-        return new GsonBuilder().create().fromJson(responseBody, ResponseScratch.class);
+        return GSON.fromJson(responseBody, ResponseScratch.class);
     }
 
     @Override

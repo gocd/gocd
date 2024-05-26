@@ -67,17 +67,18 @@ public class JobStatusListenerIntegrationTest {
     @Autowired
     private JobInstanceService jobInstanceService;
 
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String PIPELINE_NAME = "mingle";
     private static final String STAGE_NAME = "dev";
     private static final String JOB_NAME = "unit";
     private static final String UUID = "AGENT1";
-    private Pipeline savedPipeline;
-
-    JobIdentifier jobIdentifier = new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME);
     private static final AgentIdentifier AGENT1 = new AgentIdentifier(UUID, "IPADDRESS", UUID);
+
+    private final JobIdentifier jobIdentifier = new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME);
+
+    private Pipeline savedPipeline;
     private JobStatusListener listener;
     private StageStatusTopic stageStatusTopic;
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
 
     @BeforeEach

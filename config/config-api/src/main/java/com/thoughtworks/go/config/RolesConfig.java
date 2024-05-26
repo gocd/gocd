@@ -182,7 +182,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return rolesConfig;
     }
 
-    private static Map<String, Class<? extends Role>> ROLE_FILTER_MAP = new LinkedHashMap<>();
+    private static final Map<String, Class<? extends Role>> ROLE_FILTER_MAP = new LinkedHashMap<>();
 
     static {
         ROLE_FILTER_MAP.put("gocd", RoleConfig.class);

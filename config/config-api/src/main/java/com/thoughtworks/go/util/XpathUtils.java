@@ -26,13 +26,12 @@ import java.nio.charset.StandardCharsets;
 
 public class XpathUtils {
 
-    private static XPathFactory xPathFactory = XPathFactory.newInstance();
+    private static final XPathFactory XPATH = XPathFactory.newInstance();
 
-    public static String evaluate(File file, String xpath)
-            throws XPathExpressionException, IOException {
-        try(InputStream stream = new FileInputStream(file)) {
+    public static String evaluate(File file, String xpath) throws XPathExpressionException, IOException {
+        try (InputStream stream = new FileInputStream(file)) {
             InputSource inputSource = new InputSource(stream);
-            return evaluate(xPathFactory, inputSource, xpath);
+            return evaluate(inputSource, xpath);
         }
     }
 
@@ -57,9 +56,9 @@ public class XpathUtils {
         return nodeExists(new ByteArrayInputStream(xmlPartial.getBytes(StandardCharsets.UTF_8)), xpath);
     }
 
-    private static String evaluate(XPathFactory factory, InputSource inputSource, String xpath)
-            throws XPathExpressionException {
-        XPathExpression expression = factory.newXPath().compile(xpath);
+    private static String evaluate(InputSource inputSource, String xpath)
+        throws XPathExpressionException {
+        XPathExpression expression = XpathUtils.XPATH.newXPath().compile(xpath);
         return expression.evaluate(inputSource).trim();
     }
 

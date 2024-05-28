@@ -99,7 +99,7 @@ ADD docker-entrypoint.d /docker-entrypoint.d
 # which can result in running low on inodes if there are lots of pipelines
 # 00:00 every sunday
 RUN \
-  echo '0 0 * * 0 /docker-entrypoint.d/cleanup-old-artifacts.sh' > /tmp/crontab.tmp && \
+  echo '0 0 * * 0 /cron/cleanup-old-artifacts.sh' > /tmp/crontab.tmp && \
   crontab -u go /tmp/crontab.tmp
 
 COPY --from=gocd-server-unzip /go-server /go-server

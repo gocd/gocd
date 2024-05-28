@@ -101,6 +101,7 @@ if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
     echo "wrapper.java.additional.${tanuki_index}=${GOCD_SERVER_JVM_OPTS[$array_index]}" >> /go-server/wrapper-config/wrapper-properties.conf
   done
 
+  # start crond. custom cron scripts are at /cron
   crond
 fi
 

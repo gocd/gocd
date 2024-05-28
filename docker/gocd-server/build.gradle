@@ -94,7 +94,7 @@ subprojects {
 
       project.exec {
           workingDir = project.rootProject.projectDir
-          commandLine = ["cp", "-rv", "./buildSrc/src/main/resources/gocd-docker-server/docker-entrypoint.d", task.gitRepoDirectory]
+          commandLine = ["cp", "-rv", "./buildSrc/src/main/resources/gocd-docker-server/docker-entrypoint.d", "./buildSrc/src/main/resources/gocd-docker-server/cron", task.gitRepoDirectory]
           standardOutput = System.out
           errorOutput = System.err
       }

@@ -94,6 +94,7 @@ RUN \
 
 ADD docker-entrypoint.sh /
 ADD docker-entrypoint.d /docker-entrypoint.d
+ADD cron /cron
 
 # gocd doesn't have the ability to delete old artifacts by date
 # which can result in running low on inodes if there are lots of pipelines

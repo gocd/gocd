@@ -102,7 +102,7 @@ if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
   done
 
   # start crond. custom cron scripts are at /cron
-  crond
+  pgrep --exact crond || crond
 fi
 
 try exec /usr/local/sbin/tini -g -- "$@"

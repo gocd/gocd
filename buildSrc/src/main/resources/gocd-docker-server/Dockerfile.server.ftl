@@ -41,6 +41,16 @@ RUN curl --fail --location --silent --show-error "https://download.gocd.org/bina
     mv -v /go-server-${goVersion}/wrapper/wrapper.jar /go-server/wrapper/ && \
     chown -R ${r"${UID}"}:0 /go-server && chmod -R g=u /go-server
 
+# gcloud's required for at least our cleanup-old-artifacts cronjob
+ENV GCLOUD_VERSION=461.0.0 \
+    GCLOUD_SHA256=066d84a50e8d3e83f8f32096f0aa88b947fe747280dd3b16991540ab79895ae5
+ADD https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_VERSION}-linux-x86_64.tar.gz /tmp/gcloud.tar.gz
+RUN echo "${GCLOUD_SHA256}  /tmp/gcloud.tar.gz" | sha256sum -c - && \
+    mkdir /google-cloud-sdk && \
+    tar -xf /tmp/gcloud.tar.gz -C /google-cloud-sdk --strip 1 && \
+    chown -R ${UID}:0 /google-cloud-sdk && \
+    chmod -R g=u /google-cloud-sdk
+
 FROM ${distro.getBaseImageLocation(distroVersion)}
 ARG TARGETARCH
 
@@ -104,9 +114,14 @@ RUN \
   crontab -u go /tmp/crontab.tmp
 
 COPY --from=gocd-server-unzip /go-server /go-server
+COPY --from=gocd-server-unzip /google-cloud-sdk /home/go/google-cloud-sdk
 # ensure that logs are printed to console output
 COPY --chown=go:root logback-include.xml /go-server/config/logback-include.xml
 COPY --chown=go:root install-gocd-plugins git-clone-config /usr/local/sbin/
+
+ENV PATH="/home/go/google-cloud-sdk/bin:${PATH}"
+ENV CLOUDSDK_PYTHON="/usr/bin/python3"
+RUN su go -c "gcloud --help"
 
 RUN chown -R go:root /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh && \
     chmod -R g=u /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh

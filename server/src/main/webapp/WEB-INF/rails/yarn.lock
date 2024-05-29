@@ -6054,7 +6054,7 @@ __metadata:
     url-parse: "npm:^1.5.10"
     uuid: "npm:^9.0.1"
     webpack: "npm:^4.47.0"
-    webpack-build-notifier: "npm:^2.3.0"
+    webpack-build-notifier: "npm:^3.0.0"
     webpack-cli: "npm:^4.10.0"
     what-input: "npm:^5.2.12"
   languageName: unknown
@@ -8288,17 +8288,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-notifier@npm:9.0.1":
-  version: 9.0.1
-  resolution: "node-notifier@npm:9.0.1"
+"node-notifier@npm:10.0.1":
+  version: 10.0.1
+  resolution: "node-notifier@npm:10.0.1"
   dependencies:
     growly: "npm:^1.3.0"
     is-wsl: "npm:^2.2.0"
-    semver: "npm:^7.3.2"
+    semver: "npm:^7.3.5"
     shellwords: "npm:^0.1.1"
-    uuid: "npm:^8.3.0"
+    uuid: "npm:^8.3.2"
     which: "npm:^2.0.2"
-  checksum: 10/a561e52e7141299eedde21210890e746f41f6077714c564d8b74d5473529b280640164a07ba9ec0a493a45e333219e878c412ab6a8ddb070e48e930f7a7c7373
+  checksum: 10/b238ffe16fd3b14df4c021e7d2a64483a3ac549b22d93e3c0bcfd9557a12d1c370ce6d8889308bc9c31c7464d99b224e7056dbd8cf4fb37b0f6296185972774a
   languageName: node
   linkType: hard
 
@@ -11986,7 +11986,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^8.3.0":
+"uuid@npm:^8.3.2":
   version: 8.3.2
   resolution: "uuid@npm:8.3.2"
   bin:
@@ -12085,13 +12085,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-build-notifier@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "webpack-build-notifier@npm:2.3.0"
+"webpack-build-notifier@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "webpack-build-notifier@npm:3.0.0"
   dependencies:
-    node-notifier: "npm:9.0.1"
-    strip-ansi: "npm:^6.0.0"
-  checksum: 10/62e087279ed63f53210dff6fd2f8c73ab725d1bfdacc49e92d99bbfa113e43ced590867c61452214010b80f4ff545a3f11f74d4c8c7c9524340caf9018e22b9c
+    node-notifier: "npm:10.0.1"
+    strip-ansi: "npm:^6.0.1"
+  peerDependencies:
+    webpack: ^5.0.0
+  checksum: 10/b34ae3205076b843424e383acd2629268ee2e9ed908ac01df4ded1d92e88a829acb403db320322f7ffd74f96e075aba4ff2da4aa13ae0607b8b21f584fede2d8
   languageName: node
   linkType: hard
 

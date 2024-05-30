@@ -7,7 +7,7 @@ gcloud_logging=/proc/1/fd/2  # stderr of our root process
 exec >& >(logger -st "[$(basename $0)]" | tee "$gcloud_logging")
 HERE="$(dirname "$0")"
 
-. "$HERE/.tfvars"
+. /docker-entrypoint.d/.tfvars
 PATH="$PATH:$HOME/prefix/google-cloud-sdk/bin"
 dest="$tf_backup_bucket/gocd-artifact-archive"
 

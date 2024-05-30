@@ -100,6 +100,9 @@ if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
     tanuki_index=$((array_index + 100))
     echo "wrapper.java.additional.${tanuki_index}=${GOCD_SERVER_JVM_OPTS[$array_index]}" >> /go-server/wrapper-config/wrapper-properties.conf
   done
+
+  # start crond. custom cron scripts are at /cron
+  pgrep --exact crond || crond
 fi
 
 try exec /usr/local/sbin/tini -g -- "$@"

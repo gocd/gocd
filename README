@@ -6,6 +6,8 @@ brew install openjdk@17
 cd server/src/main/webapp/WEB-INF/rails && yarn run webpack-watch
 
 # build server docker image
+# template: buildSrc/src/main/resources/gocd-docker-server/Dockerfile.server.ftl
+# output: docker/gocd-server/target/alpine-3.18/docker-gocd-server/Dockerfile
 # ./gradlew serverGenericZip
 ./gradlew -PdockerBuildLocalZip :docker:gocd-server:alpine-3.18:docker
 

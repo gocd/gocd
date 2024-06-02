@@ -49,7 +49,7 @@ final Map<String, String> libraries = [
   dom4j               : 'org.dom4j:dom4j:2.1.4',
   ehcache             : 'net.sf.ehcache.internal:ehcache-core:2.11.0.11.8', // See https://repo.terracotta.org/maven2/net/sf/ehcache/internal/ehcache-core/maven-metadata.xml
   felix               : 'org.apache.felix:org.apache.felix.framework:7.0.5',
-  freemarker          : 'org.freemarker:freemarker:2.3.32',
+  freemarker          : 'org.freemarker:freemarker:2.3.33',
   gradleDownload      : 'de.undercouch:gradle-download-task:5.6.0',
   grolifant           : 'org.ysb33r.gradle:grolifant-herd:3.0.1',
   gson                : 'com.google.code.gson:gson:2.11.0',

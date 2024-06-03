@@ -14,20 +14,23 @@ dest="$tf_backup_bucket/gocd-artifact-archive"
 main() {
     set -x
 
-    : "Collecting the following artifact files older than 30 days:"
+    : "Collecting the following artifacts belonging to pipeline runs older than 30 days:"
     # rather than -exec zip archive.zip {} + which can run into exec length limits
     # we assume no linebreaks in file names and just go with piping -print
+    # maxdepth 2 and -type d is because there's a massive amount of files if you only do -type f:
+    # /godata/artifacts/pipelines/example/9388/pipeline-complete/1/pipeline-complete/cruise-output/console.log
+    # /godata/artifacts/pipelines/example/9388/deploy-primary/1/deploy/cruise-output/console.log
+    # and just having /godata/artifacts/pipelines/example/9388 makes things go a lot faster
     dt="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-    find /godata/artifacts/pipelines/ -type f -mtime +30 -print > files.txt
-    zip "${dt}.zip" -@ < files.txt
+    /bin/busybox find /godata/artifacts/pipelines/ -maxdepth 2 -type d -mtime +30 -print > dirs.txt
+    /bin/busybox tar c -z -f "{dt}.tgz" -T dirs.txt
 
     # gsutil is deprecated: https://cloud.google.com/storage/docs/gsutil#should-you-use
     : "Uploading to GCS bucket ${dest}."
-    gcloud storage cp "${dt}.zip" "$dest" && rm "${dt}.zip"
+    gcloud storage cp "{dt}.tgz" "$dest" && rm "{dt}.tgz"
 
     : "Deleting from disk:"
-    xargs rm -v < files.txt
-    find /godata/artifacts/pipelines/ -type d -empty -delete
+    xargs rm -rv < dirs.txt
 }
 
 main "$@"

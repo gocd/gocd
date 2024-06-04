@@ -139,6 +139,37 @@ enum Distro implements DistroBehavior {
     }
   },
 
+  almalinux {
+    @Override
+    Set<Architecture> getSupportedArchitectures() {
+      [Architecture.x64, Architecture.aarch64]
+    }
+
+    @Override
+    List<String> getBaseImageUpdateCommands(DistroVersion v) {
+      return [
+        "echo 'fastestmirror=1' >> /etc/dnf/dnf.conf",
+        "echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf",
+        "microdnf upgrade -y",
+      ]
+    }
+
+    @Override
+    List<String> getInstallPrerequisitesCommands(DistroVersion v) {
+      return [
+        "microdnf install -y git-core openssh-clients bash unzip curl-minimal procps-ng coreutils-single glibc-langpack-en tar",
+        "microdnf clean all",
+        "rm -rf var/cache/dnf",
+      ]
+    }
+    @Override
+    List<DistroVersion> getSupportedVersions() {
+      return [ // See https://endoflife.date/almalinux
+        new DistroVersion(version: '9', releaseName: '9-minimal', eolDate: parseDate('2032-05-31')),
+      ]
+    }
+  },
+
   debian {
     @Override
     Set<Architecture> getSupportedArchitectures() {

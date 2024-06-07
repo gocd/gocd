@@ -64,7 +64,7 @@ GEM
       public_suffix (>= 2.0.2, < 6.0)
     bigdecimal (3.1.8)
     bigdecimal (3.1.8-java)
-    builder (3.2.4)
+    builder (3.3.0)
     capybara (3.40.0)
       addressable
       matrix

@@ -339,6 +339,9 @@ subprojects {
         module("commons-logging:commons-logging") {
           replacedBy(project.deps.slf4jJcl, "Replace commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html")
         }
+        module("org.jruby:jruby-core") {
+          replacedBy("org.jruby:jruby-complete", "Prefer JRuby Complete rather than just Core")
+        }
       }
       components {
         // workaround for dom4j Gradle metadata optional dependency issues to avoid it pulling in

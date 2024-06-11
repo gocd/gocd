@@ -256,7 +256,9 @@ dependencies {
   api project.deps.dom4j
 
   implementation project.deps.jruby
-  implementation project.deps.rack
+  implementation(project.deps.rack) {
+    exclude(group: 'javax.activation') // Appears to be incorrectly scoped dependency, see https://github.com/jruby/jruby-rack/pull/258
+  }
 
   implementation project.deps.springOrm
   api project.deps.springWeb

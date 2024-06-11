@@ -41,8 +41,6 @@ dependencies {
   }
   implementation project(path: ':jetty', configuration: 'runtimeElements')
   implementation project.deps.servletApi
-  implementation project.deps.jruby
-  implementation project.deps.rack
   implementation project.deps.bouncyCastle
   implementation project.deps.slf4jApi
   runtimeOnly project.deps.logback

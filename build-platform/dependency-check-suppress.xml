@@ -102,13 +102,6 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    GoCD does not use bcrypt from Spring Security, so does not seem vulnerable to https://nvd.nist.gov/vuln/detail/CVE-2022-22976
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
-    <cve>CVE-2022-22976</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
     GoCD does not use RegexRequestMatchers from Spring Security with a value of '.' as required by https://nvd.nist.gov/vuln/detail/CVE-2022-22978
     to be vulnerable to this issue.
     ]]></notes>

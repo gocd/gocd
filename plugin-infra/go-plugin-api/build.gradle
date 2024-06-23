@@ -60,6 +60,7 @@ publishing {
   publications {
     mavenJava(MavenPublication) {
       groupId = 'cd.go.plugin'
+      from components.java
 
       versionMapping {
         usage('java-runtime') {

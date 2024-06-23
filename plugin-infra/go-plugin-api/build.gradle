@@ -62,10 +62,10 @@ publishing {
       groupId = 'cd.go.plugin'
       from components.java
 
-      versionMapping {
-        usage('java-runtime') {
-          fromResolutionResult()
-        }
+      // Clear the dependencyManagement and compileOnly dependencies
+      pom.withXml {
+        asNode().dependencyManagement.replaceNode {}
+        asNode().dependencies.replaceNode {}
       }
     }
   }

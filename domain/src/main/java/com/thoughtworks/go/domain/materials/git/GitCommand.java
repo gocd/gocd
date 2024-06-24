@@ -165,6 +165,7 @@ public class GitCommand extends SCMCommand {
         cleanAllUnversionedFiles(outputStreamConsumer);
         removeSubmoduleSectionsFromGitConfig(outputStreamConsumer);
         resetHard(outputStreamConsumer, revision);
+        resetSubmodules(outputStreamConsumer);
         checkoutAllModifiedFilesInSubmodules(outputStreamConsumer);
         updateSubmoduleWithInit(outputStreamConsumer, shallow);
         cleanAllUnversionedFiles(outputStreamConsumer);
@@ -442,6 +443,12 @@ public class GitCommand extends SCMCommand {
 
     private Matcher matchResultLine(String resultLine) {
         return GIT_DIFF_TREE_PATTERN.matcher(resultLine);
+    }
+
+    private void resetSubmodules(ConsoleOutputStreamConsumer outputStreamConsumer) {
+        log(outputStreamConsumer, "Reset submodules");
+        List<String> submoduleForEachRecursive = submoduleForEachRecursive(List.of("git", "reset", "--hard"));
+        runOrBomb(gitWd().withArgs(submoduleForEachRecursive));
     }
 
     private void checkoutAllModifiedFilesInSubmodules(ConsoleOutputStreamConsumer outputStreamConsumer) {

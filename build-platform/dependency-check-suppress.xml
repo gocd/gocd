@@ -22,7 +22,7 @@
     GoCD does not use Spring's ServiceExporter in a vulnerable way, as described in https://nvd.nist.gov/vuln/detail/CVE-2016-1000027
     https://github.com/spring-projects/spring-framework/issues/24434 and https://blog.gypsyengineer.com/en/security/detecting-dangerous-spring-exporters-with-codeql.html
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
     <cve>CVE-2016-1000027</cve>
   </suppress>
 
@@ -30,7 +30,7 @@
     <notes><![CDATA[
     This appears to be a false positive. Vulnerability is only reported against Spring `5.2.0` to `5.2.3` (not 4.3)
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
     <vulnerabilityName>CVE-2020-5397</vulnerabilityName>
   </suppress>
   <suppress>
@@ -40,7 +40,7 @@
     This is because in Spring 4.3 all of these log statements are at TRACE level, which are very unlikely to be enabled
     for a GoCD instance in production, and not in the default configuration
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
     <vulnerabilityName>CVE-2021-22060</vulnerabilityName>
   </suppress>
 
@@ -50,7 +50,7 @@
     deployment, GoCD uses Jetty rather than Tomcat, and does not have the vulnerable classloader from Tomcat
     required to exploit the vulnerability.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
     <cve>CVE-2022-22965</cve>
   </suppress>
   <suppress>
@@ -58,7 +58,7 @@
     GoCD does not allow SpEL expressions to be supplied by users anywhere that can be found, so we do not seem to be
     vulnerable to these issues.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
     <cve>CVE-2022-22950</cve>
     <cve>CVE-2023-20861</cve>
     <vulnerabilityName>CVE-2023-20863</vulnerabilityName>
@@ -68,7 +68,7 @@
     GoCD is not affected by this as we do not use disallowedFieldPatterns on DataBinders as required to trigger the issue
     as documented in https://spring.io/blog/2022/04/13/spring-framework-data-binding-rules-vulnerability-cve-2022-22968
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
     <cve>CVE-2022-22968</cve>
   </suppress>
   <suppress>
@@ -76,16 +76,16 @@
     GoCD is not vulnerable to the default as described at https://nvd.nist.gov/vuln/detail/CVE-2022-22970 as we do not
     rely on data binding for dealing with MultipartFile or javax.servlet.Part objects into models.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
     <cve>CVE-2022-22970</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
-    According to https://spring.io/security/cve-2024-22243 / https://spring.io/security/cve-2024-22259 / https://spring.io/security/cve-2024-22262
+    According to https://spring.io/security/cve-2024-22243 / https://spring.io/security/cve-2024-22262
     these only affect applications that use UriComponentsBuilder along with validation checks on the host. GoCD and its dependencies
     don't use UriComponentsBuilder at all.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@.*$</packageUrl>
     <cve>CVE-2024-22243</cve>
     <cve>CVE-2024-22259</cve>
     <cve>CVE-2024-22262</cve>
@@ -97,7 +97,7 @@
     subject to this defect, since it does not alter the security context in the manner required to elevate privileges
     in a small portion of the application and potentially be subject to this defect.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
     <cve>CVE-2021-22112</cve>
   </suppress>
   <suppress>
@@ -105,23 +105,23 @@
     GoCD does not use RegexRequestMatchers from Spring Security with a value of '.' as required by https://nvd.nist.gov/vuln/detail/CVE-2022-22978
     to be vulnerable to this issue.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
     <cve>CVE-2022-22978</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
     According to https://spring.io/security/cve-2023-20862 this affects 5.7 but not "earlier unsupported versions" so there is no
-    reason to believe it affects Spring Security 4.x and thus seems a false positive.
+    reason to believe it affects Spring Security 4.x and thus seems an OSSIndex false positive.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@4.*$</packageUrl>
-    <cve>CVE-2023-20862</cve>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(web|config)@4.*$</packageUrl>
+    <vulnerabilityName>CVE-2023-20862</vulnerabilityName>
   </suppress>
   <suppress>
     <notes><![CDATA[
     According to https://spring.io/security/cve-2024-22257 this only affects applications that use AuthenticatedVoter which
     GoCD does not use.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@4.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-core@4.*$</packageUrl>
     <cve>CVE-2024-22257</cve>
   </suppress>
 
@@ -131,7 +131,7 @@
     GoCD is not subject to this defect, since at time of writing we do not use literals on the Criteria API (it's also
     unclear whether older Hibernate versions are subject to the same defect)
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-(core|ehcache)@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate-(core|ehcache)@.*$</packageUrl>
     <cve>CVE-2019-14900</cve>
   </suppress>
   <suppress>
@@ -139,7 +139,7 @@
     From review of https://nvd.nist.gov/vuln/detail/CVE-2020-25638 and https://bugzilla.redhat.com/show_bug.cgi?id=1881353
     GoCD is not subject to this defect, because `hibernate.use_sql_comments` is left as the default (false) value.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-(core|ehcache)@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate-(core|ehcache)@.*$</packageUrl>
     <cve>CVE-2020-25638</cve>
   </suppress>
 
@@ -172,7 +172,7 @@
     GoCD is not affected by the issue claimed at https://github.com/quartz-scheduler/quartz/issues/943 and https://nvd.nist.gov/vuln/detail/CVE-2023-39017
     because there is no way to affect contents of JobDataMaps, and GoCD does not use JMS in this way either.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.quartz-scheduler/quartz@.*$</packageUrl>
     <cve>CVE-2023-39017</cve>
   </suppress>
 
@@ -180,7 +180,7 @@
    <notes><![CDATA[
     GoCD is not affected by https://nvd.nist.gov/vuln/detail/CVE-2023-36479 since it does not use CgiServlet or CGI at all.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-servlets@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-servlets@.*$</packageUrl>
     <cve>CVE-2023-36479</cve>
   </suppress>
 
@@ -212,7 +212,7 @@
     <notes><![CDATA[
     Suppress false positive vulnerabilities from test code that sits inside Javascript node_modules
     ]]></notes>
-    <filePath regex="true">^.*/node_modules/.*/(test|tests|cucumber|templates)/.*\.js$</filePath>
+    <filePath regex="true">^.*/node_modules/.*/(test|tests)/.*\.js$</filePath>
     <vulnerabilityName regex="true">.*</vulnerabilityName>
   </suppress>
 
@@ -220,7 +220,7 @@
     <notes><![CDATA[
     Suppress false positive vulnerabilities from test JS code that sits inside Ruby gems
     ]]></notes>
-    <filePath regex="true">^.*/gems/.*/(htmlunit|capybara)/.*\.js$</filePath>
+    <filePath regex="true">^.*/gems/.*/capybara/.*\.js$</filePath>
     <vulnerabilityName regex="true">.*</vulnerabilityName>
   </suppress>
 

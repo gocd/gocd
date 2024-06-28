@@ -177,6 +177,14 @@
   </suppress>
 
   <suppress>
+    <notes><![CDATA[
+    False positive - JUnit is not the same as 1E Platform. See https://github.com/jeremylong/DependencyCheck/issues/6743
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.junit\..*/junit-.*@.*$</packageUrl>
+    <cpe>cpe:/a:1e:platform</cpe>
+  </suppress>
+
+  <suppress>
    <notes><![CDATA[
     GoCD is not affected by https://nvd.nist.gov/vuln/detail/CVE-2023-36479 since it does not use CgiServlet or CGI at all.
     ]]></notes>

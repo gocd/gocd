@@ -1982,10 +1982,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mithril@npm:2.2.6":
-  version: 2.2.6
-  resolution: "@types/mithril@npm:2.2.6"
-  checksum: 10/0350d32523626d867b4327bb7d4a1924d16a364a60dca833b3085ff77cc2a5f6099d5f1e026d21d87f89811fad3ddad8cd0d8228da45f4a082c348c8982340d2
+"@types/mithril@npm:2.2.7":
+  version: 2.2.7
+  resolution: "@types/mithril@npm:2.2.7"
+  checksum: 10/2a055b493ef26b080b53927594f180a2d70a6d279a1eda115c9a029ac0a2edfd11fb677060aaa7f746f373b2560ff0aa92352ae89edcfcd5e0287b682be95f10
   languageName: node
   linkType: hard
 
@@ -5851,7 +5851,7 @@ __metadata:
     "@types/license-checker": "npm:^25.0.6"
     "@types/lodash": "npm:^4.17.6"
     "@types/mini-css-extract-plugin": "npm:^1.4.3"
-    "@types/mithril": "npm:2.2.6"
+    "@types/mithril": "npm:2.2.7"
     "@types/node": "npm:^20.14.10"
     "@types/optimize-css-assets-webpack-plugin": "npm:^5.0.8"
     "@types/prismjs": "npm:^1.26.4"

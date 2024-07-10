@@ -73,7 +73,7 @@ final Map<String, String> libraries = [
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',
   jruby               : 'org.jruby:jruby-complete:9.4.8.0',
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-fluent:3.4.0',
-  jsoup               : 'org.jsoup:jsoup:1.17.2',
+  jsoup               : 'org.jsoup:jsoup:1.18.1',
   junit5Bom           : 'org.junit:junit-bom:5.10.3',
   liquibase           : 'org.liquibase:liquibase-core:4.28.0',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.0.0',

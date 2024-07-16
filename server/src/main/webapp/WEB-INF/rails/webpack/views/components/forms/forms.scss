@@ -305,9 +305,7 @@ input[type="checkbox"].form-control {
 }
 
 .hide-password {
-  @include icon-after($type: $fa-var-eye-slash, $size: 14px, $top: 1px, $color: $icon-color) {
-    right: 30px;
-  }
+  @include icon-after($type: $fa-var-eye-slash, $size: 14px, $top: 1px, $margin: 3px, $color: $icon-color);
 
   input {
     padding-right: 25px;
@@ -315,9 +313,7 @@ input[type="checkbox"].form-control {
 }
 
 .show-password {
-  @include icon-after($type: $fa-var-eye, $size: 14px, $top: 1px, $color: $icon-color) {
-    right: 30px;
-  }
+  @include icon-after($type: $fa-var-eye, $size: 14px, $top: 1px, $margin: 4px, $color: $icon-color);
 
   input {
     padding-right: 25px;

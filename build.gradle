@@ -142,9 +142,9 @@ ext {
   packagedJavaVersion = new AdoptiumVersion(
     feature: 21,
     interim: 0,    // set to `null` for the first release of a new featureVersion
-    update : 3,    // set to `null` for the first release of a new featureVersion
+    update : 4,    // set to `null` for the first release of a new featureVersion
     patch  : null, // set to `null` for most releases. Patch releases are "exceptional".
-    build  : 9
+    build  : 7
   )
 }
 

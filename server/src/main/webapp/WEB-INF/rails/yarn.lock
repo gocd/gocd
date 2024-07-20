@@ -2921,18 +2921,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"array.prototype.toreversed@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "array.prototype.toreversed@npm:1.1.2"
-  dependencies:
-    call-bind: "npm:^1.0.2"
-    define-properties: "npm:^1.2.0"
-    es-abstract: "npm:^1.22.1"
-    es-shim-unscopables: "npm:^1.0.0"
-  checksum: 10/b4076d687ddc22c191863ce105d320cc4b0e1435bfda9ffeeff681682fe88fa6fe30e0d2ae94fa4b2d7fad901e1954ea4f75c1cab217db4848da84a2b5889192
-  languageName: node
-  linkType: hard
-
 "array.prototype.tosorted@npm:^1.1.4":
   version: 1.1.4
   resolution: "array.prototype.tosorted@npm:1.1.4"
@@ -4908,14 +4896,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react@npm:^7.34.4":
-  version: 7.34.4
-  resolution: "eslint-plugin-react@npm:7.34.4"
+"eslint-plugin-react@npm:^7.35.0":
+  version: 7.35.0
+  resolution: "eslint-plugin-react@npm:7.35.0"
   dependencies:
     array-includes: "npm:^3.1.8"
     array.prototype.findlast: "npm:^1.2.5"
     array.prototype.flatmap: "npm:^1.3.2"
-    array.prototype.toreversed: "npm:^1.1.2"
     array.prototype.tosorted: "npm:^1.1.4"
     doctrine: "npm:^2.1.0"
     es-iterator-helpers: "npm:^1.0.19"
@@ -4932,8 +4919,8 @@ __metadata:
     string.prototype.matchall: "npm:^4.0.11"
     string.prototype.repeat: "npm:^1.0.0"
   peerDependencies:
-    eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
-  checksum: 10/9ad948a109bcb5b1f2f3a8099fa9eab3bee3eb996786f783d1f17208f44c8e3dcbc4f9dab84aa70062c03a053a48a333ca03fee21d406d5732291d204e43d9ca
+    eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
+  checksum: 10/fa0a54f9ea249cf89d92bb5983bf7df741da3709a0ebd6a885a67d05413ed302fd8b64c9dc819b33df8efa6d8b06f5e56b1f6965a9be7cc3e79054da4dbae5ed
   languageName: node
   linkType: hard
 
@@ -5920,7 +5907,7 @@ __metadata:
     cross-env: "npm:^7.0.3"
     css-loader: "npm:^5.2.7"
     eslint: "npm:^8.57.0"
-    eslint-plugin-react: "npm:^7.34.4"
+    eslint-plugin-react: "npm:^7.35.0"
     eslint-webpack-plugin: "npm:^2.7.0"
     file-loader: "npm:^6.2.0"
     filesize: "npm:^10.1.4"

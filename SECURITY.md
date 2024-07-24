@@ -18,9 +18,9 @@ This represents the oldest versions which have **no known exploitable vulnerabil
 
 | Without known vulns             | Version                                           |
 | ------------------------------- | ------------------------------------------------- |
-| No >= **high** severity vulns   | [`22.1.0`](https://www.gocd.org/releases/#22-1-0) |
-| No >= **medium** severity vulns | [`23.1.0`](https://www.gocd.org/releases/#23-1-0) |
-| No known vulns of any severity  | [`24.1.0`](https://www.gocd.org/releases/#24-1-0) |
+| No >= **high** severity vulns   | [`22.1.0`+](https://www.gocd.org/releases/#22-1-0) |
+| No >= **medium** severity vulns | [`23.1.0`+](https://www.gocd.org/releases/#23-1-0) |
+| No known vulns of any severity  | [`24.1.0`+](https://www.gocd.org/releases/#24-1-0) |
 
 Please note that this does *not* mean that there are zero potential vulnerabilities known from GoCD's dependencies
 in this or subsequent versions. However where such vulnerabilities exist, none have been confirmed to be exploitable via GoCD

@@ -105,7 +105,7 @@
     "mockdate": "^3.0.5",
     "optimize-css-assets-webpack-plugin": "^6.0.1",
     "sass-embedded": "^1.77.8",
-    "sass-loader": "^10.5.2",
+    "sass-loader": "^15.0.0",
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.11",
     "speed-measure-webpack-plugin": "^1.5.0",

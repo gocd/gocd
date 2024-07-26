@@ -3007,10 +3007,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"awesomplete@npm:^1.1.5":
-  version: 1.1.5
-  resolution: "awesomplete@npm:1.1.5"
-  checksum: 10/9ec83f3e8cf43a85883b0ec0212ccdde79d99b5a53a02026bea83b9f3cafdf7559c8d981ed3f28b3a86f1aca029d646e80cad5be417f575bacbef5db42ad2279
+"awesomplete@npm:^1.1.7":
+  version: 1.1.7
+  resolution: "awesomplete@npm:1.1.7"
+  checksum: 10/a98203c9f9038b772ab105c48061f3302b735ad02c7d84b86233a3c6a6d1823b2e6588b5366f480d0262ed05715bc6fba6cda3b10adba2bfbdc34d64c1b59679
   languageName: node
   linkType: hard
 
@@ -5864,7 +5864,7 @@ __metadata:
     "@types/webpack": "npm:^4.41.38"
     add-matchers: "npm:^0.6.2"
     angular: "file:node-vendor/angular"
-    awesomplete: "npm:^1.1.5"
+    awesomplete: "npm:^1.1.7"
     babel-loader: "npm:^8.3.0"
     bourbon: "npm:~7.1.0"
     cache-loader: "npm:^4.1.0"

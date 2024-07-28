@@ -51,8 +51,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.9",
-    "@babel/eslint-parser": "^7.24.8",
-    "@babel/preset-env": "^7.24.8",
+    "@babel/eslint-parser": "^7.25.0",
+    "@babel/preset-env": "^7.25.0",
     "@babel/preset-react": "^7.24.7",
     "@types/awesomplete": "^1.1.15",
     "@types/fs-extra": "^11.0.4",

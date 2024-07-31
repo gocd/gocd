@@ -6043,7 +6043,7 @@ __metadata:
     jasmine-core: "npm:^5.2.0"
     jasmine-jquery: "npm:^2.1.1"
     jquery: "npm:^3.7.1"
-    karma: "npm:^6.4.3"
+    karma: "npm:^6.4.4"
     karma-chrome-launcher: "npm:^3.2.0"
     karma-firefox-launcher: "npm:^2.1.3"
     karma-html-reporter: "https://github.com/dtabuenc/karma-html-reporter.git#4247dc16129a9b90bb92f7f386515d4d8c1563c3"
@@ -7409,9 +7409,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"karma@npm:^6.4.3":
-  version: 6.4.3
-  resolution: "karma@npm:6.4.3"
+"karma@npm:^6.4.4":
+  version: 6.4.4
+  resolution: "karma@npm:6.4.4"
   dependencies:
     "@colors/colors": "npm:1.5.0"
     body-parser: "npm:^1.19.0"
@@ -7439,7 +7439,7 @@ __metadata:
     yargs: "npm:^16.1.1"
   bin:
     karma: bin/karma
-  checksum: 10/7fc194f5d4b0dae27e97375d0e005a7b74a6bee3c6ad676c3e21ec7c6309f32202d62cf0f0645ea99aa5adea455d79afe1d32e8aa28ac3c09609f16d0e2120ca
+  checksum: 10/170a11cd94391149671c2ebb90bddf4347d97d656feb6fc9a6e9b31062ecccc1515527ef93781ecadd643a8258403e42fc7252868d70e529ec7214cae8dc1c31
   languageName: node
   linkType: hard
 

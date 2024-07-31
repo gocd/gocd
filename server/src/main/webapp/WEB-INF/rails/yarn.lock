@@ -4364,7 +4364,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.4, debug@npm:^4.3.5, debug@npm:~4.3.1, debug@npm:~4.3.2, debug@npm:~4.3.4":
+"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.4, debug@npm:~4.3.1, debug@npm:~4.3.2, debug@npm:~4.3.4":
   version: 4.3.5
   resolution: "debug@npm:4.3.5"
   dependencies:
@@ -4382,6 +4382,18 @@ __metadata:
   dependencies:
     ms: "npm:^2.1.1"
   checksum: 10/d86fd7be2b85462297ea16f1934dc219335e802f629ca9a69b63ed8ed041dda492389bb2ee039217c02e5b54792b1c51aa96ae954cf28634d363a2360c7a1639
+  languageName: node
+  linkType: hard
+
+"debug@npm:^4.3.6":
+  version: 4.3.6
+  resolution: "debug@npm:4.3.6"
+  dependencies:
+    ms: "npm:2.1.2"
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 10/d3adb9af7d57a9e809a68f404490cf776122acca16e6359a2702c0f462e510e91f9765c07f707b8ab0d91e03bad57328f3256f5082631cefb5393d0394d50fb7
   languageName: node
   linkType: hard
 
@@ -6075,7 +6087,7 @@ __metadata:
     speed-measure-webpack-plugin: "npm:^1.5.0"
     stats-webpack-plugin: "npm:^0.7.0"
     style-loader: "npm:^2.0.0"
-    stylelint: "npm:^16.7.0"
+    stylelint: "npm:^16.8.1"
     stylelint-config-standard-scss: "npm:^13.1.0"
     stylelint-webpack-plugin: "npm:^2.5.0"
     thread-loader: "npm:^3.0.4"
@@ -9272,6 +9284,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss-resolve-nested-selector@npm:^0.1.4":
+  version: 0.1.4
+  resolution: "postcss-resolve-nested-selector@npm:0.1.4"
+  checksum: 10/c53a1aa453690dacb9a34d60afb994c828779ad20d0abb8d7b37639f1144c0fd34f91e112cb7061f606d0459371c12463dae5777d465d4418fd20db054deb465
+  languageName: node
+  linkType: hard
+
 "postcss-safe-parser@npm:^7.0.0":
   version: 7.0.0
   resolution: "postcss-safe-parser@npm:7.0.0"
@@ -9290,7 +9309,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-selector-parser@npm:^6.0.2, postcss-selector-parser@npm:^6.0.4, postcss-selector-parser@npm:^6.0.5, postcss-selector-parser@npm:^6.0.9, postcss-selector-parser@npm:^6.1.0":
+"postcss-selector-parser@npm:^6.0.2, postcss-selector-parser@npm:^6.0.4, postcss-selector-parser@npm:^6.0.5, postcss-selector-parser@npm:^6.0.9, postcss-selector-parser@npm:^6.1.0, postcss-selector-parser@npm:^6.1.1":
   version: 6.1.1
   resolution: "postcss-selector-parser@npm:6.1.1"
   dependencies:
@@ -9330,7 +9349,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.2.1, postcss@npm:^8.2.15, postcss@npm:^8.4.39":
+"postcss@npm:^8.2.1, postcss@npm:^8.2.15":
   version: 8.4.39
   resolution: "postcss@npm:8.4.39"
   dependencies:
@@ -9338,6 +9357,17 @@ __metadata:
     picocolors: "npm:^1.0.1"
     source-map-js: "npm:^1.2.0"
   checksum: 10/ad9c1add892c96433b9a5502878201ede4a20c4ce02d056251f61f8d9a3e5426dab3683fe5a086edfa78a1a19f2b4988c8cea02c5122136d29758cb5a17e2621
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.4.40":
+  version: 8.4.40
+  resolution: "postcss@npm:8.4.40"
+  dependencies:
+    nanoid: "npm:^3.3.7"
+    picocolors: "npm:^1.0.1"
+    source-map-js: "npm:^1.2.0"
+  checksum: 10/bdd01b55152e4be7b4a82b03dd22876e33ff6a038680d1b80a50405a5eccc10aff0f466a0e5e574bc476943b0ba120fbd5de7cde9f219bbf8efc011898f5f631
   languageName: node
   linkType: hard
 
@@ -11133,9 +11163,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^16.7.0":
-  version: 16.7.0
-  resolution: "stylelint@npm:16.7.0"
+"stylelint@npm:^16.8.1":
+  version: 16.8.1
+  resolution: "stylelint@npm:16.8.1"
   dependencies:
     "@csstools/css-parser-algorithms": "npm:^2.7.1"
     "@csstools/css-tokenizer": "npm:^2.4.1"
@@ -11147,7 +11177,7 @@ __metadata:
     cosmiconfig: "npm:^9.0.0"
     css-functions-list: "npm:^3.2.2"
     css-tree: "npm:^2.3.1"
-    debug: "npm:^4.3.5"
+    debug: "npm:^4.3.6"
     fast-glob: "npm:^3.3.2"
     fastest-levenshtein: "npm:^1.0.16"
     file-entry-cache: "npm:^9.0.0"
@@ -11164,10 +11194,10 @@ __metadata:
     micromatch: "npm:^4.0.7"
     normalize-path: "npm:^3.0.0"
     picocolors: "npm:^1.0.1"
-    postcss: "npm:^8.4.39"
-    postcss-resolve-nested-selector: "npm:^0.1.1"
+    postcss: "npm:^8.4.40"
+    postcss-resolve-nested-selector: "npm:^0.1.4"
     postcss-safe-parser: "npm:^7.0.0"
-    postcss-selector-parser: "npm:^6.1.0"
+    postcss-selector-parser: "npm:^6.1.1"
     postcss-value-parser: "npm:^4.2.0"
     resolve-from: "npm:^5.0.0"
     string-width: "npm:^4.2.3"
@@ -11178,7 +11208,7 @@ __metadata:
     write-file-atomic: "npm:^5.0.1"
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: 10/50e1c55670b02a8839e26c9d63b11820e0f1bcf108c76da17cde938bc9240377aa1622e5bfeb40e4590894d476c2e1fce6d7a6a90f3052c6ddd889797dbfd975
+  checksum: 10/834d10490866b8472047938790f68cdc5bd298057ef7bfcf3be2e56259a8d3d05cbb66eefa235d603652fee92126e74d737ad40012721556c54d707407cbf7f1
   languageName: node
   linkType: hard
 

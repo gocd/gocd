@@ -43,11 +43,11 @@ $label-color-env: #ffe099;
 }
 
 .spin {
-  @include icon-before($type: $fa-var-spinner, $margin: 0);
-
   display: inline-block;
   margin-right: 10px;
   animation: rotate 1s linear infinite;
+
+  @include icon-before($type: $fa-var-spinner, $margin: 0);
 
   @keyframes rotate {
     from {

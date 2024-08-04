@@ -24,12 +24,12 @@ $icon-hover-color: #000;
 $dropdown-button-content-z-index: 5;
 
 .agent-status {
-  @include icon-after($type: $fa-var-caret-down, $color: $icon-color);
-
   position: relative;
   text-decoration: none;
   color: $link-color;
   display: block;
+
+  @include icon-after($type: $fa-var-caret-down, $color: $icon-color);
 
   &::after {
     font-size: 10px;
@@ -183,12 +183,12 @@ $dropdown-button-content-z-index: 5;
 }
 
 .agent-analytics a {
-  @include icon-before($type: $fa-var-chart-bar);
-
   padding: 0;
   font-size: 14px;
   color: $icon-color;
   cursor: pointer;
+
+  @include icon-before($type: $fa-var-chart-bar);
 
   &:hover {
     color: $icon-hover-color;

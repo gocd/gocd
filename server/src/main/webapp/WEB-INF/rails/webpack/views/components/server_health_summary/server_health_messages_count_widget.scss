@@ -69,14 +69,18 @@
   @include hover-effect-for-top-menu;
   @include icon-before($fa-var-exclamation-circle, $margin: 0);
 
-  background-color: darken($failed, 20%);
-  display: flex;
-  padding: 5px 10px;
-  border-radius: $global-border-radius;
-  margin: 0 0 20px 0;
-  align-items: center;
-  color: $white;
-  cursor: pointer;
+  // stylelint-disable no-duplicate-selectors
+  & {
+    background-color: darken($failed, 20%);
+    display: flex;
+    padding: 5px 10px;
+    border-radius: $global-border-radius;
+    margin: 0 0 20px 0;
+    align-items: center;
+    color: $white;
+    cursor: pointer;
+  }
+  // stylelint-enable
 
   &::before {
     margin: 1px 10px 0 0;

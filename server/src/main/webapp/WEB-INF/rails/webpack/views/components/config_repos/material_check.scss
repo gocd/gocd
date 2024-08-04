@@ -83,13 +83,13 @@
 }
 
 @mixin material-check-button-icon($type, $colors: $icon-light-color, $size: 5px) {
+  font-size: 11px;
+
   @include icon-before($type: $type, $color: $colors, $size: 15px, $margin: 0) {
     display: inline-block;
     margin-right: $size;
     @content;
   }
-
-  font-size: 11px;
 }
 
 .material-check-success {

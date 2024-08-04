@@ -100,9 +100,9 @@ $console-icon-color: #fff;
 }
 
 .spinner {
-  @include icon-before($type: $fa-var-spinner);
-
   animation: spin 1500ms linear infinite;
+
+  @include icon-before($type: $fa-var-spinner);
 }
 
 @keyframes spin {
@@ -124,9 +124,9 @@ $console-icon-color: #fff;
 }
 
 .minus {
-  @include icon-before($type: $fa-var-minus);
-
   font-size: 7px;
+
+  @include icon-before($type: $fa-var-minus);
 }
 
 .plus {

@@ -259,11 +259,11 @@ $table-border: #e9edef;
 $icon-color: #647984;
 
 .search-bar {
-  @include icon-before($type: search);
-
   position: relative;
   margin-top: -6px;
   width: 350px;
+
+  @include icon-before($type: search);
 
   &::before {
     position: absolute;
@@ -570,9 +570,9 @@ $arrow-color: #000;
 }
 
 .has-build-details-drop-down {
-  @include icon-after($type: caret-down, $color: $dark-gray);
-
   position: relative;
+
+  @include icon-after($type: caret-down, $color: $dark-gray);
 
   &::after {
     font-size: 10px;
@@ -585,12 +585,12 @@ $arrow-color: #000;
 }
 
 .agent-analytics {
-  @include icon-before($type: chart-bar);
-
   padding: 0;
   font-size: 14px;
   color: #555;
   cursor: pointer;
+
+  @include icon-before($type: chart-bar);
 
   &:hover {
     color: #000;

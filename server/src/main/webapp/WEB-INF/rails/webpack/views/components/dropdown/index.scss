@@ -114,12 +114,12 @@ $c-dropdown-background: #fff;
 }
 
 .c-down-arrow {
-  @include icon-before($type: $fa-var-angle-down);
-
   position: absolute;
   right: 9px;
   top: 5px;
   cursor: pointer;
   z-index: $c-dropdown-arrow-z-index;
   font-size: 15px;
+
+  @include icon-before($type: $fa-var-angle-down);
 }

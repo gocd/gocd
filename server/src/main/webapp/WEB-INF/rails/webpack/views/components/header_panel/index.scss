@@ -98,11 +98,11 @@ $page-item-padding: 30px;
     }
 
     .value {
-      @include icon-after($fa-var-angle-double-right, $color: $icon-color, $margin: 3px 5px 0 10px);
-
       display: flex;
       font-weight: 600;
       font-size: 15px;
+
+      @include icon-after($fa-var-angle-double-right, $color: $icon-color, $margin: 3px 5px 0 10px);
     }
   }
 

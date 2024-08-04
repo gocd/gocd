@@ -129,8 +129,6 @@ $menu-hover: #3e3d3d;
     }
 
     &.server-health-summary a {
-      @include icon-before($failed-icon, $margin: 0);
-
       background-color: darken($failed, 20%);
       border-radius: 3px;
       line-height: 25px;
@@ -138,6 +136,8 @@ $menu-hover: #3e3d3d;
       padding-left: 30px;
       padding-right: 11px;
       position: relative;
+
+      @include icon-before($failed-icon, $margin: 0);
 
       &::before {
         position: absolute;
@@ -148,10 +148,10 @@ $menu-hover: #3e3d3d;
     }
 
     &.current-user {
-      @include icon-before($type: user);
-
       padding-left: 10px;
       position: relative;
+
+      @include icon-before($type: user);
 
       &::before {
         position: absolute;

@@ -19,10 +19,10 @@ $icon-color: #647984;
 $border-color: #ccc;
 
 .search-box-wrapper {
-  @include icon-before($type: $fa-var-search, $size: 14px, $top: 5px, $color: $icon-color) ;
-
   display: inline-block;
   position: relative;
+
+  @include icon-before($type: $fa-var-search, $size: 14px, $top: 5px, $color: $icon-color) ;
 
   &::before {
     position: absolute;

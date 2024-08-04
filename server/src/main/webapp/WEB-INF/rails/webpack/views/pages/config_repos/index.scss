@@ -20,11 +20,11 @@ $error-message-margin-bottom: 40px;
 $input-length-for-rules: 300px;
 
 @mixin header-icon($type, $color) {
+  display: block;
+
   @include icon-before($type: $type, $color: $color, $size: 25px, $margin: 0) {
     text-align: center;
   }
-
-  display: block;
 }
 
 @mixin key-pair-icon($type, $color) {
@@ -34,15 +34,15 @@ $input-length-for-rules: 300px;
 }
 
 .good-modification-icon {
-  @include key-pair-icon($type: $fa-var-check, $color: $success-txt);
-
   margin-right: 10px;
+
+  @include key-pair-icon($type: $fa-var-check, $color: $success-txt);
 }
 
 .error-last-modification-icon {
-  @include key-pair-icon($type: $fa-var-xmark, $color: $failed);
-
   margin-right: 10px;
+
+  @include key-pair-icon($type: $fa-var-xmark, $color: $failed);
 }
 
 // TODO: Why unqualified tag selector? When webpack compiles production bundle,
@@ -64,13 +64,13 @@ code {
 }
 
 @mixin fa-icon($type, $colors: $icon-light-color, $size: 5px) {
+  font-size: 11px;
+
   @include icon-before($type: $type, $color: $colors, $size: 15px, $margin: 0) {
     display: inline-block;
     margin-right: $size;
     @content;
   }
-
-  font-size: 11px;
 }
 
 .config-repo-success-state {

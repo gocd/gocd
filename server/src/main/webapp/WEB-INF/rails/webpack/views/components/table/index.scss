@@ -68,27 +68,27 @@ $draggable-row-color: #e2f7fa;
 }
 
 .sort-button {
-  @include icon-before($fa-var-sort);
-
   margin-left: 2px;
   cursor: pointer;
   color: $icon-color;
+
+  @include icon-before($fa-var-sort);
 }
 
 .sort-button-asc {
-  @include icon-before($fa-var-sort-up);
-
   margin-left: 2px;
   cursor: pointer;
   color: $icon-color;
+
+  @include icon-before($fa-var-sort-up);
 }
 
 .sort-button-desc {
-  @include icon-before($fa-var-sort-down);
-
   margin-left: 2px;
   cursor: pointer;
   color: $icon-color;
+
+  @include icon-before($fa-var-sort-down);
 }
 
 .in-active {
@@ -96,11 +96,10 @@ $draggable-row-color: #e2f7fa;
 }
 
 .drag-icon {
+  font-size: 12px;
+
   @include sort-cursor;
   @include grip-icon;
-
-  font-size: 12px;
-  color: $icon-drag;
 
   &:active {
     @include sort-cursor-active;

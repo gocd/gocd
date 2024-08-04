@@ -233,13 +233,13 @@ input[type="checkbox"].form-control {
 }
 
 .search-box-wrapper {
+  display: inline-block;
+  position: relative;
+
   @include icon-before($type: $fa-var-search, $size: 14px, $top: 5px, $color: $icon-color) {
     position: absolute;
     left: 10px;
   }
-
-  display: inline-block;
-  position: relative;
 
   .search-box-input {
     padding: 0 10px 0 40px;
@@ -264,13 +264,21 @@ input[type="checkbox"].form-control {
   .quick-add-button {
     @include button($background-color: $btn-secondary);
 
-    border-radius: 0 $global-border-radius $global-border-radius 0;
+    // stylelint-disable no-duplicate-selectors
+    & {
+      border-radius: 0 $global-border-radius $global-border-radius 0;
+    }
+    // stylelint-enable
   }
 
   .search-button {
     @include button($background-color: $btn-secondary);
 
-    border-radius: 0 $global-border-radius $global-border-radius 0;
+    // stylelint-disable no-duplicate-selectors
+    & {
+      border-radius: 0 $global-border-radius $global-border-radius 0;
+    }
+    // stylelint-enable
   }
 }
 

@@ -39,9 +39,9 @@ $icon-background: #e0dede;
 }
 
 .bell {
-  @include icon-before($fa-var-bell, $color: $header-text-color);
-
   font-size: 18px;
+
+  @include icon-before($fa-var-bell, $color: $header-text-color);
 
   @media (max-width: $screen-md-min) {
     float: left;

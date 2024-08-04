@@ -479,14 +479,15 @@ export class TextAreaField extends FormField<string, TextAreaFieldAttrs> {
 }
 
 export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr & PlaceholderAttr> {
+  inputType = "password";
 
   renderInputField(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
     const defaultAttributes = this.defaultAttributes(vnode.attrs);
     const showHidePassword  = vnode.attrs.property()!.isEditing() && !vnode.attrs.readonly
-      ? <span id="wrapper-input" className={classnames(this.css.hidePassword)} onclick={this.onClickOfShowHideIcon.bind(this, defaultAttributes.id)}/>
+      ? <span id="wrapper-input" className={classnames(this.inputType === "password" ? this.css.showPassword : this.css.hidePassword)} onclick={this.onClickOfShowHideIcon.bind(this, defaultAttributes.id)}/>
       : undefined;
     const input             = [
-      <input type="password"
+      <input type={this.inputType}
              className={classnames(this.css.formControl, this.css.inline)}
              {...defaultAttributes}
              {...this.bindingAttributes(vnode.attrs, "oninput", "value")}/>,
@@ -494,11 +495,12 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
     ];
 
     const callbackOnReset = () => {
-      const inputElement = document.getElementById((defaultAttributes.id));
-      inputElement?.setAttribute('type', 'password');
-      inputElement?.focus();
+      this.inputType = "password";
     };
-    return [input, PasswordField.resetOrOverride(vnode, callbackOnReset)];
+    const callbackOnChange = () => {
+      document.getElementById(defaultAttributes.id)?.focus();
+    };
+    return [input, PasswordField.resetOrChange(vnode, callbackOnReset, callbackOnChange)];
   }
 
   protected defaultAttributes(attrs: BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr): any {
@@ -529,47 +531,29 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
 
   }
 
-  private static resetOrOverride(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>, callbackOnReset: () => any) {
+  private static resetOrChange(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>, callbackOnReset: () => any, callbackOnChange: () => any) {
     if (vnode.attrs.property()!.isEditing()) {
       return <FormResetButton css={vnode.attrs.css}
                               readonly={vnode.attrs.readonly}
                               data-test-id="reset-input"
-                              onclick={vnode.attrs.property()!.resetToOriginal.bind(vnode.attrs.property())}>Reset</FormResetButton>;
+                              onclick={() => {
+                                vnode.attrs.property()!.resetToOriginal.call(vnode.attrs.property());
+                                callbackOnReset();
+                              }}>Reset</FormResetButton>;
     } else {
       return <FormResetButton css={vnode.attrs.css}
                               readonly={vnode.attrs.readonly}
                               data-test-id="change-input"
                               onclick={() => {
                                 vnode.attrs.property()!.edit.call(vnode.attrs.property());
-                                callbackOnReset();
+                                callbackOnChange();
                               }}>Change</FormResetButton>;
     }
   }
 
   private onClickOfShowHideIcon(id: string, e: MouseEvent) {
     e.stopPropagation();
-    const inputField = document.getElementById("wrapper-input")!;
-    if (inputField.classList.contains(this.css.hidePassword)) {
-      document.getElementById(id)?.setAttribute('type', 'text');
-      inputField.classList.remove(this.css.hidePassword);
-      inputField.classList.add(this.css.showPassword);
-    } else {
-      document.getElementById(id)?.setAttribute('type', 'password');
-      inputField.classList.remove(this.css.showPassword);
-      inputField.classList.add(this.css.hidePassword);
-    }
-  }
-}
-
-export class SimplePasswordField extends TextField {
-  renderInputField(vnode: m.Vnode<BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr>): any {
-    return (
-      <input type="password"
-             class={classnames(this.css.formControl)}
-             {...this.defaultAttributes(vnode.attrs)}
-             {...this.bindingAttributes(vnode.attrs, "oninput", "value")}
-      />
-    );
+    this.inputType = this.inputType === "password" ? "text" : "password";
   }
 }
 

@@ -47,24 +47,36 @@
 .btn-cancel {
   @include button($background-color: transparent);
 
-  color: $text-color;
+  // stylelint-disable no-duplicate-selectors
+  & {
+    color: $text-color;
+  }
+  // stylelint-enable
 }
 
 .btn-link {
   @include button($background-color: transparent);
 
-  color: $text-color;
-  padding: 0;
-  text-decoration: underline;
-  line-height: normal;
-  height: auto;
+  // stylelint-disable no-duplicate-selectors
+  & {
+    color: $text-color;
+    padding: 0;
+    text-decoration: underline;
+    line-height: normal;
+    height: auto;
+  }
+  // stylelint-enable
 }
 
 .btn-default {
   @include button($background-color: $white);
 
-  color: $text-color;
-  border: 1px solid $border-color;
+  // stylelint-disable no-duplicate-selectors
+  & {
+    color: $text-color;
+    border: 1px solid $border-color;
+  }
+  // stylelint-enable
 }
 
 .btn-small {
@@ -107,9 +119,9 @@
 }
 
 .icon-doc {
-  @include icon-before($type: $fa-var-file);
-
   margin-right: 10px;
+
+  @include icon-before($type: $fa-var-file);
 
   &::before {
     margin: 5px 10px 5px -5px;

@@ -61,8 +61,6 @@ $collapsible-header-height: 50px;
 }
 
 .collapse-header {
-  @include icon-after($fa-var-angle-right);
-
   position: relative;
   display: flex;
   flex-flow: column wrap;
@@ -70,6 +68,8 @@ $collapsible-header-height: 50px;
   box-sizing: border-box;
   cursor: pointer;
   min-height: $collapsible-header-height;
+
+  @include icon-after($fa-var-angle-right);
 
   @media (min-width: $screen-md) {
     justify-content: space-between;

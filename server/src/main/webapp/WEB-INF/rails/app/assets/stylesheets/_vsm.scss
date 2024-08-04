@@ -99,11 +99,11 @@ $btn-default: #d6d5d5;
 .vsm-entity.current.vsm-current-node {
   @extend %node-selection;
 
+  border: 2px solid $primary-color;
+
   &::before {
     color: $primary-color;
   }
-
-  border: 2px solid $primary-color;
 
   &:hover {
     border: 2px solid $primary-color !important;
@@ -194,17 +194,16 @@ $btn-default: #d6d5d5;
 .vsm-other-node {
   @extend %node-selection;
 
+  border: 2px solid $secondary-color;
+  box-shadow: 0 0 2px 2px #ccc;
+
   &::before {
     color: $secondary-color;
   }
 
-  border: 2px solid $secondary-color;
-
   &:hover {
     border: 2px solid $secondary-color !important;
   }
-
-  box-shadow: 0 0 2px 2px #ccc;
 
   &.material {
     &::before {
@@ -323,20 +322,20 @@ $btn-default: #d6d5d5;
 }
 
 .vsm-analytics-panel {
-  @include clearfix;
-
   padding: 10px;
   position: relative;
   display: none;
   background: $analytics-selection-panel-bg;
+
+  @include clearfix;
 }
 
 .analytics-close {
-  @include icon-before("times", $margin: 10, $size: 20px);
-
   width: 20px;
   background: transparent;
   margin-left: 20px;
+
+  @include icon-before("times", $margin: 10, $size: 20px);
 
   &::before {
     color: $icon-color;
@@ -397,12 +396,12 @@ $btn-default: #d6d5d5;
 }
 
 .icon_vsm_analytics {
-  @include icon-before($type: chart-bar);
-
   padding: 0;
   font-size: 15px;
   color: #fff;
   cursor: pointer;
+
+  @include icon-before($type: chart-bar);
 
   &::before {
     margin-right: 10px;

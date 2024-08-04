@@ -82,8 +82,6 @@ body {
 }
 
 .page_header {
-  @include clearfix;
-
   width: 100%;
   align-items: center;
   background: #fff;
@@ -94,6 +92,8 @@ body {
   position: fixed;
   top: 40px;
   z-index: 10;
+
+  @include clearfix;
 }
 
 .page_title {
@@ -247,12 +247,12 @@ body {
 }
 
 .pipeline_header {
-  @include clearfix;
-
   padding: 0 15px 10px 15px;
   margin: 10px 0 0;
   border-radius: 5px 5px 0 0;
   border-bottom: 1px solid $border-color;
+
+  @include clearfix;
 }
 
 .pipeline_name {
@@ -320,8 +320,6 @@ body {
 }
 
 .pipeline_locked {
-  @include icon-before($type: lock);
-
   overflow: hidden;
   width: 25px;
   height: 25px;
@@ -331,6 +329,8 @@ body {
   background: none;
   margin: 0;
   padding: 0;
+
+  @include icon-before($type: lock);
 
   &:focus {
     color: $icon-color;
@@ -349,11 +349,11 @@ body {
 }
 
 .edit_config {
-  @include icon-before($type: gear);
-
   overflow: hidden;
   font-size: $pipeline-icons-size;
   color: $icon-color;
+
+  @include icon-before($type: gear);
 
   &:hover {
     color: $icon-hover-color;
@@ -380,12 +380,12 @@ body {
 }
 
 .pipeline-analytics {
-  @include icon-before($type: chart-bar);
-
   padding: 0;
   font-size: $pipeline-icons-size;
   color: $icon-color;
   cursor: pointer;
+
+  @include icon-before($type: chart-bar);
 
   &:hover {
     color: $icon-hover-color;
@@ -557,10 +557,10 @@ body {
   padding: 0;
 
   .manual_gate {
-    @include icon-before(step-forward, 14px, 0);
-
     padding: 1px 5px;
     cursor: pointer;
+
+    @include icon-before(step-forward, 14px, 0);
 
     &.disabled {
       opacity: 0.5;
@@ -585,17 +585,17 @@ body {
     text-align: center;
 
     &.passed {
-      @include icon-before($passed-icon, $icon-size, 1.5px);
-
       background: $passed;
       color: #fff;
+
+      @include icon-before($passed-icon, $icon-size, 1.5px);
     }
 
     &.failed {
-      @include icon-before($failed-icon, $icon-size, 1.5px);
-
       background: $failed;
       color: #fff;
+
+      @include icon-before($failed-icon, $icon-size, 1.5px);
     }
 
     &.failing {
@@ -620,10 +620,10 @@ body {
     }
 
     &.cancelled {
-      @include icon-before($cancelled-icon, $icon-size, 1.5px);
-
       background: $building;
       color: $dark-gray;
+
+      @include icon-before($cancelled-icon, $icon-size, 1.5px);
     }
   }
 }
@@ -809,11 +809,11 @@ body {
   }
 
   .error-icon {
-    @include icon-before($failed-icon, $margin: 0, $color: #bd0404);
-
     position: relative;
     top: -6px;
     right: -6px;
+
+    @include icon-before($failed-icon, $margin: 0, $color: #bd0404);
   }
 }
 
@@ -977,10 +977,10 @@ $commits-width: 635px;
 }
 
 .search-icon {
-  @include icon-before($type: search);
-
   position: relative;
   margin-top: 3px;
+
+  @include icon-before($type: search);
 
   &::before {
     position: absolute;
@@ -1006,12 +1006,12 @@ $commits-width: 635px;
 }
 
 .search-in-progress {
-  @include icon-before($type: spinner, $margin: 0);
-  @include animation(spin 1s linear infinite);
-
   position: absolute;
   right: -16px;
   top: 10px;
+
+  @include animation(spin 1s linear infinite);
+  @include icon-before($type: spinner, $margin: 0);
 
   &::before {
     @include animation(spin 1s linear infinite);

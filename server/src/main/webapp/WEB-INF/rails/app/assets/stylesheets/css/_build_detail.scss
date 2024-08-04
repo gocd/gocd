@@ -545,29 +545,26 @@ a.collapse-all {
 .sidebar_history .passed .color_code_small {
   height: 14px;
   width: 14px;
+  color: #78c42d;
 
   @include icon-before($passed-icon, 14px, 0);
-
-  color: #78c42d;
 }
 
 .sidebar_history .failed .color_code_small {
   height: 14px;
   width: 14px;
+  color: #fa2d2d;
 
   @include icon-before($failed-icon, 14px, 0);
-
-  color: #fa2d2d;
 }
 
 .sidebar_history .cancelled .color_code_small {
   height: 14px;
   width: 14px;
-
-  @include icon-before(ban, 14px, 0);
-
   color: #ffc11b;
   text-align: center;
+
+  @include icon-before(ban, 14px, 0);
 }
 
 .sidebar_history .cancelled .color_code_small img {
@@ -608,10 +605,9 @@ a.collapse-all {
 
   .compress {
     display: inline;
+    padding: 5px 0;
 
     @include icon-before("compress", $line-height: 1.22em, $margin: 0 5px);
-
-    padding: 5px 0;
   }
 
   .expand {

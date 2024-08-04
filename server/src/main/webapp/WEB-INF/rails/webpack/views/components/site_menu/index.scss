@@ -107,11 +107,11 @@
   }
 
   .caret_down_icon {
-    @include icon-before($fa-var-caret-down);
-
     color: $icon-color;
     font-size: 13px;
     display: none;
+
+    @include icon-before($fa-var-caret-down);
 
     @media (min-width: $screen-md) {
       display: inline-block;
@@ -120,12 +120,11 @@
 }
 
 .site-nav_link {
-  @include hover-effect-for-top-menu;
-
-  text-decoration: none;
   text-transform: uppercase;
   font-size: 12px;
   font-weight: 600;
+
+  @include hover-effect-for-top-menu;
 
   @media (min-width: $screen-md) {
     font-size: 11px;
@@ -176,23 +175,22 @@
 }
 
 .site-sub-nav_item {
-  @media (max-width: $screen-md-min) {
-    line-height: normal;
-  }
-
   list-style-type: none;
   float: none;
   padding: 5px 0;
+
+  @media (max-width: $screen-md-min) {
+    line-height: normal;
+  }
 }
 
 .site-sub-nav_link {
-  @include hover-effect-for-top-menu;
-
-  text-decoration: none;
   display: inline-block;
   font-size: 13px;
   position: relative;
   white-space: nowrap;
+
+  @include hover-effect-for-top-menu;
 
   @media (max-width: $screen-md-min) {
     margin-bottom: 10px;

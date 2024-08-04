@@ -61,9 +61,9 @@ $button-color: #2d6ca2;
   }
 
   &.unknown {
-    @include icon-before($type: $fa-var-question, $color: $icon-light-color, $size: 35px, $margin: 0);
-
     background: $white;
+
+    @include icon-before($type: $fa-var-question, $color: $icon-light-color, $size: 35px, $margin: 0);
   }
 }
 

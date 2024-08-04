@@ -24,17 +24,18 @@
   border-top: 1px solid $line-color;
 
   .summary {
+    line-height: 25px;
+    cursor: pointer;
+    outline: none;
+    font-weight: 600;
+
     @include icon-before(
       $type: $fa-var-chevron-right,
       $color: $text-color,
       $size: 16px,
       $line-height: 25px,
-      $margin: 0 5px);
-
-    line-height: 25px;
-    cursor: pointer;
-    outline: none;
-    font-weight: 600;
+      $margin: 0 5px
+    );
   }
 
   .details {

@@ -20,11 +20,11 @@ $icon-light-color: #e6e6e6;
 $disabled-text-color: #999;
 
 @mixin header-icon($type, $color) {
+  display: block;
+
   @include icon-before($type: $type, $color: $color, $size: 25px) {
     text-align: center;
   }
-
-  display: block;
 }
 
 .plugin-icon {
@@ -124,12 +124,12 @@ $disabled-text-color: #999;
 }
 
 .cluster-profile-details-header {
-  @include icon-before($type: $fa-var-angle-right, $size: 16px);
-
   position: relative;
   padding-left: 17px;
   cursor: pointer;
   margin: 0 0 20px 0;
+
+  @include icon-before($type: $fa-var-angle-right, $size: 16px);
 
   &::before {
     position: absolute;

@@ -80,10 +80,10 @@
   }
 
   .spinner {
-    @include icon-before($type: $fa-var-spinner);
-
     position: absolute;
     left: -14px;
+
+    @include icon-before($type: $fa-var-spinner);
 
     &::before {
       animation: spin 1500ms linear infinite;

@@ -108,12 +108,12 @@ $c-dropdown-bg-hover: $main-nav-link-bg-hover;
 }
 
 .c-down-arrow {
-  @include icon-before($type: angle-down);
-
   position: absolute;
   right: 9px;
   top: 5px;
   cursor: pointer;
   z-index: 6;
   font-size: 15px;
+
+  @include icon-before($type: angle-down);
 }

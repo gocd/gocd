@@ -37,9 +37,9 @@ $collapse-icon-size: 25px;
 }
 
 .unknown-icon {
-  @include icon-before($type: $fa-var-question, $color: $icon-light-color, $size: 25px, $margin: 0);
-
   display: block;
+
+  @include icon-before($type: $fa-var-question, $color: $icon-light-color, $size: 25px, $margin: 0);
 }
 
 .no-margin {

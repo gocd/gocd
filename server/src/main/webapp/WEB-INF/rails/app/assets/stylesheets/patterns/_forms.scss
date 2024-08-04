@@ -113,11 +113,11 @@ label.inline {
 }
 
 .form_item_block {
+  padding-bottom: 15px;
+
   &.with-padding-top {
     padding-top: 15px;
   }
-
-  padding-bottom: 15px;
 }
 
 .form_item_block:last-child {

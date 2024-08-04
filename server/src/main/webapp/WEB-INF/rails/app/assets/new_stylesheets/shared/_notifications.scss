@@ -96,9 +96,9 @@
   }
 
   .bell {
-    @include icon-before(bell, $color: #fff);
-
     font-size: 18px;
+
+    @include icon-before(bell, $color: #fff);
   }
 }
 

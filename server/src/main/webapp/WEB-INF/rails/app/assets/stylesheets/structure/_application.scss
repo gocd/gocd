@@ -205,9 +205,11 @@ table td {
 .back_to_top {
   @include floating-button($bottom: 120px);
 
-  background: #000 image_url("back-to-top.png") no-repeat center 10px;
-  padding-top: 30px;
-  color: white;
+  & {
+    background: #000 image_url("back-to-top.png") no-repeat center 10px;
+    padding-top: 30px;
+    color: white;
+  }
 }
 
 

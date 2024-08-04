@@ -67,14 +67,14 @@
 }
 
 .icon-delete {
-  @include icon-before($type: $fa-var-xmark);
-
   border: none;
   display: inline;
   cursor: pointer;
   width: 22px;
   height: 22px;
   padding: 0;
+
+  @include icon-before($type: $fa-var-xmark);
 
   &::before {
     margin: 0;

@@ -62,6 +62,7 @@
   width: 40px;
   display: inline-block;
   margin: 10px 0 10px 20px;
+  background: url("../../../../app/assets/images/go_logo.svg") no-repeat 0 0;
 
   @media (min-width: $screen-md) {
     margin: 10px 0 10px 0;
@@ -70,8 +71,6 @@
   @media (min-width: $screen-lg) {
     margin-right: 10px;
   }
-
-  background: url("../../../../app/assets/images/go_logo.svg") no-repeat 0 0; // fixme
 }
 
 .site-navigation_left {
@@ -97,10 +96,6 @@ $bar-height: 3px;
 $bar-spacing: 7px;
 
 .navbtn {
-  @media (min-width: $screen-md) {
-    display: none;
-  }
-
   border: none;
   float: right;
   position: absolute;
@@ -111,6 +106,10 @@ $bar-spacing: 7px;
   height: $bar-height + ($bar-spacing * 2);
   cursor: pointer;
   background: transparent;
+
+  @media (min-width: $screen-md) {
+    display: none;
+  }
 }
 
 // responsive menu
@@ -164,10 +163,10 @@ $bar-spacing: 7px;
 }
 
 .need_help {
-  @include hover-effect-for-top-menu;
-
   line-height: 40px;
   display: block;
+
+  @include hover-effect-for-top-menu;
 
   @media (min-width: $screen-md) {
     margin: 0 7px 0 0;
@@ -216,12 +215,16 @@ $bar-spacing: 7px;
 .user_link {
   @include hover-effect-for-top-menu;
 
-  color: $header-text-color;
-  text-decoration: none;
-  padding: 0;
-  line-height: 40px;
-  display: inline-block;
-  font-size: 13px;
+  // stylelint-disable no-duplicate-selectors
+  & {
+    color: $header-text-color;
+    text-decoration: none;
+    padding: 0;
+    line-height: 40px;
+    display: inline-block;
+    font-size: 13px;
+  }
+  // stylelint-enable
 
   @media (min-width: $screen-md) {
     padding: 0 7px;
@@ -274,9 +277,9 @@ $bar-spacing: 7px;
 }
 
 .caret_down_icon {
-  @include icon-before($fa-var-caret-down);
-
   color: $icon-color;
+
+  @include icon-before($fa-var-caret-down);
 }
 
 .user_icon {

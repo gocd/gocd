@@ -54,7 +54,7 @@
     "@babel/eslint-parser": "^7.25.1",
     "@babel/preset-env": "^7.25.3",
     "@babel/preset-react": "^7.24.7",
-    "@types/awesomplete": "^1.1.15",
+    "@types/awesomplete": "^1.1.16",
     "@types/fs-extra": "^11.0.4",
     "@types/html-webpack-plugin": "^3.2.9",
     "@types/jasmine": "^5.1.4",

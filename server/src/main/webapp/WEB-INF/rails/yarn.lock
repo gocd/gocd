@@ -1977,12 +1977,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=10.0.0, @types/node@npm:^22.3.0":
+"@types/node@npm:*, @types/node@npm:>=10.0.0":
   version: 22.3.0
   resolution: "@types/node@npm:22.3.0"
   dependencies:
     undici-types: "npm:~6.18.2"
   checksum: 10/c31a798ed722a7417727f018ea6d621db038a613c626da643174cc6f3dcf4ce2fc9933a010aec289103d9564da2c2f9b054c9aa398828f00e17269a78c64d4ec
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.4.0":
+  version: 22.4.0
+  resolution: "@types/node@npm:22.4.0"
+  dependencies:
+    undici-types: "npm:~6.19.2"
+  checksum: 10/0b6ccc86856b8473f4d536491edc2ba21386d194219ee84024ef2b2ab054296f0b37a4f52719af797227132853cff065977992e353754a195cd86aea2e128cc7
   languageName: node
   linkType: hard
 
@@ -5873,7 +5882,7 @@ __metadata:
     "@types/lodash": "npm:^4.17.7"
     "@types/mini-css-extract-plugin": "npm:^1.4.3"
     "@types/mithril": "npm:2.2.7"
-    "@types/node": "npm:^22.3.0"
+    "@types/node": "npm:^22.4.0"
     "@types/optimize-css-assets-webpack-plugin": "npm:^5.0.8"
     "@types/prismjs": "npm:^1.26.4"
     "@types/shell-quote": "npm:^1.7.5"
@@ -11729,6 +11738,13 @@ __metadata:
   version: 6.18.2
   resolution: "undici-types@npm:6.18.2"
   checksum: 10/5c863f3cc65d012498cf0f8562b9d81e785c2b8b8a8d66343b9f4351ff40a3a29b500fbaea10667626fd91a32433d4c876810aafa5ab561369de702b62d4b323
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~6.19.2":
+  version: 6.19.6
+  resolution: "undici-types@npm:6.19.6"
+  checksum: 10/0ea9bc25762a86597d095b3772f6cec0bcabb796c339f7dfa2bd601c745a480289eb2939848dc285a56d4f94f50c475868160d8d6d3f54e823f1faf7ea9e9468
   languageName: node
   linkType: hard
 

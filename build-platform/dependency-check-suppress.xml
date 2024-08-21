@@ -61,7 +61,8 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
     <cve>CVE-2022-22950</cve>
     <cve>CVE-2023-20861</cve>
-    <vulnerabilityName>CVE-2023-20863</vulnerabilityName>
+    <cve>CVE-2023-20863</cve>
+    <cve>CVE-2024-38808</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -89,6 +90,15 @@
     <cve>CVE-2024-22243</cve>
     <cve>CVE-2024-22259</cve>
     <cve>CVE-2024-22262</cve>
+  </suppress>
+    <suppress>
+    <notes><![CDATA[
+    GoCD does not appear to parse/use ETags off Spring Framework endpoints. While it does use
+    ETags and If-Match/If-None-Match on resources it appears to only do so via Rails and Spark
+    framework endpoints, not anything that goes via Spring Web.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
+    <cve>CVE-2024-38809</cve>
   </suppress>
 
   <suppress>

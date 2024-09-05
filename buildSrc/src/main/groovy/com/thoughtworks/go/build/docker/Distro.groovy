@@ -110,7 +110,7 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<String> getBaseImageUpdateCommands(DistroVersion v) {
-      return []
+      return ['apk --no-cache upgrade']
     }
 
     @Override

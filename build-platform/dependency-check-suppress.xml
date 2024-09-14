@@ -198,7 +198,8 @@
     <notes><![CDATA[
     GoCD does not seem to be vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to use `.merge()`, `.sanitize()`, `.copy()`, `$resource` service, set `xlink:href`,
-    no use of `<select>` elements, no use of `usemap` attribute, not a Firefox add-on, and don't care about Internet Explorer)
+    no use of `<select>` elements, no use of `usemap` attribute, not a Firefox add-on, don't care about Internet Explorer,
+    and does not use `<source>` elements)
     ]]></notes>
     <packageUrl regex="true">^pkg:javascript/angularjs@.*$</packageUrl>
     <cve>CVE-2019-10768</cve>
@@ -208,6 +209,7 @@
     <cve>CVE-2023-26116</cve>
     <cve>CVE-2023-26117</cve>
     <cve>CVE-2023-26118</cve>
+    <cve>CVE-2024-8373</cve>
     <vulnerabilityName>Cross-Site Scripting via JSONP</vulnerabilityName>
     <vulnerabilityName>DOS in $sanitize</vulnerabilityName>
     <vulnerabilityName>The attribute usemap can be used as a security exploit</vulnerabilityName>

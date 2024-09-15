@@ -72,6 +72,14 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
     <cve>CVE-2022-22968</cve>
   </suppress>
+<suppress>
+    <notes><![CDATA[
+    GoCD does not seem to be affected as does not use the functional Spring web frameworks/RouterFunctions. Also, it 
+    runs on Jetty, which is noted as not vulnerable at https://spring.io/security/cve-2024-38816
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
+    <cve>CVE-2024-38816</cve>
+  </suppress>
   <suppress>
     <notes><![CDATA[
     GoCD is not vulnerable to the default as described at https://nvd.nist.gov/vuln/detail/CVE-2022-22970 as we do not

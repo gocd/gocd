@@ -54,7 +54,7 @@ final Map<String, String> libraries = [
   grolifant           : 'org.ysb33r.gradle:grolifant-herd:4.0.0',
   gson                : 'com.google.code.gson:gson:2.11.0',
   guava               : 'com.google.guava:guava:33.3.0-jre',
-  h2                  : 'com.h2database:h2:1.4.200',
+  h2                  : 'com.h2database:h2:2.3.232',
   hamcrest            : 'org.hamcrest:hamcrest:3.0',
   hibernate           : 'org.hibernate:hibernate-ehcache:3.6.10.Final',
   jacksonBom          : 'com.fasterxml.jackson:jackson-bom:2.17.2',

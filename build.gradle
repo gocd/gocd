@@ -350,7 +350,7 @@ subprojects {
           details.allVariants {
             withDependencies {
               removeAll {
-                it.name in [ "jsr305", "checker-qual", "error_prone_annotations", "listenablefuture" ]
+                it.name in [ "jsr305", "checker-qual", "error_prone_annotations", "listenablefuture", "j2objc-annotations" ]
               }
             }
           }

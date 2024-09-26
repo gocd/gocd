@@ -224,14 +224,8 @@ dependencies {
 
   implementation project.deps.commonsCodec
   implementation project.deps.commonsDbcp
-  api(project.deps.hibernate) {
+  implementation(project.deps.hibernate) {
     exclude(module: 'ehcache-core')
-  }
-
-  if (project.deps.hibernate) {
-    // Required by Hibernate 3.6 but Hibernate declares as an 'optional' dependency.
-    // Remove for later Hibernate versions where it is declared as compulsory, so we can use a validated version
-    implementation project.deps.javassist
   }
   implementation project.deps.mybatis
   implementation project.deps.mybatisSpring
@@ -743,7 +737,7 @@ task verifyWar(type: VerifyJarTask) {
         "angus-core-${project.versions.angusMailSmtp}.jar",
         "animal-sniffer-annotations-1.9.jar",
         "ant-${project.versions.apacheAnt}.jar",
-        "antlr-2.7.6.jar",
+        "antlr-2.7.7.jar",
         "aopalliance-1.0.jar",
         "aspectjweaver-${project.versions.aspectj}.jar",
         "base-${project.version}.jar",
@@ -754,7 +748,6 @@ task verifyWar(type: VerifyJarTask) {
         "commandline-${project.version}.jar",
         "common-${project.version}.jar",
         "commons-codec-${project.versions.commonsCodec}.jar",
-        "commons-collections-${project.versions.commonsCollections}.jar",
         "commons-collections4-${project.versions.commonsCollections4}.jar",
         "commons-dbcp2-${project.versions.commonsDbcp}.jar",
         "commons-fileupload-${project.versions.commonsFileUpload}.jar",
@@ -784,10 +777,10 @@ task verifyWar(type: VerifyJarTask) {
         "gson-${project.versions.gson}.jar",
         "h2-${project.versions.h2}.jar",
         "hawtbuf-1.11.jar",
-        "hibernate-commons-annotations-3.2.0.Final.jar",
+        "hibernate-commons-annotations-4.0.5.Final.jar",
         "hibernate-core-${project.versions.hibernate}.jar",
         "hibernate-ehcache-${project.versions.hibernate}.jar",
-        "hibernate-jpa-2.0-api-1.0.1.Final.jar",
+        "hibernate-jpa-2.1-api-1.0.0.Final.jar",
         "httpclient-${project.versions.apacheHttpComponents}.jar",
         "httpcore-4.4.16.jar",
         "httpmime-${project.versions.apacheHttpComponents}.jar",
@@ -802,11 +795,14 @@ task verifyWar(type: VerifyJarTask) {
         "jakarta.servlet-api-${project.versions.servletApi}.jar",
         "jakarta.transaction-api-${project.versions.jakartaTransaction}.jar",
         "jakarta.xml.bind-api-4.0.2.jar",
+        "jandex-1.1.0.Final.jar",
         "javassist-${project.versions.javassist}.jar",
         "javax.inject-1.jar",
         "jaxb-core-${project.versions.jaxb}.jar",
         "jaxb-runtime-${project.versions.jaxb}.jar",
         "jaxen-${project.versions.jaxen}.jar",
+        "jboss-logging-3.1.3.GA.jar",
+        "jboss-logging-annotations-1.2.0.Beta1.jar",
         "jcl-over-slf4j-${project.versions.slf4jBom}.jar",
         "jdom2-${project.versions.jdom}.jar",
         "joda-time-${project.versions.jodaTime}.jar",
@@ -887,19 +883,6 @@ task licenseReportAggregate {
       ]
     ],
     [
-      moduleName    : 'antlr:antlr',
-      moduleVersion : '2.7.6',
-      moduleUrls    : [
-        "https://www.antlr.org"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'BSD-3-Clause',
-          moduleLicenseUrl: "https://spdx.org/licenses/BSD-3-Clause.html"
-        ]
-      ]
-    ],
-    [
       moduleName    : 'com.bazaarvoice.jolt:jolt-core',
       moduleVersion : project.versions.jolt,
       moduleUrls    : [
@@ -939,19 +922,6 @@ task licenseReportAggregate {
       ]
     ],
     [
-      moduleName    : 'org.hibernate.javax.persistence:hibernate-jpa-2.0-api',
-      moduleVersion : '1.0.1.Final',
-      moduleUrls    : [
-        "https://hibernate.org"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'Eclipse Distribution License - v1.0',
-          moduleLicenseUrl: "https://www.eclipse.org/org/documents/edl-v10.php"
-        ]
-      ]
-    ],
-    [
       moduleName    : 'jaxen:jaxen',
       moduleVersion : project.versions.jaxen,
       moduleUrls    : [
@@ -962,6 +932,19 @@ task licenseReportAggregate {
           // License is automatically detected as 0BSD by gradle-license-report, but appears to actually be BSD-3-Clause in nature
           moduleLicense   : 'BSD-3-Clause',
           moduleLicenseUrl: "https://spdx.org/licenses/BSD-3-Clause.html"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'org.javassist:javassist',
+      moduleVersion : project.versions.javassist,
+      moduleUrls    : [
+        "https://www.javassist.org/"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'Apache-2.0',
+          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
         ]
       ]
     ],

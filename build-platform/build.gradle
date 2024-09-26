@@ -36,8 +36,8 @@ dependencies {
     api project.deps.commonsCodec
     api project.deps.commonsIO
     api project.deps.commonsPool
-    api project.deps.commonsCollections
     api project.deps.jetBrainsAnnotations
+    api project.deps.javassist
     api project.deps.objenesis
   }
 

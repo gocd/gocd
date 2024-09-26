@@ -29,8 +29,8 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
@@ -61,7 +61,7 @@ public class PipelineRepository extends HibernateDaoSupport {
     }
 
 public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, final List<PipelineTimelineEntry> tempEntriesForRollback) {
-        getHibernateTemplate().execute(new HibernateCallback<>() {
+        getHibernateTemplate().execute(new HibernateCallback<Void>() {
             private static final int PIPELINE_NAME = 0;
             private static final int ID = 1;
             private static final int COUNTER = 2;
@@ -74,7 +74,7 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
             private static final int PMR_ID = 9;
 
             @Override
-            public Object doInHibernate(Session session) throws HibernateException {
+            public Void doInHibernate(Session session) throws HibernateException {
                 LOGGER.info("Start updating pipeline timeline");
                 List<Object[]> matches = retrieveTimeline(session, pipelineTimeline);
                 List<PipelineTimelineEntry> newPipelines = populateFrom(matches);

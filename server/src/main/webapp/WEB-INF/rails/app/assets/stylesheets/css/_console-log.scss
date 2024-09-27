@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "@fortawesome/fontawesome-free/scss/functions";
 @import "@fortawesome/fontawesome-free/scss/variables";
 @import "@fortawesome/fontawesome-free/scss/mixins";
@@ -26,9 +27,9 @@ $CONSOLE_CALLOUT: #ffa;
 $CONSOLE_CALLOUT_WHITE: #f0b400;
 $CONSOLE_INFO: grey;
 $CONSOLE_SETUP: #7992b0;
-$CONSOLE_SETUP_WHITE: darken($CONSOLE_SETUP, 13%);
+$CONSOLE_SETUP_WHITE: color.adjust($CONSOLE_SETUP, $lightness: -13%);
 $CONSOLE_SETUP_ERR: #a567a5;
-$CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
+$CONSOLE_SETUP_ERR_WHITE: color.adjust($CONSOLE_SETUP_ERR, $lightness: -10%);
 $PROGRESS_BAR_BG_SIZE: 70px;
 
 .console-area {
@@ -354,10 +355,10 @@ code {
 
   .ansi-bright-#{"" + $color}-fg {
     font-weight: bold;
-    color: lighten($color, 33%);
+    color: color.adjust($color, $lightness: 33%);
   }
 
   .ansi-bright-#{"" + $color}-bg {
-    background-color: lighten($color, 33%);
+    background-color: color.adjust($color, $lightness: 33%);
   }
 }

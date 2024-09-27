@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 
 $border-color: #ddd;
@@ -88,7 +89,7 @@ $border-color: #ddd;
 }
 
 .warning-icon {
-  @include icon-before($type: $fa-var-exclamation-circle, $color: darken($warning, 30%));
+  @include icon-before($type: $fa-var-exclamation-circle, $color: color.adjust($warning, $lightness: -30%));
 
   &::before {
     font-size: 20px;

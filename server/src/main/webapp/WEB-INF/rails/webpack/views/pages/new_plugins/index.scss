@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 
 $collapse-icon-size: 25px;
@@ -59,7 +60,7 @@ $collapse-icon-size: 25px;
 }
 
 .deprecation-warning-icon {
-  @include icon-before($type: $fa-var-info-circle, $color: darken($warning, 30%));
+  @include icon-before($type: $fa-var-info-circle, $color: color.adjust($warning, $lightness: -30%));
 
   &::before {
     font-size: 20px;

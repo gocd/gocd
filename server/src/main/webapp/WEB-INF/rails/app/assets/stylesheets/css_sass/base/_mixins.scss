@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
+
 /* CSS 3 Mixins*/
 
 @mixin box-shadow($top, $left, $blur, $color, $inset: false) {
@@ -41,19 +43,19 @@
   @include box-shadow(0, 1px, 2px, rgba(0, 0, 0, 0.2));
   color: $text_color !important;
   font-weight: bold;
-  border: solid 1px darken($color, 18%);
+  border: solid 1px color.adjust($color, $lightness: -18%);
   background: $color;
-  @include gradient(saturate($color, 15%), darken($color, 15%));
+  @include gradient(color.adjust($color, $saturation: 15%), color.adjust($color, $lightness: -15%));
   &:hover {
     text-decoration: none;
-    background: saturate($color, 10%);
-    @include gradient(saturate($color, 5%), darken($color, 5%));
+    background: color.adjust($color, $saturation: 10%);
+    @include gradient(color.adjust($color, $saturation: 5%), color.adjust($color, $lightness: -5%));
   }
   &:active {
     position: relative;
     top: 1px;
-    color: saturate($color, 15%);
-    @include gradient(saturate($color, 15%), lighten($color, 15%));
+    color: color.adjust($color, $saturation: 15%);
+    @include gradient(color.adjust($color, $saturation: 15%), color.adjust($color, $lightness: 15%));
   }
 }
 

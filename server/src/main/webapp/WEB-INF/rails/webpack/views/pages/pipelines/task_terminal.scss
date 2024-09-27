@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+@use "sass:color";
 @import "vals";
 @import "../../global/hack-font";
 
@@ -37,10 +37,10 @@ $info: #9999e6;
   .comment {
     margin: 0;
     padding: 2px;
-    color: lighten($text-color, 30%);
+    color: color.adjust($text-color, $lightness: 30%);
 
     strong {
-      color: lighten($text-color, 40%);
+      color: color.adjust($text-color, $lightness: 40%);
     }
   }
 
@@ -157,7 +157,7 @@ $info: #9999e6;
     .errors {
       white-space: normal;
       padding-top: 3px;
-      color: lighten($go-danger, 20%);
+      color: color.adjust($go-danger, $lightness: 20%);
       font-size: 11px;
       border-top: 2px dotted $go-danger;
 

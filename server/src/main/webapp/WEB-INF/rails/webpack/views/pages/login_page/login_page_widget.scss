@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 
 $boxshadow: rgba(0, 0, 0, 15%);
@@ -25,7 +26,7 @@ $opacity: 0.2;
   min-height: 300px;
 
   &::before {
-    background: lighten($go-primary, 10%);
+    background: color.adjust($go-primary, $lightness: 10%);
     content: "";
     display: block;
     width: 100px;
@@ -38,7 +39,7 @@ $opacity: 0.2;
   }
 
   &::after {
-    background: lighten($go-primary, 10%);
+    background: color.adjust($go-primary, $lightness: 10%);
     content: "";
     display: block;
     width: 100px;
@@ -65,7 +66,7 @@ $opacity: 0.2;
   border-radius: $global-border-radius;
 
   &::before {
-    background: lighten($go-primary, 10%);
+    background: color.adjust($go-primary, $lightness: 10%);
     content: "";
     display: block;
     width: 30px;
@@ -79,7 +80,7 @@ $opacity: 0.2;
   }
 
   &::after {
-    background: lighten($go-primary, 10%);
+    background: color.adjust($go-primary, $lightness: 10%);
     content: "";
     display: block;
     width: 30px;

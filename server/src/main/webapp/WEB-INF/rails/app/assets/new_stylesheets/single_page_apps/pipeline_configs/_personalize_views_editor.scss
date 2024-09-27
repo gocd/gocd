@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
+
 $personalize-modal-err-tooltip-bg: rgba($tooltip-background-color, 0.75);
 $view-top-bg: $section-bg;
 $icon-color: #647984;
@@ -395,7 +397,7 @@ $icon-color: #647984;
     transition: $transition;
     background: #fff;
     color: #333;
-    border-color: darken(#e9edef, 10%);
+    border-color: color.adjust(#e9edef, $lightness: -10%);
   }
 }
 

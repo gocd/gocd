@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 
 $page-item-padding: 30px;
@@ -39,11 +40,11 @@ $collapsible-header-height: 50px;
   }
 
   &[data-tag="a"]::before {
-    background-color: lighten($go-primary, 25%);
+    background-color: color.adjust($go-primary, $lightness: 25%);
   }
 
   &[data-tag="b"]::before {
-    background-color: lighten($go-secondary, 25%);
+    background-color: color.adjust($go-secondary, $lightness: 25%);
   }
 
   &.expanded {
@@ -56,7 +57,7 @@ $collapsible-header-height: 50px;
   }
 
   &.warning {
-    border-top: 1px solid darken($warning, 30%);
+    border-top: 1px solid color.adjust($warning, $lightness: -30%);
   }
 }
 

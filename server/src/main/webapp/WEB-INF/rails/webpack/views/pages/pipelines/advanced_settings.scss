@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 @import "../../../views/components/forms/forms";
 
@@ -63,7 +64,7 @@
     cursor: not-allowed;
 
     &::before {
-      color: lighten($text-color, 50%);
+      color: color.adjust($text-color, $lightness: 50%);
     }
   }
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 
 $global-border-color: $line-color;
@@ -25,7 +26,7 @@ $form-control-disabled-color: #d4d7da;
 $form-control-border-color: #80bdff;
 $form-control-background-color: #fff;
 $form-failed-color: $failed;
-$form-failed-field-background-color: lighten($form-failed-color, 35%);
+$form-failed-field-background-color: color.adjust($form-failed-color, $lightness: 35%);
 
 .form-header {
   background: $form-header-bg;

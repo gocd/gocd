@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+@use "sass:color";
 @import "../../global/common";
 @import "index";
 
@@ -29,8 +29,8 @@
 
   &:hover {
     color: $white;
-    background-color: darken($btn-primary, 10%);
-    border-color: darken($btn-primary, 10%);
+    background-color: color.adjust($btn-primary, $lightness: -10%);
+    border-color: color.adjust($btn-primary, $lightness: -10%);
   }
 }
 

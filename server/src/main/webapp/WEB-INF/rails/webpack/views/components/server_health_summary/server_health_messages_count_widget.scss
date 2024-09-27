@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 @import "../../global/measures";
 
@@ -71,7 +72,7 @@
 
   // stylelint-disable no-duplicate-selectors
   & {
-    background-color: darken($failed, 20%);
+    background-color: color.adjust($failed, $lightness: -20%);
     display: flex;
     padding: 5px 10px;
     border-radius: $global-border-radius;

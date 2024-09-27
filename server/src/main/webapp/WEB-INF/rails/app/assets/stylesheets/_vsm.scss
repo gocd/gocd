@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../new_stylesheets/shared/mixins";
 
 // Variables
@@ -51,7 +52,7 @@ $btn-default: #d6d5d5;
   stroke: #ccd5da;
 
   &.hovered {
-    stroke: darken(#ccd5da, 30%);
+    stroke: color.adjust(#ccd5da, $lightness: -30%);
   }
 }
 

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 // new theme for old pages in go.cd app
+@use "sass:color";
 @import "../new_stylesheets/shared/go-variables";
 @import "../new_stylesheets/shared/mixins";
 @import "../new_stylesheets/shared/common";
@@ -344,8 +345,8 @@ h1.entity_title {
 
 // css arrows
 
-$arrow-border-color: lighten(#000, 75%);
-$arrow-border-active-color: lighten(#000, 50%);
+$arrow-border-color: color.adjust(#000, $lightness: 75%);
+$arrow-border-active-color: color.adjust(#000, $lightness: 50%);
 
 .arrow {
   display: inline-block;
@@ -755,7 +756,7 @@ a.primary_link_as_button,
   border: 1px solid $go-primary;
 
   &:hover {
-    background-color: darken($go-primary, 4%) !important;
+    background-color: color.adjust($go-primary, $lightness: -4%) !important;
     background-image: none;
     font-size: rem-calc(13px);
   }
@@ -1151,7 +1152,7 @@ form#notification_form fieldset {
   min-width: 75px;
 
   &:hover {
-    color: darken($go-primary, 4%);
+    color: color.adjust($go-primary, $lightness: -4%);
   }
 }
 

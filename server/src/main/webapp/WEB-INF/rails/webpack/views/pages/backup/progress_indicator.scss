@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 
 .backup-message {
@@ -32,7 +33,7 @@
     top: 30px;
     bottom: 30px;
     content: "";
-    border-left: 2px dashed darken($line-color, 20%);
+    border-left: 2px dashed color.adjust($line-color, $lightness: -20%);
   }
 
   li {
@@ -48,7 +49,7 @@
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: darken($line-color, 10%);
+      background: color.adjust($line-color, $lightness: -10%);
       transform: translateY(-50%);
     }
 

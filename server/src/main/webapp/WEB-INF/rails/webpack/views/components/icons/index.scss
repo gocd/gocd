@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 
 $global-icon-size: 16px;
@@ -33,7 +34,7 @@ $console-icon-color: #fff;
   background: $icon-bg;
 
   &:hover {
-    color: lighten($icon-color, 100%);
+    color: color.adjust($icon-color, $lightness: 100%);
     transition: $transition;
     background: $icon-color;
   }

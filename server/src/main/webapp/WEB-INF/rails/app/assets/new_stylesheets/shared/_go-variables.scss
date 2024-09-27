@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
+
 $transition: all 0.3s ease-in-out;
 
 // colors
@@ -79,7 +81,7 @@ $artifact-plugin-message-background: #f6f6f6;
 // agents
 
 $agent-header-button-bg: $go-primary;
-$agents-btn-hover: darken($go-primary, 4%);
+$agents-btn-hover: color.adjust($go-primary, $lightness: -4%);
 
 // modal
 
@@ -88,8 +90,8 @@ $modal-header-bg: #eeeee9;
 // tabs
 
 $tab-header-bg: $go-secondary;
-$tab-header-bg-hover: lighten($tab-header-bg, 8%);
-$tab-bg: lighten($tab-header-bg, 5%);
+$tab-header-bg-hover: color.adjust($tab-header-bg, $lightness: 8%);
+$tab-bg: color.adjust($tab-header-bg, $lightness: 5%);
 $current-tab-bg: #fff;
 
 // main navigation
@@ -116,13 +118,13 @@ $user-link-bg: $go-white;
 // primary button
 
 $primary-btn-bg: $go-primary;
-$primary-btn-bg-hover: darken($go-primary, 10%);
+$primary-btn-bg-hover: color.adjust($go-primary, $lightness: -10%);
 
 // small  buttons
 
 $btn-bg: #666;
 $btn-txt: #fff;
-$btn-bg-hover: darken($btn-bg, 10%);
+$btn-bg-hover: color.adjust($btn-bg, $lightness: -10%);
 
 // light button
 

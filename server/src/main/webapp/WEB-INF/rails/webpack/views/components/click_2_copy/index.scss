@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @use "sass:color";
 @import "../../global/common";
 
@@ -23,21 +22,21 @@ $overlay-index: 10;
 .clip-button {
   background-color: $white;
   border-radius: $global-border-radius;
-  border: 1px solid darken($border-color, 30%);
+  border: 1px solid color.adjust($border-color, $lightness: -30%);
   margin: 0;
   padding: 4px;
   font-size: 18px;
   vertical-align: top;
   outline: none;
   user-select: none;
-  color: lighten($text-color, 25%);
+  color: color.adjust($text-color, $lightness: 25%);
   cursor: pointer;
 
   &:active,
   &:hover {
     outline: none;
     user-select: none;
-    background-color: darken($white, 10%);
+    background-color: color.adjust($white, $lightness: -10%);
   }
 
   &.icon-clip {
@@ -73,7 +72,7 @@ $overlay-index: 10;
     word-wrap: break-word;
     padding: 0 8px;
     border-radius: $global-border-radius;
-    border: 1px solid darken($border-color, 30%);
+    border: 1px solid color.adjust($border-color, $lightness: -30%);
     background-color: $white;
     font-size: 14px;
     vertical-align: middle;
@@ -117,11 +116,11 @@ $overlay-index: 10;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     border-color: $go-secondary;
-    color: lighten(desaturate($color: $go-secondary, $amount: 20%), 10%);
+    color: color.adjust(color.adjust($color: $go-secondary, $saturation: -20%), $lightness: 10%);
 
     &:active,
     &:hover {
-      background-color: lighten($go-secondary, 50%);
+      background-color: color.adjust($go-secondary, $lightness: 50%);
     }
   }
 }

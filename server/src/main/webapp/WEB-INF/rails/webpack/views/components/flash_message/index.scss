@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 
 .callout {
@@ -56,25 +57,25 @@
 
   &.success {
     background-color: $success;
-    color: darken($success, 50%);
-    border-color: darken($success, 10%);
+    color: color.adjust($success, $lightness: -50%);
+    border-color: color.adjust($success, $lightness: -10%);
   }
 
   &.warning {
     background-color: $warning;
-    color: darken($warning, 60%);
-    border-color: darken($warning, 10%);
+    color: color.adjust($warning, $lightness: -60%);
+    border-color: color.adjust($warning, $lightness: -10%);
   }
 
   &.info {
     background-color: $info;
-    color: darken($info, 50%);
-    border-color: darken($info, 10%);
+    color: color.adjust($info, $lightness: -50%);
+    border-color: color.adjust($info, $lightness: -10%);
   }
 
   &.alert {
     background-color: $alert;
-    color: darken($alert, 50%);
-    border-color: darken($alert, 10%);
+    color: color.adjust($alert, $lightness: -50%);
+    border-color: color.adjust($alert, $lightness: -10%);
   }
 }

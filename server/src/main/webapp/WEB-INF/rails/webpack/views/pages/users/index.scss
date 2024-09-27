@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 
 $spinner-wrapper-height: 100px;
@@ -313,8 +314,8 @@ $selected-table-row: #e2f7fa;
   border: 1px solid transparent;
   position: relative;
   background-color: $alert;
-  color: darken($alert, 50%);
-  border-color: darken($alert, 10%);
+  color: color.adjust($alert, $lightness: -50%);
+  border-color: color.adjust($alert, $lightness: -10%);
 
   p {
     margin: 0;

@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
+
 $menu-hover: #3e3d3d;
 
 .app-header {
@@ -129,7 +131,7 @@ $menu-hover: #3e3d3d;
     }
 
     &.server-health-summary a {
-      background-color: darken($failed, 20%);
+      background-color: color.adjust($failed, $lightness: -20%);
       border-radius: 3px;
       line-height: 25px;
       margin-top: 1px;

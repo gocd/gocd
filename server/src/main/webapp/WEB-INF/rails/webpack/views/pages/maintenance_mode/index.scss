@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 
 .maintenance-mode-widget {
@@ -82,7 +83,7 @@
   font-size: 14px;
   font-weight: 600;
   margin-left: 10px;
-  color: lighten($text-color, 40%);
+  color: color.adjust($text-color, $lightness: 40%);
 }
 
 .in-progress-subsystems {

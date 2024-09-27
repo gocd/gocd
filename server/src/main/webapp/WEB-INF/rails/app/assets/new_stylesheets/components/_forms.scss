@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
+
 [type="text"]:focus,
 [type="password"]:focus,
 [type="date"]:focus,
@@ -30,6 +32,6 @@
 textarea:focus {
   background-color: #f4f8f9;
   box-shadow: none;
-  border-color: darken($light-border, 10%);
+  border-color: color.adjust($light-border, $lightness: -10%);
   transition: all 0.3s ease-in-out;
 }

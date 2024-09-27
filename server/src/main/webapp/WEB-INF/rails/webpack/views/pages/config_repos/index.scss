@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:color";
 @import "../../global/common";
 @import "../../components/forms/forms";
 
@@ -193,7 +194,7 @@ input.form-control {
     font-weight: 400;
     font-size: 14px;
     font-style: italic;
-    color: lighten($text-color, 25%);
+    color: color.adjust($text-color, $lightness: 25%);
   }
 
   .ref {

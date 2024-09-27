@@ -53,7 +53,7 @@ public class ServerBackupRepository extends HibernateDaoSupport {
     }
 
     public ServerBackup save(ServerBackup serverBackup) {
-        getHibernateTemplate().save(serverBackup);
+        currentSession().save(serverBackup);
         return serverBackup;
     }
 
@@ -83,6 +83,6 @@ public class ServerBackupRepository extends HibernateDaoSupport {
     }
 
     public void update(ServerBackup serverBackup) {
-        getHibernateTemplate().update(serverBackup);
+        currentSession().update(serverBackup);
     }
 }

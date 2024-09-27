@@ -63,7 +63,7 @@ public class ConfigDbStateRepository extends HibernateDaoSupport {
                     stageArtifactCleanupProhibited = new StageArtifactCleanupProhibited(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stageConfig.name()));
                 }
                 stageArtifactCleanupProhibited.setProhibited(stageConfig.isArtifactCleanupProhibited());
-                getHibernateTemplate().saveOrUpdate(stageArtifactCleanupProhibited);
+                currentSession().saveOrUpdate(stageArtifactCleanupProhibited);
             }
         }
         return null;

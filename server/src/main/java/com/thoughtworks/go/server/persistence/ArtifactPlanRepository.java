@@ -40,7 +40,7 @@ public class ArtifactPlanRepository extends HibernateDaoSupport {
 
     public void save(ArtifactPlan artifactPlan) {
         if (artifactPlan != null) {
-            getHibernateTemplate().save(artifactPlan);
+            currentSession().save(artifactPlan);
         }
     }
 

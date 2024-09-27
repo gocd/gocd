@@ -224,7 +224,7 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
     public long saveSelectedPipelines(PipelineSelections pipelineSelections) {
         removePipelineSelectionFromCacheForUserId(pipelineSelections);
         removePipelineSelectionFromCacheForCookie(pipelineSelections);
-        getHibernateTemplate().saveOrUpdate(pipelineSelections);
+        currentSession().saveOrUpdate(pipelineSelections);
         return pipelineSelections.getId();
     }
 

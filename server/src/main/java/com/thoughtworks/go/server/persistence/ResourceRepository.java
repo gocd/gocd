@@ -39,7 +39,7 @@ public class ResourceRepository extends HibernateDaoSupport {
 
     public void save(Resource resource) {
         if (resource != null) {
-            getHibernateTemplate().save(resource);
+            getSessionFactory().getCurrentSession().save(resource);
         }
     }
 

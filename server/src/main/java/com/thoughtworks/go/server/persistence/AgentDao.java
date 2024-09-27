@@ -116,7 +116,7 @@ public class AgentDao extends HibernateDaoSupport {
                         throw new UnregisteredAgentException(format("Agent [%s] is not registered.", uuid), uuid);
                     }
                     agent.setCookie(cookie);
-                    getHibernateTemplate().saveOrUpdate(agent);
+                    currentSession().saveOrUpdate(agent);
 
                     final Agent updatedAgent = agent;
                     registerAfterCommitCallback(() -> clearCacheAndNotifyAgentEntityChangeListeners(key, updatedAgent));

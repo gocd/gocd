@@ -5631,7 +5631,7 @@ __metadata:
     lodash-inflection: "npm:^1.5.0"
     lru-cache: "npm:^7.18.3"
     mini-css-extract-plugin: "npm:^1.6.2"
-    mithril: "npm:^2.2.2"
+    mithril: "npm:^2.2.5"
     mockdate: "npm:^3.0.5"
     moment: "npm:^2.30.1"
     moment-duration-format: "npm:^2.3.2"
@@ -7574,14 +7574,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mithril@npm:^2.2.2":
-  version: 2.2.2
-  resolution: "mithril@npm:2.2.2"
-  dependencies:
-    ospec: "npm:4.0.0"
-  bin:
-    ospec: ospec/bin/ospec
-  checksum: 10/f9d915d0f002a79edd118e23178db8ae90618248bc6c5baf55e10550c463ff0e59a07ae18cadf0cdf5089666e1f23bc1c2b3aa12bff811e370d6e094b0c3ceb7
+"mithril@npm:^2.2.5":
+  version: 2.2.5
+  resolution: "mithril@npm:2.2.5"
+  checksum: 10/0f02f7fa6c1df84930d9cb6ed3530a76886e5834e834145b7e6c545167005ca2e6b2206401d98cefc3366c9cc8e554d4172efacc866835c7cfeb93f9317c6d3a
   languageName: node
   linkType: hard
 
@@ -8014,17 +8010,6 @@ __metadata:
     os-homedir: "npm:^1.0.0"
     os-tmpdir: "npm:^1.0.0"
   checksum: 10/779d261920f2a13e5e18cf02446484f12747d3f2ff82280912f52b213162d43d312647a40c332373cbccd5e3fb8126915d3bfea8dde4827f70f82da76e52d359
-  languageName: node
-  linkType: hard
-
-"ospec@npm:4.0.0":
-  version: 4.0.0
-  resolution: "ospec@npm:4.0.0"
-  dependencies:
-    glob: "npm:^7.1.3"
-  bin:
-    ospec: ./bin/ospec
-  checksum: 10/88513158f71ecee93e292998187e0ffdeeeac0d5aa191982f9380561627eb0dc594755294423a1b61554eb8330b5405cc08a72eebcefecd7853f73ea9d0fc769
   languageName: node
   linkType: hard
 

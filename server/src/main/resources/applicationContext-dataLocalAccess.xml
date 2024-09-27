@@ -73,7 +73,11 @@
     <!-- ========================= HIBERNATE ========================= -->
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-        <property name="dataSource" ref="goDataSource"/>
+        <property name="dataSource">
+          <bean class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+            <property name="targetDataSource" ref="goDataSource"/>
+          </bean>
+        </property>
         <property name="mappingLocations">
             <list>
                 <value>classpath:/hibernate-mappings/*</value>

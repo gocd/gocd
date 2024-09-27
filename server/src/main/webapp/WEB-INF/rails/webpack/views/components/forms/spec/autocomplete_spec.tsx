@@ -15,7 +15,6 @@
  */
 
 import m from "mithril";
-import "mithril/promise/promise";
 import Stream from "mithril/stream";
 import * as events from "simulate-event";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";

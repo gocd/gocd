@@ -935,19 +935,6 @@ task licenseReportAggregate {
         ]
       ]
     ],
-    [
-      moduleName    : 'org.javassist:javassist',
-      moduleVersion : project.versions.javassist,
-      moduleUrls    : [
-        "https://www.javassist.org/"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'Apache-2.0',
-          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
-        ]
-      ]
-    ],
   ]
 
   def goCDJarsWithoutLicenses = ['agent-launcher.jar',

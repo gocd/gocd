@@ -848,7 +848,6 @@ task verifyWar(type: VerifyJarTask) {
         "spring-tx-${project.versions.spring}.jar",
         "spring-web-${project.versions.spring}.jar",
         "spring-webmvc-${project.versions.spring}.jar",
-        "statistics-1.0.5.jar",
         "token-bucket-${project.versions.tokenBucket}.jar",
         "txw2-${project.versions.jaxb}.jar",
         "urlrewritefilter-${project.versions.urlrewrite}.jar",

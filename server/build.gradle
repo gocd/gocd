@@ -877,6 +877,19 @@ task licenseReportAggregate {
 
   LinkedHashSet<Map<String, Object>> missingLicenseData = [
     [
+      moduleName    : 'net.sf.ehcache.internal:ehcache-core',
+      moduleVersion : project.versions.ehcache,
+      moduleUrls    : [
+        "https://www.ehcache.org/"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'Apache-2.0',
+          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
+        ]
+      ]
+    ],
+    [
       moduleName    : 'antlr:antlr',
       moduleVersion : '2.7.6',
       moduleUrls    : [

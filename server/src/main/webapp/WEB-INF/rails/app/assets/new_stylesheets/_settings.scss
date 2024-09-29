@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "../new_stylesheets/shared/go-variables";
 
 // Since it's mainly a 3rd party file, we ignore all lint errors
 // stylelint-disable
@@ -81,6 +80,7 @@
 //  57. Xy Grid
 
 @use "sass:color";
+@import "../new_stylesheets/shared/go-variables"; // custom
 @import "foundation-sites/scss/util/util"; // custom
 
 // 1. Global

@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@use "sass:color";
 @import "../../../../app/assets/new_stylesheets/variables";
 @import "../../../../app/assets/new_stylesheets/shared/go-variables";
 
@@ -84,6 +83,7 @@
 //  55. Top Bar
 //  57. Xy Grid
 
+@use "sass:color";
 @import "foundation-sites/scss/util/util"; // custom
 
 // 1. Global
@@ -806,7 +806,9 @@ $slider-radius: $global-radius;
 // ----------
 
 $switch-background: $medium-gray;
+$switch-background-focus: scale-color($switch-background, $lightness: -10%);
 $switch-background-active: $primary-color;
+$switch-background-active-focus: scale-color($switch-background-active, $lightness: -15%);
 $switch-height: 2rem;
 $switch-height-tiny: 1.5rem;
 $switch-height-small: 1.75rem;

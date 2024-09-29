@@ -5249,14 +5249,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"foundation-sites@npm:^6.8.1":
-  version: 6.8.1
-  resolution: "foundation-sites@npm:6.8.1"
+"foundation-sites@npm:^6.9.0":
+  version: 6.9.0
+  resolution: "foundation-sites@npm:6.9.0"
   peerDependencies:
     jquery: ">=3.6.0"
     motion-ui: "*"
     what-input: ">=5.2.10"
-  checksum: 10/de0a10e1d5f6a0430754b13d1de6e8f753454835adc0764a66db28cc3b4d8050fb0bcefc65a47e719946e21cfe72dc749d2f8736fbe2d317c21027cde4d639cd
+  checksum: 10/fedfad6b7fd1cd04698c32d8ee646ba39b75c794cfd0fcb7e0ffb1bdae7bffc92f49b2df63985c1942b329329518dd1975fd773e522147ff0e6d7479962d598f
   languageName: node
   linkType: hard
 
@@ -5598,7 +5598,7 @@ __metadata:
     file-loader: "npm:^6.2.0"
     filesize: "npm:^10.1.6"
     fork-ts-checker-webpack-plugin: "npm:^6.5.3"
-    foundation-sites: "npm:^6.8.1"
+    foundation-sites: "npm:^6.9.0"
     fs-extra: "npm:^11.2.0"
     hack-font: "npm:^3.3.0"
     html-webpack-plugin: "npm:^4.5.2"

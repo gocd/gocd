@@ -85,7 +85,7 @@
     "fork-ts-checker-webpack-plugin": "^6.5.3",
     "fs-extra": "^11.2.0",
     "html-webpack-plugin": "^4.5.2",
-    "jasmine": "^5.3.0",
+    "jasmine": "^5.3.1",
     "jasmine-ajax": "^4.0.0",
     "jasmine-browser-runner": "^2.5.0",
     "jasmine-core": "^5.3.0",

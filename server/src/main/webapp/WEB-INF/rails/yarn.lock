@@ -5595,7 +5595,7 @@ __metadata:
     fs-extra: "npm:^11.2.0"
     hack-font: "npm:^3.3.0"
     html-webpack-plugin: "npm:^4.5.2"
-    jasmine: "npm:^5.3.0"
+    jasmine: "npm:^5.3.1"
     jasmine-ajax: "npm:^4.0.0"
     jasmine-browser-runner: "npm:^2.5.0"
     jasmine-core: "npm:^5.3.0"
@@ -6562,15 +6562,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine@npm:^5.3.0":
-  version: 5.3.0
-  resolution: "jasmine@npm:5.3.0"
+"jasmine@npm:^5.3.1":
+  version: 5.3.1
+  resolution: "jasmine@npm:5.3.1"
   dependencies:
     glob: "npm:^10.2.2"
     jasmine-core: "npm:~5.3.0"
   bin:
     jasmine: bin/jasmine.js
-  checksum: 10/9d61c40e1c50a0a5c77432b05b88f7143224ab883c8d95c901095c7da5f2c0c8c134ef04726136f241acf14fd31e4c1932373070e88a924158b3b215f085800a
+  checksum: 10/6f4171a0525855b5e1a423462c9a9d88a80013a572e2f9d14a915f9d4e541567212044272c76b8e084fa58fc5b21fc29aa582c66176ee1a03baa7c1235740ef9
   languageName: node
   linkType: hard
 

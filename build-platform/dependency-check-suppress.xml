@@ -204,14 +204,6 @@
 
   <suppress>
     <notes><![CDATA[
-    Suppress false positive on JAXB implementation from Glassfish which is not the same as the Glassfish server
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.glassfish\.(?!main).*$</packageUrl>
-    <cpe>cpe:/a:eclipse:glassfish</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     GoCD does not seem to be vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to use `.merge()`, `.sanitize()`, `.copy()`, `$resource` service, set `xlink:href`,
     no use of `<select>` elements, no use of `usemap` attribute, not a Firefox add-on, don't care about Internet Explorer,

@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.Resource;
 import com.thoughtworks.go.domain.Resources;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class ResourceRepository extends HibernateDaoSupport {
 
     public void save(Resource resource) {
         if (resource != null) {
-            getHibernateTemplate().save(resource);
+            getSessionFactory().getCurrentSession().save(resource);
         }
     }
 

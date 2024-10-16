@@ -204,6 +204,15 @@
 
   <suppress>
     <notes><![CDATA[
+    While GoCD does use the HttpURI class directly, it does not parse authority names from this, it only reconstructs
+    a URL with the entire URI portion in tact, while modifying the path to remove a prefix and support routing to Rails-handled code.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-http@.*$</packageUrl>
+    <vulnerabilityName>CVE-2024-6763</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     GoCD does not seem to be vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to use `.merge()`, `.sanitize()`, `.copy()`, `$resource` service, set `xlink:href`,
     no use of `<select>` elements, no use of `usemap` attribute, not a Firefox add-on, don't care about Internet Explorer,

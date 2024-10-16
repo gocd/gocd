@@ -27,29 +27,3 @@ Rails.application.config.assets.paths << Rails.root.join("webpack", "rails-share
 # application.js, application.css, and all non-JS/CSS in the app/assets
 # folder are already added.
 # Rails.application.config.assets.precompile += %w( admin.js admin.css )
-
-# Monkey patch Open3.popen_run to workaround Java 21 issue with JRuby when running sass-embedded as documented at
-# - https://github.com/sass-contrib/sass-embedded-host-ruby/issues/208
-# - https://github.com/jruby/jruby/issues/8235
-# - https://github.com/jruby/jruby/issues/8069
-# - https://bugs.openjdk.org/browse/JDK-8329604
-# Remove for Java 21.0.4 onwards where a fix for Java 23 is backported.
-if ENV["RAILS_ENV"] != "production" or ENV.has_key?("RAILS_GROUPS")
-  require 'fcntl'
-
-  module Open3
-    _popen_run = instance_method(:popen_run)
-    define_method(:popen_run) do |cmd, opts, child_io, parent_io, &block|
-      child_io.each do |io|
-        flags = io.fcntl(Fcntl::F_GETFL)
-        io.fcntl(Fcntl::F_SETFL, flags | (Fcntl::O_NONBLOCK))
-        io.fcntl(Fcntl::F_SETFL, flags & (~Fcntl::O_NONBLOCK))
-      end
-      _popen_run.bind(self).call(cmd, opts, child_io, parent_io, &block)
-    end
-    module_function :popen_run
-    class << self
-      private :popen_run
-    end
-  end
-end

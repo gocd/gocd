@@ -14,11 +14,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<!DOCTYPE hibernate-mapping PUBLIC
-        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-
-<hibernate-mapping package="com.thoughtworks.go.domain" default-access="field" default-lazy="false">
+<hibernate-mapping
+  xmlns="http://www.hibernate.org/xsd/hibernate-mapping"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.hibernate.org/xsd/hibernate-mapping https://hibernate.org/xsd/hibernate-mapping/hibernate-mapping-4.0.xsd"
+  package="com.thoughtworks.go.domain" default-access="field" default-lazy="false">
     <class name="com.thoughtworks.go.domain.Plugin" table="plugins">
         <cache usage="read-write"/>
 

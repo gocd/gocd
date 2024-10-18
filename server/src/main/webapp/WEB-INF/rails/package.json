@@ -61,7 +61,7 @@
     "@types/jasmine-ajax": "^3.3.5",
     "@types/jquery": "^3.5.31",
     "@types/license-checker": "^25.0.6",
-    "@types/lodash": "^4.17.10",
+    "@types/lodash": "^4.17.11",
     "@types/mini-css-extract-plugin": "^1.4.3",
     "@types/mithril": "2.2.7",
     "@types/node": "^22.7.6",
@@ -132,5 +132,5 @@
     "watchpack-chokidar2@npm:2.0.1/chokidar": "^3.6.0",
     "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1"
   },
-  "packageManager": "yarn@4.5.0"
+  "packageManager": "yarn@4.5.1"
 }

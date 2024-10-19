@@ -191,7 +191,7 @@ GEM
     rspec-support (3.13.1)
     rspec_junit_formatter (0.6.0)
       rspec-core (>= 2, < 4, != 2.12.0)
-    sass-embedded (1.80.2)
+    sass-embedded (1.80.3)
       google-protobuf (~> 4.28)
       rake (>= 13)
     sassc-embedded (1.80.1)

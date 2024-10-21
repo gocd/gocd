@@ -61,10 +61,10 @@
     "@types/jasmine-ajax": "^3.3.5",
     "@types/jquery": "^3.5.31",
     "@types/license-checker": "^25.0.6",
-    "@types/lodash": "^4.17.10",
+    "@types/lodash": "^4.17.11",
     "@types/mini-css-extract-plugin": "^1.4.3",
     "@types/mithril": "2.2.7",
-    "@types/node": "^22.7.5",
+    "@types/node": "^22.7.7",
     "@types/optimize-css-assets-webpack-plugin": "^5.0.8",
     "@types/prismjs": "^1.26.4",
     "@types/shell-quote": "^1.7.5",
@@ -104,7 +104,7 @@
     "mini-css-extract-plugin": "^1.6.2",
     "mockdate": "^3.0.5",
     "optimize-css-assets-webpack-plugin": "^6.0.1",
-    "sass-embedded": "^1.79.5",
+    "sass-embedded": "^1.80.3",
     "sass-loader": "^10.5.2",
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.11",
@@ -132,5 +132,5 @@
     "watchpack-chokidar2@npm:2.0.1/chokidar": "^3.6.0",
     "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1"
   },
-  "packageManager": "yarn@4.5.0"
+  "packageManager": "yarn@4.5.1"
 }

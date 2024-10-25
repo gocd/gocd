@@ -713,9 +713,7 @@ dependencyCheckAggregate {
 
 if (System.getenv().containsKey("GO_SERVER_URL")) {
   dependencyCheck {
-    data {
-      directory = "${layout.buildDirectory.get()}/dependency-check-data"
-    }
+    data.directory = "${layout.buildDirectory.get()}/dependency-check-data"
   }
 
   tasks.register('downloadDependencyCheckCache', Download) {

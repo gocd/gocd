@@ -70,7 +70,6 @@
     "@types/shell-quote": "^1.7.5",
     "@types/underscore.string": "^0.0.41",
     "@types/url-parse": "^1.4.11",
-    "@types/uuid": "^10.0.0",
     "@types/webpack": "^4.41.39",
     "add-matchers": "^0.6.2",
     "babel-loader": "^8.4.1",

@@ -2053,13 +2053,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "@types/uuid@npm:10.0.0"
-  checksum: 10/e3958f8b0fe551c86c14431f5940c3470127293280830684154b91dc7eb3514aeb79fe3216968833cf79d4d1c67f580f054b5be2cd562bebf4f728913e73e944
-  languageName: node
-  linkType: hard
-
 "@types/webpack-sources@npm:*":
   version: 3.2.3
   resolution: "@types/webpack-sources@npm:3.2.3"
@@ -5567,7 +5560,6 @@ __metadata:
     "@types/shell-quote": "npm:^1.7.5"
     "@types/underscore.string": "npm:^0.0.41"
     "@types/url-parse": "npm:^1.4.11"
-    "@types/uuid": "npm:^10.0.0"
     "@types/webpack": "npm:^4.41.39"
     add-matchers: "npm:^0.6.2"
     angular: "file:node-vendor/angular"

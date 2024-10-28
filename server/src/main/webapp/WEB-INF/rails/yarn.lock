@@ -5643,7 +5643,7 @@ __metadata:
     upath: "npm:^2.0.1"
     url-loader: "npm:^4.1.1"
     url-parse: "npm:^1.5.10"
-    uuid: "npm:^10.0.0"
+    uuid: "npm:^11.0.1"
     webpack: "npm:^4.47.0"
     webpack-build-notifier: "npm:^2.3.0"
     webpack-cli: "npm:^4.10.0"
@@ -11199,12 +11199,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "uuid@npm:10.0.0"
+"uuid@npm:^11.0.1":
+  version: 11.0.1
+  resolution: "uuid@npm:11.0.1"
   bin:
-    uuid: dist/bin/uuid
-  checksum: 10/35aa60614811a201ff90f8ca5e9ecb7076a75c3821e17f0f5ff72d44e36c2d35fcbc2ceee9c4ac7317f4cc41895da30e74f3885e30313bee48fda6338f250538
+    uuid: dist/esm/bin/uuid
+  checksum: 10/8f2a93ce747613ab63531796fdd383123ad85bd6592808e7035b6975688ef7f01d9279ef66903fcfba6649b1583d77b88f9512b339c93f9a515964f79203a493
   languageName: node
   linkType: hard
 

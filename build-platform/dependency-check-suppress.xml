@@ -144,6 +144,13 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-core@4.*$</packageUrl>
     <cve>CVE-2024-22257</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+    According to https://spring.io/security/cve-2024-38821 this only affects WebFlux applications which GoCD is not.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-web@4.*$</packageUrl>
+    <cve>CVE-2024-38821</cve>
+  </suppress>
 
   <suppress>
     <notes><![CDATA[

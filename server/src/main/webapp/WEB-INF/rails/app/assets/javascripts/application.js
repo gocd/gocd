@@ -32,7 +32,7 @@
 //= require "lib/bootstrap-dropdown-2.3.2.js"
 
 // used by Rails value_stream_map_renderer (look for $(.*).draggable etc)
-//= require "lib/jquery-ui-1.14.0.js"
+//= require "lib/jquery-ui-1.14.1.js"
 
 // Used by Rails job details page via timer_observer
 //= require "lib/trimpath-template-1.0.38.js"

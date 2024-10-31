@@ -199,7 +199,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
 
     @Test
     public void adminsShouldBeAbleToLoadTokensRevokedByAnyone() {
-        String user = RandomStringUtils.random(32);
+        String user = RandomStringUtils.insecure().next(32);
 
         AccessToken token = randomAccessTokenForUser(user);
 
@@ -211,7 +211,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
 
     @Test
     public void adminsShouldBeAbleToLoadTokensRevokedBecauseOfUserDeletionButUsersCannot() {
-        String user = RandomStringUtils.random(32);
+        String user = RandomStringUtils.insecure().next(32);
 
         AccessToken token = randomAccessTokenForUser(user);
 

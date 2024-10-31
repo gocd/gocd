@@ -129,7 +129,7 @@ public class AccessTokenServiceIntegrationTest {
 
     @Test
     public void shouldFailToGetAccessTokenWhenProvidedTokenContainsInvalidSaltId() {
-        String accessToken = RandomStringUtils.randomAlphanumeric(40);
+        String accessToken = RandomStringUtils.insecure().nextAlphanumeric(40);
         InvalidAccessTokenException exception = assertThrows(InvalidAccessTokenException.class, () -> accessTokenService.findByAccessToken(accessToken));
         assertThat("Invalid Personal Access Token.").isEqualTo(exception.getMessage());
     }

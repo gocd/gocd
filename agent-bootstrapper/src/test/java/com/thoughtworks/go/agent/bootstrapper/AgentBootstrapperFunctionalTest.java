@@ -128,6 +128,6 @@ public class AgentBootstrapperFunctionalTest {
     }
 
     private void createRandomFile(File agentJar) throws IOException {
-        FileUtils.writeStringToFile(agentJar, RandomStringUtils.random((int) (Math.random() * 100)), UTF_8);
+        FileUtils.writeStringToFile(agentJar, RandomStringUtils.insecure().next((int) (Math.random() * 100)), UTF_8);
     }
 }

@@ -62,8 +62,8 @@ class AccessTokenServiceTest {
     }
 
     @Test
-    void shouldMakeACallToSQLDaoForAccessTokenCreation() throws Exception {
-        String longerDescription = RandomStringUtils.randomAlphanumeric(1024).toUpperCase();
+    void shouldMakeACallToSQLDaoForAccessTokenCreation() {
+        String longerDescription = RandomStringUtils.insecure().nextAlphanumeric(1024).toUpperCase();
         accessTokenService.create(longerDescription, username, authConfigId);
 
         assertThat(result.isSuccessful()).isTrue();

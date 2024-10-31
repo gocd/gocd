@@ -21,10 +21,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 public class AccessTokenMother {
     public static AccessToken.AccessTokenWithDisplayValue randomAccessToken() {
-        return randomAccessTokenForUser(RandomStringUtils.randomAlphabetic(32));
+        return randomAccessTokenForUser(RandomStringUtils.insecure().nextAlphabetic(32));
     }
 
     public static AccessToken.AccessTokenWithDisplayValue randomAccessTokenForUser(String username) {
-        return AccessToken.create(RandomStringUtils.randomAlphabetic(32), username, RandomStringUtils.randomAlphabetic(32), new TestingClock());
+        return AccessToken.create(RandomStringUtils.insecure().nextAlphabetic(32), username, RandomStringUtils.insecure().nextAlphabetic(32), new TestingClock());
     }
 }

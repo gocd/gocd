@@ -164,14 +164,14 @@ public class ConsoleLogSenderTest {
 
     @Test
     public void shouldNotGzipContentsLessThan512Bytes() throws Exception {
-        byte[] bytes = RandomStringUtils.randomAlphanumeric(511).getBytes(UTF_8);
+        byte[] bytes = RandomStringUtils.insecure().nextAlphanumeric(511).getBytes(UTF_8);
         byte[] gzipped = consoleLogSender.maybeGzipIfLargeEnough(bytes);
         assertThat(bytes, equalTo(gzipped));
     }
 
     @Test
     public void shouldGzipContentsGreaterThan512Bytes() throws Exception {
-        byte[] bytes = RandomStringUtils.randomAlphanumeric(512).getBytes(UTF_8);
+        byte[] bytes = RandomStringUtils.insecure().nextAlphanumeric(512).getBytes(UTF_8);
 
         byte[] gzipped = consoleLogSender.maybeGzipIfLargeEnough(bytes);
         assertThat(gzipped.length, lessThanOrEqualTo(bytes.length));

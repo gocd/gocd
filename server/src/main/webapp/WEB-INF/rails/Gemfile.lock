@@ -82,7 +82,8 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
-    date (3.4.0)
+    date (3.3.4)
+    date (3.3.4-java)
     diff-lcs (1.5.1)
     erubi (1.13.0)
     ffi (1.17.0-java)

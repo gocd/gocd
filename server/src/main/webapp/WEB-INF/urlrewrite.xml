@@ -1154,8 +1154,14 @@
   </rule>
 
   <rule>
-    <name>RESTful Artifacts</name>
-    <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
+    <name>RESTful Artifacts without filepath</name>
+    <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(\?.*)?$</from>
+    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
+  </rule>
+
+  <rule>
+    <name>RESTful Artifacts with filepath</name>
+    <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.+?)(\?.*)?$</from>
     <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
   </rule>
 

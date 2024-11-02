@@ -145,7 +145,7 @@ public class SecretsExtensionV1Test {
 
             assertThatCode(() -> secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, new LinkedHashSet<>(List.of("key1", "key2"))))
                     .isInstanceOf(SecretResolutionFailureException.class)
-                    .hasMessage("Error looking up secrets, plugin returned error code '500' with response: 'Error looking up for keys 'key1''");
+                    .hasMessage("Expected plugin to resolve secret param(s) `key1, key2` using secret config `null` but plugin failed to resolve any of the required secrets `key1, key2` due to a plugin returning error code '500' with response `Error looking up for keys 'key1'`.");
         }
     }
 

@@ -78,20 +78,27 @@ public class SecretsExtension extends AbstractExtension {
     }
 
     public List<Secret> lookupSecrets(String pluginId, SecretConfig secretConfig, Set<String> keys) {
-        final List<Secret> secrets = getVersionedSecretsExtension(pluginId).lookupSecrets(pluginId, secretConfig, keys);
-        final Set<String> resolvedSecrets = secrets.stream().map(Secret::getKey).collect(Collectors.toSet());
+        final List<Secret> secrets;
+        try {
+            secrets = getVersionedSecretsExtension(pluginId).lookupSecrets(pluginId, secretConfig, keys);
+        } catch (SecretResolutionFailureException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw SecretResolutionFailureException.withBrokenResolution(secretConfig.getId(), keys, e);
+        }
 
-        final Set<String> additionalSecretsInResponse = SetUtils.difference(resolvedSecrets, keys).toSet();
+        final Set<String> resolvedKeys = secrets.stream().map(Secret::getKey).collect(Collectors.toSet());
+        final Set<String> additionalSecretsInResponse = SetUtils.difference(resolvedKeys, keys).toSet();
         if (!additionalSecretsInResponse.isEmpty()) {
             throw SecretResolutionFailureException.withUnwantedSecretParams(secretConfig.getId(), keys, additionalSecretsInResponse);
         }
 
-        if (resolvedSecrets.containsAll(keys)) {
+        if (resolvedKeys.containsAll(keys)) {
             return secrets;
         }
 
-        final Set<String> missingSecrets = SetUtils.disjunction(resolvedSecrets, keys).toSet();
-        throw SecretResolutionFailureException.withMissingSecretParams(secretConfig.getId(), keys, missingSecrets);
+        final Set<String> missingKeys = SetUtils.disjunction(resolvedKeys, keys).toSet();
+        throw SecretResolutionFailureException.withMissingSecretParams(secretConfig.getId(), keys, missingKeys);
     }
 
     protected VersionedSecretsExtension getVersionedSecretsExtension(String pluginId) {

@@ -78,7 +78,7 @@ public class RulesService {
         if (!pipelinesWithErrors.isEmpty()) {
             LOGGER.debug("[Material Update] Failure: {}", errorString(pipelinesWithErrors));
         }
-        if (pipelines.size() == pipelinesWithErrors.size()) {
+        if (!pipelines.isEmpty() && pipelines.size() == pipelinesWithErrors.size()) {
             throw new RulesViolationException(errorString(pipelinesWithErrors));
         }
 

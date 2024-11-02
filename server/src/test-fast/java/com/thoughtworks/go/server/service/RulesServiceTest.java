@@ -208,6 +208,14 @@ class RulesServiceTest {
 
             assertThat(rulesService.validateSecretConfigReferences(gitMaterial)).isEqualTo(true);
         }
+
+        @Test
+        void shouldNotErrorOutOnScmMaterialUsedOnlyForConfigRepo() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
+
+            assertThat(rulesService.validateSecretConfigReferences(gitMaterial)).isEqualTo(true);
+        }
     }
 
     @Nested

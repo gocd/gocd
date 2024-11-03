@@ -91,7 +91,7 @@ public class MaterialDatabaseUpdaterTest {
     public void shouldFailWithAReasonableMessageWhenExceptionMessageIsNull() {
         Material material = new GitMaterial("url", "branch");
         Exception exceptionWithNullMessage = new RuntimeException(null, new RuntimeException("Inner exception has non-null message"));
-        String message = "Modification check failed for material: " + material.getLongDescription() + "\nNo pipelines are affected by this material, perhaps this material is unused.";
+        String message = "Modification check failed for material: " + material.getLongDescription() + "\nNo pipelines affected, may only affect configuration repositories.";
         when(goConfigService.pipelinesWithMaterial(material.config().getFingerprint())).thenReturn(Collections.emptyList());
 
         when(materialRepository.findMaterialInstance(material)).thenThrow(exceptionWithNullMessage);

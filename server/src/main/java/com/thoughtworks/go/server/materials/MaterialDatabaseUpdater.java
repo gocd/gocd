@@ -113,20 +113,25 @@ public class MaterialDatabaseUpdater {
             }
             healthService.removeByScope(scope);
         } catch (Exception e) {
-            List<CaseInsensitiveString> pipelineNames = goConfigService.pipelinesWithMaterial(material.config().getFingerprint());
             String message = escapeHtml4("Modification check failed for material: " + material.getLongDescription());
-            String affectedPipelinesMessage = "";
-            if (pipelineNames.isEmpty()) {
-                affectedPipelinesMessage = ("\nNo pipelines are affected by this material, perhaps this material is unused.");
-            } else {
-                affectedPipelinesMessage = ("\nAffected pipelines are " + StringUtils.join(pipelineNames, ", ") + ".");
-            }
-            String finalMessage = message + affectedPipelinesMessage;
+            String finalMessage = message + affectedPipelinesMessageFor(material);
             String errorDescription = e.getMessage() == null ? "Unknown error" : escapeHtml4(e.getMessage());
             healthService.update(ServerHealthState.errorWithHtml(finalMessage, errorDescription, HealthStateType.general(scope)));
-            LOGGER.debug("[Material Update] {}", message, e);
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[Material Update] {}", message, e);
+            } else {
+                LOGGER.info("[Material Update] {} cause: {}", message, e.toString());
+            }
             throw e;
         }
+    }
+
+    private String affectedPipelinesMessageFor(Material material) {
+        List<CaseInsensitiveString> pipelineNames = goConfigService.pipelinesWithMaterial(material.config().getFingerprint());
+        return pipelineNames.isEmpty()
+            ? "\nNo pipelines affected, may only affect configuration repositories."
+            : "\nAffected pipelines are " + StringUtils.join(pipelineNames, ", ") + ".";
     }
 
     private void initializeMaterialWithLatestRevision(Material material) {

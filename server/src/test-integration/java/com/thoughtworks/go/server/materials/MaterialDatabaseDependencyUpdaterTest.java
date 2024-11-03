@@ -123,7 +123,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
         }
 
         HealthStateType scope = HealthStateType.general(HealthStateScope.forMaterial(dependencyMaterial));
-        ServerHealthState state = ServerHealthState.errorWithHtml("Modification check failed for material: pipeline-name [ stage-name ]\nNo pipelines are affected by this material, perhaps this material is unused.", "Description of error", scope);
+        ServerHealthState state = ServerHealthState.errorWithHtml("Modification check failed for material: pipeline-name [ stage-name ]\nNo pipelines affected, may only affect configuration repositories.", "Description of error", scope);
         verify(healthService).update(state);
     }
 

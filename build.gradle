@@ -314,6 +314,7 @@ subprojects {
       extractedAtTopLevel { transitive = false }
       fatJarConfig
 
+      testJavaAgents { transitive = false }
       testOutput {
         extendsFrom testRuntimeClasspath
         transitive = true
@@ -328,6 +329,7 @@ subprojects {
     dependencies {
       // Force all sub-projects to have managed dependency versions for certain transitive dependencies
       implementation platform(project(':build-platform'))
+      testJavaAgents("${project.deps.mockitoCore}:${project.versions.mockitoBom}")
 
       modules {
         module("dom4j:dom4j") {
@@ -491,7 +493,7 @@ subprojects {
     systemProperty 'java.io.tmpdir', tmpDir
     systemProperty 'jdk.attach.allowAttachSelf', 'true'
     jvmArgs += testTask.project.name.startsWith("agent") ? InstallerType.agent.jvmModuleOpensArgs : InstallerType.server.jvmModuleOpensArgs
-    jvmArgs += '-XX:+EnableDynamicAgentLoading' // Needed for byte-buddy-agent (and maybe others?) to avoid warnings/errors on Java 21+
+    jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? "-javaagent:${testTask.project.configurations.testJavaAgents.asPath}" : []
 
     doFirst {
       // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40

@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-configurations.all {
-  // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970
-  exclude group: 'junit'
-}
-
 dependencies {
   implementation(project.deps.postgresql) {
     exclude(module: 'checker-qual') // See https://github.com/pgjdbc/pgjdbc/pull/2262
@@ -31,9 +26,12 @@ dependencies {
   testImplementation project(path: ':db-support:db-migration', configuration: 'runtimeElements')
   testImplementation project(path: ':db-support:db-migration', configuration: 'testOutput')
 
-  testImplementation project.deps.testcontainers
-  testImplementation project.deps.testcontainersJunit
-  testImplementation project.deps.testcontainersPostgresql
+  testImplementation(project.deps.testcontainersJunit) {
+    exclude group: 'junit' // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970
+  }
+  testImplementation(project.deps.testcontainersPostgresql) {
+    exclude group: 'junit' // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970
+  }
 
   testImplementation project.deps.assertJ
   testImplementation project.deps.junit5Api

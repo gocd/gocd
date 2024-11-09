@@ -151,6 +151,7 @@ final Map<String, String> v = [
   liquibase           : versionOf(libraries.liquibase),
   liquibaseSlf4j      : versionOf(libraries.liquibaseSlf4j),
   logback             : versionOf(libraries.logback),
+  mockitoBom          : versionOf(libraries.mockitoBom),
   mybatis             : versionOf(libraries.mybatis),
   mybatisSpring       : versionOf(libraries.mybatisSpring),
   mysql               : versionOf(libraries.mysql),

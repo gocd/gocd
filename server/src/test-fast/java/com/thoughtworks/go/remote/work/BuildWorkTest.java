@@ -125,13 +125,13 @@ class BuildWorkTest {
                   <value>foobar</value>
                 </variable>
                 <variable name="%s">
-                  <value>/tmp</value>
+                  <value>dummy-value</value>
                 </variable>
               </environmentvariables>
               <tasks>
                 <ant target="-help" />
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME, SystemUtils.IS_OS_WINDOWS ? "Path" : "PATH");
+            </job>""").formatted(JOB_PLAN_NAME, SystemUtils.IS_OS_WINDOWS ? "PATHEXT" : "PATH");
 
     private static final String WITH_SECRET_ENV_VAR = ("""
             <job name="%s">
@@ -733,11 +733,7 @@ class BuildWorkTest {
         assertConsoleOut(consoleOut).matchUsingRegex("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME);
 
         assertThat(consoleOut).contains("[go] setting environment variable 'JOB_ENV' to value 'foobar'");
-        if (SystemUtils.IS_OS_WINDOWS) {
-            assertThat(consoleOut).contains("[go] overriding environment variable 'Path' with value '/tmp'");
-        } else {
-            assertThat(consoleOut).contains("[go] overriding environment variable 'PATH' with value '/tmp'");
-        }
+        assertThat(consoleOut).contains(String.format("[go] overriding environment variable '%s' with value 'dummy-value'", SystemUtils.IS_OS_WINDOWS ? "PATHEXT" : "PATH"));
     }
 
     @Test

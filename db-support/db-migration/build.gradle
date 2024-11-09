@@ -18,11 +18,6 @@ plugins {
   id 'java'
 }
 
-configurations.all {
-  // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970
-  exclude group: 'junit'
-}
-
 dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
@@ -53,8 +48,9 @@ dependencies {
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
 
-  testImplementation project.deps.testcontainers
-  testImplementation project.deps.testcontainersJdbc
+  testImplementation(project.deps.testcontainersJdbc) {
+    exclude group: 'junit' // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970
+  }
   testImplementation project.deps.h2
   testImplementation project(path: ':db-support:db-support-h2', configuration: 'runtimeElements')
 }

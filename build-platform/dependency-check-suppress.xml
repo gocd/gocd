@@ -216,7 +216,7 @@
     While GoCD does use the HttpURI class directly, it does not parse authority names from this, it only reconstructs
     a URL with the entire URI portion in tact, while modifying the path to remove a prefix and support routing to Rails-handled code.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-http@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-.*@.*$</packageUrl>
     <vulnerabilityName>CVE-2024-6763</vulnerabilityName>
   </suppress>
 

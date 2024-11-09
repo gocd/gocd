@@ -217,7 +217,7 @@
     a URL with the entire URI portion in tact, while modifying the path to remove a prefix and support routing to Rails-handled code.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@.*$</packageUrl>
-    <cve>CVE-2024-6763</cbe>
+    <cve>CVE-2024-6763</cve>
   </suppress>
 
   <suppress>

@@ -17,8 +17,7 @@
 # Please file any issues or PRs at https://github.com/gocd/gocd
 ###############################################################################################
 
-FROM curlimages/curl:latest AS gocd-agent-unzip
-USER root
+FROM cgr.dev/chainguard/bash:latest AS gocd-agent-unzip
 ARG TARGETARCH
 ARG UID=1000
 <#if useFromArtifact >

@@ -96,12 +96,12 @@
     these only affect applications that use UriComponentsBuilder along with validation checks on the host. GoCD and its dependencies
     don't use UriComponentsBuilder at all.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
     <cve>CVE-2024-22243</cve>
     <cve>CVE-2024-22259</cve>
     <cve>CVE-2024-22262</cve>
   </suppress>
-    <suppress>
+  <suppress>
     <notes><![CDATA[
     GoCD does not appear to parse/use ETags off Spring Framework endpoints. While it does use
     ETags and If-Match/If-None-Match on resources it appears to only do so via Rails and Spark
@@ -109,6 +109,15 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
     <cve>CVE-2024-38809</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not appear to be vulnerable to this as it does not bind @RequestBody byte[]
+    attributes as required by https://spring.io/security/cve-2024-38828 to be an issue.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
+    <cve>CVE-2024-38828</cve>
   </suppress>
 
   <suppress>

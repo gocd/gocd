@@ -24,9 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -40,7 +38,7 @@ public class AuthorizationMetadataStoreTest {
     private AuthorizationPluginInfo plugin3;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         store = new AuthorizationMetadataStore();
         plugin1 = pluginInfo("web.plugin-1", SupportedAuthType.Web);
         plugin2 = pluginInfo("password.plugin-2", SupportedAuthType.Password);
@@ -53,34 +51,33 @@ public class AuthorizationMetadataStoreTest {
     @Test
     public void shouldGetPluginsThatSupportWebBasedAuthorization() {
         Set<AuthorizationPluginInfo> pluginsThatSupportsWebBasedAuthentication = store.getPluginsThatSupportsWebBasedAuthentication();
-        assertThat(pluginsThatSupportsWebBasedAuthentication.size(), is(2));
-        assertThat(pluginsThatSupportsWebBasedAuthentication.contains(plugin1), is(true));
-        assertThat(pluginsThatSupportsWebBasedAuthentication.contains(plugin3), is(true));
+        assertThat(pluginsThatSupportsWebBasedAuthentication.size()).isEqualTo(2);
+        assertThat(pluginsThatSupportsWebBasedAuthentication.contains(plugin1)).isEqualTo(true);
+        assertThat(pluginsThatSupportsWebBasedAuthentication.contains(plugin3)).isEqualTo(true);
     }
 
     @Test
     public void shouldGetPluginsThatSupportPasswordBasedAuthorization() {
         Set<AuthorizationPluginInfo> pluginsThatSupportsWebBasedAuthentication = store.getPluginsThatSupportsPasswordBasedAuthentication();
-        assertThat(pluginsThatSupportsWebBasedAuthentication.size(), is(1));
-        assertThat(pluginsThatSupportsWebBasedAuthentication.contains(plugin2), is(true));
+        assertThat(pluginsThatSupportsWebBasedAuthentication.size()).isEqualTo(1);
+        assertThat(pluginsThatSupportsWebBasedAuthentication.contains(plugin2)).isEqualTo(true);
     }
 
     @Test
     public void shouldGetPluginsThatSupportsGetUserRolesCall() {
         when(plugin1.getCapabilities().canGetUserRoles()).thenReturn(true);
         Set<String> pluginsThatSupportsGetUserRoles = store.getPluginsThatSupportsGetUserRoles();
-        assertThat(pluginsThatSupportsGetUserRoles.size(), is(1));
-        assertThat(pluginsThatSupportsGetUserRoles, contains(plugin1.getDescriptor().id()));
+        assertThat(pluginsThatSupportsGetUserRoles).containsExactly(plugin1.getDescriptor().id());
     }
 
     @Test
-    public void shouldBeAbleToAnswerIfPluginSupportsPasswordBasedAuthentication() throws Exception {
+    public void shouldBeAbleToAnswerIfPluginSupportsPasswordBasedAuthentication() {
         assertTrue(store.doesPluginSupportPasswordBasedAuthentication("password.plugin-2"));
         assertFalse(store.doesPluginSupportPasswordBasedAuthentication("web.plugin-1"));
     }
 
     @Test
-    public void shouldBeAbleToAnswerIfPluginSupportsWebBasedAuthentication() throws Exception {
+    public void shouldBeAbleToAnswerIfPluginSupportsWebBasedAuthentication() {
         assertTrue(store.doesPluginSupportWebBasedAuthentication("web.plugin-1"));
         assertFalse(store.doesPluginSupportWebBasedAuthentication("password.plugin-2"));
         assertTrue(store.doesPluginSupportWebBasedAuthentication("web.plugin-3"));

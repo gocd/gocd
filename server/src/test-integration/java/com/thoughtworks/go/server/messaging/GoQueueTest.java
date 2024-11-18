@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.messaging;
 
 import com.google.common.collect.Sets;
-import com.thoughtworks.go.util.Timeout;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,19 +25,21 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import static com.thoughtworks.go.util.Assertions.assertWillHappen;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class GoQueueTest {
-    @Autowired private MessagingService messageService;
+    @Autowired
+    private MessagingService messageService;
     Set<String> receivedMessage = Collections.synchronizedSet(new HashSet<>());
 
     @Test
@@ -59,7 +60,9 @@ public class GoQueueTest {
             expectMessages.add(text);
         }
 
-        assertWillHappen(receivedMessage, is(expectMessages), Timeout.FIVE_SECONDS);
+        await()
+            .atMost(5, TimeUnit.SECONDS)
+            .untilAsserted(() -> assertThat(receivedMessage).isEqualTo(expectMessages));
     }
 
 

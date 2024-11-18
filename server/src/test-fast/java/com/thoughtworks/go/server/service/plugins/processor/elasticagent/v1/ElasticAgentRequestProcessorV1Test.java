@@ -34,7 +34,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.util.List;
 
 import static com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentProcessorRequestsV1.*;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

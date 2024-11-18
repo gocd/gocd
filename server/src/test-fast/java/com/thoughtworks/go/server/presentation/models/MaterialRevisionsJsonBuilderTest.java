@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 public class MaterialRevisionsJsonBuilderTest {
@@ -66,16 +66,16 @@ public class MaterialRevisionsJsonBuilderTest {
 
         String jsonRevisions = buildJson();
         assertThatJson(jsonRevisions)
-            .isArray()
-            .ofLength(1);
-
-        assertThatJson(jsonRevisions)
-            .node("[0].scmType").isEqualTo("Subversion")
-            .node("[0].location").isEqualTo("http://url")
-            .node("[0].folder").isEqualTo("svn-folder")
-            .node("[0].revision").isStringEqualTo(expectedRevision)
-            .node("[0].user").isEqualTo(ModificationsMother.MOD_USER_WITH_HTML_CHAR)
-            .node("[0].date").isEqualTo(expectedDate);
+            .isArray().hasSize(1)
+            .first()
+            .and(
+                a -> a.node("scmType").isEqualTo("Subversion"),
+                a -> a.node("location").isEqualTo("http://url"),
+                a -> a.node("folder").isEqualTo("svn-folder"),
+                a -> a.node("revision").isString().isEqualTo(expectedRevision),
+                a -> a.node("user").isEqualTo(ModificationsMother.MOD_USER_WITH_HTML_CHAR),
+                a -> a.node("date").isEqualTo(expectedDate)
+        );
     }
 
     @Test
@@ -84,30 +84,30 @@ public class MaterialRevisionsJsonBuilderTest {
 
         String jsonRevisions = buildJson();
         assertThatJson(jsonRevisions)
-            .isArray()
-            .ofLength(1);
-
-        assertThatJson(jsonRevisions)
-            .node("[0].folder").isEqualTo("");
+            .isArray().hasSize(1)
+            .first()
+            .node("folder").isEqualTo("");
     }
 
     @Test
     public void shouldShowEachModificationInJson() {
         String jsonRevisions = buildJson();
         assertThatJson(jsonRevisions)
-            .node("[0].modifications")
-            .isArray()
-            .ofLength(3);
-
-        assertThatJson(jsonRevisions)
-            .node("[0].modifications[2].user").isEqualTo(ModificationsMother.MOD_USER)
-            .node("[0].modifications[2].comment").isEqualTo(ModificationsMother.MOD_COMMENT)
-            .node("[0].modifications[2].date").isEqualTo(DateUtils.formatISO8601(ModificationsMother.TWO_DAYS_AGO_CHECKIN))
-            .node("[0].modifications[2].modifiedFiles").isArray().ofLength(1);
-
-        assertThatJson(jsonRevisions)
-            .node("[0].modifications[2].modifiedFiles[0].action").isEqualTo(ModificationsMother.MOD_MODIFIED_ACTION.toString())
-            .node("[0].modifications[2].modifiedFiles[0].fileName").isEqualTo(ModificationsMother.MOD_FILE_BUILD_XML);
+            .isArray().hasSize(1)
+            .first()
+            .node("modifications").isArray().hasSize(3)
+            .last()
+            .and(
+                a -> a.node("user").isEqualTo(ModificationsMother.MOD_USER),
+                a -> a.node("comment").isEqualTo(ModificationsMother.MOD_COMMENT),
+                a -> a.node("date").isEqualTo(DateUtils.formatISO8601(ModificationsMother.TWO_DAYS_AGO_CHECKIN)),
+                a -> a.node("modifiedFiles").isArray().hasSize(1)
+                    .first()
+                    .and(
+                        b -> b.node("action").isEqualTo(ModificationsMother.MOD_MODIFIED_ACTION.toString()),
+                        b -> b.node("fileName").isEqualTo(ModificationsMother.MOD_FILE_BUILD_XML)
+                    )
+            );
     }
 
     @Test
@@ -115,8 +115,10 @@ public class MaterialRevisionsJsonBuilderTest {
         String jsonRevisions = buildJson();
 
         assertThatJson(jsonRevisions)
-            .node("[0].modifications[0].user").isEqualTo(ModificationsMother.MOD_USER_WITH_HTML_CHAR)
-            .node("[0].modifications[0].comment").isEqualTo(escapeHtml4(ModificationsMother.MOD_COMMENT_3));
+            .and(
+                a -> a.node("[0].modifications[0].user").isEqualTo(ModificationsMother.MOD_USER_WITH_HTML_CHAR),
+                a -> a.node("[0].modifications[0].comment").isEqualTo(escapeHtml4(ModificationsMother.MOD_COMMENT_3))
+            );
     }
 
     @Test
@@ -124,7 +126,9 @@ public class MaterialRevisionsJsonBuilderTest {
         materialRevisions.getMaterialRevision(0).markAsChanged();
 
         assertThatJson(buildJson())
-            .node("[0].changed").isStringEqualTo("true");
+            .isArray().hasSize(1)
+            .first()
+            .node("changed").isString().isEqualTo("true");
     }
 
     @Test

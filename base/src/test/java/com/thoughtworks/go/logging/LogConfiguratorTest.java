@@ -27,9 +27,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LogConfiguratorTest {
 
@@ -65,11 +63,11 @@ public class LogConfiguratorTest {
         };
         logConfigurator.initialize();
 
-        assertTrue(defaultLoggingInvoked[0]);
+        assertThat(defaultLoggingInvoked[0]).isTrue();
 
-        assertThat(stderr.toString(), containsString(String.format("Could not find file `%s'. Attempting to load from classpath.", new File("non-existant-dir", "non-existant.properties"))));
-        assertThat(stderr.toString(), containsString("Could not find classpath resource `config/non-existant.properties'. Falling back to using a default logback configuration that writes to stdout."));
-        assertThat(stdout.toString(), is(""));
+        assertThat(stderr.toString()).contains(String.format("Could not find file `%s'. Attempting to load from classpath.", new File("non-existant-dir", "non-existant.properties")));
+        assertThat(stderr.toString()).contains("Could not find classpath resource `config/non-existant.properties'. Falling back to using a default logback configuration that writes to stdout.");
+        assertThat(stdout.toString()).isEqualTo("");
     }
 
     @Test
@@ -84,10 +82,10 @@ public class LogConfiguratorTest {
         logConfigurator.initialize();
 
         URL expectedResource = getClass().getClassLoader().getResource("config/logging-test-logback.xml");
-        assertThat(initializeFromPropertyResource[0], equalTo(expectedResource));
+        assertThat(initializeFromPropertyResource[0]).isEqualTo(expectedResource);
 
-        assertThat(stderr.toString(), containsString("Using classpath resource `" + expectedResource + "'"));
-        assertThat(stdout.toString(), is(""));
+        assertThat(stderr.toString()).contains("Using classpath resource `" + expectedResource + "'");
+        assertThat(stdout.toString()).isEqualTo("");
     }
 
     @Test
@@ -103,9 +101,9 @@ public class LogConfiguratorTest {
 
         logConfigurator.initialize();
 
-        assertThat(initializeFromPropertiesFile[0], is(configFile.toUri().toURL()));
+        assertThat(initializeFromPropertiesFile[0]).isEqualTo(configFile.toUri().toURL());
 
-        assertThat(stderr.toString(), containsString(String.format("Using logback configuration from file %s", configFile)));
-        assertThat(stdout.toString(), is(""));
+        assertThat(stderr.toString()).contains(String.format("Using logback configuration from file %s", configFile));
+        assertThat(stdout.toString()).isEqualTo("");
     }
 }

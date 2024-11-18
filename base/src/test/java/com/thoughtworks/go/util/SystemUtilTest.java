@@ -20,13 +20,14 @@ import org.junit.jupiter.api.Test;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SystemUtilTest {
     @Test
-    public void shouldReturnFalseIfAddressIsNotLocalFilteredByHostname() throws UnknownHostException {
-        assertThat("Localhost (google.com with ip 127.0.0.1) should not be a local address.", SystemUtil.isLocalhost("google.com", "127.0.0.1"), is(false));
+    public void shouldReturnFalseIfAddressIsNotLocalFilteredByHostname() {
+        assertThat(SystemUtil.isLocalhost("google.com", "127.0.0.1"))
+            .describedAs("Localhost (google.com with ip 127.0.0.1) should not be a local address.")
+            .isFalse();
     }
 
     @Test
@@ -40,17 +41,21 @@ public class SystemUtilTest {
             local = InetAddress.getByName("localhost");
         }
 
-        assertThat("Localhost (" + local.getHostName() + ") should be a local address.", SystemUtil.isLocalhost(local.getHostAddress()), is(true));
+        assertThat(SystemUtil.isLocalhost(local.getHostAddress()))
+            .describedAs("Localhost (" + local.getHostName() + ") should be a local address.")
+            .isTrue();
     }
 
     @Test
-    public void shouldReturnFalseIfAddressIsNotLocal() throws UnknownHostException {
+    public void shouldReturnFalseIfAddressIsNotLocal() {
         String hostName = "hostThatNeverExists";
-        assertThat("Localhost (" + hostName + ") should not be a local address.", SystemUtil.isLocalhost("8.8.8.8"), is(false));
+        assertThat(SystemUtil.isLocalhost("8.8.8.8"))
+            .describedAs("Localhost (" + hostName + ") should not be a local address.")
+            .isFalse();
     }
 
     @Test
-    public void shouldReturnFalseIfPortIsNotReachableOnLocalhost() throws Exception {
-        assertThat(SystemUtil.isLocalhostReachable(9876), is(false));
+    public void shouldReturnFalseIfPortIsNotReachableOnLocalhost() {
+        assertThat(SystemUtil.isLocalhostReachable(9876)).isFalse();
     }
 }

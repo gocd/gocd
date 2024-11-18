@@ -17,24 +17,23 @@ package com.thoughtworks.go.util.command;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExecScriptTest {
 
     @Test
-    public void shouldFailBuildWhenErrorStringIsDetected() throws Exception {
+    public void shouldFailBuildWhenErrorStringIsDetected() {
         ExecScript task = new ExecScript("FAIL");
 
         task.consumeLine("FAIL");
-        assertThat(task.foundError(), is(true));
+        assertThat(task.foundError()).isEqualTo(true);
     }
 
     @Test
-    public void shouldNotFailBuildWhenErrorStringIsOnlyPartOfTheLine() throws Exception {
+    public void shouldNotFailBuildWhenErrorStringIsOnlyPartOfTheLine() {
         ExecScript task = new ExecScript("FAIL");
 
         task.consumeLine("This should NOT FAIL!!!");
-        assertThat(task.foundError(), is(false));
+        assertThat(task.foundError()).isEqualTo(false);
     }
 }

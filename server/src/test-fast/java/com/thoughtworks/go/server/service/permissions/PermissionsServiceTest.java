@@ -96,7 +96,7 @@ class PermissionsServiceTest {
     void shouldNotAddEntitiesWhenNotRequested() {
         Map<String, Object> permissions = service.getPermissions(Collections.emptyList());
 
-        assertThat(permissions.get("environment")).isEqualTo(null);
-        assertThat(permissions.get("config_repo")).isEqualTo(null);
+        assertThat(permissions.get("environment")).isNull();
+        assertThat(permissions.get("config_repo")).isNull();
     }
 }

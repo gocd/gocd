@@ -42,9 +42,8 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -224,31 +223,31 @@ public class ElasticAgentExtensionConverterV5Test {
     public void shouldHandleValidationResponse() {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"error on key one\"}, {\"key\":\"key-two\",\"message\":\"error on key two\"}]";
         ValidationResult result = new ElasticAgentExtensionConverterV5().getElasticProfileValidationResultResponseFromBody(responseBody);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.getErrors().size(), is(2));
-        assertThat(result.getErrors().get(0).getKey(), is("key-one"));
-        assertThat(result.getErrors().get(0).getMessage(), is("error on key one"));
-        assertThat(result.getErrors().get(1).getKey(), is("key-two"));
-        assertThat(result.getErrors().get(1).getMessage(), is("error on key two"));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.getErrors().size()).isEqualTo(2);
+        assertThat(result.getErrors().get(0).getKey()).isEqualTo("key-one");
+        assertThat(result.getErrors().get(0).getMessage()).isEqualTo("error on key one");
+        assertThat(result.getErrors().get(1).getKey()).isEqualTo("key-two");
+        assertThat(result.getErrors().get(1).getMessage()).isEqualTo("error on key two");
     }
 
     @Test
     public void shouldUnJSONizeGetProfileViewResponseFromBody() {
         String template = new ElasticAgentExtensionConverterV5().getProfileViewResponseFromBody("{\"template\":\"foo\"}");
-        assertThat(template, is("foo"));
+        assertThat(template).isEqualTo("foo");
     }
 
     @Test
     public void shouldUnJSONizeGetImageResponseFromBody() {
         com.thoughtworks.go.plugin.domain.common.Image image = new ElasticAgentExtensionConverterV5().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
-        assertThat(image.getContentType(), is("foo"));
-        assertThat(image.getData(), is("bar"));
+        assertThat(image.getContentType()).isEqualTo("foo");
+        assertThat(image.getData()).isEqualTo("bar");
     }
 
     @Test
     public void shouldGetStatusReportViewFromResponseBody() {
         String template = new ElasticAgentExtensionConverterV5().getStatusReportView("{\"view\":\"foo\"}");
-        assertThat(template, is("foo"));
+        assertThat(template).isEqualTo("foo");
     }
 
     @Test
@@ -422,7 +421,7 @@ public class ElasticAgentExtensionConverterV5Test {
 
         ElasticAgentInformation expectedElasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
 
-        assertThat(elasticAgentInformation, is(expectedElasticAgentInformation));
+        assertThat(elasticAgentInformation).isEqualTo(expectedElasticAgentInformation);
     }
 
     @Test

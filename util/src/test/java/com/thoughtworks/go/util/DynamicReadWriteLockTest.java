@@ -18,17 +18,17 @@ package com.thoughtworks.go.util;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DynamicReadWriteLockTest {
     private DynamicReadWriteLock readWriteLock;
-    private volatile int numberOfLocks;
+    private final AtomicInteger numberOfLocks = new AtomicInteger(0);
 
     @BeforeEach
     public void setUp() {
         readWriteLock = new DynamicReadWriteLock();
-        numberOfLocks = 0;
     }
 
     @Test
@@ -37,12 +37,12 @@ public class DynamicReadWriteLockTest {
 
         new Thread(() -> {
             readWriteLock.acquireWriteLock("foo");
-            numberOfLocks++;
+            numberOfLocks.incrementAndGet();
         }).start();
 
         Thread.sleep(1000);
 
-        assertThat(numberOfLocks, is(0));
+        assertThat(numberOfLocks.get()).isZero();
     }
 
     @Test
@@ -51,12 +51,12 @@ public class DynamicReadWriteLockTest {
 
         new Thread(() -> {
             readWriteLock.acquireReadLock("foo");
-            numberOfLocks++;
+            numberOfLocks.incrementAndGet();
         }).start();
 
         Thread.sleep(1000);
 
-        assertThat(numberOfLocks, is(1));
+        assertThat(numberOfLocks.get()).isEqualTo(1);
     }
 
     @Test
@@ -65,12 +65,12 @@ public class DynamicReadWriteLockTest {
 
         new Thread(() -> {
             readWriteLock.acquireWriteLock("foo");
-            numberOfLocks++;
+            numberOfLocks.incrementAndGet();
         }).start();
 
         Thread.sleep(1000);
 
-        assertThat(numberOfLocks, is(0));
+        assertThat(numberOfLocks.get()).isZero();
     }
 
     @Test
@@ -79,12 +79,12 @@ public class DynamicReadWriteLockTest {
 
         new Thread(() -> {
             readWriteLock.acquireReadLock("foo");
-            numberOfLocks++;
+            numberOfLocks.incrementAndGet();
         }).start();
 
         Thread.sleep(1000);
 
-        assertThat(numberOfLocks, is(0));
+        assertThat(numberOfLocks.get()).isZero();
     }
 
 
@@ -94,11 +94,11 @@ public class DynamicReadWriteLockTest {
 
         new Thread(() -> {
             readWriteLock.acquireWriteLock("bar");
-            numberOfLocks++;
+            numberOfLocks.incrementAndGet();
         }).start();
 
         Thread.sleep(1000);
 
-        assertThat(numberOfLocks, is(1));
+        assertThat(numberOfLocks.get()).isEqualTo(1);
     }
 }

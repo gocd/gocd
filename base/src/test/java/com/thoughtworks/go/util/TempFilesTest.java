@@ -24,9 +24,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.UUID;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TempFilesTest {
     TempFiles files;
@@ -49,36 +47,36 @@ public class TempFilesTest {
     public void shouldRecordFilesThatAreCreated() throws IOException {
         File created = files.createFile("foo");
 
-        assertThat(created.exists(), is(true));
+        assertThat(created.exists()).isEqualTo(true);
         files.cleanUp();
 
-        assertThat(created.exists(), is(false));
+        assertThat(created.exists()).isEqualTo(false);
     }
 
     @Test
     public void shouldRecordFoldersThatAreCreated() {
         File dir = files.mkdir("foo");
-        assertThat(dir.exists(), is(true));
+        assertThat(dir.exists()).isEqualTo(true);
 
         files.cleanUp();
-        assertThat(dir.exists(), is(false));
+        assertThat(dir.exists()).isEqualTo(false);
     }
 
     @Test
     public void shouldDeleteNonEmptyFolders() throws IOException {
         File dir = files.mkdir("foo");
-        assertThat(dir.exists(), is(true));
+        assertThat(dir.exists()).isEqualTo(true);
 
         File file = new File(dir, "foo");
         file.createNewFile();
 
         files.cleanUp();
-        assertThat(dir.exists(), is(false));
+        assertThat(dir.exists()).isEqualTo(false);
     }
 
     @Test
-    public void shouldForgetFolders() throws IOException {
-        File file = files.mkdir("foo");
+    public void shouldForgetFolders() {
+        files.mkdir("foo");
 
         files.cleanUp();
         files.cleanUp();
@@ -88,8 +86,8 @@ public class TempFilesTest {
     public void shouldCreateFilesInTempDirectory() throws IOException {
         File file = files.createFile("foo");
         File parentFile = file.getParentFile();
-        assertThat(parentFile.getName(), is("cruise"));
-        assertThat(parentFile.getParentFile(), is(tmpDir()));
+        assertThat(parentFile.getName()).isEqualTo("cruise");
+        assertThat(parentFile.getParentFile()).isEqualTo(tmpDir());
     }
 
     private File tmpDir() {
@@ -97,46 +95,46 @@ public class TempFilesTest {
     }
 
     @Test
-    public void shouldCreateDirsInTempDirectory() throws IOException {
+    public void shouldCreateDirsInTempDirectory() {
         File dir = files.mkdir("foo");
         File parentFile = dir.getParentFile();
-        assertThat(parentFile.getName(), is("cruise"));
-        assertThat(parentFile.getParentFile(), is(tmpDir()));
+        assertThat(parentFile.getName()).isEqualTo("cruise");
+        assertThat(parentFile.getParentFile()).isEqualTo(tmpDir());
     }
 
     @Test
-    public void shouldCreateUniqueFilesEveryTime() throws IOException {
+    public void shouldCreateUniqueFilesEveryTime() {
         TestingClock clock = new TestingClock();
         files.setClock(clock);
         File file1 = files.createUniqueFile("foo");
         File file2 = files.createUniqueFile("foo");
-        assertThat(file1, not(file2));
+        assertThat(file1).isNotEqualTo(file2);
     }
 
     @Test
-    public void shouldCreateUniqueFilesParentDirectoryIfDoesNotExist() throws IOException {
+    public void shouldCreateUniqueFilesParentDirectoryIfDoesNotExist() {
         String newTmpDir = original.getProperty("java.io.tmpdir") + "/" + UUID.randomUUID();
         System.setProperty("java.io.tmpdir", newTmpDir);
         File file = files.createUniqueFile("foo");
-        assertThat(file.getParentFile().exists(), is(true));
+        assertThat(file.getParentFile().exists()).isEqualTo(true);
     }
 
     @Test
-    public void shouldCreateUniqueFolders() throws IOException {
+    public void shouldCreateUniqueFolders() {
         TestingClock clock = new TestingClock();
         files.setClock(clock);
         File file1 = files.createUniqueFolder("foo");
         clock.addSeconds(1);
         File file2 = files.createUniqueFolder("foo");
-        assertThat(file2, not(file1));
+        assertThat(file2).isNotEqualTo(file1);
     }
 
     @Test
     public void willNotDeleteParentDirectoriesIfPathologicalFilesGetCreated() throws IOException {
         File file1 = files.createFile("foo/bar/baz.zip");
-        assertThat(file1.exists(), is(true));
+        assertThat(file1.exists()).isEqualTo(true);
         files.cleanUp();
-        assertThat(file1.exists(), is(false));
-        assertThat(new File(new File(tmpDir(), "cruise"), "foo").exists(), is(true));
+        assertThat(file1.exists()).isEqualTo(false);
+        assertThat(new File(new File(tmpDir(), "cruise"), "foo").exists()).isEqualTo(true);
     }
 }

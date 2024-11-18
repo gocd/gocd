@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.SchedulingContext;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.helper.ScheduleCheckMatcher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.MaterialDatabaseUpdater;
 import com.thoughtworks.go.server.messaging.StubScheduleCheckCompletedListener;
@@ -32,18 +31,18 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.Assertions;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.Timeout.TEN_SECONDS;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @Component
 public class ScheduleHelper {
@@ -107,37 +106,17 @@ public class ScheduleHelper {
     }
 
     public Map<CaseInsensitiveString, BuildCause> waitForAnyScheduled(int seconds) {
-        int count = 0;
-        Map<CaseInsensitiveString, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
-        while (afterLoad.isEmpty()) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            afterLoad = pipelineScheduleQueue.toBeScheduled();
-            if (count++ > seconds) {
-                fail("Never scheduled");
-            }
-        }
-        return afterLoad;
+        await()
+            .atMost(seconds, TimeUnit.SECONDS)
+            .alias("Never scheduled")
+            .until(() -> !pipelineScheduleQueue.toBeScheduled().isEmpty());
+       return pipelineScheduleQueue.toBeScheduled();
     }
-    public void waitForNotScheduled(int seconds,String pipelineName) {
-        int count = 0;
-        while (true) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            Map<CaseInsensitiveString, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
-            if (count++ > seconds) {
-                return ;
-            }
 
-            BuildCause cause = afterLoad.get(new CaseInsensitiveString(pipelineName));
-            assertNull(cause);
-        }
+    public void waitForNotScheduled(int seconds, String pipelineName) {
+        await()
+            .atMost(seconds, TimeUnit.SECONDS)
+            .failFast(() -> pipelineScheduleQueue.toBeScheduled().containsKey(new CaseInsensitiveString(pipelineName)));
     }
 
     public void autoSchedulePipelinesWithRealMaterials(String... pipelines) throws Exception {
@@ -145,14 +124,13 @@ public class ScheduleHelper {
         long startTime = System.currentTimeMillis();
         pipelineScheduler.onTimer();
         if (pipelines.length == 0) {
-            Assertions.assertAlwaysHappens(pipelines, ScheduleCheckMatcher.scheduleCheckCompleted(scheduleCompleteListener),
-                    waitTime());
+            await().atLeast(waitTime(), TimeUnit.MILLISECONDS);
         } else {
-            Assertions.assertWillHappen(pipelines, ScheduleCheckMatcher.scheduleCheckCompleted(scheduleCompleteListener),
-                    Timeout.TWENTY_SECONDS);
+            await()
+                .atMost(20, TimeUnit.SECONDS)
+                .untilAsserted(() -> assertThat(scheduleCompleteListener.pipelines).containsAll(List.of(pipelines)));
 
-            long endTime = System.currentTimeMillis();
-            setWaitTime(endTime - startTime);
+            setWaitTime(System.currentTimeMillis() - startTime);
         }
 
         scheduleCompleteListener.reset();
@@ -168,7 +146,7 @@ public class ScheduleHelper {
     }
 
     private void setWaitTime(long time) {
-        if(time > waitTime){
+        if (time > waitTime) {
             waitTime = time;
         }
     }
@@ -177,7 +155,7 @@ public class ScheduleHelper {
         long result;
 
         if (waitTime > 0) {
-            result = (waitTime > ONE_SECOND? waitTime:ONE_SECOND) * 2;
+            result = Math.max(waitTime, ONE_SECOND) * 2;
         } else {
             result = TEN_SECONDS.inMillis();
         }

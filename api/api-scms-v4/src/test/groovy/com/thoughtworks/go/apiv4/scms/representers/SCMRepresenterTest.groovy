@@ -31,7 +31,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.PART_OF_IDENTITY
 import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.SECURE
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
 class SCMRepresenterTest {

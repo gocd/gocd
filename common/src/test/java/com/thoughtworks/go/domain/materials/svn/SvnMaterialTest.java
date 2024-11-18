@@ -43,7 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -106,7 +106,7 @@ public class SvnMaterialTest {
         updateMaterial(svnMaterial, revision, workingCopy);
         String stdout = outputStreamConsumer.getStdOut();
         assertThat(stdout).contains(String.format("Start updating %s at revision %s from %s", "files", revision.getRevision(),
-                svnMaterial.getUrl()));
+            svnMaterial.getUrl()));
 
         verify(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
     }
@@ -259,9 +259,11 @@ public class SvnMaterialTest {
         material.toJson(json, revision);
 
         assertThatJson(json)
-            .node("scmType").isEqualTo("Subversion")
-            .node("location").isEqualTo(material.getUrl())
-            .node("action").isEqualTo("Modified");
+            .and(
+                a -> a.node("scmType").isEqualTo("Subversion"),
+                a -> a.node("location").isEqualTo(material.getUrl()),
+                a -> a.node("action").isEqualTo("Modified")
+            );
     }
 
     @Test
@@ -398,11 +400,11 @@ public class SvnMaterialTest {
         @Test
         void shouldReturnAListOfSecretParams() {
             SvnMaterial svnMaterial = new SvnMaterial("http://foo.com",
-                    "username", "{{SECRET:[secret_config_id][lookup_pass]}}", false);
+                "username", "{{SECRET:[secret_config_id][lookup_pass]}}", false);
 
             assertThat(svnMaterial.getSecretParams())
-                    .hasSize(1)
-                    .contains(new SecretParam("secret_config_id", "lookup_pass"));
+                .hasSize(1)
+                .contains(new SecretParam("secret_config_id", "lookup_pass"));
         }
 
         @Test
@@ -410,7 +412,7 @@ public class SvnMaterialTest {
             SvnMaterial svnMaterial = new SvnMaterial("http://foo.com", null, "pass", false);
 
             assertThat(svnMaterial.getSecretParams())
-                    .hasSize(0);
+                .hasSize(0);
         }
     }
 
@@ -437,8 +439,8 @@ public class SvnMaterialTest {
             SvnMaterial svnMaterial = new SvnMaterial("url", null, "{{SECRET:[secret_config_id][lookup_pass]}}", false);
 
             assertThatCode(svnMaterial::passwordForCommandLine)
-                    .isInstanceOf(UnresolvedSecretParamException.class)
-                    .hasMessageContaining("SecretParam 'lookup_pass' is used before it is resolved.");
+                .isInstanceOf(UnresolvedSecretParamException.class)
+                .hasMessageContaining("SecretParam 'lookup_pass' is used before it is resolved.");
         }
     }
 
@@ -449,8 +451,8 @@ public class SvnMaterialTest {
             SvnMaterial svnMaterial = new SvnMaterial("url", null, "{{SECRET:[secret_config_id][lookup_pass]}}", false);
 
             assertThat(svnMaterial.getSecretParams())
-                    .hasSize(1)
-                    .contains(new SecretParam("secret_config_id", "lookup_pass"));
+                .hasSize(1)
+                .contains(new SecretParam("secret_config_id", "lookup_pass"));
         }
     }
 }

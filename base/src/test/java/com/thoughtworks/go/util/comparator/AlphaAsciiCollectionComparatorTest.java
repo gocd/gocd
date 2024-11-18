@@ -19,11 +19,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AlphaAsciiCollectionComparatorTest {
-    private class Foo implements Comparable<Foo> {
+    private static class Foo implements Comparable<Foo> {
         private final String value;
 
         Foo(String value) {
@@ -43,8 +42,8 @@ public class AlphaAsciiCollectionComparatorTest {
     @Test
     public void shouldCompareSortedCollections() {
         AlphaAsciiCollectionComparator<Foo> comparator = new AlphaAsciiCollectionComparator<>();
-        assertThat(comparator.compare(List.of(new Foo("foo"), new Foo("quux")), List.of(new Foo("foo"), new Foo("bar"))), greaterThan(0));
-        assertThat(comparator.compare(List.of(new Foo("foo"), new Foo("abc")), List.of(new Foo("foo"), new Foo("bar"))), lessThan(0));
-        assertThat(comparator.compare(List.of(new Foo("foo"), new Foo("bar")), List.of(new Foo("bar"), new Foo("foo"))), is(0));
+        assertThat(comparator.compare(List.of(new Foo("foo"), new Foo("quux")), List.of(new Foo("foo"), new Foo("bar")))).isGreaterThan(0);
+        assertThat(comparator.compare(List.of(new Foo("foo"), new Foo("abc")), List.of(new Foo("foo"), new Foo("bar")))).isLessThan(0);
+        assertThat(comparator.compare(List.of(new Foo("foo"), new Foo("bar")), List.of(new Foo("bar"), new Foo("foo")))).isEqualTo(0);
     }
 }

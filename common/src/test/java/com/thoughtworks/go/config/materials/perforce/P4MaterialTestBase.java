@@ -28,7 +28,7 @@ import java.io.File;
 import java.util.*;
 
 import static java.lang.String.format;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -235,9 +235,11 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         p4Material.toJson(json, new StringRevision("123"));
 
         assertThatJson(json)
-            .node("scmType").isEqualTo("Perforce")
-            .node("location").isEqualTo(p4Material.getServerAndPort())
-            .node("action").isEqualTo("Modified");
+            .and(
+                j -> j.node("scmType").isEqualTo("Perforce"),
+                j -> j.node("location").isEqualTo(p4Material.getServerAndPort()),
+                j -> j.node("action").isEqualTo("Modified")
+            );
     }
 
     @Test

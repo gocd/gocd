@@ -22,7 +22,7 @@ import spark.RouteImpl
 import spark.route.HttpMethod
 
 import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class RouteEntryRepresenterTest {
   @Test

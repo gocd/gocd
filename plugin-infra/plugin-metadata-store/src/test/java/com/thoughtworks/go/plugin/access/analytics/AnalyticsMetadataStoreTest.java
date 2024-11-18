@@ -20,8 +20,7 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +43,6 @@ public class AnalyticsMetadataStoreTest {
 
         store.updateAssetsPath("plugin_id", "static_assets_path");
 
-        assertThat(pluginInfo.getStaticAssetsPath(), is("static_assets_path"));
+        assertThat(pluginInfo.getStaticAssetsPath()).isEqualTo("static_assets_path");
     }
 }

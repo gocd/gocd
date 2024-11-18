@@ -20,8 +20,7 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,9 +55,9 @@ public class TaskPreferenceTest {
         when(task5.view()).thenReturn(taskView5);
         TaskPreference taskPreference5 = new TaskPreference(task5);
 
-        assertThat(taskPreference1.equals(taskPreference2), is(false));
-        assertThat(taskPreference1.equals(taskPreference3), is(true));
-        assertThat(taskPreference1.equals(taskPreference4), is(true));
-        assertThat(taskPreference1.equals(taskPreference5), is(false));
+        assertThat(taskPreference1.equals(taskPreference2)).isEqualTo(false);
+        assertThat(taskPreference1.equals(taskPreference3)).isEqualTo(true);
+        assertThat(taskPreference1.equals(taskPreference4)).isEqualTo(true);
+        assertThat(taskPreference1.equals(taskPreference5)).isEqualTo(false);
     }
 }

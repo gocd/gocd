@@ -20,7 +20,7 @@ import com.thoughtworks.go.apiv11.admin.shared.representers.stages.tasks.TaskRep
 import com.thoughtworks.go.config.RakeTask
 import org.junit.jupiter.api.Test
 
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class RakeTaskRepresenterTest implements TaskRepresenterTrait {
   def existingTask() {

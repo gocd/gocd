@@ -17,24 +17,23 @@ package com.thoughtworks.go.util.command;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StringArgumentTest {
     private final StringArgument argument = new StringArgument("test");
 
     @Test
     public void shouldReturnStringValueForCommandLine() {
-        assertThat(argument.originalArgument(), is("test"));
+        assertThat(argument.originalArgument()).isEqualTo("test");
     }
 
     @Test
     public void shouldReturnStringValueForReporting() {
-        assertThat(argument.forDisplay(), is("test"));
+        assertThat(argument.forDisplay()).isEqualTo("test");
     }
 
     @Test
     public void shouldReturnValueForToString() {
-        assertThat(argument.toString(), is("test"));
+        assertThat(argument.toString()).isEqualTo("test");
     }
 }

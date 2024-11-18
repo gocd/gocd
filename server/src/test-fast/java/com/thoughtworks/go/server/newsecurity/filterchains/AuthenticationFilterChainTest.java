@@ -281,8 +281,8 @@ public class AuthenticationFilterChainTest {
             final AuthenticationToken<?> authenticationToken = SessionUtils.getAuthenticationToken(request);
             assertThat(authenticationToken).isNotNull();
             assertThat(authenticationToken.getCredentials()).isEqualTo(AnonymousCredential.INSTANCE);
-            assertThat(authenticationToken.getPluginId()).isEqualTo(null);
-            assertThat(authenticationToken.getAuthConfigId()).isEqualTo(null);
+            assertThat(authenticationToken.getPluginId()).isNull();
+            assertThat(authenticationToken.getAuthConfigId()).isNull();
             assertThat(authenticationToken.getUser().getUsername()).isEqualTo("anonymous");
             assertThat(authenticationToken.getUser().getDisplayName()).isEqualTo("anonymous");
             assertThat(authenticationToken.getUser().getAuthorities()).isEqualTo(GoAuthority.ALL_AUTHORITIES);

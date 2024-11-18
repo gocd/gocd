@@ -24,7 +24,10 @@ import com.thoughtworks.go.domain.materials.TestingMaterial;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.helper.SvnTestRepo;
+import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -33,10 +36,8 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.util.Assertions;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,13 +50,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -159,7 +161,7 @@ public class PipelineScheduleServiceTest {
         TestingMaterial stubMaterial = new TestingMaterial();
         mingleConfig.setMaterialConfigs(new MaterialConfigs(stubMaterial.config()));
 
-        assertThat(pipelineLockService.isLocked("mingle"), is(false));
+        assertThat(pipelineLockService.isLocked("mingle")).isEqualTo(false);
 
         MaterialRevisions revisions = new MaterialRevisions();
         revisions.addRevision(stubMaterial, stubMaterial.modificationsSince());
@@ -168,7 +170,7 @@ public class PipelineScheduleServiceTest {
         Pipeline pipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
         pipelineService.save(pipeline);
 
-        assertThat(pipelineLockService.isLocked("mingle"), is(true));
+        assertThat(pipelineLockService.isLocked("mingle")).isEqualTo(true);
     }
 
     @Test
@@ -195,11 +197,16 @@ public class PipelineScheduleServiceTest {
         Stage instance = scheduleService.scheduleStage(pipeline, STAGE_NAME, "anyone", new ScheduleService.NewStageInstanceCreator(goConfigService),
                 new ScheduleService.ExceptioningErrorHandler());
         JobInstances scheduledJobs = instance.getJobInstances();
-        assertThat(scheduledJobs.toArray(), hasItemInArray(hasProperty("name", is(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("unit", 1)))));
-        assertThat(scheduledJobs.toArray(), hasItemInArray(hasProperty("agentUuid", is("uuid2"))));
-        assertThat(scheduledJobs.toArray(), hasItemInArray(hasProperty("name", is(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("unit", 2)))));
-        assertThat(scheduledJobs.toArray(), hasItemInArray(hasProperty("agentUuid", is("uuid3"))));
-        assertThat(scheduledJobs.size(), is(2));
+        assertThat(scheduledJobs).satisfiesExactlyInAnyOrder(
+            job -> {
+                assertThat(job.getAgentUuid()).isEqualTo("uuid2");
+                assertThat(job.getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("unit", 1));
+            },
+            job -> {
+                assertThat(job.getAgentUuid()).isEqualTo("uuid3");
+                assertThat(job.getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("unit", 2));
+            }
+        );
     }
 
 	@Test
@@ -219,9 +226,15 @@ public class PipelineScheduleServiceTest {
 		Stage instance = scheduleService.scheduleStage(pipeline, STAGE_NAME, "anyone", new ScheduleService.NewStageInstanceCreator(goConfigService), new ScheduleService.ExceptioningErrorHandler());
 
 		JobInstances scheduledJobs = instance.getJobInstances();
-		assertThat(scheduledJobs.size(), is(2));
-		assertThat(scheduledJobs.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("unit", 1)))));
-		assertThat(scheduledJobs.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("unit", 2)))));
+
+        assertThat(scheduledJobs).satisfiesExactlyInAnyOrder(
+            job -> {
+                assertThat(job.getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("unit", 1));
+            },
+            job -> {
+                assertThat(job.getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("unit", 2));
+            }
+        );
 	}
 
     @Test
@@ -231,10 +244,11 @@ public class PipelineScheduleServiceTest {
 
         Stage stage = scheduleService.scheduleStage(pipeline, "ft", "anonymous", new ScheduleService.NewStageInstanceCreator(goConfigService), new ScheduleService.ExceptioningErrorHandler());
         EnvironmentVariables jobVariables = stage.getJobInstances().first().getPlan().getVariables();
-        assertThat(jobVariables.size(), is(3)); //pipeline, stage, job, env is applied while creating work
-        assertThat(jobVariables, hasItem(new EnvironmentVariable("PIPELINE_LVL", "pipeline value")));
-        assertThat(jobVariables, hasItem(new EnvironmentVariable("STAGE_LVL", "stage value")));
-        assertThat(jobVariables, hasItem(new EnvironmentVariable("JOB_LVL", "job value")));
+        assertThat(jobVariables).containsExactlyInAnyOrder(
+            new EnvironmentVariable("PIPELINE_LVL", "pipeline value"),
+            new EnvironmentVariable("STAGE_LVL", "stage value"),
+            new EnvironmentVariable("JOB_LVL", "job value")
+        );
     }
 
 
@@ -245,11 +259,11 @@ public class PipelineScheduleServiceTest {
 
         configHelper.lockPipeline("mingle");
 
-        assertThat(pipelineLockService.isLocked("mingle"), is(false));
+        assertThat(pipelineLockService.isLocked("mingle")).isEqualTo(false);
 
         scheduleService.scheduleStage(pipeline, STAGE_NAME, "anonymous", new ScheduleService.NewStageInstanceCreator(goConfigService), new ScheduleService.ExceptioningErrorHandler());
 
-        assertThat(pipelineLockService.isLocked("mingle"), is(true));
+        assertThat(pipelineLockService.isLocked("mingle")).isEqualTo(true);
     }
 
     @Test
@@ -258,7 +272,7 @@ public class PipelineScheduleServiceTest {
         pipelineWithTwoStages.usingDbHelper(dbHelper).usingConfigHelper(configHelper).onSetUp();
         pipelineWithTwoStages.createPipelineWithFirstStagePassedAndSecondStageRunning();
         Pipeline pipeline = manualSchedule(pipelineWithTwoStages.pipelineName);
-        assertThat(pipeline.getFirstStage().stageState(), is(StageState.Building));
+        assertThat(pipeline.getFirstStage().stageState()).isEqualTo(StageState.Building);
     }
 
     @Test
@@ -267,7 +281,7 @@ public class PipelineScheduleServiceTest {
         pipelineWithTwoStages.usingDbHelper(dbHelper).usingConfigHelper(configHelper).onSetUp();
         pipelineWithTwoStages.createPipelineWithFirstStagePassedAndSecondStageRunning();
         Pipeline pipeline = manualSchedule(pipelineWithTwoStages.pipelineName);
-        assertThat(pipeline.getFirstStage().isActive(), is(true));
+        assertThat(pipeline.getFirstStage().isActive()).isEqualTo(true);
     }
 
     @Test
@@ -298,7 +312,7 @@ public class PipelineScheduleServiceTest {
         autoSchedulePipelines();
 
         int afterScheduling = pipelineDao.count(CaseInsensitiveString.str(invalidPipeline.name()));
-        assertThat(beforeScheduling, is(afterScheduling));
+        assertThat(beforeScheduling).isEqualTo(afterScheduling);
     }
 
     @Test
@@ -306,7 +320,7 @@ public class PipelineScheduleServiceTest {
         Pipeline pipeline = PipelineMother.building(mingleConfig);
         pipeline = dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         Pipeline newPipeline = manualSchedule(CaseInsensitiveString.str(mingleConfig.name()));
-        assertThat(newPipeline.getId(), is(pipeline.getId()));
+        assertThat(newPipeline.getId()).isEqualTo(pipeline.getId());
     }
 
     @Test
@@ -320,8 +334,8 @@ public class PipelineScheduleServiceTest {
         autoSchedulePipelines();
         Stage mostRecent = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(evolveConfig.name()), evolveConfig.findBy(new CaseInsensitiveString("dev")));
 
-        assertThat(mostRecent.getId(), is(evolveInstance.getId()));
-        assertThat(mostRecent.getJobInstances().first().getState(), is(JobState.Completed));
+        assertThat(mostRecent.getId()).isEqualTo(evolveInstance.getId());
+        assertThat(mostRecent.getJobInstances().first().getState()).isEqualTo(JobState.Completed);
     }
 
 
@@ -334,7 +348,7 @@ public class PipelineScheduleServiceTest {
 
         Stage cruise = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(cruisePlan.name()), cruisePlan.findBy(new CaseInsensitiveString("dev")));
         JobInstance instance = cruise.getJobInstances().first();
-        assertThat(instance.getState(), is(JobState.Scheduled));
+        assertThat(instance.getState()).isEqualTo(JobState.Scheduled);
     }
 
     @Test
@@ -343,14 +357,17 @@ public class PipelineScheduleServiceTest {
         goConfigService.forceNotifyListeners();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials("mingle", "evolve", "cruise");
 
-        Assertions.assertWillHappen(2, PipelineScheduleQueueMatcher.numberOfScheduledPipelinesIsAtLeast(pipelineScheduleQueue), Timeout.FIVE_SECONDS);
-        int originalSize = pipelineScheduleQueue.toBeScheduled().size();
-        assertThat(originalSize, greaterThan(1));
+        await()
+            .atMost(5, TimeUnit.SECONDS)
+            .untilAsserted(
+                () -> assertThat(pipelineScheduleQueue.toBeScheduled()).hasSizeGreaterThanOrEqualTo(2)
+            );
+
         configHelper.initializeConfigFile();
         goConfigService.forceNotifyListeners();
 
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
-        assertThat(pipelineScheduleQueue.toBeScheduled().size(), is(0));
+        assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(0);
     }
 
     @Test
@@ -363,7 +380,7 @@ public class PipelineScheduleServiceTest {
         goConfigService.forceNotifyListeners();
 
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
-        assertThat(pipelineScheduleQueue.toBeScheduled().size(), is(0));
+        assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(0);
     }
 
     @Test
@@ -387,7 +404,7 @@ public class PipelineScheduleServiceTest {
         pipelineScheduleQueue.schedule(new CaseInsensitiveString("evolve"), BuildCause.createManualForced(modifyOneFile(evolveConfig), Username.ANONYMOUS));
 
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
-        assertThat(pipelineScheduleQueue.toBeScheduled().size(), is(0));
+        assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(0);
     }
 
     private void autoSchedulePipelines(String... pipelineNames) throws Exception {
@@ -404,10 +421,10 @@ public class PipelineScheduleServiceTest {
     private void assertPipelinesScheduled() {
         Pipeline minglePipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(mingleConfig.name()));
         Stage mingleStage = minglePipeline.getFirstStage();
-        assertThat(mingleStage.getName(), is(STAGE_NAME));
-        assertThat(mingleStage.getJobInstances().size(), is(2));
+        assertThat(mingleStage.getName()).isEqualTo(STAGE_NAME);
+        assertThat(mingleStage.getJobInstances().size()).isEqualTo(2);
         JobInstance mingleJob = mingleStage.getJobInstances().first();
-        assertThat(mingleJob.getState(), is(JobState.Scheduled));
+        assertThat(mingleJob.getState()).isEqualTo(JobState.Scheduled);
 
         assertPipelineScheduled(evolveConfig);
         assertPipelineScheduled(goConfig);
@@ -415,17 +432,17 @@ public class PipelineScheduleServiceTest {
 
     private void assertPipelineScheduled(PipelineConfig config) {
         Stage evolveStage = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(config.name()), config.findBy(new CaseInsensitiveString("dev")));
-        assertThat(evolveStage.getName(), is("dev"));
-        assertThat(evolveStage.getJobInstances().size(), is(1));
-        assertThat(evolveStage.getJobInstances().first().getState(), is(JobState.Scheduled));
+        assertThat(evolveStage.getName()).isEqualTo("dev");
+        assertThat(evolveStage.getJobInstances().size()).isEqualTo(1);
+        assertThat(evolveStage.getJobInstances().first().getState()).isEqualTo(JobState.Scheduled);
     }
 
     private void verifyMingleScheduledWithModifications() {
         Pipeline scheduledPipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(mingleConfig.name()));
         BuildCause buildCause = scheduledPipeline.getBuildCause();
-        assertThat(buildCause.getMaterialRevisions().totalNumberOfModifications(), is(3));
+        assertThat(buildCause.getMaterialRevisions().totalNumberOfModifications()).isEqualTo(3);
         JobInstance instance = scheduledPipeline.getFirstStage().getJobInstances().first();
-        assertThat(instance.getState(), is(JobState.Scheduled));
+        assertThat(instance.getState()).isEqualTo(JobState.Scheduled);
     }
 
     private Pipeline scheduleAndCompleteInitialPipelines() throws Exception {
@@ -439,7 +456,7 @@ public class PipelineScheduleServiceTest {
         Stage completedMingleStage = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.findBy(new CaseInsensitiveString("dev")));
         dbHelper.passStage(completedMingleStage);
         dbHelper.passStage(completedMingleStage);
-        assertThat(completedMingleStage.getJobInstances().first().getState(), is(JobState.Completed));
+        assertThat(completedMingleStage.getJobInstances().first().getState()).isEqualTo(JobState.Completed);
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(pipelineConfig.name()));
         return dbHelper.passPipelineFirstStageOnly(pipeline);
     }

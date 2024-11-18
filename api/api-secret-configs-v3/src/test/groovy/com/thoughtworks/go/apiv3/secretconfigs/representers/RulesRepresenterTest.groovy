@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
 import static com.thoughtworks.go.apiv3.secretconfigs.representers.RulesRepresenter.*
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
 class RulesRepresenterTest {

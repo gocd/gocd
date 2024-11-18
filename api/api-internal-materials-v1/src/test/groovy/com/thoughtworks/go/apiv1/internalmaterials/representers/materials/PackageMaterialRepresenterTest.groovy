@@ -15,13 +15,12 @@
  */
 package com.thoughtworks.go.apiv1.internalmaterials.representers.materials
 
-
 import com.thoughtworks.go.config.materials.PackageMaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class PackageMaterialRepresenterTest {
 

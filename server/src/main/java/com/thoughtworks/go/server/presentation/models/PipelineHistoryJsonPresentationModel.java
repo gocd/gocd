@@ -99,7 +99,7 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
     }
 
     @Override
-    public Map toJson() {
+    public Map<String, Object> toJson() {
         Map<String, Object> json = new LinkedHashMap<>();
         String pipelineName = str(pipelineConfig.name());
         json.put("pipelineName", pipelineName);

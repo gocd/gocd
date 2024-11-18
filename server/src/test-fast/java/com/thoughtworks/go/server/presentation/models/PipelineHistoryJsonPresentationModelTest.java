@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -35,10 +34,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfigWithStages;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineHistoryJsonPresentationModelTest {
     private PipelineConfig pipelineConfig;
@@ -47,10 +45,11 @@ public class PipelineHistoryJsonPresentationModelTest {
     private static final int START = 1;
     private static final int PER_PAGE = 10;
     private static final boolean CAN_FORCE = false;
+    private final boolean hasForceBuildCause = false;
+    private final Date modificationDate = new Date();
+    private final boolean hasModification = false;
+
     private PipelinePauseInfo pipelinePauseInfo;
-    private boolean hasForceBuildCause = false;
-    private Date modificationDate = new Date();
-    private boolean hasModification = false;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -86,7 +85,8 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     @Test
     public void shouldContainPipelineConfig() {
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        Map<String, Object> json = presenter.toJson();
+        assertThatJson(json).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "groups": [
                     {
@@ -109,8 +109,8 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     @Test
     public void shouldContainPipelineHistory() {
-        Map json = presenter.toJson();
-        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        Map<String, Object> json = presenter.toJson();
+        assertThatJson(json).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "groups": [
                     {
@@ -149,8 +149,8 @@ public class PipelineHistoryJsonPresentationModelTest {
             preparePipelineHistoryGroupsWithErrorMessage(pipelineConfig),
             pipelineConfig,
             pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
-        Map json = presenter.toJson();
-        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        Map<String, Object> json = presenter.toJson();
+        assertThatJson(json).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "groups": [
                     {
@@ -186,8 +186,8 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     @Test
     public void shouldContainPipelineHistoryComments() {
-        Map json = presenter.toJson();
-        assertThatJson(new Gson().toJson(json))
+        Map<String, Object> json = presenter.toJson();
+        assertThatJson(json)
             .when(IGNORING_EXTRA_FIELDS)
             .isEqualTo("""
                     {
@@ -207,7 +207,8 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     @Test
     public void shouldContainPipelinePageInfo() {
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        Map<String, Object> json = presenter.toJson();
+        assertThatJson(json).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "pipelineName": "mingle",
                   "count": 1,
@@ -220,31 +221,36 @@ public class PipelineHistoryJsonPresentationModelTest {
     @Test
     public void needsApprovalInJsonShouldBeFalseWhenPipelineIsPaused() {
         pipelinePauseInfo.setPaused(true);
-        HashMap<String, Object> map = new HashMap(presenter.toJson());
+        Map<String, Object> map = new HashMap<>(presenter.toJson());
 
-        assertThat(map.get("paused"), is("true"));
-        assertThat(map, not(hasKey("needsApproval")));
+        assertThat(map.get("paused")).isEqualTo("true");
+        assertThat(map).doesNotContainKey("needsApproval");
     }
 
     @Test
     public void shouldShowFirstStageApproverNameInBuildCauseBy() {
-        assertThatJson(presenter.toJson())
+        Map<String, Object> json = presenter.toJson();
+        assertThatJson(json)
             .node("groups[0].history[0].buildCauseBy")
             .isEqualTo("Triggered by " + GoConstants.DEFAULT_APPROVED_BY);
     }
 
     @Test
     public void shouldContainMaterialRevisions() {
-        assertThatJson(presenter.toJson())
-            .node("groups[0].history[0].materialRevisions[0].revision").isEqualTo("svn.100")
-            .node("groups[0].history[0].materialRevisions[0].user").isEqualTo("user")
-            .node("groups[0].history[0].materialRevisions[0].date").isEqualTo(DateUtils.formatISO8601(modificationDate));
+        Map<String, Object> json = presenter.toJson();
+        assertThatJson(json)
+            .and(
+                a -> a.node("groups[0].history[0].materialRevisions[0].revision").isEqualTo("svn.100"),
+                a -> a.node("groups[0].history[0].materialRevisions[0].user").isEqualTo("user"),
+                a -> a.node("groups[0].history[0].materialRevisions[0].date").isEqualTo(DateUtils.formatISO8601(modificationDate))
+        );
     }
 
     @Test
     public void shouldContainPipelineCounterOrLabel() {
-        assertThatJson(presenter.toJson())
-            .node("groups[0].history[0].counterOrLabel").isStringEqualTo("1");
+        Map<String, Object> json = presenter.toJson();
+        assertThatJson(json)
+            .node("groups[0].history[0].counterOrLabel").asString().isEqualTo("1");
     }
 
     @Test
@@ -253,15 +259,18 @@ public class PipelineHistoryJsonPresentationModelTest {
         pipelinePauseInfo.setPauseCause("pauseCause");
         pipelinePauseInfo.setPauseBy("pauseBy");
 
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        Map<String, Object> json2 = presenter.toJson();
+        assertThatJson(json2).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "paused": "true"
                 }""");
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        Map<String, Object> json1 = presenter.toJson();
+        assertThatJson(json1).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "pauseCause": "pauseCause"
                 }""");
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        Map<String, Object> json = presenter.toJson();
+        assertThatJson(json).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "pauseBy": "pauseBy"
                 }""");
@@ -275,7 +284,8 @@ public class PipelineHistoryJsonPresentationModelTest {
                 historyGroups,
                 newConfig,
                 pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
-        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        Map<String, Object> json = presenter.toJson();
+        assertThatJson(json).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "groups": [
                     {
@@ -318,7 +328,8 @@ public class PipelineHistoryJsonPresentationModelTest {
                 preparePipelineHistoryGroups(pipelineConfig1),
                 pipelineConfig1,
                 pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
-        assertThatJson(presenter.toJson())
+        Map<String, Object> json = presenter.toJson();
+        assertThatJson(json)
             .node("groups[0].history[0].stages[0].stageLocator").isEqualTo("mingle-%25/1/stage1-%25/1");
     }
 

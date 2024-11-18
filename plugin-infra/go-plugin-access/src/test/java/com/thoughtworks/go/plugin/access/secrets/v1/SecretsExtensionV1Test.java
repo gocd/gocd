@@ -42,7 +42,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.secrets.SecretsPluginConstants.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SECRETS_EXTENSION;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.eq;

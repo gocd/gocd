@@ -42,8 +42,7 @@ import java.net.URL;
 import java.util.*;
 
 import static java.lang.String.format;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -193,11 +192,11 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(GoExtensionWithLoadUnloadAnnotation.loadInvoked, is(1));
+        assertThat(GoExtensionWithLoadUnloadAnnotation.loadInvoked).isEqualTo(1);
 
         activator.stop(context);
 
-        assertThat(GoExtensionWithLoadUnloadAnnotation.unLoadInvoked, is(1));
+        assertThat(GoExtensionWithLoadUnloadAnnotation.unLoadInvoked).isEqualTo(1);
     }
 
     @Test
@@ -236,11 +235,11 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(testExtensionClass.getField("loadInvoked").getInt(null), is(invocationCount));
+        assertThat(testExtensionClass.getField("loadInvoked").getInt(null)).isEqualTo(invocationCount);
 
         activator.stop(context);
 
-        assertThat(testExtensionClass.getField("unLoadInvoked").getInt(null), is(invocationCount));
+        assertThat(testExtensionClass.getField("unLoadInvoked").getInt(null)).isEqualTo(invocationCount);
     }
 
     @Test
@@ -259,7 +258,7 @@ public class DefaultGoPluginActivatorTest {
         when(bundle.loadClass(contains("GoExtensionWithMultipleLoadUnloadAnnotation"))).thenReturn((Class) GoExtensionWithMultipleLoadUnloadAnnotation.class);
 
         activator.start(context);
-        assertThat(activator.hasErrors(), is(true));
+        assertThat(activator.hasErrors()).isEqualTo(true);
         verify(pluginRegistryService).pluginIDFor(eq(SYMBOLIC_NAME), anyString());
         verifyThatOneOfTheErrorMessagesIsPresent(expectedErrorMessageWithMethodsWithIncreasingOrder, expectedErrorMessageWithMethodsWithDecreasingOrder);
 
@@ -275,7 +274,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(activator.hasErrors(), is(true));
+        assertThat(activator.hasErrors()).isEqualTo(true);
 
         verify(pluginRegistryService).pluginIDFor(eq(SYMBOLIC_NAME), anyString());
         verifyErrorsReported("Class [GoExtensionWithLoadAnnotationMethodThrowingException] is annotated with @Extension but cannot be registered. "
@@ -290,10 +289,10 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(activator.hasErrors(), is(false));
+        assertThat(activator.hasErrors()).isEqualTo(false);
         activator.stop(context);
 
-        assertThat(activator.hasErrors(), is(true));
+        assertThat(activator.hasErrors()).isEqualTo(true);
         verify(pluginRegistryService).pluginIDFor(eq(SYMBOLIC_NAME), anyString());
         verifyErrorsReported("Invocation of unload method [public int com.thoughtworks.go.plugin.activation.GoExtensionWithUnloadAnnotationMethodThrowingException"
                 + ".throwExceptionAgain(com.thoughtworks.go.plugin.api.info.PluginContext) "
@@ -314,7 +313,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(activator.hasErrors(), is(false));
+        assertThat(activator.hasErrors()).isEqualTo(false);
         verify(context).registerService(eq(GoPlugin.class), any(GoPlugin.class), eq(expectedPropertiesUponRegistration));
     }
 
@@ -339,7 +338,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(activator.hasErrors(), is(false));
+        assertThat(activator.hasErrors()).isEqualTo(false);
         verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), eq(expectedPropertiesUponRegistrationForPlugin1));
         verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class), eq(expectedPropertiesUponRegistrationForPlugin2));
     }
@@ -364,7 +363,7 @@ public class DefaultGoPluginActivatorTest {
         verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), eq(expectedPropertiesUponRegistrationForPlugin1));
         verify(context, never()).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class), any());
 
-        assertThat(activator.hasErrors(), is(true));
+        assertThat(activator.hasErrors()).isEqualTo(true);
         verifyErrorsReported("Unable to find plugin ID for extension class (com.thoughtworks.go.plugin.activation.PublicGoExtensionClassWhichWillAlsoLoadSuccessfully) in bundle plugin-id");
     }
 
@@ -375,7 +374,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(activator.hasErrors(), is(true));
+        assertThat(activator.hasErrors()).isEqualTo(true);
         verifyErrorReportedContains("Unable to find extension type from plugin identifier in class com.thoughtworks.go.plugin.activation.PublicGoExtensionClassWhichWillLoadSuccessfullyButThrowWhenAskedForPluginIdentifier");
         verify(context, times(0)).registerService(eq(GoPlugin.class), any(GoPlugin.class), any());
     }
@@ -391,7 +390,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(activator.hasErrors(), is(false));
+        assertThat(activator.hasErrors()).isEqualTo(false);
         verify(context, times(1)).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), any());
         verify(context, never()).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class), any());
         verify(bundle, never()).loadClass("PublicGoExtensionClassWhichWillAlsoLoadSuccessfully");
@@ -406,7 +405,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(activator.hasErrors(), is(true));
+        assertThat(activator.hasErrors()).isEqualTo(true);
         verify(context, never()).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), any());
         verify(pluginRegistryService).reportErrorAndInvalidate(SYMBOLIC_NAME, List.of("Extension class declared in plugin bundle is not found: com.some.InvalidClass"));
     }

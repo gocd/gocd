@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.web;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import org.junit.jupiter.api.Test;
 
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 public class JsonRendererTest {
 

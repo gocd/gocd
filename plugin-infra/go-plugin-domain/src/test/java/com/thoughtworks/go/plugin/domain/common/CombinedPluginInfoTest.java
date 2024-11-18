@@ -26,8 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
@@ -38,8 +37,7 @@ public class CombinedPluginInfoTest {
                 new PluggableTaskPluginInfo(null, null, null),
                 new NotificationPluginInfo(null, null)));
 
-        assertThat(pluginInfo.extensionNames().size(), is(2));
-        assertThat(pluginInfo.extensionNames(), hasItems(NOTIFICATION_EXTENSION, PLUGGABLE_TASK_EXTENSION));
+        assertThat(pluginInfo.extensionNames()).containsExactlyInAnyOrder(PLUGGABLE_TASK_EXTENSION, NOTIFICATION_EXTENSION);
     }
 
     @Test
@@ -51,7 +49,7 @@ public class CombinedPluginInfoTest {
 
         CombinedPluginInfo pluginInfo = new CombinedPluginInfo(List.of(pluggableTaskPluginInfo, notificationPluginInfo));
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
     }
 
     @Test
@@ -62,7 +60,7 @@ public class CombinedPluginInfoTest {
             pluginInfo.getDescriptor();
             fail("Should have failed since there are no plugins found.");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), containsString("Cannot get descriptor"));
+            assertThat(e.getMessage()).contains("Cannot get descriptor");
         }
     }
 
@@ -73,11 +71,11 @@ public class CombinedPluginInfoTest {
 
         CombinedPluginInfo pluginInfo = new CombinedPluginInfo(List.of(pluggableTaskPluginInfo, notificationPluginInfo));
 
-        assertThat(pluginInfo.getExtensionInfos(), containsInAnyOrder(notificationPluginInfo, pluggableTaskPluginInfo));
+        assertThat(pluginInfo.getExtensionInfos()).containsExactlyInAnyOrder(notificationPluginInfo, pluggableTaskPluginInfo);
     }
 
     @Test
-    public void shouldFindFirstExtensionWithImageIfPluginImplementsAtleastOneExtensionWithImage() {
+    public void shouldFindFirstExtensionWithImageIfPluginImplementsAtLeastOneExtensionWithImage() {
         Image image1 = new Image("c1", "d1", "hash1");
         Image image2 = new Image("c2", "d2", "hash2");
         Image image3 = new Image("c3", "d3", "hash3");
@@ -86,12 +84,12 @@ public class CombinedPluginInfoTest {
         AuthorizationPluginInfo authorizationPluginInfo = new AuthorizationPluginInfo(null, null, null, image2, null);
         AnalyticsPluginInfo analyticsPluginInfo = new AnalyticsPluginInfo(null, image3, null, null);
 
-        assertThat(new CombinedPluginInfo(elasticAgentPluginInfo).getImage(), is(image1));
-        assertThat(new CombinedPluginInfo(authorizationPluginInfo).getImage(), is(image2));
-        assertThat(new CombinedPluginInfo(analyticsPluginInfo).getImage(), is(image3));
+        assertThat(new CombinedPluginInfo(elasticAgentPluginInfo).getImage()).isEqualTo(image1);
+        assertThat(new CombinedPluginInfo(authorizationPluginInfo).getImage()).isEqualTo(image2);
+        assertThat(new CombinedPluginInfo(analyticsPluginInfo).getImage()).isEqualTo(image3);
 
-        assertThat(new CombinedPluginInfo(List.of(elasticAgentPluginInfo, authorizationPluginInfo)).getImage(), anyOf(is(image1), is(image2)));
-        assertThat(new CombinedPluginInfo(List.of(analyticsPluginInfo, authorizationPluginInfo)).getImage(), anyOf(is(image2), is(image3)));
+        assertThat(new CombinedPluginInfo(List.of(elasticAgentPluginInfo, authorizationPluginInfo)).getImage()).isIn(image1, image2);
+        assertThat(new CombinedPluginInfo(List.of(analyticsPluginInfo, authorizationPluginInfo)).getImage()).isIn(image2,image3);
     }
 
     @Test
@@ -99,9 +97,9 @@ public class CombinedPluginInfoTest {
         NotificationPluginInfo notificationPluginInfo = new NotificationPluginInfo(null, null);
         PluggableTaskPluginInfo pluggableTaskPluginInfo = new PluggableTaskPluginInfo(null, null, null);
 
-        assertThat(new CombinedPluginInfo(notificationPluginInfo).getImage(), is(nullValue()));
-        assertThat(new CombinedPluginInfo(pluggableTaskPluginInfo).getImage(), is(nullValue()));
-        assertThat(new CombinedPluginInfo(List.of(pluggableTaskPluginInfo, notificationPluginInfo)).getImage(), is(nullValue()));
+        assertThat(new CombinedPluginInfo(notificationPluginInfo).getImage()).isNull();
+        assertThat(new CombinedPluginInfo(pluggableTaskPluginInfo).getImage()).isNull();
+        assertThat(new CombinedPluginInfo(List.of(pluggableTaskPluginInfo, notificationPluginInfo)).getImage()).isNull();
     }
 
     @Test
@@ -111,8 +109,8 @@ public class CombinedPluginInfoTest {
 
         CombinedPluginInfo pluginInfo = new CombinedPluginInfo(List.of(pluggableTaskPluginInfo, notificationPluginInfo));
 
-        assertThat(pluginInfo.extensionFor(NOTIFICATION_EXTENSION), is(notificationPluginInfo));
-        assertThat(pluginInfo.extensionFor(PLUGGABLE_TASK_EXTENSION), is(pluggableTaskPluginInfo));
-        assertThat(pluginInfo.extensionFor(ANALYTICS_EXTENSION), is(nullValue()));
+        assertThat(pluginInfo.extensionFor(NOTIFICATION_EXTENSION)).isEqualTo(notificationPluginInfo);
+        assertThat(pluginInfo.extensionFor(PLUGGABLE_TASK_EXTENSION)).isEqualTo(pluggableTaskPluginInfo);
+        assertThat(pluginInfo.extensionFor(ANALYTICS_EXTENSION)).isNull();
     }
 }

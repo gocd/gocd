@@ -17,28 +17,27 @@ package com.thoughtworks.go.util;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UrlUtilTest {
 
     @Test
     public void shouldEncodeUrl() {
-        assertThat(UrlUtil.encodeInUtf8("a%b"), is("a%25b"));
+        assertThat(UrlUtil.encodeInUtf8("a%b")).isEqualTo("a%25b");
     }
 
     @Test
     public void shouldEncodeAllPartsInUrl() {
-        assertThat(UrlUtil.encodeInUtf8("a%b/c%d"), is("a%25b/c%25d"));
+        assertThat(UrlUtil.encodeInUtf8("a%b/c%d")).isEqualTo("a%25b/c%25d");
     }
 
     @Test
     public void shouldKeepPrecedingSlash() {
-        assertThat(UrlUtil.encodeInUtf8("/a%b/c%d"), is("/a%25b/c%25d"));
+        assertThat(UrlUtil.encodeInUtf8("/a%b/c%d")).isEqualTo("/a%25b/c%25d");
     }
 
     @Test
     public void shouldKeepTrailingSlash() {
-        assertThat(UrlUtil.encodeInUtf8("a%b/c%d/"), is("a%25b/c%25d/"));
+        assertThat(UrlUtil.encodeInUtf8("a%b/c%d/")).isEqualTo("a%25b/c%25d/");
     }
 }

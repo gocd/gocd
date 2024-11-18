@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,9 +89,9 @@ public class JsonBasedPluggableTaskTest {
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), argument.capture());
-        MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(PLUGGABLE_TASK_EXTENSION));
-        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
-        MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(TaskExtension.CONFIGURATION_REQUEST));
+        assertThat(argument.getValue().extension(), Matchers.is(PLUGGABLE_TASK_EXTENSION));
+        assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
+        assertThat(argument.getValue().requestName(), Matchers.is(TaskExtension.CONFIGURATION_REQUEST));
     }
 
     @Test
@@ -106,9 +105,9 @@ public class JsonBasedPluggableTaskTest {
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), argument.capture());
-        MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(PLUGGABLE_TASK_EXTENSION));
-        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
-        MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(TaskExtension.TASK_VIEW_REQUEST));
+        assertThat(argument.getValue().extension(), Matchers.is(PLUGGABLE_TASK_EXTENSION));
+        assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
+        assertThat(argument.getValue().requestName(), Matchers.is(TaskExtension.TASK_VIEW_REQUEST));
     }
 
     @Test
@@ -136,9 +135,9 @@ public class JsonBasedPluggableTaskTest {
         verify(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), argument.capture());
         assertThat(argument.getValue().requestBody(), is(config));
 
-        MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(PLUGGABLE_TASK_EXTENSION));
-        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
-        MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(TaskExtension.VALIDATION_REQUEST));
+        assertThat(argument.getValue().extension(), Matchers.is(PLUGGABLE_TASK_EXTENSION));
+        assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
+        assertThat(argument.getValue().requestName(), Matchers.is(TaskExtension.VALIDATION_REQUEST));
     }
 
     @Test

@@ -21,9 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -54,7 +53,7 @@ public class DownloadableFileTest {
     @Test
     public void shouldValidateTheUrl() {
         ServerUrlGenerator serverUrlGenerator = ServerUrlGeneratorMother.generatorFor("localhost", 9090);
-        assertThat(DownloadableFile.AGENT.validatedUrl(serverUrlGenerator), is("http://localhost:9090/go/admin/agent"));
+        assertThat(DownloadableFile.AGENT.validatedUrl(serverUrlGenerator)).isEqualTo("http://localhost:9090/go/admin/agent");
     }
 
     @Test

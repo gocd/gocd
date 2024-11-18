@@ -53,7 +53,10 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.StageSummaryModels;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.TimeProvider;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,6 +73,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
@@ -78,6 +82,7 @@ import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -178,11 +183,10 @@ public class StageServiceIntegrationTest {
             }
         });
 
-        Assertions.waitUntil(Timeout.TEN_SECONDS, () -> receivedResult != null && receivedState != null && receivedStageResult != null);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> receivedResult != null && receivedState != null && receivedStageResult != null);
         assertThat(receivedState, is(JobState.Completed));
         assertThat(receivedResult, is(JobResult.Cancelled));
         assertThat(receivedStageResult, is(StageResult.Cancelled));
-
     }
 
     @Test

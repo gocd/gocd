@@ -17,9 +17,7 @@ package com.thoughtworks.go.util.command;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SafeOutputStreamConsumerTest {
 
@@ -31,7 +29,7 @@ public class SafeOutputStreamConsumerTest {
 
         streamConsumer.stdOutput("This line has a secret and another secret in it.");
 
-        assertThat(actualConsumer.getAllOutput(), not(containsString("secret")));
+        assertThat(actualConsumer.getAllOutput()).doesNotContain("secret");
     }
 
     private CommandArgument commandArgumentWhichHasASecret(final String secret) {

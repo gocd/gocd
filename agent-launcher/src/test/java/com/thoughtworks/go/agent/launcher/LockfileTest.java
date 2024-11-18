@@ -28,8 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SystemStubsExtension.class)
@@ -57,7 +56,7 @@ public class LockfileTest {
         Lockfile spy = spy(lockfile);
         doReturn(false).when(spy).lockFileChangedWithinMinutes(Duration.ofMinutes(10));
         when(lockfile.exists()).thenReturn(true);
-        assertThat(spy.exists(), is(false));
+        assertThat(spy.exists()).isFalse();
     }
 
     @Test
@@ -67,7 +66,7 @@ public class LockfileTest {
         Lockfile spy = spy(lockfile);
         doReturn(true).when(spy).lockFileChangedWithinMinutes(Duration.ofMinutes(10));
         when(lockfile.exists()).thenReturn(true);
-        assertThat(spy.exists(), is(true));
+        assertThat(spy.exists()).isTrue();
     }
 
 
@@ -96,7 +95,7 @@ public class LockfileTest {
         Lockfile lockfile = new Lockfile(mockfile);
         when(mockfile.exists()).thenReturn(true);
         when(mockfile.lastModified()).thenReturn(System.currentTimeMillis());
-        assertThat(lockfile.tryLock(), is(false));
+        assertThat(lockfile.tryLock()).isFalse();
         verify(mockfile).exists();
     }
 
@@ -107,25 +106,25 @@ public class LockfileTest {
         when(mockfile.exists()).thenReturn(false);
         when(mockfile.getAbsolutePath()).thenReturn("/abcd/dummyFile");
         doThrow(new IOException("dummy")).when(lockfile).setHooks();
-        assertThat(lockfile.tryLock(), is(false));
+        assertThat(lockfile.tryLock()).isFalse();
         verify(mockfile).exists();
     }
 
     @Test
     public void shouldReturnTrueIfCanSetLockAndDeleteLockFileWhenDeleteIsCalled() {
         Lockfile lockfile = new Lockfile(LOCK_FILE);
-        assertThat(lockfile.tryLock(), is(true));
+        assertThat(lockfile.tryLock()).isTrue();
         lockfile.delete();
-        assertThat(LOCK_FILE.exists(), is(false));
+        assertThat(LOCK_FILE.exists()).isFalse();
     }
 
     @Test
     public void shouldNotDeleteLockFileIfTryLockDidntWork() throws IOException {
         FileUtils.touch(LOCK_FILE);
         Lockfile lockfile = new Lockfile(LOCK_FILE);
-        assertThat(lockfile.tryLock(), is(false));
+        assertThat(lockfile.tryLock()).isFalse();
         lockfile.delete();
-        assertThat(LOCK_FILE.exists(), is(true));
+        assertThat(LOCK_FILE.exists()).isTrue();
     }
 
 

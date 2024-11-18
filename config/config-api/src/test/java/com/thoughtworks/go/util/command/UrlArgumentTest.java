@@ -215,7 +215,7 @@ class UrlArgumentTest {
         @Test
         void shouldReturnLineAsItIsIfLineIsNull() {
             final UrlArgument urlArgument = new UrlArgument("http://username:password@somewhere?name=bob");
-            assertThat(urlArgument.replaceSecretInfo(null)).isEqualTo(null);
+            assertThat(urlArgument.replaceSecretInfo(null)).isNull();
         }
 
         @Test

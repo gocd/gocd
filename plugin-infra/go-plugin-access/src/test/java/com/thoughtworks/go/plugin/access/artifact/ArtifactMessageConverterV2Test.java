@@ -23,17 +23,14 @@ import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
-import org.assertj.core.api.Assertions;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ArtifactMessageConverterV2Test {
@@ -82,8 +79,7 @@ public class ArtifactMessageConverterV2Test {
                 }""");
 
 
-        MatcherAssert.assertThat(response.getMetadata().size(), is(1));
-        MatcherAssert.assertThat(response.getMetadata(), hasEntry("artifact-version", "10.12.0"));
+        assertThat(response.getMetadata()).hasSize(1).containsEntry("artifact-version", "10.12.0");
     }
 
     @Test
@@ -102,11 +98,11 @@ public class ArtifactMessageConverterV2Test {
 
         ValidationResult validationResult = converter.getConfigurationValidationResultFromResponseBody(responseBody);
 
-        assertThat(validationResult.isSuccessful(), is(false));
-        assertThat(validationResult.getErrors(), containsInAnyOrder(
+        assertThat(validationResult.isSuccessful()).isEqualTo(false);
+        assertThat(validationResult.getErrors()).containsExactlyInAnyOrder(
                 new ValidationError("Url", "Url must not be blank."),
                 new ValidationError("SearchBase", "SearchBase must not be blank.")
-        ));
+        );
     }
 
     @Test
@@ -137,14 +133,14 @@ public class ArtifactMessageConverterV2Test {
 
     @Test
     public void fetchArtifactMessage_shouldDeserializeAndAssumeEmpty() {
-        Assertions.assertThat(new ArtifactMessageConverterV2().getFetchArtifactEnvironmentVariablesFromResponseBody("")).isEmpty();
+        assertThat(new ArtifactMessageConverterV2().getFetchArtifactEnvironmentVariablesFromResponseBody("")).isEmpty();
     }
 
     @Test
-    public void shouldDeserializeImageFromJson() throws Exception {
+    public void shouldDeserializeImageFromJson() {
         com.thoughtworks.go.plugin.domain.common.Image image = new ArtifactMessageConverterV2().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
-        assertThat(image.getContentType(), is("foo"));
-        assertThat(image.getData(), is("bar"));
+        assertThat(image.getContentType()).isEqualTo("foo");
+        assertThat(image.getData()).isEqualTo("bar");
     }
 
     @Test

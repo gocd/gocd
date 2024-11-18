@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.ModificationsMother.TWO_DAYS_AGO_CHECKIN
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class ModificationRepresenterTest {
   @Test

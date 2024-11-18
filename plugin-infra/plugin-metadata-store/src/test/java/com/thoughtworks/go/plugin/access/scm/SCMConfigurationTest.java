@@ -17,8 +17,7 @@ package com.thoughtworks.go.plugin.access.scm;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SCMConfigurationTest {
     @Test
@@ -26,8 +25,8 @@ public class SCMConfigurationTest {
         SCMConfiguration scmConfiguration = new SCMConfiguration("key");
         scmConfiguration.with(SCMConfiguration.REQUIRED, true);
 
-        assertThat(scmConfiguration.hasOption(SCMConfiguration.REQUIRED), is(true));
-        assertThat(scmConfiguration.hasOption(SCMConfiguration.SECURE), is(false));
+        assertThat(scmConfiguration.hasOption(SCMConfiguration.REQUIRED)).isTrue();
+        assertThat(scmConfiguration.hasOption(SCMConfiguration.SECURE)).isFalse();
     }
 
     @Test
@@ -36,15 +35,15 @@ public class SCMConfigurationTest {
         scmConfiguration.with(SCMConfiguration.DISPLAY_NAME, "some display name");
         scmConfiguration.with(SCMConfiguration.DISPLAY_ORDER, 3);
 
-        assertThat(scmConfiguration.getOption(SCMConfiguration.DISPLAY_NAME), is("some display name"));
-        assertThat(scmConfiguration.getOption(SCMConfiguration.DISPLAY_ORDER), is(3));
+        assertThat(scmConfiguration.getOption(SCMConfiguration.DISPLAY_NAME)).isEqualTo("some display name");
+        assertThat(scmConfiguration.getOption(SCMConfiguration.DISPLAY_ORDER)).isEqualTo(3);
     }
 
     @Test
-    public void shouldSortByDisplayOrder() throws Exception {
+    public void shouldSortByDisplayOrder() {
         SCMConfiguration p1 = new SCMConfiguration("k1").with(SCMConfiguration.DISPLAY_ORDER, 1);
         SCMConfiguration p2 = new SCMConfiguration("k2").with(SCMConfiguration.DISPLAY_ORDER, 3);
 
-        assertThat(p2.compareTo(p1), is(2));
+        assertThat(p2.compareTo(p1)).isEqualTo(2);
     }
 }

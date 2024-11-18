@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class FeatureTogglesRepresenterTest {
 

@@ -16,9 +16,10 @@
 package com.thoughtworks.go.apiv1.pipelineselection.representers
 
 import com.thoughtworks.go.testhelpers.FiltersHelper
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class PipelineSelectionsRepresenterTest {
 
@@ -28,7 +29,7 @@ class PipelineSelectionsRepresenterTest {
     void 'should serialize'() {
       String actualJson = PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(FiltersHelper.excludes(['build-linux', 'build-windows'])))
 
-      JsonFluentAssert.assertThatJson(actualJson).isEqualTo([
+      assertThatJson(actualJson).isEqualTo([
         filters: [[name: 'Default', state: [], type: 'blacklist', pipelines: ['build-linux', 'build-windows']]]
       ])
     }

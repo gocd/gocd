@@ -19,26 +19,25 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class JettyServletHelperTest {
     @Test
     public void shouldGetInstanceOfServletHelper(){
         ServletHelper.init();
-        assertThat(ServletHelper.getInstance() instanceof JettyServletHelper, is(true));
+        assertThat(ServletHelper.getInstance()).isInstanceOf(JettyServletHelper.class);
     }
 
     @Test
     public void shouldGetJettyRequest() {
         ServletRequest request = new JettyServletHelper().getRequest(mock(Request.class));
-        assertThat(request instanceof JettyRequest, is(true));
+        assertThat(request).isInstanceOf(JettyRequest.class);
     }
 
     @Test
     public void shouldGetJettyResponse() {
         ServletResponse response = new JettyServletHelper().getResponse(mock(Response.class));
-        assertThat(response instanceof JettyResponse, is(true));
+        assertThat(response).isInstanceOf(JettyResponse.class);
     }
 }

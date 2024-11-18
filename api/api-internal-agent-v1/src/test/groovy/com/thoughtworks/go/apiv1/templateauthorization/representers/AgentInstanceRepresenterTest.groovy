@@ -20,7 +20,7 @@ import com.thoughtworks.go.apiv1.internalagent.representers.AgentInstructionRepr
 import com.thoughtworks.go.remote.AgentInstruction
 import org.junit.jupiter.api.Test
 
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class AgentInstanceRepresenterTest {
     @Test

@@ -22,9 +22,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ElasticAgentProcessorConverterV1Test {
     private ElasticAgentProcessorConverterV1 elasticAgentProcessorConverterV1;
@@ -81,9 +80,9 @@ public class ElasticAgentProcessorConverterV1Test {
                 ]""";
 
         final Collection<AgentMetadata> agentMetadataList = elasticAgentProcessorConverterV1.deleteAndDisableAgentRequestBody(responseBody);
-        assertThat(agentMetadataList, contains(
+        assertThat(agentMetadataList).contains(
                 new AgentMetadata("foo-id", "Idle", "Idle", "Enabled"),
                 new AgentMetadata("bar-id", "Idle", "Idle", "Enabled")
-        ));
+        );
     }
 }

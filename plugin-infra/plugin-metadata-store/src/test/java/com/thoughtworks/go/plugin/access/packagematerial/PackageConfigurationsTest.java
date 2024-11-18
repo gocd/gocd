@@ -20,12 +20,11 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterial
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PackageConfigurationsTest {
     @Test
-    public void shouldGetAllPackagesSortedByDisplayOrder() throws Exception {
+    public void shouldGetAllPackagesSortedByDisplayOrder() {
         PackageConfiguration c1 = new PackageConfiguration("k1").with(PackageConfiguration.DISPLAY_ORDER, 2);
         PackageConfiguration c2 = new PackageConfiguration("k2").with(PackageConfiguration.DISPLAY_ORDER, 0);
         PackageConfiguration c3 = new PackageConfiguration("k3").with(PackageConfiguration.DISPLAY_ORDER, 1);
@@ -33,42 +32,42 @@ public class PackageConfigurationsTest {
         packageConfigurations.add(c1);
         packageConfigurations.add(c2);
         packageConfigurations.add(c3);
-        assertThat(packageConfigurations.list().get(0), is(c2));
-        assertThat(packageConfigurations.list().get(1), is(c3));
-        assertThat(packageConfigurations.list().get(2), is(c1));
+        assertThat(packageConfigurations.list().get(0)).isEqualTo(c2);
+        assertThat(packageConfigurations.list().get(1)).isEqualTo(c3);
+        assertThat(packageConfigurations.list().get(2)).isEqualTo(c1);
     }
 
     @Test
-    public void shouldConstructPackageConfigurationFromApiRepositoryConfiguration() throws Exception {
+    public void shouldConstructPackageConfigurationFromApiRepositoryConfiguration() {
 
         RepositoryConfiguration configuration = new RepositoryConfiguration();
         configuration.add(new PackageMaterialProperty("k1", "v1").with(Property.SECURE, Boolean.TRUE));
 
         PackageConfigurations packageConfigurations = new PackageConfigurations(configuration);
-        assertThat(packageConfigurations.list().size(), is(1));
-        assertThat(packageConfigurations.list().get(0).getKey(), is("k1"));
-        assertThat(packageConfigurations.list().get(0).getValue(), is("v1"));
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.REQUIRED), is(true));
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.PART_OF_IDENTITY), is(true));
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.SECURE), is(true));
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_NAME), is(""));
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_ORDER), is(0));
+        assertThat(packageConfigurations.list().size()).isEqualTo(1);
+        assertThat(packageConfigurations.list().get(0).getKey()).isEqualTo("k1");
+        assertThat(packageConfigurations.list().get(0).getValue()).isEqualTo("v1");
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.REQUIRED)).isEqualTo(true);
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.PART_OF_IDENTITY)).isEqualTo(true);
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.SECURE)).isEqualTo(true);
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_NAME)).isEqualTo("");
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_ORDER)).isEqualTo(0);
     }
 
     @Test
-    public void shouldConstructPackageConfigurationFromApiPackageConfiguration() throws Exception {
+    public void shouldConstructPackageConfigurationFromApiPackageConfiguration() {
 
         com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration configuration = new com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration();
         configuration.add(new PackageMaterialProperty("k1", "v1").with(Property.SECURE, Boolean.TRUE));
 
         PackageConfigurations packageConfigurations = new PackageConfigurations(configuration);
-        assertThat(packageConfigurations.list().size(), is(1));
-        assertThat(packageConfigurations.list().get(0).getKey(), is("k1"));
-        assertThat(packageConfigurations.list().get(0).getValue(), is("v1"));
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.REQUIRED), is(true));
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.PART_OF_IDENTITY), is(true));
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.SECURE), is(true));
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_NAME), is(""));
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_ORDER), is(0));
+        assertThat(packageConfigurations.list().size()).isEqualTo(1);
+        assertThat(packageConfigurations.list().get(0).getKey()).isEqualTo("k1");
+        assertThat(packageConfigurations.list().get(0).getValue()).isEqualTo("v1");
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.REQUIRED)).isEqualTo(true);
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.PART_OF_IDENTITY)).isEqualTo(true);
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.SECURE)).isEqualTo(true);
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_NAME)).isEqualTo("");
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_ORDER)).isEqualTo(0);
     }
 }

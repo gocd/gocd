@@ -229,10 +229,10 @@ public class PipelineScheduleServiceTest {
 
         assertThat(scheduledJobs).satisfiesExactlyInAnyOrder(
             job -> {
-                assertThat(job.getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("unit", 1));
+                assertThat(job.getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("unit", 1));
             },
             job -> {
-                assertThat(job.getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("unit", 2));
+                assertThat(job.getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("unit", 2));
             }
         );
 	}

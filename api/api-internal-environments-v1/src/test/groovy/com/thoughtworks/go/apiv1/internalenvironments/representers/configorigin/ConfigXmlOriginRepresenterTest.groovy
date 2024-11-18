@@ -15,13 +15,12 @@
  */
 package com.thoughtworks.go.apiv1.internalenvironments.representers.configorigin
 
-
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class ConfigXmlOriginRepresenterTest {
 

@@ -27,7 +27,6 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -38,9 +37,8 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -67,13 +65,13 @@ public abstract class ArtifactExtensionTestBase {
 
     @Test
     public void shouldGetSupportedVersions() {
-        assertThat(artifactExtension.goSupportedVersions(), containsInAnyOrder("1.0", "2.0"));
+        assertThat(artifactExtension.goSupportedVersions()).containsExactlyInAnyOrder("1.0", "2.0");
     }
 
     @Test
     public void shouldRegisterMessageHandler() {
         assertTrue(artifactExtension.getMessageHandler(ArtifactMessageConverterV2.VERSION) instanceof ArtifactMessageConverterV2);
-        assertThat(artifactExtension.getMessageHandler("3.0"), is(nullValue()));
+        assertThat(artifactExtension.getMessageHandler("3.0")).isNull();
     }
 
     @Test
@@ -87,15 +85,14 @@ public abstract class ArtifactExtensionTestBase {
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_STORE_CONFIG_METADATA));
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION);
+        assertThat(request.requestName()).isEqualTo(REQUEST_STORE_CONFIG_METADATA);
         assertNull(request.requestBody());
 
-        assertThat(response.size(), is(2));
-        assertThat(response, containsInAnyOrder(
+        assertThat(response).containsExactlyInAnyOrder(
                 new PluginConfiguration("BUCKET_NAME", new Metadata(true, false)),
                 new PluginConfiguration("AWS_ACCESS_KEY", new Metadata(true, true))
-        ));
+        );
     }
 
     @Test
@@ -106,11 +103,11 @@ public abstract class ArtifactExtensionTestBase {
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_STORE_CONFIG_VIEW));
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION);
+        assertThat(request.requestName()).isEqualTo(REQUEST_STORE_CONFIG_VIEW);
         assertNull(request.requestBody());
 
-        assertThat(view, is("artifact-store-view"));
+        assertThat(view).isEqualTo("artifact-store-view");
     }
 
     @Test
@@ -123,14 +120,14 @@ public abstract class ArtifactExtensionTestBase {
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_STORE_CONFIG_VALIDATE));
-        assertThat(request.requestBody(), is("{\"ACCESS_KEY\":\"\"}"));
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION);
+        assertThat(request.requestName()).isEqualTo(REQUEST_STORE_CONFIG_VALIDATE);
+        assertThat(request.requestBody()).isEqualTo("{\"ACCESS_KEY\":\"\"}");
 
-        assertThat(validationResult.isSuccessful(), is(false));
-        assertThat(validationResult.getErrors(), containsInAnyOrder(
+        assertThat(validationResult.isSuccessful()).isEqualTo(false);
+        assertThat(validationResult.getErrors()).containsExactlyInAnyOrder(
                 new ValidationError("ACCESS_KEY", "ACCESS_KEY must not be blank.")
-        ));
+        );
     }
 
     @Test
@@ -143,15 +140,14 @@ public abstract class ArtifactExtensionTestBase {
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT_METADATA));
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION);
+        assertThat(request.requestName()).isEqualTo(REQUEST_PUBLISH_ARTIFACT_METADATA);
         assertNull(request.requestBody());
 
-        assertThat(response.size(), is(2));
-        assertThat(response, containsInAnyOrder(
+        assertThat(response).containsExactlyInAnyOrder(
                 new PluginConfiguration("FILENAME", new Metadata(true, false)),
                 new PluginConfiguration("VERSION", new Metadata(true, true))
-        ));
+        );
     }
 
     @Test
@@ -162,11 +158,11 @@ public abstract class ArtifactExtensionTestBase {
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT_VIEW));
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION);
+        assertThat(request.requestName()).isEqualTo(REQUEST_PUBLISH_ARTIFACT_VIEW);
         assertNull(request.requestBody());
 
-        assertThat(view, is("pluggable-artifact-view"));
+        assertThat(view).isEqualTo("pluggable-artifact-view");
     }
 
     @Test
@@ -179,14 +175,14 @@ public abstract class ArtifactExtensionTestBase {
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT_VALIDATE));
-        assertThat(request.requestBody(), is("{\"Filename\":\"\"}"));
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION);
+        assertThat(request.requestName()).isEqualTo(REQUEST_PUBLISH_ARTIFACT_VALIDATE);
+        assertThat(request.requestBody()).isEqualTo("{\"Filename\":\"\"}");
 
-        assertThat(validationResult.isSuccessful(), is(false));
-        assertThat(validationResult.getErrors(), containsInAnyOrder(
+        assertThat(validationResult.isSuccessful()).isEqualTo(false);
+        assertThat(validationResult.getErrors()).containsExactlyInAnyOrder(
                 new ValidationError("Filename", "Filename must not be blank.")
-        ));
+        );
     }
 
     @Test
@@ -207,8 +203,8 @@ public abstract class ArtifactExtensionTestBase {
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT));
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION);
+        assertThat(request.requestName()).isEqualTo(REQUEST_PUBLISH_ARTIFACT);
 
         final String expectedJSON = "{" +
                 "  \"artifact_plan\": {" +
@@ -227,8 +223,7 @@ public abstract class ArtifactExtensionTestBase {
 
         assertThatJson(expectedJSON).isEqualTo(request.requestBody());
 
-        assertThat(response.getMetadata().size(), is(1));
-        assertThat(response.getMetadata(), hasEntry("artifact-version", "10.12.0"));
+        assertThat(response.getMetadata()).hasSize(1).containsEntry("artifact-version", "10.12.0");
     }
 
     @Test
@@ -241,15 +236,14 @@ public abstract class ArtifactExtensionTestBase {
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_FETCH_ARTIFACT_METADATA));
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION);
+        assertThat(request.requestName()).isEqualTo(REQUEST_FETCH_ARTIFACT_METADATA);
         assertNull(request.requestBody());
 
-        assertThat(response.size(), is(2));
-        assertThat(response, containsInAnyOrder(
+        assertThat(response).containsExactlyInAnyOrder(
                 new PluginConfiguration("FILENAME", new Metadata(true, false)),
                 new PluginConfiguration("VERSION", new Metadata(true, true))
-        ));
+        );
     }
 
     @Test
@@ -260,11 +254,11 @@ public abstract class ArtifactExtensionTestBase {
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_FETCH_ARTIFACT_VIEW));
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION);
+        assertThat(request.requestName()).isEqualTo(REQUEST_FETCH_ARTIFACT_VIEW);
         assertNull(request.requestBody());
 
-        assertThat(view, is("fetch-artifact-view"));
+        assertThat(view).isEqualTo("fetch-artifact-view");
     }
 
     @Test
@@ -277,14 +271,14 @@ public abstract class ArtifactExtensionTestBase {
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_FETCH_ARTIFACT_VALIDATE));
-        assertThat(request.requestBody(), is("{\"Filename\":\"\"}"));
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION);
+        assertThat(request.requestName()).isEqualTo(REQUEST_FETCH_ARTIFACT_VALIDATE);
+        assertThat(request.requestBody()).isEqualTo("{\"Filename\":\"\"}");
 
-        assertThat(validationResult.isSuccessful(), is(false));
-        assertThat(validationResult.getErrors(), containsInAnyOrder(
+        assertThat(validationResult.isSuccessful()).isEqualTo(false);
+        assertThat(validationResult.getErrors()).containsExactlyInAnyOrder(
                 new ValidationError("Filename", "Filename must not be blank.")
-        ));
+        );
     }
 
     @Test
@@ -295,29 +289,29 @@ public abstract class ArtifactExtensionTestBase {
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_GET_CAPABILITIES));
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION);
+        assertThat(request.requestName()).isEqualTo(REQUEST_GET_CAPABILITIES);
         assertNull(request.requestBody());
     }
 
     @Test
     public void allRequestMustHaveRequestPrefix() {
-        assertThat(REQUEST_PREFIX, is("cd.go.artifact"));
+        assertThat(REQUEST_PREFIX).isEqualTo("cd.go.artifact");
 
-        assertThat(REQUEST_STORE_CONFIG_METADATA, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_STORE_CONFIG_VIEW, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_STORE_CONFIG_VALIDATE, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_STORE_CONFIG_METADATA).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_STORE_CONFIG_VIEW).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_STORE_CONFIG_VALIDATE).startsWith(REQUEST_PREFIX);
 
-        assertThat(REQUEST_PUBLISH_ARTIFACT_METADATA, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_PUBLISH_ARTIFACT_VIEW, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_PUBLISH_ARTIFACT_VALIDATE, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_PUBLISH_ARTIFACT_METADATA).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_PUBLISH_ARTIFACT_VIEW).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_PUBLISH_ARTIFACT_VALIDATE).startsWith(REQUEST_PREFIX);
 
-        assertThat(REQUEST_FETCH_ARTIFACT_METADATA, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_FETCH_ARTIFACT_VIEW, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_FETCH_ARTIFACT_VALIDATE, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_FETCH_ARTIFACT_METADATA).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_FETCH_ARTIFACT_VIEW).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_FETCH_ARTIFACT_VALIDATE).startsWith(REQUEST_PREFIX);
 
-        assertThat(REQUEST_PUBLISH_ARTIFACT, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_FETCH_ARTIFACT, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_GET_PLUGIN_ICON, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_PUBLISH_ARTIFACT).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_FETCH_ARTIFACT).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_GET_PLUGIN_ICON).startsWith(REQUEST_PREFIX);
     }
 }

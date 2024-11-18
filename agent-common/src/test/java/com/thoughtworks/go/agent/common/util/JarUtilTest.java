@@ -31,8 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.TEST_AGENT;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JarUtilTest {
@@ -56,7 +55,7 @@ public class JarUtilTest {
     @Test
     public void shouldGetManifestKey() throws Exception {
         String manifestKey = JarUtil.getManifestKey(new File(PATH_WITH_HASHES + "test-agent.jar"), "Go-Agent-Bootstrap-Class");
-        assertThat(manifestKey, is("com.thoughtworks.go.HelloWorldStreamWriter"));
+        assertThat(manifestKey).isEqualTo("com.thoughtworks.go.HelloWorldStreamWriter");
     }
 
     @Test

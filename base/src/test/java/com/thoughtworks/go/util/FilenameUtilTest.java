@@ -19,48 +19,45 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FilenameUtilTest {
 
     @Test
     public void shouldReturnFalseIfGivenFolderIsAbsolute() {
-        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir("c:\\foo"), is(false));
+        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir("c:\\foo")).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfGivenFolderIsAbsoluteUnderLinux() {
-        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir("/tmp"), is(false));
+        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir("/tmp")).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfGivenFolderWithRelativeTakesYouOutOfSandbox() {
-        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir("../tmp"), is(false));
-        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir("tmp/../../../pavan"), is(false));
+        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir("../tmp")).isFalse();
+        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir("tmp/../../../pavan")).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfGivenFolderWithRelativeKeepsYouInsideSandbox() {
-        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir("tmp/../home/cruise"), is(true));
+        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir("tmp/../home/cruise")).isTrue();
     }
 
 
     @Test
     public void shouldReturnFalseEvenIfAnAbsolutePathKeepsYouInsideSandbox() {
         File file = new File("somethingInsideCurrentFolder");
-        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir(file.getAbsolutePath()), is(false));
+        assertThat(FilenameUtil.isNormalizedPathOutsideWorkingDir(file.getAbsolutePath())).isFalse();
     }
 
     @Test
-    public void shouldReturnFalseIfDirectoryNameIsSameAsParentDirectoryButNotASubdirectory() throws Exception {
-        assertFalse(FilenameUtil.isNormalizedDirectoryPathInsideNormalizedParentDirectory("config", "artifacts/config"));
+    public void shouldReturnFalseIfDirectoryNameIsSameAsParentDirectoryButNotASubdirectory() {
+        assertThat(FilenameUtil.isNormalizedDirectoryPathInsideNormalizedParentDirectory("config", "artifacts/config")).isFalse();
     }
 
     @Test
-    public void shouldReturnTrueIfDirectoryIsSubdirectoryOfParent() throws Exception {
-        assertTrue(FilenameUtil.isNormalizedDirectoryPathInsideNormalizedParentDirectory("artifacts", "artifacts/config"));
+    public void shouldReturnTrueIfDirectoryIsSubdirectoryOfParent() {
+        assertThat(FilenameUtil.isNormalizedDirectoryPathInsideNormalizedParentDirectory("artifacts", "artifacts/config")).isTrue();
     }
 }

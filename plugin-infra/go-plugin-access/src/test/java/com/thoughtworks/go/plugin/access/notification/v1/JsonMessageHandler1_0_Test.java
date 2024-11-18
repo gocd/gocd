@@ -35,10 +35,9 @@ import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.notification.v1.StageConverter.DATE_PATTERN;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class JsonMessageHandler1_0_Test {
@@ -54,13 +53,13 @@ public class JsonMessageHandler1_0_Test {
         String responseBody = "{notifications=[\"pipeline-status\",\"stage-status\"]}";
         List<String> notificationsInterestedIn = messageHandler.responseMessageForNotificationsInterestedIn(responseBody);
 
-        assertThat(notificationsInterestedIn, is(List.of("pipeline-status", "stage-status")));
+        assertThat(notificationsInterestedIn).isEqualTo(List.of("pipeline-status", "stage-status"));
     }
 
     @Test
     public void shouldValidateIncorrectJsonResponseForNotificationsInterestedIn() {
-        assertThat(errorMessageForNotificationsInterestedIn("{\"notifications\":{}}"), is("Unable to de-serialize json response. 'notifications' should be of type list of string"));
-        assertThat(errorMessageForNotificationsInterestedIn("{\"notifications\":[{},{}]}"), is("Unable to de-serialize json response. Notification 'name' should be of type string"));
+        assertThat(errorMessageForNotificationsInterestedIn("{\"notifications\":{}}")).isEqualTo("Unable to de-serialize json response. 'notifications' should be of type list of string");
+        assertThat(errorMessageForNotificationsInterestedIn("{\"notifications\":[{},{}]}")).isEqualTo("Unable to de-serialize json response. Notification 'name' should be of type string");
     }
 
     @Test
@@ -87,13 +86,13 @@ public class JsonMessageHandler1_0_Test {
 
     @Test
     public void shouldValidateIncorrectJsonForResult() {
-        assertThat(errorMessageForNotifyResult(""), is("Unable to de-serialize json response. Empty response body"));
-        assertThat(errorMessageForNotifyResult("[{\"result\":\"success\"}]"), is("Unable to de-serialize json response. Notify result should be returned as map, with key represented as string and messages represented as list"));
-        assertThat(errorMessageForNotifyResult("{\"status\":true}"), is("Unable to de-serialize json response. Notify result 'status' should be of type string"));
-        assertThat(errorMessageForNotifyResult("{\"result\":true}"), is("Unable to de-serialize json response. Notify result 'status' is a required field"));
+        assertThat(errorMessageForNotifyResult("")).isEqualTo("Unable to de-serialize json response. Empty response body");
+        assertThat(errorMessageForNotifyResult("[{\"result\":\"success\"}]")).isEqualTo("Unable to de-serialize json response. Notify result should be returned as map, with key represented as string and messages represented as list");
+        assertThat(errorMessageForNotifyResult("{\"status\":true}")).isEqualTo("Unable to de-serialize json response. Notify result 'status' should be of type string");
+        assertThat(errorMessageForNotifyResult("{\"result\":true}")).isEqualTo("Unable to de-serialize json response. Notify result 'status' is a required field");
 
-        assertThat(errorMessageForNotifyResult("{\"status\":\"success\",\"messages\":{}}"), is("Unable to de-serialize json response. Notify result 'messages' should be of type list of string"));
-        assertThat(errorMessageForNotifyResult("{\"status\":\"success\",\"messages\":[{},{}]}"), is("Unable to de-serialize json response. Notify result 'message' should be of type string"));
+        assertThat(errorMessageForNotifyResult("{\"status\":\"success\",\"messages\":{}}")).isEqualTo("Unable to de-serialize json response. Notify result 'messages' should be of type list of string");
+        assertThat(errorMessageForNotifyResult("{\"status\":\"success\",\"messages\":[{},{}]}")).isEqualTo("Unable to de-serialize json response. Notify result 'message' should be of type string");
     }
 
     @Test
@@ -273,13 +272,13 @@ public class JsonMessageHandler1_0_Test {
     }
 
     private void assertSuccessResult(Result result, List<String> messages) {
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.getMessages(), is(messages));
+        assertThat(result.isSuccessful()).isEqualTo(true);
+        assertThat(result.getMessages()).isEqualTo(messages);
     }
 
     private void assertFailureResult(Result result, List<String> messages) {
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.getMessages(), is(messages));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.getMessages()).isEqualTo(messages);
     }
 
     private String errorMessageForNotificationsInterestedIn(String message) {

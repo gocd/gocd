@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.update;
 
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -23,26 +22,26 @@ import java.util.List;
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigUpdateAjaxResponseTest {
 
     @Test
-    public void shouldGetJsonRepresentationForFailure() throws Exception {
+    public void shouldGetJsonRepresentationForFailure() {
         HashMap<String, List<String>> fieldErrors = new HashMap<>();
         fieldErrors.put("field1", List.of("error 1"));
         fieldErrors.put("field2", List.of("error 2"));
         ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.failure("id", SC_BAD_REQUEST, "Save failed", fieldErrors, List.of("global1", "global2"));
         String jsonString = response.toJson();
-        assertThat(response.getStatusCode(),is(SC_BAD_REQUEST));
-        JsonFluentAssert.assertThatJson(jsonString).isEqualTo("{\"fieldErrors\":{\"field1\":[\"error 1\"], \"field2\":[\"error 2\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"Save failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}");
+        assertThat(response.getStatusCode()).isEqualTo(SC_BAD_REQUEST);
+        assertThatJson(jsonString).isEqualTo("{\"fieldErrors\":{\"field1\":[\"error 1\"], \"field2\":[\"error 2\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"Save failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}");
     }
 
     @Test
-    public void shouldGetJsonRepresentationForSuccess() throws Exception {
+    public void shouldGetJsonRepresentationForSuccess() {
         ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.success("id", SC_OK, "saved successful");
         String jsonString = response.toJson();
-        JsonFluentAssert.assertThatJson(jsonString).isEqualTo("{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"saved successful\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\"}");
+        assertThatJson(jsonString).isEqualTo("{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"saved successful\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\"}");
     }
 }

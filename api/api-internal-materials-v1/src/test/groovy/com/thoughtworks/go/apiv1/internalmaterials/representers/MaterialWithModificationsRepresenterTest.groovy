@@ -31,7 +31,7 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.general
 import static com.thoughtworks.go.serverhealth.ServerHealthState.error
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning
 import static java.util.Collections.emptyMap
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class MaterialWithModificationsRepresenterTest {
   @Test

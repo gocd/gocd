@@ -22,7 +22,7 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class MaterialConfigsRepresenterTest {
 

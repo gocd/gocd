@@ -37,9 +37,7 @@ import java.net.URL;
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.TEST_AGENT_LAUNCHER;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -91,7 +89,7 @@ public class AgentBootstrapperFunctionalTest {
                 }
             }.go(false, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             agentJar.delete();
-            assertThat(os.toString(), containsString("Hello World Fellas!"));
+            assertThat(os.toString()).contains("Hello World Fellas!");
         } finally {
             System.setErr(err);
         }
@@ -123,7 +121,7 @@ public class AgentBootstrapperFunctionalTest {
             void jvmExit(int returnValue) {
             }
         }.go(false, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
-        assertThat(agentJar.length(), not(original));
+        assertThat(agentJar.length()).isNotEqualTo(original);
         agentJar.delete();
     }
 

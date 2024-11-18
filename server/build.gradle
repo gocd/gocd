@@ -304,6 +304,7 @@ dependencies {
   testImplementation project.deps.jsoup
   testImplementation project.deps.xmlUnitMatchers
   testImplementation project.deps.assertJ
+  testImplementation project.deps.awaitility
   testImplementation project.deps.xmlUnit
 
   testImplementation project(path: ':test:http-mocks', configuration: 'runtimeElements')

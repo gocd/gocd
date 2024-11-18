@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv2.compare.representers.material
 
-
 import com.thoughtworks.go.apiv2.compare.representers.MaterialRepresenter
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
@@ -28,7 +27,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
 

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv3.secretconfigs.representers
 
-
 import com.thoughtworks.go.config.SecretConfig
 import com.thoughtworks.go.config.SecretConfigs
 import com.thoughtworks.go.config.rules.Allow
@@ -27,7 +26,7 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigsRepresenter.toJSON
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class SecretConfigsRepresenterTest {
 

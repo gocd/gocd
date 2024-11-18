@@ -38,9 +38,8 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -67,7 +66,7 @@ public class ServerBinaryDownloaderTest {
             try (DigestInputStream digest = new DigestInputStream(stream, digester)) {
                 digest.transferTo(OutputStream.nullOutputStream());
             }
-            assertThat(downloader.getMd5(), is(Hexadecimals.toHexString(digester.digest()).toLowerCase()));
+            assertThat(downloader.getMd5()).isEqualTo(Hexadecimals.toHexString(digester.digest()).toLowerCase());
         }
     }
 
@@ -93,15 +92,15 @@ public class ServerBinaryDownloaderTest {
     @Test
     public void shouldDownloadAgentJarFile() {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
-        assertThat(DownloadableFile.AGENT.doesNotExist(), is(true));
+        assertThat(DownloadableFile.AGENT.doesNotExist()).isEqualTo(true);
         downloader.downloadIfNecessary(DownloadableFile.AGENT);
-        assertThat(DownloadableFile.AGENT.getLocalFile().exists(), is(true));
+        assertThat(DownloadableFile.AGENT.getLocalFile().exists()).isEqualTo(true);
     }
 
     @Test
     public void shouldReturnTrueIfTheFileIsDownloaded() {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
-        assertThat(downloader.downloadIfNecessary(DownloadableFile.AGENT), is(true));
+        assertThat(downloader.downloadIfNecessary(DownloadableFile.AGENT)).isEqualTo(true);
     }
 
     @Test
@@ -143,7 +142,7 @@ public class ServerBinaryDownloaderTest {
         CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
         when(closeableHttpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(builder, ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
-        assertThat(downloader.download(DownloadableFile.AGENT), is(false));
+        assertThat(downloader.download(DownloadableFile.AGENT)).isEqualTo(false);
     }
 
     private void assertExtraProperties(String valueToSet, Map<String, String> expectedValue) {
@@ -152,7 +151,7 @@ public class ServerBinaryDownloaderTest {
             server.setExtraPropertiesHeaderValue(valueToSet);
             downloader.downloadIfNecessary(DownloadableFile.AGENT);
 
-            assertThat(downloader.getExtraProperties(), is(expectedValue));
+            assertThat(downloader.getExtraProperties()).isEqualTo(expectedValue);
         } finally {
             server.setExtraPropertiesHeaderValue(null);
         }

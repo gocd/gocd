@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SCMConfigurationsTest {
     @Test
@@ -36,9 +35,9 @@ public class SCMConfigurationsTest {
 
         List<SCMConfiguration> scmConfigurationList = scmConfigurations.list();
 
-        assertThat(scmConfigurationList.get(0), is(c2));
-        assertThat(scmConfigurationList.get(1), is(c3));
-        assertThat(scmConfigurationList.get(2), is(c1));
+        assertThat(scmConfigurationList.get(0)).isEqualTo(c2);
+        assertThat(scmConfigurationList.get(1)).isEqualTo(c3);
+        assertThat(scmConfigurationList.get(2)).isEqualTo(c1);
     }
 
     @Test
@@ -48,14 +47,14 @@ public class SCMConfigurationsTest {
 
         SCMConfigurations scmConfigurations = new SCMConfigurations(scmPropertyConfiguration);
 
-        assertThat(scmConfigurations.list().size(), is(1));
+        assertThat(scmConfigurations.list().size()).isEqualTo(1);
         SCMConfiguration scmConfiguration = scmConfigurations.list().get(0);
-        assertThat(scmConfiguration.getKey(), is("k1"));
-        assertThat(scmConfiguration.getValue(), is("v1"));
-        assertThat(scmConfiguration.getOption(SCMConfiguration.REQUIRED), is(true));
-        assertThat(scmConfiguration.getOption(SCMConfiguration.PART_OF_IDENTITY), is(true));
-        assertThat(scmConfiguration.getOption(SCMConfiguration.SECURE), is(true));
-        assertThat(scmConfiguration.getOption(SCMConfiguration.DISPLAY_NAME), is(""));
-        assertThat(scmConfiguration.getOption(SCMConfiguration.DISPLAY_ORDER), is(0));
+        assertThat(scmConfiguration.getKey()).isEqualTo("k1");
+        assertThat(scmConfiguration.getValue()).isEqualTo("v1");
+        assertThat(scmConfiguration.getOption(SCMConfiguration.REQUIRED)).isEqualTo(true);
+        assertThat(scmConfiguration.getOption(SCMConfiguration.PART_OF_IDENTITY)).isEqualTo(true);
+        assertThat(scmConfiguration.getOption(SCMConfiguration.SECURE)).isEqualTo(true);
+        assertThat(scmConfiguration.getOption(SCMConfiguration.DISPLAY_NAME)).isEqualTo("");
+        assertThat(scmConfiguration.getOption(SCMConfiguration.DISPLAY_ORDER)).isEqualTo(0);
     }
 }

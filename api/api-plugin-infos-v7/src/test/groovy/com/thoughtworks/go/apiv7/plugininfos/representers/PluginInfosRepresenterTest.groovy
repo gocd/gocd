@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv7.plugininfos.representers
 
-
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo
 import org.junit.jupiter.api.Test
 
@@ -23,7 +22,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helpers.PluginInfoMother.createAuthorizationPluginInfo
 import static com.thoughtworks.go.helpers.PluginInfoMother.createSCMPluginInfo
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class PluginInfosRepresenterTest {
 

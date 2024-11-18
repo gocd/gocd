@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RolesConfigTest {
@@ -28,24 +28,22 @@ public class RolesConfigTest {
     @Test
     public void shouldReturnTrueIfUserIsMemberOfRole() {
         RolesConfig rolesConfig = new RolesConfig(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("user1"))));
-        assertThat("shouldReturnTrueIfUserIsMemberOfRole", rolesConfig.isUserMemberOfRole(new CaseInsensitiveString("user1"), new CaseInsensitiveString("role1")), is(true));
+        assertThat(rolesConfig.isUserMemberOfRole(new CaseInsensitiveString("user1"), new CaseInsensitiveString("role1"))).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfUserIsNotMemberOfRole() {
         RolesConfig rolesConfig = new RolesConfig(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("user1"))));
-        assertThat("shouldReturnFalseIfUserIsNotMemberOfRole", rolesConfig.isUserMemberOfRole(new CaseInsensitiveString("user2"), new CaseInsensitiveString("role1")),
-                is(false));
+        assertThat(rolesConfig.isUserMemberOfRole(new CaseInsensitiveString("user2"), new CaseInsensitiveString("role1"))).isFalse();
     }
 
     @Test
     public void shouldThrowExceptionIfRoleDoesNotExist() {
         RolesConfig rolesConfig = new RolesConfig(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("user1"))));
-        try {
-            rolesConfig.isUserMemberOfRole(new CaseInsensitiveString("anyone"), new CaseInsensitiveString("invalid-role-name"));
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Role \"invalid-role-name\" does not exist!"));
-        }
+
+        assertThatThrownBy(() -> rolesConfig.isUserMemberOfRole(new CaseInsensitiveString("user1"), new CaseInsensitiveString("invalid-role-name")))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Role \"invalid-role-name\" does not exist!");
     }
 
     @Test
@@ -54,7 +52,7 @@ public class RolesConfigTest {
         Role secondRole = new RoleConfig(new CaseInsensitiveString("role2"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user3")));
         Role thirdRole = new RoleConfig(new CaseInsensitiveString("role3"), new RoleUser(new CaseInsensitiveString("user2")), new RoleUser(new CaseInsensitiveString("user3")));
         RolesConfig rolesConfig = new RolesConfig(firstRole, secondRole, thirdRole);
-        assertThat(rolesConfig.memberRoles(new AdminUser(new CaseInsensitiveString("user1"))), is(List.of(firstRole, secondRole)));
+        assertThat(rolesConfig.memberRoles(new AdminUser(new CaseInsensitiveString("user1")))).containsExactly(firstRole, secondRole);
     }
 
     @Test
@@ -62,8 +60,8 @@ public class RolesConfigTest {
         Role firstRole = new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("USER1")), new RoleUser(new CaseInsensitiveString("user2")));
         Role secondRole = new RoleConfig(new CaseInsensitiveString("ROLE2"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user3")));
         RolesConfig rolesConfig = new RolesConfig(firstRole, secondRole);
-        assertThat(rolesConfig.memberRoles(new AdminRole(new CaseInsensitiveString("role1"))), is(List.of(firstRole)));
-        assertThat(rolesConfig.memberRoles(new AdminRole(new CaseInsensitiveString("role2"))), is(List.of(secondRole)));
+        assertThat(rolesConfig.memberRoles(new AdminRole(new CaseInsensitiveString("role1")))).containsExactly(firstRole);
+        assertThat(rolesConfig.memberRoles(new AdminRole(new CaseInsensitiveString("role2")))).containsExactly(secondRole);
     }
 
     @Test
@@ -80,15 +78,14 @@ public class RolesConfigTest {
     public void getPluginRoleConfigsShouldReturnOnlyPluginRoles() {
         Role admin = new RoleConfig(new CaseInsensitiveString("admin"));
         Role view = new RoleConfig(new CaseInsensitiveString("view"));
-        Role blackbird = new PluginRoleConfig("blackbird", "foo");
-        Role spacetiger = new PluginRoleConfig("spacetiger", "foo");
+        PluginRoleConfig blackbird = new PluginRoleConfig("blackbird", "foo");
+        PluginRoleConfig spacetiger = new PluginRoleConfig("spacetiger", "foo");
 
         RolesConfig rolesConfig = new RolesConfig(admin, blackbird, view, spacetiger);
 
         List<PluginRoleConfig> roles = rolesConfig.getPluginRoleConfigs();
 
-        assertThat(roles, hasSize(2));
-        assertThat(roles, contains(blackbird, spacetiger));
+        assertThat(roles).containsExactly(blackbird, spacetiger);
     }
 
     @Test
@@ -99,17 +96,14 @@ public class RolesConfigTest {
 
         RolesConfig rolesConfig = new RolesConfig(admin, view, operator, new RoleConfig(new CaseInsensitiveString("committer")));
 
-        assertThat(rolesConfig.pluginRoleConfigsFor("corporate_ldap"), hasSize(2));
-        assertThat(rolesConfig.pluginRoleConfigsFor("corporate_ldap"), containsInAnyOrder(admin, view));
-
-        assertThat(rolesConfig.pluginRoleConfigsFor("internal_ldap"), hasSize(1));
-        assertThat(rolesConfig.pluginRoleConfigsFor("internal_ldap"), containsInAnyOrder(operator));
+        assertThat(rolesConfig.pluginRoleConfigsFor("corporate_ldap")).containsExactlyInAnyOrder(admin, view);
+        assertThat(rolesConfig.pluginRoleConfigsFor("internal_ldap")).containsExactlyInAnyOrder(operator);
     }
 
     @Test
     public void getRoleConfigsShouldReturnOnlyNonPluginRoles() {
-        Role admin = new RoleConfig(new CaseInsensitiveString("admin"));
-        Role view = new RoleConfig(new CaseInsensitiveString("view"));
+        RoleConfig admin = new RoleConfig(new CaseInsensitiveString("admin"));
+        RoleConfig view = new RoleConfig(new CaseInsensitiveString("view"));
         Role blackbird = new PluginRoleConfig("blackbird", "foo");
         Role spacetiger = new PluginRoleConfig("spacetiger", "foo");
 
@@ -117,8 +111,7 @@ public class RolesConfigTest {
 
         List<RoleConfig> roles = rolesConfig.getRoleConfigs();
 
-        assertThat(roles, hasSize(2));
-        assertThat(roles, contains(admin, view));
+        assertThat(roles).containsExactly(admin, view);
     }
 
     @Test
@@ -132,8 +125,7 @@ public class RolesConfigTest {
 
         List<Role> roles = rolesConfig.allRoles();
 
-        assertThat(roles, hasSize(4));
-        assertThat(roles, contains(admin, blackbird, view, spacetiger));
+        assertThat(roles).containsExactly(admin, blackbird, view, spacetiger);
     }
 
     @Test

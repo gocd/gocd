@@ -19,9 +19,10 @@ import com.thoughtworks.go.config.BasicPipelineConfigs
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigs
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class PipelinesDataRepresenterTest {
   @Nested
@@ -41,7 +42,7 @@ class PipelinesDataRepresenterTest {
 
       String actualJson = PipelinesDataRepresenter.toJSON(new PipelinesDataResponse(pipelineConfigs))
 
-      JsonFluentAssert.assertThatJson(actualJson).isEqualTo([
+      assertThatJson(actualJson).isEqualTo([
         pipelines: [
           grp1: ["pipeline3", "build-linux", "build-windows"],
           grp2: ["pipeline1", "pipeline2"]

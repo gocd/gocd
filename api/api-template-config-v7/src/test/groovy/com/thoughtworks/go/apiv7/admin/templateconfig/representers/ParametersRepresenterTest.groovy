@@ -22,7 +22,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplateWithParams
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class ParametersRepresenterTest {
   @Test

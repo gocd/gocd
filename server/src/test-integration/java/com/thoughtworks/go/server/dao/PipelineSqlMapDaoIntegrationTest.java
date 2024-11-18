@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -53,10 +52,6 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -354,53 +349,6 @@ public class PipelineSqlMapDaoIntegrationTest {
                 PipelineMother.withMaterials("mingle", "dev", BuildPlanMother.withBuildPlans("functional", "unit"))
         );
         assertModifications(pipeline);
-    }
-
-    private Matcher<PipelineInstanceModels> hasPipeline(final Pipeline pipeline) {
-        return new BaseMatcher<>() {
-
-            @Override
-            public boolean matches(Object o) {
-                if (o instanceof PipelineInstanceModels pipelineInstanceModels) {
-                    for (PipelineInstanceModel pipelineInstanceModel : pipelineInstanceModels) {
-                        if (pipelineInstanceModel.getName().equals(pipeline.getName()) && pipelineInstanceModel.getCounter().equals(pipeline.getCounter())) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("expected pipeline " + pipeline.getName() + " with counter " + pipeline.getCounter());
-            }
-        };
-    }
-
-    private void ensureBuildCauseIsLoadedFor(PipelineInstanceModel upstream) {
-        assertThat(StringUtils.isEmpty(upstream.getRevisionOfLatestModification()), is(false));
-    }
-
-    private void saveRev(final Material material, final Modification modification) {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                materialRepository.saveMaterialRevision(new MaterialRevision(material, modification));
-            }
-        });
-    }
-
-    private PipelineConfig pipelineConfigFor(final String pipelineName, final String dependentOnPipeline, final String dependentOnStage) {
-        PipelineConfig config = PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "cruiseStage");
-        config.materialConfigs().clear();
-        config.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString(dependentOnPipeline), new CaseInsensitiveString(dependentOnStage)));
-        return config;
-    }
-
-    private void assertPipelineEquals(Pipeline expected, PipelineInstanceModel actual) {
-        assertThat(actual.getName(), is(expected.getName()));
-        assertThat(actual.getCounter(), is(expected.getCounter()));
     }
 
     //TODO FIXME sorted by Id is not good.

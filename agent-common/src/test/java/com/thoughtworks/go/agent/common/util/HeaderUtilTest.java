@@ -23,8 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HeaderUtilTest {
     @Test
@@ -58,7 +57,7 @@ public class HeaderUtilTest {
 
     private void assertExtraPropertiesWithoutBase64(String actualHeaderValue, Map<String, String> expectedProperties) {
         Map<String, String> actualResult = HeaderUtil.parseExtraProperties(new BasicHeader("some-key", actualHeaderValue));
-        assertThat(actualResult, is(expectedProperties));
+        assertThat(actualResult).isEqualTo(expectedProperties);
     }
 
 }

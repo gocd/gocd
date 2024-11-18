@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.ServerConfig;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.String.format;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 public class MessageHandlerForServerInfoRequestProcessor2_0Test {
     @Test

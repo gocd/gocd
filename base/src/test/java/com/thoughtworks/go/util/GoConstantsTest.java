@@ -17,15 +17,14 @@ package com.thoughtworks.go.util;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GoConstantsTest {
     @Test
     public void shouldMatchURLs() throws Exception {
         String url = "http://java.sun.com:80/docs/books/tutorial/essential/regex/test_harness.html";
         String baseUrl = StringUtil.matchPattern(GoConstants.BASE_URL_PATTERN, url);
-        assertThat(baseUrl, is("http://java.sun.com:80"));
+        assertThat(baseUrl).isEqualTo("http://java.sun.com:80");
     }
 
 }

@@ -19,46 +19,44 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SCMMetadataStoreTest {
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         SCMMetadataStore.getInstance().clear();
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         SCMMetadataStore.getInstance().clear();
     }
 
     @Test
-    public void shouldPopulateDataCorrectly() throws Exception {
+    public void shouldPopulateDataCorrectly() {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
         SCMView scmView = createSCMView("display-value", "template");
         SCMMetadataStore.getInstance().addMetadataFor("plugin-id", scmConfigurations, scmView);
 
-        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata("plugin-id"), is(scmConfigurations));
-        assertThat(SCMMetadataStore.getInstance().getViewMetadata("plugin-id"), is(scmView));
-        assertThat(SCMMetadataStore.getInstance().displayValue("plugin-id"), is("display-value"));
-        assertThat(SCMMetadataStore.getInstance().template("plugin-id"), is("template"));
+        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata("plugin-id")).isEqualTo(scmConfigurations);
+        assertThat(SCMMetadataStore.getInstance().getViewMetadata("plugin-id")).isEqualTo(scmView);
+        assertThat(SCMMetadataStore.getInstance().displayValue("plugin-id")).isEqualTo("display-value");
+        assertThat(SCMMetadataStore.getInstance().template("plugin-id")).isEqualTo("template");
 
-        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata("some-plugin-which-does-not-exist"), is(nullValue()));
-        assertThat(SCMMetadataStore.getInstance().getViewMetadata("some-plugin-which-does-not-exist"), is(nullValue()));
-        assertThat(SCMMetadataStore.getInstance().displayValue("some-plugin-which-does-not-exist"), is(nullValue()));
-        assertThat(SCMMetadataStore.getInstance().template("some-plugin-which-does-not-exist"), is(nullValue()));
+        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata("some-plugin-which-does-not-exist")).isNull();
+        assertThat(SCMMetadataStore.getInstance().getViewMetadata("some-plugin-which-does-not-exist")).isNull();
+        assertThat(SCMMetadataStore.getInstance().displayValue("some-plugin-which-does-not-exist")).isNull();
+        assertThat(SCMMetadataStore.getInstance().template("some-plugin-which-does-not-exist")).isNull();
     }
 
     @Test
-    public void shouldBeAbleToCheckIfPluginExists() throws Exception {
+    public void shouldBeAbleToCheckIfPluginExists() {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
         SCMView scmView = createSCMView(null, null);
         SCMMetadataStore.getInstance().addMetadataFor("plugin-id", scmConfigurations, scmView);
 
-        assertThat(SCMMetadataStore.getInstance().hasPlugin("plugin-id"), is(true));
-        assertThat(SCMMetadataStore.getInstance().hasPlugin("some-plugin-which-does-not-exist"), is(false));
+        assertThat(SCMMetadataStore.getInstance().hasPlugin("plugin-id")).isEqualTo(true);
+        assertThat(SCMMetadataStore.getInstance().hasPlugin("some-plugin-which-does-not-exist")).isEqualTo(false);
     }
 
     private SCMView createSCMView(final String displayValue, final String template) {

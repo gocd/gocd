@@ -15,20 +15,19 @@
  */
 package com.thoughtworks.go.apiv1.internalsecretconfig.representers
 
-
 import com.thoughtworks.go.config.SecretConfig
 import com.thoughtworks.go.config.rules.Allow
 import com.thoughtworks.go.config.rules.Deny
 import com.thoughtworks.go.config.rules.Rules
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.security.GoCipher
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class SecretConfigRepresenterTest {
 
@@ -54,7 +53,7 @@ class SecretConfigRepresenterTest {
     void shouldSerializeToJSON() {
       def json = toObjectString({ SecretConfigRepresenter.toJSON(it, secretConfig) })
 
-      JsonFluentAssert.assertThatJson(json).isEqualTo([
+      assertThatJson(json)isEqualTo([
         "_links"    : [
           "doc" : [
             "href": apiDocsUrl('#secret-configs')
@@ -113,7 +112,7 @@ class SecretConfigRepresenterTest {
       secretConfig = null
       def json = toObjectString({ SecretConfigRepresenter.toJSON(it, secretConfig) })
 
-      JsonFluentAssert.assertThatJson(json).isEqualTo("{}")
+      assertThatJson(json).isEqualTo("{}")
     }
 
     @Test
@@ -121,7 +120,7 @@ class SecretConfigRepresenterTest {
       secretConfig.setRules(new Rules())
       def json = toObjectString({ SecretConfigRepresenter.toJSON(it, secretConfig) })
 
-      JsonFluentAssert.assertThatJson(json).isEqualTo([
+      assertThatJson(json).isEqualTo([
         "_links"    : [
           "doc" : [
             "href": apiDocsUrl('#secret-configs')

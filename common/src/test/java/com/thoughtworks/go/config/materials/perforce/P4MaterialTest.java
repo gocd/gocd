@@ -207,7 +207,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         }
 
         @Test
-        void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialUrl() {
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsInMaterialUrl() {
             P4Material p4Material = new P4Material("host:10", "beautiful");
             p4Material.setPassword("pass");
 

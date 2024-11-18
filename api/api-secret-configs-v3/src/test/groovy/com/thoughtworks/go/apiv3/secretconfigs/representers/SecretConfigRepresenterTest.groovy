@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.rules.Deny
 import com.thoughtworks.go.config.rules.Rules
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.security.GoCipher
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -32,6 +31,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigRepresenter.fromJSON
 import static com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigRepresenter.toJSON
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 import static org.junit.jupiter.api.Assertions.assertThrows
 
@@ -59,7 +59,7 @@ class SecretConfigRepresenterTest {
     void shouldSerializeToJSON() {
       def json = toObjectString({ toJSON(it, secretConfig) })
 
-      JsonFluentAssert.assertThatJson(json).isEqualTo([
+      assertThatJson(json).isEqualTo([
         "_links"    : [
           "doc" : [
             "href": apiDocsUrl('#secret-configs')
@@ -118,7 +118,7 @@ class SecretConfigRepresenterTest {
       secretConfig = null
       def json = toObjectString({ toJSON(it, secretConfig) })
 
-      JsonFluentAssert.assertThatJson(json).isEqualTo("{}")
+      assertThatJson(json).isEqualTo("{}")
     }
 
     @Test
@@ -126,7 +126,7 @@ class SecretConfigRepresenterTest {
       secretConfig.setRules(new Rules())
       def json = toObjectString({ toJSON(it, secretConfig) })
 
-      JsonFluentAssert.assertThatJson(json).isEqualTo([
+      assertThatJson(json).isEqualTo([
         "_links"    : [
           "doc" : [
             "href": apiDocsUrl('#secret-configs')
@@ -227,7 +227,7 @@ class SecretConfigRepresenterTest {
         fromJSON(GsonTransformer.instance.jsonReaderFrom("{}"))
       })
 
-      JsonFluentAssert.assertThatJson(exception.body()).isEqualTo("{\"message\" : \"Json `{}` does not contain property 'id'\"}")
+      assertThatJson(exception.body()).isEqualTo("{\"message\" : \"Json `{}` does not contain property 'id'\"}")
     }
 
     @Test
@@ -237,7 +237,7 @@ class SecretConfigRepresenterTest {
         fromJSON(GsonTransformer.instance.jsonReaderFrom([id: "foobar"]))
       })
 
-      JsonFluentAssert.assertThatJson(exception.body()).isEqualTo("{\"message\":\"Json `{\\\"id\\\":\\\"foobar\\\"}` does not contain property 'plugin_id'\"}")
+      assertThatJson(exception.body()).isEqualTo("{\"message\":\"Json `{\\\"id\\\":\\\"foobar\\\"}` does not contain property 'plugin_id'\"}")
     }
 
     @Test

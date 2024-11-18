@@ -30,7 +30,6 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.util.json.JsonHelper;
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -202,24 +202,24 @@ class PackageMaterialPollerTest {
     }
 
     @Test
-    void shouldPopulatePackageModificationComment_WithTrackbackUrlAndComment() throws Exception {
+    void shouldPopulatePackageModificationComment_WithTrackbackUrlAndComment() {
         PackageRevision packageRevision = new PackageRevision(null, null, null, "Built on host1", "http://google.com");
         PackageMaterial packageMaterial = MaterialsMother.packageMaterial();
         when(packageRepositoryExtension.getLatestRevision(eq(packageMaterial.getPluginId()), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class))).thenReturn(packageRevision);
 
         List<Modification> modifications = poller.latestModification(packageMaterial, null, null);
-        JsonFluentAssert.assertThatJson(modifications.get(0).getComment()).isEqualTo("{\"COMMENT\":\"Built on host1\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
+        assertThatJson(modifications.get(0).getComment()).isEqualTo("{\"COMMENT\":\"Built on host1\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
     }
 
     @Test
-    void shouldPopulatePackageModificationComment_WithTrackbackUrl_ForModificationsSince() throws Exception {
+    void shouldPopulatePackageModificationComment_WithTrackbackUrl_ForModificationsSince() {
         PackageRevision packageRevision = new PackageRevision(null, null, null, "some comment", "http://google.com");
         PackageMaterialRevision previousRevision = new PackageMaterialRevision("rev", new Date());
         PackageMaterial packageMaterial = MaterialsMother.packageMaterial();
         when(packageRepositoryExtension.latestModificationSince(eq(packageMaterial.getPluginId()), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class), any(PackageRevision.class))).thenReturn(packageRevision);
 
         List<Modification> modifications = poller.modificationsSince(packageMaterial, null, previousRevision, null);
-        JsonFluentAssert.assertThatJson(modifications.get(0).getComment()).isEqualTo("{\"COMMENT\":\"some comment\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
+        assertThatJson(modifications.get(0).getComment()).isEqualTo("{\"COMMENT\":\"some comment\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
     }
 
     @Nested

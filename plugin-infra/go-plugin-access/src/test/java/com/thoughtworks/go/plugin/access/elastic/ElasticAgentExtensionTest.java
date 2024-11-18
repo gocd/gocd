@@ -32,10 +32,8 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SUPPORTED_VERSIONS;
 import static com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentPluginConstantsV4.REQUEST_GET_PLUGIN_SETTINGS_ICON;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
@@ -75,7 +73,8 @@ public class ElasticAgentExtensionTest {
 
             assertNotNull(extension, message);
 
-            assertThat(ReflectionUtil.getField(extension, "VERSION"), is(supportedVersion));
+            String version = ReflectionUtil.getField(extension, "VERSION");
+            assertThat(version).isEqualTo(supportedVersion);
         }
     }
 
@@ -90,7 +89,7 @@ public class ElasticAgentExtensionTest {
 
     @Test
     public void shouldExtendAbstractExtension() {
-        assertThat(new ElasticAgentExtension(pluginManager, extensionsRegistry), instanceOf(AbstractExtension.class));
+        assertThat(new ElasticAgentExtension(pluginManager, extensionsRegistry)).isInstanceOf(AbstractExtension.class);
     }
 
     @Test
@@ -110,9 +109,9 @@ public class ElasticAgentExtensionTest {
 
     private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) {
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
-        assertThat(request.requestName(), is(requestName));
-        assertThat(request.extensionVersion(), is(extensionVersion));
-        assertThat(request.extension(), is(ELASTIC_AGENT_EXTENSION));
+        assertThat(request.requestName()).isEqualTo(requestName);
+        assertThat(request.extensionVersion()).isEqualTo(extensionVersion);
+        assertThat(request.extension()).isEqualTo(ELASTIC_AGENT_EXTENSION);
         assertThatJson(requestBody).isEqualTo(request.requestBody());
     }
 }

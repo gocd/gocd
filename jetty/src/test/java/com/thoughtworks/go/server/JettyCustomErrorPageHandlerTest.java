@@ -22,9 +22,7 @@ import org.mockito.ArgumentCaptor;
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -50,8 +48,8 @@ public class JettyCustomErrorPageHandlerTest {
         verify(writer).write(captor.capture());
         String fileContents = captor.getValue();
 
-        assertThat(fileContents, containsString("<h1>404</h1>"));
-        assertThat(fileContents, containsString("<h2>Not Found</h2>"));
+        assertThat(fileContents).contains("<h1>404</h1>");
+        assertThat(fileContents).contains("<h2>Not Found</h2>");
     }
 
     @Test
@@ -61,6 +59,6 @@ public class JettyCustomErrorPageHandlerTest {
         verify(writer).write(captor.capture());
         String fileContents = captor.getValue();
 
-        assertThat(fileContents, not(containsString("this message should not be rendered")));
+        assertThat(fileContents).doesNotContain("this message should not be rendered");
     }
 }

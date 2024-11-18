@@ -21,23 +21,22 @@ import org.junit.jupiter.api.Test;
 import java.util.Calendar;
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DateUtilsTest {
 
     @Test
-    public void shouldBeAbleToParseRFC822Dates() throws Exception {
+    public void shouldBeAbleToParseRFC822Dates() {
         Date date = DateUtils.parseRFC822("Tue, 09 Dec 2008 18:56:14 +0800");
-        assertThat(date, is(new DateTime("2008-12-09T18:56:14+08:00").toDate()));
+        assertThat(date).isEqualTo(new DateTime("2008-12-09T18:56:14+08:00").toDate());
     }
 
     @Test
     public void shouldSerializeDateForCcTray() {
         Date date = new DateTime("2008-12-09T18:56:14+08:00").toDate();
-        assertThat(DateUtils.formatIso8601ForCCTray(date), is("2008-12-09T10:56:14Z"));
+        assertThat(DateUtils.formatIso8601ForCCTray(date)).isEqualTo("2008-12-09T10:56:14Z");
     }
 
     @Test
@@ -46,7 +45,7 @@ public class DateUtilsTest {
         instance.set(2009, Calendar.NOVEMBER, 5);
         Date date = instance.getTime();
         String formattedDate = DateUtils.formatToSimpleDate(date);
-        assertThat(formattedDate, is("05 Nov 2009"));
+        assertThat(formattedDate).isEqualTo("05 Nov 2009");
     }
 
     @Test

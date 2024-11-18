@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv7.agents.representers
 import com.thoughtworks.go.apiv7.agents.model.AgentUpdateRequest
 import com.thoughtworks.go.util.TriState
 import groovy.json.JsonBuilder
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -40,10 +39,10 @@ class AgentUpdateRequestRepresenterTest {
 
     AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-    Assertions.assertThat(agentInfo.getHostname()).isEqualTo("agent02.example.com")
+    assertThat(agentInfo.getHostname()).isEqualTo("agent02.example.com")
     assertThat(agentInfo.getAgentConfigState()).isEqualTo(TriState.TRUE)
-    Assertions.assertThat(agentInfo.getResources()).isEqualTo("java,psql")
-    Assertions.assertThat(agentInfo.getEnvironments()).isEqualTo("env1")
+    assertThat(agentInfo.getResources()).isEqualTo("java,psql")
+    assertThat(agentInfo.getEnvironments()).isEqualTo("env1")
   }
 
   @Test
@@ -55,10 +54,10 @@ class AgentUpdateRequestRepresenterTest {
 
     AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-    Assertions.assertThat(agentInfo.getHostname()).isEqualTo(null)
+    assertThat(agentInfo.getHostname()).isNull()
     assertThat(agentInfo.getAgentConfigState()).isEqualTo(TriState.TRUE)
-    Assertions.assertThat(agentInfo.getResources()).isEqualTo("java,psql")
-    Assertions.assertThat(agentInfo.getEnvironments()).isEqualTo("env1")
+    assertThat(agentInfo.getResources()).isEqualTo("java,psql")
+    assertThat(agentInfo.getEnvironments()).isEqualTo("env1")
   }
 
   @Nested
@@ -72,7 +71,7 @@ class AgentUpdateRequestRepresenterTest {
 
       AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-      Assertions.assertThat(agentInfo.getResources()).isEqualTo("firefox,chrome,safari")
+      assertThat(agentInfo.getResources()).isEqualTo("firefox,chrome,safari")
     }
 
     @Test
@@ -85,7 +84,7 @@ class AgentUpdateRequestRepresenterTest {
 
       AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-      Assertions.assertThat(agentInfo.getResources()).isEmpty()
+      assertThat(agentInfo.getResources()).isEmpty()
     }
 
     @Test
@@ -97,7 +96,7 @@ class AgentUpdateRequestRepresenterTest {
 
       AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-      Assertions.assertThat(agentInfo.getResources()).isNull()
+      assertThat(agentInfo.getResources()).isNull()
     }
   }
 
@@ -112,7 +111,7 @@ class AgentUpdateRequestRepresenterTest {
 
       AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-      Assertions.assertThat(agentInfo.getEnvironments()).isEqualTo("linux,java,psql")
+      assertThat(agentInfo.getEnvironments()).isEqualTo("linux,java,psql")
     }
 
     @Test
@@ -125,7 +124,7 @@ class AgentUpdateRequestRepresenterTest {
 
       AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-      Assertions.assertThat(agentInfo.getEnvironments()).isEmpty()
+      assertThat(agentInfo.getEnvironments()).isEmpty()
     }
 
     @Test
@@ -137,7 +136,7 @@ class AgentUpdateRequestRepresenterTest {
 
       AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-      Assertions.assertThat(agentInfo.getEnvironments()).isNull()
+      assertThat(agentInfo.getEnvironments()).isNull()
     }
   }
 

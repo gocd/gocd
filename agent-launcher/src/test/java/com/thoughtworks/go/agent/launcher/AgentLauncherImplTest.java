@@ -40,9 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -81,16 +79,17 @@ public class AgentLauncherImplTest {
         TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
         launcher.launch(launchDescriptor());
 
-        assertThat(actualVersion.size(), is(1));
-        assertThat(actualVersion.get(0), is(CurrentGoCDVersion.getInstance().fullVersion()));
+        assertThat(actualVersion.size()).isEqualTo(1);
+        assertThat(actualVersion.get(0)).isEqualTo(CurrentGoCDVersion.getInstance().fullVersion());
     }
 
     @Test
     public void shouldNotThrowException_insteadReturnAppropriateErrorCode_whenSomethingGoesWrongInLaunch() {
         AgentLaunchDescriptor launchDesc = mock(AgentLaunchDescriptor.class);
         when(launchDesc.context().get(AgentBootstrapperArgs.SERVER_URL)).thenThrow(new RuntimeException("Ouch!"));
-        assertThat("should not have blown up, because it directly interfaces with bootstrapper",
-            new AgentLauncherImpl().launch(launchDesc), is(-273));
+        assertThat(new AgentLauncherImpl().launch(launchDesc))
+            .describedAs("should not have blown up, because it directly interfaces with bootstrapper")
+            .isEqualTo(-273);
     }
 
     private AgentLaunchDescriptor launchDescriptor() {
@@ -108,7 +107,7 @@ public class AgentLauncherImplTest {
         File staleJar = randomFile(AGENT_LAUNCHER_JAR);
         long original = staleJar.length();
         new AgentLauncherImpl().launch(launchDescriptor());
-        assertThat(staleJar.length(), not(original));
+        assertThat(staleJar.length()).isNotEqualTo(original);
     }
 
     @Test
@@ -118,7 +117,7 @@ public class AgentLauncherImplTest {
         File staleJar = randomFile(AGENT_BINARY_JAR);
         long original = staleJar.length();
         new AgentLauncherImpl().launch(launchDescriptor());
-        assertThat(staleJar.length(), not(original));
+        assertThat(staleJar.length()).isNotEqualTo(original);
     }
 
     @Test
@@ -129,7 +128,7 @@ public class AgentLauncherImplTest {
 
         assertTrue(AGENT_BINARY_JAR.setLastModified(0));
         new AgentLauncherImpl().launch(launchDescriptor());
-        assertThat(AGENT_BINARY_JAR.lastModified(), is(0L));
+        assertThat(AGENT_BINARY_JAR.lastModified()).isEqualTo(0L);
     }
 
     @Test
@@ -141,7 +140,7 @@ public class AgentLauncherImplTest {
 
         assertTrue(TFS_IMPL_JAR.setLastModified(0));
         new AgentLauncherImpl().launch(launchDescriptor());
-        assertThat(TFS_IMPL_JAR.lastModified(), is(0L));
+        assertThat(TFS_IMPL_JAR.lastModified()).isEqualTo(0L);
     }
 
     @Test
@@ -152,8 +151,8 @@ public class AgentLauncherImplTest {
         long originalAgentLength = agentFile.length();
         new AgentLauncherImpl().launch(launchDescriptor());
 
-        assertThat(launcher.length(), not(original));
-        assertThat(agentFile.length(), is(originalAgentLength));
+        assertThat(launcher.length()).isNotEqualTo(original);
+        assertThat(agentFile.length()).isEqualTo(originalAgentLength);
     }
 
     private File randomFile(final File pathname) throws IOException {

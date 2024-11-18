@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -389,14 +388,14 @@ public class ValueStreamMapTest {
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(5), 1, publish);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(6), 0, deployGo01);
 
-        MatcherAssert.assertThat(graph.findNode(gitTrunk).getDepth(), is(2));
-        MatcherAssert.assertThat(graph.findNode(hgTrunk).getDepth(), is(3));
-        MatcherAssert.assertThat(graph.findNode(gitPlugins).getDepth(), is(1));
-        MatcherAssert.assertThat(graph.findNode(cruise).getDepth(), is(2));
-        MatcherAssert.assertThat(graph.findNode(deployGo03).getDepth(), is(1));
-        MatcherAssert.assertThat(graph.findNode(deployGo02).getDepth(), is(2));
-        MatcherAssert.assertThat(graph.findNode(publish).getDepth(), is(1));
-        MatcherAssert.assertThat(graph.findNode(deployGo01).getDepth(), is(1));
+        assertThat(graph.findNode(gitTrunk).getDepth(), is(2));
+        assertThat(graph.findNode(hgTrunk).getDepth(), is(3));
+        assertThat(graph.findNode(gitPlugins).getDepth(), is(1));
+        assertThat(graph.findNode(cruise).getDepth(), is(2));
+        assertThat(graph.findNode(deployGo03).getDepth(), is(1));
+        assertThat(graph.findNode(deployGo02).getDepth(), is(2));
+        assertThat(graph.findNode(publish).getDepth(), is(1));
+        assertThat(graph.findNode(deployGo01).getDepth(), is(1));
     }
 
     @Test

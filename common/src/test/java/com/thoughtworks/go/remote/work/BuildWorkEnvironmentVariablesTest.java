@@ -43,7 +43,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.hamcrest.Matcher;
+import org.assertj.core.api.AbstractStringAssert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -60,11 +60,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedEnvVariable;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class BuildWorkEnvironmentVariablesTest {
@@ -114,14 +114,14 @@ public class BuildWorkEnvironmentVariablesTest {
         new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, "some_random_place");
         Materials materials = new Materials(svnMaterial);
         EnvironmentVariableContext environmentVariableContext = doWorkWithMaterials(materials);
-        assertThat(environmentVariableContext.getProperty("GO_REVISION"), is("3"));
-        assertThat(environmentVariableContext.getProperty("GO_SERVER_URL"), is("some_random_place"));
-        assertThat(environmentVariableContext.getProperty("GO_PIPELINE_NAME"), is(PIPELINE_NAME));
-        assertThat(environmentVariableContext.getProperty("GO_PIPELINE_LABEL"), is("1"));
-        assertThat(environmentVariableContext.getProperty("GO_STAGE_NAME"), is(STAGE_NAME));
-        assertThat(environmentVariableContext.getProperty("GO_STAGE_COUNTER"), is("1"));
-        assertThat(environmentVariableContext.getProperty("GO_JOB_NAME"), is(JOB_NAME));
-        assertThat(environmentVariableContext.getProperty("GO_TRIGGER_USER"), is(TRIGGERED_BY_USER));
+        assertThat(environmentVariableContext.getProperty("GO_REVISION")).isEqualTo("3");
+        assertThat(environmentVariableContext.getProperty("GO_SERVER_URL")).isEqualTo("some_random_place");
+        assertThat(environmentVariableContext.getProperty("GO_PIPELINE_NAME")).isEqualTo(PIPELINE_NAME);
+        assertThat(environmentVariableContext.getProperty("GO_PIPELINE_LABEL")).isEqualTo("1");
+        assertThat(environmentVariableContext.getProperty("GO_STAGE_NAME")).isEqualTo(STAGE_NAME);
+        assertThat(environmentVariableContext.getProperty("GO_STAGE_COUNTER")).isEqualTo("1");
+        assertThat(environmentVariableContext.getProperty("GO_JOB_NAME")).isEqualTo(JOB_NAME);
+        assertThat(environmentVariableContext.getProperty("GO_TRIGGER_USER")).isEqualTo(TRIGGERED_BY_USER);
     }
 
     @Nested
@@ -153,10 +153,10 @@ public class BuildWorkEnvironmentVariablesTest {
                     new GoArtifactsManipulatorStub(), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, null));
 
 
-            assertThat(environmentVariableContext.getProperty("GO_REVISION"), is("10"));
-            assertThat(environmentVariableContext.getProperty("GO_SERVER_URL"), is("some_random_place"));
-            assertThat(environmentVariableContext.getProperty("GO_TRIGGER_USER"), is(TRIGGERED_BY_USER));
-            assertThat(environmentVariableContext.getProperty("GO_P4_CLIENT"), is(p4Material.clientName(dir)));
+            assertThat(environmentVariableContext.getProperty("GO_REVISION")).isEqualTo("10");
+            assertThat(environmentVariableContext.getProperty("GO_SERVER_URL")).isEqualTo("some_random_place");
+            assertThat(environmentVariableContext.getProperty("GO_TRIGGER_USER")).isEqualTo(TRIGGERED_BY_USER);
+            assertThat(environmentVariableContext.getProperty("GO_P4_CLIENT")).isEqualTo(p4Material.clientName(dir));
         }
 
         private BuildWork getBuildWorkWithP4MaterialRevision(P4Material p4Material) {
@@ -191,31 +191,27 @@ public class BuildWorkEnvironmentVariablesTest {
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(environmentContext, new AgentWorkContext(agentIdentifier, new FakeBuildRepositoryRemote(), new GoArtifactsManipulatorStub(), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, null));
 
-        assertEnvironmentContext(environmentContext, "foo", is("bar"));
+        assertEnvironmentContext(environmentContext, "foo").isEqualTo("bar");
     }
 
-    private void assertEnvironmentContext(EnvironmentVariableContext environmentVariableContext, String key, Matcher<String> matcher) {
-        assertThat("Properties: \n" + environmentVariableContext.getProperties(), environmentVariableContext.getProperty(key), matcher);
+    private AbstractStringAssert<?> assertEnvironmentContext(EnvironmentVariableContext environmentVariableContext, String key) {
+        return assertThat(environmentVariableContext.getProperty(key)).describedAs("Properties: \n" + environmentVariableContext.getProperties());
     }
 
     @Test
     public void shouldSetupEnvironmentVariableForDependencyMaterial() throws IOException {
         EnvironmentVariableContext environmentVariableContext = doWorkWithMaterials(new Materials());
 
-        assertThat("Properties: \n" + environmentVariableContext.getProperties(),
-                environmentVariableContext.getProperty("GO_DEPENDENCY_LOCATOR_UPSTREAM1"), is("upstream1/0/first/1"));
-        assertThat("Properties: \n" + environmentVariableContext.getProperties(),
-                environmentVariableContext.getProperty("GO_DEPENDENCY_LABEL_UPSTREAM1"), is("upstream1-label"));
+        assertEnvironmentContext(environmentVariableContext, "GO_DEPENDENCY_LOCATOR_UPSTREAM1").isEqualTo("upstream1/0/first/1");
+        assertEnvironmentContext(environmentVariableContext, "GO_DEPENDENCY_LABEL_UPSTREAM1").isEqualTo("upstream1-label");
     }
 
     @Test
     public void shouldSetupEnvironmentVariableUsingDependencyMaterialName() throws IOException {
         EnvironmentVariableContext environmentVariableContext = doWorkWithMaterials(new Materials());
 
-        assertThat("Properties: \n" + environmentVariableContext.getProperties(),
-                environmentVariableContext.getProperty("GO_DEPENDENCY_LOCATOR_DEPENDENCY_MATERIAL_NAME"), is("upstream2/0/first/1"));
-        assertThat("Properties: \n" + environmentVariableContext.getProperties(),
-                environmentVariableContext.getProperty("GO_DEPENDENCY_LABEL_DEPENDENCY_MATERIAL_NAME"), is("upstream2-label"));
+        assertEnvironmentContext(environmentVariableContext, "GO_DEPENDENCY_LOCATOR_DEPENDENCY_MATERIAL_NAME").isEqualTo("upstream2/0/first/1");
+        assertEnvironmentContext(environmentVariableContext, "GO_DEPENDENCY_LABEL_DEPENDENCY_MATERIAL_NAME").isEqualTo("upstream2-label");
     }
 
     @Test
@@ -231,17 +227,17 @@ public class BuildWorkEnvironmentVariablesTest {
         work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, new FakeBuildRepositoryRemote(),
                 new GoArtifactsManipulatorStub(), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, null));
 
-        assertThat(environmentVariableContext.getProperty("GO_REVISION_CRUISE"), is("3"));
+        assertThat(environmentVariableContext.getProperty("GO_REVISION_CRUISE")).isEqualTo("3");
     }
 
     @Test
-    public void shouldSetUpRevisionIntoEnvironmentContextCorrectlyForMutipleMaterial() throws IOException {
+    public void shouldSetUpRevisionIntoEnvironmentContextCorrectlyForMultipleMaterial() throws IOException {
         svnMaterial.setFolder("svn-Dir");
 
         EnvironmentVariableContext environmentVariableContext = doWorkWithMaterials(new Materials(svnMaterial, hgMaterial));
 
-        assertThat(environmentVariableContext.getProperty("GO_REVISION_SVN_DIR"), is("3"));
-        assertThat(environmentVariableContext.getProperty("GO_REVISION_HG_DIR"), is("ca3ebb67f527c0ad7ed26b789056823d8b9af23f"));
+        assertThat(environmentVariableContext.getProperty("GO_REVISION_SVN_DIR")).isEqualTo("3");
+        assertThat(environmentVariableContext.getProperty("GO_REVISION_HG_DIR")).isEqualTo("ca3ebb67f527c0ad7ed26b789056823d8b9af23f");
     }
 
     @Test
@@ -255,15 +251,23 @@ public class BuildWorkEnvironmentVariablesTest {
         work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, new FakeBuildRepositoryRemote(),
                 manipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, null));
 
-        assertThat(manipulator.consoleOut(), printedEnvVariable("GO_SERVER_URL", "some_random_place"));
-        assertThat(manipulator.consoleOut(), printedEnvVariable("GO_PIPELINE_NAME", PIPELINE_NAME));
-        assertThat(manipulator.consoleOut(), printedEnvVariable("GO_PIPELINE_COUNTER", 1));
-        assertThat(manipulator.consoleOut(), printedEnvVariable("GO_PIPELINE_LABEL", 1));
-        assertThat(manipulator.consoleOut(), printedEnvVariable("GO_STAGE_NAME", STAGE_NAME));
-        assertThat(manipulator.consoleOut(), printedEnvVariable("GO_STAGE_COUNTER", 1));
-        assertThat(manipulator.consoleOut(), printedEnvVariable("GO_JOB_NAME", JOB_NAME));
-        assertThat(manipulator.consoleOut(), printedEnvVariable("GO_REVISION", 3));
-        assertThat(manipulator.consoleOut(), printedEnvVariable("GO_TRIGGER_USER", TRIGGERED_BY_USER));
+        assertThat(manipulator.consoleOut())
+            .satisfies(hasPrintedEnvVariable("GO_SERVER_URL", "some_random_place"))
+            .satisfies(hasPrintedEnvVariable("GO_PIPELINE_NAME", PIPELINE_NAME))
+            .satisfies(hasPrintedEnvVariable("GO_PIPELINE_COUNTER", 1))
+            .satisfies(hasPrintedEnvVariable("GO_PIPELINE_LABEL", 1))
+            .satisfies(hasPrintedEnvVariable("GO_STAGE_NAME", STAGE_NAME))
+            .satisfies(hasPrintedEnvVariable("GO_STAGE_COUNTER", 1))
+            .satisfies(hasPrintedEnvVariable("GO_JOB_NAME", JOB_NAME))
+            .satisfies(hasPrintedEnvVariable("GO_REVISION", 3))
+            .satisfies(hasPrintedEnvVariable("GO_TRIGGER_USER", TRIGGERED_BY_USER));
+    }
+
+    private Consumer<? super String> hasPrintedEnvVariable(String key, Object value) {
+        return console -> assertThat(console).containsAnyOf(
+            format("environment variable '%s' to value '%s'", key, value),
+            format("environment variable '%s' with value '%s'", key, value)
+        );
     }
 
     @Test
@@ -276,8 +280,8 @@ public class BuildWorkEnvironmentVariablesTest {
 
         EnvironmentVariableContext environmentVariableContext = doWorkWithMaterials(new Materials(svnMaterial));
 
-        assertThat(environmentVariableContext.getProperty("GO_REVISION_SVN_DIR"), is("3"));
-        assertThat(environmentVariableContext.getProperty("GO_REVISION_SVN_DIR_EXTERNAL"), is("4"));
+        assertThat(environmentVariableContext.getProperty("GO_REVISION_SVN_DIR")).isEqualTo("3");
+        assertThat(environmentVariableContext.getProperty("GO_REVISION_SVN_DIR_EXTERNAL")).isEqualTo("4");
     }
 
     private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) throws IOException {

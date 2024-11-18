@@ -16,14 +16,12 @@
 
 package com.thoughtworks.go.http.mocks;
 
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.error.ShouldContainCharSequence;
 import org.assertj.core.internal.Failures;
-import org.hamcrest.text.MatchesPattern;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.InvalidMimeTypeException;
 import org.springframework.util.MimeType;
@@ -34,6 +32,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.error.ShouldBeEqual.shouldBeEqual;
 import static org.assertj.core.error.ShouldBeNullOrEmpty.shouldBeNullOrEmpty;
@@ -46,10 +45,6 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
 
     public static MockHttpServletResponseAssert assertThat(MockHttpServletResponse actual) {
         return new MockHttpServletResponseAssert(actual, MockHttpServletResponseAssert.class);
-    }
-
-    public SELF hasStatusWithMessage(int statusCode, String message) throws UnsupportedEncodingException {
-        return hasStatus(statusCode).hasJsonMessage(message);
     }
 
     public SELF hasContentType(String mimeType) {
@@ -100,7 +95,7 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
     }
 
     public SELF hasJsonBody(Object expected) throws UnsupportedEncodingException {
-        JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(expected);
+        assertThatJson(actual.getContentAsString()).isEqualTo(expected);
         return myself;
     }
 
@@ -137,17 +132,17 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
     }
 
     public SELF hasJsonAttribute(String attribute, Object object) throws UnsupportedEncodingException {
-        JsonFluentAssert.assertThatJson(actual.getContentAsString()).node(attribute).isEqualTo(object);
+        assertThatJson(actual.getContentAsString()).node(attribute).isEqualTo(object);
         return myself;
     }
 
     public SELF hasJsonMessage(String message) throws UnsupportedEncodingException {
-        JsonFluentAssert.assertThatJson(actual.getContentAsString()).node("message").isEqualTo(message);
+        assertThatJson(actual.getContentAsString()).node("message").isEqualTo(message);
         return myself;
     }
 
     public SELF hasJsonMessage(Pattern regex) throws UnsupportedEncodingException {
-        JsonFluentAssert.assertThatJson(actual.getContentAsString()).node("message").matches(new MatchesPattern(regex));
+        assertThatJson(actual.getContentAsString()).node("message").asString().matches(regex);
         return myself;
     }
 
@@ -187,13 +182,6 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
         return myself;
     }
 
-    public SELF containsHeader(String header) {
-        if (!actual.containsHeader(header)) {
-            failWithMessage("Expected response to contain header `%s`", header);
-        }
-        return myself;
-    }
-
     public SELF hasNoContent() {
         return hasStatus(204);
     }
@@ -222,10 +210,6 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
         return hasStatus(400);
     }
 
-    public SELF isUnsupportedMediaType() {
-        return hasStatus(415);
-    }
-
     public SELF isCreated() {
         return hasStatus(201);
     }
@@ -242,26 +226,11 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
         return hasStatus(202);
     }
 
-    public SELF isFailedDependency() {
-        return hasStatus(424);
-    }
-
-    public SELF isInsufficientStorage() {
-        return hasStatus(507);
-    }
-
     public SELF isForbidden() {
         return hasStatus(403);
     }
 
     public SELF isUnauthorized() {
         return hasStatus(401);
-    }
-
-    public SELF doesNotRedirect() {
-        if (actual.getStatus() >= 300 && actual.getStatus() <= 399) {
-            failWithMessage("Unexpected redirect status code <%s>", actual.getStatus());
-        }
-        return doesNotContainHeader("location");
     }
 }

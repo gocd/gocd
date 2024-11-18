@@ -17,51 +17,50 @@ package com.thoughtworks.go.util;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileSizeUtilsTest {
 
     @Test
     public void shouldConvertBytes() {
-        assertThat(FileSizeUtils.byteCountToDisplaySize(1023), is("1023 bytes"));
+        assertThat(FileSizeUtils.byteCountToDisplaySize(1023)).isEqualTo("1023 bytes");
     }
 
     @Test
     public void shouldConvertBytesToKilo() {
-        assertThat(FileSizeUtils.byteCountToDisplaySize(1024 + 512), is("1.5 KB"));
+        assertThat(FileSizeUtils.byteCountToDisplaySize(1024 + 512)).isEqualTo("1.5 KB");
     }
 
     @Test
     public void shouldOnlyKeep() {
-        assertThat(FileSizeUtils.byteCountToDisplaySize(1024 + 512 + 256), is("1.8 KB"));
+        assertThat(FileSizeUtils.byteCountToDisplaySize(1024 + 512 + 256)).isEqualTo("1.8 KB");
     }
 
     @Test
     public void shouldConvertBytesToMega() {
-        assertThat(FileSizeUtils.byteCountToDisplaySize(1024 * 1024), is("1.0 MB"));
+        assertThat(FileSizeUtils.byteCountToDisplaySize(1024 * 1024)).isEqualTo("1.0 MB");
     }
 
     @Test
     public void shouldConvertBytesToMegaForFloat() {
-        assertThat(FileSizeUtils.byteCountToDisplaySize(1 * 1024 * 1024 + 512 * 1024), is("1.5 MB"));
+        assertThat(FileSizeUtils.byteCountToDisplaySize(1 * 1024 * 1024 + 512 * 1024)).isEqualTo("1.5 MB");
     }
 
     @Test
     public void shouldConvertBytesToGiga() {
         long twoGiga = 2L * 1024 * 1024 * 1024 + 512 * 1024 * 1024;
-        assertThat(FileSizeUtils.byteCountToDisplaySize(twoGiga), is("2.5 GB"));
+        assertThat(FileSizeUtils.byteCountToDisplaySize(twoGiga)).isEqualTo("2.5 GB");
     }
 
     @Test
     public void shouldConvertBytesToTB() {
         long twoGiga = 2L * 1024 * 1024 * 1024 * 1024 + 512L * 1024 * 1024 * 1024;
-        assertThat(FileSizeUtils.byteCountToDisplaySize(twoGiga), is("2.5 TB"));
+        assertThat(FileSizeUtils.byteCountToDisplaySize(twoGiga)).isEqualTo("2.5 TB");
     }
 
     @Test
     public void shouldConvertBytesToPB() {
         long twoGiga = 2L * 1024 * 1024 * 1024 * 1024 * 1024 + 512L * 1024 * 1024 * 1024 * 1024;
-        assertThat(FileSizeUtils.byteCountToDisplaySize(twoGiga), is("2.5 PB"));
+        assertThat(FileSizeUtils.byteCountToDisplaySize(twoGiga)).isEqualTo("2.5 PB");
     }
 }

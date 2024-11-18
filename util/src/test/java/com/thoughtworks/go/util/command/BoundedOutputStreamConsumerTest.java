@@ -17,8 +17,7 @@ package com.thoughtworks.go.util.command;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BoundedOutputStreamConsumerTest {
 
@@ -29,7 +28,7 @@ public class BoundedOutputStreamConsumerTest {
 
         streamConsumer.stdOutput("This is a fairly ridiculously long line.");
 
-        assertThat(actualConsumer.getAllOutput(), is("This is ...[ cropped by GoCD ]\n"));
+        assertThat(actualConsumer.getAllOutput()).isEqualTo("This is ...[ cropped by GoCD ]\n");
     }
 
     @Test
@@ -39,7 +38,7 @@ public class BoundedOutputStreamConsumerTest {
 
         streamConsumer.stdOutput("A short line");
 
-        assertThat(actualConsumer.getAllOutput(), is("A short line\n"));
+        assertThat(actualConsumer.getAllOutput()).isEqualTo("A short line\n");
     }
 
     @Test
@@ -49,7 +48,7 @@ public class BoundedOutputStreamConsumerTest {
 
         streamConsumer.stdOutput("This is a fairly ridiculously long line.");
 
-        assertThat(actualConsumer.getAllOutput(), is("This is a fairly ridiculously long line.\n"));
+        assertThat(actualConsumer.getAllOutput()).isEqualTo("This is a fairly ridiculously long line.\n");
     }
 
     @Test
@@ -59,6 +58,6 @@ public class BoundedOutputStreamConsumerTest {
 
         streamConsumer.stdOutput("This is a fairly ridiculously long line.");
 
-        assertThat(actualConsumer.getAllOutput(), is("...[ cropped by GoCD ]\n"));
+        assertThat(actualConsumer.getAllOutput()).isEqualTo("...[ cropped by GoCD ]\n");
     }
 }

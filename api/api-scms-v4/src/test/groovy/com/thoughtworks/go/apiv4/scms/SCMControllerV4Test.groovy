@@ -55,7 +55,7 @@ import static com.thoughtworks.go.config.remote.ConfigRepoConfig.createConfigRep
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static java.util.Collections.emptyList
 import static java.util.Collections.emptyMap
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 

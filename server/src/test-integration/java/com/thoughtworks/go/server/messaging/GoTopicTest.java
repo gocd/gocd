@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.server.messaging;
 
-import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.Timeout;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +23,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import static com.thoughtworks.go.util.Assertions.assertWillHappen;
-import static org.hamcrest.Matchers.is;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -40,12 +37,6 @@ import static org.hamcrest.Matchers.is;
 })
 public class GoTopicTest {
     @Autowired private MessagingService messageService;
-
-
-    @BeforeAll
-    public static void beforeClass() {
-        GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
-    }
 
     @Test
     public void shouldNotifyAllListeners() {
@@ -66,11 +57,15 @@ public class GoTopicTest {
             expectedMessages.add(message);
         }
 
-        assertWillHappen(listener1.receivedMessage, is(expectedMessages), Timeout.FIVE_SECONDS);
-        assertWillHappen(listener2.receivedMessage, is(expectedMessages), Timeout.FIVE_SECONDS);
+        await()
+            .atMost(5, TimeUnit.SECONDS)
+            .untilAsserted(() -> assertThat(listener1.receivedMessage).isEqualTo(expectedMessages));
+        await()
+            .atMost(5, TimeUnit.SECONDS)
+            .untilAsserted(() -> assertThat(listener2.receivedMessage).isEqualTo(expectedMessages));
     }
 
-    class StubGoMessageListener implements GoMessageListener<GoMessage> {
+    static class StubGoMessageListener implements GoMessageListener<GoMessage> {
         Set<String> receivedMessage = new HashSet<>();
 
         @Override

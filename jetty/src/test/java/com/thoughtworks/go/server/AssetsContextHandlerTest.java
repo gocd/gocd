@@ -22,12 +22,8 @@ import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,8 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,12 +58,12 @@ public class AssetsContextHandlerTest {
 
     @Test
     public void shouldSetHeadersAndBaseDirectory() {
-        assertThat(handler.getContextPath(), is("/go/assets"));
-        assertThat(((HandlerWrapper) handler.getHandler()).getHandler() instanceof AssetsContextHandler.AssetsHandler, is(true));
+        assertThat(handler.getContextPath()).isEqualTo("/go/assets");
+        assertThat(((HandlerWrapper) handler.getHandler()).getHandler() instanceof AssetsContextHandler.AssetsHandler).isEqualTo(true);
         AssetsContextHandler.AssetsHandler assetsHandler = (AssetsContextHandler.AssetsHandler) ((HandlerWrapper) handler.getHandler()).getHandler();
         ResourceHandler resourceHandler = ReflectionUtil.getField(assetsHandler, "resourceHandler");
-        assertThat(resourceHandler.getCacheControl(), is("max-age=31536000,public"));
-        assertThat(resourceHandler.getResourceBase(), isSameFileAs(new File("WEB-INF/rails.root/public/assets").toPath().toAbsolutePath().toUri().toString()));
+        assertThat(resourceHandler.getCacheControl()).isEqualTo("max-age=31536000,public");
+        assertThat(resourceHandler.getResourceBase()).isEqualTo(new File("WEB-INF/rails.root/public/assets").toPath().toAbsolutePath().toUri().toString());
     }
 
     @Test
@@ -97,20 +92,5 @@ public class AssetsContextHandlerTest {
 
         handler.getHandler().handle(target, baseRequest, request, response);
         verify(resourceHandler, never()).handle(any(String.class), any(Request.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
-    }
-
-    private Matcher<? super String> isSameFileAs(final String expected) {
-        return new BaseMatcher<>() {
-            @Override
-            public boolean matches(Object o) {
-                String actualFile = (String) o;
-                return OS.WINDOWS.equals(OS.current()) ? expected.equalsIgnoreCase(actualFile) : expected.equals(actualFile);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("     " + expected);
-            }
-        };
     }
 }

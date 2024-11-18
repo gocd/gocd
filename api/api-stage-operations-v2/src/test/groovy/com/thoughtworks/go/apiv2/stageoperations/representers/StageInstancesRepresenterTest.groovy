@@ -25,7 +25,7 @@ import com.thoughtworks.go.server.util.Pagination
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class StageInstancesRepresenterTest {
   @Test

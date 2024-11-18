@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -170,8 +169,8 @@ public class ModificationsTest {
     public void shouldNeverIgnorePackageMaterialModifications() {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig();
         Filter filter = packageMaterialConfig.filter();
-        MatcherAssert.assertThat(filter, is(notNullValue()));
-        MatcherAssert.assertThat(new Modifications().shouldBeIgnoredByFilterIn(packageMaterialConfig), is(false));
+        assertThat(filter, is(notNullValue()));
+        assertThat(new Modifications().shouldBeIgnoredByFilterIn(packageMaterialConfig), is(false));
     }
 
     @Test

@@ -32,7 +32,6 @@ import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,9 +43,8 @@ import java.util.*;
 
 import static com.thoughtworks.go.plugin.access.elastic.v5.ElasticAgentPluginConstantsV5.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -81,8 +79,8 @@ public class ElasticAgentExtensionV5Test {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("{\"content_type\":\"image/png\",\"data\":\"Zm9vYmEK\"}"));
         final Image icon = extensionV5.getIcon(PLUGIN_ID);
 
-        assertThat(icon.getContentType(), is("image/png"));
-        assertThat(icon.getData(), is("Zm9vYmEK"));
+        assertThat(icon.getContentType()).isEqualTo("image/png");
+        assertThat(icon.getData()).isEqualTo("Zm9vYmEK");
 
         assertExtensionRequest("5.0", REQUEST_GET_PLUGIN_SETTINGS_ICON, null);
     }
@@ -110,11 +108,10 @@ public class ElasticAgentExtensionV5Test {
 
         final List<PluginConfiguration> metadata = extensionV5.getElasticProfileMetadata(PLUGIN_ID);
 
-        assertThat(metadata, hasSize(2));
-        assertThat(metadata, containsInAnyOrder(
+        assertThat(metadata).containsExactlyInAnyOrder(
                 new PluginConfiguration("Username", new Metadata(true, false)),
                 new PluginConfiguration("Password", new Metadata(true, true))
-        ));
+        );
 
         assertExtensionRequest("5.0", REQUEST_GET_ELASTIC_AGENT_PROFILE_METADATA, null);
     }
@@ -126,7 +123,7 @@ public class ElasticAgentExtensionV5Test {
 
         final String view = extensionV5.getElasticProfileView(PLUGIN_ID);
 
-        assertThat(view, is("<div>This is profile view snippet</div>"));
+        assertThat(view).isEqualTo("<div>This is profile view snippet</div>");
 
         assertExtensionRequest("5.0", REQUEST_GET_ELASTIC_AGENT_PROFILE_VIEW, null);
     }
@@ -138,11 +135,11 @@ public class ElasticAgentExtensionV5Test {
 
         final ValidationResult result = extensionV5.validateElasticProfile(PLUGIN_ID, Collections.emptyMap());
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.getErrors(), containsInAnyOrder(
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.getErrors()).containsExactlyInAnyOrder(
                 new ValidationError("Url", "Url must not be blank."),
                 new ValidationError("SearchBase", "SearchBase must not be blank.")
-        ));
+        );
 
         assertExtensionRequest("5.0", REQUEST_VALIDATE_ELASTIC_AGENT_PROFILE, "{}");
     }
@@ -155,11 +152,10 @@ public class ElasticAgentExtensionV5Test {
 
         final List<PluginConfiguration> metadata = extensionV5.getClusterProfileMetadata(PLUGIN_ID);
 
-        assertThat(metadata, hasSize(2));
-        assertThat(metadata, containsInAnyOrder(
+        assertThat(metadata).containsExactlyInAnyOrder(
                 new PluginConfiguration("Username", new Metadata(true, false)),
                 new PluginConfiguration("Password", new Metadata(true, true))
-        ));
+        );
 
         assertExtensionRequest("5.0", REQUEST_GET_CLUSTER_PROFILE_METADATA, null);
     }
@@ -171,7 +167,7 @@ public class ElasticAgentExtensionV5Test {
 
         final String view = extensionV5.getClusterProfileView(PLUGIN_ID);
 
-        assertThat(view, is("<div>This is profile view snippet</div>"));
+        assertThat(view).isEqualTo("<div>This is profile view snippet</div>");
 
         assertExtensionRequest("5.0", REQUEST_GET_CLUSTER_PROFILE_VIEW, null);
     }
@@ -183,11 +179,11 @@ public class ElasticAgentExtensionV5Test {
 
         final ValidationResult result = extensionV5.validateClusterProfile(PLUGIN_ID, Collections.emptyMap());
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.getErrors(), containsInAnyOrder(
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.getErrors()).containsExactlyInAnyOrder(
                 new ValidationError("Url", "Url must not be blank."),
                 new ValidationError("SearchBase", "SearchBase must not be blank.")
-        ));
+        );
 
         assertExtensionRequest("5.0", REQUEST_VALIDATE_CLUSTER_PROFILE, "{}");
     }
@@ -353,7 +349,7 @@ public class ElasticAgentExtensionV5Test {
                 "]" +
                 "}";
 
-        assertThat(statusReportView, is("<div>This is a status report snippet.</div>"));
+        assertThat(statusReportView).isEqualTo("<div>This is a status report snippet.</div>");
         assertExtensionRequest("5.0", REQUEST_PLUGIN_STATUS_REPORT, requestBody);
     }
 
@@ -422,37 +418,37 @@ public class ElasticAgentExtensionV5Test {
 
     @Test
     public void shouldVerifyPluginApiRequestNamesOfElasticAgentProfile() {
-        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_METADATA, is(String.format("%s.get-elastic-agent-profile-metadata", REQUEST_PREFIX)));
-        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_VIEW, is(String.format("%s.get-elastic-agent-profile-view", REQUEST_PREFIX)));
-        assertThat(REQUEST_VALIDATE_ELASTIC_AGENT_PROFILE, is(String.format("%s.validate-elastic-agent-profile", REQUEST_PREFIX)));
+        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_METADATA).isEqualTo(String.format("%s.get-elastic-agent-profile-metadata", REQUEST_PREFIX));
+        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_VIEW).isEqualTo(String.format("%s.get-elastic-agent-profile-view", REQUEST_PREFIX));
+        assertThat(REQUEST_VALIDATE_ELASTIC_AGENT_PROFILE).isEqualTo(String.format("%s.validate-elastic-agent-profile", REQUEST_PREFIX));
     }
 
     @Test
     public void shouldVerifyPluginApiRequestNamesOfClusterProfile() {
-        assertThat(REQUEST_GET_CLUSTER_PROFILE_METADATA, is(String.format("%s.get-cluster-profile-metadata", REQUEST_PREFIX)));
-        assertThat(REQUEST_GET_CLUSTER_PROFILE_VIEW, is(String.format("%s.get-cluster-profile-view", REQUEST_PREFIX)));
-        assertThat(REQUEST_VALIDATE_CLUSTER_PROFILE, is(String.format("%s.validate-cluster-profile", REQUEST_PREFIX)));
+        assertThat(REQUEST_GET_CLUSTER_PROFILE_METADATA).isEqualTo(String.format("%s.get-cluster-profile-metadata", REQUEST_PREFIX));
+        assertThat(REQUEST_GET_CLUSTER_PROFILE_VIEW).isEqualTo(String.format("%s.get-cluster-profile-view", REQUEST_PREFIX));
+        assertThat(REQUEST_VALIDATE_CLUSTER_PROFILE).isEqualTo(String.format("%s.validate-cluster-profile", REQUEST_PREFIX));
     }
 
     @Test
     public void allRequestMustHaveRequestPrefix() {
-        assertThat(REQUEST_PREFIX, is("cd.go.elastic-agent"));
+        assertThat(REQUEST_PREFIX).isEqualTo("cd.go.elastic-agent");
 
-        assertThat(REQUEST_CREATE_AGENT, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_SERVER_PING, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_SHOULD_ASSIGN_WORK, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_CREATE_AGENT).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_SERVER_PING).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_SHOULD_ASSIGN_WORK).startsWith(REQUEST_PREFIX);
 
-        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_METADATA, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_VIEW, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_VALIDATE_ELASTIC_AGENT_PROFILE, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_GET_PLUGIN_SETTINGS_ICON, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_METADATA).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_VIEW).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_VALIDATE_ELASTIC_AGENT_PROFILE).startsWith(REQUEST_PREFIX);
+        assertThat(REQUEST_GET_PLUGIN_SETTINGS_ICON).startsWith(REQUEST_PREFIX);
     }
 
     private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) {
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
-       assertThat(request.requestName(), Matchers.is(requestName));
-       assertThat(request.extensionVersion(), Matchers.is(extensionVersion));
-       assertThat(request.extension(), Matchers.is(PluginConstants.ELASTIC_AGENT_EXTENSION));
+        assertThat(request.requestName()).isEqualTo(requestName);
+        assertThat(request.extensionVersion()).isEqualTo(extensionVersion);
+        assertThat(request.extension()).isEqualTo(PluginConstants.ELASTIC_AGENT_EXTENSION);
         assertThatJson(requestBody).isEqualTo(request.requestBody());
     }
 }

@@ -19,8 +19,7 @@ import org.eclipse.jetty.server.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,12 +36,12 @@ public class JettyResponseTest {
     @Test
     public void shouldGetResponseStatus() {
         when(response.getStatus()).thenReturn(200);
-        assertThat(jettyResponse.getStatus(), is(200));
+        assertThat(jettyResponse.getStatus()).isEqualTo(200);
     }
 
     @Test
     public void shouldGetResponseContentCount() {
         when(response.getContentCount()).thenReturn(2000L);
-        assertThat(jettyResponse.getContentCount(), is(2000L));
+        assertThat(jettyResponse.getContentCount()).isEqualTo(2000L);
     }
 }

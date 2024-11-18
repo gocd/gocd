@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv2.materials.representers
 
-
 import com.thoughtworks.go.api.base.JsonUtils
 import com.thoughtworks.go.domain.materials.Modification
 import com.thoughtworks.go.domain.materials.Modifications
@@ -23,7 +22,7 @@ import com.thoughtworks.go.server.util.Pagination
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class ModificationsRepresenterTest {
 

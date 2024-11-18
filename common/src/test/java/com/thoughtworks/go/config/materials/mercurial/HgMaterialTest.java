@@ -47,7 +47,7 @@ import java.util.*;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -244,9 +244,11 @@ public class HgMaterialTest {
             hgMaterial.toJson(json, new StringRevision("123"));
 
             assertThatJson(json)
-                .node("scmType").isEqualTo("Mercurial")
-                .node("location").isStringEqualTo(hgTestRepo.projectRepositoryUrl())
-                .node("action").isEqualTo("Modified");
+                .and(
+                    a -> a.node("scmType").isEqualTo("Mercurial"),
+                    a -> a.node("action").isEqualTo("Modified"),
+                    a -> a.node("location").asString().isEqualTo(hgTestRepo.projectRepositoryUrl())
+                );
         }
 
         // #3103

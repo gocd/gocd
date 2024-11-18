@@ -65,7 +65,7 @@ public class Pagination {
         return total;
     }
 
-    public Map toJsonMap() {
+    public Map<String, Object> toJsonMap() {
         Map<String, Object> json = new LinkedHashMap<>();
         json.put("count", total);
         json.put("start", offset);

@@ -18,14 +18,13 @@ package com.thoughtworks.go.util;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SystemTimeClockTest {
     @Test
-    public void shouldGiveTimeoutTime() throws Exception {
+    public void shouldGiveTimeoutTime() {
         DateTime expected = new DateTime().plusMillis((int) Timeout.NINETY_SECONDS.inMillis());
         DateTime actual = new SystemTimeClock().timeoutTime(Timeout.NINETY_SECONDS);
-        assertThat(actual.equals(expected) || actual.isAfter(expected),is(true));
+        assertThat(actual.equals(expected) || actual.isAfter(expected)).isTrue();
     }
 }

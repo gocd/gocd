@@ -55,10 +55,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class BuildWorkArtifactUploadingTest {
@@ -106,8 +104,8 @@ public class BuildWorkArtifactUploadingTest {
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
-        assertThat(entries, uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic/pass.png"), "mypic/logs/pic"));
-        assertThat(entries, uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic/fail.png"), "mypic/logs/pic"));
+        assertThat(entries).contains(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic/pass.png"), "mypic/logs/pic"));
+        assertThat(entries).contains(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic/fail.png"), "mypic/logs/pic"));
     }
 
     @Test
@@ -127,10 +125,10 @@ public class BuildWorkArtifactUploadingTest {
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
-        assertThat(entries, not(uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic/fail.png"), "mypic/logs/pic")));
-        assertThat(entries, not(uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic/pass.png"), "mypic/logs/pic")));
-        assertThat(entries, uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic"), "mypic/logs"));
-        assertThat(entries, uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/README"), "mypic"));
+        assertThat(entries).doesNotContain(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic/fail.png"), "mypic/logs/pic"));
+        assertThat(entries).doesNotContain(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic/pass.png"), "mypic/logs/pic"));
+        assertThat(entries).contains(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic"), "mypic/logs"));
+        assertThat(entries).contains(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/README"), "mypic"));
     }
 
     @Test
@@ -150,9 +148,9 @@ public class BuildWorkArtifactUploadingTest {
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
-        assertThat(entries, uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic/pass.png"), "mypic"));
-        assertThat(entries, uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic/fail.png"), "mypic"));
-        assertThat(entries, not(uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic"), "mypic")));
+        assertThat(entries).contains(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic/pass.png"), "mypic"));
+        assertThat(entries).contains(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic/fail.png"), "mypic"));
+        assertThat(entries).doesNotContain(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic"), "mypic"));
     }
 
     @Test
@@ -172,12 +170,12 @@ public class BuildWorkArtifactUploadingTest {
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
-        assertThat(entries, not(uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic-1/pass.png"), "mypic")));
-        assertThat(entries, not(uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic-1/fail.png"), "mypic")));
-        assertThat(entries, not(uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic-2/cancel.png"), "mypic")));
-        assertThat(entries, not(uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic-2/complete.png"), "mypic")));
-        assertThat(entries, uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic-1"), "mypic"));
-        assertThat(entries, uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic-2"), "mypic"));
+        assertThat(entries).doesNotContain(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic-1/pass.png"), "mypic"));
+        assertThat(entries).doesNotContain(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic-1/fail.png"), "mypic"));
+        assertThat(entries).doesNotContain(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic-2/cancel.png"), "mypic"));
+        assertThat(entries).doesNotContain(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic-2/complete.png"), "mypic"));
+        assertThat(entries).contains(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic-1"), "mypic"));
+        assertThat(entries).contains(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic-2"), "mypic"));
     }
 
     @Test
@@ -197,7 +195,7 @@ public class BuildWorkArtifactUploadingTest {
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
-        assertThat(entries, uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic-1"), "mypic"));
+        assertThat(entries).contains(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic-1"), "mypic"));
     }
 
     @Test
@@ -217,7 +215,7 @@ public class BuildWorkArtifactUploadingTest {
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
-        assertThat(entries, uploadFileToDestination(new File(buildWorkingDirectory.getPath() + "/logs/pic-1"), "mypic"));
+        assertThat(entries).contains(new UploadEntry(new File(buildWorkingDirectory.getPath() + "/logs/pic-1"), "mypic"));
     }
 
     @Test
@@ -237,11 +235,11 @@ public class BuildWorkArtifactUploadingTest {
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
-        assertThat(entries.size(), is(0));
-        assertThat(repository.states, containsResult(JobState.Building));
-        assertThat(repository.states, containsResult(JobState.Completing));
-        assertThat(repository.results, containsResult(JobResult.Failed));
-        assertThat(manipulator.consoleOut(), printedRuleDoesNotMatchFailure(buildWorkingDirectory.getPath(), "logs/picture"));
+        assertThat(entries).isEmpty();
+        assertThat(repository.states).contains(JobState.Building);
+        assertThat(repository.states).contains(JobState.Completing);
+        assertThat(repository.results).contains(JobResult.Failed);
+        assertThat(manipulator.consoleOut()).doesNotContain(ruleMessageFrom(buildWorkingDirectory.getPath(), "logs/picture"));
     }
 
     @Test
@@ -261,11 +259,11 @@ public class BuildWorkArtifactUploadingTest {
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
-        assertThat(entries.size(), is(0));
-        assertThat(repository.states, containsResult(JobState.Building));
-        assertThat(repository.states, containsResult(JobState.Completing));
-        assertThat(repository.results, containsResult(JobResult.Failed));
-        assertThat(manipulator.consoleOut(), printedRuleDoesNotMatchFailure(buildWorkingDirectory.getPath(), "not-Exist-Folder"));
+        assertThat(entries).isEmpty();
+        assertThat(repository.states).contains(JobState.Building);
+        assertThat(repository.states).contains(JobState.Completing);
+        assertThat(repository.results).contains(JobResult.Failed);
+        assertThat(manipulator.consoleOut()).doesNotContain(ruleMessageFrom(buildWorkingDirectory.getPath(), "not-Exist-Folder"));
     }
 
     @Test
@@ -284,11 +282,15 @@ public class BuildWorkArtifactUploadingTest {
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
-        assertThat(entries.size(), is(0));
-        assertThat(repository.states, containsResult(JobState.Building));
-        assertThat(repository.states, containsResult(JobState.Completing));
-        assertThat(repository.results, containsResult(JobResult.Failed));
-        assertThat(manipulator.consoleOut(), printedRuleDoesNotMatchFailure(buildWorkingDirectory.getPath(), "target/pkg/*.*"));
+        assertThat(entries).isEmpty();
+        assertThat(repository.states).contains(JobState.Building);
+        assertThat(repository.states).contains(JobState.Completing);
+        assertThat(repository.results).contains(JobResult.Failed);
+        assertThat(manipulator.consoleOut()).doesNotContain(ruleMessageFrom(buildWorkingDirectory.getPath(), "target/pkg/*.*"));
+    }
+
+    private static String ruleMessageFrom(String rule, String root) {
+        return "The rule [" + rule + "] cannot match any resource under [" + root + "]";
     }
 
 
@@ -309,8 +311,8 @@ public class BuildWorkArtifactUploadingTest {
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
         List<UploadEntry> entries = manipulator.uploadEntries();
-        assertThat(entries.isEmpty(), is(true));
-        assertThat(manipulator.consoleOut(), containsString("Failed to upload [**/*.png]"));
+        assertThat(entries).isEmpty();
+        assertThat(manipulator.consoleOut()).contains("Failed to upload [**/*.png]");
     }
 
     private static class ZipUtilThatRunsOutOfMemory extends ZipUtil {

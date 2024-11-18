@@ -17,16 +17,15 @@ package com.thoughtworks.go.plugin.access.packagematerial;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PackageConfigurationTest {
     @Test
     public void shouldGetOptionIfAvailable() {
         PackageConfiguration packageConfiguration = new PackageConfiguration("key");
         packageConfiguration.with(PackageConfiguration.REQUIRED, true);
-        assertThat(packageConfiguration.hasOption(PackageConfiguration.REQUIRED), is(true));
-        assertThat(packageConfiguration.hasOption(PackageConfiguration.SECURE), is(false));
+        assertThat(packageConfiguration.hasOption(PackageConfiguration.REQUIRED)).isEqualTo(true);
+        assertThat(packageConfiguration.hasOption(PackageConfiguration.SECURE)).isEqualTo(false);
     }
 
     @Test
@@ -34,15 +33,15 @@ public class PackageConfigurationTest {
         PackageConfiguration packageConfiguration = new PackageConfiguration("key");
         packageConfiguration.with(PackageConfiguration.DISPLAY_NAME, "some display name");
         packageConfiguration.with(PackageConfiguration.DISPLAY_ORDER, 3);
-        assertThat(packageConfiguration.getOption(PackageConfiguration.DISPLAY_NAME), is("some display name"));
-        assertThat(packageConfiguration.getOption(PackageConfiguration.DISPLAY_ORDER), is(3));
+        assertThat(packageConfiguration.getOption(PackageConfiguration.DISPLAY_NAME)).isEqualTo("some display name");
+        assertThat(packageConfiguration.getOption(PackageConfiguration.DISPLAY_ORDER)).isEqualTo(3);
     }
 
     @Test
-    public void shouldSortPackageConfigurationByDisplayOrder() throws Exception {
+    public void shouldSortPackageConfigurationByDisplayOrder() {
         PackageConfiguration p1 = new PackageConfiguration("k1").with(PackageConfiguration.DISPLAY_ORDER, 1);
         PackageConfiguration p2 = new PackageConfiguration("k2").with(PackageConfiguration.DISPLAY_ORDER, 3);
-        assertThat(p2.compareTo(p1), is(2));
+        assertThat(p2.compareTo(p1)).isEqualTo(2);
 
     }
 }

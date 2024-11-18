@@ -30,7 +30,6 @@ dependencies {
   api project(path: ':plugin-infra:go-plugin-api-internal', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
-  testImplementation project.deps.hamcrest
   testImplementation project.deps.mockitoCore
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
 }

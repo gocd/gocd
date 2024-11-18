@@ -18,9 +18,7 @@ package com.thoughtworks.go.util;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.StringUtil.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StringUtilTest {
 
@@ -28,31 +26,31 @@ public class StringUtilTest {
     public void shouldFindSimpleRegExMatch() {
         String url = "http://java.sun.com:80/docs/books/tutorial/essential/regex/test_harness.html";
         String baseUrl = StringUtil.matchPattern("^(http://[^/]*)/", url);
-        assertThat(baseUrl, is("http://java.sun.com:80"));
+        assertThat(baseUrl).isEqualTo("http://java.sun.com:80");
     }
 
     @Test
-    public void shouldHumanize() throws Exception {
-        assertThat(humanize("camelCase"), is("camel case"));
-        assertThat(humanize("camel"), is("camel"));
-        assertThat(humanize("camelCaseForALongString"), is("camel case for a long string"));
+    public void shouldHumanize() {
+        assertThat(humanize("camelCase")).isEqualTo("camel case");
+        assertThat(humanize("camel")).isEqualTo("camel");
+        assertThat(humanize("camelCaseForALongString")).isEqualTo("camel case for a long string");
     }
 
     @Test
     public void shouldStripTillLastOccurrenceOfGivenString() {
-        assertThat(stripTillLastOccurrenceOf("HelloWorld@@\\nfoobar\\nquux@@keep_this", "@@"), is("keep_this"));
-        assertThat(stripTillLastOccurrenceOf("HelloWorld", "@@"), is("HelloWorld"));
-        assertThat(stripTillLastOccurrenceOf(null, "@@"), is(nullValue()));
-        assertThat(stripTillLastOccurrenceOf("HelloWorld", null), is("HelloWorld"));
-        assertThat(stripTillLastOccurrenceOf(null, null), is(nullValue()));
-        assertThat(stripTillLastOccurrenceOf("", "@@"), is(""));
+        assertThat(stripTillLastOccurrenceOf("HelloWorld@@\\nfoobar\\nquux@@keep_this", "@@")).isEqualTo("keep_this");
+        assertThat(stripTillLastOccurrenceOf("HelloWorld", "@@")).isEqualTo("HelloWorld");
+        assertThat(stripTillLastOccurrenceOf(null, "@@")).isNull();
+        assertThat(stripTillLastOccurrenceOf("HelloWorld", null)).isEqualTo("HelloWorld");
+        assertThat(stripTillLastOccurrenceOf(null, null)).isNull();
+        assertThat(stripTillLastOccurrenceOf("", "@@")).isEqualTo("");
     }
 
     @Test
-    public void shouldUnQuote() throws Exception {
-        assertThat(unQuote("\"Hello World\""), is("Hello World"));
-        assertThat(unQuote(null), is(nullValue()));
-        assertThat(unQuote("\"Hello World\" to everyone\""), is("Hello World\" to everyone"));
+    public void shouldUnQuote() {
+        assertThat(unQuote("\"Hello World\"")).isEqualTo("Hello World");
+        assertThat(unQuote(null)).isNull();
+        assertThat(unQuote("\"Hello World\" to everyone\"")).isEqualTo("Hello World\" to everyone");
     }
 
 }

@@ -18,17 +18,14 @@ package com.thoughtworks.go.agent.launcher;
 import com.thoughtworks.go.agent.common.UrlConstructor;
 import org.junit.jupiter.api.Test;
 
-import java.net.MalformedURLException;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UrlConstructorTest {
     @Test
-    public void shouldGenerateCorrectUrlForGivenPath() throws MalformedURLException {
+    public void shouldGenerateCorrectUrlForGivenPath() {
         UrlConstructor urlConstructor = new UrlConstructor("https://example.com:8443/go/");
-        assertThat(urlConstructor.serverUrlFor(""), is("https://example.com:8443/go"));
-        assertThat(urlConstructor.serverUrlFor("foo/bar"), is("https://example.com:8443/go/foo/bar"));
-        assertThat(urlConstructor.serverUrlFor("admin/agent"), is("https://example.com:8443/go/admin/agent"));
+        assertThat(urlConstructor.serverUrlFor("")).isEqualTo("https://example.com:8443/go");
+        assertThat(urlConstructor.serverUrlFor("foo/bar")).isEqualTo("https://example.com:8443/go/foo/bar");
+        assertThat(urlConstructor.serverUrlFor("admin/agent")).isEqualTo("https://example.com:8443/go/admin/agent");
     }
 }

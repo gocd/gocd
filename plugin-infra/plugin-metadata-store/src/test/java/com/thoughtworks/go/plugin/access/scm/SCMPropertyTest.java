@@ -18,28 +18,27 @@ package com.thoughtworks.go.plugin.access.scm;
 import com.thoughtworks.go.plugin.api.config.Property;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SCMPropertyTest {
     @Test
     public void validateSCMPropertyDefaults() throws Exception {
         SCMProperty scmProperty = new SCMProperty("Test-Property");
 
-        assertThat(scmProperty.getOptions().size(), is(5));
-        assertThat(scmProperty.getOption(Property.REQUIRED), is(true));
-        assertThat(scmProperty.getOption(Property.PART_OF_IDENTITY), is(true));
-        assertThat(scmProperty.getOption(Property.SECURE), is(false));
-        assertThat(scmProperty.getOption(Property.DISPLAY_NAME), is(""));
-        assertThat(scmProperty.getOption(Property.DISPLAY_ORDER), is(0));
+        assertThat(scmProperty.getOptions().size()).isEqualTo(5);
+        assertThat(scmProperty.getOption(Property.REQUIRED)).isEqualTo(true);
+        assertThat(scmProperty.getOption(Property.PART_OF_IDENTITY)).isEqualTo(true);
+        assertThat(scmProperty.getOption(Property.SECURE)).isEqualTo(false);
+        assertThat(scmProperty.getOption(Property.DISPLAY_NAME)).isEqualTo("");
+        assertThat(scmProperty.getOption(Property.DISPLAY_ORDER)).isEqualTo(0);
 
         scmProperty = new SCMProperty("Test-Property", "Dummy Value");
 
-        assertThat(scmProperty.getOptions().size(), is(5));
-        assertThat(scmProperty.getOption(Property.REQUIRED), is(true));
-        assertThat(scmProperty.getOption(Property.PART_OF_IDENTITY), is(true));
-        assertThat(scmProperty.getOption(Property.SECURE), is(false));
-        assertThat(scmProperty.getOption(Property.DISPLAY_NAME), is(""));
-        assertThat(scmProperty.getOption(Property.DISPLAY_ORDER), is(0));
+        assertThat(scmProperty.getOptions().size()).isEqualTo(5);
+        assertThat(scmProperty.getOption(Property.REQUIRED)).isEqualTo(true);
+        assertThat(scmProperty.getOption(Property.PART_OF_IDENTITY)).isEqualTo(true);
+        assertThat(scmProperty.getOption(Property.SECURE)).isEqualTo(false);
+        assertThat(scmProperty.getOption(Property.DISPLAY_NAME)).isEqualTo("");
+        assertThat(scmProperty.getOption(Property.DISPLAY_ORDER)).isEqualTo(0);
     }
 }

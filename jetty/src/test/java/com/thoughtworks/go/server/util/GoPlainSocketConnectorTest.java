@@ -23,8 +23,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,16 +48,16 @@ public class GoPlainSocketConnectorTest {
     }
 
     @Test
-    public void shouldCreateAServerConnectorWithConfiguredPortAndBuffersize() throws Exception {
-        assertThat(connector.getPort(), is(1234));
-        assertThat(connector.getHost(), is("foo"));
-        assertThat(connector.getIdleTimeout(), is(200L));
+    public void shouldCreateAServerConnectorWithConfiguredPortAndBufferSize() {
+        assertThat(connector.getPort()).isEqualTo(1234);
+        assertThat(connector.getHost()).isEqualTo("foo");
+        assertThat(connector.getIdleTimeout()).isEqualTo(200L);
 
-        assertThat(configuration.getOutputBufferSize(), is(100));
+        assertThat(configuration.getOutputBufferSize()).isEqualTo(100);
     }
 
     @Test
-    public void shouldNotSendAServerHeaderForSecurityReasons() throws Exception {
-        assertThat(configuration.getSendServerVersion(), is(false));
+    public void shouldNotSendAServerHeaderForSecurityReasons() {
+        assertThat(configuration.getSendServerVersion()).isEqualTo(false);
     }
 }

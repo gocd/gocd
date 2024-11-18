@@ -18,15 +18,12 @@ package com.thoughtworks.go.api.representers
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.security.GoCipher
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
-import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.Test
 import spark.HaltException
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.is
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
+import static org.assertj.core.api.Assertions.assertThat
 import static org.junit.jupiter.api.Assertions.*
 
 class EnvironmentVariableRepresenterTest {
@@ -122,13 +119,13 @@ class EnvironmentVariableRepresenterTest {
     def plainVariable = environmentVariableConfig.get(1)
 
     assertThat(secureVariable.secure, is(true))
-    MatcherAssert.assertThat(secureVariable.name, is("secured"))
-    MatcherAssert.assertThat(secureVariable.value, is("confidential"))
+    assertThat(secureVariable.name, is("secured"))
+    assertThat(secureVariable.value, is("confidential"))
     assertThat(secureVariable.errors().isEmpty(), is(true))
 
     assertThat(plainVariable.secure, is(false))
-    MatcherAssert.assertThat(plainVariable.name, is("plain"))
-    MatcherAssert.assertThat(plainVariable.value, is("plaint text value"))
+    assertThat(plainVariable.name, is("plain"))
+    assertThat(plainVariable.value, is("plaint text value"))
     assertThat(plainVariable.errors().isEmpty(), is(true))
   }
 
@@ -157,7 +154,7 @@ class EnvironmentVariableRepresenterTest {
       EnvironmentVariableRepresenter.fromJSON(jsonReader)
     })
 
-    JsonFluentAssert.assertThatJson(haltException.body()).isEqualTo("{\"message\" : \"Environment variable must contain either 'value' or 'encrypted_value'\"}")
+    assertThatJson(haltException.body())isEqualTo("{\"message\" : \"Environment variable must contain either 'value' or 'encrypted_value'\"}")
   }
 
   @Test

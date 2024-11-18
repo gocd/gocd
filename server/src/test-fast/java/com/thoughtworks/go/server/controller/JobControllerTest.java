@@ -45,7 +45,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.*;
@@ -112,8 +112,10 @@ public class JobControllerTest {
         Object json1 = ((List) modelAndView.getModel().get("json")).get(0);
 
         assertThatJson(json1)
-            .node("building_info.id").isStringEqualTo("2")
-            .node("building_info.last_build_duration").isStringEqualTo("5");
+            .and(
+                a -> a.node("building_info.id").asString().isEqualTo("2"),
+                a -> a.node("building_info.last_build_duration").asString().isEqualTo("5")
+        );
     }
 
     @Nested

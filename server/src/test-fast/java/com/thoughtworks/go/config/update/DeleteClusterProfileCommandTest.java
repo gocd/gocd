@@ -82,14 +82,14 @@ class DeleteClusterProfileCommandTest {
 
     @Test
     void shouldSetMessageOnResultIfClusterProfileIsValid() {
-        assertThat(result.message()).isEqualTo(null);
+        assertThat(result.message()).isNull();
         command.isValid(config);
         assertThat(result.message()).isEqualTo("The Cluster Profile 'cluster-id' was deleted successfully.");
     }
 
     @Test
     void shouldNotAllowDeletionOfClusterProfileWhenReferencedFromElasticAgentProfile() {
-        assertThat(result.message()).isEqualTo(null);
+        assertThat(result.message()).isNull();
 
         ElasticProfile dependentElasticAgentProfile1 = new ElasticProfile("profile1", clusterProfile.getId());
         ElasticProfile dependentElasticAgentProfile2 = new ElasticProfile("profile2", clusterProfile.getId());

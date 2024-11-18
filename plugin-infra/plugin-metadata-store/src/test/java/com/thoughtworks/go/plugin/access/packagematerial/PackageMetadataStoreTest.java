@@ -19,8 +19,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PackageMetadataStoreTest {
     @BeforeEach
@@ -38,7 +37,7 @@ public class PackageMetadataStoreTest {
         PackageConfigurations packageConfigurations = new PackageConfigurations();
         PackageMetadataStore.getInstance().addMetadataFor("plugin-id", packageConfigurations);
 
-        assertThat(PackageMetadataStore.getInstance().getMetadata("plugin-id"), is(packageConfigurations));
+        assertThat(PackageMetadataStore.getInstance().getMetadata("plugin-id")).isEqualTo(packageConfigurations);
     }
 
     @Test
@@ -48,7 +47,7 @@ public class PackageMetadataStoreTest {
         PackageConfigurations packageConfigurations = new PackageConfigurations();
         metadataStore.addMetadataFor("plugin-id", packageConfigurations);
 
-        assertThat(metadataStore.hasPlugin("plugin-id"), is(true));
-        assertThat(metadataStore.hasPlugin("some-plugin-which-does-not-exist"), is(false));
+        assertThat(metadataStore.hasPlugin("plugin-id")).isEqualTo(true);
+        assertThat(metadataStore.hasPlugin("some-plugin-which-does-not-exist")).isEqualTo(false);
     }
 }

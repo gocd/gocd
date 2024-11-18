@@ -38,8 +38,7 @@ import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Properties;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
@@ -109,18 +108,18 @@ public class RemoteRegistrationRequesterTest {
                     HttpEntityEnclosingRequestBase postMethod = (HttpEntityEnclosingRequestBase) item;
                     List<NameValuePair> params = URLEncodedUtils.parse(postMethod.getEntity());
 
-                    assertThat(getParameter(params, "hostname"), is("cruise.com"));
-                    assertThat(getParameter(params, "uuid"), is(uuid));
+                    assertThat(getParameter(params, "hostname")).isEqualTo("cruise.com");
+                    assertThat(getParameter(params, "uuid")).isEqualTo(uuid);
                     String workingDir = SystemUtil.currentWorkingDirectory();
-                    assertThat(getParameter(params, "location"), is(workingDir));
-                    assertThat(getParameter(params, "operatingSystem"), not(nullValue()));
-                    assertThat(getParameter(params, "agentAutoRegisterKey"), is("t0ps3cret"));
-                    assertThat(getParameter(params, "agentAutoRegisterResources"), is("linux, java"));
-                    assertThat(getParameter(params, "agentAutoRegisterEnvironments"), is("uat, staging"));
-                    assertThat(getParameter(params, "agentAutoRegisterHostname"), is("agent01.example.com"));
-                    assertThat(getParameter(params, "elasticAgentId"), is(elasticAgentId));
-                    assertThat(getParameter(params, "elasticPluginId"), is(elasticPluginId));
-                    assertThat(getParameter(params, "token"), is("token-from-server"));
+                    assertThat(getParameter(params, "location")).isEqualTo(workingDir);
+                    assertThat(getParameter(params, "operatingSystem")).isNotNull();
+                    assertThat(getParameter(params, "agentAutoRegisterKey")).isEqualTo("t0ps3cret");
+                    assertThat(getParameter(params, "agentAutoRegisterResources")).isEqualTo("linux, java");
+                    assertThat(getParameter(params, "agentAutoRegisterEnvironments")).isEqualTo("uat, staging");
+                    assertThat(getParameter(params, "agentAutoRegisterHostname")).isEqualTo("agent01.example.com");
+                    assertThat(getParameter(params, "elasticAgentId")).isEqualTo(elasticAgentId);
+                    assertThat(getParameter(params, "elasticPluginId")).isEqualTo(elasticPluginId);
+                    assertThat(getParameter(params, "token")).isEqualTo("token-from-server");
                     return true;
                 } catch (Exception e) {
                     throw new RuntimeException(e);

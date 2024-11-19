@@ -52,8 +52,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -120,7 +119,7 @@ public class BuildCauseProducerServiceIntegrationHgTest {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials();
 
         Map<CaseInsensitiveString, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
-        assertThat(afterLoad.size(), is(beforeLoad.size()));
+        assertThat(afterLoad.size()).isEqualTo(beforeLoad.size());
 
     }
 

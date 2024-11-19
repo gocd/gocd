@@ -18,39 +18,37 @@ package com.thoughtworks.go.presentation.pipelinehistory;
 import com.thoughtworks.go.helper.PipelineHistoryItemMother;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineHistoryItemTest {
 
     @Test
     public void shouldReturnFalseForEmptyPipelineHistory() throws Exception {
         PipelineInstanceModel emptyOne = PipelineInstanceModel.createEmptyModel();
-        assertThat(emptyOne.hasPreviousStageBeenScheduled("stage1"), is(false));
+        assertThat(emptyOne.hasPreviousStageBeenScheduled("stage1")).isFalse();
     }
 
     @Test
     public void shouldReturnTrueForFirstStage() throws Exception {
-        assertThat(PipelineHistoryItemMother.custom("stage1").hasPreviousStageBeenScheduled("stage1"), is(true));
-        assertThat(PipelineHistoryItemMother.custom("stage1", "stage2").hasPreviousStageBeenScheduled("stage1"),
-                is(true));
+        assertThat(PipelineHistoryItemMother.custom("stage1").hasPreviousStageBeenScheduled("stage1")).isTrue();
+        assertThat(PipelineHistoryItemMother.custom("stage1", "stage2").hasPreviousStageBeenScheduled("stage1")).isEqualTo(true);
     }
 
     @Test
     public void shouldCheckIfPreviousStageInstanceExist() throws Exception {
         PipelineInstanceModel twoStages = PipelineHistoryItemMother.custom("stage1", "stage2");
-        assertThat(twoStages.hasPreviousStageBeenScheduled("stage2"), is(true));
+        assertThat(twoStages.hasPreviousStageBeenScheduled("stage2")).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfPreviousStageHasNotBeenScheduled() throws Exception {
         PipelineInstanceModel twoStages = PipelineHistoryItemMother.custom(new NullStageHistoryItem("stage1"),
                 new StageInstanceModel("stage2", "1", new JobHistory()));
-        assertThat(twoStages.hasPreviousStageBeenScheduled("stage2"), is(false));
+        assertThat(twoStages.hasPreviousStageBeenScheduled("stage2")).isFalse();
         PipelineInstanceModel threeStages = PipelineHistoryItemMother.custom(new NullStageHistoryItem("stage1"),
                 new NullStageHistoryItem("stage2"),
                 new StageInstanceModel("stage3", "1", new JobHistory()));
-        assertThat(threeStages.hasPreviousStageBeenScheduled("stage3"), is(false));
+        assertThat(threeStages.hasPreviousStageBeenScheduled("stage3")).isFalse();
     }
 
 }

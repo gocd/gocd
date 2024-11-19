@@ -30,8 +30,7 @@ import java.util.UUID;
 import static com.thoughtworks.go.helper.JobInstanceMother.building;
 import static com.thoughtworks.go.helper.StageMother.custom;
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -64,7 +63,7 @@ public class JobDetailPresentationModelTest {
             null, null, null, artifactsService, stage);
         DirectoryEntries artifactFiles = jobDetailPresentationModel.getArtifactFiles(directoryReader);
 
-        assertThat(artifactFiles.isArtifactsDeleted(), is(true));
+        assertThat(artifactFiles.isArtifactsDeleted()).isTrue();
     }
 
     @Test
@@ -80,6 +79,6 @@ public class JobDetailPresentationModelTest {
         DirectoryEntries expected = new DirectoryEntries();
         expected.addFolder("cruise-output").addFile("console.log", "path/to/console");
 
-        assertThat(model.getArtifactFiles(directoryReader), is(expected));
+        assertThat(model.getArtifactFiles(directoryReader)).isEqualTo(expected);
     }
 }

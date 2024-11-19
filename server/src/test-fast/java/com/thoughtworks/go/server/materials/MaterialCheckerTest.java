@@ -41,8 +41,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.domain.materials.Modification.modifications;
 import static java.lang.String.format;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -84,7 +83,7 @@ public class MaterialCheckerTest {
 
         MaterialRevisions revisionsSince = materialChecker.findRevisionsSince(materialRevisions, new Materials(dependencyMaterial), new MaterialRevisions(previousRevision), new MaterialRevisions()/*will not be used, as no new material has been introduced*/);
 
-        assertThat(revisionsSince.getMaterialRevision(0).getRevision().getRevision(), is("pipeline-name/2/stage-name/0"));
+        assertThat(revisionsSince.getMaterialRevision(0).getRevision().getRevision()).isEqualTo("pipeline-name/2/stage-name/0");
     }
 
     @Test
@@ -126,9 +125,9 @@ public class MaterialCheckerTest {
         when(materialRepository.findModificationWithRevision(dependencyMaterial, "pipeline-name/1/stage-name/0")).thenReturn(modification);
 
         MaterialRevision actualRevision = materialChecker.findSpecificRevision(dependencyMaterial, "pipeline-name/1/stage-name/0");
-        assertThat(actualRevision.getModifications().size(), is(1));
-        assertThat(actualRevision.getModification(0).getModifiedTime(), is(passedStage.completedDate()));
-        assertThat(actualRevision.getModification(0).getRevision(), is("pipeline-name/1/stage-name/0"));
+        assertThat(actualRevision.getModifications().size()).isEqualTo(1);
+        assertThat(actualRevision.getModification(0).getModifiedTime()).isEqualTo(passedStage.completedDate());
+        assertThat(actualRevision.getModification(0).getRevision()).isEqualTo("pipeline-name/1/stage-name/0");
     }
 
     @Test
@@ -140,7 +139,7 @@ public class MaterialCheckerTest {
             materialChecker.findSpecificRevision(dependencyMaterial, "pipeline-name/500/stage-name/0");
             fail("Should not be able to find revision");
         } catch (Exception expected) {
-            assertThat(expected.getMessage(), is(format("Unable to find revision [pipeline-name/500/stage-name/0] for material [%s]", dependencyMaterial)));
+            assertThat(expected.getMessage()).isEqualTo(format("Unable to find revision [pipeline-name/500/stage-name/0] for material [%s]", dependencyMaterial));
         }
     }
 
@@ -152,7 +151,7 @@ public class MaterialCheckerTest {
             materialChecker.findSpecificRevision(dependencyMaterial, "");
             fail("Should not be able to empty revision");
         } catch (Exception expected) {
-            assertThat(expected.getMessage(), is(format("Revision was not specified for material [%s]", dependencyMaterial)));
+            assertThat(expected.getMessage()).isEqualTo(format("Revision was not specified for material [%s]", dependencyMaterial));
         }
     }
 
@@ -171,7 +170,7 @@ public class MaterialCheckerTest {
         MaterialRevisions alreadyFoundRevisions = new MaterialRevisions(new MaterialRevision(dependencyMaterial, dependencyModification));
         MaterialRevisions latestRevisions = new MaterialRevisions(); //will not be used, as no new materials have appeared
         MaterialRevisions revisionsSince = materialChecker.findRevisionsSince(alreadyFoundRevisions, new Materials(dependencyMaterial, svnMaterial), new MaterialRevisions(previousDependantRevision, previousSvnRevision), latestRevisions);
-        assertThat(revisionsSince, is(new MaterialRevisions(new MaterialRevision(dependencyMaterial, dependencyModification), new MaterialRevision(svnMaterial, svnModification))));
+        assertThat(revisionsSince).isEqualTo(new MaterialRevisions(new MaterialRevision(dependencyMaterial, dependencyModification), new MaterialRevision(svnMaterial, svnModification)));
 
         verify(materialRepository, never()).findLatestModification(dependencyMaterial);
         verify(materialRepository).findModificationsSince(svnMaterial, previousSvnRevision);
@@ -196,10 +195,10 @@ public class MaterialCheckerTest {
         MaterialRevisions latestRevisions = new MaterialRevisions(); //will not be used, as no new materials have appeared
         MaterialRevisions revisionsSince = materialChecker.findRevisionsSince(alreadyFoundRevisions, new Materials(dependencyMaterial, newPkgMaterial), new MaterialRevisions(previousDependantRevision, previousPkgRevision), latestRevisions);
 
-        assertThat(revisionsSince, is(new MaterialRevisions(new MaterialRevision(dependencyMaterial, dependencyModification), new MaterialRevision(oldPkgMaterial, newPkgMod))));
+        assertThat(revisionsSince).isEqualTo(new MaterialRevisions(new MaterialRevision(dependencyMaterial, dependencyModification), new MaterialRevision(oldPkgMaterial, newPkgMod)));
         // since name is not part of equals
-        assertThat(((PackageMaterial) revisionsSince.getMaterialRevision(1).getMaterial()).getPackageDefinition().getName(), is("pkg-new-name"));
-        assertThat(((PackageMaterial) revisionsSince.getMaterialRevision(1).getMaterial()).getPackageDefinition().getRepository().getName(), is("repo-new-name"));
+        assertThat(((PackageMaterial) revisionsSince.getMaterialRevision(1).getMaterial()).getPackageDefinition().getName()).isEqualTo("pkg-new-name");
+        assertThat(((PackageMaterial) revisionsSince.getMaterialRevision(1).getMaterial()).getPackageDefinition().getRepository().getName()).isEqualTo("repo-new-name");
 
         verify(materialRepository, never()).findLatestModification(dependencyMaterial);
         verify(materialRepository).findModificationsSince(oldPkgMaterial, previousPkgRevision);
@@ -219,7 +218,7 @@ public class MaterialCheckerTest {
 
         when(materialRepository.findModificationsSince(svnMaterial, previousSvnRevision)).thenReturn(modifications(svnModification));
         MaterialRevisions revisionsSince = materialChecker.findRevisionsSince(new MaterialRevisions(), new Materials(svnMaterial, svnExternalMaterial), new MaterialRevisions(previousSvnRevision), latestRevisions);
-        assertThat(revisionsSince, is(new MaterialRevisions(new MaterialRevision(svnMaterial, svnModification), new MaterialRevision(svnExternalMaterial, svnExternalModification))));
+        assertThat(revisionsSince).isEqualTo(new MaterialRevisions(new MaterialRevision(svnMaterial, svnModification), new MaterialRevision(svnExternalMaterial, svnExternalModification)));
 
         verify(materialRepository).findModificationsSince(svnMaterial, previousSvnRevision);
     }
@@ -233,8 +232,8 @@ public class MaterialCheckerTest {
         materialChecker.updateChangedRevisions(pipelineName, buildCause);
 
         MaterialRevisions actualRevisions = buildCause.getMaterialRevisions();
-        assertThat(actualRevisions.getModifications(gitMaterial), is(new Modifications(mod(10L))));
-        assertThat(actualRevisions.findRevisionFor(gitMaterial).isChanged(), is(true));
+        assertThat(actualRevisions.getModifications(gitMaterial)).isEqualTo(new Modifications(mod(10L)));
+        assertThat(actualRevisions.findRevisionFor(gitMaterial).isChanged()).isTrue();
     }
 
     @Test
@@ -246,8 +245,8 @@ public class MaterialCheckerTest {
         materialChecker.updateChangedRevisions(pipelineName, buildCause);
 
         MaterialRevisions actualRevisions = buildCause.getMaterialRevisions();
-        assertThat(actualRevisions.getModifications(gitMaterial), is(new Modifications(mod(10L), mod(9L), mod(8L))));
-        assertThat(actualRevisions.findRevisionFor(gitMaterial).isChanged(), is(false));
+        assertThat(actualRevisions.getModifications(gitMaterial)).isEqualTo(new Modifications(mod(10L), mod(9L), mod(8L)));
+        assertThat(actualRevisions.findRevisionFor(gitMaterial).isChanged()).isFalse();
     }
 
     private Modification mod(final Long revision) {

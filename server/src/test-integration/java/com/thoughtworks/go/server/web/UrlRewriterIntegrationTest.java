@@ -40,8 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -236,8 +235,8 @@ public class UrlRewriterIntegrationTest {
             }
 
             try (CloseableHttpResponse response = httpClient.execute(httpMethod)) {
-                assertThat("status code match failed", response.getStatusLine().getStatusCode(), is(assertion.responseCode));
-                assertThat("handler url match failed", IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8), is(assertion.servedUrl));
+                assertThat(response.getStatusLine().getStatusCode()).isEqualTo(assertion.responseCode);
+                assertThat(IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8)).isEqualTo(assertion.servedUrl);
             }
         }
     }

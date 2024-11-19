@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GoConfigClonerTest {
@@ -47,9 +46,9 @@ public class GoConfigClonerTest {
         config.findGroup("defaultGroup").remove(0);
 
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat(ReflectionUtil.getField(config, "allPipelineConfigs"), is(not((nullValue()))));
-        assertThat(ReflectionUtil.getField(cloned, "allPipelineConfigs"), is(nullValue()));
-        assertThat(cloned.getAllPipelineConfigs().size(), is(1));
+        assertThat((Object) ReflectionUtil.getField(config, "allPipelineConfigs")).isNotNull();
+        assertThat((Object) ReflectionUtil.getField(cloned, "allPipelineConfigs")).isNull();
+        assertThat(cloned.getAllPipelineConfigs().size()).isEqualTo(1);
     }
 
     @Test
@@ -64,9 +63,9 @@ public class GoConfigClonerTest {
         config.findGroup("g1").remove(0);
         config.getTemplates().removeTemplateNamed(template.name());
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat(ReflectionUtil.getField(config, "allTemplatesWithAssociatedPipelines"), is(not((nullValue()))));
-        assertThat(ReflectionUtil.getField(cloned, "allTemplatesWithAssociatedPipelines"), is(nullValue()));
-        assertThat(cloned.templatesWithAssociatedPipelines().size(), is(0));
+        assertThat((Object) ReflectionUtil.getField(config, "allTemplatesWithAssociatedPipelines")).isNotNull();
+        assertThat((Object) ReflectionUtil.getField(cloned, "allTemplatesWithAssociatedPipelines")).isNull();
+        assertThat(cloned.templatesWithAssociatedPipelines().size()).isEqualTo(0);
     }
 
     @Test
@@ -78,9 +77,9 @@ public class GoConfigClonerTest {
         config.findGroup("defaultGroup").remove(0);
 
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat(ReflectionUtil.getField(config, "pipelineNameToConfigMap"), is(not((nullValue()))));
-        assertThat(ReflectionUtil.getField(cloned, "pipelineNameToConfigMap"), is(nullValue()));
-        assertThat(cloned.pipelineConfigsAsMap().size(), is(1));
+        assertThat((Object) ReflectionUtil.getField(config, "pipelineNameToConfigMap")).isNotNull();
+        assertThat((Object) ReflectionUtil.getField(cloned, "pipelineNameToConfigMap")).isNull();
+        assertThat(cloned.pipelineConfigsAsMap().size()).isEqualTo(1);
     }
 
     @Test
@@ -92,8 +91,8 @@ public class GoConfigClonerTest {
         config.encryptSecureProperties(config);
 
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat(ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "externalArtifactConfigs"), is(new ArrayList()));
-        assertThat(ReflectionUtil.getField(cloned.getAllPipelineConfigs().get(0), "externalArtifactConfigs"), is(nullValue()));
+        assertThat((Object) ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "externalArtifactConfigs")).isEqualTo(new ArrayList());
+        assertThat((Object) ReflectionUtil.getField(cloned.getAllPipelineConfigs().get(0), "externalArtifactConfigs")).isNull();
     }
 
     @Test
@@ -105,15 +104,15 @@ public class GoConfigClonerTest {
         config.encryptSecureProperties(config);
 
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat(ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks"), is(new ArrayList()));
-        assertThat(ReflectionUtil.getField(cloned.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks"), is(nullValue()));
+        assertThat((Object) ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks")).isEqualTo(new ArrayList());
+        assertThat((Object) ReflectionUtil.getField(cloned.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks")).isNull();
     }
 
     @Test
     public void shouldDeepCloneObject() {
         BasicCruiseConfig config = GoConfigMother.configWithPipelines("p1", "p2");
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat(cloned.getGroups().size(), is(1));
-        assertThat(cloned.getGroups().get(0).getPipelines().size(), is(2));
+        assertThat(cloned.getGroups().size()).isEqualTo(1);
+        assertThat(cloned.getGroups().get(0).getPipelines().size()).isEqualTo(2);
     }
 }

@@ -20,10 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-
+import static org.assertj.core.api.Assertions.assertThat;
 public class ResourceConfigsTest {
 
     @Test
@@ -32,12 +29,12 @@ public class ResourceConfigsTest {
         ResourceConfigs resourceConfigs = new ResourceConfigs();
         resourceConfigs.add(new ResourceConfig("foo"));
         resourceConfigs.add(new ResourceConfig("foo      "));
-        assertThat(resourceConfigs.size(), is(1));
+        assertThat(resourceConfigs.size()).isEqualTo(1);
 
         ResourceConfigs newResourceConfigs = new ResourceConfigs();
         newResourceConfigs.add(new ResourceConfig("foo       "));
         newResourceConfigs.add(new ResourceConfig("foo  "));
-        assertThat(newResourceConfigs.size(), is(1));
+        assertThat(newResourceConfigs.size()).isEqualTo(1);
     }
 
     @Test
@@ -48,7 +45,7 @@ public class ResourceConfigsTest {
         resourceConfigsA.add(new ResourceConfig("aaa"));
         resourceConfigsB.add(new ResourceConfig("xyz"));
         resourceConfigsB.add(new ResourceConfig("aaa"));
-        assertThat(resourceConfigsA.compareTo(resourceConfigsB), is(0));
+        assertThat(resourceConfigsA.compareTo(resourceConfigsB)).isEqualTo(0);
     }
 
     @Test
@@ -59,8 +56,8 @@ public class ResourceConfigsTest {
         resourceConfigsA.add(new ResourceConfig("aaa"));
         resourceConfigsB.add(new ResourceConfig("xyz"));
         resourceConfigsB.add(new ResourceConfig("bbb"));
-        assertThat(resourceConfigsA.compareTo(resourceConfigsB), is(org.hamcrest.Matchers.lessThan(0)));
-        assertThat(resourceConfigsB.compareTo(resourceConfigsA), is(greaterThan(0)));
+        assertThat(resourceConfigsA.compareTo(resourceConfigsB)).isLessThan(0);
+        assertThat(resourceConfigsB.compareTo(resourceConfigsA)).isGreaterThan(0);
     }
 
 
@@ -71,13 +68,13 @@ public class ResourceConfigsTest {
         resourceConfigsA.add(new ResourceConfig("xyz"));
         resourceConfigsB.add(new ResourceConfig("xyz"));
         resourceConfigsB.add(new ResourceConfig("zzz"));
-        assertThat(resourceConfigsA.compareTo(resourceConfigsB), is(org.hamcrest.Matchers.lessThan(0)));
-        assertThat(resourceConfigsB.compareTo(resourceConfigsA), is(greaterThan(0)));
+        assertThat(resourceConfigsA.compareTo(resourceConfigsB)).isLessThan(0);
+        assertThat(resourceConfigsB.compareTo(resourceConfigsA)).isGreaterThan(0);
     }
 
     @Test
     public void shouldNotBombIfNoResourcesPresent() {
-        assertThat(new ResourceConfigs(new ResourceConfig("xyz")).compareTo(new ResourceConfigs()), is(greaterThan(0)));
+        assertThat(new ResourceConfigs(new ResourceConfig("xyz")).compareTo(new ResourceConfigs())).isGreaterThan(0);
     }
 
     @Test
@@ -85,7 +82,7 @@ public class ResourceConfigsTest {
         ResourceConfigs resourceConfigs = new ResourceConfigs();
         resourceConfigs.add(new ResourceConfig("Eoo"));
         resourceConfigs.add(new ResourceConfig("eoo"));
-        assertThat(resourceConfigs.size(), is(1));
+        assertThat(resourceConfigs.size()).isEqualTo(1);
     }
 
     @Test
@@ -97,7 +94,7 @@ public class ResourceConfigsTest {
         names.add("Eoo");
         names.add("Poo");
         List<String> resourceNames = resourceConfigs.resourceNames();
-        assertThat(resourceNames, is(names));
+        assertThat(resourceNames).isEqualTo(names);
     }
 
     @Test
@@ -105,9 +102,9 @@ public class ResourceConfigsTest {
 
         ResourceConfigs resourceConfigs = new ResourceConfigs();
         resourceConfigs.add(new ResourceConfig(""));
-        assertThat(resourceConfigs.size(), is(0));
+        assertThat(resourceConfigs.size()).isEqualTo(0);
         resourceConfigs.add(new ResourceConfig("   "));
-        assertThat(resourceConfigs.size(), is(0));
+        assertThat(resourceConfigs.size()).isEqualTo(0);
 
     }
 
@@ -121,20 +118,20 @@ public class ResourceConfigsTest {
         actual.add(new ResourceConfig("jdk1.4"));
         actual.add(new ResourceConfig("jdk1.5"));
         actual.add(new ResourceConfig("Jdk1.5"));
-        assertThat(expected, is(actual));
+        assertThat((List<? extends ResourceConfig>) expected).isEqualTo(actual);
     }
 
     @Test
     public void shouldHaveNiceConvenienceConstructorThatDoesSomeNiftyParsing() {
         ResourceConfigs actual = new ResourceConfigs("mou, fou");
-        assertThat(actual.toString(), is("fou | mou"));
+        assertThat(actual.toString()).isEqualTo("fou | mou");
     }
 
     @Test
     public void shouldNotBeAbleToAddResourceWithWhiteSpaceAsName() {
         ResourceConfigs actual = new ResourceConfigs();
         actual.add(new ResourceConfig(" "));
-        assertThat(actual.size(), is(0));
+        assertThat(actual.size()).isEqualTo(0);
     }
 
     @Test
@@ -145,8 +142,8 @@ public class ResourceConfigsTest {
         actual.add(new ResourceConfig("gentoo"));
         actual.add(new ResourceConfig("jdk1.5"));
         actual.add(new ResourceConfig("Jdk1.5"));
-        assertThat(actual.size(), is(4));
-        assertThat(actual.toString(), is("gentoo | jdk1.4 | jdk1.5 | linux"));
+        assertThat(actual.size()).isEqualTo(4);
+        assertThat(actual.toString()).isEqualTo("gentoo | jdk1.4 | jdk1.5 | linux");
     }
 
     @Test
@@ -155,7 +152,7 @@ public class ResourceConfigsTest {
         actual.add(new ResourceConfig("  a  "));
         actual.add(new ResourceConfig("   b"));
         actual.add(new ResourceConfig("c"));
-        assertThat(actual.exportToCsv(), is("a, b, c, "));
+        assertThat(actual.exportToCsv()).isEqualTo("a, b, c, ");
     }
 
     @Test
@@ -163,10 +160,10 @@ public class ResourceConfigsTest {
         ResourceConfigs resourceConfigs = new ResourceConfigs();
         String csv = "a, b,   c,d   ";
         resourceConfigs.add(new ResourceConfig("old_resource"));
-        assertThat(resourceConfigs.size(), is(1));
+        assertThat(resourceConfigs.size()).isEqualTo(1);
         resourceConfigs.importFromCsv(csv);
-        assertThat(resourceConfigs.size(), is(4));
-        assertThat(resourceConfigs.exportToCsv(), is("a, b, c, d, "));
+        assertThat(resourceConfigs.size()).isEqualTo(4);
+        assertThat(resourceConfigs.exportToCsv()).isEqualTo("a, b, c, d, ");
     }
 
     @Test
@@ -175,8 +172,8 @@ public class ResourceConfigsTest {
         ResourceConfig resourceConfig2 = new ResourceConfig("b");
         ResourceConfigs resourceConfigs = new ResourceConfigs(resourceConfig1, resourceConfig2);
         resourceConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
-        assertThat(resourceConfig1.errors().size(), is(1));
-        assertThat(resourceConfig1.errors().firstError(), is(String.format("Resource name 'a#' is not valid. Valid names much match '%s'", ResourceConfig.VALID_REGEX)));
-        assertThat(resourceConfig2.errors().isEmpty(), is(true));
+        assertThat(resourceConfig1.errors().size()).isEqualTo(1);
+        assertThat(resourceConfig1.errors().firstError()).isEqualTo(String.format("Resource name 'a#' is not valid. Valid names much match '%s'", ResourceConfig.VALID_REGEX));
+        assertThat(resourceConfig2.errors().isEmpty()).isTrue();
     }
 }

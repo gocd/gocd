@@ -23,8 +23,7 @@ import java.util.Date;
 
 import static com.thoughtworks.go.domain.StageState.*;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JobInstancesTest {
     @Test
@@ -34,36 +33,36 @@ public class JobInstancesTest {
         instance2.setState(JobState.Assigned);
         JobInstances instances = new JobInstances(instance1, instance2);
         JobInstances actual = instances.filterByState(JobState.Assigned);
-        assertThat(actual.size(), is(1));
-        assertThat(actual.get(0).getState(), is(JobState.Assigned));
+        assertThat(actual.size()).isEqualTo(1);
+        assertThat(actual.get(0).getState()).isEqualTo(JobState.Assigned);
     }
 
     @Test
     public void shouldGetMostRecentCompletedBuild() {
         JobInstances jobInstances = mixedBuilds();
         JobInstance mostRecentCompleted = jobInstances.mostRecentCompleted();
-        assertThat(mostRecentCompleted, is(jobInstances.get(2)));
+        assertThat(mostRecentCompleted).isEqualTo(jobInstances.get(2));
     }
 
     @Test
     public void shouldGetMostRecentPassedBuild() {
         JobInstances jobInstances = mixedBuilds();
         JobInstance mostRecent = jobInstances.mostRecentPassed();
-        assertThat(mostRecent, is(jobInstances.get(1)));
+        assertThat(mostRecent).isEqualTo(jobInstances.get(1));
     }
 
     @Test
     public void shouldGetMostRecentPassedWhenBuilding() {
         JobInstances jobInstances = new JobInstances(passed("passed"), building("unit"));
         JobInstance mostRecent = jobInstances.mostRecentPassed();
-        assertThat(mostRecent.getName(), is("passed"));
+        assertThat(mostRecent.getName()).isEqualTo("passed");
     }
 
     @Test
     public void shouldGetMostRecentPassedBuildIfThereAreFailedBuilds() {
         JobInstances jobInstances = new JobInstances(failed("foo"), passed("foo"));
         JobInstance mostRecent = jobInstances.mostRecentPassed();
-        assertThat(mostRecent, is(jobInstances.get(1)));
+        assertThat(mostRecent).isEqualTo(jobInstances.get(1));
     }
 
     private JobInstances mixedBuilds() {
@@ -85,7 +84,7 @@ public class JobInstancesTest {
     @Test
     public void shouldReturnNullObjectWhenNoMostRecentPassedInstance() {
         JobInstance actual = new JobInstances().mostRecentPassed();
-        assertThat(actual.isNull(), is(true));
+        assertThat(actual.isNull()).isTrue();
     }
 
     @Test
@@ -94,7 +93,7 @@ public class JobInstancesTest {
         builds.add(completed("passports", JobResult.Passed));
         builds.add(completed("visas", JobResult.Cancelled));
         builds.add(scheduled("flights"));
-        assertThat(builds.stageState(), is(Building));
+        assertThat(builds.stageState()).isEqualTo(Building);
     }
 
     @Test
@@ -104,7 +103,7 @@ public class JobInstancesTest {
         builds.add(completed("passports-failed", JobResult.Failed));
         builds.add(completed("visas", JobResult.Cancelled));
         builds.add(completed("flights", JobResult.Cancelled));
-        assertThat(builds.stageState(), is(Cancelled));
+        assertThat(builds.stageState()).isEqualTo(Cancelled);
     }
 
     @Test
@@ -113,7 +112,7 @@ public class JobInstancesTest {
         builds.add(completed("passports", JobResult.Failed));
         builds.add(completed("visas", JobResult.Passed));
         builds.add(scheduled("flights"));
-        assertThat(builds.stageState(), is(Failing));
+        assertThat(builds.stageState()).isEqualTo(Failing);
     }
 
     @Test
@@ -123,7 +122,7 @@ public class JobInstancesTest {
             completed(completed("job1"), JobResult.Failed, expectedLatest),
             completed(completed("job1"), JobResult.Failed, date(3908, 10, 11)),
             completed(completed("job1"), JobResult.Failed, date(3908, 10, 5))).latestTransitionDate();
-        assertThat(actualLatest, is(expectedLatest));
+        assertThat(actualLatest).isEqualTo(expectedLatest);
     }
 
     private Date date(int year, int month, int day) {

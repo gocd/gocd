@@ -38,9 +38,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -80,18 +78,18 @@ public class RestfulServiceTest {
     @Test
     public void shouldShouldTranslateLatestPipelineLabel() {
         fixture.createdPipelineWithAllStagesPassed();
-        Pipeline latestPipleine = fixture.createdPipelineWithAllStagesPassed();
-        final JobIdentifier jobIdentifier1 = new JobIdentifier(latestPipleine.getName(), 1, JobIdentifier.LATEST, fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        Pipeline latestPipeline = fixture.createdPipelineWithAllStagesPassed();
+        final JobIdentifier jobIdentifier1 = new JobIdentifier(latestPipeline.getName(), 1, JobIdentifier.LATEST, fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
         JobIdentifier jobIdentifier = restfulService.findJob(jobIdentifier1.getPipelineName(), jobIdentifier1.getPipelineLabel(), jobIdentifier1.getStageName(), jobIdentifier1.getStageCounter(), jobIdentifier1.getBuildName());
-        assertThat(jobIdentifier.getPipelineLabel(), is(latestPipleine.getLabel()));
+        assertThat(jobIdentifier.getPipelineLabel()).isEqualTo(latestPipeline.getLabel());
     }
 
     @Test
     public void shouldTranslateLatestToRealPipelineLabel() {
         fixture.createdPipelineWithAllStagesPassed();
-        Pipeline latestPipleine = fixture.createdPipelineWithAllStagesPassed();
-        JobIdentifier jobIdentifier = restfulService.findJob(latestPipleine.getName(), JobIdentifier.LATEST, fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
-        assertThat(jobIdentifier.getPipelineLabel(), is(latestPipleine.getLabel()));
+        Pipeline latestPipeline = fixture.createdPipelineWithAllStagesPassed();
+        JobIdentifier jobIdentifier = restfulService.findJob(latestPipeline.getName(), JobIdentifier.LATEST, fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        assertThat(jobIdentifier.getPipelineLabel()).isEqualTo(latestPipeline.getLabel());
     }
 
 
@@ -100,14 +98,14 @@ public class RestfulServiceTest {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
         JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
-        assertThat(Integer.valueOf(jobIdentifier.getStageCounter()), is(pipeline.getStages().byName(fixture.devStage).getCounter()));
+        assertThat(Integer.valueOf(jobIdentifier.getStageCounter())).isEqualTo(pipeline.getStages().byName(fixture.devStage).getCounter());
     }
 
     @Test
     public void shouldTranslateEmtpyToLatestStageCounter() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), fixture.devStage, "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
-        assertThat(Integer.valueOf(jobIdentifier.getStageCounter()), is(pipeline.getStages().byName(fixture.devStage).getCounter()));
+        assertThat(Integer.valueOf(jobIdentifier.getStageCounter())).isEqualTo(pipeline.getStages().byName(fixture.devStage).getCounter());
     }
 
     @Test
@@ -116,7 +114,7 @@ public class RestfulServiceTest {
 
         JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName().toUpperCase(), JobIdentifier.LATEST, fixture.devStage, "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
 
-        assertThat(jobIdentifier.getPipelineName(), is(pipeline.getName()));
+        assertThat(jobIdentifier.getPipelineName()).isEqualTo(pipeline.getName());
     }
 
     @Test
@@ -125,7 +123,7 @@ public class RestfulServiceTest {
 
         JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), fixture.devStage.toUpperCase(), "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
 
-        assertThat(jobIdentifier.getStageName(), is(fixture.devStage));
+        assertThat(jobIdentifier.getStageName()).isEqualTo(fixture.devStage);
     }
 
     @Test
@@ -136,7 +134,7 @@ public class RestfulServiceTest {
 
         JobIdentifier result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
         JobIdentifier expect = new JobIdentifier(pipeline, stage, job);
-        assertThat(result, is(expect));
+        assertThat(result).isEqualTo(expect);
     }
 
     @Test
@@ -154,19 +152,19 @@ public class RestfulServiceTest {
         JobIdentifier result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(rerunStage.getCounter()), job.getName());
         JobIdentifier expect = new JobIdentifier(pipeline, stage, job);
-        assertThat(result, is(expect));
+        assertThat(result).isEqualTo(expect);
 
         long copiedJobId = rerunStage.getJobInstances().getByName(job.getName()).getId();
-        assertThat(copiedJobId, is(not(job.getId())));//sanity check(its a copy, not the same)
+        assertThat(copiedJobId).isNotEqualTo(job.getId());//sanity check(its a copy, not the same)
 
         result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), stage.getName(),
                 String.valueOf(rerunStage.getCounter()), job.getName());
-        assertThat(result, is(expect));//still, the job identifier returned should be the same(because other one was a copy)
+        assertThat(result).isEqualTo(expect);//still, the job identifier returned should be the same(because other one was a copy)
 
         result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), stage.getName(),
                 String.valueOf(rerunStage.getCounter()), job.getName(), copiedJobId);
-        assertThat(result, is(not(expect)));//since caller knows the buildId, honor it(caller knows what she is doing)
-        assertThat(result, is(new JobIdentifier(rerunStage.getIdentifier(), job.getName(), copiedJobId)));
+        assertThat(result).isNotEqualTo(expect);//since caller knows the buildId, honor it(caller knows what she is doing)
+        assertThat(result).isEqualTo(new JobIdentifier(rerunStage.getIdentifier(), job.getName(), copiedJobId));
     }
 
     @Test
@@ -180,7 +178,7 @@ public class RestfulServiceTest {
 
         JobIdentifier result = restfulService.findJob(oldPipeline.getName(), String.valueOf(oldPipeline.getCounter()), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), null);
         JobIdentifier expect = new JobIdentifier(oldPipeline, stage, job);
-        assertThat(result, is(expect));
+        assertThat(result).isEqualTo(expect);
     }
 
     @Test
@@ -193,7 +191,7 @@ public class RestfulServiceTest {
         JobIdentifier result = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
         JobIdentifier expect = new JobIdentifier(pipeline, stage, job);
-        assertThat(result, is(expect));
+        assertThat(result).isEqualTo(expect);
     }
 
     @Test
@@ -201,7 +199,7 @@ public class RestfulServiceTest {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         StageIdentifier stageIdentifier = restfulService.translateStageCounter(pipeline.getIdentifier(),
                 fixture.devStage, "latest");
-        assertThat(stageIdentifier, is(new StageIdentifier(pipeline, pipeline.getStages().byName(fixture.devStage))));
+        assertThat(stageIdentifier).isEqualTo(new StageIdentifier(pipeline, pipeline.getStages().byName(fixture.devStage)));
     }
 
 }

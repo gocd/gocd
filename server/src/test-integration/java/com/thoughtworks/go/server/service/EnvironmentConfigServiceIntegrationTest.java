@@ -41,8 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -94,7 +93,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("foo-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         environmentConfigService.createEnvironment(env("foo-env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), result);
-        assertThat(result.message(), is(EntityType.Environment.alreadyExists("foo-env")));
+        assertThat(result.message()).isEqualTo(EntityType.Environment.alreadyExists("foo-env"));
     }
 
     @Test
@@ -111,7 +110,7 @@ public class EnvironmentConfigServiceIntegrationTest {
 
         result = new HttpLocalizedOperationResult();
         environmentConfigService.createEnvironment(env("env", pipelines, new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), result);
-        assertThat(result.message(), is("Failed to add environment 'env'. Associating pipeline(s) which is already part of uat environment"));
+        assertThat(result.message()).isEqualTo("Failed to add environment 'env'. Associating pipeline(s) which is already part of uat environment");
     }
 
     @Test
@@ -128,7 +127,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         updatedEnvConfig.addPipeline(new CaseInsensitiveString(pipelineName));
         environmentConfigService.updateEnvironment(environmentBeingUpdated, updatedEnvConfig,
                 user, entityHashingService.hashForEntity(environmentConfigService.getEnvironmentConfig(environmentBeingUpdated)), result);
-        assertThat(result.message(), is("Failed to update environment 'environment-2'. Associating pipeline(s) which is already part of environment-1 environment"));
+        assertThat(result.message()).isEqualTo("Failed to update environment 'environment-2'. Associating pipeline(s) which is already part of environment-1 environment");
     }
 
     @Test
@@ -144,15 +143,15 @@ public class EnvironmentConfigServiceIntegrationTest {
         BasicEnvironmentConfig environmentConfigBeingUpdated = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentBeingUpdated));
         environmentConfigService.patchEnvironment(environmentConfigBeingUpdated, List.of(pipelineName), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
                 user, result);
-        assertThat(result.message(), is("Failed to update environment 'environment-2'. Associating pipeline(s) which is already part of environment-1 environment"));
+        assertThat(result.message()).isEqualTo("Failed to update environment 'environment-2'. Associating pipeline(s) which is already part of environment-1 environment");
     }
 
     @Test
     public void shouldReturnBadRequestForInvalidEnvName() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         environmentConfigService.createEnvironment(env("foo env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), result);
-        assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
-        assertThat(result.message(), is("Failed to add environment 'foo env'. failed to save : Environment name is invalid. \"foo env\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
+        assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+        assertThat(result.message()).isEqualTo("Failed to add environment 'foo env'. failed to save : Environment name is invalid. \"foo env\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
@@ -175,14 +174,14 @@ public class EnvironmentConfigServiceIntegrationTest {
         String digest = entityHashingService.hashForEntity(uat);
         environmentConfigService.updateEnvironment(uat.name().toString(), newUat, new Username(new CaseInsensitiveString("foo")), digest, result);
         EnvironmentConfig updatedEnv = environmentConfigService.getEnvironmentConfig("prod");
-        assertThat(updatedEnv.name(), is(new CaseInsensitiveString("prod")));
-        assertThat(updatedEnv.getPipelineNames(), is(List.of(new CaseInsensitiveString("bar"))));
+        assertThat(updatedEnv.name()).isEqualTo(new CaseInsensitiveString("prod"));
+        assertThat(updatedEnv.getPipelineNames()).isEqualTo(List.of(new CaseInsensitiveString("bar")));
         EnvironmentVariablesConfig updatedVariables = new EnvironmentVariablesConfig();
         updatedVariables.add("env-three", "THREE");
-        assertThat(updatedEnv.getVariables(), is(updatedVariables));
+        assertThat(updatedEnv.getVariables()).isEqualTo(updatedVariables);
         EnvironmentsConfig currentEnvironments = goConfigService.getCurrentConfig().getEnvironments();
-        assertThat(currentEnvironments.indexOf(updatedEnv), is(2));
-        assertThat(currentEnvironments.size(), is(5));
+        assertThat(currentEnvironments.indexOf(updatedEnv)).isEqualTo(2);
+        assertThat(currentEnvironments.size()).isEqualTo(5);
     }
 
     @Test
@@ -192,10 +191,8 @@ public class EnvironmentConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String digest = entityHashingService.hashForEntity(environmentConfigService.getEnvironmentConfig("bar-env"));
         environmentConfigService.updateEnvironment("bar-env", env("foo-env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), digest, result);
-        assertThat(result.message(), anyOf(
-                is("Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint of element \"environments\"."),
-                is("Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\".")
-        ));
+        assertThat(result.message()).containsAnyOf("Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint of element \"environments\".",
+            "Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\"");
     }
 
     @Test
@@ -205,7 +202,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String digest = "invalid-digest";
         environmentConfigService.updateEnvironment("bar-env", env("foo-env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), digest, result);
-        assertThat(result.message(), is(EntityType.Environment.staleConfig("bar-env")));
+        assertThat(result.message()).isEqualTo(EntityType.Environment.staleConfig("bar-env"));
     }
 
     @Test
@@ -214,8 +211,8 @@ public class EnvironmentConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String digest = entityHashingService.hashForEntity(environmentConfigService.getEnvironmentConfig("foo-env"));
         environmentConfigService.updateEnvironment("foo-env", env("foo env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), digest, result);
-        assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
-        assertThat(result.message(), containsString("Failed to update environment 'foo-env'."));
+        assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+        assertThat(result.message()).contains("Failed to update environment 'foo-env'.");
     }
 
     @Test
@@ -227,7 +224,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         assertTrue(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName)));
         environmentConfigService.deleteEnvironment(environmentConfigService.getEnvironmentConfig(environmentName), new Username(new CaseInsensitiveString("foo")), result);
         assertFalse(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName)));
-        assertThat(result.message(), is(EntityType.Environment.deleteSuccessful(environmentName)));
+        assertThat(result.message()).isEqualTo(EntityType.Environment.deleteSuccessful(environmentName));
     }
 
     @Test
@@ -241,7 +238,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         environmentConfigService.deleteEnvironment(environmentConfigService.getEnvironmentConfig(envName), user, result);
 
         assertTrue(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(envName)));
-        assertThat(result.message(), is(String.format("Failed to delete environment 'env'. Environment is partially defined in [%s] config repositories", configRepoId)));
+        assertThat(result.message()).isEqualTo(String.format("Failed to delete environment 'env'. Environment is partially defined in [%s] config repositories", configRepoId));
     }
 
     @Test
@@ -264,7 +261,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         environmentConfigService.deleteEnvironment(environmentConfigService.getEnvironmentConfig(environmentName), new Username(new CaseInsensitiveString("foo")), result);
 
         assertFalse(goConfigService.hasEnvironmentNamed(envName));
-        assertThat(result.message(), is(EntityType.Environment.deleteSuccessful(environmentName)));
+        assertThat(result.message()).isEqualTo(EntityType.Environment.deleteSuccessful(environmentName));
     }
 
     @Test
@@ -286,26 +283,26 @@ public class EnvironmentConfigServiceIntegrationTest {
         environmentConfigService.patchEnvironment(environmentConfigService.getEnvironmentConfig(environmentName), pipelinesToAdd, pipelinesToRemove, envVarsToAdd, envVarsToRemove, user, result);
         EnvironmentConfig updatedEnv = environmentConfigService.getEnvironmentConfig(env.name().toString());
 
-        assertThat(updatedEnv.name(), is(new CaseInsensitiveString(environmentName)));
-        assertThat(updatedEnv.getVariables().hasVariable("name"), is(true));
-        assertThat(result.message(), containsString("Updated environment 'env'."));
+        assertThat(updatedEnv.name()).isEqualTo(new CaseInsensitiveString(environmentName));
+        assertThat(updatedEnv.getVariables().hasVariable("name")).isTrue();
+        assertThat(result.message()).contains("Updated environment 'env'.");
     }
 
     @Test
     public void shouldReturnAClonedInstanceOfEnvironmentConfig() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.addEnvironments("foo-env");
-        assertThat(environmentConfigService.getEnvironmentConfig("foo-env"), sameInstance(environmentConfigService.getEnvironmentConfig("foo-env")));
-        assertThat(environmentConfigService.getEnvironmentConfig("foo-env"), not(sameInstance(environmentConfigService.getMergedEnvironmentforDisplay("foo-env", result).getConfigElement())));
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(environmentConfigService.getEnvironmentConfig("foo-env")).isSameAs(environmentConfigService.getEnvironmentConfig("foo-env"));
+        assertThat(environmentConfigService.getEnvironmentConfig("foo-env")).isNotSameAs(environmentConfigService.getMergedEnvironmentforDisplay("foo-env", result).getConfigElement());
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
     public void shouldPopulateResultWithErrorIfEnvNotFound() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigElementForEdit<EnvironmentConfig> edit = environmentConfigService.getMergedEnvironmentforDisplay("foo-env", result);
-        assertThat(result.message(), is(EntityType.Environment.notFoundMessage("foo-env")));
-        assertThat(edit, is(nullValue()));
+        assertThat(result.message()).isEqualTo(EntityType.Environment.notFoundMessage("foo-env"));
+        assertThat(edit).isNull();
     }
 
     @Test
@@ -318,15 +315,15 @@ public class EnvironmentConfigServiceIntegrationTest {
 
         EnvironmentConfig envConfig = environmentConfigService.getEnvironmentConfig(envName);
 
-        assertThat(envConfig.getAgents().size(), is(1));
-        assertThat(envConfig.getAgents().getUuids(), contains(uuid));
+        assertThat(envConfig.getAgents().size()).isEqualTo(1);
+        assertThat(envConfig.getAgents().getUuids()).contains(uuid);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configRepoService.deleteConfigRepo(configRepoId, user, result);
 
         EnvironmentConfig envConfigPostDelete = environmentConfigService.getEnvironmentConfig(envName);
 
-        assertThat(envConfigPostDelete.getAgents().size(), is(0));
+        assertThat(envConfigPostDelete.getAgents().size()).isEqualTo(0);
     }
 
     private String createMergeEnvironment(String envName, String agentUuid) {

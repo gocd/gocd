@@ -30,8 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -129,7 +128,7 @@ public class UniqueOnCancelValidatorTest {
             UniqueOnCancelValidator validator = new UniqueOnCancelValidator();
             validator.validate(elementFor(content), registry);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Task [exec] should not contain more than 1 oncancel task"));
+            assertThat(e.getMessage()).isEqualTo("Task [exec] should not contain more than 1 oncancel task");
         }
     }
 
@@ -247,7 +246,7 @@ public class UniqueOnCancelValidatorTest {
             UniqueOnCancelValidator validator = new UniqueOnCancelValidator();
             validator.validate(elementFor(content), registry);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Task [task] should not contain more than 1 oncancel task"));
+            assertThat(e.getMessage()).isEqualTo("Task [task] should not contain more than 1 oncancel task");
         }
     }
 

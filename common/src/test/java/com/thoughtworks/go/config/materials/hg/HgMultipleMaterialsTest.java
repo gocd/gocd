@@ -32,8 +32,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HgMultipleMaterialsTest {
     private HgTestRepo repo;
@@ -53,8 +52,8 @@ public class HgMultipleMaterialsTest {
 
         materialRevision.updateTo(pipelineDir, ProcessOutputStreamConsumer.inMemoryConsumer(), new TestSubprocessExecutionContext());
 
-        assertThat(new File(pipelineDir, "dest1").exists(), is(true));
-        assertThat(new File(pipelineDir, "dest1/.hg").exists(), is(true));
+        assertThat(new File(pipelineDir, "dest1").exists()).isTrue();
+        assertThat(new File(pipelineDir, "dest1/.hg").exists()).isTrue();
     }
 
     @Test
@@ -65,8 +64,8 @@ public class HgMultipleMaterialsTest {
 
         materialRevision.updateTo(pipelineDir, ProcessOutputStreamConsumer.inMemoryConsumer(), new TestSubprocessExecutionContext(true));
 
-        assertThat(new File(pipelineDir, "dest1").exists(), is(false));
-        assertThat(new File(pipelineDir, ".hg").exists(), is(true));
+        assertThat(new File(pipelineDir, "dest1").exists()).isFalse();
+        assertThat(new File(pipelineDir, ".hg").exists()).isTrue();
     }
 
     @Test
@@ -76,8 +75,8 @@ public class HgMultipleMaterialsTest {
 
         MaterialRevisions materialRevisions = materials.latestModification(pipelineDir, new TestSubprocessExecutionContext());
 
-        assertThat(materialRevisions.getRevisions().size(), is(2));
-        assertThat(materialRevisions, containsModifiedBy("SomeDocumentation.txt", "user"));
+        assertThat(materialRevisions.getRevisions().size()).isEqualTo(2);
+        assertThat(materialRevisions).anySatisfy(containsModifiedBy("SomeDocumentation.txt", "user"));
     }
 
 }

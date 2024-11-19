@@ -48,9 +48,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -87,8 +85,8 @@ public class MaterialExpansionServiceTest {
 
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
 
-        assertThat(materialConfigs.size(), is(1));
-        assertThat(materialConfigs.get(0), is(hg));
+        assertThat(materialConfigs.size()).isEqualTo(1);
+        assertThat(materialConfigs.get(0)).isEqualTo(hg);
     }
 
     @Test
@@ -98,8 +96,8 @@ public class MaterialExpansionServiceTest {
         MaterialConfigs materialConfigs = new MaterialConfigs();
         materialExpansionService.expandForScheduling(hg, materialConfigs);
 
-        assertThat(materialConfigs.size(), is(1));
-        assertThat(materialConfigs.get(0), is(hg));
+        assertThat(materialConfigs.size()).isEqualTo(1);
+        assertThat(materialConfigs.get(0)).isEqualTo(hg);
     }
 
     @Test
@@ -116,9 +114,9 @@ public class MaterialExpansionServiceTest {
 
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
 
-        assertThat(materialConfigs.size(), is(2));
-        assertThat(materialConfigs.get(0), is(svn));
-        assertThat(materialConfigs.get(1), is(svnExt));
+        assertThat(materialConfigs.size()).isEqualTo(2);
+        assertThat(materialConfigs.get(0)).isEqualTo(svn);
+        assertThat(materialConfigs.get(1)).isEqualTo(svnExt);
     }
 
     @Test
@@ -134,10 +132,10 @@ public class MaterialExpansionServiceTest {
 
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
 
-        assertThat(materialConfigs.size(), is(2));
-        assertThat(materialConfigs.get(0), is(svn));
-        assertThat(materialConfigs.get(1), is(svnExt));
-        assertThat(materialConfigs.get(1).filter(), is(svn.filter()));
+        assertThat(materialConfigs.size()).isEqualTo(2);
+        assertThat(materialConfigs.get(0)).isEqualTo(svn);
+        assertThat(materialConfigs.get(1)).isEqualTo(svnExt);
+        assertThat(materialConfigs.get(1).filter()).isEqualTo(svn.filter());
     }
 
     @Test
@@ -152,8 +150,8 @@ public class MaterialExpansionServiceTest {
 
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
 
-        assertThat(materialConfigs.size(), is(1));
-        assertThat(materialConfigs.get(0), is(svn));
+        assertThat(materialConfigs.size()).isEqualTo(1);
+        assertThat(materialConfigs.get(0)).isEqualTo(svn);
     }
 
     @Test
@@ -167,8 +165,8 @@ public class MaterialExpansionServiceTest {
         Materials materials = new Materials();
         materialExpansionService.expandForScheduling(gitMaterial, materials);
 
-        assertThat(materials.size(), is(1));
-        assertThat(materials.get(0), is(gitMaterial));
+        assertThat(materials.size()).isEqualTo(1);
+        assertThat(materials.get(0)).isEqualTo(gitMaterial);
     }
 
     @Test
@@ -182,9 +180,9 @@ public class MaterialExpansionServiceTest {
         Materials materials = new Materials();
         materialExpansionService.expandForScheduling(svn, materials);
 
-        assertThat(materials.size(), is(2));
-        assertThat(materials.get(0), is(svn));
-        assertThat(((SvnMaterial) materials.get(1)).getUrl(), endsWith("end2end/"));
+        assertThat(materials.size()).isEqualTo(2);
+        assertThat(materials.get(0)).isEqualTo(svn);
+        assertThat(((SvnMaterial) materials.get(1)).getUrl()).endsWith("end2end/");
     }
 
     @Test

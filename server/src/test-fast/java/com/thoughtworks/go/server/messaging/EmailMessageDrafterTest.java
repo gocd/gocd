@@ -21,8 +21,7 @@ import com.thoughtworks.go.util.SystemUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmailMessageDrafterTest {
     private String artifactRoot = "artifactFolder";
@@ -41,10 +40,10 @@ public class EmailMessageDrafterTest {
         String email = "admin@mail.com";
         SendEmailMessage message = EmailMessageDrafter.lowArtifactsDiskSpaceMessage(new SystemEnvironment(), email, artifactRoot);
         String ip = SystemUtil.getFirstLocalNonLoopbackIpAddress();
-        assertThat(message, is(new SendEmailMessage(
+        assertThat(message).isEqualTo(new SendEmailMessage(
                 "Low artifacts disk space warning message from Go Server at " + ip,
                 lowArtifactDiskSpaceEmail(ip, size, noDiskSpaceSize), email
-        )));
+        ));
     }
 
     @Test
@@ -54,10 +53,10 @@ public class EmailMessageDrafterTest {
         String email = "admin@mail.com";
         SendEmailMessage message = EmailMessageDrafter.noArtifactsDiskSpaceMessage(new SystemEnvironment(), email, artifactRoot);
         String ip = SystemUtil.getFirstLocalNonLoopbackIpAddress();
-        assertThat(message, is(new SendEmailMessage(
+        assertThat(message).isEqualTo(new SendEmailMessage(
                 "No artifacts disk space error message from Go Server at " + ip,
                 noArtifactDiskSpaceEmail(ip, size), email
-        )));
+        ));
     }
 
     private String lowArtifactDiskSpaceEmail(String ip, String size, int noDiskSpaceSize) {

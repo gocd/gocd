@@ -20,22 +20,21 @@ import com.thoughtworks.go.util.LogFixture;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RandomPortTest {
 
     @Test
     public void shouldOpenRandomPort() {
         int port = RandomPort.find("foo");
-        assertThat(port, is(not(RandomPort.find("foo"))));
+        assertThat(port).isNotEqualTo(RandomPort.find("foo"));
     }
 
     @Test
     public void shouldLogPortsAllocated() {
         try (LogFixture logFixture = logFixtureFor(RandomPort.class, Level.DEBUG)) {
             int port = RandomPort.find("foo");
-            assertThat(logFixture.getLog(), containsString("RandomPort: Allocating port " + port + " for 'foo'"));
+            assertThat(logFixture.getLog()).contains("RandomPort: Allocating port " + port + " for 'foo'");
         }
     }
 

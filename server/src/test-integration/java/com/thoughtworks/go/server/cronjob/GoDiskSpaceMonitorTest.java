@@ -36,9 +36,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 
 import static com.thoughtworks.go.util.GoConstants.MEGA_BYTE;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -92,13 +90,13 @@ public class GoDiskSpaceMonitorTest {
         when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(ArtifactsDiskIsLow.limitBytes() + 1L);
 
         goDiskSpaceMonitor.onTimer();
-        assertThat(goDiskSpaceMonitor.isLowOnDisk(), is(true));
+        assertThat(goDiskSpaceMonitor.isLowOnDisk()).isTrue();
 
         when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
         when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
-        assertThat(goDiskSpaceMonitor.isLowOnDisk(), is(false));
+        assertThat(goDiskSpaceMonitor.isLowOnDisk()).isFalse();
     }
 
     @Test
@@ -110,7 +108,7 @@ public class GoDiskSpaceMonitorTest {
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState logEntry = findByLogType(ArtifactsDiskSpaceFullChecker.ARTIFACTS_DISK_FULL_ID);
-        assertThat(logEntry.getLogLevel(), is(HealthStateLevel.WARNING));
+        assertThat(logEntry.getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
 
         when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
         when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
@@ -118,7 +116,7 @@ public class GoDiskSpaceMonitorTest {
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState after = findByLogType(ArtifactsDiskSpaceFullChecker.ARTIFACTS_DISK_FULL_ID);
-        assertThat(after, is(nullValue()));
+        assertThat(after).isNull();
     }
 
     @Test
@@ -139,7 +137,7 @@ public class GoDiskSpaceMonitorTest {
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState logEntry = findByLogType(ArtifactsDiskSpaceFullChecker.ARTIFACTS_DISK_FULL_ID);
-        assertThat(logEntry.getLogLevel(), is(HealthStateLevel.ERROR));
+        assertThat(logEntry.getLogLevel()).isEqualTo(HealthStateLevel.ERROR);
 
         when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
         when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
@@ -147,7 +145,7 @@ public class GoDiskSpaceMonitorTest {
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState after = findByLogType(ArtifactsDiskSpaceFullChecker.ARTIFACTS_DISK_FULL_ID);
-        assertThat(after, is(nullValue()));
+        assertThat(after).isNull();
 
     }
 
@@ -189,7 +187,7 @@ public class GoDiskSpaceMonitorTest {
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState logEntry = findByLogType(DatabaseDiskSpaceFullChecker.DATABASE_DISK_FULL_ID);
-        assertThat(logEntry.getLogLevel(), is(HealthStateLevel.ERROR));
+        assertThat(logEntry.getLogLevel()).isEqualTo(HealthStateLevel.ERROR);
 
         when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
         when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
@@ -197,7 +195,7 @@ public class GoDiskSpaceMonitorTest {
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState after = findByLogType(DatabaseDiskSpaceFullChecker.DATABASE_DISK_FULL_ID);
-        assertThat(after, is(nullValue()));
+        assertThat(after).isNull();
     }
 
     @Test
@@ -209,7 +207,7 @@ public class GoDiskSpaceMonitorTest {
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState logEntry = findByLogType(DatabaseDiskSpaceFullChecker.DATABASE_DISK_FULL_ID);
-        assertThat(logEntry.getLogLevel(), is(HealthStateLevel.WARNING));
+        assertThat(logEntry.getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
 
         when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
         when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
@@ -217,7 +215,7 @@ public class GoDiskSpaceMonitorTest {
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState after = findByLogType(DatabaseDiskSpaceFullChecker.DATABASE_DISK_FULL_ID);
-        assertThat(after, is(nullValue()));
+        assertThat(after).isNull();
     }
 
     private ServerHealthState findByLogType(HealthStateType healthStateType) {

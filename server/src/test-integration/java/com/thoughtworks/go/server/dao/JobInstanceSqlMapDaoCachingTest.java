@@ -34,8 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -71,8 +70,8 @@ public class JobInstanceSqlMapDaoCachingTest {
         when(mockTemplate.queryForObject("buildByIdWithTransitions", 1L)).thenReturn(job);
 
         JobInstance actual = jobInstanceDao.buildByIdWithTransitions(1L);
-        assertThat(actual, is(job));
-        assertThat(actual == job, is(false));
+        assertThat(actual).isEqualTo(job);
+        assertThat(actual == job).isFalse();
 
         jobInstanceDao.buildByIdWithTransitions(1L);
         verify(mockTemplate, times(1)).queryForObject("buildByIdWithTransitions", 1L);
@@ -87,8 +86,8 @@ public class JobInstanceSqlMapDaoCachingTest {
         when(mockTemplate.queryForObject("buildByIdWithTransitions", 1L)).thenReturn(job);
 
         JobInstance actual = jobInstanceDao.buildByIdWithTransitions(1L);
-        assertThat(actual, is(job));
-        assertThat(actual == job, is(false));
+        assertThat(actual).isEqualTo(job);
+        assertThat(actual == job).isFalse();
 
         jobInstanceDao.updateStateAndResult(job); //Must clear cahced job instance
 
@@ -108,7 +107,7 @@ public class JobInstanceSqlMapDaoCachingTest {
 
         List<JobPlan> plans = jobInstanceDao.orderedScheduledBuilds();
 
-        assertThat(plans, is(List.of(firstJob)));
+        assertThat(plans).isEqualTo(List.of(firstJob));
 
         verify(mockTemplate, times(2)).queryForObject(eq("scheduledPlan"), any());
         verify(mockTemplate, times(1)).queryForList(eq("scheduledPlanIds"));
@@ -129,7 +128,7 @@ public class JobInstanceSqlMapDaoCachingTest {
 
         List<JobPlan> plans = jobInstanceDao.orderedScheduledBuilds();
 
-        assertThat(plans, is(List.of(firstJob, secondJob)));
+        assertThat(plans).isEqualTo(List.of(firstJob, secondJob));
 
         verify(mockTemplate, times(2)).queryForObject(eq("scheduledPlan"), any());
         verify(mockTemplate, times(2)).queryForList(eq("scheduledPlanIds"));
@@ -150,7 +149,7 @@ public class JobInstanceSqlMapDaoCachingTest {
 
         List<JobPlan> plans = jobInstanceDao.orderedScheduledBuilds();
 
-        assertThat(plans, is(List.of(firstJob)));
+        assertThat(plans).isEqualTo(List.of(firstJob));
 
         verify(mockTemplate, times(2)).queryForObject("scheduledPlan", arguments("id", 1L).asMap());//because the cache is cleared
         verify(mockTemplate, times(2)).queryForList(eq("scheduledPlanIds"));
@@ -175,7 +174,7 @@ public class JobInstanceSqlMapDaoCachingTest {
         jobInstanceDao.activeJobs();//populate the cache
         List<ActiveJob> activeJobs = jobInstanceDao.activeJobs();
 
-        assertThat(activeJobs, is(List.of(first, second)));
+        assertThat(activeJobs).isEqualTo(List.of(first, second));
         verify(mockTemplate, times(1)).queryForList("getActiveJobIds");
         verify(mockTemplate, times(1)).queryForObject("getActiveJobById", arguments("id", 1L).asMap());
         verify(mockTemplate, times(1)).queryForObject("getActiveJobById", arguments("id", 2L).asMap());
@@ -197,7 +196,7 @@ public class JobInstanceSqlMapDaoCachingTest {
 
         List<ActiveJob> activeJobs = jobInstanceDao.activeJobs();
 
-        assertThat(activeJobs, is(List.of(first, second)));
+        assertThat(activeJobs).isEqualTo(List.of(first, second));
 
         verify(mockTemplate, times(2)).queryForList("getActiveJobIds");
         verify(mockTemplate, times(2)).queryForObject("getActiveJobById", arguments("id", 1L).asMap());
@@ -219,7 +218,7 @@ public class JobInstanceSqlMapDaoCachingTest {
 
         List<ActiveJob> activeJobs = jobInstanceDao.activeJobs();
 
-        assertThat(activeJobs, is(List.of(first)));
+        assertThat(activeJobs).isEqualTo(List.of(first));
 
         verify(mockTemplate, times(2)).queryForList("getActiveJobIds");
         verify(mockTemplate, times(2)).queryForObject("getActiveJobById", arguments("id", 1L).asMap());

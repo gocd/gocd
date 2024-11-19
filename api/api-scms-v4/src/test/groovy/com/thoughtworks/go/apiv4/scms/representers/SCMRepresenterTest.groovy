@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat
 class SCMRepresenterTest {
   @AfterEach
   void tearDown() {
-    SCMMetadataStore.getInstance().clear();
+    SCMMetadataStore.getInstance().clear()
   }
 
   @Test
@@ -115,20 +115,20 @@ class SCMRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(scmJson)
     def actualScm = SCMRepresenter.fromJSON(jsonReader)
 
-    assertThat(actualScm.getId(), is("1"))
-    assertThat(actualScm.getName(), is("foobar"))
-    assertThat(actualScm.isAutoUpdate(), is(false))
-    assertThat(actualScm.getConfiguration(), is(new Configuration(
+    assertThat(actualScm.getId()).isEqualTo("1")
+    assertThat(actualScm.getName()).isEqualTo("foobar")
+    assertThat(actualScm.isAutoUpdate()).isEqualTo(false)
+    assertThat(actualScm.getConfiguration()).isEqualTo(new Configuration(
       ConfigurationPropertyMother.create("key1", false, "value1"),
       ConfigurationPropertyMother.create("key2", true, "secret"),
-    )))
+    ))
   }
 
   @Test
   void 'de-serialized object should encrypt secure values'() {
-    SCMConfigurations scmConfiguration = new SCMConfigurations();
-    scmConfiguration.add(new SCMConfiguration("key1").with(PART_OF_IDENTITY, true).with(SECURE, true));
-    SCMMetadataStore.getInstance().addMetadataFor("plugin1", scmConfiguration, null);
+    SCMConfigurations scmConfiguration = new SCMConfigurations()
+    scmConfiguration.add(new SCMConfiguration("key1").with(PART_OF_IDENTITY, true).with(SECURE, true))
+    SCMMetadataStore.getInstance().addMetadataFor("plugin1", scmConfiguration, null)
 
     def scmJson = [
       "id"             : "1",
@@ -148,7 +148,7 @@ class SCMRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(scmJson)
     def actualScm = SCMRepresenter.fromJSON(jsonReader)
 
-    assertThat(actualScm.getId(), is("1"))
-    assertThat(actualScm.getConfiguration().get(0).isSecure()).isTrue();
+    assertThat(actualScm.getId()).isEqualTo("1")
+    assertThat(actualScm.getConfiguration().get(0).isSecure()).isTrue()
   }
 }

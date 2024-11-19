@@ -24,8 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class CreateArtifactStoreConfigCommandTest {
@@ -39,6 +38,6 @@ public class CreateArtifactStoreConfigCommandTest {
         CreateArtifactStoreConfigCommand command = new CreateArtifactStoreConfigCommand(null, artifactStore, extension, null, null);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.getArtifactStores().find("docker"), equalTo(artifactStore));
+        assertThat(cruiseConfig.getArtifactStores().find("docker")).isEqualTo(artifactStore);
     }
 }

@@ -40,8 +40,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -267,14 +266,14 @@ public class DownstreamInstancePopulatorIntegrationTest {
 		assertInstances(nodep3, "p3", 1);
 		assertInstances(nodep4, "p4", 1);
 		assertInstances(nodep5, "q", 1, 2);
-		assertThat(nodep6.revisions().size(), is(0));
+		assertThat(nodep6.revisions().size()).isEqualTo(0);
 	}
 
     private void assertInstances(Node node, String pipelineName, Integer... pipelineCounters) {
         List<Revision> revisions = node.revisions();
-        assertThat(revisions.size(), is(pipelineCounters.length));
+        assertThat(revisions.size()).isEqualTo(pipelineCounters.length);
         for (Integer pipelineCounter : pipelineCounters) {
-            assertThat(revisions.contains(new PipelineRevision(pipelineName, pipelineCounter, pipelineCounter.toString())), is(true));
+            assertThat(revisions.contains(new PipelineRevision(pipelineName, pipelineCounter, pipelineCounter.toString()))).isTrue();
         }
     }
 }

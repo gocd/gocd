@@ -52,8 +52,7 @@ import java.util.Base64;
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Base64.getEncoder;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -299,8 +298,8 @@ public class AgentRegistrationControllerTest {
 
         final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
 
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
-        assertThat(responseEntity.getBody(), is("JCmJaW6YbEA4fIUqf8L9lRV81ua10wV+wRYOFdaBLcM="));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isEqualTo("JCmJaW6YbEA4fIUqf8L9lRV81ua10wV+wRYOFdaBLcM=");
     }
 
     @Test
@@ -312,8 +311,8 @@ public class AgentRegistrationControllerTest {
 
         final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
 
-        assertThat(responseEntity.getStatusCode(), is(CONFLICT));
-        assertThat(responseEntity.getBody(), is("A token has already been issued for this agent."));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(CONFLICT);
+        assertThat(responseEntity.getBody()).isEqualTo("A token has already been issued for this agent.");
     }
 
     @Test
@@ -325,16 +324,16 @@ public class AgentRegistrationControllerTest {
 
         final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
 
-        assertThat(responseEntity.getStatusCode(), is(CONFLICT));
-        assertThat(responseEntity.getBody(), is("A token has already been issued for this agent."));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(CONFLICT);
+        assertThat(responseEntity.getBody()).isEqualTo("A token has already been issued for this agent.");
     }
 
     @Test
     public void shouldRejectGenerateTokenRequestIfUUIDIsEmpty() {
         final ResponseEntity responseEntity = controller.getToken("               ");
 
-        assertThat(responseEntity.getStatusCode(), is(CONFLICT));
-        assertThat(responseEntity.getBody(), is("UUID cannot be blank."));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(CONFLICT);
+        assertThat(responseEntity.getBody()).isEqualTo("UUID cannot be blank.");
     }
 
     @Test
@@ -346,8 +345,8 @@ public class AgentRegistrationControllerTest {
 
         ResponseEntity responseEntity = controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", "an-invalid-token", request);
 
-        assertThat(responseEntity.getBody(), is("Not a valid token."));
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.FORBIDDEN));
+        assertThat(responseEntity.getBody()).isEqualTo("Not a valid token.");
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 
         verify(serverConfig, times(0)).shouldAutoRegisterAgentWith("someKey");
         verifyNoMoreInteractions(agentService);

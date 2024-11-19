@@ -25,8 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
@@ -53,7 +52,7 @@ public class AuthorizationPluginInfoBuilderTest {
 
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getAuthConfigSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("auth_config"))));
+        assertThat(pluginInfo.getAuthConfigSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, new PluginView("auth_config")));
     }
 
     @Test
@@ -69,7 +68,7 @@ public class AuthorizationPluginInfoBuilderTest {
 
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getRoleSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("role_config"))));
+        assertThat(pluginInfo.getRoleSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, new PluginView("role_config")));
     }
 
     @Test
@@ -90,7 +89,7 @@ public class AuthorizationPluginInfoBuilderTest {
 
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
     }
 
     @Test
@@ -102,7 +101,7 @@ public class AuthorizationPluginInfoBuilderTest {
 
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getImage(), is(icon));
+        assertThat(pluginInfo.getImage()).isEqualTo(icon);
     }
 
     @Test
@@ -114,6 +113,6 @@ public class AuthorizationPluginInfoBuilderTest {
 
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getCapabilities(), is(capabilities));
+        assertThat(pluginInfo.getCapabilities()).isEqualTo(capabilities);
     }
 }

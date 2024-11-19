@@ -26,8 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,8 +51,8 @@ public class GoConfigAdministrationControllerTest {
 
         controller.getConfigRevision("some-md5", response);
 
-        assertThat(response.getContentAsString(), is(configXml));
-        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is("some-md5"));
+        assertThat(response.getContentAsString()).isEqualTo(configXml);
+        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5)).isEqualTo("some-md5");
     }
 
     @Test
@@ -62,6 +61,6 @@ public class GoConfigAdministrationControllerTest {
 
         controller.postFileAsXml("content", "md5", new MockHttpServletRequest(), response);
 
-        assertThat(response.getStatus(), is(400));
+        assertThat(response.getStatus()).isEqualTo(400);
     }
 }

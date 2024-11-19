@@ -27,9 +27,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 
 import java.io.IOException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -67,10 +65,10 @@ public class TransactionTemplateTest {
             });
             fail("should have thrown exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("foo"));
+            assertThat(e.getMessage()).isEqualTo("foo");
         }
-        assertThat(txnCommitted, is(false));
-        assertThat(txnCompleted, is(true));
+        assertThat(txnCommitted).isFalse();
+        assertThat(txnCompleted).isTrue();
     }
 
     @Test
@@ -85,10 +83,10 @@ public class TransactionTemplateTest {
             });
             fail("should have thrown exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("foo"));
+            assertThat(e.getMessage()).isEqualTo("foo");
         }
-        assertThat(txnCommitted, is(false));
-        assertThat(txnCompleted, is(true));
+        assertThat(txnCommitted).isFalse();
+        assertThat(txnCompleted).isTrue();
     }
 
     @Test
@@ -101,9 +99,9 @@ public class TransactionTemplateTest {
                 return "foo";
             }
         });
-        assertThat(txnCommitted, is(true));
-        assertThat(txnCompleted, is(true));
-        assertThat(returnVal, is("foo"));
+        assertThat(txnCommitted).isTrue();
+        assertThat(txnCompleted).isTrue();
+        assertThat(returnVal).isEqualTo("foo");
     }
 
     @Test
@@ -115,9 +113,9 @@ public class TransactionTemplateTest {
                 registerSynchronization();
             }
         });
-        assertThat(txnCommitted, is(true));
-        assertThat(txnCompleted, is(true));
-        assertThat(returnVal, nullValue());
+        assertThat(txnCommitted).isTrue();
+        assertThat(txnCompleted).isTrue();
+        assertThat(returnVal).isNull();
     }
 
     @Test
@@ -128,9 +126,9 @@ public class TransactionTemplateTest {
             registerSynchronization();
             return "foo";
         });
-        assertThat(txnCommitted, is(true));
-        assertThat(txnCompleted, is(true));
-        assertThat(returnVal, is("foo"));
+        assertThat(txnCommitted).isTrue();
+        assertThat(txnCompleted).isTrue();
+        assertThat(returnVal).isEqualTo("foo");
     }
 
     @Test
@@ -146,10 +144,10 @@ public class TransactionTemplateTest {
             return "foo";
         });
 
-        assertThat(inTransactionInBody[0], is(true));
-        assertThat(inTransactionInAfterCommit[0], is(false));
-        assertThat(inTransactionInAfterComplete[0], is(false));
-        assertThat(returnVal, is("foo"));
+        assertThat(inTransactionInBody[0]).isTrue();
+        assertThat(inTransactionInAfterCommit[0]).isFalse();
+        assertThat(inTransactionInAfterComplete[0]).isFalse();
+        assertThat(returnVal).isEqualTo("foo");
     }
 
     @Test
@@ -175,10 +173,10 @@ public class TransactionTemplateTest {
             });
         });
 
-        assertThat(returnVal, is("foo"));
-        assertThat(afterCommitHappened[0], is(true));
-        assertThat(transactionWasActiveInSurrounding[0], is(false));
-        assertThat(transactionWasActiveInTransaction[0], is(true));
+        assertThat(returnVal).isEqualTo("foo");
+        assertThat(afterCommitHappened[0]).isTrue();
+        assertThat(transactionWasActiveInSurrounding[0]).isFalse();
+        assertThat(transactionWasActiveInTransaction[0]).isTrue();
     }
 
     @Test
@@ -197,8 +195,8 @@ public class TransactionTemplateTest {
             return "bar";
         });
 
-        assertThat(returnVal, is("bar"));
-        assertThat(afterCommitHappened[0], is(false));
+        assertThat(returnVal).isEqualTo("bar");
+        assertThat(afterCommitHappened[0]).isFalse();
     }
 
     @Test
@@ -218,13 +216,13 @@ public class TransactionTemplateTest {
             return "foo";
         });
 
-        assertThat(returnVal, is("foo"));
-        assertThat(afterCommitHappened[0], is(false));//because no transaction happened
+        assertThat(returnVal).isEqualTo("foo");
+        assertThat(afterCommitHappened[0]).isFalse();//because no transaction happened
 
         returnVal = (String) template.transactionSurrounding(() -> template.execute(status -> "bar"));
 
-        assertThat(returnVal, is("bar"));
-        assertThat(afterCommitHappened[0], is(false));//because it registered no synchronization
+        assertThat(returnVal).isEqualTo("bar");
+        assertThat(afterCommitHappened[0]).isFalse();//because it registered no synchronization
     }
 
     @Test
@@ -245,11 +243,11 @@ public class TransactionTemplateTest {
             });
             fail("should have propagated exception");
         } catch (IOException e) {
-            assertThat(e.getMessage(), is("boo ha!"));
+            assertThat(e.getMessage()).isEqualTo("boo ha!");
         }
 
-        assertThat(returnVal, nullValue());
-        assertThat(afterCommitHappened[0], is(false));
+        assertThat(returnVal).isNull();
+        assertThat(afterCommitHappened[0]).isFalse();
     }
 
     @Test
@@ -268,8 +266,8 @@ public class TransactionTemplateTest {
             return template.execute(status -> goTransactionTemplate.execute(status1 -> "foo"));
         });
 
-        assertThat(returnVal, is("foo"));
-        assertThat(numberOfTimesAfterCommitHappened[0], is(1));
+        assertThat(returnVal).isEqualTo("foo");
+        assertThat(numberOfTimesAfterCommitHappened[0]).isEqualTo(1);
     }
 
     @Test
@@ -285,10 +283,10 @@ public class TransactionTemplateTest {
             });
             fail("should not have allowed multiple top-level transactions");//this can cause assumptions of registered-synchronization to become invalid -jj
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Multiple independent transactions are not permitted inside single transaction surrounding."));
+            assertThat(e.getMessage()).isEqualTo("Multiple independent transactions are not permitted inside single transaction surrounding.");
         }
 
-        assertThat(returnVal, nullValue());
+        assertThat(returnVal).isNull();
     }
 
     @Test
@@ -328,14 +326,14 @@ public class TransactionTemplateTest {
             return ret;
         }));
 
-        assertThat(returnVal, is("bar"));
-        assertThat(numberOfTimesSynchronizationWasCalled[0], is(1));
+        assertThat(returnVal).isEqualTo("bar");
+        assertThat(numberOfTimesSynchronizationWasCalled[0]).isEqualTo(1);
 
-        assertThat(firstNestedTransactionHappened[0], is(true));
-        assertThat(firstNestedTransactionCalledTransactionSynchronization[0], is(false));
+        assertThat(firstNestedTransactionHappened[0]).isTrue();
+        assertThat(firstNestedTransactionCalledTransactionSynchronization[0]).isFalse();
 
-        assertThat(secondNestedTransactionHappened[0], is(true));
-        assertThat(secondNestedTransactionCalledTransactionSynchronization[0], is(false));
+        assertThat(secondNestedTransactionHappened[0]).isTrue();
+        assertThat(secondNestedTransactionCalledTransactionSynchronization[0]).isFalse();
     }
 
     @Test
@@ -368,11 +366,11 @@ public class TransactionTemplateTest {
         });
 
         for (int i = 0; i < 4; i++) {
-            assertThat(inTransactionInBody[i], is(true));
-            assertThat(inTransactionInAfterCommit[i], is(false));
-            assertThat(inTransactionInAfterComplete[i], is(false));
+            assertThat(inTransactionInBody[i]).isTrue();
+            assertThat(inTransactionInAfterCommit[i]).isFalse();
+            assertThat(inTransactionInAfterComplete[i]).isFalse();
         }
-        assertThat(returnVal, is("baz"));
+        assertThat(returnVal).isEqualTo("baz");
     }
 
     private void setTxnBodyActiveFlag(final boolean[] inTransactionInBody, final boolean[] inTransactionInAfterCommit, final boolean[] inTransactionInAfterComplete, final int depth) {
@@ -404,10 +402,10 @@ public class TransactionTemplateTest {
             }
         });
 
-        assertThat(inTransactionInBody[0], is(true));
-        assertThat(inTransactionInAfterCommit[0], is(false));
-        assertThat(inTransactionInAfterComplete[0], is(false));
-        assertThat(returnVal, is("foo"));
+        assertThat(inTransactionInBody[0]).isTrue();
+        assertThat(inTransactionInAfterCommit[0]).isFalse();
+        assertThat(inTransactionInAfterComplete[0]).isFalse();
+        assertThat(returnVal).isEqualTo("foo");
     }
 
     @Test
@@ -418,7 +416,7 @@ public class TransactionTemplateTest {
         thd.start();
         thd.join();
 
-        assertThat(transactionBodyIn[0], is(false));
+        assertThat(transactionBodyIn[0]).isFalse();
     }
 
     private void registerSynchronization() {

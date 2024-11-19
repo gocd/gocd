@@ -32,8 +32,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
@@ -89,10 +88,10 @@ public class PluggableTaskPluginInfoBuilderTest {
         );
         PluginView pluginView = new PluginView("some html");
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("task"));
-        assertThat(pluginInfo.getDisplayName(), is("my task plugin"));
-        assertThat(pluginInfo.getTaskSettings(), is(new PluggableInstanceSettings(pluginConfigurations, pluginView)));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("task");
+        assertThat(pluginInfo.getDisplayName()).isEqualTo("my task plugin");
+        assertThat(pluginInfo.getTaskSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, pluginView));
         assertNull(pluginInfo.getPluginSettings());
     }
 }

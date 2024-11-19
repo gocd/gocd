@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CRJobTest extends AbstractCRTest<CRJob> {
 
@@ -92,7 +91,7 @@ public class CRJobTest extends AbstractCRTest<CRJob> {
         CRJob deserializedValue = gson.fromJson(json, CRJob.class);
 
         CRTask task1 = deserializedValue.getTasks().get(1);
-        assertThat(task1 instanceof CRBuildTask, is(true));
-        assertThat(((CRBuildTask) task1).getBuildFile(), is("Rakefile.rb"));
+        assertThat(task1 instanceof CRBuildTask).isTrue();
+        assertThat(((CRBuildTask) task1).getBuildFile()).isEqualTo("Rakefile.rb");
     }
 }

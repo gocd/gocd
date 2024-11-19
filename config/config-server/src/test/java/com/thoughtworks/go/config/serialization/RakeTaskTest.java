@@ -23,15 +23,13 @@ import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RakeTaskTest {
     @Test
     public void shouldDefaultToUsingAKillAllChildrenCancelTask() throws Exception {
         RakeTask rakeTask = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial("<rake/>",RakeTask.class);
-        assertThat(rakeTask.cancelTask(), is(instanceOf(KillAllChildProcessTask.class)));
+        assertThat(rakeTask.cancelTask()).isInstanceOf(KillAllChildProcessTask.class);
     }
 
     @Test
@@ -39,6 +37,6 @@ public class RakeTaskTest {
         RakeTask rakeTask = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial(
                 "<rake><oncancel /></rake>", RakeTask.class
         );
-        assertThat(rakeTask.cancelTask(), is(instanceOf(NullTask.class)));
+        assertThat(rakeTask.cancelTask()).isInstanceOf(NullTask.class);
     }
 }

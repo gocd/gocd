@@ -43,8 +43,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -74,10 +73,10 @@ public class RoleConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         RoleConfigCommand command = new StubCommand(goConfigService, role, extension, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo(EntityType.Role.forbiddenToEdit(role.getName(), currentUser.getUsername())));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.Role.forbiddenToEdit(role.getName(), currentUser.getUsername()));
     }
 
     @Test
@@ -87,10 +86,10 @@ public class RoleConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         RoleConfigCommand command = new StubCommand(goConfigService, role, extension, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
-        assertThat(result.httpCode(), is(200));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
+        assertThat(result.httpCode()).isEqualTo(200);
     }
 
     @Test
@@ -101,10 +100,10 @@ public class RoleConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         RoleConfigCommand command = new StubCommand(goConfigService, role, extension, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo(EntityType.Role.forbiddenToEdit(role.getName(), currentUser.getUsername())));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.Role.forbiddenToEdit(role.getName(), currentUser.getUsername()));
     }
 
     @Test
@@ -116,10 +115,10 @@ public class RoleConfigCommandTest {
         RoleConfigCommand command = new StubCommand(goConfigService, pluginRoleConfig, extension, currentUser, result);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(pluginRoleConfig.errors().size(), is(2));
-        assertThat(pluginRoleConfig.errors().get("name").get(0), is("Invalid role name name 'null'. This must be " +
-                "alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
-        assertThat(pluginRoleConfig.errors().get("authConfigId").get(0), is("No such security auth configuration present for id: `ldap`"));
+        assertThat(pluginRoleConfig.errors().size()).isEqualTo(2);
+        assertThat(pluginRoleConfig.errors().get("name").get(0)).isEqualTo("Invalid role name name 'null'. This must be " +
+                "alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(pluginRoleConfig.errors().get("authConfigId").get(0)).isEqualTo("No such security auth configuration present for id: `ldap`");
     }
 
     @Test
@@ -132,8 +131,8 @@ public class RoleConfigCommandTest {
         RoleConfigCommand command = new StubCommand(goConfigService, pluginRoleConfig, extension, currentUser, result);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(pluginRoleConfig.errors().size(), is(2));
-        assertThat(pluginRoleConfig.errors().get("name").get(0), is("Role names should be unique. Role with the same name exists."));
+        assertThat(pluginRoleConfig.errors().size()).isEqualTo(2);
+        assertThat(pluginRoleConfig.errors().get("name").get(0)).isEqualTo("Role names should be unique. Role with the same name exists.");
     }
 
     @Test
@@ -156,9 +155,9 @@ public class RoleConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         RoleConfigCommand command = new StubCommand(goConfigService, role, extension, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     @Test
@@ -170,9 +169,9 @@ public class RoleConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         RoleConfigCommand command = new StubCommand(goConfigService, role, extension, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
     }
 
     @Test
@@ -188,28 +187,28 @@ public class RoleConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         RoleConfigCommand command = new StubCommand(goConfigService, role, extension, currentUser, result);
 
-        assertThat(role.getProperty("k1").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k1").getConfigValue(), is("pub_v1"));
-        assertThat(role.getProperty("k1").getValue(), is("pub_v1"));
-        assertThat(role.getProperty("k2").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k2").getConfigValue(), is("pub_v2"));
-        assertThat(role.getProperty("k2").getValue(), is("pub_v2"));
-        assertThat(role.getProperty("k3").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k3").getConfigValue(), is("pub_v3"));
-        assertThat(role.getProperty("k3").getValue(), is("pub_v3"));
+        assertThat(role.getProperty("k1").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k1").getConfigValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k1").getValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k2").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k2").getConfigValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k2").getValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k3").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k3").getConfigValue()).isEqualTo("pub_v3");
+        assertThat(role.getProperty("k3").getValue()).isEqualTo("pub_v3");
 
         command.encrypt(cruiseConfig);
 
         GoCipher goCipher = new GoCipher();
-        assertThat(role.getProperty("k1").getEncryptedValue(), is(goCipher.encrypt("pub_v1")));
-        assertThat(role.getProperty("k1").getConfigValue(), is(nullValue()));
-        assertThat(role.getProperty("k1").getValue(), is("pub_v1"));
-        assertThat(role.getProperty("k2").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k2").getConfigValue(), is("pub_v2"));
-        assertThat(role.getProperty("k2").getValue(), is("pub_v2"));
-        assertThat(role.getProperty("k3").getEncryptedValue(), is(goCipher.encrypt("pub_v3")));
-        assertThat(role.getProperty("k3").getConfigValue(), is(nullValue()));
-        assertThat(role.getProperty("k3").getValue(), is("pub_v3"));
+        assertThat(role.getProperty("k1").getEncryptedValue()).isEqualTo(goCipher.encrypt("pub_v1"));
+        assertThat(role.getProperty("k1").getConfigValue()).isNull();
+        assertThat(role.getProperty("k1").getValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k2").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k2").getConfigValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k2").getValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k3").getEncryptedValue()).isEqualTo(goCipher.encrypt("pub_v3"));
+        assertThat(role.getProperty("k3").getConfigValue()).isNull();
+        assertThat(role.getProperty("k3").getValue()).isEqualTo("pub_v3");
     }
 
     @Test
@@ -241,7 +240,7 @@ public class RoleConfigCommandTest {
         AuthorizationMetadataStore.instance().setPluginInfo(artifactPluginInfo);
     }
 
-    private class StubCommand extends RoleConfigCommand {
+    private static class StubCommand extends RoleConfigCommand {
 
         public StubCommand(GoConfigService goConfigService, Role role, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result) {
             super(goConfigService, role, currentUser, result);

@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScheduleOptionsTest {
 
@@ -41,8 +40,8 @@ public class ScheduleOptionsTest {
         variables.put("name", "value");
         variables.put("foo", "bar");
         ScheduleOptions scheduleOptions = new ScheduleOptions(new HashMap<>(), variables, new HashMap<>());
-        assertThat(scheduleOptions.getVariables().size(), is(2));
-        assertThat(scheduleOptions.getVariables(), hasItems(new EnvironmentVariableConfig("name","value"), new EnvironmentVariableConfig("foo","bar")));
+        assertThat(scheduleOptions.getVariables().size()).isEqualTo(2);
+        assertThat(scheduleOptions.getVariables()).contains(new EnvironmentVariableConfig("name","value"), new EnvironmentVariableConfig("foo","bar"));
     }
 
     @Test
@@ -51,7 +50,7 @@ public class ScheduleOptionsTest {
         HashMap<String, String> secureVariables = new HashMap<>();
         secureVariables.put("secure_name", plainText);
         ScheduleOptions scheduleOptions = new ScheduleOptions(goCipher, new HashMap<>(), new HashMap<>(), secureVariables);
-        assertThat(scheduleOptions.getVariables().size(), is(1));
-        assertThat(scheduleOptions.getVariables(), hasItem(new EnvironmentVariableConfig(goCipher, "secure_name", plainText, true)));
+        assertThat(scheduleOptions.getVariables().size()).isEqualTo(1);
+        assertThat(scheduleOptions.getVariables()).contains(new EnvironmentVariableConfig(goCipher, "secure_name", plainText, true));
     }
 }

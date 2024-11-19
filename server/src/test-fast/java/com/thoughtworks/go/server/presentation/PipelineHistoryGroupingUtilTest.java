@@ -22,8 +22,7 @@ import com.thoughtworks.go.server.presentation.models.PipelineHistoryGroups;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineHistoryGroupingUtilTest {
     private PipelineHistoryGroupingUtil groupingUtil;
@@ -37,7 +36,7 @@ public class PipelineHistoryGroupingUtilTest {
     public void shouldNotCreateGroupForEmptyHistory() throws Exception {
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels();
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(history);
-        assertThat(historyGroups.size(), is(0));
+        assertThat(historyGroups.size()).isEqualTo(0);
     }
 
     @Test
@@ -45,8 +44,8 @@ public class PipelineHistoryGroupingUtilTest {
         PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom("stage1", "stage2");
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(
                 PipelineInstanceModels.createPipelineInstanceModels(pipelineInstanceModel));
-        assertThat(historyGroups.size(), is(1));
-        assertThat(historyGroups.first().hasSameStagesAs(pipelineInstanceModel), is(true));
+        assertThat(historyGroups.size()).isEqualTo(1);
+        assertThat(historyGroups.first().hasSameStagesAs(pipelineInstanceModel)).isTrue();
     }
 
     @Test
@@ -55,9 +54,9 @@ public class PipelineHistoryGroupingUtilTest {
         PipelineInstanceModel pipelineHistoryItem2 = PipelineHistoryItemMother.custom("stage1", "stage2");
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels(pipelineHistoryItem1, pipelineHistoryItem2);
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(history);
-        assertThat(historyGroups.size(), is(1));
-        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem1), is(true));
-        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem2), is(true));
+        assertThat(historyGroups.size()).isEqualTo(1);
+        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem1)).isTrue();
+        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem2)).isTrue();
     }
 
     @Test
@@ -66,9 +65,9 @@ public class PipelineHistoryGroupingUtilTest {
         PipelineInstanceModel pipelineHistoryItem2 = PipelineHistoryItemMother.custom("stage1", "stage3");
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels(pipelineHistoryItem1, pipelineHistoryItem2);
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(history);
-        assertThat(historyGroups.size(), is(2));
-        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem1), is(true));
-        assertThat(historyGroups.get(1).hasSameStagesAs(pipelineHistoryItem2), is(true));
+        assertThat(historyGroups.size()).isEqualTo(2);
+        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem1)).isTrue();
+        assertThat(historyGroups.get(1).hasSameStagesAs(pipelineHistoryItem2)).isTrue();
     }
 
     @Test
@@ -81,9 +80,9 @@ public class PipelineHistoryGroupingUtilTest {
                 pipelineHistoryItem3,
                 pipelineHistoryItem4);
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(history);
-        assertThat(historyGroups.size(), is(3));
-        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem1), is(true));
-        assertThat(historyGroups.get(1).hasSameStagesAs(pipelineHistoryItem3), is(true));
-        assertThat(historyGroups.get(2).hasSameStagesAs(pipelineHistoryItem4), is(true));
+        assertThat(historyGroups.size()).isEqualTo(3);
+        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem1)).isTrue();
+        assertThat(historyGroups.get(1).hasSameStagesAs(pipelineHistoryItem3)).isTrue();
+        assertThat(historyGroups.get(2).hasSameStagesAs(pipelineHistoryItem4)).isTrue();
     }
 }

@@ -55,9 +55,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 
@@ -134,7 +132,7 @@ public class JobControllerIntegrationTest {
         JobInstance job = stage.getFirstJob();
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
-        assertThat(presenter(modelAndView).getBuildLocator(), is(job.getIdentifier().buildLocator()));
+        assertThat(presenter(modelAndView).getBuildLocator()).isEqualTo(job.getIdentifier().buildLocator());
     }
 
     @Test
@@ -143,8 +141,7 @@ public class JobControllerIntegrationTest {
             controller.jobDetail(fixture.pipelineName, "1", fixture.devStage, "1", "invalid-job");
         } catch (Exception e) {
             ModelAndView modelAndView = controller.handle(request, response, e);
-            assertThat((String) modelAndView.getModel().get(GoConstants.ERROR_FOR_PAGE),
-                    containsString("invalid-job not found"));
+            assertThat((String) modelAndView.getModel().get(GoConstants.ERROR_FOR_PAGE)).contains("invalid-job not found");
         }
     }
 
@@ -157,7 +154,7 @@ public class JobControllerIntegrationTest {
         ModelAndView modelAndView = controller.jobDetail(oldPipeline.getName(),
                 String.valueOf(oldPipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
-        assertThat(presenter(modelAndView).getBuildLocator(), is(job.getIdentifier().buildLocator()));
+        assertThat(presenter(modelAndView).getBuildLocator()).isEqualTo(job.getIdentifier().buildLocator());
     }
 
     @Test
@@ -171,8 +168,8 @@ public class JobControllerIntegrationTest {
 
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()), devStage.getName(), String.valueOf(devStage.getCounter()), job.getName());
 
-        assertThat(presenter(modelAndView).getStageLocator(), is(devStage.stageLocator()));
-        assertThat(presenter(modelAndView).getStage(), is(devStage));
+        assertThat(presenter(modelAndView).getStageLocator()).isEqualTo(devStage.stageLocator());
+        assertThat(presenter(modelAndView).getStage()).isEqualTo(devStage);
     }
 
     @Test
@@ -192,7 +189,7 @@ public class JobControllerIntegrationTest {
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
 
-        assertThat(modelAndView.getModel().get("elasticAgentPluginId"), is("plugin_id"));
+        assertThat(modelAndView.getModel().get("elasticAgentPluginId")).isEqualTo("plugin_id");
     }
 
     @Test
@@ -218,8 +215,8 @@ public class JobControllerIntegrationTest {
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
 
-        assertThat(modelAndView.getModel().get("elasticAgentPluginId"), is("plugin_id"));
-        assertThat(modelAndView.getModel().get("elasticAgentId"), is("elastic_agent_id"));
+        assertThat(modelAndView.getModel().get("elasticAgentPluginId")).isEqualTo("plugin_id");
+        assertThat(modelAndView.getModel().get("elasticAgentId")).isEqualTo("elastic_agent_id");
     }
 
     @Test

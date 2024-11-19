@@ -17,37 +17,36 @@ package com.thoughtworks.go.plugin.api.response;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultGoPluginApiResponseTest {
 
     @Test
     public void shouldReturnResponseForBadRequest() throws Exception {
         DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.badRequest("responseBody");
-        assertThat(response.responseCode(), is(400));
-        assertThat(response.responseBody(), is("responseBody"));
+        assertThat(response.responseCode()).isEqualTo(400);
+        assertThat(response.responseBody()).isEqualTo("responseBody");
     }
 
     @Test
     public void shouldReturnResponseForIncompleteRequest() throws Exception {
         DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.incompleteRequest("responseBody");
-        assertThat(response.responseCode(), is(412));
-        assertThat(response.responseBody(), is("responseBody"));
+        assertThat(response.responseCode()).isEqualTo(412);
+        assertThat(response.responseBody()).isEqualTo("responseBody");
     }
 
     @Test
     public void shouldReturnResponseForErrorRequest() throws Exception {
         DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.error("responseBody");
-        assertThat(response.responseCode(), is(500));
-        assertThat(response.responseBody(), is("responseBody"));
+        assertThat(response.responseCode()).isEqualTo(500);
+        assertThat(response.responseBody()).isEqualTo("responseBody");
     }
 
     @Test
     public void shouldReturnResponseForSuccessRequest() throws Exception {
         DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.success("responseBody");
-        assertThat(response.responseCode(), is(200));
-        assertThat(response.responseBody(), is("responseBody"));
+        assertThat(response.responseCode()).isEqualTo(200);
+        assertThat(response.responseBody()).isEqualTo("responseBody");
     }
 
 }

@@ -28,8 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 
 import static java.text.MessageFormat.format;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -75,21 +74,21 @@ public class JobInstanceTest {
     @Test
     public void shouldGetDisplayStatusFailedIfStateIsCompletedButBadResult() {
         JobInstance job = JobInstanceMother.completed("test", JobResult.Failed);
-        assertThat(job.displayStatusWithResult(), is("failed"));
+        assertThat(job.displayStatusWithResult()).isEqualTo("failed");
     }
 
     @Test
     public void shouldGetDisplayStatusScheduledIfStateIsScheduled() {
         JobInstance job = JobInstanceMother.scheduled("test");
-        assertThat(job.displayStatusWithResult(), is("scheduled"));
+        assertThat(job.displayStatusWithResult()).isEqualTo("scheduled");
     }
 
     @Test
     public void shouldChangeStatus() {
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
         instance.assign("1234", timeProvider.currentTime());
-        assertThat(instance.getState(), is(JobState.Assigned));
-        assertThat(instance.getTransitions().byState(JobState.Assigned), not(nullValue()));
+        assertThat(instance.getState()).isEqualTo(JobState.Assigned);
+        assertThat(instance.getTransitions().byState(JobState.Assigned)).isNotNull();
     }
 
     @Test
@@ -98,8 +97,8 @@ public class JobInstanceTest {
         final Date completionDate = new Date();
         instance.completing(JobResult.Passed, completionDate);
 
-        assertThat(instance.getResult(), is(JobResult.Passed));
-        assertThat(instance.getState(), is(JobState.Completing));
+        assertThat(instance.getResult()).isEqualTo(JobResult.Passed);
+        assertThat(instance.getState()).isEqualTo(JobState.Completing);
     }
 
     @Test
@@ -109,9 +108,9 @@ public class JobInstanceTest {
         instance.completing(JobResult.Passed, completionDate);
         instance.completed(completionDate);
 
-        assertThat(instance.getResult(), is(JobResult.Passed));
-        assertThat(instance.getStartedDateFor(JobState.Completed), is(completionDate));
-        assertThat(instance.getState(), is(JobState.Completed));
+        assertThat(instance.getResult()).isEqualTo(JobResult.Passed);
+        assertThat(instance.getStartedDateFor(JobState.Completed)).isEqualTo(completionDate);
+        assertThat(instance.getState()).isEqualTo(JobState.Completed);
     }
 
     @Test
@@ -128,13 +127,13 @@ public class JobInstanceTest {
     @Test
     public void shouldReturnTotalDurationOfBuild() {
         JobInstance instance = JobInstanceMother.completed("jobConfig1");
-        assertThat(instance.getCurrentBuildDuration(), is(instance.durationOfCompletedBuildInSeconds() + ""));
+        assertThat(instance.getCurrentBuildDuration()).isEqualTo(instance.durationOfCompletedBuildInSeconds() + "");
     }
 
     @Test
     public void shouldReturnBuildLocatorAsTitle() {
         JobInstance instance = JobInstanceMother.completed("jobConfig1");
-        assertThat(instance.getTitle(), is("pipeline/label-1/stage/1/jobConfig1"));
+        assertThat(instance.getTitle()).isEqualTo("pipeline/label-1/stage/1/jobConfig1");
     }
 
     @Test
@@ -143,9 +142,9 @@ public class JobInstanceTest {
         instance.completing(JobResult.Passed);
         final JobStateTransition scheduledState = new JobStateTransition(JobState.Scheduled, new Date());
         final JobStateTransition completedState = new JobStateTransition(JobState.Completing, new Date());
-        assertThat(instance.getTransitions(), hasItem(scheduledState));
-        assertThat(instance.getTransitions(), hasItem(completedState));
-        assertThat(instance.getTransitions().first(), not(new JobStateTransitionMatcher(JobState.Preparing)));
+        assertThat(instance.getTransitions()).contains(scheduledState);
+        assertThat(instance.getTransitions()).contains(completedState);
+        assertThat(instance.getTransitions().first()).isNotEqualTo(new JobStateTransitionMatcher(JobState.Preparing));
     }
 
     @Test
@@ -154,9 +153,9 @@ public class JobInstanceTest {
         instance.changeState(JobState.Scheduled);
         final JobStateTransition scheduledState = new JobStateTransition(JobState.Scheduled, new Date());
 
-        assertThat(instance.getTransitions(), hasItem(scheduledState));
-        assertThat(instance.getTransitions(), iterableWithSize(1));
-        assertThat(instance.getTransitions().first(), not(new JobStateTransitionMatcher(JobState.Preparing)));
+        assertThat(instance.getTransitions()).contains(scheduledState);
+        assertThat(instance.getTransitions()).hasSize(1);
+        assertThat(instance.getTransitions().first()).isNotEqualTo(new JobStateTransitionMatcher(JobState.Preparing));
     }
 
     @Test
@@ -166,36 +165,36 @@ public class JobInstanceTest {
         JobStateTransitions transitions = new JobStateTransitions(
             new JobStateTransition(JobState.Building, date));
         instance.setTransitions(transitions);
-        assertThat(instance.getStartedDateFor(JobState.Building), is(date));
+        assertThat(instance.getStartedDateFor(JobState.Building)).isEqualTo(date);
     }
 
     @Test
     public void shouldCancelBuild() {
         final JobInstance instance = JobInstanceMother.scheduled("plan1");
         instance.cancel();
-        assertThat(instance.getState(), is(JobState.Completed));
-        assertThat(instance.getResult(), is(JobResult.Cancelled));
+        assertThat(instance.getState()).isEqualTo(JobState.Completed);
+        assertThat(instance.getResult()).isEqualTo(JobResult.Cancelled);
     }
 
     @Test
     public void shouldNotCancelCompletedBuild() {
         final JobInstance instance = JobInstanceMother.completed("plan1", JobResult.Passed);
         instance.cancel();
-        assertThat(instance.getResult(), is(JobResult.Passed));
+        assertThat(instance.getResult()).isEqualTo(JobResult.Passed);
     }
 
     @Test
     public void shouldDetermineDurationOfCompletedBuild() {
         JobInstance testJob = JobInstanceMother.completed("testJob");
         Long duration = testJob.durationOfCompletedBuildInSeconds();
-        assertThat(duration, is(120L));
+        assertThat(duration).isEqualTo(120L);
     }
 
     @Test
     public void durationShouldBeZeroForIncompleteBuild() {
         JobInstance building = JobInstanceMother.scheduled("building");
         Long duration = building.durationOfCompletedBuildInSeconds();
-        assertThat(duration, is(0L));
+        assertThat(duration).isEqualTo(0L);
     }
 
     @Test
@@ -203,9 +202,9 @@ public class JobInstanceTest {
         JobInstance instance = JobInstanceMother.assignedWithAgentId("testBuild", "uuid");
         instance.completing(JobResult.Failed);
         instance.reschedule();
-        assertThat(instance.getState(), is(JobState.Scheduled));
-        assertThat(instance.getAgentUuid(), is(nullValue()));
-        assertThat(instance.getResult(), is(JobResult.Unknown));
+        assertThat(instance.getState()).isEqualTo(JobState.Scheduled);
+        assertThat(instance.getAgentUuid()).isNull();
+        assertThat(instance.getResult()).isEqualTo(JobResult.Unknown);
     }
 
     @Test
@@ -214,43 +213,43 @@ public class JobInstanceTest {
         instance.setClock(timeProvider);
         when(timeProvider.currentTime()).thenReturn(new DateTime().plusDays(1).toDate());
         instance.completing(JobResult.Passed);
-        assertThat(instance.latestTransitionDate(), is(greaterThan(instance.getScheduledDate())));
+        assertThat(instance.latestTransitionDate()).isAfter(instance.getScheduledDate());
     }
 
     @Test
     public void shouldConsiderJobARerunWhenHasOriginalId() {
         JobInstance instance = new JobInstance();
-        assertThat(instance.isCopy(), is(false));
+        assertThat(instance.isCopy()).isFalse();
         instance.setOriginalJobId(10L);
-        assertThat(instance.isCopy(), is(true));
+        assertThat(instance.isCopy()).isTrue();
     }
 
     @Test
     public void shouldReturnJobDurationForACompletedJob() {
         int fiveSeconds = 5000;
         JobInstance instance = JobInstanceMother.passed("first", new Date(), fiveSeconds);
-        assertThat(instance.getDuration(), is(new RunDuration.ActualDuration(new Duration(5 * fiveSeconds))));
+        assertThat(instance.getDuration()).isEqualTo(new RunDuration.ActualDuration(new Duration(5 * fiveSeconds)));
     }
 
     @Test
     public void shouldReturnJobDurationForABuildingJob() {
         int fiveSeconds = 5000;
         JobInstance instance = JobInstanceMother.building("first", new Date(), fiveSeconds);
-        assertThat(instance.getDuration(), is(RunDuration.IN_PROGRESS_DURATION));
+        assertThat(instance.getDuration()).isEqualTo(RunDuration.IN_PROGRESS_DURATION);
     }
 
     @Test
     public void shouldReturnJobTypeCorrectly() {
         JobInstance jobInstance = new JobInstance();
         jobInstance.setRunOnAllAgents(true);
-        assertThat(jobInstance.jobType(), instanceOf(RunOnAllAgents.class));
+        assertThat(jobInstance.jobType()).isInstanceOf(RunOnAllAgents.class);
 
         jobInstance = new JobInstance();
         jobInstance.setRunMultipleInstance(true);
-        assertThat(jobInstance.jobType(), instanceOf(RunMultipleInstance.class));
+        assertThat(jobInstance.jobType()).isInstanceOf(RunMultipleInstance.class);
 
         jobInstance = new JobInstance();
-        assertThat(jobInstance.jobType(), instanceOf(SingleJobInstance.class));
+        assertThat(jobInstance.jobType()).isInstanceOf(SingleJobInstance.class);
     }
 
     private static class JobStateTransitionMatcher extends BaseMatcher<JobStateTransition> {

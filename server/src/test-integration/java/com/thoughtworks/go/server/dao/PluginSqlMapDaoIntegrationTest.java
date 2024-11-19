@@ -31,8 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -63,18 +62,18 @@ public class PluginSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldSavePlugin() {
-        assertThat(pluginSqlMapDao.getAllPlugins().size(), is(0));
+        assertThat(pluginSqlMapDao.getAllPlugins().size()).isEqualTo(0);
 
         Plugin plugin = savePlugin("plugin-id");
 
-        assertThat(pluginSqlMapDao.getAllPlugins().size(), is(1));
+        assertThat(pluginSqlMapDao.getAllPlugins().size()).isEqualTo(1);
         Plugin pluginInDB = pluginSqlMapDao.getAllPlugins().get(0);
-        assertThat(pluginInDB, is(plugin));
+        assertThat(pluginInDB).isEqualTo(plugin);
     }
 
     @Test
     public void shouldUpdatePlugin() {
-        assertThat(pluginSqlMapDao.getAllPlugins().size(), is(0));
+        assertThat(pluginSqlMapDao.getAllPlugins().size()).isEqualTo(0);
 
         Plugin plugin = savePlugin("plugin-id");
 
@@ -82,23 +81,23 @@ public class PluginSqlMapDaoIntegrationTest {
         pluginSqlMapDao.saveOrUpdate(plugin);
 
         Plugin pluginInDB = pluginSqlMapDao.findPlugin("plugin-id");
-        assertThat(pluginInDB, is(plugin));
+        assertThat(pluginInDB).isEqualTo(plugin);
     }
 
     @Test
     public void shouldReturnCorrectPluginIfPluginIdExists() {
         Plugin plugin = savePlugin("plugin-id");
 
-        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings("plugin-id")), is(nullValue()));
+        assertThat((Object) goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings("plugin-id"))).isNull();
         Plugin pluginInDB = pluginSqlMapDao.findPlugin("plugin-id");
-        assertThat(pluginInDB, is(plugin));
-        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings("plugin-id")), is(pluginInDB));
+        assertThat(pluginInDB).isEqualTo(plugin);
+        assertThat((Object) goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings("plugin-id"))).isEqualTo(pluginInDB);
     }
 
     @Test
     public void shouldReturnNullPluginIfPluginIdDoesNotExist() {
         Plugin pluginInDB = pluginSqlMapDao.findPlugin("non-existing-plugin-id");
-        assertThat(pluginInDB, is(new NullPlugin()));
+        assertThat(pluginInDB).isEqualTo(new NullPlugin());
     }
 
     @Test
@@ -106,27 +105,27 @@ public class PluginSqlMapDaoIntegrationTest {
         Plugin plugin1 = savePlugin("plugin-id-1");
 
         List<Plugin> plugins = pluginSqlMapDao.getAllPlugins();
-        assertThat(plugins.size(), is(1));
-        assertThat(plugins.get(0), is(plugin1));
+        assertThat(plugins.size()).isEqualTo(1);
+        assertThat(plugins.get(0)).isEqualTo(plugin1);
 
         Plugin plugin2 = savePlugin("plugin-id-2");
 
         plugins = pluginSqlMapDao.getAllPlugins();
-        assertThat(plugins.size(), is(2));
-        assertThat(plugins, containsInAnyOrder(plugin1, plugin2));
+        assertThat(plugins.size()).isEqualTo(2);
+        assertThat(plugins).contains(plugin1, plugin2);
     }
 
     @Test
     public void shouldDoNothingWhenAPluginToDeleteDoesNotExists() {
         String pluginId = "my.fancy.plugin.id";
 
-        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId)), is(nullValue()));
-        assertThat(pluginSqlMapDao.getAllPlugins().size(), is(0));
+        assertThat((Object) goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId))).isNull();
+        assertThat(pluginSqlMapDao.getAllPlugins().size()).isEqualTo(0);
 
         pluginSqlMapDao.deletePluginIfExists(pluginId);
 
-        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId)), is(nullValue()));
-        assertThat(pluginSqlMapDao.getAllPlugins().size(), is(0));
+        assertThat((Object) goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId))).isNull();
+        assertThat(pluginSqlMapDao.getAllPlugins().size()).isEqualTo(0);
     }
 
     @Test
@@ -136,15 +135,15 @@ public class PluginSqlMapDaoIntegrationTest {
         Plugin plugin = savePlugin(pluginId);
 
         Plugin pluginInDB = pluginSqlMapDao.findPlugin(pluginId);
-        assertThat(pluginInDB, is(plugin));
+        assertThat(pluginInDB).isEqualTo(plugin);
 
-        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId)), is(plugin));
-        assertThat(pluginSqlMapDao.getAllPlugins().size(), is(1));
+        assertThat((Object) goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId))).isEqualTo(plugin);
+        assertThat(pluginSqlMapDao.getAllPlugins().size()).isEqualTo(1);
 
         pluginSqlMapDao.deletePluginIfExists(pluginId);
 
-        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId)), is(nullValue()));
-        assertThat(pluginSqlMapDao.getAllPlugins().size(), is(0));
+        assertThat((Object) goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId))).isNull();
+        assertThat(pluginSqlMapDao.getAllPlugins().size()).isEqualTo(0);
     }
 
     @Test
@@ -153,12 +152,12 @@ public class PluginSqlMapDaoIntegrationTest {
         savePlugin("plugin-id-2");
 
         List<Plugin> plugins = pluginSqlMapDao.getAllPlugins();
-        assertThat(plugins.size(), is(2));
+        assertThat(plugins.size()).isEqualTo(2);
 
         pluginSqlMapDao.deleteAllPlugins();
 
         plugins = pluginSqlMapDao.getAllPlugins();
-        assertThat(plugins.size(), is(0));
+        assertThat(plugins.size()).isEqualTo(0);
     }
 
     private Plugin savePlugin(String pluginId) {
@@ -168,7 +167,7 @@ public class PluginSqlMapDaoIntegrationTest {
     }
 
     private String getConfigurationJSON(String... args) {
-        assertThat(args.length % 2, is(0));
+        assertThat(args.length % 2).isEqualTo(0);
 
         Map<String, String> configuration = new HashMap<>();
         for (int i = 0; i < args.length - 2; i = i + 2) {

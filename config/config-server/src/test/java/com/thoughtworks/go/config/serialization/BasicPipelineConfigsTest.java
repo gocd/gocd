@@ -16,14 +16,12 @@
 package com.thoughtworks.go.config.serialization;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BasicPipelineConfigsTest {
     private static final String PIPELINES_WITH_PERMISSION = ("""
@@ -89,7 +87,7 @@ public class BasicPipelineConfigsTest {
         MagicalGoConfigXmlWriter xmlWriter = new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()
         );
         String xml = xmlWriter.toXmlPartial(pipelineConfigs);
-        assertThat(xml, is("""
+        assertThat(xml).isEqualTo("""
                 <pipelines>
                   <authorization>
                     <operate>
@@ -106,7 +104,7 @@ public class BasicPipelineConfigsTest {
                       <jobs />
                     </stage>
                   </pipeline>
-                </pipelines>"""));
+                </pipelines>""");
 
     }
 
@@ -116,7 +114,7 @@ public class BasicPipelineConfigsTest {
         cruiseConfig.initializeServer();
         PipelineConfigs group = cruiseConfig.getGroups().first();
 
-        assertThat(group.getAuthorization(), instanceOf(Authorization.class));
+        assertThat(group.getAuthorization()).isInstanceOf(Authorization.class);
 
         AdminsConfig actual = group.getAuthorization().getOperationConfig();
 
@@ -129,7 +127,7 @@ public class BasicPipelineConfigsTest {
         cruiseConfig.initializeServer();
         PipelineConfigs group = cruiseConfig.getGroups().first();
 
-        assertThat(group.getAuthorization(), instanceOf(Authorization.class));
+        assertThat(group.getAuthorization()).isInstanceOf(Authorization.class);
 
         AdminsConfig actualView = group.getAuthorization().getViewConfig();
         AdminsConfig actualOperation = group.getAuthorization().getOperationConfig();
@@ -144,7 +142,7 @@ public class BasicPipelineConfigsTest {
         cruiseConfig.initializeServer();
         PipelineConfigs group = cruiseConfig.getGroups().first();
 
-        assertThat(group.getAuthorization(), instanceOf(Authorization.class));
+        assertThat(group.getAuthorization()).isInstanceOf(Authorization.class);
 
         AdminsConfig actualView = group.getAuthorization().getViewConfig();
         AdminsConfig actualOperation = group.getAuthorization().getOperationConfig();
@@ -154,9 +152,9 @@ public class BasicPipelineConfigsTest {
     }
 
     private void assertion(AdminsConfig actualView) {
-        assertThat(actualView, hasItem((Admin) new AdminUser(new CaseInsensitiveString("jez"))));
-        assertThat(actualView, hasItem((Admin) new AdminUser(new CaseInsensitiveString("lqiao"))));
-        assertThat(actualView, hasItem((Admin) new AdminRole(new CaseInsensitiveString("mingle"))));
+        assertThat(actualView).contains(new AdminUser(new CaseInsensitiveString("jez")));
+        assertThat(actualView).contains(new AdminUser(new CaseInsensitiveString("lqiao")));
+        assertThat(actualView).contains(new AdminRole(new CaseInsensitiveString("mingle")));
     }
 
     private String configureAuthorization(String permission) {

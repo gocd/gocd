@@ -42,8 +42,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS_EXTENSION;
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.setAuthenticationToken;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -87,7 +86,7 @@ class GoCDFreeMarkerViewTest {
     @Test
     public void shouldNotShowAnalyticsDashboardIfPluginMissing() throws Exception {
         view.exposeHelpers(context, request);
-        assertThat(context.get(GoCDFreeMarkerView.SHOW_ANALYTICS_DASHBOARD), is(false));
+        assertThat(context.get(GoCDFreeMarkerView.SHOW_ANALYTICS_DASHBOARD)).isEqualTo(Boolean.FALSE);
     }
 
     @Test
@@ -100,7 +99,7 @@ class GoCDFreeMarkerViewTest {
 
         view.exposeHelpers(context, request);
 
-        assertThat(context.get(GoCDFreeMarkerView.SHOW_ANALYTICS_DASHBOARD), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.SHOW_ANALYTICS_DASHBOARD)).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -113,7 +112,7 @@ class GoCDFreeMarkerViewTest {
 
         view.exposeHelpers(context, request);
 
-        assertThat(context.get(GoCDFreeMarkerView.SHOW_ANALYTICS_DASHBOARD), is(false));
+        assertThat(context.get(GoCDFreeMarkerView.SHOW_ANALYTICS_DASHBOARD)).isEqualTo(Boolean.FALSE);
     }
 
     @Test
@@ -122,7 +121,7 @@ class GoCDFreeMarkerViewTest {
 
         view.exposeHelpers(context, request);
 
-        assertThat(context.get(GoCDFreeMarkerView.ADMINISTRATOR), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.ADMINISTRATOR)).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -131,7 +130,7 @@ class GoCDFreeMarkerViewTest {
 
         view.exposeHelpers(context, request);
 
-        assertThat(context.get(GoCDFreeMarkerView.TEMPLATE_ADMINISTRATOR), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.TEMPLATE_ADMINISTRATOR)).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -140,7 +139,7 @@ class GoCDFreeMarkerViewTest {
 
         view.exposeHelpers(context, request);
 
-        assertThat(context.get(GoCDFreeMarkerView.TEMPLATE_VIEW_USER), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.TEMPLATE_VIEW_USER)).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -149,7 +148,7 @@ class GoCDFreeMarkerViewTest {
 
         view.exposeHelpers(context, request);
 
-        assertThat(context.get(GoCDFreeMarkerView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.VIEW_ADMINISTRATOR_RIGHTS)).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -159,8 +158,8 @@ class GoCDFreeMarkerViewTest {
 
         view.exposeHelpers(context, request);
 
-        assertThat(context.get(GoCDFreeMarkerView.ADMINISTRATOR), is(false));
-        assertThat(context.get(GoCDFreeMarkerView.GROUP_ADMINISTRATOR), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.ADMINISTRATOR)).isEqualTo(Boolean.FALSE);
+        assertThat(context.get(GoCDFreeMarkerView.GROUP_ADMINISTRATOR)).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -179,7 +178,7 @@ class GoCDFreeMarkerViewTest {
     public void principalIsTheUsernameWhenNothingElseAvailable() throws Exception {
         setAuthenticationToken(request, "Test User");
         view.exposeHelpers(context, request);
-        assertThat(context.get(GoCDFreeMarkerView.PRINCIPAL), is("Test User"));
+        assertThat(context.get(GoCDFreeMarkerView.PRINCIPAL)).isEqualTo("Test User");
     }
 
     @Test
@@ -199,9 +198,9 @@ class GoCDFreeMarkerViewTest {
 
         view.exposeHelpers(context, servletRequest);
 
-        assertThat(context.get(GoCDFreeMarkerView.CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH), is("assets/g9/stage_bar_cancelled_icon.png"));
-        assertThat(context.get(GoCDFreeMarkerView.CONCATENATED_CRUISE_ICON_FILE_PATH), is("assets/cruise.ico"));
-        assertThat(context.get(GoCDFreeMarkerView.PATH_RESOLVER), is(railsAssetsService));
+        assertThat(context.get(GoCDFreeMarkerView.CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH)).isEqualTo("assets/g9/stage_bar_cancelled_icon.png");
+        assertThat(context.get(GoCDFreeMarkerView.CONCATENATED_CRUISE_ICON_FILE_PATH)).isEqualTo("assets/cruise.ico");
+        assertThat(context.get(GoCDFreeMarkerView.PATH_RESOLVER)).isEqualTo(railsAssetsService);
     }
 
     @Test
@@ -215,7 +214,7 @@ class GoCDFreeMarkerViewTest {
         view.exposeHelpers(context, servletRequest);
 
         assertTrue((Boolean) context.get(GoCDFreeMarkerView.GO_UPDATE_CHECK_ENABLED));
-        assertThat(context.get(GoCDFreeMarkerView.GO_UPDATE), is("16.1.0-123"));
+        assertThat(context.get(GoCDFreeMarkerView.GO_UPDATE)).isEqualTo("16.1.0-123");
     }
 
 }

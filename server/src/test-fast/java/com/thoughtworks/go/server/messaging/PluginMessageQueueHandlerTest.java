@@ -27,8 +27,7 @@ import org.mockito.ArgumentCaptor;
 import javax.jms.JMSException;
 import java.util.ArrayList;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PluginMessageQueueHandlerTest {
@@ -58,13 +57,13 @@ public class PluginMessageQueueHandlerTest {
         when(messaging.addQueueListener(eq(queueName), any(GoMessageListener.class))).thenReturn(mock(JMSMessageListenerAdapter.class));
         handler.pluginLoaded(GoPluginDescriptor.builder().id(pluginId).build());
 
-        assertThat(handler.queues.containsKey(pluginId), is(true));
-        assertThat(handler.queues.get(pluginId).listeners.containsKey(pluginId), is(true));
+        assertThat(handler.queues.containsKey(pluginId)).isTrue();
+        assertThat(handler.queues.get(pluginId).listeners.containsKey(pluginId)).isTrue();
         ArrayList<JMSMessageListenerAdapter> listeners = handler.queues.get(pluginId).listeners.get(pluginId);
-        assertThat(listeners.size(), is(10));
+        assertThat(listeners.size()).isEqualTo(10);
         ArgumentCaptor<GoMessageListener> argumentCaptor = ArgumentCaptor.forClass(GoMessageListener.class);
         verify(messaging, times(10)).addQueueListener(eq(queueName), argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue() instanceof GoMessageListener, is(true));
+        assertThat(argumentCaptor.getValue() instanceof GoMessageListener).isTrue();
     }
 
     @Test
@@ -79,7 +78,7 @@ public class PluginMessageQueueHandlerTest {
         handler.pluginLoaded(pluginDescriptor);
         handler.pluginUnLoaded(pluginDescriptor);
 
-        assertThat(handler.queues.containsKey(pluginId), is(false));
+        assertThat(handler.queues.containsKey(pluginId)).isFalse();
         verify(listenerAdapter, times(10)).stop();
         verify(messaging, times(1)).removeQueue(queueName);
     }
@@ -94,7 +93,7 @@ public class PluginMessageQueueHandlerTest {
         handler.pluginLoaded(pluginDescriptor);
         handler.pluginUnLoaded(pluginDescriptor);
 
-        assertThat(handler.queues.containsKey(pluginId), is(false));
+        assertThat(handler.queues.containsKey(pluginId)).isFalse();
         verify(messaging, never()).removeQueue(queueName);
         verify(messaging, never()).addQueueListener(any(String.class), any(GoMessageListener.class));
     }

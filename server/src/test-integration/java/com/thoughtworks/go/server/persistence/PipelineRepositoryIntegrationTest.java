@@ -53,8 +53,7 @@ import java.util.*;
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -124,16 +123,16 @@ public class PipelineRepositoryIntegrationTest {
         timeline.updateTimelineOnInit();
 
         List<PipelineTimelineEntry> timelineEntries = new ArrayList<>(timeline.getEntriesFor("P"));
-        assertThat(timelineEntries.get(0).getPipelineLocator().getCounter(), is(1));
-        assertThat(timelineEntries.get(0).naturalOrder(), is(1.0));
+        assertThat(timelineEntries.get(0).getPipelineLocator().getCounter()).isEqualTo(1);
+        assertThat(timelineEntries.get(0).naturalOrder()).isEqualTo(1.0);
         List<PipelineTimelineEntry.Revision> flyweightsRevs = new ArrayList<>(timelineEntries.get(0).revisions().values()).get(0);
-        assertThat(flyweightsRevs.get(0).revision, is("g1"));
-        assertThat(flyweightsRevs.get(1).revision, is("g2"));
-        assertThat(timelineEntries.get(1).getPipelineLocator().getCounter(), is(2));
-        assertThat(timelineEntries.get(1).naturalOrder(), is(2.0));
+        assertThat(flyweightsRevs.get(0).revision).isEqualTo("g1");
+        assertThat(flyweightsRevs.get(1).revision).isEqualTo("g2");
+        assertThat(timelineEntries.get(1).getPipelineLocator().getCounter()).isEqualTo(2);
+        assertThat(timelineEntries.get(1).naturalOrder()).isEqualTo(2.0);
         flyweightsRevs = new ArrayList<>(timelineEntries.get(1).revisions().values()).get(0);
-        assertThat(flyweightsRevs.get(0).revision, is("g2"));
-        assertThat(flyweightsRevs.get(1).revision, is("g1"));
+        assertThat(flyweightsRevs.get(0).revision).isEqualTo("g2");
+        assertThat(flyweightsRevs.get(1).revision).isEqualTo("g1");
 
         MaterialConfigs materials = configHelper.deepClone(p.config.materialConfigs());
         Collections.reverse(materials);
@@ -145,16 +144,16 @@ public class PipelineRepositoryIntegrationTest {
         timeline.updateTimelineOnInit();
 
         timelineEntries = new ArrayList<>(timeline.getEntriesFor("P"));
-        assertThat(timelineEntries.get(0).getPipelineLocator().getCounter(), is(1));
-        assertThat(timelineEntries.get(0).naturalOrder(), is(1.0));
+        assertThat(timelineEntries.get(0).getPipelineLocator().getCounter()).isEqualTo(1);
+        assertThat(timelineEntries.get(0).naturalOrder()).isEqualTo(1.0);
         flyweightsRevs = new ArrayList<>(timelineEntries.get(0).revisions().values()).get(0);
-        assertThat(flyweightsRevs.get(0).revision, is("g1"));
-        assertThat(flyweightsRevs.get(1).revision, is("g2"));
-        assertThat(timelineEntries.get(1).getPipelineLocator().getCounter(), is(2));
-        assertThat(timelineEntries.get(1).naturalOrder(), is(2.0));
+        assertThat(flyweightsRevs.get(0).revision).isEqualTo("g1");
+        assertThat(flyweightsRevs.get(1).revision).isEqualTo("g2");
+        assertThat(timelineEntries.get(1).getPipelineLocator().getCounter()).isEqualTo(2);
+        assertThat(timelineEntries.get(1).naturalOrder()).isEqualTo(2.0);
         flyweightsRevs = new ArrayList<>(timelineEntries.get(1).revisions().values()).get(0);
-        assertThat(flyweightsRevs.get(0).revision, is("g2"));
-        assertThat(flyweightsRevs.get(1).revision, is("g1"));
+        assertThat(flyweightsRevs.get(0).revision).isEqualTo("g2");
+        assertThat(flyweightsRevs.get(1).revision).isEqualTo("g1");
     }
 
     @Test
@@ -180,31 +179,31 @@ public class PipelineRepositoryIntegrationTest {
         ArrayList<PipelineTimelineEntry> entries = new ArrayList<>();
         pipelineRepository.updatePipelineTimeline(pipelineTimeline, entries);
 
-        assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size(), is(2));
-        assertThat(entries.size(), is(2));
-        assertThat(entries, hasItem(expected(firstId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 10))), 1)));
-        assertThat(entries, hasItem(expected(secondId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(1).toDate(), "12", hgmaterial.getFingerprint(), 8))), 2)));
+        assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size()).isEqualTo(2);
+        assertThat(entries.size()).isEqualTo(2);
+        assertThat(entries).contains(expected(firstId,
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 10))), 1));
+        assertThat(entries).contains(expected(secondId,
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(1).toDate(), "12", hgmaterial.getFingerprint(), 8))), 2));
 
-        assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME), hasItem(expected(firstId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 10))), 1)));
-        assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME), hasItem(expected(secondId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(1).toDate(), "12", hgmaterial.getFingerprint(), 8))), 2)));
-        assertThat(pipelineTimeline.maximumId(), is(secondId));
+        assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME)).contains(expected(firstId,
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 10))), 1));
+        assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME)).contains(expected(secondId,
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(1).toDate(), "12", hgmaterial.getFingerprint(), 8))), 2));
+        assertThat(pipelineTimeline.maximumId()).isEqualTo(secondId);
 
         long thirdId = createPipeline(hgmaterial, pipelineConfig, 3, oneModifiedFile("30", date.plusDays(10).toDate()));
 
         pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>());
 
-        assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size(), is(3));
-        assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME), hasItem(expected(thirdId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(10).toDate(), "1234", hgmaterial.getFingerprint(), 12))), 3)));
-        assertThat(pipelineTimeline.maximumId(), is(thirdId));
+        assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size()).isEqualTo(3);
+        assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME)).contains(expected(thirdId,
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(10).toDate(), "1234", hgmaterial.getFingerprint(), 12))), 3));
+        assertThat(pipelineTimeline.maximumId()).isEqualTo(thirdId);
 
-        assertThat(pipelineSqlMapDao.pipelineByIdWithMods(firstId).getNaturalOrder(), is(1.0));
-        assertThat(pipelineSqlMapDao.pipelineByIdWithMods(secondId).getNaturalOrder(), is(0.5));
-        assertThat(pipelineSqlMapDao.pipelineByIdWithMods(thirdId).getNaturalOrder(), is(2.0));
+        assertThat(pipelineSqlMapDao.pipelineByIdWithMods(firstId).getNaturalOrder()).isEqualTo(1.0);
+        assertThat(pipelineSqlMapDao.pipelineByIdWithMods(secondId).getNaturalOrder()).isEqualTo(0.5);
+        assertThat(pipelineSqlMapDao.pipelineByIdWithMods(thirdId).getNaturalOrder()).isEqualTo(2.0);
 
         PipelineTimeline pipelineTimeline2 = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         pipelineRepository.updatePipelineTimeline(pipelineTimeline2, new ArrayList<>());
@@ -231,8 +230,8 @@ public class PipelineRepositoryIntegrationTest {
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         mods.update();
 
-        assertThat(pipelineSqlMapDao.pipelineByIdWithMods(firstId).getNaturalOrder(), is(1.0));
-        assertThat(pipelineSqlMapDao.pipelineByIdWithMods(secondId).getNaturalOrder(), is(0.5));
+        assertThat(pipelineSqlMapDao.pipelineByIdWithMods(firstId).getNaturalOrder()).isEqualTo(1.0);
+        assertThat(pipelineSqlMapDao.pipelineByIdWithMods(secondId).getNaturalOrder()).isEqualTo(0.5);
 
         PipelineTimeline modsAfterReboot = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         modsAfterReboot.update();
@@ -268,16 +267,16 @@ public class PipelineRepositoryIntegrationTest {
         pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>());
 
         Collection<PipelineTimelineEntry> modifications = pipelineTimeline.getEntriesFor(PIPELINE_NAME);
-        assertThat(modifications.size(), is(2));
+        assertThat(modifications.size()).isEqualTo(2);
 
-        assertThat(modifications, hasItem(expected(first, Map.of(
+        assertThat(modifications).contains(expected(first, Map.of(
             hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 8)),
             svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(6).toDate(), "456", svnMaterial.getFingerprint(), 12))
-        ), 1)));
-        assertThat(modifications, hasItem(expected(second, Map.of(
+        ), 1));
+        assertThat(modifications).contains(expected(second, Map.of(
             hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(3).toDate(), "234", hgmaterial.getFingerprint(), 9)),
             svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(5).toDate(), "345", svnMaterial.getFingerprint(), 10))
-        ), 2)));
+        ), 2));
     }
 
     private PipelineTimelineEntry expected(long first, Map<String, List<PipelineTimelineEntry.Revision>> map, int counter) {
@@ -306,13 +305,13 @@ public class PipelineRepositoryIntegrationTest {
 
     @Test
     public void shouldReturnNullForInvalidIds() {
-        assertThat(pipelineRepository.findPipelineSelectionsById(null), is(nullValue()));
-        assertThat(pipelineRepository.findPipelineSelectionsById(""), is(nullValue()));
-        assertThat(pipelineRepository.findPipelineSelectionsById("123"), is(nullValue()));
+        assertThat(pipelineRepository.findPipelineSelectionsById(null)).isNull();
+        assertThat(pipelineRepository.findPipelineSelectionsById("")).isNull();
+        assertThat(pipelineRepository.findPipelineSelectionsById("123")).isNull();
         try {
             pipelineRepository.findPipelineSelectionsById("foo");
             fail("should throw error");
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
 
         }
     }
@@ -323,7 +322,7 @@ public class PipelineRepositoryIntegrationTest {
 
         List<String> unSelected = List.of("pipeline1", "pipeline2");
         long id = pipelineRepository.saveSelectedPipelines(excludes(unSelected, user.getId()));
-        assertThat(pipelineRepository.findPipelineSelectionsById(id).userId(), is(user.getId()));
+        assertThat(pipelineRepository.findPipelineSelectionsById(id).userId()).isEqualTo(user.getId());
     }
 
     @Test
@@ -352,17 +351,17 @@ public class PipelineRepositoryIntegrationTest {
 
         List<String> unSelected = List.of("pipeline1", "pipeline2");
         long id = pipelineRepository.saveSelectedPipelines(excludes(unSelected, user.getId()));
-        assertThat(pipelineRepository.findPipelineSelectionsByUserId(user.getId()).getId(), is(id));
+        assertThat(pipelineRepository.findPipelineSelectionsByUserId(user.getId()).getId()).isEqualTo(id);
     }
 
     @Test
     public void shouldReturnNullAsPipelineSelectionsIfUserIdIsNull() {
-        assertThat(pipelineRepository.findPipelineSelectionsByUserId(null), is(nullValue()));
+        assertThat(pipelineRepository.findPipelineSelectionsByUserId(null)).isNull();
     }
 
     @Test
     public void shouldReturnNullAsPipelineSelectionsIfSelectionsExistForUser() {
-        assertThat(pipelineRepository.findPipelineSelectionsByUserId(10L), is(nullValue()));
+        assertThat(pipelineRepository.findPipelineSelectionsByUserId(10L)).isNull();
     }
 
     private User createUser() {

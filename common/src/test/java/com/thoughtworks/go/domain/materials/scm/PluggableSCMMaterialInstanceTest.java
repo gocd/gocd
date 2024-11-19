@@ -24,9 +24,7 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PluggableSCMMaterialInstanceTest {
     @Test
@@ -38,9 +36,9 @@ public class PluggableSCMMaterialInstanceTest {
 
         PluggableSCMMaterial constructedMaterial = (PluggableSCMMaterial) materialInstance.toOldMaterial(null, null, null);
 
-        assertThat(constructedMaterial.getId(), is(1L));
-        assertThat(constructedMaterial.getScmConfig().getPluginConfiguration().getId(), is(scmConfig.getPluginConfiguration().getId()));
-        assertThat(constructedMaterial.getScmConfig().getConfiguration(), is(scmConfig.getConfiguration()));
+        assertThat(constructedMaterial.getId()).isEqualTo(1L);
+        assertThat(constructedMaterial.getScmConfig().getPluginConfiguration().getId()).isEqualTo(scmConfig.getPluginConfiguration().getId());
+        assertThat(constructedMaterial.getScmConfig().getConfiguration()).isEqualTo(scmConfig.getConfiguration());
     }
 
     @Test
@@ -52,8 +50,8 @@ public class PluggableSCMMaterialInstanceTest {
         material.getScmConfig().getConfiguration().add(ConfigurationPropertyMother.create("key2", false, "value2"));
         MaterialInstance newMaterialInstance = material.createMaterialInstance();
 
-        assertThat(materialInstance, is(materialInstanceCopy));
-        assertThat(materialInstance, is(not(newMaterialInstance)));
+        assertThat(materialInstance).isEqualTo(materialInstanceCopy);
+        assertThat(materialInstance).isNotEqualTo(newMaterialInstance);
     }
 
     @Test
@@ -66,8 +64,8 @@ public class PluggableSCMMaterialInstanceTest {
         material.getScmConfig().getConfiguration().add(ConfigurationPropertyMother.create("key2", false, "value2"));
         PluggableSCMMaterialInstance newMaterialInstance = (PluggableSCMMaterialInstance) material.createMaterialInstance();
 
-        assertThat(materialInstance.shouldUpgradeTo(materialInstanceCopy), is(false));
-        assertThat(materialInstance.shouldUpgradeTo(newMaterialInstance), is(true));
+        assertThat(materialInstance.shouldUpgradeTo(materialInstanceCopy)).isFalse();
+        assertThat(materialInstance.shouldUpgradeTo(newMaterialInstance)).isTrue();
     }
 
     @Test
@@ -79,8 +77,8 @@ public class PluggableSCMMaterialInstanceTest {
 
         materialInstance.upgradeTo(newPluggableSCMMaterialInstance);
 
-        assertThat(materialInstance.getId(), is(10L));
-        assertThat(materialInstance.getConfiguration(), is(newPluggableSCMMaterialInstance.getConfiguration()));
+        assertThat(materialInstance.getId()).isEqualTo(10L);
+        assertThat(materialInstance.getConfiguration()).isEqualTo(newPluggableSCMMaterialInstance.getConfiguration());
     }
 
     @Test
@@ -93,6 +91,6 @@ public class PluggableSCMMaterialInstanceTest {
 
         PluggableSCMMaterial constructedMaterial = (PluggableSCMMaterial) materialInstance.toOldMaterial(null, null, null);
 
-        assertThat(constructedMaterial.getFingerprint(), is(fingerprint));
+        assertThat(constructedMaterial.getFingerprint()).isEqualTo(fingerprint);
     }
 }

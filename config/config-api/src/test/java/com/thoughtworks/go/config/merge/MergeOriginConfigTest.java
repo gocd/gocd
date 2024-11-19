@@ -21,8 +21,7 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MergeOriginConfigTest {
 
@@ -31,6 +30,6 @@ public class MergeOriginConfigTest {
         FileConfigOrigin fileConfigOrigin = new FileConfigOrigin();
         RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(svn("http://mysvn", false), "myplugin", "id"), "123");
         MergeConfigOrigin mergeOrigin = new MergeConfigOrigin(fileConfigOrigin, repoConfigOrigin);
-        assertThat(mergeOrigin.displayName(), is("Merged: [ cruise-config.xml; http://mysvn at revision 123; ]"));
+        assertThat(mergeOrigin.displayName()).isEqualTo("Merged: [ cruise-config.xml; http://mysvn at revision 123; ]");
     }
 }

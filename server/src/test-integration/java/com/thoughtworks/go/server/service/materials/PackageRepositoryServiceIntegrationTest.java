@@ -42,8 +42,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(MockitoExtension.class)
@@ -107,16 +106,16 @@ public class PackageRepositoryServiceIntegrationTest {
         PackageRepository npmRepo = new PackageRepository();
         npmRepo.setId(repoId);
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(npmRepo));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId)).isEqualTo(npmRepo);
 
         service.deleteRepository(username, npmRepo, result);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.setMessage(EntityType.PackageRepository.deleteSuccessful(npmRepo.getId()));
 
-        assertThat(result, is(expectedResult));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(0));
+        assertThat(result).isEqualTo(expectedResult);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(0);
         assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId));
     }
 
@@ -130,14 +129,14 @@ public class PackageRepositoryServiceIntegrationTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(EntityType.PackageRepository.forbiddenToDelete("npm", "UnauthorizedUser"), forbidden());
 
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId)).isEqualTo(npmRepo);
 
         service.deleteRepository(new Username("UnauthorizedUser"), npmRepo, result);
 
-        assertThat(result, is(expectedResult));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
+        assertThat(result).isEqualTo(expectedResult);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId)).isEqualTo(npmRepo);
     }
 
     @Test
@@ -150,14 +149,14 @@ public class PackageRepositoryServiceIntegrationTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(EntityType.PackageRepository.forbiddenToEdit("npm", "UnauthorizedUser"), forbidden());
 
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId)).isEqualTo(npmRepo);
 
         service.createPackageRepository(npmRepo, new Username("UnauthorizedUser"), result);
 
-        assertThat(result, is(expectedResult));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
+        assertThat(result).isEqualTo(expectedResult);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId)).isEqualTo(npmRepo);
     }
 
 
@@ -186,13 +185,13 @@ public class PackageRepositoryServiceIntegrationTest {
         newPackageRepo.setConfiguration(configuration);
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(oldPackageRepo));
 
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId), is(oldPackageRepo));
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId)).isEqualTo(oldPackageRepo);
         assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(newRepoId));
         service.updatePackageRepository(newPackageRepo, new Username("UnauthorizedUser"), "md5", result, oldRepoId);
-        assertThat(result, is(expectedResult));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId), is(oldPackageRepo));
+        assertThat(result).isEqualTo(expectedResult);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId)).isEqualTo(oldPackageRepo);
         assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(newRepoId));
     }
 }

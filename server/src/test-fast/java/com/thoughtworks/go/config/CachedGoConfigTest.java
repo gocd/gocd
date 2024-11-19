@@ -29,8 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,16 +73,16 @@ public class CachedGoConfigTest {
         when(dataSource.writeEntityWithLock(saveCommand, holderBeforeUpdate, user)).thenReturn(entityConfigSaveResult);
 
         cachedGoConfig.writeEntityWithLock(saveCommand, user);
-        assertThat(cachedGoConfig.loadConfigHolder(), is(savedConfig));
-        assertThat(cachedGoConfig.currentConfig(), is(savedConfig.config));
-        assertThat(cachedGoConfig.loadForEditing(), is(savedConfig.configForEdit));
+        assertThat(cachedGoConfig.loadConfigHolder()).isEqualTo(savedConfig);
+        assertThat(cachedGoConfig.currentConfig()).isEqualTo(savedConfig.config);
+        assertThat(cachedGoConfig.loadForEditing()).isEqualTo(savedConfig.configForEdit);
         verify(dataSource).writeEntityWithLock(saveCommand, holderBeforeUpdate, user);
     }
 
     @Test
     public void shouldLoadConfigHolderIfNotAvailable() throws Exception {
         cachedGoConfig.forceReload();
-        assertThat(cachedGoConfig.loadConfigHolder(), is(configHolder));
+        assertThat(cachedGoConfig.loadConfigHolder()).isEqualTo(configHolder);
     }
 
     @Test
@@ -142,9 +141,9 @@ public class CachedGoConfigTest {
         cachedGoConfig.loadConfigIfNull();
 
         cachedGoConfig.writeEntityWithLock(configCommand, user);
-        assertThat(pipelineConfigChangeListenerCalled[0], is(true));
-        assertThat(agentConfigChangeListenerCalled[0], is(false));
-        assertThat(cruiseConfigChangeListenerCalled[0], is(false));
+        assertThat(pipelineConfigChangeListenerCalled[0]).isTrue();
+        assertThat(agentConfigChangeListenerCalled[0]).isFalse();
+        assertThat(cruiseConfigChangeListenerCalled[0]).isFalse();
     }
 
     @Test
@@ -173,11 +172,11 @@ public class CachedGoConfigTest {
         cachedGoConfig.forceReload();
         ConfigSaveState saveState = cachedGoConfig.writeFullConfigWithLock(mock(FullConfigUpdateCommand.class));
 
-        assertThat(saveState, is(configSaveState));
-        assertThat(cachedGoConfig.currentConfig(), is(config));
-        assertThat(cachedGoConfig.loadForEditing(), is(configForEdit));
-        assertThat(cachedGoConfig.loadConfigHolder(), is(goConfigHolder));
-        assertThat(cachedGoConfig.loadMergedForEditing(), is(mergedConfigForEdit));
+        assertThat(saveState).isEqualTo(configSaveState);
+        assertThat(cachedGoConfig.currentConfig()).isEqualTo(config);
+        assertThat(cachedGoConfig.loadForEditing()).isEqualTo(configForEdit);
+        assertThat(cachedGoConfig.loadConfigHolder()).isEqualTo(goConfigHolder);
+        assertThat(cachedGoConfig.loadMergedForEditing()).isEqualTo(mergedConfigForEdit);
         verify(serverHealthService, times(2)).update(any(ServerHealthState.class));
     }
 
@@ -200,10 +199,10 @@ public class CachedGoConfigTest {
 
         cachedGoConfig.upgradeConfig();
 
-        assertThat(cachedGoConfig.currentConfig(), is(config));
-        assertThat(cachedGoConfig.loadForEditing(), is(configForEdit));
-        assertThat(cachedGoConfig.loadConfigHolder(), is(goConfigHolder));
-        assertThat(cachedGoConfig.loadMergedForEditing(), is(mergedConfigForEdit));
+        assertThat(cachedGoConfig.currentConfig()).isEqualTo(config);
+        assertThat(cachedGoConfig.loadForEditing()).isEqualTo(configForEdit);
+        assertThat(cachedGoConfig.loadConfigHolder()).isEqualTo(goConfigHolder);
+        assertThat(cachedGoConfig.loadMergedForEditing()).isEqualTo(mergedConfigForEdit);
         verify(serverHealthService).update(any(ServerHealthState.class));
     }
 }

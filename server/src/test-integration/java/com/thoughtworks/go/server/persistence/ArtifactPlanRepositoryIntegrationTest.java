@@ -35,8 +35,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -92,7 +91,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
         artifactPlanRepository.save(artifactPlan);
 
         // Assert
-        assertThat(artifactPlan.getId(), is(not(nullValue())));
+        assertThat(artifactPlan.getId()).isNotNull();
     }
 
     @Test
@@ -107,8 +106,8 @@ public class ArtifactPlanRepositoryIntegrationTest {
         List<ArtifactPlan> artifactPlanList = artifactPlanRepository.findByBuildId(jobInstance.getId());
 
         // Assert
-        assertThat(artifactPlanList.size(), is(1));
-        assertThat(artifactPlanList.get(0), is(savedArtifactPlan));
+        assertThat(artifactPlanList.size()).isEqualTo(1);
+        assertThat(artifactPlanList.get(0)).isEqualTo(savedArtifactPlan);
     }
 
     @Test
@@ -123,8 +122,8 @@ public class ArtifactPlanRepositoryIntegrationTest {
         List<ArtifactPlan> artifactPlanList = artifactPlanRepository.findByBuildId(jobInstance.getId());
 
         // Assert
-        assertThat(artifactPlanList.size(), is(1));
-        assertThat(artifactPlanList.get(0), is(savedArtifactPlan));
+        assertThat(artifactPlanList.size()).isEqualTo(1);
+        assertThat(artifactPlanList.get(0)).isEqualTo(savedArtifactPlan);
     }
 
     @Test
@@ -139,9 +138,9 @@ public class ArtifactPlanRepositoryIntegrationTest {
         List<ArtifactPlan> artifactPlanList = artifactPlanRepository.findByBuildId(jobInstance.getId());
 
         // Assert
-        assertThat(artifactPlanList.size(), is(1));
+        assertThat(artifactPlanList.size()).isEqualTo(1);
         ArtifactPlan loadedArtifactPlan = artifactPlanList.get(0);
-        assertThat(loadedArtifactPlan, is(savedArtifactPlan));
+        assertThat(loadedArtifactPlan).isEqualTo(savedArtifactPlan);
     }
 
     @Test
@@ -158,18 +157,18 @@ public class ArtifactPlanRepositoryIntegrationTest {
 
         // Assert
         List<ArtifactPlan> firstJobArtifactPlans = artifactPlanRepository.findByBuildId(firstJobInstance.getId());
-        assertThat(firstJobArtifactPlans.size(), is(1));
-        assertThat(firstJobArtifactPlans.get(0).getId(), equalTo(artifactPlanOfFirstJob.getId()));
-        assertThat(firstJobArtifactPlans, hasItem(artifactPlanOfFirstJob));
-        assertThat(artifactPlan.getId(), is(not(nullValue())));
+        assertThat(firstJobArtifactPlans.size()).isEqualTo(1);
+        assertThat(firstJobArtifactPlans.get(0).getId()).isEqualTo(artifactPlanOfFirstJob.getId());
+        assertThat(firstJobArtifactPlans).contains(artifactPlanOfFirstJob);
+        assertThat(artifactPlan.getId()).isNotNull();
 
         List<ArtifactPlan> secondJobArtifactPlans = artifactPlanRepository.findByBuildId(secondJobInstance.getId());
-        assertThat(secondJobArtifactPlans.size(), is(1));
-        assertThat(secondJobArtifactPlans.get(0).getId(), equalTo(artifactPlanOfSecondJob.getId()));
-        assertThat(secondJobArtifactPlans, hasItem(artifactPlanOfSecondJob));
-        assertThat(artifactPlan.getId(), is(not(nullValue())));
+        assertThat(secondJobArtifactPlans.size()).isEqualTo(1);
+        assertThat(secondJobArtifactPlans.get(0).getId()).isEqualTo(artifactPlanOfSecondJob.getId());
+        assertThat(secondJobArtifactPlans).contains(artifactPlanOfSecondJob);
+        assertThat(artifactPlan.getId()).isNotNull();
 
-        assertThat(artifactPlanOfFirstJob.getId(), not(equalTo(artifactPlanOfSecondJob.getId())));
+        assertThat(artifactPlanOfFirstJob.getId()).isNotEqualTo(artifactPlanOfSecondJob.getId());
     }
 
     @Test
@@ -179,10 +178,10 @@ public class ArtifactPlanRepositoryIntegrationTest {
         artifactPlan.setBuildId(jobInstance.getId());
         artifactPlanRepository.save(artifactPlan);
         List<ArtifactPlan> artifactPlanList = artifactPlanRepository.findByBuildId(jobInstance.getId());
-        assertThat(artifactPlanList.size(), is(1));
+        assertThat(artifactPlanList.size()).isEqualTo(1);
 
         artifactPlanRepository.deleteAll(List.of(artifactPlan));
         artifactPlanList = artifactPlanRepository.findByBuildId(jobInstance.getId());
-        assertThat(artifactPlanList.size(), is(0));
+        assertThat(artifactPlanList.size()).isEqualTo(0);
     }
 }

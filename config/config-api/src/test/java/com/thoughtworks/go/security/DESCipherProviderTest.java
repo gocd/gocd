@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 import javax.crypto.spec.DESKeySpec;
 import java.io.IOException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DESCipherProviderTest {
 
@@ -42,7 +41,7 @@ public class DESCipherProviderTest {
     public void shouldGenerateAValidAndSafeDESKey() throws Exception {
         DESCipherProvider desCipherProvider = new DESCipherProvider(new SystemEnvironment());
         byte[] key = desCipherProvider.getKey();
-        assertThat(DESKeySpec.isWeak(key, 0), is(false));
+        assertThat(DESKeySpec.isWeak(key, 0)).isFalse();
     }
 
 }

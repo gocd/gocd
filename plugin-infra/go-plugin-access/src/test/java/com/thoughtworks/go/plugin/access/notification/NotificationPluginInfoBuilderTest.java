@@ -29,8 +29,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -61,9 +60,9 @@ public class NotificationPluginInfoBuilderTest {
         );
         PluginView pluginView = new PluginView("some-html");
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("notification"));
-        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(pluginConfigurations, pluginView)));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("notification");
+        assertThat(pluginInfo.getPluginSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, pluginView));
     }
 
     @Test
@@ -73,8 +72,8 @@ public class NotificationPluginInfoBuilderTest {
         when(extension.getPluginSettingsConfiguration("plugin1")).thenReturn(null);
         NotificationPluginInfo pluginInfo = new NotificationPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("notification"));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("notification");
         assertNull(pluginInfo.getPluginSettings());
     }
 
@@ -85,8 +84,8 @@ public class NotificationPluginInfoBuilderTest {
         when(extension.getPluginSettingsView("plugin1")).thenReturn(null);
         NotificationPluginInfo pluginInfo = new NotificationPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("notification"));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("notification");
         assertNull(pluginInfo.getPluginSettings());
     }
 }

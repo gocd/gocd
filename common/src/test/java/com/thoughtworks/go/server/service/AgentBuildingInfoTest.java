@@ -17,27 +17,26 @@ package com.thoughtworks.go.server.service;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AgentBuildingInfoTest {
     @Test
     public void shouldReturnThePipelineName() {
         AgentBuildingInfo agentBuildingInfo = new AgentBuildingInfo("buildInfo", "foo");
-        assertThat(agentBuildingInfo.getPipelineName(), is("foo"));
+        assertThat(agentBuildingInfo.getPipelineName()).isEqualTo("foo");
     }
 
     @Test
     public void shouldReturnTheStageName() {
         AgentBuildingInfo agentBuildingInfo = new AgentBuildingInfo("buildInfo", "foo/1/bar");
-        assertThat(agentBuildingInfo.getStageName(), is("bar"));
+        assertThat(agentBuildingInfo.getStageName()).isEqualTo("bar");
     }
 
     @Test
     public void shouldReturnTheJobName() {
         AgentBuildingInfo agentBuildingInfo = new AgentBuildingInfo("buildInfo", "foo/1/bar/3/job");
-        assertThat(agentBuildingInfo.getJobName(), is("job"));
+        assertThat(agentBuildingInfo.getJobName()).isEqualTo("job");
     }
 
     @Test

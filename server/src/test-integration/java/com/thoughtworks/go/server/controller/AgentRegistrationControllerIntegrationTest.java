@@ -46,8 +46,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AUTO_REGISTER_LOCAL_AGENT_ENABLED;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.HttpStatus.*;
 
@@ -92,10 +91,10 @@ public class AgentRegistrationControllerIntegrationTest {
         final ResponseEntity responseEntity = controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, token(uuid, goConfigService.serverConfig().getTokenGenerationKey()), request);
         Agent agent = agentService.getAgentByUUID(uuid);
 
-        assertThat(agent.getHostname(), is("hostname"));
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
-        assertThat(responseEntity.getHeaders().getContentType(), is(MediaType.APPLICATION_JSON));
-        assertThat(responseEntity.getBody().toString(), is(""));
+        assertThat(agent.getHostname()).isEqualTo("hostname");
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        assertThat(responseEntity.getBody().toString()).isEqualTo("");
     }
 
     @Test
@@ -120,9 +119,9 @@ public class AgentRegistrationControllerIntegrationTest {
         Agent agent = agentService.getAgentByUUID(uuid);
 
         assertTrue(agent.isElastic());
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
-        assertThat(responseEntity.getHeaders().getContentType(), is(MediaType.APPLICATION_JSON));
-        assertThat(responseEntity.getBody().toString(), is(""));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        assertThat(responseEntity.getBody().toString()).isEqualTo("");
     }
 
     @Test
@@ -161,8 +160,8 @@ public class AgentRegistrationControllerIntegrationTest {
                 token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
                 request);
 
-        assertThat(responseEntity.getStatusCode(), is(UNPROCESSABLE_ENTITY));
-        assertThat(responseEntity.getBody(), is("Duplicate Elastic agent Id used to register elastic agent."));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(UNPROCESSABLE_ENTITY);
+        assertThat(responseEntity.getBody()).isEqualTo("Duplicate Elastic agent Id used to register elastic agent.");
     }
 
     @Test
@@ -174,9 +173,9 @@ public class AgentRegistrationControllerIntegrationTest {
         AgentInstance agentInstance = agentService.findAgent(uuid);
 
         assertTrue(agentInstance.isPending());
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.ACCEPTED));
-        assertThat(responseEntity.getHeaders().getContentType(), is(MediaType.APPLICATION_JSON));
-        assertThat(responseEntity.getBody().toString(), is(""));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        assertThat(responseEntity.getBody().toString()).isEqualTo("");
     }
 
     @Test
@@ -188,9 +187,9 @@ public class AgentRegistrationControllerIntegrationTest {
         AgentInstance agentInstance = agentService.findAgent(uuid);
 
         assertTrue(agentInstance.isIdle());
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
-        assertThat(responseEntity.getHeaders().getContentType(), is(MediaType.APPLICATION_JSON));
-        assertThat(responseEntity.getBody().toString(), is(""));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        assertThat(responseEntity.getBody().toString()).isEqualTo("");
     }
 
     @Test
@@ -199,10 +198,10 @@ public class AgentRegistrationControllerIntegrationTest {
         int totalAgentsBeforeRegistrationRequest = agentService.findRegisteredAgents().size();
         final ResponseEntity responseEntity = controller.agentRequest("hostname", "", "sandbox", "100", null, null, null, null, null, null, null, token("", goConfigService.serverConfig().getTokenGenerationKey()), request);
         int totalAgentsAfterRegistrationRequest = agentService.findRegisteredAgents().size();
-        assertThat(totalAgentsBeforeRegistrationRequest, is(totalAgentsAfterRegistrationRequest));
+        assertThat(totalAgentsBeforeRegistrationRequest).isEqualTo(totalAgentsAfterRegistrationRequest);
 
-        assertThat(responseEntity.getStatusCode(), is(UNPROCESSABLE_ENTITY));
-        assertThat(responseEntity.getBody(), is("Error occurred during agent registration process: UUID cannot be empty"));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(UNPROCESSABLE_ENTITY);
+        assertThat(responseEntity.getBody()).isEqualTo("Error occurred during agent registration process: UUID cannot be empty");
     }
 
     @Test
@@ -211,8 +210,8 @@ public class AgentRegistrationControllerIntegrationTest {
 
         final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
 
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
-        assertThat(responseEntity.getBody(), is(token));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isEqualTo(token);
     }
 
     @Test
@@ -226,8 +225,8 @@ public class AgentRegistrationControllerIntegrationTest {
 
         final ResponseEntity responseEntity = controller.getToken(uuid);
 
-        assertThat(responseEntity.getStatusCode(), is(CONFLICT));
-        assertThat(responseEntity.getBody(), is("A token has already been issued for this agent."));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(CONFLICT);
+        assertThat(responseEntity.getBody()).isEqualTo("A token has already been issued for this agent.");
     }
 
     @Test
@@ -239,16 +238,16 @@ public class AgentRegistrationControllerIntegrationTest {
 
         final ResponseEntity responseEntity = controller.getToken(uuid);
 
-        assertThat(responseEntity.getStatusCode(), is(CONFLICT));
-        assertThat(responseEntity.getBody(), is("A token has already been issued for this agent."));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(CONFLICT);
+        assertThat(responseEntity.getBody()).isEqualTo("A token has already been issued for this agent.");
     }
 
     @Test
     public void shouldRejectGenerateTokenRequestIfUUIDIsEmpty() {
         final ResponseEntity responseEntity = controller.getToken("               ");
 
-        assertThat(responseEntity.getStatusCode(), is(CONFLICT));
-        assertThat(responseEntity.getBody(), is("UUID cannot be blank."));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(CONFLICT);
+        assertThat(responseEntity.getBody()).isEqualTo("UUID cannot be blank.");
     }
 
     @Test
@@ -260,8 +259,8 @@ public class AgentRegistrationControllerIntegrationTest {
         AgentInstance agentInstance = agentService.findAgent(uuid);
 
         assertTrue(agentInstance.isNullAgent());
-        assertThat(responseEntity.getStatusCode(), is(FORBIDDEN));
-        assertThat(responseEntity.getBody(), is("Not a valid token."));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
+        assertThat(responseEntity.getBody()).isEqualTo("Not a valid token.");
     }
 
     @Test
@@ -276,8 +275,8 @@ public class AgentRegistrationControllerIntegrationTest {
         AgentInstance agentInstance = agentService.findAgent(uuid);
 
         assertTrue(agentInstance.isIdle());
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
-        assertThat(responseEntity.getBody().toString(), is(""));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().toString()).isEqualTo("");
     }
 
     @Test
@@ -292,8 +291,8 @@ public class AgentRegistrationControllerIntegrationTest {
         AgentInstance agentInstance = agentService.findAgent(uuid);
 
         assertTrue(agentInstance.isIdle());
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
-        assertThat(responseEntity.getBody().toString(), is(""));
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().toString()).isEqualTo("");
     }
 
     private String token(String uuid, String tokenGenerationKey) {

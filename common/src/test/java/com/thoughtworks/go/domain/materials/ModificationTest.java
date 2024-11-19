@@ -29,32 +29,31 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.thoughtworks.go.domain.materials.Modification.ANONYMOUS;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ModificationTest {
 
     @Test
     public void shouldReturnAnonymousWhenUserNameIsEmpty() {
         Modification modification = new Modification("", "comment", null, null, null);
-        assertThat(modification.getUserDisplayName(), is(ANONYMOUS));
+        assertThat(modification.getUserDisplayName()).isEqualTo(ANONYMOUS);
         modification.setUserName("");
-        assertThat(modification.getUserDisplayName(), is(ANONYMOUS));
+        assertThat(modification.getUserDisplayName()).isEqualTo(ANONYMOUS);
         modification.setUserName("   ");
-        assertThat(modification.getUserDisplayName(), is(ANONYMOUS));
+        assertThat(modification.getUserDisplayName()).isEqualTo(ANONYMOUS);
     }
 
     @Test
     public void shouldAllowAdditionalData() {
         String expected = "some additional data";
         Modification modification = new Modification("loser", "", null, new Date(), "rev-123", expected);
-        assertThat(modification.getAdditionalData(), is(expected));
+        assertThat(modification.getAdditionalData()).isEqualTo(expected);
     }
 
     @Test
     public void shouldReturnUserNameWhenUserNameIsNotEmpty() {
         Modification modification = new Modification("jack", "", null, null, null);
-        assertThat(modification.getUserDisplayName(), is("jack"));
+        assertThat(modification.getUserDisplayName()).isEqualTo("jack");
     }
 
     @Test
@@ -64,10 +63,10 @@ public class ModificationTest {
         Modification anotherModificationWithoutLabel = new Modification("user", "comment", "foo@bar.com", date, "15");
         Modification modificationWithLabel = new Modification("user", "comment", "foo@bar.com", date, "15");
         modificationWithLabel.setPipelineLabel("foo-12"); //even though it doesn't make sense, equals and hashcode must respect it
-        assertThat(modification.hashCode(), not(modificationWithLabel.hashCode()));
-        assertThat(modification.hashCode(), is(anotherModificationWithoutLabel.hashCode()));
-        assertThat(modification, not(modificationWithLabel));
-        assertThat(modification, is(anotherModificationWithoutLabel));
+        assertThat(modification.hashCode()).isNotEqualTo(modificationWithLabel.hashCode());
+        assertThat(modification.hashCode()).isEqualTo(anotherModificationWithoutLabel.hashCode());
+        assertThat(modification).isNotEqualTo(modificationWithLabel);
+        assertThat(modification).isEqualTo(anotherModificationWithoutLabel);
     }
 
     @Test
@@ -78,14 +77,14 @@ public class ModificationTest {
         modification.setPipelineLabel("label-1");
 
         Modification unserializedModification = SerializationTester.objectSerializeAndDeserialize(modification);
-        assertThat(unserializedModification.getAdditionalData(), is(JsonHelper.toJsonString(additionalData)));
-        assertThat(unserializedModification, is(modification));
+        assertThat(unserializedModification.getAdditionalData()).isEqualTo(JsonHelper.toJsonString(additionalData));
+        assertThat(unserializedModification).isEqualTo(modification);
 
         modification = new Modification("user", null, "foo@bar.com", new Date(), "pipe/1/stage/2", JsonHelper.toJsonString(additionalData));
         unserializedModification = SerializationTester.objectSerializeAndDeserialize(modification);
-        assertThat(unserializedModification.getComment(), is(nullValue()));
-        assertThat(unserializedModification.getAdditionalData(), is(JsonHelper.toJsonString(additionalData)));
-        assertThat(unserializedModification, is(modification));
+        assertThat(unserializedModification.getComment()).isNull();
+        assertThat(unserializedModification.getAdditionalData()).isEqualTo(JsonHelper.toJsonString(additionalData));
+        assertThat(unserializedModification).isEqualTo(modification);
     }
 
     @Test
@@ -97,10 +96,10 @@ public class ModificationTest {
         modification.setAdditionalData(new Gson().toJson(additionalData));
         MaterialInstance original = new SvnMaterialInstance("url", "username", UUID.randomUUID().toString(), true);
         modification.setMaterialInstance(original);
-        assertThat(new Modification(modification), is(modification));
+        assertThat(new Modification(modification)).isEqualTo(modification);
         modification = new Modification(new Date(), "rev", "label", 121L);
         Modification copiedModification = new Modification(modification);
-        assertThat(copiedModification, is(modification));
-        assertThat(copiedModification.getAdditionalDataMap(), is(modification.getAdditionalDataMap()));
+        assertThat(copiedModification).isEqualTo(modification);
+        assertThat(copiedModification.getAdditionalDataMap()).isEqualTo(modification.getAdditionalDataMap());
     }
 }

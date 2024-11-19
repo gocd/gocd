@@ -33,7 +33,7 @@ class VerifyConnectionResultRepresenterTest {
         SCM scm = SCMMother.create("1", "foobar", "plugin1", "v1.0", new Configuration(
           ConfigurationPropertyMother.create("key1", false, "value1")
         ))
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult()
         result.setMessage("Connection ok.")
 
         def actualJson = toObjectString({ VerifyConnectionResultRepresenter.toJSON(it, scm, result) })
@@ -52,7 +52,7 @@ class VerifyConnectionResultRepresenterTest {
         SCM scm = SCMMother.create("1", "foobar", "plugin1", "v1.0", new Configuration(
           ConfigurationPropertyMother.create("key1", false, "value1")
         ))
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult()
         result.unprocessableEntity("Verify Connection failed.")
 
         def actualJson = toObjectString({ VerifyConnectionResultRepresenter.toJSON(it, scm, result) })

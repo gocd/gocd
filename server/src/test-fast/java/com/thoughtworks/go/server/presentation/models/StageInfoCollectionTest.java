@@ -20,27 +20,26 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.NullStageHistoryItem;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StageInfoCollectionTest {
 
     @Test
     public void shouldMatchForBothEmpty() throws Exception {
-        assertThat(new StageConfigurationModels().match(new PipelineConfig()), is(true));
+        assertThat(new StageConfigurationModels().match(new PipelineConfig())).isTrue();
     }
 
     @Test
     public void shouldMatch() throws Exception {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("cruise", "ut", "ft");
-        assertThat(new StageConfigurationModels(pipelineConfig).match(pipelineConfig), is(true));
+        assertThat(new StageConfigurationModels(pipelineConfig).match(pipelineConfig)).isTrue();
     }
 
     @Test
     public void shouldEqual() throws Exception {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("cruise", "ut", "ft");
         StageConfigurationModels twoAutoStages = new StageConfigurationModels(pipelineConfig);
-        assertThat(twoAutoStages.equals(new StageConfigurationModels(pipelineConfig)), is(true));
+        assertThat(twoAutoStages.equals(new StageConfigurationModels(pipelineConfig))).isTrue();
     }
 
     @Test
@@ -51,7 +50,7 @@ public class StageInfoCollectionTest {
         StageConfigurationModels infoCollection = new StageConfigurationModels();
         infoCollection.add(new NullStageHistoryItem("ut", true));
         infoCollection.add(new NullStageHistoryItem("ft", true));
-        assertThat(twoAutoStages.equals(infoCollection), is(true));
+        assertThat(twoAutoStages.equals(infoCollection)).isTrue();
 
     }
 

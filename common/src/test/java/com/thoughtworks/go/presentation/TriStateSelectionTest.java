@@ -18,7 +18,6 @@ package com.thoughtworks.go.presentation;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.ResourceConfig;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,9 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TriStateSelectionTest {
     private Set<ResourceConfig> resourceConfigs;
@@ -47,9 +44,9 @@ public class TriStateSelectionTest {
     @Test
     public void shouldHaveActionRemoveIfThereAreNoAgents() {
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
-        assertThat(selections, hasItem(new TriStateSelection("one", TriStateSelection.Action.remove)));
-        assertThat(selections, hasItem(new TriStateSelection("two", TriStateSelection.Action.remove)));
-        assertThat(selections.size(), is(2));
+        assertThat(selections).contains(new TriStateSelection("one", TriStateSelection.Action.remove));
+        assertThat(selections).contains(new TriStateSelection("two", TriStateSelection.Action.remove));
+        assertThat(selections.size()).isEqualTo(2);
     }
 
     @Test
@@ -59,7 +56,7 @@ public class TriStateSelectionTest {
         agents.add(new Agent("uuid2", "host2", "127.0.0.2", List.of("all")));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
-        assertThat(selections, hasItem(new TriStateSelection("all", TriStateSelection.Action.add)));
+        assertThat(selections).contains(new TriStateSelection("all", TriStateSelection.Action.add));
     }
 
     @Test
@@ -69,7 +66,7 @@ public class TriStateSelectionTest {
         agents.add(new Agent("uuid2", "host2", "127.0.0.2", emptyList()));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
-        assertThat(selections, hasItem(new TriStateSelection("some", TriStateSelection.Action.nochange)));
+        assertThat(selections).contains(new TriStateSelection("some", TriStateSelection.Action.nochange));
     }
 
     @Test
@@ -79,7 +76,7 @@ public class TriStateSelectionTest {
         agents.add(new Agent("uuid2", "host2", "127.0.0.2", List.of("two")));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
-        assertThat(selections, hasItem(new TriStateSelection("none", TriStateSelection.Action.remove)));
+        assertThat(selections).contains(new TriStateSelection("none", TriStateSelection.Action.remove));
     }
 
     @Test
@@ -90,9 +87,9 @@ public class TriStateSelectionTest {
         resourceConfigs.add(new ResourceConfig("a01"));
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
 
-        assertThat(selections.get(0), Matchers.is(new TriStateSelection("a01", TriStateSelection.Action.remove)));
-        assertThat(selections.get(1), Matchers.is(new TriStateSelection("b01", TriStateSelection.Action.remove)));
-        assertThat(selections.get(2), Matchers.is(new TriStateSelection("B02", TriStateSelection.Action.remove)));
+        assertThat(selections.get(0)).isEqualTo((new TriStateSelection("a01", TriStateSelection.Action.remove)));
+        assertThat(selections.get(1)).isEqualTo((new TriStateSelection("b01", TriStateSelection.Action.remove)));
+        assertThat(selections.get(2)).isEqualTo((new TriStateSelection("B02", TriStateSelection.Action.remove)));
     }
 
     @Test
@@ -120,22 +117,22 @@ public class TriStateSelectionTest {
 
         associate[0] = true;
         List<TriStateSelection> selections = TriStateSelection.convert(assignables, List.of("foo", "bar"), disableWhenEql);
-        assertThat(selections, hasItem(new TriStateSelection("quux", TriStateSelection.Action.add)));
-        assertThat(selections, hasItem(new TriStateSelection("baz", TriStateSelection.Action.add)));
+        assertThat(selections).contains(new TriStateSelection("quux", TriStateSelection.Action.add));
+        assertThat(selections).contains(new TriStateSelection("baz", TriStateSelection.Action.add));
 
         associate[0] = false;
         selections = TriStateSelection.convert(assignables, List.of("foo", "bar"), disableWhenEql);
-        assertThat(selections, hasItem(new TriStateSelection("quux", TriStateSelection.Action.remove)));
-        assertThat(selections, hasItem(new TriStateSelection("baz", TriStateSelection.Action.remove)));
+        assertThat(selections).contains(new TriStateSelection("quux", TriStateSelection.Action.remove));
+        assertThat(selections).contains(new TriStateSelection("baz", TriStateSelection.Action.remove));
 
         associate[0] = true;
         selections = TriStateSelection.convert(assignables, List.of("quux", "bar"), disableWhenEql);
-        assertThat(selections, hasItem(new TriStateSelection("quux", TriStateSelection.Action.add, false)));
-        assertThat(selections, hasItem(new TriStateSelection("baz", TriStateSelection.Action.add, true)));
+        assertThat(selections).contains(new TriStateSelection("quux", TriStateSelection.Action.add, false));
+        assertThat(selections).contains(new TriStateSelection("baz", TriStateSelection.Action.add, true));
 
         associate[0] = false;
         selections = TriStateSelection.convert(assignables, List.of("bar", "baz"), disableWhenEql);
-        assertThat(selections, hasItem(new TriStateSelection("quux", TriStateSelection.Action.remove, true)));
-        assertThat(selections, hasItem(new TriStateSelection("baz", TriStateSelection.Action.remove, false)));
+        assertThat(selections).contains(new TriStateSelection("quux", TriStateSelection.Action.remove, true));
+        assertThat(selections).contains(new TriStateSelection("baz", TriStateSelection.Action.remove, false));
     }
 }

@@ -22,8 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CollectionUtilTest {
     @Test
@@ -32,12 +31,12 @@ public class CollectionUtilTest {
         stringIntMap.put("foo", List.of(1, 2, 3, 4));
         stringIntMap.put("bar", List.of(3, 4, 5, 6));
         Map<Integer, Set<String>> reversedMap = CollectionUtil.reverse(stringIntMap);
-        assertThat(reversedMap.get(1), is(Set.of("foo")));
-        assertThat(reversedMap.get(2), is(Set.of("foo")));
-        assertThat(reversedMap.get(3), is(Set.of("foo", "bar")));
-        assertThat(reversedMap.get(4), is(Set.of("foo", "bar")));
-        assertThat(reversedMap.get(5), is(Set.of("bar")));
-        assertThat(reversedMap.get(6), is(Set.of("bar")));
+        assertThat(reversedMap.get(1)).isEqualTo(Set.of("foo"));
+        assertThat(reversedMap.get(2)).isEqualTo(Set.of("foo"));
+        assertThat(reversedMap.get(3)).isEqualTo(Set.of("foo", "bar"));
+        assertThat(reversedMap.get(4)).isEqualTo(Set.of("foo", "bar"));
+        assertThat(reversedMap.get(5)).isEqualTo(Set.of("bar"));
+        assertThat(reversedMap.get(6)).isEqualTo(Set.of("bar"));
     }
 
     @Test
@@ -47,7 +46,7 @@ public class CollectionUtilTest {
         cVM.put("foo", 10);
         cVM.put("bar", 20);
         cVM.put("foo", 30);
-        assertThat(mapWithCollection.get("foo"), is(List.of(10, 30)));
-        assertThat(mapWithCollection.get("bar"), is(List.of(20)));
+        assertThat(mapWithCollection.get("foo")).isEqualTo(List.of(10, 30));
+        assertThat(mapWithCollection.get("bar")).isEqualTo(List.of(20));
     }
 }

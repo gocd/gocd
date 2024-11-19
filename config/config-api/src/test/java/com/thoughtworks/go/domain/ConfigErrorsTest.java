@@ -20,9 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigErrorsTest {
     @Test
@@ -31,7 +29,7 @@ public class ConfigErrorsTest {
         configErrors.add("err1", "foo");
         configErrors.add("err1", "baz");
         configErrors.add("err2", "bar");
-        assertThat(configErrors.getAll(), hasItems("foo", "baz", "bar"));
+        assertThat(configErrors.getAll()).contains("foo", "baz", "bar");
     }
 
     @Test
@@ -45,7 +43,7 @@ public class ConfigErrorsTest {
         other.add("baz", "one");
         other.addAll(configErrors);
 
-        assertThat(other.getAll(), hasItems("baz", "foo", "baz", "bar"));
+        assertThat(other.getAll()).contains("baz", "foo", "baz", "bar");
     }
 
     @Test
@@ -53,11 +51,11 @@ public class ConfigErrorsTest {
         ConfigErrors configErrors = new ConfigErrors();
         configErrors.add("field", "error");
         configErrors.add("field", "error");
-        assertThat(configErrors.getAllOn("field"), is(List.of("error")));
+        assertThat(configErrors.getAllOn("field")).isEqualTo(List.of("error"));
     }
 
     @Test
     public void shouldReturnEmptyListWhenNoGetAllErrorsOnExists() {
-        assertThat(new ConfigErrors().getAllOn("field"), is(Collections.emptyList()));
+        assertThat(new ConfigErrors().getAllOn("field")).isEqualTo(Collections.emptyList());
     }
 }

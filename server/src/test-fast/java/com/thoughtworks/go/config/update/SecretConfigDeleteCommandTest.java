@@ -28,9 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -50,18 +48,18 @@ public class SecretConfigDeleteCommandTest {
         SecretConfigDeleteCommand command = new SecretConfigDeleteCommand(null, secretConfig, Collections.emptySet(), null, null, null);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.getSecretConfigs(), is(empty()));
+        assertThat(cruiseConfig.getSecretConfigs()).isEmpty();
     }
 
     @Test
     public void shouldRaiseExceptionInCaseSecretConfigDoesNotExist() {
         SecretConfig secretConfig = new SecretConfig("foo", "file-based");
 
-        assertThat(cruiseConfig.getSecretConfigs(), is(empty()));
+        assertThat(cruiseConfig.getSecretConfigs()).isEmpty();
         SecretConfigDeleteCommand command = new SecretConfigDeleteCommand(null, secretConfig, Collections.emptySet(), null, null, new HttpLocalizedOperationResult());
         assertThrows(RecordNotFoundException.class, () -> command.update(cruiseConfig));
 
-        assertThat(cruiseConfig.getSecretConfigs(), is(empty()));
+        assertThat(cruiseConfig.getSecretConfigs()).isEmpty();
     }
 
     @Test
@@ -76,7 +74,7 @@ public class SecretConfigDeleteCommandTest {
 
         GoConfigInvalidException goConfigInvalidException = assertThrows(GoConfigInvalidException.class, () -> command.isValid(cruiseConfig));
 
-        assertThat(goConfigInvalidException.getMessage(), is("The secret config 'foo' is being referenced by pipeline(s): P1."));
+        assertThat(goConfigInvalidException.getMessage()).isEqualTo("The secret config 'foo' is being referenced by pipeline(s): P1.");
     }
 
     @Test
@@ -84,6 +82,6 @@ public class SecretConfigDeleteCommandTest {
         SecretConfig secretConfig = new SecretConfig("foo", "file-based");
 
         SecretConfigDeleteCommand command = new SecretConfigDeleteCommand(null, secretConfig, Collections.emptySet(), null, null, new HttpLocalizedOperationResult());
-        assertThat(command.isValid(cruiseConfig), is(true));
+        assertThat(command.isValid(cruiseConfig)).isTrue();
     }
 }

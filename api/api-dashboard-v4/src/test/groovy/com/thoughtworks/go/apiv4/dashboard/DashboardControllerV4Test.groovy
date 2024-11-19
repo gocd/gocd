@@ -48,7 +48,7 @@ import static org.mockito.Mockito.*
 @MockitoSettings(strictness = Strictness.LENIENT)
 class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait<DashboardControllerV4> {
   @Mock
-  private FeatureToggleService featureToggleService;
+  private FeatureToggleService featureToggleService
 
   @Mock
   private GoDashboardService goDashboardService
@@ -58,13 +58,13 @@ class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait
 
   @BeforeEach
   void setup() {
-    Toggles.initializeWith(featureToggleService);
+    Toggles.initializeWith(featureToggleService)
     when(featureToggleService.isToggleOn(Toggles.ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD)).thenReturn(false)
   }
 
   @AfterEach
   void teardown() {
-    Toggles.deinitialize();
+    Toggles.deinitialize()
   }
 
   @Override

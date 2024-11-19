@@ -31,10 +31,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,9 +61,9 @@ public class DeleteTemplateConfigCommandTest {
     public void shouldDeleteTemplateFromTheGivenConfig() throws Exception {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isTrue();
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isFalse();
     }
 
     @Test
@@ -84,8 +82,8 @@ public class DeleteTemplateConfigCommandTest {
 
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo(EntityType.Template.forbiddenToDelete(pipelineTemplateConfig.name(), currentUser.getUsername())));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.Template.forbiddenToDelete(pipelineTemplateConfig.name(), currentUser.getUsername()));
     }
 
     @Test
@@ -95,14 +93,14 @@ public class DeleteTemplateConfigCommandTest {
 
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     @Test
     public void shouldNotContinueWhenTemplateNoLongerExists() {
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
     }
 
 }

@@ -48,8 +48,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -101,11 +100,11 @@ public class GoConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         ConfigForEdit<PipelineConfig> configForEdit = goConfigService.loadForEdit("my-pipeline", new Username(new CaseInsensitiveString("root")), result);
-        assertThat(configForEdit.getProcessedConfig(), is(goConfigService.getCurrentConfig()));
-        assertThat(configForEdit.getConfig().getLabelTemplate(), is("${COUNT}-#{label-param}"));
-        assertThat(configForEdit.getCruiseConfig().getMd5(), is(goConfigService.configFileMd5()));
+        assertThat(configForEdit.getProcessedConfig()).isEqualTo(goConfigService.getCurrentConfig());
+        assertThat(configForEdit.getConfig().getLabelTemplate()).isEqualTo("${COUNT}-#{label-param}");
+        assertThat(configForEdit.getCruiseConfig().getMd5()).isEqualTo(goConfigService.configFileMd5());
         configHelper.addPipeline("pipeline-foo", "stage-foo");
-        assertThat(configForEdit.getCruiseConfig().getMd5(), not(goConfigService.configFileMd5()));
+        assertThat(configForEdit.getCruiseConfig().getMd5()).isNotEqualTo(goConfigService.configFileMd5());
     }
 
     @Test
@@ -114,19 +113,19 @@ public class GoConfigServiceIntegrationTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigForEdit configForEdit = goConfigService.loadForEdit("my-pipeline", new Username(new CaseInsensitiveString("loser")), result);
-        assertThat(configForEdit, is(nullValue()));
-        assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), is("Unauthorized to edit 'my-pipeline' pipeline."));
+        assertThat(configForEdit).isNull();
+        assertThat(result.httpCode()).isEqualTo(403);
+        assertThat(result.message()).isEqualTo("Unauthorized to edit 'my-pipeline' pipeline.");
 
         result = new HttpLocalizedOperationResult();
         configForEdit = goConfigService.loadForEdit("my-pipeline", new Username(new CaseInsensitiveString("pipeline_admin")), result);
-        assertThat(configForEdit, not(nullValue()));
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(configForEdit).isNotNull();
+        assertThat(result.isSuccessful()).isTrue();
 
         result = new HttpLocalizedOperationResult();
         configForEdit = goConfigService.loadForEdit("my-pipeline", new Username(new CaseInsensitiveString("root")), result);
-        assertThat(configForEdit, not(nullValue()));
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(configForEdit).isNotNull();
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -134,9 +133,9 @@ public class GoConfigServiceIntegrationTest {
         setupSecurity();
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigForEdit configForEdit = goConfigService.loadForEdit("non-existent-pipeline", new Username(new CaseInsensitiveString("loser")), result);
-        assertThat(configForEdit, is(nullValue()));
-        assertThat(result.httpCode(), is(404));
-        assertThat(result.message(), is(EntityType.Pipeline.notFoundMessage("non-existent-pipeline")));
+        assertThat(configForEdit).isNull();
+        assertThat(result.httpCode()).isEqualTo(404);
+        assertThat(result.message()).isEqualTo(EntityType.Pipeline.notFoundMessage("non-existent-pipeline"));
     }
 
     private void setupSecurity() throws IOException {
@@ -151,10 +150,10 @@ public class GoConfigServiceIntegrationTest {
         CruiseConfig config = configHelper.currentConfig();
         configHelper.writeConfigFile(config);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        assertThat(goConfigService.loadForEdit("my-invalid-pipeline", new Username(new CaseInsensitiveString("root")), result), is(nullValue()));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(404));
-        assertThat(result.message(), is(EntityType.Pipeline.notFoundMessage("my-invalid-pipeline")));
+        assertThat(goConfigService.loadForEdit("my-invalid-pipeline", new Username(new CaseInsensitiveString("root")), result)).isNull();
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(404);
+        assertThat(result.message()).isEqualTo(EntityType.Pipeline.notFoundMessage("my-invalid-pipeline"));
     }
 
     @Test
@@ -170,8 +169,8 @@ public class GoConfigServiceIntegrationTest {
         config.getCruiseConfig().pipelineConfigByName(new CaseInsensitiveString("my-pipeline")).setLabelTemplate("Foo-bar");
         config.getProcessedConfig().pipelineConfigByName(new CaseInsensitiveString("my-pipeline")).setLabelTemplate("Foo-bar");
 
-        assertThat(goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString("my-pipeline")).getLabelTemplate(), is("foo-${COUNT}-bar"));
-        assertThat(goConfigService.currentCruiseConfig().pipelineConfigByName(new CaseInsensitiveString("my-pipeline")).getLabelTemplate(), is("foo-${COUNT}-bar"));
+        assertThat(goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString("my-pipeline")).getLabelTemplate()).isEqualTo("foo-${COUNT}-bar");
+        assertThat(goConfigService.currentCruiseConfig().pipelineConfigByName(new CaseInsensitiveString("my-pipeline")).getLabelTemplate()).isEqualTo("foo-${COUNT}-bar");
     }
 
     @Test
@@ -186,9 +185,9 @@ public class GoConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         goConfigService.loadCruiseConfigForEdit(new Username(new CaseInsensitiveString("loser")), result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), is("Unauthorized to edit."));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(403);
+        assertThat(result.message()).isEqualTo("Unauthorized to edit.");
     }
 
     @Test
@@ -203,9 +202,9 @@ public class GoConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CruiseConfig config = goConfigService.loadCruiseConfigForEdit(new Username(new CaseInsensitiveString("template-admin")), result);
 
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(goConfigService.getConfigForEditing(), is(config));
-        assertThat(goConfigService.getConfigForEditing(), not(sameInstance(config)));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(goConfigService.getConfigForEditing()).isEqualTo(config);
+        assertThat(goConfigService.getConfigForEditing()).isNotSameAs(config);
     }
 
     @Test
@@ -220,9 +219,9 @@ public class GoConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CruiseConfig config = goConfigService.loadCruiseConfigForEdit(new Username(new CaseInsensitiveString("hero")), result);
 
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(goConfigService.getConfigForEditing(), is(config));
-        assertThat(goConfigService.getConfigForEditing(), not(sameInstance(config)));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(goConfigService.getConfigForEditing()).isEqualTo(config);
+        assertThat(goConfigService.getConfigForEditing()).isNotSameAs(config);
     }
 
     @Test
@@ -237,11 +236,11 @@ public class GoConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         ConfigForEdit<PipelineConfigs> configForEdit = goConfigService.loadGroupForEditing("group_one", new Username(new CaseInsensitiveString("root")), result);
-        assertThat(configForEdit.getConfig().findBy(new CaseInsensitiveString("my-pipeline")).getLabelTemplate(), is("${COUNT}-#{label-param}"));
-        assertThat(configForEdit.getCruiseConfig().getMd5(), is(goConfigService.configFileMd5()));
+        assertThat(configForEdit.getConfig().findBy(new CaseInsensitiveString("my-pipeline")).getLabelTemplate()).isEqualTo("${COUNT}-#{label-param}");
+        assertThat(configForEdit.getCruiseConfig().getMd5()).isEqualTo(goConfigService.configFileMd5());
         configHelper.addPipeline("pipeline-foo", "stage-foo");
-        assertThat(configForEdit.getCruiseConfig().getMd5(), not(goConfigService.configFileMd5()));
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(configForEdit.getCruiseConfig().getMd5()).isNotEqualTo(goConfigService.configFileMd5());
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -262,15 +261,15 @@ public class GoConfigServiceIntegrationTest {
         groupFromEditableConfigCopy.getAuthorization().getAdminsConfig().add(new AdminUser(new CaseInsensitiveString("loser")));
 
         AdminsConfig adminsConfig = goConfigService.getConfigForEditing().findGroup("group_one").getAuthorization().getAdminsConfig();
-        assertThat(adminsConfig.size(), is(0));//should not affect the global copy
+        assertThat(adminsConfig.size()).isEqualTo(0);//should not affect the global copy
         adminsConfig = goConfigService.currentCruiseConfig().findGroup("group_one").getAuthorization().getAdminsConfig();
-        assertThat(adminsConfig.size(), is(0));
+        assertThat(adminsConfig.size()).isEqualTo(0);
 
         group.setGroup("new-name");
-        assertThat(groupForEdit.getCruiseConfig().hasPipelineGroup("group_one"), is(true));
-        assertThat(groupForEdit.getProcessedConfig().hasPipelineGroup("group_one"), is(true));
-        assertThat(groupForEdit.getCruiseConfig().hasPipelineGroup("new-name"), is(false));
-        assertThat(groupForEdit.getProcessedConfig().hasPipelineGroup("new-name"), is(false));
+        assertThat(groupForEdit.getCruiseConfig().hasPipelineGroup("group_one")).isTrue();
+        assertThat(groupForEdit.getProcessedConfig().hasPipelineGroup("group_one")).isTrue();
+        assertThat(groupForEdit.getCruiseConfig().hasPipelineGroup("new-name")).isFalse();
+        assertThat(groupForEdit.getProcessedConfig().hasPipelineGroup("new-name")).isFalse();
     }
 
     @Test
@@ -282,9 +281,9 @@ public class GoConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigForEdit<PipelineConfigs> configForEdit = goConfigService.loadGroupForEditing("group_one", new Username(new CaseInsensitiveString("loser")), result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(EntityType.PipelineGroup.forbiddenToEdit("group_one", "loser")));
-        assertThat(configForEdit, is(nullValue()));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.PipelineGroup.forbiddenToEdit("group_one", "loser"));
+        assertThat(configForEdit).isNull();
     }
 
     @Test
@@ -294,9 +293,9 @@ public class GoConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigForEdit<PipelineConfigs> configForEdit = goConfigService.loadGroupForEditing("group_foo", new Username(new CaseInsensitiveString("loser")), result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(EntityType.PipelineGroup.notFoundMessage("group_foo")));
-        assertThat(configForEdit, is(nullValue()));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.PipelineGroup.notFoundMessage("group_foo"));
+        assertThat(configForEdit).isNull();
     }
 
     @Test
@@ -309,20 +308,20 @@ public class GoConfigServiceIntegrationTest {
         });
         CruiseConfig cruiseConfig = cachedGoConfig.loadForEditing();
         cachedGoConfig.forceReload();
-        assertThat(cruiseConfig, sameInstance(cachedGoConfig.loadForEditing()));
+        assertThat(cruiseConfig).isSameAs(cachedGoConfig.loadForEditing());
     }
 
     @Test
     public void shouldReturnTheServerLevelJobTimeoutIfTheJobDoesNotHaveItConfigured() {
         configHelper.addPipeline("pipeline", "stage");
         setJobTimeoutTo("30");
-        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit")), is(30 * 60 * 1000L));
+        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit"))).isEqualTo(30 * 60 * 1000L);
     }
 
     @Test
     public void shouldReturnTrueIfTheJobDoesNotHaveTimeoutConfigured() {
         configHelper.addPipeline("pipeline", "stage");
-        assertThat(goConfigService.canCancelJobIfHung(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit")), is(false));
+        assertThat(goConfigService.canCancelJobIfHung(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit"))).isFalse();
     }
 
     @Test
@@ -330,12 +329,12 @@ public class GoConfigServiceIntegrationTest {
         configHelper.addPipeline("pipeline", "stage");
         setJobTimeoutTo("0");
 
-        assertThat(goConfigService.canCancelJobIfHung(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit")), is(false));
+        assertThat(goConfigService.canCancelJobIfHung(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit"))).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfPipelineIsNotFoundForTheJob() {
-        assertThat(goConfigService.canCancelJobIfHung(new JobIdentifier("recently_deleted_pipeline", -1, "label", "stage", "-1", "unit")), is(false));
+        assertThat(goConfigService.canCancelJobIfHung(new JobIdentifier("recently_deleted_pipeline", -1, "label", "stage", "-1", "unit"))).isFalse();
     }
 
     @Test
@@ -344,7 +343,7 @@ public class GoConfigServiceIntegrationTest {
         CruiseConfig config = configHelper.currentConfig();
         config.findJob("pipeline", "stage", "unit").setTimeout("10");
         configHelper.writeConfigFile(config);
-        assertThat(goConfigService.canCancelJobIfHung(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit")), is(true));
+        assertThat(goConfigService.canCancelJobIfHung(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit"))).isTrue();
     }
 
     @Test
@@ -353,7 +352,7 @@ public class GoConfigServiceIntegrationTest {
         CruiseConfig config = configHelper.currentConfig();
         config.findJob("pipeline", "stage", "unit").setTimeout("0");
         configHelper.writeConfigFile(config);
-        assertThat(goConfigService.canCancelJobIfHung(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit")), is(false));
+        assertThat(goConfigService.canCancelJobIfHung(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit"))).isFalse();
     }
 
     @Test
@@ -363,12 +362,12 @@ public class GoConfigServiceIntegrationTest {
         config.findJob("pipeline", "stage", "unit").setTimeout("10");
         configHelper.writeConfigFile(config);
         setJobTimeoutTo("30");
-        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit")), is(10 * 60 * 1000L));
+        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit"))).isEqualTo(10 * 60 * 1000L);
     }
 
     @Test
     public void shouldReturnTheDefaultTimeoutIfThePipelineIsNotRecentlyDeleted() {
-        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("recently_deleted_pipeline", -1, "label", "stage", "-1", "unit")), is(0L));
+        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("recently_deleted_pipeline", -1, "label", "stage", "-1", "unit"))).isEqualTo(0L);
     }
 
     @Test
@@ -390,10 +389,10 @@ public class GoConfigServiceIntegrationTest {
         GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(os.toString(), user1SeeingMd5);
 
-        assertThat(validity.isValid(), is(false));
+        assertThat(validity.isValid()).isFalse();
         GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
-        assertThat(invalidGoConfig.isType(GoConfigValidity.VT_MERGE_OPERATION_ERROR), is(true));
-        assertThat(invalidGoConfig.errorMessage(), is("Configuration file has been modified by someone else."));
+        assertThat(invalidGoConfig.isType(GoConfigValidity.VT_MERGE_OPERATION_ERROR)).isTrue();
+        assertThat(invalidGoConfig.errorMessage()).isEqualTo("Configuration file has been modified by someone else.");
     }
 
     @Test
@@ -419,11 +418,11 @@ public class GoConfigServiceIntegrationTest {
         GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(xml, user1SeeingMd5);
 
-        assertThat(validity.isValid(), is(false));
+        assertThat(validity.isValid()).isFalse();
         GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
         // Pre throws VT_CONFLICT as user submitted xml is validated before attempting to save
-        assertThat(invalidGoConfig.isType(GoConfigValidity.VT_CONFLICT), is(true));
-        assertThat(invalidGoConfig.errorMessage(), containsString("Name is invalid. \"user1 pipeline\""));
+        assertThat(invalidGoConfig.isType(GoConfigValidity.VT_CONFLICT)).isTrue();
+        assertThat(invalidGoConfig.errorMessage()).contains("Name is invalid. \"user1 pipeline\"");
     }
 
     @Test
@@ -449,10 +448,10 @@ public class GoConfigServiceIntegrationTest {
         GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(xml, user1SeeingMd5);
 
-        assertThat(validity.isValid(), is(false));
+        assertThat(validity.isValid()).isFalse();
         GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
-        assertThat(validity.toString(), invalidGoConfig.isType(GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR), is(true));
-        assertThat(invalidGoConfig.errorMessage(), is("Pipeline 'up_pipeline' does not exist. It is used from pipeline 'down_pipeline'."));
+        assertThat(invalidGoConfig.isType(GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR)).isTrue();
+        assertThat(invalidGoConfig.errorMessage()).isEqualTo("Pipeline 'up_pipeline' does not exist. It is used from pipeline 'down_pipeline'.");
     }
 
     @Test
@@ -474,10 +473,10 @@ public class GoConfigServiceIntegrationTest {
         GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(xml, user1SeeingMd5);
 
-        assertThat(validity.isValid(), is(false));
+        assertThat(validity.isValid()).isFalse();
         GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
-        assertThat(invalidGoConfig.isType(GoConfigValidity.VT_CONFLICT), is(true));
-        assertThat(invalidGoConfig.errorMessage(), containsString("Name is invalid. \"user1 pipeline\""));
+        assertThat(invalidGoConfig.isType(GoConfigValidity.VT_CONFLICT)).isTrue();
+        assertThat(invalidGoConfig.errorMessage()).contains("Name is invalid. \"user1 pipeline\"");
     }
 
     @Test
@@ -504,7 +503,7 @@ public class GoConfigServiceIntegrationTest {
         GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(os.toString(), user1SeeingMd5);
 
-        assertThat(validity.isValid(), is(true));
+        assertThat(validity.isValid()).isTrue();
     }
 
     @Test
@@ -526,7 +525,7 @@ public class GoConfigServiceIntegrationTest {
         GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(os.toString(), user2SeeingMd5);
 
-        assertThat(validity.isValid(), is(true));
+        assertThat(validity.isValid()).isTrue();
     }
 
     private void setupMetadataForPlugin() {
@@ -553,13 +552,13 @@ public class GoConfigServiceIntegrationTest {
     }
 
     private void assertFailedResult(HttpLocalizedOperationResult result, final String message) {
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(message));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo(message);
     }
 
     private void assertStageError(StageConfig duplicatedStage, final String message, final String field) {
-        assertThat(duplicatedStage.errors().isEmpty(), is(false));
-        assertThat(duplicatedStage.errors().on(field), is(message));
+        assertThat(duplicatedStage.errors().isEmpty()).isFalse();
+        assertThat(duplicatedStage.errors().on(field)).isEqualTo(message);
     }
 
 }

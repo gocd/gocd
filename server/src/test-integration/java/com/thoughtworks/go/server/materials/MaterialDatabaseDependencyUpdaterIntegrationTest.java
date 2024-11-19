@@ -35,8 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -79,7 +78,7 @@ public class MaterialDatabaseDependencyUpdaterIntegrationTest  {
         String revision1 = String.format("acceptance/%s/stage-name/1", passed1.getCounter());
 
         updater.updateMaterial(dependencyMaterial);
-        assertThat(materialRepository.findModificationWithRevision(dependencyMaterial, revision1), is(not(nullValue())));
+        assertThat(materialRepository.findModificationWithRevision(dependencyMaterial, revision1)).isNotNull();
 
         Pipeline cancelledPipeline = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
         dbHelper.cancelStage(cancelledPipeline.getStages().get(0));
@@ -88,19 +87,19 @@ public class MaterialDatabaseDependencyUpdaterIntegrationTest  {
         dbHelper.passStage(passed2.getStages().get(0));
 
         updater.updateMaterial(dependencyMaterial);
-        assertThat(materialRepository.findModificationWithRevision(dependencyMaterial, String.format("acceptance/%s/stage-name/1", cancelledPipeline.getCounter())), is(nullValue()));
+        assertThat(materialRepository.findModificationWithRevision(dependencyMaterial, String.format("acceptance/%s/stage-name/1", cancelledPipeline.getCounter()))).isNull();
 
         Modification modification1 = materialRepository.findModificationWithRevision(dependencyMaterial, revision1);
-        assertThat(modification1, is(not(nullValue())));
-        assertThat(modification1.getRevision(), is(revision1));
-        assertThat(modification1.getPipelineLabel(), is(passed1.getCounter().toString()));
-        assertThat(modification1.getPipelineId(), is(passed1.getId()));
+        assertThat(modification1).isNotNull();
+        assertThat(modification1.getRevision()).isEqualTo(revision1);
+        assertThat(modification1.getPipelineLabel()).isEqualTo(passed1.getCounter().toString());
+        assertThat(modification1.getPipelineId()).isEqualTo(passed1.getId());
 
         String revision2 = String.format("acceptance/%s/stage-name/1", passed2.getCounter());
         Modification modification2 = materialRepository.findModificationWithRevision(dependencyMaterial, revision2);
-        assertThat(modification2, is(not(nullValue())));
-        assertThat(modification2.getRevision(), is(revision2));
-        assertThat(modification2.getPipelineLabel(), is(passed2.getCounter().toString()));
-        assertThat(modification2.getPipelineId(), is(passed2.getId()));
+        assertThat(modification2).isNotNull();
+        assertThat(modification2.getRevision()).isEqualTo(revision2);
+        assertThat(modification2.getPipelineLabel()).isEqualTo(passed2.getCounter().toString());
+        assertThat(modification2.getPipelineId()).isEqualTo(passed2.getId());
     }
 }

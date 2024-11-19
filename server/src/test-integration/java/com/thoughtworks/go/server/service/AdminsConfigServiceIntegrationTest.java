@@ -29,8 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
@@ -75,8 +74,8 @@ public class AdminsConfigServiceIntegrationTest {
 
         adminsConfigService.update(USERNAME, new AdminsConfig(newAdminUser), hashForEntity, result);
 
-        assertThat(result.httpCode(), is(200));
-        assertThat(adminsConfigService.systemAdmins().size(), is(1));
+        assertThat(result.httpCode()).isEqualTo(200);
+        assertThat(adminsConfigService.systemAdmins().size()).isEqualTo(1);
         assertTrue(adminsConfigService.systemAdmins().has(newAdminUser, null));
     }
 
@@ -95,8 +94,8 @@ public class AdminsConfigServiceIntegrationTest {
 
         adminsConfigService.update(USERNAME, new AdminsConfig(new AdminRole(new CaseInsensitiveString("qas"))), hashForEntity, result);
 
-        assertThat(result.httpCode(), is(200));
-        assertThat(adminsConfigService.systemAdmins().size(), is(1));
+        assertThat(result.httpCode()).isEqualTo(200);
+        assertThat(adminsConfigService.systemAdmins().size()).isEqualTo(1);
         assertTrue(adminsConfigService.systemAdmins().has(null, List.of(qas)));
     }
 
@@ -108,9 +107,9 @@ public class AdminsConfigServiceIntegrationTest {
 
         adminsConfigService.update(USERNAME, newSystemAdmins, hashForEntity, result);
 
-        assertThat(result.httpCode(), is(422));
-        assertThat(result.message(), is("Validations failed for admins. Error(s): [Role \"qas\" does not exist.]. Please correct and resubmit."));
-        assertThat(adminsConfigService.systemAdmins().size(), is(0));
-        assertThat(newSystemAdmins.errors().on("roles"), is("Role \"qas\" does not exist."));
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(result.message()).isEqualTo("Validations failed for admins. Error(s): [Role \"qas\" does not exist.]. Please correct and resubmit.");
+        assertThat(adminsConfigService.systemAdmins().size()).isEqualTo(0);
+        assertThat(newSystemAdmins.errors().on("roles")).isEqualTo("Role \"qas\" does not exist.");
     }
 }

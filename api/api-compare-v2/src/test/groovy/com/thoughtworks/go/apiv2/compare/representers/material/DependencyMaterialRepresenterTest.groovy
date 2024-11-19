@@ -32,7 +32,7 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   def existingMaterialWithErrors() {
     def dependencyConfig = new DependencyMaterialConfig(new CaseInsensitiveString(''), new CaseInsensitiveString(''))
-    def materialConfigs = new MaterialConfigs(dependencyConfig);
+    def materialConfigs = new MaterialConfigs(dependencyConfig)
     def pipeline = new PipelineConfig(new CaseInsensitiveString("p"), materialConfigs)
     pipeline.setOrigins(new FileConfigOrigin())
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), pipeline))

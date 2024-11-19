@@ -61,8 +61,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(ResetCipher.class)
@@ -88,7 +87,7 @@ public class MagicalGoConfigXmlWriterTest {
         config.setServerConfig(new ServerConfig("foo", new SecurityConfig()));
         config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).lockExplicitly();
         xmlWriter.write(config, output, false);
-        assertThat(output.toString(), containsString("lockBehavior=\"" + PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE));
+        assertThat(output.toString()).contains("lockBehavior=\"" + PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE);
     }
 
     @Test
@@ -97,7 +96,7 @@ public class MagicalGoConfigXmlWriterTest {
         config.setServerConfig(new ServerConfig("foo", new SecurityConfig()));
         config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).unlockExplicitly();
         xmlWriter.write(config, output, false);
-        assertThat(output.toString(), containsString("lockBehavior=\"" + PipelineConfig.LOCK_VALUE_NONE));
+        assertThat(output.toString()).contains("lockBehavior=\"" + PipelineConfig.LOCK_VALUE_NONE);
     }
 
     @Test
@@ -120,7 +119,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(merged, output, true);
         } catch (GoConfigInvalidException ex) {
             // ok
-            assertThat(ex.getMessage(), is("Attempted to save merged configuration with partials"));
+            assertThat(ex.getMessage()).isEqualTo("Attempted to save merged configuration with partials");
             return;
         }
         fail("should have thrown when saving merged configuration");
@@ -145,7 +144,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("Should not be able to save config when there are 2 pipelines with same name");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
+            assertThat(e.getMessage()).contains("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]");
         }
     }
 
@@ -154,7 +153,7 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig config = ConfigMigrator.load(ConfigFileFixture.SERVER_TAG_WITH_DEFAULTS_PLUS_LICENSE_TAG);
 
         xmlWriter.write(config, output, false);
-        assertThat(output.toString(), containsString("<server"));
+        assertThat(output.toString()).contains("<server");
     }
 
     @Test
@@ -163,8 +162,8 @@ public class MagicalGoConfigXmlWriterTest {
         config.initializeServer();
         xmlWriter.write(config, output, false);
 
-        assertThat(output.toString(), containsString("<config-repo id=\"id2\" pluginId=\"myplugin\">"));
-        assertThat(output.toString(), containsString("<git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />"));
+        assertThat(output.toString()).contains("<config-repo id=\"id2\" pluginId=\"myplugin\">");
+        assertThat(output.toString()).contains("<git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />");
     }
 
     @Test
@@ -173,7 +172,7 @@ public class MagicalGoConfigXmlWriterTest {
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
         xmlWriter.write(cruiseConfig, output, false);
-        assertThat(output.toString().replaceAll(">\\s+<", ""), not(containsString("dependencies")));
+        assertThat(output.toString().replaceAll(">\\s+<", "")).doesNotContain("dependencies");
     }
 
     @Test
@@ -186,7 +185,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("Should not be able to save config when the environment name is not set");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("\"Name\" is required for Environment"));
+            assertThat(e.getMessage()).contains("\"Name\" is required for Environment");
         }
     }
 
@@ -199,7 +198,7 @@ public class MagicalGoConfigXmlWriterTest {
 
             fail("Should not be able to save config when 2 environments have the same name with different case");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Environment with name 'FOO' already exists."));
+            assertThat(e.getMessage()).contains("Environment with name 'FOO' already exists.");
         }
     }
 
@@ -241,9 +240,9 @@ public class MagicalGoConfigXmlWriterTest {
                 </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
         xmlWriter.write(config, output, false);
-        assertThat(output.toString().replaceAll("\\s+", " "), containsString(
+        assertThat(output.toString().replaceAll("\\s+", " ")).contains(
             """
-                <pipeline name="pipeline1" template="abc"> <materials> <svn url="svnurl" /> </materials> </pipeline>"""));
+                <pipeline name="pipeline1" template="abc"> <materials> <svn url="svnurl" /> </materials> </pipeline>""");
     }
 
     @Test
@@ -254,7 +253,7 @@ public class MagicalGoConfigXmlWriterTest {
         StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString("stage"));
         JobConfig build = stageConfig.jobConfigByInstanceName("functional", true);
 
-        assertThat(xmlWriter.toXmlPartial(pipelineConfig), is(
+        assertThat(xmlWriter.toXmlPartial(pipelineConfig)).isEqualTo(
                 """
                         <pipeline name="pipeline1">
                           <materials>
@@ -273,9 +272,9 @@ public class MagicalGoConfigXmlWriterTest {
                             </jobs>
                           </stage>
                         </pipeline>"""
-        ));
+        );
 
-        assertThat(xmlWriter.toXmlPartial(stageConfig), is(
+        assertThat(xmlWriter.toXmlPartial(stageConfig)).isEqualTo(
                 """
                         <stage name="stage">
                           <jobs>
@@ -289,9 +288,9 @@ public class MagicalGoConfigXmlWriterTest {
                             </job>
                           </jobs>
                         </stage>"""
-        ));
+        );
 
-        assertThat(xmlWriter.toXmlPartial(build), is(
+        assertThat(xmlWriter.toXmlPartial(build)).isEqualTo(
                 """
                         <job name="functional">
                           <tasks>
@@ -301,7 +300,7 @@ public class MagicalGoConfigXmlWriterTest {
                             <artifact type="build" src="artifact1.xml" dest="cruise-output" />
                           </artifacts>
                         </job>"""
-        ));
+        );
     }
 
     @Test
@@ -315,7 +314,7 @@ public class MagicalGoConfigXmlWriterTest {
                   </tasks>
                 </job>""";
         JobConfig jobConfig = xmlLoader.fromXmlPartial(partial, JobConfig.class);
-        assertThat(xmlWriter.toXmlPartial(jobConfig), is(partial));
+        assertThat(xmlWriter.toXmlPartial(jobConfig)).isEqualTo(partial);
     }
 
     @Test
@@ -333,7 +332,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.toXmlPartial(badObject);
             fail("Should not be able to write a non ConfigTag enabled object");
         } catch (RuntimeException expected) {
-            assertThat(expected.getMessage(), is("Object " + badObject + " does not have a ConfigTag"));
+            assertThat(expected.getMessage()).isEqualTo("Object " + badObject + " does not have a ConfigTag");
         }
     }
 
@@ -342,9 +341,9 @@ public class MagicalGoConfigXmlWriterTest {
         MailHost mailHost = new MailHost("hostname", 24, "", "", null, true, false, "from@te.com", "to@te.com", new GoCipher());
         mailHost.ensureEncrypted();
         String s = xmlWriter.toXmlPartial(mailHost);
-        assertThat(s, is(
+        assertThat(s).isEqualTo(
                 "<mailhost hostname=\"hostname\" port=\"24\" "
-                        + "from=\"from@te.com\" admin=\"to@te.com\" />"));
+                        + "from=\"from@te.com\" admin=\"to@te.com\" />");
     }
 
     @Test
@@ -377,10 +376,10 @@ public class MagicalGoConfigXmlWriterTest {
                 </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
         xmlWriter.write(config, output, false);
-        assertThat(output.toString().replaceAll("\\s+", " "), containsString(
-                "<svn url=\"svnurl\" username=\"foo\" encryptedPassword=\"" + new GoCipher().encrypt("password") + "\" />"));
-        assertThat(output.toString().replaceAll("\\s+", " "), containsString(
-                "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" encryptedPassword=\"" + new GoCipher().encrypt("password") + "\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"));
+        assertThat(output.toString().replaceAll("\\s+", " ")).contains(
+                "<svn url=\"svnurl\" username=\"foo\" encryptedPassword=\"" + new GoCipher().encrypt("password") + "\" />");
+        assertThat(output.toString().replaceAll("\\s+", " ")).contains(
+                "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" encryptedPassword=\"" + new GoCipher().encrypt("password") + "\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />");
     }
 
     @Test
@@ -393,32 +392,32 @@ public class MagicalGoConfigXmlWriterTest {
                 P4MaterialConfig.USERNAME, "cruise",
                 P4MaterialConfig.VIEW, "//depot/dir1/... //lumberjack/...",
                 P4MaterialConfig.AUTO_UPDATE, "true"));
-        assertThat(xmlWriter.toXmlPartial(p4MaterialConfig), is(
+        assertThat(xmlWriter.toXmlPartial(p4MaterialConfig)).isEqualTo(
                 ("""
                         <p4 port="localhost:1666" username="cruise" encryptedPassword="%s">
                           <view><![CDATA[//depot/dir1/... //lumberjack/...]]></view>
-                        </p4>""").formatted(encryptedPassword)));
+                        </p4>""").formatted(encryptedPassword));
     }
 
     @Test
     public void shouldWriteSvnMaterialToXmlPartial() throws Exception {
         String encryptedPassword = new GoCipher().encrypt("password");
         SvnMaterialConfig material = com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig("http://user:pass@svn", null, "cruise", "password", false, null);
-        assertThat(xmlWriter.toXmlPartial(material), is(
-                "<svn url=\"http://user:pass@svn\" username=\"cruise\" encryptedPassword=\"" + encryptedPassword + "\" materialName=\"http___user_pass@svn\" />"));
+        assertThat(xmlWriter.toXmlPartial(material)).isEqualTo(
+                "<svn url=\"http://user:pass@svn\" username=\"cruise\" encryptedPassword=\"" + encryptedPassword + "\" materialName=\"http___user_pass@svn\" />");
     }
 
     @Test
     public void shouldWriteHgMaterialToXmlPartial() {
         HgMaterialConfig material = com.thoughtworks.go.helper.MaterialConfigsMother.hgMaterialConfig();
         material.setConfigAttributes(Map.of(HgMaterialConfig.URL, "http://user:pass@hg", HgMaterialConfig.AUTO_UPDATE, "true"));
-        assertThat(xmlWriter.toXmlPartial(material), is("<hg url=\"http://user:pass@hg\" />"));
+        assertThat(xmlWriter.toXmlPartial(material)).isEqualTo("<hg url=\"http://user:pass@hg\" />");
     }
 
     @Test
     public void shouldWriteGitMaterialToXmlPartial() {
         GitMaterialConfig gitMaterial = git("gitUrl");
-        assertThat(xmlWriter.toXmlPartial(gitMaterial), is("<git url=\"gitUrl\" />"));
+        assertThat(xmlWriter.toXmlPartial(gitMaterial)).isEqualTo("<git url=\"gitUrl\" />");
     }
 
     @Test
@@ -441,8 +440,8 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         xmlWriter.write(cruiseConfig, out, false);
-        assertThat(out.toString(), containsString("<admins>"));
-        assertThat(out.toString(), containsString("<user>foo</user>"));
+        assertThat(out.toString()).contains("<admins>");
+        assertThat(out.toString()).contains("<user>foo</user>");
     }
 
     @Test
@@ -476,15 +475,15 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework"));
         ParamsConfig params = pipelineConfig.getParams();
-        assertThat(params.getParamNamed("first"), is(new ParamConfig("first", "foo")));
-        assertThat(params.getParamNamed("second"), is(new ParamConfig("second", "bar")));
-        assertThat(params.getParamNamed("third"), is(nullValue()));
+        assertThat(params.getParamNamed("first")).isEqualTo(new ParamConfig("first", "foo"));
+        assertThat(params.getParamNamed("second")).isEqualTo(new ParamConfig("second", "bar"));
+        assertThat(params.getParamNamed("third")).isNull();
 
         params.remove(0);
 
         xmlWriter.write(cruiseConfig, out, false);
-        assertThat(out.toString(), not(containsString("<param name=\"first\">foo</param>")));
-        assertThat(out.toString(), containsString("<param name=\"second\">bar</param>"));
+        assertThat(out.toString()).doesNotContain("<param name=\"first\">foo</param>");
+        assertThat(out.toString()).contains("<param name=\"second\">bar</param>");
     }
 
     @Test
@@ -514,10 +513,10 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).get(0);
 
-        assertThat(stageConfig.isFetchMaterials(), is(true));
+        assertThat(stageConfig.isFetchMaterials()).isTrue();
         stageConfig.setFetchMaterials(false);
         xmlWriter.write(cruiseConfig, out, false);
-        assertThat(out.toString(), containsString("fetchMaterials=\"false\""));
+        assertThat(out.toString()).contains("fetchMaterials=\"false\"");
     }
 
     @Test
@@ -546,12 +545,12 @@ public class MagicalGoConfigXmlWriterTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         xmlWriter.write(cruiseConfig, out, false);
-        assertThat(out.toString(), not(containsString("cleanWorkingDir")));
+        assertThat(out.toString()).doesNotContain("cleanWorkingDir");
 
         StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).get(0);
         stageConfig.setCleanWorkingDir(true);
         xmlWriter.write(cruiseConfig, out, false);
-        assertThat(out.toString(), containsString("cleanWorkingDir=\"true\""));
+        assertThat(out.toString()).contains("cleanWorkingDir=\"true\"");
     }
 
     @Test
@@ -582,20 +581,20 @@ public class MagicalGoConfigXmlWriterTest {
         StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).get(0);
         ReflectionUtil.setField(stageConfig, "artifactCleanupProhibited", false);
         xmlWriter.write(cruiseConfig, out, false);
-        assertThat(out.toString(), not(containsString("artifactCleanupProhibited=\"true\"")));
+        assertThat(out.toString()).doesNotContain("artifactCleanupProhibited=\"true\"");
         ReflectionUtil.setField(stageConfig, "artifactCleanupProhibited", true);
         xmlWriter.write(cruiseConfig, out, false);
-        assertThat(out.toString(), containsString("artifactCleanupProhibited=\"true\""));
+        assertThat(out.toString()).contains("artifactCleanupProhibited=\"true\"");
 
-        assertThat(out.toString(), not(containsString("purgeStart=\"10.0\"")));
-        assertThat(out.toString(), not(containsString("purgeUpto=\"20.0\"")));
+        assertThat(out.toString()).doesNotContain("purgeStart=\"10.0\"");
+        assertThat(out.toString()).doesNotContain("purgeUpto=\"20.0\"");
 
         cruiseConfig.server().setPurgeLimits(10.0, 20.0);
 
         xmlWriter.write(cruiseConfig, out, false);
 
-        assertThat(out.toString(), containsString("<purgeStartDiskSpace>10.0</purgeStartDiskSpace>"));
-        assertThat(out.toString(), containsString("<purgeUptoDiskSpace>20.0</purgeUptoDiskSpace>"));
+        assertThat(out.toString()).contains("<purgeStartDiskSpace>10.0</purgeStartDiskSpace>");
+        assertThat(out.toString()).contains("<purgeUptoDiskSpace>20.0</purgeUptoDiskSpace>");
     }
 
     @Test
@@ -603,7 +602,7 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.TWO_DUPLICATED_FILTER);
 
         int size = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).materialConfigs().first().filter().size();
-        assertThat(size, is(1));
+        assertThat(size).isEqualTo(1);
     }
 
     @Test
@@ -614,9 +613,9 @@ public class MagicalGoConfigXmlWriterTest {
 
         try {
             xmlWriter.write(cruiseConfig, output, false);
-            assertThat("Should not allow approval with empty auth", output.toString().contains("<auth"), is(false));
+            assertThat(output.toString().contains("<auth")).isFalse();
         } catch (JDOMParseException expected) {
-            assertThat(expected.getMessage(), containsString("The content of element 'auth' is not complete"));
+            assertThat(expected.getMessage()).contains("The content of element 'auth' is not complete");
         }
     }
 
@@ -625,8 +624,7 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.ONE_PIPELINE);
         xmlWriter.write(cruiseConfig, output, false);
 
-        assertThat("should not write empty trackingtool to config when it is not defined",
-                output.toString(), not(containsString("<trackingtool")));
+        assertThat(output.toString()).doesNotContain("<trackingtool");
     }
 
     @Test
@@ -638,7 +636,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not save a trackingtool without a link");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Link should be populated"));
+            assertThat(e.getMessage()).contains("Link should be populated");
         }
     }
 
@@ -649,7 +647,7 @@ public class MagicalGoConfigXmlWriterTest {
         pipelineConfig.addEnvironmentVariable("name1", "value1");
         pipelineConfig.addEnvironmentVariable("name1", "value1");
         xmlWriter.write(cruiseConfig, output, true);
-        assertThat(cruiseConfig.errors().isEmpty(), is(true));
+        assertThat(cruiseConfig.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -661,7 +659,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not save a trackingtool without a regex");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Regex should be populated"));
+            assertThat(e.getMessage()).contains("Regex should be populated");
         }
     }
 
@@ -675,8 +673,8 @@ public class MagicalGoConfigXmlWriterTest {
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
         CruiseConfig config = xmlLoader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
-        assertThat(config.getGroups().size(), is(2));
-        assertThat(config.getGroups().first().getGroup(), is("studios"));
+        assertThat(config.getGroups().size()).isEqualTo(2);
+        assertThat(config.getGroups().first().getGroup()).isEqualTo("studios");
     }
 
     @Test
@@ -689,13 +687,13 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig config = xmlLoader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
         JobConfig job = config.jobConfigByName("pipeline1", "mingle", "cardlist", true);
 
-        assertThat(job.tasks().size(), is(2));
-        assertThat(job.tasks().findFirstByType(AntTask.class).getConditions().get(0), is(new RunIfConfig("failed")));
+        assertThat(job.tasks().size()).isEqualTo(2);
+        assertThat(job.tasks().findFirstByType(AntTask.class).getConditions().get(0)).isEqualTo(new RunIfConfig("failed"));
 
         RunIfConfigs conditions = job.tasks().findFirstByType(NantTask.class).getConditions();
-        assertThat(conditions.get(0), is(new RunIfConfig("failed")));
-        assertThat(conditions.get(1), is(new RunIfConfig("any")));
-        assertThat(conditions.get(2), is(new RunIfConfig("passed")));
+        assertThat(conditions.get(0)).isEqualTo(new RunIfConfig("failed"));
+        assertThat(conditions.get(1)).isEqualTo(new RunIfConfig("any"));
+        assertThat(conditions.get(2)).isEqualTo(new RunIfConfig("passed"));
     }
 
     @Test
@@ -705,7 +703,7 @@ public class MagicalGoConfigXmlWriterTest {
 
         xmlWriter.write(cruiseConfig, output, false);
 
-        assertThat(xmlWriter.toXmlPartial(cruiseConfig.server()), containsString("<artifactsDir>artifactsDir</artifactsDir>"));
+        assertThat(xmlWriter.toXmlPartial(cruiseConfig.server())).contains("<artifactsDir>artifactsDir</artifactsDir>");
     }
 
     @Test
@@ -720,10 +718,10 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail();
         } catch (Exception e) {
-            assertThat(e.getMessage(), anyOf(
-                    is("Duplicate unique value [passed] declared for identity constraint of element \"exec\"."),
-                    is("Duplicate unique value [passed] declared for identity constraint \"uniqueRunIfTypeForExec\" of element \"exec\".")
-            ));
+            assertThat(e.getMessage()).containsAnyOf(
+                "Duplicate unique value [passed] declared for identity constraint of element \"exec\".",
+                "Duplicate unique value [passed] declared for identity constraint \"uniqueRunIfTypeForExec\" of element \"exec\"."
+            );
         }
     }
 
@@ -758,7 +756,7 @@ public class MagicalGoConfigXmlWriterTest {
             fail("should not fail as workspace name is not mandatory anymore " + e);
         }
 
-        assertThat(new String(output.toByteArray()), containsString("<fetchartifact artifactOrigin=\"gocd\" srcfile=\"src\" dest=\"dest\" pipeline=\"uppest/upper/downer\" stage=\"stage\" job=\"job\" />"));
+        assertThat(new String(output.toByteArray())).contains("<fetchartifact artifactOrigin=\"gocd\" srcfile=\"src\" dest=\"dest\" pipeline=\"uppest/upper/downer\" stage=\"stage\" job=\"job\" />");
     }
 
     @Test
@@ -779,14 +777,14 @@ public class MagicalGoConfigXmlWriterTest {
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
 
         PackageRepositories packageRepositories = goConfigHolder.config.getPackageRepositories();
-        assertThat(packageRepositories, is(cruiseConfig.getPackageRepositories()));
-        assertThat(packageRepositories.get(0).getConfiguration().first().getConfigurationValue().getValue(), is("http://go"));
-        assertThat(packageRepositories.get(0).getConfiguration().first().getEncryptedConfigurationValue(), is(nullValue()));
-        assertThat(packageRepositories.get(0).getConfiguration().last().getEncryptedValue(), is(new GoCipher().encrypt("secure")));
-        assertThat(packageRepositories.get(0).getConfiguration().last().getConfigurationValue(), is(nullValue()));
-        assertThat(packageRepositories.get(0).getPackages().get(0), is(packageDefinition));
-        assertThat(packageRepositories.get(0).getPackages().get(0).getConfiguration().first().getConfigurationValue().getValue(), is("go-agent"));
-        assertThat(packageRepositories.get(0).getPackages().get(0).getConfiguration().first().getEncryptedConfigurationValue(), is(nullValue()));
+        assertThat(packageRepositories).isEqualTo(cruiseConfig.getPackageRepositories());
+        assertThat(packageRepositories.get(0).getConfiguration().first().getConfigurationValue().getValue()).isEqualTo("http://go");
+        assertThat(packageRepositories.get(0).getConfiguration().first().getEncryptedConfigurationValue()).isNull();
+        assertThat(packageRepositories.get(0).getConfiguration().last().getEncryptedValue()).isEqualTo(new GoCipher().encrypt("secure"));
+        assertThat(packageRepositories.get(0).getConfiguration().last().getConfigurationValue()).isNull();
+        assertThat(packageRepositories.get(0).getPackages().get(0)).isEqualTo(packageDefinition);
+        assertThat(packageRepositories.get(0).getPackages().get(0).getConfiguration().first().getConfigurationValue().getValue()).isEqualTo("go-agent");
+        assertThat(packageRepositories.get(0).getPackages().get(0).getConfiguration().first().getEncryptedConfigurationValue()).isNull();
     }
 
     @Test
@@ -806,10 +804,10 @@ public class MagicalGoConfigXmlWriterTest {
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
 
         PackageRepositories packageRepositories = goConfigHolder.config.getPackageRepositories();
-        assertThat(packageRepositories.size(), is(cruiseConfig.getPackageRepositories().size()));
-        assertThat(packageRepositories.get(0).getId(), is(notNullValue()));
-        assertThat(packageRepositories.get(0).getPackages().size(), is(1));
-        assertThat(packageRepositories.get(0).getPackages().get(0).getId(), is(notNullValue()));
+        assertThat(packageRepositories.size()).isEqualTo(cruiseConfig.getPackageRepositories().size());
+        assertThat(packageRepositories.get(0).getId()).isNotNull();
+        assertThat(packageRepositories.get(0).getPackages().size()).isEqualTo(1);
+        assertThat(packageRepositories.get(0).getPackages().get(0).getId()).isNotNull();
     }
 
     @Test
@@ -828,10 +826,10 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), anyOf(
-                    is("Duplicate unique value [id] declared for identity constraint of element \"repositories\"."),
-                    is("Duplicate unique value [id] declared for identity constraint \"uniqueRepositoryId\" of element \"repositories\".")
-            ));
+            assertThat(e.getMessage()).containsAnyOf(
+                "Duplicate unique value [id] declared for identity constraint of element \"repositories\".",
+                "Duplicate unique value [id] declared for identity constraint \"uniqueRepositoryId\" of element \"repositories\"."
+            );
         }
     }
 
@@ -851,10 +849,9 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two package repositories with same id");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), anyOf(
-                    is("Duplicate unique value [id] declared for identity constraint of element \"cruise\"."),
-                    is("Duplicate unique value [id] declared for identity constraint \"uniquePackageId\" of element \"cruise\".")
-            ));
+            assertThat(e.getMessage()).containsAnyOf(("Duplicate unique value [id] declared for identity constraint of element \"cruise\"."),
+                "Duplicate unique value [id] declared for identity constraint \"uniquePackageId\" of element \"cruise\"."
+            );
         }
     }
 
@@ -881,10 +878,10 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, output, false);
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
-        assertThat(pipelineConfig.materialConfigs().get(0) instanceof PackageMaterialConfig, is(true));
-        assertThat(((PackageMaterialConfig) pipelineConfig.materialConfigs().get(0)).getPackageId(), is(packageId));
+        assertThat(pipelineConfig.materialConfigs().get(0) instanceof PackageMaterialConfig).isTrue();
+        assertThat(((PackageMaterialConfig) pipelineConfig.materialConfigs().get(0)).getPackageId()).isEqualTo(packageId);
         PackageDefinition packageDefinition = goConfigHolder.config.getPackageRepositories().first().getPackages().first();
-        assertThat(((PackageMaterialConfig) pipelineConfig.materialConfigs().get(0)).getPackageDefinition(), is(packageDefinition));
+        assertThat(((PackageMaterialConfig) pipelineConfig.materialConfigs().get(0)).getPackageDefinition()).isEqualTo(packageDefinition);
     }
 
     @Test
@@ -902,7 +899,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not allow this");
         } catch (XsdValidationException exception) {
-            assertThat(exception.getMessage(), is("Key 'packageIdReferredByMaterial' with value 'does-not-exist' not found for identity constraint of element 'cruise'."));
+            assertThat(exception.getMessage()).isEqualTo("Key 'packageIdReferredByMaterial' with value 'does-not-exist' not found for identity constraint of element 'cruise'.");
         }
     }
 
@@ -922,7 +919,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage(), is("You have defined multiple repositories called 'name'. Repository names are case-insensitive and must be unique."));
+            assertThat(e.getMessage()).isEqualTo("You have defined multiple repositories called 'name'. Repository names are case-insensitive and must be unique.");
         }
     }
 
@@ -940,7 +937,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage(), is("You have defined multiple packages called 'name'. Package names are case-insensitive and must be unique within a repository."));
+            assertThat(e.getMessage()).isEqualTo("You have defined multiple packages called 'name'. Package names are case-insensitive and must be unique within a repository.");
         }
     }
 
@@ -957,7 +954,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Repo id is invalid. \"id wth space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
+            assertThat(e.getMessage()).isEqualTo("Repo id is invalid. \"id wth space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
         }
     }
 
@@ -974,8 +971,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage(),
-                    is("Invalid PackageRepository name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+            assertThat(e.getMessage()).isEqualTo("Invalid PackageRepository name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }
     }
 
@@ -992,7 +988,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Package id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
+            assertThat(e.getMessage()).isEqualTo("Package id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
         }
     }
 
@@ -1010,7 +1006,7 @@ public class MagicalGoConfigXmlWriterTest {
 
         xmlWriter.write(cruiseConfig, output, false);
 
-        assertThat(output.toString().contains("autoUpdate=\"true\""), is(false));
+        assertThat(output.toString().contains("autoUpdate=\"true\"")).isFalse();
     }
 
     @Test
@@ -1026,7 +1022,7 @@ public class MagicalGoConfigXmlWriterTest {
 
         xmlWriter.write(cruiseConfig, output, false);
 
-        assertThat(output.toString().contains("autoUpdate=\"false\""), is(true));
+        assertThat(output.toString().contains("autoUpdate=\"false\"")).isTrue();
     }
 
     @Test
@@ -1042,8 +1038,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage(),
-                    is("Invalid Package name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+            assertThat(e.getMessage()).isEqualTo("Invalid Package name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }
     }
 
@@ -1055,7 +1050,7 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, output, false);
 
         String writtenConfigXml = this.output.toString();
-        assertThat(writtenConfigXml, not(containsString("<authorization>")));
+        assertThat(writtenConfigXml).doesNotContain("<authorization>");
     }
 
     @Test
@@ -1073,7 +1068,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(config, output, false);
             fail("expected to blow up");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), containsString("should conform to the pattern - \\S(.*\\S)?"));
+            assertThat(e.getMessage()).contains("should conform to the pattern - \\S(.*\\S)?");
         }
     }
 
@@ -1086,7 +1081,7 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, output, false);
 
         String writtenConfigXml = this.output.toString();
-        assertThat(writtenConfigXml, containsString("allGroupAdminsAreViewers"));
+        assertThat(writtenConfigXml).contains("allGroupAdminsAreViewers");
     }
 
     @Test
@@ -1097,7 +1092,7 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, output, false);
 
         String writtenConfigXml = this.output.toString();
-        assertThat(writtenConfigXml, not(containsString("allGroupAdminsAreViewers")));
+        assertThat(writtenConfigXml).doesNotContain("allGroupAdminsAreViewers");
     }
 
     @Test
@@ -1114,9 +1109,9 @@ public class MagicalGoConfigXmlWriterTest {
 
         String actualXML = this.output.toString();
 
-        assertThat(actualXML, containsString("<artifact type=\"build\" src=\"build/libs/*.jar\" dest=\"dist\" />"));
-        assertThat(actualXML, containsString("<artifact type=\"test\" src=\"test-result/*\" dest=\"reports\" />"));
-        assertThat(actualXML, containsString("<artifact type=\"external\" id=\"installers\" storeId=\"s3\" />"));
+        assertThat(actualXML).contains("<artifact type=\"build\" src=\"build/libs/*.jar\" dest=\"dist\" />");
+        assertThat(actualXML).contains("<artifact type=\"test\" src=\"test-result/*\" dest=\"reports\" />");
+        assertThat(actualXML).contains("<artifact type=\"external\" id=\"installers\" storeId=\"s3\" />");
     }
 
     private ConfigurationProperty getConfigurationProperty(String key, boolean isSecure, String value) {

@@ -32,9 +32,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -58,8 +56,8 @@ public class ArtifactStoreTest {
         ArtifactStore artifactStore = new ArtifactStore("id", "plugin_id");
         artifactStore.addConfigurations(List.of(property));
 
-        assertThat(artifactStore.size(), is(1));
-        assertThat(artifactStore, contains(create("username", false, "some_value")));
+        assertThat(artifactStore.size()).isEqualTo(1);
+        assertThat(artifactStore).contains(create("username", false, "some_value"));
     }
 
     @Test
@@ -69,13 +67,13 @@ public class ArtifactStoreTest {
         ArtifactStore artifactStore = new ArtifactStore("id", "plugin_id");
         artifactStore.addConfigurations(List.of(property));
 
-        assertThat(artifactStore.size(), is(1));
-        assertThat(artifactStore, contains(create("username", true, "some_value")));
+        assertThat(artifactStore.size()).isEqualTo(1);
+        assertThat(artifactStore).contains(create("username", true, "some_value"));
     }
 
     @Test
     public void shouldReturnObjectDescription() {
-        assertThat(new ArtifactStore().getObjectDescription(), is("Artifact store"));
+        assertThat(new ArtifactStore().getObjectDescription()).isEqualTo("Artifact store");
     }
 
     @Test
@@ -83,17 +81,17 @@ public class ArtifactStoreTest {
         ArtifactStore store = new ArtifactStore();
 
         store.validate(null);
-        assertThat(store.errors().size(), is(2));
-        assertThat(store.errors().on(ArtifactStore.PLUGIN_ID), is("Artifact store cannot have a blank plugin id."));
-        assertThat(store.errors().on(ArtifactStore.ID), is("Artifact store cannot have a blank id."));
+        assertThat(store.errors().size()).isEqualTo(2);
+        assertThat(store.errors().on(ArtifactStore.PLUGIN_ID)).isEqualTo("Artifact store cannot have a blank plugin id.");
+        assertThat(store.errors().on(ArtifactStore.ID)).isEqualTo("Artifact store cannot have a blank id.");
     }
 
     @Test
     public void shouldValidateArtifactStoreIdPattern() {
         ArtifactStore store = new ArtifactStore("!123", "docker");
         store.validate(null);
-        assertThat(store.errors().size(), is(1));
-        assertThat(store.errors().on(ArtifactStore.ID), is("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(store.errors().size()).isEqualTo(1);
+        assertThat(store.errors().on(ArtifactStore.ID)).isEqualTo("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -104,13 +102,13 @@ public class ArtifactStoreTest {
 
         store.validate(null);
 
-        assertThat(store.errors().size(), is(0));
+        assertThat(store.errors().size()).isEqualTo(0);
 
-        assertThat(prop1.errors().size(), is(1));
-        assertThat(prop2.errors().size(), is(1));
+        assertThat(prop1.errors().size()).isEqualTo(1);
+        assertThat(prop2.errors().size()).isEqualTo(1);
 
-        assertThat(prop1.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Artifact store 's3.plugin'"));
-        assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Artifact store 's3.plugin'"));
+        assertThat(prop1.errors().on(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Artifact store 's3.plugin'");
+        assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Artifact store 's3.plugin'");
     }
 
     @Test
@@ -143,7 +141,7 @@ public class ArtifactStoreTest {
 
         artifactStore.encryptSecureConfigurations();
 
-        assertThat(artifactStore.size(), is(1));
+        assertThat(artifactStore.size()).isEqualTo(1);
         assertTrue(artifactStore.first().isSecure());
     }
 
@@ -153,7 +151,7 @@ public class ArtifactStoreTest {
 
         artifactStore.encryptSecureConfigurations();
 
-        assertThat(artifactStore.size(), is(1));
+        assertThat(artifactStore.size()).isEqualTo(1);
         assertFalse(artifactStore.first().isSecure());
     }
 

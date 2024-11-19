@@ -18,8 +18,7 @@ package com.thoughtworks.go.validation;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LengthValidatorTest {
 
@@ -27,28 +26,28 @@ public class LengthValidatorTest {
     public void shouldReturnInvalidWhenLengthExceeds() {
         LengthValidator lengthValidator = new LengthValidator(2);
         ValidationBean validationBean = lengthValidator.validate("abc");
-        assertThat(validationBean.isValid(), is(false));
+        assertThat(validationBean.isValid()).isFalse();
     }
 
     @Test
     public void shouldReturnValidWhenLengthDoesNotExceeds() {
         LengthValidator lengthValidator = new LengthValidator(2);
         ValidationBean validationBean = lengthValidator.validate("ab");
-        assertThat(validationBean.isValid(), is(true));
+        assertThat(validationBean.isValid()).isTrue();
     }
 
     @Test
     public void shouldReturnValidWhenNoInput() {
         LengthValidator lengthValidator = new LengthValidator(2);
         ValidationBean validationBean = lengthValidator.validate(null);
-        assertThat(validationBean.isValid(), is(true));
+        assertThat(validationBean.isValid()).isTrue();
     }
 
     @Test
     public void shouldReturnValidWhenEmptyInput() {
         LengthValidator lengthValidator = new LengthValidator(2);
         ValidationBean validationBean = lengthValidator.validate("");
-        assertThat(validationBean.isValid(), is(true));
+        assertThat(validationBean.isValid()).isTrue();
     }
 
 }

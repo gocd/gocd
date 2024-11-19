@@ -40,9 +40,8 @@ import static com.thoughtworks.go.domain.JobResult.Unknown;
 import static com.thoughtworks.go.domain.JobState.Completed;
 import static com.thoughtworks.go.domain.JobState.Scheduled;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -66,7 +65,7 @@ class InstanceFactoryTest {
 
         Stage actualStage = instanceFactory.createStageInstance(pipelineConfig, new CaseInsensitiveString("foo-stage"), schedulingContext, md5, clock);
 
-        assertThat(actualStage.getConfigVersion(), is(md5));
+        assertThat(actualStage.getConfigVersion()).isEqualTo(md5);
     }
 
     @Test
@@ -76,14 +75,14 @@ class InstanceFactoryTest {
             instanceFactory.createStageInstance(pipelineConfig, new CaseInsensitiveString("doesNotExist"), new DefaultSchedulingContext(), "md5", clock);
             fail("Found the stage doesNotExist but, well, it doesn't");
         } catch (StageNotFoundException expected) {
-            assertThat(expected.getMessage(), is("Stage 'doesNotExist' not found in pipeline 'cruise'"));
+            assertThat(expected.getMessage()).isEqualTo("Stage 'doesNotExist' not found in pipeline 'cruise'");
         }
     }
 
     @Test
     void shouldCreateAStageInstanceThroughInstanceFactory() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(),
-                new StageConfig(new CaseInsensitiveString("first"), new JobConfigs(new JobConfig("job1"), new JobConfig("job2"))));
+            new StageConfig(new CaseInsensitiveString("first"), new JobConfigs(new JobConfig("job1"), new JobConfig("job2"))));
 
         Stage actualStage = instanceFactory.createStageInstance(pipelineConfig, new CaseInsensitiveString("first"), new DefaultSchedulingContext(), "md5", clock);
 
@@ -92,7 +91,7 @@ class InstanceFactoryTest {
         jobInstances.add(new JobInstance("job2", clock));
 
         Stage expectedStage = new Stage("first", jobInstances, "Unknown", null, Approval.SUCCESS, clock);
-        assertThat(actualStage, is(expectedStage));
+        assertThat(actualStage).isEqualTo(expectedStage);
     }
 
     @Test
@@ -108,8 +107,8 @@ class InstanceFactoryTest {
 
         Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, ModificationsMother.forceBuild(pipelineConfig), context, "some-md5", new TimeProvider());
 
-        assertThat(instance.findStage("stage").findJob("foo").getPlan().getVariables(), is(new EnvironmentVariables(List.of(new EnvironmentVariable("foo", "foo")))));
-        assertThat(instance.findStage("stage").findJob("bar").getPlan().getVariables(), is(new EnvironmentVariables(List.of(new EnvironmentVariable("foo", "bar")))));
+        assertThat(instance.findStage("stage").findJob("foo").getPlan().getVariables()).isEqualTo(new EnvironmentVariables(List.of(new EnvironmentVariable("foo", "foo"))));
+        assertThat(instance.findStage("stage").findJob("bar").getPlan().getVariables()).isEqualTo(new EnvironmentVariables(List.of(new EnvironmentVariable("foo", "bar"))));
     }
 
     @Test
@@ -129,7 +128,7 @@ class InstanceFactoryTest {
 
         Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, context, "some-md5", new TimeProvider());
         instance.updateCounter(1);
-        assertThat(instance.getLabel(), is("overriddenValue"));
+        assertThat(instance.getLabel()).isEqualTo("overriddenValue");
     }
 
     @Test
@@ -143,24 +142,24 @@ class InstanceFactoryTest {
         BuildCause buildCause = BuildCause.createManualForced(modifyOneFile(pipelineConfig), Username.ANONYMOUS);
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext("test"), "some-md5", new TimeProvider());
 
-        assertThat(pipeline.getName(), is("mingle"));
-        assertThat(pipeline.getStages().size(), is(1));
-        assertThat(pipeline.getStages().get(0).getName(), is("dev"));
-        assertThat(pipeline.getStages().get(0).getJobInstances().get(0).getName(), is("functional"));
+        assertThat(pipeline.getName()).isEqualTo("mingle");
+        assertThat(pipeline.getStages().size()).isEqualTo(1);
+        assertThat(pipeline.getStages().get(0).getName()).isEqualTo("dev");
+        assertThat(pipeline.getStages().get(0).getJobInstances().get(0).getName()).isEqualTo("functional");
     }
 
     @Test
     void shouldSetAutoApprovalOnStageInstance() {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.automaticApproval());
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
-        assertThat(instance.getApprovalType(), is(GoConstants.APPROVAL_SUCCESS));
+        assertThat(instance.getApprovalType()).isEqualTo(GoConstants.APPROVAL_SUCCESS);
     }
 
     @Test
     void shouldSetManualApprovalOnStageInstance() {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.manualApproval());
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
-        assertThat(instance.getApprovalType(), is(GoConstants.APPROVAL_MANUAL));
+        assertThat(instance.getApprovalType()).isEqualTo(GoConstants.APPROVAL_MANUAL);
     }
 
     @Test
@@ -168,7 +167,7 @@ class InstanceFactoryTest {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.automaticApproval());
         stageConfig.setFetchMaterials(false);
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
-        assertThat(instance.shouldFetchMaterials(), is(false));
+        assertThat(instance.shouldFetchMaterials()).isFalse();
     }
 
     @Test
@@ -177,15 +176,15 @@ class InstanceFactoryTest {
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
         Stage stage = stage(9, rails, java);
-        assertThat(stage.hasRerunJobs(), is(false));
+        assertThat(stage.hasRerunJobs()).isFalse();
 
         Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
-                new TimeProvider(), "md5");
-        assertThat(stage.hasRerunJobs(), is(false));
+            new TimeProvider(), "md5");
+        assertThat(stage.hasRerunJobs()).isFalse();
 
-        assertThat(newStage.getId(), is(-1L));
-        assertThat(newStage.getJobInstances().size(), is(2));
-        assertThat(newStage.isLatestRun(), is(true));
+        assertThat(newStage.getId()).isEqualTo(-1L);
+        assertThat(newStage.getJobInstances().size()).isEqualTo(2);
+        assertThat(newStage.isLatestRun()).isTrue();
 
         JobInstance newRails = newStage.getJobInstances().getByName("rails");
         assertNewJob(old, newRails);
@@ -203,12 +202,12 @@ class InstanceFactoryTest {
         stage.setCounter(2);
 
         Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
-                new TimeProvider(), "md5");
+            new TimeProvider(), "md5");
         newStage.setCounter(3);
-        assertThat(newStage.getId(), is(-1L));
-        assertThat(newStage.getJobInstances().size(), is(2));
-        assertThat(newStage.isLatestRun(), is(true));
-        assertThat(newStage.getRerunOfCounter(), is(2));
+        assertThat(newStage.getId()).isEqualTo(-1L);
+        assertThat(newStage.getJobInstances().size()).isEqualTo(2);
+        assertThat(newStage.isLatestRun()).isTrue();
+        assertThat(newStage.getRerunOfCounter()).isEqualTo(2);
 
         JobInstance newJava = newStage.getJobInstances().getByName("java");
         assertCopiedJob(newJava, 12L);
@@ -217,12 +216,12 @@ class InstanceFactoryTest {
         newJava.setId(18L);
 
         newStage = instanceFactory.createStageForRerunOfJobs(newStage, List.of("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
-                new TimeProvider(), "md5");
+            new TimeProvider(), "md5");
         newStage.setCounter(4);
-        assertThat(newStage.getId(), is(-1L));
-        assertThat(newStage.getJobInstances().size(), is(2));
-        assertThat(newStage.isLatestRun(), is(true));
-        assertThat(newStage.getRerunOfCounter(), is(2));
+        assertThat(newStage.getId()).isEqualTo(-1L);
+        assertThat(newStage.getJobInstances().size()).isEqualTo(2);
+        assertThat(newStage.isLatestRun()).isTrue();
+        assertThat(newStage.getRerunOfCounter()).isEqualTo(2);
 
         newJava = newStage.getJobInstances().getByName("java");
         assertCopiedJob(newJava, 12L);
@@ -251,10 +250,10 @@ class InstanceFactoryTest {
         JobInstances jobInstances = new JobInstances(firstJob, secondJob);
         Stage stage = StageMother.custom("test", jobInstances);
         Stage clonedStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("first-job"), new DefaultSchedulingContext("loser", new Agents()),
-                StageConfigMother.custom("test", "first-job", "second-job"),
-                new TimeProvider(),
-                "latest");
-        assertThat(clonedStage.getConfigVersion(), is("latest"));
+            StageConfigMother.custom("test", "first-job", "second-job"),
+            new TimeProvider(),
+            "latest");
+        assertThat(clonedStage.getConfigVersion()).isEqualTo("latest");
     }
 
     @Test
@@ -266,7 +265,7 @@ class InstanceFactoryTest {
         SchedulingContext context = new DefaultSchedulingContext("Loser");
         context = context.overrideEnvironmentVariables(variablesConfig);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
-        assertThat(plan.getVariables(), hasItem(new EnvironmentVariable("blahVar", "blahVal")));
+        assertThat(plan.getVariables()).contains(new EnvironmentVariable("blahVar", "blahVal"));
     }
 
     @Test
@@ -287,10 +286,10 @@ class InstanceFactoryTest {
 
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
 
-        assertThat(plan.getVariables().size(), is(3));
-        assertThat(plan.getVariables(), hasItem(new EnvironmentVariable("blahVar", "blahVal")));
-        assertThat(plan.getVariables(), hasItem(new EnvironmentVariable("secondVar", "secondVal")));
-        assertThat(plan.getVariables(), hasItem(new EnvironmentVariable("differentVar", "differentVal")));
+        assertThat(plan.getVariables().size()).isEqualTo(3);
+        assertThat(plan.getVariables()).contains(new EnvironmentVariable("blahVar", "blahVal"));
+        assertThat(plan.getVariables()).contains(new EnvironmentVariable("secondVar", "secondVal"));
+        assertThat(plan.getVariables()).contains(new EnvironmentVariable("differentVar", "differentVal"));
     }
 
     @Test
@@ -305,7 +304,7 @@ class InstanceFactoryTest {
 
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
 
-        assertThat(plan.getVariables(), hasItem(new EnvironmentVariable("blahVar", "blahVal")));
+        assertThat(plan.getVariables()).contains(new EnvironmentVariable("blahVar", "blahVal"));
     }
 
     @Test
@@ -314,7 +313,7 @@ class InstanceFactoryTest {
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resourceConfigs, artifactTypeConfigs);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, new DefaultSchedulingContext());
-        assertThat(plan, is(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactTypeConfigs), -1, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null)));
+        assertThat(plan).isEqualTo(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactTypeConfigs), -1, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null));
     }
 
 
@@ -328,7 +327,7 @@ class InstanceFactoryTest {
         jobConfig.setElasticProfileId("id");
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
 
-        assertThat(plan.getElasticProfile(), is(elasticProfile));
+        assertThat(plan.getElasticProfile()).isEqualTo(elasticProfile);
         assertNull(plan.getClusterProfile());
     }
 
@@ -343,8 +342,8 @@ class InstanceFactoryTest {
         jobConfig.setElasticProfileId("id");
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
 
-        assertThat(plan.getElasticProfile(), is(elasticProfile));
-        assertThat(plan.getClusterProfile(), is(clusterProfile));
+        assertThat(plan.getElasticProfile()).isEqualTo(elasticProfile);
+        assertThat(plan.getClusterProfile()).isEqualTo(clusterProfile);
     }
 
     @Test
@@ -356,9 +355,9 @@ class InstanceFactoryTest {
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("stage_foo"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
 
         JobInstance jobInstance = jobs.first();
-        assertThat(jobConfig.name(), is(new CaseInsensitiveString(jobInstance.getName())));
-        assertThat(jobInstance.getState(), is(JobState.Scheduled));
-        assertThat(jobInstance.getScheduledDate(), is(notNullValue()));
+        assertThat(jobConfig.name()).isEqualTo(new CaseInsensitiveString(jobInstance.getName()));
+        assertThat(jobInstance.getState()).isEqualTo(JobState.Scheduled);
+        assertThat(jobInstance.getScheduledDate()).isNotNull();
     }
 
     @Test
@@ -380,7 +379,7 @@ class InstanceFactoryTest {
         Stage stageInstance = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5", clock);
 
         JobInstances jobInstances = stageInstance.getJobInstances();
-        assertThat(jobInstances.size(), is(5));
+        assertThat(jobInstances.size()).isEqualTo(5);
         assertRunOnAllAgentsJobInstance(jobInstances.get(0), "rails-runOnAll-1");
         assertRunOnAllAgentsJobInstance(jobInstances.get(1), "rails-runOnAll-2");
         assertRunMultipleJobInstance(jobInstances.get(2), "java-runInstance-1");
@@ -403,10 +402,11 @@ class InstanceFactoryTest {
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("someStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
 
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is("foo"))));
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("agentUuid", nullValue())));
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("runOnAllAgents", is(false))));
-        assertThat(jobs.size(), is(1));
+        assertThat(jobs).satisfiesExactlyInAnyOrder(j -> {
+            assertThat(j.getName()).isEqualTo("foo");
+            assertThat(j.getAgentUuid()).isNull();
+            assertThat(j.isRunOnAllAgents()).isFalse();
+        });
     }
 
     @Test
@@ -420,13 +420,13 @@ class InstanceFactoryTest {
         CannotRerunJobException exception = null;
         try {
             newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"), new TimeProvider(),
-                    "md5");
+                "md5");
             fail("should not schedule when job config does not exist anymore");
         } catch (CannotRerunJobException e) {
             exception = e;
         }
-        assertThat(exception.getJobName(), is("rails"));
-        assertThat(newStage, is(nullValue()));
+        assertThat(exception.getJobName()).isEqualTo("rails");
+        assertThat(newStage).isNull();
     }
 
     @Test
@@ -436,9 +436,9 @@ class InstanceFactoryTest {
         JobInstance java = jobInstance(old, "java", 12, 22);
         Stage stage = stage(9, rails, java);
         Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
-                new TimeProvider(), "md5");
-        assertThat(newStage.getJobInstances().getByName("rails").getAgentUuid(), is(nullValue()));
-        assertThat(newStage.getJobInstances().getByName("java").getAgentUuid(), is(not(nullValue())));
+            new TimeProvider(), "md5");
+        assertThat(newStage.getJobInstances().getByName("rails").getAgentUuid()).isNull();
+        assertThat(newStage.getJobInstances().getByName("java").getAgentUuid()).isNotNull();
     }
 
     @Test
@@ -464,9 +464,9 @@ class InstanceFactoryTest {
         } catch (CannotRerunJobException e) {
             exception = e;
         }
-        assertThat(exception.getJobName(), is("rails"));
-        assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'run multiple instance'."));
-        assertThat(newStage, is(nullValue()));
+        assertThat(exception.getJobName()).isEqualTo("rails");
+        assertThat(exception.getInformation()).isEqualTo("Run configuration for job has been changed to 'run multiple instance'.");
+        assertThat(newStage).isNull();
     }
 
 	/*
@@ -491,15 +491,17 @@ class InstanceFactoryTest {
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("stageName"), jobConfig, context, new TimeProvider(), jobNameGenerator);
 
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is("foo-runOnAll-1"))));
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("agentUuid", is("uuid1"))));
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("runOnAllAgents", is(true))));
-
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is("foo-runOnAll-1"))));
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("agentUuid", is("uuid2"))));
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("runOnAllAgents", is(true))));
-
-        assertThat(jobs.size(), is(2));
+        assertThat(jobs).satisfiesExactlyInAnyOrder(j -> {
+                assertThat(j.getName()).isEqualTo("foo-runOnAll-1");
+                assertThat(j.getAgentUuid()).isEqualTo("uuid1");
+                assertThat(j.isRunOnAllAgents()).isTrue();
+            },
+            j -> {
+                assertThat(j.getName()).isEqualTo("foo-runOnAll-2");
+                assertThat(j.getAgentUuid()).isEqualTo("uuid2");
+                assertThat(j.isRunOnAllAgents()).isTrue();
+            }
+        );
     }
 
     @Test
@@ -519,7 +521,7 @@ class InstanceFactoryTest {
 
             fail("should have failed as no agents matched");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Could not find matching agents to run job [foo] of stage [myStage]."));
+            assertThat(e.getMessage()).isEqualTo("Could not find matching agents to run job [foo] of stage [myStage].");
         }
     }
 
@@ -529,16 +531,16 @@ class InstanceFactoryTest {
         JobConfig fooJob = new JobConfig(new CaseInsensitiveString("foo"), new ResourceConfigs(), new ArtifactTypeConfigs());
         fooJob.setRunOnAllAgents(true);
         StageConfig stageConfig = new StageConfig(
-                new CaseInsensitiveString("blah-stage"), new JobConfigs(
-                fooJob,
-                new JobConfig(new CaseInsensitiveString("bar"), new ResourceConfigs(), new ArtifactTypeConfigs())
+            new CaseInsensitiveString("blah-stage"), new JobConfigs(
+            fooJob,
+            new JobConfig(new CaseInsensitiveString("bar"), new ResourceConfigs(), new ArtifactTypeConfigs())
         )
         );
         try {
             instanceFactory.createStageInstance(stageConfig, context, "md5", new TimeProvider());
             fail("expected exception but not thrown");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Could not find matching agents to run job [foo] of stage [blah-stage]."));
+            assertThat(e.getMessage()).isEqualTo("Could not find matching agents to run job [foo] of stage [blah-stage].");
         }
     }
 
@@ -567,7 +569,7 @@ class InstanceFactoryTest {
             instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runOnAll-1", "rails-runOnAll-2"), schedulingContext, stageConfig, new TimeProvider(), "md5");
             fail("should have failed when multiple run on all agents jobs are selected when job-config does not have run on all flag anymore");
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("Cannot schedule multiple instances of job named 'rails'."));
+            assertThat(e.getMessage()).isEqualTo("Cannot schedule multiple instances of job named 'rails'.");
         }
     }
 
@@ -593,19 +595,19 @@ class InstanceFactoryTest {
 
         Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runOnAll-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
 
-        assertThat(newStage.getJobInstances().size(), is(3));
+        assertThat(newStage.getJobInstances().size()).isEqualTo(3);
 
         JobInstance newRailsJob = newStage.getJobInstances().getByName("rails");
         assertNewJob(old, newRailsJob);
-        assertThat(newRailsJob.getAgentUuid(), is("abcd1234"));
+        assertThat(newRailsJob.getAgentUuid()).isEqualTo("abcd1234");
 
         JobInstance copiedRailsJob = newStage.getJobInstances().getByName("rails-runOnAll-2");
         assertCopiedJob(copiedRailsJob, 102L);
-        assertThat(copiedRailsJob.getAgentUuid(), is("1234abcd"));
+        assertThat(copiedRailsJob.getAgentUuid()).isEqualTo("1234abcd");
 
         JobInstance copiedJavaJob = newStage.getJobInstances().getByName("java");
         assertCopiedJob(copiedJavaJob, 12L);
-        assertThat(copiedJavaJob.getAgentUuid(), is(not(nullValue())));
+        assertThat(copiedJavaJob.getAgentUuid()).isNotNull();
     }
 
     @Test
@@ -625,19 +627,19 @@ class InstanceFactoryTest {
         DefaultSchedulingContext context = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
         Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails"), context, stageConfig, new TimeProvider(), "md5");
 
-        assertThat(newStage.getJobInstances().size(), is(3));
+        assertThat(newStage.getJobInstances().size()).isEqualTo(3);
 
         JobInstance newRailsFirstJob = newStage.getJobInstances().getByName("rails-runOnAll-1");
         assertNewJob(old, newRailsFirstJob);
-        assertThat(newRailsFirstJob.getAgentUuid(), is("abcd1234"));
+        assertThat(newRailsFirstJob.getAgentUuid()).isEqualTo("abcd1234");
 
         JobInstance newRailsSecondJob = newStage.getJobInstances().getByName("rails-runOnAll-2");
         assertNewJob(old, newRailsSecondJob);
-        assertThat(newRailsSecondJob.getAgentUuid(), is("1234abcd"));
+        assertThat(newRailsSecondJob.getAgentUuid()).isEqualTo("1234abcd");
 
         JobInstance copiedJavaJob = newStage.getJobInstances().getByName("java");
         assertCopiedJob(copiedJavaJob, 12L);
-        assertThat(copiedJavaJob.getAgentUuid(), is(not(nullValue())));
+        assertThat(copiedJavaJob.getAgentUuid()).isNotNull();
     }
 
     @Test
@@ -663,13 +665,13 @@ class InstanceFactoryTest {
         CannotRerunJobException exception = null;
         try {
             newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runOnAll-1"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"),
-                    new TimeProvider(), "md5");
+                new TimeProvider(), "md5");
             fail("should not schedule when job config does not exist anymore");
         } catch (CannotRerunJobException e) {
             exception = e;
         }
-        assertThat(exception.getJobName(), is("rails"));
-        assertThat(newStage, is(nullValue()));
+        assertThat(exception.getJobName()).isEqualTo("rails");
+        assertThat(newStage).isNull();
     }
 
     @Test
@@ -702,9 +704,9 @@ class InstanceFactoryTest {
         } catch (CannotRerunJobException e) {
             exception = e;
         }
-        assertThat(exception.getJobName(), is("rails"));
-        assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'run multiple instance'."));
-        assertThat(newStage, is(nullValue()));
+        assertThat(exception.getJobName()).isEqualTo("rails");
+        assertThat(exception.getInformation()).isEqualTo("Run configuration for job has been changed to 'run multiple instance'.");
+        assertThat(newStage).isNull();
     }
 
 	/*
@@ -724,24 +726,24 @@ class InstanceFactoryTest {
         RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
-        assertThat(jobs.get(0).getName(), is("rails-runInstance-1"));
+        assertThat(jobs.get(0).getName()).isEqualTo("rails-runInstance-1");
         assertEnvironmentVariable(jobs.get(0), 0, "GO_JOB_RUN_INDEX", "1");
         assertEnvironmentVariable(jobs.get(0), 1, "GO_JOB_RUN_COUNT", "3");
-        assertThat(jobs.get(1).getName(), is("rails-runInstance-2"));
+        assertThat(jobs.get(1).getName()).isEqualTo("rails-runInstance-2");
         assertEnvironmentVariable(jobs.get(1), 0, "GO_JOB_RUN_INDEX", "2");
         assertEnvironmentVariable(jobs.get(1), 1, "GO_JOB_RUN_COUNT", "3");
-        assertThat(jobs.get(2).getName(), is("rails-runInstance-3"));
+        assertThat(jobs.get(2).getName()).isEqualTo("rails-runInstance-3");
         assertEnvironmentVariable(jobs.get(2), 0, "GO_JOB_RUN_INDEX", "3");
         assertEnvironmentVariable(jobs.get(2), 1, "GO_JOB_RUN_COUNT", "3");
 
         Stage stage = createStageInstance(old, jobs);
 
         JobInstances jobInstances = stage.getJobInstances();
-        assertThat(jobInstances.size(), is(4));
+        assertThat(jobInstances.size()).isEqualTo(4);
         assertRunMultipleJobInstance(jobInstances.get(0), "rails-runInstance-1");
         assertRunMultipleJobInstance(jobInstances.get(1), "rails-runInstance-2");
         assertRunMultipleJobInstance(jobInstances.get(2), "rails-runInstance-3");
-        assertThat(jobInstances.get(3).getName(), is("java"));
+        assertThat(jobInstances.get(3).getName()).isEqualTo("java");
     }
 
     @Test
@@ -757,13 +759,13 @@ class InstanceFactoryTest {
         RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
-        assertThat(jobs.get(0).getName(), is("rails-runInstance-1"));
+        assertThat(jobs.get(0).getName()).isEqualTo("rails-runInstance-1");
         assertEnvironmentVariable(jobs.get(0), 0, "GO_JOB_RUN_INDEX", "1");
         assertEnvironmentVariable(jobs.get(0), 1, "GO_JOB_RUN_COUNT", "3");
-        assertThat(jobs.get(1).getName(), is("rails-runInstance-2"));
+        assertThat(jobs.get(1).getName()).isEqualTo("rails-runInstance-2");
         assertEnvironmentVariable(jobs.get(1), 0, "GO_JOB_RUN_INDEX", "2");
         assertEnvironmentVariable(jobs.get(1), 1, "GO_JOB_RUN_COUNT", "3");
-        assertThat(jobs.get(2).getName(), is("rails-runInstance-3"));
+        assertThat(jobs.get(2).getName()).isEqualTo("rails-runInstance-3");
         assertEnvironmentVariable(jobs.get(2), 0, "GO_JOB_RUN_INDEX", "3");
         assertEnvironmentVariable(jobs.get(2), 1, "GO_JOB_RUN_COUNT", "3");
 
@@ -772,19 +774,19 @@ class InstanceFactoryTest {
         Stage stageForRerun = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runInstance-1", "rails-runInstance-2"), schedulingContext, stageConfig, clock, "md5");
         JobInstances jobsForRerun = stageForRerun.getJobInstances();
 
-        assertThat(jobsForRerun.get(0).getName(), is("rails-runInstance-3"));
+        assertThat(jobsForRerun.get(0).getName()).isEqualTo("rails-runInstance-3");
         assertEnvironmentVariable(jobsForRerun.get(0), 0, "GO_JOB_RUN_INDEX", "3");
         assertEnvironmentVariable(jobsForRerun.get(0), 1, "GO_JOB_RUN_COUNT", "3");
-        assertThat(jobsForRerun.get(2).getName(), is("rails-runInstance-1"));
+        assertThat(jobsForRerun.get(2).getName()).isEqualTo("rails-runInstance-1");
         assertEnvironmentVariable(jobsForRerun.get(2), 0, "GO_JOB_RUN_INDEX", "1");
         assertEnvironmentVariable(jobsForRerun.get(2), 1, "GO_JOB_RUN_COUNT", "3");
-        assertThat(jobsForRerun.get(3).getName(), is("rails-runInstance-2"));
+        assertThat(jobsForRerun.get(3).getName()).isEqualTo("rails-runInstance-2");
         assertEnvironmentVariable(jobsForRerun.get(3), 0, "GO_JOB_RUN_INDEX", "2");
         assertEnvironmentVariable(jobsForRerun.get(3), 1, "GO_JOB_RUN_COUNT", "3");
 
-        assertThat(jobsForRerun.size(), is(4));
+        assertThat(jobsForRerun.size()).isEqualTo(4);
         assertRunMultipleJobInstance(jobsForRerun.get(0), "rails-runInstance-3");
-        assertThat(jobsForRerun.get(1).getName(), is("java"));
+        assertThat(jobsForRerun.get(1).getName()).isEqualTo("java");
         assertReRunMultipleJobInstance(jobsForRerun.get(2), "rails-runInstance-1");
         assertReRunMultipleJobInstance(jobsForRerun.get(3), "rails-runInstance-2");
     }
@@ -808,14 +810,14 @@ class InstanceFactoryTest {
         CannotRerunJobException exception = null;
         try {
             newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runInstance-1"), schedulingContext, StageConfigMother.custom("dev", "java"),
-                    new TimeProvider(), "md5");
+                new TimeProvider(), "md5");
             fail("should not schedule when job config does not exist anymore");
         } catch (CannotRerunJobException e) {
             exception = e;
         }
-        assertThat(exception.getJobName(), is("rails"));
-        assertThat(exception.getInformation(), is("Configuration for job doesn't exist."));
-        assertThat(newStage, is(nullValue()));
+        assertThat(exception.getJobName()).isEqualTo("rails");
+        assertThat(exception.getInformation()).isEqualTo("Configuration for job doesn't exist.");
+        assertThat(newStage).isNull();
     }
 
     @Test
@@ -844,9 +846,9 @@ class InstanceFactoryTest {
         } catch (CannotRerunJobException e) {
             exception = e;
         }
-        assertThat(exception.getJobName(), is("rails"));
-        assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'run on all agents'."));
-        assertThat(newStage, is(nullValue()));
+        assertThat(exception.getJobName()).isEqualTo("rails");
+        assertThat(exception.getInformation()).isEqualTo("Run configuration for job has been changed to 'run on all agents'.");
+        assertThat(newStage).isNull();
 
         railsConfig.setRunOnAllAgents(false);
 
@@ -856,9 +858,9 @@ class InstanceFactoryTest {
         } catch (CannotRerunJobException e) {
             exception = e;
         }
-        assertThat(exception.getJobName(), is("rails"));
-        assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'simple'."));
-        assertThat(newStage, is(nullValue()));
+        assertThat(exception.getJobName()).isEqualTo("rails");
+        assertThat(exception.getInformation()).isEqualTo("Run configuration for job has been changed to 'simple'.");
+        assertThat(newStage).isNull();
     }
 
     private Stage stage(long id, JobInstance... jobs) {
@@ -904,63 +906,63 @@ class InstanceFactoryTest {
     }
 
     private void assertCopiedJob(JobInstance newJava, final long originalId) {
-        assertThat(newJava.getId(), is(-1L));
-        assertThat(newJava.getTransitions().isEmpty(), is(false));
-        assertThat(newJava.getResult(), is(Passed));
-        assertThat(newJava.getState(), is(Completed));
-        assertThat(newJava.getTransitions().byState(Scheduled).getId(), is(-1L));
-        assertThat(newJava.getTransitions().byState(Completed).getId(), is(-1L));
-        assertThat(newJava.getOriginalJobId(), is(originalId));
-        assertThat(newJava.isRerun(), is(false));
-        assertThat(newJava.isCopy(), is(true));
+        assertThat(newJava.getId()).isEqualTo(-1L);
+        assertThat(newJava.getTransitions().isEmpty()).isFalse();
+        assertThat(newJava.getResult()).isEqualTo(Passed);
+        assertThat(newJava.getState()).isEqualTo(Completed);
+        assertThat(newJava.getTransitions().byState(Scheduled).getId()).isEqualTo(-1L);
+        assertThat(newJava.getTransitions().byState(Completed).getId()).isEqualTo(-1L);
+        assertThat(newJava.getOriginalJobId()).isEqualTo(originalId);
+        assertThat(newJava.isRerun()).isFalse();
+        assertThat(newJava.isCopy()).isTrue();
     }
 
     private void assertNewJob(Date old, JobInstance newRails) {
         JobStateTransition newSchedulingTransition = assertNewJob(newRails);
-        assertThat(newSchedulingTransition.getStateChangeTime().after(old), is(true));
+        assertThat(newSchedulingTransition.getStateChangeTime().after(old)).isTrue();
     }
 
     private JobStateTransition assertNewJob(JobInstance newRails) {
-        assertThat(newRails.getId(), is(-1L));
-        assertThat(newRails.getTransitions().size(), is(1));
+        assertThat(newRails.getId()).isEqualTo(-1L);
+        assertThat(newRails.getTransitions().size()).isEqualTo(1);
         JobStateTransition newSchedulingTransition = newRails.getTransitions().byState(JobState.Scheduled);
-        assertThat(newSchedulingTransition.getId(), is(-1L));
-        assertThat(newRails.getResult(), is(Unknown));
-        assertThat(newRails.getState(), is(Scheduled));
-        assertThat(newRails.isRerun(), is(true));
+        assertThat(newSchedulingTransition.getId()).isEqualTo(-1L);
+        assertThat(newRails.getResult()).isEqualTo(Unknown);
+        assertThat(newRails.getState()).isEqualTo(Scheduled);
+        assertThat(newRails.isRerun()).isTrue();
         return newSchedulingTransition;
     }
 
     private void assertSimpleJobInstance(JobInstance jobInstance, String jobName) {
-        assertThat(jobInstance.getName(), is(jobName));
-        assertThat(jobInstance.isRunOnAllAgents(), is(false));
-        assertThat(jobInstance.isRunMultipleInstance(), is(false));
-        assertThat(jobInstance.isRerun(), is(false));
+        assertThat(jobInstance.getName()).isEqualTo(jobName);
+        assertThat(jobInstance.isRunOnAllAgents()).isFalse();
+        assertThat(jobInstance.isRunMultipleInstance()).isFalse();
+        assertThat(jobInstance.isRerun()).isFalse();
     }
 
     private void assertRunOnAllAgentsJobInstance(JobInstance jobInstance, String jobName) {
-        assertThat(jobInstance.getName(), is(jobName));
-        assertThat(jobInstance.isRunOnAllAgents(), is(true));
-        assertThat(jobInstance.isRunMultipleInstance(), is(false));
-        assertThat(jobInstance.isRerun(), is(false));
+        assertThat(jobInstance.getName()).isEqualTo(jobName);
+        assertThat(jobInstance.isRunOnAllAgents()).isTrue();
+        assertThat(jobInstance.isRunMultipleInstance()).isFalse();
+        assertThat(jobInstance.isRerun()).isFalse();
     }
 
     private void assertRunMultipleJobInstance(JobInstance jobInstance, String jobName) {
-        assertThat(jobInstance.getName(), is(jobName));
-        assertThat(jobInstance.isRunMultipleInstance(), is(true));
-        assertThat(jobInstance.isRunOnAllAgents(), is(false));
-        assertThat(jobInstance.isRerun(), is(false));
+        assertThat(jobInstance.getName()).isEqualTo(jobName);
+        assertThat(jobInstance.isRunMultipleInstance()).isTrue();
+        assertThat(jobInstance.isRunOnAllAgents()).isFalse();
+        assertThat(jobInstance.isRerun()).isFalse();
     }
 
     private void assertReRunMultipleJobInstance(JobInstance jobInstance, String jobName) {
-        assertThat(jobInstance.getName(), is(jobName));
-        assertThat(jobInstance.isRunMultipleInstance(), is(true));
-        assertThat(jobInstance.isRunOnAllAgents(), is(false));
-        assertThat(jobInstance.isRerun(), is(true));
+        assertThat(jobInstance.getName()).isEqualTo(jobName);
+        assertThat(jobInstance.isRunMultipleInstance()).isTrue();
+        assertThat(jobInstance.isRunOnAllAgents()).isFalse();
+        assertThat(jobInstance.isRerun()).isTrue();
     }
 
     private void assertEnvironmentVariable(JobInstance jobInstance, int index, String name, String value) {
-        assertThat(jobInstance.getPlan().getVariables().get(index).getName(), is(name));
-        assertThat(jobInstance.getPlan().getVariables().get(index).getValue(), is(value));
+        assertThat(jobInstance.getPlan().getVariables().get(index).getName()).isEqualTo(name);
+        assertThat(jobInstance.getPlan().getVariables().get(index).getValue()).isEqualTo(value);
     }
 }

@@ -19,9 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TimerConfigTest {
 
@@ -31,21 +29,21 @@ public class TimerConfigTest {
     public void shouldPopulateErrorsWhenTimerSpecIsInvalid() {
         timerConfig = new TimerConfig("SOME JUNK TIMER SPEC", false);
         timerConfig.validate(null);
-        assertThat(timerConfig.errors().firstError(), startsWith("Invalid cron syntax"));
+        assertThat(timerConfig.errors().firstError()).startsWith("Invalid cron syntax");
     }
 
     @Test
     public void shouldPopulateErrorsWhenTimerSpecIsNull() {
         timerConfig = new TimerConfig(null, true);
         timerConfig.validate(null);
-        assertThat(timerConfig.errors().firstError(), is("Timer Spec can not be null."));
+        assertThat(timerConfig.errors().firstError()).isEqualTo("Timer Spec can not be null.");
     }
 
     @Test
     public void shouldNotPopulateErrorsWhenTimerSpecIsValid() {
         timerConfig = new TimerConfig("0 0 12 * * ?", false);
         timerConfig.validate(null);
-        assertThat(timerConfig.errors().isEmpty(), is(true));
+        assertThat(timerConfig.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -54,8 +52,8 @@ public class TimerConfigTest {
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         mapOfTimerValues.put(TimerConfig.TIMER_ONLY_ON_CHANGES, "1");
         TimerConfig timer = TimerConfig.createTimer(mapOfTimerValues);
-        assertThat(timer.getTimerSpec(), is("0 0 * * * ?"));
-        assertThat(timer.shouldTriggerOnlyOnChanges(), is(true));
+        assertThat(timer.getTimerSpec()).isEqualTo("0 0 * * * ?");
+        assertThat(timer.shouldTriggerOnlyOnChanges()).isTrue();
     }
 
     @Test
@@ -63,8 +61,8 @@ public class TimerConfigTest {
         HashMap<String, String> mapOfTimerValues = new HashMap<>();
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         TimerConfig timer = TimerConfig.createTimer(mapOfTimerValues);
-        assertThat(timer.getTimerSpec(), is("0 0 * * * ?"));
-        assertThat(timer.shouldTriggerOnlyOnChanges(), is(false));
+        assertThat(timer.getTimerSpec()).isEqualTo("0 0 * * * ?");
+        assertThat(timer.shouldTriggerOnlyOnChanges()).isFalse();
     }
 
     @Test
@@ -73,8 +71,8 @@ public class TimerConfigTest {
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         mapOfTimerValues.put(TimerConfig.TIMER_ONLY_ON_CHANGES, "0");
         TimerConfig timer = TimerConfig.createTimer(mapOfTimerValues);
-        assertThat(timer.getTimerSpec(), is("0 0 * * * ?"));
-        assertThat(timer.getOnlyOnChanges(), is(false));
+        assertThat(timer.getTimerSpec()).isEqualTo("0 0 * * * ?");
+        assertThat(timer.getOnlyOnChanges()).isFalse();
     }
 
 }

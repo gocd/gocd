@@ -33,8 +33,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,7 +53,7 @@ public class CcTrayJobStatusChangeHandlerTest {
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
         ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<>());
 
-        assertThat(activityOf(newStatus), is("Building"));
+        assertThat(activityOf(newStatus)).isEqualTo("Building");
     }
 
     @Test
@@ -65,11 +64,11 @@ public class CcTrayJobStatusChangeHandlerTest {
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
         ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<>());
 
-        assertThat(newStatus.getLastBuildStatus(), is(oldStatusInCache.getLastBuildStatus()));
-        assertThat(newStatus.getLastBuildLabel(), is(oldStatusInCache.getLastBuildLabel()));
-        assertThat(newStatus.getLastBuildTime(), is(oldStatusInCache.getLastBuildTime()));
-        assertThat(newStatus.getBreakers(), is(oldStatusInCache.getBreakers()));
-        assertThat(webUrlOf(newStatus), is(webUrlFor("job1")));
+        assertThat(newStatus.getLastBuildStatus()).isEqualTo(oldStatusInCache.getLastBuildStatus());
+        assertThat(newStatus.getLastBuildLabel()).isEqualTo(oldStatusInCache.getLastBuildLabel());
+        assertThat(newStatus.getLastBuildTime()).isEqualTo(oldStatusInCache.getLastBuildTime());
+        assertThat(newStatus.getBreakers()).isEqualTo(oldStatusInCache.getBreakers());
+        assertThat(webUrlOf(newStatus)).isEqualTo(webUrlFor("job1"));
     }
 
     @Test
@@ -80,11 +79,11 @@ public class CcTrayJobStatusChangeHandlerTest {
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
         ProjectStatus newStatus = handler.statusFor(JobInstanceMother.completed("job1"), new HashSet<>());
 
-        assertThat(activityOf(newStatus), is("Sleeping"));
-        assertThat(newStatus.getLastBuildStatus(), is("Success"));
-        assertThat(newStatus.getLastBuildLabel(), is("label-1"));
-        assertThat(newStatus.getBreakers(), is(Collections.<String>emptySet()));
-        assertThat(webUrlOf(newStatus), is(webUrlFor("job1")));
+        assertThat(activityOf(newStatus)).isEqualTo("Sleeping");
+        assertThat(newStatus.getLastBuildStatus()).isEqualTo("Success");
+        assertThat(newStatus.getLastBuildLabel()).isEqualTo("label-1");
+        assertThat(newStatus.getBreakers()).isEqualTo(Collections.<String>emptySet());
+        assertThat(webUrlOf(newStatus)).isEqualTo(webUrlFor("job1"));
     }
 
     @Test
@@ -98,7 +97,7 @@ public class CcTrayJobStatusChangeHandlerTest {
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
         ProjectStatus newStatus = handler.statusFor(JobInstanceMother.completed(jobName), breakers);
 
-        assertThat(newStatus.getBreakers(), is(breakers));
+        assertThat(newStatus.getBreakers()).isEqualTo(breakers);
     }
 
     @Test
@@ -112,7 +111,7 @@ public class CcTrayJobStatusChangeHandlerTest {
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
         ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<>());
 
-        assertThat(newStatus.viewers(), is(viewers));
+        assertThat(newStatus.viewers()).isEqualTo(viewers);
     }
 
     @Test
@@ -127,13 +126,13 @@ public class CcTrayJobStatusChangeHandlerTest {
 
         verify(cache).put(statusCaptor.capture());
         ProjectStatus newStatusInCache = statusCaptor.getValue();
-        assertThat(newStatusInCache.name(), is(projectNameFor(jobName)));
-        assertThat(newStatusInCache.getLastBuildStatus(), is("Success"));
-        assertThat(newStatusInCache.getLastBuildLabel(), is("label-1"));
-        assertThat(newStatusInCache.getLastBuildTime(), is(completedJob.getCompletedDate()));
-        assertThat(newStatusInCache.getBreakers(), is(Collections.<String>emptySet()));
-        assertThat(activityOf(newStatusInCache), is("Sleeping"));
-        assertThat(webUrlOf(newStatusInCache), is(webUrlFor(jobName)));
+        assertThat(newStatusInCache.name()).isEqualTo(projectNameFor(jobName));
+        assertThat(newStatusInCache.getLastBuildStatus()).isEqualTo("Success");
+        assertThat(newStatusInCache.getLastBuildLabel()).isEqualTo("label-1");
+        assertThat(newStatusInCache.getLastBuildTime()).isEqualTo(completedJob.getCompletedDate());
+        assertThat(newStatusInCache.getBreakers()).isEqualTo(Collections.<String>emptySet());
+        assertThat(activityOf(newStatusInCache)).isEqualTo("Sleeping");
+        assertThat(webUrlOf(newStatusInCache)).isEqualTo(webUrlFor(jobName));
     }
 
     private String projectNameFor(String jobName) {

@@ -17,7 +17,6 @@ package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.remote.work.artifact.PluggableArtifactMetadata;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -26,8 +25,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -40,7 +38,7 @@ public class PluggableArtifactMetadataTest {
 
         pluggableArtifactMetadata.addMetadata("docker", "installer", Map.of("image", "alpine"));
 
-        assertThat(pluggableArtifactMetadata.getMetadataPerPlugin(), Matchers.hasEntry("docker", Map.of("installer", Map.of("image", "alpine"))));
+        assertThat(pluggableArtifactMetadata.getMetadataPerPlugin()).containsEntry("docker", Map.of("installer", Map.of("image", "alpine")));
     }
 
     @Test
@@ -54,8 +52,8 @@ public class PluggableArtifactMetadataTest {
 
         final Map<String, Map<String, Object>> docker = pluggableArtifactMetadata.getMetadataPerPlugin().get("docker");
         assertNotNull(docker);
-        assertThat(docker, Matchers.hasEntry("centos", Map.of("image", "centos")));
-        assertThat(docker, Matchers.hasEntry("alpine", Map.of("image", "alpine")));
+        assertThat(docker).containsEntry("centos", Map.of("image", "centos"));
+        assertThat(docker).containsEntry("alpine", Map.of("image", "alpine"));
     }
 
     @Test
@@ -70,6 +68,6 @@ public class PluggableArtifactMetadataTest {
         final File jsonFile = new File(workingDirectory.listFiles()[0], "cd.go.docker-registry.json");
         final String fileContent = FileUtils.readFileToString(jsonFile, StandardCharsets.UTF_8);
 
-        assertThat(fileContent, is("{\"alpine\":{\"image\":\"alpine\"},\"centos\":{\"image\":\"centos\"}}"));
+        assertThat(fileContent).isEqualTo("{\"alpine\":{\"image\":\"alpine\"},\"centos\":{\"image\":\"centos\"}}");
     }
 }

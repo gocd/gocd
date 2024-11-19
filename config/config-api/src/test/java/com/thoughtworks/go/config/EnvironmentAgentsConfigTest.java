@@ -22,8 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class EnvironmentAgentsConfigTest {
     private EnvironmentAgentsConfig envAgentsConfig = new EnvironmentAgentsConfig();
@@ -37,14 +36,14 @@ class EnvironmentAgentsConfigTest {
 
         List<String> uuids = envAgentsConfig.getUuids();
 
-        assertThat(uuids.size(), is(3));
-        assertThat(uuids.containsAll(List.of("uuid1", "uuid2", "uuid3")), is(true));
+        assertThat(uuids.size()).isEqualTo(3);
+        assertThat(uuids.containsAll(List.of("uuid1", "uuid2", "uuid3"))).isTrue();
     }
 
     @Test
     void shouldGetEmptyListOfUUIDsWhenThereAreNoAgentsAssociatedWithEnvironment(){
         List<String> uuids = envAgentsConfig.getUuids();
-        assertThat(uuids.size(), is(0));
+        assertThat(uuids.size()).isEqualTo(0);
     }
 
     @Test
@@ -58,13 +57,13 @@ class EnvironmentAgentsConfigTest {
         List<Map> mapList = new ArrayList<>(List.of(map1, map2));
         envAgentsConfig.setConfigAttributes(mapList);
 
-        assertThat(envAgentsConfig.size(), is(2));
-        assertThat(envAgentsConfig.getUuids(), is(List.of("agent-1", "agent-2")));
+        assertThat(envAgentsConfig.size()).isEqualTo(2);
+        assertThat(envAgentsConfig.getUuids()).isEqualTo(List.of("agent-1", "agent-2"));
     }
 
     @Test
     void shouldNotSetAgentConfigAttributesWhenItIsNull(){
         envAgentsConfig.setConfigAttributes(null);
-        assertThat(envAgentsConfig.size(), is(0));
+        assertThat(envAgentsConfig.size()).isEqualTo(0);
     }
 }

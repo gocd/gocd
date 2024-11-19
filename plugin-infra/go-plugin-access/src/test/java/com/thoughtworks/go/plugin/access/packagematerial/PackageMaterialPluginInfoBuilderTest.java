@@ -28,9 +28,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -75,12 +74,12 @@ public class PackageMaterialPluginInfoBuilderTest {
 
         List<PluginConfiguration> pluginSettings = List.of(new PluginConfiguration("k1", new Metadata(true, false)));
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("package-repository"));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("package-repository");
 
-        assertThat(pluginInfo.getPackageSettings(), is(new PluggableInstanceSettings(packageSettings, null)));
-        assertThat(pluginInfo.getRepositorySettings(), is(new PluggableInstanceSettings(repoSettings, null)));
-        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(pluginSettings, new PluginView("some-html"))));
+        assertThat(pluginInfo.getPackageSettings()).isEqualTo(new PluggableInstanceSettings(packageSettings, null));
+        assertThat(pluginInfo.getRepositorySettings()).isEqualTo(new PluggableInstanceSettings(repoSettings, null));
+        assertThat(pluginInfo.getPluginSettings()).isEqualTo(new PluggableInstanceSettings(pluginSettings, new PluginView("some-html")));
     }
 
     @Test

@@ -17,33 +17,31 @@ package com.thoughtworks.go.server.domain.support.toggle;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FeatureToggleTest {
     @Test
     public void shouldKnowWhenItIsOn() throws Exception {
-        assertThat(new FeatureToggle("key1", "desc1", true).isOn(), is(true));
+        assertThat(new FeatureToggle("key1", "desc1", true).isOn()).isTrue();
     }
 
     @Test
     public void shouldKnowWhenItIsOff() throws Exception {
-        assertThat(new FeatureToggle("key1", "desc1", false).isOn(), is(false));
+        assertThat(new FeatureToggle("key1", "desc1", false).isOn()).isFalse();
     }
 
     @Test
     public void shouldKnowWhenItHasTheSameKeyAsTheProvidedOne() throws Exception {
-        assertThat(new FeatureToggle("key1", "desc1", false).hasSameKeyAs("key1"), is(true));
-        assertThat(new FeatureToggle("key1", "desc1", false).hasSameKeyAs("KEY1"), is(true));
-        assertThat(new FeatureToggle("KEY1", "desc1", false).hasSameKeyAs("key1"), is(true));
+        assertThat(new FeatureToggle("key1", "desc1", false).hasSameKeyAs("key1")).isTrue();
+        assertThat(new FeatureToggle("key1", "desc1", false).hasSameKeyAs("KEY1")).isTrue();
+        assertThat(new FeatureToggle("KEY1", "desc1", false).hasSameKeyAs("key1")).isTrue();
     }
 
     @Test
     public void shouldKnowWhenItDoesNotHaveTheSameKeyAsTheProvidedOne() throws Exception {
-        assertThat(new FeatureToggle("key1", "desc1", false).hasSameKeyAs("key2"), is(false));
-        assertThat(new FeatureToggle("key1", "desc1", false).hasSameKeyAs("key1_and_suffix"), is(false));
-        assertThat(new FeatureToggle("key1", "desc1", false).hasSameKeyAs("prefix_for_key1"), is(false));
+        assertThat(new FeatureToggle("key1", "desc1", false).hasSameKeyAs("key2")).isFalse();
+        assertThat(new FeatureToggle("key1", "desc1", false).hasSameKeyAs("key1_and_suffix")).isFalse();
+        assertThat(new FeatureToggle("key1", "desc1", false).hasSameKeyAs("prefix_for_key1")).isFalse();
     }
 
     @Test
@@ -51,8 +49,8 @@ public class FeatureToggleTest {
         FeatureToggle existingToggle = new FeatureToggle("key1", "desc1", false);
         FeatureToggle toggleWithValueChangedFlagSet = new FeatureToggle("key1", "desc1", false).withValueHasBeenChangedFlag(true);
 
-        assertThat(existingToggle, is(not(toggleWithValueChangedFlagSet)));
-        assertThat(toggleWithValueChangedFlagSet.hasBeenChangedFromDefault(), is(true));
+        assertThat(existingToggle).isNotEqualTo(toggleWithValueChangedFlagSet);
+        assertThat(toggleWithValueChangedFlagSet.hasBeenChangedFromDefault()).isTrue();
     }
 
     @Test
@@ -60,7 +58,7 @@ public class FeatureToggleTest {
         FeatureToggle toggleWithValueTrue = new FeatureToggle("key1", "desc1", true);
         FeatureToggle toggleWithValueFalse = new FeatureToggle("key2", "desc2", false);
 
-        assertThat(toggleWithValueTrue.hasSameValueAs(toggleWithValueTrue), is(true));
-        assertThat(toggleWithValueTrue.hasSameValueAs(toggleWithValueFalse), is(false));
+        assertThat(toggleWithValueTrue.hasSameValueAs(toggleWithValueTrue)).isTrue();
+        assertThat(toggleWithValueTrue.hasSameValueAs(toggleWithValueFalse)).isFalse();
     }
 }

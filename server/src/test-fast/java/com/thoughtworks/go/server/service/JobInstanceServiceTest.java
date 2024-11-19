@@ -59,10 +59,8 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.JobInstanceMother.scheduled;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -286,7 +284,7 @@ public class JobInstanceServiceTest {
 
         verify(jobInstanceDao).buildByIdWithTransitions(scheduledJob.getId());
         verify(jobInstanceDao).updateStateAndResult(scheduledJob);
-        assertThat(scheduledJob.isFailed(), is(true));
+        assertThat(scheduledJob.isFailed()).isTrue();
     }
 
     @Test
@@ -326,8 +324,8 @@ public class JobInstanceServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
 
-        assertThat(jobHistoryPage, is(nullValue()));
-        assertThat(result.httpCode(), is(404));
+        assertThat(jobHistoryPage).isNull();
+        assertThat(result.httpCode()).isEqualTo(404);
     }
 
     @Test
@@ -343,8 +341,8 @@ public class JobInstanceServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
 
-        assertThat(jobHistoryPage, is(nullValue()));
-        assertThat(result.canContinue(), is(false));
+        assertThat(jobHistoryPage).isNull();
+        assertThat(result.canContinue()).isFalse();
     }
 
     @Test
@@ -357,7 +355,7 @@ public class JobInstanceServiceTest {
         when(jobInstanceDao.loadPlan(7L)).thenReturn(expectedPlan);
         JobIdentifier givenId = new JobIdentifier("pipeline-name", 9, "label-9", "stage-name", "2", "job-name", 10L);
         when(resolver.actualJobIdentifier(givenId)).thenReturn(new JobIdentifier("pipeline-name", 8, "label-8", "stage-name", "1", "job-name", 7L));
-        assertThat(jobService.loadOriginalJobPlan(givenId), sameInstance(expectedPlan));
+        assertThat(jobService.loadOriginalJobPlan(givenId)).isSameAs(expectedPlan);
         verify(jobInstanceDao).loadPlan(7L);
     }
 
@@ -383,7 +381,7 @@ public class JobInstanceServiceTest {
 
         JobInstancesModel actualModel = jobService.completedJobsOnAgent("uuid", JobInstanceService.JobHistoryColumns.pipeline, SortOrder.ASC, 2, 50);
 
-        assertThat(actualModel, is(new JobInstancesModel(new JobInstances(expected), Pagination.pageByNumber(2, 500, 50))));
+        assertThat(actualModel).isEqualTo(new JobInstancesModel(new JobInstances(expected), Pagination.pageByNumber(2, 500, 50)));
         verify(jobInstanceDao).totalCompletedJobsOnAgent("uuid");
         verify(jobInstanceDao).completedJobsOnAgent("uuid", JobInstanceService.JobHistoryColumns.pipeline, SortOrder.ASC, 50, 50);
     }
@@ -393,11 +391,11 @@ public class JobInstanceServiceTest {
         ServerHealthService serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
-        assertThat(serverHealthService.logsSorted().errorCount(), is(2));
+        assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(2);
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
             null, serverHealthService);
         jobService.onConfigChange(new BasicCruiseConfig());
-        assertThat(serverHealthService.logsSorted().errorCount(), is(0));
+        assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(0);
     }
 
     @Test
@@ -405,13 +403,13 @@ public class JobInstanceServiceTest {
         ServerHealthService serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
-        assertThat(serverHealthService.logsSorted().errorCount(), is(2));
+        assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(2);
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
             null, serverHealthService);
         JobInstanceService.PipelineConfigChangedListener pipelineConfigChangedListener = jobService.new PipelineConfigChangedListener();
         pipelineConfigChangedListener.onEntityConfigChange(PipelineConfigMother.pipelineConfig("p1", "s_new", new MaterialConfigs(), "j1"));
-        assertThat(serverHealthService.logsSorted().errorCount(), is(1));
-        assertThat(serverHealthService.logsSorted().get(0).getType().getScope().getScope(), is("p2/s2/j2"));
+        assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(1);
+        assertThat(serverHealthService.logsSorted().get(0).getType().getScope().getScope()).isEqualTo("p2/s2/j2");
     }
 
     @Test
@@ -424,7 +422,7 @@ public class JobInstanceServiceTest {
 
         List<JobInstance> jobInstances = jobService.allRunningJobs();
 
-        assertThat(jobInstances, is(expectedRunningJobs));
+        assertThat(jobInstances).isEqualTo(expectedRunningJobs);
         verify(jobInstanceDao).getRunningJobs();
     }
 
@@ -438,8 +436,7 @@ public class JobInstanceServiceTest {
 
         JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
 
-        assertThat(jobInstanceService.findJobInstanceWithTransitions("pipeline", "stage", "job", 1, 1, new Username("user")),
-                is(instance));
+        assertThat(jobInstanceService.findJobInstanceWithTransitions("pipeline", "stage", "job", 1, 1, new Username("user"))).isEqualTo(instance);
     }
 
     @Test

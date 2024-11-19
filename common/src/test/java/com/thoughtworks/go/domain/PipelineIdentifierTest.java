@@ -17,26 +17,25 @@ package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineIdentifierTest {
 
     @Test
     public void shouldUseCounterIfItExists() {
         PipelineIdentifier identifier = new PipelineIdentifier("cruise", 1, "label-1");
-        assertThat(identifier.pipelineLocator(), is("cruise/1"));
+        assertThat(identifier.pipelineLocator()).isEqualTo("cruise/1");
     }
 
     @Test
     public void shouldUseLabelForDisplay() {
         PipelineIdentifier identifier = new PipelineIdentifier("cruise", 1, "label-1");
-        assertThat(identifier.pipelineLocatorForDisplay(), is("cruise/label-1"));
+        assertThat(identifier.pipelineLocatorForDisplay()).isEqualTo("cruise/label-1");
     }
 
     @Test
     public void shouldReturnURN() throws Exception {
         PipelineIdentifier identifier = new PipelineIdentifier("cruise", 1, "label-1");
-        assertThat(identifier.asURN(), is("urn:x-go.studios.thoughtworks.com:job-id:cruise:1"));
+        assertThat(identifier.asURN()).isEqualTo("urn:x-go.studios.thoughtworks.com:job-id:cruise:1");
     }
 }

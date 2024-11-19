@@ -28,9 +28,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class SCMDependencyNodeTest {
     @Test
@@ -43,7 +42,7 @@ public class SCMDependencyNodeTest {
         node.addMaterialRevision(new MaterialRevision(null, modifications));
         node.addMaterialRevision(new MaterialRevision(gitMaterial, modifications));
 
-        assertThat(node.getMaterialRevisions().size(), is(2));
+        assertThat(node.getMaterialRevisions().size()).isEqualTo(2);
     }
 
     @Test
@@ -56,7 +55,7 @@ public class SCMDependencyNodeTest {
         node.addMaterialRevision(new MaterialRevision(gitMaterial, modifications));
         node.addMaterialRevision(new MaterialRevision(gitMaterial, modifications));
 
-        assertThat(node.getMaterialRevisions().size(), is(1));
+        assertThat(node.getMaterialRevisions().size()).isEqualTo(1);
     }
 
     @Test
@@ -93,9 +92,9 @@ public class SCMDependencyNodeTest {
         node.addMaterialRevision(new MaterialRevision(gitMaterial, false, yesterday));
         node.addMaterialRevision(new MaterialRevision(gitMaterial, false, today));
 
-        assertThat(node.revisions().size(), is(3));
-        assertThat(node.revisions().get(0).getRevisionString(), is(today.getRevision()));
-        assertThat(node.revisions().get(1).getRevisionString(), is(yesterday.getRevision()));
-        assertThat(node.revisions().get(2).getRevisionString(), is(twoDaysAgo.getRevision()));
+        assertThat(node.revisions().size()).isEqualTo(3);
+        assertThat(node.revisions().get(0).getRevisionString()).isEqualTo(today.getRevision());
+        assertThat(node.revisions().get(1).getRevisionString()).isEqualTo(yesterday.getRevision());
+        assertThat(node.revisions().get(2).getRevisionString()).isEqualTo(twoDaysAgo.getRevision());
     }
 }

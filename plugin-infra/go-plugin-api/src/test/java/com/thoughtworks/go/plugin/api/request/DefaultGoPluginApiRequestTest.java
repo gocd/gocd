@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class DefaultGoPluginApiRequestTest {
@@ -29,63 +28,63 @@ public class DefaultGoPluginApiRequestTest {
     @Test
     public void shouldBeInstanceOfGoPluginApiRequest() {
         DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("extension", "1.0", "request-name");
-        assertThat(request, instanceOf(GoPluginApiRequest.class));
+        assertThat(request).isInstanceOf(GoPluginApiRequest.class);
     }
 
 
     @Test
-    public void shouldReturnUnmodifiableRequestHeaders() throws Exception {
+    public void shouldReturnUnmodifiableRequestHeaders() {
         DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("extension", "1.0", "request-name");
         Map<String, String> requestHeaders = request.requestHeaders();
         try {
             requestHeaders.put("new-key", "new-value");
             fail("Should not allow modification of request headers");
-        } catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException ignored) {
         }
         try {
             requestHeaders.remove("key");
             fail("Should not allow modification of request headers");
-        } catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException ignored) {
         }
     }
 
     @Test
-    public void shouldReturnUnmodifiableRequestParams() throws Exception {
+    public void shouldReturnUnmodifiableRequestParams() {
         DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("extension", "1.0", "request-name");
         Map<String, String> requestParameters = request.requestParameters();
         try {
             requestParameters.put("new-key", "new-value");
             fail("Should not allow modification of request params");
-        } catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException ignored) {
         }
         try {
             requestParameters.remove("key");
             fail("Should not allow modification of request params");
-        } catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException ignored) {
         }
     }
 
     @Test
-    public void shouldBeAbleToSetAndGetRequestBody() throws Exception {
+    public void shouldBeAbleToSetAndGetRequestBody() {
         DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("extension", "1.0", "request-name");
         String requestBody = "request-body";
         request.setRequestBody(requestBody);
-        assertThat(request.requestBody(), is(requestBody));
+        assertThat(request.requestBody()).isEqualTo(requestBody);
     }
 
     @Test
-    public void shouldBeAbleToInitializePluginResponse() throws Exception {
+    public void shouldBeAbleToInitializePluginResponse() {
         String extension = "extension";
         String version = "1.0";
         String requestName = "request-name";
         DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest(extension, version, requestName);
-        assertThat(request.extension(), is(extension));
-        assertThat(request.extensionVersion(), is(version));
-        assertThat(request.requestName(), is(requestName));
+        assertThat(request.extension()).isEqualTo(extension);
+        assertThat(request.extensionVersion()).isEqualTo(version);
+        assertThat(request.requestName()).isEqualTo(requestName);
     }
 
     @Test
-    public void shouldAbleToSetRequestHeaders() throws Exception {
+    public void shouldAbleToSetRequestHeaders() {
         final DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("extension", "1.0", "request-name");
 
         final Map<String, String> headers = new HashMap();
@@ -94,7 +93,7 @@ public class DefaultGoPluginApiRequestTest {
 
         request.setRequestHeaders(headers);
 
-        assertThat(request.requestHeaders(), hasEntry("HEADER-1", "HEADER-VALUE-1"));
-        assertThat(request.requestHeaders(), hasEntry("HEADER-2", "HEADER-VALUE-2"));
+        assertThat(request.requestHeaders()).containsEntry("HEADER-1", "HEADER-VALUE-1");
+        assertThat(request.requestHeaders()).containsEntry("HEADER-2", "HEADER-VALUE-2");
     }
 }

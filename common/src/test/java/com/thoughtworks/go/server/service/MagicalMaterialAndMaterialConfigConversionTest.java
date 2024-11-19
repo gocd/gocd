@@ -57,8 +57,7 @@ import static com.thoughtworks.go.helper.FilterMother.filterFor;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
 import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MagicalMaterialAndMaterialConfigConversionTest {
@@ -99,13 +98,13 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
         Material materialFromConfig = materialConfigConverter.toMaterial(materialConfig);
         MaterialConfig materialConfigConvertedBackFromMaterial = materialFromConfig.config();
 
-        assertThat(materialConfigConvertedBackFromMaterial, is(materialConfig));
+        assertThat(materialConfigConvertedBackFromMaterial).isEqualTo(materialConfig);
         assertTrue(reflectionEquals(materialConfigConvertedBackFromMaterial, materialConfig, fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.get(materialConfig.getClass())),
                 message("Material <-> MaterialConfig conversion failed.", materialConfigConvertedBackFromMaterial, materialConfig));
 
-        assertThat(materialFromConfig.getFingerprint(), is(materialConfig.getFingerprint()));
-        assertThat(materialFromConfig.isAutoUpdate(), is(materialConfig.isAutoUpdate()));
-        assertThat(materialConfigConvertedBackFromMaterial.getFingerprint(), is(materialConfig.getFingerprint()));
+        assertThat(materialFromConfig.getFingerprint()).isEqualTo(materialConfig.getFingerprint());
+        assertThat(materialFromConfig.isAutoUpdate()).isEqualTo(materialConfig.isAutoUpdate());
+        assertThat(materialConfigConvertedBackFromMaterial.getFingerprint()).isEqualTo(materialConfig.getFingerprint());
         assertPasswordIsCorrect(materialConfig);
         assertPasswordIsCorrect(materialFromConfig);
         assertPasswordIsCorrect(materialConfigConvertedBackFromMaterial);
@@ -122,8 +121,8 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
         assertTrue(reflectionEquals(material, materialConvertedBackFromInstance, fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.get(materialConfig.getClass())),
                 message("Material <-> MaterialInstance conversion failed.", material, materialConvertedBackFromInstance));
 
-        assertThat(materialInstance.getFingerprint(), is(material.getFingerprint()));
-        assertThat(materialConvertedBackFromInstance.getFingerprint(), is(materialInstance.getFingerprint()));
+        assertThat(materialInstance.getFingerprint()).isEqualTo(material.getFingerprint());
+        assertThat(materialConvertedBackFromInstance.getFingerprint()).isEqualTo(materialInstance.getFingerprint());
         assertPasswordIsCorrect(material);
         assertPasswordIsCorrect(materialConvertedBackFromInstance);
     }
@@ -153,8 +152,8 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
         missingImplementations.removeAll(allExpectedMaterialConfigImplementations);
         String message = "You need to add a `MaterialConfig` to `testMaterials()` in this test: " + missingImplementations;
 
-        assertThat(message, reflectionsSubTypesOf.size(), is(allExpectedMaterialConfigImplementations.size()));
-        assertThat(message, reflectionsSubTypesOf, hasItems(allExpectedMaterialConfigImplementations.toArray(new Class<?>[0])));
+        assertThat(reflectionsSubTypesOf.size()).describedAs(message).isEqualTo(allExpectedMaterialConfigImplementations.size());
+        assertThat(reflectionsSubTypesOf).describedAs(message).contains(allExpectedMaterialConfigImplementations.toArray(new Class<?>[0]));
     }
 
     private boolean isNotAConcrete_NonTest_MaterialConfigImplementation(Class<?> aClass) {
@@ -163,16 +162,16 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
 
     private void assertPasswordIsCorrect(Material material) {
         if (material instanceof PasswordAwareMaterial) {
-            assertThat("Password setting is wrong for: " + material.getClass(), ((PasswordAwareMaterial) material).getPassword(), is("pass"));
-            assertThat("Password setting is wrong for: " + material.getClass(), ReflectionUtil.getField(material, "password"), is("pass"));
+            assertThat(((PasswordAwareMaterial) material).getPassword()).isEqualTo("pass");
+            assertThat((String) ReflectionUtil.getField(material, "password")).isEqualTo("pass");
         }
     }
 
     private void assertPasswordIsCorrect(MaterialConfig materialConfig) {
         if (materialConfig instanceof PasswordAwareMaterial) {
-            assertThat("Password setting is wrong for: " + materialConfig.getClass(), ((PasswordAwareMaterial) materialConfig).getPassword(), is("pass"));
-            assertThat("Password setting is wrong for: " + materialConfig.getClass(), ReflectionUtil.getField(materialConfig, "password"), is(nullValue()));
-            assertThat("Password setting is wrong for: " + materialConfig.getClass(), ReflectionUtil.getField(materialConfig, "encryptedPassword"), is(not(nullValue())));
+            assertThat(((PasswordAwareMaterial) materialConfig).getPassword()).isEqualTo("pass");
+            assertThat((String) ReflectionUtil.getField(materialConfig, "password")).isNull();
+            assertThat((String) ReflectionUtil.getField(materialConfig, "encryptedPassword")).isNotNull();
         }
     }
 

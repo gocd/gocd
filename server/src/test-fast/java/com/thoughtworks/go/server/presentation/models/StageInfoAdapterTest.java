@@ -20,15 +20,14 @@ import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.helper.StageConfigMother;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StageInfoAdapterTest {
 
     @Test
     public void shouldReturnCorrectAutoApprovedStatus() throws Exception {
         StageConfig stage = StageConfigMother.custom("dev", new JobConfigs());
-        assertThat(stage.requiresApproval(), is(false));
-        assertThat(new StageInfoAdapter(stage).isAutoApproved(), is(true));
+        assertThat(stage.requiresApproval()).isFalse();
+        assertThat(new StageInfoAdapter(stage).isAutoApproved()).isTrue();
     }
 }

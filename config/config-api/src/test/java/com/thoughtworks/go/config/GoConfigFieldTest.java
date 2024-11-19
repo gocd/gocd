@@ -22,9 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GoConfigFieldTest {
@@ -38,7 +36,7 @@ public class GoConfigFieldTest {
         final Element element = new Element("foo");
         element.setAttribute("number", "100");
         field.setValueIfNotNull(element, object);
-        assertThat(object.number, is(100L));
+        assertThat(object.number).isEqualTo(100L);
     }
 
     @Test
@@ -48,7 +46,7 @@ public class GoConfigFieldTest {
         final Element element = new Element("foo");
         element.setAttribute("directory", "foo" + File.separator + "dir");
         field.setValueIfNotNull(element, object);
-        assertThat(object.directory.getPath(), is("foo" + File.separator + "dir"));
+        assertThat(object.directory.getPath()).isEqualTo("foo" + File.separator + "dir");
     }
 
     @Test
@@ -57,7 +55,7 @@ public class GoConfigFieldTest {
         final GoConfigFieldWriter field = new GoConfigFieldWriter(Foo.class.getDeclaredField("directory"), object, configCache, null);
         final Element element = new Element("foo");
         field.setValueIfNotNull(element, object);
-        assertThat(object.directory, is(nullValue()));
+        assertThat(object.directory).isNull();
     }
 
     @Test

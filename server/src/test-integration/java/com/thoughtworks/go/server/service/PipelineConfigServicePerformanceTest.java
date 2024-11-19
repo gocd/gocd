@@ -49,8 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled("For adhoc running only")
 @ExtendWith(SpringExtension.class)
@@ -187,7 +186,7 @@ public class PipelineConfigServicePerformanceTest {
         for (String threadId : results.keySet()) {
             finalResult = results.get(threadId) && finalResult;
         }
-        assertThat(finalResult, is(true));
+        assertThat(finalResult).isTrue();
     }
 
     private void takeHeapDump(int i) {
@@ -196,7 +195,7 @@ public class PipelineConfigServicePerformanceTest {
         LOGGER.info(commandLine.describe());
         int exitCode = commandLine.run(outputStreamConsumer, new NamedProcessTag("thread" + i));
         LOGGER.info(outputStreamConsumer.getAllOutput());
-        assertThat(exitCode, is(0));
+        assertThat(exitCode).isEqualTo(0);
         LOGGER.info("Heap dump available at " + tempDir.toFile().getAbsolutePath());
     }
 

@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineHistoryGroupTest {
 
@@ -32,7 +31,7 @@ public class PipelineHistoryGroupTest {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
         PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
                 StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage2", false));
-        assertThat(group.hasSameStagesAs(pipelineInstanceModel), is(false));
+        assertThat(group.hasSameStagesAs(pipelineInstanceModel)).isFalse();
     }
 
     @Test
@@ -41,7 +40,7 @@ public class PipelineHistoryGroupTest {
         group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
         PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
                 StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage2", false));
-        assertThat(group.hasSameStagesAs(pipelineInstanceModel), is(true));
+        assertThat(group.hasSameStagesAs(pipelineInstanceModel)).isTrue();
     }
 
     @Test
@@ -50,7 +49,7 @@ public class PipelineHistoryGroupTest {
         group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
         PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
                 StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage3", false));
-        assertThat(group.hasSameStagesAs(pipelineInstanceModel), is(false));
+        assertThat(group.hasSameStagesAs(pipelineInstanceModel)).isFalse();
     }
 
     @Test
@@ -59,7 +58,7 @@ public class PipelineHistoryGroupTest {
         group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
         PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
                 StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage2", true));
-        assertThat(group.hasSameStagesAs(pipelineInstanceModel), is(false));
+        assertThat(group.hasSameStagesAs(pipelineInstanceModel)).isFalse();
     }
 
     @Test
@@ -69,7 +68,7 @@ public class PipelineHistoryGroupTest {
         PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
                 StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage2", false),
                 StageHistoryItemMother.custom("stage3", false));
-        assertThat(group.hasSameStagesAs(pipelineInstanceModel), is(false));
+        assertThat(group.hasSameStagesAs(pipelineInstanceModel)).isFalse();
     }
 
     private static class SimpleInfo implements StageConfigurationModel {

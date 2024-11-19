@@ -32,9 +32,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -84,9 +82,9 @@ public class UnrunStagesPopulatorTest {
 
         unrunStagesPopulator.apply(valueStreamMap);
         PipelineRevision revision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().get(0);
-        assertThat(revision.getStages(), hasSize(2));
-        assertThat(revision.getStages().get(0).getName(), is("s2"));
-        assertThat(revision.getStages().get(1).getName(), is("s1"));
+        assertThat(revision.getStages()).hasSize(2);
+        assertThat(revision.getStages().get(0).getName()).isEqualTo("s2");
+        assertThat(revision.getStages().get(1).getName()).isEqualTo("s1");
     }
 
     @Test
@@ -198,18 +196,18 @@ public class UnrunStagesPopulatorTest {
 
     private void assertRevision(Revision revision) {
         PipelineRevision pipelineRevision = (PipelineRevision) revision;
-        assertThat(pipelineRevision.getStages(), hasSize(3));
-        assertThat(pipelineRevision.getStages().get(0).getName(), is("s1"));
-        assertThat(pipelineRevision.getStages().get(1).getName(), is("s3"));
-        assertThat(pipelineRevision.getStages().get(2).getName(), is("s4"));
-        assertThat(pipelineRevision.getStages().get(2).getState(), is(StageState.Unknown));
+        assertThat(pipelineRevision.getStages()).hasSize(3);
+        assertThat(pipelineRevision.getStages().get(0).getName()).isEqualTo("s1");
+        assertThat(pipelineRevision.getStages().get(1).getName()).isEqualTo("s3");
+        assertThat(pipelineRevision.getStages().get(2).getName()).isEqualTo("s4");
+        assertThat(pipelineRevision.getStages().get(2).getState()).isEqualTo(StageState.Unknown);
     }
 
 	private void assertUnrunPipeline(Node node, String pipelineName) {
-		assertThat(node.revisions(), hasSize(1));
+		assertThat(node.revisions()).hasSize(1);
 		PipelineRevision empty_p2_revision = (PipelineRevision) node.revisions().get(0);
-		assertThat(empty_p2_revision.getPipelineIdentifier(), is(new UnrunPipelineRevision(pipelineName).getPipelineIdentifier()));
-		assertThat(empty_p2_revision.getStages(), is(new Stages(new NullStage("s1"), new NullStage("s2"), new NullStage("s3"), new NullStage("s4"))));
+		assertThat(empty_p2_revision.getPipelineIdentifier()).isEqualTo(new UnrunPipelineRevision(pipelineName).getPipelineIdentifier());
+		assertThat(empty_p2_revision.getStages()).isEqualTo(new Stages(new NullStage("s1"), new NullStage("s2"), new NullStage("s3"), new NullStage("s4")));
 	}
 
     private PipelineConfig pipelineConfig(String pipelineName) {

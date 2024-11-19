@@ -30,8 +30,7 @@ import javax.jms.JMSException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -66,7 +65,7 @@ public class ActiveMqTest implements GoMessageListener {
 
         Thread.sleep(1000);
 
-        assertThat(((GoTextMessage) receivedMessage).getText(), is("Hello World!"));
+        assertThat(((GoTextMessage) receivedMessage).getText()).isEqualTo("Hello World!");
     }
 
     @Test
@@ -88,7 +87,7 @@ public class ActiveMqTest implements GoMessageListener {
 
         Thread.sleep(1000);
 
-        assertThat(fast1.receivedMessages.size(), is(4));
+        assertThat(fast1.receivedMessages.size()).isEqualTo(4);
 
         hanging.finish();
     }
@@ -110,7 +109,7 @@ public class ActiveMqTest implements GoMessageListener {
 
         Thread.sleep(1000);
 
-        assertThat(exceptionListener.receivedMessages.size(), is(5));
+        assertThat(exceptionListener.receivedMessages.size()).isEqualTo(5);
     }
 
     @Override

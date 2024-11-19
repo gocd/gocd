@@ -37,8 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
@@ -86,7 +85,7 @@ public abstract class TestBaseForDatabaseUpdater {
         updater.updateMaterial(material);
 
         Modification modification = materialRepository.findLatestModification(material).getMaterialRevision(0).getModification(0);
-        assertThat(testRepo.latestModification().get(0), is(modification));
+        assertThat(testRepo.latestModification().get(0)).isEqualTo(modification);
 
     }
 
@@ -115,9 +114,9 @@ public abstract class TestBaseForDatabaseUpdater {
 
         List<Modification> changes = materialRepository.findModificationsSince(material,
                 original.getMaterialRevision(0));
-        assertThat(changes.size(),is(3));
-        assertThat(changes.get(0).getComment(), is("Checkin 3"));
-        assertThat(changes.get(1).getComment(), is("Checkin 2"));
-        assertThat(changes.get(2).getComment(), is("Checkin 1"));
+        assertThat(changes.size()).isEqualTo(3);
+        assertThat(changes.get(0).getComment()).isEqualTo("Checkin 3");
+        assertThat(changes.get(1).getComment()).isEqualTo("Checkin 2");
+        assertThat(changes.get(2).getComment()).isEqualTo("Checkin 1");
     }
 }

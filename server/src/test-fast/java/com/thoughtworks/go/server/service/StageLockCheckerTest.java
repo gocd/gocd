@@ -20,9 +20,7 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,14 +42,14 @@ public class StageLockCheckerTest {
     public void shouldAllowStagesInTheSamePipelineInstance() {
         when(lockService.canScheduleStageInPipeline(pipeline)).thenReturn(true);
         checker.check(result);
-        assertThat(result.canContinue(), is(true));
+        assertThat(result.canContinue()).isTrue();
     }
 
     @Test
     public void shouldNotAllowStagesIfThePipelineIsLocked() {
         when(lockService.canScheduleStageInPipeline(pipeline)).thenReturn(false);
         checker.check(result);
-        assertThat(result.canContinue(), is(false));
-        assertThat(result.message(), containsString("is locked"));
+        assertThat(result.canContinue()).isFalse();
+        assertThat(result.message()).contains("is locked");
     }
 }

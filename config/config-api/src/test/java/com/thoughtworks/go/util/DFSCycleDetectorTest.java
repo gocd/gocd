@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +47,7 @@ public class DFSCycleDetectorTest {
         try {
             project.topoSort(new CaseInsensitiveString("a"), state);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Circular dependency: a <- c <- b <- a"));
+            assertThat(e.getMessage()).isEqualTo("Circular dependency: a <- c <- b <- a");
         }
     }
 
@@ -75,7 +74,7 @@ public class DFSCycleDetectorTest {
         try {
             project.topoSort(new CaseInsensitiveString("a"), state);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Pipeline 'z' does not exist. It is used from pipeline 'b'."));
+            assertThat(e.getMessage()).isEqualTo("Pipeline 'z' does not exist. It is used from pipeline 'b'.");
         }
     }
 }

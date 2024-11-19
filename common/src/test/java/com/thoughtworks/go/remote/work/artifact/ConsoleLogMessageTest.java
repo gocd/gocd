@@ -17,8 +17,7 @@ package com.thoughtworks.go.remote.work.artifact;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ConsoleLogMessageTest {
@@ -28,8 +27,8 @@ public class ConsoleLogMessageTest {
         final ConsoleLogMessage consoleLogMessage = ConsoleLogMessage.fromJSON("{\"logLevel\":\"INFO\",\"message\":\"This is info message.\"}");
 
         assertNotNull(consoleLogMessage);
-        assertThat(consoleLogMessage.getLogLevel(), is(ConsoleLogMessage.LogLevel.INFO));
-        assertThat(consoleLogMessage.getMessage(), is("This is info message."));
+        assertThat(consoleLogMessage.getLogLevel()).isEqualTo(ConsoleLogMessage.LogLevel.INFO);
+        assertThat(consoleLogMessage.getMessage()).isEqualTo("This is info message.");
     }
 
 
@@ -38,7 +37,7 @@ public class ConsoleLogMessageTest {
         final ConsoleLogMessage consoleLogMessage = ConsoleLogMessage.fromJSON("{\"logLevel\":\"ERROR\",\"message\":\"This is error.\"}");
 
         assertNotNull(consoleLogMessage);
-        assertThat(consoleLogMessage.getLogLevel(), is(ConsoleLogMessage.LogLevel.ERROR));
-        assertThat(consoleLogMessage.getMessage(), is("This is error."));
+        assertThat(consoleLogMessage.getLogLevel()).isEqualTo(ConsoleLogMessage.LogLevel.ERROR);
+        assertThat(consoleLogMessage.getMessage()).isEqualTo("This is error.");
     }
 }

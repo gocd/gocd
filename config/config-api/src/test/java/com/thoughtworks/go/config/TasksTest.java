@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -36,7 +35,7 @@ public class TasksTest {
         FetchTask fetchArtifact = new FetchTask();
         Tasks tasks = new Tasks(antTask1, fetchArtifact);
         Tasks finds = tasks.findByType(NantTask.class);
-        assertThat(finds.size(), is(0));
+        assertThat(finds.size()).isEqualTo(0);
     }
 
     @Test
@@ -51,8 +50,8 @@ public class TasksTest {
         Tasks spy = spy(tasks);
         spy.setConfigAttributes(attributes, taskFactory);
 
-        assertThat(spy.size(), is(1));
-        assertThat(spy.get(0), is(antTask("build.xml", "test", "foo")));
+        assertThat(spy.size()).isEqualTo(1);
+        assertThat(spy.get(0)).isEqualTo(antTask("build.xml", "test", "foo"));
     }
 
     @Test
@@ -67,9 +66,9 @@ public class TasksTest {
 
         tasks.incrementIndex(0);
 
-        assertThat(tasks.get(0), is(task2));
-        assertThat(tasks.get(1), is(task1));
-        assertThat(tasks.get(2), is(task3));
+        assertThat(tasks.get(0)).isEqualTo(task2);
+        assertThat(tasks.get(1)).isEqualTo(task1);
+        assertThat(tasks.get(2)).isEqualTo(task3);
     }
 
     @Test
@@ -78,7 +77,7 @@ public class TasksTest {
             new Tasks().incrementIndex(1);
             fail("Should have thrown up");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("There is not valid task at position 1."));
+            assertThat(e.getMessage()).isEqualTo("There is not valid task at position 1.");
         }
     }
 
@@ -94,9 +93,9 @@ public class TasksTest {
 
         tasks.decrementIndex(2);
 
-        assertThat(tasks.get(0), is(task1));
-        assertThat(tasks.get(1), is(task3));
-        assertThat(tasks.get(2), is(task2));
+        assertThat(tasks.get(0)).isEqualTo(task1);
+        assertThat(tasks.get(1)).isEqualTo(task3);
+        assertThat(tasks.get(2)).isEqualTo(task2);
     }
 
     @Test
@@ -105,7 +104,7 @@ public class TasksTest {
             new Tasks().decrementIndex(1);
             fail("Should have thrown up");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("There is not valid task at position 1."));
+            assertThat(e.getMessage()).isEqualTo("There is not valid task at position 1.");
         }
     }
 
@@ -123,14 +122,14 @@ public class TasksTest {
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, stageConfig, jobConfig);
         assertFalse(tasks.validateTree(context));
 
-        assertThat(tasks.errors().isEmpty(), is(true));
-        assertThat(antTask.errors().isEmpty(), is(false));
-        assertThat(antTask.errors().get(AntTask.WORKING_DIRECTORY).size(), is(1));
-        assertThat(antTask.errors().get(AntTask.WORKING_DIRECTORY).contains("Task of job 'job' in stage 'stage' of pipeline 'p1' has path '/abc' which is outside the working directory."), is(true));
-        assertThat(execTask.errors().get(ExecTask.ARG_LIST_STRING).size(), is(1));
-        assertThat(execTask.errors().get(ExecTask.ARG_LIST_STRING).contains("Can not use both 'args' attribute and 'arg' sub element in 'exec' element!"), is(true));
-        assertThat(execTask.errors().get(ExecTask.ARGS).size(), is(1));
-        assertThat(execTask.errors().get(ExecTask.ARGS).contains("Can not use both 'args' attribute and 'arg' sub element in 'exec' element!"), is(true));
+        assertThat(tasks.errors().isEmpty()).isTrue();
+        assertThat(antTask.errors().isEmpty()).isFalse();
+        assertThat(antTask.errors().get(AntTask.WORKING_DIRECTORY).size()).isEqualTo(1);
+        assertThat(antTask.errors().get(AntTask.WORKING_DIRECTORY).contains("Task of job 'job' in stage 'stage' of pipeline 'p1' has path '/abc' which is outside the working directory.")).isTrue();
+        assertThat(execTask.errors().get(ExecTask.ARG_LIST_STRING).size()).isEqualTo(1);
+        assertThat(execTask.errors().get(ExecTask.ARG_LIST_STRING).contains("Can not use both 'args' attribute and 'arg' sub element in 'exec' element!")).isTrue();
+        assertThat(execTask.errors().get(ExecTask.ARGS).size()).isEqualTo(1);
+        assertThat(execTask.errors().get(ExecTask.ARGS).contains("Can not use both 'args' attribute and 'arg' sub element in 'exec' element!")).isTrue();
     }
 
     private AntTask antTask(final String buildFile, final String target, final String workingDir) {

@@ -21,9 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -35,9 +33,9 @@ public class JobConfigsTest {
         JobConfigs jobs = new JobConfigs();
         jobs.add(new JobConfig("quux"));
         jobs.setConfigAttributes(List.of(Map.of(JobConfig.NAME, "foo"), Map.of(JobConfig.NAME, "bar")));
-        assertThat(jobs.get(0).name(), is(new CaseInsensitiveString("foo")));
-        assertThat(jobs.get(1).name(), is(new CaseInsensitiveString("bar")));
-        assertThat(jobs.size(), is(2));
+        assertThat(jobs.get(0).name()).isEqualTo(new CaseInsensitiveString("foo"));
+        assertThat(jobs.get(1).name()).isEqualTo(new CaseInsensitiveString("bar"));
+        assertThat(jobs.size()).isEqualTo(2);
     }
 
     @Test
@@ -48,18 +46,18 @@ public class JobConfigsTest {
         JobConfigs jobs = pipelineConfig.get(0).getJobs();
         jobs.add(new JobConfig("quux"));
         jobs.setConfigAttributes(List.of(Map.of(JobConfig.NAME, "foo"), Map.of(JobConfig.NAME, "foo")));
-        assertThat(jobs.size(), is(2));
+        assertThat(jobs.size()).isEqualTo(2);
 
         JobConfig firstFoo = jobs.get(0);
         JobConfig secondFoo = jobs.get(1);
-        assertThat(firstFoo.name(), is(new CaseInsensitiveString("foo")));
-        assertThat(secondFoo.name(), is(new CaseInsensitiveString("foo")));
+        assertThat(firstFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
+        assertThat(secondFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
 
-        assertThat(firstFoo.errors().isEmpty(), is(true));
-        assertThat(secondFoo.errors().isEmpty(), is(true));
+        assertThat(firstFoo.errors().isEmpty()).isTrue();
+        assertThat(secondFoo.errors().isEmpty()).isTrue();
         jobs.validate(ConfigSaveValidationContext.forChain(config, config.getGroups(), config.getGroups().get(0), pipelineConfig, pipelineConfig.get(0), jobs));
-        assertThat(firstFoo.errors().on(JobConfig.NAME), is("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique."));
-        assertThat(secondFoo.errors().on(JobConfig.NAME), is("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique."));
+        assertThat(firstFoo.errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
+        assertThat(secondFoo.errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
 
     }
 
@@ -69,18 +67,18 @@ public class JobConfigsTest {
         JobConfigs jobs = pipelineConfig.get(0).getJobs();
         jobs.add(new JobConfig("quux"));
         jobs.setConfigAttributes(List.of(Map.of(JobConfig.NAME, "foo"), Map.of(JobConfig.NAME, "foo")));
-        assertThat(jobs.size(), is(2));
+        assertThat(jobs.size()).isEqualTo(2);
 
         JobConfig firstFoo = jobs.get(0);
         JobConfig secondFoo = jobs.get(1);
-        assertThat(firstFoo.name(), is(new CaseInsensitiveString("foo")));
-        assertThat(secondFoo.name(), is(new CaseInsensitiveString("foo")));
+        assertThat(firstFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
+        assertThat(secondFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
 
-        assertThat(firstFoo.errors().isEmpty(), is(true));
-        assertThat(secondFoo.errors().isEmpty(), is(true));
+        assertThat(firstFoo.errors().isEmpty()).isTrue();
+        assertThat(secondFoo.errors().isEmpty()).isTrue();
         jobs.validate(PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, pipelineConfig.get(0), jobs));
-        assertThat(firstFoo.errors().on(JobConfig.NAME), is("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique."));
-        assertThat(secondFoo.errors().on(JobConfig.NAME), is("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique."));
+        assertThat(firstFoo.errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
+        assertThat(secondFoo.errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
 
     }
 
@@ -113,7 +111,7 @@ public class JobConfigsTest {
         JobConfigs jobs = new JobConfigs();
         jobs.add(new JobConfig("quux"));
         jobs.setConfigAttributes(null);
-        assertThat(jobs.size(), is(0));
+        assertThat(jobs.size()).isEqualTo(0);
     }
 
     @Test
@@ -125,7 +123,7 @@ public class JobConfigsTest {
 
         JobConfig actual = configs.getJob(new CaseInsensitiveString("job-1"));
 
-        assertThat(actual, is(expected));
-        assertThat(configs.getJob(new CaseInsensitiveString("some-junk")), is(nullValue()));
+        assertThat(actual).isEqualTo(expected);
+        assertThat(configs.getJob(new CaseInsensitiveString("some-junk"))).isNull();
     }
 }

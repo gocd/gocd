@@ -21,13 +21,12 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserModelTest {
     @Test
     public void shouldReturnSortedRoles() {
         UserModel foo = new UserModel(new User("foo", new ArrayList<>(), "foo@bar.com", false), List.of("bbb", "aaa", "BBB"), true);
-        assertThat(foo.getRoles(), is(List.of("BBB", "aaa", "bbb")));
+        assertThat(foo.getRoles()).isEqualTo(List.of("BBB", "aaa", "bbb"));
     }
 }

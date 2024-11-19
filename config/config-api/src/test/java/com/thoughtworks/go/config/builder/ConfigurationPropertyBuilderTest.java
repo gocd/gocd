@@ -20,8 +20,7 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.security.GoCipher;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ConfigurationPropertyBuilderTest {
@@ -32,8 +31,8 @@ public class ConfigurationPropertyBuilderTest {
 
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, "enc_value", true);
 
-        assertThat(property.getConfigKeyName(), is("key"));
-        assertThat(property.getEncryptedValue(), is("enc_value"));
+        assertThat(property.getConfigKeyName()).isEqualTo("key");
+        assertThat(property.getEncryptedValue()).isEqualTo("enc_value");
         assertNull(property.getConfigurationValue());
     }
 
@@ -44,8 +43,8 @@ public class ConfigurationPropertyBuilderTest {
 
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", null, true);
 
-        assertThat(property.getConfigKeyName(), is("key"));
-        assertThat(property.getEncryptedValue(), is(new GoCipher().encrypt("value")));
+        assertThat(property.getConfigKeyName()).isEqualTo("key");
+        assertThat(property.getEncryptedValue()).isEqualTo(new GoCipher().encrypt("value"));
         assertNull(property.getConfigurationValue());
     }
 
@@ -56,8 +55,8 @@ public class ConfigurationPropertyBuilderTest {
 
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, null, true);
 
-        assertThat(property.errors().size(), is(0));
-        assertThat(property.getConfigKeyName(), is("key"));
+        assertThat(property.errors().size()).isEqualTo(0);
+        assertThat(property.getConfigKeyName()).isEqualTo("key");
         assertNull(property.getEncryptedConfigurationValue());
         assertNull(property.getConfigurationValue());
     }
@@ -69,10 +68,10 @@ public class ConfigurationPropertyBuilderTest {
 
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", "enc_value", true);
 
-        assertThat(property.errors().get("configurationValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
-        assertThat(property.errors().get("encryptedValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
-        assertThat(property.getConfigurationValue().getValue(), is("value"));
-        assertThat(property.getEncryptedValue(), is("enc_value"));
+        assertThat(property.errors().get("configurationValue").get(0)).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
+        assertThat(property.errors().get("encryptedValue").get(0)).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
+        assertThat(property.getConfigurationValue().getValue()).isEqualTo("value");
+        assertThat(property.getEncryptedValue()).isEqualTo("enc_value");
     }
 
     @Test
@@ -82,10 +81,10 @@ public class ConfigurationPropertyBuilderTest {
 
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", "enc_value", false);
 
-        assertThat(property.errors().get("configurationValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
-        assertThat(property.errors().get("encryptedValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
-        assertThat(property.getConfigurationValue().getValue(), is("value"));
-        assertThat(property.getEncryptedValue(), is("enc_value"));
+        assertThat(property.errors().get("configurationValue").get(0)).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
+        assertThat(property.errors().get("encryptedValue").get(0)).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
+        assertThat(property.getConfigurationValue().getValue()).isEqualTo("value");
+        assertThat(property.getEncryptedValue()).isEqualTo("enc_value");
     }
 
     @Test
@@ -95,8 +94,8 @@ public class ConfigurationPropertyBuilderTest {
 
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, "enc_value", false);
 
-        assertThat(property.errors().get("encryptedValue").get(0), is("encrypted_value cannot be specified to a unsecured property."));
-        assertThat(property.getEncryptedValue(), is("enc_value"));
+        assertThat(property.errors().get("encryptedValue").get(0)).isEqualTo("encrypted_value cannot be specified to a unsecured property.");
+        assertThat(property.getEncryptedValue()).isEqualTo("enc_value");
     }
 
     @Test
@@ -106,7 +105,7 @@ public class ConfigurationPropertyBuilderTest {
 
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", null, false);
 
-        assertThat(property.getConfigurationValue().getValue(), is("value"));
+        assertThat(property.getConfigurationValue().getValue()).isEqualTo("value");
         assertNull(property.getEncryptedConfigurationValue());
     }
 }

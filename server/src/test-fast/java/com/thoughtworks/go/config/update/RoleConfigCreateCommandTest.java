@@ -25,9 +25,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -45,7 +43,7 @@ public class RoleConfigCreateCommandTest {
 
         assertFalse(command.canContinue(null));
         assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(403));
+        assertThat(result.httpCode()).isEqualTo(403);
     }
 
     @Test
@@ -56,7 +54,7 @@ public class RoleConfigCreateCommandTest {
 
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("blackbird")), equalTo(role));
+        assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("blackbird"))).isEqualTo(role);
     }
 
     @Test
@@ -65,9 +63,9 @@ public class RoleConfigCreateCommandTest {
         RoleConfigCreateCommand command = new RoleConfigCreateCommand(null, pluginRoleConfig, null, null);
 
         assertFalse(command.isValid(GoConfigMother.defaultCruiseConfig()));
-        assertThat(pluginRoleConfig.errors().size(), is(2));
-        assertThat(pluginRoleConfig.errors().get("name").get(0), is("Invalid role name name 'null'. This must be " +
-                "alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
-        assertThat(pluginRoleConfig.errors().get("authConfigId").get(0), is("No such security auth configuration present for id: `ldap`"));
+        assertThat(pluginRoleConfig.errors().size()).isEqualTo(2);
+        assertThat(pluginRoleConfig.errors().get("name").get(0)).isEqualTo("Invalid role name name 'null'. This must be " +
+                "alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(pluginRoleConfig.errors().get("authConfigId").get(0)).isEqualTo("No such security auth configuration present for id: `ldap`");
     }
 }

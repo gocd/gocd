@@ -35,9 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,8 +81,8 @@ public class PluginSettingsRequestProcessorTest {
         apiRequest.setRequestBody("expected-request");
         GoApiResponse response = processor.process(pluginDescriptor, apiRequest);
 
-        assertThat(response.responseCode(), is(200));
-        assertThat(response.responseBody(), is("{\"k1\":\"v1\",\"k2\":\"v2\"}"));
+        assertThat(response.responseCode()).isEqualTo(200);
+        assertThat(response.responseBody()).isEqualTo("{\"k1\":\"v1\",\"k2\":\"v2\"}");
     }
 
     @Test
@@ -99,8 +97,8 @@ public class PluginSettingsRequestProcessorTest {
         apiRequest.setRequestBody(requestBody);
         GoApiResponse response = processor.process(pluginDescriptor, apiRequest);
 
-        assertThat(response.responseCode(), is(200));
-        assertThat(response.responseBody(), is(nullValue()));
+        assertThat(response.responseCode()).isEqualTo(200);
+        assertThat(response.responseBody()).isNull();
     }
 
     @Test
@@ -115,6 +113,6 @@ public class PluginSettingsRequestProcessorTest {
 
         GoApiResponse response = processor.process(pluginDescriptor, apiRequest);
 
-        assertThat(response.responseCode(), is(400));
+        assertThat(response.responseCode()).isEqualTo(400);
     }
 }

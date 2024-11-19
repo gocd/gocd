@@ -36,9 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.lenient;
@@ -89,7 +87,7 @@ public class CreatePackageConfigCommandTest {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
         assertNull(cruiseConfig.getPackageRepositories().findPackageDefinitionWith(packageId));
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId).getPackages().find(packageUuid), is(packageDefinition));
+        assertThat(cruiseConfig.getPackageRepositories().find(repoId).getPackages().find(packageUuid)).isEqualTo(packageDefinition);
     }
 
     @Test
@@ -99,8 +97,8 @@ public class CreatePackageConfigCommandTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(EntityType.PackageDefinition.forbiddenToEdit(packageDefinition.getId(), currentUser.getUsername()), forbidden());
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result, is(expectedResult));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
@@ -113,7 +111,7 @@ public class CreatePackageConfigCommandTest {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, pkg, repoId, currentUser, result, packageDefinitionService);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(pkg.errors().getAllOn("name"), is(List.of("Package name is mandatory")));
+        assertThat(pkg.errors().getAllOn("name")).isEqualTo(List.of("Package name is mandatory"));
     }
 
     @Test
@@ -127,7 +125,7 @@ public class CreatePackageConfigCommandTest {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, pkg, repoId, currentUser, result, packageDefinitionService);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(pkg.errors().getAllOn("name"), is(List.of("Invalid Package name '!$#'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+        assertThat(pkg.errors().getAllOn("name")).isEqualTo(List.of("Invalid Package name '!$#'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test
@@ -143,7 +141,7 @@ public class CreatePackageConfigCommandTest {
         cruiseConfig.setPackageRepositories(new PackageRepositories(repository));
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, pkg, repoId, currentUser, result, packageDefinitionService);
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(pkg.getAllErrors().toString(), containsString("Duplicate key 'key' found for Package 'name'"));
+        assertThat(pkg.getAllErrors().toString()).contains("Duplicate key 'key' found for Package 'name'");
     }
 
     @Test
@@ -156,8 +154,8 @@ public class CreatePackageConfigCommandTest {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(packageDefinition.errors().size(), is(1));
-        assertThat(packageDefinition.errors().firstError(), is("You have defined multiple packages called 'prettyjson'. Package names are case-insensitive and must be unique within a repository."));
+        assertThat(packageDefinition.errors().size()).isEqualTo(1);
+        assertThat(packageDefinition.errors().firstError()).isEqualTo("You have defined multiple packages called 'prettyjson'. Package names are case-insensitive and must be unique within a repository.");
     }
 
     @Test
@@ -170,8 +168,8 @@ public class CreatePackageConfigCommandTest {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(packageDefinition.errors().size(), is(1));
-        assertThat(packageDefinition.errors().firstError(), is("Cannot save package or repo, found duplicate packages. [Repo Name: 'repoName', Package Name: 'name'], [Repo Name: 'repoName', Package Name: 'prettyjson']"));
+        assertThat(packageDefinition.errors().size()).isEqualTo(1);
+        assertThat(packageDefinition.errors().firstError()).isEqualTo("Cannot save package or repo, found duplicate packages. [Repo Name: 'repoName', Package Name: 'name'], [Repo Name: 'repoName', Package Name: 'prettyjson']");
     }
 
     @Test
@@ -182,8 +180,8 @@ public class CreatePackageConfigCommandTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unprocessableEntity(EntityType.PackageRepository.notFoundMessage(repoId));
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result, is(expectedResult));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
@@ -193,7 +191,7 @@ public class CreatePackageConfigCommandTest {
 
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     @Test
@@ -203,6 +201,6 @@ public class CreatePackageConfigCommandTest {
 
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 }

@@ -32,8 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -84,10 +83,10 @@ public class AdminsConfigServiceTest {
         AdminsConfigUpdateCommand updateCommand = captor.getValue();
 
         AdminsConfig adminsConfig = updateCommand.getPreprocessedEntityConfig();
-        assertThat(adminsConfig.getUsers(), hasSize(2));
-        assertThat(adminsConfig.getUsers(), hasItems(new AdminUser("existingAdminUser"), new AdminUser("newUser1")));
-        assertThat(adminsConfig.getRoles(), hasSize(2));
-        assertThat(adminsConfig.getRoles(), hasItems(new AdminRole("existingAdminRole"), new AdminRole("newRole1")));
+        assertThat(adminsConfig.getUsers()).hasSize(2);
+        assertThat(adminsConfig.getUsers()).contains(new AdminUser("existingAdminUser"), new AdminUser("newUser1"));
+        assertThat(adminsConfig.getRoles()).hasSize(2);
+        assertThat(adminsConfig.getRoles()).contains(new AdminRole("existingAdminRole"), new AdminRole("newRole1"));
     }
 
     @Test
@@ -107,10 +106,10 @@ public class AdminsConfigServiceTest {
         AdminsConfigUpdateCommand updateCommand = captor.getValue();
 
         AdminsConfig adminsConfig = updateCommand.getPreprocessedEntityConfig();
-        assertThat(adminsConfig.getUsers(), hasSize(1));
-        assertThat(adminsConfig.getUsers(), hasItems(new AdminUser("adminUser2")));
-        assertThat(adminsConfig.getRoles(), hasSize(1));
-        assertThat(adminsConfig.getRoles(), hasItems(new AdminRole("adminRole2")));
+        assertThat(adminsConfig.getUsers()).hasSize(1);
+        assertThat(adminsConfig.getUsers()).contains(new AdminUser("adminUser2"));
+        assertThat(adminsConfig.getRoles()).hasSize(1);
+        assertThat(adminsConfig.getRoles()).contains(new AdminRole("adminRole2"));
     }
 
     @Test
@@ -126,12 +125,12 @@ public class AdminsConfigServiceTest {
         BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), emptyList(), emptyList(),
                 List.of("someOtherRole"), "md5");
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(result.message(), is("Update failed because some users or roles do not exist under super admins."));
-        assertThat(result.getNonExistentRoles(), hasSize(1));
-        assertThat(result.getNonExistentRoles(), hasItem(new CaseInsensitiveString("someOtherRole")));
-        assertThat(result.getNonExistentUsers(), hasSize(0));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(result.message()).isEqualTo("Update failed because some users or roles do not exist under super admins.");
+        assertThat(result.getNonExistentRoles()).hasSize(1);
+        assertThat(result.getNonExistentRoles()).contains(new CaseInsensitiveString("someOtherRole"));
+        assertThat(result.getNonExistentUsers()).hasSize(0);
 
         verify(goConfigService, times(0)).updateConfig(any(), any());
     }
@@ -149,11 +148,11 @@ public class AdminsConfigServiceTest {
         BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), List.of("someOtherUser"),
                 emptyList(), emptyList(), "md5");
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(result.getNonExistentUsers(), hasSize(1));
-        assertThat(result.getNonExistentUsers(), hasItem(new CaseInsensitiveString("someOtherUser")));
-        assertThat(result.getNonExistentRoles(), hasSize(0));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(result.getNonExistentUsers()).hasSize(1);
+        assertThat(result.getNonExistentUsers()).contains(new CaseInsensitiveString("someOtherUser"));
+        assertThat(result.getNonExistentRoles()).hasSize(0);
 
         verify(goConfigService, times(0)).updateConfig(any(), any());
     }
@@ -178,8 +177,8 @@ public class AdminsConfigServiceTest {
         BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), emptyList(), List.of("roleToRemove"),
                 emptyList(), "md5");
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(result.message(), is("Validations failed for admins. Error(s): [bar]. Please correct and resubmit."));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(result.message()).isEqualTo("Validations failed for admins. Error(s): [bar]. Please correct and resubmit.");
     }
 }

@@ -23,9 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class AdminServiceTest {
@@ -51,9 +49,9 @@ public class AdminServiceTest {
         final Map<String, Object> json = adminService.configurationJsonForSourceXml();
 
         Map<String, String> config = (Map<String, String>) json.get("config");
-        assertThat(config, hasEntry("location", fileLocation));
-        assertThat(config, hasEntry("content", "xml content"));
-        assertThat(config, hasEntry("md5", "md5 value"));
+        assertThat(config).containsEntry("location", fileLocation);
+        assertThat(config).containsEntry("content", "xml content");
+        assertThat(config).containsEntry("md5", "md5 value");
     }
 
     @Test
@@ -70,7 +68,7 @@ public class AdminServiceTest {
 
         adminService.updateConfig(attributes, result);
 
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
         verify(fileSaver).saveXml(content, md5);
         verify(goConfigService).fileSaver(false);
     }
@@ -91,10 +89,10 @@ public class AdminServiceTest {
 
         GoConfigValidity actual = adminService.updateConfig(attributes, result);
 
-        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.isSuccessful()).isFalse();
         GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) actual;
-        assertThat(invalidGoConfig.isValid(), is(false));
-        assertThat(invalidGoConfig.errorMessage(), is("Wrong config xml"));
+        assertThat(invalidGoConfig.isValid()).isFalse();
+        assertThat(invalidGoConfig.errorMessage()).isEqualTo("Wrong config xml");
 
         verify(fileSaver).saveXml(content, md5);
         verify(goConfigService).fileSaver(false);

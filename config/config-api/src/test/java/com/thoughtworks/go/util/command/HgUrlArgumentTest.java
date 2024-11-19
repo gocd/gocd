@@ -18,49 +18,48 @@ package com.thoughtworks.go.util.command;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class HgUrlArgumentTest {
     @Test
     void shouldMaskThePasswordInDisplayName() {
         HgUrlArgument hgUrlArgument = new HgUrlArgument("http://user:pwd@url##branch");
-        assertThat(hgUrlArgument.forDisplay(), is("http://user:******@url##branch"));
+        assertThat(hgUrlArgument.forDisplay()).isEqualTo("http://user:******@url##branch");
     }
 
     @Test
     void shouldReturnAURLWithoutPassword() {
-        assertThat(new HgUrlArgument("http://user:pwd@url##branch").defaultRemoteUrl(), is("http://user@url#branch"));
+        assertThat(new HgUrlArgument("http://user:pwd@url##branch").defaultRemoteUrl()).isEqualTo("http://user@url#branch");
     }
 
     @Test
     void shouldReturnAURLWhenPasswordIsNotSpecified() {
-        assertThat(new HgUrlArgument("http://user@url##branch").defaultRemoteUrl(), is("http://user@url#branch"));
+        assertThat(new HgUrlArgument("http://user@url##branch").defaultRemoteUrl()).isEqualTo("http://user@url#branch");
     }
 
     @Test
     void shouldReturnTheURLWhenNoCredentialsAreSpecified() {
-        assertThat(new HgUrlArgument("http://url##branch").defaultRemoteUrl(), is("http://url#branch"));
+        assertThat(new HgUrlArgument("http://url##branch").defaultRemoteUrl()).isEqualTo("http://url#branch");
     }
 
     @Test
     void shouldReturnUrlWithoutPasswordWhenUrlIncludesPort() {
-        assertThat(new HgUrlArgument("http://user:pwd@domain:9887/path").defaultRemoteUrl(), is("http://user@domain:9887/path"));
+        assertThat(new HgUrlArgument("http://user:pwd@domain:9887/path").defaultRemoteUrl()).isEqualTo("http://user@domain:9887/path");
     }
 
     @Test
     void shouldNotModifyAbsoluteFilePaths() {
-        assertThat(new HgUrlArgument("/tmp/foo").defaultRemoteUrl(), is("/tmp/foo"));
+        assertThat(new HgUrlArgument("/tmp/foo").defaultRemoteUrl()).isEqualTo("/tmp/foo");
     }
 
     @Test
     void shouldNotModifyFileURIS() {
-        assertThat(new HgUrlArgument("file://junk").defaultRemoteUrl(), is("file://junk"));
+        assertThat(new HgUrlArgument("file://junk").defaultRemoteUrl()).isEqualTo("file://junk");
     }
 
     @Test
     void shouldNotModifyWindowsFileSystemPath() {
-        assertThat(new HgUrlArgument("c:\\foobar").defaultRemoteUrl(), is("c:\\foobar"));
+        assertThat(new HgUrlArgument("c:\\foobar").defaultRemoteUrl()).isEqualTo("c:\\foobar");
     }
 
 }

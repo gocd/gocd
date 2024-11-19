@@ -19,8 +19,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class FanInNodeFactoryTest {
@@ -28,32 +27,32 @@ public class FanInNodeFactoryTest {
     public void shouldCreateRootNodeForScmMaterial() {
         MaterialConfig material = MaterialConfigsMother.svnMaterialConfig();
         FanInNode node = FanInNodeFactory.create(material);
-        assertThat(node instanceof RootFanInNode, is(true));
-        assertThat(node.materialConfig, is(material));
+        assertThat(node instanceof RootFanInNode).isTrue();
+        assertThat(node.materialConfig).isEqualTo(material);
     }
 
     @Test
     public void shouldCreateRootNodeForPackageMaterial() {
         MaterialConfig material = MaterialConfigsMother.packageMaterialConfig();
         FanInNode node = FanInNodeFactory.create(material);
-        assertThat(node instanceof RootFanInNode, is(true));
-        assertThat(node.materialConfig, is(material));
+        assertThat(node instanceof RootFanInNode).isTrue();
+        assertThat(node.materialConfig).isEqualTo(material);
     }
 
     @Test
     public void shouldCreateRootNodeForPluggableSCMMaterial() {
         MaterialConfig material = MaterialConfigsMother.pluggableSCMMaterialConfig();
         FanInNode node = FanInNodeFactory.create(material);
-        assertThat(node instanceof RootFanInNode, is(true));
-        assertThat(node.materialConfig, is(material));
+        assertThat(node instanceof RootFanInNode).isTrue();
+        assertThat(node.materialConfig).isEqualTo(material);
     }
 
     @Test
     public void shouldCreateDependencyNodeForScmMaterial() {
         MaterialConfig material = MaterialConfigsMother.dependencyMaterialConfig();
         FanInNode node = FanInNodeFactory.create(material);
-        assertThat(node instanceof DependencyFanInNode, is(true));
-        assertThat(node.materialConfig, is(material));
+        assertThat(node instanceof DependencyFanInNode).isTrue();
+        assertThat(node.materialConfig).isEqualTo(material);
     }
 
     @Test
@@ -62,7 +61,7 @@ public class FanInNodeFactoryTest {
             FanInNodeFactory.create(new SomeRandomMaterialConfig());
             fail("should have failed");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Not a valid material type"));
+            assertThat(e.getMessage()).isEqualTo("Not a valid material type");
         }
     }
 }

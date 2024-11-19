@@ -35,9 +35,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 public class FullConfigSaveMergeFlowTest {
@@ -182,10 +181,10 @@ public class FullConfigSaveMergeFlowTest {
         flow.execute(updateConfigCommand, partials, "test_user");
 
         GoConfigRevision goConfigRevision = revisionArgumentCaptor.getValue();
-        assertThat(goConfigRevision.getContent(), is(mergedConfig));
-        assertThat(goConfigRevision.getUsername(), is("test_user"));
-        assertThat(goConfigRevision.getMd5(), is(updateConfigCommand.configForEdit().getMd5()));
-        assertThat(goConfigRevision.getGoVersion(), is(CurrentGoCDVersion.getInstance().formatted()));
+        assertThat(goConfigRevision.getContent()).isEqualTo(mergedConfig);
+        assertThat(goConfigRevision.getUsername()).isEqualTo("test_user");
+        assertThat(goConfigRevision.getMd5()).isEqualTo(updateConfigCommand.configForEdit().getMd5());
+        assertThat(goConfigRevision.getGoVersion()).isEqualTo(CurrentGoCDVersion.getInstance().formatted());
     }
 
     @Test

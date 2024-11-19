@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SCMRevisionTest {
     @Test
@@ -29,16 +28,16 @@ public class SCMRevisionTest {
         Date dateTime = new Date();
         Modification modification = new Modification("user", "comment", "email", dateTime, "r1");
         SCMRevision scmRevision = new SCMRevision(modification);
-        assertThat(scmRevision.getComment(), is("comment"));
-        assertThat(scmRevision.getUser(), is("user"));
-        assertThat(scmRevision.getRevisionString(), is("r1"));
-        assertThat(scmRevision.getModifiedTime(), is(dateTime));
+        assertThat(scmRevision.getComment()).isEqualTo("comment");
+        assertThat(scmRevision.getUser()).isEqualTo("user");
+        assertThat(scmRevision.getRevisionString()).isEqualTo("r1");
+        assertThat(scmRevision.getModifiedTime()).isEqualTo(dateTime);
     }
 
     @Test
     public void shouldRenderUsernameForDisplay() throws Exception {
         Modification modification = new Modification(null, "comment", "email", new Date(), "r1");
         SCMRevision scmRevision = new SCMRevision(modification);
-        assertThat(scmRevision.getUser(), is(modification.getUserDisplayName()));
+        assertThat(scmRevision.getUser()).isEqualTo(modification.getUserDisplayName());
     }
 }

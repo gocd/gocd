@@ -27,8 +27,7 @@ import java.io.File;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class P4MultipleMaterialsTest extends PerforceFixture {
     private static final String VIEW_SRC = "//depot/src/... //something/...";
@@ -49,7 +48,7 @@ public class P4MultipleMaterialsTest extends PerforceFixture {
 
         revision.updateTo(clientFolder, inMemoryConsumer(), new TestSubprocessExecutionContext());
 
-        assertThat(new File(clientFolder, "dest1/net").exists(), is(true));
+        assertThat(new File(clientFolder, "dest1/net").exists()).isTrue();
     }
 
     @Test
@@ -60,8 +59,8 @@ public class P4MultipleMaterialsTest extends PerforceFixture {
 
         revision.updateTo(clientFolder, inMemoryConsumer(), new TestSubprocessExecutionContext(true));
 
-        assertThat(new File(clientFolder, "dest1/net").exists(), is(false));
-        assertThat(new File(clientFolder, "net").exists(), is(true));
+        assertThat(new File(clientFolder, "dest1/net").exists()).isFalse();
+        assertThat(new File(clientFolder, "net").exists()).isTrue();
     }
 
     @Test
@@ -75,8 +74,10 @@ public class P4MultipleMaterialsTest extends PerforceFixture {
 
         MaterialRevisions materialRevisions = materials.latestModification(clientFolder, new TestSubprocessExecutionContext());
 
-        assertThat(materialRevisions.getRevisions().size(), is(2));
-        assertThat(materialRevisions, containsModifiedFile("src/filename.txt"));
-        assertThat(materialRevisions, containsModifiedFile("lib/filename2.txt"));
+        assertThat(materialRevisions.getRevisions().size()).isEqualTo(2);
+        assertThat(materialRevisions).satisfiesExactlyInAnyOrder(
+            containsModifiedFile("src/filename.txt"),
+            containsModifiedFile("lib/filename2.txt")
+        );
     }
 }

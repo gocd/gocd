@@ -29,8 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -57,8 +56,8 @@ public class PipelineScheduleQueueTest {
         pipelineScheduleQueue.schedule(pipelineName, BuildCause.createWithModifications(new MaterialRevisions(), "u1"));
         pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName.toLower()), BuildCause.createWithModifications(new MaterialRevisions(), "u2"));
         pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName.toUpper()), BuildCause.createWithModifications(new MaterialRevisions(), "u3"));
-        assertThat(pipelineScheduleQueue.toBeScheduled().get(pipelineName), is(BuildCause.createWithModifications(new MaterialRevisions(), "u1")));
-        assertThat(pipelineScheduleQueue.toBeScheduled().size(), is(1));
+        assertThat(pipelineScheduleQueue.toBeScheduled().get(pipelineName)).isEqualTo(BuildCause.createWithModifications(new MaterialRevisions(), "u1"));
+        assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(1);
     }
 
     @Test
@@ -80,21 +79,21 @@ public class PipelineScheduleQueueTest {
         BuildCause originalBuildCause = BuildCause.createManualForced();
         pipelineScheduleQueue.schedule(pipelineName, originalBuildCause);
         pipelineScheduleQueue.finishSchedule(pipelineName, originalBuildCause, newBuildCause);
-        assertThat(pipelineScheduleQueue.hasBuildCause(pipelineName), is(false));
-        assertThat(pipelineScheduleQueue.mostRecentScheduled(pipelineName), is(newBuildCause));
+        assertThat(pipelineScheduleQueue.hasBuildCause(pipelineName)).isFalse();
+        assertThat(pipelineScheduleQueue.mostRecentScheduled(pipelineName)).isEqualTo(newBuildCause);
         pipelineScheduleQueue.clear();
 
 
         pipelineScheduleQueue.schedule(pipelineName, originalBuildCause);
         pipelineScheduleQueue.finishSchedule(new CaseInsensitiveString(pipelineName.toLower()), originalBuildCause, newBuildCause);
-        assertThat(pipelineScheduleQueue.hasBuildCause(pipelineName), is(false));
-        assertThat(pipelineScheduleQueue.mostRecentScheduled(pipelineName), is(newBuildCause));
+        assertThat(pipelineScheduleQueue.hasBuildCause(pipelineName)).isFalse();
+        assertThat(pipelineScheduleQueue.mostRecentScheduled(pipelineName)).isEqualTo(newBuildCause);
         pipelineScheduleQueue.clear();
 
         pipelineScheduleQueue.schedule(pipelineName, originalBuildCause);
         pipelineScheduleQueue.finishSchedule(new CaseInsensitiveString(pipelineName.toUpper()), originalBuildCause, newBuildCause);
-        assertThat(pipelineScheduleQueue.hasBuildCause(pipelineName), is(false));
-        assertThat(pipelineScheduleQueue.mostRecentScheduled(pipelineName), is(newBuildCause));
+        assertThat(pipelineScheduleQueue.hasBuildCause(pipelineName)).isFalse();
+        assertThat(pipelineScheduleQueue.mostRecentScheduled(pipelineName)).isEqualTo(newBuildCause);
         pipelineScheduleQueue.clear();
     }
 
@@ -108,7 +107,7 @@ public class PipelineScheduleQueueTest {
         pipelineScheduleQueue.mostRecentScheduled(new CaseInsensitiveString(pipelineName.toLower()));
         pipelineScheduleQueue.mostRecentScheduled(new CaseInsensitiveString(pipelineName.toUpper()));
 
-        assertThat(pipelineScheduleQueue.mostRecentScheduled(pipelineName), is(pipeline.getBuildCause()));
+        assertThat(pipelineScheduleQueue.mostRecentScheduled(pipelineName)).isEqualTo(pipeline.getBuildCause());
         verify(pipelineService).mostRecentFullPipelineByName(pipelineName.toString());
         verifyNoMoreInteractions(pipelineService);
     }

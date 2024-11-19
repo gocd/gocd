@@ -23,9 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -46,14 +44,14 @@ public class MessageHandlerForServerHealthRequestProcessorV1Test {
 
         List<PluginHealthMessage> messages = processor.deserializeServerHealthMessages(input);
 
-        assertThat(messages.get(0).isWarning(), is(true));
-        assertThat(messages.get(0).message(), is("message 1"));
+        assertThat(messages.get(0).isWarning()).isTrue();
+        assertThat(messages.get(0).message()).isEqualTo("message 1");
 
-        assertThat(messages.get(1).isWarning(), is(false));
-        assertThat(messages.get(1).message(), is("message 2"));
+        assertThat(messages.get(1).isWarning()).isFalse();
+        assertThat(messages.get(1).message()).isEqualTo("message 2");
 
-        assertThat(messages.get(2).isWarning(), is(false));
-        assertThat(messages.get(2).message(), is("message 3"));
+        assertThat(messages.get(2).isWarning()).isFalse();
+        assertThat(messages.get(2).message()).isEqualTo("message 3");
     }
 
     @Test
@@ -67,7 +65,7 @@ public class MessageHandlerForServerHealthRequestProcessorV1Test {
             processor.deserializeServerHealthMessages("Invalid JSON");
             fail("Should have failed to deserialize");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Failed to deserialize"));
+            assertThat(e.getMessage()).contains("Failed to deserialize");
         }
     }
 }

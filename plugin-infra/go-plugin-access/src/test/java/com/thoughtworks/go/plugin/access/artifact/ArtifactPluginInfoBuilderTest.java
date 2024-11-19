@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
@@ -62,7 +61,7 @@ public class ArtifactPluginInfoBuilderTest {
 
         ArtifactPluginInfo pluginInfo = new ArtifactPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getStoreConfigSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("store_config"))));
+        assertThat(pluginInfo.getStoreConfigSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, new PluginView("store_config")));
     }
 
     @Test
@@ -77,7 +76,7 @@ public class ArtifactPluginInfoBuilderTest {
 
         ArtifactPluginInfo pluginInfo = new ArtifactPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getArtifactConfigSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("artifact_config"))));
+        assertThat(pluginInfo.getArtifactConfigSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, new PluginView("artifact_config")));
     }
 
     @Test
@@ -93,7 +92,7 @@ public class ArtifactPluginInfoBuilderTest {
 
         ArtifactPluginInfo pluginInfo = new ArtifactPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getFetchArtifactSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("fetch_artifact_view"))));
+        assertThat(pluginInfo.getFetchArtifactSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, new PluginView("fetch_artifact_view")));
     }
 
     @Test
@@ -103,7 +102,7 @@ public class ArtifactPluginInfoBuilderTest {
 
         ArtifactPluginInfo artifactPluginInfo = new ArtifactPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(artifactPluginInfo.getDescriptor(), is(descriptor));
-        assertThat(artifactPluginInfo.getExtensionName(), is(PluginConstants.ARTIFACT_EXTENSION));
+        assertThat(artifactPluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(artifactPluginInfo.getExtensionName()).isEqualTo(PluginConstants.ARTIFACT_EXTENSION);
     }
 }

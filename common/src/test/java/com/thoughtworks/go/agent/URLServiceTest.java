@@ -21,9 +21,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class URLServiceTest {
     private static final String BASE_URL = "http://localhost:9090/go";
@@ -46,30 +44,28 @@ public class URLServiceTest {
     public void shouldReturnProperDownloadUrl() {
         String downloadUrl1 = urlService.getRestfulArtifactUrl(jobIdentifier, "file");
         String downloadUrl2 = urlService.getRestfulArtifactUrl(jobIdentifier, "/file");
-        assertThat(downloadUrl1, is("/files/pipelineName/LATEST/stageName/LATEST/buildName/file"));
-        assertThat(downloadUrl1, is(downloadUrl2));
+        assertThat(downloadUrl1).isEqualTo("/files/pipelineName/LATEST/stageName/LATEST/buildName/file");
+        assertThat(downloadUrl1).isEqualTo(downloadUrl2);
     }
 
     @Test
     public void shouldReturnProperRestfulUrlOfArtifact() {
         String downloadUrl1 = urlService.getUploadUrlOfAgent(jobIdentifier, "file");
         String downloadUrl2 = urlService.getUploadUrlOfAgent(jobIdentifier, "/file");
-        assertThat(downloadUrl1,
-                endsWith("/files/pipelineName/LATEST/stageName/LATEST/buildName/file?attempt=1&buildId=123"));
-        assertThat(downloadUrl1, endsWith(downloadUrl2));
+        assertThat(downloadUrl1).endsWith("/files/pipelineName/LATEST/stageName/LATEST/buildName/file?attempt=1&buildId=123");
+        assertThat(downloadUrl1).endsWith(downloadUrl2);
     }
 
     @Test
     public void shouldReturnRestfulUrlOfAgentWithAttemptCounter() {
         String uploadUrl1 = urlService.getUploadUrlOfAgent(jobIdentifier, "file", 1);
-        assertThat(uploadUrl1,
-                endsWith("/files/pipelineName/LATEST/stageName/LATEST/buildName/file?attempt=1&buildId=123"));
+        assertThat(uploadUrl1).endsWith("/files/pipelineName/LATEST/stageName/LATEST/buildName/file?attempt=1&buildId=123");
     }
 
     @Test
     public void shouldReturnServerUrlWithSubpath() {
         new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, BASE_URL + "/");
-        assertThat(new URLService().serverUrlFor("someSubPath/xyz"), is(BASE_URL + "/someSubPath/xyz"));
+        assertThat(new URLService().serverUrlFor("someSubPath/xyz")).isEqualTo(BASE_URL + "/someSubPath/xyz");
     }
 
 }

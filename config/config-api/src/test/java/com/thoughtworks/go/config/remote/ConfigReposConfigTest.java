@@ -20,8 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
@@ -35,14 +34,14 @@ public class ConfigReposConfigTest {
 
     @Test
     public void shouldReturnFalseThatHasMaterialWhenEmpty() {
-        assertThat(repos.isEmpty(), is(true));
-        assertThat(repos.hasMaterial(mock(MaterialConfig.class)), is(false));
+        assertThat(repos.isEmpty()).isTrue();
+        assertThat(repos.hasMaterial(mock(MaterialConfig.class))).isFalse();
     }
 
     @Test
     public void shouldReturnTrueThatHasMaterialWhenAddedConfigRepo() {
         repos.add(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "id"));
-        assertThat(repos.hasMaterial(git("http://git")), is(true));
+        assertThat(repos.hasMaterial(git("http://git"))).isTrue();
     }
 
     @Test
@@ -50,7 +49,7 @@ public class ConfigReposConfigTest {
         String id = "repo1";
         ConfigRepoConfig configRepo1 = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", id);
         repos.add(configRepo1);
-        assertThat(repos.getConfigRepo(id), is(configRepo1));
+        assertThat(repos.getConfigRepo(id)).isEqualTo(configRepo1);
     }
 
     @Test
@@ -61,13 +60,13 @@ public class ConfigReposConfigTest {
     @Test
     public void shouldReturnTrueThatHasConfigRepoWhenAddedConfigRepo() {
         repos.add(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "repo-id"));
-        assertThat(repos.contains(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "repo-id")), is(true));
+        assertThat(repos.contains(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "repo-id"))).isTrue();
     }
 
     @Test
     public void shouldReturnFalseThatHasConfigRepoWhenEmpty() {
-        assertThat(repos.isEmpty(), is(true));
-        assertThat(repos.contains(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "id")), is(false));
+        assertThat(repos.isEmpty()).isTrue();
+        assertThat(repos.contains(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "id"))).isFalse();
     }
 
     @Test
@@ -80,8 +79,7 @@ public class ConfigReposConfigTest {
         // so there cannot be one repository parsed by 2 plugins.
         // This also does not seem like practical use case anyway
         repos.validate(null);
-        assertThat(repos.errors().on("material"),
-                is("You have defined multiple configuration repositories with the same repository."));
+        assertThat(repos.errors().on("material")).isEqualTo("You have defined multiple configuration repositories with the same repository.");
     }
 
     @Test
@@ -91,8 +89,7 @@ public class ConfigReposConfigTest {
         repos.add(repo1);
         repos.add(repo2);
         repos.validate(null);
-        assertThat(repos.errors().on("id"),
-                is("You have defined multiple configuration repositories with the same id."));
+        assertThat(repos.errors().on("id")).isEqualTo("You have defined multiple configuration repositories with the same id.");
     }
 
     @Test
@@ -102,8 +99,8 @@ public class ConfigReposConfigTest {
         repos.add(repo1);
         repos.add(repo2);
         repos.validate(null);
-        assertThat(repo1.errors().isEmpty(), is(true));
-        assertThat(repo2.errors().isEmpty(), is(true));
+        assertThat(repo1.errors().isEmpty()).isTrue();
+        assertThat(repo2.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -111,11 +108,11 @@ public class ConfigReposConfigTest {
         ConfigRepoConfig repo = ConfigRepoConfig.createConfigRepoConfig(git("http://git1"), "myplugin", "id");
         repos.add(repo);
 
-        assertThat(repos.hasConfigRepo(repo.getId()), is(true));
+        assertThat(repos.hasConfigRepo(repo.getId())).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfDoesNotContainTheConfigRepoWithTheSpecifiedId() {
-        assertThat(repos.hasConfigRepo("unknown"), is(false));
+        assertThat(repos.hasConfigRepo("unknown")).isFalse();
     }
 }

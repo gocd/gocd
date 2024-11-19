@@ -30,9 +30,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.net.URISyntaxException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(SpringExtension.class)
@@ -72,46 +71,46 @@ public class ServerConfigServiceIntegrationTest {
     @Test
     public void shouldSiteUrlForGivenUrl() throws URISyntaxException {
         configHelper.setBaseUrls(new SiteUrl("http://foo.com"), new SecureSiteUrl("https://bar.com"));
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", true), is("https://bar.com/foo/bar"));
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false), is("http://foo.com/foo/bar"));
+        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", true)).isEqualTo("https://bar.com/foo/bar");
+        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false)).isEqualTo("http://foo.com/foo/bar");
     }
 
     @Test
     public void shouldReturnTheSameURLWhenNothingIsConfigured() throws URISyntaxException {
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", true), is("http://test.host/foo/bar"));
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false), is("http://test.host/foo/bar"));
+        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", true)).isEqualTo("http://test.host/foo/bar");
+        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false)).isEqualTo("http://test.host/foo/bar");
     }
 
     @Test
     public void shouldUseTheSiteUrlWhenSecureSiteUrlIsNotPresentAndOnlyIfSiteUrlIsHttps() throws URISyntaxException {
         configHelper.setBaseUrls(new SiteUrl("https://foo.com"), new SecureSiteUrl());
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", true), is("https://foo.com/foo/bar"));
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false), is("https://foo.com/foo/bar"));
+        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", true)).isEqualTo("https://foo.com/foo/bar");
+        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false)).isEqualTo("https://foo.com/foo/bar");
     }
 
     @Test
     public void shouldUseTheSecureSiteUrlInspiteOfCallerNotForcingSsl_whenAlreadyUsingHTTPS() throws URISyntaxException {
         configHelper.setBaseUrls(new SiteUrl("http://foo.com:80"), new SecureSiteUrl("https://bar.com:443"));
-        assertThat(serverConfigService.siteUrlFor("https://test.host:1000/foo/bar", false), is("https://bar.com:443/foo/bar"));
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false), is("http://foo.com:80/foo/bar"));
+        assertThat(serverConfigService.siteUrlFor("https://test.host:1000/foo/bar", false)).isEqualTo("https://bar.com:443/foo/bar");
+        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false)).isEqualTo("http://foo.com:80/foo/bar");
     }
 
     @Test
     public void shouldSetDefaultJobTimeout() {
         serverConfigService.createOrUpdateDefaultJobTimeout("10");
 
-        assertThat(serverConfigService.getDefaultJobTimeout(), is("10"));
+        assertThat(serverConfigService.getDefaultJobTimeout()).isEqualTo("10");
     }
 
     @Test
     public void shouldUpdateDefaultJobTimeout() {
         serverConfigService.createOrUpdateDefaultJobTimeout("10");
 
-        assertThat(serverConfigService.getDefaultJobTimeout(), is("10"));
+        assertThat(serverConfigService.getDefaultJobTimeout()).isEqualTo("10");
 
         serverConfigService.createOrUpdateDefaultJobTimeout("5");
 
-        assertThat(serverConfigService.getDefaultJobTimeout(), is("5"));
+        assertThat(serverConfigService.getDefaultJobTimeout()).isEqualTo("5");
     }
 
     @Test
@@ -119,11 +118,11 @@ public class ServerConfigServiceIntegrationTest {
         ArtifactConfig artifactConfig = new ArtifactConfig();
         artifactConfig.setArtifactsDir(new ArtifactDirectory("test"));
 
-        assertThat(goConfigService.serverConfig().artifactsDir(), is("artifactsDir"));
+        assertThat(goConfigService.serverConfig().artifactsDir()).isEqualTo("artifactsDir");
 
         serverConfigService.updateArtifactConfig(artifactConfig);
 
-        assertThat(goConfigService.serverConfig().artifactsDir(), is("test"));
+        assertThat(goConfigService.serverConfig().artifactsDir()).isEqualTo("test");
     }
 
     @Test
@@ -135,22 +134,22 @@ public class ServerConfigServiceIntegrationTest {
         purgeSettings.setPurgeUpto(new PurgeUpto(20.0));
         artifactConfig.setPurgeSettings(purgeSettings);
 
-        assertThat(goConfigService.serverConfig().artifactsDir(), is("artifactsDir"));
+        assertThat(goConfigService.serverConfig().artifactsDir()).isEqualTo("artifactsDir");
         assertNull(goConfigService.serverConfig().getPurgeStart());
         assertNull(goConfigService.serverConfig().getPurgeUpto());
 
         serverConfigService.updateArtifactConfig(artifactConfig);
 
-        assertThat(goConfigService.serverConfig().artifactsDir(), is("test"));
-        assertThat(goConfigService.serverConfig().getPurgeStart(), is(10.0));
-        assertThat(goConfigService.serverConfig().getPurgeUpto(), is(20.0));
+        assertThat(goConfigService.serverConfig().artifactsDir()).isEqualTo("test");
+        assertThat(goConfigService.serverConfig().getPurgeStart()).isEqualTo(10.0);
+        assertThat(goConfigService.serverConfig().getPurgeUpto()).isEqualTo(20.0);
     }
 
     @Test
     public void shouldNotUpdateArtifactConfigIfInvalid() {
         ArtifactConfig artifactConfig = new ArtifactConfig();
 
-        assertThat(goConfigService.serverConfig().artifactsDir(), is("artifactsDir"));
+        assertThat(goConfigService.serverConfig().artifactsDir()).isEqualTo("artifactsDir");
 
         assertThatThrownBy(() -> serverConfigService.updateArtifactConfig(artifactConfig))
                 .isInstanceOf(GoConfigInvalidException.class);

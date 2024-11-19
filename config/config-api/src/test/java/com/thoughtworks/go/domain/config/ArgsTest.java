@@ -18,19 +18,18 @@ package com.thoughtworks.go.domain.config;
 import com.thoughtworks.go.config.Argument;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArgsTest {
 
     @Test
     public void shouldConvertToEmptyArray() {
-        assertThat(new Arguments().toStringArray().length, is(0));
+        assertThat(new Arguments().toStringArray().length).isEqualTo(0);
     }
 
     @Test
     public void shouldConvertToStringArray() {
-        assertThat(new Arguments(new Argument("arg1"), new Argument("arg2")).toStringArray(), is(new String[]{"arg1", "arg2"}));
+        assertThat(new Arguments(new Argument("arg1"), new Argument("arg2")).toStringArray()).isEqualTo(new String[]{"arg1", "arg2"});
     }
 
 }

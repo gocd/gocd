@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
     private String url1 = "http://my.git.repository.com";
@@ -35,7 +34,7 @@ public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
     private final CRGitMaterial invalidNoUrl;
     private final CRGitMaterial withIncludes;
     private final CRGitMaterial invalidBothIncludesAndIgnores;
-    private final CRGitMaterial invalidPasswordAndEncyptedPasswordSet;
+    private final CRGitMaterial invalidPasswordAndEncryptedPasswordSet;
 
     public CRGitMaterialTest() {
         simpleGit = new CRGitMaterial();
@@ -52,9 +51,9 @@ public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
         invalidBothIncludesAndIgnores = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, List.of("externals", "tools"), url1, "feature12", true);
         invalidBothIncludesAndIgnores.setIncludesNoCheck("src", "tests");
 
-        invalidPasswordAndEncyptedPasswordSet = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, List.of("externals", "tools"), null, "feature12", true);
-        invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
-        invalidPasswordAndEncyptedPasswordSet.setEncryptedPassword("26t=$j64");
+        invalidPasswordAndEncryptedPasswordSet = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, List.of("externals", "tools"), null, "feature12", true);
+        invalidPasswordAndEncryptedPasswordSet.setPassword("pa$sw0rd");
+        invalidPasswordAndEncryptedPasswordSet.setEncryptedPassword("26t=$j64");
     }
 
     @Override
@@ -74,7 +73,7 @@ public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
         JsonObject jsonObject = (JsonObject) gson.toJsonTree(veryCustomGit);
-        assertThat(jsonObject.get("type").getAsString(), is(CRGitMaterial.TYPE_NAME));
+        assertThat(jsonObject.get("type").getAsString()).isEqualTo(CRGitMaterial.TYPE_NAME);
     }
 
     @Test
@@ -83,8 +82,7 @@ public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
         String json = gson.toJson(value);
 
         CRGitMaterial deserializedValue = (CRGitMaterial) gson.fromJson(json, CRMaterial.class);
-        assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue, is(value));
+        assertThat(deserializedValue).isEqualTo(value);
     }
 
 }

@@ -228,12 +228,8 @@ public class PipelineScheduleServiceTest {
 		JobInstances scheduledJobs = instance.getJobInstances();
 
         assertThat(scheduledJobs).satisfiesExactlyInAnyOrder(
-            job -> {
-                assertThat(job.getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("unit", 1));
-            },
-            job -> {
-                assertThat(job.getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("unit", 2));
-            }
+            job -> assertThat(job.getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("unit", 1)),
+            job -> assertThat(job.getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("unit", 2))
         );
 	}
 

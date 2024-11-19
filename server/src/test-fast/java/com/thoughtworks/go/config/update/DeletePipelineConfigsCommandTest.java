@@ -28,8 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -57,7 +56,7 @@ public class DeletePipelineConfigsCommandTest {
         DeletePipelineConfigsCommand command = new DeletePipelineConfigsCommand(pipelineConfigs, new HttpLocalizedOperationResult(), user, securityService);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.hasPipelineGroup(pipelineConfigs.getGroup()), is(false));
+        assertThat(cruiseConfig.hasPipelineGroup(pipelineConfigs.getGroup())).isFalse();
     }
 
     @Test
@@ -68,14 +67,14 @@ public class DeletePipelineConfigsCommandTest {
 
         command.canContinue(cruiseConfig);
 
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
-        assertThat(result.message(), is("Failed to delete group group because it was not empty."));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        assertThat(result.message()).isEqualTo("Failed to delete group group because it was not empty.");
     }
 
     @Test
     public void commandShouldBeValid() {
         DeletePipelineConfigsCommand command = new DeletePipelineConfigsCommand(pipelineConfigs, new HttpLocalizedOperationResult(), user, securityService);
-        assertThat(command.isValid(cruiseConfig), is(true));
+        assertThat(command.isValid(cruiseConfig)).isTrue();
     }
 
     @Test
@@ -96,6 +95,6 @@ public class DeletePipelineConfigsCommandTest {
         DeletePipelineConfigsCommand command = new DeletePipelineConfigsCommand(pipelineConfigs, result, user, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
-        assertThat(result.httpCode(), is(HttpStatus.SC_FORBIDDEN));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_FORBIDDEN);
     }
 }

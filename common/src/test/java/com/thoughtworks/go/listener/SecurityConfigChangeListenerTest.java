@@ -19,8 +19,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SecurityConfigChangeListenerTest {
 
@@ -32,7 +31,7 @@ public class SecurityConfigChangeListenerTest {
 
             }
         };
-        assertThat(securityConfigChangeListener.shouldCareAbout(new SecurityAuthConfig()), is(true));
+        assertThat(securityConfigChangeListener.shouldCareAbout(new SecurityAuthConfig())).isTrue();
     }
 
     @Test
@@ -43,7 +42,7 @@ public class SecurityConfigChangeListenerTest {
 
             }
         };
-        assertThat(securityConfigChangeListener.shouldCareAbout(new RoleConfig()), is(true));
+        assertThat(securityConfigChangeListener.shouldCareAbout(new RoleConfig())).isTrue();
     }
 
     @Test
@@ -54,7 +53,7 @@ public class SecurityConfigChangeListenerTest {
 
             }
         };
-        assertThat(securityConfigChangeListener.shouldCareAbout(new PluginRoleConfig()), is(true));
+        assertThat(securityConfigChangeListener.shouldCareAbout(new PluginRoleConfig())).isTrue();
     }
 
     @Test
@@ -65,7 +64,7 @@ public class SecurityConfigChangeListenerTest {
 
             }
         };
-        assertThat(securityConfigChangeListener.shouldCareAbout(new AdminsConfig()), is(true));
+        assertThat(securityConfigChangeListener.shouldCareAbout(new AdminsConfig())).isTrue();
     }
 
     @Test
@@ -76,7 +75,7 @@ public class SecurityConfigChangeListenerTest {
 
             }
         };
-        assertThat(securityConfigChangeListener.shouldCareAbout(new RolesConfig()), is(true));
+        assertThat(securityConfigChangeListener.shouldCareAbout(new RolesConfig())).isTrue();
     }
 
     @Test
@@ -89,6 +88,6 @@ public class SecurityConfigChangeListenerTest {
             }
         };
 
-        assertThat(securityConfigChangeListener.shouldCareAbout(new ElasticProfile()), is(false));
+        assertThat(securityConfigChangeListener.shouldCareAbout(new ElasticProfile())).isFalse();
     }
 }

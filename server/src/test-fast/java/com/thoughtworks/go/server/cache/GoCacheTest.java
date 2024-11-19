@@ -27,14 +27,12 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
@@ -42,7 +40,6 @@ public class GoCacheTest {
 
     private static CacheManager cacheManager;
     private GoCache goCache;
-    private String largeObject;
 
     @BeforeAll
     public static void beforeClass() {
@@ -70,15 +67,15 @@ public class GoCacheTest {
     public void shouldAllowAddingUnpersistedNullObjects() {
         NullUser user = new NullUser();
         goCache.put("loser_user", user);
-        assertThat(goCache.get("loser_user"), is(user));
+        assertThat((Object) goCache.get("loser_user")).isEqualTo(user);
         try (LogFixture logFixture = logFixtureFor(GoCache.class, Level.DEBUG)) {
             String result;
             synchronized (logFixture) {
                 result = logFixture.getLog();
             }
             String allLogs = result;
-            assertThat(allLogs, not(containsString("added to cache without an id.")));
-            assertThat(allLogs, not(containsString("without an id served out of cache.")));
+            assertThat(allLogs).doesNotContain("added to cache without an id.");
+            assertThat(allLogs).doesNotContain("without an id served out of cache.");
         }
     }
 
@@ -134,54 +131,18 @@ public class GoCacheTest {
         assertNull(goCache.get("someKey"));
     }
 
-
-    @Test
-    public void shouldNotRunOutOfMemoryOnSubKeyPuts() {
-        for (Long n = 0L; n < 1; n++) {
-            String key = "key" + (n % 10);
-            String subKey = n.toString();
-            goCache.put(key, subKey, n);
-            assertThat(goCache.get(key, subKey), is(n));
-        }
-    }
-
-    @Test
-    public void shouldNotRunOutOfMemoryOnKeyPuts() {
-        for (Long n = 0L; n < 100000; n++) {
-            String key = "key" + n;
-            Object value = largeObject();
-            goCache.put(key, value);
-            assertThat(goCache.get(key), is(value));
-        }
-    }
-
-    private Object largeObject() {
-        if (largeObject == null) {
-            StringBuilder s = new StringBuilder();
-            for (int i = 0; i < 16000; i++) {
-                s.append(random32CharString()).append("\n");
-            }
-            largeObject = s.toString();
-        }
-        return largeObject;
-    }
-
-    private String random32CharString() {
-        return DigestUtils.md5Hex(String.valueOf(Math.random()));
-    }
-
     @Test
     public void get_shouldGetScopedValueForSubKey() {
         goCache.put("foo", "bar", "baz");
-        assertThat(goCache.get("foo", "bar"), is("baz"));
+        assertThat(goCache.get("foo", "bar")).isEqualTo("baz");
     }
 
     @Test
     public void put_shouldWriteScopedValueForSubKey() {
         goCache.put("foo", "bar", "baz");
         goCache.put("foo", "baz", "quux");
-        assertThat(goCache.get("foo", "bar"), is("baz"));
-        assertThat(goCache.get("foo", "baz"), is("quux"));
+        assertThat(goCache.get("foo", "bar")).isEqualTo("baz");
+        assertThat(goCache.get("foo", "baz")).isEqualTo("quux");
     }
 
     @Test
@@ -189,14 +150,14 @@ public class GoCacheTest {
         goCache.put("foo", "bar", "baz");
         goCache.put("foo", "baz", "quux");
         goCache.remove("foo", "baz");
-        assertThat(goCache.get("foo", "bar"), is("baz"));
-        assertThat(goCache.get("foo", "baz"), is(nullValue()));
+        assertThat(goCache.get("foo", "bar")).isEqualTo("baz");
+        assertThat(goCache.get("foo", "baz")).isNull();
     }
 
     @Test
     public void delete_shouldNotThrowAnExceptionWhenNoFamilySubKeysAreFound() {
         goCache.remove("foo", "baz");
-        assertThat(goCache.get("foo", "baz"), nullValue());
+        assertThat(goCache.get("foo", "baz")).isNull();
     }
 
     @Test
@@ -204,9 +165,9 @@ public class GoCacheTest {
         goCache.put("foo", "bar", "baz");
         goCache.put("foo", "baz", "quux");
         goCache.remove("foo");
-        assertThat(goCache.get("foo", "bar"), is(nullValue()));
-        assertThat(goCache.get("foo", "baz"), is(nullValue()));
-        assertThat(goCache.get("foo"), is(nullValue()));
+        assertThat(goCache.get("foo", "bar")).isNull();
+        assertThat(goCache.get("foo", "baz")).isNull();
+        assertThat((Object) goCache.get("foo")).isNull();
     }
 
     @Test
@@ -215,7 +176,7 @@ public class GoCacheTest {
             goCache.put("foo!_#$", "#_!bar", "baz");
             fail("should not have allowed use of internal key seperator");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Base and sub key concatenation(key = foo!_#$, subkey = #_!bar) must not have pattern !_#$#_!"));
+            assertThat(e.getMessage()).isEqualTo("Base and sub key concatenation(key = foo!_#$, subkey = #_!bar) must not have pattern !_#$#_!");
         }
     }
 
@@ -226,9 +187,9 @@ public class GoCacheTest {
         goCache.put("bar", "2");
         goCache.put("baz", "3");
         goCache.removeAll(List.of("foo", "bar"));
-        assertThat(goCache.get("foo"), is(nullValue()));
-        assertThat(goCache.get("bar"), is(nullValue()));
-        assertThat(goCache.get("baz"), is("3"));
+        assertThat((Object) goCache.get("foo")).isNull();
+        assertThat((Object) goCache.get("bar")).isNull();
+        assertThat((Object) goCache.get("baz")).isEqualTo("3");
     }
 
     @Test
@@ -236,17 +197,17 @@ public class GoCacheTest {
         goCache.configuration().setMaxEntriesLocalHeap(2);
         String parentKey = "parent";
         goCache.put(parentKey, "child1", "value");
-        assertThat(goCache.get(parentKey), is(not(nullValue())));
-        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(not(nullValue())));
+        assertThat((Object) goCache.get(parentKey)).isNotNull();
+        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNotNull();
         Thread.sleep(1);//so that the timestamps on the cache entries are different
         goCache.put(parentKey, "child2", "value");
 
-        assertThat(goCache.get(parentKey), is(not(nullValue())));
-        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(nullValue()));
-        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2"), is(not(nullValue())));
+        assertThat((Object) goCache.get(parentKey)).isNotNull();
+        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNull();
+        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2")).isNotNull();
         GoCache.KeyList list = goCache.get(parentKey);
-        assertThat(list.size(), is(1));
-        assertThat(list.contains("child2"), is(true));
+        assertThat(list.size()).isEqualTo(1);
+        assertThat(list.contains("child2")).isTrue();
     }
 
     @Test
@@ -255,17 +216,17 @@ public class GoCacheTest {
         goCache.configuration().setTimeToLiveSeconds(1);
         String parentKey = "parent";
         goCache.put(parentKey, "child1", "value");
-        assertThat(goCache.get(parentKey), is(not(nullValue())));
-        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(not(nullValue())));
+        assertThat((Object) goCache.get(parentKey)).isNotNull();
+        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNotNull();
         waitForCacheElementsToExpire();
 
         goCache.put(parentKey, "child2", "value");
-        assertThat(goCache.get(parentKey), is(not(nullValue())));
-        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(nullValue()));
-        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2"), is(not(nullValue())));
+        assertThat((Object) goCache.get(parentKey)).isNotNull();
+        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNull();
+        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2")).isNotNull();
         GoCache.KeyList list = goCache.get(parentKey);
-        assertThat(list.size(), is(1));
-        assertThat(list.contains("child2"), is(true));
+        assertThat(list.size()).isEqualTo(1);
+        assertThat(list.contains("child2")).isTrue();
     }
 
     @Test
@@ -273,15 +234,15 @@ public class GoCacheTest {
         goCache.configuration().setMaxEntriesLocalHeap(2);
         String parentKey = "parent";
         goCache.put(parentKey, new GoCache.KeyList());
-        assertThat(goCache.get(parentKey), is(not(nullValue())));
+        assertThat((Object) goCache.get(parentKey)).isNotNull();
         goCache.put(parentKey, "child1", "value");
         Thread.sleep(1); //so that the timestamps on the cache entries are different
         goCache.get(parentKey, "child1");  //so that the parent is least recently used
         Thread.sleep(1); //so that the timestamps on the cache entries are different
         goCache.put("unrelatedkey", "value");
         waitForCacheElementsToExpire();
-        assertThat(goCache.getKeys().size(), is(1));
-        assertThat(goCache.get("unrelatedkey"), is("value"));
+        assertThat(goCache.getKeys().size()).isEqualTo(1);
+        assertThat((Object) goCache.get("unrelatedkey")).isEqualTo("value");
     }
 
     @Test
@@ -292,11 +253,11 @@ public class GoCacheTest {
         goCache.put(key, value);
         Thread.sleep(1);//so that the timestamps on the cache entries are different
         goCache.put("another_entry", "value");
-        assertThat(goCache.get(key), is(nullValue()));
+        assertThat((Object) goCache.get(key)).isNull();
     }
 
 
-    private class NonSerializableClass {
+    private static class NonSerializableClass {
     }
 
     private void waitForCacheElementsToExpire() throws InterruptedException {

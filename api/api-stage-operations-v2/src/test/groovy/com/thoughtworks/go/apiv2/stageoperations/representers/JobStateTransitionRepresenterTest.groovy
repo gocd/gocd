@@ -27,7 +27,7 @@ class JobStateTransitionRepresenterTest {
   @Test
   void 'should represent a job state transition'() {
     def transition = new JobStateTransition(JobState.Building, new Date(12345))
-    transition.setId(21);
+    transition.setId(21)
     def actualJson = toObjectString({JobStateTransitionRepresenter.toJSON(it, transition) })
 
     assertThatJson(actualJson).isEqualTo(jobStateTransitionHash)

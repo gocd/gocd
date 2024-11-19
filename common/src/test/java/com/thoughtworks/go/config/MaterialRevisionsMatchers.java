@@ -16,19 +16,19 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.ModificationVisitor;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.domain.materials.Revision;
 import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
+import org.assertj.core.api.ThrowingConsumer;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MaterialRevisionsMatchers {
-    static class ModifiedBy implements ModificationVisitor {
+
+    public static class ModifiedBy implements ModificationVisitor {
         private final String user;
         private final String file;
         private String currentName;
@@ -60,9 +60,8 @@ public class MaterialRevisionsMatchers {
         }
     }
 
-    static class ModifiedFileVisitor implements ModificationVisitor {
+    public static class ModifiedFileVisitor implements ModificationVisitor {
         private final String file;
-        private String currentName;
         private boolean contains;
 
         public ModifiedFileVisitor(String file) {
@@ -89,36 +88,19 @@ public class MaterialRevisionsMatchers {
         }
     }
 
-    public static Matcher<MaterialRevisions> containsModifiedBy(final String filename, final String user) {
-        return new TypeSafeMatcher<>() {
-            @Override
-            public boolean matchesSafely(MaterialRevisions revisions) {
-                ModifiedBy modifiedBy = new ModifiedBy(user, filename);
-                revisions.accept(modifiedBy);
-                return modifiedBy.contains;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Does not contains file [" + filename + "] modified by user [" + user + "]");
-            }
+    public static ThrowingConsumer<MaterialRevision> containsModifiedBy(String filename, String user) {
+        return rr -> {
+            ModifiedBy modifiedBy = new ModifiedBy(user, filename);
+            rr.accept(modifiedBy);
+            assertThat(modifiedBy.contains).describedAs("Should contain a file [" + filename + "] modified by user [" + user + "]").isTrue();
         };
     }
 
-
-    public static Matcher<MaterialRevisions> containsModifiedFile(final String filename) {
-        return new TypeSafeMatcher<>() {
-            @Override
-            public boolean matchesSafely(MaterialRevisions revisions) {
-                ModifiedFileVisitor modifiedBy = new ModifiedFileVisitor(filename);
-                revisions.accept(modifiedBy);
-                return modifiedBy.contains;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Does not contains file [" + filename + "]");
-            }
+    public static ThrowingConsumer<MaterialRevision> containsModifiedFile(String filename) {
+        return rr -> {
+            ModifiedFileVisitor modifiedBy = new ModifiedFileVisitor(filename);
+            rr.accept(modifiedBy);
+            assertThat(modifiedBy.contains).describedAs("Should contain a file " + filename).isTrue();
         };
     }
 }

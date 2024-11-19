@@ -26,8 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.io.IOException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,7 +52,7 @@ public class JettyWorkDirValidatorTest {
         when(systemEnvironment.getPropertyImpl("user.dir")).thenReturn("junk");
         Validation val = new Validation();
         jettyWorkDirValidator.validate(val);
-        assertThat(val.isSuccessful(), is(true));
+        assertThat(val.isSuccessful()).isTrue();
 
         verify(systemEnvironment).getPropertyImpl("user.dir");
         verify(systemEnvironment).setProperty("jetty.home", "junk");
@@ -64,7 +63,7 @@ public class JettyWorkDirValidatorTest {
         when(systemEnvironment.getPropertyImpl("jetty.home")).thenReturn("foo");
         Validation val = new Validation();
         jettyWorkDirValidator.validate(val);
-        assertThat(val.isSuccessful(), is(true));
+        assertThat(val.isSuccessful()).isTrue();
         verify(systemEnvironment).setProperty("jetty.base", "foo");
     }
 
@@ -73,9 +72,9 @@ public class JettyWorkDirValidatorTest {
         when(systemEnvironment.getPropertyImpl("jetty.home")).thenReturn(homeDir.getAbsolutePath());
         Validation val = new Validation();
         jettyWorkDirValidator.validate(val);
-        assertThat(val.isSuccessful(), is(true));
+        assertThat(val.isSuccessful()).isTrue();
         File work = new File(homeDir, "work");
-        assertThat(work.exists(), is(true));
+        assertThat(work.exists()).isTrue();
     }
 
     @Test
@@ -84,8 +83,8 @@ public class JettyWorkDirValidatorTest {
         when(systemEnvironment.getPropertyImpl("jetty.home")).thenReturn(jettyHome);
         Validation val = new Validation();
         jettyWorkDirValidator.validate(val);
-        assertThat(val.isSuccessful(), is(true));
-        assertThat(new File(jettyHome).exists(), is(false));
+        assertThat(val.isSuccessful()).isTrue();
+        assertThat(new File(jettyHome).exists()).isFalse();
     }
 
     @Test
@@ -96,9 +95,9 @@ public class JettyWorkDirValidatorTest {
         when(systemEnvironment.getPropertyImpl("jetty.home")).thenReturn(homeDir.getAbsolutePath());
         Validation val = new Validation();
         jettyWorkDirValidator.validate(val);
-        assertThat(val.isSuccessful(), is(true));
+        assertThat(val.isSuccessful()).isTrue();
         File recreatedWorkDir = new File(homeDir, "work");
-        assertThat(recreatedWorkDir.exists(), is(true));
-        assertThat(recreatedWorkDir.listFiles().length, is(0));
+        assertThat(recreatedWorkDir.exists()).isTrue();
+        assertThat(recreatedWorkDir.listFiles().length).isEqualTo(0);
     }
 }

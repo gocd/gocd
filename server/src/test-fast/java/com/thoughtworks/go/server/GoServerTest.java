@@ -28,8 +28,7 @@ import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -57,7 +56,7 @@ public class GoServerTest {
 
         when(systemEnvironment.getServerPort()).thenReturn(9153);
         goServer.go();
-        assertThat(goServer.wasStarted(), is(true));
+        assertThat(goServer.wasStarted()).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -74,7 +73,7 @@ public class GoServerTest {
     @Test
     public void shouldCreateASubprocessLoggerInConstructor() {
         GoServer goServer = new GoServer();
-        assertThat(goServer.subprocessLogger, not(nullValue()));
+        assertThat(goServer.subprocessLogger).isNotNull();
     }
 
     @Test
@@ -84,7 +83,7 @@ public class GoServerTest {
         StubGoServer goServer = new StubGoServer(systemEnvironment, validation);
 
         goServer.go();
-        assertThat(goServer.wasStarted(), is(false));
+        assertThat(goServer.wasStarted()).isFalse();
     }
 
     @Test
@@ -95,17 +94,17 @@ public class GoServerTest {
 
         goServer.startServer();
         AppServer appServer = com.thoughtworks.go.util.ReflectionUtil.getField(goServer, "server");
-        assertThat(appServer instanceof AppServerStub, is(true));
+        assertThat(appServer instanceof AppServerStub).isEqualTo(Boolean.TRUE);
         AppServerStub appServerStub = (AppServerStub) appServer;
 
-        assertThat(appServerStub.calls.get("setSessionCookieConfig"), is("something"));
-        assertThat(appServerStub.calls.get("hasStarted"), is(true));
-        assertThat(appServerStub.calls.get("configure"), is(true));
-        assertThat(appServerStub.calls.get("start"), is(true));
-        assertThat(appServerStub.calls.get("stop"), is(nullValue()));
+        assertThat(appServerStub.calls.get("setSessionCookieConfig")).isEqualTo("something");
+        assertThat(appServerStub.calls.get("hasStarted")).isEqualTo(Boolean.TRUE);
+        assertThat(appServerStub.calls.get("configure")).isEqualTo(Boolean.TRUE);
+        assertThat(appServerStub.calls.get("start")).isEqualTo(Boolean.TRUE);
+        assertThat(appServerStub.calls.get("stop")).isNull();
 
         goServer.stop();
-        assertThat(appServerStub.calls.get("stop"), is(true));
+        assertThat(appServerStub.calls.get("stop")).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -127,8 +126,8 @@ public class GoServerTest {
             goServer.startServer();
             fail("Should have thrown an exception");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Failed to start GoCD server."));
-            assertThat(e.getCause().getMessage(), is("Some unhandled server startup exception"));
+            assertThat(e.getMessage()).isEqualTo("Failed to start GoCD server.");
+            assertThat(e.getCause().getMessage()).isEqualTo("Some unhandled server startup exception");
         }
 
         verify(server).start();

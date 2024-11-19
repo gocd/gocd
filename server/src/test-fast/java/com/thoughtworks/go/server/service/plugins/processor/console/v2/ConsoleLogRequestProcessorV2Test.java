@@ -38,9 +38,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.server.service.plugins.processor.console.ConsoleLogRequestProcessor.APPEND_TO_CONSOLE_LOG;
 import static com.thoughtworks.go.server.service.plugins.processor.console.ConsoleLogRequestProcessor.VERSION_2;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,7 +70,7 @@ public class ConsoleLogRequestProcessorV2Test {
         final ConsoleLogRequestProcessor processor = new ConsoleLogRequestProcessor(pluginRequestProcessorRegistry, consoleService);
         final GoApiResponse response = processor.process(pluginDescriptor, goApiRequest);
 
-        assertThat(response.responseCode(), is(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE));
+        assertThat(response.responseCode()).isEqualTo(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
 
         final JobIdentifier jobIdentifier = new JobIdentifier("p1", 1, null, "s1", "2", "j1");
         verify(consoleService).appendToConsoleLog(jobIdentifier, "message1");
@@ -86,9 +84,9 @@ public class ConsoleLogRequestProcessorV2Test {
         final ConsoleLogRequestProcessor processor = new ConsoleLogRequestProcessor(pluginRequestProcessorRegistry, consoleService);
         final GoApiResponse response = processor.process(pluginDescriptor, goApiRequest);
 
-        assertThat(response.responseCode(), is(DefaultGoApiResponse.INTERNAL_ERROR));
+        assertThat(response.responseCode()).isEqualTo(DefaultGoApiResponse.INTERNAL_ERROR);
 
         final Map responseContents = new Gson().fromJson(response.responseBody(), Map.class);
-        assertThat((String) responseContents.get("message"), containsString("Error:"));
+        assertThat((String) responseContents.get("message")).contains("Error:");
     }
 }

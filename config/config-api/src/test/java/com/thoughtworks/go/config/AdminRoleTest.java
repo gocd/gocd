@@ -20,8 +20,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.helper.StageConfigMother;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdminRoleTest {
 
@@ -32,8 +31,8 @@ public class AdminRoleTest {
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(), stage)));
         role.validate(ConfigSaveValidationContext.forChain(config));
         ConfigErrors configErrors = role.errors();
-        assertThat(configErrors.isEmpty(), is(false));
-        assertThat(configErrors.on(AdminRole.NAME), is("Role \"role2\" does not exist."));
+        assertThat(configErrors.isEmpty()).isFalse();
+        assertThat(configErrors.on(AdminRole.NAME)).isEqualTo("Role \"role2\" does not exist.");
     }
 
     @Test
@@ -43,8 +42,8 @@ public class AdminRoleTest {
         CruiseConfig config = new BasicCruiseConfig(pipelinesConfig);
         role.validate(ConfigSaveValidationContext.forChain(config));
         ConfigErrors errors = role.errors();
-        assertThat(errors.isEmpty(), is(false));
-        assertThat(errors.on(AdminRole.NAME), is("Role \"role2\" does not exist."));
+        assertThat(errors.isEmpty()).isFalse();
+        assertThat(errors.on(AdminRole.NAME)).isEqualTo("Role \"role2\" does not exist.");
     }
 
     @Test
@@ -56,8 +55,8 @@ public class AdminRoleTest {
         CruiseConfig config = new BasicCruiseConfig(pipelinesConfig);
         role.validate(PipelineConfigSaveValidationContext.forChain(true, "group",config, pipelineConfig));
         ConfigErrors errors = role.errors();
-        assertThat(errors.isEmpty(), is(false));
-        assertThat(errors.on(AdminRole.NAME), is("Role \"role2\" does not exist."));
+        assertThat(errors.isEmpty()).isFalse();
+        assertThat(errors.on(AdminRole.NAME)).isEqualTo("Role \"role2\" does not exist.");
     }
 
     @Test
@@ -67,7 +66,7 @@ public class AdminRoleTest {
         CruiseConfig config = new BasicCruiseConfig(pipelinesConfig);
         config.server().security().addRole(new RoleConfig(new CaseInsensitiveString("role2")));
         role.validate(ConfigSaveValidationContext.forChain(config));
-        assertThat(role.errors().isEmpty(), is(true));
+        assertThat(role.errors().isEmpty()).isTrue();
 
     }
 
@@ -79,7 +78,7 @@ public class AdminRoleTest {
         CruiseConfig config = new BasicCruiseConfig(pipelineConfigs);
         config.server().security().addRole(new RoleConfig(new CaseInsensitiveString("role1")));
         role.validate(ConfigSaveValidationContext.forChain(config));
-        assertThat(role.errors().isEmpty(), is(true));
+        assertThat(role.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -91,7 +90,7 @@ public class AdminRoleTest {
         CruiseConfig config = new BasicCruiseConfig(pipelinesConfig);
         config.server().security().addRole(new RoleConfig(new CaseInsensitiveString("role1")));
         pipelinesConfig.validate(ConfigSaveValidationContext.forChain(config));
-        assertThat(pipelinesConfig.errors().isEmpty(), is(true));
+        assertThat(pipelinesConfig.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -101,8 +100,8 @@ public class AdminRoleTest {
         CruiseConfig config = new BasicCruiseConfig(pipelineConfigs);
         role.validate(ConfigSaveValidationContext.forChain(config));
         ConfigErrors errors = role.errors();
-        assertThat(errors.isEmpty(), is(false));
-        assertThat(errors.on(AdminRole.NAME), is("Role \"shilpaIsNotHere\" does not exist."));
+        assertThat(errors.isEmpty()).isFalse();
+        assertThat(errors.on(AdminRole.NAME)).isEqualTo("Role \"shilpaIsNotHere\" does not exist.");
     }
 
     @Test
@@ -112,6 +111,6 @@ public class AdminRoleTest {
         CruiseConfig config = new BasicCruiseConfig(pipelineConfigs);
         config.server().security().addRole(new RoleConfig(new CaseInsensitiveString("shilpaIsHere")));
         role.validate(ConfigSaveValidationContext.forChain(config));
-        assertThat(role.errors().isEmpty(), is(true));
+        assertThat(role.errors().isEmpty()).isTrue();
     }
 }

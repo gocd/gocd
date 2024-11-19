@@ -35,9 +35,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -83,7 +81,7 @@ public class StageStatusCacheTest {
 
         Stage expect = pipeline.getStages().byName(pipelineFixture.devStage);
         assertThat(stageStatusCache.currentStage(new StageConfigIdentifier(pipelineFixture.pipelineName,
-                pipelineFixture.devStage)), is(expect));
+                pipelineFixture.devStage))).isEqualTo(expect);
     }
 
     @Test
@@ -95,10 +93,10 @@ public class StageStatusCacheTest {
         when(mock.mostRecentStage(identifier)).thenReturn(instance);
 
         StageStatusCache cache = new StageStatusCache(mock);
-        assertThat(cache.currentStage(identifier).getName(), is(instance.getName()));
+        assertThat(cache.currentStage(identifier).getName()).isEqualTo(instance.getName());
 
         //call currentStage for the second time, should not call stageDao now
-        assertThat(cache.currentStage(identifier).getName(), is(instance.getName()));
+        assertThat(cache.currentStage(identifier).getName()).isEqualTo(instance.getName());
     }
 
     @Test
@@ -108,9 +106,9 @@ public class StageStatusCacheTest {
 
         StageStatusCache cache = new StageStatusCache(stageDao);
         when(stageDao.mostRecentStage(identifier)).thenReturn(null);
-        assertThat(cache.currentStage(identifier), is(nullValue()));
+        assertThat(cache.currentStage(identifier)).isNull();
 
-        assertThat(cache.currentStage(identifier), is(nullValue()));
+        assertThat(cache.currentStage(identifier)).isNull();
 
         verify(stageDao, times(1)).mostRecentStage(identifier);
     }
@@ -124,10 +122,10 @@ public class StageStatusCacheTest {
         when(stageDao.mostRecentStage(identifier)).thenReturn(null);
 
         StageStatusCache cache = new StageStatusCache(stageDao);
-        assertThat(cache.currentStage(identifier), is(nullValue()));
+        assertThat(cache.currentStage(identifier)).isNull();
 
         cache.stageStatusChanged(instance);
-        assertThat(cache.currentStage(identifier), is(instance));
+        assertThat(cache.currentStage(identifier)).isEqualTo(instance);
 
         verify(stageDao, times(1)).mostRecentStage(identifier);
     }
@@ -139,15 +137,13 @@ public class StageStatusCacheTest {
         stage.setIdentifier(identifier);
 
         stageStatusCache.stageStatusChanged(stage);
-        assertThat(stageStatusCache.currentStage(identifier.stageConfigIdentifier()).stageState(),
-                is(StageState.Failing));
+        assertThat(stageStatusCache.currentStage(identifier.stageConfigIdentifier()).stageState()).isEqualTo(StageState.Failing);
 
         Stage newStage = StageMother.completedFailedStageInstance("pipeline-name", "dev", "linux-firefox");
         newStage.setIdentifier(identifier);
 
         stageStatusCache.stageStatusChanged(newStage);
-        assertThat(stageStatusCache.currentStage(identifier.stageConfigIdentifier()).stageState(),
-                is(StageState.Failed));
+        assertThat(stageStatusCache.currentStage(identifier.stageConfigIdentifier()).stageState()).isEqualTo(StageState.Failed);
     }
 
 }

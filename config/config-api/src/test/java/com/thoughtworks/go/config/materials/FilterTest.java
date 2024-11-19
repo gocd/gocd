@@ -17,25 +17,24 @@ package com.thoughtworks.go.config.materials;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FilterTest {
     @Test
     public void shouldReturnEmptyTextToDisplayWhenFilterIsEmpty() {
-        assertThat(new Filter().getStringForDisplay(), is(""));
+        assertThat(new Filter().getStringForDisplay()).isEqualTo("");
     }
 
     @Test
     public void shouldConcatenateIgnoredFilesWithCommaWhenDisplaying() {
         Filter filter = new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar"));
-        assertThat(filter.getStringForDisplay(), is("/foo/**.*,/another/**.*,bar"));
+        assertThat(filter.getStringForDisplay()).isEqualTo("/foo/**.*,/another/**.*,bar");
     }
 
     @Test
     public void shouldInitializeFromDisplayString() {
-        assertThat(Filter.fromDisplayString("/foo/**.*,/another/**.*,bar"), is(new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar"))));
-        assertThat(Filter.fromDisplayString("/foo/**.* , /another/**.*,     bar     "), is(new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar"))));
+        assertThat(Filter.fromDisplayString("/foo/**.*,/another/**.*,bar")).isEqualTo(new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar")));
+        assertThat(Filter.fromDisplayString("/foo/**.* , /another/**.*,     bar     ")).isEqualTo(new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar")));
     }
 
     @Test
@@ -43,6 +42,6 @@ public class FilterTest {
         IgnoredFiles ignore = new IgnoredFiles("helper/*.*");
         Filter filter = new Filter(ignore);
         filter.addError("key", "some error");
-        assertThat(filter.errors().on("key"), is("some error"));
+        assertThat(filter.errors().on("key")).isEqualTo("some error");
     }
 }

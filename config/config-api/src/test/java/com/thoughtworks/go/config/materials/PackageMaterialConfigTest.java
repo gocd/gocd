@@ -26,9 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PackageMaterialConfigTest {
@@ -37,8 +35,8 @@ public class PackageMaterialConfigTest {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig();
         packageMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
 
-        assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Please select a repository and package"));
+        assertThat(packageMaterialConfig.errors().getAll().size()).isEqualTo(1);
+        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Please select a repository and package");
     }
 
     @Test
@@ -52,8 +50,8 @@ public class PackageMaterialConfigTest {
 
         packageMaterialConfig.validateTree(configSaveValidationContext);
 
-        assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find plugin for given package id:[package-id]."));
+        assertThat(packageMaterialConfig.errors().getAll().size()).isEqualTo(1);
+        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find plugin for given package id:[package-id].");
     }
 
     @Test
@@ -67,8 +65,8 @@ public class PackageMaterialConfigTest {
 
         packageMaterialConfig.validateTree(configSaveValidationContext);
 
-        assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find plugin for given package id:[package-id]."));
+        assertThat(packageMaterialConfig.errors().getAll().size()).isEqualTo(1);
+        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find plugin for given package id:[package-id].");
     }
 
     @Test
@@ -82,11 +80,11 @@ public class PackageMaterialConfigTest {
 
         packageMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
-        assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Duplicate package material detected!"));
-        assertThat(existingMaterial.errors().getAll().size(), is(1));
-        assertThat(existingMaterial.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Duplicate package material detected!"));
-        assertThat(nameToMaterialMap.size(), is(2));
+        assertThat(packageMaterialConfig.errors().getAll().size()).isEqualTo(1);
+        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Duplicate package material detected!");
+        assertThat(existingMaterial.errors().getAll().size()).isEqualTo(1);
+        assertThat(existingMaterial.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Duplicate package material detected!");
+        assertThat(nameToMaterialMap.size()).isEqualTo(2);
     }
 
     @Test
@@ -99,8 +97,8 @@ public class PackageMaterialConfigTest {
 
         packageMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
-        assertThat(packageMaterialConfig.errors().getAll().size(), is(0));
-        assertThat(nameToMaterialMap.size(), is(3));
+        assertThat(packageMaterialConfig.errors().getAll().size()).isEqualTo(0);
+        assertThat(nameToMaterialMap.size()).isEqualTo(3);
     }
 
     @Test
@@ -111,8 +109,8 @@ public class PackageMaterialConfigTest {
 
         packageMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
-        assertThat(packageMaterialConfig.errors().getAll().size(), is(0));
-        assertThat(nameToMaterialMap.size(), is(0));
+        assertThat(packageMaterialConfig.errors().getAll().size()).isEqualTo(0);
+        assertThat(nameToMaterialMap.size()).isEqualTo(0);
     }
 
     @Test
@@ -122,7 +120,7 @@ public class PackageMaterialConfigTest {
 
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig();
         packageMaterialConfig.setConfigAttributes(attributes);
-        assertThat(packageMaterialConfig.getPackageId(), is("packageId"));
+        assertThat(packageMaterialConfig.getPackageId()).isEqualTo("packageId");
     }
 
     @Test
@@ -130,15 +128,15 @@ public class PackageMaterialConfigTest {
         Map<String, String> attributes = new HashMap<>();
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig("id");
         packageMaterialConfig.setConfigAttributes(attributes);
-        assertThat(packageMaterialConfig.getPackageId(), is(nullValue()));
+        assertThat(packageMaterialConfig.getPackageId()).isNull();
     }
 
     @Test
     public void shouldSetPackageIdAsNullIfPackageDefinitionIsNull() {
         PackageMaterialConfig materialConfig = new PackageMaterialConfig("1");
         materialConfig.setPackageDefinition(null);
-        assertThat(materialConfig.getPackageId(), is(nullValue()));
-        assertThat(materialConfig.getPackageDefinition(), is(nullValue()));
+        assertThat(materialConfig.getPackageId()).isNull();
+        assertThat(materialConfig.getPackageDefinition()).isNull();
     }
 
     @Test
@@ -146,9 +144,9 @@ public class PackageMaterialConfigTest {
         PackageMaterialConfig materialConfig = new PackageMaterialConfig();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         materialConfig.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        assertThat(materialConfig.getName().toString(), is("repo-name_package-name"));
+        assertThat(materialConfig.getName().toString()).isEqualTo("repo-name_package-name");
         materialConfig.setPackageDefinition(null);
-        assertThat(materialConfig.getName(), is(nullValue()));
+        assertThat(materialConfig.getName()).isNull();
     }
 
     @Test
@@ -161,21 +159,21 @@ public class PackageMaterialConfigTest {
 
         PackageMaterialConfig p2 = new PackageMaterialConfig();
         p2.setPackageDefinition(packageDefinition);
-        assertThat(p1.equals(p2), is(true));
+        assertThat(p1.equals(p2)).isTrue();
 
 
         p1 = new PackageMaterialConfig();
         p2 = new PackageMaterialConfig();
-        assertThat(p1.equals(p2), is(true));
+        assertThat(p1.equals(p2)).isTrue();
 
         p2.setPackageDefinition(packageDefinition);
-        assertThat(p1.equals(p2), is(false));
+        assertThat(p1.equals(p2)).isFalse();
 
         p1.setPackageDefinition(packageDefinition);
         p2 = new PackageMaterialConfig();
-        assertThat(p1.equals(p2), is(false));
+        assertThat(p1.equals(p2)).isFalse();
 
-        assertThat(p1.equals(null), is(false));
+        assertThat(p1.equals(null)).isFalse();
     }
 
     @Test
@@ -184,7 +182,7 @@ public class PackageMaterialConfigTest {
         when(packageDefinition.isAutoUpdate()).thenReturn(false);
         PackageMaterialConfig materialConfig = new PackageMaterialConfig(new CaseInsensitiveString("name"), "package-id", packageDefinition);
 
-        assertThat(materialConfig.isAutoUpdate(), is(false));
+        assertThat(materialConfig.isAutoUpdate()).isFalse();
 
         verify(packageDefinition).isAutoUpdate();
     }

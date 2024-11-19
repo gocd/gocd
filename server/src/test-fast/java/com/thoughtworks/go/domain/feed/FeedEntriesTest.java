@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FeedEntriesTest {
     private static final Date LATER_DATE = new DateTime().withDate(2000, 12, 24).toDate();
@@ -33,8 +32,8 @@ public class FeedEntriesTest {
 
     @Test
     public void shouldReturnFirstAndLastEntryId() {
-        assertThat(feedEntries().firstEntryId(), is(12L));
-        assertThat(feedEntries().lastEntryId(), is(15L));
+        assertThat(feedEntries().firstEntryId()).isEqualTo(12L);
+        assertThat(feedEntries().lastEntryId()).isEqualTo(15L);
     }
 
     private FeedEntries feedEntries() {
@@ -47,14 +46,14 @@ public class FeedEntriesTest {
 
     @Test
     public void shouldLastUpdatedDate() {
-        assertThat(feedEntries().lastUpdatedDate(), is(LATER_DATE));
+        assertThat(feedEntries().lastUpdatedDate()).isEqualTo(LATER_DATE);
     }
 
 
     @Test
     public void shouldReturnFirstEntryId_Empty_List() {
-        assertThat(new FeedEntries().firstEntryId(), is(nullValue()));
-        assertThat(new FeedEntries().lastEntryId(), is(nullValue()));
+        assertThat(new FeedEntries().firstEntryId()).isNull();
+        assertThat(new FeedEntries().lastEntryId()).isNull();
     }
 
     @Test
@@ -63,6 +62,6 @@ public class FeedEntriesTest {
     }
 
     private void assertDateWithTolerance(Date firstDate, Date secondDate) {
-        assertThat(Math.abs(firstDate.getTime() - secondDate.getTime()), lessThan(10L));
+        assertThat(Math.abs(firstDate.getTime() - secondDate.getTime())).isLessThan(10L);
     }
 }

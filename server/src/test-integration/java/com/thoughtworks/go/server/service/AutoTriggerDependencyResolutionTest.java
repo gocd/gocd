@@ -53,9 +53,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -204,7 +203,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(rel(svn, p6), true, "s2"));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p6, cruiseConfig, given);
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     private Material rel(ScheduleTestUtil.AddedPipeline dep, ScheduleTestUtil.AddedPipeline wrtPipeline) {
@@ -283,7 +282,7 @@ public class AutoTriggerDependencyResolutionTest {
         given.addRevision(u.mr(p3, true, p3_2));
         given.addRevision(u.mr(p1, true, p1_2));
 
-        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(given));
+        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given)).isEqualTo(given);
 
     }
 
@@ -380,7 +379,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, "P3", systemEnvironment, materialChecker);
 
-        assertThat(autoBuild.onModifications(given, false, previous), nullValue());
+        assertThat(autoBuild.onModifications(given, false, previous)).isNull();
     }
 
 
@@ -444,7 +443,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p1, true, p1_3),
             u.mr(p2, false, p2_3));
 
-        assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given), is(given));
+        assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given)).isEqualTo(given);
     }
 
     @Test
@@ -491,7 +490,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(svn, true, "s2"));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p3, cruiseConfig, given);
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -533,7 +532,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(u.mw(p1), false, p1_2));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p3, cruiseConfig, given);
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -591,7 +590,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p3, false, p3_2));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p4, cruiseConfig, given);
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -648,7 +647,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p3, false, p3_2));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p4, cruiseConfig, given);
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -677,7 +676,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(up1, true, up1_1));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -705,7 +704,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(hg, true, "h1"),
             u.mr(up1, true, up1_1));
 
-        assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current")), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"))).isEqualTo(expected);
     }
 
     @Test
@@ -741,7 +740,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(third, true, third_3),
             u.mr(second, true, second_4));
 
-        assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last")), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last"))).isEqualTo(expected);
     }
 
     @Test
@@ -779,7 +778,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(second, true, second_2));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last"));
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -816,7 +815,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(second, true, second_3));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last"));
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -850,7 +849,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(svn, true, "s2"));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -879,7 +878,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(common, false, common_3));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -911,7 +910,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(common, false, common_4));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -940,7 +939,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(up1, true, up1_1));
 
         MaterialRevisions revisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
-        assertThat(revisions, is(expected));
+        assertThat(revisions).isEqualTo(expected);
     }
 
     @Test
@@ -962,7 +961,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(hg, false, "hg1"),
             u.mr(up1, false, up1_1));
 
-        assertThat(getRevisionsBasedOnDependencies(current, goConfigDao.load(), given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(current, goConfigDao.load(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -987,7 +986,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(hg, false, "hg1"),
             u.mr(up1, true, up1_1));
 
-        assertThat(getRevisionsBasedOnDependencies(current, goConfigDao.load(), given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(current, goConfigDao.load(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -1065,7 +1064,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(third, true, third_3));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last"));
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -1101,10 +1100,10 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(new_p2, false, p2_1));
 
         try {
-            assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given), is(nullValue()));
+            assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given)).isNull();
             fail("Should have failed. There is no compatiable revision as material configuration has changed for p2");
         } catch (NoCompatibleUpstreamRevisionsException e) {
-            assertThat(e.getMessage(), is("Failed resolution of pipeline p3 : Cause : No valid revisions found for the upstream dependency: DependencyMaterialConfig{pipelineName='p2', stageName='s'}"));
+            assertThat(e.getMessage()).isEqualTo("Failed resolution of pipeline p3 : Cause : No valid revisions found for the upstream dependency: DependencyMaterialConfig{pipelineName='p2', stageName='s'}");
         }
     }
 
@@ -1130,7 +1129,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p2, true, p2_1),
             u.mr(p3, true, p3_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(given));
+        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given)).isEqualTo(given);
 
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g12");
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_2);
@@ -1142,7 +1141,7 @@ public class AutoTriggerDependencyResolutionTest {
         MaterialRevisions expected = u.mrs(
             u.mr(p2, true, p2_1),
             u.mr(p3, true, p3_1));
-        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given)).isEqualTo(expected);
     }
 
     @Test
@@ -1180,7 +1179,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p2, false, p2_1));
 
         MaterialRevisions actual = getRevisionsBasedOnDependencies(p3, cruiseConfig, given);
-        assertThat(actual, is(expected));
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
@@ -1226,7 +1225,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p2, false, p2_2));
 
         MaterialRevisions actual = getRevisionsBasedOnDependencies(p3, cruiseConfig, given);
-        assertThat(actual, is(expected));
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
@@ -1260,7 +1259,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p5, true, p5_1),
             u.mr(p6, true, p6_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p7, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p7, cruiseConfig, given)).isEqualTo(expected);
 
         String p1_2 = u.runAndPass(p1, "g12");
         String p3_2 = u.runAndPass(p3, p1_2);
@@ -1270,7 +1269,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p5, true, p5_2),
             u.mr(p6, true, p6_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p7, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p7, cruiseConfig, given)).isEqualTo(expected);
     }
 
     @Test
@@ -1299,7 +1298,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(git, true, "g11"),
             u.mr(p4, true, p4_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p5, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p5, cruiseConfig, given)).isEqualTo(expected);
 
         String p1_2 = u.runAndPass(p1, "g12");
         String p2_2 = u.runAndPass(p2, p1_2);
@@ -1312,7 +1311,7 @@ public class AutoTriggerDependencyResolutionTest {
         expected = u.mrs(
             u.mr(git, false, "g11"),
             u.mr(p4, false, p4_1));
-        assertThat(getRevisionsBasedOnDependencies(p5, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p5, cruiseConfig, given)).isEqualTo(expected);
     }
 
     @Test
@@ -1345,7 +1344,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p4, true, p4_1));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("p5"));
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -1378,7 +1377,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p4, true, p4_1));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("p5"));
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -1416,7 +1415,7 @@ public class AutoTriggerDependencyResolutionTest {
         MaterialRevisions expected = u.mrs(
             u.mr(p2, true, p2_2),
             u.mr(git1, true, "g12", "g13"));
-        assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given)).isEqualTo(expected);
     }
 
     @Test
@@ -1446,7 +1445,7 @@ public class AutoTriggerDependencyResolutionTest {
         MaterialRevisions expected = u.mrs(
             u.mr(p2, true, p2_2),
             u.mr(git1, true, "g12", "g13"));
-        assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given)).isEqualTo(expected);
     }
 
 
@@ -1477,7 +1476,7 @@ public class AutoTriggerDependencyResolutionTest {
         MaterialRevisions expected = u.mrs(
             u.mr(p1, true, p1_4),
             u.mr(git, true, "g13", "g14"));
-        assertThat(getRevisionsBasedOnDependencies(p2, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p2, cruiseConfig, given)).isEqualTo(expected);
     }
 
 
@@ -1526,7 +1525,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(c5, true, c5_1));
 
         MaterialRevisions actual = getRevisionsBasedOnDependencies(c6, cruiseConfig, given);
-        assertThat(actual, is(expected));
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
@@ -1560,7 +1559,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         MaterialRevisions given = u.mrs(u.mr(p8, true, p8_1));
 
-        assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("p11")), is(given));
+        assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("p11"))).isEqualTo(given);
     }
 
     @Test
@@ -1597,7 +1596,7 @@ public class AutoTriggerDependencyResolutionTest {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, false, previousRevisions);
-        assertThat(buildCause, is(nullValue()));
+        assertThat(buildCause).isNull();
     }
 
     @Test
@@ -1634,8 +1633,8 @@ public class AutoTriggerDependencyResolutionTest {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, true, previousRevisions);
-        assertThat(buildCause, is(notNullValue()));
-        assertThat(buildCause.getMaterialRevisions(), is(given));
+        assertThat(buildCause).isNotNull();
+        assertThat(buildCause.getMaterialRevisions()).isEqualTo(given);
     }
 
     @Test
@@ -1672,7 +1671,7 @@ public class AutoTriggerDependencyResolutionTest {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, false, previousRevisions);
-        assertThat(buildCause, is(nullValue()));
+        assertThat(buildCause).isNull();
     }
 
     @Test
@@ -1697,7 +1696,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p2, true, p2_1),
             u.mr(p3, true, p3_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(given));
+        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given)).isEqualTo(given);
 
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g12");
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_2);
@@ -1709,7 +1708,7 @@ public class AutoTriggerDependencyResolutionTest {
         MaterialRevisions expected = u.mrs(
             u.mr(p2, true, p2_1),
             u.mr(p3, true, p3_1));
-        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given)).isEqualTo(expected);
     }
 
     @Test
@@ -1734,7 +1733,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p2, true, p2_1),
             u.mr(p3, true, p3_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(given));
+        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given)).isEqualTo(given);
 
         p1.config.add(0, StageConfigMother.manualStage("renamed_stage"));
         configHelper.writeConfigFile(cruiseConfig);
@@ -1750,7 +1749,7 @@ public class AutoTriggerDependencyResolutionTest {
         MaterialRevisions expected = u.mrs(
             u.mr(p2, true, p2_1),
             u.mr(p3, true, p3_1));
-        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given)).isEqualTo(expected);
     }
 
     @Test
@@ -1777,7 +1776,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p1, false, p1_1),
             u.mr(p2, false, p2_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given)).isEqualTo(expected);
     }
 
     /* TRIANGLE TEST BEGIN */
@@ -1802,7 +1801,7 @@ public class AutoTriggerDependencyResolutionTest {
         MaterialRevisions given = u.mrs(u.mr(p4, true, p4_4), u.mr(p5, true, p5_1));
         MaterialRevisions expected = u.mrs(u.mr(p4, true, p4_2), u.mr(p5, true, p5_1));
 
-        assertThat(pipelineService.getRevisionsBasedOnDependencies(graph, given), is(expected));
+        assertThat(pipelineService.getRevisionsBasedOnDependencies(graph, given)).isEqualTo(expected);
     }
 
     @Test
@@ -1839,7 +1838,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         BuildCause buildCause = autoBuild.onModifications(given, false, null);
 
-        assertThat(buildCause.getMaterialRevisions(), is(expected));
+        assertThat(buildCause.getMaterialRevisions()).isEqualTo(expected);
     }
 
     @Test
@@ -1880,7 +1879,7 @@ public class AutoTriggerDependencyResolutionTest {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, false, previousRevisions);
-        assertThat(buildCause, is(nullValue()));
+        assertThat(buildCause).isNull();
     }
 
     @Test
@@ -1920,7 +1919,7 @@ public class AutoTriggerDependencyResolutionTest {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, false, previousRevisions);
-        assertThat(buildCause, is(nullValue()));
+        assertThat(buildCause).isNull();
     }
 
     @Test
@@ -1959,8 +1958,8 @@ public class AutoTriggerDependencyResolutionTest {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, true, previousRevisions);
-        assertThat(buildCause, is(notNullValue()));
-        assertThat(buildCause.getMaterialRevisions(), is(given));
+        assertThat(buildCause).isNotNull();
+        assertThat(buildCause.getMaterialRevisions()).isEqualTo(given);
     }
 
     @Test
@@ -1994,8 +1993,8 @@ public class AutoTriggerDependencyResolutionTest {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, true, previousRevisions);
-        assertThat(buildCause, is(notNullValue()));
-        assertThat(buildCause.getMaterialRevisions(), is(given));
+        assertThat(buildCause).isNotNull();
+        assertThat(buildCause.getMaterialRevisions()).isEqualTo(given);
     }
     /* TRIANGLE TEST END */
 
@@ -2029,7 +2028,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p3, true, p3_1),
             u.mr(p4, true, p4_1.getStages().get(0).getIdentifier().getStageLocator()));
 
-        assertThat(getRevisionsBasedOnDependencies(p5, cruiseConfig, given), is(given));
+        assertThat(getRevisionsBasedOnDependencies(p5, cruiseConfig, given)).isEqualTo(given);
 
     }
 
@@ -2060,7 +2059,7 @@ public class AutoTriggerDependencyResolutionTest {
         MaterialRevisions expected = u.mrs(
             u.mr(p2, true, p2_1),
             u.mr(p3, false, p3_1));
-        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given)).isEqualTo(expected);
 
         systemEnvironment.set(SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT, 1);
 

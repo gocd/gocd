@@ -27,9 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -73,14 +71,14 @@ public class StageTest {
 
     @Test
     public void shouldUpdateCompletedByTransitionIdAndStageState() throws Exception {
-        assertThat(stage.getCompletedByTransitionId(), is(nullValue()));
+        assertThat(stage.getCompletedByTransitionId()).isNull();
         DateTime fiveMinsForNow = new DateTime().plusMinutes(5);
         complete(firstJob, fiveMinsForNow);
         complete(secondJob, fiveMinsForNow);
         secondJob.getTransition(JobState.Completed);
         stage.calculateResult();
-        assertThat(stage.getCompletedByTransitionId(), is(nextId));
-        assertThat(stage.getState(), is(StageState.Passed));
+        assertThat(stage.getCompletedByTransitionId()).isEqualTo(nextId);
+        assertThat(stage.getState()).isEqualTo(StageState.Passed);
     }
 
     @Test
@@ -88,7 +86,7 @@ public class StageTest {
         stage.setCounter(1);
         firstJob.setState(JobState.Scheduled);
         secondJob.setState(JobState.Scheduled);
-        assertThat(stage.isScheduled(), is(true));
+        assertThat(stage.isScheduled()).isTrue();
     }
 
     @Test
@@ -96,7 +94,7 @@ public class StageTest {
         stage.setCounter(1);
         firstJob.setState(JobState.Scheduled);
         secondJob.setState(JobState.Completed);
-        assertThat(stage.isScheduled(), is(false));
+        assertThat(stage.isScheduled()).isFalse();
     }
 
     @Test
@@ -104,7 +102,7 @@ public class StageTest {
         stage.setCounter(2);
         firstJob.setState(JobState.Scheduled);
         secondJob.setState(JobState.Scheduled);
-        assertThat(stage.isScheduled(), is(false));
+        assertThat(stage.isScheduled()).isFalse();
     }
 
     @Test
@@ -113,7 +111,7 @@ public class StageTest {
         stage.setRerunOfCounter(null);
         firstJob.setState(JobState.Scheduled);
         secondJob.setState(JobState.Scheduled);
-        assertThat(stage.isReRun(), is(true));
+        assertThat(stage.isReRun()).isTrue();
     }
 
     @Test
@@ -122,7 +120,7 @@ public class StageTest {
         stage.setRerunOfCounter(null);
         firstJob.setState(JobState.Scheduled);
         secondJob.setState(JobState.Completed);
-        assertThat(stage.isReRun(), is(false));
+        assertThat(stage.isReRun()).isFalse();
     }
 
     @Test
@@ -131,7 +129,7 @@ public class StageTest {
         stage.setRerunOfCounter(null);
         firstJob.setState(JobState.Scheduled);
         secondJob.setState(JobState.Scheduled);
-        assertThat(stage.isReRun(), is(false));
+        assertThat(stage.isReRun()).isFalse();
     }
 
     @Test
@@ -142,7 +140,7 @@ public class StageTest {
         firstJob.setState(JobState.Scheduled);
         secondJob.setRerun(false);
         secondJob.setState(JobState.Completed);
-        assertThat(stage.isReRun(), is(true));
+        assertThat(stage.isReRun()).isTrue();
     }
 
     @Test
@@ -153,7 +151,7 @@ public class StageTest {
         firstJob.setState(JobState.Building);
         secondJob.setRerun(false);
         secondJob.setState(JobState.Completed);
-        assertThat(stage.isReRun(), is(false));
+        assertThat(stage.isReRun()).isFalse();
     }
 
     private void complete(JobInstance job, DateTime fiveMinsForNow) {
@@ -182,7 +180,7 @@ public class StageTest {
 
         stage.calculateResult();
 
-        assertThat(stage.completedDate(), is(time4.toDate()));
+        assertThat(stage.completedDate()).isEqualTo(time4.toDate());
     }
 
     @Test
@@ -196,7 +194,7 @@ public class StageTest {
     @Test
     public void stageStateShouldBeUnkownIfNoJobs() {
         Stage newStage = new Stage();
-        assertThat(newStage.stageState(), is(StageState.Unknown));
+        assertThat(newStage.stageState()).isEqualTo(StageState.Unknown);
     }
 
     @Test
@@ -240,8 +238,8 @@ public class StageTest {
 
         RunDuration.ActualDuration expectedDuration = new RunDuration.ActualDuration(new Duration(time0, time4));
         RunDuration.ActualDuration duration = (RunDuration.ActualDuration) stage.getDuration();
-        assertThat(duration, is(expectedDuration));
-        assertThat(duration.getTotalSeconds(), is(7263L));
+        assertThat(duration).isEqualTo(expectedDuration);
+        assertThat(duration.getTotalSeconds()).isEqualTo(7263L);
     }
 
     @Test
@@ -249,14 +247,14 @@ public class StageTest {
         firstJob.assign("AGENT-1", time1.toDate());
         firstJob.changeState(JobState.Building, time2.toDate());
 
-        assertThat(stage.getDuration(), is(RunDuration.IN_PROGRESS_DURATION));
+        assertThat(stage.getDuration()).isEqualTo(RunDuration.IN_PROGRESS_DURATION);
     }
 
     @Test
     public void shouldReturnLatestTransitionDate() {
         Date date = JOB_SCHEDULE_DATE;
         firstJob.completing(JobResult.Failed, date);
-        assertThat(stage.latestTransitionDate(), is(date));
+        assertThat(stage.latestTransitionDate()).isEqualTo(date);
     }
 
     @Test
@@ -268,10 +266,10 @@ public class StageTest {
     @Test
     public void shouldCreateAStageWithAGivenConfigVersion() {
         Stage stage = new Stage("foo-stage", new JobInstances(), "admin", null,"manual", false, false, "git-sha", new TimeProvider());
-        assertThat(stage.getConfigVersion(), is("git-sha"));
+        assertThat(stage.getConfigVersion()).isEqualTo("git-sha");
 
         stage = new Stage("foo-stage", new JobInstances(), "admin", null, "manual", new TimeProvider());
-        assertThat(stage.getConfigVersion(), is(nullValue()));
+        assertThat(stage.getConfigVersion()).isNull();
     }
 
     @Test

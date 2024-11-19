@@ -27,26 +27,25 @@ import org.junit.jupiter.api.Test;
 import java.util.Iterator;
 
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class GoConfigGraphWalkerTest {
 
     @Test
     public void walkedObject_shouldOnlyAcceptObjectsInThoughtworksPackage() {
-        assertThat(new GoConfigGraphWalker.WalkedObject("non-tw object").shouldWalk(), is(false));
-        assertThat(new GoConfigGraphWalker.WalkedObject(new PipelineConfig()).shouldWalk(), is(true));
+        assertThat(new GoConfigGraphWalker.WalkedObject("non-tw object").shouldWalk()).isFalse();
+        assertThat(new GoConfigGraphWalker.WalkedObject(new PipelineConfig()).shouldWalk()).isTrue();
     }
 
     @Test
     public void walkedObject_shouldWalkMergePipelineConfigs() {
-        assertThat(new GoConfigGraphWalker.WalkedObject(new MergePipelineConfigs(new BasicPipelineConfigs())).shouldWalk(), is(true));
+        assertThat(new GoConfigGraphWalker.WalkedObject(new MergePipelineConfigs(new BasicPipelineConfigs())).shouldWalk()).isTrue();
     }
 
     @Test
     public void walkedObject_shouldNotWalkNull() {
-        assertThat(new GoConfigGraphWalker.WalkedObject(null).shouldWalk(), is(false));
+        assertThat(new GoConfigGraphWalker.WalkedObject(null).shouldWalk()).isFalse();
     }
 
     private PipelineConfig mockPipelineConfig() {

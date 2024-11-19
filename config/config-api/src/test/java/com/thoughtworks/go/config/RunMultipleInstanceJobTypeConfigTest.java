@@ -18,8 +18,7 @@ package com.thoughtworks.go.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RunMultipleInstanceJobTypeConfigTest {
 	private JobConfig jobConfig;
@@ -32,14 +31,14 @@ public class RunMultipleInstanceJobTypeConfigTest {
 
 	@Test
 	public void shouldTellIsInstanceOfCorrectly() throws Exception {
-		assertThat(jobConfig.isInstanceOf("job-runInstance-1", false), is(true));
-		assertThat(jobConfig.isInstanceOf("Job-runInstance-1", true), is(true));
-		assertThat(jobConfig.isInstanceOf("Job-runInstance-1", false), is(false));
+		assertThat(jobConfig.isInstanceOf("job-runInstance-1", false)).isTrue();
+		assertThat(jobConfig.isInstanceOf("Job-runInstance-1", true)).isTrue();
+		assertThat(jobConfig.isInstanceOf("Job-runInstance-1", false)).isFalse();
 	}
 
 	@Test
 	public void shouldTranslatedJobNameCorrectly() throws Exception {
-		assertThat(jobConfig.translatedName("crap-runInstance-1"), is("job-runInstance-1"));
-		assertThat(jobConfig.translatedName("crap"), is("job"));
+		assertThat(jobConfig.translatedName("crap-runInstance-1")).isEqualTo("job-runInstance-1");
+		assertThat(jobConfig.translatedName("crap")).isEqualTo("job");
 	}
 }

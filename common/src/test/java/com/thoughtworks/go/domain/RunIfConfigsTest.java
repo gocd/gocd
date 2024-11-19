@@ -19,33 +19,32 @@ import com.thoughtworks.go.config.RunIfConfig;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.config.RunIfConfig.PASSED;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RunIfConfigsTest {
 
     @Test
     public void shouldMatchWhenContainsCondition() {
         RunIfConfigs configs = new RunIfConfigs(PASSED);
-        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Passed.toLowerCase())), is(true));
-        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Failed.toLowerCase())), is(false));
-        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Cancelled.toLowerCase())), is(false));
+        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Passed.toLowerCase()))).isTrue();
+        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Failed.toLowerCase()))).isFalse();
+        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Cancelled.toLowerCase()))).isFalse();
     }
 
     @Test
     public void shouldMatchAnyWhenAnyIsDefined() {
         RunIfConfigs configs = new RunIfConfigs(RunIfConfig.ANY);
-        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Passed.toLowerCase())), is(true));
-        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Failed.toLowerCase())), is(true));
-        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Cancelled.toLowerCase())), is(true));
+        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Passed.toLowerCase()))).isTrue();
+        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Failed.toLowerCase()))).isTrue();
+        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Cancelled.toLowerCase()))).isTrue();
     }
 
     @Test
     public void testOnlyMatchPassedWhenNoneIsDefined() {
         RunIfConfigs configs = new RunIfConfigs();
-        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Passed.toLowerCase())), is(true));
-        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Failed.toLowerCase())), is(false));
-        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Cancelled.toLowerCase())), is(false));
+        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Passed.toLowerCase()))).isTrue();
+        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Failed.toLowerCase()))).isFalse();
+        assertThat(configs.match(RunIfConfig.fromJobResult(JobResult.Cancelled.toLowerCase()))).isFalse();
     }
 
     @Test
@@ -55,8 +54,8 @@ public class RunIfConfigsTest {
         config.addError("status", "some error");
         configs.add(config);
         configs.addError("key", "some error");
-        assertThat(configs.errors().on("key"), is("some error"));
-        assertThat(configs.get(0).errors().on("status"), is("some error"));
+        assertThat(configs.errors().on("key")).isEqualTo("some error");
+        assertThat(configs.get(0).errors().on("status")).isEqualTo("some error");
     }
 
 }

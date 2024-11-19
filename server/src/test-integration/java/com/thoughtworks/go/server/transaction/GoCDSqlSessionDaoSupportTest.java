@@ -29,8 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -67,7 +66,7 @@ public class GoCDSqlSessionDaoSupportTest {
     @Test
     public void shouldOptOutOfCacheServing_forInsert() {
         assertionUtil.assertCacheBehaviourInTxn(() -> userDao.saveOrUpdate(new User("loser", "Massive Loser", "boozer@loser.com")));
-        assertThat(userDao.findUser("loser").getEmail(), is("boozer@loser.com"));
+        assertThat(userDao.findUser("loser").getEmail()).isEqualTo("boozer@loser.com");
     }
 
     @Test
@@ -76,9 +75,9 @@ public class GoCDSqlSessionDaoSupportTest {
         userDao.saveOrUpdate(loser);
         final User[] loadedUser = new User[1];
 
-        assertThat(assertionUtil.doInTxnWithCachePut(() -> loadedUser[0] = userDao.findUser(loser.getName())), is("boozer"));
+        assertThat(assertionUtil.doInTxnWithCachePut(() -> loadedUser[0] = userDao.findUser(loser.getName()))).isEqualTo("boozer");
 
-        assertThat(loadedUser[0].getName(), is("loser"));
+        assertThat(loadedUser[0].getName()).isEqualTo("loser");
     }
 
     @Test
@@ -88,9 +87,9 @@ public class GoCDSqlSessionDaoSupportTest {
 
         final User[] loadedUser = new User[1];
 
-        assertThat(assertionUtil.doInTxnWithCachePut(() -> loadedUser[0] = userDao.allUsers().get(0)), is("boozer"));
+        assertThat(assertionUtil.doInTxnWithCachePut(() -> loadedUser[0] = userDao.allUsers().get(0))).isEqualTo("boozer");
 
-        assertThat(loadedUser[0].getName(), is("loser"));
+        assertThat(loadedUser[0].getName()).isEqualTo("loser");
     }
 
 }

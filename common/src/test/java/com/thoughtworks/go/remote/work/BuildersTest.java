@@ -29,8 +29,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.RunIfConfig.ANY;
 import static com.thoughtworks.go.config.RunIfConfig.FAILED;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BuildersTest {
 
@@ -47,7 +46,7 @@ public class BuildersTest {
         builders.setIsCancelled(true);
         builders.build(environmentVariableContext, StandardCharsets.UTF_8);
 
-        assertThat(goPublisher.getMessage(), is(""));
+        assertThat(goPublisher.getMessage()).isEqualTo("");
     }
 
 
@@ -63,7 +62,7 @@ public class BuildersTest {
         Builders expected = new Builders(List.of(builder), null, null, null, null);
         expected.setIsCancelled(true);
 
-        assertThat(builders, is(expected));
+        assertThat(builders).isEqualTo(expected);
     }
 
     @Test

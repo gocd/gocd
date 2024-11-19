@@ -32,8 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,7 +55,7 @@ public class CcTrayStageStatusLoaderTest {
 
         List<ProjectStatus> actualStatuses = loader.getStatusesForStageAndJobsOf(pipelineConfigFor("pipeline1"), stageConfigFor("non-existent-stage"));
 
-        assertThat(actualStatuses, is(Collections.<ProjectStatus>emptyList()));
+        assertThat(actualStatuses).isEqualTo(Collections.<ProjectStatus>emptyList());
     }
 
     @Test
@@ -67,7 +66,7 @@ public class CcTrayStageStatusLoaderTest {
 
         List<ProjectStatus> actualStatuses = loader.getStatusesForStageAndJobsOf(pipelineConfigFor("pipeline1"), stageConfigFor("stage1"));
 
-        assertThat(actualStatuses, is(expectedStatuses));
+        assertThat(actualStatuses).isEqualTo(expectedStatuses);
     }
 
     @Test

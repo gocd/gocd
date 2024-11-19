@@ -18,28 +18,27 @@ package com.thoughtworks.go.domain.materials;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.domain.materials.ValidationBean.valid;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ValidationBeanTest {
 
     @Test
     public void shouldBeInvalidIfMessageIsEmptyOrNull() {
-        assertThat(ValidationBean.notValid("").isValid(), is(false));
-        assertThat(ValidationBean.notValid((String) null).isValid(), is(false));
-        assertThat(ValidationBean.notValid(new Exception()).isValid(), is(false));
+        assertThat(ValidationBean.notValid("").isValid()).isFalse();
+        assertThat(ValidationBean.notValid((String) null).isValid()).isFalse();
+        assertThat(ValidationBean.notValid(new Exception()).isValid()).isFalse();
     }
 
     @Test
     public void shouldBeInvalidIfMessageIsNotEmpty() {
-        assertThat(ValidationBean.notValid("With a message").isValid(), is(false));
+        assertThat(ValidationBean.notValid("With a message").isValid()).isFalse();
     }
 
     @Test
     public void shouldHaveBasicErrorIfMessageIsEmpty() {
-        assertThat(ValidationBean.notValid("").getError(), is(""));
-        assertThat(ValidationBean.notValid((String) null).isValid(), is(false));
-        assertThat(ValidationBean.notValid(new Exception()).isValid(), is(false));
+        assertThat(ValidationBean.notValid("").getError()).isEqualTo("");
+        assertThat(ValidationBean.notValid((String) null).isValid()).isFalse();
+        assertThat(ValidationBean.notValid(new Exception()).isValid()).isFalse();
     }
 
     /**
@@ -49,25 +48,23 @@ public class ValidationBeanTest {
      */
     @Test
     public void shouldStripOutExceptionText() {
-        assertThat(
-                ValidationBean.notValid(new Exception("SVNKITException:   The actual message")).getError(),
-                is("The actual message")
-        );
+        assertThat(ValidationBean.notValid(new Exception("SVNKITException:   The actual message")).getError())
+            .isEqualTo("The actual message");
     }
 
     @Test
     public void shouldSeeOriginalExceptionMessage() {
         String message = "A message.";
-        assertThat(ValidationBean.notValid(new Exception(message)).getError(), is(message));
-        assertThat(ValidationBean.notValid(message).getError(), is(message));
+        assertThat(ValidationBean.notValid(new Exception(message)).getError()).isEqualTo(message);
+        assertThat(ValidationBean.notValid(message).getError()).isEqualTo(message);
     }
 
     @Test
     public void shouldBeValid() {
-        assertThat(valid().isValid(), is(true));
-        assertThat(valid().getError(), is(""));
+        assertThat(valid().isValid()).isTrue();
+        assertThat(valid().getError()).isEqualTo("");
         ValidationBean bean = valid();
-        assertThat(bean.isValid(), is(true));
-        assertThat(bean.toJson().get("isValid"), is("true"));
+        assertThat(bean.isValid()).isTrue();
+        assertThat(bean.toJson().get("isValid")).isEqualTo("true");
     }
 }

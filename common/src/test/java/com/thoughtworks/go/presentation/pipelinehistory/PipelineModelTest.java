@@ -26,8 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineModelTest {
 
@@ -40,9 +39,9 @@ public class PipelineModelTest {
         PipelineModel pipelineModel = new PipelineModel(instanceModel.getName(), true, true, PipelinePauseInfo.notPaused());
         pipelineModel.addPipelineInstance(instanceModel);
         instanceModel.setMaterialRevisionsOnBuildCause(MaterialRevisions.EMPTY);
-        assertThat(pipelineModel.hasNewRevisions(), is(true));
+        assertThat(pipelineModel.hasNewRevisions()).isTrue();
         instanceModel.setMaterialRevisionsOnBuildCause(latest);
-        assertThat(pipelineModel.hasNewRevisions(), is(false));
+        assertThat(pipelineModel.hasNewRevisions()).isFalse();
     }
 
     @Test
@@ -52,7 +51,7 @@ public class PipelineModelTest {
         PipelineModel pipelineModel = new PipelineModel(instanceModel.getName(), true, true, PipelinePauseInfo.notPaused());
         pipelineModel.addPipelineInstance(instanceModel);
 
-        assertThat(pipelineModel.canForce(), is(false));
+        assertThat(pipelineModel.canForce()).isFalse();
     }
 
     @Test
@@ -63,12 +62,12 @@ public class PipelineModelTest {
         bar.addPipelineInstance(pipelineNamed("bar"));
         PipelineModel baz = new PipelineModel("baz", false, true, PipelinePauseInfo.notPaused());
         baz.addPipelineInstance(pipelineNamed("baz"));
-        assertThat(foo.canOperate(), is(true));
-        assertThat(foo.canForce(), is(true));
-        assertThat(bar.canOperate(), is(false));
-        assertThat(bar.canForce(), is(false));
-        assertThat(baz.canOperate(), is(true));
-        assertThat(baz.canForce(), is(false));
+        assertThat(foo.canOperate()).isTrue();
+        assertThat(foo.canForce()).isTrue();
+        assertThat(bar.canOperate()).isFalse();
+        assertThat(bar.canForce()).isFalse();
+        assertThat(baz.canOperate()).isTrue();
+        assertThat(baz.canForce()).isFalse();
     }
 
     private PipelineInstanceModel pipelineNamed(String name) {

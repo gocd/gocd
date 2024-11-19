@@ -17,8 +17,7 @@ package com.thoughtworks.go.config;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CruiseConfigClassTest {
 
@@ -27,13 +26,13 @@ public class CruiseConfigClassTest {
     @Test
     public void shouldFindAllFields() {
         GoConfigClassWriter fooBarClass = new GoConfigClassWriter(FooBar.class, configCache, null);
-        assertThat(fooBarClass.getAllFields(new FooBar()).size(), is(3));
+        assertThat(fooBarClass.getAllFields(new FooBar()).size()).isEqualTo(3);
     }
 
     @Test
     public void shouldFindAllFieldsInBaseClass() {
         GoConfigClassWriter fooBarClass = new GoConfigClassWriter(DerivedFooBar.class, configCache, null);
-        assertThat(fooBarClass.getAllFields(new DerivedFooBar()).size(), is(4));
+        assertThat(fooBarClass.getAllFields(new DerivedFooBar()).size()).isEqualTo(4);
     }
 
 }

@@ -108,7 +108,7 @@ class WorkRepresenterTest {
 
         def dependencyMaterial = MaterialsMother.dependencyMaterial()
         def dependencyMaterialRevision = ModificationsMother.dependencyMaterialRevision(0,
-                "label", 1, dependencyMaterial, new Date());
+                "label", 1, dependencyMaterial, new Date())
         def revisions = ModificationsMother.getMaterialRevisions(materials)
         revisions.addRevision(dependencyMaterialRevision)
 
@@ -119,17 +119,17 @@ class WorkRepresenterTest {
         def resources = new Resources("r1,r2,r3")
         def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
                 "1", "some_job", 1111L)
-        ConfigurationProperty prop1 = ConfigurationPropertyMother.create("key1", true,"secret1");
-        ConfigurationProperty prop2 = ConfigurationPropertyMother.create("key2", false,"non_secret");
+        ConfigurationProperty prop1 = ConfigurationPropertyMother.create("key1", true,"secret1")
+        ConfigurationProperty prop2 = ConfigurationPropertyMother.create("key2", false,"non_secret")
         def clusterProfile = new ClusterProfile("prod-cluster", "plugin_id", prop1, prop2)
-        ElasticProfile elasticProfile = new ElasticProfile("docker.unit-test", "prod-cluster", prop1, prop2);
+        ElasticProfile elasticProfile = new ElasticProfile("docker.unit-test", "prod-cluster", prop1, prop2)
 
         return new DefaultJobPlan(resources, artifactPlans(), 10L, jobIdentifier, "agent_uuid",
                 new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, clusterProfile)
     }
 
     private List<Builder> builders() {
-        String[] args = { "some thing" };
+        String[] args = { "some thing" }
         return List.of(
                 new CommandBuilder("echo", "some thing", null, new RunIfConfigs(RunIfConfig.ANY),
                         null, "some desc"),

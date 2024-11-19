@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StageFeedEntryTest {
     @Test
@@ -32,6 +31,6 @@ public class StageFeedEntryTest {
         entry.addAuthor(new Author("name", "email"));
         entry.addAuthor(new Author("name", "email"));
         entry.addAuthor(new Author("name1", "email1"));
-        assertThat(entry.getAuthors().size(), is(2));
+        assertThat(entry.getAuthors().size()).isEqualTo(2);
     }
 }

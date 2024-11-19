@@ -33,8 +33,7 @@ import com.thoughtworks.go.util.XsdValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
@@ -61,11 +60,11 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
 
         SCMs scms = goConfigHolder.config.getSCMs();
-        assertThat(scms, is(cruiseConfig.getSCMs()));
-        assertThat(scms.get(0).getConfiguration().first().getConfigurationValue().getValue(), is("http://go"));
-        assertThat(scms.get(0).getConfiguration().first().getEncryptedConfigurationValue(), is(nullValue()));
-        assertThat(scms.get(0).getConfiguration().last().getEncryptedValue(), is(new GoCipher().encrypt("secure")));
-        assertThat(scms.get(0).getConfiguration().last().getConfigurationValue(), is(nullValue()));
+        assertThat(scms).isEqualTo(cruiseConfig.getSCMs());
+        assertThat(scms.get(0).getConfiguration().first().getConfigurationValue().getValue()).isEqualTo("http://go");
+        assertThat(scms.get(0).getConfiguration().first().getEncryptedConfigurationValue()).isNull();
+        assertThat(scms.get(0).getConfiguration().last().getEncryptedValue()).isEqualTo(new GoCipher().encrypt("secure"));
+        assertThat(scms.get(0).getConfiguration().last().getConfigurationValue()).isNull();
     }
 
     @Test
@@ -83,8 +82,8 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
 
         SCMs scms = goConfigHolder.config.getSCMs();
-        assertThat(scms.size(), is(cruiseConfig.getSCMs().size()));
-        assertThat(scms.get(0).getId(), is(notNullValue()));
+        assertThat(scms.size()).isEqualTo(cruiseConfig.getSCMs().size());
+        assertThat(scms.get(0).getId()).isNotNull();
     }
 
     @Test
@@ -100,11 +99,10 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two SCMs with same id");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), anyOf(
-                    is("Duplicate unique value [id] declared for identity constraint of element \"cruise\"."),
-                    // message specific to java 10
-                    is("Duplicate unique value [id] declared for identity constraint \"uniqueSCMId\" of element \"cruise\".")
-            ));
+            assertThat(e.getMessage()).containsAnyOf(
+                "Duplicate unique value [id] declared for identity constraint of element \"cruise\".",
+                "Duplicate unique value [id] declared for identity constraint \"uniqueSCMId\" of element \"cruise\"."
+            );
         }
     }
 
@@ -119,7 +117,7 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two SCMs with same id");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Scm id is invalid. \"id wth space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
+            assertThat(e.getMessage()).isEqualTo("Scm id is invalid. \"id wth space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
         }
     }
 
@@ -136,7 +134,7 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two SCMs with same id");
         } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage(), is("Cannot save SCM, found duplicate SCMs. scm-name-1, scm-name-2"));
+            assertThat(e.getMessage()).isEqualTo("Cannot save SCM, found duplicate SCMs. scm-name-1, scm-name-2");
         }
     }
 
@@ -151,8 +149,7 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two SCMs with same id");
         } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage(),
-                    is("Invalid SCM name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+            assertThat(e.getMessage()).isEqualTo("Invalid SCM name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }
     }
 
@@ -180,11 +177,11 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
         MaterialConfig materialConfig = pipelineConfig.materialConfigs().get(0);
-        assertThat(materialConfig instanceof PluggableSCMMaterialConfig, is(true));
-        assertThat(((PluggableSCMMaterialConfig) materialConfig).getScmId(), is(scmId));
-        assertThat(((PluggableSCMMaterialConfig) materialConfig).getSCMConfig(), is(scm));
-        assertThat(materialConfig.getFolder(), is(nullValue()));
-        assertThat(materialConfig.filter(), is(new Filter()));
+        assertThat(materialConfig instanceof PluggableSCMMaterialConfig).isTrue();
+        assertThat(((PluggableSCMMaterialConfig) materialConfig).getScmId()).isEqualTo(scmId);
+        assertThat(((PluggableSCMMaterialConfig) materialConfig).getSCMConfig()).isEqualTo(scm);
+        assertThat(materialConfig.getFolder()).isNull();
+        assertThat(materialConfig.filter()).isEqualTo(new Filter());
     }
 
     @Test
@@ -214,11 +211,11 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
         MaterialConfig materialConfig = pipelineConfig.materialConfigs().get(0);
-        assertThat(materialConfig instanceof PluggableSCMMaterialConfig, is(true));
-        assertThat(((PluggableSCMMaterialConfig) materialConfig).getScmId(), is(scmId));
-        assertThat(((PluggableSCMMaterialConfig) materialConfig).getSCMConfig(), is(scm));
-        assertThat(materialConfig.getFolder(), is("dest"));
-        assertThat(materialConfig.filter(), is(new Filter(new IgnoredFiles("x"), new IgnoredFiles("y"))));
+        assertThat(materialConfig instanceof PluggableSCMMaterialConfig).isTrue();
+        assertThat(((PluggableSCMMaterialConfig) materialConfig).getScmId()).isEqualTo(scmId);
+        assertThat(((PluggableSCMMaterialConfig) materialConfig).getSCMConfig()).isEqualTo(scm);
+        assertThat(materialConfig.getFolder()).isEqualTo("dest");
+        assertThat(materialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("x"), new IgnoredFiles("y")));
     }
 
     @Test
@@ -236,7 +233,7 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not allow this");
         } catch (XsdValidationException exception) {
-            assertThat(exception.getMessage(), is("Key 'scmIdReferredByMaterial' with value 'does-not-exist' not found for identity constraint of element 'cruise'."));
+            assertThat(exception.getMessage()).isEqualTo("Key 'scmIdReferredByMaterial' with value 'does-not-exist' not found for identity constraint of element 'cruise'.");
         }
     }
 
@@ -249,7 +246,7 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
 
         xmlWriter.write(cruiseConfig, output, false);
 
-        assertThat(output.toString().contains("autoUpdate=\"true\""), is(false));
+        assertThat(output.toString().contains("autoUpdate=\"true\"")).isFalse();
     }
 
     @Test
@@ -261,7 +258,7 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
 
         xmlWriter.write(cruiseConfig, output, false);
 
-        assertThat(output.toString().contains("autoUpdate=\"false\""), is(true));
+        assertThat(output.toString().contains("autoUpdate=\"false\"")).isTrue();
     }
 
     private ConfigurationProperty getConfigurationProperty(String key, boolean isSecure, String value) {

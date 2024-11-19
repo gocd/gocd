@@ -17,8 +17,7 @@ package com.thoughtworks.go.plugin.access.authorization.v2;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AuthenticationResponseDTOTest {
 
@@ -37,8 +36,8 @@ public class AuthenticationResponseDTOTest {
 
         com.thoughtworks.go.plugin.access.authorization.v2.AuthenticationResponseDTO authenticationResponse = com.thoughtworks.go.plugin.access.authorization.v2.AuthenticationResponseDTO.fromJSON(json);
 
-        assertThat(authenticationResponse.getUser(), is(new UserDTO("gocd", "GoCD Admin", "gocd@go.cd")));
-        assertThat(authenticationResponse.getRoles(), hasSize(2));
-        assertThat(authenticationResponse.getRoles(), containsInAnyOrder("admin", "blackbird"));
+        assertThat(authenticationResponse.getUser()).isEqualTo(new UserDTO("gocd", "GoCD Admin", "gocd@go.cd"));
+        assertThat(authenticationResponse.getRoles()).hasSize(2);
+        assertThat(authenticationResponse.getRoles()).contains("admin", "blackbird");
     }
 }

@@ -33,9 +33,7 @@ import java.util.Date;
 
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModificationList;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ModificationBuildCauseTest {
@@ -51,7 +49,7 @@ public class ModificationBuildCauseTest {
     @Test
     public void shouldAggregateUserNameFromModifications() {
         String message = String.format("modified by %s", ModificationsMother.MOD_USER_WITH_HTML_CHAR);
-        assertThat(buildCause.getBuildCauseMessage(), is(message));
+        assertThat(buildCause.getBuildCauseMessage()).isEqualTo(message);
     }
 
     @Test
@@ -61,7 +59,7 @@ public class ModificationBuildCauseTest {
         revisions.addRevision(new DependencyMaterial(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")), modification);
         BuildCause modificationBuildCause = BuildCause.createWithModifications(revisions, "");
         String message = modificationBuildCause.getBuildCauseMessage();
-        assertThat(message, containsString("triggered by pipelineName/10/stageName/1"));
+        assertThat(message).contains("triggered by pipelineName/10/stageName/1");
     }
 
     @Test
@@ -71,7 +69,7 @@ public class ModificationBuildCauseTest {
         revisions.addRevision(new DependencyMaterial(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")), modification);
         BuildCause modificationBuildCause = BuildCause.createWithModifications(revisions, "");
         String message = modificationBuildCause.getBuildCauseMessage();
-        assertThat(message, containsString("triggered by pipelineName/123/stageName/1"));
+        assertThat(message).contains("triggered by pipelineName/123/stageName/1");
     }
 
     @Test
@@ -79,19 +77,19 @@ public class ModificationBuildCauseTest {
         ModificationSummaries summaries = buildCause.toModificationSummaries();
         String message = summaries.getModification(0).getComment();
         String user = summaries.getModification(0).getUserName();
-        assertThat(user, is(ModificationsMother.MOD_USER_WITH_HTML_CHAR));
-        assertThat(message, is(ModificationsMother.MOD_COMMENT_3));
+        assertThat(user).isEqualTo(ModificationsMother.MOD_USER_WITH_HTML_CHAR);
+        assertThat(message).isEqualTo(ModificationsMother.MOD_COMMENT_3);
     }
 
     @Test
     public void shouldDisplayNoModifications() {
         buildCause = BuildCause.createWithModifications(new MaterialRevisions(), "");
-        assertThat(buildCause.getBuildCauseMessage(), is("No modifications"));
+        assertThat(buildCause.getBuildCauseMessage()).isEqualTo("No modifications");
     }
 
     @Test
     public void shouldSafelyGetBuildCausedBy() {
-        assertThat(BuildCause.createWithEmptyModifications().getBuildCauseMessage(), is("No modifications"));
+        assertThat(BuildCause.createWithEmptyModifications().getBuildCauseMessage()).isEqualTo("No modifications");
     }
 
     @Test
@@ -99,7 +97,7 @@ public class ModificationBuildCauseTest {
         MaterialRevisions revisions = new MaterialRevisions();
         Modification modification = new Modification(new Date(), "pipelineName/10/stageName/1", "MOCK_LABEL-12", null);
         revisions.addRevision(new DependencyMaterial(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")), modification);
-        assertThat(BuildCause.createWithModifications(revisions, "").getBuildCauseMessage(), is("triggered by pipelineName/10/stageName/1"));
+        assertThat(BuildCause.createWithModifications(revisions, "").getBuildCauseMessage()).isEqualTo("triggered by pipelineName/10/stageName/1");
     }
 
     @Test
@@ -114,13 +112,13 @@ public class ModificationBuildCauseTest {
     @Test
     public void shouldIncludeUserWhoForcedBuildInManualBuildCause() {
         BuildCause cause = BuildCause.createManualForced(null, new Username(new CaseInsensitiveString("Joe Bloggs")));
-        assertThat(cause.getBuildCauseMessage(), containsString("Forced by Joe Bloggs"));
+        assertThat(cause.getBuildCauseMessage()).contains("Forced by Joe Bloggs");
     }
 
     @Test
     public void shouldNotAllowNullUsername() {
         BuildCause cause = BuildCause.createManualForced(MaterialRevisions.EMPTY, Username.ANONYMOUS);
-        assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
+        assertThat(cause.getBuildCauseMessage()).contains("Forced by anonymous");
     }
 
     @Test
@@ -129,7 +127,7 @@ public class ModificationBuildCauseTest {
             BuildCause.createManualForced(null, null);
             Assertions.fail("Expected NullPointerException to be thrown");
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), containsString("Username cannot be null"));
+            assertThat(e.getMessage()).contains("Username cannot be null");
         }
     }
 

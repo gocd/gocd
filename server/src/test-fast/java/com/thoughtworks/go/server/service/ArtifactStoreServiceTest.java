@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +33,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -104,8 +102,8 @@ public class ArtifactStoreServiceTest {
 
         artifactStoreService.create(new Username("admin"), artifactStore, new HttpLocalizedOperationResult());
 
-        MatcherAssert.assertThat(artifactStore.first().errors().size(), is(1));
-        MatcherAssert.assertThat(artifactStore.first().errors().on("key"), is("some-error"));
+        assertThat(artifactStore.first().errors().size()).isEqualTo(1);
+        assertThat(artifactStore.first().errors().on("key")).isEqualTo("some-error");
     }
 
     @Test
@@ -119,8 +117,8 @@ public class ArtifactStoreServiceTest {
 
         artifactStoreService.update(new Username("admin"), "md5", artifactStore, new HttpLocalizedOperationResult());
 
-        MatcherAssert.assertThat(artifactStore.first().errors().size(), is(1));
-        MatcherAssert.assertThat(artifactStore.first().errors().on("key"), is("some-error"));
+        assertThat(artifactStore.first().errors().size()).isEqualTo(1);
+        assertThat(artifactStore.first().errors().on("key")).isEqualTo("some-error");
     }
 
     @Test

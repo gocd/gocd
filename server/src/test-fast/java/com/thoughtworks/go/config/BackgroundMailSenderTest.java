@@ -20,8 +20,7 @@ import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -55,8 +54,8 @@ public class BackgroundMailSenderTest {
     public void shouldReturnNotValidIfSendingTimesOut() {
         BackgroundMailSender background = new BackgroundMailSender(neverReturns, 1);
         ValidationBean validationBean = background.send("Subject", "body", "to@someone");
-        assertThat(validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("Failed to send an email. Please check the GoCD server logs for any extra information that might be present."));
+        assertThat(validationBean.isValid()).isFalse();
+        assertThat(validationBean.getError()).contains("Failed to send an email. Please check the GoCD server logs for any extra information that might be present.");
     }
 
     @Test
@@ -65,7 +64,7 @@ public class BackgroundMailSenderTest {
         when(sender.send("Subject", "body", "to@someone")).thenReturn(validationBean);
         BackgroundMailSender background = new BackgroundMailSender(sender, 1000);
         ValidationBean returned = background.send("Subject", "body", "to@someone");
-        assertThat(returned, is(sameInstance(validationBean)));
+        assertThat(returned).isSameAs(validationBean);
     }
 
 

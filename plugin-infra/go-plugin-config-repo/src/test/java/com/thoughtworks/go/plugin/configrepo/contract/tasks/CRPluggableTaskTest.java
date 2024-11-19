@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CRPluggableTaskTest extends AbstractCRTest<CRPluggableTask> {
 
@@ -70,7 +69,7 @@ public class CRPluggableTaskTest extends AbstractCRTest<CRPluggableTask> {
     @Test
     public void shouldAppendTypeFieldWhenSerializingTask() {
         JsonObject jsonObject = (JsonObject) gson.toJsonTree(curl);
-        assertThat(jsonObject.get("type").getAsString(), is(CRPluggableTask.TYPE_NAME));
+        assertThat(jsonObject.get("type").getAsString()).isEqualTo(CRPluggableTask.TYPE_NAME);
     }
 
     @Test
@@ -79,7 +78,6 @@ public class CRPluggableTaskTest extends AbstractCRTest<CRPluggableTask> {
         String json = gson.toJson(value);
 
         CRPluggableTask deserializedValue = (CRPluggableTask) gson.fromJson(json, CRTask.class);
-        assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue, is(value));
+        assertThat(deserializedValue).isEqualTo(value);
     }
 }

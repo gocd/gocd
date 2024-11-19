@@ -21,8 +21,7 @@ import com.thoughtworks.go.domain.valuestreammap.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DummyNodeCreationTest {
     private DummyNodeCreation dummyNodeCreation;
@@ -87,7 +86,7 @@ public class DummyNodeCreationTest {
         VSMTestHelper.assertNumberOfLevelsInGraph(nodeLevelMap, 4);
         VSMTestHelper.assertThatNodeHasChildren(graph, d3, 1, d1, d2);
         Node secondChildOfD3 = graph.findNode(d3).getChildren().get(1);
-        assertThat(secondChildOfD3.getType(), is(DependencyNodeType.DUMMY));
+        assertThat(secondChildOfD3.getType()).isEqualTo(DependencyNodeType.DUMMY);
     }
 
     @Test
@@ -114,10 +113,10 @@ public class DummyNodeCreationTest {
         dummyNodeCreation.apply(graph, nodeLevelMap);
 
         VSMTestHelper.assertNumberOfLevelsInGraph(nodeLevelMap, 4);
-        assertThat(nodeLevelMap.get(0).size(), is(1));
-        assertThat(nodeLevelMap.get(-1).size(), is(2));
-        assertThat(nodeLevelMap.get(-2).size(), is(2));
-        assertThat(nodeLevelMap.get(-3).size(), is(1));
+        assertThat(nodeLevelMap.get(0).size()).isEqualTo(1);
+        assertThat(nodeLevelMap.get(-1).size()).isEqualTo(2);
+        assertThat(nodeLevelMap.get(-2).size()).isEqualTo(2);
+        assertThat(nodeLevelMap.get(-3).size()).isEqualTo(1);
 
         VSMTestHelper.assertThatNodeHasChildren(graph, d1, 1, d2);
         VSMTestHelper.assertThatNodeHasChildren(graph, g, 1, d1);
@@ -150,9 +149,9 @@ public class DummyNodeCreationTest {
         dummyNodeCreation.apply(graph, nodeLevelMap);
 
         VSMTestHelper.assertNumberOfLevelsInGraph(nodeLevelMap, 3);
-        assertThat(nodeLevelMap.get(0).size(), is(1));
-        assertThat(nodeLevelMap.get(-1).size(), is(3));
-        assertThat(nodeLevelMap.get(-2).size(), is(2));
+        assertThat(nodeLevelMap.get(0).size()).isEqualTo(1);
+        assertThat(nodeLevelMap.get(-1).size()).isEqualTo(3);
+        assertThat(nodeLevelMap.get(-2).size()).isEqualTo(2);
     }
 
     @Test
@@ -231,10 +230,10 @@ public class DummyNodeCreationTest {
         dummyNodeCreation.apply(graph, nodeLevelMap);
 
         VSMTestHelper.assertNumberOfLevelsInGraph(nodeLevelMap, 5);
-        assertThat(nodeLevelMap.get(0).size(), is(1));
-        assertThat(nodeLevelMap.get(-1).size(), is(2));
-        assertThat(nodeLevelMap.get(-2).size(), is(2));
-        assertThat(nodeLevelMap.get(-3).size(), is(3));
-        assertThat(nodeLevelMap.get(-4).size(), is(1));
+        assertThat(nodeLevelMap.get(0).size()).isEqualTo(1);
+        assertThat(nodeLevelMap.get(-1).size()).isEqualTo(2);
+        assertThat(nodeLevelMap.get(-2).size()).isEqualTo(2);
+        assertThat(nodeLevelMap.get(-3).size()).isEqualTo(3);
+        assertThat(nodeLevelMap.get(-4).size()).isEqualTo(1);
     }
 }

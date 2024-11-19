@@ -25,9 +25,7 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HealthStateScopeTest {
     private static final SvnMaterial MATERIAL1 = MaterialsMother.svnMaterial("url1");
@@ -37,14 +35,14 @@ public class HealthStateScopeTest {
     public void shouldHaveAUniqueScopeForEachMaterial() {
         HealthStateScope scope1 = HealthStateScope.forMaterial(MATERIAL1);
         HealthStateScope scope2 = HealthStateScope.forMaterial(MATERIAL1);
-        assertThat(scope1, is(scope2));
+        assertThat(scope1).isEqualTo(scope2);
     }
 
     @Test
     public void shouldHaveDifferentScopeForDifferentMaterials() {
         HealthStateScope scope1 = HealthStateScope.forMaterial(MATERIAL1);
         HealthStateScope scope2 = HealthStateScope.forMaterial(MATERIAL2);
-        assertThat(scope1, not(scope2));
+        assertThat(scope1).isNotEqualTo(scope2);
     }
 
     @Test
@@ -53,7 +51,7 @@ public class HealthStateScopeTest {
         HealthStateScope scope1 = HealthStateScope.forMaterial(mat);
         mat.setAutoUpdate(false);
         HealthStateScope scope2 = HealthStateScope.forMaterial(mat);
-        assertThat(scope1, not(scope2));
+        assertThat(scope1).isNotEqualTo(scope2);
     }
 
     @Test
@@ -63,9 +61,9 @@ public class HealthStateScopeTest {
         HealthStateScope scope25 = HealthStateScope.forStage("blahPipeline", "blahOtherStage");
         HealthStateScope scope3 = HealthStateScope.forStage("blahOtherPipeline", "blahOtherStage");
 
-        assertThat(scope1, is(scope2));
-        assertThat(scope1, not(scope25));
-        assertThat(scope1, not(scope3));
+        assertThat(scope1).isEqualTo(scope2);
+        assertThat(scope1).isNotEqualTo(scope25);
+        assertThat(scope1).isNotEqualTo(scope3);
     }
 
     @Test
@@ -73,8 +71,8 @@ public class HealthStateScopeTest {
         HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();
         CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
         config.pipelineConfigByName(new CaseInsensitiveString("blahPipeline")).addMaterialConfig(hgMaterialConfig);
-        assertThat(HealthStateScope.forMaterialConfig(hgMaterialConfig).isRemovedFromConfig(config), is(false));
-        assertThat(HealthStateScope.forMaterial(MaterialsMother.svnMaterial("file:///bar")).isRemovedFromConfig(config), is(true));
+        assertThat(HealthStateScope.forMaterialConfig(hgMaterialConfig).isRemovedFromConfig(config)).isFalse();
+        assertThat(HealthStateScope.forMaterial(MaterialsMother.svnMaterial("file:///bar")).isRemovedFromConfig(config)).isTrue();
     }
 
     @Test
@@ -82,7 +80,7 @@ public class HealthStateScopeTest {
         HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();
         CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
         config.getConfigRepos().add(ConfigRepoConfig.createConfigRepoConfig(hgMaterialConfig, "id1", "foo"));
-        assertThat(HealthStateScope.forMaterialConfig(hgMaterialConfig).isRemovedFromConfig(config), is(false));
+        assertThat(HealthStateScope.forMaterialConfig(hgMaterialConfig).isRemovedFromConfig(config)).isFalse();
     }
 
     @Test
@@ -90,18 +88,18 @@ public class HealthStateScopeTest {
         HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();
         CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
         config.getConfigRepos().add(ConfigRepoConfig.createConfigRepoConfig(hgMaterialConfig, "id1", "foo"));
-        assertThat(HealthStateScope.forMaterialConfigUpdate(hgMaterialConfig).isRemovedFromConfig(config), is(false));
+        assertThat(HealthStateScope.forMaterialConfigUpdate(hgMaterialConfig).isRemovedFromConfig(config)).isFalse();
     }
 
     @Test
     public void shouldRemoveScopeWhenStageIsRemovedFromConfig() {
         CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
-        assertThat(HealthStateScope.forPipeline("fooPipeline").isRemovedFromConfig(config), is(true));
-        assertThat(HealthStateScope.forPipeline("blahPipeline").isRemovedFromConfig(config), is(false));
+        assertThat(HealthStateScope.forPipeline("fooPipeline").isRemovedFromConfig(config)).isTrue();
+        assertThat(HealthStateScope.forPipeline("blahPipeline").isRemovedFromConfig(config)).isFalse();
 
-        assertThat(HealthStateScope.forStage("fooPipeline", "blahStage").isRemovedFromConfig(config), is(true));
-        assertThat(HealthStateScope.forStage("blahPipeline", "blahStageRemoved").isRemovedFromConfig(config), is(true));
-        assertThat(HealthStateScope.forStage("blahPipeline", "blahStage").isRemovedFromConfig(config), is(false));
+        assertThat(HealthStateScope.forStage("fooPipeline", "blahStage").isRemovedFromConfig(config)).isTrue();
+        assertThat(HealthStateScope.forStage("blahPipeline", "blahStageRemoved").isRemovedFromConfig(config)).isTrue();
+        assertThat(HealthStateScope.forStage("blahPipeline", "blahStage").isRemovedFromConfig(config)).isFalse();
 
     }
 
@@ -109,14 +107,14 @@ public class HealthStateScopeTest {
     public void shouldRemoveScopeWhenJobIsRemovedFromConfig() {
         CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
 
-        assertThat(HealthStateScope.forJob("fooPipeline", "blahStage", "barJob").isRemovedFromConfig(config), is(true));
-        assertThat(HealthStateScope.forJob("blahPipeline", "blahStage", "blahJob").isRemovedFromConfig(config), is(false));
+        assertThat(HealthStateScope.forJob("fooPipeline", "blahStage", "barJob").isRemovedFromConfig(config)).isTrue();
+        assertThat(HealthStateScope.forJob("blahPipeline", "blahStage", "blahJob").isRemovedFromConfig(config)).isFalse();
     }
 
     @Test
     public void shouldUnderstandPluginScope() {
         HealthStateScope scope = HealthStateScope.aboutPlugin("plugin.one");
-        assertThat(scope.getScope(), is("plugin.one"));
-        assertThat(scope.getType(), is(HealthStateScope.ScopeType.PLUGIN));
+        assertThat(scope.getScope()).isEqualTo("plugin.one");
+        assertThat(scope.getType()).isEqualTo(HealthStateScope.ScopeType.PLUGIN);
     }
 }

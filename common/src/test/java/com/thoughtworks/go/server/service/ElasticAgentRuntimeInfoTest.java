@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ElasticAgentRuntimeInfoTest {
 
@@ -42,21 +41,21 @@ public class ElasticAgentRuntimeInfoTest {
 
         agentRuntimeInfo.updateSelf(newRuntimeInfo);
 
-        assertThat(agentRuntimeInfo.getBuildingInfo(), is(newRuntimeInfo.getBuildingInfo()));
-        assertThat(agentRuntimeInfo.getLocation(), is(newRuntimeInfo.getLocation()));
-        assertThat(agentRuntimeInfo.getUsableSpace(), is(newRuntimeInfo.getUsableSpace()));
-        assertThat(agentRuntimeInfo.getOperatingSystem(), is(newRuntimeInfo.getOperatingSystem()));
-        assertThat(agentRuntimeInfo.getElasticAgentId(), is(newRuntimeInfo.getElasticAgentId()));
-        assertThat(agentRuntimeInfo.getElasticPluginId(), is(newRuntimeInfo.getElasticPluginId()));
-        assertThat(agentRuntimeInfo.getAgentVersion(), is("20.5.0-2345"));
-        assertThat(agentRuntimeInfo.getAgentBootstrapperVersion(), is("20.3.0-1234"));
+        assertThat(agentRuntimeInfo.getBuildingInfo()).isEqualTo(newRuntimeInfo.getBuildingInfo());
+        assertThat(agentRuntimeInfo.getLocation()).isEqualTo(newRuntimeInfo.getLocation());
+        assertThat(agentRuntimeInfo.getUsableSpace()).isEqualTo(newRuntimeInfo.getUsableSpace());
+        assertThat(agentRuntimeInfo.getOperatingSystem()).isEqualTo(newRuntimeInfo.getOperatingSystem());
+        assertThat(agentRuntimeInfo.getElasticAgentId()).isEqualTo(newRuntimeInfo.getElasticAgentId());
+        assertThat(agentRuntimeInfo.getElasticPluginId()).isEqualTo(newRuntimeInfo.getElasticPluginId());
+        assertThat(agentRuntimeInfo.getAgentVersion()).isEqualTo("20.5.0-2345");
+        assertThat(agentRuntimeInfo.getAgentBootstrapperVersion()).isEqualTo("20.3.0-1234");
     }
 
     @Test
     public void shouldRefreshOperatingSystemOfAgent() {
         AgentIdentifier identifier = new AgentIdentifier("local.in", "127.0.0.1", "uuid-1");
         AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, "/tmp/foo", "20.3.0-1234", "20.5.0-2345", TEST_OS_SUPPLIER);
-        assertThat(runtimeInfo.getOperatingSystem(), is("My OS 10.1"));
+        assertThat(runtimeInfo.getOperatingSystem()).isEqualTo("My OS 10.1");
     }
 
     @Test
@@ -65,7 +64,7 @@ public class ElasticAgentRuntimeInfoTest {
         String workingDirectory = FileUtils.getTempDirectory().getAbsolutePath();
         AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, workingDirectory, "20.3.0-1234", "20.5.0-2345", TEST_OS_SUPPLIER);
         long space = ElasticAgentRuntimeInfo.usableSpace(workingDirectory);
-        assertThat(runtimeInfo.getUsableSpace(), is(space));
+        assertThat(runtimeInfo.getUsableSpace()).isEqualTo(space);
     }
 
     @Test
@@ -74,7 +73,7 @@ public class ElasticAgentRuntimeInfoTest {
         String workingDirectory = FileUtils.getTempDirectory().getAbsolutePath();
         AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, workingDirectory, "20.3.0-1234", "20.5.0-2345", TEST_OS_SUPPLIER);
 
-        assertThat(runtimeInfo.getAgentVersion(), is("20.5.0-2345"));
-        assertThat(runtimeInfo.getAgentBootstrapperVersion(), is("20.3.0-1234"));
+        assertThat(runtimeInfo.getAgentVersion()).isEqualTo("20.5.0-2345");
+        assertThat(runtimeInfo.getAgentBootstrapperVersion()).isEqualTo("20.3.0-1234");
     }
 }

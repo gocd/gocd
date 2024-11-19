@@ -27,8 +27,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -65,8 +64,7 @@ public class StageApprovalAuthorizationTest {
         StageConfig stage = StageConfigMother.custom("ft", authConfigWithUserJez);
         PipelineConfig pipeline = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, stage);
 
-        assertThat("User jez should have permission on ft stage",
-                securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "jez"), is(true));
+        assertThat(securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "jez")).isTrue();
     }
 
     @Test
@@ -77,8 +75,7 @@ public class StageApprovalAuthorizationTest {
         StageConfig stage = StageConfigMother.custom("test", authConfigWithAdminRole);
         PipelineConfig pipeline = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, stage);
 
-        assertThat("User tester should have permission on test stage",
-                securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "tester"), is(true));
+        assertThat(securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "tester")).isTrue();
 
     }
 
@@ -87,8 +84,8 @@ public class StageApprovalAuthorizationTest {
         CONFIG_HELPER.addSecurityWithAdminConfig();
         CONFIG_HELPER.setOperatePermissionForGroup(DEFAULT_GROUP, "user1");
 
-        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "user1"), is(true));
-        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "anyone"), is(false));
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "user1")).isTrue();
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "anyone")).isFalse();
     }
 
     @Test
@@ -97,8 +94,8 @@ public class StageApprovalAuthorizationTest {
         CONFIG_HELPER.setOperatePermissionForGroup(DEFAULT_GROUP, "user1", "jez");
         CONFIG_HELPER.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "jez");
 
-        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "jez"), is(true));
-        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "user1"), is(false));
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "jez")).isTrue();
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "user1")).isFalse();
     }
 
     @Test
@@ -106,8 +103,8 @@ public class StageApprovalAuthorizationTest {
         CONFIG_HELPER.addSecurityWithAdminConfig();
         CONFIG_HELPER.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "jez");
 
-        assertThat(securityService.hasOperatePermissionForFirstStage(PIPELINE_NAME, "jez"), is(true));
-        assertThat(securityService.hasOperatePermissionForFirstStage(PIPELINE_NAME, "anyone"), is(false));
+        assertThat(securityService.hasOperatePermissionForFirstStage(PIPELINE_NAME, "jez")).isTrue();
+        assertThat(securityService.hasOperatePermissionForFirstStage(PIPELINE_NAME, "anyone")).isFalse();
     }
 
     @Test
@@ -116,8 +113,7 @@ public class StageApprovalAuthorizationTest {
         StageConfig stage = StageConfigMother.custom("ft", authConfigWithUserJez);
         PipelineConfig pipeline = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, stage);
 
-        assertThat("User hacker should not have permission on ft stage",
-                securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "hacker"), is(false));
+        assertThat(securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "hacker")).isFalse();
     }
 
     @Test
@@ -125,8 +121,7 @@ public class StageApprovalAuthorizationTest {
         StageConfig stage = StageConfigMother.custom("ft", authConfigWithUserJez);
         PipelineConfig pipeline = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, stage);
 
-        assertThat("User hacker should have permission on ft stage since security is turned off",
-                securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "hacker"), is(true));
+        assertThat(securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "hacker")).isTrue();
     }
 
     @Test
@@ -135,7 +130,7 @@ public class StageApprovalAuthorizationTest {
         CONFIG_HELPER.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "cruise");
         StageConfig stage = StageConfigMother.custom("ft", new Approval(new AuthConfig(new AdminUser(new CaseInsensitiveString("cruise")))));
         PipelineConfig pipeline = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, stage);
-        assertThat(securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "cruise"), is(true));
-        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "anyone"), is(false));
+        assertThat(securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "cruise")).isTrue();
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "anyone")).isFalse();
     }
 }

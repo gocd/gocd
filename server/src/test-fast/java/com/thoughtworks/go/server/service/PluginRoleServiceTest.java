@@ -27,8 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -60,8 +59,8 @@ public class PluginRoleServiceTest {
 
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird"));
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasSize(1));
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).hasSize(1);
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).contains(new RoleUser("bob"));
     }
 
     @Test
@@ -73,10 +72,10 @@ public class PluginRoleServiceTest {
 
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird", "spacetiger"));
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasSize(1));
-        assertThat(pluginRoleService.usersForPluginRole("spacetiger"), hasSize(0));
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
-        assertThat(pluginRoleService.usersForPluginRole("spacetiger"), not(hasItem(new RoleUser("bob"))));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).hasSize(1);
+        assertThat(pluginRoleService.usersForPluginRole("spacetiger")).hasSize(0);
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).contains(new RoleUser("bob"));
+        assertThat(pluginRoleService.usersForPluginRole("spacetiger")).doesNotContain(new RoleUser("bob"));
     }
 
     @Test
@@ -87,9 +86,9 @@ public class PluginRoleServiceTest {
 
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "alice", CaseInsensitiveString.list("blackbird", "non_existent_role"));
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasSize(1));
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("alice")));
-        assertThat(pluginRoleService.usersForPluginRole("non_existent_role"), hasSize(0));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).hasSize(1);
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).contains(new RoleUser("alice"));
+        assertThat(pluginRoleService.usersForPluginRole("non_existent_role")).hasSize(0);
     }
 
     @Test
@@ -101,9 +100,9 @@ public class PluginRoleServiceTest {
 
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird", "non_existent_role", "go_system_admin"));
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
-        assertThat(pluginRoleService.usersForPluginRole("non_existent_role"), hasSize(0));
-        assertThat(pluginRoleService.usersForPluginRole("go_system_admin"), hasSize(0));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).contains(new RoleUser("bob"));
+        assertThat(pluginRoleService.usersForPluginRole("non_existent_role")).hasSize(0);
+        assertThat(pluginRoleService.usersForPluginRole("go_system_admin")).hasSize(0);
     }
 
     @Test
@@ -115,13 +114,13 @@ public class PluginRoleServiceTest {
 
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird", "spacetiger"));
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
-        assertThat(pluginRoleService.usersForPluginRole("spacetiger"), hasItem(new RoleUser("bob")));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).contains(new RoleUser("bob"));
+        assertThat(pluginRoleService.usersForPluginRole("spacetiger")).contains(new RoleUser("bob"));
 
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird"));
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
-        assertThat(pluginRoleService.usersForPluginRole("spacetiger"), not(hasItem(new RoleUser("bob"))));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).contains(new RoleUser("bob"));
+        assertThat(pluginRoleService.usersForPluginRole("spacetiger")).doesNotContain(new RoleUser("bob"));
     }
 
     @Test
@@ -133,13 +132,13 @@ public class PluginRoleServiceTest {
 
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird"));
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
-        assertThat(pluginRoleService.usersForPluginRole("spacetiger"), not(hasItem(new RoleUser("bob"))));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).contains(new RoleUser("bob"));
+        assertThat(pluginRoleService.usersForPluginRole("spacetiger")).doesNotContain(new RoleUser("bob"));
 
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird", "spacetiger"));
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
-        assertThat(pluginRoleService.usersForPluginRole("spacetiger"), hasItem(new RoleUser("bob")));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).contains(new RoleUser("bob"));
+        assertThat(pluginRoleService.usersForPluginRole("spacetiger")).contains(new RoleUser("bob"));
 
     }
 
@@ -153,15 +152,15 @@ public class PluginRoleServiceTest {
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob",
                 CaseInsensitiveString.list("blackbird", "spacetiger"));
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
-        assertThat(pluginRoleService.usersForPluginRole("spacetiger"), hasItem(new RoleUser("bob")));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).contains(new RoleUser("bob"));
+        assertThat(pluginRoleService.usersForPluginRole("spacetiger")).contains(new RoleUser("bob"));
 
         BasicCruiseConfig newCruiseConfig = GoConfigMother.defaultCruiseConfig();
         newCruiseConfig.server().security().addRole(new PluginRoleConfig("blackbird", "github"));
         pluginRoleService.onConfigChange(newCruiseConfig);
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
-        assertThat(pluginRoleService.usersForPluginRole("spacetiger"), hasSize(0));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).contains(new RoleUser("bob"));
+        assertThat(pluginRoleService.usersForPluginRole("spacetiger")).hasSize(0);
     }
 
     @Test
@@ -175,14 +174,14 @@ public class PluginRoleServiceTest {
 
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird"));
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasSize(1));
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).hasSize(1);
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).contains(new RoleUser("bob"));
 
         when(goPluginDescriptor.id()).thenReturn("cd.go.authorization.github");
 
         pluginRoleService.pluginUnLoaded(goPluginDescriptor);
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasSize(0));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).hasSize(0);
     }
 
     @Test
@@ -200,7 +199,7 @@ public class PluginRoleServiceTest {
 
         pluginRoleService.invalidateRolesFor("cd.go.authorization.github");
 
-        assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasSize(0));
-        assertThat(pluginRoleService.usersForPluginRole("spacetiger"), hasSize(1));
+        assertThat(pluginRoleService.usersForPluginRole("blackbird")).hasSize(0);
+        assertThat(pluginRoleService.usersForPluginRole("spacetiger")).hasSize(1);
     }
 }

@@ -18,27 +18,26 @@ package com.thoughtworks.go.plugin.api.material.packagerepository;
 import com.thoughtworks.go.plugin.api.config.Property;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PackageMaterialPropertyTest {
 
     @Test
-    public void validatePackagePropertyDefaults() throws Exception {
+    public void validatePackagePropertyDefaults() {
         PackageMaterialProperty packageMaterialProperty = new PackageMaterialProperty("Test-Property");
-        assertThat(packageMaterialProperty.getOptions().size(), is(5));
-        assertThat(packageMaterialProperty.getOption(Property.REQUIRED), is(true));
-        assertThat(packageMaterialProperty.getOption(Property.PART_OF_IDENTITY), is(true));
-        assertThat(packageMaterialProperty.getOption(Property.SECURE), is(false));
-        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_NAME), is(""));
-        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_ORDER), is(0));
+        assertThat(packageMaterialProperty.getOptions().size()).isEqualTo(5);
+        assertThat(packageMaterialProperty.getOption(Property.REQUIRED)).isTrue();
+        assertThat(packageMaterialProperty.getOption(Property.PART_OF_IDENTITY)).isTrue();
+        assertThat(packageMaterialProperty.getOption(Property.SECURE)).isFalse();
+        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_NAME)).isEqualTo("");
+        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_ORDER)).isEqualTo(0);
 
         packageMaterialProperty = new PackageMaterialProperty("Test-Property", "Dummy Value");
-        assertThat(packageMaterialProperty.getOptions().size(), is(5));
-        assertThat(packageMaterialProperty.getOption(Property.REQUIRED), is(true));
-        assertThat(packageMaterialProperty.getOption(Property.PART_OF_IDENTITY), is(true));
-        assertThat(packageMaterialProperty.getOption(Property.SECURE), is(false));
-        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_NAME), is(""));
-        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_ORDER), is(0));
+        assertThat(packageMaterialProperty.getOptions().size()).isEqualTo(5);
+        assertThat(packageMaterialProperty.getOption(Property.REQUIRED)).isTrue();
+        assertThat(packageMaterialProperty.getOption(Property.PART_OF_IDENTITY)).isTrue();
+        assertThat(packageMaterialProperty.getOption(Property.SECURE)).isFalse();
+        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_NAME)).isEqualTo("");
+        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_ORDER)).isEqualTo(0);
     }
 }

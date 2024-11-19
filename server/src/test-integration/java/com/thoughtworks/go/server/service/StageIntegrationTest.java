@@ -43,8 +43,7 @@ import java.nio.file.Path;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.AGENT_UUID;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -96,7 +95,7 @@ public class StageIntegrationTest {
         createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
 
         Stages stages = pipelineService.mostRecentFullPipelineByName(PIPELINE_NAME).getStages();
-        assertThat("ft stage should come after dev stage", stages.byName(FT_STAGE).getOrderId() > stages.byName(DEV_STAGE).getOrderId(), is(true));
+        assertThat(stages.byName(FT_STAGE).getOrderId()).isGreaterThan(stages.byName(DEV_STAGE).getOrderId());
     }
 
     private Stage createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState stageState) throws Exception {

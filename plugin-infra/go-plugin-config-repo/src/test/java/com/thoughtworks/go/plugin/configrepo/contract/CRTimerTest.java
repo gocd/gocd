@@ -19,8 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CRTimerTest extends AbstractCRTest<CRTimer> {
@@ -53,8 +52,8 @@ public class CRTimerTest extends AbstractCRTest<CRTimer> {
                   }""";
         CRTimer deserializedValue = gson.fromJson(json,CRTimer.class);
 
-        assertThat(deserializedValue.getSpec(),is("0 0 22 ? * MON-FRI"));
-        assertThat(deserializedValue.isOnlyOnChanges(),is(true));
+        assertThat(deserializedValue.getSpec()).isEqualTo("0 0 22 ? * MON-FRI");
+        assertThat(deserializedValue.isOnlyOnChanges()).isTrue();
 
         ErrorCollection errors = deserializedValue.getErrors();
         assertTrue(errors.isEmpty());

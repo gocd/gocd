@@ -54,8 +54,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -136,9 +135,9 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
 
         }
         List<ServerHealthState> stateList = serverHealthService.logsSortedForScope(HealthStateScope.forStage("blahPipeline", "blahStage"));
-        assertThat(stateList.size(), is(1));
-        assertThat(stateList.get(0).getMessage(), is("Failed to trigger stage [blahStage] pipeline [blahPipeline]"));
-        assertThat(stateList.get(0).getDescription(), is("Could not find matching agents to run job [job2] of stage [blahStage]."));
+        assertThat(stateList.size()).isEqualTo(1);
+        assertThat(stateList.get(0).getMessage()).isEqualTo("Failed to trigger stage [blahStage] pipeline [blahPipeline]");
+        assertThat(stateList.get(0).getDescription()).isEqualTo("Could not find matching agents to run job [job2] of stage [blahStage].");
     }
 
     @Test
@@ -146,9 +145,9 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
         pipelineScheduleQueue.schedule(new CaseInsensitiveString("blahPipeline"), saveMaterials(modifySomeFiles(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("blahPipeline")))));
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         List<ServerHealthState> stateList = serverHealthService.logsSortedForScope(HealthStateScope.forStage("blahPipeline", "blahStage"));
-        assertThat(stateList.size(), is(1));
-        assertThat(stateList.get(0).getMessage(), is("Failed to trigger stage [blahStage] pipeline [blahPipeline]"));
-        assertThat(stateList.get(0).getDescription(), is("Could not find matching agents to run job [job2] of stage [blahStage]."));
+        assertThat(stateList.size()).isEqualTo(1);
+        assertThat(stateList.get(0).getMessage()).isEqualTo("Failed to trigger stage [blahStage] pipeline [blahPipeline]");
+        assertThat(stateList.get(0).getDescription()).isEqualTo("Could not find matching agents to run job [job2] of stage [blahStage].");
     }
 
     private BuildCause saveMaterials(BuildCause buildCause) {

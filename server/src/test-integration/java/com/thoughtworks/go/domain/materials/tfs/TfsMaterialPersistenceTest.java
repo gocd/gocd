@@ -32,8 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -69,7 +68,7 @@ public class TfsMaterialPersistenceTest {
         MaterialInstance tfsInstance = materialRepository.findOrCreateFrom(tfsCfg);
 
         Material material = tfsInstance.toOldMaterial("materialName", "folder", "password");
-        assertThat(material, is(tfsCfg));
+        assertThat(material).isEqualTo(tfsCfg);
     }
 
     @Test
@@ -79,14 +78,14 @@ public class TfsMaterialPersistenceTest {
         goCache.clear();
         MaterialInstance tfsInstance2 = materialRepository.findOrCreateFrom(tfsCfg);
 
-        assertThat(tfsInstance1, is(tfsInstance2));
+        assertThat(tfsInstance1).isEqualTo(tfsInstance2);
     }
 
     @Test
     public void shouldSaveMaterialInstance() throws Exception {
         TfsMaterial tfsCfg = new TfsMaterial(new UrlArgument("url"), "loser", "CORPORATE", "foo_bar_baz", "/dev/null");
         MaterialInstance materialInstance = materialRepository.findOrCreateFrom(tfsCfg);
-        assertThat(materialRepository.findMaterialInstance(tfsCfg), is(materialInstance));
+        assertThat(materialRepository.findMaterialInstance(tfsCfg)).isEqualTo(materialInstance);
     }
 
 }

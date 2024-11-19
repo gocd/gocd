@@ -45,10 +45,10 @@ import static org.mockito.Mockito.*
 @MockitoSettings(strictness = Strictness.LENIENT)
 class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, ControllerTrait<TemplateAuthorizationControllerV1> {
   @Mock
-  EntityHashingService entityHashingService;
+  EntityHashingService entityHashingService
 
   @Mock
-  TemplateConfigService templateConfigService;
+  TemplateConfigService templateConfigService
 
 
   @Override

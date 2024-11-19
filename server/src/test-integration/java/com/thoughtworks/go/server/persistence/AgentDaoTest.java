@@ -36,10 +36,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Fail.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -87,7 +86,7 @@ public class AgentDaoTest {
             Agent agent = new Agent("uuid", "localhost", "127.0.0.1", "cookie");
             agentDao.saveOrUpdate(agent);
             Agent agentFromDB = agentDao.getAgentByUUIDFromCacheOrDB(agent.getUuid());
-            assertThat(agent, is(agentFromDB));
+            assertThat(agent).isEqualTo(agentFromDB);
         }
 
         @Test
@@ -95,7 +94,7 @@ public class AgentDaoTest {
             Agent agent = new Agent("uuid", "localhost", "127.0.0.1", "cookie");
             agentDao.saveOrUpdate(agent);
             Agent agentFromDB = agentDao.fetchAgentFromDBByUUID(agent.getUuid());
-            assertThat(agent, is(agentFromDB));
+            assertThat(agent).isEqualTo(agentFromDB);
         }
 
         @Test
@@ -106,10 +105,10 @@ public class AgentDaoTest {
             agentDao.bulkSoftDelete(List.of(uuid));
 
             Agent agentFromDB = agentDao.fetchAgentFromDBByUUID(uuid);
-            assertThat(agentFromDB, is(nullValue()));
+            assertThat(agentFromDB).isNull();
 
             agentFromDB = agentDao.fetchAgentFromDBByUUIDIncludingDeleted(uuid);
-            assertThat(agentFromDB, is(agent));
+            assertThat(agentFromDB).isEqualTo(agent);
         }
 
         @Test
@@ -130,9 +129,9 @@ public class AgentDaoTest {
 
             List<Agent> agents = agentDao.getAgentsByUUIDs(List.of(uuid1, uuid2, uuid3));
 
-            assertThat(agents.size(), is(2));
-            assertThat(agents.get(0).getUuid(), is(uuid1));
-            assertThat(agents.get(1).getUuid(), is(uuid3));
+            assertThat(agents.size()).isEqualTo(2);
+            assertThat(agents.get(0).getUuid()).isEqualTo(uuid1);
+            assertThat(agents.get(1).getUuid()).isEqualTo(uuid3);
         }
 
         @Test
@@ -153,33 +152,33 @@ public class AgentDaoTest {
 
             List<Agent> allAgents = agentDao.getAllAgents();
 
-            assertThat(allAgents.size(), is(2));
-            assertThat(allAgents.get(0).getUuid(), is(uuid1));
-            assertThat(allAgents.get(1).getUuid(), is(uuid3));
+            assertThat(allAgents.size()).isEqualTo(2);
+            assertThat(allAgents.get(0).getUuid()).isEqualTo(uuid1);
+            assertThat(allAgents.get(1).getUuid()).isEqualTo(uuid3);
         }
 
         @Test
         void shouldReturnNullWhenUnknownUUIDIsSpecifiedInGetAgentByUUID() {
             Agent agent = agentDao.getAgentByUUIDFromCacheOrDB("uuid-that-does-not-exist");
-            assertThat(agent, is(nullValue()));
+            assertThat(agent).isNull();
         }
 
         @Test
         void shouldReturnNullWhenUnknownUUIDIsSpecifiedInFetchAgentFromDBByUUID() {
             Agent agent = agentDao.fetchAgentFromDBByUUID("uuid-that-does-not-exist");
-            assertThat(agent, is(nullValue()));
+            assertThat(agent).isNull();
         }
 
         @Test
         void shouldReturnEmptyListWhenUnknownUUIDsAreSpecifiedInGetAgentsByUUIDs() {
             List<Agent> agents = agentDao.getAgentsByUUIDs(List.of("uuid-that-does-not-exist"));
-            assertThat(agents, is(emptyList()));
+            assertThat(agents).isEqualTo(emptyList());
         }
 
         @Test
         void shouldReturnEmptyListByGetAllAgentsWhenNoAgentExistsInDB() {
             List<Agent> agents = agentDao.getAllAgents();
-            assertThat(agents, is(emptyList()));
+            assertThat(agents).isEqualTo(emptyList());
         }
     }
 
@@ -220,9 +219,9 @@ public class AgentDaoTest {
             associateCookieAndVerifyThatCookieIsAssociated(agentIdentifier, updatedCookie);
 
             Agent agent = fetchAgentFromDBByUUID(agentIdentifier);
-            assertThat(agent.getCookie(), is(updatedCookie));
-            assertThat(agent.getHostname(), is(agentIdentifier.getHostName()));
-            assertThat(agent.getIpaddress(), is(agentIdentifier.getIpAddress()));
+            assertThat(agent.getCookie()).isEqualTo(updatedCookie);
+            assertThat(agent.getHostname()).isEqualTo(agentIdentifier.getHostName());
+            assertThat(agent.getIpaddress()).isEqualTo(agentIdentifier.getIpAddress());
         }
 
         @Test
@@ -231,16 +230,16 @@ public class AgentDaoTest {
             associateCookieAndVerifyThatCookieIsAssociated(agentIdentifier, "cookie");
             updateCookieAndVerifyThatCookieIsUpdated(agentIdentifier, "updated_cookie");
 
-            assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
+            assertThat(agentDao.cookieFor(agentIdentifier)).isEqualTo("cookie");
 
             goCache.clear();
-            assertThat(agentDao.cookieFor(agentIdentifier), is("updated_cookie"));
+            assertThat(agentDao.cookieFor(agentIdentifier)).isEqualTo("updated_cookie");
         }
 
         @Test
         public void shouldReturnNullWhenNoCookieIsAssociatedWithAgent() {
             AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid1");
-            assertThat(agentDao.cookieFor(agentIdentifier), is(nullValue()));
+            assertThat(agentDao.cookieFor(agentIdentifier)).isNull();
         }
 
         @Test
@@ -256,7 +255,7 @@ public class AgentDaoTest {
                 return null;
             });
             Agent agent = fetchAgentFromDBByUUID(agentIdentifier);
-            assertThat(agent.getCookie(), is("updated_cookie"));
+            assertThat(agent.getCookie()).isEqualTo("updated_cookie");
 
             agentDao.setHibernateTemplate(mockHibernateTemplate);
             doThrow(new RuntimeException("holy smoke")).when(mockHibernateTemplate).saveOrUpdate(any(Agent.class));
@@ -265,9 +264,9 @@ public class AgentDaoTest {
                 agentDao.associateCookie(agentIdentifier, "cookie");
                 fail("should have propagated saveOrUpdate exception");
             } catch (Exception e) {
-                assertThat(e.getMessage(), is("holy smoke"));
+                assertThat(e.getMessage()).isEqualTo("holy smoke");
             }
-            assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
+            assertThat(agentDao.cookieFor(agentIdentifier)).isEqualTo("cookie");
             verify(mockListener, never()).entityChanged(any(Agent.class));
             agentDao.setHibernateTemplate(originalTemplate);
         }
@@ -280,7 +279,7 @@ public class AgentDaoTest {
                 return null;
             });
             Agent agent = fetchAgentFromDBByUUID(agentIdentifier);
-            assertThat(agent.getCookie(), is(updatedCookie));
+            assertThat(agent.getCookie()).isEqualTo(updatedCookie);
         }
 
         private void associateCookieAndVerifyFromDBThatCookieIsAssociated(AgentIdentifier agentIdentifier, String cookie) {
@@ -289,7 +288,7 @@ public class AgentDaoTest {
             agentDao.saveOrUpdate(agent);
             agentDao.associateCookie(agentIdentifier, "cookie");
             Agent agentFromDB = fetchAgentFromDBByUUID(agentIdentifier);
-            assertThat(agentFromDB.getCookie(), is(cookie));
+            assertThat(agentFromDB.getCookie()).isEqualTo(cookie);
         }
 
         private void associateCookieAndVerifyThatCookieIsAssociated(AgentIdentifier agentIdentifier, String cookie) {
@@ -297,7 +296,7 @@ public class AgentDaoTest {
             agent.setCookie("dummy-cookie");
             agentDao.saveOrUpdate(agent);
             agentDao.associateCookie(agentIdentifier, cookie);
-            assertThat(agentDao.cookieFor(agentIdentifier), is(cookie));
+            assertThat(agentDao.cookieFor(agentIdentifier)).isEqualTo(cookie);
         }
     }
 
@@ -343,13 +342,13 @@ public class AgentDaoTest {
 
             agentDao.bulkUpdateAgents(List.of(agent1, agent3));
 
-            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent1.getUuid()).getResources(), is("r3,r4"));
-            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getResources(), is("r1"));
-            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent3.getUuid()).getResources(), is("r3,r4"));
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent1.getUuid()).getResources()).isEqualTo("r3,r4");
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getResources()).isEqualTo("r1");
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent3.getUuid()).getResources()).isEqualTo("r3,r4");
 
-            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent1.getUuid()).getEnvironments(), is("e2,e4"));
-            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getEnvironments(), is(emptyString()));
-            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent3.getUuid()).getEnvironments(), is("e2,e4"));
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent1.getUuid()).getEnvironments()).isEqualTo("e2,e4");
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getEnvironments()).isEmpty();
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent3.getUuid()).getEnvironments()).isEqualTo("e2,e4");
         }
 
         @Test
@@ -365,7 +364,7 @@ public class AgentDaoTest {
 
             agentDao.bulkSoftDelete(List.of(uuid1, uuid2));
 
-            assertThat(agentDao.getAgentsByUUIDs(List.of(uuid1, uuid2)), is(emptyList()));
+            assertThat(agentDao.getAgentsByUUIDs(List.of(uuid1, uuid2))).isEqualTo(emptyList());
         }
 
         @Test
@@ -382,7 +381,7 @@ public class AgentDaoTest {
             List<String> disabledUuids = List.of(disabledUUID1, disabledUUID2);
             agentDao.disableAgents(disabledUuids);
 
-            disabledUuids.forEach(uuid -> assertThat(agentDao.getAgentByUUIDFromCacheOrDB(uuid).isDisabled(), is(true)));
+            disabledUuids.forEach(uuid -> assertThat(agentDao.getAgentByUUIDFromCacheOrDB(uuid).isDisabled()).isEqualTo(true));
         }
     }
 

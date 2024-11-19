@@ -82,12 +82,10 @@ import java.util.stream.Stream;
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -142,7 +140,7 @@ public class MaterialServiceTest {
 
         List<MatchedRevision> expected = List.of(new MatchedRevision("23", "revision", "revision", "user", new DateTime(2009, 10, 10, 12, 0, 0, 0).toDate(), "comment"));
         when(materialRepository.findRevisionsMatching(materialConfig, "23")).thenReturn(expected);
-        assertThat(materialService.searchRevisions("pipeline", "sha", "23", username, operationResult), is(expected));
+        assertThat(materialService.searchRevisions("pipeline", "sha", "23", username, operationResult)).isEqualTo(expected);
     }
 
     @Test
@@ -257,7 +255,7 @@ public class MaterialServiceTest {
         SubprocessExecutionContext execCtx = mock(SubprocessExecutionContext.class);
         doReturn(klass).when(spy).getMaterialClass(material);
         List<Modification> actual = spy.latestModification(material, null, execCtx);
-        assertThat(actual, is(MODIFICATIONS));
+        assertThat(actual).isEqualTo(MODIFICATIONS);
     }
 
     @ParameterizedTest
@@ -268,7 +266,7 @@ public class MaterialServiceTest {
         MaterialService spy = spy(materialService);
         doReturn(klass).when(spy).getMaterialClass(material);
         List<Modification> actual = spy.modificationsSince(material, null, revision, execCtx);
-        assertThat(actual, is(MODIFICATIONS));
+        assertThat(actual).isEqualTo(MODIFICATIONS);
     }
 
     @ParameterizedTest
@@ -293,7 +291,7 @@ public class MaterialServiceTest {
             materialService.latestModification(mock(Material.class), null, null);
             fail("Should have thrown up");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("unknown material type null"));
+            assertThat(e.getMessage()).isEqualTo("unknown material type null");
         }
     }
 
@@ -337,7 +335,7 @@ public class MaterialServiceTest {
 
 
         List<Modification> modifications = materialService.latestModification(material, null, null);
-        assertThat(modifications.get(0).getRevision(), is("blah-123"));
+        assertThat(modifications.get(0).getRevision()).isEqualTo("blah-123");
     }
 
     @Test
@@ -351,7 +349,7 @@ public class MaterialServiceTest {
                 any(RepositoryConfiguration.class),
                 any(PackageRevision.class))).thenReturn(new PackageRevision("new-revision-456", new Date(), "user"));
         List<Modification> modifications = materialService.modificationsSince(material, null, new PackageMaterialRevision("revision-124", new Date()), null);
-        assertThat(modifications.get(0).getRevision(), is("new-revision-456"));
+        assertThat(modifications.get(0).getRevision()).isEqualTo("new-revision-456");
     }
 
     @Test
@@ -364,7 +362,7 @@ public class MaterialServiceTest {
 
         List<Modification> modifications = materialService.latestModification(pluggableSCMMaterial, new File("/tmp/flyweight"), null);
 
-        assertThat(modifications.get(0).getRevision(), is("blah-123"));
+        assertThat(modifications.get(0).getRevision()).isEqualTo("blah-123");
     }
 
     @Test
@@ -379,7 +377,7 @@ public class MaterialServiceTest {
         PluggableSCMMaterialRevision previouslyKnownRevision = new PluggableSCMMaterialRevision("revision-124", new Date());
         List<Modification> modifications = materialService.modificationsSince(pluggableSCMMaterial, new File("/tmp/flyweight"), previouslyKnownRevision, null);
 
-        assertThat(modifications.get(0).getRevision(), is("new-revision-456"));
+        assertThat(modifications.get(0).getRevision()).isEqualTo("new-revision-456");
     }
 
     @Test
@@ -393,7 +391,7 @@ public class MaterialServiceTest {
 
         Long totalCount = materialService.getTotalModificationsFor(materialConfig);
 
-        assertThat(totalCount, is(1L));
+        assertThat(totalCount).isEqualTo(1L);
     }
 
     @Test
@@ -410,7 +408,7 @@ public class MaterialServiceTest {
 
         Modifications gotModifications = materialService.getModificationsFor(materialConfig, pagination);
 
-        assertThat(gotModifications, is(modifications));
+        assertThat(gotModifications).isEqualTo(modifications);
     }
 
     @Test
@@ -426,7 +424,7 @@ public class MaterialServiceTest {
         Map<String, Modification> modificationsMap = materialService.getLatestModificationForEachMaterial();
 
         assertEquals(modificationsMap.size(), 1);
-        assertThat(modificationsMap.keySet(), containsInAnyOrder(instance.getFingerprint()));
+        assertThat(modificationsMap.keySet()).contains(instance.getFingerprint());
         assertEquals(modificationsMap.get(instance.getFingerprint()), modification);
     }
 
@@ -454,7 +452,7 @@ public class MaterialServiceTest {
         List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, "", 0, 0, 3);
 
         verify(materialRepository).loadHistory(anyLong(), eq(FeedModifier.Latest), eq(0L), eq(3));
-        assertThat(gotModifications, is(modifications));
+        assertThat(gotModifications).isEqualTo(modifications);
     }
 
     @Test
@@ -529,7 +527,7 @@ public class MaterialServiceTest {
         PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig, "");
 
         verify(materialRepository).getOldestAndLatestModificationId(anyLong(), eq(""));
-        assertThat(info, is(value));
+        assertThat(info).isEqualTo(value);
     }
 
     @Test
@@ -541,7 +539,7 @@ public class MaterialServiceTest {
         PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig, "");
 
         verify(materialRepository, never()).getOldestAndLatestModificationId(anyLong(), anyString());
-        assertThat(info, is(nullValue()));
+        assertThat(info).isNull();
     }
 
     @Test
@@ -559,7 +557,7 @@ public class MaterialServiceTest {
         List<Modification> result = materialService.getModificationsFor(config, "comment", 0, 0, 10);
 
         verify(materialRepository).findMatchingModifications(eq(instance.getId()), eq("comment"), eq(FeedModifier.Latest), eq(0L), eq(10));
-        assertThat(result, is(modifications));
+        assertThat(result).isEqualTo(modifications);
     }
 
     @Test
@@ -577,7 +575,7 @@ public class MaterialServiceTest {
         List<Modification> result = materialService.getModificationsFor(config, "comment", 3, 0, 10);
 
         verify(materialRepository).findMatchingModifications(eq(instance.getId()), eq("comment"), eq(FeedModifier.After), eq(3L), eq(10));
-        assertThat(result, is(modifications));
+        assertThat(result).isEqualTo(modifications);
     }
 
     @Test
@@ -595,7 +593,7 @@ public class MaterialServiceTest {
         List<Modification> result = materialService.getModificationsFor(config, "comment", 0, 3, 10);
 
         verify(materialRepository).findMatchingModifications(eq(instance.getId()), eq("comment"), eq(FeedModifier.Before), eq(3L), eq(10));
-        assertThat(result, is(modifications));
+        assertThat(result).isEqualTo(modifications);
     }
 
     @Test
@@ -606,7 +604,7 @@ public class MaterialServiceTest {
 
         List<Modification> result = materialService.getModificationsFor(material, "comment", 0, 0, 10);
 
-        assertThat(result, is(nullValue()));
+        assertThat(result).isNull();
         verify(materialRepository).findMaterialInstance(material);
         verifyNoMoreInteractions(materialRepository);
     }
@@ -614,7 +612,7 @@ public class MaterialServiceTest {
     private void assertHasModification(MaterialRevisions materialRevisions, boolean b) {
         HgMaterial hgMaterial = new HgMaterial("foo.com", null);
         when(materialRepository.findLatestModification(hgMaterial)).thenReturn(materialRevisions);
-        assertThat(materialService.hasModificationFor(hgMaterial), is(b));
+        assertThat(materialService.hasModificationFor(hgMaterial)).isEqualTo(b);
     }
 
     @Test

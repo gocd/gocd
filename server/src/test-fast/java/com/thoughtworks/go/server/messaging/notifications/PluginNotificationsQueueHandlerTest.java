@@ -33,8 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
 
@@ -70,14 +69,14 @@ public class PluginNotificationsQueueHandlerTest {
         handler.pluginLoaded(getPluginDescriptor(pluginId1));
         handler.pluginLoaded(getPluginDescriptor(pluginId2));
         handler.pluginLoaded(getPluginDescriptor(pluginId3));
-        assertThat(handler.getQueues().size(), is(2));
+        assertThat(handler.getQueues().size()).isEqualTo(2);
         PluginAwareMessageQueue queueForPlugin1 = handler.getQueues().get(pluginId1);
         HashMap<String, ArrayList<JMSMessageListenerAdapter>> listenersForPlugin1 = ReflectionUtil.getField(queueForPlugin1, "listeners");
-        assertThat(listenersForPlugin1.get(pluginId1).size(), is(10));
+        assertThat(listenersForPlugin1.get(pluginId1).size()).isEqualTo(10);
         assertFalse(handler.getQueues().containsKey(pluginId2));
         PluginAwareMessageQueue queueForPlugin3 = handler.getQueues().get(pluginId3);
         HashMap<String, ArrayList<JMSMessageListenerAdapter>> listenersForPlugin3 = ReflectionUtil.getField(queueForPlugin3, "listeners");
-        assertThat(listenersForPlugin3.get(pluginId3).size(), is(2));
+        assertThat(listenersForPlugin3.get(pluginId3).size()).isEqualTo(2);
     }
 
     private GoPluginDescriptor getPluginDescriptor(String pluginId) {

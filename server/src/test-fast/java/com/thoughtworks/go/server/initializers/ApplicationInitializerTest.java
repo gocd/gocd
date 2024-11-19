@@ -48,9 +48,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -150,7 +149,7 @@ public class ApplicationInitializerTest {
 
     @Test
     public void shouldCallInitializeOfPluginZipInitializerOnlyAfterInitializeOfPluginInitializer() {
-        assertThat(ReflectionUtil.getField(new Toggles(), "service"), is(featureToggleService));
+        assertThat((Object) ReflectionUtil.getField(new Toggles(), "service")).isEqualTo(featureToggleService);
         verifyOrder(pluginsInitializer, pluginsZip);
     }
 

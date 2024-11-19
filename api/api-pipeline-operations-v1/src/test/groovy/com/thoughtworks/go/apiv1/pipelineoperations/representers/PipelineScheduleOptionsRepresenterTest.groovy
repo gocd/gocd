@@ -62,8 +62,8 @@ class PipelineScheduleOptionsRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(scheduleOptionsJson)
     def pipelineScheduleOptions = PipelineScheduleOptionsRepresenter.fromJSON(jsonReader)
 
-    assertThat(pipelineScheduleOptions.getSecureEnvironmentVariables().size(), is(1))
-    assertThat(pipelineScheduleOptions.getSecureEnvironmentVariables().find { var -> var.getName().equals("SEC_VAR") }.getEncryptedValue())
+    assertThat(pipelineScheduleOptions.getSecureEnvironmentVariables().size()).isEqualTo(1)
+    assertThat(pipelineScheduleOptions.getSecureEnvironmentVariables().find { var -> (var.getName() == "SEC_VAR") }.getEncryptedValue())
       .isEqualTo(encryptedValue)
   }
 }

@@ -30,8 +30,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DirectoryReaderTest {
     @TempDir
@@ -50,14 +49,14 @@ public class DirectoryReaderTest {
     public void shouldNotDieIfGivenBogusPath() {
         DirectoryReader reader = new DirectoryReader(jobIdentifier);
         List<DirectoryEntry> entries = reader.listEntries(new File("totally bogus path!!!"), "");
-        assertThat(entries.size(), is(0));
+        assertThat(entries.size()).isEqualTo(0);
     }
 
     @Test
     public void shouldNotDieIfGivenBogusFile() {
         DirectoryReader reader = new DirectoryReader(jobIdentifier);
         List<DirectoryEntry> entries = reader.listEntries(null, "");
-        assertThat(entries.size(), is(0));
+        assertThat(entries.size()).isEqualTo(0);
     }
 
     @Test
@@ -66,11 +65,10 @@ public class DirectoryReaderTest {
         TestFileUtil.createTestFile(testFolder, filename);
         DirectoryReader reader = new DirectoryReader(jobIdentifier);
         List<DirectoryEntry> entries = reader.listEntries(testFolder, folderRoot);
-        assertThat(entries.size(), is(1));
-        assertThat(entries.get(0).getFileName(), is(filename));
-        assertThat(entries.get(0).getUrl(),
-            is("/files/pipelineName/LATEST/stageName/LATEST/buildName" + folderRoot + "/"
-                + URLEncoder.encode(filename, StandardCharsets.UTF_8)));
+        assertThat(entries.size()).isEqualTo(1);
+        assertThat(entries.get(0).getFileName()).isEqualTo(filename);
+        assertThat(entries.get(0).getUrl()).isEqualTo("/files/pipelineName/LATEST/stageName/LATEST/buildName" + folderRoot + "/"
+                + URLEncoder.encode(filename, StandardCharsets.UTF_8));
     }
 
     @Test
@@ -79,13 +77,12 @@ public class DirectoryReaderTest {
         DirectoryReader reader = new DirectoryReader(jobIdentifier);
         List<DirectoryEntry> entries = reader.listEntries(testFolder, folderRoot);
         FolderDirectoryEntry folder = (FolderDirectoryEntry) entries.get(0);
-        assertThat(folder.getFileName(), is("primate"));
+        assertThat(folder.getFileName()).isEqualTo("primate");
         FolderDirectoryEntry subFolder = (FolderDirectoryEntry) folder.getSubDirectory().get(0);
-        assertThat(subFolder.getFileName(), is("monkey"));
-        assertThat(subFolder.getSubDirectory().get(0).getFileName(), is("baboon.html"));
-        assertThat(subFolder.getSubDirectory().get(0).getUrl(),
-            is("/files/pipelineName/LATEST/stageName/LATEST/buildName"
-                + folderRoot + "/primate/monkey/baboon.html"));
+        assertThat(subFolder.getFileName()).isEqualTo("monkey");
+        assertThat(subFolder.getSubDirectory().get(0).getFileName()).isEqualTo("baboon.html");
+        assertThat(subFolder.getSubDirectory().get(0).getUrl()).isEqualTo("/files/pipelineName/LATEST/stageName/LATEST/buildName"
+                + folderRoot + "/primate/monkey/baboon.html");
     }
 
     @Test
@@ -95,15 +92,14 @@ public class DirectoryReaderTest {
         TestFileUtil.createTestFile(subFolder, "baboon.html");
         DirectoryReader reader = new DirectoryReader(jobIdentifier);
         List<DirectoryEntry> entries = reader.listEntries(testFolder, folderRoot);
-        assertThat(entries.size(), is(2));
+        assertThat(entries.size()).isEqualTo(2);
         FolderDirectoryEntry folder = (FolderDirectoryEntry) entries.get(0);
-        assertThat(folder.getFileName(), is("primate"));
-        assertThat(folder.getUrl(), is("/files/pipelineName/LATEST/stageName/LATEST/buildName"
-            + folderRoot + "/primate"));
-        assertThat(entries.get(1).getFileName(), is("text.html"));
-        assertThat(folder.getSubDirectory().get(0).getFileName(), is("baboon.html"));
-        assertThat(folder.getSubDirectory().get(0).getUrl(),
-            is("/files/pipelineName/LATEST/stageName/LATEST/buildName" + folderRoot + "/primate/baboon.html"));
+        assertThat(folder.getFileName()).isEqualTo("primate");
+        assertThat(folder.getUrl()).isEqualTo("/files/pipelineName/LATEST/stageName/LATEST/buildName"
+            + folderRoot + "/primate");
+        assertThat(entries.get(1).getFileName()).isEqualTo("text.html");
+        assertThat(folder.getSubDirectory().get(0).getFileName()).isEqualTo("baboon.html");
+        assertThat(folder.getSubDirectory().get(0).getUrl()).isEqualTo("/files/pipelineName/LATEST/stageName/LATEST/buildName" + folderRoot + "/primate/baboon.html");
     }
 
     @Test
@@ -115,13 +111,13 @@ public class DirectoryReaderTest {
         TestFileUtil.createTestFile(subFolder, "pear.html");
         DirectoryReader reader = new DirectoryReader(jobIdentifier);
         List<DirectoryEntry> entries = reader.listEntries(testFolder, folderRoot);
-        assertThat(entries.size(), is(2));
+        assertThat(entries.size()).isEqualTo(2);
         FolderDirectoryEntry folder = (FolderDirectoryEntry) entries.get(0);
-        assertThat(folder.getFileName(), is("testoutput"));
-        assertThat(entries.get(1).getFileName(), is("build.html"));
-        assertThat(folder.getSubDirectory().get(0).getFileName(), is("apple.html"));
-        assertThat(folder.getSubDirectory().get(1).getFileName(), is("baboon.html"));
-        assertThat(folder.getSubDirectory().get(2).getFileName(), is("pear.html"));
+        assertThat(folder.getFileName()).isEqualTo("testoutput");
+        assertThat(entries.get(1).getFileName()).isEqualTo("build.html");
+        assertThat(folder.getSubDirectory().get(0).getFileName()).isEqualTo("apple.html");
+        assertThat(folder.getSubDirectory().get(1).getFileName()).isEqualTo("baboon.html");
+        assertThat(folder.getSubDirectory().get(2).getFileName()).isEqualTo("pear.html");
     }
 
     @Test
@@ -129,10 +125,10 @@ public class DirectoryReaderTest {
         File b = TestFileUtil.createTestFolder(testFolder, "b");
         TestFileUtil.createTestFile(b, "c.xml");
         List<DirectoryEntry> entries = new DirectoryReader(jobIdentifier).listEntries(b, folderRoot + "/b");
-        assertThat(entries.size(), is(1));
+        assertThat(entries.size()).isEqualTo(1);
         String expectedUrl = "/files/pipelineName/LATEST/stageName/LATEST/buildName/"
             + testFolder.getName() + "/b/c.xml";
-        assertThat(entries.get(0).getUrl(), is(expectedUrl));
+        assertThat(entries.get(0).getUrl()).isEqualTo(expectedUrl);
     }
 
     @Nested
@@ -147,13 +143,13 @@ public class DirectoryReaderTest {
 
         @Test
         public void shouldBeAlphabeticForSameType() {
-            assertThat(comparator.compare(file1, file2) < 0, is(true));
-            assertThat(comparator.compare(folder1, folder2) < 0, is(true));
+            assertThat(comparator.compare(file1, file2) < 0).isTrue();
+            assertThat(comparator.compare(folder1, folder2) < 0).isTrue();
         }
 
         @Test
         public void folderShouldBeLessThanFile() {
-            assertThat(comparator.compare(file1, folder1) > 0, is(true));
+            assertThat(comparator.compare(file1, folder1) > 0).isTrue();
         }
     }
 

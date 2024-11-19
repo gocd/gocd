@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ThreadSafetyChecker {
     private long testTimeoutTime;
@@ -45,7 +44,7 @@ public class ThreadSafetyChecker {
         startThreads(threads);
         waitForThreadsToFinish(threads);
 
-        assertThat(exceptions.toString(), exceptions.size(), is(0));
+        assertThat(exceptions).isEmpty();
     }
 
     private void waitForThreadsToFinish(List<Thread> threads) throws Exception {

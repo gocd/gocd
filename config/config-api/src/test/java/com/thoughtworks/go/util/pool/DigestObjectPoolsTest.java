@@ -24,8 +24,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -60,7 +59,7 @@ public class DigestObjectPoolsTest {
             pools.computeDigest("upside_down_fred_rubble_bubble_cake", operation);
             fail("Expected to get an exception as the algorithm is Flintstones proprietary!");
         } catch (IllegalArgumentException expected) {
-            assertThat(expected.getMessage(), is("Algorithm not supported"));
+            assertThat(expected.getMessage()).isEqualTo("Algorithm not supported");
         }
     }
 
@@ -72,7 +71,7 @@ public class DigestObjectPoolsTest {
         };
         String shaFirst = pools.computeDigest(DigestObjectPools.SHA_256, operation);
         String shaSecond = pools.computeDigest(DigestObjectPools.SHA_256, operation);
-        assertThat(shaFirst, is(shaSecond));
+        assertThat(shaFirst).isEqualTo(shaSecond);
     }
 
     @Test

@@ -25,17 +25,14 @@ import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.net.URISyntaxException;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class DiskSpaceFullCheckerTest {
@@ -62,19 +59,19 @@ public class DiskSpaceFullCheckerTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(new ServerConfig(".", new SecurityConfig()));
 
-        ArtifactsDiskSpaceFullChecker fullChecker = createChecker(cruiseConfig);
+        ArtifactsDiskSpaceFullChecker fullChecker = createChecker();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         fullChecker.check(result);
-        assertThat(result.canContinue(), is(true));
+        assertThat(result.canContinue()).isTrue();
     }
 
     @Test
     public void shouldNotSendMoreThanOneEmail() {
         CruiseConfig cruiseConfig = simulateFullDisk();
-        ArtifactsDiskSpaceFullChecker fullChecker = createChecker(cruiseConfig);
+        ArtifactsDiskSpaceFullChecker fullChecker = createChecker();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         fullChecker.check(result);
-        assertThat(result.canContinue(), is(false));
+        assertThat(result.canContinue()).isFalse();
         verify(sender).sendEmail(any(SendEmailMessage.class));
     }
 
@@ -82,22 +79,22 @@ public class DiskSpaceFullCheckerTest {
     public void shouldSendEmailsAgainIfDiskSpaceIsFixedAndFallsBelowAgain() {
         CruiseConfig cruiseConfig = simulateFullDisk();
 
-        ArtifactsDiskSpaceFullChecker fullChecker = createChecker(cruiseConfig);
+        ArtifactsDiskSpaceFullChecker fullChecker = createChecker();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         fullChecker.check(result);
-        assertThat(result.canContinue(), is(false));
+        assertThat(result.canContinue()).isFalse();
 
         simulateEmptyDisk();
 
         result = new ServerHealthStateOperationResult();
         fullChecker.check(result);
-        assertThat(result.canContinue(), is(true));
+        assertThat(result.canContinue()).isTrue();
 
         simulateFullDisk();
 
         result = new ServerHealthStateOperationResult();
         fullChecker.check(result);
-        assertThat(result.canContinue(), is(false));
+        assertThat(result.canContinue()).isFalse();
         verify(sender, times(2)).sendEmail(any(SendEmailMessage.class));
     }
 
@@ -116,19 +113,18 @@ public class DiskSpaceFullCheckerTest {
     public void shouldReturnFalseIfTheArtifactFolderExceedSizeLimit() {
         CruiseConfig cruiseConfig = simulateFullDisk();
 
-        ArtifactsDiskSpaceFullChecker fullChecker = createChecker(cruiseConfig);
+        ArtifactsDiskSpaceFullChecker fullChecker = createChecker();
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         fullChecker.check(result);
-        assertThat(result.getServerHealthState().isSuccess(), is(false));
-        assertThat(result.getServerHealthState().getMessage(),
-                is("GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
-        assertThat(result.getServerHealthState().getType(), is(HealthStateType.artifactsDiskFull()));
+        assertThat(result.getServerHealthState().isSuccess()).isFalse();
+        assertThat(result.getServerHealthState().getMessage()).isEqualTo("GoCD Server has run out of artifacts disk space. Scheduling has been stopped");
+        assertThat(result.getServerHealthState().getType()).isEqualTo(HealthStateType.artifactsDiskFull());
         verify(sender).sendEmail(any(SendEmailMessage.class));
     }
 
     @Test
-    public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() throws URISyntaxException {
+    public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() {
         String expectedHelpUrl = docsUrl("/installation/configuring_server_details.html");
         ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://test.host"), new SecureSiteUrl("https://test.host"));
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -145,10 +141,10 @@ public class DiskSpaceFullCheckerTest {
             }
         };
         SendEmailMessage actual = diskSpaceFullChecker.createEmail();
-        assertThat(actual.getBody(), Matchers.containsString(expectedHelpUrl));
+        assertThat(actual.getBody()).contains(expectedHelpUrl);
     }
 
-    private ArtifactsDiskSpaceFullChecker createChecker(CruiseConfig cruiseConfig) {
+    private ArtifactsDiskSpaceFullChecker createChecker() {
         return new ArtifactsDiskSpaceFullChecker(new SystemEnvironment(), sender, goConfigService, new SystemDiskSpaceChecker());
     }
 }

@@ -27,10 +27,8 @@ import java.io.File;
 
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Idle;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 public class AgentRuntimeInfoTest {
     private File pipelinesFolder;
@@ -58,7 +56,7 @@ public class AgentRuntimeInfoTest {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
                 new Agent("uuid", "localhost", "127.0.0.1"), false, "/var/lib", 0L, "linux");
 
-        assertThat(agentRuntimeInfo.getRuntimeStatus(), is(Idle));
+        assertThat(agentRuntimeInfo.getRuntimeStatus()).isEqualTo(Idle);
     }
 
     @Test
@@ -66,7 +64,7 @@ public class AgentRuntimeInfoTest {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
                 new Agent("uuid", "localhost", "176.19.4.1"), false, "/var/lib", 0L, "linux");
 
-        assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Unknown));
+        assertThat(agentRuntimeInfo.getRuntimeStatus()).isEqualTo(AgentRuntimeStatus.Unknown);
     }
 
     @Test
@@ -74,55 +72,55 @@ public class AgentRuntimeInfoTest {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
                 new Agent("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux");
 
-        assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        assertThat(agentRuntimeInfo.getRuntimeStatus()).isEqualTo(AgentRuntimeStatus.Idle);
     }
 
     @Test
     public void shouldNotMatchRuntimeInfosWithDifferentOperatingSystems() {
         AgentRuntimeInfo linux = AgentRuntimeInfo.fromServer(new Agent("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux");
         AgentRuntimeInfo osx = AgentRuntimeInfo.fromServer(new Agent("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "foo bar");
-        assertThat(linux, is(not(osx)));
+        assertThat(linux).isNotEqualTo(osx);
     }
 
     @Test
     public void shouldInitializeTheFreeSpaceAtAgentSide() {
         AgentIdentifier id = new Agent("uuid", "localhost", "176.19.4.1").getAgentIdentifier();
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(id, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(id, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", "1.2", () -> "Linux");
 
-        assertThat(agentRuntimeInfo.getUsableSpace(), is(not(0L)));
+        assertThat(agentRuntimeInfo.getUsableSpace()).isNotEqualTo(0L);
     }
 
     @Test
     public void shouldNotBeLowDiskSpaceForMissingAgent() {
-        assertThat(AgentRuntimeInfo.initialState(new Agent("uuid")).isLowDiskSpace(10L), is(false));
+        assertThat(AgentRuntimeInfo.initialState(new Agent("uuid")).isLowDiskSpace(10L)).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfUsableSpaceLessThanLimit() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.initialState(new Agent("uuid"));
         agentRuntimeInfo.setUsableSpace(10L);
-        assertThat(agentRuntimeInfo.isLowDiskSpace(20L), is(true));
+        assertThat(agentRuntimeInfo.isLowDiskSpace(20L)).isTrue();
     }
 
     @Test
     public void shouldHaveRelevantFieldsInDebugString() {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
-        assertThat(agentRuntimeInfo.agentInfoDebugString(), is("Agent [localhost, 127.0.0.1, uuid, cookie]"));
+        assertThat(agentRuntimeInfo.agentInfoDebugString()).isEqualTo("Agent [localhost, 127.0.0.1, uuid, cookie]");
     }
 
     @Test
     public void shouldHaveBeautifulPhigureLikeDisplayString() {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo.setLocation("/nim/appan/mane");
-        assertThat(agentRuntimeInfo.agentInfoForDisplay(), is("Agent located at [localhost, 127.0.0.1, /nim/appan/mane]"));
+        assertThat(agentRuntimeInfo.agentInfoForDisplay()).isEqualTo("Agent located at [localhost, 127.0.0.1, /nim/appan/mane]");
     }
 
     @Test
     public void shouldTellIfHasCookie() {
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie").hasDuplicateCookie("cookie"), is(false));
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie").hasDuplicateCookie("different"), is(true));
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null).hasDuplicateCookie("cookie"), is(false));
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie").hasDuplicateCookie(null), is(false));
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie").hasDuplicateCookie("cookie")).isFalse();
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie").hasDuplicateCookie("different")).isTrue();
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null).hasDuplicateCookie("cookie")).isFalse();
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie").hasDuplicateCookie(null)).isFalse();
     }
 
     @Test
@@ -130,8 +128,8 @@ public class AgentRuntimeInfoTest {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), Idle, currentWorkingDirectory(), "cookie");
 
         agentRuntimeInfo.updateAgentVersion("20.5.0-2345").updateBootstrapperVersion("20.3.0-1234");
-        assertThat(agentRuntimeInfo.getAgentVersion(), is("20.5.0-2345"));
-        assertThat(agentRuntimeInfo.getAgentBootstrapperVersion(), is("20.3.0-1234"));
+        assertThat(agentRuntimeInfo.getAgentVersion()).isEqualTo("20.5.0-2345");
+        assertThat(agentRuntimeInfo.getAgentBootstrapperVersion()).isEqualTo("20.3.0-1234");
     }
 
     @Test
@@ -147,12 +145,12 @@ public class AgentRuntimeInfoTest {
 
         agentRuntimeInfo.updateSelf(newRuntimeInfo);
 
-        assertThat(agentRuntimeInfo.getBuildingInfo(), is(newRuntimeInfo.getBuildingInfo()));
-        assertThat(agentRuntimeInfo.getLocation(), is(newRuntimeInfo.getLocation()));
-        assertThat(agentRuntimeInfo.getUsableSpace(), is(newRuntimeInfo.getUsableSpace()));
-        assertThat(agentRuntimeInfo.getOperatingSystem(), is(newRuntimeInfo.getOperatingSystem()));
-        assertThat(agentRuntimeInfo.getAgentVersion(), is("20.5.0-2345"));
-        assertThat(agentRuntimeInfo.getAgentBootstrapperVersion(), is("20.3.0-1234"));
+        assertThat(agentRuntimeInfo.getBuildingInfo()).isEqualTo(newRuntimeInfo.getBuildingInfo());
+        assertThat(agentRuntimeInfo.getLocation()).isEqualTo(newRuntimeInfo.getLocation());
+        assertThat(agentRuntimeInfo.getUsableSpace()).isEqualTo(newRuntimeInfo.getUsableSpace());
+        assertThat(agentRuntimeInfo.getOperatingSystem()).isEqualTo(newRuntimeInfo.getOperatingSystem());
+        assertThat(agentRuntimeInfo.getAgentVersion()).isEqualTo("20.5.0-2345");
+        assertThat(agentRuntimeInfo.getAgentBootstrapperVersion()).isEqualTo("20.3.0-1234");
     }
 
 }

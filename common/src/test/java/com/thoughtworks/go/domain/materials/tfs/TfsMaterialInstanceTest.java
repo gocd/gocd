@@ -18,8 +18,7 @@ package com.thoughtworks.go.domain.materials.tfs;
 import com.thoughtworks.go.domain.materials.Material;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TfsMaterialInstanceTest {
 
@@ -27,25 +26,25 @@ public class TfsMaterialInstanceTest {
     public void shouldHaveDifferentFingerprintsForTwoDifferentMaterials() {
         TfsMaterialInstance instance1 = new TfsMaterialInstance("http://foo.com", "username", "CORPORATE", "some_project_path", "blah");
         TfsMaterialInstance instance2 = new TfsMaterialInstance("http://foo.com", "username", "CORPORATE", "some_other_project_path", "some_other_blah");
-        assertThat(instance1.getFingerprint(), is(not(instance2.getFingerprint())));
+        assertThat(instance1.getFingerprint()).isNotEqualTo(instance2.getFingerprint());
     }
 
     @Test
     public void testTfsMaterialsInstanceEquality() {
         TfsMaterialInstance instance1 = new TfsMaterialInstance("http://foo.com", "username", "CORPORATE", "some_project_path", "blah");
         TfsMaterialInstance instance2 = new TfsMaterialInstance("http://foo.com", "username", "CORPORATE", "some_other_project_path", "some_other_blah");
-        assertThat(instance1, is(not(instance2)));
+        assertThat(instance1).isNotEqualTo(instance2);
 
         TfsMaterialInstance instance = new TfsMaterialInstance("http://foo.com", "username", "CORPORATE", "some_project_path", "blah");
         TfsMaterialInstance similarInstance = new TfsMaterialInstance("http://foo.com", "username", "CORPORATE", "some_project_path", "blah");
-        assertThat(instance, is(similarInstance));
+        assertThat(instance).isEqualTo(similarInstance);
     }
 
     @Test
     public void shouldPassFolderAlong() {
         TfsMaterialInstance instance1 = new TfsMaterialInstance("http://foo.com", "username", "CORPORATE", "some_project_path", "blah");
         Material material = instance1.toOldMaterial("", "some_folder", "password");
-        assertThat(material.getFolder(), is("some_folder"));
+        assertThat(material.getFolder()).isEqualTo("some_folder");
     }
 
 
@@ -53,6 +52,6 @@ public class TfsMaterialInstanceTest {
     public void shouldSetNameAsNullIfNoNameSpecified() {
         TfsMaterialInstance instance1 = new TfsMaterialInstance("http://foo.com", "username", "CORPORATE", "some_project_path", "blah");
         Material material = instance1.toOldMaterial(null, "some_folder", "password");
-        assertThat(material.getName(), is(nullValue()));
+        assertThat(material.getName()).isNull();
     }
 }

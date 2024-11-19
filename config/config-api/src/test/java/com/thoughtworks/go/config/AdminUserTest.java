@@ -17,8 +17,7 @@ package com.thoughtworks.go.config;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AdminUserTest {
@@ -27,7 +26,7 @@ public class AdminUserTest {
     public void shouldNotValidateBlankUsers() {
         AdminUser adminUser = new AdminUser("");
         adminUser.validate(null);
-        assertThat(adminUser.errors().on(AdminUser.NAME), is("User cannot be blank."));
+        assertThat(adminUser.errors().on(AdminUser.NAME)).isEqualTo("User cannot be blank.");
     }
 
     @Test

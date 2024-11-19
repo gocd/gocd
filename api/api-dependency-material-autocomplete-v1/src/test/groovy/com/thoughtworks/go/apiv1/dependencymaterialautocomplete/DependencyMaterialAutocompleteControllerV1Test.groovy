@@ -81,7 +81,7 @@ class DependencyMaterialAutocompleteControllerV1Test implements SecurityServiceT
     }
 
     private StageConfig stage(String name) {
-      return new StageConfig(ident(name), null);
+      return new StageConfig(ident(name), null)
     }
   }
 }

@@ -20,21 +20,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(ClearSingleton.class)
 public class ConfigModifyingUserTest {
     @Test
     public void shouldIdentifyPassedInUserNameAsConfigModifyingUser() {
         ConfigModifyingUser user = new ConfigModifyingUser("loser_boozer");
-        assertThat(user.getUserName(), is("loser_boozer"));
+        assertThat(user.getUserName()).isEqualTo("loser_boozer");
     }
 
     @Test
     public void shouldIdentifyLoggedInUserAsModifyingUser_WhenNoModifyingUserIsGiven() {
         loginAs("loser_boozer");
         ConfigModifyingUser user = new ConfigModifyingUser();
-        assertThat(user.getUserName(), is("loser_boozer"));
+        assertThat(user.getUserName()).isEqualTo("loser_boozer");
     }
 }

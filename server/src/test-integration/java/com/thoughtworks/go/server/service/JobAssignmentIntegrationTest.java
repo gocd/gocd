@@ -41,8 +41,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -90,7 +89,7 @@ public class JobAssignmentIntegrationTest {
         assignmentService.onTimer();
 
         Work work = assignmentService.assignWorkToAgent(remote);
-        assertThat(work, instanceOf(BuildWork.class));
+        assertThat(work).isInstanceOf(BuildWork.class);
     }
 
     @Test
@@ -105,7 +104,7 @@ public class JobAssignmentIntegrationTest {
         assignmentService.assignWorkToAgent(local);
         assignmentService.assignWorkToAgent(remote);
         Work work = assignmentService.assignWorkToAgent(remote2);
-        assertThat(work, instanceOf(NoWork.class));
+        assertThat(work).isInstanceOf(NoWork.class);
     }
 
     @Test
@@ -118,7 +117,7 @@ public class JobAssignmentIntegrationTest {
 
         assignmentService.assignWorkToAgent(remote);
         Work work = assignmentService.assignWorkToAgent(local);
-        assertThat(work, instanceOf(BuildWork.class));
+        assertThat(work).isInstanceOf(BuildWork.class);
     }
 
     private AgentInstance setupRemoteAgent() {

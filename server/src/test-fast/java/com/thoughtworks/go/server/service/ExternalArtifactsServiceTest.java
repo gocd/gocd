@@ -31,8 +31,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -119,7 +118,7 @@ public class ExternalArtifactsServiceTest {
         verifyNoInteractions(artifactExtension);
 
         assertTrue(pluggableArtifactConfig.hasErrors());
-        assertThat(pluggableArtifactConfig.errors().getAllOn("pluginId"), is(List.of("Could not determine the plugin to perform the plugin validations. Possible reasons: artifact store does not exist or plugin is not installed.")));
+        assertThat(pluggableArtifactConfig.errors().getAllOn("pluginId")).isEqualTo(List.of("Could not determine the plugin to perform the plugin validations. Possible reasons: artifact store does not exist or plugin is not installed."));
     }
 
     @Test
@@ -140,8 +139,8 @@ public class ExternalArtifactsServiceTest {
 
         externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, true);
 
-        assertThat(configuration.getProperty("Image").errors().get("Image").get(0), is("invalid"));
-        assertThat(configuration.getProperty("Tag").errors().get("Tag").get(0), is("invalid"));
+        assertThat(configuration.getProperty("Image").errors().get("Image").get(0)).isEqualTo("invalid");
+        assertThat(configuration.getProperty("Tag").errors().get("Tag").get(0)).isEqualTo("invalid");
     }
 
     @Test
@@ -157,6 +156,6 @@ public class ExternalArtifactsServiceTest {
 
         externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, true);
 
-        assertThat(pluggableArtifactConfig.errors().getAllOn("configuration").get(0), is("Either Image or BuildFile is required"));
+        assertThat(pluggableArtifactConfig.errors().getAllOn("configuration").get(0)).isEqualTo("Either Image or BuildFile is required");
     }
 }

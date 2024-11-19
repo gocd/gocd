@@ -50,7 +50,7 @@ class AdminsConfigRepresenterTest {
     def actualJson = toObjectString({ AdminsConfigRepresenter.toJSON(it, config) })
 
     final LinkedHashMap<String, Object> expected = ["_links": ["doc": ["href": apiDocsUrl("#system-admins")], "self": ["href": "http://test.host/go/api/admin/security/system_admins"]], "roles": ["xyz"], "users": ["admin"], "errors": ["roles": ["Role does not exist"], "users": ["User name cannot be blank"]]]
-    assertThatJson(actualJson).isEqualTo(expected);
+    assertThatJson(actualJson).isEqualTo(expected)
   }
 
   @Test
@@ -60,8 +60,8 @@ class AdminsConfigRepresenterTest {
       'users': ['user1', 'user2']
     ]
 
-    JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(requestJSON);
-    AdminsConfig adminsConfig = AdminsConfigRepresenter.fromJSON(jsonReader);
+    JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(requestJSON)
+    AdminsConfig adminsConfig = AdminsConfigRepresenter.fromJSON(jsonReader)
 
     def expected = new AdminsConfig(
       new AdminUser(new CaseInsensitiveString("user1")),

@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,17 +37,17 @@ public class OnCancelConfigTest {
 
     @Test
     public void shouldReturnTheOnCancelOptionBasedOnWhatTheOnCancelTaskIs() {
-        assertThat(new OnCancelConfig().onCancelOption(), is(""));
-        assertThat(new OnCancelConfig(new ExecTask()).onCancelOption(), is("Custom Command"));
-        assertThat(new OnCancelConfig(new AntTask()).onCancelOption(), is("Ant"));
-        assertThat(new OnCancelConfig(new RakeTask()).onCancelOption(), is("Rake"));
+        assertThat(new OnCancelConfig().onCancelOption()).isEqualTo("");
+        assertThat(new OnCancelConfig(new ExecTask()).onCancelOption()).isEqualTo("Custom Command");
+        assertThat(new OnCancelConfig(new AntTask()).onCancelOption()).isEqualTo("Ant");
+        assertThat(new OnCancelConfig(new RakeTask()).onCancelOption()).isEqualTo("Rake");
     }
 
     @Test
     public void shouldAddErrorOnErrorCollection() {
         OnCancelConfig onCancelConfig = new OnCancelConfig();
         onCancelConfig.addError("key", "some error");
-        assertThat(onCancelConfig.errors().on("key"), is("some error"));
+        assertThat(onCancelConfig.errors().on("key")).isEqualTo("some error");
     }
 
     @Test
@@ -66,7 +65,7 @@ public class OnCancelConfigTest {
         when(taskFactory.taskInstanceFor(execTask.getTaskType())).thenReturn(execTask);
         OnCancelConfig cancelConfig = OnCancelConfig.create(hashMap, taskFactory);
 
-        assertThat(cancelConfig.getTask(), is(new ExecTask("ls", "blah", "pwd")));
+        assertThat(cancelConfig.getTask()).isEqualTo(new ExecTask("ls", "blah", "pwd"));
     }
 
     @Test
@@ -88,7 +87,7 @@ public class OnCancelConfigTest {
         expectedAntTask.setBuildFile("build.xml");
         expectedAntTask.setTarget("blah");
         expectedAntTask.setWorkingDirectory("pwd");
-        assertThat(cancelConfig.getTask(), is(expectedAntTask));
+        assertThat(cancelConfig.getTask()).isEqualTo(expectedAntTask);
     }
 
     @Test
@@ -113,7 +112,7 @@ public class OnCancelConfigTest {
         expectedNantTask.setTarget("compile");
         expectedNantTask.setWorkingDirectory("pwd");
         expectedNantTask.setNantPath("/usr/bin/nant");
-        assertThat(cancelConfig.getTask(), is(expectedNantTask));
+        assertThat(cancelConfig.getTask()).isEqualTo(expectedNantTask);
     }
 
     @Test
@@ -134,6 +133,6 @@ public class OnCancelConfigTest {
         expectedRakeTask.setBuildFile("rakefile");
         expectedRakeTask.setTarget("build");
         expectedRakeTask.setWorkingDirectory("pwd");
-        assertThat(cancelConfig.getTask(), is(expectedRakeTask));
+        assertThat(cancelConfig.getTask()).isEqualTo(expectedRakeTask);
     }
 }

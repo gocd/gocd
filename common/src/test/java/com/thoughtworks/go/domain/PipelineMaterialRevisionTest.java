@@ -25,8 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineMaterialRevisionTest {
     @Test
@@ -37,8 +36,8 @@ public class PipelineMaterialRevisionTest {
         MaterialRevision revision = new MaterialRevision(material, latestModification, new Modification(new Date(), "pipeline_name/2/stage_name/1", "2", null));
 
         PipelineMaterialRevision pmr = new PipelineMaterialRevision(9, revision, null);
-        assertThat(pmr.getToModification(), is(latestModification));
-        assertThat(pmr.getFromModification(), is(latestModification));
+        assertThat(pmr.getToModification()).isEqualTo(latestModification);
+        assertThat(pmr.getFromModification()).isEqualTo(latestModification);
     }
 
     @Test
@@ -50,8 +49,8 @@ public class PipelineMaterialRevisionTest {
         Modification earlierModification = modification(new Date(), "23", null, null);
         MaterialRevision revision = new MaterialRevision(material, latestModification, earlierModification);
         PipelineMaterialRevision pmr = new PipelineMaterialRevision(9, revision, null);
-        assertThat(pmr.getToModification(), is(latestModification));
-        assertThat(pmr.getFromModification(), is(earlierModification));
+        assertThat(pmr.getToModification()).isEqualTo(latestModification);
+        assertThat(pmr.getFromModification()).isEqualTo(earlierModification);
     }
 
     @Test
@@ -64,17 +63,17 @@ public class PipelineMaterialRevisionTest {
 
         Modification differentFrom = modification(new Date(), "pipeline_name/3/stage_name/1", "3", null);
         pmr.useMaterialRevision(new MaterialRevision(material, latestModification, differentFrom));
-        assertThat(pmr.getToModification(), is(latestModification));
-        assertThat(pmr.getFromModification(), is(latestModification));
+        assertThat(pmr.getToModification()).isEqualTo(latestModification);
+        assertThat(pmr.getFromModification()).isEqualTo(latestModification);
 
         Modification laterThanTheLatest = modification(new Date(), "pipeline_name/5/stage_name/1", "5", null);
         pmr.useMaterialRevision(new MaterialRevision(material, laterThanTheLatest, differentFrom));
-        assertThat(pmr.getToModification(), is(laterThanTheLatest));
-        assertThat(pmr.getFromModification(), is(laterThanTheLatest));
+        assertThat(pmr.getToModification()).isEqualTo(laterThanTheLatest);
+        assertThat(pmr.getFromModification()).isEqualTo(laterThanTheLatest);
 
         pmr.useMaterialRevision(new MaterialRevision(material, laterThanTheLatest, modification(new Date(), "pipeline_name/3/stage_name/2", "3", null)));
-        assertThat(pmr.getToModification(), is(laterThanTheLatest));
-        assertThat(pmr.getFromModification(), is(laterThanTheLatest));
+        assertThat(pmr.getToModification()).isEqualTo(laterThanTheLatest);
+        assertThat(pmr.getFromModification()).isEqualTo(laterThanTheLatest);
     }
 
     @Test
@@ -88,17 +87,17 @@ public class PipelineMaterialRevisionTest {
 
         Modification earlierThatEarlyModification = modification(new Date(), "13", null, null);
         pmr.useMaterialRevision(new MaterialRevision(material, latestModification, earlierThatEarlyModification));
-        assertThat(pmr.getToModification(), is(latestModification));
-        assertThat(pmr.getFromModification(), is(earlierThatEarlyModification));
+        assertThat(pmr.getToModification()).isEqualTo(latestModification);
+        assertThat(pmr.getFromModification()).isEqualTo(earlierThatEarlyModification);
 
         Modification laterThanLatestModification = modification(new Date(), "1234", null, null);
         pmr.useMaterialRevision(new MaterialRevision(material, laterThanLatestModification, earlierThatEarlyModification));
-        assertThat(pmr.getToModification(), is(laterThanLatestModification));
-        assertThat(pmr.getFromModification(), is(earlierThatEarlyModification));
+        assertThat(pmr.getToModification()).isEqualTo(laterThanLatestModification);
+        assertThat(pmr.getFromModification()).isEqualTo(earlierThatEarlyModification);
 
         pmr.useMaterialRevision(new MaterialRevision(material, laterThanLatestModification, earlierModification));
-        assertThat(pmr.getToModification(), is(laterThanLatestModification));
-        assertThat(pmr.getFromModification(), is(earlierModification));
+        assertThat(pmr.getToModification()).isEqualTo(laterThanLatestModification);
+        assertThat(pmr.getFromModification()).isEqualTo(earlierModification);
     }
 
     private Modification modification(Date date, String s, String label, Long id) {

@@ -26,7 +26,7 @@ class JobInstanceRepresenterTest {
   @Test
   void 'should represent a job instance'() {
     def jobInstance = new JobInstance("job")
-    jobInstance.setId(1);
+    jobInstance.setId(1)
     jobInstance.setState(JobState.Assigned)
     jobInstance.setResult(JobResult.Unknown)
     jobInstance.setAgentUuid("uuid")

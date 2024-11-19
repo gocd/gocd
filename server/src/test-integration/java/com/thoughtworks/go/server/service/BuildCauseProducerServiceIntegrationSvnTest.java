@@ -49,8 +49,7 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -116,15 +115,15 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         materialDatabaseUpdater.updateMaterial(svnMaterial);
         buildCauseProducerService.autoSchedulePipeline(CaseInsensitiveString.str(mingleConfig.name()), result, 123);
 
-        assertThat(result.canContinue(), is(true));
+        assertThat(result.canContinue()).isTrue();
 
         BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(mingleConfig.name());
 
         MaterialRevisions materialRevisions = mingleBuildCause.getMaterialRevisions();
-        assertThat(materialRevisions.getRevisions().size(), is(1));
+        assertThat(materialRevisions.getRevisions().size()).isEqualTo(1);
         Materials materials = materialRevisions.getMaterials();
-        assertThat(materials.size(), is(1));
-        assertThat(materials.get(0), is(svnMaterial));
+        assertThat(materials.size()).isEqualTo(1);
+        assertThat(materials.get(0)).isEqualTo(svnMaterial);
     }
 
     @Test
@@ -139,17 +138,17 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         materialDatabaseUpdater.updateMaterial(svnMaterial);
         buildCauseProducerService.autoSchedulePipeline(CaseInsensitiveString.str(mingleConfig.name()), result, 123);
 
-        assertThat(result.canContinue(), is(true));
+        assertThat(result.canContinue()).isTrue();
 
         BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(mingleConfig.name());
 
         MaterialRevisions materialRevisions = mingleBuildCause.getMaterialRevisions();
-        assertThat(materialRevisions.getRevisions().size(), is(2));
+        assertThat(materialRevisions.getRevisions().size()).isEqualTo(2);
         Materials materials = materialRevisions.getMaterials();
-        assertThat(materials.size(), is(2));
-        assertThat(materials.get(0), is(svnMaterial));
+        assertThat(materials.size()).isEqualTo(2);
+        assertThat(materials.get(0)).isEqualTo(svnMaterial);
         SvnMaterial external = (SvnMaterial) materials.get(1);
-        assertThat(external.getUrl(), is(repo.externalRepositoryUrl()));
+        assertThat(external.getUrl()).isEqualTo(repo.externalRepositoryUrl());
     }
 
     private void prepareAPipelineWithHistory() throws SQLException {

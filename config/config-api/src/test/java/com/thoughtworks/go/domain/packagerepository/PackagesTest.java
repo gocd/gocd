@@ -17,9 +17,7 @@ package com.thoughtworks.go.domain.packagerepository;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PackagesTest {
 
@@ -27,7 +25,7 @@ public class PackagesTest {
     public void shouldCheckForEqualityOfPackages() {
         PackageDefinition packageDefinition = new PackageDefinition();
         Packages packages = new Packages(packageDefinition);
-        assertThat(packages, is(new Packages(packageDefinition)));
+        assertThat(packages).isEqualTo(new Packages(packageDefinition));
     }
 
     @Test
@@ -36,13 +34,13 @@ public class PackagesTest {
         PackageDefinition p1 = PackageDefinitionMother.create("id1", "pkg1", null, repository);
         PackageDefinition p2 = PackageDefinitionMother.create("id2", "pkg2", null, repository);
         Packages packages = new Packages(p1, p2);
-        assertThat(packages.find("id2"), is(p2));
+        assertThat(packages.find("id2")).isEqualTo(p2);
     }
 
     @Test
     public void shouldReturnNullIfNoMatchingPkgFound() throws Exception {
         Packages packages = new Packages();
-        assertThat(packages.find("id2"), is(nullValue()));
+        assertThat(packages.find("id2")).isNull();
     }
     @Test
     public void shouldValidateForCaseInsensitiveNameUniqueness(){
@@ -52,10 +50,10 @@ public class PackagesTest {
         Packages packages = new Packages(p1, p2, p3);
 
         packages.validate(null);
-        assertThat(p1.errors().isEmpty(), is(true));
+        assertThat(p1.errors().isEmpty()).isTrue();
         String nameError = String.format("You have defined multiple packages called '%s'. Package names are case-insensitive and must be unique within a repository.", p2.getName());
-        assertThat(p2.errors().isEmpty(), is(false));
-        assertThat(p2.errors().getAllOn(PackageRepository.NAME).contains(nameError), is(true));
-        assertThat(p3.errors().isEmpty(), is(true));
+        assertThat(p2.errors().isEmpty()).isFalse();
+        assertThat(p2.errors().getAllOn(PackageRepository.NAME).contains(nameError)).isTrue();
+        assertThat(p3.errors().isEmpty()).isTrue();
     }
 }

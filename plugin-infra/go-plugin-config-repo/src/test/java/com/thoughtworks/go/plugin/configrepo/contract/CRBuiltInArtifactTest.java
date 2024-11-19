@@ -20,9 +20,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CRBuiltInArtifactTest extends AbstractCRTest<CRBuiltInArtifact> {
@@ -55,9 +54,9 @@ public class CRBuiltInArtifactTest extends AbstractCRTest<CRBuiltInArtifact> {
                     }""";
         CRArtifact deserializedValue = gson.fromJson(json,CRArtifact.class);
         CRBuiltInArtifact crBuiltInArtifact = (CRBuiltInArtifact) deserializedValue;
-        assertThat(crBuiltInArtifact.getSource(),is("test"));
-        assertThat(crBuiltInArtifact.getDestination(),is("res1"));
-        assertThat(crBuiltInArtifact.getType(),is(CRArtifactType.test));
+        assertThat(crBuiltInArtifact.getSource()).isEqualTo("test");
+        assertThat(crBuiltInArtifact.getDestination()).isEqualTo("res1");
+        assertThat(crBuiltInArtifact.getType()).isEqualTo(CRArtifactType.test);
 
         ErrorCollection errors = deserializedValue.getErrors();
         assertTrue(errors.isEmpty());

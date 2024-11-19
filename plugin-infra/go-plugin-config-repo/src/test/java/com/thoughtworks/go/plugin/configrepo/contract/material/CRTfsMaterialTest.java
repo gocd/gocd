@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CRTfsMaterialTest extends AbstractCRTest<CRTfsMaterial> {
 
@@ -32,7 +31,7 @@ public class CRTfsMaterialTest extends AbstractCRTest<CRTfsMaterial> {
     private final CRTfsMaterial invalidTfsNoUrl;
     private final CRTfsMaterial invalidTfsNoUser;
     private final CRTfsMaterial invalidTfsNoProject;
-    private final CRTfsMaterial invalidPasswordAndEncyptedPasswordSet;
+    private final CRTfsMaterial invalidPasswordAndEncryptedPasswordSet;
 
     public CRTfsMaterialTest() {
         simpleTfs = new CRTfsMaterial(null, null, false, false, "user1", null, "url1", "projectDir", null);
@@ -44,9 +43,9 @@ public class CRTfsMaterialTest extends AbstractCRTest<CRTfsMaterial> {
         invalidTfsNoUser = new CRTfsMaterial(null, null, false, false, null, null, "url1", "projectDir", null);
         invalidTfsNoProject = new CRTfsMaterial(null, null, false, false, "user1", null, "url1", null, null);
 
-        invalidPasswordAndEncyptedPasswordSet = new CRTfsMaterial(null, null, false, false, "user1", null, "url1", "projectDir", null);
-        invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
-        invalidPasswordAndEncyptedPasswordSet.setEncryptedPassword("26t=$j64");
+        invalidPasswordAndEncryptedPasswordSet = new CRTfsMaterial(null, null, false, false, "user1", null, "url1", "projectDir", null);
+        invalidPasswordAndEncryptedPasswordSet.setPassword("pa$sw0rd");
+        invalidPasswordAndEncryptedPasswordSet.setEncryptedPassword("26t=$j64");
     }
 
     @Override
@@ -65,7 +64,7 @@ public class CRTfsMaterialTest extends AbstractCRTest<CRTfsMaterial> {
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
         JsonObject jsonObject = (JsonObject) gson.toJsonTree(customTfs);
-        assertThat(jsonObject.get("type").getAsString(), is(CRTfsMaterial.TYPE_NAME));
+        assertThat(jsonObject.get("type").getAsString()).isEqualTo(CRTfsMaterial.TYPE_NAME);
     }
 
     @Test
@@ -74,7 +73,6 @@ public class CRTfsMaterialTest extends AbstractCRTest<CRTfsMaterial> {
         String json = gson.toJson(value);
 
         CRTfsMaterial deserializedValue = (CRTfsMaterial) gson.fromJson(json, CRMaterial.class);
-        assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue, is(value));
+        assertThat(deserializedValue).isEqualTo(value);
     }
 }

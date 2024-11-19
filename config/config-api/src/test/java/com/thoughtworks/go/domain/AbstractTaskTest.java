@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,8 +32,8 @@ public class AbstractTaskTest {
 
     @Test
     public void shouldKnowTheTypeOfExecTask() {
-        assertThat(new ExecTask().getTaskType(), is("exec"));
-        assertThat(new FetchTask().getTaskType(), is("fetch"));
+        assertThat(new ExecTask().getTaskType()).isEqualTo("exec");
+        assertThat(new FetchTask().getTaskType()).isEqualTo("fetch");
     }
 
     @Test
@@ -45,10 +44,10 @@ public class AbstractTaskTest {
         attributes.put(AbstractTask.RUN_IF_CONFIGS_FAILED, "1");
         attributes.put(AbstractTask.RUN_IF_CONFIGS_PASSED, "1");
         task.setConfigAttributes(attributes);
-        assertThat(task.getConditions().match(RunIfConfig.ANY), is(true));
-        assertThat(task.getConditions().match(RunIfConfig.FAILED), is(true));
-        assertThat(task.getConditions().match(RunIfConfig.PASSED), is(true));
-        assertThat(task.hasCancelTask(), is(false));
+        assertThat(task.getConditions().match(RunIfConfig.ANY)).isTrue();
+        assertThat(task.getConditions().match(RunIfConfig.FAILED)).isTrue();
+        assertThat(task.getConditions().match(RunIfConfig.PASSED)).isTrue();
+        assertThat(task.hasCancelTask()).isFalse();
     }
 
     @Test
@@ -76,13 +75,13 @@ public class AbstractTaskTest {
         when(taskFactory.taskInstanceFor(execTask.getTaskType())).thenReturn(execTask);
         task.setConfigAttributes(actualTaskAttributes, taskFactory);
 
-        assertThat(task.hasCancelTask(), is(true));
+        assertThat(task.hasCancelTask()).isTrue();
 
         ExecTask expected = new ExecTask("sudo", "ls -la", "working_dir");
         expected.getConditions().add(RunIfConfig.ANY);
         expected.getConditions().add(RunIfConfig.FAILED);
         expected.getConditions().add(RunIfConfig.PASSED);
-        assertThat(task.cancelTask(), is(expected));
+        assertThat(task.cancelTask()).isEqualTo(expected);
     }
 
     @Test
@@ -106,7 +105,7 @@ public class AbstractTaskTest {
 
         task.setConfigAttributes(actualTaskAttributes);
 
-        assertThat(task.hasCancelTask(), is(false));
+        assertThat(task.hasCancelTask()).isFalse();
     }
 
     @Test
@@ -119,9 +118,9 @@ public class AbstractTaskTest {
         attributes.put(AbstractTask.RUN_IF_CONFIGS_FAILED, "1");
         attributes.put(AbstractTask.RUN_IF_CONFIGS_PASSED, "0");
         task.setConfigAttributes(attributes);
-        assertThat(task.getConditions().match(RunIfConfig.ANY), is(false));
-        assertThat(task.getConditions().match(RunIfConfig.FAILED), is(true));
-        assertThat(task.getConditions().match(RunIfConfig.PASSED), is(false));
+        assertThat(task.getConditions().match(RunIfConfig.ANY)).isFalse();
+        assertThat(task.getConditions().match(RunIfConfig.FAILED)).isTrue();
+        assertThat(task.getConditions().match(RunIfConfig.PASSED)).isFalse();
     }
 
     @Test
@@ -133,8 +132,8 @@ public class AbstractTaskTest {
 
         task.validate(null);
 
-        assertThat(task.errors().isEmpty(), is(false));
-        assertThat(task.errors().on(AbstractTask.ON_CANCEL_CONFIG), is("Cannot nest 'oncancel' within a cancel task"));
+        assertThat(task.errors().isEmpty()).isFalse();
+        assertThat(task.errors().on(AbstractTask.ON_CANCEL_CONFIG)).isEqualTo("Cannot nest 'oncancel' within a cancel task");
     }
 
     @Test
@@ -143,7 +142,7 @@ public class AbstractTaskTest {
 
         task.validate(null);
 
-        assertThat(task.errors().isEmpty(), is(true));
+        assertThat(task.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -153,7 +152,7 @@ public class AbstractTaskTest {
 
         task.validate(null);
 
-        assertThat(task.errors().isEmpty(), is(true));
+        assertThat(task.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -165,13 +164,13 @@ public class AbstractTaskTest {
 
         String actual = execTask.getConditionsForDisplay();
 
-        assertThat(actual, is("Passed, Failed, Any"));
+        assertThat(actual).isEqualTo("Passed, Failed, Any");
     }
 
     @Test
     public void shouldReturnPassedByDefaultWhenNoRunIfConfigIsSpecified() {
         AbstractTask execTask = new ExecTask("ls", "-la", "42");
-        assertThat(execTask.getConditionsForDisplay(), is("Passed"));
+        assertThat(execTask.getConditionsForDisplay()).isEqualTo("Passed");
     }
 
     @Test
@@ -186,10 +185,10 @@ public class AbstractTaskTest {
         antTask.setWorkingDirectory("/abc");
         execTask.setCancelTask(antTask);
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, stageConfig, jobConfig);
-        assertThat(execTask.validateTree(context), is(false));
-        assertThat(antTask.errors().isEmpty(), is(false));
-        assertThat(antTask.errors().get(AntTask.WORKING_DIRECTORY).size(), is(1));
-        assertThat(antTask.errors().get(AntTask.WORKING_DIRECTORY).contains("Task of job 'job' in stage 'stage' of pipeline 'p1' has path '/abc' which is outside the working directory."), is(true));
+        assertThat(execTask.validateTree(context)).isFalse();
+        assertThat(antTask.errors().isEmpty()).isFalse();
+        assertThat(antTask.errors().get(AntTask.WORKING_DIRECTORY).size()).isEqualTo(1);
+        assertThat(antTask.errors().get(AntTask.WORKING_DIRECTORY).contains("Task of job 'job' in stage 'stage' of pipeline 'p1' has path '/abc' which is outside the working directory.")).isTrue();
     }
 
 }

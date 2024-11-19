@@ -19,8 +19,7 @@ import com.thoughtworks.go.config.ServerConfig;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.String.format;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MessageHandlerForServerInfoRequestProcessor1_0Test {
     @Test
@@ -32,8 +31,7 @@ public class MessageHandlerForServerInfoRequestProcessor1_0Test {
 
         MessageHandlerForServerInfoRequestProcessor1_0 processor = new MessageHandlerForServerInfoRequestProcessor1_0();
 
-        assertThat(processor.serverInfoToJSON(serverConfig),
-                is(format("{\"server_id\":\"%s\",\"site_url\":\"%s\",\"secure_site_url\":\"%s\"}",
-                        serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl())));
+        assertThat(processor.serverInfoToJSON(serverConfig)).isEqualTo(format("{\"server_id\":\"%s\",\"site_url\":\"%s\",\"secure_site_url\":\"%s\"}",
+                        serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl()));
     }
 }

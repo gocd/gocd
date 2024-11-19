@@ -21,21 +21,20 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ImageTest {
     @Test
     void convertsToDataUri() {
         String encodedString = Base64.getEncoder().encodeToString("asdf".getBytes(StandardCharsets.UTF_8));
         String dataURI = new Image("image/png", encodedString, "sha-256").toDataURI();
-        assertThat(dataURI, is("data:image/png;base64," + encodedString));
+        assertThat(dataURI).isEqualTo("data:image/png;base64," + encodedString);
     }
 
     @Test
     void convertsToByteData() {
         String encodedString = Base64.getEncoder().encodeToString("asdf".getBytes(StandardCharsets.UTF_8));
         Image image = new Image("image/png", encodedString, "sha-256");
-        assertThat(image.getDataAsBytes(), is("asdf".getBytes(StandardCharsets.UTF_8)));
+        assertThat(image.getDataAsBytes()).isEqualTo("asdf".getBytes(StandardCharsets.UTF_8));
     }
 }

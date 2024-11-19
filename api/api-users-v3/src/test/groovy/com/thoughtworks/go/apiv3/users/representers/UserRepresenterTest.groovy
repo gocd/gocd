@@ -127,6 +127,6 @@ class UserRepresenterTest {
     expectedUser.setMatcher("")
 
     JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(json)
-    assertThat(expectedUser, is(UserRepresenter.fromJSON(jsonReader, isLoginNameOptional)))
+    assertThat(expectedUser).isEqualTo(UserRepresenter.fromJSON(jsonReader, isLoginNameOptional))
   }
 }

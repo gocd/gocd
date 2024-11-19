@@ -29,8 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -71,6 +70,6 @@ public class PipelineStagesFeedServiceIntegrationTest {
         FeedResolver feedResolver = new PipelineStagesFeedService(stageService, securityService).feedResolverFor("cruise");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         feedResolver.feed(new Username(new CaseInsensitiveString("evil_hacker")), result);
-        assertThat(result.message(), is("User 'evil_hacker' does not have view permission on pipeline 'cruise'"));
+        assertThat(result.message()).isEqualTo("User 'evil_hacker' does not have view permission on pipeline 'cruise'");
     }
 }

@@ -33,8 +33,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MixedMultipleMaterialsTest {
     private SvnTestRepo svnRepo;
@@ -58,12 +57,11 @@ public class MixedMultipleMaterialsTest {
         Materials materials = new Materials(hgMaterial, svnMaterial);
         MaterialRevisions revisions = materials.latestModification(pipelineDir, new TestSubprocessExecutionContext());
 
-        assertThat(revisions.getMaterialRevision(0).numberOfModifications(), is(1));
-        assertThat(revisions.getMaterialRevision(0).getRevision(),
-                is(new Modifications(hgRepo.latestModifications()).latestRevision(hgMaterial)));
-        assertThat(revisions.getMaterialRevision(1).numberOfModifications(), is(1));
-        assertThat(revisions.getMaterialRevision(1).getRevision(), is(latestRevision(svnMaterial, pipelineDir, new TestSubprocessExecutionContext())));
-        assertThat(revisions.toString(), revisions.totalNumberOfModifications(), is(2));
+        assertThat(revisions.getMaterialRevision(0).numberOfModifications()).isEqualTo(1);
+        assertThat(revisions.getMaterialRevision(0).getRevision()).isEqualTo(new Modifications(hgRepo.latestModifications()).latestRevision(hgMaterial));
+        assertThat(revisions.getMaterialRevision(1).numberOfModifications()).isEqualTo(1);
+        assertThat(revisions.getMaterialRevision(1).getRevision()).isEqualTo(latestRevision(svnMaterial, pipelineDir, new TestSubprocessExecutionContext()));
+        assertThat(revisions.totalNumberOfModifications()).isEqualTo(2);
     }
 
     @Test
@@ -75,18 +73,16 @@ public class MixedMultipleMaterialsTest {
         Materials materials = new Materials(hgMaterial, svnMaterial, gitMaterial);
         MaterialRevisions revisions = materials.latestModification(pipelineDir, new TestSubprocessExecutionContext());
 
-        assertThat(revisions.getMaterialRevision(0).numberOfModifications(), is(1));
-        assertThat(revisions.getMaterialRevision(0).getRevision(),
-                is(new Modifications(hgRepo.latestModifications()).latestRevision(hgMaterial)));
+        assertThat(revisions.getMaterialRevision(0).numberOfModifications()).isEqualTo(1);
+        assertThat(revisions.getMaterialRevision(0).getRevision()).isEqualTo(new Modifications(hgRepo.latestModifications()).latestRevision(hgMaterial));
 
-        assertThat(revisions.getMaterialRevision(1).numberOfModifications(), is(1));
-        assertThat(revisions.getMaterialRevision(1).getRevision(), is(latestRevision(svnMaterial, pipelineDir, new TestSubprocessExecutionContext())));
+        assertThat(revisions.getMaterialRevision(1).numberOfModifications()).isEqualTo(1);
+        assertThat(revisions.getMaterialRevision(1).getRevision()).isEqualTo(latestRevision(svnMaterial, pipelineDir, new TestSubprocessExecutionContext()));
 
-        assertThat(revisions.getMaterialRevision(2).numberOfModifications(), is(1));
-        assertThat(revisions.getMaterialRevision(2).getRevision(),
-                is(new Modifications(gitRepo.latestModifications()).latestRevision(gitMaterial)));
+        assertThat(revisions.getMaterialRevision(2).numberOfModifications()).isEqualTo(1);
+        assertThat(revisions.getMaterialRevision(2).getRevision()).isEqualTo(new Modifications(gitRepo.latestModifications()).latestRevision(gitMaterial));
 
-        assertThat(revisions.toString(), revisions.totalNumberOfModifications(), is(3));
+        assertThat(revisions.totalNumberOfModifications()).isEqualTo(3);
     }
 
     private Revision latestRevision(SvnMaterial material, File workingDir, TestSubprocessExecutionContext execCtx) {

@@ -23,9 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
@@ -48,7 +46,7 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
     @Test
     public void shouldReturnSelfForGetLocalWhenOriginIsNull() {
         PipelineConfigs pipelineConfigs = createEmpty();
-        assertThat(pipelineConfigs.getLocal().size(), is(0));
+        assertThat(pipelineConfigs.getLocal().size()).isEqualTo(0);
         assertSame(pipelineConfigs, pipelineConfigs.getLocal());
     }
 
@@ -56,7 +54,7 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
     public void shouldReturnSelfForGetLocalPartsWhenOriginIsFile() {
         PipelineConfigs pipelineConfigs = createEmpty();
         pipelineConfigs.setOrigins(new FileConfigOrigin());
-        assertThat(pipelineConfigs.getLocal().size(), is(0));
+        assertThat(pipelineConfigs.getLocal().size()).isEqualTo(0);
         assertSame(pipelineConfigs, pipelineConfigs.getLocal());
     }
 
@@ -73,7 +71,7 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfigs group = new BasicPipelineConfigs(pipe);
         group.setOrigins(new FileConfigOrigin());
-        assertThat(pipe.getOrigin(), is(new FileConfigOrigin()));
+        assertThat(pipe.getOrigin()).isEqualTo(new FileConfigOrigin());
     }
 
     @Test
@@ -81,7 +79,7 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfigs group = new BasicPipelineConfigs(pipe);
         group.setOrigins(new FileConfigOrigin());
-        assertThat(group.getAuthorization().getOrigin(), is(new FileConfigOrigin()));
+        assertThat(group.getAuthorization().getOrigin()).isEqualTo(new FileConfigOrigin());
     }
 
     @Test
@@ -100,16 +98,16 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
     public void shouldUpdateName() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.setConfigAttributes(Map.of(BasicPipelineConfigs.GROUP, "my-new-group"));
-        assertThat(group.getGroup(), is("my-new-group"));
+        assertThat(group.getGroup()).isEqualTo("my-new-group");
 
         group.setConfigAttributes(Map.of());
-        assertThat(group.getGroup(), is("my-new-group"));
+        assertThat(group.getGroup()).isEqualTo("my-new-group");
 
         group.setConfigAttributes(null);
-        assertThat(group.getGroup(), is("my-new-group"));
+        assertThat(group.getGroup()).isEqualTo("my-new-group");
 
         group.setConfigAttributes(mapOfNull(BasicPipelineConfigs.GROUP));
-        assertThat(group.getGroup(), is(nullValue()));
+        assertThat(group.getGroup()).isNull();
     }
 
     private static Map<String, Object> mapOfNull(String key) {

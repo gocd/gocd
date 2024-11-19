@@ -40,8 +40,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(SpringExtension.class)
@@ -118,7 +117,7 @@ public class PackageDefinitionServiceIntegrationTest {
         assertNull(service.find(packageUuid));
         service.createPackage(packageDefinition, repositoryId, user, result);
 
-        assertThat(result, is(expectedResult));
+        assertThat(result).isEqualTo(expectedResult);
         assertNull(service.find(packageUuid));
     }
 
@@ -141,10 +140,10 @@ public class PackageDefinitionServiceIntegrationTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.setMessage(EntityType.PackageDefinition.deleteSuccessful(packageDefinition.getId()));
 
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId).getPackages().find(packageUuid), is(packageDefinition));
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId).getPackages().find(packageUuid)).isEqualTo(packageDefinition);
         service.deletePackage(packageDefinition, user, result);
 
-        assertThat(result, is(expectedResult));
+        assertThat(result).isEqualTo(expectedResult);
         assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId).getPackages().find(packageUuid));
     }
 }

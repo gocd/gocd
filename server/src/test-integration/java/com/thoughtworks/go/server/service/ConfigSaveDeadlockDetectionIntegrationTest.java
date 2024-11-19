@@ -52,8 +52,7 @@ import java.util.concurrent.TimeoutException;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -183,9 +182,9 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
         }
 
-        assertThat(goConfigService.getAllPipelineConfigs().size(), is(count + count + count));
-        assertThat(goConfigService.getConfigForEditing().getAllPipelineConfigs().size(), is(count + count));
-        assertThat(goConfigService.getConfigForEditing().getEnvironments().size(), is(count + EXISTING_ENV_COUNT));
+        assertThat(goConfigService.getAllPipelineConfigs().size()).isEqualTo(count + count + count);
+        assertThat(goConfigService.getConfigForEditing().getAllPipelineConfigs().size()).isEqualTo(count + count);
+        assertThat(goConfigService.getConfigForEditing().getEnvironments().size()).isEqualTo(count + EXISTING_ENV_COUNT);
     }
 
     private void writeConfigToFile(File configFile) throws IOException {
@@ -250,7 +249,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
             PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
             pipelineConfigService.createPipelineConfig(new Username(new CaseInsensitiveString("root")), pipelineConfig, result, "default");
-            assertThat(result.message(), result.isSuccessful(), is(true));
+            assertThat(result.isSuccessful()).describedAs(result.message()).isTrue();
         }, "pipeline-config-save-thread" + counter);
     }
 

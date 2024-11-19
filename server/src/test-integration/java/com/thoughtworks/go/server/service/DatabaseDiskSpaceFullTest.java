@@ -36,8 +36,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ExtendWith(DatabaseDiskIsFull.class)
@@ -79,15 +78,15 @@ public class DatabaseDiskSpaceFullTest {
     public void shouldNotRerunStageIfDiskspaceIsFull() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), fixture.devStage, "anyone", result), is(false));
-        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), fixture.devStage, "anyone", new ServerHealthStateOperationResult()), is(false));
+        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), fixture.devStage, "anyone", result)).isFalse();
+        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), fixture.devStage, "anyone", new ServerHealthStateOperationResult())).isFalse();
     }
 
     @Test
     public void shouldNotManualTriggerIfDiskspaceIsFull() {
         fixture.createdPipelineWithAllStagesPassed();
-        assertThat(schedulingChecker.canManuallyTrigger(fixture.pipelineConfig(), "anyone", new ServerHealthStateOperationResult()), is(false));
-        assertThat(schedulingChecker.canTriggerManualPipeline(fixture.pipelineConfig(), "anyone", new ServerHealthStateOperationResult()), is(false));
+        assertThat(schedulingChecker.canManuallyTrigger(fixture.pipelineConfig(), "anyone", new ServerHealthStateOperationResult())).isFalse();
+        assertThat(schedulingChecker.canTriggerManualPipeline(fixture.pipelineConfig(), "anyone", new ServerHealthStateOperationResult())).isFalse();
     }
 
 }

@@ -31,9 +31,8 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -55,7 +54,7 @@ public class SecurityAuthConfigCreateCommandTest {
         SecurityAuthConfigCreateCommand command = new SecurityAuthConfigCreateCommand(null, authConfig, extension, null, null);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), equalTo(authConfig));
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo")).isEqualTo(authConfig);
     }
 
     @Test

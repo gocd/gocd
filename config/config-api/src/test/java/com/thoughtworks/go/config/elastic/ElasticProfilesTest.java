@@ -17,17 +17,15 @@ package com.thoughtworks.go.config.elastic;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ElasticProfilesTest {
 
     @Test
     public void shouldFindProfileById() throws Exception {
-        assertThat(new ElasticProfiles().find("foo"), is(nullValue()));
+        assertThat(new ElasticProfiles().find("foo")).isNull();
         ElasticProfile profile = new ElasticProfile("foo", "prod-cluster");
-        assertThat(new ElasticProfiles(profile).find("foo"), is(profile));
+        assertThat(new ElasticProfiles(profile).find("foo")).isEqualTo(profile);
     }
 
     @Test
@@ -37,10 +35,10 @@ public class ElasticProfilesTest {
         ElasticProfiles profiles = new ElasticProfiles(profile1, profile2);
         profiles.validate(null);
 
-        assertThat(profile1.errors().size(), is(1));
-        assertThat(profile1.errors().asString(), is("Elastic agent profile id 'foo' is not unique"));
+        assertThat(profile1.errors().size()).isEqualTo(1);
+        assertThat(profile1.errors().asString()).isEqualTo("Elastic agent profile id 'foo' is not unique");
 
-        assertThat(profile2.errors().size(), is(1));
-        assertThat(profile2.errors().asString(), is("Elastic agent profile id 'foo' is not unique"));
+        assertThat(profile2.errors().size()).isEqualTo(1);
+        assertThat(profile2.errors().asString()).isEqualTo("Elastic agent profile id 'foo' is not unique");
     }
 }

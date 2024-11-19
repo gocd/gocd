@@ -37,7 +37,7 @@ class PluggableTaskRepresenterTest implements TaskRepresenterTrait {
     task.config().add(simpleProperty)
     task.config().add(secureProperty)
     def taskPreference = new TaskPreference(task)
-    PluggableTaskConfigStore.store().setPreferenceFor("curl", taskPreference);
+    PluggableTaskConfigStore.store().setPreferenceFor("curl", taskPreference)
   }
 
   def existingTask() {

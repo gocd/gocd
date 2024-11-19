@@ -18,8 +18,7 @@ package com.thoughtworks.go.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AntTaskTest {
     private AntTask antTask;
@@ -32,25 +31,25 @@ public class AntTaskTest {
     @Test
     public void shouldRetainDoubleQuotesInDescription() {
         antTask.setTarget("\"foo bar\" baz —debug");
-        assertThat(antTask.describe(), is("ant \"foo bar\" baz —debug"));
+        assertThat(antTask.describe()).isEqualTo("ant \"foo bar\" baz —debug");
     }
 
     @Test
     public void shouldRetainSingleQuotesInDescription() {
         antTask.setTarget("'foo bar' baz —debug");
-        assertThat(antTask.describe(), is("ant 'foo bar' baz —debug"));
+        assertThat(antTask.describe()).isEqualTo("ant 'foo bar' baz —debug");
     }
 
     @Test
     public void shouldNotSetTargetOnBuilderWhenNotSet() {
-        assertThat(antTask.arguments(), is(""));
+        assertThat(antTask.arguments()).isEqualTo("");
     }
 
     @Test
     public void shouldSetTargetOnBuilderWhenAvailable() {
         String target = "target";
         antTask.setTarget(target);
-        assertThat(antTask.arguments(), is(target));
+        assertThat(antTask.arguments()).isEqualTo(target);
     }
 
     @Test
@@ -59,11 +58,11 @@ public class AntTaskTest {
         String buildXml = "build.xml";
         antTask.setBuildFile(buildXml);
         antTask.setTarget(target);
-        assertThat(antTask.arguments(), is("-f \"" + buildXml + "\" " + target));
+        assertThat(antTask.arguments()).isEqualTo("-f \"" + buildXml + "\" " + target);
 
         String distBuildXml = "build/dist.xml";
         antTask.setBuildFile(distBuildXml);
-        assertThat(antTask.arguments(), is("-f \"" + distBuildXml + "\" " + target));
+        assertThat(antTask.arguments()).isEqualTo("-f \"" + distBuildXml + "\" " + target);
     }
 
     @Test
@@ -71,21 +70,21 @@ public class AntTaskTest {
         antTask.setBuildFile("build.xml");
         antTask.setTarget("test");
         antTask.setWorkingDirectory("lib");
-        assertThat(antTask.describe(), is("ant -f \"build.xml\" test (workingDirectory: lib)"));
+        assertThat(antTask.describe()).isEqualTo("ant -f \"build.xml\" test (workingDirectory: lib)");
     }
 
     @Test
     public void shouldReturnCommandAndWorkingDir() {
         antTask.setWorkingDirectory("lib");
-        assertThat(antTask.command(), is("ant"));
-        assertThat(antTask.workingDirectory(), is("lib"));
+        assertThat(antTask.command()).isEqualTo("ant");
+        assertThat(antTask.workingDirectory()).isEqualTo("lib");
     }
 
     @Test
-    public void shouldGiveArgumentsIncludingBuildfileAndTarget() {
+    public void shouldGiveArgumentsIncludingBuildFileAndTarget() {
         AntTask task = new AntTask();
         task.setBuildFile("build/build.xml");
         task.setTarget("compile");
-        assertThat(task.arguments(), is("-f \"build/build.xml\" compile"));
+        assertThat(task.arguments()).isEqualTo("-f \"build/build.xml\" compile");
     }
 }

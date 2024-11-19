@@ -19,15 +19,14 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.UnsupportedEncodingException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RestfulActionTestHelper {
     public static void assertValidContentAndStatus(MockHttpServletResponse response, int status, String contentType,
                                                    String content) throws UnsupportedEncodingException {
-        assertThat(response.getStatus(), is(status));
-        assertThat(response.getContentType(), is(contentType));
+        assertThat(response.getStatus()).isEqualTo(status);
+        assertThat(response.getContentType()).isEqualTo(contentType);
         //NOTE: Explicitly using junit assertion here since in IntelliJ this will give us a diff
         assertEquals(content, response.getContentAsString());
     }

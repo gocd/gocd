@@ -31,8 +31,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import static com.thoughtworks.go.domain.PipelinePauseInfo.notPaused;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -49,11 +48,11 @@ public class GoDashboardPipelineTest {
 
         GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()), permissions, "group1", mock(TimeStampBasedCounter.class), PipelineConfigMother.pipelineConfig("pipeline1"));
 
-        assertThat(pipeline.canBeViewedBy("viewer1"), is(true));
-        assertThat(pipeline.canBeViewedBy("viewer2"), is(true));
+        assertThat(pipeline.canBeViewedBy("viewer1")).isTrue();
+        assertThat(pipeline.canBeViewedBy("viewer2")).isTrue();
 
-        assertThat(pipeline.canBeViewedBy("some-other-user-not-in-viewers-list"), is(false));
-        assertThat(pipeline.canBeViewedBy("admin"), is(false));
+        assertThat(pipeline.canBeViewedBy("some-other-user-not-in-viewers-list")).isFalse();
+        assertThat(pipeline.canBeViewedBy("admin")).isFalse();
     }
 
     @Test
@@ -108,6 +107,6 @@ public class GoDashboardPipelineTest {
         when(provider.getNext()).thenReturn(1000L);
         GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()), null, "group1", provider, PipelineConfigMother.pipelineConfig("pipeline1"));
 
-        assertThat(pipeline.getLastUpdatedTimeStamp(), is(1000L));
+        assertThat(pipeline.getLastUpdatedTimeStamp()).isEqualTo(1000L);
     }
 }

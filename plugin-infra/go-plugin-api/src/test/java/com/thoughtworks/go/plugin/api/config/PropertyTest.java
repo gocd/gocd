@@ -17,8 +17,7 @@ package com.thoughtworks.go.plugin.api.config;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PropertyTest {
 
@@ -27,24 +26,24 @@ public class PropertyTest {
         Property property = new Property("key");
         property.with(Property.DISPLAY_NAME, "some display name");
         property.with(Property.DISPLAY_ORDER, 3);
-        assertThat(property.getOption(Property.DISPLAY_NAME), is("some display name"));
-        assertThat(property.getOption(Property.DISPLAY_ORDER), is(3));
+        assertThat(property.getOption(Property.DISPLAY_NAME)).isEqualTo("some display name");
+        assertThat(property.getOption(Property.DISPLAY_ORDER)).isEqualTo(3);
     }
 
     @Test
     public void shouldReturnDefaultValueWhenNoValueOrEmptyValueIsSpecified() {
         String defaultValue = "test-default";
         Property property = new Property("key", null, defaultValue);
-        assertThat(property.getValue(), is(defaultValue));
+        assertThat(property.getValue()).isEqualTo(defaultValue);
         property = new Property("key", "", defaultValue);
-        assertThat(property.getValue(), is(""));
+        assertThat(property.getValue()).isEqualTo("");
         property = new Property("key").withDefault(defaultValue);
-        assertThat(property.getValue(), is(defaultValue));
+        assertThat(property.getValue()).isEqualTo(defaultValue);
         property = new Property("key");
-        assertThat(property.getValue(), is(""));
+        assertThat(property.getValue()).isEqualTo("");
         String value = "yek";
         property = new Property("key", value, defaultValue);
-        assertThat(property.getValue(), is(value));
+        assertThat(property.getValue()).isEqualTo(value);
     }
 
 

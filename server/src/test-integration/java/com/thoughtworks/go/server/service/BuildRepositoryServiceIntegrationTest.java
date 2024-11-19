@@ -54,8 +54,7 @@ import java.util.Date;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.AGENT_UUID;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -144,14 +143,14 @@ public class BuildRepositoryServiceIntegrationTest {
         createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
 
         Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(DEV_STAGE)));
-        assertThat("Should be approved", stage1.isApproved(), is(true));
-        assertThat(stage1.getApprovedBy(), is(DEFAULT_APPROVED_BY));
+        assertThat(stage1.isApproved()).isTrue();
+        assertThat(stage1.getApprovedBy()).isEqualTo(DEFAULT_APPROVED_BY);
 
         Stage stage2 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
-        assertThat(stage2.stageState(), is(StageState.Building));
-        assertThat(stage2.getApprovedBy(), is(DEFAULT_APPROVED_BY));
+        assertThat(stage2.stageState()).isEqualTo(StageState.Building);
+        assertThat(stage2.getApprovedBy()).isEqualTo(DEFAULT_APPROVED_BY);
 
-        assertThat("In same pipeline", stage1.getPipelineId(), is(stage2.getPipelineId()));
+        assertThat(stage1.getPipelineId()).isEqualTo(stage2.getPipelineId());
     }
 
     @Test
@@ -162,7 +161,7 @@ public class BuildRepositoryServiceIntegrationTest {
         int oldSize = pipelineScheduleQueue.toBeScheduled().size();
         createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Failed);
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().size(), is(oldSize));
+        assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(oldSize);
     }
 
     @Test
@@ -181,7 +180,7 @@ public class BuildRepositoryServiceIntegrationTest {
                 agentUuid);
 
         JobInstance reloadedJob = jobInstanceDao.buildByIdWithTransitions(buildId);
-        assertThat(reloadedJob.getTransitions().byState(JobState.Building), is(not(nullValue())));
+        assertThat(reloadedJob.getTransitions().byState(JobState.Building)).isNotNull();
     }
 
     @Test
@@ -206,7 +205,7 @@ public class BuildRepositoryServiceIntegrationTest {
         reportJobPassed(secondJob);
 
         latestPipeline = pipelineDao.loadPipeline(latestPipeline.getId());
-        assertThat(latestPipeline.getStages().size(), is(oldSize));
+        assertThat(latestPipeline.getStages().size()).isEqualTo(oldSize);
     }
 
     @Test
@@ -216,7 +215,7 @@ public class BuildRepositoryServiceIntegrationTest {
         scheduleService.rescheduleJob(job);
         reportJobPassed(job);
         JobInstance reloaded = jobInstanceDao.buildByIdWithTransitions(job.getId());
-        assertThat(reloaded.getState(), is(JobState.Rescheduled));
+        assertThat(reloaded.getState()).isEqualTo(JobState.Rescheduled);
     }
 
     @Test
@@ -226,7 +225,7 @@ public class BuildRepositoryServiceIntegrationTest {
         scheduleService.rescheduleJob(job);
         buildRepositoryService.completing(job.getIdentifier(), JobResult.Passed, AGENT_UUID);
         JobInstance reloaded = jobInstanceDao.buildByIdWithTransitions(job.getId());
-        assertThat(reloaded.getResult(), is(JobResult.Unknown));
+        assertThat(reloaded.getResult()).isEqualTo(JobResult.Unknown);
     }
 
     @Test
@@ -236,16 +235,15 @@ public class BuildRepositoryServiceIntegrationTest {
         completeStageAndTrigger(newPipeline.getFirstStage());
 
         Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(DEV_STAGE)));
-        assertThat("Should be approved", stage1.isApproved(), is(true));
-        assertThat("1st stage should be approved by Cruise", stage1.getApprovedBy(),
-                is(GoConstants.DEFAULT_APPROVED_BY));
-        assertThat("Should be passed", stage1.getJobInstances().first().getResult(), is(JobResult.Passed));
+        assertThat(stage1.isApproved()).isTrue();
+        assertThat(stage1.getApprovedBy()).isEqualTo(GoConstants.DEFAULT_APPROVED_BY);
+        assertThat(stage1.getJobInstances().first().getResult()).isEqualTo(JobResult.Passed);
 
         Stage stage2 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
-        assertThat(stage2.getPipelineId(), is(pipeline.getId()));
-        assertThat(stage2.stageState(), is(StageState.Passed));
+        assertThat(stage2.getPipelineId()).isEqualTo(pipeline.getId());
+        assertThat(stage2.stageState()).isEqualTo(StageState.Passed);
 
-        assertThat("In different pipelines", stage1.getPipelineId(), is(not(stage2.getPipelineId())));
+        assertThat(stage1.getPipelineId()).isNotEqualTo(stage2.getPipelineId());
     }
 
     @Test
@@ -261,10 +259,10 @@ public class BuildRepositoryServiceIntegrationTest {
         }
 
         Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(DEV_STAGE)));
-        assertThat(stage1.stageState(), is(StageState.Passed));
+        assertThat(stage1.stageState()).isEqualTo(StageState.Passed);
 
         Stage stage2 = stageService.findStageWithIdentifier(new StageIdentifier(newPipeline.getIdentifier(), FT_STAGE, "1"));
-        assertThat(stage2, is(instanceOf(NullStage.class)));
+        assertThat(stage2).isInstanceOf(NullStage.class);
     }
 
     @Test
@@ -278,13 +276,13 @@ public class BuildRepositoryServiceIntegrationTest {
         reportJobPassed(oldFtStage.getJobInstances().get(0));
 
         Stage mingleFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
-        assertThat(mingleFt.getPipelineId(), is(mostRecentPassedStage.getPipelineId()));
+        assertThat(mingleFt.getPipelineId()).isEqualTo(mostRecentPassedStage.getPipelineId());
     }
 
     @Test
     public void shouldUpdateStageStatusWhenAllJobsPass() throws Exception {
         Stage stage1 = createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
-        assertThat(stage1.getResult(), is(StageResult.Unknown));
+        assertThat(stage1.getResult()).isEqualTo(StageResult.Unknown);
         JobInstances jobs = stage1.getJobInstances();
         for (JobInstance job : jobs) {
             buildRepositoryService.completing(job.getIdentifier(), JobResult.Passed, AGENT_UUID);
@@ -293,11 +291,11 @@ public class BuildRepositoryServiceIntegrationTest {
 
         Stage after = stageService.stageById(stage1.getId());
         JobInstances instances = after.getJobInstances();
-        assertThat(instances.size(), is(1));
-        assertThat(instances.get(0).getResult(), is(JobResult.Passed));
-        assertThat(instances.get(0).getState(), is(JobState.Completed));
+        assertThat(instances.size()).isEqualTo(1);
+        assertThat(instances.get(0).getResult()).isEqualTo(JobResult.Passed);
+        assertThat(instances.get(0).getState()).isEqualTo(JobState.Completed);
 
-        assertThat(after.getResult(), is(StageResult.Passed));
+        assertThat(after.getResult()).isEqualTo(StageResult.Passed);
     }
 
 
@@ -308,7 +306,7 @@ public class BuildRepositoryServiceIntegrationTest {
         reportJobPassed(mostRecent.getJobInstances().get(0));
 
         Stage mingleFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
-        assertThat(mingleFt.getPipelineId(), is(mostRecent.getPipelineId()));
+        assertThat(mingleFt.getPipelineId()).isEqualTo(mostRecent.getPipelineId());
     }
 
     @Test
@@ -317,7 +315,7 @@ public class BuildRepositoryServiceIntegrationTest {
         Stage originalFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
         createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
         Stage mingleFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
-        assertThat(mingleFt.getId(), is(originalFt.getId()));
+        assertThat(mingleFt.getId()).isEqualTo(originalFt.getId());
     }
 
     @Test
@@ -326,7 +324,7 @@ public class BuildRepositoryServiceIntegrationTest {
         createPipelineWithFirstStageCompleted(mingle);
         completeStageAndTrigger(oldFtStage);
         Stage mostRecent = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
-        assertThat(mostRecent.getPipelineId(), is(oldFtStage.getPipelineId() + 1));
+        assertThat(mostRecent.getPipelineId()).isEqualTo(oldFtStage.getPipelineId() + 1);
     }
 
     @Test
@@ -335,7 +333,7 @@ public class BuildRepositoryServiceIntegrationTest {
         Stage oldFtStage = createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
         createPipelineWithFirstStageCompleted(mingle);
         Stage mostRecent = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
-        assertThat(mostRecent.getId(), is(oldFtStage.getId()));
+        assertThat(mostRecent.getId()).isEqualTo(oldFtStage.getId());
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -361,12 +359,12 @@ public class BuildRepositoryServiceIntegrationTest {
         });
 
         final Stage cancelled = stageService.stageById(stage.getId());
-        assertThat(cancelled.stageState(), is(StageState.Cancelled));
+        assertThat(cancelled.stageState()).isEqualTo(StageState.Cancelled);
         final JobInstances builds = cancelled.getJobInstances();
         for (JobInstance job : builds) {
-            assertThat(job.currentStatus(), is(JobState.Completed));
-            assertThat(job.getResult(), is(JobResult.Cancelled));
-            assertThat(job.displayStatusWithResult(), is("cancelled"));
+            assertThat(job.currentStatus()).isEqualTo(JobState.Completed);
+            assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
+            assertThat(job.displayStatusWithResult()).isEqualTo("cancelled");
         }
     }
 

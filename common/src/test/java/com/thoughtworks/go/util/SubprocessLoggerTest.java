@@ -25,8 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +47,7 @@ public class SubprocessLoggerTest {
             synchronized (log) {
                 result = log.getLog();
             }
-            assertThat(result, is(""));
+            assertThat(result).isEqualTo("");
         }
     }
 
@@ -64,7 +63,7 @@ public class SubprocessLoggerTest {
             }
             allLogs = result;
         }
-        assertThat(allLogs, containsString("Logged all subprocesses."));
+        assertThat(allLogs).contains("Logged all subprocesses.");
     }
 
     @Test
@@ -86,7 +85,7 @@ public class SubprocessLoggerTest {
                 103
 
                 """);
-        assertThat(allLogs, not(containsString("102")));
+        assertThat(allLogs).doesNotContain("102");
     }
 
     private CurrentProcess stubProcess() {
@@ -123,7 +122,7 @@ public class SubprocessLoggerTest {
         try {
             Runtime.getRuntime().addShutdownHook(logger.exitHook());
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("Hook previously registered"));
+            assertThat(e.getMessage()).isEqualTo("Hook previously registered");
         } finally {
             Runtime.getRuntime().removeShutdownHook(logger.exitHook());
         }

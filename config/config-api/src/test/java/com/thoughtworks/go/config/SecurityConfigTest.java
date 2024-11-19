@@ -22,8 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SecurityConfigTest {
@@ -39,10 +38,10 @@ public class SecurityConfigTest {
     }
 
     @Test
-    public void twoEmptySecurityConfigsShouldBeTheSame() throws Exception {
+    public void twoEmptySecurityConfigsShouldBeTheSame() {
         SecurityConfig one = new SecurityConfig();
         SecurityConfig two = new SecurityConfig();
-        assertThat(one, is(two));
+        assertThat(one).isEqualTo(two);
     }
 
     @Test
@@ -52,43 +51,43 @@ public class SecurityConfigTest {
     }
 
     @Test
-    public void shouldKnowIfUserIsAdmin() throws Exception {
+    public void shouldKnowIfUserIsAdmin() {
         SecurityConfig security = security(null, admins(user("chris")));
-        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
-        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker"))), is(true));
+        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris")))).isTrue();
+        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker")))).isTrue();
 
         security = security(passwordFileAuthConfig(), admins(user("chris")));
-        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
-        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker"))), is(false));
+        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris")))).isTrue();
+        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker")))).isFalse();
     }
 
     @Test
-    public void shouldKnowIfRoleIsAdmin() throws Exception {
+    public void shouldKnowIfRoleIsAdmin() {
         SecurityConfig security = security(passwordFileAuthConfig(), admins(role("role1")));
-        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
-        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez"))), is(true));
-        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker"))), is(false));
+        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris")))).isTrue();
+        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez")))).isTrue();
+        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker")))).isFalse();
     }
 
     @Test
-    public void shouldNotCareIfValidUserInRoleOrUser() throws Exception {
+    public void shouldNotCareIfValidUserInRoleOrUser() {
         SecurityConfig security = security(passwordFileAuthConfig(), admins(role("role2")));
-        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
-        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez"))), is(false));
+        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris")))).isTrue();
+        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez")))).isFalse();
 
         security = security(passwordFileAuthConfig(), admins(role("role2"), user("jez")));
-        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
-        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez"))), is(true));
+        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris")))).isTrue();
+        assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez")))).isTrue();
     }
 
     @Test
-    public void shouldValidateRoleAsAdmin() throws Exception {
+    public void shouldValidateRoleAsAdmin() {
         SecurityConfig security = security(passwordFileAuthConfig(), admins(role("role2")));
-        assertThat(security.isAdmin(new AdminRole(new CaseInsensitiveString("role2"))), is(true));
+        assertThat(security.isAdmin(new AdminRole(new CaseInsensitiveString("role2")))).isTrue();
     }
 
     @Test
-    public void shouldReturnTheMemberRoles() throws Exception {
+    public void shouldReturnTheMemberRoles() {
         SecurityConfig securityConfig = security(passwordFileAuthConfig(), admins());
         assertUserRoles(securityConfig, "chris", DEFAULT_ROLES);
         assertUserRoles(securityConfig, "jez", DEFAULT_ROLES[0]);
@@ -96,7 +95,7 @@ public class SecurityConfigTest {
     }
 
     @Test
-    public void shouldReturnTrueIfDeletingARoleGoesThroughSuccessfully() throws Exception {
+    public void shouldReturnTrueIfDeletingARoleGoesThroughSuccessfully() {
         SecurityConfig securityConfig = security(passwordFileAuthConfig(), admins());
         securityConfig.deleteRole(ROLE1);
 
@@ -105,7 +104,7 @@ public class SecurityConfigTest {
     }
 
     @Test
-    public void shouldBombIfDeletingARoleWhichDoesNotExist() throws Exception {
+    public void shouldBombIfDeletingARoleWhichDoesNotExist() {
         try {
             SecurityConfig securityConfig = security(passwordFileAuthConfig(), admins());
             securityConfig.deleteRole(new RoleConfig(new CaseInsensitiveString("role99")));
@@ -116,7 +115,7 @@ public class SecurityConfigTest {
     }
 
     private void assertUserRoles(SecurityConfig securityConfig, String username, Role... roles) {
-        assertThat(securityConfig.memberRoleFor(new CaseInsensitiveString(username)), is(Arrays.asList(roles)));
+        assertThat(securityConfig.memberRoleFor(new CaseInsensitiveString(username))).isEqualTo(Arrays.asList(roles));
     }
 
     private ServerConfig server(SecurityAuthConfig passwordFile, AdminsConfig admins) {
@@ -153,7 +152,7 @@ public class SecurityConfigTest {
     }
 
     @Test
-    public void shouldGetPluginRolesWhichBelogsToSpecifiedPlugin() throws Exception {
+    public void shouldGetPluginRolesWhichBelogsToSpecifiedPlugin() {
         SecurityConfig securityConfig = new SecurityConfig();
         securityConfig.addRole(new PluginRoleConfig("foo", "ldap"));
         securityConfig.addRole(new PluginRoleConfig("bar", "github"));
@@ -165,12 +164,12 @@ public class SecurityConfigTest {
 
         List<PluginRoleConfig> pluginRolesConfig = securityConfig.getPluginRoles("cd.go.ldap");
 
-        assertThat(pluginRolesConfig, hasSize(1));
-        assertThat(pluginRolesConfig, contains(new PluginRoleConfig("foo", "ldap")));
+        assertThat(pluginRolesConfig).hasSize(1);
+        assertThat(pluginRolesConfig).contains(new PluginRoleConfig("foo", "ldap"));
     }
 
     @Test
-    public void getPluginRolesConfig_shouldReturnNothingWhenBadPluginIdSpecified() throws Exception {
+    public void getPluginRolesConfig_shouldReturnNothingWhenBadPluginIdSpecified() {
         SecurityConfig securityConfig = new SecurityConfig();
         securityConfig.addRole(new PluginRoleConfig("foo", "ldap"));
         securityConfig.addRole(new PluginRoleConfig("bar", "github"));
@@ -180,21 +179,21 @@ public class SecurityConfigTest {
 
         List<PluginRoleConfig> pluginRolesConfig = securityConfig.getPluginRoles("non-existant-plugin");
 
-        assertThat(pluginRolesConfig, hasSize(0));
+        assertThat(pluginRolesConfig).hasSize(0);
     }
 
     @Test
-    public void getPluginRole_shouldReturnPluginRoleMatchingTheGivenName() throws Exception {
+    public void getPluginRole_shouldReturnPluginRoleMatchingTheGivenName() {
         PluginRoleConfig role = new PluginRoleConfig("foo", "ldap");
         SecurityConfig securityConfig = new SecurityConfig();
 
         securityConfig.addRole(role);
 
-        assertThat(securityConfig.getPluginRole(new CaseInsensitiveString("FOO")), is(role));
+        assertThat(securityConfig.getPluginRole(new CaseInsensitiveString("FOO"))).isEqualTo(role);
     }
 
     @Test
-    public void getPluginRole_shouldReturnNullInAbsenceOfPluginRoleForTheGivenName() throws Exception {
+    public void getPluginRole_shouldReturnNullInAbsenceOfPluginRoleForTheGivenName() {
         SecurityConfig securityConfig = new SecurityConfig();
 
         assertNull(securityConfig.getPluginRole(new CaseInsensitiveString("foo")));

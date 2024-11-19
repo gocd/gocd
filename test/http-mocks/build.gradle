@@ -16,11 +16,11 @@
 
 dependencies {
   implementation project.deps.apacheHttpComponents
-  implementation project.deps.assertJ
   implementation project.deps.commonsLang3
   implementation project.deps.servletApi
   implementation project.deps.gson
   implementation project.deps.spring
   implementation project.deps.springTest
+  implementation project.deps.assertJ
   implementation project.deps.jsonUnit
 }

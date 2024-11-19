@@ -31,8 +31,7 @@ import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ExtendWith(SystemStubsExtension.class)
@@ -62,7 +61,7 @@ public class MaterialDatabaseGitWithSubmodulesUpdaterTest extends TestBaseForDat
     public void shouldUpdateModificationsForExternalsAsWell() throws Exception {
         updater.updateMaterial(material);
         MaterialRevisions materialRevisions = materialRepository.findLatestModification(material);
-        assertThat(materialRevisions.numberOfRevisions(), is(1));
+        assertThat(materialRevisions.numberOfRevisions()).isEqualTo(1);
     }
 
 }

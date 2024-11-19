@@ -39,8 +39,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -213,7 +212,7 @@ public class AnalyticsPluginAssetsServiceTest {
 
         assetsService.onPluginMetadataCreate(PLUGIN_ID);
 
-        assertThat(analyticsPluginInfo.getStaticAssetsPath(), is(assetsService.assetPathFor(PLUGIN_ID)));
+        assertThat(analyticsPluginInfo.getStaticAssetsPath()).isEqualTo(assetsService.assetPathFor(PLUGIN_ID));
     }
 
     @Test

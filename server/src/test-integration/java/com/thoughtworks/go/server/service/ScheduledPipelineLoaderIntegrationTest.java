@@ -68,8 +68,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(ClearSingleton.class)
@@ -149,8 +148,8 @@ public class ScheduledPipelineLoaderIntegrationTest {
         Pipeline loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
-        assertThat(((SvnMaterial) revisions.findRevisionFor(onDirOne).getMaterial()).getPassword(), is("boozer"));
-        assertThat(((P4Material) revisions.findRevisionFor(onDirTwo).getMaterial()).getPassword(), is("secret"));
+        assertThat(((SvnMaterial) revisions.findRevisionFor(onDirOne).getMaterial()).getPassword()).isEqualTo("boozer");
+        assertThat(((P4Material) revisions.findRevisionFor(onDirTwo).getMaterial()).getPassword()).isEqualTo("secret");
     }
 
     @Test
@@ -169,8 +168,8 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
         Configuration updatedConfiguration = ((PluggableSCMMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().first()).getMaterial()).getScmConfig().getConfiguration();
-        assertThat(updatedConfiguration.size(), is(2));
-        assertThat(updatedConfiguration.getProperty("password").getConfigurationValue(), is(new ConfigurationValue("new_value")));
+        assertThat(updatedConfiguration.size()).isEqualTo(2);
+        assertThat(updatedConfiguration.getProperty("password").getConfigurationValue()).isEqualTo(new ConfigurationValue("new_value"));
     }
 
     @Test
@@ -189,10 +188,10 @@ public class ScheduledPipelineLoaderIntegrationTest {
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
         PackageMaterial updatedMaterial = (PackageMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().first()).getMaterial();
         Configuration updatedConfiguration = updatedMaterial.getPackageDefinition().getConfiguration();
-        assertThat(updatedConfiguration.size(), is(2));
-        assertThat(updatedConfiguration.getProperty("package-key2").getConfigurationValue(), is(new ConfigurationValue("package-updated-value")));
-        assertThat(updatedMaterial.getPackageDefinition().getRepository().getConfiguration().size(), is(2));
-        assertThat(updatedMaterial.getPackageDefinition().getRepository().getConfiguration().getProperty("repo-key2").getConfigurationValue(), is(new ConfigurationValue("repo-updated-value")));
+        assertThat(updatedConfiguration.size()).isEqualTo(2);
+        assertThat(updatedConfiguration.getProperty("package-key2").getConfigurationValue()).isEqualTo(new ConfigurationValue("package-updated-value"));
+        assertThat(updatedMaterial.getPackageDefinition().getRepository().getConfiguration().size()).isEqualTo(2);
+        assertThat(updatedMaterial.getPackageDefinition().getRepository().getConfiguration().getProperty("repo-key2").getConfigurationValue()).isEqualTo(new ConfigurationValue("repo-updated-value"));
     }
 
     private long rerunJob(String jobName, PipelineConfig pipelineConfig, Pipeline previousSuccessfulBuildWithOlderPackageConfig) {
@@ -263,7 +262,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         cfg.removeMaterialConfig(cfg.materialConfigs().get(1));
         configHelper.writeConfigFile(cruiseConfig);
 
-        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPipeline("last")).size(), is(0));
+        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPipeline("last")).size()).isEqualTo(0);
 
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
 
@@ -274,27 +273,27 @@ public class ScheduledPipelineLoaderIntegrationTest {
             loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
             fail("should not have loaded pipeline with build-cause as one of the necessary materials was not found");
         } catch (Exception e) {
-            assertThat(e, is(instanceOf(StaleMaterialsOnBuildCause.class)));
-            assertThat(e.getMessage(), is("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config."));
+            assertThat(e).isInstanceOf(StaleMaterialsOnBuildCause.class);
+            assertThat(e.getMessage()).isEqualTo("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.");
         }
 
-        assertThat(loadedPipeline, is(nullValue()));
+        assertThat(loadedPipeline).isNull();
 
         JobInstance reloadedJobInstance = jobInstanceService.buildById(jobId);
-        assertThat(reloadedJobInstance.getState(), is(JobState.Completed));
-        assertThat(reloadedJobInstance.getResult(), is(JobResult.Failed));
+        assertThat(reloadedJobInstance.getState()).isEqualTo(JobState.Completed);
+        assertThat(reloadedJobInstance.getResult()).isEqualTo(JobResult.Failed);
 
         HealthStateScope scope = HealthStateScope.forJob("last", "stage", "job-one");
-        assertThat(serverHealthService.logsSortedForScope(scope).size(), is(1));
+        assertThat(serverHealthService.logsSortedForScope(scope).size()).isEqualTo(1);
         ServerHealthState error = serverHealthService.logsSortedForScope(HealthStateScope.forJob("last", "stage", "job-one")).get(0);
-        assertThat(error, is(ServerHealthState.error("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.", "Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed.", HealthStateType.general(HealthStateScope.forJob("last", "stage", "job-one")))));
+        assertThat(error).isEqualTo(ServerHealthState.error("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.", "Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed.", HealthStateType.general(HealthStateScope.forJob("last", "stage", "job-one"))));
         DateTime expiryTime = ReflectionUtil.getField(error, "expiryTime");
-        assertThat(expiryTime.toDate().after(currentTime), is(true));
-        assertThat(expiryTime.toDate().before(new Date(System.currentTimeMillis() + 5 * 60 * 1000 + 1)), is(true));
+        assertThat(expiryTime.toDate().after(currentTime)).isTrue();
+        assertThat(expiryTime.toDate().before(new Date(System.currentTimeMillis() + 5 * 60 * 1000 + 1))).isTrue();
 
         String logText = FileUtils.readFileToString(consoleService.consoleLogArtifact(reloadedJobInstance.getIdentifier()), UTF_8);
-        assertThat(logText, containsString("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config."));
-        assertThat(logText, containsString("Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed."));
+        assertThat(logText).contains("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.");
+        assertThat(logText).contains("Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed.");
     }
 
     @Test//if other materials have expansion concept at some point, add more tests here
@@ -312,9 +311,9 @@ public class ScheduledPipelineLoaderIntegrationTest {
         Pipeline loadedPipeline = createAndLoadModifyOneFilePipeline(pipelineConfig);
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
-        assertThat(revisions.getRevisions().size(), is(2));
-        assertThat(((SvnMaterial) revisions.getRevisions().get(0).getMaterial()).getPassword(), is("boozer"));
-        assertThat(((SvnMaterial) revisions.getRevisions().get(1).getMaterial()).getPassword(), is("boozer"));
+        assertThat(revisions.getRevisions().size()).isEqualTo(2);
+        assertThat(((SvnMaterial) revisions.getRevisions().get(0).getMaterial()).getPassword()).isEqualTo("boozer");
+        assertThat(((SvnMaterial) revisions.getRevisions().get(1).getMaterial()).getPassword()).isEqualTo("boozer");
     }
 
     @Test
@@ -336,11 +335,11 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
         Pipeline shallowPipelineInstance = createAndLoadModifyOneFilePipeline(shallowPipeline);
         MaterialRevisions shallowRevisions = shallowPipelineInstance.getBuildCause().getMaterialRevisions();
-        assertThat(((GitMaterial) shallowRevisions.getRevisions().get(0).getMaterial()).isShallowClone(), is(true));
+        assertThat(((GitMaterial) shallowRevisions.getRevisions().get(0).getMaterial()).isShallowClone()).isTrue();
 
         Pipeline fullPipelineInstance = createAndLoadModifyOneFilePipeline(fullPipeline);
         MaterialRevisions fullRevisions = fullPipelineInstance.getBuildCause().getMaterialRevisions();
-        assertThat(((GitMaterial) fullRevisions.getRevisions().get(0).getMaterial()).isShallowClone(), is(false));
+        assertThat(((GitMaterial) fullRevisions.getRevisions().get(0).getMaterial()).isShallowClone()).isFalse();
     }
 
     private Pipeline createAndLoadModifyOneFilePipeline(PipelineConfig pipelineConfig) {

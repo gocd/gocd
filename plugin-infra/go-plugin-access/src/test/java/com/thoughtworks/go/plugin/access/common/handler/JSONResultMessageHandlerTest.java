@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class JSONResultMessageHandlerTest {
@@ -59,35 +58,35 @@ public class JSONResultMessageHandlerTest {
 
     @Test
     public void shouldValidateIncorrectJsonForValidationResult() {
-        assertThat(errorMessageForValidationResult("{{\"key\":\"abc\",\"message\":\"msg\"}}"), is("Unable to de-serialize json response. Validation errors should be returned as list of errors, with each error represented as a map"));
-        assertThat(errorMessageForValidationResult("[[{\"key\":\"abc\",\"message\":\"msg\"}]]"), is("Unable to de-serialize json response. Validation errors should be returned as list of errors, with each error represented as a map"));
-        assertThat(errorMessageForValidationResult("[{\"key\":true,\"message\":\"msg\"}]"), is("Unable to de-serialize json response. Validation error key should be of type string"));
-        assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":{}}]"), is("Unable to de-serialize json response. Validation message should be of type string"));
-        assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":[]}]"), is("Unable to de-serialize json response. Validation message should be of type string"));
+        assertThat(errorMessageForValidationResult("{{\"key\":\"abc\",\"message\":\"msg\"}}")).isEqualTo("Unable to de-serialize json response. Validation errors should be returned as list of errors, with each error represented as a map");
+        assertThat(errorMessageForValidationResult("[[{\"key\":\"abc\",\"message\":\"msg\"}]]")).isEqualTo("Unable to de-serialize json response. Validation errors should be returned as list of errors, with each error represented as a map");
+        assertThat(errorMessageForValidationResult("[{\"key\":true,\"message\":\"msg\"}]")).isEqualTo("Unable to de-serialize json response. Validation error key should be of type string");
+        assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":{}}]")).isEqualTo("Unable to de-serialize json response. Validation message should be of type string");
+        assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":[]}]")).isEqualTo("Unable to de-serialize json response. Validation message should be of type string");
     }
 
     @Test
     public void shouldValidateIncorrectJsonForCheckConnectionResult() {
-        assertThat(errorMessageForCheckConnectionResult(""), is("Unable to de-serialize json response. Empty response body"));
-        assertThat(errorMessageForCheckConnectionResult("[{\"result\":\"success\"}]"), is("Unable to de-serialize json response. Check connection result should be returned as map, with status represented as string and messages represented as list"));
-        assertThat(errorMessageForCheckConnectionResult("{\"status\":true}"), is("Unable to de-serialize json response. Check connection 'status' should be of type string"));
-        assertThat(errorMessageForCheckConnectionResult("{\"result\":true}"), is("Unable to de-serialize json response. Check connection 'status' is a required field"));
-        assertThat(errorMessageForCheckConnectionResult("{\"status\":\"success\",\"messages\":[{},{}]}"), is("Unable to de-serialize json response. Check connection 'message' should be of type string"));
+        assertThat(errorMessageForCheckConnectionResult("")).isEqualTo("Unable to de-serialize json response. Empty response body");
+        assertThat(errorMessageForCheckConnectionResult("[{\"result\":\"success\"}]")).isEqualTo("Unable to de-serialize json response. Check connection result should be returned as map, with status represented as string and messages represented as list");
+        assertThat(errorMessageForCheckConnectionResult("{\"status\":true}")).isEqualTo("Unable to de-serialize json response. Check connection 'status' should be of type string");
+        assertThat(errorMessageForCheckConnectionResult("{\"result\":true}")).isEqualTo("Unable to de-serialize json response. Check connection 'status' is a required field");
+        assertThat(errorMessageForCheckConnectionResult("{\"status\":\"success\",\"messages\":[{},{}]}")).isEqualTo("Unable to de-serialize json response. Check connection 'message' should be of type string");
     }
 
     private void assertValidationError(ValidationError validationError, String expectedKey, String expectedMessage) {
-        assertThat(validationError.getKey(), is(expectedKey));
-        assertThat(validationError.getMessage(), is(expectedMessage));
+        assertThat(validationError.getKey()).isEqualTo(expectedKey);
+        assertThat(validationError.getMessage()).isEqualTo(expectedMessage);
     }
 
     private void assertSuccessResult(Result result, List<String> messages) {
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.getMessages(), is(messages));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(result.getMessages()).isEqualTo(messages);
     }
 
     private void assertFailureResult(Result result, List<String> messages) {
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.getMessages(), is(messages));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.getMessages()).isEqualTo(messages);
     }
 
     private String errorMessageForValidationResult(String message) {

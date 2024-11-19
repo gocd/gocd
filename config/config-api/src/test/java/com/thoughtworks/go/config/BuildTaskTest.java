@@ -19,14 +19,12 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BuildTaskTest {
 
@@ -34,14 +32,14 @@ public class BuildTaskTest {
     public void antTaskShouldNormalizeBuildFile() {
         AntTask task = new AntTask();
         task.setBuildFile("pavan\\build.xml");
-        assertThat(task.arguments(), containsString("\"pavan/build.xml\""));
+        assertThat(task.arguments()).contains("\"pavan/build.xml\"");
     }
 
     @Test
     public void rakeTaskShouldNormalizeBuildFile() {
         RakeTask task = new RakeTask();
         task.setBuildFile("pavan\\build.xml");
-        assertThat(task.arguments(), containsString("\"pavan/build.xml\""));
+        assertThat(task.arguments()).contains("\"pavan/build.xml\"");
     }
 
     @Test
@@ -69,13 +67,13 @@ public class BuildTaskTest {
             }
         };
         task.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "foo/build.xml", BuildTask.TARGET, "foo.target", BuildTask.WORKING_DIRECTORY, "work_dir"));
-        assertThat(task.getBuildFile(), Matchers.is("foo/build.xml"));
-        assertThat(task.getTarget(), Matchers.is("foo.target"));
-        assertThat(task.workingDirectory(), Matchers.is("work_dir"));
+        assertThat(task.getBuildFile()).isEqualTo(("foo/build.xml"));
+        assertThat(task.getTarget()).isEqualTo(("foo.target"));
+        assertThat(task.workingDirectory()).isEqualTo(("work_dir"));
         task.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "", BuildTask.TARGET, "", BuildTask.WORKING_DIRECTORY, ""));
-        assertThat(task.getBuildFile(), Matchers.is(nullValue()));
-        assertThat(task.getTarget(), Matchers.is(nullValue()));
-        assertThat(task.workingDirectory(), Matchers.is(nullValue()));
+        assertThat(task.getBuildFile()).isNull();
+        assertThat(task.getTarget()).isNull();
+        assertThat(task.workingDirectory()).isNull();
     }
 
     @Test
@@ -103,9 +101,9 @@ public class BuildTaskTest {
             }
         };
         task.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "", BuildTask.TARGET, "", BuildTask.WORKING_DIRECTORY, ""));
-        assertThat(task.getBuildFile(), is(nullValue()));
-        assertThat(task.getTarget(), is(nullValue()));
-        assertThat(task.workingDirectory(), is(nullValue()));
+        assertThat(task.getBuildFile()).isNull();
+        assertThat(task.getTarget()).isNull();
+        assertThat(task.workingDirectory()).isNull();
     }
 
     @Test
@@ -134,9 +132,9 @@ public class BuildTaskTest {
         };
         task.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "foo/build.xml", BuildTask.TARGET, "foo.target", BuildTask.WORKING_DIRECTORY, "work_dir"));
         task.setConfigAttributes(Map.of());
-        assertThat(task.getBuildFile(), Matchers.is("foo/build.xml"));
-        assertThat(task.getTarget(), Matchers.is("foo.target"));
-        assertThat(task.workingDirectory(), Matchers.is("work_dir"));
+        assertThat(task.getBuildFile()).isEqualTo(("foo/build.xml"));
+        assertThat(task.getTarget()).isEqualTo(("foo.target"));
+        assertThat(task.workingDirectory()).isEqualTo(("work_dir"));
     }
 
     @Test
@@ -164,14 +162,14 @@ public class BuildTaskTest {
             }
         };
 
-        assertThat(task.getPropertiesForDisplay().isEmpty(), is(true));
+        assertThat(task.getPropertiesForDisplay().isEmpty()).isTrue();
 
         task.setBuildFile("some-file.xml");
         task.setTarget("do-something");
         task.setWorkingDirectory("some/dir");
 
-        assertThat(task.getPropertiesForDisplay(), hasItems(new TaskProperty("Build File", "some-file.xml", "build_file"), new TaskProperty("Target", "do-something", "target"),
-                new TaskProperty("Working Directory", "some/dir", "working_directory")));
+        assertThat(task.getPropertiesForDisplay()).contains(new TaskProperty("Build File", "some-file.xml", "build_file"), new TaskProperty("Target", "do-something", "target"),
+                new TaskProperty("Working Directory", "some/dir", "working_directory"));
     }
 
     @Test
@@ -206,9 +204,9 @@ public class BuildTaskTest {
         job.addTask(task);
 
         List<ConfigErrors> errors = config.validateAfterPreprocess();
-        assertThat(errors.size(), is(1));
+        assertThat(errors.size()).isEqualTo(1);
         String message = "Task of job 'job' in stage 'stage' of pipeline 'pipeline' has path '/blah' which is outside the working directory.";
-        assertThat(task.errors().on(BuildTask.WORKING_DIRECTORY), is(message));
+        assertThat(task.errors().on(BuildTask.WORKING_DIRECTORY)).isEqualTo(message);
     }
 
     @Test
@@ -223,8 +221,8 @@ public class BuildTaskTest {
         config.addTemplate(template);
 
         List<ConfigErrors> errors = config.validateAfterPreprocess();
-        assertThat(errors.size(), is(1));
+        assertThat(errors.size()).isEqualTo(1);
         String message = "Task of job 'default' in stage 'manualStage' of template 'some-template' has path '/blah' which is outside the working directory.";
-        assertThat(task.errors().on(BuildTask.WORKING_DIRECTORY), is(message));
+        assertThat(task.errors().on(BuildTask.WORKING_DIRECTORY)).isEqualTo(message);
     }
 }

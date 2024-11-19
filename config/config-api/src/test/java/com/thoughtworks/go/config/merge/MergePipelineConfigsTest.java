@@ -20,14 +20,12 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
@@ -78,7 +76,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         secondPart.setOrigin(new RepoConfigOrigin());
         MergePipelineConfigs merge = new MergePipelineConfigs(filePart, secondPart);
 
-        assertThat(merge.getLocal(), Matchers.is(filePart));
+        assertThat(merge.getLocal()).isEqualTo((filePart));
     }
 
     @Test
@@ -90,7 +88,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
 
         Authorization auth = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("buddy"))));
         merge.setAuthorization(auth);
-        assertThat(filePart.getAuthorization(), is(auth));
+        assertThat(filePart.getAuthorization()).isEqualTo(auth);
     }
 
     @Test
@@ -101,8 +99,8 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")), filePart);
         group.addToTop(PipelineConfigMother.pipelineConfig("pipeline3"));
 
-        assertThat(filePart.hasPipeline(new CaseInsensitiveString("pipeline3")), is(true));
-        assertThat(group.hasPipeline(new CaseInsensitiveString("pipeline3")), is(true));
+        assertThat(filePart.hasPipeline(new CaseInsensitiveString("pipeline3"))).isTrue();
+        assertThat(group.hasPipeline(new CaseInsensitiveString("pipeline3"))).isTrue();
     }
 
     @Override
@@ -111,7 +109,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(
                 PipelineConfigMother.pipelineConfig("pipeline1"), PipelineConfigMother.pipelineConfig("pipeline2")));
         PipelineConfig pipelineConfig = group.findBy(new CaseInsensitiveString("pipeline2"));
-        assertThat(group.indexOf(pipelineConfig), is(1));
+        assertThat(group.indexOf(pipelineConfig)).isEqualTo(1);
     }
 
     @Test
@@ -122,7 +120,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfig pipelineConfig = (PipelineConfig) group.get(0).clone();
         pipelineConfig.setLabelTemplate("blah");
         group.update(group.getGroup(), pipelineConfig, "pipeline1");
-        assertThat(group.get(0).getLabelTemplate(), is("blah"));
+        assertThat(group.get(0).getLabelTemplate()).isEqualTo("blah");
     }
 
     @Test
@@ -131,7 +129,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
         assertThrows(RuntimeException.class, () -> group.setConfigAttributes(Map.of(BasicPipelineConfigs.GROUP, "my-new-group")));
-        assertThat(group.getGroup(), nullValue());
+        assertThat(group.getGroup()).isNull();
     }
 
     @Override
@@ -146,8 +144,8 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs part1 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         PipelineConfigs part2 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2"));
         MergePipelineConfigs merge = new MergePipelineConfigs(part1, part2);
-        assertThat("shouldReturnTrueIfPipelineExist", merge.hasPipeline(new CaseInsensitiveString("pipeline1")), is(true));
-        assertThat("shouldReturnTrueIfPipelineExist", merge.hasPipeline(new CaseInsensitiveString("pipeline2")), is(true));
+        assertThat(merge.hasPipeline(new CaseInsensitiveString("pipeline1"))).isTrue();
+        assertThat(merge.hasPipeline(new CaseInsensitiveString("pipeline2"))).isTrue();
     }
 
 
@@ -156,7 +154,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs part1 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         PipelineConfigs part2 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2"));
         MergePipelineConfigs merge = new MergePipelineConfigs(part2);
-        assertThat("shouldReturnFalseIfPipelineNotExist", merge.hasPipeline(new CaseInsensitiveString("not-exist")), is(false));
+        assertThat(merge.hasPipeline(new CaseInsensitiveString("not-exist"))).isFalse();
     }
 
     @Test
@@ -165,8 +163,8 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         filePart.setOrigin(new FileConfigOrigin());
 
         MergePipelineConfigs merge = new MergePipelineConfigs(new BasicPipelineConfigs(), filePart);
-        assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null, true), is(true));
-        assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null, false), is(false));
+        assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null, true)).isTrue();
+        assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null, false)).isFalse();
     }
 
     @Test
@@ -180,7 +178,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         part2.setAuthorization(new Authorization());
         MergePipelineConfigs merge = new MergePipelineConfigs(part1, part2);
 
-        assertThat(merge.getAuthorization(), is(fileAuth));
+        assertThat(merge.getAuthorization()).isEqualTo(fileAuth);
     }
 
     @Test
@@ -192,7 +190,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")), filePart);
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true), is(false));
+        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true)).isFalse();
     }
 
     @Test
@@ -201,18 +199,17 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         filePart.setOrigin(new FileConfigOrigin());
 
         assertThat(new MergePipelineConfigs(filePart, new BasicPipelineConfigs())
-                .hasOperatePermission(new CaseInsensitiveString("anyone"), null, true), is(true));
+                .hasOperatePermission(new CaseInsensitiveString("anyone"), null, true)).isTrue();
 
         assertThat(new MergePipelineConfigs(filePart, new BasicPipelineConfigs())
-                .hasOperatePermission(new CaseInsensitiveString("anyone"), null, false), is(false));
+                .hasOperatePermission(new CaseInsensitiveString("anyone"), null, false)).isFalse();
     }
 
     @Test
     public void validate_shouldMakeSureTheNameIsAppropriate_When2ConfigParts() {
         PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(), new BasicPipelineConfigs());
         group.validate(null);
-        assertThat(group.errors().on(BasicPipelineConfigs.GROUP),
-                is("Invalid group name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(group.errors().on(BasicPipelineConfigs.GROUP)).isEqualTo("Invalid group name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -229,8 +226,8 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
                 new BasicPipelineConfigs(duplicate, PipelineConfigMother.pipelineConfig("third")));
 
         group.validate(null);
-        assertThat(duplicate.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique."));
-        assertThat(first.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique."));
+        assertThat(duplicate.errors().on(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique.");
+        assertThat(first.errors().on(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique.");
 
     }
 
@@ -252,7 +249,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs group = new MergePipelineConfigs(
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
-        assertThat(group.size(), is(2));
+        assertThat(group.size()).isEqualTo(2);
     }
 
     @Test
@@ -260,7 +257,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs group = new MergePipelineConfigs(
                 new BasicPipelineConfigs(),
                 new BasicPipelineConfigs());
-        assertThat(group.isEmpty(), is(true));
+        assertThat(group.isEmpty()).isTrue();
     }
 
     @Test
@@ -268,7 +265,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs group = new MergePipelineConfigs(
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
                 new BasicPipelineConfigs());
-        assertThat(group.isEmpty(), is(false));
+        assertThat(group.isEmpty()).isFalse();
     }
 
     @Test
@@ -277,7 +274,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs group = new MergePipelineConfigs(
                 new BasicPipelineConfigs(pipe1),
                 new BasicPipelineConfigs());
-        assertThat(group.contains(pipe1), is(true));
+        assertThat(group.contains(pipe1)).isTrue();
     }
 
     @Test
@@ -286,7 +283,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs group = new MergePipelineConfigs(
                 new BasicPipelineConfigs(pipe1),
                 new BasicPipelineConfigs());
-        assertThat(group.contains(PipelineConfigMother.pipelineConfig("pipeline2")), is(false));
+        assertThat(group.contains(PipelineConfigMother.pipelineConfig("pipeline2"))).isFalse();
     }
 
     @Test
@@ -301,11 +298,11 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
                 new BasicPipelineConfigs(pipeline3),
                 new BasicPipelineConfigs(pipeline4, pipeline5));
 
-        assertThat(group.get(0), is(pipeline1));
-        assertThat(group.get(1), is(pipeline2));
-        assertThat(group.get(2), is(pipeline3));
-        assertThat(group.get(3), is(pipeline4));
-        assertThat(group.get(4), is(pipeline5));
+        assertThat(group.get(0)).isEqualTo(pipeline1);
+        assertThat(group.get(1)).isEqualTo(pipeline2);
+        assertThat(group.get(2)).isEqualTo(pipeline3);
+        assertThat(group.get(3)).isEqualTo(pipeline4);
+        assertThat(group.get(4)).isEqualTo(pipeline5);
     }
 
     @Test
@@ -317,7 +314,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs());
 
-        assertThat(group.getFirstEditablePartOrNull(), Matchers.is(part1));
+        assertThat(group.getFirstEditablePartOrNull()).isEqualTo((part1));
 
     }
 
@@ -341,7 +338,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
 
-        assertThat(group.getPartWithPipeline(new CaseInsensitiveString("pipeline1")), Matchers.is(part1));
+        assertThat(group.getPartWithPipeline(new CaseInsensitiveString("pipeline1"))).isEqualTo((part1));
 
     }
 
@@ -369,7 +366,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfig pipeline2 = PipelineConfigMother.pipelineConfig("pipeline2");
         group.add(pipeline2);
 
-        assertThat(group.contains(pipeline2), is(true));
+        assertThat(group.contains(pipeline2)).isTrue();
     }
 
     @Test
@@ -384,7 +381,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         try {
             group.add(pipeline2);
         } catch (Exception ex) {
-            assertThat(ex.getMessage(), is("No editable configuration sources"));
+            assertThat(ex.getMessage()).isEqualTo("No editable configuration sources");
             return;
         }
 
@@ -432,19 +429,19 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs group = new MergePipelineConfigs(fileConfigs, remoteConfigs);
 
         ConfigOrigin allOrigins = group.getOrigin();
-        assertThat(allOrigins instanceof MergeConfigOrigin, is(true));
+        assertThat(allOrigins instanceof MergeConfigOrigin).isTrue();
 
         MergeConfigOrigin mergeConfigOrigin = (MergeConfigOrigin) allOrigins;
-        assertThat(mergeConfigOrigin.size(), is(2));
-        assertThat(mergeConfigOrigin.contains(new FileConfigOrigin()), is(true));
-        assertThat(mergeConfigOrigin.contains(new RepoConfigOrigin()), is(true));
+        assertThat(mergeConfigOrigin.size()).isEqualTo(2);
+        assertThat(mergeConfigOrigin.contains(new FileConfigOrigin())).isTrue();
+        assertThat(mergeConfigOrigin.contains(new RepoConfigOrigin())).isTrue();
     }
 
     private void tryAddAndAssertThatFailed(PipelineConfigs group, PipelineConfig p1, int index) {
         try {
             group.add(index, p1);
         } catch (Exception ex) {
-            assertThat(ex.getMessage(), is("Cannot add pipeline to non-editable configuration part"));
+            assertThat(ex.getMessage()).isEqualTo("Cannot add pipeline to non-editable configuration part");
             return;
         }
         fail(String.format("should have thrown when adding at %s", index));
@@ -475,8 +472,8 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipelineToInsert");
 
         group.add(3, p1);
-        assertThat(group, hasItem(p1));
-        assertThat(pipelineConfigsMiddle, hasItem(p1));
+        assertThat(group).contains(p1);
+        assertThat(pipelineConfigsMiddle).contains(p1);
     }
 
     @Test

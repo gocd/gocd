@@ -22,8 +22,7 @@ import com.thoughtworks.go.server.dao.VersionInfoDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
@@ -44,8 +43,8 @@ public class ServerVersionInfoBuilderTest {
 
         VersionInfo versionInfo = builder.getServerVersionInfo();
 
-        assertThat(versionInfo.getComponentName(), is(goVersionInfo.getComponentName()));
-        assertThat(versionInfo.getInstalledVersion(), is(goVersionInfo.getInstalledVersion()));
+        assertThat(versionInfo.getComponentName()).isEqualTo(goVersionInfo.getComponentName());
+        assertThat(versionInfo.getInstalledVersion()).isEqualTo(goVersionInfo.getInstalledVersion());
     }
 
     @Test
@@ -55,8 +54,8 @@ public class ServerVersionInfoBuilderTest {
         VersionInfo versionInfo = builder.getServerVersionInfo();
 
         verify(versionInfoDao).saveOrUpdate(isA(VersionInfo.class));
-        assertThat(versionInfo.getComponentName(), is("go_server"));
-        assertThat(versionInfo.getInstalledVersion().toString(), is(new GoVersion(CurrentGoCDVersion.getInstance().formatted()).toString()));
+        assertThat(versionInfo.getComponentName()).isEqualTo("go_server");
+        assertThat(versionInfo.getInstalledVersion().toString()).isEqualTo(new GoVersion(CurrentGoCDVersion.getInstance().formatted()).toString());
     }
 
     @Test
@@ -67,8 +66,8 @@ public class ServerVersionInfoBuilderTest {
         VersionInfo versionInfo = builder.getServerVersionInfo();
 
         verify(versionInfoDao).saveOrUpdate(isA(VersionInfo.class));
-        assertThat(versionInfo.getComponentName(), is(goVersionInfo.getComponentName()));
-        assertThat(versionInfo.getInstalledVersion().toString(), is(new GoVersion(CurrentGoCDVersion.getInstance().formatted()).toString()));
+        assertThat(versionInfo.getComponentName()).isEqualTo(goVersionInfo.getComponentName());
+        assertThat(versionInfo.getInstalledVersion().toString()).isEqualTo(new GoVersion(CurrentGoCDVersion.getInstance().formatted()).toString());
     }
 
     @Test
@@ -90,7 +89,7 @@ public class ServerVersionInfoBuilderTest {
         VersionInfo versionInfo = builder.getServerVersionInfo();
 
         verify(versionInfoDao, never()).saveOrUpdate(isA(VersionInfo.class));
-        assertThat(versionInfo.getComponentName(), is(goVersionInfo.getComponentName()));
-        assertThat(versionInfo.getInstalledVersion(), is(goVersionInfo.getInstalledVersion()));
+        assertThat(versionInfo.getComponentName()).isEqualTo(goVersionInfo.getComponentName());
+        assertThat(versionInfo.getInstalledVersion()).isEqualTo(goVersionInfo.getInstalledVersion());
     }
 }

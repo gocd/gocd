@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,8 +34,7 @@ import java.io.File;
 import java.util.Date;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -100,8 +98,8 @@ public class FetchTaskBuilderTest {
 
         FetchArtifactBuilder builder = (FetchArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier().getPipelineName(), is("cruise"));
-        assertThat(builder.getJobIdentifier().getPipelineLabel(), is(LABEL));
+        assertThat(builder.getJobIdentifier().getPipelineName()).isEqualTo("cruise");
+        assertThat(builder.getJobIdentifier().getPipelineLabel()).isEqualTo(LABEL);
     }
 
     @Test
@@ -111,7 +109,7 @@ public class FetchTaskBuilderTest {
 
         FetchArtifactBuilder builder = (FetchArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier(), Matchers.is(new JobIdentifier("mingle", 1, "label-1", "dev", "2", "linux-firefox", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo((new JobIdentifier("mingle", 1, "label-1", "dev", "2", "linux-firefox", 0L)));
     }
 
     @Test
@@ -121,7 +119,7 @@ public class FetchTaskBuilderTest {
 
         FetchArtifactBuilder builder = (FetchArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("mingle", 1, "label-1", "dev", "2", "linux-firefox", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo(new JobIdentifier("mingle", 1, "label-1", "dev", "2", "linux-firefox", 0L));
     }
 
     @Test
@@ -131,7 +129,7 @@ public class FetchTaskBuilderTest {
 
         FetchArtifactBuilder builder = (FetchArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("mingle", 1, "label-1", "ft", "latest", "linux-firefox", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo(new JobIdentifier("mingle", 1, "label-1", "ft", "latest", "linux-firefox", 0L));
     }
 
     @Test
@@ -143,8 +141,8 @@ public class FetchTaskBuilderTest {
             fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
             fail("should not support fetching artifacts from a pipeline which is not dependency material");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Pipeline [cruise] tries to fetch artifact from "
-                    + "job [any-pipeline/ft/linux-firefox] which is not a dependency material"));
+            assertThat(e.getMessage()).isEqualTo("Pipeline [cruise] tries to fetch artifact from "
+                    + "job [any-pipeline/ft/linux-firefox] which is not a dependency material");
         }
 
     }
@@ -156,7 +154,7 @@ public class FetchTaskBuilderTest {
 
         FetchArtifactBuilder builder = (FetchArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier().getStageCounter(), is("2"));
+        assertThat(builder.getJobIdentifier().getStageCounter()).isEqualTo("2");
     }
 
     @Test
@@ -175,7 +173,7 @@ public class FetchTaskBuilderTest {
         verify(resolver).buildCauseFor(revisionOfDown.getPipelineName(), revisionOfDown.getPipelineCounter());
         verify(resolver).buildCauseFor(revisionOfUp.getPipelineName(), revisionOfUp.getPipelineCounter());
 
-        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("uppest", 3, "uppest-3", "uppest-stage", "4", "uppest-job", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo(new JobIdentifier("uppest", 3, "uppest-3", "uppest-stage", "4", "uppest-job", 0L));
     }
 
     @Test
@@ -186,8 +184,8 @@ public class FetchTaskBuilderTest {
         FetchHandler fetchHandler = fetchTaskBuilder.getHandler(fetchTask, pipeline.getName());
         FetchArtifactBuilder builder = (FetchArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(fetchHandler, is(new FileHandler(new File("pipelines/cruise/dest"), getSrc())));
-        assertThat(builder.jobLocatorForDisplay(), is("mingle/label-1/dev/2/one"));
+        assertThat(fetchHandler).isEqualTo(new FileHandler(new File("pipelines/cruise/dest"), getSrc()));
+        assertThat(builder.jobLocatorForDisplay()).isEqualTo("mingle/label-1/dev/2/one");
     }
 
     @Test
@@ -197,29 +195,28 @@ public class FetchTaskBuilderTest {
 
         FetchArtifactBuilder builder = (FetchArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.artifactLocator(), is("mingle/1/dev/2/linux-firefox/log.xml"));
+        assertThat(builder.artifactLocator()).isEqualTo("mingle/1/dev/2/linux-firefox/log.xml");
     }
 
     @Test
     public void FetchTask_describeForSamePipeline() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString(""), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "cruise.zip", "dest\\subfolder");
         fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline(LABEL), resolver);
-        assertThat(fetchTask.describe(),
-                is("fetch artifact [cruise.zip] => [dest/subfolder] from [cruise/dev/windows-3]"));
+        assertThat(fetchTask.describe()).isEqualTo("fetch artifact [cruise.zip] => [dest/subfolder] from [cruise/dev/windows-3]");
     }
 
     @Test
     public void FetchTask_shouldNormalizeDestOnAgent() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", "dest\\pavan");
         FetchHandler fetchHandler = fetchTaskBuilder.getHandler(fetchTask, "cruise");
-        assertThat(fetchHandler, is(new FileHandler(new File("pipelines/cruise/dest/pavan"), getSrc())));
+        assertThat(fetchHandler).isEqualTo(new FileHandler(new File("pipelines/cruise/dest/pavan"), getSrc()));
     }
 
     @Test
     public void FetchTask_shouldSupportNullForDest() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", null);
         FetchHandler fetchHandler = fetchTaskBuilder.getHandler(fetchTask, "cruise");
-        assertThat(fetchHandler, is(new FileHandler(new File("pipelines/cruise"), getSrc())));
+        assertThat(fetchHandler).isEqualTo(new FileHandler(new File("pipelines/cruise"), getSrc()));
     }
 
     @Test
@@ -229,7 +226,7 @@ public class FetchTaskBuilderTest {
         fetchTask.setSrcdir("log");
         FetchHandler actual = fetchTaskBuilder.getHandler(fetchTask, pipeline.getName());
         File folderOnAgent = new File("pipelines/mingle/dest/subfolder");
-        assertThat(actual, is(new DirHandler("log", folderOnAgent)));
+        assertThat(actual).isEqualTo(new DirHandler("log", folderOnAgent));
     }
 
     @Test
@@ -238,7 +235,7 @@ public class FetchTaskBuilderTest {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString(pipeline.getName()), new CaseInsensitiveString(pipeline.getFirstStage().getName()), new CaseInsensitiveString("windows-3"), "cruise.zip", "dest\\subfolder");
         FetchHandler actual = fetchTaskBuilder.getHandler(fetchTask, pipeline.getName());
         File folderOnAgent = new File("pipelines/mingle/dest/subfolder");
-        assertThat(actual, is(new FileHandler(new File(folderOnAgent, "cruise.zip"), getSrc())));
+        assertThat(actual).isEqualTo(new FileHandler(new File(folderOnAgent, "cruise.zip"), getSrc()));
     }
 
     @Test
@@ -292,8 +289,8 @@ public class FetchTaskBuilderTest {
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier().getPipelineName(), is("cruise"));
-        assertThat(builder.getJobIdentifier().getPipelineLabel(), is(LABEL));
+        assertThat(builder.getJobIdentifier().getPipelineName()).isEqualTo("cruise");
+        assertThat(builder.getJobIdentifier().getPipelineLabel()).isEqualTo(LABEL);
     }
 
     @Test
@@ -303,7 +300,7 @@ public class FetchTaskBuilderTest {
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier(), Matchers.is(new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage1", "2", "uppest-job1", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo((new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage1", "2", "uppest-job1", 0L)));
     }
 
     @Test
@@ -313,7 +310,7 @@ public class FetchTaskBuilderTest {
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage1", "2", "uppest-job1", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo(new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage1", "2", "uppest-job1", 0L));
     }
 
     @Test
@@ -324,7 +321,7 @@ public class FetchTaskBuilderTest {
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage2", "latest", "uppest-job2", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo(new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage2", "latest", "uppest-job2", 0L));
     }
 
     @Test
@@ -336,8 +333,8 @@ public class FetchTaskBuilderTest {
             fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
             fail("should not support fetching artifacts from a pipeline which is not dependency material");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Pipeline [cruise] tries to fetch artifact from "
-                    + "job [any-pipeline/ft/linux-firefox] which is not a dependency material"));
+            assertThat(e.getMessage()).isEqualTo("Pipeline [cruise] tries to fetch artifact from "
+                    + "job [any-pipeline/ft/linux-firefox] which is not a dependency material");
         }
 
     }
@@ -350,7 +347,7 @@ public class FetchTaskBuilderTest {
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier().getStageCounter(), is("2"));
+        assertThat(builder.getJobIdentifier().getStageCounter()).isEqualTo("2");
     }
 
     @Test
@@ -369,7 +366,7 @@ public class FetchTaskBuilderTest {
         verify(resolver).buildCauseFor(revisionOfDown.getPipelineName(), revisionOfDown.getPipelineCounter());
         verify(resolver).buildCauseFor(revisionOfUp.getPipelineName(), revisionOfUp.getPipelineCounter());
 
-        assertThat(builder.getJobIdentifier(), is(new JobIdentifier("uppest_stream", 3, "uppest-3", "uppest-stage1", "4", "uppest-job1", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo(new JobIdentifier("uppest_stream", 3, "uppest-3", "uppest-stage1", "4", "uppest-job1", 0L));
     }
 
     @Test
@@ -380,7 +377,7 @@ public class FetchTaskBuilderTest {
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier().buildLocatorForDisplay(), is("uppest_stream/10/uppest-stage1/latest/uppest-job1"));
+        assertThat(builder.getJobIdentifier().buildLocatorForDisplay()).isEqualTo("uppest_stream/10/uppest-stage1/latest/uppest-job1");
     }
 
     @Test
@@ -391,7 +388,7 @@ public class FetchTaskBuilderTest {
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.metadataFileLocator(), is("uppest_stream/1/uppest-stage1/2/uppest-job1/cd.go.s3.json"));
+        assertThat(builder.metadataFileLocator()).isEqualTo("uppest_stream/1/uppest-stage1/2/uppest-job1/cd.go.s3.json");
     }
 
     @Test
@@ -401,8 +398,7 @@ public class FetchTaskBuilderTest {
 
         FetchPluggableArtifactTask fetchTask = new FetchPluggableArtifactTask(new CaseInsensitiveString(""), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "installer");
         fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline(LABEL), resolver);
-        assertThat(fetchTask.describe(),
-                is("fetch pluggable artifact using [installer] from [cruise/stage/job]"));
+        assertThat(fetchTask.describe()).isEqualTo("fetch pluggable artifact using [installer] from [cruise/stage/job]");
     }
 
     @Test
@@ -414,7 +410,7 @@ public class FetchTaskBuilderTest {
 
         final FileHandler expectedHandler = new FileHandler(new File("pipelines/cruise/cd.go.s3.json"), PLUGGABLE_ARTIFACT_METADATA_FOLDER + "/cd.go.s3.json");
 
-        assertThat(builder.getHandler(), is(expectedHandler));
+        assertThat(builder.getHandler()).isEqualTo(expectedHandler);
     }
 
     @Test

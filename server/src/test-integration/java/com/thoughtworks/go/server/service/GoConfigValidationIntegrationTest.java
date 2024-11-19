@@ -34,8 +34,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
@@ -97,7 +96,7 @@ public class GoConfigValidationIntegrationTest {
 
         PipelineConfig pipelineConfig = configHelper.load().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_FOO));
         StageConfig stage = pipelineConfig.getStage(new CaseInsensitiveString(STAGE_BAR));
-        assertThat(stage.getApproval().getAuthConfig().getUsers(), hasItem(new AdminUser(new CaseInsensitiveString(MEMBER_OF_GO_ROLE))));
+        assertThat(stage.getApproval().getAuthConfig().getUsers()).contains(new AdminUser(new CaseInsensitiveString(MEMBER_OF_GO_ROLE)));
     }
 
     @Test
@@ -111,7 +110,7 @@ public class GoConfigValidationIntegrationTest {
 
         PipelineConfig pipelineConfig = configHelper.load().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_FOO));
         StageConfig stage = pipelineConfig.getStage(new CaseInsensitiveString(STAGE_BAR));
-        assertThat(stage.getApproval().getAuthConfig().getUsers(), hasItem(new AdminUser(new CaseInsensitiveString(USER_WITH_PERMISSION_TO_OPERATE_ON_GROUP))));
+        assertThat(stage.getApproval().getAuthConfig().getUsers()).contains(new AdminUser(new CaseInsensitiveString(USER_WITH_PERMISSION_TO_OPERATE_ON_GROUP)));
     }
 
     private void addApproverToStage(final String userName) {

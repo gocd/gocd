@@ -46,9 +46,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.nio.file.Path;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -107,17 +105,15 @@ public class ScheduleServiceCachedIntegrationTest {
     @Test
     // #2296
     public void shouldUseLatestStageStateInsteadOfCachedWhenScheduling() throws Exception {
-        assertThat(stageService.isStageActive(preCondition.pipelineName, preCondition.devStage), is(false));
+        assertThat(stageService.isStageActive(preCondition.pipelineName, preCondition.devStage)).isFalse();
 
         Pipeline pipeline0 = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
 
         Pipeline pipeline1 = tryToScheduleAPipeline();
-        assertThat("we should be able to schedule a pipeline when its first stage is inactive",
-                pipeline0.getId(), is(not(pipeline1.getId())));
+        assertThat(pipeline0.getId()).isNotEqualTo(pipeline1.getId());
 
         Pipeline pipeline2 = tryToScheduleAPipeline();
-        assertThat("we should NOT schedule the pipeline again when its first stage is active",
-                pipeline2.getId(), is(pipeline1.getId()));
+        assertThat(pipeline2.getId()).isEqualTo(pipeline1.getId());
     }
 
     @Test
@@ -126,10 +122,10 @@ public class ScheduleServiceCachedIntegrationTest {
 
         Stage stage = assigned.findStage(preCondition.devStage);
         StageSummaryModel model = stageService.findStageSummaryByIdentifier(stage.getIdentifier(), new Username(new CaseInsensitiveString("foo")), new HttpLocalizedOperationResult());
-        assertThat(model.getStage().getFirstJob().getState(), is(JobState.Assigned));
+        assertThat(model.getStage().getFirstJob().getState()).isEqualTo(JobState.Assigned);
         scheduleService.updateJobStatus(stage.getFirstJob().getIdentifier(), JobState.Building);
         StageSummaryModel reloadedModel = stageService.findStageSummaryByIdentifier(stage.getIdentifier(), new Username(new CaseInsensitiveString("foo")), new HttpLocalizedOperationResult());
-        assertThat(reloadedModel.getStage().getFirstJob().getState(), is(JobState.Building));
+        assertThat(reloadedModel.getStage().getFirstJob().getState()).isEqualTo(JobState.Building);
     }
 
     @Test
@@ -148,10 +144,10 @@ public class ScheduleServiceCachedIntegrationTest {
 
         StageSummaryModel reloadedModel = stageService.findStageSummaryByIdentifier(stage.getIdentifier(), new Username(new CaseInsensitiveString("foo")), new HttpLocalizedOperationResult());
         Stage reloadedStage = reloadedModel.getStage();
-        assertThat(reloadedStage.getFirstJob().getState(), is(JobState.Completed));
-        assertThat(reloadedStage.getCompletedByTransitionId(), is(reloadedStage.getFirstJob().getTransitions().byState(JobState.Completed).getId()));
-        assertThat(reloadedStage.getResult(), is(StageResult.Passed));
-        assertThat(reloadedStage.getState(), is(StageState.Passed));
+        assertThat(reloadedStage.getFirstJob().getState()).isEqualTo(JobState.Completed);
+        assertThat(reloadedStage.getCompletedByTransitionId()).isEqualTo(reloadedStage.getFirstJob().getTransitions().byState(JobState.Completed).getId());
+        assertThat(reloadedStage.getResult()).isEqualTo(StageResult.Passed);
+        assertThat(reloadedStage.getState()).isEqualTo(StageState.Passed);
     }
 
     @Test

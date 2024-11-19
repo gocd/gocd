@@ -16,29 +16,26 @@
 package com.thoughtworks.go.validation;
 
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 
 public class EmailValidatorTest {
 
     @Test
     public void shouldCheckValidationForEmailAddress() {
-        assertThat(validate("some@here.com"), Matchers.is(ValidationBean.valid()));
+        assertThat(validate("some@here.com")).isEqualTo((ValidationBean.valid()));
     }
 
     @Test
     public void shouldReturnInvalidForInvalidEmailAddress() {
-        assertThat(validate("invalid").isValid(), is(false));
+        assertThat(validate("invalid").isValid()).isFalse();
     }
 
     @Test
     public void shouldExplainThatEmailAddressIsInvalid() {
-        assertThat(validate("invalid").getError(), containsString(EmailValidator.EMAIL_ERROR_MESSAGE));
+        assertThat(validate("invalid").getError()).contains(EmailValidator.EMAIL_ERROR_MESSAGE);
     }
 
     @Test

@@ -38,8 +38,7 @@ import java.util.List;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
 import static com.thoughtworks.go.server.service.TimerScheduler.PIPELINE_TRIGGGER_TIMER_GROUP;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobKey.jobKey;
@@ -154,7 +153,7 @@ public class TimerSchedulerTest {
         doNothing().when(goConfigService).register(captor.capture());
         timerScheduler.initialize();
         List<ConfigChangedListener> listeners = captor.getAllValues();
-        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
         EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
@@ -165,8 +164,8 @@ public class TimerSchedulerTest {
         when(scheduler.scheduleJob(jobDetailArgumentCaptor.capture(), triggerArgumentCaptor.capture())).thenReturn(new Date());
         pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
 
-        assertThat(jobDetailArgumentCaptor.getValue().getKey().getName(), is(pipelineName));
-        assertThat(triggerArgumentCaptor.getValue().getCronExpression(), is("* * * * * ?"));
+        assertThat(jobDetailArgumentCaptor.getValue().getKey().getName()).isEqualTo(pipelineName);
+        assertThat(triggerArgumentCaptor.getValue().getCronExpression()).isEqualTo("* * * * * ?");
 
         verify(scheduler).getJobDetail(jobKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP));
 

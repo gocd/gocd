@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HgModificationSplitterTest {
 
@@ -49,8 +48,8 @@ public class HgModificationSplitterTest {
                 </changeset>""").split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         HgModificationSplitter splitter = new HgModificationSplitter(result);
         List<Modification> list = splitter.modifications();
-        assertThat(list.size(), is(1));
-        assertThat(list.get(0).getModifiedTime(), is(new DateTime("2008-12-09T18:56:14+08:00").toDate()));
+        assertThat(list.size()).isEqualTo(1);
+        assertThat(list.get(0).getModifiedTime()).isEqualTo(new DateTime("2008-12-09T18:56:14+08:00").toDate());
     }
 
 

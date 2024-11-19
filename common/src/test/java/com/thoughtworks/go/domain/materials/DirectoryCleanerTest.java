@@ -27,9 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DirectoryCleanerTest {
     private File baseFolder;
@@ -48,7 +46,7 @@ public class DirectoryCleanerTest {
         cleaner.allowed("non-existent");
         cleaner.clean();
 
-        assertThat(baseFolder.exists(), is(true));
+        assertThat(baseFolder.exists()).isTrue();
     }
 
     @Test
@@ -63,8 +61,8 @@ public class DirectoryCleanerTest {
         cleaner.allowed("test1", "test1/subdir");
         cleaner.clean();
 
-        assertThat(svnDest.exists(), is(true));
-        assertThat(shouldExist.exists(), is(true));
+        assertThat(svnDest.exists()).isTrue();
+        assertThat(shouldExist.exists()).isTrue();
     }
 
     @Test
@@ -77,10 +75,10 @@ public class DirectoryCleanerTest {
         cleaner.allowed("material1", "material1/material2");
         cleaner.clean();
 
-        assertThat(material1.exists(), is(true));
-        assertThat(dirOfMaterial1.exists(), is(true));
-        assertThat(material2.exists(), is(true));
-        assertThat(oldMaterial3.exists(), is(false));
+        assertThat(material1.exists()).isTrue();
+        assertThat(dirOfMaterial1.exists()).isTrue();
+        assertThat(material2.exists()).isTrue();
+        assertThat(oldMaterial3.exists()).isFalse();
     }
 
     private File mkdirDir(File root, String dir) {
@@ -97,8 +95,8 @@ public class DirectoryCleanerTest {
         cleaner.allowed("allowed");
         cleaner.clean();
 
-        assertThat(baseFolder.exists(), is(true));
-        assertThat(notAllowed.exists(), is(false));
+        assertThat(baseFolder.exists()).isTrue();
+        assertThat(notAllowed.exists()).isFalse();
     }
 
     @Test
@@ -109,8 +107,8 @@ public class DirectoryCleanerTest {
         cleaner.allowed("allowed");
         cleaner.clean();
 
-        assertThat(baseFolder.exists(), is(true));
-        assertThat(allowedFolder.exists(), is(true));
+        assertThat(baseFolder.exists()).isTrue();
+        assertThat(allowedFolder.exists()).isTrue();
     }
 
     @Test
@@ -121,9 +119,9 @@ public class DirectoryCleanerTest {
         cleaner.allowed("subfolder/allowed");
         cleaner.clean();
 
-        assertThat(baseFolder.exists(), is(true));
-        assertThat(allowedFolder.getParentFile().exists(), is(true));
-        assertThat(allowedFolder.exists(), is(true));
+        assertThat(baseFolder.exists()).isTrue();
+        assertThat(allowedFolder.getParentFile().exists()).isTrue();
+        assertThat(allowedFolder.exists()).isTrue();
     }
 
     @Test
@@ -136,9 +134,9 @@ public class DirectoryCleanerTest {
         cleaner.allowed("subfolder/allowed");
         cleaner.clean();
 
-        assertThat(baseFolder.exists(), is(true));
-        assertThat(allowedFolder.getParentFile().exists(), is(true));
-        assertThat(notAllowedFolder.exists(), is(false));
+        assertThat(baseFolder.exists()).isTrue();
+        assertThat(allowedFolder.getParentFile().exists()).isTrue();
+        assertThat(notAllowedFolder.exists()).isFalse();
     }
 
     @Test
@@ -148,8 +146,8 @@ public class DirectoryCleanerTest {
         cleaner.allowed("subfolder/allowed");
         cleaner.clean();
 
-        assertThat(baseFolder.exists(), is(true));
-        assertThat(allowedFolder.exists(), is(false));
+        assertThat(baseFolder.exists()).isTrue();
+        assertThat(allowedFolder.exists()).isFalse();
     }
 
     @Test
@@ -159,8 +157,8 @@ public class DirectoryCleanerTest {
 
         cleaner.clean();
 
-        assertThat(baseFolder.exists(), is(true));
-        assertThat(allowedFolder.exists(), is(true));
+        assertThat(baseFolder.exists()).isTrue();
+        assertThat(allowedFolder.exists()).isTrue();
     }
 
     @Test
@@ -169,9 +167,7 @@ public class DirectoryCleanerTest {
             cleaner.allowed("/../..");
             Assertions.fail("Should not allow file outside the baseDirectory");
         } catch (Exception e) {
-            assertThat(
-                    e.getMessage(),
-                    containsString("Folder " + new File(baseFolder, "/../..").getAbsolutePath() + " is outside the base folder"));
+            assertThat(e.getMessage()).contains("Folder " + new File(baseFolder, "/../..").getAbsolutePath() + " is outside the base folder");
         }
     }
 
@@ -186,7 +182,7 @@ public class DirectoryCleanerTest {
         cleaner.allowed("subfolder/allowed");
         cleaner.clean();
 
-        assertThat(consumer.getStdOut(), containsString("Deleting folder " + notAllowedFolder.getPath()));
-        assertThat(consumer.getStdOut(), containsString("Keeping folder " + allowedFolder.getPath()));
+        assertThat(consumer.getStdOut()).contains("Deleting folder " + notAllowedFolder.getPath());
+        assertThat(consumer.getStdOut()).contains("Keeping folder " + allowedFolder.getPath());
     }
 }

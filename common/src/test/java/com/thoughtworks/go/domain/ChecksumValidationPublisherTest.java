@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ChecksumValidationPublisherTest {
@@ -42,10 +41,8 @@ public class ChecksumValidationPublisherTest {
     public void testMessagesPublished_WhenMD5PropertyFileIsNotFoundOnServer() throws Exception {
         checksumValidationPublisher.md5ChecksumFileNotFound();
         checksumValidationPublisher.publish(HttpServletResponse.SC_OK, artifact, goPublisher);
-        assertThat(goPublisher.getMessage(),
-                not(containsString(String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.", artifact))));
-        assertThat(goPublisher.getMessage(),
-                (containsString(String.format("Saved artifact to [%s] without verifying the integrity of its contents.", artifact))));
+        assertThat(goPublisher.getMessage()).doesNotContain(String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.", artifact));
+        assertThat(goPublisher.getMessage()).contains(String.format("Saved artifact to [%s] without verifying the integrity of its contents.", artifact));
 
     }
 
@@ -56,10 +53,8 @@ public class ChecksumValidationPublisherTest {
             checksumValidationPublisher.publish(HttpServletResponse.SC_OK, artifact, goPublisher);
             fail("Should throw exception when checksums do not match.");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is(String.format("Artifact download failed for [%s]",artifact)));
-            assertThat(goPublisher.getMessage(),
-                    containsString(
-                            String.format("[ERROR] Verification of the integrity of the artifact [%s] failed. The artifact file on the server may have changed since its original upload.", artifact)));
+            assertThat(e.getMessage()).isEqualTo(String.format("Artifact download failed for [%s]",artifact));
+            assertThat(goPublisher.getMessage()).contains(String.format("[ERROR] Verification of the integrity of the artifact [%s] failed. The artifact file on the server may have changed since its original upload.", artifact));
         }
     }
 }

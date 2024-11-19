@@ -47,7 +47,7 @@ class SvnMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   def existingMaterialWithErrors() {
     def svnConfig = svn(new UrlArgument(''), '', '', true, new GoCipher(), true, null, false, '', new CaseInsensitiveString('!nV@l!d'))
-    def materialConfigs = new MaterialConfigs(svnConfig);
+    def materialConfigs = new MaterialConfigs(svnConfig)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.get(0)
   }

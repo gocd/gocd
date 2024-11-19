@@ -45,9 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PACKAGE_MATERIAL_EXTENSION;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -92,7 +90,7 @@ public class PackageRepositoryExtensionTest {
 
     @Test
     public void shouldExtendAbstractExtension() throws Exception {
-        assertThat(extension, instanceOf(AbstractExtension.class));
+        assertThat(extension).isInstanceOf(AbstractExtension.class);
     }
 
     @Test
@@ -340,51 +338,51 @@ public class PackageRepositoryExtensionTest {
         try {
             extension.checkConnectionToPackage(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("exception-from-plugin"));
+            assertThat(e.getMessage()).isEqualTo("exception-from-plugin");
         }
     }
 
     private void assertPropertyConfiguration(PackageMaterialProperty property, String key, String value, boolean partOfIdentity, boolean required, boolean secure, String displayName, int displayOrder) {
-        assertThat(property.getKey(), is(key));
-        assertThat(property.getValue(), is(value));
-        assertThat(property.getOption(Property.PART_OF_IDENTITY), is(partOfIdentity));
-        assertThat(property.getOption(Property.REQUIRED), is(required));
-        assertThat(property.getOption(Property.SECURE), is(secure));
-        assertThat(property.getOption(Property.DISPLAY_NAME), is(displayName));
-        assertThat(property.getOption(Property.DISPLAY_ORDER), is(displayOrder));
+        assertThat(property.getKey()).isEqualTo(key);
+        assertThat(property.getValue()).isEqualTo(value);
+        assertThat(property.getOption(Property.PART_OF_IDENTITY)).isEqualTo(partOfIdentity);
+        assertThat(property.getOption(Property.REQUIRED)).isEqualTo(required);
+        assertThat(property.getOption(Property.SECURE)).isEqualTo(secure);
+        assertThat(property.getOption(Property.DISPLAY_NAME)).isEqualTo(displayName);
+        assertThat(property.getOption(Property.DISPLAY_ORDER)).isEqualTo(displayOrder);
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
-        assertThat(goPluginApiRequest.extension(), is(extensionName));
-        assertThat(goPluginApiRequest.extensionVersion(), is(version));
-        assertThat(goPluginApiRequest.requestName(), is(requestName));
-        assertThat(goPluginApiRequest.requestBody(), is(requestBody));
+        assertThat(goPluginApiRequest.extension()).isEqualTo(extensionName);
+        assertThat(goPluginApiRequest.extensionVersion()).isEqualTo(version);
+        assertThat(goPluginApiRequest.requestName()).isEqualTo(requestName);
+        assertThat(goPluginApiRequest.requestBody()).isEqualTo(requestBody);
     }
 
     private void assertValidationError(ValidationError validationError, String expectedKey, String expectedMessage) {
-        assertThat(validationError.getKey(), is(expectedKey));
-        assertThat(validationError.getMessage(), is(expectedMessage));
+        assertThat(validationError.getKey()).isEqualTo(expectedKey);
+        assertThat(validationError.getMessage()).isEqualTo(expectedMessage);
     }
 
     private void assertPackageRevision(PackageRevision packageRevision, String revision, String user, String timestamp, String comment, String trackbackUrl) throws ParseException {
-        assertThat(packageRevision.getRevision(), is(revision));
-        assertThat(packageRevision.getUser(), is(user));
-        assertThat(packageRevision.getTimestamp(), is(new SimpleDateFormat(DATE_FORMAT).parse(timestamp)));
-        assertThat(packageRevision.getRevisionComment(), is(comment));
-        assertThat(packageRevision.getTrackbackUrl(), is(trackbackUrl));
-        assertThat(packageRevision.getData().size(), is(2));
-        assertThat(packageRevision.getDataFor("dataKeyOne"), is("data-value-one"));
-        assertThat(packageRevision.getDataFor("dataKeyTwo"), is("data-value-two"));
+        assertThat(packageRevision.getRevision()).isEqualTo(revision);
+        assertThat(packageRevision.getUser()).isEqualTo(user);
+        assertThat(packageRevision.getTimestamp()).isEqualTo(new SimpleDateFormat(DATE_FORMAT).parse(timestamp));
+        assertThat(packageRevision.getRevisionComment()).isEqualTo(comment);
+        assertThat(packageRevision.getTrackbackUrl()).isEqualTo(trackbackUrl);
+        assertThat(packageRevision.getData().size()).isEqualTo(2);
+        assertThat(packageRevision.getDataFor("dataKeyOne")).isEqualTo("data-value-one");
+        assertThat(packageRevision.getDataFor("dataKeyTwo")).isEqualTo("data-value-two");
     }
 
     private void assertSuccessResult(Result result, List<String> messages) {
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.getMessages(), is(messages));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(result.getMessages()).isEqualTo(messages);
     }
 
     private void assertFailureResult(Result result, List<String> messages) {
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.getMessages(), is(messages));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.getMessages()).isEqualTo(messages);
     }
 
 }

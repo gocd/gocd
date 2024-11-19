@@ -55,7 +55,7 @@ class MaterialWithModificationsRepresenterTest {
 
   @Test
   void 'should render json'() {
-    def map = new HashMap();
+    def map = new HashMap()
     def git = MaterialConfigsMother.git("http://example.com", "main")
     def modification = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()
     def timestamp = new Date().toTimestamp()
@@ -110,7 +110,7 @@ class MaterialWithModificationsRepresenterTest {
 
   @Test
   void 'should render modification as null'() {
-    def map = new HashMap();
+    def map = new HashMap()
     def git = MaterialConfigsMother.git("http://example.com", "main")
     def timestamp = new Date().toTimestamp()
     map.put(git, new MaterialInfo(null, false, true, timestamp, []))
@@ -143,7 +143,7 @@ class MaterialWithModificationsRepresenterTest {
 
   @Test
   void 'should not render material update start time if null'() {
-    def map = new HashMap();
+    def map = new HashMap()
     def git = MaterialConfigsMother.git("http://example.com", "main")
     map.put(git, new MaterialInfo(null, false, false, null, []))
 

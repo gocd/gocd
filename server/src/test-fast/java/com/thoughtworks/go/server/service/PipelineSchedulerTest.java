@@ -46,8 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.helper.GoConfigMother.configWithPipelines;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PipelineSchedulerTest {
@@ -148,8 +147,8 @@ public class PipelineSchedulerTest {
         HttpOperationResult result = new HttpOperationResult();
         final HashMap<String, String> environmentVariables = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Map.of("invalid-material", "blah-revision"), environmentVariables, new HashMap<>()), result);
-        assertThat(result.httpCode(), is(404));
-        assertThat(result.message(), is("material with fingerprint [invalid-material] not found in pipeline [pipeline]"));
+        assertThat(result.httpCode()).isEqualTo(404);
+        assertThat(result.message()).isEqualTo("material with fingerprint [invalid-material] not found in pipeline [pipeline]");
     }
 
     @Test
@@ -161,8 +160,8 @@ public class PipelineSchedulerTest {
         HttpOperationResult result = new HttpOperationResult();
         final HashMap<String, String> environmentVariables = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Map.of("invalid-material", ""), environmentVariables, new HashMap<>()), result);
-        assertThat(result.httpCode(), is(406));
-        assertThat(result.message(), is("material with fingerprint [invalid-material] has empty revision"));
+        assertThat(result.httpCode()).isEqualTo(406);
+        assertThat(result.message()).isEqualTo("material with fingerprint [invalid-material] has empty revision");
     }
 
     @Test
@@ -176,8 +175,8 @@ public class PipelineSchedulerTest {
         doNothing().when(configService).register(captor.capture());
         scheduler.initialize();
         List<ConfigChangedListener> listeners = captor.getAllValues();
-        assertThat(listeners.contains(scheduler), is(true));
-        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        assertThat(listeners.contains(scheduler)).isTrue();
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
         EntityConfigChangedListener<PipelineConfig> entityConfigChangedListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
 
@@ -194,8 +193,8 @@ public class PipelineSchedulerTest {
         doNothing().when(configService).register(captor.capture());
         scheduler.initialize();
         List<ConfigChangedListener> listeners = captor.getAllValues();
-        assertThat(listeners.contains(scheduler), is(true));
-        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        assertThat(listeners.contains(scheduler)).isTrue();
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
         EntityConfigChangedListener<PipelineConfig> entityConfigChangedListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
         PipelineConfig newPipeline = mock(PipelineConfig.class);
@@ -223,8 +222,8 @@ public class PipelineSchedulerTest {
         scheduler.initialize();
         List<ConfigChangedListener> listeners = captor.getAllValues();
         listeners.get(0).onConfigChange(cruiseConfig);
-        assertThat(listeners.contains(scheduler), is(true));
-        assertThat(listeners.get(2) instanceof EntityConfigChangedListener, is(true));
+        assertThat(listeners.contains(scheduler)).isTrue();
+        assertThat(listeners.get(2) instanceof EntityConfigChangedListener).isTrue();
         EntityConfigChangedListener<ConfigRepoConfig> entityConfigChangedListener = (EntityConfigChangedListener<ConfigRepoConfig>) listeners.get(2);
 
         //both should get scheduled

@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Calendar;
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PluggableSCMMaterialRevisionTest {
     @Test
@@ -33,7 +32,7 @@ public class PluggableSCMMaterialRevisionTest {
         calendar.add(Calendar.SECOND, 5);
         Date later = calendar.getTime();
         PluggableSCMMaterialRevision revisionThree = new PluggableSCMMaterialRevision("go-agent-12.1.0", later);
-        assertThat(revisionOne.equals(revisionTwo), is(true));
-        assertThat(revisionOne.equals(revisionThree), is(false));
+        assertThat(revisionOne.equals(revisionTwo)).isTrue();
+        assertThat(revisionOne.equals(revisionThree)).isFalse();
     }
 }

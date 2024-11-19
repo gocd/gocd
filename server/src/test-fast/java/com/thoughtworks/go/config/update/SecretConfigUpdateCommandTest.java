@@ -27,8 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -62,7 +61,7 @@ public class SecretConfigUpdateCommandTest {
         cruiseConfig.getSecretConfigs().add(oldConfig);
         SecretConfigUpdateCommand command = new SecretConfigUpdateCommand(null, newConfig, null, null, null, null, null);
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getSecretConfigs().find("foo"), is(equalTo(newConfig)));
+        assertThat(cruiseConfig.getSecretConfigs().find("foo")).isEqualTo(newConfig);
     }
 
     @Test
@@ -81,7 +80,7 @@ public class SecretConfigUpdateCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         SecretConfigUpdateCommand command = new SecretConfigUpdateCommand(goConfigService, newConfig, null, currentUser, result, entityHashingService, "bad-digest");
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("Someone has modified the configuration for"));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.toString()).contains("Someone has modified the configuration for");
     }
 }

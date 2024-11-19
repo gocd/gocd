@@ -45,8 +45,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -101,9 +100,9 @@ public class MaterialDatabaseDependencyUpdaterTest {
 
         List<Modification> modification = materialRepository.findLatestModification(dependencyMaterial).getMaterialRevision(0).getModifications();
 
-        assertThat(modification.size(), is(1));
-        assertThat(modification.get(0).getRevision(), is("pipeline-name/9/stage-name/0"));
-        assertThat(modification.get(0).getPipelineLabel(), is("LABEL-9"));
+        assertThat(modification.size()).isEqualTo(1);
+        assertThat(modification.get(0).getRevision()).isEqualTo("pipeline-name/9/stage-name/0");
+        assertThat(modification.get(0).getPipelineLabel()).isEqualTo("LABEL-9");
     }
 
     @Test
@@ -155,7 +154,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
 
         List<Modification> newModifications = materialRepository.findModificationsSince(dependencyMaterial, new MaterialRevision(dependencyMaterial, modification));
 
-        assertThat(newModifications.size(), is(0));
+        assertThat(newModifications.size()).isEqualTo(0);
     }
 
     private void stubStageServiceGetHistoryAfter(DependencyMaterial material, int pipelineCounter, Stages... stageses) {
@@ -190,7 +189,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
 
         MaterialRevisions materialRevisions = materialRepository.findLatestModification(dependencyMaterial);
 
-        assertThat("materialRevisions.isEmpty()", materialRevisions.isEmpty(), is(true));
+        assertThat(materialRevisions.isEmpty()).isTrue();
     }
 
     @Test
@@ -207,9 +206,9 @@ public class MaterialDatabaseDependencyUpdaterTest {
 
         List<Modification> newModifications = materialRepository.findModificationsSince(dependencyMaterial, new MaterialRevision(dependencyMaterial, modification));
 
-        assertThat(newModifications.size(), is(1));
-        assertThat(newModifications.get(0).getRevision(), is("pipeline-name/10/stage-name/0"));
-        assertThat(newModifications.get(0).getPipelineLabel(), is("LABEL-10"));
+        assertThat(newModifications.size()).isEqualTo(1);
+        assertThat(newModifications.get(0).getRevision()).isEqualTo("pipeline-name/10/stage-name/0");
+        assertThat(newModifications.get(0).getPipelineLabel()).isEqualTo("LABEL-10");
     }
 
     @Test
@@ -223,8 +222,8 @@ public class MaterialDatabaseDependencyUpdaterTest {
         for (Integer revision : new int[]{9, 10, 11, 12, 13}) {
             String stageLocator = String.format("pipeline-name/%s/stage-name/0", revision);
             Modification modification = materialRepository.findModificationWithRevision(dependencyMaterial, stageLocator);
-            assertThat(modification.getRevision(), is(stageLocator));
-            assertThat(modification.getPipelineLabel(), is(String.format("LABEL-%s", revision)));
+            assertThat(modification.getRevision()).isEqualTo(stageLocator);
+            assertThat(modification.getPipelineLabel()).isEqualTo(String.format("LABEL-%s", revision));
         }
     }
 

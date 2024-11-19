@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EnvironmentPipelineMatcherTest {
 
@@ -35,10 +34,10 @@ public class EnvironmentPipelineMatcherTest {
                     add(new EnvironmentPipelineConfig(new CaseInsensitiveString("pipeline2")));
                 }});
 
-        assertThat(matcher.hasPipeline(jobPlan("PipeLine1").getPipelineName()), is(true));
-        assertThat(matcher.hasPipeline(jobPlan("PIPELINE1").getPipelineName()), is(true));
-        assertThat(matcher.hasPipeline(jobPlan("PIPELine1").getPipelineName()), is(true));
-        assertThat(matcher.hasPipeline(jobPlan("PipeLine2").getPipelineName()), is(true));
+        assertThat(matcher.hasPipeline(jobPlan("PipeLine1").getPipelineName())).isTrue();
+        assertThat(matcher.hasPipeline(jobPlan("PIPELINE1").getPipelineName())).isTrue();
+        assertThat(matcher.hasPipeline(jobPlan("PIPELine1").getPipelineName())).isTrue();
+        assertThat(matcher.hasPipeline(jobPlan("PipeLine2").getPipelineName())).isTrue();
     }
 
     private DefaultJobPlan jobPlan(String pipelineName) {

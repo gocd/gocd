@@ -39,7 +39,6 @@ dependencies {
   compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation localGroovy()
-  testImplementation project.deps.jsonUnit
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project(path: ':domain', configuration: 'testOutput')
   testImplementation project.deps.junit5Api

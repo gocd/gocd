@@ -23,8 +23,7 @@ import org.springframework.mock.web.MockHttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TokenInterceptorTest {
@@ -56,7 +55,7 @@ public class TokenInterceptorTest {
 
         TokenInterceptor interceptor = new TokenInterceptor(manager);
 
-        assertThat(interceptor.preHandle(request, response, mock(Object.class)), is(true));
+        assertThat(interceptor.preHandle(request, response, mock(Object.class))).isTrue();
 
         verify(request).getMethod();
         verify(manager).create(session);
@@ -69,7 +68,7 @@ public class TokenInterceptorTest {
         when(manager.verify(request)).thenReturn(true);
 
         TokenInterceptor interceptor = new TokenInterceptor(manager);
-        assertThat(interceptor.preHandle(request, response, mock(Object.class)), is(true));
+        assertThat(interceptor.preHandle(request, response, mock(Object.class))).isTrue();
 
         verify(request).getMethod();
         verify(manager).verify(request);
@@ -81,7 +80,7 @@ public class TokenInterceptorTest {
         when(manager.verify(request)).thenReturn(false);
 
         TokenInterceptor interceptor = new TokenInterceptor(manager);
-        assertThat(interceptor.preHandle(request, response, mock(Object.class)), is(false));
+        assertThat(interceptor.preHandle(request, response, mock(Object.class))).isFalse();
 
         verify(request).getMethod();
         verify(manager).verify(request);

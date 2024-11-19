@@ -48,8 +48,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.lenient;
@@ -86,10 +85,10 @@ public class DeletePackageConfigCommandTest {
     @Test
     public void shouldDeleteTheSpecifiedPackage() throws Exception {
         DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, currentUser, result);
-        assertThat(cruiseConfig.getPackageRepositories().first().getPackages().size(), is(1));
-        assertThat(cruiseConfig.getPackageRepositories().first().getPackages().find(packageUuid), is(packageDefinition));
+        assertThat(cruiseConfig.getPackageRepositories().first().getPackages().size()).isEqualTo(1);
+        assertThat(cruiseConfig.getPackageRepositories().first().getPackages().find(packageUuid)).isEqualTo(packageDefinition);
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getPackageRepositories().first().getPackages().size(), is(0));
+        assertThat(cruiseConfig.getPackageRepositories().first().getPackages().size()).isEqualTo(0);
         assertNull(cruiseConfig.getPackageRepositories().first().getPackages().find(packageUuid));
     }
 
@@ -111,18 +110,18 @@ public class DeletePackageConfigCommandTest {
         assertFalse(command.isValid(cruiseConfig));
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unprocessableEntity(cannotDeleteResourceBecauseOfDependentPipelines("package definition", packageUuid, pipelines));
-        assertThat(result, is(expectedResult));
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() throws Exception {
         DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, currentUser, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(EntityType.PackageDefinition.forbiddenToDelete(packageDefinition.getId(), currentUser.getUsername()), forbidden());
-        assertThat(result, is(expectedResult));
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
@@ -132,7 +131,7 @@ public class DeletePackageConfigCommandTest {
 
         DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, currentUser, result);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     @Test
@@ -142,6 +141,6 @@ public class DeletePackageConfigCommandTest {
 
         DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, currentUser, result);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 }

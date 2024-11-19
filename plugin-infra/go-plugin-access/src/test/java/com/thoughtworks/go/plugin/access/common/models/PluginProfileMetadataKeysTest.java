@@ -21,14 +21,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PluginProfileMetadataKeysTest {
 
     @Test
-    public void shouldUnJSONizeProfileMetadata() throws Exception {
+    public void shouldUnJSONizeProfileMetadata() {
         PluginProfileMetadataKeys metadata = PluginProfileMetadataKeys.fromJSON("""
                 [{
                   "key": "foo",
@@ -39,18 +37,18 @@ public class PluginProfileMetadataKeysTest {
                 }, {
                   "key": "bar"
                 }]""");
-        assertThat(metadata.size(), is(2));
+        assertThat(metadata.size()).isEqualTo(2);
         PluginProfileMetadataKey foo = metadata.get("foo");
-        assertThat(foo.getMetadata().isRequired(), is(false));
-        assertThat(foo.getMetadata().isSecure(), is(true));
+        assertThat(foo.getMetadata().isRequired()).isFalse();
+        assertThat(foo.getMetadata().isSecure()).isTrue();
 
         PluginProfileMetadataKey bar = metadata.get("bar");
-        assertThat(bar.getMetadata().isRequired(), is(false));
-        assertThat(bar.getMetadata().isSecure(), is(false));
+        assertThat(bar.getMetadata().isRequired()).isFalse();
+        assertThat(bar.getMetadata().isSecure()).isFalse();
     }
 
     @Test
-    public void shouldGetPluginConfigurations() throws Exception {
+    public void shouldGetPluginConfigurations() {
         PluginProfileMetadataKeys metadata = PluginProfileMetadataKeys.fromJSON("""
                 [{
                   "key": "username",
@@ -68,13 +66,13 @@ public class PluginProfileMetadataKeysTest {
 
         List<PluginConfiguration> pluginConfigurations = metadata.toPluginConfigurations();
 
-        assertThat(pluginConfigurations, containsInAnyOrder(
+        assertThat(pluginConfigurations).contains(
                 new PluginConfiguration("username", new Metadata(false, true)),
-                new PluginConfiguration("password", new Metadata(true, true))));
+                new PluginConfiguration("password", new Metadata(true, true)));
     }
 
     @Test
-    public void shouldGetPluginConfigurationsWithMetadataDefaultedToFalseInAbsenceOfPluginMetadata() throws Exception {
+    public void shouldGetPluginConfigurationsWithMetadataDefaultedToFalseInAbsenceOfPluginMetadata() {
         PluginProfileMetadataKeys metadata = PluginProfileMetadataKeys.fromJSON("""
                 [{
                   "key": "username"
@@ -88,8 +86,8 @@ public class PluginProfileMetadataKeysTest {
 
         List<PluginConfiguration> pluginConfigurations = metadata.toPluginConfigurations();
 
-        assertThat(pluginConfigurations, containsInAnyOrder(
+        assertThat(pluginConfigurations).contains(
                 new PluginConfiguration("username", new Metadata(false, false)),
-                new PluginConfiguration("password", new Metadata(true, true))));
+                new PluginConfiguration("password", new Metadata(true, true)));
     }
 }

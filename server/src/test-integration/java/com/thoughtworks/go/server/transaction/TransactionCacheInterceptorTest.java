@@ -37,8 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -82,7 +81,7 @@ public class TransactionCacheInterceptorTest {
     public void shouldOptOutOfCacheServing_forInsert() {
         final MaterialInstance materialInstance = hgInstance();
         assertionUtil.assertCacheBehaviourInTxn(() -> hibernateDaoSupport.getHibernateTemplate().save(materialInstance));
-        assertThat(materialInstance.getId(), greaterThan(0L));
+        assertThat(materialInstance.getId()).isGreaterThan(0L);
     }
 
     @Test
@@ -94,7 +93,7 @@ public class TransactionCacheInterceptorTest {
             hibernateDaoSupport.getHibernateTemplate().update(materialInstance);
             hibernateDaoSupport.getHibernateTemplate().flush();
         });
-        assertThat(ReflectionUtil.getField(hibernateDaoSupport.getHibernateTemplate().load(MaterialInstance.class, materialInstance.getId()), "url"), is("loser-name"));
+        assertThat((Object) ReflectionUtil.getField(hibernateDaoSupport.getHibernateTemplate().load(MaterialInstance.class, materialInstance.getId()), "url")).isEqualTo("loser-name");
     }
 
     @Test
@@ -107,7 +106,7 @@ public class TransactionCacheInterceptorTest {
             hibernateDaoSupport.getHibernateTemplate().load(MaterialInstance.class, materialInstance.getId());
             fail("should have deleted the entity successfully");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("No row with the given identifier exists"));
+            assertThat(e.getMessage()).contains("No row with the given identifier exists");
         }
     }
 
@@ -124,9 +123,9 @@ public class TransactionCacheInterceptorTest {
 
         assertionUtil.assertCacheBehaviourInTxn(() -> hibernateDaoSupport.getHibernateTemplate().update(mod));
 
-        assertThat(mod.getId(), greaterThan(0L));
-        assertThat(foo_c.getId(), greaterThan(0L));
-        assertThat(baz_c.getId(), greaterThan(0L));
+        assertThat(mod.getId()).isGreaterThan(0);
+        assertThat(foo_c.getId()).isGreaterThan(0L);
+        assertThat(baz_c.getId()).isGreaterThan(0L);
     }
 
     @Test
@@ -146,7 +145,7 @@ public class TransactionCacheInterceptorTest {
             hibernateDaoSupport.getHibernateTemplate().flush();
         });
 
-        assertThat(hibernateDaoSupport.getHibernateTemplate().load(ModifiedFile.class, foo_c.getId()).getFileName(), is("foo_generated.c"));
+        assertThat(hibernateDaoSupport.getHibernateTemplate().load(ModifiedFile.class, foo_c.getId()).getFileName()).isEqualTo("foo_generated.c");
     }
 
     private MaterialInstance savedHg() {

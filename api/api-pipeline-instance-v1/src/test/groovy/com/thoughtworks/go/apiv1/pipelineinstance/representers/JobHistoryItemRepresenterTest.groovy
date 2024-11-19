@@ -26,7 +26,7 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 class JobHistoryItemRepresenterTest {
   @Test
   void 'should deserialize into json'() {
-    Date date = new Date();
+    Date date = new Date()
     def jobHistoryItem = new JobHistoryItem("jobName", JobState.Completed, JobResult.Passed, date)
     jobHistoryItem.setId(5)
 

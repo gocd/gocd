@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MessageHandlerForPluginSettingsRequestProcessor1_0Test {
 
@@ -34,6 +33,6 @@ public class MessageHandlerForPluginSettingsRequestProcessor1_0Test {
         pluginSettings.put("k1", "v1");
         pluginSettings.put("k2", "v2");
 
-        assertThat(processor.pluginSettingsToJSON(pluginSettings), is("{\"k1\":\"v1\",\"k2\":\"v2\"}"));
+        assertThat(processor.pluginSettingsToJSON(pluginSettings)).isEqualTo("{\"k1\":\"v1\",\"k2\":\"v2\"}");
     }
 }

@@ -32,7 +32,7 @@ class SecretConfigsRepresenterTest {
 
   @Test
   void shouldSerializeSecretConfigs() {
-    SecretConfig secretConfig = new SecretConfig("id", "plugin-id");
+    SecretConfig secretConfig = new SecretConfig("id", "plugin-id")
     secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("key1", false, "value1"))
     secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("key2", "secret", "AES:lzcCuNSe4vUx+CsWgN11Uw==:YotExzWbFv5w/7/HmpYp3g=="))
 

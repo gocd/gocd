@@ -18,37 +18,36 @@ package com.thoughtworks.go.plugin.api.task;
 import com.thoughtworks.go.plugin.api.config.Property;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TaskConfigPropertyTest {
     @Test
     public void validateTaskPropertyDefaults() throws Exception {
         TaskConfigProperty taskConfigProperty = new TaskConfigProperty("Test-Property");
-        assertThat(taskConfigProperty.getOptions().size(), is(4));
-        assertThat(taskConfigProperty.getOption(Property.REQUIRED), is(false));
-        assertThat(taskConfigProperty.getOption(Property.SECURE), is(false));
+        assertThat(taskConfigProperty.getOptions().size()).isEqualTo(4);
+        assertThat(taskConfigProperty.getOption(Property.REQUIRED)).isFalse();
+        assertThat(taskConfigProperty.getOption(Property.SECURE)).isFalse();
         taskConfigProperty = new TaskConfigProperty("Test-Property", "Dummy Value");
         taskConfigProperty.with(Property.REQUIRED, true);
-        assertThat(taskConfigProperty.getOptions().size(), is(4));
-        assertThat(taskConfigProperty.getOption(Property.REQUIRED), is(true));
-        assertThat(taskConfigProperty.getOption(Property.SECURE), is(false));
+        assertThat(taskConfigProperty.getOptions().size()).isEqualTo(4);
+        assertThat(taskConfigProperty.getOption(Property.REQUIRED)).isTrue();
+        assertThat(taskConfigProperty.getOption(Property.SECURE)).isFalse();
     }
 
     @Test
     public void shouldAssignDefaults() {
         final TaskConfigProperty property = new TaskConfigProperty("key");
-        assertThat(property.getOption(property.REQUIRED), is(false));
-        assertThat(property.getOption(property.SECURE), is(false));
-        assertThat(property.getOption(property.DISPLAY_NAME), is("key"));
-        assertThat(property.getOption(property.DISPLAY_ORDER), is(0));
+        assertThat(property.getOption(property.REQUIRED)).isFalse();
+        assertThat(property.getOption(property.SECURE)).isFalse();
+        assertThat(property.getOption(property.DISPLAY_NAME)).isEqualTo("key");
+        assertThat(property.getOption(property.DISPLAY_ORDER)).isEqualTo(0);
     }
 
     @Test
     public void shouldCompareTwoPropertiesBasedOnOrder() {
         TaskConfigProperty p1 = getTaskConfigProperty("Test-Property", 1);
         TaskConfigProperty p2 = getTaskConfigProperty("Test-Property", 0);
-        assertThat(p1.compareTo(p2), is(1));
+        assertThat(p1.compareTo(p2)).isEqualTo(1);
     }
 
     private TaskConfigProperty getTaskConfigProperty(String key, int order) {

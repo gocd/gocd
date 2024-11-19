@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 class TemplateConfigRepresenterTest {
 
-  private PipelineTemplateConfig pipelineTemplateConfig;
+  private PipelineTemplateConfig pipelineTemplateConfig
 
   @BeforeEach
   void setUp() {

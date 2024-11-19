@@ -105,7 +105,7 @@ class ApprovalRepresenterTest {
     static def approvalObject() {
       def manualApproval = Approval.manualApproval()
       manualApproval.allowOnlyOnSuccess = true
-      return manualApproval;
+      return manualApproval
     }
   }
 

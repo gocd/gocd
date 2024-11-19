@@ -20,8 +20,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class EmptyPipelineInstanceModelTest {
@@ -34,21 +33,21 @@ public class EmptyPipelineInstanceModelTest {
 
     @Test
     public void shouldAdvertiseAsUnrealPipeline() {
-        assertThat(instanceModel.hasHistoricalData(), is(false));
+        assertThat(instanceModel.hasHistoricalData()).isFalse();
     }
 
     @Test
     public void shouldReturnUnknownModificationAsCurrent() {
-        assertThat(instanceModel.getCurrentRevision("foo"), is(PipelineInstanceModel.UNKNOWN_REVISION));
+        assertThat(instanceModel.getCurrentRevision("foo")).isEqualTo(PipelineInstanceModel.UNKNOWN_REVISION);
     }
 
     @Test
     public void shouldBeCapableOfGeneratingPipelineIdentifier() {
-        assertThat(instanceModel.getPipelineIdentifier(), is(new PipelineIdentifier("pipeline", 0, "unknown")));
+        assertThat(instanceModel.getPipelineIdentifier()).isEqualTo(new PipelineIdentifier("pipeline", 0, "unknown"));
     }
 
     @Test
     public void shouldHaveNegetivePipelineId() {
-        assertThat(instanceModel.getId(), is(-1L));
+        assertThat(instanceModel.getId()).isEqualTo(-1L);
     }
 }

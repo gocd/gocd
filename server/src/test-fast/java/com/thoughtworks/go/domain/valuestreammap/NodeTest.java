@@ -22,9 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NodeTest {
     @Test
@@ -58,12 +56,12 @@ public class NodeTest {
         p3.addParentIfAbsent(p1);
         p3.addParentIfAbsent(p2);
 
-        assertThat(p3.getParents().size(), is(2));
-        assertThat(p3.getParents(), hasItems(p1, p2));
+        assertThat(p3.getParents().size()).isEqualTo(2);
+        assertThat(p3.getParents()).contains(p1, p2);
 
         p3.replaceParentWith(p1, dummy);
-        assertThat(p3.getParents().size(), is(2));
-        assertThat(p3.getParents(), hasItems(dummy, p2));
+        assertThat(p3.getParents().size()).isEqualTo(2);
+        assertThat(p3.getParents()).contains(dummy, p2);
     }
 
     @Test
@@ -86,12 +84,12 @@ public class NodeTest {
         p1.addParentIfAbsent(git);
         p2.addParentIfAbsent(git);
 
-        assertThat(git.getChildren().size(), is(2));
-        assertThat(git.getChildren(), hasItems(p1, p2));
+        assertThat(git.getChildren().size()).isEqualTo(2);
+        assertThat(git.getChildren()).contains(p1, p2);
 
         git.replaceChildWith(p1, dummy);
-        assertThat(git.getChildren().size(), is(2));
-        assertThat(git.getChildren(), hasItems(dummy, p2));
+        assertThat(git.getChildren().size()).isEqualTo(2);
+        assertThat(git.getChildren()).contains(dummy, p2);
     }
 
     @Test
@@ -100,9 +98,9 @@ public class NodeTest {
         Node p2 = new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2");
         Node dummy = new DummyNode("dummy", "dummy");
 
-        assertThat(g1.getType(), is(DependencyNodeType.MATERIAL));
-        assertThat(p2.getType(), is(DependencyNodeType.PIPELINE));
-        assertThat(dummy.getType(), is(DependencyNodeType.DUMMY));
+        assertThat(g1.getType()).isEqualTo(DependencyNodeType.MATERIAL);
+        assertThat(p2.getType()).isEqualTo(DependencyNodeType.PIPELINE);
+        assertThat(dummy.getType()).isEqualTo(DependencyNodeType.DUMMY);
     }
 
     @Test
@@ -118,7 +116,7 @@ public class NodeTest {
         p3.setDepth(4);
 
         List<PipelineDependencyNode> nodes = Stream.of(p1, p2, p3).sorted().collect(Collectors.toList());
-        assertThat(nodes, is(List.of(p2, p3, p1)));
+        assertThat(nodes).isEqualTo(List.of(p2, p3, p1));
     }
 
     @Test
@@ -134,8 +132,8 @@ public class NodeTest {
         node.addRevision(p11);
 
         List<Revision> revisions = node.revisions();
-        assertThat(revisions.toString(), revisions.size(), is(2));
-        assertThat(revisions, hasItems(p11, p12));
+        assertThat(revisions.size()).isEqualTo(2);
+        assertThat(revisions).contains(p11, p12);
     }
 
     @Test
@@ -147,6 +145,6 @@ public class NodeTest {
         node.addRevision(revision_2);
         node.addRevision(revision_1);
         node.addRevision(revision_3);
-        assertThat(node.revisions(), is(List.of(revision_3, revision_2, revision_1)));
+        assertThat(node.revisions()).isEqualTo(List.of(revision_3, revision_2, revision_1));
     }
 }

@@ -24,8 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AgentStatusReportingTest {
 
@@ -50,7 +49,7 @@ public class AgentStatusReportingTest {
         work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null, null));
         AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo1.busy(new AgentBuildingInfo("pipeline1/100/mingle/100/run-ant", "pipeline1/100/mingle/100/run-ant"));
-        assertThat(agentRuntimeInfo, is(agentRuntimeInfo1));
+        assertThat(agentRuntimeInfo).isEqualTo(agentRuntimeInfo1);
     }
 
     @Test
@@ -59,7 +58,7 @@ public class AgentStatusReportingTest {
         work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null, null));
         work.cancel(environmentVariableContext, agentRuntimeInfo);
 
-        assertThat(agentRuntimeInfo, is(expectedAgentRuntimeInfo()));
+        assertThat(agentRuntimeInfo).isEqualTo(expectedAgentRuntimeInfo());
     }
 
     private AgentRuntimeInfo expectedAgentRuntimeInfo() {

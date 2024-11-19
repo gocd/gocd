@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
@@ -67,8 +66,7 @@ public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
         String json = gson.toJson(value);
 
         CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask) gson.fromJson(json, CRTask.class);
-        assertThat("Deserialized value should equal to value before serialization",
-            deserializedValue, is(value));
+        assertThat(deserializedValue).isEqualTo(value);
     }
 
     @Test
@@ -85,14 +83,14 @@ public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
                             }""";
         CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask) gson.fromJson(json, CRTask.class);
 
-        assertThat(deserializedValue.getPipeline(), is("pip"));
-        assertThat(deserializedValue.getJob(), is("build"));
-        assertThat(deserializedValue.getStage(), is("build1"));
-        assertThat(deserializedValue.getSource(), is("bin"));
-        assertThat(deserializedValue.getRunIf(), is(CRRunIf.passed));
+        assertThat(deserializedValue.getPipeline()).isEqualTo("pip");
+        assertThat(deserializedValue.getJob()).isEqualTo("build");
+        assertThat(deserializedValue.getStage()).isEqualTo("build1");
+        assertThat(deserializedValue.getSource()).isEqualTo("bin");
+        assertThat(deserializedValue.getRunIf()).isEqualTo(CRRunIf.passed);
         assertNull(deserializedValue.getDestination());
-        assertThat(deserializedValue.sourceIsDirectory(), is(true));
-        assertThat(deserializedValue.getArtifactOrigin(), is(CRAbstractFetchTask.ArtifactOrigin.gocd));
+        assertThat(deserializedValue.sourceIsDirectory()).isTrue();
+        assertThat(deserializedValue.getArtifactOrigin()).isEqualTo(CRAbstractFetchTask.ArtifactOrigin.gocd);
     }
 
     @Test
@@ -108,13 +106,13 @@ public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
                             }""";
         CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask) gson.fromJson(json, CRTask.class);
 
-        assertThat(deserializedValue.getPipeline(), is("pip"));
-        assertThat(deserializedValue.getJob(), is("build"));
-        assertThat(deserializedValue.getStage(), is("build1"));
-        assertThat(deserializedValue.getSource(), is("bin"));
-        assertThat(deserializedValue.getRunIf(), is(CRRunIf.passed));
+        assertThat(deserializedValue.getPipeline()).isEqualTo("pip");
+        assertThat(deserializedValue.getJob()).isEqualTo("build");
+        assertThat(deserializedValue.getStage()).isEqualTo("build1");
+        assertThat(deserializedValue.getSource()).isEqualTo("bin");
+        assertThat(deserializedValue.getRunIf()).isEqualTo(CRRunIf.passed);
         assertNull(deserializedValue.getDestination());
-        assertThat(deserializedValue.sourceIsDirectory(), is(true));
-        assertThat(deserializedValue.getArtifactOrigin(), is(CRAbstractFetchTask.ArtifactOrigin.gocd));
+        assertThat(deserializedValue.sourceIsDirectory()).isTrue();
+        assertThat(deserializedValue.getArtifactOrigin()).isEqualTo(CRAbstractFetchTask.ArtifactOrigin.gocd);
     }
 }

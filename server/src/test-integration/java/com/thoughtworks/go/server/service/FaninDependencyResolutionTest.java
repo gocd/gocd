@@ -39,7 +39,6 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,8 +48,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.thoughtworks.go.util.SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("unused")
@@ -147,10 +145,10 @@ public class FaninDependencyResolutionTest {
         for (MaterialRevision revisionsBasedOnDependency : revisionsBasedOnDependencies) {
             DependencyMaterial dependencyPipeline = (DependencyMaterial) revisionsBasedOnDependency.getMaterial();
             if (dependencyPipeline.getPipelineName().equals(new CaseInsensitiveString("up"))) {
-                assertThat(dependencyPipeline.getName(), is(new CaseInsensitiveString("up-for-down")));
+                assertThat(dependencyPipeline.getName()).isEqualTo(new CaseInsensitiveString("up-for-down"));
             }
         }
-        assertThat(revisionsBasedOnDependencies, is(given));
+        assertThat(revisionsBasedOnDependencies).isEqualTo(given);
     }
 
     @Test
@@ -189,7 +187,7 @@ public class FaninDependencyResolutionTest {
         MaterialRevisions expected = u.mrs(
                 u.mr(build, true, b_1),
                 u.mr(acceptance, false, a_1));
-        assertThat(getRevisionsBasedOnDependencies(regression, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(regression, cruiseConfig, given)).isEqualTo(expected);
 
         String a_2 = u.runAndPass(acceptance, b_2);
 
@@ -199,7 +197,7 @@ public class FaninDependencyResolutionTest {
         expected = u.mrs(
                 u.mr(build, true, b_2),
                 u.mr(acceptance, true, a_2));
-        assertThat(getRevisionsBasedOnDependencies(regression, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(regression, cruiseConfig, given)).isEqualTo(expected);
 
         String r_2 = u.runAndPass(regression, b_2, a_2);
         String r_3 = u.runAndPass(regression, b_1, a_2);
@@ -210,7 +208,7 @@ public class FaninDependencyResolutionTest {
         expected = u.mrs(
                 u.mr(acceptance, true, a_2),
                 u.mr(regression, true, r_2));
-        assertThat(getRevisionsBasedOnDependencies(staging, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(staging, cruiseConfig, given)).isEqualTo(expected);
 
         String s_2 = u.runAndPass(staging, a_2, r_2);
         String s_3 = u.runAndPass(staging, a_2, r_3);
@@ -218,7 +216,7 @@ public class FaninDependencyResolutionTest {
         given = u.mrs(u.mr(staging, true, s_3));
         expected = u.mrs(u.mr(staging, true, s_2));
 
-        assertThat(getRevisionsBasedOnDependencies(production, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(production, cruiseConfig, given)).isEqualTo(expected);
 
         String b_3 = u.runAndPass(build, "g3");
         String a_3 = u.runAndPass(acceptance, b_3);
@@ -235,8 +233,8 @@ public class FaninDependencyResolutionTest {
         MaterialRevisions previousMaterialRevisions = u.mrs(
                 u.mr(acceptance, false, a_1),
                 u.mr(regression, false, r_4));
-        assertThat(getRevisionsBasedOnDependencies(staging, cruiseConfig, given), is(expected));
-//        assertThat(getBuildCause(staging,given,previousMaterialRevisions), is(not(nullValue()))); //TODO: *************** Bug where pipeline should be triggered <Sara>
+        assertThat(getRevisionsBasedOnDependencies(staging, cruiseConfig, given)).isEqualTo(expected);
+//        assertThat(getBuildCause(staging,given,previousMaterialRevisions)).isNotNull(); //TODO: *************** Bug where pipeline should be triggered <Sara>
 
         String r_5 = u.runAndPass(regression, b_3, a_3);
 
@@ -246,11 +244,11 @@ public class FaninDependencyResolutionTest {
         expected = u.mrs(
                 u.mr(acceptance, true, a_3),
                 u.mr(regression, true, r_5));
-        assertThat(getRevisionsBasedOnDependencies(staging, cruiseConfig, given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(staging, cruiseConfig, given)).isEqualTo(expected);
         previousMaterialRevisions = u.mrs(
                 u.mr(acceptance, false, a_1),
                 u.mr(regression, false, r_4));
-        assertThat(getBuildCause(staging, given, previousMaterialRevisions).getMaterialRevisions(), is(expected));
+        assertThat(getBuildCause(staging, given, previousMaterialRevisions).getMaterialRevisions()).isEqualTo(expected);
     }
 
     @Test
@@ -291,7 +289,7 @@ public class FaninDependencyResolutionTest {
                 u.mr(p2, true, p2_1));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given);
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -329,7 +327,7 @@ public class FaninDependencyResolutionTest {
             u.mr(p1, true, p1_2),
                 u.mr(p2, true, p2_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -355,7 +353,7 @@ public class FaninDependencyResolutionTest {
                 u.mr(third, true, third_1),
                 u.mr(second, true, second_1));
 
-        assertThat(getRevisionsBasedOnDependencies(last, goConfigDao.load(), given), is(given));
+        assertThat(getRevisionsBasedOnDependencies(last, goConfigDao.load(), given)).isEqualTo(given);
     }
 
 
@@ -384,7 +382,7 @@ public class FaninDependencyResolutionTest {
         );
 
         MaterialRevisions materialRevisions = getRevisionsBasedOnDependencies(third, goConfigDao.load(), given);
-        assertThat(materialRevisions, is(given));
+        assertThat(materialRevisions).isEqualTo(given);
     }
 
     @Test
@@ -411,7 +409,7 @@ public class FaninDependencyResolutionTest {
                 u.mr(p2_s2, true, p2_s2_1));
 
         MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given);
-        assertThat(revisionsBasedOnDependencies, is(given));
+        assertThat(revisionsBasedOnDependencies).isEqualTo(given);
     }
 
     @Test
@@ -465,7 +463,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p3, true, p3_3));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p4, cruiseConfig, given);
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
 
         //bring back git2 in p2
 
@@ -484,7 +482,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p3, true, p3_3));
 
         finalRevisions = getRevisionsBasedOnDependencies(p4, cruiseConfig, given);
-        assertThat(finalRevisions, is(expected));
+        assertThat(finalRevisions).isEqualTo(expected);
     }
 
     @Test
@@ -531,7 +529,7 @@ u.mr(git2, true, "git2_3"),
             getBuildCause(p3, given, previous);
             fail();
         } catch (NoModificationsPresentForDependentMaterialException exception) {
-            assertThat(exception.getMessage(), Matchers.containsString(p2_2instance.getFirstStage().getIdentifier().getStageLocator()));
+            assertThat(exception.getMessage()).contains(p2_2instance.getFirstStage().getIdentifier().getStageLocator());
         }
 
     }
@@ -585,7 +583,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p3, true, p3_4));
 
         MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p4, goConfigDao.load(), given);
-        assertThat(revisionsBasedOnDependencies, is(expected));
+        assertThat(revisionsBasedOnDependencies).isEqualTo(expected);
     }
 
     @Test
@@ -619,7 +617,7 @@ u.mr(git2, true, "git2_3"),
         MaterialRevisions given = u.mrs(u.mr(p1, true, p1_1), u.mr(git, true, "g1"));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p2, cruiseConfig, given);
-        assertThat(finalRevisions, is(given));
+        assertThat(finalRevisions).isEqualTo(given);
     }
 
     @Test
@@ -656,7 +654,7 @@ u.mr(git2, true, "git2_3"),
         MaterialRevisions given = u.mrs(u.mr(p1, true, p1_2), u.mr(git, true, "g2"));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p2, cruiseConfig, given);
-        assertThat(finalRevisions, is(given));
+        assertThat(finalRevisions).isEqualTo(given);
     }
 
     @Test
@@ -688,7 +686,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p1, true, p1_3),
                 u.mr(git1, true, "g13"));
 
-        assertThat(getRevisionsBasedOnDependencies(p2, cruiseConfig, given), is(given));
+        assertThat(getRevisionsBasedOnDependencies(p2, cruiseConfig, given)).isEqualTo(given);
     }
 
     @Test
@@ -720,7 +718,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p1, true, p1_1),
                 u.mr(hg, true, "h11"));
 
-        assertThat(getRevisionsBasedOnDependencies(p2, goConfigDao.load(), given), is(given));
+        assertThat(getRevisionsBasedOnDependencies(p2, goConfigDao.load(), given)).isEqualTo(given);
     }
 
     @Test
@@ -750,7 +748,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(pkg1, true, "pkg1-1"),
                 u.mr(p1, true, p1_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p2, goConfigDao.load(), given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p2, goConfigDao.load(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -784,7 +782,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p1, true, p1_1),
                 u.mr(p2, true, p2_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -818,7 +816,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p1, true, p1_1),
                 u.mr(p2, true, p2_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given), is(expected));
+        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -849,7 +847,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p4, true, p4_1));
 
         MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p5, goConfigDao.load(), given);
-        assertThat(revisionsBasedOnDependencies, is(given));
+        assertThat(revisionsBasedOnDependencies).isEqualTo(given);
     }
 
     private BuildCause getBuildCause(ScheduleTestUtil.AddedPipeline staging, MaterialRevisions given, MaterialRevisions previous) {

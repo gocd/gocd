@@ -30,9 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.any;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class RoleConfigServiceTest {
@@ -166,8 +164,8 @@ public class RoleConfigServiceTest {
 
         roleConfigService.bulkUpdate(request, null, result);
 
-        assertThat(result.httpCode(), is(422));
-        assertThat(result.message(), containsString("some error"));
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(result.message()).contains("some error");
     }
 
     @Test
@@ -180,8 +178,8 @@ public class RoleConfigServiceTest {
 
         roleConfigService.bulkUpdate(request, null, result);
 
-        assertThat(result.httpCode(), is(500));
-        assertThat(result.message(), containsString("An error occurred while saving the role config. Please check the logs for more information."));
+        assertThat(result.httpCode()).isEqualTo(500);
+        assertThat(result.message()).contains("An error occurred while saving the role config. Please check the logs for more information.");
     }
 
     @Test
@@ -222,14 +220,14 @@ public class RoleConfigServiceTest {
 
         HashMap<Username, RolesConfig> userToRolesMap = roleConfigService.getRolesForUser(List.of(bob, john));
 
-        assertThat(userToRolesMap.size(), is(2));
+        assertThat(userToRolesMap.size()).isEqualTo(2);
 
-        assertThat(userToRolesMap.get(bob), hasItem(role1));
-        assertThat(userToRolesMap.get(bob), hasItem(role2));
-        assertThat(userToRolesMap.get(bob), not(hasItem(role3)));
+        assertThat(userToRolesMap.get(bob)).contains(role1);
+        assertThat(userToRolesMap.get(bob)).contains(role2);
+        assertThat(userToRolesMap.get(bob)).doesNotContain(role3);
 
-        assertThat(userToRolesMap.get(john), hasItem(role1));
-        assertThat(userToRolesMap.get(john), hasItem(role3));
-        assertThat(userToRolesMap.get(john), not(hasItem(role2)));
+        assertThat(userToRolesMap.get(john)).contains(role1);
+        assertThat(userToRolesMap.get(john)).contains(role3);
+        assertThat(userToRolesMap.get(john)).doesNotContain(role2);
     }
 }

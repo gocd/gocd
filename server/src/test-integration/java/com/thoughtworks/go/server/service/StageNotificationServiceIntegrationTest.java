@@ -42,9 +42,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -119,10 +117,10 @@ public class StageNotificationServiceIntegrationTest {
 
         String subject = "Stage [" + ftStage.getIdentifier().stageLocator() + "]" + " passed";
 
-        assertThat(inMemoryEmailNotificationTopic.getSubject(jezMail), is(subject));
-        assertThat(inMemoryEmailNotificationTopic.getBody(jezMail), containsString("Sent by Go on behalf of jez"));
+        assertThat(inMemoryEmailNotificationTopic.getSubject(jezMail)).isEqualTo(subject);
+        assertThat(inMemoryEmailNotificationTopic.getBody(jezMail)).contains("Sent by Go on behalf of jez");
 
-        assertThat(inMemoryEmailNotificationTopic.emailCount(chrisMail), is(0));
+        assertThat(inMemoryEmailNotificationTopic.emailCount(chrisMail)).isEqualTo(0);
     }
 
 
@@ -143,8 +141,7 @@ public class StageNotificationServiceIntegrationTest {
                 new StageResultMessage(ftStage.getIdentifier(), StageEvent.Passes,
                         new Username(new CaseInsensitiveString("chris"))));
 
-        assertThat(inMemoryEmailNotificationTopic.getBody(jezMail),
-                containsString("The stage was cancelled by chris."));
+        assertThat(inMemoryEmailNotificationTopic.getBody(jezMail)).contains("The stage was cancelled by chris.");
     }
 
     private String prepareOneMatchedUser() {
@@ -172,8 +169,8 @@ public class StageNotificationServiceIntegrationTest {
         String body = inMemoryEmailNotificationTopic.getBody(jezMail);
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         int port = systemEnvironment.getServerPort();
-        assertThat(body, containsString(String.format("http://%s:%s/go/pipelines/%s/%s/%s/%s", ipAddress, port,
-                pipelineFixture.pipelineName, pipeline.getCounter(), pipelineFixture.ftStage, ftStage.getCounter())));
+        assertThat(body).contains(String.format("http://%s:%s/go/pipelines/%s/%s/%s/%s", ipAddress, port,
+                pipelineFixture.pipelineName, pipeline.getCounter(), pipelineFixture.ftStage, ftStage.getCounter()));
     }
 
     @Test
@@ -188,8 +185,8 @@ public class StageNotificationServiceIntegrationTest {
 
         String subject = "Stage [" + ftStage.getIdentifier().stageLocator() + "]" + " is broken";
 
-        assertThat(inMemoryEmailNotificationTopic.getSubject(jezMail), is(subject));
-        assertThat(inMemoryEmailNotificationTopic.getBody(jezMail), containsString("Sent by Go on behalf of jez"));
+        assertThat(inMemoryEmailNotificationTopic.getSubject(jezMail)).isEqualTo(subject);
+        assertThat(inMemoryEmailNotificationTopic.getBody(jezMail)).contains("Sent by Go on behalf of jez");
     }
 
     @Test
@@ -203,8 +200,8 @@ public class StageNotificationServiceIntegrationTest {
 
         String subject = "Stage [" + ftStage.getIdentifier().stageLocator() + "]" + " is fixed";
 
-        assertThat(inMemoryEmailNotificationTopic.getSubject(jezMail), is(subject));
-        assertThat(inMemoryEmailNotificationTopic.getBody(jezMail), containsString("Sent by Go on behalf of jez"));
+        assertThat(inMemoryEmailNotificationTopic.getSubject(jezMail)).isEqualTo(subject);
+        assertThat(inMemoryEmailNotificationTopic.getBody(jezMail)).contains("Sent by Go on behalf of jez");
     }
 
     @Test
@@ -218,8 +215,8 @@ public class StageNotificationServiceIntegrationTest {
 
         String subject = "Stage [" + ftStage.getIdentifier().stageLocator() + "]" + " failed";
 
-        assertThat(inMemoryEmailNotificationTopic.getSubject(jezMail), is(subject));
-        assertThat(inMemoryEmailNotificationTopic.getBody(jezMail), containsString("Sent by Go on behalf of jez"));
+        assertThat(inMemoryEmailNotificationTopic.getSubject(jezMail)).isEqualTo(subject);
+        assertThat(inMemoryEmailNotificationTopic.getBody(jezMail)).contains("Sent by Go on behalf of jez");
     }
 
 

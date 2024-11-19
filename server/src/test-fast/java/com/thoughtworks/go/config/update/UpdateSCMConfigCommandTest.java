@@ -38,10 +38,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.pluggableSCMMaterialConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -81,9 +79,9 @@ public class UpdateSCMConfigCommandTest {
         SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         updatedScm.setName("material");
         UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
-        assertThat(cruiseConfig.getSCMs().contains(scm), is(true));
+        assertThat(cruiseConfig.getSCMs().contains(scm)).isTrue();
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getSCMs().contains(updatedScm), is(true));
+        assertThat(cruiseConfig.getSCMs().contains(updatedScm)).isTrue();
     }
 
     @Test
@@ -104,11 +102,11 @@ public class UpdateSCMConfigCommandTest {
         PluggableSCMMaterialConfig materialConfig1 = (PluggableSCMMaterialConfig) cruiseConfig
                 .getPipelineConfigByName(new CaseInsensitiveString("p1")).materialConfigs().get(0);
 
-        assertThat(materialConfig1.getSCMConfig(), is(updatedSCM));
+        assertThat(materialConfig1.getSCMConfig()).isEqualTo(updatedSCM);
 
         PluggableSCMMaterialConfig materialConfig2 = (PluggableSCMMaterialConfig) cruiseConfig
                 .getPipelineConfigByName(new CaseInsensitiveString("p2")).materialConfigs().get(0);
-        assertThat(materialConfig2.getSCMConfig(), is(updatedSCM));
+        assertThat(materialConfig2.getSCMConfig()).isEqualTo(updatedSCM);
     }
 
     @Test
@@ -128,8 +126,8 @@ public class UpdateSCMConfigCommandTest {
         SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), is(EntityType.SCM.forbiddenToEdit(scm.getId(), currentUser.getUsername())));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.SCM.forbiddenToEdit(scm.getId(), currentUser.getUsername()));
     }
 
     @Test
@@ -140,7 +138,7 @@ public class UpdateSCMConfigCommandTest {
         SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     @Test
@@ -152,7 +150,7 @@ public class UpdateSCMConfigCommandTest {
         SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     @Test
@@ -164,9 +162,9 @@ public class UpdateSCMConfigCommandTest {
         when(entityHashingService.hashForEntity(cruiseConfig.getSCMs().find("id"))).thenReturn("another-digest");
         UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("Someone has modified the configuration for"));
-        assertThat(result.toString(), containsString(updatedScm.getName()));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.toString()).contains("Someone has modified the configuration for");
+        assertThat(result.toString()).contains(updatedScm.getName());
     }
 
     @Test

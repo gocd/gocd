@@ -34,9 +34,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -73,7 +71,7 @@ public class AgentAssignmentTest {
         JobInstance assigned = JobInstanceMother.assignedWithAgentId("dev", "uuid");
         agentAssignment.jobStatusChanged(assigned);
 
-        assertThat(agentAssignment.latestActiveJobOnAgent("uuid"), is(assigned));
+        assertThat(agentAssignment.latestActiveJobOnAgent("uuid")).isEqualTo(assigned);
     }
 
     @Test
@@ -81,7 +79,7 @@ public class AgentAssignmentTest {
         JobInstance scheduled = JobInstanceMother.scheduled("dev");
         agentAssignment.jobStatusChanged(scheduled);
 
-        assertThat(agentAssignment.latestActiveJobOnAgent("uuid"), is(nullValue()));
+        assertThat(agentAssignment.latestActiveJobOnAgent("uuid")).isNull();
     }
 
     @Test
@@ -89,7 +87,7 @@ public class AgentAssignmentTest {
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned("uuid");
         JobInstance expected = pipeline.getFirstStage().getJobInstances().first();
 
-        assertThat(agentAssignment.latestActiveJobOnAgent("uuid").getId(), is(expected.getId()));
+        assertThat(agentAssignment.latestActiveJobOnAgent("uuid").getId()).isEqualTo(expected.getId());
     }
 
     @Test
@@ -98,7 +96,7 @@ public class AgentAssignmentTest {
         completed.setAgentUuid("uuid");
         agentAssignment.jobStatusChanged(completed);
 
-        assertThat(agentAssignment.latestActiveJobOnAgent("uuid"), is(nullValue()));
+        assertThat(agentAssignment.latestActiveJobOnAgent("uuid")).isNull();
     }
 
     @Test
@@ -106,7 +104,7 @@ public class AgentAssignmentTest {
         JobInstance rescheduled = JobInstanceMother.rescheduled("dev", "uuid");
         agentAssignment.jobStatusChanged(rescheduled);
 
-        assertThat(agentAssignment.latestActiveJobOnAgent("uuid"), is(nullValue()));
+        assertThat(agentAssignment.latestActiveJobOnAgent("uuid")).isNull();
     }
 }
 

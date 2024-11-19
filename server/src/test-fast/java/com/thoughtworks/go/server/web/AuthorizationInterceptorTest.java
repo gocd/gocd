@@ -26,8 +26,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import static com.thoughtworks.go.server.domain.Username.ANONYMOUS;
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAsAnonymous;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,16 +56,12 @@ public class AuthorizationInterceptorTest {
         request.setParameter("pipelineName", "cruise");
         request.setMethod("get");
         assumeUserHasViewPermission();
-        assertThat("shouldCheckViewPermissionIfPipelineNamePresent",
-                permissionInterceptor.preHandle(request, response, null),
-                is(true));
+        assertThat(permissionInterceptor.preHandle(request, response, null)).isEqualTo(true);
     }
 
     @Test
     public void shouldNotCheckViewPermissionIfPipelineNameNotPresent() throws Exception {
-        assertThat("shouldCheckViewPermissionIfPipelineNamePresent",
-                permissionInterceptor.preHandle(request, response, null),
-                is(true));
+        assertThat(permissionInterceptor.preHandle(request, response, null)).isEqualTo(true);
     }
 
     @Test
@@ -74,7 +69,7 @@ public class AuthorizationInterceptorTest {
         request.setParameter("pipelineName", "cruise");
         request.setMethod("post");
         assumeUserHasOperatePermissionForPipeline();
-        assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
+        assertThat(permissionInterceptor.preHandle(request, response, null)).isTrue();
     }
 
     @Test
@@ -83,7 +78,7 @@ public class AuthorizationInterceptorTest {
         request.setParameter("stageName", "dev");
         request.setMethod("post");
         assumeUserHasOperatePermissionForStage();
-        assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
+        assertThat(permissionInterceptor.preHandle(request, response, null)).isTrue();
     }
 
     @Test
@@ -91,7 +86,7 @@ public class AuthorizationInterceptorTest {
         request.setParameter("pipelineName", "cruise");
         request.setMethod("put");
         assumeUserHasOperatePermissionForPipeline();
-        assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
+        assertThat(permissionInterceptor.preHandle(request, response, null)).isTrue();
     }
 
     @Test
@@ -99,7 +94,7 @@ public class AuthorizationInterceptorTest {
         request.setParameter("pipelineName", "cruise");
         request.setRequestURI("/admin/restful/configuration");
         request.setMethod("post");
-        assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
+        assertThat(permissionInterceptor.preHandle(request, response, null)).isTrue();
     }
 
     private void assumeUserHasViewPermission() {

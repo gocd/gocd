@@ -34,8 +34,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class CcTrayActivityListenerTest {
@@ -112,7 +111,7 @@ public class CcTrayActivityListenerTest {
         listener.startDaemon();
 
         List<ConfigChangedListener> listeners = captor.getAllValues();
-        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
         EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
         pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
@@ -136,7 +135,7 @@ public class CcTrayActivityListenerTest {
         listener.startDaemon();
 
         List<ConfigChangedListener> listeners = captor.getAllValues();
-        assertThat(listeners.get(2) instanceof SecurityConfigChangeListener, is(true));
+        assertThat(listeners.get(2) instanceof SecurityConfigChangeListener).isTrue();
         SecurityConfigChangeListener securityConfigChangeListener = (SecurityConfigChangeListener) listeners.get(2);
 
         securityConfigChangeListener.onEntityConfigChange(new PluginRoleConfig());

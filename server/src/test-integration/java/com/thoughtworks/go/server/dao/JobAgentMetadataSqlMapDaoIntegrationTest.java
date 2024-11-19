@@ -37,9 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -87,9 +85,9 @@ public class JobAgentMetadataSqlMapDaoIntegrationTest {
         dao.save(jobAgentMetadata);
 
         JobAgentMetadata metadataFromDb = dao.load(jobId);
-        assertThat(metadataFromDb.elasticProfile(), is(profile));
-        assertThat(metadataFromDb.clusterProfile(), is(clusterProfile));
-        assertThat(metadataFromDb, is(jobAgentMetadata));
+        assertThat(metadataFromDb.elasticProfile()).isEqualTo(profile);
+        assertThat(metadataFromDb.clusterProfile()).isEqualTo(clusterProfile);
+        assertThat(metadataFromDb).isEqualTo(jobAgentMetadata);
     }
 
     @Test
@@ -100,9 +98,9 @@ public class JobAgentMetadataSqlMapDaoIntegrationTest {
         dao.save(jobAgentMetadata);
 
         JobAgentMetadata metadataFromDb = dao.load(jobId);
-        assertThat(metadataFromDb, is(jobAgentMetadata));
+        assertThat(metadataFromDb).isEqualTo(jobAgentMetadata);
 
         dao.delete(metadataFromDb);
-        assertThat(dao.load(jobId), is(nullValue()));
+        assertThat(dao.load(jobId)).isNull();
     }
 }

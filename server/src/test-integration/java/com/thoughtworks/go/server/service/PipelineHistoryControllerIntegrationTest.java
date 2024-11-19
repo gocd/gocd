@@ -45,8 +45,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(ClearSingleton.class)
 @ExtendWith(SpringExtension.class)
@@ -95,7 +94,7 @@ public class PipelineHistoryControllerIntegrationTest {
         fixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         Map jsonMap = requestPipelineHistoryPage();
         List groups = (List) jsonMap.get("groups");
-        assertThat(groups.size(), is(1));
+        assertThat(groups.size()).isEqualTo(1);
     }
 
     @Test
@@ -106,7 +105,7 @@ public class PipelineHistoryControllerIntegrationTest {
         fixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
 
         Map jsonMap = requestPipelineHistoryPage();
-        assertThat(getItemInJson(jsonMap, "canForce"), is("false"));
+        assertThat(getItemInJson(jsonMap, "canForce")).isEqualTo("false");
     }
 
     @Test
@@ -116,7 +115,7 @@ public class PipelineHistoryControllerIntegrationTest {
 
         SessionUtilsHelper.loginAs("userA");
         Map jsonMap = requestPipelineHistoryPage();
-        assertThat(getItemInJson(jsonMap, "canForce"), is("true"));
+        assertThat(getItemInJson(jsonMap, "canForce")).isEqualTo("true");
     }
 
     @Test
@@ -125,7 +124,7 @@ public class PipelineHistoryControllerIntegrationTest {
         configHelper.setOperatePermissionForGroup("defaultGroup", "jez");
 
         Map jsonMap = requestPipelineHistoryPage();
-        assertThat(getItemInJson(jsonMap, "canPause"), is("false"));
+        assertThat(getItemInJson(jsonMap, "canPause")).isEqualTo("false");
     }
 
     @Test
@@ -134,7 +133,7 @@ public class PipelineHistoryControllerIntegrationTest {
         configHelper.setOperatePermissionForGroup("defaultGroup", CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()));
 
         Map jsonMap = requestPipelineHistoryPage();
-        assertThat(getItemInJson(jsonMap, "canPause"), is("true"));
+        assertThat(getItemInJson(jsonMap, "canPause")).isEqualTo("true");
     }
 
     @Test
@@ -142,7 +141,7 @@ public class PipelineHistoryControllerIntegrationTest {
         fixture.createNewCheckin();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(fixture.pipelineName);
         Map jsonMap = requestPipelineHistoryPage();
-        assertThat(getItemInJson(jsonMap, "showForceBuildButton"), is("true"));
+        assertThat(getItemInJson(jsonMap, "showForceBuildButton")).isEqualTo("true");
     }
 
     @Test
@@ -151,7 +150,7 @@ public class PipelineHistoryControllerIntegrationTest {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(fixture.pipelineName);
         Map jsonMap = requestPipelineHistoryPage();
         List groups = (List) jsonMap.get("groups");
-        assertThat("Should create group for the coming pipeline", groups.size(), is(1));
+        assertThat(groups.size()).isEqualTo(1);
     }
 
     private String getItemInJson(Map jsonMap, String key) {

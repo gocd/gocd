@@ -18,32 +18,31 @@ package com.thoughtworks.go.plugin.access.common.settings;
 import com.thoughtworks.go.plugin.api.config.Property;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PluginSettingsPropertyTest {
     @Test
     public void validatePropertyDefaults() {
         PluginSettingsProperty property = new PluginSettingsProperty("Test-Property");
-        assertThat(property.getOptions().size(), is(4));
-        assertThat(property.getOption(Property.REQUIRED), is(true));
-        assertThat(property.getOption(Property.SECURE), is(false));
-        assertThat(property.getOption(Property.DISPLAY_NAME), is("Test-Property"));
-        assertThat(property.getOption(Property.DISPLAY_ORDER), is(0));
+        assertThat(property.getOptions().size()).isEqualTo(4);
+        assertThat(property.getOption(Property.REQUIRED)).isTrue();
+        assertThat(property.getOption(Property.SECURE)).isFalse();
+        assertThat(property.getOption(Property.DISPLAY_NAME)).isEqualTo("Test-Property");
+        assertThat(property.getOption(Property.DISPLAY_ORDER)).isEqualTo(0);
 
         property = new PluginSettingsProperty("Test-Property", "Dummy Value");
-        assertThat(property.getOptions().size(), is(4));
-        assertThat(property.getOption(Property.REQUIRED), is(true));
-        assertThat(property.getOption(Property.SECURE), is(false));
-        assertThat(property.getOption(Property.DISPLAY_NAME), is("Test-Property"));
-        assertThat(property.getOption(Property.DISPLAY_ORDER), is(0));
+        assertThat(property.getOptions().size()).isEqualTo(4);
+        assertThat(property.getOption(Property.REQUIRED)).isTrue();
+        assertThat(property.getOption(Property.SECURE)).isFalse();
+        assertThat(property.getOption(Property.DISPLAY_NAME)).isEqualTo("Test-Property");
+        assertThat(property.getOption(Property.DISPLAY_ORDER)).isEqualTo(0);
     }
 
     @Test
     public void shouldCompareTwoPropertiesBasedOnOrder() {
         PluginSettingsProperty p1 = createProperty("Test-Property", 1);
         PluginSettingsProperty p2 = createProperty("Test-Property", 0);
-        assertThat(p1.compareTo(p2), is(1));
+        assertThat(p1.compareTo(p2)).isEqualTo(1);
     }
 
     private PluginSettingsProperty createProperty(String key, int order) {

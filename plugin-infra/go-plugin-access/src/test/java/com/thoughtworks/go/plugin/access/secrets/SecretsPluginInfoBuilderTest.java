@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,7 +44,7 @@ public class SecretsPluginInfoBuilderTest {
 
         SecretsPluginInfo pluginInfo = new SecretsPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getImage(), is(icon));
+        assertThat(pluginInfo.getImage()).isEqualTo(icon);
     }
 
     @Test
@@ -54,7 +53,7 @@ public class SecretsPluginInfoBuilderTest {
 
         SecretsPluginInfo pluginInfo = new SecretsPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
     }
 
     @Test
@@ -70,7 +69,6 @@ public class SecretsPluginInfoBuilderTest {
 
         SecretsPluginInfo pluginInfo = new SecretsPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getSecretsConfigSettings(),
-                is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("secrets_config_view"))));
+        assertThat(pluginInfo.getSecretsConfigSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, new PluginView("secrets_config_view")));
     }
 }

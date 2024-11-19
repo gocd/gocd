@@ -36,8 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class ConfigElementImplementationRegistrarTest {
@@ -61,7 +60,7 @@ public class ConfigElementImplementationRegistrarTest {
         tasks.add(PluggableTask.class);
         tasks.add(FetchPluggableArtifactTask.class);
 
-        assertThat(registry.implementersOf(Task.class), is(tasks));
+        assertThat(registry.implementersOf(Task.class)).isEqualTo(tasks);
     }
 
     @Test
@@ -76,7 +75,7 @@ public class ConfigElementImplementationRegistrarTest {
         materials.add(PackageMaterialConfig.class);
         materials.add(PluggableSCMMaterialConfig.class);
 
-        assertThat(registry.implementersOf(MaterialConfig.class), is(materials));
+        assertThat(registry.implementersOf(MaterialConfig.class)).isEqualTo(materials);
     }
 
     @Test
@@ -86,7 +85,7 @@ public class ConfigElementImplementationRegistrarTest {
         artifacts.add(BuildArtifactConfig.class);
         artifacts.add(PluggableArtifactConfig.class);
 
-        assertThat(registry.implementersOf(ArtifactTypeConfig.class), is(artifacts));
+        assertThat(registry.implementersOf(ArtifactTypeConfig.class)).isEqualTo(artifacts);
     }
 
     @Test
@@ -95,6 +94,6 @@ public class ConfigElementImplementationRegistrarTest {
         admin.add(AdminUser.class);
         admin.add(AdminRole.class);
 
-        assertThat(registry.implementersOf(Admin.class), is(admin));
+        assertThat(registry.implementersOf(Admin.class)).isEqualTo(admin);
     }
 }

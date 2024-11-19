@@ -19,8 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PackageMaterialRevisionTest {
 
@@ -29,6 +28,6 @@ public class PackageMaterialRevisionTest {
         Date date = new Date();
         PackageMaterialRevision revisionOne = new PackageMaterialRevision("go-agent-12.1.0", date);
         PackageMaterialRevision revisionTwo = new PackageMaterialRevision("go-agent-12.1.0", date);
-        assertThat(revisionOne.equals(revisionTwo), is(true));
+        assertThat(revisionOne.equals(revisionTwo)).isTrue();
     }
 }

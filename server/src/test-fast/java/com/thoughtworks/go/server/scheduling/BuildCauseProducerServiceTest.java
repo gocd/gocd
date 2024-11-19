@@ -64,8 +64,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.error;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -141,8 +140,8 @@ public class BuildCauseProducerServiceTest {
         when(materialConfigConverter.toMaterial(materialConfig)).thenReturn(material);
         when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(pipelineConfig);
         buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig.name(), new ScheduleOptions(), result);
-        assertThat(result.httpCode(), is(202));
-        assertThat(result.fullMessage(), is("Request to schedule pipeline pipeline accepted"));
+        assertThat(result.httpCode()).isEqualTo(202);
+        assertThat(result.fullMessage()).isEqualTo("Request to schedule pipeline pipeline accepted");
     }
 
     @Test
@@ -160,7 +159,7 @@ public class BuildCauseProducerServiceTest {
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), result);
-        assertThat(result.getServerHealthState().isSuccess(), is(true));
+        assertThat(result.getServerHealthState().isSuccess()).isTrue();
 
         verify(mockMaterialUpdateService, times(2)).updateMaterial(any(Material.class));
         verify(mockMaterialUpdateStatusNotifier).registerListenerFor(eq(pipelineConfig),
@@ -180,8 +179,8 @@ public class BuildCauseProducerServiceTest {
         buildCauseProducerService.markPipelineAsAlreadyTriggered(pipelineConfig);
         buildCauseProducerService.manualSchedulePipeline(user, pipelineConfig.name(), new ScheduleOptions(), result);
 
-        assertThat(result.canContinue(), is(false));
-        assertThat(result.message(), is("Failed to force pipeline: pipeline"));
+        assertThat(result.canContinue()).isFalse();
+        assertThat(result.message()).isEqualTo("Failed to force pipeline: pipeline");
 
         verify(mockMaterialUpdateService, never()).updateMaterial(any(Material.class));
         verify(mockMaterialUpdateStatusNotifier, never()).registerListenerFor(eq(pipelineConfig),
@@ -196,7 +195,7 @@ public class BuildCauseProducerServiceTest {
             buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), operationResult);
             fail("expected exception, got none");
         } catch (Exception e) {
-            assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name()), is(false));
+            assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name())).isFalse();
         }
     }
 
@@ -212,9 +211,9 @@ public class BuildCauseProducerServiceTest {
         when(pipelineScheduleQueue.mostRecentScheduled(pipelineConfig.name())).thenReturn(BuildCause.createNeverRun());
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name()), is(true));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name())).isTrue();
         sendMaterialUpdateCompleteMessage(extractMaterialListenerInstanceFromRegisterCall(), hgMaterial);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name()), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name())).isFalse();
     }
 
     @Test
@@ -227,7 +226,7 @@ public class BuildCauseProducerServiceTest {
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
         sendMaterialUpdateFailedMessage(extractMaterialListenerInstanceFromRegisterCall(), hgMaterial);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name()), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name())).isFalse();
     }
 
     private void sendMaterialUpdateCompleteMessage(MaterialUpdateStatusListener materialUpdateStatusListener, HgMaterial material) {
@@ -279,13 +278,13 @@ public class BuildCauseProducerServiceTest {
                 eq(pipelineConfig), any(ManualBuild.class),
                 new ScheduleOptions(eq(EMPTY_REVISIONS), stringStringHashMap, new HashMap<>()), any(ServerHealthStateOperationResult.class), eq(12345L));
 
-        assertThat(notifier.hasListenerFor(pipelineConfig), is(true));
+        assertThat(notifier.hasListenerFor(pipelineConfig)).isTrue();
         notifier.onMessage(new MaterialUpdateSuccessfulMessage(hgMaterial, 1111L));
 
-        assertThat(notifier.hasListenerFor(pipelineConfig), is(true));
+        assertThat(notifier.hasListenerFor(pipelineConfig)).isTrue();
         notifier.onMessage(new MaterialUpdateSuccessfulMessage(svnMaterial, 2222L));
 
-        assertThat(notifier.hasListenerFor(pipelineConfig), is(false));
+        assertThat(notifier.hasListenerFor(pipelineConfig)).isFalse();
         verify(buildCauseProducerService).newProduceBuildCause(eq(pipelineConfig), any(ManualBuild.class), eq(new ScheduleOptions()), any(ServerHealthStateOperationResult.class), eq(2222L));
     }
 
@@ -361,7 +360,7 @@ public class BuildCauseProducerServiceTest {
         material1.setFolder("folder1");
         material2.setFolder("folder2");
 
-        assertThat(material1.getFingerprint(), is(material2.getFingerprint()));
+        assertThat(material1.getFingerprint()).isEqualTo(material2.getFingerprint());
 
         pipelineConfig.addMaterialConfig(materialConfig1);
         pipelineConfig.addMaterialConfig(materialConfig2);
@@ -498,16 +497,16 @@ public class BuildCauseProducerServiceTest {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, pipelineName, new SystemEnvironment(), null);
         ServerHealthState serverHealthState = buildCauseProducerService.newProduceBuildCause(config, autoBuild, result, 12345);
 
-        assertThat(serverHealthState.isSuccess(), is(true));
+        assertThat(serverHealthState.isSuccess()).isTrue();
     }
 
     private ArgumentMatcher<ServerHealthState> hasErrorHealthState(final String message, final String description) {
         return new ArgumentMatcher<>() {
             @Override
             public boolean matches(ServerHealthState item) {
-                assertThat("isSuccess", item.isSuccess(), is(false));
-                assertThat("message", item.getMessage(), is(message));
-                assertThat("description", item.getDescription(), is(description));
+                assertThat(item.isSuccess()).isFalse();
+                assertThat(item.getMessage()).isEqualTo(message);
+                assertThat(item.getDescription()).isEqualTo(description);
                 return true;
             }
 

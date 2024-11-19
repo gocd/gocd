@@ -17,32 +17,31 @@ package com.thoughtworks.go.config.validation;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NameTypeValidatorTest {
 
     @Test
     public void shouldValidateNameBasedOnLength() {
-        assertThat(new NameTypeValidator().isNameValid("name"), is(true));
-        assertThat(new NameTypeValidator().isNameValid(nameOfLength(255)), is(true));
-        assertThat(new NameTypeValidator().isNameValid(nameOfLength(256)), is(false));
+        assertThat(new NameTypeValidator().isNameValid("name")).isTrue();
+        assertThat(new NameTypeValidator().isNameValid(nameOfLength(255))).isTrue();
+        assertThat(new NameTypeValidator().isNameValid(nameOfLength(256))).isFalse();
     }
 
     @Test
     public void shouldValidateNameBasedOnCharacterType() {
         //[a-zA-Z0-9_\-]{1}[a-zA-Z0-9_\-.]*
-        assertThat(new NameTypeValidator().isNameValid(""), is(false));
-        assertThat(new NameTypeValidator().isNameValid("name"), is(true));
+        assertThat(new NameTypeValidator().isNameValid("")).isFalse();
+        assertThat(new NameTypeValidator().isNameValid("name")).isTrue();
 
-        assertThat(new NameTypeValidator().isNameValid("!"), is(false));
-        assertThat(new NameTypeValidator().isNameValid("name!"), is(false));
+        assertThat(new NameTypeValidator().isNameValid("!")).isFalse();
+        assertThat(new NameTypeValidator().isNameValid("name!")).isFalse();
 
-        assertThat(new NameTypeValidator().isNameValid("name_123"), is(true));
-        assertThat(new NameTypeValidator().isNameValid("1"), is(true));
+        assertThat(new NameTypeValidator().isNameValid("name_123")).isTrue();
+        assertThat(new NameTypeValidator().isNameValid("1")).isTrue();
 
-        assertThat(new NameTypeValidator().isNameValid("."), is(false));
-        assertThat(new NameTypeValidator().isNameValid("1."), is(true));
+        assertThat(new NameTypeValidator().isNameValid(".")).isFalse();
+        assertThat(new NameTypeValidator().isNameValid("1.")).isTrue();
     }
 
     private String nameOfLength(final int length) {

@@ -26,10 +26,8 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ElasticAgentProfileDeleteCommandTest {
@@ -48,19 +46,19 @@ public class ElasticAgentProfileDeleteCommandTest {
         ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, null);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.getElasticConfig().getProfiles(), is(empty()));
+        assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();
     }
 
     @Test
     public void shouldRaiseExceptionInCaseProfileDoesNotExist() throws Exception {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster");
 
-        assertThat(cruiseConfig.getElasticConfig().getProfiles(), is(empty()));
+        assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();
         ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, new HttpLocalizedOperationResult());
 
         assertThatThrownBy(() -> command.update(cruiseConfig)).isInstanceOf(RecordNotFoundException.class);
 
-        assertThat(cruiseConfig.getElasticConfig().getProfiles(), is(empty()));
+        assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();
     }
 
     @Test
@@ -72,7 +70,7 @@ public class ElasticAgentProfileDeleteCommandTest {
         pipelineConfig.getStages().first().getJobs().first().setElasticProfileId("foo");
         cruiseConfig.addPipeline("all", pipelineConfig);
 
-        assertThat(cruiseConfig.getElasticConfig().getProfiles(), is(empty()));
+        assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();
         ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, new HttpLocalizedOperationResult());
         assertThatThrownBy(() -> command.isValid(cruiseConfig))
                 .isInstanceOf(GoConfigInvalidException.class)
@@ -83,7 +81,7 @@ public class ElasticAgentProfileDeleteCommandTest {
     public void shouldValidateIfProfileIsNotInUseByPipeline() throws Exception {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster");
 
-        assertThat(cruiseConfig.getElasticConfig().getProfiles(), is(empty()));
+        assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();
         ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, new HttpLocalizedOperationResult());
         assertTrue(command.isValid(cruiseConfig));
     }

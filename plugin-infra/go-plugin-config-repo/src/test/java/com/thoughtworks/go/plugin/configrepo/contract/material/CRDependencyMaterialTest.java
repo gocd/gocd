@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CRDependencyMaterialTest extends AbstractCRTest<CRDependencyMaterial> {
 
@@ -59,7 +58,7 @@ public class CRDependencyMaterialTest extends AbstractCRTest<CRDependencyMateria
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
         CRMaterial value = dependsOnPipeline;
         JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
-        assertThat(jsonObject.get("type").getAsString(), is(CRDependencyMaterial.TYPE_NAME));
+        assertThat(jsonObject.get("type").getAsString()).isEqualTo(CRDependencyMaterial.TYPE_NAME);
     }
 
     @Test
@@ -68,8 +67,7 @@ public class CRDependencyMaterialTest extends AbstractCRTest<CRDependencyMateria
         String json = gson.toJson(value);
 
         CRDependencyMaterial deserializedValue = (CRDependencyMaterial) gson.fromJson(json, CRMaterial.class);
-        assertThat("Deserialized value should equal to value before serialization",
-            deserializedValue, is(value));
+        assertThat(deserializedValue).isEqualTo(value);
     }
 
 }

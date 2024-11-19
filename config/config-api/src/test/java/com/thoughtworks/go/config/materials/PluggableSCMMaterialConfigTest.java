@@ -40,8 +40,7 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
 
@@ -66,8 +65,8 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setScmId(null);
         pluggableSCMMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
 
-        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Please select a SCM"));
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(1);
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Please select a SCM");
     }
 
     @Test
@@ -79,11 +78,11 @@ public class PluggableSCMMaterialConfigTest {
 
         pluggableSCMMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
-        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Duplicate SCM material detected!"));
-        assertThat(existingMaterial.errors().getAll().size(), is(1));
-        assertThat(existingMaterial.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Duplicate SCM material detected!"));
-        assertThat(nameToMaterialMap.size(), is(2));
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(1);
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Duplicate SCM material detected!");
+        assertThat(existingMaterial.errors().getAll().size()).isEqualTo(1);
+        assertThat(existingMaterial.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Duplicate SCM material detected!");
+        assertThat(nameToMaterialMap.size()).isEqualTo(2);
     }
 
     @Test
@@ -94,8 +93,8 @@ public class PluggableSCMMaterialConfigTest {
 
         pluggableSCMMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
-        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(0));
-        assertThat(nameToMaterialMap.size(), is(3));
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(0);
+        assertThat(nameToMaterialMap.size()).isEqualTo(3);
     }
 
     @Test
@@ -106,8 +105,8 @@ public class PluggableSCMMaterialConfigTest {
 
         pluggableSCMMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
-        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(0));
-        assertThat(nameToMaterialMap.size(), is(0));
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(0);
+        assertThat(nameToMaterialMap.size()).isEqualTo(0);
     }
 
     @Test
@@ -120,15 +119,15 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
 
-        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Dest folder '/usr/home' is not valid. It must be a sub-directory of the working folder."));
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(1);
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER)).isEqualTo("Dest folder '/usr/home' is not valid. It must be a sub-directory of the working folder.");
 
         pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "./../crap", null, false);
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
 
-        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(2));
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Invalid directory name './../crap'. It should be a valid relative path."));
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(2);
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER)).isEqualTo("Invalid directory name './../crap'. It should be a valid relative path.");
     }
 
 
@@ -141,8 +140,8 @@ public class PluggableSCMMaterialConfigTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null, false);
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateTree(validationContext);
-        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find SCM for given scm-id: [scm-id]."));
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(1);
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find SCM for given scm-id: [scm-id].");
     }
 
     @Test
@@ -154,8 +153,8 @@ public class PluggableSCMMaterialConfigTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null, false);
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateTree(configSaveValidationContext);
-        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find plugin for scm-id: [scm-id]."));
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(1);
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find plugin for scm-id: [scm-id].");
     }
 
     @Test
@@ -169,10 +168,10 @@ public class PluggableSCMMaterialConfigTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig();
         pluggableSCMMaterialConfig.setConfigAttributes(attributes);
 
-        assertThat(pluggableSCMMaterialConfig.getScmId(), is("scm-id"));
-        assertThat(pluggableSCMMaterialConfig.getFolder(), is("dest"));
-        assertThat(pluggableSCMMaterialConfig.filter(), is(new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar"))));
-        assertThat(pluggableSCMMaterialConfig.isInvertFilter(), is(true));
+        assertThat(pluggableSCMMaterialConfig.getScmId()).isEqualTo("scm-id");
+        assertThat(pluggableSCMMaterialConfig.getFolder()).isEqualTo("dest");
+        assertThat(pluggableSCMMaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar")));
+        assertThat(pluggableSCMMaterialConfig.isInvertFilter()).isTrue();
     }
 
     @Test
@@ -187,19 +186,19 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFilter(new Filter(new IgnoredFiles("/foo/**.*")));
         pluggableSCMMaterialConfig.setConfigAttributes(attributes);
 
-        assertThat(pluggableSCMMaterialConfig.getScmId(), is("scm-id"));
-        assertThat(pluggableSCMMaterialConfig.getFolder(), is(nullValue()));
-        assertThat(pluggableSCMMaterialConfig.filter(), is(new Filter()));
+        assertThat(pluggableSCMMaterialConfig.getScmId()).isEqualTo("scm-id");
+        assertThat(pluggableSCMMaterialConfig.getFolder()).isNull();
+        assertThat(pluggableSCMMaterialConfig.filter()).isEqualTo(new Filter());
     }
 
     @Test
     public void shouldGetFilterAsString() {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig();
         pluggableSCMMaterialConfig.setFilter(new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar")));
-        assertThat(pluggableSCMMaterialConfig.getFilterAsString(), is("/foo/**.*,/another/**.*,bar"));
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("/foo/**.*,/another/**.*,bar");
 
         pluggableSCMMaterialConfig.setFilter(new Filter());
-        assertThat(pluggableSCMMaterialConfig.getFilterAsString(), is(""));
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("");
     }
 
     @Test
@@ -208,15 +207,15 @@ public class PluggableSCMMaterialConfigTest {
 
         pluggableSCMMaterialConfig.setConfigAttributes(attributes);
 
-        assertThat(pluggableSCMMaterialConfig.getScmId(), is(nullValue()));
+        assertThat(pluggableSCMMaterialConfig.getScmId()).isNull();
     }
 
     @Test
     public void shouldSetSCMIdAsNullIfSCMConfigIsNull() {
         pluggableSCMMaterialConfig.setSCMConfig(null);
 
-        assertThat(pluggableSCMMaterialConfig.getScmId(), is(nullValue()));
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(nullValue()));
+        assertThat(pluggableSCMMaterialConfig.getScmId()).isNull();
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isNull();
     }
 
     @Test
@@ -224,10 +223,10 @@ public class PluggableSCMMaterialConfigTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig();
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(create("k1", false, "v1")));
         pluggableSCMMaterialConfig.setSCMConfig(scmConfig);
-        assertThat(pluggableSCMMaterialConfig.getName().toString(), is("scm-name"));
+        assertThat(pluggableSCMMaterialConfig.getName().toString()).isEqualTo("scm-name");
 
         pluggableSCMMaterialConfig.setSCMConfig(null);
-        assertThat(pluggableSCMMaterialConfig.getName(), is(nullValue()));
+        assertThat(pluggableSCMMaterialConfig.getName()).isNull();
     }
 
     @Test
@@ -240,29 +239,29 @@ public class PluggableSCMMaterialConfigTest {
 
         PluggableSCMMaterialConfig p2 = new PluggableSCMMaterialConfig();
         p2.setSCMConfig(scmConfig);
-        assertThat(p1.equals(p2), is(true));
+        assertThat(p1.equals(p2)).isTrue();
 
         // folder
         p2.setFolder("dest");
-        assertThat(p1.equals(p2), is(false));
+        assertThat(p1.equals(p2)).isFalse();
 
         // scmConfig null
         p1 = new PluggableSCMMaterialConfig();
         p2 = new PluggableSCMMaterialConfig();
-        assertThat(p1.equals(p2), is(true));
+        assertThat(p1.equals(p2)).isTrue();
 
         p2.setSCMConfig(scmConfig);
-        assertThat(p1.equals(p2), is(false));
+        assertThat(p1.equals(p2)).isFalse();
 
         p1.setSCMConfig(scmConfig);
         p2 = new PluggableSCMMaterialConfig();
-        assertThat(p1.equals(p2), is(false));
+        assertThat(p1.equals(p2)).isFalse();
 
         p2.setSCMConfig(scmConfig);
-        assertThat(p1.equals(p2), is(true));
+        assertThat(p1.equals(p2)).isTrue();
 
         // null comparison
-        assertThat(p1.equals(null), is(false));
+        assertThat(p1.equals(null)).isFalse();
     }
 
     @Test
@@ -271,7 +270,7 @@ public class PluggableSCMMaterialConfigTest {
         when(scm.isAutoUpdate()).thenReturn(false);
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scm-name"), scm, null, null, false);
 
-        assertThat(pluggableSCMMaterialConfig.isAutoUpdate(), is(false));
+        assertThat(pluggableSCMMaterialConfig.isAutoUpdate()).isFalse();
 
         verify(scm).isAutoUpdate();
     }
@@ -283,32 +282,32 @@ public class PluggableSCMMaterialConfigTest {
         when(scmConfig.getConfigForDisplay()).thenReturn("k1:v1");
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, null, null, false);
 
-        assertThat(pluggableSCMMaterialConfig.getName(), is(new CaseInsensitiveString("scm-name")));
-        assertThat(pluggableSCMMaterialConfig.getDisplayName(), is("scm-name"));
-        assertThat(pluggableSCMMaterialConfig.getLongDescription(), is("k1:v1"));
-        assertThat(pluggableSCMMaterialConfig.getUriForDisplay(), is("k1:v1"));
+        assertThat(pluggableSCMMaterialConfig.getName()).isEqualTo(new CaseInsensitiveString("scm-name"));
+        assertThat(pluggableSCMMaterialConfig.getDisplayName()).isEqualTo("scm-name");
+        assertThat(pluggableSCMMaterialConfig.getLongDescription()).isEqualTo("k1:v1");
+        assertThat(pluggableSCMMaterialConfig.getUriForDisplay()).isEqualTo("k1:v1");
 
         when(scmConfig.getName()).thenReturn(null);
         pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, null, null, false);
 
-        assertThat(pluggableSCMMaterialConfig.getName(), is(nullValue()));
-        assertThat(pluggableSCMMaterialConfig.getDisplayName(), is("k1:v1"));
+        assertThat(pluggableSCMMaterialConfig.getName()).isNull();
+        assertThat(pluggableSCMMaterialConfig.getDisplayName()).isEqualTo("k1:v1");
     }
 
     @Test
     public void shouldCorrectlyGetTypeDisplay() {
-        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("SCM"));
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay()).isEqualTo("SCM");
 
         pluggableSCMMaterialConfig.setSCMConfig(SCMMother.create("scm-id"));
-        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("SCM"));
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay()).isEqualTo("SCM");
 
         SCMMetadataStore.getInstance().addMetadataFor("plugin", null, null);
-        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("SCM"));
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay()).isEqualTo("SCM");
 
         SCMView scmView = mock(SCMView.class);
         when(scmView.displayValue()).thenReturn("scm-name");
         SCMMetadataStore.getInstance().addMetadataFor("plugin", null, scmView);
-        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("scm-name"));
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay()).isEqualTo("scm-name");
     }
 
     @Test
@@ -316,7 +315,7 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFolder("f1");
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf("f1/f2");
         assertFalse(pluggableSCMMaterialConfig.errors().isEmpty());
-        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Invalid destination directory. Every material needs a different destination directory and the directories should not be nested."));
+        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER)).isEqualTo("Invalid destination directory. Every material needs a different destination directory and the directories should not be nested.");
     }
 
     @Test
@@ -324,7 +323,7 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFolder("f1/f2/f3");
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf("f1/f2/f");
 
-        assertThat(pluggableSCMMaterialConfig.errors().getAllOn(FOLDER), is(empty()));
+        assertThat(pluggableSCMMaterialConfig.errors().getAllOn(FOLDER)).isEmpty();
     }
 
     @Test
@@ -332,14 +331,14 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFolder("f1/../../f3");
 
         pluggableSCMMaterialConfig.validateConcreteMaterial(null);
-        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Dest folder 'f1/../../f3' is not valid. It must be a sub-directory of the working folder."));
+        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder 'f1/../../f3' is not valid. It must be a sub-directory of the working folder.");
     }
 
     @Test
     public void shouldFailValidationIfDestinationDirectoryIsNestedAfterNormalization() {
         pluggableSCMMaterialConfig.setFolder("f1/f2/../../f3");
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf("f3/f4");
-        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Invalid destination directory. Every material needs a different destination directory and the directories should not be nested."));
+        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER)).isEqualTo("Invalid destination directory. Every material needs a different destination directory and the directories should not be nested.");
     }
 
     @Test
@@ -353,6 +352,6 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFolder(material1.getAbsolutePath());
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf(material2.toAbsolutePath().toString());
 
-        assertThat(pluggableSCMMaterialConfig.errors().getAllOn(FOLDER), is(empty()));
+        assertThat(pluggableSCMMaterialConfig.errors().getAllOn(FOLDER)).isEmpty();
     }
 }

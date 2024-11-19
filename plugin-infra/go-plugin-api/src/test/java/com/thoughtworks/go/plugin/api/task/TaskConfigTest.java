@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TaskConfigTest {
 
@@ -43,15 +42,15 @@ public class TaskConfigTest {
         taskConfig.addProperty(wxyz).withDefault(wxyzDefault);
         taskConfig.addProperty(abcd).withDefault(abcdDefault);
         List<? extends Property> properties = taskConfig.list();
-        assertThat(properties.size(), is(2));
+        assertThat(properties.size()).isEqualTo(2);
         for (Property property : properties) {
-            assertThat(property != null, is(true));
-            assertThat(property instanceof TaskConfigProperty, is(true));
+            assertThat(property != null).isTrue();
+            assertThat(property instanceof TaskConfigProperty).isTrue();
         }
-        assertThat(taskConfig.get(abcd) != null, is(true));
-        assertThat(taskConfig.get(abcd).getValue(), is(abcdDefault));
-        assertThat(taskConfig.get(wxyz) != null, is(true));
-        assertThat(taskConfig.get(wxyz).getValue(), is(wxyzDefault));
+        assertThat(taskConfig.get(abcd) != null).isTrue();
+        assertThat(taskConfig.get(abcd).getValue()).isEqualTo(abcdDefault);
+        assertThat(taskConfig.get(wxyz) != null).isTrue();
+        assertThat(taskConfig.get(wxyz).getValue()).isEqualTo(wxyzDefault);
     }
 
     @Test
@@ -64,10 +63,10 @@ public class TaskConfigTest {
         taskConfig.add(k2);
         taskConfig.add(k3);
         taskConfig.add(k4);
-        assertThat(taskConfig.list().get(0), is(k2));
-        assertThat(taskConfig.list().get(1), is(k4));
-        assertThat(taskConfig.list().get(2), is(k3));
-        assertThat(taskConfig.list().get(3), is(k1));
+        assertThat(taskConfig.list().get(0)).isEqualTo(k2);
+        assertThat(taskConfig.list().get(1)).isEqualTo(k4);
+        assertThat(taskConfig.list().get(2)).isEqualTo(k3);
+        assertThat(taskConfig.list().get(3)).isEqualTo(k1);
     }
     private TaskConfigProperty getTaskConfigProperty(int order) {
         TaskConfigProperty property = new TaskConfigProperty("Key"+order);

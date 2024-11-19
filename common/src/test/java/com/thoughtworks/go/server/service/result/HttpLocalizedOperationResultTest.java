@@ -19,9 +19,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,22 +28,22 @@ public class HttpLocalizedOperationResultTest {
     @Test
     public void shouldReturnSuccessfulIfNothingChanged() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.httpCode(), is(200));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(result.httpCode()).isEqualTo(200);
     }
 
     @Test
     public void shouldNotReturnSuccessfulIfUnauthorized() {
         LocalizedOperationResult result = new HttpLocalizedOperationResult();
         result.forbidden("blah", HealthStateType.general(HealthStateScope.GLOBAL));
-        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.isSuccessful()).isFalse();
     }
 
     @Test
     public void shouldNotReturnSuccessfulIfNotFound() {
         LocalizedOperationResult result = new HttpLocalizedOperationResult();
         result.notFound("blah", HealthStateType.general(HealthStateScope.GLOBAL));
-        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.isSuccessful()).isFalse();
     }
 
     @Test
@@ -53,8 +51,8 @@ public class HttpLocalizedOperationResultTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         result.notFound("foo", HealthStateType.general(HealthStateScope.GLOBAL));
 
-        assertThat(result.httpCode(), is(404));
-        assertThat(result.message(), is("foo"));
+        assertThat(result.httpCode()).isEqualTo(404);
+        assertThat(result.message()).isEqualTo("foo");
     }
 
     @Test
@@ -62,7 +60,7 @@ public class HttpLocalizedOperationResultTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         result.forbidden("blah", HealthStateType.general(HealthStateScope.GLOBAL));
 
-        assertThat(result.httpCode(), is(403));
+        assertThat(result.httpCode()).isEqualTo(403);
     }
 
     @Test
@@ -70,7 +68,7 @@ public class HttpLocalizedOperationResultTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         result.notImplemented(null);
 
-        assertThat(result.httpCode(), is(501));
+        assertThat(result.httpCode()).isEqualTo(501);
     }
 
     @Test
@@ -78,14 +76,14 @@ public class HttpLocalizedOperationResultTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         result.accepted("foo");
 
-        assertThat(result.httpCode(), is(202));
-        assertThat(result.message(), is("foo"));
+        assertThat(result.httpCode()).isEqualTo(202);
+        assertThat(result.message()).isEqualTo("foo");
     }
 
     @Test
     public void shouldNotFailWhenNoMessageSet() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        assertThat(result.message(), is(nullValue()));
+        assertThat(result.message()).isNull();
     }
 
     @Test

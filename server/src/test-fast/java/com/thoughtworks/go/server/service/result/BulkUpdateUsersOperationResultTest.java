@@ -17,12 +17,11 @@ package com.thoughtworks.go.server.service.result;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BulkUpdateUsersOperationResultTest {
     @Test
     public void isSuccessfulIfThereAreNoEnabledOrNonExistentUsers() throws Exception {
-        assertThat(new BulkUpdateUsersOperationResult().isEmpty(), is(true));
+        assertThat(new BulkUpdateUsersOperationResult().isEmpty()).isTrue();
     }
 }

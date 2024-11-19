@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -35,8 +34,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.config.BuildArtifactConfig.DEST;
 import static com.thoughtworks.go.config.BuildArtifactConfig.SRC;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
@@ -46,10 +44,10 @@ public class ArtifactTypeConfigsTest {
     @Test
     public void shouldAddDuplicatedArtifactSoThatValidationKicksIn() throws Exception {
         final ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
-        assertThat(artifactTypeConfigs.size(), is(0));
+        assertThat(artifactTypeConfigs.size()).isEqualTo(0);
         artifactTypeConfigs.add(new BuildArtifactConfig("src", "dest"));
         artifactTypeConfigs.add(new BuildArtifactConfig("src", "dest"));
-        assertThat(artifactTypeConfigs.size(), is(2));
+        assertThat(artifactTypeConfigs.size()).isEqualTo(2);
     }
 
     @Test
@@ -70,12 +68,12 @@ public class ArtifactTypeConfigsTest {
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         artifactTypeConfigs.setConfigAttributes(artifactPlansList);
 
-        assertThat(artifactTypeConfigs.size(), is(2));
+        assertThat(artifactTypeConfigs.size()).isEqualTo(2);
         TestArtifactConfig plan = new TestArtifactConfig();
         plan.setSource("blah");
         plan.setDestination("something");
-        assertThat(artifactTypeConfigs.get(0), is(plan));
-        assertThat(artifactTypeConfigs.get(1), is(new BuildArtifactConfig("blah2", "something2")));
+        assertThat(artifactTypeConfigs.get(0)).isEqualTo(plan);
+        assertThat(artifactTypeConfigs.get(1)).isEqualTo(new BuildArtifactConfig("blah2", "something2"));
     }
 
     @Test
@@ -102,12 +100,12 @@ public class ArtifactTypeConfigsTest {
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         artifactTypeConfigs.setConfigAttributes(artifactPlansList);
 
-        assertThat(artifactTypeConfigs.size(), is(2));
+        assertThat(artifactTypeConfigs.size()).isEqualTo(2);
         TestArtifactConfig plan = new TestArtifactConfig();
         plan.setSource("blah");
         plan.setDestination("something");
-        assertThat(artifactTypeConfigs.get(0), is(plan));
-        assertThat(artifactTypeConfigs.get(1), is(new BuildArtifactConfig("blah2", "something2")));
+        assertThat(artifactTypeConfigs.get(0)).isEqualTo(plan);
+        assertThat(artifactTypeConfigs.get(1)).isEqualTo(new BuildArtifactConfig("blah2", "something2"));
     }
 
     @Test
@@ -142,13 +140,13 @@ public class ArtifactTypeConfigsTest {
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         artifactTypeConfigs.setConfigAttributes(artifactPlansList);
 
-        assertThat(artifactTypeConfigs.size(), is(1));
+        assertThat(artifactTypeConfigs.size()).isEqualTo(1);
 
         PluggableArtifactConfig artifactConfig = (PluggableArtifactConfig) artifactTypeConfigs.get(0);
-        assertThat(artifactConfig.getArtifactType(), is(ArtifactType.external));
-        assertThat(artifactConfig.getId(), is("artifactId"));
-        assertThat(artifactConfig.getStoreId(), is("storeId"));
-        assertThat(artifactConfig.getConfiguration().getProperty("Image").isSecure(), is(false));
+        assertThat(artifactConfig.getArtifactType()).isEqualTo(ArtifactType.external);
+        assertThat(artifactConfig.getId()).isEqualTo("artifactId");
+        assertThat(artifactConfig.getStoreId()).isEqualTo("storeId");
+        assertThat(artifactConfig.getConfiguration().getProperty("Image").isSecure()).isFalse();
     }
 
     @Test
@@ -178,14 +176,14 @@ public class ArtifactTypeConfigsTest {
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         artifactTypeConfigs.setConfigAttributes(artifactPlansList);
 
-        assertThat(artifactTypeConfigs.size(), is(1));
+        assertThat(artifactTypeConfigs.size()).isEqualTo(1);
 
         PluggableArtifactConfig artifactConfig = (PluggableArtifactConfig) artifactTypeConfigs.get(0);
-        assertThat(artifactConfig.getArtifactType(), is(ArtifactType.external));
-        assertThat(artifactConfig.getId(), is("artifactId"));
-        assertThat(artifactConfig.getStoreId(), is("storeId"));
-        assertThat(artifactConfig.getConfiguration().getProperty("Image").getValue(), is("some-encrypted-value"));
-        assertThat(artifactConfig.getConfiguration().getProperty("Tag").getValue(), is("18.6.0"));
+        assertThat(artifactConfig.getArtifactType()).isEqualTo(ArtifactType.external);
+        assertThat(artifactConfig.getId()).isEqualTo("artifactId");
+        assertThat(artifactConfig.getStoreId()).isEqualTo("storeId");
+        assertThat(artifactConfig.getConfiguration().getProperty("Image").getValue()).isEqualTo("some-encrypted-value");
+        assertThat(artifactConfig.getConfiguration().getProperty("Tag").getValue()).isEqualTo("18.6.0");
     }
 
     @Test
@@ -195,7 +193,7 @@ public class ArtifactTypeConfigsTest {
 
         artifactTypeConfigs.setConfigAttributes(null);
 
-        assertThat(artifactTypeConfigs.size(), is(0));
+        assertThat(artifactTypeConfigs.size()).isEqualTo(0);
     }
 
     @Test
@@ -206,11 +204,11 @@ public class ArtifactTypeConfigsTest {
         artifactTypeConfigs.add(new BuildArtifactConfig("src", "../a"));
 
         artifactTypeConfigs.validateTree(null);
-        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.DEST), is("Duplicate artifacts defined."));
-        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.SRC), is("Duplicate artifacts defined."));
-        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.DEST), is("Duplicate artifacts defined."));
-        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.SRC), is("Duplicate artifacts defined."));
-        assertThat(artifactTypeConfigs.get(2).errors().on(BuiltinArtifactConfig.DEST), is("Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN));
+        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo("Duplicate artifacts defined.");
+        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.SRC)).isEqualTo("Duplicate artifacts defined.");
+        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo("Duplicate artifacts defined.");
+        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.SRC)).isEqualTo("Duplicate artifacts defined.");
+        assertThat(artifactTypeConfigs.get(2).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo("Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN);
     }
 
     @Test
@@ -222,16 +220,16 @@ public class ArtifactTypeConfigsTest {
         artifactTypeConfigs.validate(null);
 
         assertFalse(artifactTypeConfigs.get(0).errors().isEmpty());
-        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
-        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.SRC)).isEqualTo(("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo(("Duplicate artifacts defined."));
 
         assertFalse(artifactTypeConfigs.get(1).errors().isEmpty());
-        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
-        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.SRC)).isEqualTo(("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo(("Duplicate artifacts defined."));
 
         assertFalse(artifactTypeConfigs.get(2).errors().isEmpty());
-        assertThat(artifactTypeConfigs.get(2).errors().on(BuiltinArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
-        assertThat(artifactTypeConfigs.get(2).errors().on(BuiltinArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(2).errors().on(BuiltinArtifactConfig.SRC)).isEqualTo(("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(2).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo(("Duplicate artifacts defined."));
     }
 
     @Test
@@ -244,11 +242,11 @@ public class ArtifactTypeConfigsTest {
 
         final List<BuiltinArtifactConfig> artifactConfigs = allConfigs.getBuiltInArtifactConfigs();
 
-        assertThat(artifactConfigs, hasSize(2));
-        assertThat(artifactConfigs, containsInAnyOrder(
+        assertThat(artifactConfigs).hasSize(2);
+        assertThat(artifactConfigs).contains(
                 new BuildArtifactConfig("src", "dest"),
                 new BuildArtifactConfig("java", null)
-        ));
+        );
     }
 
     @Test
@@ -261,11 +259,11 @@ public class ArtifactTypeConfigsTest {
 
         final List<PluggableArtifactConfig> artifactConfigs = allConfigs.getPluggableArtifactConfigs();
 
-        assertThat(artifactConfigs, hasSize(2));
-        assertThat(artifactConfigs, containsInAnyOrder(
+        assertThat(artifactConfigs).hasSize(2);
+        assertThat(artifactConfigs).contains(
                 new PluggableArtifactConfig("s3", "cd.go.s3"),
                 new PluggableArtifactConfig("docker", "cd.go.docker")
-        ));
+        );
     }
 
     @Test
@@ -275,7 +273,7 @@ public class ArtifactTypeConfigsTest {
         allConfigs.add(new PluggableArtifactConfig("docker", "cd.go.docker"));
 
         final PluggableArtifactConfig s3 = allConfigs.findByArtifactId("s3");
-        assertThat(s3, is(new PluggableArtifactConfig("s3", "cd.go.s3")));
+        assertThat(s3).isEqualTo(new PluggableArtifactConfig("s3", "cd.go.s3"));
     }
 
     @Test

@@ -36,8 +36,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -82,10 +81,10 @@ public class StageResultCacheTest {
     public void shouldReturnUnknownForStageWithNoHistory() {
         StageConfigIdentifier stage = new StageConfigIdentifier("cruise", "dev");
 
-        assertThat(stageResultCache.previousResult(stage), is(StageResult.Unknown));
+        assertThat(stageResultCache.previousResult(stage)).isEqualTo(StageResult.Unknown);
 
         stageResultCache.updateCache(stage, StageResult.Passed);
-        assertThat(stageResultCache.previousResult(stage), is(StageResult.Unknown));
+        assertThat(stageResultCache.previousResult(stage)).isEqualTo(StageResult.Unknown);
     }
 
     @Test
@@ -95,7 +94,7 @@ public class StageResultCacheTest {
         stageResultCache.updateCache(stage, StageResult.Failed);
 
         stageResultCache.updateCache(stage, StageResult.Passed);
-        assertThat(stageResultCache.previousResult(stage), is(StageResult.Failed));
+        assertThat(stageResultCache.previousResult(stage)).isEqualTo(StageResult.Failed);
     }
 
     @Test
@@ -104,7 +103,7 @@ public class StageResultCacheTest {
         StageConfigIdentifier stage = new StageConfigIdentifier(pipelineFixture.pipelineName, pipelineFixture.ftStage);
         stageResultCache.updateCache(stage, StageResult.Failed);
         StageResult stageResult = stageResultCache.previousResult(stage);
-        assertThat(stageResult, is(StageResult.Passed));
+        assertThat(stageResult).isEqualTo(StageResult.Passed);
     }
 
     @Test
@@ -117,10 +116,10 @@ public class StageResultCacheTest {
         StageIdentifier identifier = pipeline.getFirstStage().getIdentifier();
 
         cache.onMessage(new StageStatusMessage(identifier, StageState.Passed, StageResult.Passed));
-        assertThat(stub.message, is(new StageResultMessage(identifier, StageEvent.Passes, Username.BLANK)));
+        assertThat(stub.message).isEqualTo(new StageResultMessage(identifier, StageEvent.Passes, Username.BLANK));
 
         cache.onMessage(new StageStatusMessage(identifier, StageState.Failed, StageResult.Failed));
-        assertThat(stub.message, is(new StageResultMessage(identifier, StageEvent.Breaks, Username.BLANK)));
+        assertThat(stub.message).isEqualTo(new StageResultMessage(identifier, StageEvent.Breaks, Username.BLANK));
     }
 
 

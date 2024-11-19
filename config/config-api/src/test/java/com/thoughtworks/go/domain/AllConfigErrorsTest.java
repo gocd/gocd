@@ -17,8 +17,7 @@ package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AllConfigErrorsTest {
     @Test
@@ -27,7 +26,7 @@ public class AllConfigErrorsTest {
         errors.add(error("key1"));
         errors.add(error("key2"));
         errors.add(error("key3"));
-        assertThat(errors.asString(), is("error on key1, error on key2, error on key3"));
+        assertThat(errors.asString()).isEqualTo("error on key1, error on key2, error on key3");
     }
 
     private ConfigErrors error(String fieldName) {

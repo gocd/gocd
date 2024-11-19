@@ -40,8 +40,7 @@ import org.mockito.ArgumentCaptor;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -80,7 +79,7 @@ public class SCMMaterialSourceTest {
 
         Set<Material> materials = source.materialsForUpdate();
 
-        assertThat(materials.size(), is(1));
+        assertThat(materials.size()).isEqualTo(1);
         assertTrue(materials.contains(svnMaterial));
     }
 
@@ -101,7 +100,7 @@ public class SCMMaterialSourceTest {
 
         Set<Material> materials = source.materialsForUpdate();
 
-        assertThat(materials.size(), is(1));
+        assertThat(materials.size()).isEqualTo(1);
         assertTrue(materials.contains(gitMaterial));
     }
 
@@ -131,13 +130,13 @@ public class SCMMaterialSourceTest {
         EntityConfigChangedListener entityConfigChangedListener = captor.getAllValues().get(1);
 
         assertTrue(entityConfigChangedListener.shouldCareAbout(new PipelineConfig()));
-        assertThat(source.materialsForUpdate().size(), is(0));
+        assertThat(source.materialsForUpdate().size()).isEqualTo(0);
 
         entityConfigChangedListener.onEntityConfigChange(new PipelineConfig());
 
         Set<Material> materials = source.materialsForUpdate();
-        assertThat(materials.size(), is(1));
-        assertThat(materials.iterator().next().getFingerprint(), is(gitMaterial.getFingerprint()));
+        assertThat(materials.size()).isEqualTo(1);
+        assertThat(materials.iterator().next().getFingerprint()).isEqualTo(gitMaterial.getFingerprint());
     }
 
     @Test
@@ -158,13 +157,13 @@ public class SCMMaterialSourceTest {
         EntityConfigChangedListener entityConfigChangedListener = captor.getAllValues().get(1);
 
         assertTrue(entityConfigChangedListener.shouldCareAbout(new PackageDefinition()));
-        assertThat(source.materialsForUpdate().size(), is(0));
+        assertThat(source.materialsForUpdate().size()).isEqualTo(0);
 
         entityConfigChangedListener.onEntityConfigChange(new PackageDefinition());
 
         Set<Material> materials = source.materialsForUpdate();
-        assertThat(materials.size(), is(1));
-        assertThat(materials.iterator().next().getFingerprint(), is(gitMaterial.getFingerprint()));
+        assertThat(materials.size()).isEqualTo(1);
+        assertThat(materials.iterator().next().getFingerprint()).isEqualTo(gitMaterial.getFingerprint());
     }
 
     @Test
@@ -184,13 +183,13 @@ public class SCMMaterialSourceTest {
         EntityConfigChangedListener entityConfigChangedListener = captor.getAllValues().get(1);
 
         assertTrue(entityConfigChangedListener.shouldCareAbout(new PackageRepository()));
-        assertThat(source.materialsForUpdate().size(), is(0));
+        assertThat(source.materialsForUpdate().size()).isEqualTo(0);
 
         entityConfigChangedListener.onEntityConfigChange(new PackageRepository());
 
         Set<Material> materials = source.materialsForUpdate();
-        assertThat(materials.size(), is(1));
-        assertThat(materials.iterator().next().getFingerprint(), is(gitMaterial.getFingerprint()));
+        assertThat(materials.size()).isEqualTo(1);
+        assertThat(materials.iterator().next().getFingerprint()).isEqualTo(gitMaterial.getFingerprint());
     }
 
     @Test
@@ -210,13 +209,13 @@ public class SCMMaterialSourceTest {
         EntityConfigChangedListener entityConfigChangedListener = captor.getAllValues().get(1);
 
         assertTrue(entityConfigChangedListener.shouldCareAbout(new SCM()));
-        assertThat(source.materialsForUpdate().size(), is(0));
+        assertThat(source.materialsForUpdate().size()).isEqualTo(0);
 
         entityConfigChangedListener.onEntityConfigChange(new SCM());
 
         Set<Material> materials = source.materialsForUpdate();
-        assertThat(materials.size(), is(1));
-        assertThat(materials.iterator().next().getFingerprint(), is(gitMaterial.getFingerprint()));
+        assertThat(materials.size()).isEqualTo(1);
+        assertThat(materials.iterator().next().getFingerprint()).isEqualTo(gitMaterial.getFingerprint());
     }
 
     @Test
@@ -236,7 +235,7 @@ public class SCMMaterialSourceTest {
 
         Set<Material> materials = source.materialsForUpdate();
 
-        assertThat(materials.size(), is(1));
+        assertThat(materials.size()).isEqualTo(1);
         assertTrue(materials.contains(svnMaterial));
 
 
@@ -248,7 +247,7 @@ public class SCMMaterialSourceTest {
         source.onConfigChange(mock(CruiseConfig.class));
         materials = source.materialsForUpdate();
 
-        assertThat(materials.size(), is(2));
+        assertThat(materials.size()).isEqualTo(2);
         assertTrue(materials.contains(svnMaterial));
         assertTrue(materials.contains(gitMaterial));
     }
@@ -263,7 +262,7 @@ public class SCMMaterialSourceTest {
         source.onEntityConfigChange(mock(ConfigRepoConfig.class));
         Set<Material> materials = source.materialsForUpdate();
 
-        assertThat(materials.size(), is(2));
+        assertThat(materials.size()).isEqualTo(2);
         assertTrue(materials.contains(svnMaterial));
         assertTrue(materials.contains(gitMaterial));
     }
@@ -277,7 +276,7 @@ public class SCMMaterialSourceTest {
 
         Set<Material> materials = source.materialsForUpdate();
 
-        assertThat(materials.size(), is(1));
+        assertThat(materials.size()).isEqualTo(1);
         assertTrue(materials.contains(svnMaterial));
 
 
@@ -290,7 +289,7 @@ public class SCMMaterialSourceTest {
         source.pipelineConfigChangedListener().onEntityConfigChange(mock(PipelineConfig.class));
         materials = source.materialsForUpdate();
 
-        assertThat(materials.size(), is(2));
+        assertThat(materials.size()).isEqualTo(2);
         assertTrue(materials.contains(svnMaterial));
         assertTrue(materials.contains(gitMaterial));
     }

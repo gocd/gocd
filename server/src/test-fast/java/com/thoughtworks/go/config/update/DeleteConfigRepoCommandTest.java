@@ -29,8 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -67,6 +66,6 @@ public class DeleteConfigRepoCommandTest {
     public void shouldNotContinueWhenConfigRepoNoLongerExists() {
         cruiseConfig.getConfigRepos().remove(0);
         DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(securityService, repoId, currentUser, result);
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
     }
 }

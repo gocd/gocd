@@ -66,9 +66,7 @@ import java.util.zip.ZipInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
 
@@ -149,24 +147,24 @@ public class BackupServiceIntegrationTest {
             createConfigFile("some_dir/cipher", "some-cipher");
 
             ServerBackup backup = backupService.startBackup(admin);
-            assertThat(backup.isSuccessful(), is(true));
-            assertThat(backup.getMessage(), is("Backup was generated successfully."));
+            assertThat(backup.isSuccessful()).isTrue();
+            assertThat(backup.getMessage()).isEqualTo("Backup was generated successfully.");
 
             File configZip = backedUpFile("config-dir.zip");
-            assertThat(fileContents(configZip, "foo"), is("foo_foo"));
-            assertThat(fileContents(configZip, "bar"), is("bar_bar"));
-            assertThat(fileContents(configZip, "baz"), is("hazar_bar"));
+            assertThat(fileContents(configZip, "foo")).isEqualTo("foo_foo");
+            assertThat(fileContents(configZip, "bar")).isEqualTo("bar_bar");
+            assertThat(fileContents(configZip, "baz")).isEqualTo("hazar_bar");
 
-            assertThat(fileContents(configZip, FilenameUtils.separatorsToSystem("hello/world/file")), is("hello world!"));
-            assertThat(fileContents(configZip, FilenameUtils.separatorsToSystem("some_dir/cruise-config.xml")), is("some-other-cruise-config"));
-            assertThat(fileContents(configZip, FilenameUtils.separatorsToSystem("some_dir/cipher")), is("some-cipher"));
+            assertThat(fileContents(configZip, FilenameUtils.separatorsToSystem("hello/world/file"))).isEqualTo("hello world!");
+            assertThat(fileContents(configZip, FilenameUtils.separatorsToSystem("some_dir/cruise-config.xml"))).isEqualTo("some-other-cruise-config");
+            assertThat(fileContents(configZip, FilenameUtils.separatorsToSystem("some_dir/cipher"))).isEqualTo("some-cipher");
 
-            assertThat(fileContents(configZip, "cruise-config.xml"), is(goConfigService.xml()));
+            assertThat(fileContents(configZip, "cruise-config.xml")).isEqualTo(goConfigService.xml());
 
             byte[] realDesCipher = new DESCipherProvider(systemEnvironment).getKey();
             byte[] realAESCipher = new AESCipherProvider(systemEnvironment).getKey();
-            assertThat(fileContents(configZip, "cipher"), is(encodeHexString(realDesCipher)));
-            assertThat(fileContents(configZip, "cipher.aes"), is(encodeHexString(realAESCipher)));
+            assertThat(fileContents(configZip, "cipher")).isEqualTo(encodeHexString(realDesCipher));
+            assertThat(fileContents(configZip, "cipher.aes")).isEqualTo(encodeHexString(realAESCipher));
         } finally {
             deleteConfigFileIfExists("foo", "bar", "baz", "hello", "some_dir");
         }
@@ -181,15 +179,15 @@ public class BackupServiceIntegrationTest {
             createWrapperConfigFile("hello/world/file", "hello world!");
 
             ServerBackup backup = backupService.startBackup(admin);
-            assertThat(backup.isSuccessful(), is(true));
-            assertThat(backup.getMessage(), is("Backup was generated successfully."));
+            assertThat(backup.isSuccessful()).isTrue();
+            assertThat(backup.getMessage()).isEqualTo("Backup was generated successfully.");
 
             File wrapperConfigZip = backedUpFile("wrapper-config-dir.zip");
-            assertThat(fileContents(wrapperConfigZip, "foo"), is("foo_foo"));
-            assertThat(fileContents(wrapperConfigZip, "bar"), is("bar_bar"));
-            assertThat(fileContents(wrapperConfigZip, "baz"), is("hazar_bar"));
+            assertThat(fileContents(wrapperConfigZip, "foo")).isEqualTo("foo_foo");
+            assertThat(fileContents(wrapperConfigZip, "bar")).isEqualTo("bar_bar");
+            assertThat(fileContents(wrapperConfigZip, "baz")).isEqualTo("hazar_bar");
 
-            assertThat(fileContents(wrapperConfigZip, FilenameUtils.separatorsToSystem("hello/world/file")), is("hello world!"));
+            assertThat(fileContents(wrapperConfigZip, FilenameUtils.separatorsToSystem("hello/world/file"))).isEqualTo("hello world!");
         } finally {
             deleteWrapperConfigFileIfExists("foo", "bar", "baz", "hello", "some_dir");
         }
@@ -205,8 +203,8 @@ public class BackupServiceIntegrationTest {
 
             ServerBackup backup = backupService.startBackup(admin);
 
-            assertThat(backup.isSuccessful(), is(true));
-            assertThat(backup.getMessage(), is("Backup was generated successfully. Backup of wrapper configuration was skipped as the wrapper configuration directory path is unknown."));
+            assertThat(backup.isSuccessful()).isTrue();
+            assertThat(backup.getMessage()).isEqualTo("Backup was generated successfully. Backup of wrapper configuration was skipped as the wrapper configuration directory path is unknown.");
 
             assertFalse(fileExists("wrapper-config-dir.zip"));
         } finally {
@@ -219,8 +217,8 @@ public class BackupServiceIntegrationTest {
         configHelper.addPipeline("too-unique-to-be-present", "stage-name");
 
         ServerBackup backup = backupService.startBackup(admin);
-        assertThat(backup.isSuccessful(), is(true));
-        assertThat(backup.getMessage(), is("Backup was generated successfully."));
+        assertThat(backup.isSuccessful()).isTrue();
+        assertThat(backup.getMessage()).isEqualTo("Backup was generated successfully.");
 
         File repoZip = backedUpFile("config-repo.zip");
         File repoDir = TempDirUtils.createTempDirectoryIn(temporaryFolder, "expanded-config-repo-backup").toFile();
@@ -231,10 +229,10 @@ public class BackupServiceIntegrationTest {
         List<Modification> modifications = git.latestModification(cloneDir, subprocessExecutionContext);
         String latestChangeRev = modifications.get(0).getRevision();
         git.checkout(cloneDir, new StringRevision(latestChangeRev), subprocessExecutionContext);
-        assertThat(FileUtils.readFileToString(new File(cloneDir, "cruise-config.xml"), UTF_8).indexOf("too-unique-to-be-present"), greaterThan(0));
+        assertThat(FileUtils.readFileToString(new File(cloneDir, "cruise-config.xml"), UTF_8).indexOf("too-unique-to-be-present")).isGreaterThan(0);
         StringRevision revision = new StringRevision(latestChangeRev + "~1");
         git.updateTo(new InMemoryStreamConsumer(), cloneDir, new RevisionContext(revision), subprocessExecutionContext);
-        assertThat(FileUtils.readFileToString(new File(cloneDir, "cruise-config.xml"), UTF_8).indexOf("too-unique-to-be-present"), is(-1));
+        assertThat(FileUtils.readFileToString(new File(cloneDir, "cruise-config.xml"), UTF_8).indexOf("too-unique-to-be-present")).isEqualTo(-1);
 
         // Workaround issue with deletion of symlinks via JUnit TempDir by pre-deleting
         FileUtils.deleteQuietly(cloneDir);
@@ -244,11 +242,11 @@ public class BackupServiceIntegrationTest {
     public void shouldCaptureVersionForEveryBackup() throws IOException {
         BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository, databaseStrategy, null);
         ServerBackup backup = backupService.startBackup(admin);
-        assertThat(backup.isSuccessful(), is(true));
-        assertThat(backup.getMessage(), is("Backup was generated successfully."));
+        assertThat(backup.isSuccessful()).isTrue();
+        assertThat(backup.getMessage()).isEqualTo("Backup was generated successfully.");
 
         File version = backedUpFile("version.txt");
-        assertThat(FileUtils.readFileToString(version, UTF_8), is(CurrentGoCDVersion.getInstance().formatted()));
+        assertThat(FileUtils.readFileToString(version, UTF_8)).isEqualTo(CurrentGoCDVersion.getInstance().formatted());
     }
 
     @Test
@@ -324,12 +322,12 @@ public class BackupServiceIntegrationTest {
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         String body = String.format("Backup of the Go server at '%s' has failed. The reason is: %s", ipAddress, "Oh no!");
 
-        assertThat(backup.isSuccessful(), is(false));
-        assertThat(backup.getMessage(), is("Failed to perform backup. Reason: Oh no!"));
+        assertThat(backup.isSuccessful()).isFalse();
+        assertThat(backup.getMessage()).isEqualTo("Failed to perform backup. Reason: Oh no!");
         verify(goMailSender).send(new SendEmailMessage("Server Backup Failed", body, "mail@admin.com"));
         verifyNoMoreInteractions(goMailSender);
 
-        assertThat(FileUtils.listFiles(backupsDirectory, TrueFileFilter.TRUE, TrueFileFilter.TRUE).isEmpty(), is(true));
+        assertThat(FileUtils.listFiles(backupsDirectory, TrueFileFilter.TRUE, TrueFileFilter.TRUE).isEmpty()).isTrue();
     }
 
     @Test
@@ -354,16 +352,16 @@ public class BackupServiceIntegrationTest {
                 databaseStrategyMock, null);
         ServerBackup backup = service.startBackup(admin);
 
-        assertThat(backup.isSuccessful(), is(false));
-        assertThat(backup.getMessage(), is("Failed to perform backup. Reason: Oh no!"));
+        assertThat(backup.isSuccessful()).isFalse();
+        assertThat(backup.getMessage()).isEqualTo("Failed to perform backup. Reason: Oh no!");
         verifyNoMoreInteractions(goMailSender);
 
-        assertThat(FileUtils.listFiles(backupsDirectory, TrueFileFilter.TRUE, TrueFileFilter.TRUE).isEmpty(), is(true));
+        assertThat(FileUtils.listFiles(backupsDirectory, TrueFileFilter.TRUE, TrueFileFilter.TRUE).isEmpty()).isTrue();
     }
 
     @Test
     public void shouldReturnBackupRunningSinceValue_inISO8601_format() throws InterruptedException {
-        assertThat(backupService.backupRunningSinceISO8601(), is(Optional.empty()));
+        assertThat(backupService.backupRunningSinceISO8601()).isEqualTo(Optional.empty());
 
         final Semaphore waitForBackupToStart = new Semaphore(1);
         final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);
@@ -402,14 +400,14 @@ public class BackupServiceIntegrationTest {
         DateTime backupTime = dateTimeFormatter.parseDateTime(backupStartedTimeString);
 
         ServerBackup runningBackup = ReflectionUtil.getField(backupService, "runningBackup");
-        assertThat(new DateTime(runningBackup.getTime()), is(backupTime));
+        assertThat(new DateTime(runningBackup.getTime())).isEqualTo(backupTime);
         waitForAssertionToCompleteWhileBackupIsOn.release();
         backupThd.join();
     }
 
     @Test
     public void shouldReturnBackupStartedBy() throws InterruptedException {
-        assertThat(backupService.backupStartedBy(), is(Optional.empty()));
+        assertThat(backupService.backupStartedBy()).isEqualTo(Optional.empty());
 
         final Semaphore waitForBackupToStart = new Semaphore(1);
         final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);
@@ -446,7 +444,7 @@ public class BackupServiceIntegrationTest {
         String backupStartedBy = backupService.backupStartedBy().get();
         ServerBackup runningBackup = ReflectionUtil.getField(backupService, "runningBackup");
 
-        assertThat(runningBackup.getUsername(), is(backupStartedBy));
+        assertThat(runningBackup.getUsername()).isEqualTo(backupStartedBy);
         waitForAssertionToCompleteWhileBackupIsOn.release();
         backupThd.join();
     }
@@ -475,7 +473,7 @@ public class BackupServiceIntegrationTest {
 
         backupThd.start();
         waitForBackupToComplete.acquire();
-        assertThat(backupUpdateListener.getMessages().contains(BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE.getMessage()), is(true));
+        assertThat(backupUpdateListener.getMessages().contains(BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE.getMessage())).isTrue();
         backupThd.join();
     }
 
@@ -498,8 +496,8 @@ public class BackupServiceIntegrationTest {
                 databaseStrategy, null);
         ServerBackup backup = service.startBackup(admin);
 
-        assertThat(backup.hasFailed(), is(true));
-        assertThat(backup.getMessage(), is("Post backup script exited with an error, check the server log for details."));
+        assertThat(backup.hasFailed()).isTrue();
+        assertThat(backup.getMessage()).isEqualTo("Post backup script exited with an error, check the server log for details.");
     }
 
     private void deleteWrapperConfigFileIfExists(String ...fileNames) {
@@ -587,7 +585,7 @@ public class BackupServiceIntegrationTest {
 
         waitForAssertion_whichHasToHappen_whileBackupIsRunning.acquire();
         waitForBackupToBegin.acquire();
-        assertThat(backupService.isBackingUp(), is(true));
+        assertThat(backupService.isBackingUp()).isTrue();
         waitForAssertion_whichHasToHappen_whileBackupIsRunning.release();
 
         thd.join();

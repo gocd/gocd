@@ -34,8 +34,7 @@ import org.springframework.transaction.TransactionStatus;
 import java.util.Date;
 import java.util.HashMap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -82,8 +81,8 @@ public class ModificationIntegrationTest {
             Checking if time are the same, because actual has SQLTime whereas we send in java.util.Date. No idea how we were testing this ever
             because Modification#equals fails instance check (ShilpaG & Sachin)
          */
-        assertThat(actual.getModifiedTime().getTime(), is(modification.getModifiedTime().getTime()));
-        assertThat(actual.getAdditionalData(), is(additionalData));
-        assertThat(actual.getAdditionalDataMap(), is(additionalDataMap));
+        assertThat(actual.getModifiedTime().getTime()).isEqualTo(modification.getModifiedTime().getTime());
+        assertThat(actual.getAdditionalData()).isEqualTo(additionalData);
+        assertThat(actual.getAdditionalDataMap()).isEqualTo(additionalDataMap);
     }
 }

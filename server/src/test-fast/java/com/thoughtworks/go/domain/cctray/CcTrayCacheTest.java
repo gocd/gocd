@@ -22,9 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CcTrayCacheTest {
@@ -46,7 +44,7 @@ public class CcTrayCacheTest {
 
         cache.put(status);
 
-        assertThat(cache.get("item1"), is(status));
+        assertThat(cache.get("item1")).isEqualTo(status);
     }
 
     @Test
@@ -57,9 +55,9 @@ public class CcTrayCacheTest {
 
         cache.putAll(List.of(status1, status2, status3));
 
-        assertThat(cache.get("item1"), is(status1));
-        assertThat(cache.get("item2"), is(status2));
-        assertThat(cache.get("item3"), is(status3));
+        assertThat(cache.get("item1")).isEqualTo(status1);
+        assertThat(cache.get("item2")).isEqualTo(status2);
+        assertThat(cache.get("item3")).isEqualTo(status3);
     }
 
     @Test
@@ -70,7 +68,7 @@ public class CcTrayCacheTest {
         cache.put(firstStatus);
         cache.put(nextStatus);
 
-        assertThat(cache.get("item1"), is(nextStatus));
+        assertThat(cache.get("item1")).isEqualTo(nextStatus);
     }
 
     @Test
@@ -89,9 +87,9 @@ public class CcTrayCacheTest {
 
         cache.putAll(List.of(nextStatusOfItem1, status2, nextStatusOfItem3));
 
-        assertThat(cache.get("item1"), is(nextStatusOfItem1));
-        assertThat(cache.get("item2"), is(status2));
-        assertThat(cache.get("item3"), is(nextStatusOfItem3));
+        assertThat(cache.get("item1")).isEqualTo(nextStatusOfItem1);
+        assertThat(cache.get("item2")).isEqualTo(status2);
+        assertThat(cache.get("item3")).isEqualTo(nextStatusOfItem3);
     }
 
     @Test
@@ -108,11 +106,11 @@ public class CcTrayCacheTest {
 
         cache.replaceAllEntriesInCacheWith(List.of(status3, status4, status5));
 
-        assertThat(cache.get("item1"), is(nullValue()));
-        assertThat(cache.get("item2"), is(nullValue()));
-        assertThat(cache.get("item3"), is(status3));
-        assertThat(cache.get("item4"), is(status4));
-        assertThat(cache.get("item5"), is(status5));
+        assertThat(cache.get("item1")).isNull();
+        assertThat(cache.get("item2")).isNull();
+        assertThat(cache.get("item3")).isEqualTo(status3);
+        assertThat(cache.get("item4")).isEqualTo(status4);
+        assertThat(cache.get("item5")).isEqualTo(status5);
     }
 
     @Test
@@ -124,9 +122,9 @@ public class CcTrayCacheTest {
         cache.replaceAllEntriesInCacheWith(List.of(status1, status2, status3));
         List<ProjectStatus> allProjects = cache.allEntriesInOrder();
 
-        assertThat(allProjects.get(0), is(status1));
-        assertThat(allProjects.get(1), is(status2));
-        assertThat(allProjects.get(2), is(status3));
+        assertThat(allProjects.get(0)).isEqualTo(status1);
+        assertThat(allProjects.get(1)).isEqualTo(status2);
+        assertThat(allProjects.get(2)).isEqualTo(status3);
     }
 
     @Test
@@ -138,16 +136,16 @@ public class CcTrayCacheTest {
 
         cache.replaceAllEntriesInCacheWith(List.of(status1, status2, status3));
         List<ProjectStatus> allProjects = cache.allEntriesInOrder();
-        assertThat(allProjects.get(1), is(status2));
+        assertThat(allProjects.get(1)).isEqualTo(status2);
 
 
         cache.put(status2_changed);
         allProjects = cache.allEntriesInOrder();
 
 
-        assertThat(allProjects.get(0), is(status1));
-        assertThat(allProjects.get(1), is(status2_changed));
-        assertThat(allProjects.get(2), is(status3));
+        assertThat(allProjects.get(0)).isEqualTo(status1);
+        assertThat(allProjects.get(1)).isEqualTo(status2_changed);
+        assertThat(allProjects.get(2)).isEqualTo(status3);
     }
 
     @Test
@@ -166,8 +164,8 @@ public class CcTrayCacheTest {
         List<ProjectStatus> allProjects = cache.allEntriesInOrder();
 
 
-        assertThat(allProjects.get(0), is(status1_changed));
-        assertThat(allProjects.get(1), is(status2_changed));
-        assertThat(allProjects.get(2), is(status3));
+        assertThat(allProjects.get(0)).isEqualTo(status1_changed);
+        assertThat(allProjects.get(1)).isEqualTo(status2_changed);
+        assertThat(allProjects.get(2)).isEqualTo(status3);
     }
 }

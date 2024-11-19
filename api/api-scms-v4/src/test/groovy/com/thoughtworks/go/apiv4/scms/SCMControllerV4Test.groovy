@@ -171,7 +171,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         ))
 
         when(entityHashingService.hashForEntity(scm)).thenReturn('digest')
-        when(scmService.findPluggableScmMaterial("foobar")).thenReturn(scm);
+        when(scmService.findPluggableScmMaterial("foobar")).thenReturn(scm)
 
         getWithApiHeader(controller.controllerPath('/foobar'))
 
@@ -200,7 +200,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         ))
 
         when(entityHashingService.hashForEntity(scm)).thenReturn('digest')
-        when(scmService.findPluggableScmMaterial("foobar")).thenReturn(scm);
+        when(scmService.findPluggableScmMaterial("foobar")).thenReturn(scm)
 
         getWithApiHeader(controller.controllerPath('/foobar'), ['if-none-match': '"digest"'])
 

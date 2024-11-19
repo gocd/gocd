@@ -31,9 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -62,7 +60,7 @@ public class RailsAssetsServiceTest {
         railsAssetsService = new RailsAssetsService(systemEnvironment);
         railsAssetsService.setServletContext(context);
         railsAssetsService.initialize();
-        assertThat(railsAssetsService.getRailsAssetsManifest(), is(nullValue()));
+        assertThat(railsAssetsService.getRailsAssetsManifest()).isNull();
     }
 
     @Test
@@ -72,8 +70,8 @@ public class RailsAssetsServiceTest {
         when(context.getRealPath(any(String.class))).thenReturn(assetsDir.getAbsolutePath());
         railsAssetsService.initialize();
 
-        assertThat(railsAssetsService.getAssetPath("application.js"), is("assets/application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js"));
-        assertThat(railsAssetsService.getAssetPath("junk.js"), is(nullValue()));
+        assertThat(railsAssetsService.getAssetPath("application.js")).isEqualTo("assets/application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js");
+        assertThat(railsAssetsService.getAssetPath("junk.js")).isNull();
     }
 
     @Test
@@ -84,7 +82,7 @@ public class RailsAssetsServiceTest {
             railsAssetsService.initialize();
             fail("Expected exception to be thrown");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Manifest json file was not found at " + assetsDir.getAbsolutePath()));
+            assertThat(e.getMessage()).isEqualTo("Manifest json file was not found at " + assetsDir.getAbsolutePath());
         }
     }
 
@@ -96,7 +94,7 @@ public class RailsAssetsServiceTest {
             railsAssetsService.initialize();
             fail("Expected exception to be thrown");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Assets directory does not exist DoesNotExist"));
+            assertThat(e.getMessage()).isEqualTo("Assets directory does not exist DoesNotExist");
         }
     }
 
@@ -104,7 +102,7 @@ public class RailsAssetsServiceTest {
     public void shouldNotIncludeDigestPathInDevelopmentEnvironment() throws IOException {
         when(systemEnvironment.useCompressedJs()).thenReturn(false);
         railsAssetsService.initialize();
-        assertThat(railsAssetsService.getAssetPath("junk.js"), is("assets/junk.js"));
+        assertThat(railsAssetsService.getAssetPath("junk.js")).isEqualTo("assets/junk.js");
     }
 
     @Test
@@ -113,16 +111,13 @@ public class RailsAssetsServiceTest {
         List<Field> fieldsAnnotatedWithSerializedNameAsAssets = fields.stream().filter(field -> {
             if (field.isAnnotationPresent(SerializedName.class)) {
                 SerializedName annotation = field.getAnnotation(SerializedName.class);
-                if (annotation.value().equals("assets")) {
-                    return true;
-                }
-                return false;
+                return annotation.value().equals("assets");
             }
             return false;
         }).toList();
-        assertThat("Expected a field annotated with SerializedName 'assets'", fieldsAnnotatedWithSerializedNameAsAssets.isEmpty(), is(false));
-        assertThat(fieldsAnnotatedWithSerializedNameAsAssets.size(), is(1));
-        assertThat(fieldsAnnotatedWithSerializedNameAsAssets.get(0).getType().getCanonicalName(), is(HashMap.class.getCanonicalName()));
+        assertThat(fieldsAnnotatedWithSerializedNameAsAssets.isEmpty()).isFalse();
+        assertThat(fieldsAnnotatedWithSerializedNameAsAssets.size()).isEqualTo(1);
+        assertThat(fieldsAnnotatedWithSerializedNameAsAssets.get(0).getType().getCanonicalName()).isEqualTo(HashMap.class.getCanonicalName());
     }
 
     private String json = """

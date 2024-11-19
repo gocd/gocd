@@ -29,7 +29,6 @@ import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,8 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,19 +74,19 @@ public class UserSearchServiceTest  {
 
         List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
 
-        assertThat(models, Matchers.containsInAnyOrder(
+        assertThat(models).contains(
                 new UserSearchModel(getUser(1), UserSourceType.PLUGIN),
                 new UserSearchModel(getUser(2), UserSourceType.PLUGIN),
                 new UserSearchModel(getUser(3), UserSourceType.PLUGIN),
                 new UserSearchModel(new com.thoughtworks.go.domain.User ("username-" + 4, "", ""), UserSourceType.PLUGIN)
-        ));
+        );
     }
 
     @Test
     public void shouldReturnWarningMessageWhenSearchReturnsNoResults() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userSearchService.search("foo", result);
-        assertThat(result.message(), is("No results found."));
+        assertThat(result.message()).isEqualTo("No results found.");
     }
 
     @Test
@@ -98,7 +96,7 @@ public class UserSearchServiceTest  {
         userSearchService.search(smallSearchText, result);
 
         verifyNoInteractions(authorizationExtension);
-        assertThat(result.message(), is("Please use a search string that has at least two (2) letters."));
+        assertThat(result.message()).isEqualTo("Please use a search string that has at least two (2) letters.");
     }
 
     @Test
@@ -108,7 +106,7 @@ public class UserSearchServiceTest  {
         userSearchService.search(smallSearchText, result);
 
         verifyNoInteractions(authorizationExtension);
-        assertThat(result.message(), is("Please use a search string that has at least two (2) letters."));
+        assertThat(result.message()).isEqualTo("Please use a search string that has at least two (2) letters.");
     }
 
     private com.thoughtworks.go.domain.User  getUser(Integer userId) {

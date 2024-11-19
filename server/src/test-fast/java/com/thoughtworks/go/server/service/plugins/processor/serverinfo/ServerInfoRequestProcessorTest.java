@@ -33,8 +33,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.server.service.plugins.processor.serverinfo.ServerInfoRequestProcessor.GET_SERVER_INFO;
 import static java.lang.String.format;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,7 +67,7 @@ public class ServerInfoRequestProcessorTest {
     @Test
     public void shouldRegisterAPIRequestWithProcessor() {
         DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_INFO, "1.0", new GoPluginIdentifier("extension1", List.of("1.0")));
-        assertThat(processorRegistry.canProcess(request), is(true));
+        assertThat(processorRegistry.canProcess(request)).isTrue();
     }
 
     @Test
@@ -78,10 +77,9 @@ public class ServerInfoRequestProcessorTest {
 
         GoApiResponse response = processor.process(pluginDescriptor, request);
 
-        assertThat(response.responseCode(), is(200));
-        assertThat(response.responseBody(),
-                is(format("{\"server_id\":\"%s\",\"site_url\":\"%s\",\"secure_site_url\":\"%s\"}",
-                        serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl())));
+        assertThat(response.responseCode()).isEqualTo(200);
+        assertThat(response.responseBody()).isEqualTo(format("{\"server_id\":\"%s\",\"site_url\":\"%s\",\"secure_site_url\":\"%s\"}",
+                        serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl()));
     }
 
     @Test
@@ -90,7 +88,7 @@ public class ServerInfoRequestProcessorTest {
 
         GoApiResponse response = processor.process(pluginDescriptor, request);
 
-        assertThat(response.responseCode(), is(200));
+        assertThat(response.responseCode()).isEqualTo(200);
     }
 
     @Test
@@ -99,6 +97,6 @@ public class ServerInfoRequestProcessorTest {
 
         GoApiResponse response = processor.process(pluginDescriptor, request);
 
-        assertThat(response.responseCode(), is(400));
+        assertThat(response.responseCode()).isEqualTo(400);
     }
 }

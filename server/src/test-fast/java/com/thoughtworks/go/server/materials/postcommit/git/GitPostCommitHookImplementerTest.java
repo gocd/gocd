@@ -26,9 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class GitPostCommitHookImplementerTest {
@@ -56,9 +54,9 @@ public class GitPostCommitHookImplementerTest {
 
         Set<Material> actual = implementer.prune(materials, params);
 
-        assertThat(actual.size(), is(2));
-        assertThat(actual, hasItem(material3));
-        assertThat(actual, hasItem(material4));
+        assertThat(actual.size()).isEqualTo(2);
+        assertThat(actual).contains(material3);
+        assertThat(actual).contains(material4);
 
         verify(material1).getUrlArgument();
         verify(material2).getUrlArgument();
@@ -75,7 +73,7 @@ public class GitPostCommitHookImplementerTest {
 
         Set<Material> actual = implementer.prune(materials, params);
 
-        assertThat(actual.size(), is(0));
+        assertThat(actual.size()).isEqualTo(0);
 
         verifyNoMoreInteractions(material1);
     }
@@ -90,7 +88,7 @@ public class GitPostCommitHookImplementerTest {
 
         Set<Material> actual = implementer.prune(materials, params);
 
-        assertThat(actual.size(), is(0));
+        assertThat(actual.size()).isEqualTo(0);
 
         verifyNoMoreInteractions(material1);
     }
@@ -103,7 +101,7 @@ public class GitPostCommitHookImplementerTest {
 
         Set<Material> actual = implementer.prune(materials, new HashMap());
 
-        assertThat(actual.size(), is(0));
+        assertThat(actual.size()).isEqualTo(0);
 
         verifyNoMoreInteractions(material1);
     }
@@ -111,60 +109,60 @@ public class GitPostCommitHookImplementerTest {
     @Test
     public void shouldReturnTrueWhenURLIsAnExactMatch() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://repo-url.git"));
-        assertThat(isEqual, is(true));
+        assertThat(isEqual).isTrue();
     }
 
     @Test
     public void shouldReturnTrueWhenBasicAuthIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user:passW)rD@repo-url.git"));
-        assertThat(isEqual, is(true));
+        assertThat(isEqual).isTrue();
     }
 
     @Test
     public void shouldReturnTrueWhenBasicAuthWithoutPasswordIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user:@repo-url.git"));
-        assertThat(isEqual, is(true));
+        assertThat(isEqual).isTrue();
     }
 
     @Test
     public void shouldReturnTrueWhenBasicAuthWithOnlyUsernameIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user@repo-url.git"));
-        assertThat(isEqual, is(true));
+        assertThat(isEqual).isTrue();
     }
 
     @Test
     public void shouldReturnFalseWhenProtocolIsDifferent() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("https://repo-url.git"));
-        assertThat(isEqual, is(false));
+        assertThat(isEqual).isFalse();
     }
 
     @Test
     public void shouldReturnFalseWhenNoValidatorCouldParseUrl() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("something.completely.random"));
-        assertThat(isEqual, is(false));
+        assertThat(isEqual).isFalse();
     }
 
     @Test
     public void shouldReturnFalseUpWheNoProtocolIsGiven() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("repo-url.git"));
-        assertThat(isEqual, is(false));
+        assertThat(isEqual).isFalse();
     }
 
     @Test
     public void shouldReturnFalseForEmptyURLField() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://"));
-        assertThat(isEqual, is(false));
+        assertThat(isEqual).isFalse();
     }
 
     @Test
     public void shouldReturnFalseForEmptyURLFieldWithAuth() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user:password@"));
-        assertThat(isEqual, is(false));
+        assertThat(isEqual).isFalse();
     }
 
     @Test
     public void shouldMatchFileBasedAccessWithoutAuth() {
         boolean isEqual = implementer.isUrlEqual("/tmp/foo/repo-git", new GitMaterial("/tmp/foo/repo-git"));
-        assertThat(isEqual, is(true));
+        assertThat(isEqual).isTrue();
     }
 }

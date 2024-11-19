@@ -33,8 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -118,8 +117,8 @@ public class PluggableTaskServiceTest {
         when(taskExtension.validate(any(String.class), any(TaskConfig.class))).thenReturn(validationResult);
 
         assertFalse(pluggableTaskService.isValid(pluggableTask));
-        assertThat(configuration.getProperty("source").errors().get("source").get(0), is("source directory format is invalid"));
-        assertThat(configuration.getProperty("destination").errors().get("destination").get(0), is("destination directory format is invalid"));
+        assertThat(configuration.getProperty("source").errors().get("source").get(0)).isEqualTo("source directory format is invalid");
+        assertThat(configuration.getProperty("destination").errors().get("destination").get(0)).isEqualTo("destination directory format is invalid");
     }
 
     @Test

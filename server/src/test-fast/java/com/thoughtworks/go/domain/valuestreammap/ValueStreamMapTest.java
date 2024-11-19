@@ -27,8 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,13 +40,13 @@ public class ValueStreamMapTest {
         CaseInsensitiveString pipelineName = new CaseInsensitiveString("P1");
         ValueStreamMap graph = new ValueStreamMap(pipelineName, null);
 
-        assertThat(graph.getCurrentPipeline().getId(), is(pipelineName));
-        assertThat(graph.getCurrentPipeline().getName(), is(pipelineName.toString()));
-        assertThat(graph.getCurrentPipeline().getChildren().isEmpty(), is(true));
+        assertThat(graph.getCurrentPipeline().getId()).isEqualTo(pipelineName);
+        assertThat(graph.getCurrentPipeline().getName()).isEqualTo(pipelineName.toString());
+        assertThat(graph.getCurrentPipeline().getChildren().isEmpty()).isTrue();
 
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
-        assertThat(nodesAtEachLevel, hasSize(1));
-        assertThat(nodesAtEachLevel.get(0), contains(graph.getCurrentPipeline()));
+        assertThat(nodesAtEachLevel).hasSize(1);
+        assertThat(nodesAtEachLevel.get(0)).contains(graph.getCurrentPipeline());
     }
 
     @Test
@@ -60,12 +59,12 @@ public class ValueStreamMapTest {
         graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), null, dependent, new MaterialRevision(null));
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
 
-        assertThat(nodesAtEachLevel.size(), is(2));
-        assertThat(nodesAtEachLevel.get(0).size(), is(1));
+        assertThat(nodesAtEachLevel.size()).isEqualTo(2);
+        assertThat(nodesAtEachLevel.get(0).size()).isEqualTo(1);
 
         Node gitScmNode = nodesAtEachLevel.get(0).get(0);
-        assertThat(gitScmNode.getId().toString(), is("git_fingerprint"));
-        assertThat(gitScmNode.getName(), is("git"));
+        assertThat(gitScmNode.getId().toString()).isEqualTo("git_fingerprint");
+        assertThat(gitScmNode.getName()).isEqualTo("git");
         VSMTestHelper.assertThatNodeHasChildren(graph, new CaseInsensitiveString("git_fingerprint"), 0, dependent);
     }
 
@@ -88,7 +87,7 @@ public class ValueStreamMapTest {
         materialNames.add("git1");
         materialNames.add("git2");
 
-        assertThat(node.getMaterialNames(), is(materialNames));
+        assertThat(node.getMaterialNames()).isEqualTo(materialNames);
     }
 
     @Test
@@ -113,7 +112,7 @@ public class ValueStreamMapTest {
 
         SCMDependencyNode node = (SCMDependencyNode) graph.findNode(new CaseInsensitiveString("git_fingerprint"));
 
-        assertThat(node.getMaterialRevisions().size(), is(2));
+        assertThat(node.getMaterialRevisions().size()).isEqualTo(2);
         assertTrue(node.getMaterialRevisions().contains(revision1));
         assertTrue(node.getMaterialRevisions().contains(revision2));
     }
@@ -136,7 +135,7 @@ public class ValueStreamMapTest {
         HashSet<String> materialNames = new HashSet<>();
         materialNames.add("git1");
 
-        assertThat(node.getMaterialNames(), is(materialNames));
+        assertThat(node.getMaterialNames()).isEqualTo(materialNames);
     }
 
     @Test
@@ -169,7 +168,7 @@ public class ValueStreamMapTest {
         Node p4 = graph.addUpstreamNode(new PipelineDependencyNode(p4Name, p4Name.toString()), null, currentPipeline);
         graph.addUpstreamNode(new PipelineDependencyNode(p4Name, p4Name.toString()), null, currentPipeline);
 
-        assertThat(p4.getChildren().size(), is(1));
+        assertThat(p4.getChildren().size()).isEqualTo(1);
         VSMTestHelper.assertThatNodeHasChildren(graph, p4Name, 0, new CaseInsensitiveString("p5"));
     }
 
@@ -210,11 +209,11 @@ public class ValueStreamMapTest {
 
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
 
-        assertThat(nodesAtEachLevel.size(), is(3));
-        assertThat(nodesAtEachLevel.get(0).get(0).getName(), is("d3"));
-        assertThat(nodesAtEachLevel.get(1).get(0).getName(), is("d1"));
-        assertThat(nodesAtEachLevel.get(1).get(1).getName(), is("d2"));
-        assertThat(nodesAtEachLevel.get(2).get(0).getName(), is(currentPipeline.toString()));
+        assertThat(nodesAtEachLevel.size()).isEqualTo(3);
+        assertThat(nodesAtEachLevel.get(0).get(0).getName()).isEqualTo("d3");
+        assertThat(nodesAtEachLevel.get(1).get(0).getName()).isEqualTo("d1");
+        assertThat(nodesAtEachLevel.get(1).get(1).getName()).isEqualTo("d2");
+        assertThat(nodesAtEachLevel.get(2).get(0).getName()).isEqualTo(currentPipeline.toString());
     }
 
     @Test
@@ -224,7 +223,7 @@ public class ValueStreamMapTest {
         ValueStreamMap graph = new ValueStreamMap(p1, null);
         graph.addDownstreamNode(new PipelineDependencyNode(p2, p2.toString()), p1);
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
-        assertThat(nodesAtEachLevel.size(), is(2));
+        assertThat(nodesAtEachLevel.size()).isEqualTo(2);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(0), 0, p1);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(1), 0, p2);
         VSMTestHelper.assertNodeHasChildren(graph, p1, p2);
@@ -260,8 +259,8 @@ public class ValueStreamMapTest {
 		graph.addUpstreamMaterialNode(new SCMDependencyNode(hgTrunk.toString(), hgTrunk.toString(), "hg"), null, acceptance, new MaterialRevision(null));
 
 		List<Node> rootNodes = graph.getRootNodes();
-		assertThat(rootNodes.size(), is(3));
-		assertThat(getNodeIds(rootNodes), contains(gitPlugins, gitTrunk, hgTrunk));
+		assertThat(rootNodes.size()).isEqualTo(3);
+		assertThat(getNodeIds(rootNodes)).contains(gitPlugins, gitTrunk, hgTrunk);
 	}
 
 	private List<CaseInsensitiveString> getNodeIds(List<Node> rootNodes) {
@@ -290,13 +289,13 @@ public class ValueStreamMapTest {
 
         VSMTestHelper.assertNodeHasChildren(graph, p1, p2, p3);
         VSMTestHelper.assertNodeHasChildren(graph, p2, p3);
-        assertThat(graph.findNode(p3).getChildren().isEmpty(), is(true));
-        assertThat(graph.findNode(p1).getParents().isEmpty(), is(true));
+        assertThat(graph.findNode(p3).getChildren().isEmpty()).isTrue();
+        assertThat(graph.findNode(p1).getParents().isEmpty()).isTrue();
         VSMTestHelper.assertNodeHasParents(graph, p2, p1);
         VSMTestHelper.assertNodeHasParents(graph, p3, p1, p2);
 
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
-        assertThat(nodesAtEachLevel.size(), is(3));
+        assertThat(nodesAtEachLevel.size()).isEqualTo(3);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(0), 0, p1);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(1), 1, p2);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(2), 0, p3);
@@ -316,7 +315,7 @@ public class ValueStreamMapTest {
         graph.addDownstreamNode(new PipelineDependencyNode(p3, p3.toString()), p1);
 
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
-        assertThat(nodesAtEachLevel.size(), is(2));
+        assertThat(nodesAtEachLevel.size()).isEqualTo(2);
         VSMTestHelper.assertNodeHasChildren(graph, p1, p3);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(0), 0, p1);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(1), 0, p3);
@@ -328,11 +327,11 @@ public class ValueStreamMapTest {
         VSMTestHelper.assertNodeHasChildren(graph, p2, p3);
         VSMTestHelper.assertNodeHasParents(graph, p3, p1, p2);
         VSMTestHelper.assertNodeHasParents(graph, p2, p1);
-        assertThat(graph.findNode(p3).getChildren().isEmpty(), is(true));
-        assertThat(graph.findNode(p1).getParents().isEmpty(), is(true));
+        assertThat(graph.findNode(p3).getChildren().isEmpty()).isTrue();
+        assertThat(graph.findNode(p1).getParents().isEmpty()).isTrue();
 
         nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
-        assertThat(nodesAtEachLevel.size(), is(3));
+        assertThat(nodesAtEachLevel.size()).isEqualTo(3);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(0), 0, p1);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(1), 1, p2);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(2), 0, p3);
@@ -379,7 +378,7 @@ public class ValueStreamMapTest {
 
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
 
-        assertThat(nodesAtEachLevel.size(), is(7));
+        assertThat(nodesAtEachLevel.size()).isEqualTo(7);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(0), 0, gitTrunk, hgTrunk);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(1), 1, gitPlugins, cruise);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(2), 2, plugins);
@@ -388,14 +387,14 @@ public class ValueStreamMapTest {
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(5), 1, publish);
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(6), 0, deployGo01);
 
-        assertThat(graph.findNode(gitTrunk).getDepth(), is(2));
-        assertThat(graph.findNode(hgTrunk).getDepth(), is(3));
-        assertThat(graph.findNode(gitPlugins).getDepth(), is(1));
-        assertThat(graph.findNode(cruise).getDepth(), is(2));
-        assertThat(graph.findNode(deployGo03).getDepth(), is(1));
-        assertThat(graph.findNode(deployGo02).getDepth(), is(2));
-        assertThat(graph.findNode(publish).getDepth(), is(1));
-        assertThat(graph.findNode(deployGo01).getDepth(), is(1));
+        assertThat(graph.findNode(gitTrunk).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(hgTrunk).getDepth()).isEqualTo(3);
+        assertThat(graph.findNode(gitPlugins).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(cruise).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(deployGo03).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(deployGo02).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(publish).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(deployGo01).getDepth()).isEqualTo(1);
     }
 
     @Test
@@ -419,7 +418,7 @@ public class ValueStreamMapTest {
         graph.addUpstreamMaterialNode(new SCMDependencyNode("g","g","git") , null, grandParent, new MaterialRevision(null));
         graph.addUpstreamMaterialNode(new SCMDependencyNode("g","g","git") , null, parent, new MaterialRevision(null));
 
-        assertThat(graph.hasCycle(), is(true));
+        assertThat(graph.hasCycle()).isTrue();
     }
 
     @Test
@@ -440,7 +439,7 @@ public class ValueStreamMapTest {
         valueStreamMap.addUpstreamNode(new PipelineDependencyNode(a, a.toString()), null, d);
         valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode("g", "g", "git"), null, a, new MaterialRevision(null));
 
-        assertThat(valueStreamMap.hasCycle(), is(false));
+        assertThat(valueStreamMap.hasCycle()).isFalse();
     }
 
     @Test
@@ -462,7 +461,7 @@ public class ValueStreamMapTest {
         graph.addDownstreamNode(new PipelineDependencyNode(a, a.toString()), b);
         graph.addDownstreamNode(new PipelineDependencyNode(c, c.toString()), a);
 
-        assertThat(graph.hasCycle(), is(true));
+        assertThat(graph.hasCycle()).isTrue();
     }
 
     @Test
@@ -496,7 +495,7 @@ public class ValueStreamMapTest {
         valueStreamMap.addUpstreamNode(new PipelineDependencyNode(p5, p5.toString()), new PipelineRevision(p5.toString(),1,"1"), p6);
         valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode(g2.toString(),g2.toString(),"git"), null, p5, new MaterialRevision(null));
 
-        assertThat(valueStreamMap.hasCycle(), is(true));
+        assertThat(valueStreamMap.hasCycle()).isTrue();
     }
 
     @Test
@@ -513,7 +512,7 @@ public class ValueStreamMapTest {
 
         valueStreamMap.addWarningIfBuiltFromInCompatibleRevisions();
 
-        assertThat(valueStreamMap.getCurrentPipeline().getViewType(), is(is(VSMViewType.WARNING)));
+        assertThat(valueStreamMap.getCurrentPipeline().getViewType()).isEqualTo(VSMViewType.WARNING);
     }
 
     @Test

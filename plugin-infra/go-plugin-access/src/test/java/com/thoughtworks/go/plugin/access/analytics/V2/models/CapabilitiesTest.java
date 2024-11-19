@@ -17,9 +17,7 @@ package com.thoughtworks.go.plugin.access.analytics.V2.models;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CapabilitiesTest {
 
@@ -35,10 +33,10 @@ public class CapabilitiesTest {
 
         Capabilities capabilities = Capabilities.fromJSON(json);
 
-        assertThat(capabilities.getSupportedAnalytics().size(), is(3));
-        assertThat(capabilities.getSupportedAnalytics().get(0), is(new SupportedAnalytics("dashboard", "abc", "Title 1")) );
-        assertThat(capabilities.getSupportedAnalytics().get(1), is(new SupportedAnalytics("pipeline", "abc", "Title 2")) );
-        assertThat(capabilities.getSupportedAnalytics().get(2), is(new SupportedAnalytics("vsm", "abc", "Title 3")) );
+        assertThat(capabilities.getSupportedAnalytics().size()).isEqualTo(3);
+        assertThat(capabilities.getSupportedAnalytics().get(0)).isEqualTo(new SupportedAnalytics("dashboard", "abc", "Title 1"));
+        assertThat(capabilities.getSupportedAnalytics().get(1)).isEqualTo(new SupportedAnalytics("pipeline", "abc", "Title 2"));
+        assertThat(capabilities.getSupportedAnalytics().get(2)).isEqualTo(new SupportedAnalytics("vsm", "abc", "Title 3"));
     }
 
     @Test
@@ -54,8 +52,8 @@ public class CapabilitiesTest {
         Capabilities capabilities = Capabilities.fromJSON(json);
         com.thoughtworks.go.plugin.domain.analytics.Capabilities domain = capabilities.toCapabilities();
 
-        assertThat(domain.supportedDashboardAnalytics(), containsInAnyOrder(new com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics("dashboard", "abc", "Title 1")));
-        assertThat(domain.supportedPipelineAnalytics(), containsInAnyOrder(new com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics("pipeline", "abc", "Title 2")));
-        assertThat(domain.supportedVSMAnalytics(), containsInAnyOrder(new com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics("vsm", "abc", "Title 3")));
+        assertThat(domain.supportedDashboardAnalytics()).contains(new com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics("dashboard", "abc", "Title 1"));
+        assertThat(domain.supportedPipelineAnalytics()).contains(new com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics("pipeline", "abc", "Title 2"));
+        assertThat(domain.supportedVSMAnalytics()).contains(new com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics("vsm", "abc", "Title 3"));
     }
 }

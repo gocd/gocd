@@ -36,7 +36,7 @@ import java.nio.file.Path;
 
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.containsState;
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.doesNotContainState;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -76,15 +76,15 @@ public class ArtifactsDirChangeTest {
     @Test
     public void shouldLogErrorWhenArtifactsDirChanged() {
         changeArtifactsDirAndThenTryToUseIt("/tmp/invalid-dir");
-        assertThat(serverHealthService, containsState(ArtifactsDirHolder.ARTIFACTS_ROOT_CHANGE_HEALTH_STATE_TYPE, HealthStateLevel.WARNING, ArtifactsDirHolder.ARTIFACTS_ROOT_CHANGED_MESSAGE));
+        assertThat(serverHealthService).satisfies(containsState(ArtifactsDirHolder.ARTIFACTS_ROOT_CHANGE_HEALTH_STATE_TYPE, HealthStateLevel.WARNING, ArtifactsDirHolder.ARTIFACTS_ROOT_CHANGED_MESSAGE));
     }
 
     @Test
     public void shouldRemoveLogAfterArtifactsDirIsRecovered() {
         changeArtifactsDirAndThenTryToUseIt("/tmp/invalid-dir");
-        assertThat(serverHealthService, containsState(ArtifactsDirHolder.ARTIFACTS_ROOT_CHANGE_HEALTH_STATE_TYPE));
+        assertThat(serverHealthService).satisfies(containsState(ArtifactsDirHolder.ARTIFACTS_ROOT_CHANGE_HEALTH_STATE_TYPE));
         changeArtifactsDirAndThenTryToUseIt(artifactsDirHolder.getArtifactsDir().getPath());
-        assertThat(serverHealthService, doesNotContainState(ArtifactsDirHolder.ARTIFACTS_ROOT_CHANGE_HEALTH_STATE_TYPE));
+        assertThat(serverHealthService).satisfies(doesNotContainState(ArtifactsDirHolder.ARTIFACTS_ROOT_CHANGE_HEALTH_STATE_TYPE));
     }
 
     private void changeArtifactsDirAndThenTryToUseIt(String dir) {

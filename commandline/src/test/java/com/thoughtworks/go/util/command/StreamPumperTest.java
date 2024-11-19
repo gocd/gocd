@@ -28,8 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StreamPumperTest {
 
@@ -46,8 +45,8 @@ public class StreamPumperTest {
         new Thread(pumper).start();
 
         //Check the consumer to see if it got both lines.
-        assertThat(consumer.wasLineConsumed(line1, 1000), is(true));
-        assertThat(consumer.wasLineConsumed(line2, 1000), is(true));
+        assertThat(consumer.wasLineConsumed(line1, 1000)).isTrue();
+        assertThat(consumer.wasLineConsumed(line2, 1000)).isTrue();
     }
 
     @Test
@@ -63,9 +62,9 @@ public class StreamPumperTest {
             output.flush();
 
             long timeoutDuration = 2L;
-            assertThat(pumper.didTimeout(timeoutDuration, TimeUnit.SECONDS), is(false));
+            assertThat(pumper.didTimeout(timeoutDuration, TimeUnit.SECONDS)).isFalse();
             clock.addSeconds(5);
-            assertThat(pumper.didTimeout(timeoutDuration, TimeUnit.SECONDS), is(true));
+            assertThat(pumper.didTimeout(timeoutDuration, TimeUnit.SECONDS)).isTrue();
         }
     }
 
@@ -82,7 +81,7 @@ public class StreamPumperTest {
         output.close();
         pumper.readToEnd();
         clock.addSeconds(2);
-        assertThat(pumper.didTimeout(1L, TimeUnit.SECONDS), is(false));
+        assertThat(pumper.didTimeout(1L, TimeUnit.SECONDS)).isFalse();
     }
 
     /**

@@ -33,11 +33,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class PipelineTimelineTest {
@@ -100,11 +98,11 @@ public class PipelineTimelineTest {
         mods.add(third);
         mods.add(second);
 
-        assertThat(third.insertedBefore(), is(fourth));
-        assertThat(third.insertedAfter(), is(first));
+        assertThat(third.insertedBefore()).isEqualTo(fourth);
+        assertThat(third.insertedAfter()).isEqualTo(first);
 
-        assertThat(second.insertedBefore(), is(third));
-        assertThat(second.insertedAfter(), is(first));
+        assertThat(second.insertedBefore()).isEqualTo(third);
+        assertThat(second.insertedAfter()).isEqualTo(first);
     }
 
     @Test
@@ -112,18 +110,18 @@ public class PipelineTimelineTest {
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         mods.add(first);
         mods.add(fourth);
-        assertThat(mods.naturalOrderBefore(fourth), is(first));
+        assertThat(mods.naturalOrderBefore(fourth)).isEqualTo(first);
 
         //bisect
         mods.add(third);
-        assertThat(mods.naturalOrderBefore(fourth), is(third));
-        assertThat(mods.naturalOrderBefore(third), is(first));
+        assertThat(mods.naturalOrderBefore(fourth)).isEqualTo(third);
+        assertThat(mods.naturalOrderBefore(third)).isEqualTo(first);
 
         //bisect
         mods.add(second);
-        assertThat(mods.naturalOrderBefore(fourth), is(third));
-        assertThat(mods.naturalOrderBefore(third), is(second));
-        assertThat(mods.naturalOrderBefore(second), is(first));
+        assertThat(mods.naturalOrderBefore(fourth)).isEqualTo(third);
+        assertThat(mods.naturalOrderBefore(third)).isEqualTo(second);
+        assertThat(mods.naturalOrderBefore(second)).isEqualTo(first);
     }
 
     @Test
@@ -142,20 +140,20 @@ public class PipelineTimelineTest {
         mods.add(second);
         mods.add(anotherPipeline2);
 
-        assertThat(third.insertedBefore(), is(fourth));
-        assertThat(third.insertedAfter(), is(first));
+        assertThat(third.insertedBefore()).isEqualTo(fourth);
+        assertThat(third.insertedAfter()).isEqualTo(first);
 
-        assertThat(second.insertedBefore(), is(third));
-        assertThat(second.insertedAfter(), is(first));
+        assertThat(second.insertedBefore()).isEqualTo(third);
+        assertThat(second.insertedAfter()).isEqualTo(first);
 
-        assertThat(anotherPipeline2.insertedBefore(), is(anotherPipeline3));
-        assertThat(anotherPipeline2.insertedAfter(), is(anotherPipeline1));
+        assertThat(anotherPipeline2.insertedBefore()).isEqualTo(anotherPipeline3);
+        assertThat(anotherPipeline2.insertedAfter()).isEqualTo(anotherPipeline1);
 
-        assertThat(mods.runAfter(anotherPipeline2.getId(), new CaseInsensitiveString("another")), is(anotherPipeline3));
-        assertThat(mods.runBefore(anotherPipeline2.getId(), new CaseInsensitiveString("another")), is(anotherPipeline1));
+        assertThat(mods.runAfter(anotherPipeline2.getId(), new CaseInsensitiveString("another"))).isEqualTo(anotherPipeline3);
+        assertThat(mods.runBefore(anotherPipeline2.getId(), new CaseInsensitiveString("another"))).isEqualTo(anotherPipeline1);
 
-        assertThat(mods.runAfter(first.getId(), new CaseInsensitiveString(first.getPipelineName())), is(nullValue()));
-        assertThat(mods.runAfter(second.getId(), new CaseInsensitiveString(second.getPipelineName())), is(third));
+        assertThat(mods.runAfter(first.getId(), new CaseInsensitiveString(first.getPipelineName()))).isNull();
+        assertThat(mods.runAfter(second.getId(), new CaseInsensitiveString(second.getPipelineName()))).isEqualTo(third);
     }
 
     @Test
@@ -164,16 +162,16 @@ public class PipelineTimelineTest {
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
         final List<PipelineTimelineEntry> entries = new ArrayList<>();
         final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, (newlyAddedEntry, timeline1) -> {
-            assertThat(timeline1.contains(newlyAddedEntry), is(true));
-            assertThat(timeline1.containsAll(entries), is(true));
+            assertThat(timeline1.contains(newlyAddedEntry)).isTrue();
+            assertThat(timeline1.containsAll(entries)).isTrue();
             entries.add(newlyAddedEntry);
         });
         stubPipelineRepository(timeline, true, first, second);
 
         timeline.update();
 
-        assertThat(entries.size(), is(1));
-        assertThat(entries.contains(first), is(true));
+        assertThat(entries.size()).isEqualTo(1);
+        assertThat(entries.contains(first)).isTrue();
     }
 
     @Test
@@ -204,7 +202,7 @@ public class PipelineTimelineTest {
         verify(pipelineRepository).updatePipelineTimeline(timeline, List.of(entries));
         verifyNoMoreInteractions(transactionSynchronizationManager);
         verifyNoMoreInteractions(transactionTemplate);
-        assertThat(timeline.maximumId(), is(2L));
+        assertThat(timeline.maximumId()).isEqualTo(2L);
     }
 
     @Test
@@ -219,7 +217,7 @@ public class PipelineTimelineTest {
         timeline.update();
 
         verify(pipelineRepository).updatePipelineTimeline(timeline, List.of(entries));
-        assertThat(timeline.maximumId(), is(2L));
+        assertThat(timeline.maximumId()).isEqualTo(2L);
     }
 
     @Test
@@ -233,7 +231,7 @@ public class PipelineTimelineTest {
         timeline.update();
 
         verify(pipelineRepository).updatePipelineTimeline(timeline, List.of(entries));
-        assertThat(timeline.maximumId(), is(-1L));
+        assertThat(timeline.maximumId()).isEqualTo(-1L);
     }
 
     @Test
@@ -254,12 +252,12 @@ public class PipelineTimelineTest {
         timeline.update();
         allEntries = timeline.getEntriesFor("pipeline");
 
-        assertThat(timeline.maximumId(), is(2L));
-        assertThat(timeline.getEntriesFor("pipeline").size(), is(2));
-        assertThat(allEntries, hasItems(first, second));
-        assertThat(timeline.instanceCount(new CaseInsensitiveString("pipeline")), is(2));
-        assertThat(timeline.instanceFor(new CaseInsensitiveString("pipeline"), 0), is(first));
-        assertThat(timeline.instanceFor(new CaseInsensitiveString("pipeline"), 1), is(second));
+        assertThat(timeline.maximumId()).isEqualTo(2L);
+        assertThat(timeline.getEntriesFor("pipeline").size()).isEqualTo(2);
+        assertThat(allEntries).contains(first, second);
+        assertThat(timeline.instanceCount(new CaseInsensitiveString("pipeline"))).isEqualTo(2);
+        assertThat(timeline.instanceFor(new CaseInsensitiveString("pipeline"), 0)).isEqualTo(first);
+        assertThat(timeline.instanceFor(new CaseInsensitiveString("pipeline"), 1)).isEqualTo(second);
     }
 
     private void stubPipelineRepository(final PipelineTimeline timeline, boolean restub, final PipelineTimelineEntry... entries) {
@@ -302,25 +300,25 @@ public class PipelineTimelineTest {
     public void shouldReturnNullForPipelineBeforeAndAfterIfPipelineDoesNotExist() {
         PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         timeline.add(first);
-        assertThat(timeline.runBefore(2, new CaseInsensitiveString("not-present")), is(nullValue()));
-        assertThat(timeline.runAfter(2, new CaseInsensitiveString("not-present")), is(nullValue()));
+        assertThat(timeline.runBefore(2, new CaseInsensitiveString("not-present"))).isNull();
+        assertThat(timeline.runAfter(2, new CaseInsensitiveString("not-present"))).isNull();
     }
 
     @Test
     public void shouldCreateANaturalOrderingHalfWayBetweenEachPipeline() {
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         mods.add(first);
-        assertThat(first.naturalOrder(), is(1.0));
+        assertThat(first.naturalOrder()).isEqualTo(1.0);
 
         mods.add(fourth);
-        assertThat(fourth.naturalOrder(), is(2.0));
+        assertThat(fourth.naturalOrder()).isEqualTo(2.0);
 
         double thirdOrder = (2.0 + 1.0) / 2.0;
         mods.add(third);
-        assertThat(third.naturalOrder(), is(thirdOrder));
+        assertThat(third.naturalOrder()).isEqualTo(thirdOrder);
 
         mods.add(second);
-        assertThat(second.naturalOrder(), is((thirdOrder + 1.0) / 2.0));
+        assertThat(second.naturalOrder()).isEqualTo((thirdOrder + 1.0) / 2.0);
     }
 
 
@@ -328,17 +326,17 @@ public class PipelineTimelineTest {
     public void shouldCreateANaturalOrderingHalfWayBetweenEachPipelineWhenInsertedInReverseOrder() {
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         mods.add(fourth);
-        assertThat(fourth.naturalOrder(), is(1.0));
+        assertThat(fourth.naturalOrder()).isEqualTo(1.0);
 
         mods.add(first);
-        assertThat(first.naturalOrder(), is(0.5));
+        assertThat(first.naturalOrder()).isEqualTo(0.5);
 
         double thirdOrder = (1.0 + 0.5) / 2.0;
         mods.add(third);
-        assertThat(third.naturalOrder(), is(thirdOrder));
+        assertThat(third.naturalOrder()).isEqualTo(thirdOrder);
 
         mods.add(second);
-        assertThat(second.naturalOrder(), is((thirdOrder + 0.5) / 2.0));
+        assertThat(second.naturalOrder()).isEqualTo((thirdOrder + 0.5) / 2.0);
     }
 
     @Test
@@ -349,7 +347,7 @@ public class PipelineTimelineTest {
         try {
             mods.add(fourth);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Calculated natural ordering 1.5 is not the same as the existing naturalOrder 1.0, for pipeline pipeline, with id 4"));
+            assertThat(e.getMessage()).isEqualTo("Calculated natural ordering 1.5 is not the same as the existing naturalOrder 1.0, for pipeline pipeline, with id 4");
         }
     }
 

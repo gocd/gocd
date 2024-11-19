@@ -41,8 +41,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import java.util.List;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -84,8 +83,8 @@ public class PipelineLockServiceTest {
         pipelineState.lock(1);
         when(pipelineStateDao.pipelineStateFor(pipelineName)).thenReturn(pipelineState);
 
-        assertThat(pipelineLockService.isLocked(pipelineName), is(true));
-        assertThat(pipelineLockService.isLocked("twist"), is(false));
+        assertThat(pipelineLockService.isLocked(pipelineName)).isTrue();
+        assertThat(pipelineLockService.isLocked("twist")).isFalse();
     }
 
     @Test
@@ -102,7 +101,7 @@ public class PipelineLockServiceTest {
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
 
         pipelineLockService.lockIfNeeded(pipeline);
-        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier()), is(true));
+        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier())).isTrue();
     }
 
     @Test
@@ -115,7 +114,7 @@ public class PipelineLockServiceTest {
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
 
         pipelineLockService.lockIfNeeded(pipeline);
-        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier()), is(false));
+        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier())).isFalse();
     }
 
     @Test
@@ -127,7 +126,7 @@ public class PipelineLockServiceTest {
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(false);
 
         pipelineLockService.lockIfNeeded(pipeline);
-        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier()), is(true));
+        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier())).isTrue();
     }
 
     @Test
@@ -138,7 +137,7 @@ public class PipelineLockServiceTest {
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
 
         pipelineLockService.lockIfNeeded(pipeline);
-        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier()), is(true));
+        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier())).isTrue();
     }
 
     @Test
@@ -178,7 +177,7 @@ public class PipelineLockServiceTest {
         doNothing().when(goConfigService).register(captor.capture());
         pipelineLockService.initialize();
         List<ConfigChangedListener> listeners = captor.getAllValues();
-        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
         return (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
     }
 

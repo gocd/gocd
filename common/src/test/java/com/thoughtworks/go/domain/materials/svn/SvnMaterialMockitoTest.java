@@ -27,8 +27,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class SvnMaterialMockitoTest {
@@ -62,7 +61,7 @@ public class SvnMaterialMockitoTest {
         svnMaterial.setUrl(url);
         svnMaterial.updateTo(outputStreamConsumer, workingCopy, new RevisionContext(revision), new TestSubprocessExecutionContext());
 
-        assertThat(workingCopy.exists(), is(true));
+        assertThat(workingCopy.exists()).isTrue();
         verify(subversion).updateTo(outputStreamConsumer, workingCopy, revision);
     }
 }

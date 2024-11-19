@@ -39,9 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
@@ -89,7 +87,7 @@ public class ConfigRepoExtensionTest {
 
     @Test
     public void shouldExtendAbstractExtension() {
-        assertThat(extension, instanceOf(AbstractExtension.class));
+        assertThat(extension).isInstanceOf(AbstractExtension.class);
     }
 
     @Test
@@ -145,13 +143,13 @@ public class ConfigRepoExtensionTest {
         ConfigFileList responseV1 = extension.getConfigFiles(PLUGIN_ID, "dir", null);
 
         assertTrue(responseV1.hasErrors(), "should have errors");
-        assertThat(responseV1.getErrors().getErrorsAsText(), is(expected.getErrors().getErrorsAsText()));
+        assertThat(responseV1.getErrors().getErrorsAsText()).isEqualTo(expected.getErrors().getErrorsAsText());
 
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(List.of("1.0", "2.0", "3.0")))).thenReturn("2.0");
         ConfigFileList responseV2 = extension.getConfigFiles(PLUGIN_ID, "dir", null);
 
         assertTrue(responseV2.hasErrors(), "should have errors");
-        assertThat(responseV2.getErrors().getErrorsAsText(), is(expected.getErrors().getErrorsAsText()));
+        assertThat(responseV2.getErrors().getErrorsAsText()).isEqualTo(expected.getErrors().getErrorsAsText());
     }
 
     @Test
@@ -172,14 +170,14 @@ public class ConfigRepoExtensionTest {
 
         Capabilities res = extension.getCapabilities(PLUGIN_ID);
 
-        assertThat(capabilities, is(res));
+        assertThat(capabilities).isEqualTo(res);
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
-        assertThat(goPluginApiRequest.extension(), is(extensionName));
-        assertThat(goPluginApiRequest.extensionVersion(), is(version));
-        assertThat(goPluginApiRequest.requestName(), is(requestName));
-        assertThat(goPluginApiRequest.requestBody(), is(requestBody));
+        assertThat(goPluginApiRequest.extension()).isEqualTo(extensionName);
+        assertThat(goPluginApiRequest.extensionVersion()).isEqualTo(version);
+        assertThat(goPluginApiRequest.requestName()).isEqualTo(requestName);
+        assertThat(goPluginApiRequest.requestBody()).isEqualTo(requestBody);
     }
 
 }

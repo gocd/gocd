@@ -17,8 +17,7 @@ package com.thoughtworks.go.serverhealth;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ServerHealthStatesTest {
 
@@ -26,24 +25,24 @@ public class ServerHealthStatesTest {
     public void shouldReturnTheErrorCount() throws Exception {
         ServerHealthStates states = new ServerHealthStates(ServerHealthState.error("msg", "desc", HealthStateType.artifactsDirChanged()),
                 ServerHealthState.warning("another", "some", HealthStateType.databaseDiskFull()));
-        assertThat(states.errorCount(), is(1));
-        assertThat(states.warningCount(), is(1));
+        assertThat(states.errorCount()).isEqualTo(1);
+        assertThat(states.warningCount()).isEqualTo(1);
     }
 
     @Test
     public void shouldReturnFalseForRealSuccessIfThereIsAtleastOneError() throws Exception {
         ServerHealthStates states = new ServerHealthStates(ServerHealthState.error("msg", "desc", HealthStateType.artifactsDirChanged()));
-        assertThat(states.isRealSuccess(), is(false));
+        assertThat(states.isRealSuccess()).isFalse();
     }
 
     @Test
     public void shouldReturnFalseForRealSuccessIfThereIsAtleastOneWarning() throws Exception {
         ServerHealthStates states = new ServerHealthStates(ServerHealthState.warning("another", "some", HealthStateType.databaseDiskFull()));
-        assertThat(states.isRealSuccess(), is(false));
+        assertThat(states.isRealSuccess()).isFalse();
     }
 
     @Test
     public void shouldReturntrueForRealSuccess() throws Exception {
-        assertThat(new ServerHealthStates(ServerHealthState.success(HealthStateType.databaseDiskFull())).isRealSuccess(), is(true));
+        assertThat(new ServerHealthStates(ServerHealthState.success(HealthStateType.databaseDiskFull())).isRealSuccess()).isTrue();
     }
 }

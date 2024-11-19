@@ -28,9 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -54,8 +52,8 @@ public class PluggableSCMPostCommitHookImplementerTest {
 
         Set<Material> actual = implementer.prune(materials, params);
 
-        assertThat(actual.size(), is(1));
-        assertThat(actual, hasItem(material1));
+        assertThat(actual.size()).isEqualTo(1);
+        assertThat(actual).contains(material1);
     }
 
     @Test
@@ -68,7 +66,7 @@ public class PluggableSCMPostCommitHookImplementerTest {
 
         Set<Material> actual = implementer.prune(materials, params);
 
-        assertThat(actual.size(), is(0));
+        assertThat(actual.size()).isEqualTo(0);
     }
 
     @Test
@@ -80,7 +78,7 @@ public class PluggableSCMPostCommitHookImplementerTest {
 
         Set<Material> actual = implementer.prune(materials, params);
 
-        assertThat(actual.size(), is(0));
+        assertThat(actual.size()).isEqualTo(0);
         verifyNoMoreInteractions(material1);
     }
 
@@ -93,7 +91,7 @@ public class PluggableSCMPostCommitHookImplementerTest {
 
         Set<Material> actual = implementer.prune(materials, params);
 
-        assertThat(actual.size(), is(0));
+        assertThat(actual.size()).isEqualTo(0);
         verifyNoMoreInteractions(material1);
     }
 
@@ -104,7 +102,7 @@ public class PluggableSCMPostCommitHookImplementerTest {
 
         Set<Material> actual = implementer.prune(materials, new HashMap<>());
 
-        assertThat(actual.size(), is(0));
+        assertThat(actual.size()).isEqualTo(0);
         verifyNoMoreInteractions(material1);
     }
 }

@@ -23,14 +23,11 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ExecTaskTest {
@@ -42,7 +39,7 @@ public class ExecTaskTest {
                   <arg>arg2</arg>
                 </exec>""";
         ExecTask execTask = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial(xml, ExecTask.class);
-        assertThat(execTask.getArgList(), is(new Arguments(new Argument("arg1"), new Argument("arg2"))));
+        assertThat(execTask.getArgList()).isEqualTo(new Arguments(new Argument("arg1"), new Argument("arg2")));
     }
 
     @Test
@@ -62,7 +59,7 @@ public class ExecTaskTest {
             new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(configXml);
             fail("should throw exception if both 'args' attribute and 'arg' sub element are configured");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString(ExecTask.EXEC_CONFIG_ERROR));
+            assertThat(e.getMessage()).contains(ExecTask.EXEC_CONFIG_ERROR);
         }
     }
 
@@ -72,8 +69,8 @@ public class ExecTaskTest {
 
         execTask.validateTask(null);
 
-        assertThat(execTask.errors().isEmpty(), is(false));
-        assertThat(execTask.errors().on(ExecTask.COMMAND), is("Command cannot be empty"));
+        assertThat(execTask.errors().isEmpty()).isFalse();
+        assertThat(execTask.errors().on(ExecTask.COMMAND)).isEqualTo("Command cannot be empty");
     }
 
     @Test
@@ -81,6 +78,6 @@ public class ExecTaskTest {
         File absoluteFile = new File("test").getAbsoluteFile();
         ExecTask task = new ExecTask("command", "arguments", absoluteFile.getAbsolutePath());
 
-        assertThat(task.workingDirectory(), Matchers.is(absoluteFile.getPath()));
+        assertThat(task.workingDirectory()).isEqualTo((absoluteFile.getPath()));
     }
 }

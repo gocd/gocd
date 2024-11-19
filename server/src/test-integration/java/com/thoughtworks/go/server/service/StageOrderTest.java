@@ -35,8 +35,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -78,7 +77,7 @@ public class StageOrderTest {
     public void shouldSetOrderTo1ForUnScheduledFirstStage() {
         pipelineService.save(preCondition.schedulePipeline());
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
-        assertThat(pipeline.getStages().first().getOrderId(), is(1));
+        assertThat(pipeline.getStages().first().getOrderId()).isEqualTo(1);
     }
 
     @Test
@@ -91,7 +90,7 @@ public class StageOrderTest {
         scheduleService.automaticallyTriggerRelevantStagesFollowingCompletionOf(pipeline.getFirstStage());
 
         Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
-        assertThat(mostRecent.getStages().byName(preCondition.ftStage).getOrderId(), is(1001));
+        assertThat(mostRecent.getStages().byName(preCondition.ftStage).getOrderId()).isEqualTo(1001);
     }
 
     @Test
@@ -105,7 +104,7 @@ public class StageOrderTest {
         scheduleService.rerunStage(mostRecent, preCondition.devStage(), "anyone");
 
         mostRecent = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
-        assertThat(mostRecent.getFirstStage().getOrderId(), is(1000));
+        assertThat(mostRecent.getFirstStage().getOrderId()).isEqualTo(1000);
     }
 
     private void schedulePipelineWithFirstStage() {

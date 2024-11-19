@@ -52,8 +52,7 @@ import java.nio.file.Path;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -124,8 +123,8 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
         scheduleService.rescheduleHungJobs();
 
         JobInstance reloaded = jobInstanceDao.buildByIdWithTransitions(buildOf(pipeline).getId());
-        assertThat(reloaded.getState(), is(JobState.Completed));
-        assertThat(reloaded.getResult(), is(JobResult.Cancelled));
+        assertThat(reloaded.getState()).isEqualTo(JobState.Completed);
+        assertThat(reloaded.getResult()).isEqualTo(JobResult.Cancelled);
     }
 
     @Test
@@ -150,7 +149,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
 
         final Stage reloadedStage = stageDao.stageById(stage.getId());
         final JobInstance rescheduledJob = reloadedStage.getJobInstances().getByName(jobInstance.getName());
-        assertThat(rescheduledJob.getState(), is(JobState.Assigned));
+        assertThat(rescheduledJob.getState()).isEqualTo(JobState.Assigned);
     }
 
     private JobInstance buildOf(Pipeline pipeline) {

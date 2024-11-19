@@ -18,8 +18,7 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.util.GoConstants;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StageHistoryItemMother {
 
@@ -31,7 +30,7 @@ public class StageHistoryItemMother {
         } else {
             stageHistoryItem.setApprovalType(GoConstants.APPROVAL_MANUAL);
         }
-        assertThat("Should create the correct stub", stageHistoryItem.isAutoApproved(), is(isAutoApproved));
+        assertThat(stageHistoryItem.isAutoApproved()).isEqualTo(isAutoApproved);
         return stageHistoryItem;
     }
 }

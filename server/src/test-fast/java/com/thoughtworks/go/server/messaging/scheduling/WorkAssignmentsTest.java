@@ -26,8 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -57,48 +56,48 @@ public class WorkAssignmentsTest {
 
     @Test
     public void shouldDispatchIdleMessageWhenNoWork() {
-        assertThat(assignments.getWork(agent), is(NO_WORK));
+        assertThat(assignments.getWork(agent)).isEqualTo(NO_WORK);
         verify(idleAgentsTopic).post(new IdleAgentMessage(agent));
     }
 
     @Test
     public void shouldOnlySendIdleMessageOnce() {
-        assertThat(assignments.getWork(agent), is(NO_WORK));
-        assertThat(assignments.getWork(agent), is(NO_WORK));
+        assertThat(assignments.getWork(agent)).isEqualTo(NO_WORK);
+        assertThat(assignments.getWork(agent)).isEqualTo(NO_WORK);
         verify(idleAgentsTopic).post(new IdleAgentMessage(agent));
     }
 
     @Test
     public void shouldGiveAgentAllocatedWork() {
-        assertThat(assignments.getWork(agent), is(NO_WORK));
+        assertThat(assignments.getWork(agent)).isEqualTo(NO_WORK);
 
         assignments.onMessage(new WorkAssignedMessage(agentIdentifier, REAL_WORK));
         verify(idleAgentsTopic).post(new IdleAgentMessage(agent));
 
-        assertThat(assignments.getWork(agent), is(REAL_WORK));
+        assertThat(assignments.getWork(agent)).isEqualTo(REAL_WORK);
     }
 
     @Test
     public void shouldReturnNoWorkAfterWorkAllocatedOnce() {
-        assertThat(assignments.getWork(agent), is(NO_WORK));
+        assertThat(assignments.getWork(agent)).isEqualTo(NO_WORK);
 
         assignments.onMessage(new WorkAssignedMessage(agentIdentifier, REAL_WORK));
         assignments.getWork(agent);
         verify(idleAgentsTopic).post(new IdleAgentMessage(agent));
 
-        assertThat(assignments.getWork(agent), is(NO_WORK));
+        assertThat(assignments.getWork(agent)).isEqualTo(NO_WORK);
         verify(idleAgentsTopic, times(2)).post(new IdleAgentMessage(agent));
     }
 
     @Test
     public void shouldReSendIdleMessageIfNoWorkAllocated() {
-        assertThat(assignments.getWork(agent), is(NO_WORK));
-        assertThat(assignments.getWork(agent), is(NO_WORK));
+        assertThat(assignments.getWork(agent)).isEqualTo(NO_WORK);
+        assertThat(assignments.getWork(agent)).isEqualTo(NO_WORK);
         verify(idleAgentsTopic).post(new IdleAgentMessage(agent));
 
         assignments.onMessage(new WorkAssignedMessage(agentIdentifier, NO_WORK));
 
-        assertThat(assignments.getWork(agent), is(NO_WORK));
+        assertThat(assignments.getWork(agent)).isEqualTo(NO_WORK);
         verify(idleAgentsTopic, times(2)).post(new IdleAgentMessage(agent));
     }
 }

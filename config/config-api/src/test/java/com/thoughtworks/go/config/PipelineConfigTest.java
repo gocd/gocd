@@ -42,9 +42,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -62,16 +60,16 @@ public class PipelineConfigTest {
     @Test
     public void shouldFindByName() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
-        assertThat(pipelineConfig.findBy(new CaseInsensitiveString("completed stage")).name(), is(new CaseInsensitiveString("completed stage")));
+        assertThat(pipelineConfig.findBy(new CaseInsensitiveString("completed stage")).name()).isEqualTo(new CaseInsensitiveString("completed stage"));
     }
 
     @Test
     public void shouldReturnDuplicateWithoutName() {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("somePipeline");
         PipelineConfig clonedPipelineConfig = pipelineConfig.duplicate();
-        assertThat(clonedPipelineConfig.name(), is(new CaseInsensitiveString("")));
-        assertThat(clonedPipelineConfig.materialConfigs(), is(pipelineConfig.materialConfigs()));
-        assertThat(clonedPipelineConfig.getFirstStageConfig(), is(pipelineConfig.getFirstStageConfig()));
+        assertThat(clonedPipelineConfig.name()).isEqualTo(new CaseInsensitiveString(""));
+        assertThat(clonedPipelineConfig.materialConfigs()).isEqualTo(pipelineConfig.materialConfigs());
+        assertThat(clonedPipelineConfig.getFirstStageConfig()).isEqualTo(pipelineConfig.getFirstStageConfig());
     }
 
     @Test
@@ -84,9 +82,9 @@ public class PipelineConfigTest {
         originalTasks.add(new FetchTask(new CaseInsensitiveString("some_other_pipeline"), stageConfig.name(), jobConfig.name(), "src", "dest"));
         PipelineConfig clone = pipelineConfig.duplicate();
         Tasks clonedTasks = clone.get(0).getJobs().get(0).getTasks();
-        assertThat(((FetchTask) clonedTasks.get(1)).getTargetPipelineName(), is(new CaseInsensitiveString("")));
-        assertThat(((FetchTask) clonedTasks.get(2)).getTargetPipelineName(), is(new CaseInsensitiveString("some_other_pipeline")));
-        assertThat(((FetchTask) originalTasks.get(1)).getTargetPipelineName(), is(pipelineConfig.name()));
+        assertThat(((FetchTask) clonedTasks.get(1)).getTargetPipelineName()).isEqualTo(new CaseInsensitiveString(""));
+        assertThat(((FetchTask) clonedTasks.get(2)).getTargetPipelineName()).isEqualTo(new CaseInsensitiveString("some_other_pipeline"));
+        assertThat(((FetchTask) originalTasks.get(1)).getTargetPipelineName()).isEqualTo(pipelineConfig.name());
     }
 
     @Test //#6821
@@ -100,41 +98,41 @@ public class PipelineConfigTest {
         PipelineConfig cloned = source.duplicate();
         EnvironmentVariablesConfig clonedEnvVariables = cloned.getPlainTextVariables();
         EnvironmentVariablesConfig sourceEnvVariables = source.getPlainTextVariables();
-        assertThat(clonedEnvVariables.size(), is(sourceEnvVariables.size()));
+        assertThat(clonedEnvVariables.size()).isEqualTo(sourceEnvVariables.size());
         clonedEnvVariables.getPlainTextVariables().containsAll(sourceEnvVariables.getPlainTextVariables());
-        assertThat(cloned.getSecureVariables().size(), is(source.getSecureVariables().size()));
-        assertThat(cloned.getSecureVariables().containsAll(source.getSecureVariables()), is(true));
+        assertThat(cloned.getSecureVariables().size()).isEqualTo(source.getSecureVariables().size());
+        assertThat(cloned.getSecureVariables().containsAll(source.getSecureVariables())).isTrue();
     }
 
     @Test
     public void shouldGetStageByName() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
-        assertThat(pipelineConfig.getStage(new CaseInsensitiveString("COMpleTEd stage")).name(), is(new CaseInsensitiveString("completed stage")));
-        assertThat(pipelineConfig.getStage(new CaseInsensitiveString("Does-not-exist")), is(nullValue()));
+        assertThat(pipelineConfig.getStage(new CaseInsensitiveString("COMpleTEd stage")).name()).isEqualTo(new CaseInsensitiveString("completed stage"));
+        assertThat(pipelineConfig.getStage(new CaseInsensitiveString("Does-not-exist"))).isNull();
     }
 
     @Test
     public void shouldReturnFalseIfThereIsNoNextStage() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
-        assertThat(pipelineConfig.hasNextStage(buildingStage().name()), is(false));
+        assertThat(pipelineConfig.hasNextStage(buildingStage().name())).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfThereIsNextStage() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
-        assertThat(pipelineConfig.hasNextStage(completedStage().name()), is(true));
+        assertThat(pipelineConfig.hasNextStage(completedStage().name())).isTrue();
     }
 
     @Test
     public void shouldReturnFalseThePassInStageDoesNotExist() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
-        assertThat(pipelineConfig.hasNextStage(new CaseInsensitiveString("notExist")), is(false));
+        assertThat(pipelineConfig.hasNextStage(new CaseInsensitiveString("notExist"))).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfThereNoStagesDefined() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null);
-        assertThat(pipelineConfig.hasNextStage(completedStage().name()), is(false));
+        assertThat(pipelineConfig.hasNextStage(completedStage().name())).isFalse();
     }
 
     @Test
@@ -142,17 +140,16 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("framework"), new CaseInsensitiveString("dev")));
         pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("middleware"), new CaseInsensitiveString("dev")));
-        assertThat(pipelineConfig.getDependenciesAsNode(),
-                is(new Node(
+        assertThat(pipelineConfig.getDependenciesAsNode()).isEqualTo(new Node(
                         new Node.DependencyNode(new CaseInsensitiveString("framework"), new CaseInsensitiveString("dev")),
-                        new Node.DependencyNode(new CaseInsensitiveString("middleware"), new CaseInsensitiveString("dev")))));
+                        new Node.DependencyNode(new CaseInsensitiveString("middleware"), new CaseInsensitiveString("dev"))));
     }
 
     @Test
     public void shouldReturnTrueIfFirstStageIsManualApproved() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         pipelineConfig.getFirstStageConfig().updateApproval(Approval.manualApproval());
-        assertThat("First stage should be manual approved", pipelineConfig.isFirstStageManualApproval(), is(true));
+        assertThat(pipelineConfig.isFirstStageManualApproval()).isTrue();
     }
 
     @Test
@@ -162,8 +159,7 @@ public class PipelineConfigTest {
             pipelineConfig.isFirstStageManualApproval();
             fail("Should throw exception if pipeline has no pipeline");
         } catch (IllegalStateException e) {
-            assertThat(e.getMessage(),
-                    containsString("Pipeline [" + pipelineConfig.name() + "] doesn't have any stage"));
+            assertThat(e.getMessage()).contains("Pipeline [" + pipelineConfig.name() + "] doesn't have any stage");
         }
     }
 
@@ -176,7 +172,7 @@ public class PipelineConfigTest {
             pipelineConfig.setTemplateName(new CaseInsensitiveString("some-template"));
             fail("Should throw exception because the pipeline has stages already");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), containsString("Cannot set template 'some-template' on pipeline 'pipeline' because it already has stages defined"));
+            assertThat(e.getMessage()).contains("Cannot set template 'some-template' on pipeline 'pipeline' because it already has stages defined");
         }
     }
 
@@ -188,20 +184,20 @@ public class PipelineConfigTest {
             pipelineConfig.add(StageConfigMother.stageConfig("second"));
             fail("Should throw exception because pipeline already has a template");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), containsString("Cannot add stage 'second' to pipeline 'mingle', which already references template 'some-template'."));
+            assertThat(e.getMessage()).contains("Cannot add stage 'second' to pipeline 'mingle', which already references template 'some-template'.");
         }
     }
 
     @Test
     public void shouldKnowIfATemplateWasApplied() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
-        assertThat(pipelineConfig.hasTemplateApplied(), is(false));
+        assertThat(pipelineConfig.hasTemplateApplied()).isFalse();
         pipelineConfig.clear();
 
         PipelineTemplateConfig template = new PipelineTemplateConfig();
         template.add(StageConfigMother.stageConfig("first"));
         pipelineConfig.usingTemplate(template);
-        assertThat(pipelineConfig.hasTemplateApplied(), is(true));
+        assertThat(pipelineConfig.hasTemplateApplied()).isTrue();
     }
 
     @Test
@@ -209,45 +205,45 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(), new StageConfig(new CaseInsensitiveString("first"), new JobConfigs()));
         pipelineConfig.setLabelTemplate("pipeline-${COUNT}-alpha");
         pipelineConfig.validate(null);
-        assertThat(pipelineConfig.errors().isEmpty(), is(true));
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
+        assertThat(pipelineConfig.errors().isEmpty()).isTrue();
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isNull();
     }
 
     @Test
     public void shouldValidateMissingLabel() {
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(null);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(PipelineConfig.BLANK_LABEL_TEMPLATE_ERROR_MESSAGE));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(PipelineConfig.BLANK_LABEL_TEMPLATE_ERROR_MESSAGE);
 
         pipelineConfig = createAndValidatePipelineLabel("");
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(PipelineConfig.BLANK_LABEL_TEMPLATE_ERROR_MESSAGE));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(PipelineConfig.BLANK_LABEL_TEMPLATE_ERROR_MESSAGE);
     }
 
     @Test
     public void shouldValidateCorrectPipelineLabelWithoutTruncationSyntax() {
         String labelFormat = "pipeline-${COUNT}-${git}-454";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isNull();
     }
 
     @Test
     public void shouldValidatePipelineLabelWithNonExistingMaterial() {
         String labelFormat = "pipeline-${COUNT}-${NoSuchMaterial}";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("You have defined a label template in pipeline"));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).startsWith("You have defined a label template in pipeline");
     }
 
     @Test
     public void shouldValidatePipelineLabelWithEnvironmentVariable() {
         String labelFormat = "pipeline-${COUNT}-${env:SOME_VAR}";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isNull();
     }
 
     @Test
     public void shouldValidateCorrectPipelineLabelWithTruncationSyntax() {
         String labelFormat = "pipeline-${COUNT}-${git[:7]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isNull();
     }
 
 
@@ -256,7 +252,7 @@ public class PipelineConfigTest {
         String labelFormat = "pipeline-${COUNT}-${git[:7}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
         String expectedLabelTemplate = "Invalid label 'pipeline-${COUNT}-${git[:7}-alpha'.";
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith(expectedLabelTemplate));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).startsWith(expectedLabelTemplate);
     }
 
     @Test
@@ -264,14 +260,14 @@ public class PipelineConfigTest {
         String labelFormat = "pipeline-${COUNT}-${git[7]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
         String expectedLabelTemplate = "Invalid label 'pipeline-${COUNT}-${git[7]}-alpha'.";
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith(expectedLabelTemplate));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).startsWith(expectedLabelTemplate);
     }
 
     @Test
     public void shouldValidateIncorrectPipelineLabelWithTruncationSyntax() {
         String labelFormat = "pipeline-${COUNT}-${noSuch[:7]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("You have defined a label template in pipeline"));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).startsWith("You have defined a label template in pipeline");
     }
 
     @Test
@@ -301,21 +297,21 @@ public class PipelineConfigTest {
 
     public void assertPipelineLabelTemplateIsInvalid(String labelTemplate, String expectedError) {
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelTemplate);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), containsString(expectedError));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).contains(expectedError);
     }
 
     @Test
     public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax() {
         String labelFormat = "pipeline-${COUNT}-${git[:0]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name())));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name()));
     }
 
     @Test
     public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax2() {
         String labelFormat = "pipeline-${COUNT}-${git[:0]}${one[:00]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name())));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name()));
     }
 
 
@@ -335,9 +331,9 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(configMap);
 
-        assertThat(pipelineConfig.getLabelTemplate(), is("LABEL123-${COUNT}"));
-        assertThat(pipelineConfig.getTimer().getTimerSpec(), is(cronSpec));
-        assertThat(pipelineConfig.getTimer().shouldTriggerOnlyOnChanges(), is(false));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("LABEL123-${COUNT}");
+        assertThat(pipelineConfig.getTimer().getTimerSpec()).isEqualTo(cronSpec);
+        assertThat(pipelineConfig.getTimer().shouldTriggerOnlyOnChanges()).isFalse();
     }
 
     @Test
@@ -354,9 +350,9 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(configMap);
 
-        assertThat(pipelineConfig.getLabelTemplate(), is("LABEL123-${COUNT}"));
-        assertThat(pipelineConfig.getTimer().getTimerSpec(), is(cronSpec));
-        assertThat(pipelineConfig.getTimer().shouldTriggerOnlyOnChanges(), is(true));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("LABEL123-${COUNT}");
+        assertThat(pipelineConfig.getTimer().getTimerSpec()).isEqualTo(cronSpec);
+        assertThat(pipelineConfig.getTimer().shouldTriggerOnlyOnChanges()).isTrue();
     }
 
     @Test
@@ -368,7 +364,7 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(configMap);
 
-        assertThat(pipelineConfig.getLabelTemplate(), is(PipelineLabel.COUNT_TEMPLATE));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo(PipelineLabel.COUNT_TEMPLATE);
     }
 
     @Test
@@ -378,7 +374,7 @@ public class PipelineConfigTest {
 
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setConfigAttributes(configMap);
-        assertThat(pipelineConfig.isLockable(), is(false));
+        assertThat(pipelineConfig.isLockable()).isFalse();
     }
 
     @Test
@@ -388,7 +384,7 @@ public class PipelineConfigTest {
 
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setConfigAttributes(configMap);
-        assertThat(pipelineConfig.isLockable(), is(true));
+        assertThat(pipelineConfig.isLockable()).isTrue();
     }
 
     @Test
@@ -398,7 +394,7 @@ public class PipelineConfigTest {
 
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setConfigAttributes(configMap);
-        assertThat(pipelineConfig.isPipelineUnlockableWhenFinished(), is(true));
+        assertThat(pipelineConfig.isPipelineUnlockableWhenFinished()).isTrue();
     }
 
     @Test
@@ -412,16 +408,16 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(configMap);
 
-        assertThat(pipelineConfig.getLabelTemplate(), is("LABEL123-${COUNT}"));
-        assertThat(pipelineConfig.getTrackingTool(), is(trackingTool));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("LABEL123-${COUNT}");
+        assertThat(pipelineConfig.getTrackingTool()).isEqualTo(trackingTool);
     }
 
     @Test
     public void isNotLockableWhenLockValueHasNotBeenSet() {
         PipelineConfig pipelineConfig = new PipelineConfig();
 
-        assertThat(pipelineConfig.hasExplicitLock(), is(false));
-        assertThat(pipelineConfig.isLockable(), is(false));
+        assertThat(pipelineConfig.hasExplicitLock()).isFalse();
+        assertThat(pipelineConfig.isLockable()).isFalse();
     }
 
     @Test
@@ -433,9 +429,9 @@ public class PipelineConfigTest {
         pipelineConfig.setConfigAttributes(configMap);
         pipelineConfig.validate(null);
 
-        assertThat(pipelineConfig.errors().isEmpty(), is(false));
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LOCK_BEHAVIOR),
-                containsString("Lock behavior has an invalid value (someRandomValue). Valid values are: "));
+        assertThat(pipelineConfig.errors().isEmpty()).isFalse();
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LOCK_BEHAVIOR)
+            .contains("Lock behavior has an invalid value (someRandomValue). Valid values are: "));
     }
 
     @Test
@@ -444,7 +440,7 @@ public class PipelineConfigTest {
         pipelineConfig.setLockBehaviorIfNecessary(null);
         pipelineConfig.validate(null);
 
-        assertThat(pipelineConfig.errors().toString(), pipelineConfig.errors().isEmpty(), is(true));
+        assertThat(pipelineConfig.errors()).isEmpty();
     }
 
     @Test
@@ -519,30 +515,30 @@ public class PipelineConfigTest {
         map.put(PipelineConfig.TRACKING_TOOL, valueHashMap);
 
         pipelineConfig.setConfigAttributes(map);
-        assertThat(pipelineConfig.getTrackingTool(), is(new TrackingTool("GoleyLink", "GoleyRegex")));
+        assertThat(pipelineConfig.getTrackingTool()).isEqualTo(new TrackingTool("GoleyLink", "GoleyRegex"));
     }
 
     @Test
     public void shouldGetTheCorrectConfigurationType() {
         PipelineConfig pipelineConfigWithTemplate = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
-        assertThat(pipelineConfigWithTemplate.getConfigurationType(), is(PipelineConfig.CONFIGURATION_TYPE_TEMPLATE));
+        assertThat(pipelineConfigWithTemplate.getConfigurationType()).isEqualTo(PipelineConfig.CONFIGURATION_TYPE_TEMPLATE);
 
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
-        assertThat(pipelineConfig.getConfigurationType(), is(PipelineConfig.CONFIGURATION_TYPE_STAGES));
+        assertThat(pipelineConfig.getConfigurationType()).isEqualTo(PipelineConfig.CONFIGURATION_TYPE_STAGES);
     }
 
     @Test
     public void shouldUseTemplateWhenSetConfigAttributesContainsTemplateName() {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
-        assertThat(pipelineConfig.hasTemplate(), is(false));
+        assertThat(pipelineConfig.hasTemplate()).isFalse();
 
         Map<String, Object> map = new HashMap<>();
         map.put(PipelineConfig.CONFIGURATION_TYPE, PipelineConfig.CONFIGURATION_TYPE_TEMPLATE);
         map.put(PipelineConfig.TEMPLATE_NAME, "foo-template");
 
         pipelineConfig.setConfigAttributes(map);
-        assertThat(pipelineConfig.getConfigurationType(), is(PipelineConfig.CONFIGURATION_TYPE_TEMPLATE));
-        assertThat(pipelineConfig.getTemplateName(), is(new CaseInsensitiveString("foo-template")));
+        assertThat(pipelineConfig.getConfigurationType()).isEqualTo(PipelineConfig.CONFIGURATION_TYPE_TEMPLATE);
+        assertThat(pipelineConfig.getTemplateName()).isEqualTo(new CaseInsensitiveString("foo-template"));
     }
 
     @Test
@@ -553,8 +549,8 @@ public class PipelineConfigTest {
 
         pipelineConfig.incrementIndex(moveMeStage);
 
-        assertThat(pipelineConfig.indexOf(moveMeStage), is(1));
-        assertThat(pipelineConfig.indexOf(dontMoveMeStage), is(0));
+        assertThat(pipelineConfig.indexOf(moveMeStage)).isEqualTo(1);
+        assertThat(pipelineConfig.indexOf(dontMoveMeStage)).isEqualTo(0);
     }
 
     @Test
@@ -565,8 +561,8 @@ public class PipelineConfigTest {
 
         pipelineConfig.decrementIndex(moveMeStage);
 
-        assertThat(pipelineConfig.indexOf(moveMeStage), is(0));
-        assertThat(pipelineConfig.indexOf(dontMoveMeStage), is(1));
+        assertThat(pipelineConfig.indexOf(moveMeStage)).isEqualTo(0);
+        assertThat(pipelineConfig.indexOf(dontMoveMeStage)).isEqualTo(1);
     }
 
     @Test
@@ -579,14 +575,14 @@ public class PipelineConfigTest {
             pipelineConfig.incrementIndex(moveMeStage);
             fail("Should fail to increment the index of a stage that is not found");
         } catch (RuntimeException expected) {
-            assertThat(expected.getMessage(), is("Cannot find the stage 'move-me' in pipeline 'pipeline'"));
+            assertThat(expected.getMessage()).isEqualTo("Cannot find the stage 'move-me' in pipeline 'pipeline'");
         }
 
         try {
             pipelineConfig.decrementIndex(moveMeStage);
             fail("Should fail to increment the index of a stage that is not found");
         } catch (RuntimeException expected) {
-            assertThat(expected.getMessage(), is("Cannot find the stage 'move-me' in pipeline 'pipeline'"));
+            assertThat(expected.getMessage()).isEqualTo("Cannot find the stage 'move-me' in pipeline 'pipeline'");
         }
     }
 
@@ -601,17 +597,17 @@ public class PipelineConfigTest {
 
         List<StageConfig> fetchableStages = upstream.validStagesForFetchArtifact(downstream, new CaseInsensitiveString("s7"));
 
-        assertThat(fetchableStages.size(), is(2));
-        assertThat(fetchableStages, hasItem(upstream.get(0)));
-        assertThat(fetchableStages, hasItem(upstream.get(1)));
+        assertThat(fetchableStages.size()).isEqualTo(2);
+        assertThat(fetchableStages).contains(upstream.get(0));
+        assertThat(fetchableStages).contains(upstream.get(1));
     }
 
     @Test
     public void shouldReturnStagesBeforeCurrentForSelectedPipeline() {
         PipelineConfig downstream = PipelineConfigMother.createPipelineConfigWithStages("downstream", "s1", "s2");
         List<StageConfig> fetchableStages = downstream.validStagesForFetchArtifact(downstream, new CaseInsensitiveString("s2"));
-        assertThat(fetchableStages.size(), is(1));
-        assertThat(fetchableStages, hasItem(downstream.get(0)));
+        assertThat(fetchableStages.size()).isEqualTo(1);
+        assertThat(fetchableStages).contains(downstream.get(0));
     }
 
     @Test
@@ -634,8 +630,8 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(attributeMap);
 
-        assertThat(pipelineConfig.name(), is(new CaseInsensitiveString("startup")));
-        assertThat(pipelineConfig.materialConfigs().get(0), is(svn("http://url", "loser", "passwd", false)));
+        assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("startup"));
+        assertThat(pipelineConfig.materialConfigs().get(0)).isEqualTo(svn("http://url", "loser", "passwd", false));
     }
 
     @Test
@@ -653,18 +649,17 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(attributeMap);
 
-        assertThat(pipelineConfig.name(), is(new CaseInsensitiveString("startup")));
-        assertThat(pipelineConfig.get(0).name(), is(new CaseInsensitiveString("someStage")));
-        assertThat(pipelineConfig.get(0).getJobs().first().name(), is(new CaseInsensitiveString("JobName")));
+        assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("startup"));
+        assertThat(pipelineConfig.get(0).name()).isEqualTo(new CaseInsensitiveString("someStage"));
+        assertThat(pipelineConfig.get(0).getJobs().first().name()).isEqualTo(new CaseInsensitiveString("JobName"));
     }
 
     @Test
     public void shouldValidatePipelineName() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("foo bar", "stage1", "job1");
         pipelineConfig.validate(null);
-        assertThat(pipelineConfig.errors().isEmpty(), is(false));
-        assertThat(pipelineConfig.errors().on(PipelineConfig.NAME),
-                is("Invalid pipeline name 'foo bar'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(pipelineConfig.errors().isEmpty()).isFalse();
+        assertThat(pipelineConfig.errors().on(PipelineConfig.NAME)).isEqualTo("Invalid pipeline name 'foo bar'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -684,10 +679,10 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(attributeMap);
 
-        assertThat(pipelineConfig.name(), is(new CaseInsensitiveString("startup")));
-        assertThat(pipelineConfig.size(), is(1));
-        assertThat(pipelineConfig.get(0).name(), is(new CaseInsensitiveString("someStage")));
-        assertThat(pipelineConfig.get(0).getJobs().first().name(), is(new CaseInsensitiveString("JobName")));
+        assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("startup"));
+        assertThat(pipelineConfig.size()).isEqualTo(1);
+        assertThat(pipelineConfig.get(0).name()).isEqualTo(new CaseInsensitiveString("someStage"));
+        assertThat(pipelineConfig.get(0).getJobs().first().name()).isEqualTo(new CaseInsensitiveString("JobName"));
     }
 
     @Test
@@ -705,9 +700,9 @@ public class PipelineConfigTest {
         pipelineConfig.add(new StageConfig(new CaseInsensitiveString("stage-2"), new JobConfigs(secondJob)));
 
         List<FetchTask> fetchTasks = pipelineConfig.getFetchTasks();
-        assertThat(fetchTasks.size(), is(2));
-        assertThat(fetchTasks.contains(firstFetch), is(true));
-        assertThat(fetchTasks.contains(secondFetch), is(true));
+        assertThat(fetchTasks.size()).isEqualTo(2);
+        assertThat(fetchTasks.contains(firstFetch)).isTrue();
+        assertThat(fetchTasks.contains(secondFetch)).isTrue();
     }
 
     @Test
@@ -720,8 +715,8 @@ public class PipelineConfigTest {
         EnvironmentVariableConfig password = new EnvironmentVariableConfig(goCipher, "password", "=%HG*^&*&^", true);
         pipelineConfig.addEnvironmentVariable(password);
         EnvironmentVariablesConfig plainTextVariables = pipelineConfig.getPlainTextVariables();
-        assertThat(plainTextVariables, not(hasItem(password)));
-        assertThat(plainTextVariables, hasItem(username));
+        assertThat(plainTextVariables).doesNotContain(password);
+        assertThat(plainTextVariables).contains(username);
     }
 
     @Test
@@ -734,22 +729,22 @@ public class PipelineConfigTest {
         EnvironmentVariableConfig password = new EnvironmentVariableConfig(goCipher, "password", "=%HG*^&*&^", true);
         pipelineConfig.addEnvironmentVariable(password);
         List<EnvironmentVariableConfig> plainTextVariables = pipelineConfig.getSecureVariables();
-        assertThat(plainTextVariables, hasItem(password));
-        assertThat(plainTextVariables, not(hasItem(username)));
+        assertThat(plainTextVariables).contains(password);
+        assertThat(plainTextVariables).doesNotContain(username);
     }
 
     @Test
     public void shouldTemplatizeAPipeline() {
         PipelineConfig config = PipelineConfigMother.createPipelineConfigWithStages("pipeline", "stage1", "stage2");
         config.templatize(new CaseInsensitiveString("template"));
-        assertThat(config.hasTemplate(), is(true));
-        assertThat(config.hasTemplateApplied(), is(false));
-        assertThat(config.getTemplateName(), is(new CaseInsensitiveString("template")));
-        assertThat(config.isEmpty(), is(true));
+        assertThat(config.hasTemplate()).isTrue();
+        assertThat(config.hasTemplateApplied()).isFalse();
+        assertThat(config.getTemplateName()).isEqualTo(new CaseInsensitiveString("template"));
+        assertThat(config.isEmpty()).isTrue();
         config.templatize(new CaseInsensitiveString(""));
-        assertThat(config.hasTemplate(), is(false));
+        assertThat(config.hasTemplate()).isFalse();
         config.templatize(null);
-        assertThat(config.hasTemplate(), is(false));
+        assertThat(config.hasTemplate()).isFalse();
     }
 
     @Test
@@ -761,7 +756,7 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.get(0).getApproval().getType(), is(Approval.SUCCESS));
+        assertThat(pipelineConfig.get(0).getApproval().getType()).isEqualTo(Approval.SUCCESS);
     }
 
     @Test
@@ -773,7 +768,7 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.get(0).getApproval().getType(), is(Approval.MANUAL));
+        assertThat(pipelineConfig.get(0).getApproval().getType()).isEqualTo(Approval.MANUAL);
     }
 
     @Test
@@ -785,8 +780,8 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.get(0).getApproval().getType(), is(Approval.MANUAL));
-        assertThat(pipelineConfig.get(1).getApproval().getType(), is(Approval.SUCCESS));
+        assertThat(pipelineConfig.get(0).getApproval().getType()).isEqualTo(Approval.MANUAL);
+        assertThat(pipelineConfig.get(1).getApproval().getType()).isEqualTo(Approval.SUCCESS);
     }
 
     @Test
@@ -798,8 +793,8 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(svn, packageMaterialOne, packageMaterialTwo));
         List<PackageMaterialConfig> packageMaterialConfigs = pipelineConfig.packageMaterialConfigs();
 
-        assertThat(packageMaterialConfigs.size(), is(2));
-        assertThat(packageMaterialConfigs, hasItems(packageMaterialOne, packageMaterialTwo));
+        assertThat(packageMaterialConfigs.size()).isEqualTo(2);
+        assertThat(packageMaterialConfigs).contains(packageMaterialOne, packageMaterialTwo);
     }
 
     @Test
@@ -811,8 +806,8 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(svn, pluggableSCMMaterialOne, pluggableSCMMaterialTwo));
         List<PluggableSCMMaterialConfig> pluggableSCMMaterialConfigs = pipelineConfig.pluggableSCMMaterialConfigs();
 
-        assertThat(pluggableSCMMaterialConfigs.size(), is(2));
-        assertThat(pluggableSCMMaterialConfigs, hasItems(pluggableSCMMaterialOne, pluggableSCMMaterialTwo));
+        assertThat(pluggableSCMMaterialConfigs.size()).isEqualTo(2);
+        assertThat(pluggableSCMMaterialConfigs).contains(pluggableSCMMaterialOne, pluggableSCMMaterialTwo);
     }
 
     @Test
@@ -821,7 +816,7 @@ public class PipelineConfigTest {
         MaterialConfig material = pipelineConfig.materialConfigs().first();
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin", "id"), "1233"));
 
-        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(true));
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials()).isTrue();
     }
 
     @Test
@@ -836,7 +831,7 @@ public class PipelineConfigTest {
 
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(repoMaterialConfig, "plugin", "id"), "1233"));
 
-        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(true));
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials()).isTrue();
     }
 
     @Test
@@ -845,7 +840,7 @@ public class PipelineConfigTest {
         MaterialConfig material = git("http://git");
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin", "id"), "1233"));
 
-        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(false));
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials()).isFalse();
     }
 
     @Test
@@ -853,7 +848,7 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         pipelineConfig.setOrigin(new FileConfigOrigin());
 
-        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(false));
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials()).isFalse();
     }
 
     @Test
@@ -862,7 +857,7 @@ public class PipelineConfigTest {
         MaterialConfig material = pipelineConfig.materialConfigs().first();
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin", "id"), "1233"));
 
-        assertThat(pipelineConfig.isConfigOriginFromRevision("1233"), is(true));
+        assertThat(pipelineConfig.isConfigOriginFromRevision("1233")).isTrue();
     }
 
     @Test
@@ -871,27 +866,27 @@ public class PipelineConfigTest {
         MaterialConfig material = pipelineConfig.materialConfigs().first();
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin", "id"), "1233"));
 
-        assertThat(pipelineConfig.isConfigOriginFromRevision("32"), is(false));
+        assertThat(pipelineConfig.isConfigOriginFromRevision("32")).isFalse();
     }
 
     @Test
     public void shouldReturnConfigRepoOriginDisplayNameWhenOriginIsRemote() {
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "id"), "revision1"));
-        assertThat(pipelineConfig.getOriginDisplayName(), is("AwesomeGitMaterial at revision revision1"));
+        assertThat(pipelineConfig.getOriginDisplayName()).isEqualTo("AwesomeGitMaterial at revision revision1");
     }
 
     @Test
     public void shouldReturnConfigRepoOriginDisplayNameWhenOriginIsFile() {
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setOrigin(new FileConfigOrigin());
-        assertThat(pipelineConfig.getOriginDisplayName(), is("cruise-config.xml"));
+        assertThat(pipelineConfig.getOriginDisplayName()).isEqualTo("cruise-config.xml");
     }
 
     @Test
     public void shouldReturnConfigRepoOriginDisplayNameWhenOriginIsNotSet() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        assertThat(pipelineConfig.getOriginDisplayName(), is("cruise-config.xml"));
+        assertThat(pipelineConfig.getOriginDisplayName()).isEqualTo("cruise-config.xml");
     }
 
     @Test

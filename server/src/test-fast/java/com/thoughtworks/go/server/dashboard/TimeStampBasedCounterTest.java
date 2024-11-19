@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,8 +30,8 @@ public class TimeStampBasedCounterTest {
         Clock clock = mock(Clock.class);
         when(clock.currentTimeMillis()).thenReturn(1000L);
         TimeStampBasedCounter timeStampBasedCounter = new TimeStampBasedCounter(clock);
-        assertThat(timeStampBasedCounter.getNext(), is(1001L));
-        assertThat(timeStampBasedCounter.getNext(), is(1002L));
+        assertThat(timeStampBasedCounter.getNext()).isEqualTo(1001L);
+        assertThat(timeStampBasedCounter.getNext()).isEqualTo(1002L);
     }
 
     @Test

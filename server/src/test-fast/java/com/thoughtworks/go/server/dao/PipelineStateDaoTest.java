@@ -34,9 +34,7 @@ import org.springframework.transaction.support.SimpleTransactionStatus;
 
 import java.util.UUID;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -79,9 +77,9 @@ class PipelineStateDaoTest {
             fail("save should have thrown an exception!");
         } catch (Exception e) {
             PipelineState stateFromCache = goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName));
-            assertThat(stateFromCache.isLocked(), is(false));
-            assertThat(stateFromCache.getLockedByPipelineId(), is(0L));
-            assertThat(stateFromCache.getLockedBy(), is(nullValue()));
+            assertThat(stateFromCache.isLocked()).isFalse();
+            assertThat(stateFromCache.getLockedByPipelineId()).isEqualTo(0L);
+            assertThat(stateFromCache.getLockedBy()).isNull();
         }
     }
 
@@ -105,8 +103,8 @@ class PipelineStateDaoTest {
             fail("save should have thrown an exception!");
         } catch (Exception e) {
             PipelineState stateFromCache = goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName));
-            assertThat(stateFromCache.isLocked(), is(true));
-            assertThat(stateFromCache.getLockedByPipelineId(), is(lockedByPipelineId));
+            assertThat(stateFromCache.isLocked()).isTrue();
+            assertThat(stateFromCache.getLockedByPipelineId()).isEqualTo(lockedByPipelineId);
         }
     }
 

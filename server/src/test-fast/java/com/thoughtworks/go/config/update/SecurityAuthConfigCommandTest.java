@@ -30,10 +30,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -61,10 +59,10 @@ public class SecurityAuthConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), is(EntityType.SecurityAuthConfig.forbiddenToEdit(securityAuthConfig.getId(), currentUser.getUsername())));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.SecurityAuthConfig.forbiddenToEdit(securityAuthConfig.getId(), currentUser.getUsername()));
     }
 
     @Test
@@ -74,10 +72,10 @@ public class SecurityAuthConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
-        assertThat(result.httpCode(), is(200));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
+        assertThat(result.httpCode()).isEqualTo(200);
     }
 
     @Test
@@ -88,10 +86,10 @@ public class SecurityAuthConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), is(EntityType.SecurityAuthConfig.forbiddenToEdit(securityAuthConfig.getId(), currentUser.getUsername())));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.SecurityAuthConfig.forbiddenToEdit(securityAuthConfig.getId(), currentUser.getUsername()));
     }
 
     @Test
@@ -124,9 +122,9 @@ public class SecurityAuthConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     @Test
@@ -138,9 +136,9 @@ public class SecurityAuthConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
     }
 
     private class StubCommand extends SecurityAuthConfigCommand {

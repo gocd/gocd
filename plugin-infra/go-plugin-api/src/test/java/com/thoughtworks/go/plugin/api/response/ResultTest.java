@@ -17,42 +17,40 @@ package com.thoughtworks.go.plugin.api.response;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResultTest {
     @Test
-    public void shouldCreateResponseWithErrorMessages() throws Exception {
+    public void shouldCreateResponseWithErrorMessages() {
         Result result = new Result().withErrorMessages("Error 1", "Error 2");
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.getMessages(), contains("Error 1", "Error 2"));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.getMessages()).contains("Error 1", "Error 2");
     }
 
     @Test
-    public void shouldDefaultResponseAsSuccess() throws Exception {
+    public void shouldDefaultResponseAsSuccess() {
         Result result = new Result();
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
-    public void shouldResponseWithSuccessMessages() throws Exception {
+    public void shouldResponseWithSuccessMessages() {
         Result result = new Result().withSuccessMessages("Success", "Pass");
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.getMessages(), contains("Success","Pass"));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(result.getMessages()).contains("Success","Pass");
     }
 
     @Test
-    public void shouldReturnMessagesForDisplay() throws Exception {
+    public void shouldReturnMessagesForDisplay() {
         Result result = new Result().withSuccessMessages("Success", "Pass", "Firstpass");
         String messagesForDisplay = result.getMessagesForDisplay();
-        assertThat(messagesForDisplay, is("Success\nPass\nFirstpass"));
+        assertThat(messagesForDisplay).isEqualTo("Success\nPass\nFirstpass");
     }
 
     @Test
-    public void shouldReturnMessagesForDisplayWithEmptyMessages() throws Exception {
+    public void shouldReturnMessagesForDisplayWithEmptyMessages() {
         Result result = new Result().withSuccessMessages();
         String messagesForDisplay = result.getMessagesForDisplay();
-        assertThat(messagesForDisplay, is(""));
+        assertThat(messagesForDisplay).isEqualTo("");
     }
 }

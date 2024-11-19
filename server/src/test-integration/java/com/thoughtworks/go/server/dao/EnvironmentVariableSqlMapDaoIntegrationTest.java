@@ -26,8 +26,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.thoughtworks.go.domain.EnvironmentVariableType.Job;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -60,9 +59,9 @@ public class EnvironmentVariableSqlMapDaoIntegrationTest {
 
         EnvironmentVariables actual = dao.load(1L, Job);
 
-        assertThat(actual.get(0).getName(), is(key));
-        assertThat(actual.get(0).getValue(), is(plainText));
-        assertThat(actual.get(0).isSecure(), is(false));
+        assertThat(actual.get(0).getName()).isEqualTo(key);
+        assertThat(actual.get(0).getValue()).isEqualTo(plainText);
+        assertThat(actual.get(0).isSecure()).isFalse();
     }
 
     @Test
@@ -75,9 +74,9 @@ public class EnvironmentVariableSqlMapDaoIntegrationTest {
 
         EnvironmentVariables actual = dao.load(1L, Job);
 
-        assertThat(actual.get(0).getName(), is(key));
-        assertThat(actual.get(0).getValue(), is(plainText));
-        assertThat(actual.get(0).isSecure(), is(true));
+        assertThat(actual.get(0).getName()).isEqualTo(key);
+        assertThat(actual.get(0).getValue()).isEqualTo(plainText);
+        assertThat(actual.get(0).isSecure()).isTrue();
     }
 
     @Test
@@ -89,12 +88,12 @@ public class EnvironmentVariableSqlMapDaoIntegrationTest {
         dao.save(1L, Job, variables);
 
         EnvironmentVariables variableFromDb = dao.load(1L, Job);
-        assertThat(variableFromDb.size(), is(1));
+        assertThat(variableFromDb.size()).isEqualTo(1);
 
         dao.deleteAll(variableFromDb);
 
         variableFromDb = dao.load(1L, Job);
-        assertThat(variableFromDb.size(), is(0));
+        assertThat(variableFromDb.size()).isEqualTo(0);
     }
 
 }

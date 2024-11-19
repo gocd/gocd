@@ -38,8 +38,6 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -137,7 +135,7 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     @Test
-    public void shouldChangeToBeScheduledBuildCauseToAlreadyScheduledAfterBeenFinished() throws Exception {
+    public void shouldChangeToBeScheduledBuildCauseToAlreadyScheduledAfterBeenFinished() {
         BuildCause buildCause = BuildCause.createWithEmptyModifications();
         CaseInsensitiveString cruise = new CaseInsensitiveString("cruise");
         queue.schedule(cruise, buildCause);
@@ -149,7 +147,7 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     @Test
-    public void shouldScheduleBuildCauseConsideringPriority() throws Exception {
+    public void shouldScheduleBuildCauseConsideringPriority() {
         BuildCause buildCause = BuildCause.createWithModifications(multipleModifications(), "");
         CaseInsensitiveString cruise = new CaseInsensitiveString("cruise");
         queue.schedule(cruise, buildCause);
@@ -177,28 +175,28 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     @Test
-    public void shouldReturnFalseIfThereIsBuildCauseWithoutModifications() throws Exception {
+    public void shouldReturnFalseIfThereIsBuildCauseWithoutModifications() {
         CaseInsensitiveString cruise = new CaseInsensitiveString("cruise");
         queue.schedule(cruise, BuildCause.createWithEmptyModifications());
         assertThat(queue.hasBuildCause(cruise)).isFalse();
     }
 
     @Test
-    public void shouldReturnFalseIfThereIsBuildCause() throws Exception {
+    public void shouldReturnFalseIfThereIsBuildCause() {
         CaseInsensitiveString cruise = new CaseInsensitiveString("cruise");
         queue.schedule(cruise, BuildCause.createWithModifications(multipleModifications(), ""));
         assertThat(queue.hasBuildCause(cruise)).isTrue();
     }
 
     @Test
-    public void shouldReturnTrueIfThereIsForcedBuildCause() throws Exception {
+    public void shouldReturnTrueIfThereIsForcedBuildCause() {
         CaseInsensitiveString cruise = new CaseInsensitiveString("cruise");
         queue.schedule(cruise, BuildCause.createManualForced());
         assertThat(queue.hasForcedBuildCause(cruise)).isTrue();
     }
 
     @Test
-    public void shouldCreatePipelineIfBuildCauseIsNotTrumped() throws Exception {
+    public void shouldCreatePipelineIfBuildCauseIsNotTrumped() {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFiles(pipelineConfig);
         saveRev(cause);
@@ -217,7 +215,7 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     @Test
-    public void shouldCreateStageWithApproverFromBuildCauseForCreatePipeline() throws Exception {
+    public void shouldCreateStageWithApproverFromBuildCauseForCreatePipeline() {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFilesAndTriggerAs(pipelineConfig, "cruise-developer");
         saveRev(cause);
@@ -229,7 +227,7 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     @Test
-    public void shouldReturnNullIfBuildCauseIsTrumped() throws Exception {
+    public void shouldReturnNullIfBuildCauseIsTrumped() {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.currentRevision());
         queue.schedule(new CaseInsensitiveString(fixture.pipelineName), cause);
@@ -239,19 +237,19 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     @Test
-    public void shouldBeCanceledWhenSameBuildCause() throws Exception {
+    public void shouldBeCanceledWhenSameBuildCause() {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.currentRevision());
         queue.finishSchedule(new CaseInsensitiveString(fixture.pipelineName), cause, cause);
         queue.schedule(new CaseInsensitiveString(fixture.pipelineName), cause);
 
-        assertThat(new CaseInsensitiveString(fixture.pipelineName)).isEqualTo(scheduledOn(queue));
+        assertThat(queue.toBeScheduled()).containsKey(new CaseInsensitiveString(fixture.pipelineName));
         assertThat(queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider())).isNull();
-        assertThat(new CaseInsensitiveString(fixture.pipelineName)).isNotEqualTo(scheduledOn(queue));
+        assertThat(queue.toBeScheduled()).containsKey(new CaseInsensitiveString(fixture.pipelineName));
     }
 
     @Test
-    public void shouldFinishSchedule() throws Exception {
+    public void shouldFinishSchedule() {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.currentRevision());
         CaseInsensitiveString pipelineName = new CaseInsensitiveString(fixture.pipelineName);
@@ -265,7 +263,7 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     @Test
-    public void shouldNotBeCanceledWhenForcingBuildTwice() throws Exception {
+    public void shouldNotBeCanceledWhenForcingBuildTwice() {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = forceBuild(pipelineConfig);
         saveRev(cause);
@@ -276,23 +274,9 @@ public class PipelineScheduleQueueIntegrationTest {
 
         assertThat(pipelineDao.mostRecentPipelineIdentifier(fixture.pipelineName)).isNull();
 
-        assertThat(new CaseInsensitiveString(fixture.pipelineName)).isEqualTo(scheduledOn(queue));
+        assertThat(queue.toBeScheduled()).containsKey(new CaseInsensitiveString(fixture.pipelineName));
         assertThat(queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider())).isNotNull();
         assertThat(pipelineDao.mostRecentPipelineIdentifier(fixture.pipelineName).getLabel()).isEqualTo("label-1");
-    }
-
-    private TypeSafeMatcher<CaseInsensitiveString> scheduledOn(final PipelineScheduleQueue queue) {
-        return new TypeSafeMatcher<>() {
-            @Override
-            public boolean matchesSafely(CaseInsensitiveString item) {
-                return queue.toBeScheduled().containsKey(item);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("to be scheduled");
-            }
-        };
     }
 
     @Test
@@ -380,7 +364,7 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     @Test
-    public void shouldCreateMultipleJobsIfRunMultipleInstanceIsSet() throws Exception {
+    public void shouldCreateMultipleJobsIfRunMultipleInstanceIsSet() {
         JobConfigs jobConfigs = new JobConfigs();
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), new ArtifactTypeConfigs(), null);
         jobConfig.setRunInstanceCount(3);

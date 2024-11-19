@@ -18,8 +18,6 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang3.time.DateUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import static java.text.MessageFormat.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -144,7 +141,7 @@ public class JobInstanceTest {
         final JobStateTransition completedState = new JobStateTransition(JobState.Completing, new Date());
         assertThat(instance.getTransitions()).contains(scheduledState);
         assertThat(instance.getTransitions()).contains(completedState);
-        assertThat(instance.getTransitions().first()).isNotEqualTo(new JobStateTransitionMatcher(JobState.Preparing));
+        assertThat(instance.getTransitions().first().getCurrentState()).isNotEqualTo(JobState.Preparing);
     }
 
     @Test
@@ -155,7 +152,7 @@ public class JobInstanceTest {
 
         assertThat(instance.getTransitions()).contains(scheduledState);
         assertThat(instance.getTransitions()).hasSize(1);
-        assertThat(instance.getTransitions().first()).isNotEqualTo(new JobStateTransitionMatcher(JobState.Preparing));
+        assertThat(instance.getTransitions().first().getCurrentState()).isNotEqualTo(JobState.Preparing);
     }
 
     @Test
@@ -250,26 +247,5 @@ public class JobInstanceTest {
 
         jobInstance = new JobInstance();
         assertThat(jobInstance.jobType()).isInstanceOf(SingleJobInstance.class);
-    }
-
-    private static class JobStateTransitionMatcher extends BaseMatcher<JobStateTransition> {
-        private JobState actualState;
-        private final JobState expectedState;
-
-        public JobStateTransitionMatcher(JobState expectedState) {
-            this.expectedState = expectedState;
-        }
-
-        @Override
-        public boolean matches(Object o) {
-            JobStateTransition transition = (JobStateTransition) o;
-            actualState = transition.getCurrentState();
-            return actualState == expectedState;
-        }
-
-        @Override
-        public void describeTo(Description description) {
-            description.appendText(format("Expect to get a state {0} but was {1}", expectedState, actualState));
-        }
     }
 }

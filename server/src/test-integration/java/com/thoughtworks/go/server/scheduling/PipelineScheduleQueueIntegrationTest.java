@@ -245,7 +245,7 @@ public class PipelineScheduleQueueIntegrationTest {
 
         assertThat(queue.toBeScheduled()).containsKey(new CaseInsensitiveString(fixture.pipelineName));
         assertThat(queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider())).isNull();
-        assertThat(queue.toBeScheduled()).containsKey(new CaseInsensitiveString(fixture.pipelineName));
+        assertThat(queue.toBeScheduled()).doesNotContainKey(new CaseInsensitiveString(fixture.pipelineName));
     }
 
     @Test
@@ -382,9 +382,9 @@ public class PipelineScheduleQueueIntegrationTest {
 
         List<JobPlan> plans = jobService.orderedScheduledBuilds();
         assertThat(plans).satisfiesExactlyInAnyOrder(
-            plan -> assertThat(plan.getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("test-job", 1)),
-            plan -> assertThat(plan.getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("test-job", 2)),
-            plan -> assertThat(plan.getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("test-job", 3))
+            plan -> assertThat(plan.getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 1)),
+            plan -> assertThat(plan.getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 2)),
+            plan -> assertThat(plan.getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 3))
         );
     }
 

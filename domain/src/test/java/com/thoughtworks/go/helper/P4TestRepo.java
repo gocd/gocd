@@ -142,12 +142,12 @@ public class P4TestRepo extends TestRepo {
     }
 
     public static P4TestRepo createP4TestRepo(Path tempDir, File clientFolder) throws IOException {
-        String repo = String.format("../common/src/test/resources/data/repos/%s", SystemUtils.IS_OS_WINDOWS ? "p4repoWindows" : "p4repo");
+        String repo = String.format("../domain/src/test/resources/data/repos/%s", SystemUtils.IS_OS_WINDOWS ? "p4repoWindows" : "p4repo");
         return new P4TestRepo(RandomPort.find("P4TestRepo"), repo, "cceuser", null, PerforceFixture.DEFAULT_CLIENT_NAME, false, tempDir, clientFolder);
     }
 
     public static P4TestRepo createP4TestRepoWithTickets(Path tempDir, File clientFolder) throws IOException {
-        String repo = String.format("../common/src/test/resources/data/repos/%s", SystemUtils.IS_OS_WINDOWS ? "p4TicketedRepoWindows" : "p4TicketedRepo");
+        String repo = String.format("../domain/src/test/resources/data/repos/%s", SystemUtils.IS_OS_WINDOWS ? "p4TicketedRepoWindows" : "p4TicketedRepo");
         return new P4TestRepo(RandomPort.find("P4TestRepoWithTickets"), repo, "cceuser", "1234abcd", PerforceFixture.DEFAULT_CLIENT_NAME, true, tempDir, clientFolder);
     }
 

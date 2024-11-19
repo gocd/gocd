@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.presentation;
 
-import com.thoughtworks.go.helper.PipelineHistoryItemMother;
+import com.thoughtworks.go.helper.PipelineInstanceModelMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.presentation.models.PipelineHistoryGroups;
@@ -41,7 +41,7 @@ public class PipelineHistoryGroupingUtilTest {
 
     @Test
     public void shouldCreateOneGroupForOnePipelineHistoryItem() throws Exception {
-        PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom("stage1", "stage2");
+        PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModelMother.custom("stage1", "stage2");
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(
                 PipelineInstanceModels.createPipelineInstanceModels(pipelineInstanceModel));
         assertThat(historyGroups.size()).isEqualTo(1);
@@ -50,8 +50,8 @@ public class PipelineHistoryGroupingUtilTest {
 
     @Test
     public void shouldCreateOneGroupWithMultiplePipelineHistoryItems() throws Exception {
-        PipelineInstanceModel pipelineHistoryItem1 = PipelineHistoryItemMother.custom("stage1", "stage2");
-        PipelineInstanceModel pipelineHistoryItem2 = PipelineHistoryItemMother.custom("stage1", "stage2");
+        PipelineInstanceModel pipelineHistoryItem1 = PipelineInstanceModelMother.custom("stage1", "stage2");
+        PipelineInstanceModel pipelineHistoryItem2 = PipelineInstanceModelMother.custom("stage1", "stage2");
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels(pipelineHistoryItem1, pipelineHistoryItem2);
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(history);
         assertThat(historyGroups.size()).isEqualTo(1);
@@ -61,8 +61,8 @@ public class PipelineHistoryGroupingUtilTest {
 
     @Test
     public void shouldCreateTwoGroupsWithMultiplePipelineHistoryItems() throws Exception {
-        PipelineInstanceModel pipelineHistoryItem1 = PipelineHistoryItemMother.custom("stage1", "stage2");
-        PipelineInstanceModel pipelineHistoryItem2 = PipelineHistoryItemMother.custom("stage1", "stage3");
+        PipelineInstanceModel pipelineHistoryItem1 = PipelineInstanceModelMother.custom("stage1", "stage2");
+        PipelineInstanceModel pipelineHistoryItem2 = PipelineInstanceModelMother.custom("stage1", "stage3");
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels(pipelineHistoryItem1, pipelineHistoryItem2);
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(history);
         assertThat(historyGroups.size()).isEqualTo(2);
@@ -72,10 +72,10 @@ public class PipelineHistoryGroupingUtilTest {
 
     @Test
     public void shouldCreateTwoGroupsWithOneGroupHasMultiplePipelineHistoryItems() throws Exception {
-        PipelineInstanceModel pipelineHistoryItem1 = PipelineHistoryItemMother.custom("stage1", "stage2");
-        PipelineInstanceModel pipelineHistoryItem2 = PipelineHistoryItemMother.custom("stage1", "stage2");
-        PipelineInstanceModel pipelineHistoryItem3 = PipelineHistoryItemMother.custom("stage2", "stage1");
-        PipelineInstanceModel pipelineHistoryItem4 = PipelineHistoryItemMother.custom("stage1", "stage3");
+        PipelineInstanceModel pipelineHistoryItem1 = PipelineInstanceModelMother.custom("stage1", "stage2");
+        PipelineInstanceModel pipelineHistoryItem2 = PipelineInstanceModelMother.custom("stage1", "stage2");
+        PipelineInstanceModel pipelineHistoryItem3 = PipelineInstanceModelMother.custom("stage2", "stage1");
+        PipelineInstanceModel pipelineHistoryItem4 = PipelineInstanceModelMother.custom("stage1", "stage3");
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels(pipelineHistoryItem1, pipelineHistoryItem2,
                 pipelineHistoryItem3,
                 pipelineHistoryItem4);

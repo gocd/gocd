@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IgnoreTest {
+public class IgnoredFilesTest {
     private MaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();
     private String separator = File.separator;
 

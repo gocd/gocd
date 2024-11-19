@@ -35,7 +35,7 @@ import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class SvnTestRepo extends TestRepo {
-    private static final String REPO_TEST_DATA_FOLDER = "../common/src/test/resources/data/repos/svnrepo";
+    private static final String REPO_TEST_DATA_FOLDER = "../domain/src/test/resources/data/repos/svnrepo";
 
     protected File tempRepo;
 

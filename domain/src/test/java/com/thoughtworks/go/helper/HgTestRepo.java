@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class HgTestRepo extends TestRepo {
     private File remoteRepo;
-    private static final String HG_BUNDLE_FILE = "../common/src/test/resources/data/repos/hgrepo.hgbundle";
+    private static final String HG_BUNDLE_FILE = "../domain/src/test/resources/data/repos/hgrepo.hgbundle";
 
     private final HgCommand hgCommand;
 

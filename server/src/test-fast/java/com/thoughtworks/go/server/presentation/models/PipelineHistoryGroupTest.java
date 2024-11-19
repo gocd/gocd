@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.helper.PipelineHistoryItemMother;
-import com.thoughtworks.go.helper.StageHistoryItemMother;
+import com.thoughtworks.go.helper.PipelineInstanceModelMother;
+import com.thoughtworks.go.helper.StageInstanceModelMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +29,8 @@ public class PipelineHistoryGroupTest {
     @Test
     public void emptyGroupShouldNotMatchAnyItem() throws Exception {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
-        PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
-                StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage2", false));
+        PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModelMother.custom(
+                StageInstanceModelMother.custom("stage1", true), StageInstanceModelMother.custom("stage2", false));
         assertThat(group.hasSameStagesAs(pipelineInstanceModel)).isFalse();
     }
 
@@ -38,8 +38,8 @@ public class PipelineHistoryGroupTest {
     public void shouldMatchSpecifiedItem() throws Exception {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
         group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
-        PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
-                StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage2", false));
+        PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModelMother.custom(
+                StageInstanceModelMother.custom("stage1", true), StageInstanceModelMother.custom("stage2", false));
         assertThat(group.hasSameStagesAs(pipelineInstanceModel)).isTrue();
     }
 
@@ -47,8 +47,8 @@ public class PipelineHistoryGroupTest {
     public void shouldNotMatchSpecifiedItemIfNameNotMatched() throws Exception {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
         group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
-        PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
-                StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage3", false));
+        PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModelMother.custom(
+                StageInstanceModelMother.custom("stage1", true), StageInstanceModelMother.custom("stage3", false));
         assertThat(group.hasSameStagesAs(pipelineInstanceModel)).isFalse();
     }
 
@@ -56,8 +56,8 @@ public class PipelineHistoryGroupTest {
     public void shouldNotMatchSpecifiedItemIfApprovalTypeNotMatched() throws Exception {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
         group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
-        PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
-                StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage2", true));
+        PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModelMother.custom(
+                StageInstanceModelMother.custom("stage1", true), StageInstanceModelMother.custom("stage2", true));
         assertThat(group.hasSameStagesAs(pipelineInstanceModel)).isFalse();
     }
 
@@ -65,9 +65,9 @@ public class PipelineHistoryGroupTest {
     public void shouldNotMatchSpecifiedItemIfSizeNotMatched() throws Exception {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
         group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
-        PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
-                StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage2", false),
-                StageHistoryItemMother.custom("stage3", false));
+        PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModelMother.custom(
+                StageInstanceModelMother.custom("stage1", true), StageInstanceModelMother.custom("stage2", false),
+                StageInstanceModelMother.custom("stage3", false));
         assertThat(group.hasSameStagesAs(pipelineInstanceModel)).isFalse();
     }
 

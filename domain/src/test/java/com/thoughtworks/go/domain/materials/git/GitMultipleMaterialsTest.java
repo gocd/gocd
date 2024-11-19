@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.config.materials.hg;
+package com.thoughtworks.go.domain.materials.git;
 
+import com.thoughtworks.go.config.MaterialRevisionsMatchers;
 import com.thoughtworks.go.config.materials.Materials;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
-import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,52 +31,52 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedBy;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HgMultipleMaterialsTest {
-    private HgTestRepo repo;
+public class GitMultipleMaterialsTest {
+    private GitTestRepo repo;
     private File pipelineDir;
 
     @BeforeEach
     public void createRepo(@TempDir Path tempDir) throws IOException {
-        repo = new HgTestRepo(tempDir);
-        pipelineDir = TempDirUtils.createTempDirectoryIn(tempDir, "working-dir").toFile();
+        repo = new GitTestRepo(tempDir);
+        pipelineDir = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
     }
 
     @Test
     public void shouldCloneMaterialToItsDestFolder() throws Exception {
-        HgMaterial material1 = repo.createMaterial("dest1");
+        GitMaterial material1 = repo.createMaterial("dest1");
 
         MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));
 
         materialRevision.updateTo(pipelineDir, ProcessOutputStreamConsumer.inMemoryConsumer(), new TestSubprocessExecutionContext());
 
         assertThat(new File(pipelineDir, "dest1").exists()).isTrue();
-        assertThat(new File(pipelineDir, "dest1/.hg").exists()).isTrue();
+        assertThat(new File(pipelineDir, "dest1/.git").exists()).isTrue();
     }
 
     @Test
-    public void shouldIgnoreDestinationFolderWhenServerSide() throws Exception {
-        HgMaterial material1 = repo.createMaterial("dest1");
+    public void shouldIgnoreDestinationFolderWhenCloningMaterialWhenServerSide() throws Exception {
+        GitMaterial material1 = repo.createMaterial("dest1");
 
         MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));
 
         materialRevision.updateTo(pipelineDir, ProcessOutputStreamConsumer.inMemoryConsumer(), new TestSubprocessExecutionContext(true));
 
         assertThat(new File(pipelineDir, "dest1").exists()).isFalse();
-        assertThat(new File(pipelineDir, ".hg").exists()).isTrue();
+        assertThat(new File(pipelineDir, ".git").exists()).isTrue();
     }
 
     @Test
     public void shouldFindModificationsForBothMaterials() throws Exception {
         Materials materials = new Materials(repo.createMaterial("dest1"), repo.createMaterial("dest2"));
-        repo.commitAndPushFile("SomeDocumentation.txt");
+
+        String fileName = "newFile.txt";
+        repo.addFileAndPush(fileName, "add a new file " + fileName);
 
         MaterialRevisions materialRevisions = materials.latestModification(pipelineDir, new TestSubprocessExecutionContext());
 
         assertThat(materialRevisions.getRevisions().size()).isEqualTo(2);
-        assertThat(materialRevisions).anySatisfy(containsModifiedBy("SomeDocumentation.txt", "user"));
+        assertThat(materialRevisions).anySatisfy(MaterialRevisionsMatchers.containsModifiedFile(fileName));
     }
-
 }

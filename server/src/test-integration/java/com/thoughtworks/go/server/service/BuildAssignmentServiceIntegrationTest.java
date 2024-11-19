@@ -55,7 +55,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,8 +77,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyNoFiles;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.TestUtils.sleepQuietly;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -216,8 +214,8 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.assignWorkToAgent(instance);
         JobInstance reloaded = jobInstanceDao.buildByIdWithTransitions(firstAssignedBuildId);
-        assertThat(reloaded.getState(), is(JobState.Rescheduled));
-        assertThat(reloaded.isIgnored(), is(true));
+        assertThat(reloaded.getState()).isEqualTo(JobState.Rescheduled);
+        assertThat(reloaded.isIgnored()).isTrue();
     }
 
     @Test
@@ -226,7 +224,7 @@ public class BuildAssignmentServiceIntegrationTest {
         deniedAgentConfig.disable();
 
         Work assignedWork = buildAssignmentService.assignWorkToAgent(agent(deniedAgentConfig));
-        assertThat(assignedWork, instanceOf(DeniedAgentWork.class));
+        assertThat(assignedWork).isInstanceOf(DeniedAgentWork.class);
     }
 
     @Test
@@ -240,7 +238,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onConfigChange(goConfigService.getCurrentConfig());
         JobInstance job = buildOf(pipeline);
         jobInstanceDao.updateStateAndResult(job);
-        assertThat(buildAssignmentService.assignWorkToAgent(instance), is(BuildAssignmentService.NO_WORK));
+        assertThat(buildAssignmentService.assignWorkToAgent(instance)).isEqualTo(BuildAssignmentService.NO_WORK);
     }
 
     @Test
@@ -253,7 +251,7 @@ public class BuildAssignmentServiceIntegrationTest {
         job.cancel();
         jobInstanceDao.updateStateAndResult(job);
 
-        assertThat(buildAssignmentService.assignWorkToAgent(instance), is(BuildAssignmentService.NO_WORK));
+        assertThat(buildAssignmentService.assignWorkToAgent(instance)).isEqualTo(BuildAssignmentService.NO_WORK);
     }
 
     @Test
@@ -268,7 +266,7 @@ public class BuildAssignmentServiceIntegrationTest {
         assertFalse(agentInstance.isBuilding());
 
         Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
-        assertThat(work, instanceOf(BuildWork.class));
+        assertThat(work).isInstanceOf(BuildWork.class);
         assertTrue(agentInstance.isBuilding());
     }
 
@@ -282,8 +280,8 @@ public class BuildAssignmentServiceIntegrationTest {
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
-        assertThat(job.getState(), is(JobState.Completed));
-        assertThat(job.getResult(), is(JobResult.Cancelled));
+        assertThat(job.getState()).isEqualTo(JobState.Completed);
+        assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
     }
 
     @Test
@@ -303,12 +301,12 @@ public class BuildAssignmentServiceIntegrationTest {
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
-        assertThat(job.getState(), is(JobState.Completed));
-        assertThat(job.getResult(), is(JobResult.Cancelled));
+        assertThat(job.getState()).isEqualTo(JobState.Completed);
+        assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
 
         buildAssignmentService.onTimer();
         List<JobPlan> latestJobPlans = buildAssignmentService.jobPlans();
-        assertThat(latestJobPlans.size(), is(0));
+        assertThat(latestJobPlans.size()).isEqualTo(0);
     }
 
     @Test
@@ -330,16 +328,16 @@ public class BuildAssignmentServiceIntegrationTest {
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance deletedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);
-        assertThat(deletedJob.getState(), is(JobState.Completed));
-        assertThat(deletedJob.getResult(), is(JobResult.Cancelled));
+        assertThat(deletedJob.getState()).isEqualTo(JobState.Completed);
+        assertThat(deletedJob.getResult()).isEqualTo(JobResult.Cancelled);
         JobInstance retainedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.DEV_STAGE_SECOND_JOB);
-        assertThat(retainedJob.getState(), is(JobState.Scheduled));
-        assertThat(retainedJob.getResult(), is(JobResult.Unknown));
+        assertThat(retainedJob.getState()).isEqualTo(JobState.Scheduled);
+        assertThat(retainedJob.getResult()).isEqualTo(JobResult.Unknown);
 
         buildAssignmentService.onTimer();
         List<JobPlan> latestJobPlans = buildAssignmentService.jobPlans();
-        assertThat(latestJobPlans.size(), is(1));
-        assertThat(latestJobPlans.get(0).getName(), is(retainedJob.getName()));
+        assertThat(latestJobPlans.size()).isEqualTo(1);
+        assertThat(latestJobPlans.get(0).getName()).isEqualTo(retainedJob.getName());
     }
 
     @Test
@@ -359,14 +357,14 @@ public class BuildAssignmentServiceIntegrationTest {
         JobInstance job1 = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);
         JobInstance job2 = pipeline.getFirstStage().getJobInstances().getByName(fixture.DEV_STAGE_SECOND_JOB);
 
-        assertThat(job1.getState(), is(JobState.Completed));
-        assertThat(job1.getResult(), is(JobResult.Cancelled));
-        assertThat(job2.getState(), is(JobState.Completed));
-        assertThat(job2.getResult(), is(JobResult.Cancelled));
+        assertThat(job1.getState()).isEqualTo(JobState.Completed);
+        assertThat(job1.getResult()).isEqualTo(JobResult.Cancelled);
+        assertThat(job2.getState()).isEqualTo(JobState.Completed);
+        assertThat(job2.getResult()).isEqualTo(JobResult.Cancelled);
 
         buildAssignmentService.onTimer();
         List<JobPlan> latestJobPlans = buildAssignmentService.jobPlans();
-        assertThat(latestJobPlans.size(), is(0));
+        assertThat(latestJobPlans.size()).isEqualTo(0);
     }
 
     @Test
@@ -379,14 +377,14 @@ public class BuildAssignmentServiceIntegrationTest {
         Agent agent = AgentMother.localAgent();
         agent.setResources("some-other-resource");
 
-        assertThat(buildAssignmentService.assignWorkToAgent(agent(agent)), Matchers.is(BuildAssignmentService.NO_WORK));
+        assertThat(buildAssignmentService.assignWorkToAgent(agent(agent))).isEqualTo((BuildAssignmentService.NO_WORK));
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
-        assertThat(job.getState(), is(JobState.Completed));
-        assertThat(job.getResult(), is(JobResult.Cancelled));
+        assertThat(job.getState()).isEqualTo(JobState.Completed);
+        assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
         Stage stage = stageDao.findStageWithIdentifier(job.getIdentifier().getStageIdentifier());
-        assertThat(stage.getState(), is(StageState.Cancelled));
-        assertThat(stage.getResult(), is(StageResult.Cancelled));
+        assertThat(stage.getState()).isEqualTo(StageState.Cancelled);
+        assertThat(stage.getResult()).isEqualTo(StageResult.Cancelled);
     }
 
     @Test
@@ -436,7 +434,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentServiceUnderTest.onTimer();
 
         assigner.join();
-        assertThat(fromThread[0], is(nullValue()));
+        assertThat(fromThread[0]).isNull();
     }
 
     @Test
@@ -471,11 +469,11 @@ public class BuildAssignmentServiceIntegrationTest {
         pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
 
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
-        assertThat(job.getState(), is(JobState.Completed));
-        assertThat(job.getResult(), is(JobResult.Cancelled));
+        assertThat(job.getState()).isEqualTo(JobState.Completed);
+        assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
         Stage stage = stageDao.findStageWithIdentifier(job.getIdentifier().getStageIdentifier());
-        assertThat(stage.getState(), is(StageState.Cancelled));
-        assertThat(stage.getResult(), is(StageResult.Cancelled));
+        assertThat(stage.getState()).isEqualTo(StageState.Cancelled);
+        assertThat(stage.getResult()).isEqualTo(StageResult.Cancelled);
     }
 
     @Test
@@ -488,10 +486,10 @@ public class BuildAssignmentServiceIntegrationTest {
 
         BuildWork deserialized = SerializationTester.objectSerializeAndDeserialize(work);
 
-        assertThat(deserialized.getAssignment().materialRevisions(), is(work.getAssignment().materialRevisions()));
+        assertThat(deserialized.getAssignment().materialRevisions()).isEqualTo(work.getAssignment().materialRevisions());
 
-        assertThat(deserialized.getAssignment(), is(work.getAssignment()));
-        assertThat(deserialized, is(work));
+        assertThat(deserialized.getAssignment()).isEqualTo(work.getAssignment());
+        assertThat(deserialized).isEqualTo(work);
     }
 
     @Test
@@ -503,7 +501,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
         BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgent()));
 
-        assertThat("should have set fetchMaterials on assignment", work.getAssignment().shouldFetchMaterials(), is(true));
+        assertThat(work.getAssignment().shouldFetchMaterials()).isTrue();
     }
 
     /**
@@ -590,9 +588,9 @@ public class BuildAssignmentServiceIntegrationTest {
 
         List<Builder> builders = work.getAssignment().getBuilders();
         FetchArtifactBuilder fooZipFetch = (FetchArtifactBuilder) builders.get(0);
-        assertThat(fooZipFetch.artifactLocator(), is("uppest/1/uppest-stage/latest/unit/foo.zip"));
+        assertThat(fooZipFetch.artifactLocator()).isEqualTo("uppest/1/uppest-stage/latest/unit/foo.zip");
         FetchArtifactBuilder barZipFetch = (FetchArtifactBuilder) builders.get(1);
-        assertThat(barZipFetch.artifactLocator(), is("uppest/2/uppest-stage/1/unit/bar.zip"));
+        assertThat(barZipFetch.artifactLocator()).isEqualTo("uppest/2/uppest-stage/1/unit/bar.zip");
     }
 
     private BuildCause buildCauseForDependency(DependencyMaterial material, Stage upstreamStage) {
@@ -624,9 +622,9 @@ public class BuildAssignmentServiceIntegrationTest {
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
 
-        assertThat(work, is(BuildAssignmentService.NO_WORK));
-        assertThat(job.getState(), is(JobState.Scheduled));
-        assertThat(job.getAgentUuid(), is(nullValue()));
+        assertThat(work).isEqualTo(BuildAssignmentService.NO_WORK);
+        assertThat(job.getState()).isEqualTo(JobState.Scheduled);
+        assertThat(job.getAgentUuid()).isNull();
     }
 
     @Test
@@ -640,13 +638,13 @@ public class BuildAssignmentServiceIntegrationTest {
         agent.setResources("some-other-resource");
 
         Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
-        assertThat(work, is(BuildAssignmentService.NO_WORK));
+        assertThat(work).isEqualTo(BuildAssignmentService.NO_WORK);
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
 
-        assertThat(job.getState(), is(JobState.Scheduled));
-        assertThat(job.getAgentUuid(), is(nullValue()));
+        assertThat(job.getState()).isEqualTo(JobState.Scheduled);
+        assertThat(job.getAgentUuid()).isNull();
     }
 
     @Test
@@ -661,16 +659,16 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
         Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
-        assertThat(work, is(not(BuildAssignmentService.NO_WORK)));
+        assertThat(work).isNotEqualTo(BuildAssignmentService.NO_WORK);
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
 
         JobPlan loadedPlan = jobInstanceDao.loadPlan(job.getId());
-        assertThat(loadedPlan.getResources().toResourceConfigs(), is(jobConfig.resourceConfigs()));
+        assertThat((List<ResourceConfig>) loadedPlan.getResources().toResourceConfigs()).isEqualTo(jobConfig.resourceConfigs());
 
-        assertThat(job.getState(), is(JobState.Assigned));
-        assertThat(job.getAgentUuid(), is(agent.getUuid()));
+        assertThat(job.getState()).isEqualTo(JobState.Assigned);
+        assertThat(job.getAgentUuid()).isEqualTo(agent.getUuid());
     }
 
     @Test
@@ -687,15 +685,15 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
         Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
-        assertThat(work, is(BuildAssignmentService.NO_WORK));
+        assertThat(work).isEqualTo(BuildAssignmentService.NO_WORK);
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
 
         JobPlan loadedPlan = jobInstanceDao.loadPlan(job.getId());
-        assertThat(loadedPlan.getResources().toResourceConfigs(), is(jobConfig.resourceConfigs()));
+        assertThat((List<ResourceConfig>) loadedPlan.getResources().toResourceConfigs()).isEqualTo(jobConfig.resourceConfigs());
 
-        assertThat(job.getState(), is(JobState.Scheduled));
+        assertThat(job.getState()).isEqualTo(JobState.Scheduled);
         assertNull(job.getAgentUuid());
     }
 
@@ -711,7 +709,7 @@ public class BuildAssignmentServiceIntegrationTest {
         Agent agent = AgentMother.localAgent();
         agent.setResources("some-resource");
         Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
-        assertThat(work, is(not(BuildAssignmentService.NO_WORK)));
+        assertThat(work).isNotEqualTo(BuildAssignmentService.NO_WORK);
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
@@ -723,15 +721,15 @@ public class BuildAssignmentServiceIntegrationTest {
         pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
         JobInstance rescheduledJob = pipeline.findStage(STAGE_NAME).findJob("unit");
 
-        assertThat(rescheduledJob.getId(), not(runningJob.getId()));
+        assertThat(rescheduledJob.getId()).isNotEqualTo(runningJob.getId());
 
         buildAssignmentService.onTimer();
         Work noResourcesWork = buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgentWithResources("WITHOUT_RESOURCES")));
-        assertThat(noResourcesWork, is(BuildAssignmentService.NO_WORK));
+        assertThat(noResourcesWork).isEqualTo(BuildAssignmentService.NO_WORK);
 
         buildAssignmentService.onTimer();
         Work correctAgentWork = buildAssignmentService.assignWorkToAgent(agent(agent));
-        assertThat(correctAgentWork, is(not(BuildAssignmentService.NO_WORK)));
+        assertThat(correctAgentWork).isNotEqualTo(BuildAssignmentService.NO_WORK);
 
     }
 
@@ -751,12 +749,12 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
 
         List<JobPlan> plans = ReflectionUtil.getField(buildAssignmentService, "jobPlans");
-        assertThat(plans.isEmpty(), is(false));
-        assertThat(plans.size(), is(2));
+        assertThat(plans.isEmpty()).isFalse();
+        assertThat(plans.size()).isEqualTo(2);
 
         configHelper.writeConfigFile(oldConfig);
         plans = ReflectionUtil.getField(buildAssignmentService, "jobPlans");
-        assertThat("Actual size is " + plans.size(), plans.isEmpty(), is(true));
+        assertThat(plans).isEmpty();
     }
 
     @Test
@@ -774,13 +772,13 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();   // To Reload Job Plans
         buildAssignmentService.onConfigChange(cruiseConfig);
         Stages allStages = stageDao.findAllStagesFor(originalPipelineRun.getName(), originalPipelineRun.getCounter());
-        assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.first().name())).getState(), is(StageState.Cancelled));
+        assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.first().name())).getState()).isEqualTo(StageState.Cancelled);
 
         u.checkinInOrder(hgMaterial, "h2");
         BuildCause buildCauseForRenamedPipeline = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, "h2")), "user");
         Pipeline p1_2 = scheduleService.schedulePipeline(renamedPipeline.config.name(), buildCauseForRenamedPipeline);
         Stages allStagesForRenamedPipeline = stageDao.findAllStagesFor(p1_2.getName(), p1_2.getCounter());
-        assertThat(allStagesForRenamedPipeline.byName(p1_2.getFirstStage().getName()).getState(), is(StageState.Building));
+        assertThat(allStagesForRenamedPipeline.byName(p1_2.getFirstStage().getName()).getState()).isEqualTo(StageState.Building);
     }
 
     @Test
@@ -798,12 +796,12 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onConfigChange(cruiseConfig);
 
         Stages allStages = stageDao.findAllStagesFor(originalPipelineRun.getName(), originalPipelineRun.getCounter());
-        assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.first().name())).getState(), is(StageState.Building));
+        assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.first().name())).getState()).isEqualTo(StageState.Building);
 
         u.checkinInOrder(hgMaterial, "h2");
         BuildCause buildCauseForRenamedPipeline = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, "h2")), "user");
         Pipeline p1_2 = scheduleService.schedulePipeline(renamedPipeline.config.name(), buildCauseForRenamedPipeline);
-        assertThat(p1_2, is(nullValue()));
+        assertThat(p1_2).isNull();
     }
 
     private JobInstance buildOf(Pipeline pipeline) {

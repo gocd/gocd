@@ -39,8 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
@@ -69,7 +68,7 @@ public class FeatureToggleRepositoryTest {
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
 
-        assertThat(repository.availableToggles(), is(new FeatureToggles(featureToggle1, featureToggle2)));
+        assertThat(repository.availableToggles()).isEqualTo(new FeatureToggles(featureToggle1, featureToggle2));
     }
 
     @Test
@@ -78,7 +77,7 @@ public class FeatureToggleRepositoryTest {
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
 
-        assertThat(repository.availableToggles(), is(new FeatureToggles()));
+        assertThat(repository.availableToggles()).isEqualTo(new FeatureToggles());
     }
 
     @Test
@@ -88,7 +87,7 @@ public class FeatureToggleRepositoryTest {
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
 
-        assertThat(repository.availableToggles(), is(new FeatureToggles()));
+        assertThat(repository.availableToggles()).isEqualTo(new FeatureToggles());
     }
 
     @Test
@@ -100,7 +99,7 @@ public class FeatureToggleRepositoryTest {
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
 
-        assertThat(repository.userToggles(), is(new FeatureToggles(featureToggle1, featureToggle2)));
+        assertThat(repository.userToggles()).isEqualTo(new FeatureToggles(featureToggle1, featureToggle2));
     }
 
     @Test
@@ -109,7 +108,7 @@ public class FeatureToggleRepositoryTest {
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
 
-        assertThat(repository.userToggles(), is(new FeatureToggles()));
+        assertThat(repository.userToggles()).isEqualTo(new FeatureToggles());
     }
 
     @Test
@@ -120,7 +119,7 @@ public class FeatureToggleRepositoryTest {
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
 
-        assertThat(repository.userToggles(), is(new FeatureToggles()));
+        assertThat(repository.userToggles()).isEqualTo(new FeatureToggles());
     }
 
     @Test
@@ -133,8 +132,8 @@ public class FeatureToggleRepositoryTest {
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
         repository.changeValueOfToggle("key1", false);
 
-        assertThat(repository.availableToggles(), is(new FeatureToggles(new FeatureToggle("key1", "desc1", true))));
-        assertThat(repository.userToggles(), is(new FeatureToggles(new FeatureToggle("key1", null, false))));
+        assertThat(repository.availableToggles()).isEqualTo(new FeatureToggles(new FeatureToggle("key1", "desc1", true)));
+        assertThat(repository.userToggles()).isEqualTo(new FeatureToggles(new FeatureToggle("key1", null, false)));
     }
 
     @Test
@@ -145,8 +144,8 @@ public class FeatureToggleRepositoryTest {
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
         repository.changeValueOfToggle("key1", false);
 
-        assertThat(repository.availableToggles(), is(new FeatureToggles(new FeatureToggle("key1", "desc1", true), new FeatureToggle("key2", "desc2", true))));
-        assertThat(repository.userToggles(), is(new FeatureToggles(new FeatureToggle("key1", "desc1", false))));
+        assertThat(repository.availableToggles()).isEqualTo(new FeatureToggles(new FeatureToggle("key1", "desc1", true), new FeatureToggle("key2", "desc2", true)));
+        assertThat(repository.userToggles()).isEqualTo(new FeatureToggles(new FeatureToggle("key1", "desc1", false)));
     }
 
     @Test
@@ -162,7 +161,7 @@ public class FeatureToggleRepositoryTest {
             repository.changeValueOfToggle("key1", false);
             fail("Should have failed to write");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), containsString(userTogglesFile.getPath()));
+            assertThat(e.getMessage()).contains(userTogglesFile.getPath());
         }
     }
 
@@ -179,20 +178,20 @@ public class FeatureToggleRepositoryTest {
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
         repository.changeValueOfToggle("key1", false);
 
-        assertThat(repository.userToggles(), is(new FeatureToggles(new FeatureToggle("key1", "desc1", false).withValueHasBeenChangedFlag(false))));
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8), containsString("key1"));
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8), containsString("desc1"));
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8), not(containsString(fieldForHasBeenChangedFlag)));
+        assertThat(repository.userToggles()).isEqualTo(new FeatureToggles(new FeatureToggle("key1", "desc1", false).withValueHasBeenChangedFlag(false)));
+        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).contains("key1");
+        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).contains("desc1");
+        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).doesNotContain(fieldForHasBeenChangedFlag);
 
         /* The first time the file is written, it is written by hand in this test. Force it to write again,
          * so that the actual JSON write logic is used.
          */
         repository.changeValueOfToggle("key1", true);
 
-        assertThat(repository.userToggles(), is(new FeatureToggles(new FeatureToggle("key1", "desc1", true).withValueHasBeenChangedFlag(false))));
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8), containsString("key1"));
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8), containsString("desc1"));
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8), not(containsString(fieldForHasBeenChangedFlag)));
+        assertThat(repository.userToggles()).isEqualTo(new FeatureToggles(new FeatureToggle("key1", "desc1", true).withValueHasBeenChangedFlag(false)));
+        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).contains("key1");
+        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).contains("desc1");
+        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).doesNotContain(fieldForHasBeenChangedFlag);
     }
 
     @Test

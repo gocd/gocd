@@ -17,7 +17,6 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.Test;
 
@@ -28,8 +27,7 @@ import java.util.Map;
 import static com.thoughtworks.go.config.Authorization.PrivilegeState.*;
 import static com.thoughtworks.go.config.Authorization.UserType.ROLE;
 import static com.thoughtworks.go.config.Authorization.UserType.USER;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class PipelineConfigsTestBase {
 
@@ -43,58 +41,57 @@ public abstract class PipelineConfigsTestBase {
     public void shouldReturnTrueIfPipelineExist() {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfigs configs = createWithPipeline(pipelineConfig);
-        assertThat("shouldReturnTrueIfPipelineExist", configs.hasPipeline(new CaseInsensitiveString("pipeline1")), is(true));
+        assertThat(configs.hasPipeline(new CaseInsensitiveString("pipeline1"))).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfPipelineNotExist() {
         PipelineConfigs configs = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        assertThat("shouldReturnFalseIfPipelineNotExist", configs.hasPipeline(new CaseInsensitiveString("not-exist")), is(false));
+        assertThat(configs.hasPipeline(new CaseInsensitiveString("not-exist"))).isFalse();
     }
 
     @Test
     public void shouldUseDefaultViewPermissionsForViewersOfAGroupIfAuthorizationIsNotDefined() {
-        assertThat(createEmpty().hasViewPermission(new CaseInsensitiveString("anyone"), null, true), is(true));
-        assertThat(createEmpty().hasViewPermission(new CaseInsensitiveString("anyone"), null, false), is(false));
+        assertThat(createEmpty().hasViewPermission(new CaseInsensitiveString("anyone"), null, true)).isTrue();
+        assertThat(createEmpty().hasViewPermission(new CaseInsensitiveString("anyone"), null, false)).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfViewPermissionIsNotDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true), is(false));
+        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true)).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotHaveViewPermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("anyone"), null, true), is(false));
+        assertThat(group.hasViewPermission(new CaseInsensitiveString("anyone"), null, true)).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfUserHasViewPermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true), is(true));
+        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true)).isTrue();
     }
 
     @Test
     public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefined_AndDefaultPermissionForGroupsWithNoAuthIsToAllowAll() {
-        assertThat(createEmpty().hasOperatePermission(new CaseInsensitiveString("anyone"), null, true), is(true));
+        assertThat(createEmpty().hasOperatePermission(new CaseInsensitiveString("anyone"), null, true)).isTrue();
     }
 
     @Test
     public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefined_AndDefaultPermissionForGroupsWithNoAuthIsToDeny() {
-        assertThat(createEmpty().hasOperatePermission(new CaseInsensitiveString("anyone"), null, false), is(false));
+        assertThat(createEmpty().hasOperatePermission(new CaseInsensitiveString("anyone"), null, false)).isFalse();
     }
 
     @Test
     public void validate_shouldMakeSureTheNameIsAppropriate() {
         PipelineConfigs group = createEmpty();
         group.validate(null);
-        assertThat(group.errors().on(BasicPipelineConfigs.GROUP),
-            is("Invalid group name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(group.errors().on(BasicPipelineConfigs.GROUP)).isEqualTo("Invalid group name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -111,8 +108,7 @@ public abstract class PipelineConfigsTestBase {
 
         group.validate(null);
 
-        assertThat(group.errors().on(BasicPipelineConfigs.NO_REMOTE_AUTHORIZATION),
-            is("Authorization can be defined only in configuration file"));
+        assertThat(group.errors().on(BasicPipelineConfigs.NO_REMOTE_AUTHORIZATION)).isEqualTo("Authorization can be defined only in configuration file");
     }
 
     @Test
@@ -122,7 +118,7 @@ public abstract class PipelineConfigsTestBase {
 
         group.validate(null);
 
-        assertThat(group.errors().isEmpty(), is(true));
+        assertThat(group.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -138,7 +134,7 @@ public abstract class PipelineConfigsTestBase {
 
         group.validate(null);
 
-        assertThat(group.errors().isEmpty(), is(true));
+        assertThat(group.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -150,8 +146,8 @@ public abstract class PipelineConfigsTestBase {
         group.addWithoutValidation(duplicate);
 
         group.validate(null);
-        assertThat(duplicate.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique."));
-        assertThat(first.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique."));
+        assertThat(duplicate.errors().on(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique.");
+        assertThat(first.errors().on(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique.");
 
     }
 
@@ -160,36 +156,34 @@ public abstract class PipelineConfigsTestBase {
     public void shouldReturnFalseIfOperatePermissionIsNotDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasOperatePermission(new CaseInsensitiveString("jez"), null, true), is(false));
+        assertThat(group.hasOperatePermission(new CaseInsensitiveString("jez"), null, true)).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotHaveOperatePermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasOperatePermission(new CaseInsensitiveString("anyone"), null, true), is(false));
+        assertThat(group.hasOperatePermission(new CaseInsensitiveString("anyone"), null, true)).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfUserHasOperatePermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasOperatePermission(new CaseInsensitiveString("jez"), null, true), is(true));
+        assertThat(group.hasOperatePermission(new CaseInsensitiveString("jez"), null, true)).isTrue();
     }
 
     @Test
     public void hasViewPermissionDefinedShouldReturnTrueIfAuthorizationIsDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat("hasViewPermissionDefinedShouldReturnTrueIfAuthorizationIsDefined", group.hasViewPermissionDefined(),
-            is(true));
+        assertThat(group.hasViewPermissionDefined()).isEqualTo(true);
     }
 
     @Test
     public void hasViewPermissionDefinedShouldReturnFalseIfAuthorizationIsNotDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        assertThat("hasViewPermissionDefinedShouldReturnFalseIfAuthorizationIsNotDefined",
-            group.hasViewPermissionDefined(), is(false));
+        assertThat(group.hasViewPermissionDefined()).isFalse();
     }
 
     @Test
@@ -198,7 +192,7 @@ public abstract class PipelineConfigsTestBase {
         PipelineConfig pipelineConfig = (PipelineConfig) group.get(0).clone();
         pipelineConfig.setLabelTemplate("blah");
         group.update(group.getGroup(), pipelineConfig, "pipeline1");
-        assertThat(group.get(0).getLabelTemplate(), is("blah"));
+        assertThat(group.get(0).getLabelTemplate()).isEqualTo("blah");
     }
 
     @Test
@@ -208,7 +202,7 @@ public abstract class PipelineConfigsTestBase {
         PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1");
         group.add(1, p1);
 
-        assertThat(group.get(1), is(p1));
+        assertThat(group.get(1)).isEqualTo(p1);
     }
 
     @Test
@@ -220,8 +214,8 @@ public abstract class PipelineConfigsTestBase {
 
         group.remove(0);
 
-        assertThat(group.get(0), is(p1));
-        assertThat(group.size(), is(1));
+        assertThat(group.get(0)).isEqualTo(p1);
+        assertThat(group.size()).isEqualTo(1);
     }
 
     @Test
@@ -234,15 +228,15 @@ public abstract class PipelineConfigsTestBase {
 
         group.remove(p0);
 
-        assertThat(group.get(0), is(p1));
-        assertThat(group.size(), is(1));
+        assertThat(group.get(0)).isEqualTo(p1);
+        assertThat(group.size()).isEqualTo(1);
     }
 
     @Test
     public void shouldReturnIndexOfPipeline_When2Pipelines() {
         PipelineConfigs group = createWithPipelines(PipelineConfigMother.pipelineConfig("pipeline1"), PipelineConfigMother.pipelineConfig("pipeline2"));
         PipelineConfig pipelineConfig = group.findBy(new CaseInsensitiveString("pipeline2"));
-        assertThat(group.indexOf(pipelineConfig), is(1));
+        assertThat(group.indexOf(pipelineConfig)).isEqualTo(1);
     }
 
 
@@ -257,15 +251,15 @@ public abstract class PipelineConfigsTestBase {
             Map.of(Authorization.NAME, "blinds", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
         Authorization authorization = group.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size(), is(2));
-        assertThat(authorization.getAdminsConfig(), hasItems(new AdminUser(new CaseInsensitiveString("loser")), new AdminRole(new CaseInsensitiveString("blinds"))));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(2);
+        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("loser")), new AdminRole(new CaseInsensitiveString("blinds")));
 
-        assertThat(authorization.getOperationConfig().size(), is(2));
-        assertThat(authorization.getOperationConfig(), hasItems(new AdminUser(new CaseInsensitiveString("boozer")), new AdminRole(new CaseInsensitiveString("blinds"))));
+        assertThat(authorization.getOperationConfig().size()).isEqualTo(2);
+        assertThat(authorization.getOperationConfig()).contains(new AdminUser(new CaseInsensitiveString("boozer")), new AdminRole(new CaseInsensitiveString("blinds")));
 
-        assertThat(authorization.getViewConfig().size(), is(3));
-        assertThat(authorization.getViewConfig(), hasItems(new AdminUser(new CaseInsensitiveString("boozer")), new AdminUser(new CaseInsensitiveString("geezer")), new AdminRole(
-            new CaseInsensitiveString("gang_of_losers"))));
+        assertThat(authorization.getViewConfig().size()).isEqualTo(3);
+        assertThat(authorization.getViewConfig()).contains(new AdminUser(new CaseInsensitiveString("boozer")), new AdminUser(new CaseInsensitiveString("geezer")), new AdminRole(
+            new CaseInsensitiveString("gang_of_losers")));
     }
 
     @Test
@@ -279,17 +273,17 @@ public abstract class PipelineConfigsTestBase {
             Map.of(Authorization.NAME, "blinds", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
         Authorization authorization = group.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size(), is(2));
-        assertThat(authorization.getOperationConfig().size(), is(2));
-        assertThat(authorization.getViewConfig().size(), is(3));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(2);
+        assertThat(authorization.getOperationConfig().size()).isEqualTo(2);
+        assertThat(authorization.getViewConfig().size()).isEqualTo(3);
 
         group.setConfigAttributes(Map.of());
 
         authorization = group.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size(), is(0));
-        assertThat(authorization.getOperationConfig().size(), is(0));
-        assertThat(authorization.getViewConfig().size(), is(0));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(0);
+        assertThat(authorization.getOperationConfig().size()).isEqualTo(0);
+        assertThat(authorization.getViewConfig().size()).isEqualTo(0);
     }
 
     @Test
@@ -304,14 +298,14 @@ public abstract class PipelineConfigsTestBase {
             Map.of(Authorization.NAME, "blinds", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
         Authorization authorization = group.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size(), is(1));
-        assertThat(authorization.getAdminsConfig(), hasItem((Admin) new AdminRole(new CaseInsensitiveString("blinds"))));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(1);
+        assertThat(authorization.getAdminsConfig()).contains(new AdminRole(new CaseInsensitiveString("blinds")));
 
-        assertThat(authorization.getOperationConfig().size(), is(1));
-        assertThat(authorization.getOperationConfig(), hasItem((Admin) new AdminRole(new CaseInsensitiveString("blinds"))));
+        assertThat(authorization.getOperationConfig().size()).isEqualTo(1);
+        assertThat(authorization.getOperationConfig()).contains(new AdminRole(new CaseInsensitiveString("blinds")));
 
-        assertThat(authorization.getViewConfig().size(), is(1));
-        assertThat(authorization.getViewConfig(), hasItem((Admin) new AdminUser(new CaseInsensitiveString("geezer"))));
+        assertThat(authorization.getViewConfig().size()).isEqualTo(1);
+        assertThat(authorization.getViewConfig()).contains(new AdminUser(new CaseInsensitiveString("geezer")));
     }
 
     @Test
@@ -322,11 +316,11 @@ public abstract class PipelineConfigsTestBase {
             Map.of(Authorization.NAME, "role1", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(OFF, OFF, OFF)))));
         Authorization authorization = group.getAuthorization();
 
-        assertThat(authorization.getViewConfig().size(), is(2));
-        assertThat(authorization.getViewConfig(), hasItems(new AdminRole(new CaseInsensitiveString("role1")), new AdminUser(new CaseInsensitiveString("user1"))));
+        assertThat(authorization.getViewConfig().size()).isEqualTo(2);
+        assertThat(authorization.getViewConfig()).contains(new AdminRole(new CaseInsensitiveString("role1")), new AdminUser(new CaseInsensitiveString("user1")));
 
-        assertThat(authorization.getOperationConfig().size(), is(0));
-        assertThat(authorization.getAdminsConfig().size(), is(0));
+        assertThat(authorization.getOperationConfig().size()).isEqualTo(0);
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(0);
     }
 
     @Test
@@ -334,7 +328,7 @@ public abstract class PipelineConfigsTestBase {
         PipelineConfigs pipelineConfigs = createEmpty();
         pipelineConfigs.setGroup("");
 
-        assertThat(pipelineConfigs.getGroup(), is(BasicPipelineConfigs.DEFAULT_GROUP));
+        assertThat(pipelineConfigs.getGroup()).isEqualTo(BasicPipelineConfigs.DEFAULT_GROUP);
     }
 
     @Test
@@ -346,7 +340,7 @@ public abstract class PipelineConfigsTestBase {
         group2.setGroup("joe");
         group1.validateNameUniqueness(nameToConfig);
         group2.validateNameUniqueness(nameToConfig);
-        assertThat(group1.errors().on(PipelineConfigs.GROUP), is("Group with name 'joe' already exists"));
+        assertThat(group1.errors().on(PipelineConfigs.GROUP)).isEqualTo("Group with name 'joe' already exists");
     }
 
     @Test
@@ -354,8 +348,8 @@ public abstract class PipelineConfigsTestBase {
         PipelineConfig pipeline1 = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfig pipeline2 = PipelineConfigMother.pipelineConfig("pipeline2");
         PipelineConfigs group = createWithPipelines(pipeline1, pipeline2);
-        assertThat(group.getPipelines(), hasItem(pipeline1));
-        assertThat(group.getPipelines(), hasItem(pipeline2));
+        assertThat(group.getPipelines()).contains(pipeline1);
+        assertThat(group.getPipelines()).contains(pipeline2);
     }
 
     private List privileges(final Authorization.PrivilegeState admin, final Authorization.PrivilegeState operate, final Authorization.PrivilegeState view) {

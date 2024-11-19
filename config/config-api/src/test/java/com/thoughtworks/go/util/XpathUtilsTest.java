@@ -25,8 +25,7 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -54,21 +53,21 @@ public class XpathUtilsTest {
     public void shouldEvaluateXpath() throws Exception {
         String xpath = "/root/son/grandson/@name";
         String value = XpathUtils.evaluate(getTestFile(), xpath);
-        assertThat(value, is("someone"));
+        assertThat(value).isEqualTo("someone");
     }
 
     @Test
     public void shouldEvaluateAnotherXpath() throws Exception {
         String xpath = "//son/grandson[2]/@name";
         String value = XpathUtils.evaluate(getTestFile(), xpath);
-        assertThat(value, is("anyone"));
+        assertThat(value).isEqualTo("anyone");
     }
 
     @Test
     public void shouldEvaluateTextValueXpath() throws Exception {
         String xpath = "//son/grandson[2]/text()";
         String value = XpathUtils.evaluate(getTestFile(), xpath);
-        assertThat(value, is(""));
+        assertThat(value).isEqualTo("");
     }
 
     @Test
@@ -79,11 +78,11 @@ public class XpathUtilsTest {
     @Test
     public void shouldCheckIfNodeExists() throws Exception {
         String attribute = "//son/grandson[@name=\"anyone\"]/@address";
-        assertThat(XpathUtils.evaluate(getTestFile(), attribute), is(""));
-        assertThat(XpathUtils.nodeExists(getTestFile(), attribute), is(true));
+        assertThat(XpathUtils.evaluate(getTestFile(), attribute)).isEqualTo("");
+        assertThat(XpathUtils.nodeExists(getTestFile(), attribute)).isTrue();
 
         String textNode = "//son/grandson[2]/text()";
-        assertThat(XpathUtils.nodeExists(getTestFile(), textNode), is(false));
+        assertThat(XpathUtils.nodeExists(getTestFile(), textNode)).isFalse();
     }
 
     @Test
@@ -100,7 +99,7 @@ public class XpathUtilsTest {
     public void shouldReturnEmptyStringWhenMatchedNodeIsNotTextNode() throws Exception {
         String xpath = "/root/son";
         String value = XpathUtils.evaluate(getTestFile(), xpath);
-        assertThat(value, is(""));
+        assertThat(value).isEqualTo("");
     }
 
     @Test
@@ -108,7 +107,7 @@ public class XpathUtilsTest {
         String xpath = "//son/grandson[@name=\"anyone\"]/@address";
         boolean exists = XpathUtils.nodeExists(getTestFileUsingUTFWithBOM(), xpath);
 
-        assertThat(exists, is(true));
+        assertThat(exists).isTrue();
     }
 
     private File getTestFileUsingUTFWithBOM() throws IOException {
@@ -138,9 +137,9 @@ public class XpathUtilsTest {
         String xpath = "//coverageReport2/project/@coverage";
         File file = new File("src/test/resources/data/customer/CoverageSummary.xml");
         InputSource inputSource = new InputSource(file.getPath());
-        assertThat(XpathUtils.nodeExists(inputSource, xpath), is(true));
+        assertThat(XpathUtils.nodeExists(inputSource, xpath)).isTrue();
         String value = XpathUtils.evaluate(file, xpath);
-        assertThat(value, is("27.7730732"));
+        assertThat(value).isEqualTo("27.7730732");
     }
 
     private File getTestFile() throws IOException {

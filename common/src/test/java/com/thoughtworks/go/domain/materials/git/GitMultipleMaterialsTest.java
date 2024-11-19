@@ -31,8 +31,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GitMultipleMaterialsTest {
     private GitTestRepo repo;
@@ -52,8 +51,8 @@ public class GitMultipleMaterialsTest {
 
         materialRevision.updateTo(pipelineDir, ProcessOutputStreamConsumer.inMemoryConsumer(), new TestSubprocessExecutionContext());
 
-        assertThat(new File(pipelineDir, "dest1").exists(), is(true));
-        assertThat(new File(pipelineDir, "dest1/.git").exists(), is(true));
+        assertThat(new File(pipelineDir, "dest1").exists()).isTrue();
+        assertThat(new File(pipelineDir, "dest1/.git").exists()).isTrue();
     }
 
     @Test
@@ -64,8 +63,8 @@ public class GitMultipleMaterialsTest {
 
         materialRevision.updateTo(pipelineDir, ProcessOutputStreamConsumer.inMemoryConsumer(), new TestSubprocessExecutionContext(true));
 
-        assertThat(new File(pipelineDir, "dest1").exists(), is(false));
-        assertThat(new File(pipelineDir, ".git").exists(), is(true));
+        assertThat(new File(pipelineDir, "dest1").exists()).isFalse();
+        assertThat(new File(pipelineDir, ".git").exists()).isTrue();
     }
 
     @Test
@@ -77,7 +76,7 @@ public class GitMultipleMaterialsTest {
 
         MaterialRevisions materialRevisions = materials.latestModification(pipelineDir, new TestSubprocessExecutionContext());
 
-        assertThat(materialRevisions.getRevisions().size(), is(2));
-        assertThat(materialRevisions, containsModifiedFile(fileName));
+        assertThat(materialRevisions.getRevisions().size()).isEqualTo(2);
+        assertThat(materialRevisions).anySatisfy(containsModifiedFile(fileName));
     }
 }

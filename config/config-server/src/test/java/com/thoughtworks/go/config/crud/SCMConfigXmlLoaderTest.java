@@ -32,8 +32,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.plugin.api.config.Property.*;
 import static java.lang.String.format;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
@@ -53,10 +52,10 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), anyOf(
-                    is("Duplicate unique value [scm-id] declared for identity constraint of element \"cruise\"."),
-                    is("Duplicate unique value [scm-id] declared for identity constraint \"uniqueSCMId\" of element \"cruise\".")
-            ));
+            assertThat(e.getMessage()).containsAnyOf(
+                "Duplicate unique value [scm-id] declared for identity constraint of element \"cruise\".",
+                "Duplicate unique value [scm-id] declared for identity constraint \"uniqueSCMId\" of element \"cruise\"."
+            );
         }
     }
 
@@ -67,7 +66,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Scm id is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
+            assertThat(e.getMessage()).isEqualTo("Scm id is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
         }
     }
 
@@ -78,7 +77,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Scm id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
+            assertThat(e.getMessage()).isEqualTo("Scm id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
         }
     }
 
@@ -89,10 +88,8 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), anyOf(
-                    is("Duplicate unique value [scm-name] declared for identity constraint of element \"scms\"."),
-                    is("Duplicate unique value [scm-name] declared for identity constraint \"uniqueSCMName\" of element \"scms\".")
-                    ));
+            assertThat(e.getMessage()).containsAnyOf(("Duplicate unique value [scm-name] declared for identity constraint of element \"scms\"."), "Duplicate unique value [scm-name] declared for identity constraint \"uniqueSCMName\" of element \"scms\"."
+                    );
         }
     }
 
@@ -103,7 +100,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("\"Name\" is required for Scm"));
+            assertThat(e.getMessage()).isEqualTo("\"Name\" is required for Scm");
         }
     }
 
@@ -114,7 +111,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Name is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
+            assertThat(e.getMessage()).isEqualTo("Name is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
         }
     }
 
@@ -125,7 +122,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Name is invalid. \"name with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
+            assertThat(e.getMessage()).isEqualTo("Name is invalid. \"name with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
         }
     }
 
@@ -135,7 +132,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
         GoConfigHolder configHolder = xmlLoader.loadConfigHolder(xml);
 
-        assertThat(configHolder.config.getSCMs().get(0).getId(), is(notNullValue()));
+        assertThat(configHolder.config.getSCMs().get(0).getId()).isNotNull();
     }
 
     @Test
@@ -147,199 +144,199 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
         SCMMetadataStore.getInstance().addMetadataFor("plugin-1", new SCMConfigurations(scmConfiguration), null);
 
         String xml = ("""
-                <cruise schemaVersion='%d'>
-                <scms>
-                    <scm id='scm-id-1' name='name-1'>
-                    <pluginConfiguration id='plugin-1' version='1.0'/>
-                      <configuration>
-                        <property>
-                          <key>SCM-KEY1</key>
-                          <value>scm-key1</value>
-                        </property>
-                        <property>
-                          <key>SCM-KEY2</key>
-                          <value>scm-key2</value>
-                        </property>
-                        <property>
-                          <key>SCM-KEY3</key>
-                          <value>scm-key3</value>
-                        </property>
-                      </configuration>
-                    </scm>
-                    <scm id='scm-id-2' name='name-2'>
-                    <pluginConfiguration id='plugin-1' version='1.0'/>
-                      <configuration>
-                        <property>
-                          <key>SCM-KEY1</key>
-                          <value>scm-key1</value>
-                        </property>
-                        <property>
-                          <key>SCM-KEY2</key>
-                          <value>another-scm-key2</value>
-                        </property>
-                        <property>
-                          <key>SCM-KEY3</key>
-                          <value>another-scm-key3</value>
-                        </property>
-                      </configuration>
-                    </scm>
-                  </scms>
-                </cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            <cruise schemaVersion='%d'>
+            <scms>
+                <scm id='scm-id-1' name='name-1'>
+                <pluginConfiguration id='plugin-1' version='1.0'/>
+                  <configuration>
+                    <property>
+                      <key>SCM-KEY1</key>
+                      <value>scm-key1</value>
+                    </property>
+                    <property>
+                      <key>SCM-KEY2</key>
+                      <value>scm-key2</value>
+                    </property>
+                    <property>
+                      <key>SCM-KEY3</key>
+                      <value>scm-key3</value>
+                    </property>
+                  </configuration>
+                </scm>
+                <scm id='scm-id-2' name='name-2'>
+                <pluginConfiguration id='plugin-1' version='1.0'/>
+                  <configuration>
+                    <property>
+                      <key>SCM-KEY1</key>
+                      <value>scm-key1</value>
+                    </property>
+                    <property>
+                      <key>SCM-KEY2</key>
+                      <value>another-scm-key2</value>
+                    </property>
+                    <property>
+                      <key>SCM-KEY3</key>
+                      <value>another-scm-key3</value>
+                    </property>
+                  </configuration>
+                </scm>
+              </scms>
+            </cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
         try {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown duplicate fingerprint exception");
         } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage(), is("Cannot save SCM, found duplicate SCMs. name-1, name-2"));
+            assertThat(e.getMessage()).isEqualTo("Cannot save SCM, found duplicate SCMs. name-1, name-2");
         }
     }
 
     @Test
     public void shouldLoadAutoUpdateValueForSCMWhenLoadedFromConfigFile() throws Exception {
         String configTemplate = ("""
-                <cruise schemaVersion='%d'>
-                <scms>
-                  <scm id='2ef830d7-dd66-42d6-b393-64a84646e557' name='scm-name' autoUpdate='%%s' >
-                    <pluginConfiguration id='yum' version='1' />
-                       <configuration>
-                           <property>
-                               <key>SCM_URL</key>
-                               <value>http://fake-scm/git/go-cd</value>
-                               </property>
-                       </configuration>
-                   </scm>
-                </scms>
-                </cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            <cruise schemaVersion='%d'>
+            <scms>
+              <scm id='2ef830d7-dd66-42d6-b393-64a84646e557' name='scm-name' autoUpdate='%%s' >
+                <pluginConfiguration id='yum' version='1' />
+                   <configuration>
+                       <property>
+                           <key>SCM_URL</key>
+                           <value>http://fake-scm/git/go-cd</value>
+                           </property>
+                   </configuration>
+               </scm>
+            </scms>
+            </cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         String configContent = String.format(configTemplate, false);
         GoConfigHolder holder = xmlLoader.loadConfigHolder(configContent);
         SCM scm = holder.config.getSCMs().find("2ef830d7-dd66-42d6-b393-64a84646e557");
-        assertThat(scm.isAutoUpdate(), is(false));
+        assertThat(scm.isAutoUpdate()).isFalse();
 
         configContent = String.format(configTemplate, true);
         holder = xmlLoader.loadConfigHolder(configContent);
         scm = holder.config.getSCMs().find("2ef830d7-dd66-42d6-b393-64a84646e557");
-        assertThat(scm.isAutoUpdate(), is(true));
+        assertThat(scm.isAutoUpdate()).isTrue();
     }
 
     @Test
     public void shouldResolveSCMReferenceElementForAMaterialInConfig() throws Exception {
         String xml = ("""
-                <cruise schemaVersion='%d'>
-                <scms>
-                    <scm id='scm-id' name='scm-name'>
-                    <pluginConfiguration id='plugin-id' version='1.0'/>
-                      <configuration>
-                        <property>
-                          <key>url</key>
-                          <value>http://go</value>
-                        </property>
-                      </configuration>
-                    </scm>
-                  </scms>
-                <pipelines group="group_name">
-                  <pipeline name="new_name">
-                    <materials>
-                      <scm ref='scm-id' />
-                    </materials>
-                    <stage name="stage_name">
-                      <jobs>
-                        <job name="job_name">
-                           <tasks><ant /></tasks>
-                        </job>
-                      </jobs>
-                    </stage>
-                  </pipeline>
-                </pipelines></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            <cruise schemaVersion='%d'>
+            <scms>
+                <scm id='scm-id' name='scm-name'>
+                <pluginConfiguration id='plugin-id' version='1.0'/>
+                  <configuration>
+                    <property>
+                      <key>url</key>
+                      <value>http://go</value>
+                    </property>
+                  </configuration>
+                </scm>
+              </scms>
+            <pipelines group="group_name">
+              <pipeline name="new_name">
+                <materials>
+                  <scm ref='scm-id' />
+                </materials>
+                <stage name="stage_name">
+                  <jobs>
+                    <job name="job_name">
+                       <tasks><ant /></tasks>
+                    </job>
+                  </jobs>
+                </stage>
+              </pipeline>
+            </pipelines></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().get(0);
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(goConfigHolder.config.getSCMs().get(0)));
-        assertThat(pluggableSCMMaterialConfig.getFolder(), is(nullValue()));
-        assertThat(pluggableSCMMaterialConfig.filter(), is(new Filter()));
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(goConfigHolder.config.getSCMs().get(0));
+        assertThat(pluggableSCMMaterialConfig.getFolder()).isNull();
+        assertThat(pluggableSCMMaterialConfig.filter()).isEqualTo(new Filter());
     }
 
     @Test
     public void shouldReadFolderAndFilterForPluggableSCMMaterialConfig() throws Exception {
         String xml = ("""
-                <cruise schemaVersion='%d'>
-                <scms>
-                    <scm id='scm-id' name='scm-name'>
-                    <pluginConfiguration id='plugin-id' version='1.0'/>
-                      <configuration>
-                        <property>
-                          <key>url</key>
-                          <value>http://go</value>
-                        </property>
-                      </configuration>
-                    </scm>
-                  </scms>
-                <pipelines group="group_name">
-                  <pipeline name="new_name">
-                    <materials>
-                      <scm ref='scm-id' dest='dest'>
-                            <filter>
-                                <ignore pattern="x"/>
-                                <ignore pattern="y"/>
-                            </filter>
-                      </scm>
-                    </materials>
-                    <stage name="stage_name">
-                      <jobs>
-                        <job name="job_name">
-                           <tasks><ant /></tasks>
-                        </job>
-                      </jobs>
-                    </stage>
-                  </pipeline>
-                </pipelines></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            <cruise schemaVersion='%d'>
+            <scms>
+                <scm id='scm-id' name='scm-name'>
+                <pluginConfiguration id='plugin-id' version='1.0'/>
+                  <configuration>
+                    <property>
+                      <key>url</key>
+                      <value>http://go</value>
+                    </property>
+                  </configuration>
+                </scm>
+              </scms>
+            <pipelines group="group_name">
+              <pipeline name="new_name">
+                <materials>
+                  <scm ref='scm-id' dest='dest'>
+                        <filter>
+                            <ignore pattern="x"/>
+                            <ignore pattern="y"/>
+                        </filter>
+                  </scm>
+                </materials>
+                <stage name="stage_name">
+                  <jobs>
+                    <job name="job_name">
+                       <tasks><ant /></tasks>
+                    </job>
+                  </jobs>
+                </stage>
+              </pipeline>
+            </pipelines></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().get(0);
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(goConfigHolder.config.getSCMs().get(0)));
-        assertThat(pluggableSCMMaterialConfig.getFolder(), is("dest"));
-        assertThat(pluggableSCMMaterialConfig.filter(), is(new Filter(new IgnoredFiles("x"), new IgnoredFiles("y"))));
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(goConfigHolder.config.getSCMs().get(0));
+        assertThat(pluggableSCMMaterialConfig.getFolder()).isEqualTo("dest");
+        assertThat(pluggableSCMMaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("x"), new IgnoredFiles("y")));
     }
 
     @Test
     public void shouldBeAbleToResolveSecureConfigPropertiesForSCMs() throws Exception {
         String encryptedValue = new GoCipher().encrypt("secure-two");
         String xml = ("""
-                <cruise schemaVersion='%d'>
-                <scms>
-                    <scm id='scm-id' name='name'>
-                    <pluginConfiguration id='plugin-id' version='1.0'/>
-                      <configuration>
-                        <property>
-                          <key>plain</key>
-                          <value>value</value>
-                        </property>
-                        <property>
-                          <key>secure-one</key>
-                          <value>secure-value</value>
-                        </property>
-                        <property>
-                          <key>secure-two</key>
-                          <encryptedValue>%s</encryptedValue>
-                        </property>
-                      </configuration>
-                    </scm>
-                  </scms>
-                <pipelines group="group_name">
-                  <pipeline name="new_name">
-                    <materials>
-                      <scm ref='scm-id' />
-                    </materials>
-                    <stage name="stage_name">
-                      <jobs>
-                        <job name="job_name">
-                           <tasks><ant /></tasks>
-                        </job>
-                      </jobs>
-                    </stage>
-                  </pipeline>
-                </pipelines></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION, encryptedValue);
+            <cruise schemaVersion='%d'>
+            <scms>
+                <scm id='scm-id' name='name'>
+                <pluginConfiguration id='plugin-id' version='1.0'/>
+                  <configuration>
+                    <property>
+                      <key>plain</key>
+                      <value>value</value>
+                    </property>
+                    <property>
+                      <key>secure-one</key>
+                      <value>secure-value</value>
+                    </property>
+                    <property>
+                      <key>secure-two</key>
+                      <encryptedValue>%s</encryptedValue>
+                    </property>
+                  </configuration>
+                </scm>
+              </scms>
+            <pipelines group="group_name">
+              <pipeline name="new_name">
+                <materials>
+                  <scm ref='scm-id' />
+                </materials>
+                <stage name="stage_name">
+                  <jobs>
+                    <job name="job_name">
+                       <tasks><ant /></tasks>
+                    </job>
+                  </jobs>
+                </stage>
+              </pipeline>
+            </pipelines></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION, encryptedValue);
 
         //meta data of scm
         SCMPropertyConfiguration scmConfiguration = new SCMPropertyConfiguration();
@@ -352,10 +349,10 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
         SCM scmConfig = goConfigHolder.config.getSCMs().first();
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().get(0);
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(scmConfig));
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(scmConfig);
         Configuration configuration = pluggableSCMMaterialConfig.getSCMConfig().getConfiguration();
-        assertThat(configuration.get(0).getConfigurationValue().getValue(), is("value"));
-        assertThat(configuration.get(1).getEncryptedValue(), is(new GoCipher().encrypt("secure-value")));
-        assertThat(configuration.get(2).getEncryptedValue(), is(encryptedValue));
+        assertThat(configuration.get(0).getConfigurationValue().getValue()).isEqualTo("value");
+        assertThat(configuration.get(1).getEncryptedValue()).isEqualTo(new GoCipher().encrypt("secure-value"));
+        assertThat(configuration.get(2).getEncryptedValue()).isEqualTo(encryptedValue);
     }
 }

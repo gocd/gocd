@@ -29,8 +29,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
@@ -53,7 +52,7 @@ public class AnalyticsPluginInfoBuilderTest {
 
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getCapabilities(), is(capabilities));
+        assertThat(pluginInfo.getCapabilities()).isEqualTo(capabilities);
     }
 
     @Test
@@ -65,7 +64,7 @@ public class AnalyticsPluginInfoBuilderTest {
 
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getImage(), is(icon));
+        assertThat(pluginInfo.getImage()).isEqualTo(icon);
     }
 
     @Test
@@ -74,7 +73,7 @@ public class AnalyticsPluginInfoBuilderTest {
 
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
     }
 
     @Test
@@ -95,9 +94,9 @@ public class AnalyticsPluginInfoBuilderTest {
         );
         PluginView pluginView = new PluginView("some-html");
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("analytics"));
-        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(pluginConfigurations, pluginView)));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("analytics");
+        assertThat(pluginInfo.getPluginSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, pluginView));
     }
 
     @Test
@@ -107,8 +106,8 @@ public class AnalyticsPluginInfoBuilderTest {
         doThrow(new RuntimeException("foo")).when(extension).getPluginSettingsConfiguration("plugin1");
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("analytics"));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("analytics");
         assertNull(pluginInfo.getPluginSettings());
     }
 }

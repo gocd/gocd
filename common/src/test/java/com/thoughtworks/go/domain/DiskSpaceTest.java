@@ -17,24 +17,22 @@ package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DiskSpaceTest {
 
     @Test
     public void shouldCompareDiskSpace() {
-        assertThat(new DiskSpace(10L).compareTo(new DiskSpace(12L)), is(org.hamcrest.Matchers.lessThan(0)));
-        assertThat(DiskSpace.unknownDiskSpace().compareTo(new DiskSpace(12L)), is(org.hamcrest.Matchers.lessThan(0)));
-        assertThat(new DiskSpace(10L).compareTo(DiskSpace.unknownDiskSpace()), is(greaterThan(0)));
-        assertThat(DiskSpace.unknownDiskSpace().compareTo(DiskSpace.unknownDiskSpace()), is(0));
+        assertThat(new DiskSpace(10L).compareTo(new DiskSpace(12L))).isLessThan(0);
+        assertThat(DiskSpace.unknownDiskSpace().compareTo(new DiskSpace(12L))).isLessThan(0);
+        assertThat(new DiskSpace(10L).compareTo(DiskSpace.unknownDiskSpace())).isGreaterThan(0);
+        assertThat(DiskSpace.unknownDiskSpace().compareTo(DiskSpace.unknownDiskSpace())).isEqualTo(0);
     }
 
     @Test
     public void shouldProduceHumanReadableStringRepresentation() {
-        assertThat(new DiskSpace(3 * 512 * 1024 * 1024L).toString(), is("1.5 GB"));
-        assertThat(new DiskSpace(10 * 1024 * 1024 * 1024L).toString(), is("10.0 GB"));
-        assertThat(DiskSpace.unknownDiskSpace().toString(), is("Unknown"));
+        assertThat(new DiskSpace(3 * 512 * 1024 * 1024L).toString()).isEqualTo("1.5 GB");
+        assertThat(new DiskSpace(10 * 1024 * 1024 * 1024L).toString()).isEqualTo("10.0 GB");
+        assertThat(DiskSpace.unknownDiskSpace().toString()).isEqualTo("Unknown");
     }
 }

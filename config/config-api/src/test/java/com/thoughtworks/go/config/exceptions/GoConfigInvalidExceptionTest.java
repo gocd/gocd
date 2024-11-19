@@ -21,8 +21,7 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GoConfigInvalidExceptionTest {
     @Test
@@ -34,7 +33,7 @@ public class GoConfigInvalidExceptionTest {
         cruiseConfig.addPipeline("default", pipelineConfig);
 
         GoConfigInvalidException exception = new GoConfigInvalidException(cruiseConfig, "");
-        assertThat(exception.getAllErrorMessages(), is("BasicCruiseConfig_error, PipelineConfig_error"));
+        assertThat(exception.getAllErrorMessages()).isEqualTo("BasicCruiseConfig_error, PipelineConfig_error");
     }
 
 }

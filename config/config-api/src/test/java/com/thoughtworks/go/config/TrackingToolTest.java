@@ -21,9 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackingToolTest {
     private TrackingTool trackingTool;
@@ -37,8 +35,8 @@ public class TrackingToolTest {
         String expectedRegex = "[a-z]*";
         attributeMap.put(TrackingTool.REGEX, expectedRegex);
         trackingTool.setConfigAttributes(attributeMap);
-        assertThat(trackingTool.getLink(), is(expectedLink));
-        assertThat(trackingTool.getRegex(), is(expectedRegex));
+        assertThat(trackingTool.getLink()).isEqualTo(expectedLink);
+        assertThat(trackingTool.getRegex()).isEqualTo(expectedRegex);
     }
 
     @Test
@@ -47,30 +45,30 @@ public class TrackingToolTest {
         trackingTool.validate(null);
         ConfigErrors configErrors = trackingTool.errors();
         List<String> errors = configErrors.getAllOn(TrackingTool.LINK);
-        assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time."));
+        assertThat(errors.size()).isEqualTo(1);
+        assertThat(errors).contains("Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time.");
     }
 
     @Test
     public void shouldPopulateErrorsWhenOnlyLinkOrOnlyRegexIsSpecified() {
         trackingTool = new TrackingTool("link", "");
         trackingTool.validate(null);
-        assertThat(trackingTool.errors().on(TrackingTool.REGEX), is("Regex should be populated"));
+        assertThat(trackingTool.errors().on(TrackingTool.REGEX)).isEqualTo("Regex should be populated");
 
         trackingTool = new TrackingTool("", "regex");
         trackingTool.validate(null);
-        assertThat(trackingTool.errors().on(TrackingTool.LINK), is("Link should be populated"));
+        assertThat(trackingTool.errors().on(TrackingTool.LINK)).isEqualTo("Link should be populated");
     }
 
     @Test
     public void shouldNotPopulateErrorsWhenTimerSpecIsValid() {
         trackingTool = new TrackingTool("http://myLink-${ID}", "myRegex");
         trackingTool.validate(null);
-        assertThat(trackingTool.errors().isEmpty(), is(true));
+        assertThat(trackingTool.errors().isEmpty()).isTrue();
 
         trackingTool = new TrackingTool("https://myLink-${ID}", "myRegex");
         trackingTool.validate(null);
-        assertThat(trackingTool.errors().isEmpty(), is(true));
+        assertThat(trackingTool.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -78,7 +76,7 @@ public class TrackingToolTest {
         TrackingTool config = new TrackingTool("http://mingle05/projects/cce/cards/${ID}", "#(\\d+)");
 
         String result = config.render("#111: checkin message");
-        assertThat(result, is("<a href=\"" + "http://mingle05/projects/cce/cards/111\" target=\"story_tracker\">#111</a>: checkin message"));
+        assertThat(result).isEqualTo("<a href=\"" + "http://mingle05/projects/cce/cards/111\" target=\"story_tracker\">#111</a>: checkin message");
     }
 
     @Test
@@ -86,25 +84,25 @@ public class TrackingToolTest {
         String toRender = "evo-abc: checkin message";
 
         TrackingTool config = new TrackingTool("http://mingle05/projects/cce/cards/${ID}", "#(\\d+)");
-        assertThat(config.render(toRender), is(toRender));
+        assertThat(config.render(toRender)).isEqualTo(toRender);
     }
 
     @Test
     public void shouldValidate() {
         TrackingTool tool = new TrackingTool();
         tool.validateTree(null);
-        assertThat(tool.errors().on(TrackingTool.LINK), is("Link should be populated"));
-        assertThat(tool.errors().on(TrackingTool.REGEX), is("Regex should be populated"));
+        assertThat(tool.errors().on(TrackingTool.LINK)).isEqualTo("Link should be populated");
+        assertThat(tool.errors().on(TrackingTool.REGEX)).isEqualTo("Regex should be populated");
     }
 
     @Test
     public void shouldValidateLinkProtocol() {
         TrackingTool tool = new TrackingTool("file:///home/user/${ID}", "");
         tool.validate(null);
-        assertThat(tool.errors().on(TrackingTool.LINK), is("Link must be a URL starting with https:// or http://"));
+        assertThat(tool.errors().on(TrackingTool.LINK)).isEqualTo("Link must be a URL starting with https:// or http://");
 
         tool = new TrackingTool("javascript:alert(${ID})", "");
         tool.validate(null);
-        assertThat(tool.errors().on(TrackingTool.LINK), is("Link must be a URL starting with https:// or http://"));
+        assertThat(tool.errors().on(TrackingTool.LINK)).isEqualTo("Link must be a URL starting with https:// or http://");
     }
 }

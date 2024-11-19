@@ -21,9 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourceConfigTest {
 
@@ -32,53 +30,53 @@ public class ResourceConfigTest {
     }
 
     @Test
-    public void shouldAllowValidResourceNameForAgentResources() throws Exception {
+    public void shouldAllowValidResourceNameForAgentResources() {
         ResourceConfig resourceConfig = resource("- foo|bar baz.quux");
         resourceConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
-        assertThat(resourceConfig.errors().isEmpty(), is(true));
+        assertThat(resourceConfig.errors().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldAllowParamsInsideResourceNameWhenInsideTemplates() throws Exception {
+    public void shouldAllowParamsInsideResourceNameWhenInsideTemplates() {
         ResourceConfig resourceConfig = resource("#{PARAMS}");
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig());
         resourceConfig.validate(context);
-        assertThat(resourceConfig.errors().isEmpty(), is(true));
+        assertThat(resourceConfig.errors().isEmpty()).isTrue();
     }
 
     @Test // Note : At the Resource class level there is no way of accurately validating Parameters. This will only be invalidated when template gets used.
-    public void validate_shouldAllowAnyCombinationOfHashesAndCurlyBraces() throws Exception {
+    public void validate_shouldAllowAnyCombinationOfHashesAndCurlyBraces() {
         ResourceConfig resourceConfig = resource("}#PARAMS{");
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig());
         resourceConfig.validate(context);
-        assertThat(resourceConfig.errors().isEmpty(), is(true));
+        assertThat(resourceConfig.errors().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldNotAllowInvalidResourceNamesWhenInsideTemplates() throws Exception {
+    public void shouldNotAllowInvalidResourceNamesWhenInsideTemplates() {
         ResourceConfig resourceConfig = resource("#?{45}");
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig());
         resourceConfig.validate(context);
-        assertThat(resourceConfig.errors().isEmpty(), is(false));
-        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES), is("Resource name '#?{45}' is not valid. Valid names can contain valid parameter syntax or valid alphanumeric with hyphens,dots or pipes"));
+        assertThat(resourceConfig.errors().isEmpty()).isFalse();
+        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES)).isEqualTo("Resource name '#?{45}' is not valid. Valid names can contain valid parameter syntax or valid alphanumeric with hyphens,dots or pipes");
     }
 
     @Test
-    public void shouldNotAllowParamsInsideResourceNameWhenOutsideTemplates() throws Exception {
+    public void shouldNotAllowParamsInsideResourceNameWhenOutsideTemplates() {
         ResourceConfig resourceConfig = resource("#{PARAMS}");
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new PipelineConfig());
         resourceConfig.validate(context);
-        assertThat(resourceConfig.errors().isEmpty(), is(false));
-        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES), is(String.format("Resource name '#{PARAMS}' is not valid. Valid names much match '%s'", ResourceConfig.VALID_REGEX)));
+        assertThat(resourceConfig.errors().isEmpty()).isFalse();
+        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES)).isEqualTo(String.format("Resource name '#{PARAMS}' is not valid. Valid names much match '%s'", ResourceConfig.VALID_REGEX));
     }
 
     @Test
-    public void shouldNotAllowInvalidResourceNameForAgentResources() throws Exception {
+    public void shouldNotAllowInvalidResourceNameForAgentResources() {
         ResourceConfig resourceConfig = resource("foo$bar");
         resourceConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         ConfigErrors configErrors = resourceConfig.errors();
-        assertThat(configErrors.isEmpty(), is(false));
-        assertThat(configErrors.on(JobConfig.RESOURCES), is(String.format("Resource name 'foo$bar' is not valid. Valid names much match '%s'", ResourceConfig.VALID_REGEX)));
+        assertThat(configErrors.isEmpty()).isFalse();
+        assertThat(configErrors.on(JobConfig.RESOURCES)).isEqualTo(String.format("Resource name 'foo$bar' is not valid. Valid names much match '%s'", ResourceConfig.VALID_REGEX));
     }
 
     private ResourceConfig resource(String name) {
@@ -95,15 +93,15 @@ public class ResourceConfigTest {
         Field field = resourceConfig.getClass().getDeclaredField("name");
         field.setAccessible(true);
         field.set(resourceConfig, "resource1   ");
-        assertThat(new ResourceConfig("resource1"), is(resourceConfig));
+        assertThat(new ResourceConfig("resource1")).isEqualTo(resourceConfig);
     }
 
     @Test
     public void shouldCompareBasedOnName() {
         ResourceConfig resourceConfigA = new ResourceConfig("aaa");
         ResourceConfig resourceConfigB = new ResourceConfig("bbb");
-        assertThat(resourceConfigA.compareTo(resourceConfigB), is(org.hamcrest.Matchers.lessThan(0)));
-        assertThat(resourceConfigB.compareTo(resourceConfigA), is(greaterThan(0)));
-        assertThat(resourceConfigA.compareTo(resourceConfigA), is(0));
+        assertThat(resourceConfigA.compareTo(resourceConfigB)).isLessThan(0);
+        assertThat(resourceConfigB.compareTo(resourceConfigA)).isGreaterThan(0);
+        assertThat(resourceConfigA.compareTo(resourceConfigA)).isEqualTo(0);
     }
 }

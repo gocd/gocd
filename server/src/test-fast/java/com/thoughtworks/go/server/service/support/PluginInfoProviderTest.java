@@ -31,8 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,7 +76,7 @@ public class PluginInfoProviderTest {
 
         expectedJson.put("plugins", List.of(passwordFilePluginJson, ldapPluginJson));
 
-        assertThat(json, is(expectedJson));
+        assertThat(json).isEqualTo(expectedJson);
     }
 
     private GoPluginDescriptor passwordFilePluginDescriptor() {

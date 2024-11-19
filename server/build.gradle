@@ -300,7 +300,6 @@ dependencies {
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project(path: ':jetty', configuration: 'runtimeElements')
-  testImplementation project.deps.jsonUnit
   testImplementation project.deps.jsoup
   testImplementation project.deps.xmlUnitMatchers
   testImplementation project.deps.assertJ

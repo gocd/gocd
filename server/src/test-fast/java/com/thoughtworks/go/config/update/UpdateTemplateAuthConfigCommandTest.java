@@ -31,8 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -68,11 +67,11 @@ public class UpdateTemplateAuthConfigCommandTest {
         UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, templateAuthorization, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService, externalArtifactsService);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
-        assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(false));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isTrue();
+        assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig)).isFalse();
         Authorization expectedTemplateAuthorization = cruiseConfig.getTemplateByName(pipelineTemplateConfig.name()).getAuthorization();
         assertNotEquals(expectedTemplateAuthorization, authorization);
-        assertThat(expectedTemplateAuthorization, is(templateAuthorization));
+        assertThat(expectedTemplateAuthorization).isEqualTo(templateAuthorization);
 
     }
 
@@ -87,6 +86,6 @@ public class UpdateTemplateAuthConfigCommandTest {
         UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, templateAuthorization, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService, externalArtifactsService);
         assertFalse(command.isValid(cruiseConfig));
 
-        assertThat(templateAuthorization.getAllErrors().get(0).getAllOn("roles"), is(List.of("Role \"\" does not exist.")));
+        assertThat(templateAuthorization.getAllErrors().get(0).getAllOn("roles")).isEqualTo(List.of("Role \"\" does not exist."));
     }
 }

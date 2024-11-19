@@ -33,9 +33,7 @@ import java.util.Set;
 
 import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 import static java.util.Collections.emptySet;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -125,7 +123,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         PipelineConfigs group = config.findGroup("group1");
-        assertThat(group.getAuthorization(), is(new Authorization()));
+        assertThat(group.getAuthorization()).isEqualTo(new Authorization());
         assertFalse(config.server().security().adminsConfig().isEmpty());
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
@@ -181,7 +179,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         PipelineConfigs group = config.findGroup("group1");
-        assertThat(group.getAuthorization(), is(new Authorization()));
+        assertThat(group.getAuthorization()).isEqualTo(new Authorization());
         assertFalse(config.server().security().adminsConfig().isEmpty());
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissionsWhenDefaultGroupPermissionIsToDeny();
@@ -646,7 +644,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
 
         PipelineConfigs group = config.findGroup("group1");
-        assertThat(group.getAuthorization(), is(new Authorization()));
+        assertThat(group.getAuthorization()).isEqualTo(new Authorization());
         assertTrue(config.server().security().adminsConfig().isEmpty());
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
@@ -669,7 +667,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         configMother.addUserAsViewerOfPipelineGroup(config, "some-user", "group2");
 
         PipelineConfigs group = config.findGroup("group1");
-        assertThat(group.getAuthorization(), is(not(new Authorization())));
+        assertThat(group.getAuthorization()).isNotEqualTo(new Authorization());
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 
@@ -788,16 +786,16 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
 
         Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
-        assertThat(p1Permissions.viewers(), is(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet())));
-        assertThat(p1Permissions.operators(), is(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet())));
-        assertThat(p1Permissions.admins(), is(new AllowedUsers(Set.of("superadmin1"), emptySet())));
-        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet())));
+        assertThat(p1Permissions.viewers()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet()));
+        assertThat(p1Permissions.operators()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet()));
+        assertThat(p1Permissions.admins()).isEqualTo(new AllowedUsers(Set.of("superadmin1"), emptySet()));
+        assertThat(p1Permissions.pipelineOperators()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet()));
 
         Permissions p2Permission = service.permissionsForPipeline(p2Config.name());
-        assertThat(p2Permission.viewers(), is(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet())));
-        assertThat(p2Permission.operators(), is(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet())));
-        assertThat(p2Permission.admins(), is(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet())));
-        assertThat(p2Permission.pipelineOperators(), is(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet())));
+        assertThat(p2Permission.viewers()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet()));
+        assertThat(p2Permission.operators()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet()));
+        assertThat(p2Permission.admins()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet()));
+        assertThat(p2Permission.pipelineOperators()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet()));
     }
 
     @Test
@@ -814,12 +812,12 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
 
         Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
-        assertThat(p1Permissions.viewers(), is(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet())));
-        assertThat(p1Permissions.operators(), is(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet())));
-        assertThat(p1Permissions.admins(), is(new AllowedUsers(Set.of("superadmin1"), emptySet())));
-        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet())));
+        assertThat(p1Permissions.viewers()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet()));
+        assertThat(p1Permissions.operators()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet()));
+        assertThat(p1Permissions.admins()).isEqualTo(new AllowedUsers(Set.of("superadmin1"), emptySet()));
+        assertThat(p1Permissions.pipelineOperators()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet()));
 
-        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage1A")).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet()));
     }
 
     @Test
@@ -840,13 +838,13 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
 
         Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
-        assertThat(p1Permissions.viewers(), is(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet())));
-        assertThat(p1Permissions.operators(), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
-        assertThat(p1Permissions.admins(), is(new AllowedUsers(Set.of("superadmin1"), emptySet())));
-        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.viewers()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet()));
+        assertThat(p1Permissions.operators()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet()));
+        assertThat(p1Permissions.admins()).isEqualTo(new AllowedUsers(Set.of("superadmin1"), emptySet()));
+        assertThat(p1Permissions.pipelineOperators()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet()));
 
-        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
-        assertThat(p1Permissions.stageOperators("stage2A"), is(new AllowedUsers(Set.of("superadmin1", "operator2"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage1A")).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet()));
+        assertThat(p1Permissions.stageOperators("stage2A")).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator2"), emptySet()));
     }
 
     @Test
@@ -867,14 +865,14 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
 
         Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
-        assertThat(p1Permissions.viewers(), is(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet())));
-        assertThat(p1Permissions.operators(), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
-        assertThat(p1Permissions.admins(), is(new AllowedUsers(Set.of("superadmin1"), emptySet())));
-        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.viewers()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet()));
+        assertThat(p1Permissions.operators()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet()));
+        assertThat(p1Permissions.admins()).isEqualTo(new AllowedUsers(Set.of("superadmin1"), emptySet()));
+        assertThat(p1Permissions.pipelineOperators()).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet()));
 
-        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
-        assertThat(p1Permissions.stageOperators("stage2A"), is(new AllowedUsers(Set.of("superadmin1", "operator2"), emptySet())));
-        assertThat(p1Permissions.stageOperators("stage-non-existing-stage-A"), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage1A")).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet()));
+        assertThat(p1Permissions.stageOperators("stage2A")).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator2"), emptySet()));
+        assertThat(p1Permissions.stageOperators("stage-non-existing-stage-A")).isEqualTo(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet()));
     }
 
     private Map<CaseInsensitiveString, Permissions> getPipelinesAndTheirPermissionsWhenDefaultGroupPermissionIsToDeny() {
@@ -895,7 +893,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
     private void assertViewers(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedViewers) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.viewers(), is(new AllowedUsers(Set.of(expectedViewers), pluginRoleConfigs)));
+        assertThat(permissions.viewers()).isEqualTo(new AllowedUsers(Set.of(expectedViewers), pluginRoleConfigs));
     }
 
     private void assertOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
@@ -905,17 +903,17 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
     private void assertPipelineOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.pipelineOperators(), is(new AllowedUsers(Set.of(expectedOperators), pluginRoleConfigs)));
+        assertThat(permissions.pipelineOperators()).isEqualTo(new AllowedUsers(Set.of(expectedOperators), pluginRoleConfigs));
     }
 
     private void assertGroupOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.operators(), is(new AllowedUsers(Set.of(expectedOperators), pluginRoleConfigs)));
+        assertThat(permissions.operators()).isEqualTo(new AllowedUsers(Set.of(expectedOperators), pluginRoleConfigs));
     }
 
     private void assertAdmins(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedAdmins) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.admins(), is(new AllowedUsers(Set.of(expectedAdmins), pluginRoleConfigs)));
+        assertThat(permissions.admins()).isEqualTo(new AllowedUsers(Set.of(expectedAdmins), pluginRoleConfigs));
     }
 
     private void assertPipelinesInMap(Map<CaseInsensitiveString, Permissions> pipelinesToPermissions, String... expectedPipelines) {
@@ -923,12 +921,12 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         for (String expectedPipeline : expectedPipelines) {
             expectedCaseInsensitivePipelineNames.add(new CaseInsensitiveString(expectedPipeline));
         }
-        assertThat(pipelinesToPermissions.keySet(), is(expectedCaseInsensitivePipelineNames));
+        assertThat(pipelinesToPermissions.keySet()).isEqualTo(expectedCaseInsensitivePipelineNames);
     }
 
     private void assertEveryoneIsAPartOf(Users users) {
-        assertThat(users.contains("some-user"), is(true));
-        assertThat(users.contains("some-other-user"), is(true));
-        assertThat(users.contains("any-random-user"), is(true));
+        assertThat(users.contains("some-user")).isTrue();
+        assertThat(users.contains("some-other-user")).isTrue();
+        assertThat(users.contains("any-random-user")).isTrue();
     }
 }

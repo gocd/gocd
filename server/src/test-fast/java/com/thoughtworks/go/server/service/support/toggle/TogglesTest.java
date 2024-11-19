@@ -21,8 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,7 +41,7 @@ public class TogglesTest {
     @Test
     public void shouldDelegateToService_isToggleOn() {
         when(featureToggleService.isToggleOn(FEATURE_TOGGLE_KEY)).thenReturn(true);
-        assertThat(Toggles.isToggleOn(FEATURE_TOGGLE_KEY), is(true));
+        assertThat(Toggles.isToggleOn(FEATURE_TOGGLE_KEY)).isTrue();
         verify(featureToggleService).isToggleOn(FEATURE_TOGGLE_KEY);
     }
 
@@ -53,7 +52,7 @@ public class TogglesTest {
             Toggles.isToggleOn(FEATURE_TOGGLE_KEY);
             fail("Should have bombed!");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Toggles not initialized with feature toggle service"));
+            assertThat(e.getMessage()).isEqualTo("Toggles not initialized with feature toggle service");
         }
     }
 }

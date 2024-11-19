@@ -18,8 +18,7 @@ package com.thoughtworks.go.config.validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FilePathTypeValidatorTest {
     private FilePathTypeValidator filePathTypeValidator;
@@ -31,17 +30,17 @@ public class FilePathTypeValidatorTest {
 
     @Test
     public void shouldConsiderNullAsValidPath() { //because attributes of filePathType in xsd are all optional
-        assertThat(filePathTypeValidator.isPathValid(null), is(true));
+        assertThat(filePathTypeValidator.isPathValid(null)).isTrue();
     }
 
     @Test
     public void shouldEnsurePathIsRelative() {
-        assertThat(filePathTypeValidator.isPathValid(".."), is(false));
-        assertThat(filePathTypeValidator.isPathValid("../a"), is(false));
-        assertThat(filePathTypeValidator.isPathValid(" "), is(false));
-        assertThat(filePathTypeValidator.isPathValid("./a"), is(true));
-        assertThat(filePathTypeValidator.isPathValid(". "), is(false));
-        assertThat(filePathTypeValidator.isPathValid(" ."), is(false));
-        assertThat(filePathTypeValidator.isPathValid("abc"), is(true));
+        assertThat(filePathTypeValidator.isPathValid("..")).isFalse();
+        assertThat(filePathTypeValidator.isPathValid("../a")).isFalse();
+        assertThat(filePathTypeValidator.isPathValid(" ")).isFalse();
+        assertThat(filePathTypeValidator.isPathValid("./a")).isTrue();
+        assertThat(filePathTypeValidator.isPathValid(". ")).isFalse();
+        assertThat(filePathTypeValidator.isPathValid(" .")).isFalse();
+        assertThat(filePathTypeValidator.isPathValid("abc")).isTrue();
     }
 }

@@ -29,9 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,29 +59,29 @@ public class CreateTemplateConfigCommandTest {
     @Test
     public void shouldAddNewTemplateToGivenConfig() throws Exception {
         CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isFalse();
         createTemplateConfigCommand.update(cruiseConfig);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isTrue();
     }
 
     @Test
     public void shouldAddNewTemplateToConfigWithAuthorizationSetForGroupAdmin() throws Exception {
         when(securityService.isUserGroupAdmin(currentUser)).thenReturn(true);
         CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isFalse();
         createTemplateConfigCommand.update(cruiseConfig);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
-        assertThat(pipelineTemplateConfig.getAuthorization(), is(new Authorization(new AdminsConfig(new AdminUser(currentUser.getUsername())))));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isTrue();
+        assertThat(pipelineTemplateConfig.getAuthorization()).isEqualTo(new Authorization(new AdminsConfig(new AdminUser(currentUser.getUsername()))));
     }
 
     @Test
     public void shouldAddNewTemplateToConfigWithoutAuthorizationForSuperAdmin() throws Exception {
         when(securityService.isUserGroupAdmin(currentUser)).thenReturn(false);
         CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isFalse();
         createTemplateConfigCommand.update(cruiseConfig);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
-        assertThat(pipelineTemplateConfig.getAuthorization(), is(new Authorization()));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isTrue();
+        assertThat(pipelineTemplateConfig.getAuthorization()).isEqualTo(new Authorization());
     }
 
     @Test
@@ -92,8 +90,8 @@ public class CreateTemplateConfigCommandTest {
 
         CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo(EntityType.Template.forbiddenToEdit(pipelineTemplateConfig.name(), currentUser.getUsername())));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.Template.forbiddenToEdit(pipelineTemplateConfig.name(), currentUser.getUsername()));
     }
 
     @Test
@@ -103,7 +101,7 @@ public class CreateTemplateConfigCommandTest {
 
         CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
 

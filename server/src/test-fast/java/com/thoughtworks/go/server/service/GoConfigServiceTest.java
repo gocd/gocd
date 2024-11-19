@@ -46,7 +46,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -65,9 +64,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -128,20 +125,20 @@ public class GoConfigServiceTest {
 
         expectLoad(cruiseConfig);
 
-        assertThat(goConfigService.hasVariableInScope("pipeline", "NOT_IN_SCOPE"), is(false));
-        assertThat(goConfigService.hasVariableInScope("pipeline", "ENV_LEVEL"), is(true));
-        assertThat(goConfigService.hasVariableInScope("pipeline", "PIPELINE_LEVEL"), is(true));
-        assertThat(goConfigService.hasVariableInScope("pipeline", "STAGE_LEVEL"), is(true));
-        assertThat(goConfigService.hasVariableInScope("pipeline", "JOB_LEVEL"), is(true));
-        assertThat(goConfigService.hasVariableInScope("pipeline", "OTHER_PIPELINE_LEVEL"), is(false));
-        assertThat(goConfigService.hasVariableInScope("pipeline", "OTHER_STAGE_LEVEL"), is(false));
-        assertThat(goConfigService.hasVariableInScope("pipeline", "OTHER_JOB_LEVEL"), is(false));
+        assertThat(goConfigService.hasVariableInScope("pipeline", "NOT_IN_SCOPE")).isFalse();
+        assertThat(goConfigService.hasVariableInScope("pipeline", "ENV_LEVEL")).isTrue();
+        assertThat(goConfigService.hasVariableInScope("pipeline", "PIPELINE_LEVEL")).isTrue();
+        assertThat(goConfigService.hasVariableInScope("pipeline", "STAGE_LEVEL")).isTrue();
+        assertThat(goConfigService.hasVariableInScope("pipeline", "JOB_LEVEL")).isTrue();
+        assertThat(goConfigService.hasVariableInScope("pipeline", "OTHER_PIPELINE_LEVEL")).isFalse();
+        assertThat(goConfigService.hasVariableInScope("pipeline", "OTHER_STAGE_LEVEL")).isFalse();
+        assertThat(goConfigService.hasVariableInScope("pipeline", "OTHER_JOB_LEVEL")).isFalse();
 
-        assertThat(goConfigService.hasVariableInScope("pipeline_other", "ENV_LEVEL"), is(false));
-        assertThat(goConfigService.hasVariableInScope("pipeline_other", "OTHER_PIPELINE_LEVEL"), is(true));
-        assertThat(goConfigService.hasVariableInScope("pipeline_other", "OTHER_STAGE_LEVEL"), is(true));
-        assertThat(goConfigService.hasVariableInScope("pipeline_other", "OTHER_JOB_LEVEL"), is(true));
-        assertThat(goConfigService.hasVariableInScope("pipeline_other", "NOT_IN_SCOPE"), is(false));
+        assertThat(goConfigService.hasVariableInScope("pipeline_other", "ENV_LEVEL")).isFalse();
+        assertThat(goConfigService.hasVariableInScope("pipeline_other", "OTHER_PIPELINE_LEVEL")).isTrue();
+        assertThat(goConfigService.hasVariableInScope("pipeline_other", "OTHER_STAGE_LEVEL")).isTrue();
+        assertThat(goConfigService.hasVariableInScope("pipeline_other", "OTHER_JOB_LEVEL")).isTrue();
+        assertThat(goConfigService.hasVariableInScope("pipeline_other", "NOT_IN_SCOPE")).isFalse();
     }
 
     @Test
@@ -153,7 +150,7 @@ public class GoConfigServiceTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline));
         expectLoad(cruiseConfig);
 
-        assertThat(goConfigService.shouldFetchMaterials("cruise", "dev"), is(false));
+        assertThat(goConfigService.shouldFetchMaterials("cruise", "dev")).isFalse();
     }
 
     private void expectLoad(final CruiseConfig result) {
@@ -174,7 +171,7 @@ public class GoConfigServiceTest {
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         newPipeline.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(newPipeline));
-        assertThat(goConfigService.stageConfigNamed("pipeline", "name"), is(pipelineConfig.findBy(new CaseInsensitiveString("name"))));
+        assertThat(goConfigService.stageConfigNamed("pipeline", "name")).isEqualTo(pipelineConfig.findBy(new CaseInsensitiveString("name")));
     }
 
     @Test
@@ -185,7 +182,7 @@ public class GoConfigServiceTest {
         newPipeline.setAuthorization(new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("dawg")))));
         expectLoad(new BasicCruiseConfig(newPipeline));
         final Username dawg = new Username(new CaseInsensitiveString("dawg"));
-        assertThat(goConfigService.isGroupAdministrator(dawg.getUsername()), is(true));
+        assertThat(goConfigService.isGroupAdministrator(dawg.getUsername())).isTrue();
     }
 
     @Test
@@ -197,10 +194,10 @@ public class GoConfigServiceTest {
         config.addEnvironment(second);
         expectLoad(config);
 
-        assertThat(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString("first")), is(true));
-        assertThat(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString("second")), is(true));
-        assertThat(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString("SECOND")), is(true));
-        assertThat(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString("fourth")), is(false));
+        assertThat(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString("first"))).isTrue();
+        assertThat(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString("second"))).isTrue();
+        assertThat(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString("SECOND"))).isTrue();
+        assertThat(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString("fourth"))).isFalse();
     }
 
     @Test
@@ -211,8 +208,8 @@ public class GoConfigServiceTest {
         pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage2", "job2", ArtifactType.build));
         newPipelines.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(newPipelines));
-        assertThat(goConfigService.stageHasTests("pipeline", "stage1"), is(true));
-        assertThat(goConfigService.stageHasTests("pipeline", "stage2"), is(false));
+        assertThat(goConfigService.stageHasTests("pipeline", "stage1")).isTrue();
+        assertThat(goConfigService.stageHasTests("pipeline", "stage2")).isFalse();
     }
 
     @Test
@@ -237,25 +234,25 @@ public class GoConfigServiceTest {
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         group.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(group));
-        assertThat(goConfigService.isLockable("pipeline"), is(false));
+        assertThat(goConfigService.isLockable("pipeline")).isFalse();
 
         pipelineConfig.lockExplicitly();
         expectLoad(new BasicCruiseConfig(group));
-        assertThat(goConfigService.isLockable("pipeline"), is(true));
+        assertThat(goConfigService.isLockable("pipeline")).isTrue();
     }
 
     @Test
     public void shouldRememberValidityWhenCruiseConfigLoaderHasInvalidConfigFile() {
         GoConfigService service = goConfigServiceWithInvalidStatus();
-        assertThat(service.checkConfigFileValid().isValid(), is(false));
-        assertThat(((GoConfigValidity.InvalidGoConfig) service.checkConfigFileValid()).errorMessage(), is("JDom exception"));
+        assertThat(service.checkConfigFileValid().isValid()).isFalse();
+        assertThat(((GoConfigValidity.InvalidGoConfig) service.checkConfigFileValid()).errorMessage()).isEqualTo("JDom exception");
     }
 
     @Test
     public void shouldNotHaveErrorMessageWhenConfigFileValid() {
         when(goConfigDao.checkConfigFileValid()).thenReturn(GoConfigValidity.valid());
         GoConfigValidity configValidity = goConfigService.checkConfigFileValid();
-        assertThat(configValidity.isValid(), is(true));
+        assertThat(configValidity.isValid()).isTrue();
     }
 
     private CruiseConfig configWithPipeline() {
@@ -280,7 +277,7 @@ public class GoConfigServiceTest {
                 </server>
                 <unknown/></cruise>""";
         GoConfigValidity validity = goConfigService.fileSaver(true).saveXml(configContent, "md5");
-        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), is("Cruise config file with version 14 is invalid. Unable to upgrade."));
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).isEqualTo("Cruise config file with version 14 is invalid. Unable to upgrade.");
     }
 
     @Test
@@ -294,7 +291,7 @@ public class GoConfigServiceTest {
                 <artifactsDir>artifacts</artifactsDir>
                 </artifacts></server><unknown/></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(configContent, "md5");
-        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Invalid content was found starting with element 'unknown'");
     }
 
     @Test
@@ -308,11 +305,11 @@ public class GoConfigServiceTest {
         pipeline.addEnvironmentVariable("blah", "pipeline-blahValue");
 
         EnvironmentVariablesConfig variables = goConfigService.variablesFor(PIPELINE);
-        assertThat(variables.size(), is(3));
-        assertThat(variables, hasItems(
+        assertThat(variables.size()).isEqualTo(3);
+        assertThat(variables).contains(
                 new EnvironmentVariableConfig("foo", "pipeline-fooValue"),
                 new EnvironmentVariableConfig("bar", "env-barValue"),
-                new EnvironmentVariableConfig("blah", "pipeline-blahValue")));
+                new EnvironmentVariableConfig("blah", "pipeline-blahValue"));
     }
 
     @Test
@@ -321,10 +318,10 @@ public class GoConfigServiceTest {
         pipeline.addEnvironmentVariable("foo", "pipeline-fooValue");
         pipeline.addEnvironmentVariable("blah", "pipeline-blahValue");
         EnvironmentVariablesConfig variables = goConfigService.variablesFor(PIPELINE);
-        assertThat(variables.size(), is(2));
-        assertThat(variables, hasItems(
+        assertThat(variables.size()).isEqualTo(2);
+        assertThat(variables).contains(
                 new EnvironmentVariableConfig("foo", "pipeline-fooValue"),
-                new EnvironmentVariableConfig("blah", "pipeline-blahValue")));
+                new EnvironmentVariableConfig("blah", "pipeline-blahValue"));
     }
 
     @Test
@@ -332,8 +329,8 @@ public class GoConfigServiceTest {
         expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
         GoConfigService.XmlPartialSaver<?>saver = goConfigService.fileSaver(true);
         GoConfigValidity validity = saver.saveXml("some_junk", "junk_md5");
-        assertThat(validity.isValid(), is(false));
-        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), is("Error on line 1: Content is not allowed in prolog."));
+        assertThat(validity.isValid()).isFalse();
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).isEqualTo("Error on line 1: Content is not allowed in prolog.");
     }
 
     @Test
@@ -345,17 +342,16 @@ public class GoConfigServiceTest {
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
                 <server artifactsdir='artifactsDir></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         GoConfigValidity validity = saver.saveXml(configContent, "junk_md5");
-        assertThat(validity.isValid(), is(false));
-        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(),
-                is("Invalid Configuration - Error on line 3: The value of attribute \"artifactsdir\" associated with an element type \"server\" must not contain the '<' character."));
+        assertThat(validity.isValid()).isFalse();
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).isEqualTo("Invalid Configuration - Error on line 3: The value of attribute \"artifactsdir\" associated with an element type \"server\" must not contain the '<' character.");
     }
 
     @Test
     public void xmlPartialSaverShouldReturnTheRightXMLThroughAsXml() {
         expectLoadForEditing(GoConfigMother.defaultCruiseConfig());
         GoConfigService.XmlPartialSaver<?>saver = goConfigService.fileSaver(true);
-        assertThat(saver.asXml(), containsString(String.format("schemaVersion=\"%s\"", GoConstants.CONFIG_SCHEMA_VERSION)));
-        assertThat(saver.asXml(), containsString("xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\""));
+        assertThat(saver.asXml()).contains(String.format("schemaVersion=\"%s\"", GoConstants.CONFIG_SCHEMA_VERSION));
+        assertThat(saver.asXml()).contains("xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\"");
     }
 
 
@@ -371,7 +367,7 @@ public class GoConfigServiceTest {
         expectLoad(unchangedConfig());
         JobConfigIdentifier translated = goConfigService.translateToActualCase(
                 new JobConfigIdentifier(PIPELINE.toUpperCase(), STAGE.toUpperCase(), JOB.toUpperCase()));
-        assertThat(translated, is(new JobConfigIdentifier(PIPELINE, STAGE, JOB)));
+        assertThat(translated).isEqualTo(new JobConfigIdentifier(PIPELINE, STAGE, JOB));
     }
 
     @Test
@@ -379,7 +375,7 @@ public class GoConfigServiceTest {
         expectLoad(unchangedConfigWithRunOnAllAgents());
         JobConfigIdentifier translated = goConfigService.translateToActualCase(
                 new JobConfigIdentifier(PIPELINE.toUpperCase(), STAGE.toUpperCase(), RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker(JOB.toUpperCase(), 2)));
-        assertThat(translated, is(new JobConfigIdentifier(PIPELINE, STAGE, RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker(JOB, 2))));
+        assertThat(translated).isEqualTo(new JobConfigIdentifier(PIPELINE, STAGE, RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker(JOB, 2)));
     }
 
     @Test
@@ -390,7 +386,7 @@ public class GoConfigServiceTest {
             goConfigService.translateToActualCase(new JobConfigIdentifier(PIPELINE, STAGE, missingJobName));
             fail("Should not be able to find job with missing agent");
         } catch (RecordNotFoundException expected) {
-            assertThat(expected.getMessage(), is(format("Job '%s' not found in pipeline '%s' stage '%s'", missingJobName, PIPELINE, STAGE)));
+            assertThat(expected.getMessage()).isEqualTo(format("Job '%s' not found in pipeline '%s' stage '%s'", missingJobName, PIPELINE, STAGE));
         }
     }
 
@@ -407,8 +403,8 @@ public class GoConfigServiceTest {
             goConfigService.translateToActualCase(new JobConfigIdentifier(PIPELINE, STAGE, "invalid-job"));
             fail("should throw exception if job does not exist");
         } catch (Exception e) {
-            assertThat(e, instanceOf(RecordNotFoundException.class));
-            assertThat(e.getMessage(), containsString("invalid-job"));
+            assertThat(e).isInstanceOf(RecordNotFoundException.class);
+            assertThat(e.getMessage()).contains("invalid-job");
         }
     }
 
@@ -419,8 +415,8 @@ public class GoConfigServiceTest {
             goConfigService.translateToActualCase(new JobConfigIdentifier(PIPELINE, "invalid-stage", JOB));
             fail("should throw exception if stage does not exist");
         } catch (Exception e) {
-            assertThat(e, instanceOf(StageNotFoundException.class));
-            assertThat(e.getMessage(), containsString("invalid-stage"));
+            assertThat(e).isInstanceOf(StageNotFoundException.class);
+            assertThat(e.getMessage()).contains("invalid-stage");
         }
     }
 
@@ -431,8 +427,8 @@ public class GoConfigServiceTest {
             goConfigService.translateToActualCase(new JobConfigIdentifier("invalid-pipeline", STAGE, JOB));
             fail("should throw exception if pipeline does not exist");
         } catch (Exception e) {
-            assertThat(e, instanceOf(RecordNotFoundException.class));
-            assertThat(e.getMessage(), containsString("invalid-pipeline"));
+            assertThat(e).isInstanceOf(RecordNotFoundException.class);
+            assertThat(e.getMessage()).contains("invalid-pipeline");
         }
     }
 
@@ -448,7 +444,7 @@ public class GoConfigServiceTest {
             goConfigService.initialize();
             fail("should throw when cruise has no read permission on artifacts dir " + artifactsDir.getAbsolutePath());
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Cruise does not have read permission on " + artifactsDir.getAbsolutePath()));
+            assertThat(e.getMessage()).isEqualTo("Cruise does not have read permission on " + artifactsDir.getAbsolutePath());
         } finally {
             FileUtils.deleteQuietly(artifactsDir);
         }
@@ -467,7 +463,7 @@ public class GoConfigServiceTest {
             goConfigService.initialize();
             fail("should throw when cruise has no write permission on artifacts dir " + artifactsDir.getAbsolutePath());
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Cruise does not have write permission on " + artifactsDir.getAbsolutePath()));
+            assertThat(e.getMessage()).isEqualTo("Cruise does not have write permission on " + artifactsDir.getAbsolutePath());
         } finally {
             FileUtils.deleteQuietly(artifactsDir);
         }
@@ -481,8 +477,8 @@ public class GoConfigServiceTest {
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(svnMaterialConfig));
         when(goConfigDao.load()).thenReturn(cruiseConfig);
 
-        assertThat(goConfigService.findMaterial(new CaseInsensitiveString("pipeline"), svnMaterialConfig.getPipelineUniqueFingerprint()), is(svnMaterialConfig));
-        assertThat(goConfigService.findMaterial(new CaseInsensitiveString("piPelIne"), svnMaterialConfig.getPipelineUniqueFingerprint()), is(svnMaterialConfig));
+        assertThat(goConfigService.findMaterial(new CaseInsensitiveString("pipeline"), svnMaterialConfig.getPipelineUniqueFingerprint())).isEqualTo(svnMaterialConfig);
+        assertThat(goConfigService.findMaterial(new CaseInsensitiveString("piPelIne"), svnMaterialConfig.getPipelineUniqueFingerprint())).isEqualTo(svnMaterialConfig);
     }
 
     @Test
@@ -491,7 +487,7 @@ public class GoConfigServiceTest {
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(dependencyMaterialConfig));
         when(goConfigDao.load()).thenReturn(cruiseConfig);
 
-        assertThat(goConfigService.findMaterial(new CaseInsensitiveString("pipeline"), "missing"), is(nullValue()));
+        assertThat(goConfigService.findMaterial(new CaseInsensitiveString("pipeline"), "missing")).isNull();
     }
 
     @Test
@@ -501,7 +497,7 @@ public class GoConfigServiceTest {
         when(goConfigDao.load()).thenReturn(cruiseConfig);
 
         MaterialConfig actual = goConfigService.materialForPipelineWithFingerprint("pipeline", expected.getFingerprint());
-        assertThat(actual, is(expected));
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
@@ -514,7 +510,7 @@ public class GoConfigServiceTest {
             goConfigService.materialForPipelineWithFingerprint("pipeline", "bad-fingerprint");
             fail("Shouldn't be able to find material with incorrect fingerprint");
         } catch (Exception expected) {
-            assertThat(expected.getMessage(), is("Pipeline [pipeline] does not have a material with fingerprint [bad-fingerprint]"));
+            assertThat(expected.getMessage()).isEqualTo("Pipeline [pipeline] does not have a material with fingerprint [bad-fingerprint]");
         }
     }
 
@@ -529,7 +525,7 @@ public class GoConfigServiceTest {
                         new CaseInsensitiveString("blahStage")))
         ));
 
-        assertThat(goConfigService.downstreamPipelinesOf("blahPipeline"), is(List.of(down1, down2)));
+        assertThat(goConfigService.downstreamPipelinesOf("blahPipeline")).isEqualTo(List.of(down1, down2));
     }
 
     @Test
@@ -540,11 +536,11 @@ public class GoConfigServiceTest {
         PipelineConfig up2 = GoConfigMother.createPipelineConfigWithMaterialConfig("up2", new DependencyMaterialConfig(new CaseInsensitiveString("uppest"), new CaseInsensitiveString("first")));
         PipelineConfig uppest = GoConfigMother.createPipelineConfigWithMaterialConfig("uppest", MaterialConfigsMother.hgMaterialConfig());
         when(goConfigDao.load()).thenReturn(configWith(current, up1, up2, uppest));
-        assertThat(goConfigService.upstreamDependencyGraphOf("current"), is(
+        assertThat(goConfigService.upstreamDependencyGraphOf("current")).isEqualTo(
                 new PipelineConfigDependencyGraph(current,
                         new PipelineConfigDependencyGraph(up1, new PipelineConfigDependencyGraph(uppest)),
                         new PipelineConfigDependencyGraph(up2, new PipelineConfigDependencyGraph(uppest))
-                )));
+                ));
         /*
                          uppest
                         /     \
@@ -559,8 +555,8 @@ public class GoConfigServiceTest {
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
         pipelineConfigs.add(createPipelineConfig("pipeline", "stage", "job"));
         expectLoad(new BasicCruiseConfig(pipelineConfigs));
-        assertThat(goConfigService.stageExists("pipeline", "randomstage"), is(false));
-        assertThat(goConfigService.stageExists("pipeline", "stage"), is(true));
+        assertThat(goConfigService.stageExists("pipeline", "randomstage")).isFalse();
+        assertThat(goConfigService.stageExists("pipeline", "stage")).isTrue();
     }
 
     @Test
@@ -575,14 +571,14 @@ public class GoConfigServiceTest {
     public void getConfigAtVersion_shouldFetchRequiredVersion() throws Exception {
         GoConfigRevision revision = new GoConfigRevision("v1", "md5-1", "loser", "100.3.9.1", new TimeProvider());
         when(configRepo.getRevision("md5-1")).thenReturn(revision);
-        assertThat(goConfigService.getConfigAtVersion("md5-1"), is(revision));
+        assertThat(goConfigService.getConfigAtVersion("md5-1")).isEqualTo(revision);
     }
 
     @Test
     public void getNotThrowUpWhenRevisionIsNotFound() throws Exception {
         when(configRepo.getRevision("md5-1")).thenThrow(new IllegalArgumentException("did not find the revision"));
         try {
-            assertThat(goConfigService.getConfigAtVersion("md5-1"), is(nullValue()));
+            assertThat(goConfigService.getConfigAtVersion("md5-1")).isNull();
         } catch (Exception e) {
             fail("should not have thrown up");
         }
@@ -606,9 +602,9 @@ public class GoConfigServiceTest {
 
         List<PipelineConfig> fetchablePipelines = goConfigService.pipelinesForFetchArtifacts("pipeline");
 
-        assertThat(fetchablePipelines.size(), is(2));
-        assertThat(fetchablePipelines, hasItem(upstream));
-        assertThat(fetchablePipelines, hasItem(downstream));
+        assertThat(fetchablePipelines.size()).isEqualTo(2);
+        assertThat(fetchablePipelines).contains(upstream);
+        assertThat(fetchablePipelines).contains(downstream);
     }
 
     @Test
@@ -631,14 +627,14 @@ public class GoConfigServiceTest {
     public void shouldReturnFalseIfMD5DoesNotMatch() {
         String staleMd5 = "oldmd5";
         when(goConfigDao.md5OfConfigFile()).thenReturn("newmd5");
-        assertThat(goConfigService.doesMd5Match(staleMd5), is(false));
+        assertThat(goConfigService.doesMd5Match(staleMd5)).isFalse();
     }
 
     @Test
     public void shouldReturnTrueifMd5Matches() {
         String staleMd5 = "md5";
         when(goConfigDao.md5OfConfigFile()).thenReturn("md5");
-        assertThat(goConfigService.doesMd5Match(staleMd5), is(true));
+        assertThat(goConfigService.doesMd5Match(staleMd5)).isTrue();
     }
 
     @Test
@@ -652,7 +648,7 @@ public class GoConfigServiceTest {
             goConfigService.isUserAdminOfGroup(adminName, groupName);
             fail("Should fail since group does not exist");
         } catch (Exception e) {
-            assertThat(e, is(instanceOf(RecordNotFoundException.class)));
+            assertThat(e).isInstanceOf(RecordNotFoundException.class);
         }
     }
 
@@ -667,7 +663,7 @@ public class GoConfigServiceTest {
             goConfigService.isUserAdminOfGroup(new CaseInsensitiveString("foo"), groupName);
             fail("Should fail since group does not exist");
         } catch (Exception e) {
-            assertThat(e, is(instanceOf(RecordNotFoundException.class)));
+            assertThat(e).isInstanceOf(RecordNotFoundException.class);
         }
     }
 
@@ -680,7 +676,7 @@ public class GoConfigServiceTest {
         cruiseConfig.server().security().adminsConfig().add(new AdminUser(adminName));
         mother.addPipelineWithGroup(cruiseConfig, groupName, "pipeline", "stage");
         mother.addAdminUserForPipelineGroup(cruiseConfig, "user", groupName);
-        assertThat(goConfigService.isUserAdminOfGroup(new CaseInsensitiveString("user"), groupName), is(true));
+        assertThat(goConfigService.isUserAdminOfGroup(new CaseInsensitiveString("user"), groupName)).isTrue();
     }
 
     @Test
@@ -696,7 +692,7 @@ public class GoConfigServiceTest {
         GoConfigService.XmlPartialSaver<?>partialSaver = goConfigService.groupSaver(groupName);
         String renamedGroupName = "renamed_group_name";
         GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
-        assertThat(validity.isValid(), Matchers.is(true));
+        assertThat(validity.isValid()).isEqualTo((true));
 
         ArgumentCaptor<FullConfigUpdateCommand> commandArgCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
         verify(goConfigDao).updateFullConfig(commandArgCaptor.capture());
@@ -705,10 +701,10 @@ public class GoConfigServiceTest {
         CruiseConfig updatedConfig = command.configForEdit();
         PipelineConfigs group = updatedConfig.findGroup(renamedGroupName);
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("new_name"));
-        assertThat(pipeline.name(), is(new CaseInsensitiveString("new_name")));
-        assertThat(pipeline.getLabelTemplate(), is("${COUNT}-#{foo}"));
-        assertThat(pipeline.materialConfigs().first(), is(instanceOf(SvnMaterialConfig.class)));
-        assertThat(pipeline.materialConfigs().first().getUriForDisplay(), is("file:///tmp/foo"));
+        assertThat(pipeline.name()).isEqualTo(new CaseInsensitiveString("new_name"));
+        assertThat(pipeline.getLabelTemplate()).isEqualTo("${COUNT}-#{foo}");
+        assertThat(pipeline.materialConfigs().first()).isInstanceOf(SvnMaterialConfig.class);
+        assertThat(pipeline.materialConfigs().first().getUriForDisplay()).isEqualTo("file:///tmp/foo");
     }
 
     @Test
@@ -729,11 +725,11 @@ public class GoConfigServiceTest {
 
         PipelineConfigs group = commandArgumentCaptor.getValue().configForEdit().findGroup("group_name");
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("pipeline1"));
-        assertThat(validity.isValid(), Matchers.is(true));
+        assertThat(validity.isValid()).isEqualTo((true));
 
         String entityValue = pipeline.getParams().getParamNamed("foo").getValue();
-        assertThat(entityValue, not(containsString("CONTENTS_OF_FILE")));
-        assertThat(entityValue, is(emptyString()));
+        assertThat(entityValue).doesNotContain("CONTENTS_OF_FILE");
+        assertThat(entityValue).isEmpty();
     }
 
     @Test
@@ -754,15 +750,15 @@ public class GoConfigServiceTest {
 
         GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
 
-        assertThat(validity.isValid(), Matchers.is(true));
+        assertThat(validity.isValid()).isEqualTo((true));
         CruiseConfig updatedConfig = commandArgumentCaptor.getValue().configForEdit();
 
         PipelineConfigs group = updatedConfig.findGroup(renamedGroupName);
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("new_name"));
-        assertThat(pipeline.name(), is(new CaseInsensitiveString("new_name")));
-        assertThat(pipeline.getLabelTemplate(), is("${COUNT}-#{foo}"));
-        assertThat(pipeline.materialConfigs().first(), is(instanceOf(SvnMaterialConfig.class)));
-        assertThat(pipeline.materialConfigs().first().getUriForDisplay(), is("file:///tmp/foo"));
+        assertThat(pipeline.name()).isEqualTo(new CaseInsensitiveString("new_name"));
+        assertThat(pipeline.getLabelTemplate()).isEqualTo("${COUNT}-#{foo}");
+        assertThat(pipeline.materialConfigs().first()).isInstanceOf(SvnMaterialConfig.class);
+        assertThat(pipeline.materialConfigs().first().getUriForDisplay()).isEqualTo("file:///tmp/foo");
     }
 
     @Test
@@ -777,8 +773,8 @@ public class GoConfigServiceTest {
 
         String pipelineGroupContent = groupXmlWithInvalidElement(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
-        assertThat(validity.isValid(), Matchers.is(false));
-        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
+        assertThat(validity.isValid()).isEqualTo((false));
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Invalid content was found starting with element 'unknown'");
         verify(goConfigDao, never()).updateConfig(any(UpdateConfigCommand.class));
     }
 
@@ -794,8 +790,8 @@ public class GoConfigServiceTest {
 
         String pipelineGroupContent = groupXmlWithInvalidAttributeValue(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
-        assertThat(validity.isValid(), Matchers.is(false));
-        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), containsString("Name is invalid. \"pipeline@$^\""));
+        assertThat(validity.isValid()).isEqualTo((false));
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Name is invalid. \"pipeline@$^\"");
         verify(goConfigDao, never()).updateConfig(any(UpdateConfigCommand.class));
     }
 
@@ -810,14 +806,14 @@ public class GoConfigServiceTest {
         when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
 
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml("<foobar>", "md5");
-        assertThat(validity.isValid(), Matchers.is(false));
-        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), containsString("XML document structures must start and end within the same entity"));
+        assertThat(validity.isValid()).isEqualTo((false));
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("XML document structures must start and end within the same entity");
         verify(goConfigDao, never()).updateConfig(any(UpdateConfigCommand.class));
     }
 
     @Test
     public void shouldFindConfigChangesForGivenConfigMd5() throws Exception {
-        assertThat(goConfigService.configChangesFor("md5-5", "md5-4", new HttpLocalizedOperationResult()), is(nullValue()));
+        assertThat(goConfigService.configChangesFor("md5-5", "md5-4", new HttpLocalizedOperationResult())).isNull();
         verify(configRepo).configChangesFor("md5-5", "md5-4");
     }
 
@@ -825,20 +821,20 @@ public class GoConfigServiceTest {
     public void shouldUpdateResultAsConfigRevisionNotFoundWhenConfigChangeIsNotFound() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(configRepo.configChangesFor("md5-5", "md5-4")).thenThrow(new IllegalArgumentException("something"));
-        assertThat(goConfigService.configChangesFor("md5-5", "md5-4", result), is(nullValue()));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(SC_BAD_REQUEST));
-        assertThat(result.message(), is("Historical configuration is not available for this stage run."));
+        assertThat(goConfigService.configChangesFor("md5-5", "md5-4", result)).isNull();
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(SC_BAD_REQUEST);
+        assertThat(result.message()).isEqualTo("Historical configuration is not available for this stage run.");
     }
 
     @Test
     public void shouldUpdateResultAsCouldNotRetrieveConfigDiffWhenGenericExceptionOccurs() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(configRepo.configChangesFor("md5-5", "md5-4")).thenThrow(new RuntimeException("something"));
-        assertThat(goConfigService.configChangesFor("md5-5", "md5-4", result), is(nullValue()));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(SC_INTERNAL_SERVER_ERROR));
-        assertThat(result.message(), is("Could not retrieve config changes for this revision."));
+        assertThat(goConfigService.configChangesFor("md5-5", "md5-4", result)).isNull();
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(SC_INTERNAL_SERVER_ERROR);
+        assertThat(result.message()).isEqualTo("Could not retrieve config changes for this revision.");
     }
 
     @Test
@@ -847,7 +843,7 @@ public class GoConfigServiceTest {
         when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.any())).thenReturn(expectedSaveState);
         ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()), "md5", null, null, null, null, "http://site",
                 "https://site");
-        assertThat(configSaveState, is(expectedSaveState));
+        assertThat(configSaveState).isEqualTo(expectedSaveState);
     }
 
     @Test
@@ -866,7 +862,7 @@ public class GoConfigServiceTest {
         pipelineConfig.setOrigin(new RepoConfigOrigin());
         group.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(group));
-        assertThat(goConfigService.isPipelineEditable("pipeline"), is(false));
+        assertThat(goConfigService.isPipelineEditable("pipeline")).isFalse();
     }
 
     @Test
@@ -875,7 +871,7 @@ public class GoConfigServiceTest {
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         group.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(group));
-        assertThat(goConfigService.isPipelineEditable("pipeline"), is(true));
+        assertThat(goConfigService.isPipelineEditable("pipeline")).isTrue();
     }
 
     @Test
@@ -899,7 +895,7 @@ public class GoConfigServiceTest {
 
         Set<DependencyMaterialConfig> schedulableDependencyMaterials = goConfigService.getSchedulableDependencyMaterials();
 
-        assertThat(schedulableDependencyMaterials.size(), is(1));
+        assertThat(schedulableDependencyMaterials.size()).isEqualTo(1);
         assertTrue(schedulableDependencyMaterials.contains(dependencyMaterialConfig));
     }
 
@@ -916,7 +912,7 @@ public class GoConfigServiceTest {
 
         Set<MaterialConfig> schedulableDependencyMaterials = goConfigService.getSchedulableSCMMaterials();
 
-        assertThat(schedulableDependencyMaterials.size(), is(2));
+        assertThat(schedulableDependencyMaterials.size()).isEqualTo(2);
         assertTrue(schedulableDependencyMaterials.contains(svnMaterialConfig));
         assertTrue(schedulableDependencyMaterials.contains(pluggableSCMMaterialConfig));
     }
@@ -991,7 +987,7 @@ public class GoConfigServiceTest {
 
         List<CaseInsensitiveString> pipelineNames = goConfigService.pipelinesWithMaterial(gitMaterialConfig.getFingerprint());
 
-        assertThat(pipelineNames, contains(new CaseInsensitiveString("pipeline_name")));
+        assertThat(pipelineNames).contains(new CaseInsensitiveString("pipeline_name"));
     }
 
     @Test
@@ -1007,14 +1003,14 @@ public class GoConfigServiceTest {
 
         List<CaseInsensitiveString> pipelineNames = goConfigService.pipelinesWithMaterial(gitMaterialConfig.getFingerprint());
 
-        assertThat(pipelineNames, contains(new CaseInsensitiveString("pipeline_name")));
+        assertThat(pipelineNames).contains(new CaseInsensitiveString("pipeline_name"));
     }
 
     @Test
     public void shouldReturnEmptyWhenThereAreNoPipelinesWithGivenFingerprint() {
         List<CaseInsensitiveString> pipelineNames = goConfigService.pipelinesWithMaterial("fingerprint");
 
-        assertThat(pipelineNames.isEmpty(), is(true));
+        assertThat(pipelineNames.isEmpty()).isTrue();
     }
 
     @Test
@@ -1026,9 +1022,9 @@ public class GoConfigServiceTest {
         configMother.addPipelineWithGroup(config, "group2", "pipeline3", "stage1", "job1");
 
         expectLoad(config);
-        assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1")).getGroup(), is("group1"));
-        assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline2")).getGroup(), is("group1"));
-        assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline3")).getGroup(), is("group2"));
+        assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1")).getGroup()).isEqualTo("group1");
+        assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline2")).getGroup()).isEqualTo("group1");
+        assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline3")).getGroup()).isEqualTo("group2");
     }
 
     @Test
@@ -1040,9 +1036,9 @@ public class GoConfigServiceTest {
         configMother.addPipelineWithGroup(config, "group2", "pipeline3", "stage1", "job1");
 
         expectLoad(config);
-        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("pipeline1")).name().toString(), is("pipeline1"));
-        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("pipeline2")).name().toString(), is("pipeline2"));
-        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("pipeline3")).name().toString(), is("pipeline3"));
+        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("pipeline1")).name().toString()).isEqualTo("pipeline1");
+        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("pipeline2")).name().toString()).isEqualTo("pipeline2");
+        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("pipeline3")).name().toString()).isEqualTo("pipeline3");
     }
 
     @Test
@@ -1054,7 +1050,7 @@ public class GoConfigServiceTest {
         configMother.addPipelineWithGroup(config, "group2", "pipeline3", "stage1", "job1");
 
         expectLoad(config);
-        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("invalid")), is(nullValue()));
+        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("invalid"))).isNull();
     }
 
     @Test
@@ -1066,7 +1062,7 @@ public class GoConfigServiceTest {
         configMother.addPipelineWithGroup(config, "default", "pipeline1", "stage1", "job1");
 
         expectLoad(config);
-        assertThat(goConfigService.getSecretConfigById("secret_config_id"), is(secretConfig));
+        assertThat(goConfigService.getSecretConfigById("secret_config_id")).isEqualTo(secretConfig);
     }
 
     @Test
@@ -1076,7 +1072,7 @@ public class GoConfigServiceTest {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
 
         expectLoad(config);
-        assertThat(goConfigService.getSecretConfigById("invalid"), is(nullValue()));
+        assertThat(goConfigService.getSecretConfigById("invalid")).isNull();
     }
 
     @Test
@@ -1091,7 +1087,7 @@ public class GoConfigServiceTest {
 
         List<PipelineConfig> pipelines = goConfigService.getAllPipelineConfigsForEditForUser(new Username("superadmin"));
 
-        assertThat(pipelines, contains(pipelineConfig));
+        assertThat(pipelines).contains(pipelineConfig);
     }
 
     @Test
@@ -1111,8 +1107,8 @@ public class GoConfigServiceTest {
 
         List<PipelineConfig> pipelines = goConfigService.getAllPipelineConfigsForEditForUser(new Username("groupAdmin"));
 
-        assertThat(pipelines, contains(pipelineConfig1));
-        assertThat(pipelines, not(contains(pipelineConfig2)));
+        assertThat(pipelines).contains(pipelineConfig1);
+        assertThat(pipelines).doesNotContain(pipelineConfig2);
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

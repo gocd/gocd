@@ -30,10 +30,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -71,8 +69,8 @@ public class RolesConfigBulkUpdateCommandTest {
 
         RoleConfig expectedRole1 = new RoleConfig("foo", new RoleUser("user1"), new RoleUser("user2"));
         RoleConfig expectedRole2 = new RoleConfig("bar");
-        assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("foo")), is(equalTo(expectedRole1)));
-        assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("bar")), is(equalTo(expectedRole2)));
+        assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("foo"))).isEqualTo(expectedRole1);
+        assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("bar"))).isEqualTo(expectedRole2);
     }
 
     @Test
@@ -87,7 +85,7 @@ public class RolesConfigBulkUpdateCommandTest {
 
         assertFalse(command.canContinue(null));
         assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(403));
+        assertThat(result.httpCode()).isEqualTo(403);
     }
 
     @Test

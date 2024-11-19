@@ -42,8 +42,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -96,7 +95,7 @@ public class BuilderFactoryTest {
             Pipeline pipeline = PipelineMother.pipeline("pipeline1", StageMother.custom("stage1"));
             builderFactory.builderFor(task, pipeline, pipelineResolver);
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Unexpected type of task: " + task.getClass()));
+            assertThat(e.getMessage()).isEqualTo("Unexpected type of task: " + task.getClass());
         }
     }
 
@@ -120,11 +119,11 @@ public class BuilderFactoryTest {
 
         List<Builder> builders = builderFactory.buildersForTasks(pipeline, List.of(new Task[]{antTask, nantTask, rakeTask, pluggableTask}), pipelineResolver);
 
-        assertThat(builders.size(), is(4));
-        assertThat(builders.get(0), is(expectedBuilderForAntTask));
-        assertThat(builders.get(1), is(expectedBuilderForNantTask));
-        assertThat(builders.get(2), is(expectedBuilderForRakeTask));
-        assertThat(builders.get(3), is(expectedBuilderForPluggableTask));
+        assertThat(builders.size()).isEqualTo(4);
+        assertThat(builders.get(0)).isEqualTo(expectedBuilderForAntTask);
+        assertThat(builders.get(1)).isEqualTo(expectedBuilderForNantTask);
+        assertThat(builders.get(2)).isEqualTo(expectedBuilderForRakeTask);
+        assertThat(builders.get(3)).isEqualTo(expectedBuilderForPluggableTask);
     }
 
     private void assertBuilderForTask(Task task, TaskBuilder<Task> expectedBuilderToBeUsed) {
@@ -135,7 +134,7 @@ public class BuilderFactoryTest {
 
         Builder builder = builderFactory.builderFor(task, pipeline, pipelineResolver);
 
-        assertThat(builder, is(expectedBuilder));
+        assertThat(builder).isEqualTo(expectedBuilder);
     }
 
     private Builder myFakeBuilder() {

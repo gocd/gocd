@@ -36,9 +36,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,10 +60,10 @@ public class PluginProfileCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         PluginProfileCommand command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo("Unauthorized to edit."));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.message()).isEqualTo("Unauthorized to edit.");
     }
 
     @Test
@@ -74,10 +73,10 @@ public class PluginProfileCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         PluginProfileCommand command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
-        assertThat(result.httpCode(), is(200));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
+        assertThat(result.httpCode()).isEqualTo(200);
     }
 
     @Test
@@ -99,9 +98,9 @@ public class PluginProfileCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         PluginProfileCommand command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     private class StubSecurityAuthConfigCommand extends PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> {

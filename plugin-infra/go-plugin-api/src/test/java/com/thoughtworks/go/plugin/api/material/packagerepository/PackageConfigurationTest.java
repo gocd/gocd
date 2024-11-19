@@ -18,8 +18,7 @@ package com.thoughtworks.go.plugin.api.material.packagerepository;
 import com.thoughtworks.go.plugin.api.config.Property;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PackageConfigurationTest {
     @Test
@@ -31,8 +30,8 @@ public class PackageConfigurationTest {
         packageConfiguration.add(c1);
         packageConfiguration.add(c2);
         packageConfiguration.add(c3);
-        assertThat(packageConfiguration.list().get(0), is(c2));
-        assertThat(packageConfiguration.list().get(1), is(c3));
-        assertThat(packageConfiguration.list().get(2), is(c1));
+        assertThat(packageConfiguration.list().get(0)).isEqualTo(c2);
+        assertThat(packageConfiguration.list().get(1)).isEqualTo(c3);
+        assertThat(packageConfiguration.list().get(2)).isEqualTo(c1);
     }
 }

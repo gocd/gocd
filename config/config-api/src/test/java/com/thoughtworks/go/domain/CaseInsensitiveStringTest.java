@@ -19,33 +19,32 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CaseInsensitiveStringTest {
 
     @Test
     public void shouldIgnoreCaseInEquals() {
         CaseInsensitiveString name = new CaseInsensitiveString("someName");
-        assertThat(name, is(new CaseInsensitiveString("someName")));
-        assertThat(name, is(new CaseInsensitiveString("SOMENAME")));
-        assertThat(name, not(new CaseInsensitiveString("SOMECRAP")));
+        assertThat(name).isEqualTo(new CaseInsensitiveString("someName"));
+        assertThat(name).isEqualTo(new CaseInsensitiveString("SOMENAME"));
+        assertThat(name).isNotEqualTo(new CaseInsensitiveString("SOMECRAP"));
     }
 
     @Test
     public void shouldUnderstandBlankString() {
-        assertThat(new CaseInsensitiveString("someName").isBlank(), is(false));
-        assertThat(new CaseInsensitiveString(null).isBlank(), is(true));
-        assertThat(new CaseInsensitiveString("").isBlank(), is(true));
-        assertThat(new CaseInsensitiveString(" ").isBlank(), is(false));
+        assertThat(new CaseInsensitiveString("someName").isBlank()).isFalse();
+        assertThat(new CaseInsensitiveString(null).isBlank()).isTrue();
+        assertThat(new CaseInsensitiveString("").isBlank()).isTrue();
+        assertThat(new CaseInsensitiveString(" ").isBlank()).isFalse();
     }
 
     @Test
     public void shouldClone() throws Exception {
         CaseInsensitiveString foo = new CaseInsensitiveString("foo");
         CaseInsensitiveString fooClone = ReflectionUtil.invoke(foo, "clone");
-        assertThat(foo, is(fooClone));
-        assertThat(foo, not(sameInstance(fooClone)));
+        assertThat(foo).isEqualTo(fooClone);
+        assertThat(foo).isNotSameAs(fooClone);
     }
 
     @Test
@@ -53,25 +52,25 @@ public class CaseInsensitiveStringTest {
         CaseInsensitiveString foo = new CaseInsensitiveString("foo");
         CaseInsensitiveString fOO = new CaseInsensitiveString("fOO");
         CaseInsensitiveString bar = new CaseInsensitiveString("bar");
-        assertThat(foo.compareTo(fOO), is(0));
-        assertThat(fOO.compareTo(foo), is(0));
-        assertThat(bar.compareTo(foo), lessThan(0));
-        assertThat(bar.compareTo(fOO), lessThan(0));
-        assertThat(foo.compareTo(bar), greaterThan(0));
-        assertThat(fOO.compareTo(bar), greaterThan(0));
+        assertThat(foo.compareTo(fOO)).isEqualTo(0);
+        assertThat(fOO.compareTo(foo)).isEqualTo(0);
+        assertThat(bar.compareTo(foo)).isLessThan(0);
+        assertThat(bar.compareTo(fOO)).isLessThan(0);
+        assertThat(foo.compareTo(bar)).isGreaterThan(0);
+        assertThat(fOO.compareTo(bar)).isGreaterThan(0);
     }
 
     @Test
     public void shouldUnderstandCase() {
-        assertThat(new CaseInsensitiveString("foo").toUpper(), is("FOO"));
-        assertThat(new CaseInsensitiveString("FOO").toLower(), is("foo"));
+        assertThat(new CaseInsensitiveString("foo").toUpper()).isEqualTo("FOO");
+        assertThat(new CaseInsensitiveString("FOO").toLower()).isEqualTo("foo");
     }
 
     @Test
     public void shouldReturnNullSafeStringRepresentation() {
-        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString("foo")), is("foo"));
-        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString("")), is(""));
-        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString(null)), nullValue());
-        assertThat(CaseInsensitiveString.str(null), nullValue());
+        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString("foo"))).isEqualTo("foo");
+        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString(""))).isEqualTo("");
+        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString(null))).isNull();
+        assertThat(CaseInsensitiveString.str(null)).isNull();
     }
 }

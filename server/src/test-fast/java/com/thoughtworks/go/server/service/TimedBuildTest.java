@@ -25,9 +25,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TimedBuildTest {
 
@@ -39,7 +37,7 @@ public class TimedBuildTest {
         PipelineConfig timerConfig = PipelineConfigMother.pipelineConfigWithTimer("Timer", "* * * * * ?", true);
         BuildCause buildCause = timedBuild.onEmptyModifications(timerConfig, someRevisions);
 
-        assertThat(buildCause, is(nullValue()));
+        assertThat(buildCause).isNull();
     }
 
     @Test
@@ -50,7 +48,7 @@ public class TimedBuildTest {
         PipelineConfig timerConfig = PipelineConfigMother.pipelineConfigWithTimer("Timer", "* * * * * ?", false);
         BuildCause buildCause = timedBuild.onEmptyModifications(timerConfig, someRevisions);
 
-        assertThat(buildCause.getMaterialRevisions(), is(someRevisions));
-        assertThat(buildCause.getApprover(), is(Username.CRUISE_TIMER.getDisplayName()));
+        assertThat(buildCause.getMaterialRevisions()).isEqualTo(someRevisions);
+        assertThat(buildCause.getApprover()).isEqualTo(Username.CRUISE_TIMER.getDisplayName());
     }
 }

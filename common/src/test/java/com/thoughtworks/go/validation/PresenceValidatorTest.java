@@ -18,28 +18,27 @@ package com.thoughtworks.go.validation;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PresenceValidatorTest {
     @Test
     public void shouldNotRenderErrorWhenStringIsNotBlank() throws Exception {
         ValidationBean validation = new PresenceValidator("String must be non-blank").validate("foo");
-        assertThat(validation.isValid(), is(true));
+        assertThat(validation.isValid()).isTrue();
     }
 
     @Test
     public void shouldRenderErrorWhenStringIsBlank() throws Exception {
         ValidationBean validation = new PresenceValidator("String must be non-blank").validate("");
-        assertThat(validation.isValid(), is(false));
+        assertThat(validation.isValid()).isFalse();
 
         validation = new PresenceValidator("String must be non-blank").validate(null);
-        assertThat(validation.isValid(), is(false));
+        assertThat(validation.isValid()).isFalse();
 
         validation = new PresenceValidator("String must be non-blank").validate("   ");
-        assertThat(validation.isValid(), is(false));
+        assertThat(validation.isValid()).isFalse();
 
         validation = new PresenceValidator("String must be non-blank").validate(" \t\n  ");
-        assertThat(validation.isValid(), is(false));
+        assertThat(validation.isValid()).isFalse();
     }
 }

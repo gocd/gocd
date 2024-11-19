@@ -29,8 +29,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -65,7 +64,7 @@ public class XmlPartialConfigProviderTest {
 
         PartialConfig part = xmlPartialProvider.parseFile(file);
         PipelineConfig pipeRead = part.getGroups().get(0).get(0);
-        assertThat(pipeRead,is(pipe1));
+        assertThat(pipeRead).isEqualTo(pipe1);
     }
 
     @Test
@@ -77,9 +76,9 @@ public class XmlPartialConfigProviderTest {
 
         PartialConfig part = xmlPartialProvider.parseFile(file);
         PipelineConfigs groupRead = part.getGroups().get(0);
-        assertThat(groupRead,is(group1));
-        assertThat(groupRead.size(),is(group1.size()));
-        assertThat(groupRead.get(0),is(group1.get(0)));
+        assertThat(groupRead).isEqualTo(group1);
+        assertThat(groupRead.size()).isEqualTo(group1.size());
+        assertThat(groupRead.get(0)).isEqualTo(group1.get(0));
     }
 
     @Test
@@ -91,8 +90,8 @@ public class XmlPartialConfigProviderTest {
         PartialConfig part = xmlPartialProvider.parseFile(file);
 
         EnvironmentsConfig loadedEnvs = part.getEnvironments();
-        assertThat(loadedEnvs.size(),is(1));
-        assertThat(loadedEnvs.get(0),is(env));
+        assertThat(loadedEnvs.size()).isEqualTo(1);
+        assertThat(loadedEnvs.get(0)).isEqualTo(env);
     }
 
 
@@ -105,7 +104,7 @@ public class XmlPartialConfigProviderTest {
 
         PartialConfig part = xmlPartialProvider.load(tmpFolder,mock(PartialConfigLoadContext.class));
         PipelineConfig pipeRead = part.getGroups().get(0).get(0);
-        assertThat(pipeRead,is(pipe1));
+        assertThat(pipeRead).isEqualTo(pipe1);
     }
 
     @Test
@@ -117,9 +116,9 @@ public class XmlPartialConfigProviderTest {
 
         PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));
         PipelineConfigs groupRead = part.getGroups().get(0);
-        assertThat(groupRead,is(group1));
-        assertThat(groupRead.size(),is(group1.size()));
-        assertThat(groupRead.get(0),is(group1.get(0)));
+        assertThat(groupRead).isEqualTo(group1);
+        assertThat(groupRead.size()).isEqualTo(group1.size());
+        assertThat(groupRead.get(0)).isEqualTo(group1.get(0));
     }
 
     @Test
@@ -135,11 +134,11 @@ public class XmlPartialConfigProviderTest {
         PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));
 
         PipelineGroups groupsRead = part.getGroups();
-        assertThat(groupsRead.size(),is(2));
+        assertThat(groupsRead.size()).isEqualTo(2);
 
         EnvironmentsConfig loadedEnvs = part.getEnvironments();
-        assertThat(loadedEnvs.size(),is(1));
-        assertThat(loadedEnvs.get(0),is(env));
+        assertThat(loadedEnvs.size()).isEqualTo(1);
+        assertThat(loadedEnvs.get(0)).isEqualTo(env);
     }
 
     @Test
@@ -191,7 +190,7 @@ public class XmlPartialConfigProviderTest {
         try {
             PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));
         } catch (Exception ex) {
-            assertThat(ex.getMessage(), is("You have defined multiple pipelines called 'pipeline1'. Pipeline names must be unique."));
+            assertThat(ex.getMessage()).isEqualTo("You have defined multiple pipelines called 'pipeline1'. Pipeline names must be unique.");
             return;
         }
         fail("should have thrown");

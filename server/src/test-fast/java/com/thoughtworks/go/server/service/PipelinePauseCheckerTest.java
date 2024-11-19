@@ -20,8 +20,7 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,8 +41,8 @@ public class PipelinePauseCheckerTest {
         when(pipelinePauseService.isPaused(pipelineName)).thenReturn(true);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
-        assertThat(result.getServerHealthState().isSuccess(), is(false));
-        assertThat(result.getServerHealthState().getDescription(), is("Pipeline cruise is paused"));
+        assertThat(result.getServerHealthState().isSuccess()).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).isEqualTo("Pipeline cruise is paused");
     }
 
     @Test
@@ -51,7 +50,7 @@ public class PipelinePauseCheckerTest {
         when(pipelinePauseService.isPaused(pipelineName)).thenReturn(false);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
-        assertThat(result.getServerHealthState().isSuccess(), is(true));
+        assertThat(result.getServerHealthState().isSuccess()).isTrue();
     }
 
     @Test
@@ -59,8 +58,8 @@ public class PipelinePauseCheckerTest {
         when(pipelinePauseService.isPaused(pipelineName)).thenReturn(true);
         HttpOperationResult result = new HttpOperationResult();
         checker.check(result);
-        assertThat(result.httpCode(), is(409));
-        assertThat(result.getServerHealthState().isSuccess(), is(false));
-        assertThat(result.getServerHealthState().getDescription(), is("Pipeline cruise is paused"));
+        assertThat(result.httpCode()).isEqualTo(409);
+        assertThat(result.getServerHealthState().isSuccess()).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).isEqualTo("Pipeline cruise is paused");
     }
 }

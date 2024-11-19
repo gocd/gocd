@@ -17,55 +17,53 @@ package com.thoughtworks.go.config;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RakeTaskTest {
     @Test
-    public void shouldReturnEmptyStringForDefault() throws Exception {
+    public void shouldReturnEmptyStringForDefault() {
         RakeTask rakeTask = new RakeTask();
-        assertThat(rakeTask.arguments(), is(""));
+        assertThat(rakeTask.arguments()).isEqualTo("");
     }
 
     @Test
-    public void shouldContainBuildFileWhenDefined() throws Exception {
+    public void shouldContainBuildFileWhenDefined() {
         RakeTask rakeTask = new RakeTask();
         rakeTask.setBuildFile("myrakefile.rb");
-        assertThat(rakeTask.arguments(), is("-f \"myrakefile.rb\""));
+        assertThat(rakeTask.arguments()).isEqualTo("-f \"myrakefile.rb\"");
     }
 
     @Test
-    public void shouldContainBuildFileAndTargetWhenBothDefined() throws Exception {
+    public void shouldContainBuildFileAndTargetWhenBothDefined() {
         RakeTask rakeTask = new RakeTask();
         rakeTask.setBuildFile("myrakefile.rb");
         rakeTask.setTarget("db:migrate VERSION=0");
-        assertThat(rakeTask.arguments(), is("-f \"myrakefile.rb\" db:migrate VERSION=0"));
+        assertThat(rakeTask.arguments()).isEqualTo("-f \"myrakefile.rb\" db:migrate VERSION=0");
     }
 
     @Test
-    public void shouldUseRakeFileFromAnyDirectoryUnderRoot() throws Exception {
+    public void shouldUseRakeFileFromAnyDirectoryUnderRoot() {
         RakeTask rakeTask = new RakeTask();
         String rakeFile = "build/myrakefile.rb";
 
         rakeTask.setBuildFile(rakeFile);
         rakeTask.setTarget("db:migrate VERSION=0");
-        assertThat(rakeTask.arguments(), is("-f \"" + rakeFile + "\" db:migrate VERSION=0"));
+        assertThat(rakeTask.arguments()).isEqualTo("-f \"" + rakeFile + "\" db:migrate VERSION=0");
     }
 
     @Test
-    public void describeTest() throws Exception {
+    public void describeTest() {
         RakeTask rakeTask = new RakeTask();
         rakeTask.setBuildFile("myrakefile.rb");
         rakeTask.setTarget("db:migrate VERSION=0");
         rakeTask.setWorkingDirectory("lib");
 
-        assertThat(rakeTask.describe(),
-                is("rake -f \"myrakefile.rb\" db:migrate VERSION=0 (workingDirectory: lib)"));
+        assertThat(rakeTask.describe()).isEqualTo("rake -f \"myrakefile.rb\" db:migrate VERSION=0 (workingDirectory: lib)");
     }
 
     @Test
     public void shouldShowCommandName() {
-        assertThat(new RakeTask().command(), is("rake"));
+        assertThat(new RakeTask().command()).isEqualTo("rake");
     }
 
     @Test
@@ -73,6 +71,6 @@ public class RakeTaskTest {
         RakeTask rakeTask = new RakeTask();
         rakeTask.setBuildFile("myrakefile.rb");
         rakeTask.setTarget("db:migrate VERSION=0");
-        assertThat(rakeTask.arguments(), is("-f \"myrakefile.rb\" db:migrate VERSION=0"));
+        assertThat(rakeTask.arguments()).isEqualTo("-f \"myrakefile.rb\" db:migrate VERSION=0");
     }
 }

@@ -19,36 +19,35 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PathFromAncestorTest {
     @Test
     public void shouldReturnOnlyPath_excludingActualAncestorNode() {
         PathFromAncestor path = new PathFromAncestor(new CaseInsensitiveString("grand-parent/parent/child"));
-        assertThat(path.pathToAncestor(), is(List.of(new CaseInsensitiveString("child"), new CaseInsensitiveString("parent"))));
+        assertThat(path.pathToAncestor()).isEqualTo(List.of(new CaseInsensitiveString("child"), new CaseInsensitiveString("parent")));
     }
 
     @Test
     public void shouldReturnPath_includingActualAncestorNode() {
         PathFromAncestor path = new PathFromAncestor(new CaseInsensitiveString("grand-parent/parent/child"));
-        assertThat(path.pathIncludingAncestor(), is(List.of(new CaseInsensitiveString("child"), new CaseInsensitiveString("parent"), new CaseInsensitiveString("grand-parent"))));
+        assertThat(path.pathIncludingAncestor()).isEqualTo(List.of(new CaseInsensitiveString("child"), new CaseInsensitiveString("parent"), new CaseInsensitiveString("grand-parent")));
     }
 
     @Test
     public void shouldUnderstandAncestorName() {
         PathFromAncestor path = new PathFromAncestor(new CaseInsensitiveString("grand-parent/parent/child"));
-        assertThat(path.getAncestorName(), is(new CaseInsensitiveString("grand-parent")));
+        assertThat(path.getAncestorName()).isEqualTo(new CaseInsensitiveString("grand-parent"));
     }
 
     @Test
     public void shouldUnderstandDirectParentName() {
         PathFromAncestor path = new PathFromAncestor(new CaseInsensitiveString("grand-parent/parent/child"));
-        assertThat(path.getDirectParentName(), is(new CaseInsensitiveString("child")));
+        assertThat(path.getDirectParentName()).isEqualTo(new CaseInsensitiveString("child"));
     }
 
     @Test
     public void shouldReturnPath_asToString() {//this is important because its used in xml fragment that is spit out on job-console
-        assertThat(new PathFromAncestor(new CaseInsensitiveString("grand-parent/parent/child")).toString(), is("grand-parent/parent/child"));
+        assertThat(new PathFromAncestor(new CaseInsensitiveString("grand-parent/parent/child")).toString()).isEqualTo("grand-parent/parent/child");
     }
 }

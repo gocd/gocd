@@ -25,14 +25,9 @@ import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
-import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
-import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
-import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.ValidationError;
 import com.thoughtworks.go.plugin.domain.common.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,8 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
@@ -71,7 +65,7 @@ public class SecurityAuthConfigServiceTest {
 
         VerifyConnectionResponse response = securityAuthConfigService.verifyConnection(ldap);
 
-        assertThat(response, is(success));
+        assertThat(response).isEqualTo(success);
     }
 
     @Test
@@ -88,9 +82,9 @@ public class SecurityAuthConfigServiceTest {
 
         VerifyConnectionResponse response = securityAuthConfigService.verifyConnection(ldap);
 
-        assertThat(response, is(validationFailed));
-        assertThat(ldap.getProperty("username").errors().get("username").get(0), is("Username cannot be blank"));
-        assertThat(ldap.getProperty("password").errors().get("password").get(0), is("Password cannot be blank"));
+        assertThat(response).isEqualTo(validationFailed);
+        assertThat(ldap.getProperty("username").errors().get("username").get(0)).isEqualTo("Username cannot be blank");
+        assertThat(ldap.getProperty("password").errors().get("password").get(0)).isEqualTo("Password cannot be blank");
     }
 
     @Test
@@ -102,7 +96,7 @@ public class SecurityAuthConfigServiceTest {
 
         VerifyConnectionResponse response = securityAuthConfigService.verifyConnection(ldap);
 
-        assertThat(response, is(success));
+        assertThat(response).isEqualTo(success);
     }
 
     @Test
@@ -113,8 +107,8 @@ public class SecurityAuthConfigServiceTest {
 
         VerifyConnectionResponse response = securityAuthConfigService.verifyConnection(ldap);
 
-        assertThat(response, is(new VerifyConnectionResponse("failure", "Unable to verify connection, missing plugin: cd.go.ldap",
-                new com.thoughtworks.go.plugin.domain.common.ValidationResult())));
+        assertThat(response).isEqualTo(new VerifyConnectionResponse("failure", "Unable to verify connection, missing plugin: cd.go.ldap",
+                new com.thoughtworks.go.plugin.domain.common.ValidationResult()));
     }
 
     @Test
@@ -156,8 +150,8 @@ public class SecurityAuthConfigServiceTest {
 
         securityAuthConfigService.create(username, securityAuthConfig, new HttpLocalizedOperationResult());
 
-        assertThat(securityAuthConfig.errors().isEmpty(), is(false));
-        assertThat(securityAuthConfig.errors().on("pluginId"), is("Plugin with id `non-existent-plugin` is not found."));
+        assertThat(securityAuthConfig.errors().isEmpty()).isFalse();
+        assertThat(securityAuthConfig.errors().on("pluginId")).isEqualTo("Plugin with id `non-existent-plugin` is not found.");
     }
 
     @Test
@@ -189,8 +183,8 @@ public class SecurityAuthConfigServiceTest {
 
         securityAuthConfigService.update(username, "md5", securityAuthConfig, new HttpLocalizedOperationResult());
 
-        assertThat(securityAuthConfig.errors().isEmpty(), is(false));
-        assertThat(securityAuthConfig.errors().on("pluginId"), is("Plugin with id `non-existent-plugin` is not found."));
+        assertThat(securityAuthConfig.errors().isEmpty()).isFalse();
+        assertThat(securityAuthConfig.errors().on("pluginId")).isEqualTo("Plugin with id `non-existent-plugin` is not found.");
     }
 
     @Test
@@ -210,7 +204,7 @@ public class SecurityAuthConfigServiceTest {
         securityConfig.securityAuthConfigs().add(authConfig);
         when(goConfigService.security()).thenReturn(securityConfig);
 
-        assertThat(securityAuthConfigService.findProfile("ldap"), is(authConfig));
+        assertThat(securityAuthConfigService.findProfile("ldap")).isEqualTo(authConfig);
     }
 
     @Test
@@ -224,7 +218,7 @@ public class SecurityAuthConfigServiceTest {
     public void shouldReturnAnEmptyMapForAuthConfigsIfNonePresent() {
         when(goConfigService.security()).thenReturn(new SecurityConfig());
 
-        assertThat(securityAuthConfigService.listAll().isEmpty(), is(true));
+        assertThat(securityAuthConfigService.listAll().isEmpty()).isTrue();
     }
 
     @Test
@@ -238,13 +232,7 @@ public class SecurityAuthConfigServiceTest {
         expectedMap.put("ldap", authConfig);
 
         Map<String, SecurityAuthConfig> authConfigMap = securityAuthConfigService.listAll();
-        assertThat(authConfigMap.size(), is(1));
-        assertThat(authConfigMap, is(expectedMap));
-    }
-
-    private AuthorizationPluginInfo pluginInfo(String githubPluginId, String name, SupportedAuthType supportedAuthType) {
-        GoPluginDescriptor.About about = GoPluginDescriptor.About.builder().name(name).build();
-        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id(githubPluginId).about(about).build();
-        return new AuthorizationPluginInfo(descriptor, null, null, new Image("svg", "data", "hash"), new Capabilities(supportedAuthType, true, true, false));
+        assertThat(authConfigMap.size()).isEqualTo(1);
+        assertThat(authConfigMap).isEqualTo(expectedMap);
     }
 }

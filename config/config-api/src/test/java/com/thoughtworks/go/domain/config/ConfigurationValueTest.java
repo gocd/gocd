@@ -17,38 +17,37 @@ package com.thoughtworks.go.domain.config;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigurationValueTest {
 
     @Test
     public void shouldCheckForEqualityOfValue() {
         ConfigurationValue configurationValue = new ConfigurationValue(ConfigurationValue.VALUE);
-        assertThat(configurationValue, is(new ConfigurationValue(ConfigurationValue.VALUE)));
+        assertThat(configurationValue).isEqualTo(new ConfigurationValue(ConfigurationValue.VALUE));
     }
 
     @Test
     public void shouldHandleBooleanValueAsAString() throws Exception {
         final ConfigurationValue configurationValue = new ConfigurationValue(true);
-        assertThat(configurationValue.getValue(), is("true"));
+        assertThat(configurationValue.getValue()).isEqualTo("true");
     }
 
     @Test
     public void shouldHandleIntegerValueAsAString() throws Exception {
         final ConfigurationValue configurationValue = new ConfigurationValue(1);
-        assertThat(configurationValue.getValue(), is("1"));
+        assertThat(configurationValue.getValue()).isEqualTo("1");
     }
 
     @Test
     public void shouldHandleLongValueAsAString() throws Exception {
         final ConfigurationValue configurationValue = new ConfigurationValue(5L);
-        assertThat(configurationValue.getValue(), is("5"));
+        assertThat(configurationValue.getValue()).isEqualTo("5");
     }
 
     @Test
     public void shouldHandleDoubleValueAsAString() throws Exception {
         final ConfigurationValue configurationValue = new ConfigurationValue(3.1428571429D);
-        assertThat(configurationValue.getValue(), is("3.1428571429"));
+        assertThat(configurationValue.getValue()).isEqualTo("3.1428571429");
     }
 }

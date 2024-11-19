@@ -43,8 +43,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -127,7 +126,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
         if (!threadTwoExceptions.isEmpty()) {
             throw threadTwoExceptions.get(0);
         }
-        assertThat("transaction template executeWithExceptionHandling should be invoked only once",transactionTemplateWithInvocationCount.invocationCount, is(1));
+        assertThat(transactionTemplateWithInvocationCount.invocationCount).isEqualTo(1);
     }
 
     private class MaterialServiceWhichSlowsDownFirstTimeModificationCheck extends MaterialService {

@@ -47,9 +47,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -89,18 +87,18 @@ public class PluginNotificationServiceTest {
         verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(1000L));
 
         PluginNotificationMessage message = captor.getValue();
-        assertThat(message.pluginId(), is(PLUGIN_ID_1));
-        assertThat(message.getRequestName(), is(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION));
-        assertThat(message.getData() instanceof AgentNotificationData, is(true));
+        assertThat(message.pluginId()).isEqualTo(PLUGIN_ID_1);
+        assertThat(message.getRequestName()).isEqualTo(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION);
+        assertThat(message.getData() instanceof AgentNotificationData).isTrue();
         AgentNotificationData data = (AgentNotificationData) message.getData();
-        assertThat(data.getUuid(), is(agentInstance.getUuid()));
-        assertThat(data.getHostName(), is(agentInstance.getHostname()));
+        assertThat(data.getUuid()).isEqualTo(agentInstance.getUuid());
+        assertThat(data.getHostName()).isEqualTo(agentInstance.getHostname());
         assertFalse(data.isElastic());
-        assertThat(data.getIpAddress(), is(agentInstance.getIpAddress()));
-        assertThat(data.getFreeSpace(), is(agentInstance.freeDiskSpace().toString()));
-        assertThat(data.getAgentConfigState(), is(agentInstance.getAgentConfigStatus().name()));
-        assertThat(data.getAgentState(), is(agentInstance.getRuntimeStatus().agentState().name()));
-        assertThat(data.getBuildState(), is(agentInstance.getRuntimeStatus().buildState().name()));
+        assertThat(data.getIpAddress()).isEqualTo(agentInstance.getIpAddress());
+        assertThat(data.getFreeSpace()).isEqualTo(agentInstance.freeDiskSpace().toString());
+        assertThat(data.getAgentConfigState()).isEqualTo(agentInstance.getAgentConfigStatus().name());
+        assertThat(data.getAgentState()).isEqualTo(agentInstance.getRuntimeStatus().agentState().name());
+        assertThat(data.getBuildState()).isEqualTo(agentInstance.getRuntimeStatus().buildState().name());
     }
 
     @Test
@@ -122,9 +120,9 @@ public class PluginNotificationServiceTest {
         verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(1000L));
 
         PluginNotificationMessage message = captor.getValue();
-        assertThat(message.pluginId(), is(PLUGIN_ID_1));
-        assertThat(message.getRequestName(), is(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION));
-        assertThat(message.getData() instanceof AgentNotificationData, is(true));
+        assertThat(message.pluginId()).isEqualTo(PLUGIN_ID_1);
+        assertThat(message.getRequestName()).isEqualTo(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION);
+        assertThat(message.getData() instanceof AgentNotificationData).isTrue();
         AgentNotificationData data = (AgentNotificationData) message.getData();
         assertTrue(data.isElastic());
     }
@@ -143,13 +141,13 @@ public class PluginNotificationServiceTest {
         verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(1000L));
 
         PluginNotificationMessage message = captor.getValue();
-        assertThat(message.pluginId(), is(PLUGIN_ID_1));
-        assertThat(message.getRequestName(), is(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION));
-        assertThat(message.getData() instanceof StageNotificationData, is(true));
+        assertThat(message.pluginId()).isEqualTo(PLUGIN_ID_1);
+        assertThat(message.getRequestName()).isEqualTo(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION);
+        assertThat(message.getData() instanceof StageNotificationData).isTrue();
         StageNotificationData data = (StageNotificationData) message.getData();
-        assertThat(data.getStage(), is(stage));
-        assertThat(data.getBuildCause(), is(buildCause));
-        assertThat(data.getPipelineGroup(), is("group1"));
+        assertThat(data.getStage()).isEqualTo(stage);
+        assertThat(data.getBuildCause()).isEqualTo(buildCause);
+        assertThat(data.getPipelineGroup()).isEqualTo("group1");
     }
 
     @Test
@@ -171,10 +169,10 @@ public class PluginNotificationServiceTest {
         PluginNotificationMessage message = captor.getValue();
         StageNotificationData data = (StageNotificationData) message.getData();
 
-        assertThat(data.getStage().getPreviousStage().getPipelineName(), is(stage.getIdentifier().getPipelineName()));
-        assertThat(data.getStage().getPreviousStage().getPipelineCounter(), is(stage.getIdentifier().getPipelineCounter()));
-        assertThat(data.getStage().getPreviousStage().getStageName(), is("previous_stage"));
-        assertThat(data.getStage().getPreviousStage().getStageCounter(), is("1"));
+        assertThat(data.getStage().getPreviousStage().getPipelineName()).isEqualTo(stage.getIdentifier().getPipelineName());
+        assertThat(data.getStage().getPreviousStage().getPipelineCounter()).isEqualTo(stage.getIdentifier().getPipelineCounter());
+        assertThat(data.getStage().getPreviousStage().getStageName()).isEqualTo("previous_stage");
+        assertThat(data.getStage().getPreviousStage().getStageCounter()).isEqualTo("1");
     }
 
     @Test
@@ -197,10 +195,10 @@ public class PluginNotificationServiceTest {
         PluginNotificationMessage message = captor.getValue();
         StageNotificationData data = (StageNotificationData) message.getData();
 
-        assertThat(data.getStage().getPreviousStage().getPipelineName(), is(stage.getIdentifier().getPipelineName()));
-        assertThat(data.getStage().getPreviousStage().getPipelineCounter(), is(stage.getIdentifier().getPipelineCounter()));
-        assertThat(data.getStage().getPreviousStage().getStageName(), is("previous_stage"));
-        assertThat(data.getStage().getPreviousStage().getStageCounter(), is("1"));
+        assertThat(data.getStage().getPreviousStage().getPipelineName()).isEqualTo(stage.getIdentifier().getPipelineName());
+        assertThat(data.getStage().getPreviousStage().getPipelineCounter()).isEqualTo(stage.getIdentifier().getPipelineCounter());
+        assertThat(data.getStage().getPreviousStage().getStageName()).isEqualTo("previous_stage");
+        assertThat(data.getStage().getPreviousStage().getStageCounter()).isEqualTo("1");
     }
 
     @Test
@@ -258,17 +256,17 @@ public class PluginNotificationServiceTest {
         ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
         verify(pluginNotificationsQueueHandler, times(2)).post(captor.capture(), eq(1000L));
         List<PluginNotificationMessage> messages = captor.getAllValues();
-        assertThat(messages.size(), is(2));
+        assertThat(messages.size()).isEqualTo(2);
         assertMessage(messages.get(0), PLUGIN_ID_1, NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentInstance);
         assertMessage(messages.get(1), PLUGIN_ID_2, NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentInstance);
     }
 
     private void assertMessage(PluginNotificationMessage notificationMessage, String pluginId, String requestName, AgentInstance agentInstance) {
-        assertThat(notificationMessage.pluginId(), is(pluginId));
-        assertThat(notificationMessage.getRequestName(), is(requestName));
-        assertThat(notificationMessage.getData(), instanceOf(AgentNotificationData.class));
+        assertThat(notificationMessage.pluginId()).isEqualTo(pluginId);
+        assertThat(notificationMessage.getRequestName()).isEqualTo(requestName);
+        assertThat(notificationMessage.getData()).isInstanceOf(AgentNotificationData.class);
         AgentNotificationData data = (AgentNotificationData) notificationMessage.getData();
-        assertThat(data.getUuid(), is(agentInstance.getUuid()));
-        assertThat(data.getAgentState(), is(agentInstance.getStatus().toString()));
+        assertThat(data.getUuid()).isEqualTo(agentInstance.getUuid());
+        assertThat(data.getAgentState()).isEqualTo(agentInstance.getStatus().toString());
     }
 }

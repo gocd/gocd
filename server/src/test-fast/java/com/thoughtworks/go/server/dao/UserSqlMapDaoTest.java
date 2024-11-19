@@ -34,9 +34,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,8 +69,8 @@ public class UserSqlMapDaoTest {
         when(transactionTemplate.execute(any(TransactionCallback.class))).thenReturn(List.of(foo, bar, baz));
 
         Set<String> userNames = dao.findUsernamesForIds(Set.of(foo.getId(), bar.getId()));
-        assertThat(userNames.size(), is(2));
-        assertThat(userNames, hasItems("foo", "bar"));
+        assertThat(userNames.size()).isEqualTo(2);
+        assertThat(userNames).contains("foo", "bar");
     }
 
     @Test
@@ -84,10 +82,10 @@ public class UserSqlMapDaoTest {
         long firstEnabledUserCount = daoSpy.enabledUserCount();
         long secondEnabledUserCount = daoSpy.enabledUserCount();
 
-        assertThat(firstEnabledUserCount, is(10L));
-        assertThat(secondEnabledUserCount, is(10L));
+        assertThat(firstEnabledUserCount).isEqualTo(10L);
+        assertThat(secondEnabledUserCount).isEqualTo(10L);
 
-        assertThat(goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY), is(10L));
+        assertThat(goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isEqualTo(10L);
         verify(mockHibernateTemplate, times(1)).execute(any(HibernateCallback.class));
     }
 
@@ -98,10 +96,10 @@ public class UserSqlMapDaoTest {
         long firstEnabledUserCount = dao.enabledUserCount();
         long secondEnabledUserCount = dao.enabledUserCount();
 
-        assertThat(firstEnabledUserCount, is(10L));
-        assertThat(secondEnabledUserCount, is(10L));
+        assertThat(firstEnabledUserCount).isEqualTo(10L);
+        assertThat(secondEnabledUserCount).isEqualTo(10L);
 
-        assertThat(goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY), is(10L));
+        assertThat(goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isEqualTo(10L);
         verify(mockHibernateTemplate, times(0)).execute(any(HibernateCallback.class));
     }
 
@@ -115,7 +113,7 @@ public class UserSqlMapDaoTest {
 
         long firstEnabledUserCount = userSqlMapDaoSpy.enabledUserCount();
 
-        assertThat(firstEnabledUserCount, is(10L));
+        assertThat(firstEnabledUserCount).isEqualTo(10L);
         verify(mockHibernateTemplate, times(1)).execute(any(HibernateCallback.class));
         verify(cache, times(2)).get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY);
         verify(cache, times(1)).put(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY, 10L);

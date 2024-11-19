@@ -22,7 +22,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
-import org.hamcrest.Matchers;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,9 +34,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Comparator;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -73,8 +71,8 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(user);
 
         User savedUser = userDao.findUser("user");
-        assertThat(savedUser, is(user));
-        assertThat(userDao.load(savedUser.getId()), is(user));
+        assertThat(savedUser).isEqualTo(user);
+        assertThat(userDao.load(savedUser.getId())).isEqualTo(user);
     }
 
     @Test
@@ -82,7 +80,7 @@ public class UserSqlMapDaoIntegrationTest {
         User user = new User("loser");
         userDao.saveOrUpdate(user);
 
-        assertThat(userDao.findUser("loser").getDisplayName(), is("loser"));
+        assertThat(userDao.findUser("loser").getDisplayName()).isEqualTo("loser");
     }
 
     @Test
@@ -91,15 +89,15 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(user);
         user.setDisplayName("");
         userDao.saveOrUpdate(user);
-        assertThat(userDao.findUser("loser").getDisplayName(), is("loser"));
+        assertThat(userDao.findUser("loser").getDisplayName()).isEqualTo("loser");
     }
 
     @Test
     public void findUserShouldNotFailForNonExistentUser() {
-        assertThat(userDao.findUser("first"), is(new NullUser()));
+        assertThat(userDao.findUser("first")).isEqualTo(new NullUser());
         User first = user("first");
         userDao.saveOrUpdate(first);
-        assertThat(userDao.findUser("first"), is(first));
+        assertThat(userDao.findUser("first")).isEqualTo(first);
     }
 
     @Test
@@ -109,7 +107,7 @@ public class UserSqlMapDaoIntegrationTest {
             userDao.saveOrUpdate(user);
             fail("should not allow saving of anonymous user");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("User name 'anonymous' is not permitted."));
+            assertThat(e.getMessage()).isEqualTo("User name 'anonymous' is not permitted.");
         }
     }
 
@@ -122,7 +120,7 @@ public class UserSqlMapDaoIntegrationTest {
             userDao.saveOrUpdate(user);
             fail("should not allow updating anonymous user");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("User name 'anonymous' is not permitted."));
+            assertThat(e.getMessage()).isEqualTo("User name 'anonymous' is not permitted.");
         }
     }
 
@@ -130,10 +128,10 @@ public class UserSqlMapDaoIntegrationTest {
     public void shouldFindUserAgnosticOfCase() {
         userDao.saveOrUpdate(user("first"));
         User lowerFirst = userDao.findUser("first");
-        assertThat(lowerFirst.getName(), is("first"));
+        assertThat(lowerFirst.getName()).isEqualTo("first");
         User upperFirst = userDao.findUser("FIRST");
-        assertThat(upperFirst.getName(), is("first"));
-        assertThat(upperFirst.getId(), is(lowerFirst.getId()));
+        assertThat(upperFirst.getName()).isEqualTo("first");
+        assertThat(upperFirst.getId()).isEqualTo(lowerFirst.getId());
     }
 
     @Test
@@ -147,9 +145,9 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(thirdUser);
 
         userDao.disableUsers(List.of("first", "second"));
-        assertThat(userDao.findUser(firstUser.getName()).isEnabled(), is(false));
-        assertThat(userDao.findUser(secondUser.getName()).isEnabled(), is(false));
-        assertThat(userDao.findUser(thirdUser.getName()).isEnabled(), is(true));
+        assertThat(userDao.findUser(firstUser.getName()).isEnabled()).isFalse();
+        assertThat(userDao.findUser(secondUser.getName()).isEnabled()).isFalse();
+        assertThat(userDao.findUser(thirdUser.getName()).isEnabled()).isTrue();
     }
 
     @Test
@@ -162,9 +160,9 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(disabled);
 
         List<User> enabledUsers = userDao.enabledUsers();
-        assertThat(enabledUsers.size(), is(2));
-        assertThat(enabledUsers, hasItem(user("first")));
-        assertThat(enabledUsers, hasItem(user("second")));
+        assertThat(enabledUsers.size()).isEqualTo(2);
+        assertThat(enabledUsers).contains(user("first"));
+        assertThat(enabledUsers).contains(user("second"));
     }
 
     @Test
@@ -176,8 +174,8 @@ public class UserSqlMapDaoIntegrationTest {
         user.setMatcher("abc");
         user.setEmailMe(false);
         userDao.saveOrUpdate(user);
-        assertThat(userDao.findUser("user"), is(user));
-        assertThat(user.getNotificationFilters().size(), is(0));
+        assertThat(userDao.findUser("user")).isEqualTo(user);
+        assertThat(user.getNotificationFilters().size()).isEqualTo(0);
     }
 
     @Test
@@ -185,11 +183,11 @@ public class UserSqlMapDaoIntegrationTest {
         User user = new User("user", "my name", "user2@mail.com");
         userDao.saveOrUpdate(user);
         final User foundUser = userDao.findUser("user");
-        assertThat(foundUser.isEnabled(), is(true));
+        assertThat(foundUser.isEnabled()).isTrue();
 
         foundUser.disable();
         userDao.saveOrUpdate(foundUser);
-        assertThat(userDao.findUser("user").isEnabled(), is(false));
+        assertThat(userDao.findUser("user").isEnabled()).isFalse();
     }
 
     @Test
@@ -199,9 +197,9 @@ public class UserSqlMapDaoIntegrationTest {
 
         User settingFromDb = userDao.findUser("user");
 
-        assertThat(settingFromDb.getName(), is(user.getName()));
-        assertThat(settingFromDb.getMatcher(), is(user.getMatcher()));
-        assertThat(settingFromDb.getEmail(), is(user.getEmail()));
+        assertThat(settingFromDb.getName()).isEqualTo(user.getName());
+        assertThat(settingFromDb.getMatcher()).isEqualTo(user.getMatcher());
+        assertThat(settingFromDb.getEmail()).isEqualTo(user.getEmail());
 
     }
 
@@ -216,8 +214,8 @@ public class UserSqlMapDaoIntegrationTest {
 
         List<User> allUsers = userDao.allUsers();
 
-        assertThat(allUsers, hasItems(user, loser, boozer));
-        assertThat(allUsers.size(), is(3));
+        assertThat(allUsers).contains(user, loser, boozer);
+        assertThat(allUsers.size()).isEqualTo(3);
     }
 
     @Test
@@ -230,9 +228,9 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(user);
 
         user = userDao.findUser("user");
-        assertThat(user.getNotificationFilters().size(), is(2));
-        assertThat(user.getNotificationFilters().get(0), is(filter1));
-        assertThat(user.getNotificationFilters().get(1).getId(), is(filter2.getId()));
+        assertThat(user.getNotificationFilters().size()).isEqualTo(2);
+        assertThat(user.getNotificationFilters().get(0)).isEqualTo(filter1);
+        assertThat(user.getNotificationFilters().get(1).getId()).isEqualTo(filter2.getId());
     }
 
 
@@ -244,40 +242,40 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(user);
         userDao.saveOrUpdate(loser);
         userDao.saveOrUpdate(boozer);
-        assertThat(userDao.enabledUserCount(), is(3L));
+        assertThat(userDao.enabledUserCount()).isEqualTo(3L);
         userDao.disableUsers(List.of("loser"));
-        assertThat(userDao.enabledUserCount(), is(2L));
+        assertThat(userDao.enabledUserCount()).isEqualTo(2L);
         userDao.enableUsers(List.of("loser"));
-        assertThat(userDao.enabledUserCount(), is(3L));
+        assertThat(userDao.enabledUserCount()).isEqualTo(3L);
     }
 
     @Test
     public void shouldClearCountCacheOnSaveOrStatusChange() {
         User user = new User("user", new String[]{"*.*,user"}, "user@mail.com", true);
         userDao.saveOrUpdate(user);
-        assertThat(userDao.enabledUserCount(), is(1L));
+        assertThat(userDao.enabledUserCount()).isEqualTo(1L);
         User loser = new User("loser", "Loser", "loser@mail.com");
         loser.disable();
         User foo = new User("foo", "Foo", "foo@mail.com");
         userDao.saveOrUpdate(loser);
         userDao.saveOrUpdate(foo);
         userDao.saveOrUpdate(user);
-        assertThat(userDao.enabledUserCount(), is(2L));
+        assertThat(userDao.enabledUserCount()).isEqualTo(2L);
         userDao.enableUsers(List.of(loser.getName()));
-        assertThat(userDao.enabledUserCount(), is(3L));
+        assertThat(userDao.enabledUserCount()).isEqualTo(3L);
         userDao.disableUsers(List.of(user.getName()));
-        assertThat(userDao.enabledUserCount(), is(2L));
+        assertThat(userDao.enabledUserCount()).isEqualTo(2L);
         userDao.saveOrUpdate(new User("bozer", "Bozer", "bozer@emai.com"));
-        assertThat(userDao.enabledUserCount(), is(3L));
+        assertThat(userDao.enabledUserCount()).isEqualTo(3L);
     }
 
     @Test
     public void shouldFetchEnabledUsersCount() {
         User user = new User("user", new String[]{"*.*,user"}, "user@mail.com", true);
         userDao.saveOrUpdate(user);
-        assertThat(userDao.enabledUserCount(), is(1L));
+        assertThat(userDao.enabledUserCount()).isEqualTo(1L);
         userDao.saveOrUpdate(new User("loser", new String[]{"loser", "user"}, "loser@mail.com", true));
-        assertThat(userDao.enabledUserCount(), is(2L));
+        assertThat(userDao.enabledUserCount()).isEqualTo(2L);
     }
 
     private User saveUser(final String user) {
@@ -294,8 +292,8 @@ public class UserSqlMapDaoIntegrationTest {
 
         found.disable();
         userDao.saveOrUpdate(found);
-        assertThat(userDao.findUser(userName).isEnabled(), is(false));
-        assertThat(userDao.findUser(userName.toLowerCase()).isEnabled(), is(false));
+        assertThat(userDao.findUser(userName).isEnabled()).isFalse();
+        assertThat(userDao.findUser(userName.toLowerCase()).isEnabled()).isFalse();
     }
 
     @Test
@@ -327,12 +325,12 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.findNotificationSubscribingUsers();
         subscribedUsers.sort(Comparator.comparing(User::getName));
 
-        assertThat(subscribedUsers.size(), is(3));
-        assertThat(subscribedUsers.containsAll(List.of(user1, user2, user3)), is(true));
+        assertThat(subscribedUsers.size()).isEqualTo(3);
+        assertThat(subscribedUsers.containsAll(List.of(user1, user2, user3))).isTrue();
 
-        assertThat(subscribedUsers.get(0).getNotificationFilters().size(), is(1));
-        assertThat(subscribedUsers.get(1).getNotificationFilters().size(), is(3));
-        assertThat(subscribedUsers.get(2).getNotificationFilters().size(), is(1));
+        assertThat(subscribedUsers.get(0).getNotificationFilters().size()).isEqualTo(1);
+        assertThat(subscribedUsers.get(1).getNotificationFilters().size()).isEqualTo(3);
+        assertThat(subscribedUsers.get(2).getNotificationFilters().size()).isEqualTo(1);
     }
 
     @Test
@@ -348,9 +346,9 @@ public class UserSqlMapDaoIntegrationTest {
         user.removeNotificationFilter(filter1.getId());
         userDao.saveOrUpdate(user);
         user = userDao.findUser(user.getName());
-        assertThat(user.getNotificationFilters().size(), is(1));
-        assertThat(user.getNotificationFilters().contains(filter2), is(true));
-        assertThat(sessionFactory.openSession().get(NotificationFilter.class, filter1Id), is(Matchers.nullValue()));
+        assertThat(user.getNotificationFilters().size()).isEqualTo(1);
+        assertThat(user.getNotificationFilters().contains(filter2)).isTrue();
+        assertThat(sessionFactory.openSession().get(NotificationFilter.class, filter1Id)).isNull();
     }
 
     @Test
@@ -360,7 +358,7 @@ public class UserSqlMapDaoIntegrationTest {
         user.disable();
         userDao.saveOrUpdate(user);
         boolean result = userDao.deleteUser(userName, "currentUser");
-        assertThat(result, is(true));
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -369,12 +367,12 @@ public class UserSqlMapDaoIntegrationTest {
         user.disable();
         user.addNotificationFilter(new NotificationFilter("pipelineName", "stageName", StageEvent.All, true));
         userDao.saveOrUpdate(user);
-        assertThat(getAllNotificationFilter(), hasSize(1));
+        assertThat(getAllNotificationFilter()).hasSize(1);
 
         boolean result = userDao.deleteUser(user.getName(), "currentUser");
 
-        assertThat(result, is(true));
-        assertThat(getAllNotificationFilter(), is(empty()));
+        assertThat(result).isTrue();
+        assertThat(getAllNotificationFilter()).isEmpty();
     }
 
     private List<NotificationFilter> getAllNotificationFilter() {
@@ -405,15 +403,15 @@ public class UserSqlMapDaoIntegrationTest {
             userDao.deleteUser(userName, "currentUser");
             fail("should have failed");
         } catch (Exception e) {
-            assertThat(e instanceof RecordNotFoundException, is(true));
+            assertThat(e instanceof RecordNotFoundException).isTrue();
         }
         User addingTheUserNow = new User(userName);
         addingTheUserNow.disable();
         userDao.saveOrUpdate(addingTheUserNow);
         User retrievedUser = userDao.findUser(userName);
-        assertThat(retrievedUser instanceof NullUser, is(false));
-        assertThat(retrievedUser, is(addingTheUserNow));
-        assertThat(userDao.deleteUser(userName, "currentUser"), is(true));
+        assertThat(retrievedUser instanceof NullUser).isFalse();
+        assertThat(retrievedUser).isEqualTo(addingTheUserNow);
+        assertThat(userDao.deleteUser(userName, "currentUser")).isTrue();
     }
 
     @Test
@@ -431,17 +429,17 @@ public class UserSqlMapDaoIntegrationTest {
         accessTokenService.create("my token", john.getName(), "blah");
         accessTokenService.create("my token", joan.getName(), "blah");
 
-        assertThat(accessTokenService.findAllTokensForUser(john.getName(), AccessTokenFilter.all), hasSize(1));
-        assertThat(accessTokenService.findAllTokensForUser(joan.getName(), AccessTokenFilter.all), hasSize(1));
+        assertThat(accessTokenService.findAllTokensForUser(john.getName(), AccessTokenFilter.all)).hasSize(1);
+        assertThat(accessTokenService.findAllTokensForUser(joan.getName(), AccessTokenFilter.all)).hasSize(1);
 
         boolean result = userDao.deleteUsers(userNames, "currentUser");
-        assertThat(result, is(true));
+        assertThat(result).isTrue();
 
-        assertThat(accessTokenService.findAllTokensForUser(john.getName(), AccessTokenFilter.all), hasSize(0));
-        assertThat(accessTokenService.findAllTokensForUser(joan.getName(), AccessTokenFilter.all), hasSize(0));
+        assertThat(accessTokenService.findAllTokensForUser(john.getName(), AccessTokenFilter.all)).hasSize(0);
+        assertThat(accessTokenService.findAllTokensForUser(joan.getName(), AccessTokenFilter.all)).hasSize(0);
 
         Users users = userDao.allUsers();
-        assertThat(users, is(empty()));
+        assertThat(users).isEmpty();
     }
 
     private User anUser() {

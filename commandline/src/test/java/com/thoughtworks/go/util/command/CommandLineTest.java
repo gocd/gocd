@@ -36,10 +36,7 @@ import java.util.regex.Matcher;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CommandLineTest {
@@ -109,7 +106,7 @@ public class CommandLineTest {
     @Test
     void shouldReportPasswordsOnTheLogAsStars() {
         CommandLine line = CommandLine.createCommandLine("notexist").withArg(new PasswordArgument("secret")).withEncoding(UTF_8);
-        assertThat(line.toString(), not(containsString("secret")));
+        assertThat(line.toString()).doesNotContain("secret");
     }
 
     @Test
@@ -121,7 +118,7 @@ public class CommandLineTest {
             } catch (Exception e) {
                 //ignored
             }
-            assertThat(logFixture.getLog(), containsString("notexist ******"));
+            assertThat(logFixture.getLog()).contains("notexist ******");
         }
     }
 
@@ -131,8 +128,8 @@ public class CommandLineTest {
         try (LogFixture logFixture = logFixtureFor(CommandLine.class, Level.DEBUG)) {
             CommandLine line = CommandLine.createCommandLine("/bin/echo").withArg("=>").withArg(new PasswordArgument("secret")).withEncoding(UTF_8);
             line.runOrBomb(null);
-            assertThat(logFixture.getLog(), not(containsString("secret")));
-            assertThat(logFixture.getLog(), containsString("=> ******"));
+            assertThat(logFixture.getLog()).doesNotContain("secret");
+            assertThat(logFixture.getLog()).contains("=> ******");
         }
     }
 
@@ -164,8 +161,8 @@ public class CommandLineTest {
         ProcessWrapper processWrapper = line.execute(output, new EnvironmentVariableContext(), null);
         processWrapper.waitForExit();
 
-        assertThat(output.getAllOutput(), containsString("secret"));
-        assertThat(displayOutputStreamConsumer.getAllOutput(), not(containsString("secret")));
+        assertThat(output.getAllOutput()).contains("secret");
+        assertThat(displayOutputStreamConsumer.getAllOutput()).doesNotContain("secret");
     }
 
     @Test
@@ -182,8 +179,8 @@ public class CommandLineTest {
         ProcessWrapper processWrapper = line.execute(output, new EnvironmentVariableContext(), null);
         processWrapper.waitForExit();
 
-        assertThat(output.getAllOutput(), containsString("secret"));
-        assertThat(displayOutputStreamConsumer.getAllOutput(), not(containsString("secret")));
+        assertThat(output.getAllOutput()).contains("secret");
+        assertThat(displayOutputStreamConsumer.getAllOutput()).doesNotContain("secret");
     }
 
     @Test
@@ -192,7 +189,7 @@ public class CommandLineTest {
                 .withArg("My Password is:")
                 .withArg(new PasswordArgument("secret"))
                 .withEncoding(UTF_8);
-        assertThat(line.toStringForDisplay(), not(containsString("secret")));
+        assertThat(line.toStringForDisplay()).doesNotContain("secret");
     }
 
     @Test
@@ -208,8 +205,8 @@ public class CommandLineTest {
                 .withEncoding(UTF_8);
 
         line.addInput(new String[]{"my pwd is: new-pwd "});
-        assertThat(line.describe(), not(containsString("secret")));
-        assertThat(line.describe(), not(containsString("new-pwd")));
+        assertThat(line.describe()).doesNotContain("secret");
+        assertThat(line.describe()).doesNotContain("new-pwd");
     }
 
     @Test
@@ -229,8 +226,8 @@ public class CommandLineTest {
         processWrapper.waitForExit();
 
 
-        assertThat(forDisplay.getAllOutput(), not(containsString("secret")));
-        assertThat(output.getAllOutput(), containsString("secret"));
+        assertThat(forDisplay.getAllOutput()).doesNotContain("secret");
+        assertThat(output.getAllOutput()).contains("secret");
     }
 
     @Test
@@ -244,35 +241,35 @@ public class CommandLineTest {
         ProcessWrapper processWrapper = line.execute(output, new EnvironmentVariableContext(), null);
         processWrapper.waitForExit();
 
-        assertThat(output.getAllOutput(), containsString(chrisWasHere));
+        assertThat(output.getAllOutput()).contains(chrisWasHere);
     }
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void shouldBeAbleToRunCommandsInSubdirectories() throws IOException {
         File shellScript = createScriptInSubFolder("hello-world.sh", "echo ${PWD}");
-        assertThat(shellScript.setExecutable(true), is(true));
+        assertThat(shellScript.setExecutable(true)).isTrue();
 
         CommandLine line = CommandLine.createCommandLine("./hello-world.sh").withWorkingDir(subFolder).withEncoding(UTF_8);
 
         InMemoryStreamConsumer out = new InMemoryStreamConsumer();
         line.execute(out, new EnvironmentVariableContext(), null).waitForExit();
 
-        assertThat(out.getAllOutput().trim(), endsWith("subFolder"));
+        assertThat(out.getAllOutput().trim()).endsWith("subFolder");
     }
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void shouldBeAbleToRunCommandsInSubdirectoriesWithNoWorkingDir() throws IOException {
         File shellScript = createScriptInSubFolder("hello-world.sh", "echo 'Hello World!'");
-        assertThat(shellScript.setExecutable(true), is(true));
+        assertThat(shellScript.setExecutable(true)).isTrue();
 
         CommandLine line = CommandLine.createCommandLine("subFolder/hello-world.sh").withWorkingDir(temporaryFolder.toFile()).withEncoding(UTF_8);
 
         InMemoryStreamConsumer out = new InMemoryStreamConsumer();
         line.execute(out, new EnvironmentVariableContext(), null).waitForExit();
 
-        assertThat(out.getAllOutput(), containsString("Hello World!"));
+        assertThat(out.getAllOutput()).contains("Hello World!");
     }
 
     @Test
@@ -288,7 +285,7 @@ public class CommandLineTest {
         InMemoryStreamConsumer out = new InMemoryStreamConsumer();
         line.execute(out, new EnvironmentVariableContext(), null).waitForExit();
 
-        assertThat(out.getAllOutput(), containsString("Using the REAL echo"));
+        assertThat(out.getAllOutput()).contains("Using the REAL echo");
     }
 
     @Test
@@ -298,14 +295,14 @@ public class CommandLineTest {
         File shellScript = Files.createFile(temporaryFolder.resolve("hello-world.sh")).toFile();
 
         FileUtils.writeStringToFile(shellScript, "echo ${PWD}", UTF_8);
-        assertThat(shellScript.setExecutable(true), is(true));
+        assertThat(shellScript.setExecutable(true)).isTrue();
 
         CommandLine line = CommandLine.createCommandLine("../hello-world.sh").withWorkingDir(subFolder).withEncoding(UTF_8);
 
         InMemoryStreamConsumer out = new InMemoryStreamConsumer();
         line.execute(out, new EnvironmentVariableContext(), null).waitForExit();
 
-        assertThat(out.getAllOutput().trim(), endsWith("subFolder"));
+        assertThat(out.getAllOutput().trim()).endsWith("subFolder");
     }
 
     private File createScriptInSubFolder(String name, String content) throws IOException {
@@ -319,7 +316,7 @@ public class CommandLineTest {
     @EnabledOnOs(OS.WINDOWS)
     void shouldReturnEchoResultOnWindows() {
         ConsoleResult result = CommandLine.createCommandLine("cmd").withEncoding(UTF_8).runOrBomb(null);
-        assertThat(result.outputAsString(), containsString("Windows"));
+        assertThat(result.outputAsString()).contains("Windows");
     }
 
     @Test
@@ -327,7 +324,7 @@ public class CommandLineTest {
     void shouldReturnEchoResultOnPosix() {
         String expectedValue = "my input";
         ConsoleResult result = CommandLine.createCommandLine("echo").withEncoding(UTF_8).withArgs(expectedValue).runOrBomb(null);
-        assertThat(result.outputAsString(), is(expectedValue));
+        assertThat(result.outputAsString()).isEqualTo(expectedValue);
     }
 
     @Test
@@ -345,7 +342,7 @@ public class CommandLineTest {
         CommandLine command = CommandLine.createCommandLine(file);
         command.setWorkingDir(new File("."));
         String[] commandLineArgs = command.getCommandLine();
-        assertThat(commandLineArgs[0], is(file));
+        assertThat(commandLineArgs[0]).isEqualTo(file);
     }
 
     @Test
@@ -358,6 +355,6 @@ public class CommandLineTest {
         ProcessWrapper processWrapper = line.execute(output, new EnvironmentVariableContext(), null);
         processWrapper.waitForExit();
 
-        assertThat(output.getAllOutput(), containsString("STDERR: "));
+        assertThat(output.getAllOutput()).contains("STDERR: ");
     }
 }

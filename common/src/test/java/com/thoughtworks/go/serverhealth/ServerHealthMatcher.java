@@ -15,80 +15,34 @@
  */
 package com.thoughtworks.go.serverhealth;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
+import org.assertj.core.api.ThrowingConsumer;
 
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ServerHealthMatcher {
 
-    public static Matcher<ServerHealthService> containsState(final HealthStateType type) {
+    public static ThrowingConsumer<? super ServerHealthService> containsState(final HealthStateType type) {
         return containsState(type, null, null);
     }
 
-    public static Matcher<ServerHealthService> containsState(final HealthStateType healthStateType,
-                                                        final HealthStateLevel healthStateLevel,
-                                                        final String message) {
-        return new TypeSafeMatcher<>() {
-            private List<ServerHealthState> allLogs;
-            private ServerHealthState entry;
-            private boolean levelMatches;
-            private boolean messageMatches;
-
-            @Override
-            public boolean matchesSafely(ServerHealthService item) {
-                allLogs = item.logsSorted();
-                for (ServerHealthState serverHealthState : allLogs) {
-                    if (serverHealthState.getType().equals(healthStateType)) {
-                        entry = serverHealthState;
-                    }
-                }
-                if (!(entry != null)) {
-                    return false;
-                } else {
-                    levelMatches = healthStateLevel == null || healthStateLevel.equals(entry.getLogLevel());
-                    messageMatches = message == null || message.equals(entry.getMessage());
-                    return levelMatches && messageMatches;
-                }
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                if (entry == null) {
-                    description.appendText("Can not find result with " + healthStateType + " in all logs: " + allLogs);
-                } else {
-                    if (!levelMatches) {
-                        description.appendText("Level was " + entry.getLogLevel() + " instead of " + healthStateLevel);
-                    }
-                    if (!messageMatches) {
-                        description.appendText("Message was: \n" + entry.getMessage() + "\n instead of:\n" + message);
-                    }
-                }
-            }
+    public static ThrowingConsumer<? super ServerHealthService> containsState(final HealthStateType healthStateType,
+                                                                              final HealthStateLevel healthStateLevel,
+                                                                              final String message) {
+        return serverHealthService -> {
+            assertThat(serverHealthService.logsSorted())
+                .describedAs("ServerHealthService expected to contain state with type %s, level %s and message %s", healthStateType, healthStateLevel, message)
+                .anyMatch(state ->
+                    healthStateType.equals(state.getType()) &&
+                        (healthStateLevel == null || healthStateLevel.equals(state.getLogLevel())) &&
+                        (message == null || message.equals(state.getMessage())));
         };
     }
 
-    public static Matcher<ServerHealthService> doesNotContainState(final HealthStateType healthStateType) {
-        return new TypeSafeMatcher<>() {
-            private ServerHealthState entry;
-
-            @Override
-            public boolean matchesSafely(ServerHealthService item) {
-                for (ServerHealthState serverHealthState : item.logsSorted()) {
-                    if (serverHealthState.getType().equals(healthStateType)) {
-                        entry = serverHealthState;
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("HealthStateType " + healthStateType + " contains: " + entry + "\n" + "With level: " + entry.getLogLevel());
-            }
-        };
+    public static ThrowingConsumer<? super ServerHealthService> doesNotContainState(final HealthStateType healthStateType) {
+        return serverHealthService ->
+            assertThat(serverHealthService.logsSorted())
+                .describedAs("ServerHealthService contains entry with type %s", healthStateType)
+                .noneMatch(state -> healthStateType.equals(state.getType()));
     }
 
 }

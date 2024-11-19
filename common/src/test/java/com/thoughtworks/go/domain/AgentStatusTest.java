@@ -17,9 +17,7 @@ package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AgentStatusTest {
     @Test
@@ -30,8 +28,8 @@ public class AgentStatusTest {
 
         for(AgentStatus status : statusInOrder) {
             if(previous != null) {
-                assertThat(previous.compareTo(status), is(org.hamcrest.Matchers.lessThan(0)));
-                assertThat(status.compareTo(previous), is(greaterThan(0)));
+                assertThat(previous.compareTo(status)).isLessThan(0);
+                assertThat(status.compareTo(previous)).isGreaterThan(0);
             }
             previous = status;
         }

@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.HashMap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class SCMRevisionTest {
@@ -30,7 +29,7 @@ public class SCMRevisionTest {
     public void shouldAcceptDataKeyMadeUpOfAlphaNumericAndUnderScoreCharacters() throws Exception {
         SCMRevision scmRevision = new SCMRevision("rev123", new Date(), "loser", null, new HashMap<>(), null);
         scmRevision.addData("HELLO_WORLD123", "value");
-        assertThat(scmRevision.getDataFor("HELLO_WORLD123"), is("value"));
+        assertThat(scmRevision.getDataFor("HELLO_WORLD123")).isEqualTo("value");
     }
 
     @Test
@@ -39,12 +38,12 @@ public class SCMRevisionTest {
         try {
             scmRevision.addData(null, "value");
         } catch (InvalidSCMRevisionDataException e) {
-            assertThat(e.getMessage(), is("Key names cannot be null or empty."));
+            assertThat(e.getMessage()).isEqualTo("Key names cannot be null or empty.");
         }
         try {
             scmRevision.addData("", "value");
         } catch (InvalidSCMRevisionDataException e) {
-            assertThat(e.getMessage(), is("Key names cannot be null or empty."));
+            assertThat(e.getMessage()).isEqualTo("Key names cannot be null or empty.");
         }
     }
 
@@ -55,7 +54,7 @@ public class SCMRevisionTest {
             scmRevision.addData("HEL-LO-WORLD", "value");
             fail("should have thrown exception");
         } catch (InvalidSCMRevisionDataException e) {
-            assertThat(e.getMessage(), is("Key 'HEL-LO-WORLD' is invalid. Key names should consists of only alphanumeric characters and/or underscores."));
+            assertThat(e.getMessage()).isEqualTo("Key 'HEL-LO-WORLD' is invalid. Key names should consists of only alphanumeric characters and/or underscores.");
         }
     }
 
@@ -73,7 +72,7 @@ public class SCMRevisionTest {
             new SCMRevision(null, null, null, null, data, null);
             fail("should have thrown exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is(expectedMessage));
+            assertThat(e.getMessage()).isEqualTo(expectedMessage);
         }
     }
 }

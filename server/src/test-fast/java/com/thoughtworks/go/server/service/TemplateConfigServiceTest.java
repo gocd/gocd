@@ -32,9 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TemplateConfigServiceTest {
@@ -80,7 +78,7 @@ public class TemplateConfigServiceTest {
         template2.add(new PipelineEditabilityInfo(new CaseInsensitiveString("p2"), true, true));
         templateToPipelines.add(template2);
 
-        assertThat(service.getTemplatesList(admin), is(templateToPipelines));
+        assertThat(service.getTemplatesList(admin)).isEqualTo(templateToPipelines);
     }
 
     @Test
@@ -101,7 +99,7 @@ public class TemplateConfigServiceTest {
         TemplateToPipelines t2 = new TemplateToPipelines(new CaseInsensitiveString("t2"), true, false);
         templateToPipelines.add(t2);
 
-        assertThat(service.getTemplatesList(admin), is(templateToPipelines));
+        assertThat(service.getTemplatesList(admin)).isEqualTo(templateToPipelines);
     }
 
     @Test
@@ -122,7 +120,7 @@ public class TemplateConfigServiceTest {
         TemplateToPipelines t2 = new TemplateToPipelines(new CaseInsensitiveString("t2"), false, false);
         templateToPipelines.add(t2);
 
-        assertThat(service.getTemplatesList(templateView), is(templateToPipelines));
+        assertThat(service.getTemplatesList(templateView)).isEqualTo(templateToPipelines);
     }
 
     @Test
@@ -143,7 +141,7 @@ public class TemplateConfigServiceTest {
         t1.add(new PipelineEditabilityInfo(new CaseInsensitiveString("p1"), true, true));
         templateToPipelines.add(t1);
 
-        assertThat(service.getTemplatesList(groupAdminUser), is(templateToPipelines));
+        assertThat(service.getTemplatesList(groupAdminUser)).isEqualTo(templateToPipelines);
     }
 
     @Test
@@ -156,7 +154,7 @@ public class TemplateConfigServiceTest {
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t1"), viewUser)).thenReturn(false);
 
-        assertThat(service.getTemplatesList(viewUser), is(new ArrayList<>()));
+        assertThat(service.getTemplatesList(viewUser)).isEqualTo(new ArrayList<>());
     }
 
     @Test
@@ -181,8 +179,8 @@ public class TemplateConfigServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.removeTemplate("not_found_template", cruiseConfig, "md5", result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(404));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(404);
     }
 
     @Test
@@ -205,7 +203,7 @@ public class TemplateConfigServiceTest {
         when(goConfigService.getAllPipelineConfigsForEditForUser(user)).thenReturn(cruiseConfig.allPipelines());
 
         List<PipelineConfig> pipelineConfigs = service.allPipelinesNotUsingTemplates(user, new HttpLocalizedOperationResult());
-        assertThat(pipelineConfigs, is(List.of(pipelineWithoutTemplateOne, pipelineWithoutTemplateTwo)));
+        assertThat(pipelineConfigs).isEqualTo(List.of(pipelineWithoutTemplateOne, pipelineWithoutTemplateTwo));
     }
 
     @Test
@@ -215,10 +213,10 @@ public class TemplateConfigServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<PipelineConfig> pipelineConfigs = service.allPipelinesNotUsingTemplates(user, result);
 
-        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.isSuccessful()).isFalse();
 
-        assertThat(result.message(), is("Unauthorized to edit."));
-        assertThat(pipelineConfigs, is(nullValue()));
+        assertThat(result.message()).isEqualTo("Unauthorized to edit.");
+        assertThat(pipelineConfigs).isNull();
     }
 
     @Test
@@ -229,7 +227,7 @@ public class TemplateConfigServiceTest {
         when(goConfigService.getConfigHolder()).thenReturn(new GoConfigHolder(cruiseConfig, cruiseConfig));
         PipelineTemplateConfig actual = service.loadForView(template.name().toString(), new HttpLocalizedOperationResult());
 
-        assertThat(template, is(actual));
+        assertThat(template).isEqualTo(actual);
     }
 
     @Test
@@ -246,7 +244,7 @@ public class TemplateConfigServiceTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unprocessableEntity(EntityType.Template.entityConfigValidationFailed(templateName, errorMessage));
 
-        assertThat(result.toString(), is(expectedResult.toString()));
+        assertThat(result.toString()).isEqualTo(expectedResult.toString());
     }
 
     @Test
@@ -268,7 +266,7 @@ public class TemplateConfigServiceTest {
 
         TemplatesConfig actual = service.templateConfigsThatCanBeEditedBy(new Username(username));
         TemplatesConfig expected = new TemplatesConfig(editableTemplate);
-        assertThat(expected, is(actual));
+        assertThat(expected).isEqualTo(actual);
     }
 
     @Test
@@ -290,7 +288,7 @@ public class TemplateConfigServiceTest {
 
         TemplatesConfig actual = service.templateConfigsThatCanBeViewedBy(new Username(username));
         TemplatesConfig expected = new TemplatesConfig(viewableTemplate);
-        assertThat(expected, is(actual));
+        assertThat(expected).isEqualTo(actual);
     }
 
     private PipelineConfig createPipelineWithTemplate(String pipelineName, PipelineTemplateConfig template) {

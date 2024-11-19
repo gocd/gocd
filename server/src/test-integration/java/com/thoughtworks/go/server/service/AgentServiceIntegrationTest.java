@@ -45,8 +45,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -73,9 +71,7 @@ import static com.thoughtworks.go.util.TriState.*;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -146,13 +142,13 @@ public class AgentServiceIntegrationTest {
             createAnIdleAgentAndDisableIt(UUID);
             createEnabledAgent(UUID2);
 
-            assertThat(agentService.getAgentInstances().size(), is(2));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(2);
             assertDoesNotThrow(() -> agentService.deleteAgents(List.of(UUID)));
 
             UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(List.of(UUID2)));
-            assertThat(e.getMessage(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
+            assertThat(e.getMessage()).isEqualTo("Failed to delete an agent, as it is not in a disabled state or is still building.");
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
             assertTrue(agentService.getAgentInstances().hasAgent(UUID2));
         }
 
@@ -162,28 +158,28 @@ public class AgentServiceIntegrationTest {
             createAnIdleAgentAndDisableIt(UUID2);
             createEnabledAgent(UUID3);
 
-            assertThat(agentService.getAgentInstances().size(), is(3));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(3);
 
             UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(List.of(UUID, UUID2, UUID3)));
-            assertThat(e.getMessage(), is("Could not delete any agents, as one or more agents might not be disabled or are still building."));
+            assertThat(e.getMessage()).isEqualTo("Could not delete any agents, as one or more agents might not be disabled or are still building.");
 
-            assertThat(agentService.getAgentInstances().size(), is(3));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(3);
 
             agentService.deleteAgents(List.of(UUID, UUID2));
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
         }
 
         @Test
         void shouldNotBeAbleToDeleteDisabledAgentWhoseRuntimeStatusIsBuilding() {
             createDisabledAgentWithBuildingRuntimeStatus(UUID);
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
 
             UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(List.of(UUID)));
-            assertThat(e.getMessage(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
+            assertThat(e.getMessage()).isEqualTo("Failed to delete an agent, as it is not in a disabled state or is still building.");
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
             assertTrue(agentService.getAgentInstances().hasAgent(UUID));
         }
 
@@ -192,18 +188,18 @@ public class AgentServiceIntegrationTest {
             createAnIdleAgentAndDisableIt(UUID);
             createEnabledAgent(UUID2);
 
-            assertThat(agentService.getAgentInstances().size(), is(2));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(2);
 
             assertDoesNotThrow(() -> agentService.deleteAgents(List.of(UUID)));
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
         }
 
         @Test
         void shouldReturn404WhenDeleteAgentsIsCalledWithUnknownAgentUUID() {
             String unknownUUID = "unknown-agent-id";
             RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.deleteAgents(List.of(unknownUUID)));
-            assertThat(e.getMessage(), is("Agent with uuid 'unknown-agent-id' was not found!"));
+            assertThat(e.getMessage()).isEqualTo("Agent with uuid 'unknown-agent-id' was not found!");
         }
     }
 
@@ -235,10 +231,10 @@ public class AgentServiceIntegrationTest {
 
             AgentInstances agents = agentService.getAgentInstances();
 
-            assertThat(agents.size(), is(1));
-            assertThat(agents.findAgent(uuid).isDisabled(), is(true));
-            assertThat(agentService.findAgentAndRefreshStatus(uuid).isDisabled(), is(true));
-            assertThat(agentService.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Disabled));
+            assertThat(agents.size()).isEqualTo(1);
+            assertThat(agents.findAgent(uuid).isDisabled()).isTrue();
+            assertThat(agentService.findAgentAndRefreshStatus(uuid).isDisabled()).isTrue();
+            assertThat(agentService.findAgentAndRefreshStatus(uuid).getStatus()).isEqualTo(AgentStatus.Disabled);
         }
 
         @Test
@@ -257,7 +253,7 @@ public class AgentServiceIntegrationTest {
             AgentRuntimeInfo pendingAgent = fromServer(new Agent(UUID, "CCeDev03", "10.18.5.3", List.of("db", "web")),
                     false, "/var/lib", 0L, "linux");
             agentService.requestRegistration(pendingAgent);
-            assertThat(agentService.findAgent(UUID).isRegistered(), is(false));
+            assertThat(agentService.findAgent(UUID).isRegistered()).isFalse();
 
             ArrayList<String> uuids = new ArrayList<>(List.of(pendingAgent.getUUId()));
             ArrayList<String> resourcesToAdd = new ArrayList<>(List.of("Linux"));
@@ -265,7 +261,7 @@ public class AgentServiceIntegrationTest {
 
             BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, resourcesToAdd, resourcesToRemove, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
-            assertThat(e.getMessage(), is("Pending agents [" + pendingAgent.getUUId() + "] must be explicitly enabled or disabled when performing any operations on them."));
+            assertThat(e.getMessage()).isEqualTo("Pending agents [" + pendingAgent.getUUId() + "] must be explicitly enabled or disabled when performing any operations on them.");
         }
 
         @Test
@@ -280,9 +276,9 @@ public class AgentServiceIntegrationTest {
 
             AgentInstances agents = agentService.getAgentInstances();
 
-            assertThat(agents.size(), is(1));
-            assertThat(agentInstance.isDisabled(), is(false));
-            assertThat(agentInstance.getStatus(), is(AgentStatus.Missing));
+            assertThat(agents.size()).isEqualTo(1);
+            assertThat(agentInstance.isDisabled()).isFalse();
+            assertThat(agentInstance.getStatus()).isEqualTo(AgentStatus.Missing);
         }
     }
 
@@ -294,13 +290,13 @@ public class AgentServiceIntegrationTest {
         void shouldBeAbleToDisableAgentUsingUpdateAgentAttributesCall() {
             createEnabledAgent(UUID2);
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().isDisabled(), is(false));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat(getFirstAgent().isDisabled()).isFalse();
 
             agentService.updateAgentAttributes(UUID2, null, null, null, FALSE);
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().isDisabled(), is(true));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat(getFirstAgent().isDisabled()).isTrue();
         }
 
         @Test
@@ -319,7 +315,7 @@ public class AgentServiceIntegrationTest {
             List<String> emptyList = emptyStrList;
             agentService.bulkUpdateAgentAttributes(List.of(uuid), emptyList, emptyList, emptyStrList, emptyList, FALSE, environmentConfigService);
 
-            assertThat(agentService.agents().getAgentByUUID(uuid).isDisabled(), is(true));
+            assertThat(agentService.agents().getAgentByUUID(uuid).isDisabled()).isTrue();
         }
 
         @Test
@@ -331,7 +327,7 @@ public class AgentServiceIntegrationTest {
 
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(List.of(agentId), emptyStrList, emptyStrList, emptyStrList, emptyStrList, TRUE, environmentConfigService));
 
-            assertThat(isDisabled(agent), is(false));
+            assertThat(isDisabled(agent)).isFalse();
         }
 
         @Test
@@ -341,8 +337,8 @@ public class AgentServiceIntegrationTest {
 
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(List.of(UUID, UUID2), emptyStrList, emptyStrList, emptyStrList, emptyStrList, TRUE, environmentConfigService));
 
-            assertThat(isDisabled(agent1), is(false));
-            assertThat(isDisabled(agent2), is(false));
+            assertThat(isDisabled(agent1)).isFalse();
+            assertThat(isDisabled(agent2)).isFalse();
         }
 
         @Test
@@ -352,8 +348,8 @@ public class AgentServiceIntegrationTest {
 
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(List.of(UUID, UUID2), emptyStrList, emptyStrList, emptyStrList, emptyStrList, FALSE, environmentConfigService));
 
-            assertThat(isDisabled(agent1), is(true));
-            assertThat(isDisabled(agent2), is(true));
+            assertThat(isDisabled(agent1)).isTrue();
+            assertThat(isDisabled(agent2)).isTrue();
         }
 
         @Test
@@ -380,17 +376,17 @@ public class AgentServiceIntegrationTest {
             createEnabledAgent("enabled");
             createDisabledAgentWithBuildingRuntimeStatus("disabled");
 
-            assertThat(agentService.getAgentInstances().size(), is(2));
-            assertThat(agentService.findAgentAndRefreshStatus("enabled").getAgent().isDisabled(), is(false));
-            assertThat(agentService.findAgentAndRefreshStatus("disabled").getAgent().isDisabled(), is(true));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(2);
+            assertThat(agentService.findAgentAndRefreshStatus("enabled").getAgent().isDisabled()).isFalse();
+            assertThat(agentService.findAgentAndRefreshStatus("disabled").getAgent().isDisabled()).isTrue();
 
             agentService.updateAgentAttributes("enabled", "new.enabled.hostname", "linux,java", null, UNSET);
 
             agentService.updateAgentAttributes("disabled", "new.disabled.hostname", "linux,java", null, UNSET);
 
-            assertThat(agentService.getAgentInstances().size(), is(2));
-            assertThat(agentService.findAgentAndRefreshStatus("enabled").getAgent().isDisabled(), is(false));
-            assertThat(agentService.findAgentAndRefreshStatus("disabled").getAgent().isDisabled(), is(true));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(2);
+            assertThat(agentService.findAgentAndRefreshStatus("enabled").getAgent().isDisabled()).isFalse();
+            assertThat(agentService.findAgentAndRefreshStatus("disabled").getAgent().isDisabled()).isTrue();
         }
 
         @Test
@@ -402,15 +398,15 @@ public class AgentServiceIntegrationTest {
             agentService.register(agent);
             agentService.disableAgents(agent.getUuid());
 
-            assertThat(agentService.findAgent(UUID).isRegistered(), is(false));
-            assertThat(agentService.findAgent(agent.getUuid()).isDisabled(), is(true));
+            assertThat(agentService.findAgent(UUID).isRegistered()).isFalse();
+            assertThat(agentService.findAgent(agent.getUuid()).isDisabled()).isTrue();
 
             List<String> uuids = List.of(UUID, agent.getUuid());
 
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyStrList, emptyStrList, TRUE, environmentConfigService));
 
-            assertThat(agentService.agents().getAgentByUUID(UUID).isEnabled(), is(true));
-            assertThat(agentService.agents().getAgentByUUID(agent.getUuid()).isEnabled(), is(true));
+            assertThat(agentService.agents().getAgentByUUID(UUID).isEnabled()).isTrue();
+            assertThat(agentService.agents().getAgentByUUID(agent.getUuid()).isEnabled()).isTrue();
         }
 
         @Test
@@ -431,7 +427,7 @@ public class AgentServiceIntegrationTest {
             assertFalse(agentService.findAgent(agent.getUuid()).isDisabled());
             assertFalse(agentService.findAgent(agent1.getUuid()).isDisabled());
 
-            assertThat(e.getMessage(), is(EntityType.Agent.notFoundMessage(List.of("invalid-uuid"))));
+            assertThat(e.getMessage()).isEqualTo(EntityType.Agent.notFoundMessage(List.of("invalid-uuid")));
         }
 
         @Test
@@ -452,7 +448,7 @@ public class AgentServiceIntegrationTest {
             assertFalse(agentService.findAgent(agent.getUuid()).isDisabled());
             assertFalse(agentService.findAgent(agent1.getUuid()).isDisabled());
 
-            assertThat(e.getMessage(), is(EntityType.Agent.notFoundMessage(List.of("invalid-uuid"))));
+            assertThat(e.getMessage()).isEqualTo(EntityType.Agent.notFoundMessage(List.of("invalid-uuid")));
         }
     }
 
@@ -463,14 +459,14 @@ public class AgentServiceIntegrationTest {
         @Test
         void shouldReturn400WhenUpdatingAnUnknownAgent() {
             RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.bulkUpdateAgentAttributes(List.of("unknown-agent-id"), emptyStrList, emptyStrList, emptyStrList, emptyStrList, TRUE, environmentConfigService));
-            assertThat(e.getMessage(), is("Agents with uuids [unknown-agent-id] were not found!"));
+            assertThat(e.getMessage()).isEqualTo("Agents with uuids [unknown-agent-id] were not found!");
         }
 
         @Test
         void shouldReturn404WhenAgentToBeDeletedDoesNotExist() {
             String unknownUUID = "unknown-agent-id";
             RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.deleteAgents(List.of(unknownUUID)));
-            assertThat(e.getMessage(), is("Agent with uuid 'unknown-agent-id' was not found!"));
+            assertThat(e.getMessage()).isEqualTo("Agent with uuid 'unknown-agent-id' was not found!");
         }
 
         @Test
@@ -479,19 +475,18 @@ public class AgentServiceIntegrationTest {
             String originalHostname = agent.getHostname();
             List<String> originalResourceNames = agent.getResourcesAsList();
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getHostname(), is(not("some-hostname")));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat(getFirstAgent().getHostname()).isNotEqualTo("some-hostname");
 
             String invalidResourceName = "lin!ux";
             AgentInstance agentInstance = agentService.updateAgentAttributes(UUID, "some-hostname",
                     invalidResourceName, null, UNSET);
 
-            assertThat(agentInstance.getAgent().errors().on(JobConfig.RESOURCES),
-                    is("Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$'"));
+            assertThat(agentInstance.getAgent().errors().on(JobConfig.RESOURCES)).isEqualTo("Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$'");
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getHostname(), is(originalHostname));
-            assertThat(getFirstAgent().getResourceConfigs().resourceNames(), is(originalResourceNames));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat(getFirstAgent().getHostname()).isEqualTo(originalHostname);
+            assertThat(getFirstAgent().getResourceConfigs().resourceNames()).isEqualTo(originalResourceNames);
         }
 
         @Test
@@ -501,7 +496,7 @@ public class AgentServiceIntegrationTest {
             AgentInstances agentInstances = agentService.findRegisteredAgents();
 
             String uuid = buildingAgentInstance.getAgent().getUuid();
-            assertThat(agentInstances.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
+            assertThat(agentInstances.findAgentAndRefreshStatus(uuid).getStatus()).isEqualTo(AgentStatus.Building);
 
             AgentIdentifier identifier = buildingAgentInstance.getAgent().getAgentIdentifier();
             // register the agent - cookie can be associated only if the agent is a registered one
@@ -513,7 +508,7 @@ public class AgentServiceIntegrationTest {
             assertEquals(e.getMessage(), format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString()));
 
             agentInstances = agentService.findRegisteredAgents();
-            assertThat(agentInstances.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
+            assertThat(agentInstances.findAgentAndRefreshStatus(uuid).getStatus()).isEqualTo(AgentStatus.Building);
             AgentIdentifier agentIdentifier = buildingAgentInstance.getAgent().getAgentIdentifier();
             String cookie = agentService.assignCookie(agentIdentifier);
             agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie));
@@ -528,14 +523,14 @@ public class AgentServiceIntegrationTest {
         void shouldBeAbleToUpdateAgentsHostName() {
             createAnIdleAgentAndDisableIt(UUID);
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
             String someHostName = "some-hostname";
-            assertThat(getFirstAgent().getHostname(), is(not(someHostName)));
+            assertThat(getFirstAgent().getHostname()).isNotEqualTo(someHostName);
 
             agentService.updateAgentAttributes(UUID, someHostName, null, null, UNSET);
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getHostname(), is(someHostName));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat(getFirstAgent().getHostname()).isEqualTo(someHostName);
         }
 
         @Test
@@ -543,19 +538,19 @@ public class AgentServiceIntegrationTest {
             createAnIdleAgentAndDisableIt(UUID);
             createEnvironment("a", "b");
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getHostname(), is(not("some-hostname")));
-            assertThat(getFirstAgent().isDisabled(), is(true));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat(getFirstAgent().getHostname()).isNotEqualTo("some-hostname");
+            assertThat(getFirstAgent().isDisabled()).isTrue();
 
             agentService.updateAgentAttributes(UUID, "some-hostname", "linux,java", "a,b", TRUE);
 
             AgentInstance firstAgent = getFirstAgent();
             List<String> resourceNames = firstAgent.getResourceConfigs().resourceNames();
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(firstAgent.getHostname(), is("some-hostname"));
-            assertThat(resourceNames, equalTo(List.of("java", "linux")));
-            assertThat(firstAgent.isDisabled(), is(false));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat(firstAgent.getHostname()).isEqualTo("some-hostname");
+            assertThat(resourceNames).isEqualTo(List.of("java", "linux"));
+            assertThat(firstAgent.isDisabled()).isFalse();
             assertEquals(getEnvironments(getFirstAgent().getUuid()), Set.of("a", "b"));
         }
 
@@ -566,7 +561,7 @@ public class AgentServiceIntegrationTest {
             AgentInstances registeredAgentInstances = agentService.findRegisteredAgents();
 
             String uuid = buildingAgentInstance.getAgent().getUuid();
-            assertThat(registeredAgentInstances.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
+            assertThat(registeredAgentInstances.findAgentAndRefreshStatus(uuid).getStatus()).isEqualTo(AgentStatus.Building);
 
             AgentIdentifier agentIdentifier = buildingAgentInstance.getAgent().getAgentIdentifier();
             // register the agent - cookie can be associated only if the agent is a registered one
@@ -575,7 +570,7 @@ public class AgentServiceIntegrationTest {
             agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie));
 
             registeredAgentInstances = agentService.findRegisteredAgents();
-            assertThat(registeredAgentInstances.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Idle));
+            assertThat(registeredAgentInstances.findAgentAndRefreshStatus(uuid).getStatus()).isEqualTo(AgentStatus.Idle);
         }
 
         @Test
@@ -586,14 +581,14 @@ public class AgentServiceIntegrationTest {
 
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(List.of(UUID), emptyStrList, emptyStrList, List.of("a", "b"), emptyStrList, TRUE, environmentConfigService));
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
 
             String notSpecifying = null;
             BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(UUID, notSpecifying, notSpecifying, null, UNSET));
-            assertThat(e.getMessage(), is("Bad Request. No operation is specified in the request to be performed on agent."));
+            assertThat(e.getMessage()).isEqualTo("Bad Request. No operation is specified in the request to be performed on agent.");
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getHostname(), is(originalHostname));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat(getFirstAgent().getHostname()).isEqualTo(originalHostname);
             assertEquals(getEnvironments(getFirstAgent().getUuid()), Set.of("a", "b"));
         }
 
@@ -610,7 +605,7 @@ public class AgentServiceIntegrationTest {
             uuids.add(registeredAgent.getUuid());
 
             BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
-            assertThat(e.getMessage(), is("Bad Request. No operation is specified in the request to be performed on agents."));
+            assertThat(e.getMessage()).isEqualTo("Bad Request. No operation is specified in the request to be performed on agents.");
         }
 
         @Test
@@ -622,11 +617,11 @@ public class AgentServiceIntegrationTest {
 
             EnvironmentConfig dev = environmentConfigService.getEnvironmentConfig("dev");
 
-            assertThat(dev.getAgents().getUuids(), not(containsInAnyOrder(UUID, UUID2)));
+            assertThat(dev.getAgents().getUuids()).doesNotContain(UUID, UUID2);
             assertFalse(agentService.findAgent(UUID).isDisabled());
             assertFalse(agentService.findAgent(UUID2).isDisabled());
-            assertThat(agentService.findAgent(UUID).getResourceConfigs().size(), is(0));
-            assertThat(agentService.findAgent(UUID2).getResourceConfigs().size(), is(0));
+            assertThat(agentService.findAgent(UUID).getResourceConfigs().size()).isEqualTo(0);
+            assertThat(agentService.findAgent(UUID2).getResourceConfigs().size()).isEqualTo(0);
 
             List<String> uuids = List.of(UUID, UUID2);
             List<String> resources = List.of("resource1");
@@ -636,10 +631,10 @@ public class AgentServiceIntegrationTest {
 
             assertTrue(agentService.findAgent(UUID).isDisabled());
             assertTrue(agentService.findAgent(UUID2).isDisabled());
-            assertThat(agentService.findAgent(UUID).getResourceConfigs(), contains(new ResourceConfig("resource1")));
-            assertThat(agentService.findAgent(UUID2).getResourceConfigs(), contains(new ResourceConfig("resource1")));
+            assertThat((List<ResourceConfig>) agentService.findAgent(UUID).getResourceConfigs()).contains(new ResourceConfig("resource1"));
+            assertThat((List<ResourceConfig>) agentService.findAgent(UUID2).getResourceConfigs()).contains(new ResourceConfig("resource1"));
 
-            assertThat(environmentConfigService.getEnvironmentConfig("dev").getAgents().getUuids(), containsInAnyOrder(UUID, UUID2));
+            assertThat(environmentConfigService.getEnvironmentConfig("dev").getAgents().getUuids()).contains(UUID, UUID2);
         }
     }
 
@@ -660,9 +655,9 @@ public class AgentServiceIntegrationTest {
             agentInstances.add(instance);
 
             AgentInstances agents = agentService.findRegisteredAgents();
-            assertThat(agents.size(), is(1));
+            assertThat(agents.size()).isEqualTo(1);
             AgentInstance agentInstance = agents.findAgentAndRefreshStatus(instance.getAgent().getUuid());
-            assertThat(agentInstance.getStatus(), is(AgentStatus.LostContact));
+            assertThat(agentInstance.getStatus()).isEqualTo(AgentStatus.LostContact);
         }
 
         @Test
@@ -680,10 +675,10 @@ public class AgentServiceIntegrationTest {
             agentInstances.add(idleAgentInstance);
 
             AgentInstances agents = agentService.findRegisteredAgents();
-            assertThat(agents.size(), is(1));
+            assertThat(agents.size()).isEqualTo(1);
 
             AgentInstance agentInstance = agents.findAgentAndRefreshStatus(idleAgentInstance.getAgent().getUuid());
-            assertThat(agentInstance.getStatus(), is(AgentStatus.LostContact));
+            assertThat(agentInstance.getStatus()).isEqualTo(AgentStatus.LostContact);
             String body = format("""
                     The email has been sent out automatically by the Go server at (%s) to Go administrators.
 
@@ -710,14 +705,14 @@ public class AgentServiceIntegrationTest {
         void shouldAddResourcesToDisabledAgent() {
             createAnIdleAgentAndDisableIt(UUID);
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
-            assertThat(agentService.findAgent(UUID).getStatus(), is(AgentStatus.Disabled));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(agentService.findAgent(UUID).getStatus()).isEqualTo(AgentStatus.Disabled);
 
             agentService.updateAgentAttributes(UUID, null, "linux,java", null, UNSET);
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getResourceConfigs().resourceNames(), is(List.of("java", "linux")));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat(getFirstAgent().getResourceConfigs().resourceNames()).isEqualTo(List.of("java", "linux"));
         }
 
         @Test
@@ -732,12 +727,12 @@ public class AgentServiceIntegrationTest {
                     emptyStrList, emptyStrList, TRUE, environmentConfigService));
 
             List<String> uuidResources = agentService.findAgentAndRefreshStatus(UUID).getAgent().getResourcesAsList();
-            assertThat(uuidResources, hasItem("resource1"));
-            assertThat(uuidResources, hasItem("resource2"));
+            assertThat(uuidResources).contains("resource1");
+            assertThat(uuidResources).contains("resource2");
 
             List<String> uuid2Resources = agentService.findAgentAndRefreshStatus(UUID2).getAgent().getResourcesAsList();
-            assertThat(uuid2Resources, hasItem("resource1"));
-            assertThat(uuid2Resources, hasItem("resource2"));
+            assertThat(uuid2Resources).contains("resource1");
+            assertThat(uuid2Resources).contains("resource2");
         }
 
         @Test
@@ -753,7 +748,7 @@ public class AgentServiceIntegrationTest {
 
             BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, resourcesToAdd, emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
-            assertThat(e.getMessage(), is("Resources on elastic agents with uuids [" + StringUtils.join(uuids, ", ") + "] can not be updated."));
+            assertThat(e.getMessage()).isEqualTo("Resources on elastic agents with uuids [" + StringUtils.join(uuids, ", ") + "] can not be updated.");
             assertTrue(agentService.findAgent(elasticAgent.getUuid()).getResourceConfigs().isEmpty());
         }
 
@@ -770,50 +765,50 @@ public class AgentServiceIntegrationTest {
             List<String> uuids = List.of(UUID, UUID2);
             List<String> resourcesToRemove = List.of("resource2");
 
-            assertThat(agentService.findAgent(UUID).getResourceConfigs().size(), is(2));
-            assertThat(agentService.findAgent(UUID2).getResourceConfigs().size(), is(1));
+            assertThat(agentService.findAgent(UUID).getResourceConfigs().size()).isEqualTo(2);
+            assertThat(agentService.findAgent(UUID2).getResourceConfigs().size()).isEqualTo(1);
 
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, resourcesToRemove, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
-            assertThat(agentService.findAgent(UUID).getResourceConfigs().size(), is(1));
-            assertThat(agentService.findAgent(UUID).getResourceConfigs(), contains(new ResourceConfig("resource1")));
-            assertThat(agentService.findAgent(UUID2).getResourceConfigs().size(), is(0));
+            assertThat(agentService.findAgent(UUID).getResourceConfigs().size()).isEqualTo(1);
+            assertThat((List<ResourceConfig>) agentService.findAgent(UUID).getResourceConfigs()).contains(new ResourceConfig("resource1"));
+            assertThat(agentService.findAgent(UUID2).getResourceConfigs().size()).isEqualTo(0);
         }
 
         @Test
         void shouldThrowValidationErrorOnResourceNameForUpdateAgent() {
             createAnIdleAgentAndDisableIt(UUID);
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
-            assertThat(agentService.findAgent(UUID).getStatus(), is(AgentStatus.Disabled));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(agentService.findAgent(UUID).getStatus()).isEqualTo(AgentStatus.Disabled);
 
             AgentInstance agentInstance = agentService.updateAgentAttributes(UUID, null, "foo%", null, UNSET);
 
-            assertThat(agentInstance.getAgent().hasErrors(), is(true));
+            assertThat(agentInstance.getAgent().hasErrors()).isTrue();
 
             ConfigErrors configErrors = agentInstance.getAgent().errors();
             assertFalse(configErrors.isEmpty());
             assertEquals("Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$'", configErrors.on("resources"));
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getResourceConfigs().resourceNames(), is(emptyStrList));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat(getFirstAgent().getResourceConfigs().resourceNames()).isEqualTo(emptyStrList);
         }
 
         @Test
         void shouldThrowValidationErrorOnResourceNameForUpdateBulkAgent() {
             createAnIdleAgentAndDisableIt(UUID);
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
-            assertThat(agentService.findAgent(UUID).getStatus(), is(AgentStatus.Disabled));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(agentService.findAgent(UUID).getStatus()).isEqualTo(AgentStatus.Disabled);
 
             UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.bulkUpdateAgentAttributes(List.of(UUID), List.of("foo%"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
-            assertThat(e.getMessage(), is("Validations failed for bulk update of agents. Error(s): {resources=[Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$']}"));
+            assertThat(e.getMessage()).isEqualTo("Validations failed for bulk update of agents. Error(s): {resources=[Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$']}");
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
         }
     }
 
@@ -825,7 +820,7 @@ public class AgentServiceIntegrationTest {
         void shouldRegisterLocalAgentWithNonLoopbackIpAddress() throws Exception {
             String nonLoopbackIp = SystemUtil.getFirstLocalNonLoopbackIpAddress();
             InetAddress nonLoopbackIpAddress = InetAddress.getByName(nonLoopbackIp);
-            assertThat(SystemUtil.isLocalIpAddress(nonLoopbackIp), is(true));
+            assertThat(SystemUtil.isLocalIpAddress(nonLoopbackIp)).isTrue();
 
             Agent agent = new Agent("uuid", nonLoopbackIpAddress.getHostName(), nonLoopbackIp);
             AgentRuntimeInfo agentRuntimeInfo = fromServer(agent, false, "/var/lib", 0L, "linux");
@@ -833,8 +828,8 @@ public class AgentServiceIntegrationTest {
 
             AgentInstance agentInstance = agentService.findRegisteredAgents().findAgentAndRefreshStatus("uuid");
 
-            assertThat(agentInstance.getAgent().getIpaddress(), is(nonLoopbackIp));
-            assertThat(agentInstance.getStatus(), is(AgentStatus.Idle));
+            assertThat(agentInstance.getAgent().getIpaddress()).isEqualTo(nonLoopbackIp);
+            assertThat(agentInstance.getStatus()).isEqualTo(AgentStatus.Idle);
         }
 
         @Test
@@ -847,9 +842,9 @@ public class AgentServiceIntegrationTest {
             String uuid = pendingAgentInstance.getUuid();
             agentService.approve(uuid);
 
-            assertThat(agentService.findRegisteredAgents().size(), is(1));
-            assertThat(agentService.findAgentAndRefreshStatus(uuid).getAgent().isDisabled(), is(false));
-            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(uuid).isDisabled(), is(false));
+            assertThat(agentService.findRegisteredAgents().size()).isEqualTo(1);
+            assertThat(agentService.findAgentAndRefreshStatus(uuid).getAgent().isDisabled()).isFalse();
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(uuid).isDisabled()).isFalse();
         }
 
         @Test
@@ -866,7 +861,7 @@ public class AgentServiceIntegrationTest {
             agentService.requestRegistration(agentRuntimeInfo2);
             agentService.requestRegistration(agentRuntimeInfo2);
 
-            assertThat(agentService.findRegisteredAgents().size(), is(1));
+            assertThat(agentService.findRegisteredAgents().size()).isEqualTo(1);
         }
     }
 
@@ -885,12 +880,12 @@ public class AgentServiceIntegrationTest {
                     idleAgentInstance, pendingAgentInstance, buildingAgentInstance, deniedAgentInstance);
             AgentService agentService = newAgentService(agentInstances);
 
-            assertThat(agentService.getAgentInstances().size(), is(4));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(4);
 
-            assertThat(agentService.findAgentAndRefreshStatus(idleAgentInstance.getAgent().getUuid()), is(idleAgentInstance));
-            assertThat(agentService.findAgentAndRefreshStatus(pendingAgentInstance.getAgent().getUuid()), is(pendingAgentInstance));
-            assertThat(agentService.findAgentAndRefreshStatus(buildingAgentInstance.getAgent().getUuid()), is(buildingAgentInstance));
-            assertThat(agentService.findAgentAndRefreshStatus(deniedAgentInstance.getAgent().getUuid()), is(deniedAgentInstance));
+            assertThat(agentService.findAgentAndRefreshStatus(idleAgentInstance.getAgent().getUuid())).isEqualTo(idleAgentInstance);
+            assertThat(agentService.findAgentAndRefreshStatus(pendingAgentInstance.getAgent().getUuid())).isEqualTo(pendingAgentInstance);
+            assertThat(agentService.findAgentAndRefreshStatus(buildingAgentInstance.getAgent().getUuid())).isEqualTo(buildingAgentInstance);
+            assertThat(agentService.findAgentAndRefreshStatus(deniedAgentInstance.getAgent().getUuid())).isEqualTo(deniedAgentInstance);
         }
     }
 
@@ -980,14 +975,14 @@ public class AgentServiceIntegrationTest {
             agentService.bulkUpdateAgentAttributes(List.of(UUID), emptyStrList, emptyStrList,
                     List.of("a", "b", "c"), emptyStrList, UNSET, environmentConfigService);
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
-            assertThat(getFirstAgent().getAgent().getEnvironmentsAsList(), is(List.of("a", "b", "c")));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(getFirstAgent().getAgent().getEnvironmentsAsList()).isEqualTo(List.of("a", "b", "c"));
 
             agentService.updateAgentAttributes(UUID, null, null, "c,d,e", UNSET);
 
-            assertThat(agentService.getAgentInstances().size(), is(1));
-            assertThat(getFirstAgent().getAgent().getEnvironmentsAsList(), is(List.of("c", "d", "e")));
+            assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
+            assertThat(getFirstAgent().getAgent().getEnvironmentsAsList()).isEqualTo(List.of("c", "d", "e"));
         }
 
         @Test
@@ -999,8 +994,8 @@ public class AgentServiceIntegrationTest {
 
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(List.of(UUID, UUID2), emptyStrList, emptyStrList, List.of("uat", "prod"), emptyStrList, TRUE, environmentConfigService));
 
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat", "prod"));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet("uat", "prod"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID)).contains("uat", "prod");
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2)).contains("uat", "prod");
         }
 
         @Test
@@ -1013,8 +1008,8 @@ public class AgentServiceIntegrationTest {
             BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
             assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(uat, List.of(UUID, UUID2)));
 
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat"));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID)).contains("uat");
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2)).contains("uat");
         }
 
         @Test
@@ -1032,8 +1027,8 @@ public class AgentServiceIntegrationTest {
             List<String> noAgents = emptyList();
             agentService.updateAgentsAssociationOfEnvironment(uat, noAgents);
 
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID).size(), is(0));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size(), is(0));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID).size()).isEqualTo(0);
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size()).isEqualTo(0);
         }
 
         @Test
@@ -1052,9 +1047,9 @@ public class AgentServiceIntegrationTest {
             uat.addAgent(UUID2);
             agentService.updateAgentsAssociationOfEnvironment(uat, List.of(UUID, UUID3));
 
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat"));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size(), is(0));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID3), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID)).contains("uat");
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size()).isEqualTo(0);
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID3)).contains("uat");
         }
 
         @Test
@@ -1067,8 +1062,8 @@ public class AgentServiceIntegrationTest {
             BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
             assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(uat, List.of(UUID, UUID2), Collections.emptyList()));
 
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat"));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID)).contains("uat");
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2)).contains("uat");
         }
 
         @Test
@@ -1086,8 +1081,8 @@ public class AgentServiceIntegrationTest {
             List<String> noAgents = emptyList();
             agentService.updateAgentsAssociationOfEnvironment(uat, noAgents, List.of(UUID, UUID2));
 
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID).size(), is(0));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size(), is(0));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID).size()).isEqualTo(0);
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size()).isEqualTo(0);
         }
 
         @Test
@@ -1106,9 +1101,9 @@ public class AgentServiceIntegrationTest {
             uat.addAgent(UUID2);
             agentService.updateAgentsAssociationOfEnvironment(uat, List.of(UUID, UUID3), List.of(UUID2));
 
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat"));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size(), is(0));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID3), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID)).contains("uat");
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size()).isEqualTo(0);
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID3)).contains("uat");
         }
 
         @Test
@@ -1124,8 +1119,8 @@ public class AgentServiceIntegrationTest {
             agentService.bulkUpdateAgentAttributes(List.of(UUID, UUID2), emptyStrList, emptyStrList,
                     List.of("uat"), emptyStrList, TRUE, environmentConfigService);
 
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat"));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID)).contains("uat");
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2)).contains("uat");
         }
 
         @Test
@@ -1145,7 +1140,7 @@ public class AgentServiceIntegrationTest {
             assertTrue(environmentConfigService.getAgentEnvironmentNames(UUID).isEmpty());
 
             assertEquals(1, environmentConfigService.getAgentEnvironmentNames(UUID2).size());
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet("prod"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2)).contains("prod");
         }
 
         @Test
@@ -1163,25 +1158,11 @@ public class AgentServiceIntegrationTest {
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(List.of(UUID, UUID2), emptyStrList, emptyStrList, List.of("dev", "test", "perf"), List.of("uat", "prod"), TRUE, environmentConfigService));
 
             String[] expectedEnvs = new String[]{"perf", "dev", "test"};
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID).size(), is(3));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet(expectedEnvs));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID).size()).isEqualTo(3);
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID)).contains(expectedEnvs);
 
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size(), is(3));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet(expectedEnvs));
-        }
-
-        private TypeSafeMatcher<Set<String>> containsSet(final String... items) {
-            return new TypeSafeMatcher<>() {
-                @Override
-                public boolean matchesSafely(Set<String> item) {
-                    return item.containsAll(List.of(items));
-                }
-
-                @Override
-                public void describeTo(Description description) {
-                    description.appendText("to contain ").appendValue(items);
-                }
-            };
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size()).isEqualTo(3);
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2)).contains(expectedEnvs);
         }
 
         @Test
@@ -1250,9 +1231,9 @@ public class AgentServiceIntegrationTest {
 
             joinFutures(futures, numOfThreads);
 
-            assertThat(agentDao.fetchAgentFromDBByUUID(agent1.getUuid()), is(agentService.findAgent(agent1.getUuid()).getAgent()));
-            assertThat(agentDao.fetchAgentFromDBByUUID(agent2.getUuid()), is(agentService.findAgent(agent2.getUuid()).getAgent()));
-            assertThat(agentDao.fetchAgentFromDBByUUID(agent3.getUuid()), is(agentService.findAgent(agent3.getUuid()).getAgent()));
+            assertThat(agentDao.fetchAgentFromDBByUUID(agent1.getUuid())).isEqualTo(agentService.findAgent(agent1.getUuid()).getAgent());
+            assertThat(agentDao.fetchAgentFromDBByUUID(agent2.getUuid())).isEqualTo(agentService.findAgent(agent2.getUuid()).getAgent());
+            assertThat(agentDao.fetchAgentFromDBByUUID(agent3.getUuid())).isEqualTo(agentService.findAgent(agent3.getUuid()).getAgent());
         } finally {
             execService.shutdownNow();
         }
@@ -1269,7 +1250,7 @@ public class AgentServiceIntegrationTest {
                 e.printStackTrace();
             }
         }
-        assertThat(count, is(numOfThreads / 2 * 5));
+        assertThat(count).isEqualTo(numOfThreads / 2 * 5);
     }
 
     private AgentStatusChangeListener agentStatusChangeListener() {
@@ -1312,7 +1293,7 @@ public class AgentServiceIntegrationTest {
 
         agentService.bulkUpdateAgentAttributes(List.of(agent.getUuid()), emptyStrList, emptyStrList, emptyStrList, emptyStrList, FALSE, environmentConfigService);
 
-        assertThat(isDisabled(agent), is(true));
+        assertThat(isDisabled(agent)).isTrue();
     }
 
     private boolean isDisabled(Agent agent) {
@@ -1347,7 +1328,7 @@ public class AgentServiceIntegrationTest {
         agentService.bulkUpdateAgentAttributes(List.of(agent.getUuid()), emptyStrList,
                 emptyStrList, emptyStrList, emptyStrList, FALSE, environmentConfigService);
         Agent updatedAgent = agentService.getAgentByUUID(agent.getUuid());
-        assertThat(isDisabled(updatedAgent), is(true));
+        assertThat(isDisabled(updatedAgent)).isTrue();
 
         return updatedAgent;
     }

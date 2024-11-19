@@ -70,8 +70,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.forceBuild;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -180,7 +179,7 @@ public class ScheduleServiceIntegrationTest {
         pipelinePauseService.pause(pipeline.getName(), "", null);
         dbHelper.passStage(pipeline.getStages().first());
         Pipeline newPipeline = manualSchedule(CaseInsensitiveString.str(mingleConfig.name()));
-        assertThat(newPipeline.getId(), is(pipeline.getId()));
+        assertThat(newPipeline.getId()).isEqualTo(pipeline.getId());
     }
 
     @Test
@@ -188,7 +187,7 @@ public class ScheduleServiceIntegrationTest {
         configHelper.addPipeline("evolve", STAGE_NAME, repository, JOB_NAME);
         autoSchedulePipelines("mingle", "evolve");
         PipelineConfig cruisePlan = configHelper.addPipeline("cruise", "test", repository);
-        assertThat(goConfigService.stageConfigNamed("mingle", "dev"), is(notNullValue()));
+        assertThat(goConfigService.stageConfigNamed("mingle", "dev")).isNotNull();
 
         String dir = goConfigDao.load().server().artifactsDir();
         new File(dir).mkdirs();
@@ -200,7 +199,7 @@ public class ScheduleServiceIntegrationTest {
         autoSchedulePipelines("cruise");
         cruise = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(cruisePlan.name()), cruisePlan.findBy(new CaseInsensitiveString("test")));
         for (JobInstance instance : cruise.getJobInstances()) {
-            assertThat(instance.getState(), is(JobState.Scheduled));
+            assertThat(instance.getState()).isEqualTo(JobState.Scheduled);
         }
     }
 
@@ -220,11 +219,11 @@ public class ScheduleServiceIntegrationTest {
             }
         });
         pipelineService.save(pipeline);
-        assertThat(pipelineLockService.isLocked(pipelineName), is(true));
+        assertThat(pipelineLockService.isLocked(pipelineName)).isTrue();
         scheduleService.unlockIfNecessary(pipeline, pipeline.getStages().first());
-        assertThat(pipelineLockService.isLocked(pipelineName), is(true));
+        assertThat(pipelineLockService.isLocked(pipelineName)).isTrue();
         scheduleService.unlockIfNecessary(pipeline, pipeline.getStages().last());
-        assertThat(pipelineLockService.isLocked(pipelineName), is(false));
+        assertThat(pipelineLockService.isLocked(pipelineName)).isFalse();
     }
 
     @Test
@@ -244,17 +243,17 @@ public class ScheduleServiceIntegrationTest {
         });
 
         pipelineService.save(pipeline);
-        assertThat(pipelineLockService.isLocked(pipelineName), is(true));
+        assertThat(pipelineLockService.isLocked(pipelineName)).isTrue();
         scheduleService.automaticallyTriggerRelevantStagesFollowingCompletionOf(pipeline.getStages().last());
-        assertThat(pipelineLockService.isLocked(pipelineName), is(false));
+        assertThat(pipelineLockService.isLocked(pipelineName)).isFalse();
     }
 
     @Test
     public void shouldNotBeAbleToRerunAStageWhichIsNotThereInTheConfigAnymore() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
-        assertThat(scheduleService.canRun(new PipelineIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel()), pipelineFixture.ftStage, "", true), is(true));
+        assertThat(scheduleService.canRun(new PipelineIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel()), pipelineFixture.ftStage, "", true)).isTrue();
         configHelper.removeStage(pipelineFixture.pipelineName, pipelineFixture.ftStage);
-        assertThat(scheduleService.canRun(new PipelineIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel()), pipelineFixture.ftStage, "", true), is(false));
+        assertThat(scheduleService.canRun(new PipelineIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel()), pipelineFixture.ftStage, "", true)).isFalse();
     }
 
     @Test
@@ -271,8 +270,8 @@ public class ScheduleServiceIntegrationTest {
         JobInstance firstJob = pipeline.findStage(firstStageName).getFirstJob();
         scheduleService.cancelJob(firstJob);
         JobInstance instance = jobInstanceService.buildById(firstJob.getId());
-        assertThat(instance.getState(), is(JobState.Completed));
-        assertThat(instance.getResult(), is(JobResult.Cancelled));
+        assertThat(instance.getState()).isEqualTo(JobState.Completed);
+        assertThat(instance.getResult()).isEqualTo(JobResult.Cancelled);
     }
 
     @Test
@@ -288,19 +287,19 @@ public class ScheduleServiceIntegrationTest {
 
         JobInstance firstJob = pipeline.findStage(firstStageName).getFirstJob();
 
-        assertThat(stageDao.stageById(firstJob.getStageId()).stageState(), is(StageState.Building));
-        assertThat(stageDao.stageById(firstJob.getStageId()).getResult(), is(StageResult.Unknown));
+        assertThat(stageDao.stageById(firstJob.getStageId()).stageState()).isEqualTo(StageState.Building);
+        assertThat(stageDao.stageById(firstJob.getStageId()).getResult()).isEqualTo(StageResult.Unknown);
 
         scheduleService.failJob(firstJob);
 
         JobInstance instance = jobInstanceService.buildById(firstJob.getId());
 
-        assertThat(instance.getState(), is(JobState.Completed));
-        assertThat(instance.getResult(), is(JobResult.Failed));
+        assertThat(instance.getState()).isEqualTo(JobState.Completed);
+        assertThat(instance.getResult()).isEqualTo(JobResult.Failed);
 
-        assertThat(stageDao.stageById(instance.getStageId()).stageState(), is(StageState.Failing));
-        assertThat(stageDao.stageById(instance.getStageId()).getResult(), is(StageResult.Failed));
-        assertThat(stageDao.stageById(instance.getStageId()).getCompletedByTransitionId(), is(nullValue()));
+        assertThat(stageDao.stageById(instance.getStageId()).stageState()).isEqualTo(StageState.Failing);
+        assertThat(stageDao.stageById(instance.getStageId()).getResult()).isEqualTo(StageResult.Failed);
+        assertThat(stageDao.stageById(instance.getStageId()).getCompletedByTransitionId()).isNull();
 
         JobInstance secondJob = pipeline.findStage(firstStageName).getJobInstances().get(1);
 
@@ -308,12 +307,12 @@ public class ScheduleServiceIntegrationTest {
 
         instance = jobInstanceService.buildByIdWithTransitions(secondJob.getId());
 
-        assertThat(instance.getState(), is(JobState.Completed));
-        assertThat(instance.getResult(), is(JobResult.Failed));
+        assertThat(instance.getState()).isEqualTo(JobState.Completed);
+        assertThat(instance.getResult()).isEqualTo(JobResult.Failed);
 
-        assertThat(stageDao.stageById(instance.getStageId()).stageState(), is(StageState.Failed));
-        assertThat(stageDao.stageById(instance.getStageId()).getResult(), is(StageResult.Failed));
-        assertThat(stageDao.stageById(instance.getStageId()).getCompletedByTransitionId(), is(instance.getTransitions().latestTransitionId()));
+        assertThat(stageDao.stageById(instance.getStageId()).stageState()).isEqualTo(StageState.Failed);
+        assertThat(stageDao.stageById(instance.getStageId()).getResult()).isEqualTo(StageResult.Failed);
+        assertThat(stageDao.stageById(instance.getStageId()).getCompletedByTransitionId()).isEqualTo(instance.getTransitions().latestTransitionId());
     }
 
     private void saveRev(final Pipeline pipeline) {
@@ -339,8 +338,8 @@ public class ScheduleServiceIntegrationTest {
         JobInstance firstJob = pipeline.findStage(firstStageName).getFirstJob();
         scheduleService.cancelJob(firstJob.getIdentifier());
         JobInstance instance = jobInstanceService.buildById(firstJob.getId());
-        assertThat(instance.getState(), is(JobState.Completed));
-        assertThat(instance.getResult(), is(JobResult.Cancelled));
+        assertThat(instance.getState()).isEqualTo(JobState.Completed);
+        assertThat(instance.getResult()).isEqualTo(JobResult.Cancelled);
     }
 
     @Test //#6826
@@ -357,7 +356,7 @@ public class ScheduleServiceIntegrationTest {
         JobPlan jobPlan = jobInstanceDao.loadPlan(jobId);
 
         EnvironmentVariables variables = jobPlan.getVariables();
-        assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
+        assertThat(variables).contains(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3"));
 
 
         Pipeline successfulPipeline = pass(pipeline);
@@ -365,7 +364,7 @@ public class ScheduleServiceIntegrationTest {
         jobStatusListener.onMessage(new JobStatusMessage(jobInstance.getIdentifier(), jobInstance.getState(), jobInstance.getAgentUuid()));
 
         jobPlan = jobInstanceDao.loadPlan(jobId);
-        assertThat(jobPlan.getVariables().size(), is(0));
+        assertThat(jobPlan.getVariables().size()).isEqualTo(0);
 
         configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));//add
         configHelper.addEnvironmentVariableToStage(pipelineName, stage, new EnvironmentVariablesConfig()); //delete
@@ -376,7 +375,7 @@ public class ScheduleServiceIntegrationTest {
         jobPlan = jobInstanceDao.loadPlan(jobId);
 
         variables = jobPlan.getVariables();
-        assertThat(variables, hasItems(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K3", "V3_updated")));
+        assertThat(variables).contains(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K3", "V3_updated"));
     }
 
     @Test //#6815
@@ -393,20 +392,19 @@ public class ScheduleServiceIntegrationTest {
         JobPlan jobPlan = jobInstanceDao.loadPlan(jobId);
 
         EnvironmentVariables variables = jobPlan.getVariables();
-        assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
+        assertThat(variables).contains(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3"));
 
         Pipeline successfulPipeline = pass(pipeline);
         JobInstance jobInstance = successfulPipeline.getFirstStage().getFirstJob();
         jobStatusListener.onMessage(new JobStatusMessage(jobInstance.getIdentifier(), jobInstance.getState(), jobInstance.getAgentUuid()));
 
         jobPlan = jobInstanceDao.loadPlan(jobId);
-        assertThat(jobPlan.getVariables().size(), is(0));
+        assertThat(jobPlan.getVariables().size()).isEqualTo(0);
 
         configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));
         Stage rerunStage = scheduleService.rerunJobs(pipeline.getFirstStage(), List.of(job), new HttpOperationResult());
-        assertThat(rerunStage.getFirstJob().getPlan().getVariables().size(), is(3));
-        assertThat(rerunStage.getFirstJob().getPlan().getVariables(),
-                hasItems(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
+        assertThat(rerunStage.getFirstJob().getPlan().getVariables().size()).isEqualTo(3);
+        assertThat(rerunStage.getFirstJob().getPlan().getVariables()).contains(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3"));
     }
 
     @Test //#6815
@@ -423,19 +421,19 @@ public class ScheduleServiceIntegrationTest {
         JobPlan jobPlan = jobInstanceDao.loadPlan(jobId);
 
         EnvironmentVariables variables = jobPlan.getVariables();
-        assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
+        assertThat(variables).contains(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3"));
 
         Pipeline successfulPipeline = pass(pipeline);
         JobInstance jobInstance = successfulPipeline.getFirstStage().getFirstJob();
         jobStatusListener.onMessage(new JobStatusMessage(jobInstance.getIdentifier(), jobInstance.getState(), jobInstance.getAgentUuid()));
 
         jobPlan = jobInstanceDao.loadPlan(jobId);
-        assertThat(jobPlan.getVariables().size(), is(0));
+        assertThat(jobPlan.getVariables().size()).isEqualTo(0);
 
         configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));
         Stage rerunStage = scheduleService.rerunStage(pipelineConfig.name().toString(), 1, stageName);
-        assertThat(rerunStage.getFirstJob().getPlan().getVariables().size(), is(3));
-        assertThat(rerunStage.getFirstJob().getPlan().getVariables(), hasItems(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
+        assertThat(rerunStage.getFirstJob().getPlan().getVariables().size()).isEqualTo(3);
+        assertThat(rerunStage.getFirstJob().getPlan().getVariables()).contains(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3"));
     }
 
     @Test
@@ -453,7 +451,7 @@ public class ScheduleServiceIntegrationTest {
         scheduleService.jobCompleting(jobIdentifier, JobResult.Passed, job.getAgentUuid());
 
         scheduleService.updateJobStatus(jobIdentifier, JobState.Completed);
-        assertThat(stageService.findLatestStage(pipelineName, secondStage), is(notNullValue()));
+        assertThat(stageService.findLatestStage(pipelineName, secondStage)).isNotNull();
     }
 
     // This could happen during race condition between rescheduleHungJobs and rescheduleAbandonedBuildIfNecessary.
@@ -467,7 +465,7 @@ public class ScheduleServiceIntegrationTest {
         int scheduledJobsCountOriginal = jobInstanceDao.orderedScheduledBuilds().size();
         scheduleService.rescheduleJob(pipeline.getFirstStage().getFirstJob());
         int scheduledJobsCountAfterSecondReschedule = jobInstanceDao.orderedScheduledBuilds().size();
-        assertThat(scheduledJobsCountOriginal, is(scheduledJobsCountAfterSecondReschedule));
+        assertThat(scheduledJobsCountOriginal).isEqualTo(scheduledJobsCountAfterSecondReschedule);
     }
 
     @Test
@@ -523,7 +521,7 @@ public class ScheduleServiceIntegrationTest {
 
         //assign the current job to elastic agent 1
         Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
-        assertThat(work, instanceOf(BuildWork.class));
+        assertThat(work).isInstanceOf(BuildWork.class);
         assertTrue(agent1.isBuilding());
 
         //reschedule the job
@@ -541,12 +539,12 @@ public class ScheduleServiceIntegrationTest {
         //newly created job instance
         JobInstance newlyScheduledInstance = jobInstanceService.buildById(newlyScheduledBuildId);
 
-        assertThat(existingRescheduledInstance.getState(), is(JobState.Rescheduled));
-        assertThat(newlyScheduledInstance.getState(), is(JobState.Scheduled));
+        assertThat(existingRescheduledInstance.getState()).isEqualTo(JobState.Rescheduled);
+        assertThat(newlyScheduledInstance.getState()).isEqualTo(JobState.Scheduled);
 
         //verify the newly created instance's job plan include elastic profile and cluster profile
-        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getClusterProfile(), is(clusterProfile));
-        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getElasticProfile(), is(elasticAgentProfile));
+        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getClusterProfile()).isEqualTo(clusterProfile);
+        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getElasticProfile()).isEqualTo(elasticAgentProfile);
 
         JobPlan jobPlanOfRescheduledInstance = jobInstanceDao.loadPlan(existingRescheduledBuildId);
 
@@ -554,8 +552,8 @@ public class ScheduleServiceIntegrationTest {
         jobStatusListener.onMessage(new JobStatusMessage(jobPlanOfRescheduledInstance.getIdentifier(), JobState.Completed, jobPlanOfRescheduledInstance.getAgentUuid()));
 
         //verify the newly created instance's job plan include elastic profile and cluster profile even after the first agent reports job completion
-        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getClusterProfile(), is(clusterProfile));
-        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getElasticProfile(), is(elasticAgentProfile));
+        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getClusterProfile()).isEqualTo(clusterProfile);
+        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getElasticProfile()).isEqualTo(elasticAgentProfile);
 
         elasticAgentPluginService.createAgentsFor(Collections.emptyList(), List.of(jobInstanceDao.loadPlan(newlyScheduledBuildId)));
 
@@ -573,14 +571,14 @@ public class ScheduleServiceIntegrationTest {
         HttpOperationResult result = new HttpOperationResult();
         scheduleService.rerunStage(pipeline.getName(), 1, pipelineFixture.ftStage, result);
 
-        assertThat(result.isSuccess(), is(false));
-        assertThat(result.message(), is("Cannot schedule ft as the previous stage dev has Failed!"));
-        assertThat(result.httpCode(), is(409));
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.message()).isEqualTo("Cannot schedule ft as the previous stage dev has Failed!");
+        assertThat(result.httpCode()).isEqualTo(409);
 
         ServerHealthState serverHealthState = result.getServerHealthState();
-        assertThat(serverHealthState.isSuccess(), is(false));
-        assertThat(serverHealthState.getDescription(), is("Cannot schedule ft as the previous stage dev has Failed!"));
-        assertThat(serverHealthState.getMessage(), is("Cannot schedule ft as the previous stage dev has Failed!"));
+        assertThat(serverHealthState.isSuccess()).isFalse();
+        assertThat(serverHealthState.getDescription()).isEqualTo("Cannot schedule ft as the previous stage dev has Failed!");
+        assertThat(serverHealthState.getMessage()).isEqualTo("Cannot schedule ft as the previous stage dev has Failed!");
     }
 
     private AgentIdentifier agent(Agent agent) {

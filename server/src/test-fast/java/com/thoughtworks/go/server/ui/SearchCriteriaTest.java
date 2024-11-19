@@ -18,33 +18,32 @@ package com.thoughtworks.go.server.ui;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SearchCriteriaTest {
 
     @Test
     public void shouldReturnTrueIfTheSearchTermMatches() throws Exception {
         SearchCriteria criteria = new SearchCriteria("win");
-        assertThat(criteria.matches("windows"), is(true));
-        assertThat(criteria.matches("win"), is(true));
+        assertThat(criteria.matches("windows")).isTrue();
+        assertThat(criteria.matches("win")).isTrue();
         criteria = new SearchCriteria("windows");
-        assertThat(criteria.matches("windows"), is(true));
-        assertThat(criteria.matches("win"), is(false));
+        assertThat(criteria.matches("windows")).isTrue();
+        assertThat(criteria.matches("win")).isFalse();
     }
 
     @Test
     public void shouldPerformExactMatch() throws Exception {
         SearchCriteria criteria = new SearchCriteria("\"win\"");
-        assertThat(criteria.matches("windows"), is(false));
-        assertThat(criteria.matches("win"), is(true));
+        assertThat(criteria.matches("windows")).isFalse();
+        assertThat(criteria.matches("win")).isTrue();
     }
     @Test
     public void shouldHandleInvalidInput() {
         SearchCriteria criteria = new SearchCriteria("\"\"\"");
-        assertThat(criteria.matches(""), is(false));
+        assertThat(criteria.matches("")).isFalse();
         criteria = new SearchCriteria("\"");
-        assertThat(criteria.matches(""), is(false));
+        assertThat(criteria.matches("")).isFalse();
 
     }
 

@@ -22,9 +22,7 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PackageMaterialMetadataLoaderTest {
@@ -56,8 +54,8 @@ public class PackageMaterialMetadataLoaderTest {
 
         metadataLoader.fetchRepositoryAndPackageMetaData(pluginDescriptor);
 
-        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()).getRepositoryConfiguration(), is(expectedRepoConfigurations));
-        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()).getPackageConfiguration(), is(expectedPackageConfigurations));
+        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()).getRepositoryConfiguration()).isEqualTo(expectedRepoConfigurations);
+        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()).getPackageConfiguration()).isEqualTo(expectedPackageConfigurations);
     }
 
     @Test
@@ -66,10 +64,10 @@ public class PackageMaterialMetadataLoaderTest {
         try {
             metadataLoader.fetchRepositoryAndPackageMetaData(pluginDescriptor);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Plugin[plugin-id] returned null repository configuration"));
+            assertThat(e.getMessage()).isEqualTo("Plugin[plugin-id] returned null repository configuration");
         }
-        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), nullValue());
-        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), nullValue());
+        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id())).isNull();
+        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id())).isNull();
     }
 
     @Test
@@ -78,10 +76,10 @@ public class PackageMaterialMetadataLoaderTest {
         try {
             metadataLoader.fetchRepositoryAndPackageMetaData(pluginDescriptor);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Plugin[plugin-id] returned null repository configuration"));
+            assertThat(e.getMessage()).isEqualTo("Plugin[plugin-id] returned null repository configuration");
         }
-        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), nullValue());
-        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), nullValue());
+        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id())).isNull();
+        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id())).isNull();
     }
 
     @Test
@@ -113,7 +111,7 @@ public class PackageMaterialMetadataLoaderTest {
         PackageMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), new PackageConfigurations());
         when(packageRepositoryExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(true);
         metadataLoader.pluginUnLoaded(pluginDescriptor);
-        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(nullValue()));
-        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(nullValue()));
+        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id())).isNull();
+        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id())).isNull();
     }
 }

@@ -30,8 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -63,9 +62,9 @@ public class CreateSCMConfigCommandTest {
     public void shouldAddANewScmToTheGivenConfig() throws Exception{
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
-        assertThat(cruiseConfig.getSCMs().contains(scm), is(false));
+        assertThat(cruiseConfig.getSCMs().contains(scm)).isFalse();
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getSCMs().contains(scm), is(true));
+        assertThat(cruiseConfig.getSCMs().contains(scm)).isTrue();
     }
 
     @Test
@@ -75,7 +74,7 @@ public class CreateSCMConfigCommandTest {
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
     }
 
     @Test
@@ -85,7 +84,7 @@ public class CreateSCMConfigCommandTest {
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     @Test
@@ -95,7 +94,7 @@ public class CreateSCMConfigCommandTest {
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
 }

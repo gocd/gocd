@@ -55,7 +55,7 @@ class SuggestionsRepresenterTest {
   }
 
   private StageConfig stage(String name) {
-    return new StageConfig(ident(name), null);
+    return new StageConfig(ident(name), null)
   }
 
 }

@@ -20,23 +20,21 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.SerializationTester;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MaterialInstanceTest {
     @Test
     public void shouldGenerateUniqueFingerprintOnCreation() throws Exception {
         MaterialInstance one = new HgMaterial("url", null).createMaterialInstance();
         MaterialInstance two = new HgMaterial("otherurl", null).createMaterialInstance();
-        assertThat(one.getFingerprint(), not(nullValue()));
-        assertThat(one.getFingerprint(), not(is(two.getFingerprint())));
+        assertThat(one.getFingerprint()).isNotNull();
+        assertThat(one.getFingerprint()).isNotEqualTo(two.getFingerprint());
     }
 
     @Test
@@ -45,9 +43,9 @@ public class MaterialInstanceTest {
         MaterialInstance materialInstance = m.createMaterialInstance();
         materialInstance.setId(10);
         MaterialInstance unserializedMaterial = SerializationTester.objectSerializeAndDeserialize(materialInstance);
-        assertThat(unserializedMaterial, Matchers.is(materialInstance));
-        assertThat(unserializedMaterial.getId(), is(10L));
-        assertThat(unserializedMaterial, is(materialInstance));
+        assertThat(unserializedMaterial).isEqualTo((materialInstance));
+        assertThat(unserializedMaterial.getId()).isEqualTo(10L);
+        assertThat(unserializedMaterial).isEqualTo(materialInstance);
     }
 
     @Test
@@ -56,31 +54,31 @@ public class MaterialInstanceTest {
         MaterialInstance materialInstance = material.createMaterialInstance();
         // null
         materialInstance.setAdditionalData(null);
-        assertThat(materialInstance.requiresUpdate(null), is(false));
-        assertThat(materialInstance.requiresUpdate(new HashMap<>()), is(false));
+        assertThat(materialInstance.requiresUpdate(null)).isFalse();
+        assertThat(materialInstance.requiresUpdate(new HashMap<>())).isFalse();
 
         // empty
         materialInstance.setAdditionalData(JsonHelper.toJsonString(new HashMap<String, String>()));
-        assertThat(materialInstance.requiresUpdate(null), is(false));
-        assertThat(materialInstance.requiresUpdate(new HashMap<>()), is(false));
+        assertThat(materialInstance.requiresUpdate(null)).isFalse();
+        assertThat(materialInstance.requiresUpdate(new HashMap<>())).isFalse();
 
         // with data
         Map<String, String> data = new HashMap<>();
         data.put("k1", "v1");
         data.put("k2", "v2");
         materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
-        assertThat(materialInstance.requiresUpdate(null), is(true));
-        assertThat(materialInstance.requiresUpdate(new HashMap<>()), is(true));
-        assertThat(materialInstance.requiresUpdate(data), is(false));
+        assertThat(materialInstance.requiresUpdate(null)).isTrue();
+        assertThat(materialInstance.requiresUpdate(new HashMap<>())).isTrue();
+        assertThat(materialInstance.requiresUpdate(data)).isFalse();
 
         // missing key-value
         Map<String, String> dataWithMissingKey = new HashMap<>(data);
         dataWithMissingKey.remove("k1");
-        assertThat(materialInstance.requiresUpdate(dataWithMissingKey), is(true));
+        assertThat(materialInstance.requiresUpdate(dataWithMissingKey)).isTrue();
 
         // extra key-value
         Map<String, String> dataWithExtraKey = new HashMap<>(data);
         dataWithExtraKey.put("k3", "v3");
-        assertThat(materialInstance.requiresUpdate(dataWithExtraKey), is(true));
+        assertThat(materialInstance.requiresUpdate(dataWithExtraKey)).isTrue();
     }
 }

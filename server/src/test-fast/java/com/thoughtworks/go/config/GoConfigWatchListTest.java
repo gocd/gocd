@@ -23,8 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -108,7 +107,7 @@ public class GoConfigWatchListTest {
 
         watchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
 
-        assertThat(watchList.getConfigRepoForMaterial(gitrepo), is(repoConfig));
+        assertThat(watchList.getConfigRepoForMaterial(gitrepo)).isEqualTo(repoConfig);
     }
 
 }

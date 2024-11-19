@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BuildTaskTest extends AbstractCRTest<CRBuildTask> {
 
@@ -73,13 +72,13 @@ public class BuildTaskTest extends AbstractCRTest<CRBuildTask> {
     @Test
     public void shouldAppendTypeFieldWhenSerializingAntTask() {
         JsonObject jsonObject = (JsonObject) gson.toJsonTree(antTask);
-        assertThat(jsonObject.get("type").getAsString(), is("ant"));
+        assertThat(jsonObject.get("type").getAsString()).isEqualTo("ant");
     }
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingRakeTask() {
         JsonObject jsonObject = (JsonObject) gson.toJsonTree(rakeTask);
-        assertThat(jsonObject.get("type").getAsString(), is("rake"));
+        assertThat(jsonObject.get("type").getAsString()).isEqualTo("rake");
     }
 
     @Test
@@ -88,8 +87,7 @@ public class BuildTaskTest extends AbstractCRTest<CRBuildTask> {
         String json = gson.toJson(value);
 
         CRBuildTask deserializedValue = (CRBuildTask) gson.fromJson(json, CRTask.class);
-        assertThat("Deserialized value should equal to value before serialization",
-            deserializedValue, is(value));
+        assertThat( deserializedValue).isEqualTo(value);
     }
 
     @Test
@@ -98,7 +96,6 @@ public class BuildTaskTest extends AbstractCRTest<CRBuildTask> {
         String json = gson.toJson(value);
 
         CRBuildTask deserializedValue = (CRBuildTask) gson.fromJson(json, CRTask.class);
-        assertThat("Deserialized value should equal to value before serialization",
-            deserializedValue, is(value));
+        assertThat(deserializedValue).isEqualTo(value);
     }
 }

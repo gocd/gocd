@@ -39,8 +39,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
@@ -90,7 +89,7 @@ public class PackageMaterialUpdaterIntegrationTest {
         });
 
         MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);
-        assertThat(actualInstance.getConfiguration(), is(material.createMaterialInstance().getConfiguration()));
+        assertThat(actualInstance.getConfiguration()).isEqualTo(material.createMaterialInstance().getConfiguration());
     }
 
     private void addMetadata(PackageMaterial material, String field, boolean partOfIdentity) {

@@ -25,8 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ConsoleOutViewTest {
@@ -40,7 +39,7 @@ public class ConsoleOutViewTest {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         view.render(null, null, response);
-        assertThat(response.getCharacterEncoding(), is(randomCharset().toString()));
+        assertThat(response.getCharacterEncoding()).isEqualTo(randomCharset().toString());
     }
 
     @Test
@@ -49,13 +48,13 @@ public class ConsoleOutViewTest {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         view.render(null, null, response);
-        assertThat(response.getContentType(), is(view.getContentType()));
+        assertThat(response.getContentType()).isEqualTo(view.getContentType());
     }
 
     @Test
     public void getsContentType() throws Exception {
         ConsoleOutView view = new ConsoleOutView(null, randomCharset());
-        assertThat(view.getContentType(), is("text/plain; charset=" + randomCharset()));
+        assertThat(view.getContentType()).isEqualTo("text/plain; charset=" + randomCharset());
     }
 
     private Charset randomCharset() {

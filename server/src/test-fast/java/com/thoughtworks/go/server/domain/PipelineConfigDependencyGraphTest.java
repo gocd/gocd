@@ -38,9 +38,7 @@ import java.util.List;
 import java.util.Queue;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.filteredHgMaterialConfig;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineConfigDependencyGraphTest {
 
@@ -65,7 +63,7 @@ public class PipelineConfigDependencyGraphTest {
         queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(up2, List.of(current, up2)));
         queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, List.of(current, up1, uppest)));
         queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, List.of(current, up2, uppest)));
-        assertThat(dependencyGraph.buildQueue(), is(queue));
+        assertThat(dependencyGraph.buildQueue()).isEqualTo(queue);
     }
 
     @Test
@@ -91,7 +89,7 @@ public class PipelineConfigDependencyGraphTest {
         queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, List.of(current, up1, upper, uppest)));
         queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, List.of(current, up2, upper, uppest)));
         Queue<PipelineConfigDependencyGraph.PipelineConfigQueueEntry> configQueueEntryQueue = dependencyGraph.buildQueue();
-        assertThat(configQueueEntryQueue, is(queue));
+        assertThat(configQueueEntryQueue).isEqualTo(queue);
     }
 
     @Test
@@ -116,21 +114,21 @@ public class PipelineConfigDependencyGraphTest {
         PipelineConfigDependencyGraph up2Graph = new PipelineConfigDependencyGraph(up2, uppestGraph);
         PipelineConfigDependencyGraph dependencyGraph = new PipelineConfigDependencyGraph(current, up1Graph, up2Graph);
 
-        assertThat(dependencyGraph.unsharedMaterialConfigs().size(), is(2));
-        assertThat(dependencyGraph.unsharedMaterialConfigs().get(0), is(up1DependencyMaterial));
-        assertThat(dependencyGraph.unsharedMaterialConfigs().get(1), is(up2DependencyMaterial));
+        assertThat(dependencyGraph.unsharedMaterialConfigs().size()).isEqualTo(2);
+        assertThat(dependencyGraph.unsharedMaterialConfigs().get(0)).isEqualTo(up1DependencyMaterial);
+        assertThat(dependencyGraph.unsharedMaterialConfigs().get(1)).isEqualTo(up2DependencyMaterial);
 
-        assertThat(up1Graph.unsharedMaterialConfigs().size(), is(2));
-        assertThat(up1Graph.unsharedMaterialConfigs().get(0), is(firstOrderGitMaterial));
-        assertThat(up1Graph.unsharedMaterialConfigs().get(1), is(uppestDependencyMaterial));
+        assertThat(up1Graph.unsharedMaterialConfigs().size()).isEqualTo(2);
+        assertThat(up1Graph.unsharedMaterialConfigs().get(0)).isEqualTo(firstOrderGitMaterial);
+        assertThat(up1Graph.unsharedMaterialConfigs().get(1)).isEqualTo(uppestDependencyMaterial);
 
-        assertThat(up2Graph.unsharedMaterialConfigs().size(), is(2));
-        assertThat(up2Graph.unsharedMaterialConfigs().get(0), is(firstOrderSVNMaterial));
-        assertThat(up2Graph.unsharedMaterialConfigs().get(1), is(uppestDependencyMaterial));
+        assertThat(up2Graph.unsharedMaterialConfigs().size()).isEqualTo(2);
+        assertThat(up2Graph.unsharedMaterialConfigs().get(0)).isEqualTo(firstOrderSVNMaterial);
+        assertThat(up2Graph.unsharedMaterialConfigs().get(1)).isEqualTo(uppestDependencyMaterial);
 
-        assertThat(uppestGraph.unsharedMaterialConfigs().size(), is(2));
-        assertThat(uppestGraph.unsharedMaterialConfigs().get(0), is(common1));
-        assertThat(uppestGraph.unsharedMaterialConfigs().get(1), is(firstOrderP4Material));
+        assertThat(uppestGraph.unsharedMaterialConfigs().size()).isEqualTo(2);
+        assertThat(uppestGraph.unsharedMaterialConfigs().get(0)).isEqualTo(common1);
+        assertThat(uppestGraph.unsharedMaterialConfigs().get(1)).isEqualTo(firstOrderP4Material);
     }
 
     @Test
@@ -154,9 +152,9 @@ public class PipelineConfigDependencyGraphTest {
         PipelineConfigDependencyGraph up2Graph = new PipelineConfigDependencyGraph(up2, uppestGraph);
         PipelineConfigDependencyGraph dependencyGraph = new PipelineConfigDependencyGraph(current, up1Graph, up2Graph);
 
-        assertThat(dependencyGraph.allMaterialFingerprints().size(), is(7));
-        assertThat(dependencyGraph.allMaterialFingerprints(), hasItems(common.getFingerprint(), firstOrderSVNMaterial.getFingerprint(), firstOrderGitMaterial.getFingerprint(), firstOrderP4Material.getFingerprint(),
-                up1DependencyMaterial.getFingerprint(), up2DependencyMaterial.getFingerprint(), uppestDependencyMaterial.getFingerprint()));
+        assertThat(dependencyGraph.allMaterialFingerprints().size()).isEqualTo(7);
+        assertThat(dependencyGraph.allMaterialFingerprints()).contains(common.getFingerprint(), firstOrderSVNMaterial.getFingerprint(), firstOrderGitMaterial.getFingerprint(), firstOrderP4Material.getFingerprint(),
+                up1DependencyMaterial.getFingerprint(), up2DependencyMaterial.getFingerprint(), uppestDependencyMaterial.getFingerprint());
     }
 
     @Test
@@ -184,19 +182,19 @@ public class PipelineConfigDependencyGraphTest {
         modification.createModifiedFile("phigar", "", ModifiedAction.added);
 
         boolean ignored = dependencyGraph.isRevisionsOfSharedMaterialsIgnored(ModificationsMother.createHgMaterialWithMultipleRevisions(1, modification));
-        assertThat(ignored, is(true));
+        assertThat(ignored).isTrue();
 
         ignored = dependencyGraph.isRevisionsOfSharedMaterialsIgnored(ModificationsMother.createHgMaterialWithMultipleRevisions(1, ModificationsMother.oneModifiedFile("Silly")));
-        assertThat(ignored, is(false));
+        assertThat(ignored).isFalse();
 
         MaterialRevisions materialRevisions = ModificationsMother.createSvnMaterialRevisions(modification);
         materialRevisions.addAll(ModificationsMother.createP4MaterialRevisions(modification));
         materialRevisions.addAll(ModificationsMother.createHgMaterialWithMultipleRevisions(1, modification));
         ignored = up2Graph.isRevisionsOfSharedMaterialsIgnored(materialRevisions);
-        assertThat(ignored, is(true));
+        assertThat(ignored).isTrue();
 
         ignored = up2Graph.isRevisionsOfSharedMaterialsIgnored(ModificationsMother.createHgMaterialWithMultipleRevisions(1, ModificationsMother.oneModifiedFile("Silly")));
-        assertThat(ignored, is(false));
+        assertThat(ignored).isFalse();
     }
 
 }

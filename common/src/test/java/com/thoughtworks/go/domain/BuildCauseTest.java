@@ -28,9 +28,8 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class BuildCauseTest {
 
@@ -39,13 +38,13 @@ public class BuildCauseTest {
         ModificationSummaries summaries1 = new ModificationSummaries();
         summaries1.visit(
             new Modification(null, "comment1", null, null, "This could be a long Hg Revision Number"));
-        assertThat(summaries1.getModification(0).getRevision(), is("This could b..."));
+        assertThat(summaries1.getModification(0).getRevision()).isEqualTo("This could b...");
     }
 
     @Test
     public void differentBuildCausesShouldNotBeTheSame() {
-        assertThat(BuildCause.createWithEmptyModifications().isSameAs(BuildCause.createManualForced()), is(false));
-        assertThat(BuildCause.createManualForced().isSameAs(BuildCause.createWithEmptyModifications()), is(false));
+        assertThat(BuildCause.createWithEmptyModifications().isSameAs(BuildCause.createManualForced())).isFalse();
+        assertThat(BuildCause.createManualForced().isSameAs(BuildCause.createWithEmptyModifications())).isFalse();
     }
 
     @Test
@@ -56,7 +55,7 @@ public class BuildCauseTest {
         MaterialRevisions second = new MaterialRevisions(
             new MaterialRevision(MaterialsMother.svnMaterial(), oneModifiedFile("revision1"))
         );
-        assertThat(BuildCause.createWithModifications(first, "").isSameAs(BuildCause.createWithModifications(second, "")), is(true));
+        assertThat(BuildCause.createWithModifications(first, "").isSameAs(BuildCause.createWithModifications(second, ""))).isTrue();
     }
 
     @Test
@@ -66,7 +65,7 @@ public class BuildCauseTest {
         );
         BuildCause buildCause = BuildCause.createWithEmptyModifications();
         buildCause.setMaterialRevisions(first);
-        assertThat(buildCause.getBuildCauseMessage(), is("modified by lgao"));
+        assertThat(buildCause.getBuildCauseMessage()).isEqualTo("modified by lgao");
     }
 
     @Test
@@ -76,7 +75,7 @@ public class BuildCauseTest {
         );
         BuildCause buildCause = BuildCause.createManualForced();
         buildCause.setMaterialRevisions(first);
-        assertThat(buildCause.getBuildCauseMessage(), is("Forced by anonymous"));
+        assertThat(buildCause.getBuildCauseMessage()).isEqualTo("Forced by anonymous");
     }
 
     @Test

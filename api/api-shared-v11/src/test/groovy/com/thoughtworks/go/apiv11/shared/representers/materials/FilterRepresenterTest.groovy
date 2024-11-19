@@ -56,7 +56,7 @@ class FilterRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(emptyFilterHash)
     def deserializedFilter = FilterRepresenter.fromJSON(jsonReader)
 
-    assertEquals(deserializedFilter, new Filter());
+    assertEquals(deserializedFilter, new Filter())
   }
 
   def filterHash =

@@ -26,9 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class MercurialPostCommitHookImplementerTest {
@@ -56,9 +54,9 @@ public class MercurialPostCommitHookImplementerTest {
 
         Set<Material> actual = implementer.prune(materials, params);
 
-        assertThat(actual.size(), is(2));
-        assertThat(actual, hasItem(material1));
-        assertThat(actual, hasItem(material2));
+        assertThat(actual.size()).isEqualTo(2);
+        assertThat(actual).contains(material1);
+        assertThat(actual).contains(material2);
         verify(material1).getUrlArgument();
         verify(material2).getUrlArgument();
         verify(material3).getUrlArgument();
@@ -72,73 +70,73 @@ public class MercurialPostCommitHookImplementerTest {
 
         Set<Material> actual = implementer.prune(materials, new HashMap());
 
-        assertThat(actual.size(), is(0));
+        assertThat(actual.size()).isEqualTo(0);
         verify(material, times(0)).getUrlArgument();
     }
 
     @Test
     public void shouldReturnTrueWhenURLIsAnExactMatch() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://repo-url", "dest"));
-        assertThat(isEqual, is(true));
+        assertThat(isEqual).isTrue();
     }
 
     @Test
     public void shouldReturnTrueWhenBasicAuthIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://user:passW)rD@repo-url", "dest"));
-        assertThat(isEqual, is(true));
+        assertThat(isEqual).isTrue();
     }
 
     @Test
     public void shouldReturnTrueWhenBasicAuthWithoutPasswordIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://user:@repo-url", "dest"));
-        assertThat(isEqual, is(true));
+        assertThat(isEqual).isTrue();
     }
 
     @Test
     public void shouldReturnTrueWhenBasicAuthWithOnlyUsernameIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://user@repo-url", "dest"));
-        assertThat(isEqual, is(true));
+        assertThat(isEqual).isTrue();
     }
 
     @Test
     public void shouldReturnFalseWhenProtocolIsDifferent() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("https://repo-url", "dest"));
-        assertThat(isEqual, is(false));
+        assertThat(isEqual).isFalse();
     }
 
     @Test
     public void shouldReturnFalseWhenNoValidatorCouldParseUrl() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("something.completely.random", "dest"));
-        assertThat(isEqual, is(false));
+        assertThat(isEqual).isFalse();
     }
 
     @Test
     public void shouldReturnFalseWhenNoProtocolIsGiven() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url#foo", new HgMaterial("repo-url#foo", "dest"));
-        assertThat(isEqual, is(false));
+        assertThat(isEqual).isFalse();
     }
 
     @Test
     public void shouldReturnFalseForEmptyURLField() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://", "dest"));
-        assertThat(isEqual, is(false));
+        assertThat(isEqual).isFalse();
     }
 
     @Test
     public void shouldReturnFalseForEmptyURLFieldWithAuth() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://user:password@", "dest"));
-        assertThat(isEqual, is(false));
+        assertThat(isEqual).isFalse();
     }
 
     @Test
     public void shouldMatchFileBasedAccessWithoutAuth() {
         boolean isEqual = implementer.isUrlEqual("/tmp/foo/repo-git", new HgMaterial("/tmp/foo/repo-git", "dest"));
-        assertThat(isEqual, is(true));
+        assertThat(isEqual).isTrue();
     }
 
     @Test
     public void shouldReturnTrueWhenIncomingUrlDoesNotHaveAuthDetails() {
         boolean isEqual = implementer.isUrlEqual("http://foo.bar/#foo", new HgMaterial("http://user:password@foo.bar/#foo", "dest"));
-        assertThat(isEqual, is(true));
+        assertThat(isEqual).isTrue();
     }
 }

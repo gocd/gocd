@@ -50,8 +50,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.IOException;
 import java.util.UUID;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -135,30 +134,30 @@ public class PipelineTriggerServiceIntegrationTest {
     @Test
     public void shouldScheduleAPipelineWithLatestRevisionOfAssociatedMaterial() {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
 
         pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, result);
 
-        assertThat(result.isSuccess(), is(true));
-        assertThat(result.fullMessage(), is(String.format("Request to schedule pipeline %s accepted", this.pipelineName)));
-        assertThat(result.httpCode(), is(202));
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(true));
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.fullMessage()).isEqualTo(String.format("Request to schedule pipeline %s accepted", this.pipelineName));
+        assertThat(result.httpCode()).isEqualTo(202);
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isTrue();
 
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(svnMaterial, 1));
 
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
         assertNotNull(buildCause);
-        assertThat(buildCause.getApprover(), is(CaseInsensitiveString.str(admin.getUsername())));
-        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString(), is("s3"));
-        assertThat(buildCause.getBuildCauseMessage(), is("Forced by admin1"));
+        assertThat(buildCause.getApprover()).isEqualTo(CaseInsensitiveString.str(admin.getUsername()));
+        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString()).isEqualTo("s3");
+        assertThat(buildCause.getBuildCauseMessage()).isEqualTo("Forced by admin1");
         assertTrue(buildCause.getVariables().isEmpty());
     }
 
     @Test
     public void shouldScheduleAPipelineWithTheProvidedMaterialRevisions() throws IOException {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(pipelineName);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         String peggedRevision = "s2";
         MaterialForScheduling material = new MaterialForScheduling(pipelineConfig.materialConfigs().first().getFingerprint(), peggedRevision);
@@ -166,25 +165,25 @@ public class PipelineTriggerServiceIntegrationTest {
 
         pipelineTriggerService.schedule(pipelineName, pipelineScheduleOptions, admin, result);
 
-        assertThat(result.isSuccess(), is(true));
-        assertThat(result.fullMessage(), is(String.format("Request to schedule pipeline %s accepted", pipelineName)));
-        assertThat(result.httpCode(), is(202));
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(true));
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.fullMessage()).isEqualTo(String.format("Request to schedule pipeline %s accepted", pipelineName));
+        assertThat(result.httpCode()).isEqualTo(202);
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isTrue();
 
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(svnMaterial, 1));
 
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
         assertNotNull(buildCause);
-        assertThat(buildCause.getApprover(), is(CaseInsensitiveString.str(admin.getUsername())));
-        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString(), is("s2"));
-        assertThat(buildCause.getBuildCauseMessage(), is("Forced by admin1"));
+        assertThat(buildCause.getApprover()).isEqualTo(CaseInsensitiveString.str(admin.getUsername()));
+        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString()).isEqualTo("s2");
+        assertThat(buildCause.getBuildCauseMessage()).isEqualTo("Forced by admin1");
         assertTrue(buildCause.getVariables().isEmpty());
     }
 
     @Test
     public void shouldNotPerformMDUIfScheduleOptionsIsSetToDisallowMDU() throws IOException {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         pipelineScheduleOptions.shouldPerformMDUBeforeScheduling(false);
         String peggedRevision = "s2";
@@ -193,22 +192,22 @@ public class PipelineTriggerServiceIntegrationTest {
 
         pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, result);
 
-        assertThat(result.isSuccess(), is(true));
-        assertThat(result.fullMessage(), is(String.format("Request to schedule pipeline %s accepted", this.pipelineName)));
-        assertThat(result.httpCode(), is(202));
-        assertThat(materialUpdateStatusNotifier.hasListenerFor(pipelineConfig), is(false));
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.fullMessage()).isEqualTo(String.format("Request to schedule pipeline %s accepted", this.pipelineName));
+        assertThat(result.httpCode()).isEqualTo(202);
+        assertThat(materialUpdateStatusNotifier.hasListenerFor(pipelineConfig)).isFalse();
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
         assertNotNull(buildCause);
-        assertThat(buildCause.getApprover(), is(CaseInsensitiveString.str(admin.getUsername())));
-        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString(), is("s2"));
-        assertThat(buildCause.getBuildCauseMessage(), is("Forced by admin1"));
+        assertThat(buildCause.getApprover()).isEqualTo(CaseInsensitiveString.str(admin.getUsername()));
+        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString()).isEqualTo("s2");
+        assertThat(buildCause.getBuildCauseMessage()).isEqualTo("Forced by admin1");
         assertTrue(buildCause.getVariables().isEmpty());
     }
 
     @Test
     public void shouldNotScheduleAPipelineIfTheProvidedMaterialRevisionIsNotKnownAndScheduleOptionSuggestsNoMDU() throws IOException {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         pipelineScheduleOptions.shouldPerformMDUBeforeScheduling(false);
         String peggedRevision = "unseen-revision";
@@ -218,10 +217,10 @@ public class PipelineTriggerServiceIntegrationTest {
 
         pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, result);
 
-        assertThat(result.isSuccess(), is(false));
-        assertThat(result.fullMessage(), is(String.format("Error while scheduling pipeline: %s { Unable to find revision [%s] for material [%s] }", this.pipelineName, peggedRevision, new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().first()))));
-        assertThat(result.httpCode(), is(422));
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.fullMessage()).isEqualTo(String.format("Error while scheduling pipeline: %s { Unable to find revision [%s] for material [%s] }", this.pipelineName, peggedRevision, new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().first())));
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
     }
 
     @Test
@@ -235,38 +234,38 @@ public class PipelineTriggerServiceIntegrationTest {
         Integer pipelineCounterBefore = pipelineSqlMapDao.getCounterForPipeline(pipelineName);
 
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(new GoCipher(), "ENV_VAR1", "overridden_value", false));
         pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", "overridden_secure_value", true));
 
         pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, result);
 
-        assertThat(result.isSuccess(), is(true));
-        assertThat(result.fullMessage(), is(String.format("Request to schedule pipeline %s accepted", this.pipelineName)));
-        assertThat(result.httpCode(), is(202));
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(true));
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.fullMessage()).isEqualTo(String.format("Request to schedule pipeline %s accepted", this.pipelineName));
+        assertThat(result.httpCode()).isEqualTo(202);
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isTrue();
 
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(svnMaterial, 1));
 
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
         assertNotNull(buildCause);
-        assertThat(buildCause.getApprover(), is(CaseInsensitiveString.str(admin.getUsername())));
-        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString(), is("s3"));
-        assertThat(buildCause.getBuildCauseMessage(), is("Forced by admin1"));
-        assertThat(buildCause.getVariables().size(), is(2));
+        assertThat(buildCause.getApprover()).isEqualTo(CaseInsensitiveString.str(admin.getUsername()));
+        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString()).isEqualTo("s3");
+        assertThat(buildCause.getBuildCauseMessage()).isEqualTo("Forced by admin1");
+        assertThat(buildCause.getVariables().size()).isEqualTo(2);
         EnvironmentVariable plainTextVariable = IterableUtils.find(buildCause.getVariables(), variable -> variable.getName().equals("ENV_VAR1"));
         EnvironmentVariable secureVariable = IterableUtils.find(buildCause.getVariables(), variable -> variable.getName().equals("SECURE_VAR1"));
-        assertThat(plainTextVariable.getValue(), is("overridden_value"));
-        assertThat(secureVariable.getValue(), is("overridden_secure_value"));
-        assertThat(secureVariable.isSecure(), is(true));
+        assertThat(plainTextVariable.getValue()).isEqualTo("overridden_value");
+        assertThat(secureVariable.getValue()).isEqualTo("overridden_secure_value");
+        assertThat(secureVariable.isSecure()).isTrue();
 
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
 
         Integer pipelineCounterAfter = pipelineSqlMapDao.getCounterForPipeline(this.pipelineName);
-        assertThat(pipelineCounterAfter, is(pipelineCounterBefore + 1));
+        assertThat(pipelineCounterAfter).isEqualTo(pipelineCounterBefore + 1);
         BuildCause buildCauseOfLatestRun = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(this.pipelineName, pipelineCounterAfter);
-        assertThat(buildCauseOfLatestRun, is(buildCause));
+        assertThat(buildCauseOfLatestRun).isEqualTo(buildCause);
     }
 
     @Test
@@ -275,21 +274,21 @@ public class PipelineTriggerServiceIntegrationTest {
         String digest = entityHashingService.hashForEntity(pipelineConfigService.getPipelineConfig(pipelineConfig.name().toString()), group);
         pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, group, digest, new HttpLocalizedOperationResult());
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         String overriddenEncryptedValue = new GoCipher().encrypt("overridden_value");
         pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", overriddenEncryptedValue));
 
         pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, this.result);
 
-        assertThat(this.result.isSuccess(), is(true));
+        assertThat(this.result.isSuccess()).isTrue();
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(svnMaterial, 1));
 
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
         assertNotNull(buildCause);
         EnvironmentVariable secureVariable = IterableUtils.find(buildCause.getVariables(), variable -> variable.getName().equals("SECURE_VAR1"));
-        assertThat(secureVariable.getValue(), is("overridden_value"));
-        assertThat(secureVariable.isSecure(), is(true));
+        assertThat(secureVariable.getValue()).isEqualTo("overridden_value");
+        assertThat(secureVariable.isSecure()).isTrue();
     }
 
     @Test
@@ -298,17 +297,17 @@ public class PipelineTriggerServiceIntegrationTest {
         String digest = entityHashingService.hashForEntity(pipelineConfigService.getPipelineConfig(pipelineConfig.name().toString()), group);
         pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, group, digest, new HttpLocalizedOperationResult());
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         String overriddenEncryptedValue = "some_junk";
         pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", overriddenEncryptedValue));
 
         pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, this.result);
 
-        assertThat(this.result.isSuccess(), is(false));
-        assertThat(this.result.fullMessage(), is("Request to schedule pipeline rejected { Encrypted value for variable named 'SECURE_VAR1' is invalid. This usually happens when the cipher text is modified to have an invalid value. }"));
-        assertThat(this.result.httpCode(), is(422));
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(this.result.isSuccess()).isFalse();
+        assertThat(this.result.fullMessage()).isEqualTo("Request to schedule pipeline rejected { Encrypted value for variable named 'SECURE_VAR1' is invalid. This usually happens when the cipher text is modified to have an invalid value. }");
+        assertThat(this.result.httpCode()).isEqualTo(422);
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
     }
 
     @Test
@@ -317,28 +316,28 @@ public class PipelineTriggerServiceIntegrationTest {
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
 
         pipelineTriggerService.schedule(pipelineName, pipelineScheduleOptions, admin, result);
-        assertThat(result.isSuccess(), is(false));
-        assertThat(result.fullMessage(), is("Pipeline 'does-not-exist' not found."));
-        assertThat(result.httpCode(), is(404));
-        assertThat(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString(pipelineName)), is(false));
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.fullMessage()).isEqualTo("Pipeline 'does-not-exist' not found.");
+        assertThat(result.httpCode()).isEqualTo(404);
+        assertThat(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString(pipelineName))).isFalse();
     }
 
     @Test
     public void shouldReturnErrorIfTheFirstStageOfThePipelineBeingScheduledIsAlreadyRunning() {
         pipelineTriggerService.schedule(pipelineName, new PipelineScheduleOptions(), admin, result);
-        assertThat(result.isSuccess(), is(true));
+        assertThat(result.isSuccess()).isTrue();
 
         pipelineTriggerService.schedule(pipelineName, new PipelineScheduleOptions(), admin, result);
-        assertThat(result.isSuccess(), is(false));
-        assertThat(result.fullMessage(), is(String.format("Failed to trigger pipeline: %s { Pipeline already triggered }", pipelineName)));
-        assertThat(result.getServerHealthState().getDescription(), is("Pipeline already triggered"));
-        assertThat(result.httpCode(), is(409));
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.fullMessage()).isEqualTo(String.format("Failed to trigger pipeline: %s { Pipeline already triggered }", pipelineName));
+        assertThat(result.getServerHealthState().getDescription()).isEqualTo("Pipeline already triggered");
+        assertThat(result.httpCode()).isEqualTo(409);
     }
 
     @Test
     public void shouldReturnErrorIfThePipelineBeingScheduledDoesnotExistAndHasMaterialsSetInRequest() {
         String pipelineName = "does-not-exist";
-        assertThat(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString(pipelineName)), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString(pipelineName))).isFalse();
 
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         pipelineScheduleOptions.getMaterials().add(new MaterialForScheduling("non-existant-material", "r1"));
@@ -347,57 +346,57 @@ public class PipelineTriggerServiceIntegrationTest {
 
         pipelineTriggerService.schedule(pipelineName, pipelineScheduleOptions, admin, result);
 
-        assertThat(result.isSuccess(), is(false));
-        assertThat(result.fullMessage(), is("Pipeline 'does-not-exist' not found."));
-        assertThat(result.httpCode(), is(404));
-        assertThat(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString(pipelineName)), is(false));
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.fullMessage()).isEqualTo("Pipeline 'does-not-exist' not found.");
+        assertThat(result.httpCode()).isEqualTo(404);
+        assertThat(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString(pipelineName))).isFalse();
     }
 
     @Test
     public void shouldReturnErrorIfThePipelineBeingScheduledDoesNotContainTheMaterialsSetInRequest() {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         MaterialForScheduling material = new MaterialForScheduling("non-existant-material", "r1");
         pipelineScheduleOptions.getMaterials().add(material);
 
         pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, result);
 
-        assertThat(result.isSuccess(), is(false));
-        assertThat(result.fullMessage(), is(String.format("Request to schedule pipeline rejected { Pipeline '%s' does not contain the following material(s): [non-existant-material]. }", this.pipelineName)));
-        assertThat(result.httpCode(), is(422));
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.fullMessage()).isEqualTo(String.format("Request to schedule pipeline rejected { Pipeline '%s' does not contain the following material(s): [non-existant-material]. }", this.pipelineName));
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
     }
 
     @Test
     public void shouldReturnErrorWhenSchedulingAPipelineWithUnconfiguredEnvironmentVariables() throws IOException {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(new GoCipher(), "ENV_VAR1", "value", false));
         pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", "value", true));
 
         pipelineTriggerService.schedule(pipelineName, pipelineScheduleOptions, admin, result);
 
-        assertThat(result.isSuccess(), is(false));
-        assertThat(result.fullMessage(), is(String.format("Request to schedule pipeline rejected { Variable 'ENV_VAR1' has not been configured for pipeline '%s' }", pipelineName)));
-        assertThat(result.httpCode(), is(422));
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.fullMessage()).isEqualTo(String.format("Request to schedule pipeline rejected { Variable 'ENV_VAR1' has not been configured for pipeline '%s' }", pipelineName));
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
     }
 
     @Test
     public void shouldReturnErrorWhenAnUnauthorizedUserTriesToScheduleAPipeline() throws IOException {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
 
         pipelineTriggerService.schedule(pipelineName, pipelineScheduleOptions, new Username("foo"), result);
 
-        assertThat(result.isSuccess(), is(false));
-        assertThat(result.fullMessage(), is(String.format("Failed to trigger pipeline [%s] { User foo does not have permission to schedule %s/%s }", pipelineName, pipelineName, stageName)));
-        assertThat(result.getServerHealthState().getDescription(), is(String.format("User foo does not have permission to schedule %s/%s", pipelineName, pipelineConfig.first().name())));
-        assertThat(result.httpCode(), is(403));
-        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.fullMessage()).isEqualTo(String.format("Failed to trigger pipeline [%s] { User foo does not have permission to schedule %s/%s }", pipelineName, pipelineName, stageName));
+        assertThat(result.getServerHealthState().getDescription()).isEqualTo(String.format("User foo does not have permission to schedule %s/%s", pipelineName, pipelineConfig.first().name()));
+        assertThat(result.httpCode()).isEqualTo(403);
+        assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
     }
 
     @Test
@@ -410,10 +409,10 @@ public class PipelineTriggerServiceIntegrationTest {
         pipelineTriggerService.schedule(pipelineName, pipelineScheduleOptions, new Username("foo"), result);
         System.out.println(result.fullMessage());
 
-        assertThat(result.isSuccess(), is(false));
-        assertThat(result.httpCode(), is(422));
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(422);
 
-        assertThat(result.fullMessage(), is(String.format("Request to schedule pipeline rejected { Variable 'SEC_VAR1' has not been configured for pipeline '%s' }", pipelineName)));
-        assertThat(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString(pipelineName)), is(false));
+        assertThat(result.fullMessage()).isEqualTo(String.format("Request to schedule pipeline rejected { Variable 'SEC_VAR1' has not been configured for pipeline '%s' }", pipelineName));
+        assertThat(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString(pipelineName))).isFalse();
     }
 }

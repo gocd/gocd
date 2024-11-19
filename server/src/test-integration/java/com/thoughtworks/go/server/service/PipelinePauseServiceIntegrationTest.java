@@ -31,8 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -66,12 +65,12 @@ public class PipelinePauseServiceIntegrationTest {
 
         Username userName = new Username(new CaseInsensitiveString("UserFoo"));
         pipelinePauseService.pause(name, "tiny pause cause", userName);
-        assertThat(pipelinePauseService.pipelinePauseInfo(name).getPauseCause(), is("tiny pause cause"));
+        assertThat(pipelinePauseService.pipelinePauseInfo(name).getPauseCause()).isEqualTo("tiny pause cause");
         pipelinePauseService.unpause(name);
 
         String stringWith255Chars = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         pipelinePauseService.pause(name, stringWith255Chars + "aa", userName);
-        assertThat(pipelinePauseService.pipelinePauseInfo(name).getPauseCause(), is(stringWith255Chars));
+        assertThat(pipelinePauseService.pipelinePauseInfo(name).getPauseCause()).isEqualTo(stringWith255Chars);
     }
 
     @Test
@@ -83,12 +82,12 @@ public class PipelinePauseServiceIntegrationTest {
 
         Username userName = new Username(new CaseInsensitiveString("UserFoo"));
         pipelinePauseService.pause(name, "pause for testing", userName);
-        assertThat(pipelinePauseService.pipelinePauseInfo(name).getPauseCause(), is("pause for testing"));
-        assertThat(pipelinePauseService.pipelinePauseInfo(name).isPaused(), is(true));
+        assertThat(pipelinePauseService.pipelinePauseInfo(name).getPauseCause()).isEqualTo("pause for testing");
+        assertThat(pipelinePauseService.pipelinePauseInfo(name).isPaused()).isTrue();
 
         pipelinePauseService.unpause(name);
 
-        assertThat(pipelinePauseService.pipelinePauseInfo(name).isPaused(), is(false));
+        assertThat(pipelinePauseService.pipelinePauseInfo(name).isPaused()).isFalse();
 
     }
 }

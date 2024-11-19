@@ -17,8 +17,7 @@ package com.thoughtworks.go.plugin.domain.analytics;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AnalyticsDataTest {
     private String viewPath;
@@ -31,7 +30,7 @@ class AnalyticsDataTest {
         analyticsData = new AnalyticsData("{}", viewPath);
         analyticsData.setAssetRoot(assetRoot);
 
-        assertThat(analyticsData.getFullViewPath(), is(assetRoot + '/' + viewPath));
+        assertThat(analyticsData.getFullViewPath()).isEqualTo(assetRoot + '/' + viewPath);
     }
 
     @Test
@@ -41,7 +40,7 @@ class AnalyticsDataTest {
         analyticsData = new AnalyticsData("{}", viewPath);
         analyticsData.setAssetRoot(assetRoot);
 
-        assertThat(analyticsData.getFullViewPath(), is("/assets/root/agents/agents.html"));
+        assertThat(analyticsData.getFullViewPath()).isEqualTo("/assets/root/agents/agents.html");
     }
 
     @Test
@@ -51,7 +50,7 @@ class AnalyticsDataTest {
         analyticsData = new AnalyticsData("{}", viewPath);
         analyticsData.setAssetRoot(assetRoot);
 
-        assertThat(analyticsData.getFullViewPath(), is(assetRoot + '/' + viewPath));
+        assertThat(analyticsData.getFullViewPath()).isEqualTo(assetRoot + '/' + viewPath);
     }
 
     @Test
@@ -61,6 +60,6 @@ class AnalyticsDataTest {
         analyticsData = new AnalyticsData("{}", viewPath);
         analyticsData.setAssetRoot(assetRoot);
 
-        assertThat(analyticsData.getFullViewPath(), is("/assets/root/agents/agents.html?msg=Hello%20World&msg2=AnotherOne"));
+        assertThat(analyticsData.getFullViewPath()).isEqualTo("/assets/root/agents/agents.html?msg=Hello%20World&msg2=AnotherOne");
     }
 }

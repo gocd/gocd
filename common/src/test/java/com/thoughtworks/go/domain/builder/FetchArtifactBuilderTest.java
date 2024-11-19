@@ -37,8 +37,7 @@ import java.util.UUID;
 import java.util.zip.Deflater;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class FetchArtifactBuilderTest {
@@ -108,7 +107,7 @@ public class FetchArtifactBuilderTest {
 
         builder.fetch(new DownloadAction(new StubFetchZipHttpService(), publisher, clock), new StubURLService());
 
-        assertThat(artifactOnAgent.isFile(), is(true));
+        assertThat(artifactOnAgent.isFile()).isTrue();
     }
 
     private String getSrc() {
@@ -243,9 +242,9 @@ public class FetchArtifactBuilderTest {
 
     private void assertDownloaded(File destOnAgent) {
         File logFolder = new File(destOnAgent, "log");
-        assertThat(logFolder.exists(), is(true));
-        assertThat(logFolder.isDirectory(), is(true));
-        assertThat(new File(logFolder, "console.log").exists(), is(true));
-        assertThat(destOnAgent.listFiles(), is(new File[]{logFolder}));
+        assertThat(logFolder.exists()).isTrue();
+        assertThat(logFolder.isDirectory()).isTrue();
+        assertThat(new File(logFolder, "console.log").exists()).isTrue();
+        assertThat(destOnAgent.listFiles()).isEqualTo(new File[]{logFolder});
     }
 }

@@ -35,8 +35,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SvnMultipleMaterialsTest {
     private SvnTestRepo repo;
@@ -76,8 +75,8 @@ public class SvnMultipleMaterialsTest {
 
         updateMaterials(materials, revision);
 
-        assertThat(new File(pipelineDir, "part1").exists(), is(true));
-        assertThat(new File(pipelineDir, "part2").exists(), is(true));
+        assertThat(new File(pipelineDir, "part1").exists()).isTrue();
+        assertThat(new File(pipelineDir, "part2").exists()).isTrue();
 
         SvnMaterial newFolder = repo.createMaterial("multiple-materials/trunk/part2", "newFolder");
 
@@ -85,8 +84,8 @@ public class SvnMultipleMaterialsTest {
 
         updateMaterials(changedMaterials, revision);
 
-        assertThat(new File(pipelineDir, "part1").exists(), is(true));
-        assertThat(new File(pipelineDir, "newFolder").exists(), is(true));
+        assertThat(new File(pipelineDir, "part1").exists()).isTrue();
+        assertThat(new File(pipelineDir, "newFolder").exists()).isTrue();
     }
 
     @Test
@@ -100,15 +99,15 @@ public class SvnMultipleMaterialsTest {
 
         updateMaterials(materials, revision);
 
-        assertThat(new File(pipelineDir, "part1").exists(), is(true));
-        assertThat(new File(pipelineDir, "part2").exists(), is(true));
+        assertThat(new File(pipelineDir, "part1").exists()).isTrue();
+        assertThat(new File(pipelineDir, "part2").exists()).isTrue();
 
         Materials changedMaterials = new Materials(part1);
 
         updateMaterials(changedMaterials, revision);
 
-        assertThat(new File(pipelineDir, "part1").exists(), is(true));
-        assertThat(new File(pipelineDir, "part2").exists(), is(false));
+        assertThat(new File(pipelineDir, "part1").exists()).isTrue();
+        assertThat(new File(pipelineDir, "part2").exists()).isFalse();
     }
 
 
@@ -122,22 +121,22 @@ public class SvnMultipleMaterialsTest {
 
         updateMaterials(materials, revision);
 
-        assertThat(new File(pipelineDir, "part1").exists(), is(true));
-        assertThat(new File(pipelineDir, "part2").exists(), is(true));
+        assertThat(new File(pipelineDir, "part1").exists()).isTrue();
+        assertThat(new File(pipelineDir, "part2").exists()).isTrue();
 
         File testFile = new File(pipelineDir, "part1/test-file");
         testFile.createNewFile();
-        assertThat(testFile.exists(), is(true));
+        assertThat(testFile.exists()).isTrue();
         //simulates what a build will do
         new File(pipelineDir, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER).mkdir();
-        assertThat(pipelineDir.listFiles().length, is(3));
+        assertThat(pipelineDir.listFiles().length).isEqualTo(3);
 
         updateMaterials(materials, revision);
 
-        assertThat(new File(pipelineDir, "part1").exists(), is(true));
-        assertThat(new File(pipelineDir, "part2").exists(), is(true));
+        assertThat(new File(pipelineDir, "part1").exists()).isTrue();
+        assertThat(new File(pipelineDir, "part2").exists()).isTrue();
 
-        assertThat("Should not delete the part1 directory", testFile.exists(), is(true));
+        assertThat(testFile.exists()).isTrue();
     }
 
     @Test
@@ -151,11 +150,10 @@ public class SvnMultipleMaterialsTest {
 
         File shouldNotCleanUp = new File(pipelineDir, "shouldNotDelete");
         shouldNotCleanUp.createNewFile();
-        assertThat(shouldNotCleanUp.exists(), is(true));
+        assertThat(shouldNotCleanUp.exists()).isTrue();
 
         updateMaterials(materials, revision);
-        assertThat("should not clean up working dir for this pipeline if none of the materials specified a sub folder",
-                shouldNotCleanUp.exists(), is(true));
+        assertThat(shouldNotCleanUp.exists()).isTrue();
     }
 
     //This is bug #2320 - Cruise doing full checkouts most times
@@ -169,22 +167,22 @@ public class SvnMultipleMaterialsTest {
 
         updateMaterials(materials, revision);
 
-        assertThat(new File(pipelineDir, "root/part1").exists(), is(true));
-        assertThat(new File(pipelineDir, "root/part2").exists(), is(true));
+        assertThat(new File(pipelineDir, "root/part1").exists()).isTrue();
+        assertThat(new File(pipelineDir, "root/part2").exists()).isTrue();
 
         File testFile = new File(pipelineDir, "root/part1/test-file");
         testFile.createNewFile();
-        assertThat(testFile.exists(), is(true));
+        assertThat(testFile.exists()).isTrue();
         //simulates what a build will do
         new File(pipelineDir, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER).mkdir();
-        assertThat(pipelineDir.listFiles().length, is(2));
+        assertThat(pipelineDir.listFiles().length).isEqualTo(2);
 
         updateMaterials(materials, revision);
 
-        assertThat(new File(pipelineDir, "root/part1").exists(), is(true));
-        assertThat(new File(pipelineDir, "root/part2").exists(), is(true));
+        assertThat(new File(pipelineDir, "root/part1").exists()).isTrue();
+        assertThat(new File(pipelineDir, "root/part2").exists()).isTrue();
 
-        assertThat("Should not delete the part1 directory", testFile.exists(), is(true));
+        assertThat(testFile.exists()).isTrue();
     }
 
     @Test
@@ -197,10 +195,10 @@ public class SvnMultipleMaterialsTest {
         MaterialRevisions materialRevisions = materials.latestModification(pipelineDir, new TestSubprocessExecutionContext());
 
         MaterialRevision revision1 = materialRevisions.getMaterialRevision(0);
-        assertThat(revision1.getRevision(), is(latestRevision(svnMaterial1, pipelineDir, new TestSubprocessExecutionContext())));
+        assertThat(revision1.getRevision()).isEqualTo(latestRevision(svnMaterial1, pipelineDir, new TestSubprocessExecutionContext()));
 
         MaterialRevision revision2 = materialRevisions.getMaterialRevision(1);
-        assertThat(revision2.getRevision(), is(latestRevision(svnMaterial2, pipelineDir, new TestSubprocessExecutionContext())));
+        assertThat(revision2.getRevision()).isEqualTo(latestRevision(svnMaterial2, pipelineDir, new TestSubprocessExecutionContext()));
     }
 
     @Test
@@ -210,7 +208,7 @@ public class SvnMultipleMaterialsTest {
         MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));
         materialRevision.updateTo(pipelineDir, ProcessOutputStreamConsumer.inMemoryConsumer(), new TestSubprocessExecutionContext());
 
-        assertThat(new File(pipelineDir, "part1").exists(), is(true));
+        assertThat(new File(pipelineDir, "part1").exists()).isTrue();
     }
 
     @Test
@@ -220,7 +218,7 @@ public class SvnMultipleMaterialsTest {
         MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));
         materialRevision.updateTo(pipelineDir, ProcessOutputStreamConsumer.inMemoryConsumer(), new TestSubprocessExecutionContext(true));
 
-        assertThat(new File(pipelineDir, "part1").exists(), is(false));
+        assertThat(new File(pipelineDir, "part1").exists()).isFalse();
     }
 
     @Test
@@ -235,9 +233,11 @@ public class SvnMultipleMaterialsTest {
 
         MaterialRevisions materialRevisions = materials.latestModification(pipelineDir, new TestSubprocessExecutionContext());
 
-        assertThat(materialRevisions.getRevisions().size(), is(2));
-        assertThat(materialRevisions, containsModifiedFile("/trunk/part1/filename.txt"));
-        assertThat(materialRevisions, containsModifiedFile("/trunk/part2/filename2.txt"));
+        assertThat(materialRevisions.getRevisions().size()).isEqualTo(2);
+        assertThat(materialRevisions.getRevisions()).satisfiesExactlyInAnyOrder(
+            containsModifiedFile("/trunk/part1/filename.txt"),
+            containsModifiedFile("/trunk/part2/filename2.txt")
+        );
     }
 
     private Revision latestRevision(SvnMaterial material, File workingDir, TestSubprocessExecutionContext execCtx) {

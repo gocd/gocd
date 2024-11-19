@@ -22,9 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 // test for 14.xsl
 public class AuthorizationMigrationTest {
@@ -79,20 +77,20 @@ public class AuthorizationMigrationTest {
     @Test
     public void shouldMigrateAuthToAuthorization() throws Exception {
         String newConfig = ConfigMigrator.migrate(CONFIG_WITH_AUTH).replace("\r\n", "\n");
-        assertThat(newConfig, containsString(String.valueOf(GoConstants.CONFIG_SCHEMA_VERSION)));
-        assertThat(newConfig, containsString(NEW_AUTHORIZATION));
+        assertThat(newConfig).contains(String.valueOf(GoConstants.CONFIG_SCHEMA_VERSION));
+        assertThat(newConfig).contains(NEW_AUTHORIZATION);
     }
 
     @Test
     public void shouldBeAbleToParseNewAuthorization() throws Exception {
         AuthConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial(NEW_AUTHORIZATION, AuthConfig.class);
-        assertThat(config.size(), is(3));
+        assertThat(config.size()).isEqualTo(3);
     }
 
     @Test
-    public void shouldBeAbleToParseNewConfig() throws Exception {
+    public void shouldBeAbleToParseNewConfig() {
         CruiseConfig newConfig = ConfigMigrator.loadWithMigration(CONFIG_WITH_AUTH).config;
-        assertThat(newConfig.stageConfigByName(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("stage1")).getApproval().getAuthConfig().size(), is(3));
+        assertThat(newConfig.stageConfigByName(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("stage1")).getApproval().getAuthConfig().size()).isEqualTo(3);
     }
 
     @Test
@@ -101,6 +99,6 @@ public class AuthorizationMigrationTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(newConfig, buffer, false);
 
-        assertThat(new String(buffer.toByteArray()).replace("\r\n", "\n"), containsString(NEW_AUTHORIZATION));
+        assertThat(new String(buffer.toByteArray()).replace("\r\n", "\n")).contains(NEW_AUTHORIZATION);
     }
 }

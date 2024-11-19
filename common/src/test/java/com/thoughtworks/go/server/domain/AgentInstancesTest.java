@@ -50,8 +50,7 @@ import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.util.SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED;
 import static java.util.Collections.emptyList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -96,26 +95,26 @@ class AgentInstancesTest {
         void shouldFindAgentByUUID() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
             AgentInstance idleInstance = agentInstances.findAgent(idle.getUuid());
-            assertThat(idleInstance, is(idle));
+            assertThat(idleInstance).isEqualTo(idle);
         }
 
         @Test
         void findAgentAndRefreshStatusShouldNotRefreshStatusForPendingAgent() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
-            assertThat(pending.getRuntimeStatus(), is(Unknown));
+            assertThat(pending.getRuntimeStatus()).isEqualTo(Unknown);
 
             AgentInstance pendingInstance = agentInstances.findAgentAndRefreshStatus(pending.getUuid());
-            assertThat(pendingInstance.getRuntimeStatus(), is(Unknown));
+            assertThat(pendingInstance.getRuntimeStatus()).isEqualTo(Unknown);
         }
 
         @Test
         void findAgentAndRefreshStatusShouldRefreshStatusForAnyAgentOtherThanPending() {
             AgentInstance instance = createFromAgent(building.getAgent(), systemEnvironment, mock(AgentStatusChangeListener.class));
             AgentInstances instances = new AgentInstances(systemEnvironment, mock(AgentStatusChangeListener.class), instance);
-            assertThat(instance.getRuntimeStatus(), is(Missing));
+            assertThat(instance.getRuntimeStatus()).isEqualTo(Missing);
 
             AgentInstance refreshedInstance = instances.findAgentAndRefreshStatus(instance.getUuid());
-            assertThat(refreshedInstance.getRuntimeStatus(), is(LostContact));
+            assertThat(refreshedInstance.getRuntimeStatus()).isEqualTo(LostContact);
         }
 
         @Test
@@ -126,25 +125,25 @@ class AgentInstancesTest {
                     pending.getUuid(),
                     building.getUuid(),
                     disabled.getUuid()));
-            assertThat(pendingAgents.size(), is(1));
-            assertThat(pendingAgents.get(0).getUuid(), is(pending.getUuid()));
+            assertThat(pendingAgents.size()).isEqualTo(1);
+            assertThat(pendingAgents.get(0).getUuid()).isEqualTo(pending.getUuid());
         }
 
         @Test
         void shouldReturnEmptyListWhenNullOrEmptyListOfUUIDsAreSpecifiedInFilterPendingAgents() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
             List<Agent> pendingAgents = agentInstances.filterPendingAgents(emptyList());
-            assertThat(pendingAgents.size(), is(0));
+            assertThat(pendingAgents.size()).isEqualTo(0);
 
             pendingAgents = agentInstances.filterPendingAgents(null);
-            assertThat(pendingAgents.size(), is(0));
+            assertThat(pendingAgents.size()).isEqualTo(0);
         }
 
         @Test
         void shouldReturnEmptyListWhenNullOrEmptyUUIDsAreSpecifiedAsElementsInTheListOfUUIDsInFilterPendingAgents() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
             List<Agent> pendingAgents = agentInstances.filterPendingAgents(Arrays.asList(null, null, "  "));
-            assertThat(pendingAgents.size(), is(0));
+            assertThat(pendingAgents.size()).isEqualTo(0);
         }
 
         @Test
@@ -152,8 +151,8 @@ class AgentInstancesTest {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
 
             List<String> pendingAgentUUIDs = agentInstances.filterBy(List.of(idle.getUuid(), pending.getUuid(), building.getUuid(), disabled.getUuid()), Pending);
-            assertThat(pendingAgentUUIDs.size(), is(1));
-            assertThat(pendingAgentUUIDs.get(0), is(pending.getUuid()));
+            assertThat(pendingAgentUUIDs.size()).isEqualTo(1);
+            assertThat(pendingAgentUUIDs.get(0)).isEqualTo(pending.getUuid());
         }
 
         @Test
@@ -162,8 +161,8 @@ class AgentInstancesTest {
             agentInstances.add(nullInstance);
 
             List<String> nullAgentUUIDs = agentInstances.filterBy(List.of(idle.getUuid(), pending.getUuid(), nullInstance.getUuid()), Null);
-            assertThat(nullAgentUUIDs.size(), is(1));
-            assertThat(nullAgentUUIDs.get(0), is(nullInstance.getUuid()));
+            assertThat(nullAgentUUIDs.size()).isEqualTo(1);
+            assertThat(nullAgentUUIDs.get(0)).isEqualTo(nullInstance.getUuid());
         }
 
         @Test
@@ -171,10 +170,10 @@ class AgentInstancesTest {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
 
             List<String> pendingAgentUUIDs = agentInstances.filterBy(emptyList(), Pending);
-            assertThat(pendingAgentUUIDs.size(), is(0));
+            assertThat(pendingAgentUUIDs.size()).isEqualTo(0);
 
             pendingAgentUUIDs = agentInstances.filterBy(null, Pending);
-            assertThat(pendingAgentUUIDs.size(), is(0));
+            assertThat(pendingAgentUUIDs.size()).isEqualTo(0);
         }
 
         @Test
@@ -182,11 +181,11 @@ class AgentInstancesTest {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
 
             AgentInstances agents = agentInstances.findRegisteredAgents();
-            assertThat(agents.size(), is(4));
-            assertThat(agents.findAgentAndRefreshStatus("uuid2"), is(idle));
-            assertThat(agents.findAgentAndRefreshStatus("uuid3"), is(building));
-            assertThat(agents.findAgentAndRefreshStatus("uuid5"), is(disabled));
-            assertThat(agents.findAgentAndRefreshStatus(elastic.getUuid()), is(elastic));
+            assertThat(agents.size()).isEqualTo(4);
+            assertThat(agents.findAgentAndRefreshStatus("uuid2")).isEqualTo(idle);
+            assertThat(agents.findAgentAndRefreshStatus("uuid3")).isEqualTo(building);
+            assertThat(agents.findAgentAndRefreshStatus("uuid5")).isEqualTo(disabled);
+            assertThat(agents.findAgentAndRefreshStatus(elastic.getUuid())).isEqualTo(elastic);
         }
 
         @Test
@@ -194,7 +193,7 @@ class AgentInstancesTest {
             AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
 
             AgentInstances registeredAgentInstances = agentInstances.findRegisteredAgents();
-            assertThat(registeredAgentInstances.size(), is(0));
+            assertThat(registeredAgentInstances.size()).isEqualTo(0);
         }
     }
 
@@ -223,8 +222,8 @@ class AgentInstancesTest {
             List<String> uuids = List.of("uuid-1", "uuid-3");
             List<AgentInstance> filteredInstances = instances.filter(uuids);
 
-            assertThat(filteredInstances, hasItems(instance1, instance3));
-            assertThat(filteredInstances.size(), is(2));
+            assertThat(filteredInstances).contains(instance1, instance3);
+            assertThat(filteredInstances.size()).isEqualTo(2);
         }
 
         @Test
@@ -249,10 +248,10 @@ class AgentInstancesTest {
             instances.add(instance3);
 
             List<AgentInstance> filteredInstances = instances.filter(emptyList());
-            assertThat(filteredInstances.size(), is(0));
+            assertThat(filteredInstances.size()).isEqualTo(0);
 
             filteredInstances = instances.filter(null);
-            assertThat(filteredInstances.size(), is(0));
+            assertThat(filteredInstances.size()).isEqualTo(0);
         }
     }
 
@@ -270,27 +269,27 @@ class AgentInstancesTest {
             Agent agentFromDB = new Agent(uuid, "updatedHostname", "10.10.5.20");
             agentInstances.syncAgentInstancesFrom(new Agents(agentFromDB));
 
-            assertThat(agentInstances.size(), is(1));
-            assertThat(agentInstances.findAgentAndRefreshStatus(uuid).getAgent(), is(agentFromDB));
+            assertThat(agentInstances.size()).isEqualTo(1);
+            assertThat(agentInstances.findAgentAndRefreshStatus(uuid).getAgent()).isEqualTo(agentFromDB);
         }
 
         @Test
         void shouldSyncAgentInstancesFromAgentsInDBWhenAgentIsRemovedFromDB() {
             AgentInstances agentInstancesWithIdleAndBuildingAgents = new AgentInstances(systemEnvironment, listener, idle, building);
-            assertThat(agentInstancesWithIdleAndBuildingAgents.size(), is(2));
+            assertThat(agentInstancesWithIdleAndBuildingAgents.size()).isEqualTo(2);
 
             Agents agentListFromDBWithIdleAgentRemoved = new Agents(building.getAgent());
             agentInstancesWithIdleAndBuildingAgents.syncAgentInstancesFrom(agentListFromDBWithIdleAgentRemoved);
 
-            assertThat(agentInstancesWithIdleAndBuildingAgents.size(), is(1));
-            assertThat(agentInstancesWithIdleAndBuildingAgents.findAgentAndRefreshStatus(building.getUuid()), is(building));
-            assertThat(agentInstancesWithIdleAndBuildingAgents.findAgentAndRefreshStatus(idle.getUuid()), is(new NullAgentInstance(idle.getUuid())));
+            assertThat(agentInstancesWithIdleAndBuildingAgents.size()).isEqualTo(1);
+            assertThat(agentInstancesWithIdleAndBuildingAgents.findAgentAndRefreshStatus(building.getUuid())).isEqualTo(building);
+            assertThat(agentInstancesWithIdleAndBuildingAgents.findAgentAndRefreshStatus(idle.getUuid())).isEqualTo(new NullAgentInstance(idle.getUuid()));
         }
 
         @Test
         void shouldSyncAgentInstancesFromAgentsInDBWhenNewAgentIsCreatedInDB() {
             AgentInstances agentInstances = new AgentInstances(systemEnvironment, listener, idle, building);
-            assertThat(agentInstances.size(), is(2));
+            assertThat(agentInstances.size()).isEqualTo(2);
 
             String newUUID = "new-newAgentInDB-id";
             Agent newAgentInDB = new Agent(newUUID, "CCeDev01", "10.18.5.1");
@@ -298,8 +297,8 @@ class AgentInstancesTest {
             Agents agentsFromDBWithNewAgent = new Agents(idle.getAgent(), building.getAgent(), newAgentInDB);
 
             agentInstances.syncAgentInstancesFrom(agentsFromDBWithNewAgent);
-            assertThat(agentInstances.size(), is(3));
-            assertThat(agentInstances.findAgentAndRefreshStatus(newUUID).getStatus(), is(AgentStatus.Disabled));
+            assertThat(agentInstances.size()).isEqualTo(3);
+            assertThat(agentInstances.findAgentAndRefreshStatus(newUUID).getStatus()).isEqualTo(AgentStatus.Disabled);
         }
 
         @Test
@@ -311,8 +310,8 @@ class AgentInstancesTest {
 
             agentInstances.syncAgentInstancesFrom(emptyAgentListFromDB);
 
-            assertThat(agentInstances.size(), is(1));
-            assertThat(agentInstances.findAgentAndRefreshStatus(pending.getUuid()).getStatus(), is(AgentStatus.Pending));
+            assertThat(agentInstances.size()).isEqualTo(1);
+            assertThat(agentInstances.findAgentAndRefreshStatus(pending.getUuid()).getStatus()).isEqualTo(AgentStatus.Pending);
         }
     }
 
@@ -324,12 +323,12 @@ class AgentInstancesTest {
             AgentInstance instance = createFromAgent(building.getAgent(), systemEnvironment, mockListener);
 
             AgentInstances agentInstances = new AgentInstances(systemEnvironment, mockListener, instance);
-            assertThat(instance.getRuntimeStatus(), is(Missing));
+            assertThat(instance.getRuntimeStatus()).isEqualTo(Missing);
 
             agentInstances.updateAgentAboutCancelledBuild(instance.getUuid(), true);
-            assertThat(instance.getRuntimeStatus(), is(Cancelled));
+            assertThat(instance.getRuntimeStatus()).isEqualTo(Cancelled);
 
-            assertThat(agentInstances.findAgent(instance.getUuid()).getRuntimeStatus(), is(Cancelled));
+            assertThat(agentInstances.findAgent(instance.getUuid()).getRuntimeStatus()).isEqualTo(Cancelled);
         }
 
         @Test
@@ -337,13 +336,13 @@ class AgentInstancesTest {
             AgentStatusChangeListener mockListener = mock(AgentStatusChangeListener.class);
             AgentInstance instance = createFromAgent(building.getAgent(), systemEnvironment, mockListener);
             AgentInstances agentInstances = new AgentInstances(systemEnvironment, mockListener, instance);
-            assertThat(instance.getRuntimeStatus(), is(Missing));
+            assertThat(instance.getRuntimeStatus()).isEqualTo(Missing);
 
             agentInstances.updateAgentAboutCancelledBuild("this-is-unknown-agent-uuid", true);
-            assertThat(instance.getRuntimeStatus(), is(Missing));
+            assertThat(instance.getRuntimeStatus()).isEqualTo(Missing);
 
             AgentInstance agentInstance = agentInstances.findAgent(instance.getUuid());
-            assertThat(agentInstance.getRuntimeStatus(), is(Missing));
+            assertThat(agentInstance.getRuntimeStatus()).isEqualTo(Missing);
         }
     }
 
@@ -354,8 +353,8 @@ class AgentInstancesTest {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
 
             List<String> nullAgentUUIDs = agentInstances.filterBy(List.of(idle.getUuid(), pending.getUuid(), elastic.getUuid()), Elastic);
-            assertThat(nullAgentUUIDs.size(), is(1));
-            assertThat(nullAgentUUIDs.get(0), is(elastic.getUuid()));
+            assertThat(nullAgentUUIDs.size()).isEqualTo(1);
+            assertThat(nullAgentUUIDs.get(0)).isEqualTo(elastic.getUuid());
         }
 
         @Test
@@ -366,9 +365,9 @@ class AgentInstancesTest {
             String elasticPluginId = "go.cd.elastic-agent-plugin.docker";
             AgentInstance elasticAgentInstance = agentInstances.findElasticAgent(elasticAgentId, elasticPluginId);
 
-            assertThat(elasticAgentInstance, is(not(nullValue())));
-            assertThat(elasticAgentInstance.getAgent().getElasticAgentId(), is(elasticAgentId));
-            assertThat(elasticAgentInstance.getAgent().getElasticPluginId(), is(elasticPluginId));
+            assertThat(elasticAgentInstance).isNotNull();
+            assertThat(elasticAgentInstance.getAgent().getElasticAgentId()).isEqualTo(elasticAgentId);
+            assertThat(elasticAgentInstance.getAgent().getElasticPluginId()).isEqualTo(elasticPluginId);
         }
 
         @Test
@@ -379,7 +378,7 @@ class AgentInstancesTest {
             String elasticPluginId = "go.cd.elastic-agent-plugin.docker";
             AgentInstance elasticAgentInstance = agentInstances.findElasticAgent(elasticAgentId, elasticPluginId);
 
-            assertThat(elasticAgentInstance, is(nullValue()));
+            assertThat(elasticAgentInstance).isNull();
         }
 
         @Test
@@ -399,8 +398,8 @@ class AgentInstancesTest {
             AgentInstances agentInstances = createAgentInstancesWithElasticAgents();
             LinkedMultiValueMap<String, ElasticAgentMetadata> map = agentInstances.getAllElasticAgentsGroupedByPluginId();
 
-            assertThat(map, is(not(nullValue())));
-            assertThat(map.size(), is(2));
+            assertThat(map).isNotNull();
+            assertThat(map.size()).isEqualTo(2);
 
             String pluginId1 = "go.cd.elastic-agent-plugin.docker";
             String pluginId2 = "cd.go.contrib.elasticagent.kubernetes";
@@ -408,16 +407,16 @@ class AgentInstancesTest {
             assertTrue(map.containsKey(pluginId1));
             assertTrue(map.containsKey(pluginId2));
 
-            assertThat(map.get(pluginId1).size(), is(3));
-            assertThat(map.get(pluginId2).size(), is(2));
+            assertThat(map.get(pluginId1).size()).isEqualTo(3);
+            assertThat(map.get(pluginId2).size()).isEqualTo(2);
         }
 
         @Test
         void shouldReturnEmptyMapOfElasticAgentsGroupedByElasticPluginIdKeyWhenThereAreNoElasticAgents(){
             AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
             LinkedMultiValueMap<String, ElasticAgentMetadata> map = agentInstances.getAllElasticAgentsGroupedByPluginId();
-            assertThat(map, is(not(nullValue())));
-            assertThat(map.size(), is(0));
+            assertThat(map).isNotNull();
+            assertThat(map.size()).isEqualTo(0);
         }
     }
 
@@ -436,8 +435,8 @@ class AgentInstancesTest {
             AgentInstances agentInstances = new AgentInstances(null, null, stuckInCancel, building);
             List<AgentInstance> instances = agentInstances.agentsStuckInCancel();
 
-            assertThat(instances.size(), is(1));
-            assertThat(instances.contains(stuckInCancel), is(true));
+            assertThat(instances.size()).isEqualTo(1);
+            assertThat(instances.contains(stuckInCancel)).isTrue();
         }
     }
 
@@ -446,20 +445,20 @@ class AgentInstancesTest {
         AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
 
         AgentInstances allAgents = agentInstances.getAllAgents();
-        assertThat(allAgents.size(), is(5));
+        assertThat(allAgents.size()).isEqualTo(5);
 
         agentInstances.add(createElasticAgentInstance(999, "go.cd.elastic-agent-plugin.docker"));
 
         allAgents = agentInstances.getAllAgents();
-        assertThat(allAgents.size(), is(6));
+        assertThat(allAgents.size()).isEqualTo(6);
     }
 
     @Test
     void shouldBeAbleToCreateAgentInstancesWithNullArrayOfAgentInstance() {
         AgentInstances agentInstances = new AgentInstances(systemEnvironment, mock(AgentStatusChangeListener.class), (AgentInstance[]) null);
 
-        assertThat(agentInstances, is(not(nullValue())));
-        assertThat(agentInstances.size(), is(0));
+        assertThat(agentInstances).isNotNull();
+        assertThat(agentInstances.size()).isEqualTo(0);
     }
 
     @Test
@@ -470,17 +469,17 @@ class AgentInstancesTest {
 
         MaxPendingAgentsLimitReachedException e = assertThrows(MaxPendingAgentsLimitReachedException.class,
                 () -> agentInstances.register(fromServer(agent, false, "/var/lib", 0L, "linux")));
-        assertThat(e.getMessage(), is("Max pending agents allowed 1, limit reached"));
+        assertThat(e.getMessage()).isEqualTo("Max pending agents allowed 1, limit reached");
     }
 
     @Test
     void shouldRemoveTimedOutPendingAgentsOnRefresh() {
         when(systemEnvironment.getAgentConnectionTimeout()).thenReturn(-1);
         AgentInstances agentInstances = new AgentInstances(systemEnvironment, listener, pending, building, disabled);
-        assertThat(agentInstances.getAllAgents().size(), is(3));
+        assertThat(agentInstances.getAllAgents().size()).isEqualTo(3);
         agentInstances.refresh();
-        assertThat(agentInstances.getAllAgents().size(), is(2));
-        assertThat(agentInstances.findAgentAndRefreshStatus(pending.getUuid()), is(instanceOf(NullAgentInstance.class)));
+        assertThat(agentInstances.getAllAgents().size()).isEqualTo(2);
+        assertThat(agentInstances.findAgentAndRefreshStatus(pending.getUuid())).isInstanceOf(NullAgentInstance.class);
     }
 
     @Test

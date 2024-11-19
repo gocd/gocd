@@ -20,8 +20,7 @@ import com.thoughtworks.go.domain.exception.VersionFormatException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -38,7 +37,7 @@ public class VersionInfoServiceTest {
         VersionInfoService versionInfoService = new VersionInfoService(versionInfoManager);
         VersionInfo info = versionInfoService.getStaleVersionInfo();
 
-        assertThat(info, is(versionInfo));
+        assertThat(info).isEqualTo(versionInfo);
     }
 
     @Test
@@ -84,7 +83,7 @@ public class VersionInfoServiceTest {
 
         String goUpdate = new VersionInfoService(manager).getGoUpdate();
 
-        assertThat(goUpdate, is(goUpdate));
+        assertThat(goUpdate).isEqualTo(goUpdate);
     }
 
     @Test

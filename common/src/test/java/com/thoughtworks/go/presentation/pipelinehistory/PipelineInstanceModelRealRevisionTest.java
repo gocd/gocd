@@ -20,16 +20,15 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineInstanceModelRealRevisionTest {
 
     @Test
     public void shouldPublishItselfAsARealRevision() {
-        assertThat(new StringRevision("foo").isRealRevision(), is(true));
-        assertThat(DependencyMaterialRevision.create("blahPipeline", 5, "blahLabel", "blahStage", 2).isRealRevision(), is(true));
-        assertThat(new NullRevision().isRealRevision(), is(false));
-        assertThat(PipelineInstanceModel.UNKNOWN_REVISION.isRealRevision(), is(false));
+        assertThat(new StringRevision("foo").isRealRevision()).isTrue();
+        assertThat(DependencyMaterialRevision.create("blahPipeline", 5, "blahLabel", "blahStage", 2).isRealRevision()).isTrue();
+        assertThat(new NullRevision().isRealRevision()).isFalse();
+        assertThat(PipelineInstanceModel.UNKNOWN_REVISION.isRealRevision()).isFalse();
     }
 }

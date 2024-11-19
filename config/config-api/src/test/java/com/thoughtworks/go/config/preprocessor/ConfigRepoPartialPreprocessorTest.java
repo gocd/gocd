@@ -29,8 +29,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigRepoPartialPreprocessorTest {
 
@@ -53,7 +52,7 @@ public class ConfigRepoPartialPreprocessorTest {
         cruiseConfig.setConfigRepos(reposConfig);
         cruiseConfig.setPartials(List.of(partialConfig));
         preprocessor.process(cruiseConfig);
-        assertThat(cruiseConfig.getAllPipelineNames().contains(pipelineInMain.name()), is(true));
-        assertThat(cruiseConfig.getAllPipelineNames().contains(partialConfig.getGroups().first().get(0).name()), is(true));
+        assertThat(cruiseConfig.getAllPipelineNames().contains(pipelineInMain.name())).isTrue();
+        assertThat(cruiseConfig.getAllPipelineNames().contains(partialConfig.getGroups().first().get(0).name())).isTrue();
     }
 }

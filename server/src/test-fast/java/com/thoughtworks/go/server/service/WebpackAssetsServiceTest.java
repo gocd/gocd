@@ -31,10 +31,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -67,7 +65,7 @@ public class WebpackAssetsServiceTest {
         }
 
         List<String> assetPaths = webpackAssetsService.getAssetPaths("single_page_apps/agents");
-        assertThat(assetPaths, hasItems("/go/assets/webpack/vendor-and-helpers.chunk.js", "/go/assets/webpack/single_page_apps/agents.js"));
+        assertThat(assetPaths).contains("/go/assets/webpack/vendor-and-helpers.chunk.js", "/go/assets/webpack/single_page_apps/agents.js");
     }
 
     @Test
@@ -77,12 +75,12 @@ public class WebpackAssetsServiceTest {
         }
 
         Set<String> assetPaths = webpackAssetsService.getAssetPathsFor("single_page_apps/agents", "single_page_apps/new_dashboard");
-        assertThat(assetPaths.size(), is(5));
-        assertThat(assetPaths, hasItems("/go/assets/webpack/vendor-and-helpers.chunk.js",
+        assertThat(assetPaths.size()).isEqualTo(5);
+        assertThat(assetPaths).contains("/go/assets/webpack/vendor-and-helpers.chunk.js",
                 "/go/assets/webpack/single_page_apps/agents.js",
                 "/go/assets/webpack/single_page_apps/agents.css",
                 "/go/assets/webpack/single_page_apps/new_dashboard.js",
-                "/go/assets/webpack/single_page_apps/new_dashboard.css"));
+                "/go/assets/webpack/single_page_apps/new_dashboard.css");
     }
 
     @Test
@@ -92,10 +90,10 @@ public class WebpackAssetsServiceTest {
         }
 
         Set<String> assetPaths = webpackAssetsService.getJSAssetPathsFor("single_page_apps/agents", "single_page_apps/new_dashboard");
-        assertThat(assetPaths.size(), is(3));
-        assertThat(assetPaths, hasItems("/go/assets/webpack/vendor-and-helpers.chunk.js",
+        assertThat(assetPaths.size()).isEqualTo(3);
+        assertThat(assetPaths).contains("/go/assets/webpack/vendor-and-helpers.chunk.js",
                 "/go/assets/webpack/single_page_apps/agents.js",
-                "/go/assets/webpack/single_page_apps/new_dashboard.js"));
+                "/go/assets/webpack/single_page_apps/new_dashboard.js");
     }
 
     @Test
@@ -105,9 +103,9 @@ public class WebpackAssetsServiceTest {
         }
 
         Set<String> assetPaths = webpackAssetsService.getCSSAssetPathsFor("single_page_apps/agents", "single_page_apps/new_dashboard");
-        assertThat(assetPaths.size(), is(2));
-        assertThat(assetPaths, hasItems("/go/assets/webpack/single_page_apps/agents.css",
-                "/go/assets/webpack/single_page_apps/new_dashboard.css"));
+        assertThat(assetPaths.size()).isEqualTo(2);
+        assertThat(assetPaths).contains("/go/assets/webpack/single_page_apps/agents.css",
+                "/go/assets/webpack/single_page_apps/new_dashboard.css");
     }
 
     @Test

@@ -35,14 +35,14 @@ dependencies {
 
   testImplementation localGroovy()
   testImplementation project(path: ':jetty', configuration: 'runtimeElements')
-  testImplementation project(path: ':jetty', configuration: 'testOutput')
 
   testImplementation project.deps.junit5Api
+  testImplementation project.deps.junit5Params
   testRuntimeOnly project.deps.junit5Engine
 
   testImplementation project.deps.mockitoCore
+  testImplementation project.deps.mockitoJunit5
   testImplementation project.deps.assertJ
-  testImplementation project.deps.jsonUnit
   testImplementation project.deps.springTest
   testImplementation project(path: ':test:http-mocks', configuration: 'runtimeElements')
 }

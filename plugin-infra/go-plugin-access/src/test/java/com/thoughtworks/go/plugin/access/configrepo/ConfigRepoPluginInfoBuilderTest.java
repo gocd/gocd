@@ -30,8 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
@@ -61,10 +60,10 @@ public class ConfigRepoPluginInfoBuilderTest {
         );
         PluginView pluginView = new PluginView("some-html");
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("configrepo"));
-        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(pluginConfigurations, pluginView)));
-        assertThat(pluginInfo.getCapabilities(), is(new Capabilities(true, true, true, true)));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("configrepo");
+        assertThat(pluginInfo.getPluginSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, pluginView));
+        assertThat(pluginInfo.getCapabilities()).isEqualTo(new Capabilities(true, true, true, true));
     }
 
     @Test
@@ -74,8 +73,8 @@ public class ConfigRepoPluginInfoBuilderTest {
 
         ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("configrepo"));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("configrepo");
         assertNull(pluginInfo.getPluginSettings());
     }
 }

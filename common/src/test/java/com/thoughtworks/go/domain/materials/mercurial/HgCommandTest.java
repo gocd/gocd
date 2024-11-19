@@ -34,9 +34,8 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 public class HgCommandTest {
 
@@ -67,7 +66,7 @@ public class HgCommandTest {
 
     @Test
     public void shouldCloneFromRemoteRepo() {
-        assertThat(clientRepo.listFiles().length, is(2));
+        assertThat(clientRepo.listFiles().length).isEqualTo(2);
     }
 
     @Test
@@ -88,17 +87,17 @@ public class HgCommandTest {
     }
 
     private void assertNoUnescapedEcho() {
-        assertThat(outputStreamConsumer.getAllOutput(), not(containsString("\nhello world\n")));
+        assertThat(outputStreamConsumer.getAllOutput()).doesNotContain("\nhello world\n");
     }
 
     @Test
     public void shouldGetLatestModifications() {
         List<Modification> actual = hgCommand.latestOneModificationAsModifications();
-        assertThat(actual.size(), is(1));
+        assertThat(actual.size()).isEqualTo(1);
         final Modification modification = actual.get(0);
-        assertThat(modification.getComment(), is("test"));
-        assertThat(modification.getUserName(), is("cruise"));
-        assertThat(modification.getModifiedFiles().size(), is(1));
+        assertThat(modification.getComment()).isEqualTo("test");
+        assertThat(modification.getUserName()).isEqualTo("cruise");
+        assertThat(modification.getModifiedFiles().size()).isEqualTo(1);
     }
 
     @Test
@@ -108,16 +107,16 @@ public class HgCommandTest {
         makeACommitToSecondBranch();
         hg(workingDirectory, "pull").runOrBomb(null);
         Modification actual = hgCommand.latestOneModificationAsModifications().get(0);
-        assertThat(actual, is(lastCommit));
-        assertThat(actual.getComment(), is(lastCommit.getComment()));
+        assertThat(actual).isEqualTo(lastCommit);
+        assertThat(actual.getComment()).isEqualTo(lastCommit.getComment());
     }
 
     @Test
     public void shouldGetModifications() throws Exception {
         List<Modification> actual = hgCommand.modificationsSince(new StringRevision(REVISION_0));
-        assertThat(actual.size(), is(2));
-        assertThat(actual.get(0).getRevision(), is(REVISION_2));
-        assertThat(actual.get(1).getRevision(), is(REVISION_1));
+        assertThat(actual.size()).isEqualTo(2);
+        assertThat(actual.get(0).getRevision()).isEqualTo(REVISION_2);
+        assertThat(actual.get(1).getRevision()).isEqualTo(REVISION_1);
     }
 
     @Test
@@ -126,21 +125,21 @@ public class HgCommandTest {
         hg(workingDirectory, "pull").runOrBomb(null);
 
         List<Modification> actual = hgCommand.modificationsSince(new StringRevision(REVISION_0));
-        assertThat(actual.size(), is(2));
-        assertThat(actual.get(0).getRevision(), is(REVISION_2));
-        assertThat(actual.get(1).getRevision(), is(REVISION_1));
+        assertThat(actual.size()).isEqualTo(2);
+        assertThat(actual.get(0).getRevision()).isEqualTo(REVISION_2);
+        assertThat(actual.get(1).getRevision()).isEqualTo(REVISION_1);
     }
 
     @Test
     public void shouldUpdateToSpecificRevision() {
         InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
-        assertThat(output.getStdOut(), is(""));
+        assertThat(output.getStdOut()).isEqualTo("");
         File newFile = new File(clientRepo, "test.txt");
-        assertThat(newFile.exists(), is(false));
+        assertThat(newFile.exists()).isFalse();
         Revision revision = createNewFileAndCheckIn(serverRepo);
         hgCommand.updateTo(revision, output);
-        assertThat(output.getStdOut(), is(not("")));
-        assertThat(newFile.exists(), is(true));
+        assertThat(output.getStdOut()).isNotEqualTo("");
+        assertThat(newFile.exists()).isTrue();
     }
 
     @Test
@@ -150,7 +149,7 @@ public class HgCommandTest {
         InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
         File newFile = new File(workingDirectory, "test.txt");
         hgCommand.updateTo(new StringRevision("tip"), output);
-        assertThat(newFile.exists(), is(false));
+        assertThat(newFile.exists()).isFalse();
     }
 
     @Test
@@ -159,7 +158,7 @@ public class HgCommandTest {
                 ProcessOutputStreamConsumer.inMemoryConsumer();
 
         // delete repository in order to fail the hg pull command
-        assertThat(FileUtils.deleteQuietly(serverRepo), is(true));
+        assertThat(FileUtils.deleteQuietly(serverRepo)).isTrue();
 
         // now hg pull will fail and throw an exception
         assertThatThrownBy(() -> hgCommand.updateTo(new StringRevision("tip"), output))
@@ -171,7 +170,7 @@ public class HgCommandTest {
     public void shouldGetWorkingUrl() {
         String workingUrl = hgCommand.workingRepositoryUrl().outputAsString();
 
-        assertThat(workingUrl, is(serverRepo.getAbsolutePath()));
+        assertThat(workingUrl).isEqualTo(serverRepo.getAbsolutePath());
     }
 
     @Test
@@ -203,16 +202,16 @@ public class HgCommandTest {
         hg.clone(outputStreamConsumer, new UrlArgument(serverRepo.getAbsolutePath() + "#" + branchName));
 
         String currentBranch = hg(secondBranchWorkingCopy, "branch").runOrBomb(null).outputAsString();
-        assertThat(currentBranch, is(branchName));
+        assertThat(currentBranch).isEqualTo(branchName);
 
         List<String> branches = hg(secondBranchWorkingCopy, "branches").runOrBomb(null).output();
         ArrayList<String> branchNames = new ArrayList<>();
         for (String branchDetails : branches) {
             branchNames.add(StringUtils.split(branchDetails, " ")[0]);
         }
-        assertThat(branchNames.size(), is(2));
-        assertThat(branchNames.contains(branchName), is(true));
-        assertThat(branchNames.contains("default"), is(true));
+        assertThat(branchNames.size()).isEqualTo(2);
+        assertThat(branchNames.contains(branchName)).isTrue();
+        assertThat(branchNames.contains("default")).isTrue();
     }
 
     private CommandLine hg(File workingDir, String... arguments) {

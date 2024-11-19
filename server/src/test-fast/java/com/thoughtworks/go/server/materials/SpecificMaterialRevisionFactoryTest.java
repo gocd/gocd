@@ -29,8 +29,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -62,7 +61,7 @@ public class SpecificMaterialRevisionFactoryTest {
 
         MaterialRevisions materialRevisions = specificMaterialRevisionFactory.create("blahPipeline", Map.of(upstreamFingerprint, "upstream/4/blah-stage/2"));
 
-        assertThat(materialRevisions, is(new MaterialRevisions(expected)));
+        assertThat(materialRevisions).isEqualTo(new MaterialRevisions(expected));
     }
 
     @Test
@@ -73,7 +72,7 @@ public class SpecificMaterialRevisionFactoryTest {
             specificMaterialRevisionFactory.create("blahPipeline", Map.of("not-exist", "upstream/500/blah-stage/2"));
             fail("Should not be able to find material");
         } catch (Exception expected) {
-            assertThat(expected.getMessage(), is("Material with fingerprint [not-exist] for pipeline [blahPipeline] does not exist"));
+            assertThat(expected.getMessage()).isEqualTo("Material with fingerprint [not-exist] for pipeline [blahPipeline] does not exist");
         }
     }
 
@@ -87,7 +86,7 @@ public class SpecificMaterialRevisionFactoryTest {
             specificMaterialRevisionFactory.create("blahPipeline", Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/500/blah-stage/2"));
             fail("Should not be able to find revision");
         } catch (Exception expected) {
-            assertThat(expected.getMessage(), is("revision not found"));
+            assertThat(expected.getMessage()).isEqualTo("revision not found");
         }
     }
 

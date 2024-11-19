@@ -26,8 +26,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.nio.file.FileSystems;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArtifactDirectoryChooserTest {
     JobIdentifier jobId = new JobIdentifier("pipeline-name", -2, "label-111", "stage-name", "1", "job-name", 666L);
@@ -55,19 +54,19 @@ public class ArtifactDirectoryChooserTest {
     public void shouldChooseFirstLocationWhereFolderExists() {
         root2ArtifactLocation.mkdirs();
 
-        assertThat(chooser.chooseExistingRoot(jobId), is(root2ArtifactLocation));
+        assertThat(chooser.chooseExistingRoot(jobId)).isEqualTo(root2ArtifactLocation);
     }
 
     @Test
     public void shouldChooseFirstLocatorForPreferredArtifactLocation() {
-        assertThat(chooser.preferredRoot(jobId), is(root1ArtifactLocation));
+        assertThat(chooser.preferredRoot(jobId)).isEqualTo(root1ArtifactLocation);
     }
 
     @Test
     public void shouldLocateArtifactIfItExists() throws IllegalArtifactLocationException {
         root2ArtifactLocation.mkdirs();
         File file = new File(root2ArtifactLocation, "foo.txt");
-        assertThat(chooser.findArtifact(jobId, "foo.txt"), is(file));
+        assertThat(chooser.findArtifact(jobId, "foo.txt")).isEqualTo(file);
     }
 
     @Test
@@ -75,12 +74,12 @@ public class ArtifactDirectoryChooserTest {
         StageIdentifier stageIdentifier = new StageIdentifier("P1", 1, "S1", "1");
         File cachedStageFolder = new File(root2, "cache/artifacts/pipelines/P1/1/S1/1");
         cachedStageFolder.mkdirs();
-        assertThat(chooser.findCachedArtifact(stageIdentifier), is(cachedStageFolder));
+        assertThat(chooser.findCachedArtifact(stageIdentifier)).isEqualTo(cachedStageFolder);
     }
 
     @Test
     public void shouldGivePreferredLocationIfArtifactDoesNotExist() throws IllegalArtifactLocationException {
-        assertThat(chooser.findArtifact(jobId, "foo.txt"), is(new File(root1ArtifactLocation, "foo.txt")));
+        assertThat(chooser.findArtifact(jobId, "foo.txt")).isEqualTo(new File(root1ArtifactLocation, "foo.txt"));
     }
 
     @Test
@@ -89,7 +88,7 @@ public class ArtifactDirectoryChooserTest {
         try {
             chooser.findArtifact(jobId, path);
         } catch (IllegalArtifactLocationException e) {
-            assertThat(e.getMessage(), containsString("Artifact path [" + path + "] is illegal."));
+            assertThat(e.getMessage()).contains("Artifact path [" + path + "] is illegal.");
         }
     }
 
@@ -97,22 +96,20 @@ public class ArtifactDirectoryChooserTest {
     public void shouldReturnAUniqueLocationForConsoleFilesWithDifferentJobIdentifiers() throws Exception {
         JobIdentifier jobIdentifier = JobIdentifierMother.jobIdentifier("come", 1, "together", "1", "right");
         JobIdentifier anotherJobIdentifier = JobIdentifierMother.jobIdentifier("come", 1, "together", "2", "now");
-        assertThat(chooser.temporaryConsoleFile(jobIdentifier).getPath(),
-                not(equalToIgnoringCase(chooser.temporaryConsoleFile(anotherJobIdentifier).getPath())));
+        assertThat(chooser.temporaryConsoleFile(jobIdentifier).getPath()).isNotEqualToIgnoringCase(chooser.temporaryConsoleFile(anotherJobIdentifier).getPath());
     }
 
     @Test
     public void shouldReturnASameLocationForConsoleFilesWithSimilarJobIdentifiers() throws Exception {
         JobIdentifier jobIdentifier = JobIdentifierMother.jobIdentifier("come", 1, "together", "1", "right");
         JobIdentifier anotherJobIdentifier = JobIdentifierMother.jobIdentifier("come", 1, "together", "1", "right");
-        assertThat(chooser.temporaryConsoleFile(jobIdentifier).getPath(),
-                equalToIgnoringCase(chooser.temporaryConsoleFile(anotherJobIdentifier).getPath()));
+        assertThat(chooser.temporaryConsoleFile(jobIdentifier).getPath()).isEqualToIgnoringCase(chooser.temporaryConsoleFile(anotherJobIdentifier).getPath());
     }
 
     @Test
     public void shouldFetchATemporaryConsoleOutLocation() throws Exception {
         File consoleFile = chooser.temporaryConsoleFile(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
         String filePathSeparator = FileSystems.getDefault().getSeparator();
-        assertThat(consoleFile.getPath(), is(String.format("data%sconsole%sd0132b209429f7dc5b9ffffe87b02a7c.log", filePathSeparator, filePathSeparator)));
+        assertThat(consoleFile.getPath()).isEqualTo(String.format("data%sconsole%sd0132b209429f7dc5b9ffffe87b02a7c.log", filePathSeparator, filePathSeparator));
     }
 }

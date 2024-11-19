@@ -114,7 +114,7 @@ class AccessTokenRepresenterTest {
     if (persisted) {
       token.displayValue = null
     } else {
-      token.id = -1;
+      token.id = -1
     }
     return token
   }
@@ -146,7 +146,7 @@ class AccessTokenRepresenterTest {
       "last_used_at"  : null,
     ]
 
-    assertThatJson(json).isEqualTo(expectedJSON);
+    assertThatJson(json).isEqualTo(expectedJSON)
   }
 
 }

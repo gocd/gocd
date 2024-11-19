@@ -42,9 +42,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -244,10 +243,10 @@ public class GoFileConfigDataSourceTest {
 
         GoConfigHolder configHolder = dataSource.reloadEveryTime().load();
 
-        assertThat(configHolder, is(goConfigHolder));
-        assertThat(commandArgumentCaptor.getValue().configForEdit(), is(cruiseConfig));
-        assertThat(listArgumentCaptor.getValue(), is(lastKnownPartials));
-        assertThat(stringArgumentCaptor.getValue(), is("Filesystem"));
+        assertThat(configHolder).isEqualTo(goConfigHolder);
+        assertThat(commandArgumentCaptor.getValue().configForEdit()).isEqualTo(cruiseConfig);
+        assertThat(listArgumentCaptor.getValue()).isEqualTo(lastKnownPartials);
+        assertThat(stringArgumentCaptor.getValue()).isEqualTo("Filesystem");
     }
 
     @Test
@@ -273,9 +272,9 @@ public class GoFileConfigDataSourceTest {
         
         GoConfigHolder configHolder = dataSource.reloadEveryTime().load();
 
-        assertThat(configHolder, is(goConfigHolder));
-        assertThat(commandArgumentCaptor.getValue().configForEdit(), is(cruiseConfig));
-        assertThat(listArgumentCaptor.getValue(), is(lastValidPartials));
-        assertThat(stringArgumentCaptor.getValue(), is("Filesystem"));
+        assertThat(configHolder).isEqualTo(goConfigHolder);
+        assertThat(commandArgumentCaptor.getValue().configForEdit()).isEqualTo(cruiseConfig);
+        assertThat(listArgumentCaptor.getValue()).isEqualTo(lastValidPartials);
+        assertThat(stringArgumentCaptor.getValue()).isEqualTo("Filesystem");
     }
 }

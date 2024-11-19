@@ -35,8 +35,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -88,7 +87,7 @@ public class ResourceRepositoryIntegrationTest {
         resourceRepository.save(resource);
 
         // Assert
-        assertThat(resource.getId(), is(not(nullValue())));
+        assertThat(resource.getId()).isNotNull();
     }
 
     @Test
@@ -103,8 +102,8 @@ public class ResourceRepositoryIntegrationTest {
         Resources resources = resourceRepository.findByBuildId(jobInstance.getId());
 
         // Assert
-        assertThat(resources.size(), is(1));
-        assertThat(resources.get(0), is(savedResource));
+        assertThat(resources.size()).isEqualTo(1);
+        assertThat(resources.get(0)).isEqualTo(savedResource);
     }
 
     @Test
@@ -121,15 +120,15 @@ public class ResourceRepositoryIntegrationTest {
 
         // Assert
         Resources firstJobResources = resourceRepository.findByBuildId(firstJobInstance.getId());
-        assertThat(firstJobResources.size(), is(1));
-        assertThat(firstJobResources.get(0).getId(), equalTo(resourceOfFirstJob.getId()));
-        assertThat(firstJobResources, hasItem(resourceOfFirstJob));
+        assertThat(firstJobResources.size()).isEqualTo(1);
+        assertThat(firstJobResources.get(0).getId()).isEqualTo(resourceOfFirstJob.getId());
+        assertThat(firstJobResources).contains(resourceOfFirstJob);
 
         Resources secondJobResources = resourceRepository.findByBuildId(secondJobInstance.getId());
-        assertThat(secondJobResources.size(), is(1));
-        assertThat(secondJobResources, hasItem(resourceOfSecondJob));
+        assertThat(secondJobResources.size()).isEqualTo(1);
+        assertThat(secondJobResources).contains(resourceOfSecondJob);
 
-        assertThat(resourceOfFirstJob.getId(), not(equalTo(resourceOfSecondJob.getId())));
+        assertThat(resourceOfFirstJob.getId()).isNotEqualTo(resourceOfSecondJob.getId());
     }
 
     @Test
@@ -141,13 +140,13 @@ public class ResourceRepositoryIntegrationTest {
         resourceRepository.save(savedResource);
 
         List<Resource> resourceList = resourceRepository.findByBuildId(jobInstance.getId());
-        assertThat(resourceList.size(), is(1));
+        assertThat(resourceList.size()).isEqualTo(1);
 
         // Act
         resourceRepository.deleteAll(List.of(savedResource));
 
         // Assert
         resourceList = resourceRepository.findByBuildId(jobInstance.getId());
-        assertThat(resourceList.size(), is(0));
+        assertThat(resourceList.size()).isEqualTo(0);
     }
 }

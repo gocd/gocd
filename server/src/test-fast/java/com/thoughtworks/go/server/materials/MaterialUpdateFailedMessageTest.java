@@ -19,30 +19,29 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.helper.MaterialsMother;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class MaterialUpdateFailedMessageTest {
 
     @Test
     public void shouldReturnTheExceptionMessageAsReasonForFailure() {
-        assertThat(new MaterialUpdateFailedMessage(MaterialsMother.hgMaterial(), 1, new RuntimeException("Message")).getReason(), is("Message"));
+        assertThat(new MaterialUpdateFailedMessage(MaterialsMother.hgMaterial(), 1, new RuntimeException("Message")).getReason()).isEqualTo("Message");
     }
 
     @Test
     public void shouldReturnEmptyStringIfThereIsNotMessage() {
-        assertThat(new MaterialUpdateFailedMessage(MaterialsMother.hgMaterial(), 2, new NullPointerException()).getReason(), is(""));
+        assertThat(new MaterialUpdateFailedMessage(MaterialsMother.hgMaterial(), 2, new NullPointerException()).getReason()).isEqualTo("");
     }
 
     @Test
     public void shouldMessageAndTheCauseIfOneExists() {
-        assertThat(new MaterialUpdateFailedMessage(MaterialsMother.hgMaterial(), 3, new Exception("Message", new RuntimeException("Foo"))).getReason(), is("Message. Cause: Foo"));
+        assertThat(new MaterialUpdateFailedMessage(MaterialsMother.hgMaterial(), 3, new Exception("Message", new RuntimeException("Foo"))).getReason()).isEqualTo("Message. Cause: Foo");
     }
 
     @Test
     public void shouldNotRepeatMessageAndCauseIfTheContentAreTheSame() throws Exception {
         MaterialUpdateFailedMessage message = new MaterialUpdateFailedMessage(mock(HgMaterial.class), 4, new RuntimeException("some messAGE", new RuntimeException("some messAGE")));
-        assertThat(message.getReason(), is("some messAGE"));
+        assertThat(message.getReason()).isEqualTo("some messAGE");
     }
 }

@@ -46,9 +46,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
@@ -141,9 +139,9 @@ public class SchedulingCheckerServiceIntegrationTest {
         PipelineConfig pipelineConfig = configFileHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
         pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createManualForced());
         HttpOperationResult operationResult = new HttpOperationResult();
-        assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, "blahUser", operationResult), is(false));
-        assertThat(operationResult.canContinue(), is(false));
-        assertThat(operationResult.message(), is("Failed to trigger pipeline: blahPipeline"));
+        assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, "blahUser", operationResult)).isFalse();
+        assertThat(operationResult.canContinue()).isFalse();
+        assertThat(operationResult.message()).isEqualTo("Failed to trigger pipeline: blahPipeline");
     }
 
     @Test
@@ -156,10 +154,10 @@ public class SchedulingCheckerServiceIntegrationTest {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, result);
         ServerHealthState serverHealthState = result.getServerHealthState();
-        assertThat(serverHealthState.isSuccess(), is(false));
-        assertThat(serverHealthState.getDescription(), is("Cannot schedule ft as the previous stage dev has Failed!"));
-        assertThat(serverHealthState.getMessage(), is("Cannot schedule ft as the previous stage dev has Failed!"));
-        assertThat(serverHealthState.getType(), is(HealthStateType.forbidden()));
+        assertThat(serverHealthState.isSuccess()).isFalse();
+        assertThat(serverHealthState.getDescription()).isEqualTo("Cannot schedule ft as the previous stage dev has Failed!");
+        assertThat(serverHealthState.getMessage()).isEqualTo("Cannot schedule ft as the previous stage dev has Failed!");
+        assertThat(serverHealthState.getType()).isEqualTo(HealthStateType.forbidden());
     }
 
     @Test
@@ -170,7 +168,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, result);
         ServerHealthState serverHealthState = result.getServerHealthState();
-        assertThat(serverHealthState.isSuccess(), is(true));
+        assertThat(serverHealthState.isSuccess()).isTrue();
     }
 
     @Test
@@ -180,7 +178,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         configFileHelper.addAuthorizedUserForStage(pipelineName, "stage", APPROVED_USER);
 
         pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createWithEmptyModifications());
-        assertThat(schedulingChecker.canManuallyTrigger(pipelineName, new Username(APPROVED_USER)), is(true));
+        assertThat(schedulingChecker.canManuallyTrigger(pipelineName, new Username(APPROVED_USER))).isTrue();
     }
 
     @Test
@@ -190,17 +188,17 @@ public class SchedulingCheckerServiceIntegrationTest {
         triggerMonitor.markPipelineAsAlreadyTriggered(pipelineConfig.name());
 
         HttpOperationResult operationResult = new HttpOperationResult();
-        assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, "blahUser", operationResult), is(false));
-        assertThat(operationResult.canContinue(), is(false));
-        assertThat(operationResult.message(), is("Failed to trigger pipeline: blahPipeline"));
+        assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, "blahUser", operationResult)).isFalse();
+        assertThat(operationResult.canContinue()).isFalse();
+        assertThat(operationResult.message()).isEqualTo("Failed to trigger pipeline: blahPipeline");
     }
 
     @Test
     public void shouldNotPassCheckingWhenUserHasNoPermissionForRerun() throws Exception {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, "gli", result), is(false));
-        assertThat(result.getServerHealthState().getDescription(), containsString("does not have permission"));
+        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, "gli", result)).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains("does not have permission");
     }
 
     @Test
@@ -208,8 +206,8 @@ public class SchedulingCheckerServiceIntegrationTest {
         pipelineFixture.createdPipelineWithAllStagesPassed();
         pipelineFixture.configStageAsManualApprovalWithApprovedUsers(pipelineFixture.devStage, APPROVED_USER);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), "gli", result), is(false));
-        assertThat(result.getServerHealthState().getDescription(), containsString("does not have permission"));
+        assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), "gli", result)).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains("does not have permission");
     }
 
     @Test
@@ -217,9 +215,9 @@ public class SchedulingCheckerServiceIntegrationTest {
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageScheduled();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, result);
-        assertThat(result.getServerHealthState().isSuccess(), is(false));
-        assertThat(result.getServerHealthState().getDescription(), containsString("still in progress"));
-        assertThat(result.getServerHealthState().getDescription(), containsString(pipeline.getName()));
+        assertThat(result.getServerHealthState().isSuccess()).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains("still in progress");
+        assertThat(result.getServerHealthState().getDescription()).contains(pipeline.getName());
     }
 
     @Test
@@ -229,9 +227,9 @@ public class SchedulingCheckerServiceIntegrationTest {
         firstStagePassedAndSecondStageBuilding(pipeline);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         schedulingChecker.canTriggerManualPipeline(pipeline.getName(), APPROVED_USER, result);
-        assertThat(result.getServerHealthState().isSuccess(), is(false));
-        assertThat(result.getServerHealthState().getDescription(), containsString("is locked"));
-        assertThat(result.getServerHealthState().getDescription(), containsString(pipeline.getName()));
+        assertThat(result.getServerHealthState().isSuccess()).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains("is locked");
+        assertThat(result.getServerHealthState().getDescription()).contains(pipeline.getName());
     }
 
     private void firstStagePassedAndSecondStageBuilding(Pipeline pipeline) {
@@ -264,9 +262,9 @@ public class SchedulingCheckerServiceIntegrationTest {
         firstStagePassedAndSecondStageBuilding(pipeline);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         schedulingChecker.canTriggerPipelineWithTimer(pipeline.getName(), result);
-        assertThat(result.getServerHealthState().isSuccess(), is(false));
-        assertThat(result.getServerHealthState().getDescription(), containsString("is locked "));
-        assertThat(result.getServerHealthState().getDescription(), containsString(pipeline.getName()));
+        assertThat(result.getServerHealthState().isSuccess()).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains("is locked ");
+        assertThat(result.getServerHealthState().getDescription()).contains(pipeline.getName());
     }
 
     @Test
@@ -280,9 +278,9 @@ public class SchedulingCheckerServiceIntegrationTest {
         configFileHelper.addAuthorizedUserForStage(pipeline.getName(), pipelineFixture.devStage, APPROVED_USER);
         schedulingChecker.canScheduleStage(completed.getIdentifier(), pipelineFixture.devStage, APPROVED_USER, result);
 
-        assertThat(result.getServerHealthState().isSuccess(), is(false));
-        assertThat(result.getServerHealthState().getDescription(), containsString("is locked"));
-        assertThat(result.getServerHealthState().getDescription(), containsString(pipeline.getName()));
+        assertThat(result.getServerHealthState().isSuccess()).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains("is locked");
+        assertThat(result.getServerHealthState().getDescription()).contains(pipeline.getName());
     }
 
     @Test
@@ -292,7 +290,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         firstStagePassedAndSecondStageNotStarted(pipeline);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, result);
-        assertThat(result.getServerHealthState().isSuccess(), is(true));
+        assertThat(result.getServerHealthState().isSuccess()).isTrue();
     }
 
     @Test
@@ -300,9 +298,9 @@ public class SchedulingCheckerServiceIntegrationTest {
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageScheduled();
         PipelineConfig pipelineConfig = pipelineFixture.pipelineConfig();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, APPROVED_USER, result), is(false));
-        assertThat(result.getServerHealthState().getDescription(), containsString("still in progress"));
-        assertThat(result.getServerHealthState().getDescription(), containsString(pipeline.getName()));
+        assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, APPROVED_USER, result)).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains("still in progress");
+        assertThat(result.getServerHealthState().getDescription()).contains(pipeline.getName());
     }
 
     @Test
@@ -312,10 +310,10 @@ public class SchedulingCheckerServiceIntegrationTest {
         configFileHelper.addAuthorizedUserForStage(pipeline.getName(), pipelineFixture.devStage, APPROVED_USER);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.devStage, APPROVED_USER, result), is(false));
-        assertThat(result.getServerHealthState().getDescription(), containsString("still in progress"));
-        assertThat(result.getServerHealthState().getDescription(), containsString(pipeline.getName()));
-        assertThat(result.getServerHealthState().getDescription(), containsString(pipelineFixture.devStage));
+        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.devStage, APPROVED_USER, result)).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains("still in progress");
+        assertThat(result.getServerHealthState().getDescription()).contains(pipeline.getName());
+        assertThat(result.getServerHealthState().getDescription()).contains(pipelineFixture.devStage);
     }
 
     @Test
@@ -324,10 +322,10 @@ public class SchedulingCheckerServiceIntegrationTest {
         pipelineFixture.createPipelineWithFirstStageScheduled();
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), APPROVED_USER, result), is(false));
-        assertThat(result.getServerHealthState().getDescription(), containsString("still in progress"));
-        assertThat(result.getServerHealthState().getDescription(), containsString(pipeline.getName()));
-        assertThat(result.getServerHealthState().getDescription(), containsString(pipelineFixture.devStage));
+        assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), APPROVED_USER, result)).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains("still in progress");
+        assertThat(result.getServerHealthState().getDescription()).contains(pipeline.getName());
+        assertThat(result.getServerHealthState().getDescription()).contains(pipelineFixture.devStage);
     }
 
     @Test
@@ -339,8 +337,8 @@ public class SchedulingCheckerServiceIntegrationTest {
         pipelinePauseService.pause(pipeline.getName(), "Upgrade scheduled", userName);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, result), is(false));
-        assertThat(result.getServerHealthState().getDescription(), containsString(pipeline.getName() + " is paused"));
+        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, result)).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains(pipeline.getName() + " is paused");
     }
 
     @Test
@@ -352,8 +350,8 @@ public class SchedulingCheckerServiceIntegrationTest {
         pipelinePauseService.pause(pipeline.getName(), "Upgrade scheduled", userName);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), APPROVED_USER, result), is(false));
-        assertThat(result.getServerHealthState().getDescription(), containsString(pipeline.getName() + " is paused"));
+        assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), APPROVED_USER, result)).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains(pipeline.getName() + " is paused");
     }
 
     @Test
@@ -362,9 +360,8 @@ public class SchedulingCheckerServiceIntegrationTest {
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
 
-        assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), APPROVED_USER, result), is(false));
-        assertThat(result.getServerHealthState().getDescription(),
-                containsString(String.format("GoCD has less than %sb of disk space", limit)));
+        assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), APPROVED_USER, result)).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sb of disk space", limit));
     }
 
     @Test
@@ -377,9 +374,8 @@ public class SchedulingCheckerServiceIntegrationTest {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
 
         configFileHelper.addAuthorizedUserForStage(pipelineName, stageName, APPROVED_USER);
-        assertThat(schedulingChecker.canScheduleStage(new PipelineIdentifier(pipelineName, 1, label), stageName, APPROVED_USER, result), is(false));
-        assertThat(result.getServerHealthState().getDescription(),
-                containsString(String.format("GoCD has less than %sb of disk space", limit)));
+        assertThat(schedulingChecker.canScheduleStage(new PipelineIdentifier(pipelineName, 1, label), stageName, APPROVED_USER, result)).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sb of disk space", limit));
     }
 
     @Test
@@ -387,15 +383,14 @@ public class SchedulingCheckerServiceIntegrationTest {
         String limit = diskSpaceSimulator.simulateDiskFull();
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        assertThat(schedulingChecker.canSchedule(result), is(false));
-        assertThat(result.getServerHealthState().getDescription(),
-                containsString(String.format("GoCD has less than %sb of disk space", limit)));
+        assertThat(schedulingChecker.canSchedule(result)).isFalse();
+        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sb of disk space", limit));
     }
 
     @Test
     public void shouldSkipSecurityCheckingForCruiseUserWhenTimerTriggersPipeline() throws Exception {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         schedulingChecker.canTriggerPipelineWithTimer(goConfigService.getAllPipelineConfigs().get(0), result);
-        assertThat(result.canContinue(), is(true));
+        assertThat(result.canContinue()).isTrue();
     }
 }

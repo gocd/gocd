@@ -28,8 +28,7 @@ import java.net.SocketException;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -55,8 +54,8 @@ public class DownloadActionTest {
 
         downloadAction.perform("foo", fetchHandler);
 
-        assertThat(httpService.timesCalled, is(3));
-        assertThat(clock.getSleeps(), hasItems(5000L));
+        assertThat(httpService.timesCalled).isEqualTo(3);
+        assertThat(clock.getSleeps()).contains(5000L);
     }
 
     @Test
@@ -67,7 +66,7 @@ public class DownloadActionTest {
             DownloadAction downloadAction = new DownloadAction(httpService, publisher, clock);
             downloadAction.perform("foo", fetchHandler);
 
-            assertThat(httpService.timesCalled, is(4));
+            assertThat(httpService.timesCalled).isEqualTo(4);
 
             shouldHaveLogged(logging, Level.WARN, "Could not fetch artifact foo.");
             shouldHaveLogged(logging, Level.WARN, "Error was : Caught an exception 'Connection Reset'");
@@ -75,7 +74,7 @@ public class DownloadActionTest {
             assertBetween(clock.getSleeps().get(0), 10000L, 20000L);
             assertBetween(clock.getSleeps().get(1), 20000L, 30000L);
             assertBetween(clock.getSleeps().get(2), 30000L, 40000L);
-            assertThat(clock.getSleeps().size(), is(3));
+            assertThat(clock.getSleeps().size()).isEqualTo(3);
         }
     }
 
@@ -87,7 +86,7 @@ public class DownloadActionTest {
                 new DownloadAction(httpService, new StubGoPublisher(), clock).perform("foo", fetchHandler);
                 fail("Expected to throw exception after four tries");
             } catch (Exception e) {
-                assertThat(httpService.timesCalled, is(4));
+                assertThat(httpService.timesCalled).isEqualTo(4);
                 shouldHaveLogged(logging, Level.ERROR, "Giving up fetching resource 'foo'. Tried 4 times and failed.");
             }
         }
@@ -105,7 +104,7 @@ public class DownloadActionTest {
 
         verify(httpService).download("foo", this.fetchHandler);
         verifyNoMoreInteractions(httpService);
-        assertThat(goPublisher.getMessage(), containsString("Artifact is not modified, skipped fetching it"));
+        assertThat(goPublisher.getMessage()).contains("Artifact is not modified, skipped fetching it");
     }
 
     private String getSrc() {
@@ -141,8 +140,8 @@ public class DownloadActionTest {
     }
 
     private void assertBetween(Long actual, long min, long max) {
-        assertThat(actual, greaterThanOrEqualTo(min));
-        assertThat(actual, lessThanOrEqualTo(max));
+        assertThat(actual).isGreaterThanOrEqualTo(min);
+        assertThat(actual).isLessThanOrEqualTo(max);
     }
 
     private static class FailSometimesHttpService extends HttpService {

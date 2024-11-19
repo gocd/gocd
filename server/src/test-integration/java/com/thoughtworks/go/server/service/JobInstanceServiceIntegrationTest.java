@@ -63,8 +63,7 @@ import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -135,7 +134,7 @@ public class JobInstanceServiceIntegrationTest {
 
         JobInstances jobs1 = jobInstanceService.latestCompletedJobs(
                 pipelineFixture.pipelineName, pipelineFixture.devStage, stage.getJobInstances().first().getName());
-        assertThat(jobs1.size(), is(25));
+        assertThat(jobs1.size()).isEqualTo(25);
     }
 
     @Test
@@ -148,7 +147,7 @@ public class JobInstanceServiceIntegrationTest {
         long stageId = stage.getId();
         Stage stageLoadedBeforeJobUpdate = stageService.stageById(stageId);
 
-        assertThat(stageLoadedBeforeJobUpdate.getJobInstances().get(0).getState(), is(JobState.Scheduled));
+        assertThat(stageLoadedBeforeJobUpdate.getJobInstances().get(0).getState()).isEqualTo(JobState.Scheduled);
 
         JobInstance instance = stage.getJobInstances().get(0);
         instance.changeState(JobState.Building, new Date());
@@ -156,7 +155,7 @@ public class JobInstanceServiceIntegrationTest {
 
         Stage stageLoadedAfterJobUpdate = stageService.stageById(stageId);
 
-        assertThat(stageLoadedAfterJobUpdate.getJobInstances().get(0).getState(), is(JobState.Building));
+        assertThat(stageLoadedAfterJobUpdate.getJobInstances().get(0).getState()).isEqualTo(JobState.Building);
     }
 
     @Test
@@ -177,7 +176,7 @@ public class JobInstanceServiceIntegrationTest {
             }
         });
 
-        assertThat(newJob.getIdentifier(), is(new JobIdentifier(pipeline, pipeline.getFirstStage(), newJob)));
+        assertThat(newJob.getIdentifier()).isEqualTo(new JobIdentifier(pipeline, pipeline.getFirstStage(), newJob));
     }
 
     @Test
@@ -193,8 +192,8 @@ public class JobInstanceServiceIntegrationTest {
         jobStatusCache.jobStatusChanged(stage.getJobInstances().last());
 
         JobInstances jobs = jobInstanceService.currentJobsOfStage("cruise", stageConfig);
-        assertThat(jobs.first().getName(), is("alpha"));
-        assertThat(jobs.last().getName(), is("build"));
+        assertThat(jobs.first().getName()).isEqualTo("alpha");
+        assertThat(jobs.last().getName()).isEqualTo("build");
     }
 
     @Test
@@ -215,9 +214,9 @@ public class JobInstanceServiceIntegrationTest {
         jobStatusCache.jobStatusChanged(stage.getJobInstances().last());
 
         JobInstances jobs = jobInstanceService.currentJobsOfStage("cruise", stageConfig);
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("build", 1)))));
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("build", 2)))));
-        assertThat(jobs.size(), is(2));
+        assertThat(jobs.first().getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("build", 1));
+        assertThat(jobs.last().getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("build", 2));
+        assertThat(jobs.size()).isEqualTo(2);
     }
 
     @Test
@@ -236,9 +235,9 @@ public class JobInstanceServiceIntegrationTest {
         jobStatusCache.jobStatusChanged(stage.getJobInstances().last());
 
         JobInstances jobs = jobInstanceService.currentJobsOfStage("cruise", stageConfig);
-        assertThat(jobs.size(), is(2));
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("build", 1)))));
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("build", 2)))));
+        assertThat(jobs.size()).isEqualTo(2);
+        assertThat(jobs.first().getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("build", 1));
+        assertThat(jobs.last().getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("build", 2));
     }
 
     @Test
@@ -266,8 +265,8 @@ public class JobInstanceServiceIntegrationTest {
         configHelper.addPipeline("go", "dev");
         scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
         List<JobPlan> jobPlans = jobInstanceService.orderedScheduledBuilds();
-        assertThat(jobPlans.size(), is(1));
-        assertThat(jobPlans.get(0).shouldFetchMaterials(), is(false));
+        assertThat(jobPlans.size()).isEqualTo(1);
+        assertThat(jobPlans.get(0).shouldFetchMaterials()).isFalse();
     }
 
     @Test
@@ -277,8 +276,8 @@ public class JobInstanceServiceIntegrationTest {
         configHelper.addPipeline("go", "dev");
         scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
         List<JobPlan> jobPlans = jobInstanceService.orderedScheduledBuilds();
-        assertThat(jobPlans.size(), is(1));
-        assertThat(jobPlans.get(0).shouldCleanWorkingDir(), is(true));
+        assertThat(jobPlans.size()).isEqualTo(1);
+        assertThat(jobPlans.get(0).shouldCleanWorkingDir()).isTrue();
     }
 
     @Test
@@ -295,9 +294,9 @@ public class JobInstanceServiceIntegrationTest {
         configHelper.setViewPermissionForGroup(BasicPipelineConfigs.DEFAULT_GROUP, "view");
 
         List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans(viewOnlyUser);
-        assertThat(waitingJobPlans.size(), is(1));
-        assertThat(waitingJobPlans.get(0).jobPlan(), is(jobPlans.get(0)));
-        assertThat(waitingJobPlans.get(0).envName(), is("newEnv"));
+        assertThat(waitingJobPlans.size()).isEqualTo(1);
+        assertThat(waitingJobPlans.get(0).jobPlan()).isEqualTo(jobPlans.get(0));
+        assertThat(waitingJobPlans.get(0).envName()).isEqualTo("newEnv");
     }
 
     @Test
@@ -316,8 +315,8 @@ public class JobInstanceServiceIntegrationTest {
         configHelper.setViewPermissionForGroup("first", "view");
 
         List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans(viewOnlyUser);
-        assertThat(waitingJobPlans.size(), is(1));
-        assertThat(waitingJobPlans.get(0).jobPlan().getPipelineName(), is("build"));
+        assertThat(waitingJobPlans.size()).isEqualTo(1);
+        assertThat(waitingJobPlans.get(0).jobPlan().getPipelineName()).isEqualTo("build");
     }
 
     @Test
@@ -336,9 +335,9 @@ public class JobInstanceServiceIntegrationTest {
         configHelper.setViewPermissionForGroup("first", "view");
 
         List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans(viewOnlyUser);
-        assertThat(waitingJobPlans.size(), is(2));
-        assertThat(waitingJobPlans.get(0).jobPlan().getPipelineName(), is("go"));
-        assertThat(waitingJobPlans.get(1).jobPlan().getPipelineName(), is("build"));
+        assertThat(waitingJobPlans.size()).isEqualTo(2);
+        assertThat(waitingJobPlans.get(0).jobPlan().getPipelineName()).isEqualTo("go");
+        assertThat(waitingJobPlans.get(1).jobPlan().getPipelineName()).isEqualTo("build");
     }
 
     @Test
@@ -353,9 +352,9 @@ public class JobInstanceServiceIntegrationTest {
 
         dbHelper.newPipelineWithAllStagesPassed(PipelineMother.withSingleStageWithMaterials("twist", "acceptance", withBuildPlans("firefox"))).getStages().get(0);//a completed pipeline
 
-        assertThat(jobInstanceService.allBuildingJobs().size(), is(2));
-        assertThat(jobInstanceService.allBuildingJobs(), hasItem(goDev.getFirstJob().getIdentifier()));
-        assertThat(jobInstanceService.allBuildingJobs(), hasItem(mingleTest.getFirstJob().getIdentifier()));
+        assertThat(jobInstanceService.allBuildingJobs().size()).isEqualTo(2);
+        assertThat(jobInstanceService.allBuildingJobs()).contains(goDev.getFirstJob().getIdentifier());
+        assertThat(jobInstanceService.allBuildingJobs()).contains(mingleTest.getFirstJob().getIdentifier());
     }
 
     @Test
@@ -377,7 +376,7 @@ public class JobInstanceServiceIntegrationTest {
         JobInstance jobInstance1 = jobInstanceService.buildByIdWithTransitions(jobInstance.getId());
         jobInstanceService.failJob(jobInstance1);
 
-        assertThat(changedJobPassed[0].isFailed(), is(true));
+        assertThat(changedJobPassed[0].isFailed()).isTrue();
     }
 
     @Test
@@ -406,13 +405,13 @@ public class JobInstanceServiceIntegrationTest {
 
         //completed
         List<JobInstance> sortedOnCompleted = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.job, SortOrder.ASC, 1, 10));
-        assertThat(sortedOnCompleted.size(), is(3));
-        assertThat(sortedOnCompleted.get(0).getName(), is("existingJob"));
-        assertThat(sortedOnCompleted.get(0).isPipelineStillConfigured(), is(true));
-        assertThat(sortedOnCompleted.get(1).getName(), is("job"));
-        assertThat(sortedOnCompleted.get(1).isPipelineStillConfigured(), is(false));
-        assertThat(sortedOnCompleted.get(2).getName(), is("rescheduled"));
-        assertThat(sortedOnCompleted.get(2).isPipelineStillConfigured(), is(true));
+        assertThat(sortedOnCompleted.size()).isEqualTo(3);
+        assertThat(sortedOnCompleted.get(0).getName()).isEqualTo("existingJob");
+        assertThat(sortedOnCompleted.get(0).isPipelineStillConfigured()).isTrue();
+        assertThat(sortedOnCompleted.get(1).getName()).isEqualTo("job");
+        assertThat(sortedOnCompleted.get(1).isPipelineStillConfigured()).isFalse();
+        assertThat(sortedOnCompleted.get(2).getName()).isEqualTo("rescheduled");
+        assertThat(sortedOnCompleted.get(2).isPipelineStillConfigured()).isTrue();
     }
 
     @Test
@@ -442,65 +441,65 @@ public class JobInstanceServiceIntegrationTest {
 
         //completed
         List<JobInstance> sortedOnCompleted = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.completed, SortOrder.DESC, 1, 10));
-        assertThat(sortedOnCompleted.size(), is(4));
-        assertThat(sortedOnCompleted.get(0).getName(), is("simpleJob"));
+        assertThat(sortedOnCompleted.size()).isEqualTo(4);
+        assertThat(sortedOnCompleted.get(0).getName()).isEqualTo("simpleJob");
 
         List<JobInstance> sortedOnCompletedAsc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.completed, SortOrder.ASC, 1, 10));
-        assertThat(sortedOnCompletedAsc.size(), is(4));
-        assertThat(sortedOnCompletedAsc.get(3).getName(), is("simpleJob"));
+        assertThat(sortedOnCompletedAsc.size()).isEqualTo(4);
+        assertThat(sortedOnCompletedAsc.get(3).getName()).isEqualTo("simpleJob");
 
         //pipeline
         List<JobInstance> sortedOnPipelineName = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.pipeline, SortOrder.ASC, 1, 10));
-        assertThat(sortedOnPipelineName.size(), is(4));
-        assertThat(sortedOnPipelineName.get(0).getIdentifier().getPipelineName(), is("pipeline-aaa"));
-        assertThat(sortedOnPipelineName.get(1).getIdentifier().getPipelineName(), is("pipeline-aaa"));
-        assertThat(sortedOnPipelineName.get(2).getIdentifier().getPipelineName(), is("pipeline-bbb"));
+        assertThat(sortedOnPipelineName.size()).isEqualTo(4);
+        assertThat(sortedOnPipelineName.get(0).getIdentifier().getPipelineName()).isEqualTo("pipeline-aaa");
+        assertThat(sortedOnPipelineName.get(1).getIdentifier().getPipelineName()).isEqualTo("pipeline-aaa");
+        assertThat(sortedOnPipelineName.get(2).getIdentifier().getPipelineName()).isEqualTo("pipeline-bbb");
 
         List<JobInstance> sortedOnPipelineNameDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.pipeline, SortOrder.DESC, 1, 10));
-        assertThat(sortedOnPipelineNameDesc.size(), is(4));
-        assertThat(sortedOnPipelineNameDesc.get(0).getIdentifier().getPipelineName(), is("pipeline-bbb"));
-        assertThat(sortedOnPipelineNameDesc.get(2).getIdentifier().getPipelineName(), is("pipeline-aaa"));
+        assertThat(sortedOnPipelineNameDesc.size()).isEqualTo(4);
+        assertThat(sortedOnPipelineNameDesc.get(0).getIdentifier().getPipelineName()).isEqualTo("pipeline-bbb");
+        assertThat(sortedOnPipelineNameDesc.get(2).getIdentifier().getPipelineName()).isEqualTo("pipeline-aaa");
 
         //stage
         List<JobInstance> sortedOnStageName = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.stage, SortOrder.ASC, 1, 10));
-        assertThat(sortedOnStageName.size(), is(4));
-        assertThat(sortedOnStageName.get(0).getIdentifier().getStageName(), is("stage-bbb"));
-        assertThat(sortedOnStageName.get(2).getIdentifier().getStageName(), is("stage-ccc"));
+        assertThat(sortedOnStageName.size()).isEqualTo(4);
+        assertThat(sortedOnStageName.get(0).getIdentifier().getStageName()).isEqualTo("stage-bbb");
+        assertThat(sortedOnStageName.get(2).getIdentifier().getStageName()).isEqualTo("stage-ccc");
 
         List<JobInstance> sortedOnStageNameDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.stage, SortOrder.DESC, 1, 10));
-        assertThat(sortedOnStageNameDesc.size(), is(4));
-        assertThat(sortedOnStageNameDesc.get(0).getIdentifier().getStageName(), is("stage-ccc"));
-        assertThat(sortedOnStageNameDesc.get(2).getIdentifier().getStageName(), is("stage-bbb"));
+        assertThat(sortedOnStageNameDesc.size()).isEqualTo(4);
+        assertThat(sortedOnStageNameDesc.get(0).getIdentifier().getStageName()).isEqualTo("stage-ccc");
+        assertThat(sortedOnStageNameDesc.get(2).getIdentifier().getStageName()).isEqualTo("stage-bbb");
 
         //result
         List<JobInstance> sortedOnResult = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.result, SortOrder.ASC, 1, 10));
-        assertThat(sortedOnResult.size(), is(4));
-        assertThat(sortedOnResult.get(0).getResult(), is(JobResult.Cancelled));
-        assertThat(sortedOnResult.get(1).getResult(), is(JobResult.Failed));
-        assertThat(sortedOnResult.get(2).getResult(), is(JobResult.Passed));
-        assertThat(sortedOnResult.get(3).getResult(), is(JobResult.Unknown));
+        assertThat(sortedOnResult.size()).isEqualTo(4);
+        assertThat(sortedOnResult.get(0).getResult()).isEqualTo(JobResult.Cancelled);
+        assertThat(sortedOnResult.get(1).getResult()).isEqualTo(JobResult.Failed);
+        assertThat(sortedOnResult.get(2).getResult()).isEqualTo(JobResult.Passed);
+        assertThat(sortedOnResult.get(3).getResult()).isEqualTo(JobResult.Unknown);
 
         List<JobInstance> sortedOnResultDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.result, SortOrder.DESC, 1, 10));
-        assertThat(sortedOnResultDesc.size(), is(4));
-        assertThat(sortedOnResultDesc.get(3).getResult(), is(JobResult.Cancelled));
-        assertThat(sortedOnResultDesc.get(2).getResult(), is(JobResult.Failed));
-        assertThat(sortedOnResultDesc.get(1).getResult(), is(JobResult.Passed));
-        assertThat(sortedOnResultDesc.get(0).getResult(), is(JobResult.Unknown));
+        assertThat(sortedOnResultDesc.size()).isEqualTo(4);
+        assertThat(sortedOnResultDesc.get(3).getResult()).isEqualTo(JobResult.Cancelled);
+        assertThat(sortedOnResultDesc.get(2).getResult()).isEqualTo(JobResult.Failed);
+        assertThat(sortedOnResultDesc.get(1).getResult()).isEqualTo(JobResult.Passed);
+        assertThat(sortedOnResultDesc.get(0).getResult()).isEqualTo(JobResult.Unknown);
 
         // duration
         List<JobInstance> sortedOnDuration = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.duration, SortOrder.ASC, 1, 10));
-        assertThat(sortedOnDuration.size(), is(4));
-        assertThat(sortedOnDuration.get(0).getResult(), is(JobResult.Unknown)); // duration is null therefore comes first
-        assertThat(sortedOnDuration.get(1).getResult(), is(JobResult.Passed)); // has new Date(1)
-        assertThat(sortedOnDuration.get(2).getResult(), is(JobResult.Cancelled)); // now.minusMinutes(5) always greater than new Date(1)
-        assertThat(sortedOnDuration.get(3).getResult(), is(JobResult.Failed)); // 2 years therefore goes to the end
+        assertThat(sortedOnDuration.size()).isEqualTo(4);
+        assertThat(sortedOnDuration.get(0).getResult()).isEqualTo(JobResult.Unknown); // duration is null therefore comes first
+        assertThat(sortedOnDuration.get(1).getResult()).isEqualTo(JobResult.Passed); // has new Date(1)
+        assertThat(sortedOnDuration.get(2).getResult()).isEqualTo(JobResult.Cancelled); // now.minusMinutes(5) always greater than new Date(1)
+        assertThat(sortedOnDuration.get(3).getResult()).isEqualTo(JobResult.Failed); // 2 years therefore goes to the end
 
         List<JobInstance> sortedOnDurationDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.duration, SortOrder.DESC, 1, 10));
-        assertThat(sortedOnDurationDesc.size(), is(4));
-        assertThat(sortedOnDurationDesc.get(0).getResult(), is(JobResult.Failed)); // 2 years therefore goes to the beginning
-        assertThat(sortedOnDurationDesc.get(1).getResult(), is(JobResult.Cancelled)); // now.minusMinutes(5) always greater than new Date(1)
-        assertThat(sortedOnDurationDesc.get(2).getResult(), is(JobResult.Passed)); // has new Date(1)
-        assertThat(sortedOnDurationDesc.get(3).getResult(), is(JobResult.Unknown)); // duration is null therefore comes last
+        assertThat(sortedOnDurationDesc.size()).isEqualTo(4);
+        assertThat(sortedOnDurationDesc.get(0).getResult()).isEqualTo(JobResult.Failed); // 2 years therefore goes to the beginning
+        assertThat(sortedOnDurationDesc.get(1).getResult()).isEqualTo(JobResult.Cancelled); // now.minusMinutes(5) always greater than new Date(1)
+        assertThat(sortedOnDurationDesc.get(2).getResult()).isEqualTo(JobResult.Passed); // has new Date(1)
+        assertThat(sortedOnDurationDesc.get(3).getResult()).isEqualTo(JobResult.Unknown); // duration is null therefore comes last
     }
 
     private List<JobInstance> listOf(JobInstancesModel instances) {
@@ -528,7 +527,7 @@ public class JobInstanceServiceIntegrationTest {
             fail("Should have thrown an exception and transaction rolled back. Listeners should not have be called on afterCommit");
         } catch (RuntimeException e) {
         }
-        assertThat(isListenerCalled[0], is(false));
+        assertThat(isListenerCalled[0]).isFalse();
     }
 
     @Test
@@ -544,22 +543,22 @@ public class JobInstanceServiceIntegrationTest {
 
         List<JobPlan> jobPlans = jobInstanceService.orderedScheduledBuilds();
 
-        assertThat(jobPlans.size(), is(2));
+        assertThat(jobPlans.size()).isEqualTo(2);
 
         JobPlan job1 = jobPlans.get(0);
-        assertThat(job1.getResources().size(), is(1));
-        assertThat(job1.getResources().get(0).getName(), is("blah"));
-        assertThat(job1.getArtifactPlans().size(), is(1));
-        assertThat(job1.getArtifactPlans().get(0).getSrc(), is("src1"));
+        assertThat(job1.getResources().size()).isEqualTo(1);
+        assertThat(job1.getResources().get(0).getName()).isEqualTo("blah");
+        assertThat(job1.getArtifactPlans().size()).isEqualTo(1);
+        assertThat(job1.getArtifactPlans().get(0).getSrc()).isEqualTo("src1");
 
         JobPlan job2 = jobPlans.get(1);
-        assertThat(job2.getResources().size(), is(1));
-        assertThat(job2.getResources().get(0).getName(), is("blah"));
-        assertThat(job2.getArtifactPlans().size(), is(1));
-        assertThat(job2.getArtifactPlans().get(0).getSrc(), is("src1"));
+        assertThat(job2.getResources().size()).isEqualTo(1);
+        assertThat(job2.getResources().get(0).getName()).isEqualTo("blah");
+        assertThat(job2.getArtifactPlans().size()).isEqualTo(1);
+        assertThat(job2.getArtifactPlans().get(0).getSrc()).isEqualTo("src1");
 
-        assertThat(job1.getResources().get(0).getId(), not(equalTo(job2.getResources().get(0).getId())));
-        assertThat(job1.getArtifactPlans().get(0).getId(), not(equalTo(job2.getArtifactPlans().get(0).getId())));
+        assertThat(job1.getResources().get(0).getId()).isNotEqualTo(job2.getResources().get(0).getId());
+        assertThat(job1.getArtifactPlans().get(0).getId()).isNotEqualTo(job2.getArtifactPlans().get(0).getId());
     }
 
     @Test
@@ -577,22 +576,22 @@ public class JobInstanceServiceIntegrationTest {
 
         List<JobPlan> jobPlans = jobInstanceService.orderedScheduledBuilds();
 
-        assertThat(jobPlans.size(), is(2));
+        assertThat(jobPlans.size()).isEqualTo(2);
 
         JobPlan job1 = jobPlans.get(0);
-        assertThat(job1.getResources().size(), is(1));
-        assertThat(job1.getResources().get(0).getName(), is("blah"));
-        assertThat(job1.getArtifactPlans().size(), is(1));
-        assertThat(job1.getArtifactPlans().get(0).getSrc(), is("src1"));
+        assertThat(job1.getResources().size()).isEqualTo(1);
+        assertThat(job1.getResources().get(0).getName()).isEqualTo("blah");
+        assertThat(job1.getArtifactPlans().size()).isEqualTo(1);
+        assertThat(job1.getArtifactPlans().get(0).getSrc()).isEqualTo("src1");
 
         JobPlan job2 = jobPlans.get(1);
-        assertThat(job2.getResources().size(), is(1));
-        assertThat(job2.getResources().get(0).getName(), is("blah"));
-        assertThat(job2.getArtifactPlans().size(), is(1));
-        assertThat(job2.getArtifactPlans().get(0).getSrc(), is("src1"));
+        assertThat(job2.getResources().size()).isEqualTo(1);
+        assertThat(job2.getResources().get(0).getName()).isEqualTo("blah");
+        assertThat(job2.getArtifactPlans().size()).isEqualTo(1);
+        assertThat(job2.getArtifactPlans().get(0).getSrc()).isEqualTo("src1");
 
-        assertThat(job1.getResources().get(0).getId(), not(equalTo(job2.getResources().get(0).getId())));
-        assertThat(job1.getArtifactPlans().get(0).getId(), not(equalTo(job2.getArtifactPlans().get(0).getId())));
+        assertThat(job1.getResources().get(0).getId()).isNotEqualTo(job2.getResources().get(0).getId());
+        assertThat(job1.getArtifactPlans().get(0).getId()).isNotEqualTo(job2.getArtifactPlans().get(0).getId());
     }
 
     private Long stageWithId(final String pipelineName, final String stageName) {
@@ -616,8 +615,8 @@ public class JobInstanceServiceIntegrationTest {
         String jobConfigName = PipelineWithTwoStages.JOB_FOR_DEV_STAGE;
         PipelineRunIdInfo runIdInfo = jobInstanceService.getOldestAndLatestJobInstanceId(Username.valueOf("user"), pipelineFixture.pipelineName, stageName, jobConfigName);
 
-        assertThat(runIdInfo.getOldestRunId(), is(pipelines.get(0).findStage(stageName).findJob(jobConfigName).getId()));
-        assertThat(runIdInfo.getLatestRunId(), is(pipelines.get(3).findStage(stageName).findJob(jobConfigName).getId()));
+        assertThat(runIdInfo.getOldestRunId()).isEqualTo(pipelines.get(0).findStage(stageName).findJob(jobConfigName).getId());
+        assertThat(runIdInfo.getLatestRunId()).isEqualTo(pipelines.get(3).findStage(stageName).findJob(jobConfigName).getId());
     }
 
     @Test
@@ -632,10 +631,10 @@ public class JobInstanceServiceIntegrationTest {
 
         JobInstances history = jobInstanceService.getJobHistoryViaCursor(Username.valueOf("user"), pipelineFixture.pipelineName, stageName, jobConfigName, 0, 0, 3);
 
-        assertThat(history.size(), is(3));
-        assertThat(history.get(0).getId(), is(jobInstances.get(3).getId()));
-        assertThat(history.get(1).getId(), is(jobInstances.get(2).getId()));
-        assertThat(history.get(2).getId(), is(jobInstances.get(1).getId()));
+        assertThat(history.size()).isEqualTo(3);
+        assertThat(history.get(0).getId()).isEqualTo(jobInstances.get(3).getId());
+        assertThat(history.get(1).getId()).isEqualTo(jobInstances.get(2).getId());
+        assertThat(history.get(2).getId()).isEqualTo(jobInstances.get(1).getId());
     }
 
     @Test
@@ -650,9 +649,9 @@ public class JobInstanceServiceIntegrationTest {
 
         JobInstances history = jobInstanceService.getJobHistoryViaCursor(Username.valueOf("user"), pipelineFixture.pipelineName, stageName, jobConfigName, jobInstances.get(2).getId(), 0, 3);
 
-        assertThat(history.size(), is(2));
-        assertThat(history.get(0).getId(), is(jobInstances.get(1).getId()));
-        assertThat(history.get(1).getId(), is(jobInstances.get(0).getId()));
+        assertThat(history.size()).isEqualTo(2);
+        assertThat(history.get(0).getId()).isEqualTo(jobInstances.get(1).getId());
+        assertThat(history.get(1).getId()).isEqualTo(jobInstances.get(0).getId());
     }
 
     @Test
@@ -667,7 +666,7 @@ public class JobInstanceServiceIntegrationTest {
 
         JobInstances history = jobInstanceService.getJobHistoryViaCursor(Username.valueOf("user"), pipelineFixture.pipelineName, stageName, jobConfigName, 0, jobInstances.get(2).getId(), 3);
 
-        assertThat(history.size(), is(1));
-        assertThat(history.get(0).getId(), is(jobInstances.get(3).getId()));
+        assertThat(history.size()).isEqualTo(1);
+        assertThat(history.get(0).getId()).isEqualTo(jobInstances.get(3).getId());
     }
 }

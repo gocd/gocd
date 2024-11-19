@@ -21,69 +21,68 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AuthorizationTest {
     @Test
     public void shouldReturnTrueIfViewPermissionDefined() {
         Authorization authorization = new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("baby"))));
-        assertThat(authorization.hasViewPermissionDefined(), is(true));
+        assertThat(authorization.hasViewPermissionDefined()).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfViewPermissionNotDefined() {
         Authorization authorization = new Authorization(new ViewConfig());
-        assertThat(authorization.hasViewPermissionDefined(), is(false));
+        assertThat(authorization.hasViewPermissionDefined()).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfOperationPermissionDefined() {
         Authorization authorization = new Authorization(new OperationConfig(new AdminUser(new CaseInsensitiveString("baby"))));
-        assertThat(authorization.hasOperationPermissionDefined(), is(true));
+        assertThat(authorization.hasOperationPermissionDefined()).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfOperationPermissionNotDefined() {
         Authorization authorization = new Authorization(new OperationConfig());
-        assertThat(authorization.hasOperationPermissionDefined(), is(false));
+        assertThat(authorization.hasOperationPermissionDefined()).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfAdminsAreDefined() {
         Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("foo"))));
-        assertThat(authorization.hasAdminsDefined(), is(true));
+        assertThat(authorization.hasAdminsDefined()).isTrue();
     }
 
     @Test
     public void shouldReturnTrueIfAnUserIsAdmin() {
         Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("foo"))));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo"), new ArrayList<>()), is(true));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("bar"), new ArrayList<>()), is(false));
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo"), new ArrayList<>())).isTrue();
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("bar"), new ArrayList<>())).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfAnUserBelongsToAnAdminRole() {
         Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("bar1")), new AdminRole(new CaseInsensitiveString("bar2"))));
         assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo1"), List.of(new RoleConfig(new CaseInsensitiveString("bar1")), new RoleConfig(new CaseInsensitiveString("bar1")
-        ))), is(true));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo2"), List.of(new RoleConfig(new CaseInsensitiveString("bar2")))), is(true));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo3"), List.of(new RoleConfig(new CaseInsensitiveString("bar1")))), is(true));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo4"), new ArrayList<>()), is(false));
+        )))).isTrue();
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo2"), List.of(new RoleConfig(new CaseInsensitiveString("bar2"))))).isTrue();
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo3"), List.of(new RoleConfig(new CaseInsensitiveString("bar1"))))).isTrue();
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo4"), new ArrayList<>())).isFalse();
     }
 
     @Test
     public void shouldSayThatAnAdmin_HasAdminOrViewPermissions() {
         CaseInsensitiveString adminUser = new CaseInsensitiveString("admin");
         Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(adminUser)));
-        assertThat(authorization.hasAdminOrViewPermissions(adminUser, null), is(true));
+        assertThat(authorization.hasAdminOrViewPermissions(adminUser, null)).isTrue();
     }
 
     @Test
     public void shouldSayThatAViewUser_HasAdminOrViewPermissions() {
         CaseInsensitiveString viewUser = new CaseInsensitiveString("view");
         Authorization authorization = new Authorization(new ViewConfig(new AdminUser(viewUser)));
-        assertThat(authorization.hasAdminOrViewPermissions(viewUser, null), is(true));
+        assertThat(authorization.hasAdminOrViewPermissions(viewUser, null)).isTrue();
     }
 
     @Test
@@ -93,7 +92,7 @@ public class AuthorizationTest {
         List<Role> roles = new ArrayList<>();
         roles.add(role);
         Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(role)));
-        assertThat(authorization.hasAdminOrViewPermissions(adminUser, roles), is(true));
+        assertThat(authorization.hasAdminOrViewPermissions(adminUser, roles)).isTrue();
     }
 
     @Test
@@ -103,14 +102,14 @@ public class AuthorizationTest {
         List<Role> roles = new ArrayList<>();
         roles.add(role);
         Authorization authorization = new Authorization(new ViewConfig(new AdminRole(role)));
-        assertThat(authorization.hasAdminOrViewPermissions(viewUser, roles), is(true));
+        assertThat(authorization.hasAdminOrViewPermissions(viewUser, roles)).isTrue();
     }
 
     @Test
     public void shouldReturnFalseForUserNotInAdminOrViewConfig() {
         CaseInsensitiveString viewUser = new CaseInsensitiveString("view");
         Authorization authorization = new Authorization();
-        assertThat(authorization.hasAdminOrViewPermissions(viewUser, null), is(false));
+        assertThat(authorization.hasAdminOrViewPermissions(viewUser, null)).isFalse();
     }
 
     @Test
@@ -120,7 +119,7 @@ public class AuthorizationTest {
         List<Role> roles = new ArrayList<>();
         roles.add(role);
         Authorization authorization = new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("other-user"))));
-        assertThat(authorization.hasAdminOrViewPermissions(viewUser, roles), is(false));
+        assertThat(authorization.hasAdminOrViewPermissions(viewUser, roles)).isFalse();
     }
 
     @Test
@@ -132,12 +131,12 @@ public class AuthorizationTest {
         authorization.getViewConfig().addAll(List.of(new AdminUser(new CaseInsensitiveString("boozer")), new AdminUser(new CaseInsensitiveString("loser"))));
 
         List<Authorization.PresentationElement> userAuthMap = authorization.getUserAuthorizations();
-        assertThat(userAuthMap.size(), is(2));
+        assertThat(userAuthMap.size()).isEqualTo(2);
         assetEntry(userAuthMap.get(0), "boozer", Authorization.PrivilegeState.OFF, Authorization.PrivilegeState.ON, Authorization.PrivilegeState.OFF, Authorization.UserType.USER);
         assetEntry(userAuthMap.get(1), "loser", Authorization.PrivilegeState.OFF, Authorization.PrivilegeState.ON, Authorization.PrivilegeState.ON, Authorization.UserType.USER);
 
         List<Authorization.PresentationElement> roleAuthMap = authorization.getRoleAuthorizations();
-        assertThat(roleAuthMap.size(), is(2));
+        assertThat(roleAuthMap.size()).isEqualTo(2);
         assetEntry(roleAuthMap.get(0), "gang_of_boozers", Authorization.PrivilegeState.OFF, Authorization.PrivilegeState.OFF, Authorization.PrivilegeState.ON, Authorization.UserType.ROLE);
         assetEntry(roleAuthMap.get(1), "group_of_losers", Authorization.PrivilegeState.ON, Authorization.PrivilegeState.DISABLED, Authorization.PrivilegeState.DISABLED, Authorization.UserType.ROLE);
     }
@@ -153,10 +152,10 @@ public class AuthorizationTest {
 
         List<Authorization.PresentationElement> userAuthorizations = authorization.getUserAuthorizations();
 
-        assertThat(userAuthorizations.get(0).errors().isEmpty(), is(false));
-        assertThat(userAuthorizations.get(0).errors().on(Admin.NAME), is("some error"));
+        assertThat(userAuthorizations.get(0).errors().isEmpty()).isFalse();
+        assertThat(userAuthorizations.get(0).errors().on(Admin.NAME)).isEqualTo("some error");
 
-        assertThat(userAuthorizations.get(1).errors().isEmpty(), is(true));
+        assertThat(userAuthorizations.get(1).errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -170,18 +169,18 @@ public class AuthorizationTest {
 
         List<Authorization.PresentationElement> roleAuthorizations = authorization.getRoleAuthorizations();
 
-        assertThat(roleAuthorizations.get(0).errors().isEmpty(), is(false));
-        assertThat(roleAuthorizations.get(0).errors().on(Admin.NAME), is("some error"));
+        assertThat(roleAuthorizations.get(0).errors().isEmpty()).isFalse();
+        assertThat(roleAuthorizations.get(0).errors().on(Admin.NAME)).isEqualTo("some error");
 
-        assertThat(roleAuthorizations.get(1).errors().isEmpty(), is(true));
+        assertThat(roleAuthorizations.get(1).errors().isEmpty()).isTrue();
     }
 
     private void assetEntry(Authorization.PresentationElement entry, final String name, final Authorization.PrivilegeState adminState, final Authorization.PrivilegeState viewState,
                             final Authorization.PrivilegeState operateState, final Authorization.UserType type) {
-        assertThat(entry.getName(), is(name));
-        assertThat(entry.getType(), is(type));
-        assertThat(entry.getAdmin(), is(adminState));
-        assertThat(entry.getView(), is(viewState));
-        assertThat(entry.getOperate(), is(operateState));
+        assertThat(entry.getName()).isEqualTo(name);
+        assertThat(entry.getType()).isEqualTo(type);
+        assertThat(entry.getAdmin()).isEqualTo(adminState);
+        assertThat(entry.getView()).isEqualTo(viewState);
+        assertThat(entry.getOperate()).isEqualTo(operateState);
     }
 }

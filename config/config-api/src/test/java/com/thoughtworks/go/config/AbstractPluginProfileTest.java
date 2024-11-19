@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.String.format;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractPluginProfileTest {
 
@@ -37,37 +36,37 @@ public abstract class AbstractPluginProfileTest {
 
             profile.validate(null);
 
-            assertThat(profile.errors().size(), is(2));
-            assertThat(profile.errors().on("pluginId"), is(format("%s cannot have a blank plugin id.", getObjectDescription())));
-            assertThat(profile.errors().on("id"), is(format("%s cannot have a blank id.", getObjectDescription())));
+            assertThat(profile.errors().size()).isEqualTo(2);
+            assertThat(profile.errors().on("pluginId")).isEqualTo(format("%s cannot have a blank plugin id.", getObjectDescription()));
+            assertThat(profile.errors().on("id")).isEqualTo(format("%s cannot have a blank id.", getObjectDescription()));
         }
 
         @Test
-        void shouldValidatePluginIdPattern() throws Exception {
+        void shouldValidatePluginIdPattern() {
             PluginProfile profile = pluginProfile("!123", "docker");
 
             profile.validate(null);
 
-            assertThat(profile.errors().size(), is(1));
-            assertThat(profile.errors().on("id"), is("Invalid id '!123'. This must be alphanumeric and " +
-                    "can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+            assertThat(profile.errors().size()).isEqualTo(1);
+            assertThat(profile.errors().on("id")).isEqualTo("Invalid id '!123'. This must be alphanumeric and " +
+                    "can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }
 
         @Test
-        void shouldValidateConfigPropertyNameUniqueness() throws Exception {
+        void shouldValidateConfigPropertyNameUniqueness() {
             ConfigurationProperty prop1 = ConfigurationPropertyMother.create("USERNAME");
             ConfigurationProperty prop2 = ConfigurationPropertyMother.create("USERNAME");
             PluginProfile profile = pluginProfile("docker.unit-test", "cd.go.elastic-agent.docker", prop1, prop2);
 
             profile.validate(null);
 
-            assertThat(profile.errors().size(), is(0));
+            assertThat(profile.errors().size()).isEqualTo(0);
 
-            assertThat(prop1.errors().size(), is(1));
-            assertThat(prop2.errors().size(), is(1));
+            assertThat(prop1.errors().size()).isEqualTo(1);
+            assertThat(prop2.errors().size()).isEqualTo(1);
 
-            assertThat(prop1.errors().on("configurationKey"), is(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription())));
-            assertThat(prop2.errors().on("configurationKey"), is(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription())));
+            assertThat(prop1.errors().on("configurationKey")).isEqualTo(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription()));
+            assertThat(prop2.errors().on("configurationKey")).isEqualTo(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription()));
         }
     }
 }

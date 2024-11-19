@@ -27,8 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ManualBuildTest {
     private MaterialRevisions materialRevisions;
@@ -44,12 +43,12 @@ public class ManualBuildTest {
     @Test
     public void shouldPopulateProducedBuildCauseApproverForOnModificationBuildCause() throws Exception {
         BuildCause buildCause = manualBuild.onModifications(materialRevisions, false, null);
-        assertThat(buildCause.getApprover(), is("cruise-user"));
+        assertThat(buildCause.getApprover()).isEqualTo("cruise-user");
     }
 
     @Test
     public void shouldPopulateProducedBuildCauseApproverForEmptyModificationBuildCause() throws Exception {
         BuildCause buildCause = manualBuild.onEmptyModifications(null, materialRevisions);
-        assertThat(buildCause.getApprover(), is("cruise-user"));
+        assertThat(buildCause.getApprover()).isEqualTo("cruise-user");
     }
 }

@@ -17,9 +17,7 @@ package com.thoughtworks.go.config.materials.perforce;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class P4MaterialViewTest {
     private static final String CLIENT_NAME = "cruise-ccedev01-mingle";
@@ -27,13 +25,13 @@ public class P4MaterialViewTest {
     @Test
     public void shouldReplaceClientNameOnView() {
         P4MaterialView view = new P4MaterialView("//depot/... //something/...");
-        assertThat(view.viewUsing(CLIENT_NAME), containsString("//depot/... //cruise-ccedev01-mingle/..."));
+        assertThat(view.viewUsing(CLIENT_NAME)).contains("//depot/... //cruise-ccedev01-mingle/...");
     }
 
     @Test
     public void shouldNotRelyOnDepotInTheViews() {
         P4MaterialView view = new P4MaterialView("//SZOPT/... //MDYNYCMDCDEV03/SZOPT/...");
-        assertThat(view.viewUsing(CLIENT_NAME), containsString("//SZOPT/... //cruise-ccedev01-mingle/SZOPT/..."));
+        assertThat(view.viewUsing(CLIENT_NAME)).contains("//SZOPT/... //cruise-ccedev01-mingle/SZOPT/...");
     }
 
     @Test
@@ -97,12 +95,12 @@ public class P4MaterialViewTest {
     public void shouldAddErrorsToTheErrorCollection() {
         P4MaterialView view = new P4MaterialView("//depot/... //something/...");
         view.addError("key", "some error");
-        assertThat(view.errors().on("key"), is("some error"));
+        assertThat(view.errors().on("key")).isEqualTo("some error");
     }
 
     private void assertMapsTo(String from, String to) {
         P4MaterialView view = new P4MaterialView(from);
         String actual = view.viewUsing(CLIENT_NAME);
-        assertThat(actual, is(to));
+        assertThat(actual).isEqualTo(to);
     }
 }

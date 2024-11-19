@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Timeout;
 import org.mockito.InOrder;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -52,15 +51,15 @@ public class MultiplexingQueueProcessorTest {
         t2.join();
         waitForProcessingToHappen();
 
-        assertThat(t1NameAccumulator.threadOfCall, is(not(nullValue())));
-        assertThat(t1NameAccumulator.threadOfCall, is(not(t1NameAccumulator.threadOfQueueAdd)));
-        assertThat(t1NameAccumulator.threadOfCall, is(not(Thread.currentThread().getName())));
+        assertThat(t1NameAccumulator.threadOfCall).isNotNull();
+        assertThat(t1NameAccumulator.threadOfCall).isNotEqualTo(t1NameAccumulator.threadOfQueueAdd);
+        assertThat(t1NameAccumulator.threadOfCall).isNotEqualTo(Thread.currentThread().getName());
 
-        assertThat(t2NameAccumulator.threadOfCall, is(not(nullValue())));
-        assertThat(t2NameAccumulator.threadOfCall, is(not(t2NameAccumulator.threadOfQueueAdd)));
-        assertThat(t2NameAccumulator.threadOfCall, is(not(Thread.currentThread().getName())));
+        assertThat(t2NameAccumulator.threadOfCall).isNotNull();
+        assertThat(t2NameAccumulator.threadOfCall).isNotEqualTo(t2NameAccumulator.threadOfQueueAdd);
+        assertThat(t2NameAccumulator.threadOfCall).isNotEqualTo(Thread.currentThread().getName());
 
-        assertThat(t1NameAccumulator.threadOfCall, is(t2NameAccumulator.threadOfCall));
+        assertThat(t1NameAccumulator.threadOfCall).isEqualTo(t2NameAccumulator.threadOfCall);
     }
 
     @Test
@@ -71,7 +70,7 @@ public class MultiplexingQueueProcessorTest {
             queueProcessor.start();
             fail("Should have failed to start queue processor a second time.");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Cannot start queue processor for queue1 multiple times."));
+            assertThat(e.getMessage()).isEqualTo("Cannot start queue processor for queue1 multiple times.");
         }
     }
 
@@ -94,8 +93,8 @@ public class MultiplexingQueueProcessorTest {
             }
 
             synchronized (logFixture) {
-                assertThat(logFixture.contains(Level.WARN, "Failed to handle action in queue1 queue"), is(true));
-                assertThat(logFixture.getLog(), containsString("Ouch. Failed."));
+                assertThat(logFixture.contains(Level.WARN, "Failed to handle action in queue1 queue")).isTrue();
+                assertThat(logFixture.getLog()).contains("Ouch. Failed.");
             }
         }
 

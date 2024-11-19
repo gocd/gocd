@@ -39,8 +39,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.nio.file.Path;
 
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -85,9 +84,9 @@ public class ScheduleServiceSecurityTest {
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         Stage resultStage = scheduleService.cancelAndTriggerRelevantStages(pipeline.getStages().byName(fixture.ftStage).getId(), anonymous, operationResult);
 
-        assertThat(resultStage, is(nullValue()));
-        assertThat(operationResult.isSuccessful(), is(false));
-        assertThat(operationResult.httpCode(), is(SC_FORBIDDEN));
+        assertThat(resultStage).isNull();
+        assertThat(operationResult.isSuccessful()).isFalse();
+        assertThat(operationResult.httpCode()).isEqualTo(SC_FORBIDDEN);
     }
 
     @Test
@@ -98,9 +97,9 @@ public class ScheduleServiceSecurityTest {
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         Stage resultStage = scheduleService.cancelAndTriggerRelevantStages(-23L, jez, operationResult);
 
-        assertThat(resultStage, is(nullValue()));
-        assertThat(operationResult.isSuccessful(), is(false));
-        assertThat(operationResult.httpCode(), is(SC_NOT_FOUND));
+        assertThat(resultStage).isNull();
+        assertThat(operationResult.isSuccessful()).isFalse();
+        assertThat(operationResult.httpCode()).isEqualTo(SC_NOT_FOUND);
     }
 
     @Test
@@ -115,9 +114,9 @@ public class ScheduleServiceSecurityTest {
         Stage stageForCancellation = pipeline.getStages().byName(fixture.ftStage);
         Stage resultStage = scheduleService.cancelAndTriggerRelevantStages(stageForCancellation.getId(), user, operationResult);
 
-        assertThat(resultStage, is(not(nullValue())));
-        assertThat(operationResult.isSuccessful(), is(true));
-        assertThat(operationResult.httpCode(), is(SC_OK));
+        assertThat(resultStage).isNotNull();
+        assertThat(operationResult.isSuccessful()).isTrue();
+        assertThat(operationResult.httpCode()).isEqualTo(SC_OK);
     }
 
 }

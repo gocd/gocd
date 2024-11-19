@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -47,10 +46,10 @@ public class PluggableTaskEnvVarsTest {
     @Test
     public void shouldReturnEnvVarsMap() throws Exception {
         Map<String, String> envMap = envVars.asMap();
-        assertThat(envMap.keySet().containsAll(keys), is(true));
-        assertThat(envMap.values().containsAll(values), is(true));
+        assertThat(envMap.keySet().containsAll(keys)).isTrue();
+        assertThat(envMap.values().containsAll(values)).isTrue();
         for (int i = 0; i < keys.size(); i++) {
-            assertThat(envMap.get(keys.get(i)), is(values.get(i)));
+            assertThat(envMap.get(keys.get(i))).isEqualTo(values.get(i));
         }
     }
 
@@ -58,7 +57,7 @@ public class PluggableTaskEnvVarsTest {
     public void testSecureEnvSpecifier() throws Exception {
         Console.SecureEnvVarSpecifier secureEnvVarSpecifier = envVars.secureEnvSpecifier();
         for (int i = 0; i < keys.size(); i++) {
-            assertThat(secureEnvVarSpecifier.isSecure(keys.get(i)), is(i % 2 != 0));
+            assertThat(secureEnvVarSpecifier.isSecure(keys.get(i))).isEqualTo(i % 2 != 0);
         }
     }
 

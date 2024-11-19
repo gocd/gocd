@@ -56,9 +56,7 @@ import java.util.List;
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -130,10 +128,10 @@ public class PluginServiceTest {
 
         PluginSettings pluginSettings = pluginService.getPluginSettings(elasticAgentPluginId);
 
-        assertThat(pluginSettings.getSettingsAsKeyValuePair().keySet().size(), is(3));
-        assertThat(pluginSettings.getSettingsAsKeyValuePair(), hasEntry("key-1", "v1"));
-        assertThat(pluginSettings.getSettingsAsKeyValuePair(), hasEntry("key-2", ""));
-        assertThat(pluginSettings.getSettingsAsKeyValuePair(), hasEntry("key-3", ""));
+        assertThat(pluginSettings.getSettingsAsKeyValuePair().keySet().size()).isEqualTo(3);
+        assertThat(pluginSettings.getSettingsAsKeyValuePair()).containsEntry("key-1", "v1");
+        assertThat(pluginSettings.getSettingsAsKeyValuePair()).containsEntry("key-2", "");
+        assertThat(pluginSettings.getSettingsAsKeyValuePair()).containsEntry("key-3", "");
     }
 
     @Test
@@ -193,9 +191,9 @@ public class PluginServiceTest {
 
         pluginService.validatePluginSettings(pluginSettings);
 
-        assertThat(pluginSettings.hasErrors(), is(true));
+        assertThat(pluginSettings.hasErrors()).isTrue();
         List<String> allErrorsOnProperty = pluginSettings.getPluginSettingsProperties().get(0).errors().getAll();
-        assertThat(allErrorsOnProperty.size(), is(1));
+        assertThat(allErrorsOnProperty.size()).isEqualTo(1);
         assertTrue(allErrorsOnProperty.contains("Encrypted value for property with key 'secure-key' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
         verify(elasticAgentExtension, never()).validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class));
     }
@@ -217,9 +215,9 @@ public class PluginServiceTest {
 
         pluginService.validatePluginSettings(pluginSettings);
 
-        assertThat(pluginSettings.hasErrors(), is(true));
-        assertThat(pluginSettings.getErrorFor("key-1"), is(List.of("m1")));
-        assertThat(pluginSettings.getErrorFor("key-3"), is(List.of("m3")));
+        assertThat(pluginSettings.hasErrors()).isTrue();
+        assertThat(pluginSettings.getErrorFor("key-1")).isEqualTo(List.of("m1"));
+        assertThat(pluginSettings.getErrorFor("key-3")).isEqualTo(List.of("m3"));
     }
 
     @Test
@@ -236,7 +234,7 @@ public class PluginServiceTest {
 
         pluginService.validatePluginSettings(pluginSettings);
 
-        assertThat(pluginSettings.hasErrors(), is(false));
+        assertThat(pluginSettings.hasErrors()).isFalse();
     }
 
     @Test
@@ -253,10 +251,10 @@ public class PluginServiceTest {
 
         final Plugin plugin = pluginArgumentCaptor.getValue();
 
-        assertThat(plugin.getPluginId(), is(elasticAgentPluginId));
-        assertThat(plugin.getConfigurationValue("key-1"), is("v1"));
-        assertThat(plugin.getConfigurationValue("key-2"), is(""));
-        assertThat(plugin.getConfigurationValue("key-3"), is(""));
+        assertThat(plugin.getPluginId()).isEqualTo(elasticAgentPluginId);
+        assertThat(plugin.getConfigurationValue("key-1")).isEqualTo("v1");
+        assertThat(plugin.getConfigurationValue("key-2")).isEqualTo("");
+        assertThat(plugin.getConfigurationValue("key-3")).isEqualTo("");
     }
 
     @Test
@@ -276,10 +274,10 @@ public class PluginServiceTest {
         verify(pluginDao).saveOrUpdate(pluginArgumentCaptor.capture());
 
         final Plugin plugin = pluginArgumentCaptor.getValue();
-        assertThat(plugin.getPluginId(), is(elasticAgentPluginId));
-        assertThat(plugin.getConfigurationValue("key-1"), is("v1"));
-        assertThat(plugin.getConfigurationValue("key-2"), is(""));
-        assertThat(plugin.getConfigurationValue("key-3"), is(""));
+        assertThat(plugin.getPluginId()).isEqualTo(elasticAgentPluginId);
+        assertThat(plugin.getConfigurationValue("key-1")).isEqualTo("v1");
+        assertThat(plugin.getConfigurationValue("key-2")).isEqualTo("");
+        assertThat(plugin.getConfigurationValue("key-3")).isEqualTo("");
     }
 
     @Test
@@ -298,7 +296,7 @@ public class PluginServiceTest {
         PluginInfo pluginInfo = pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginId);
 
         assertTrue(pluginInfo instanceof ElasticAgentPluginInfo);
-        assertThat(pluginInfo, is(elasticAgentPluginInfo));
+        assertThat(pluginInfo).isEqualTo(elasticAgentPluginInfo);
     }
 
     @Test

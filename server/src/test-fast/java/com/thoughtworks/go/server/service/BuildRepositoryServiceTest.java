@@ -27,9 +27,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,6 +82,6 @@ public class BuildRepositoryServiceTest {
     @Test
     public void shouldReturnFalseIfBuildInstanceDoesNotExist() {
         when(jobInstanceService.buildByIdWithTransitions(123L)).thenReturn(NullJobInstance.NAMELESS);
-        assertThat(buildRepositoryService.isCancelledOrRescheduled(123L), is(false));
+        assertThat(buildRepositoryService.isCancelledOrRescheduled(123L)).isFalse();
     }
 }

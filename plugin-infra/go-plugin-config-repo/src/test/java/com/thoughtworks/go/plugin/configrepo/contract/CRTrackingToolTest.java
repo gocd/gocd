@@ -19,8 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CRTrackingToolTest extends AbstractCRTest<CRTrackingTool> {
@@ -55,8 +54,8 @@ public class CRTrackingToolTest extends AbstractCRTest<CRTrackingTool> {
                   }""";
         CRTrackingTool deserializedValue = gson.fromJson(json,CRTrackingTool.class);
 
-        assertThat(deserializedValue.getLink(),is("https://github.com/gocd/api.go.cd/issues/${ID}"));
-        assertThat(deserializedValue.getRegex(),is("##(d+)"));
+        assertThat(deserializedValue.getLink()).isEqualTo("https://github.com/gocd/api.go.cd/issues/${ID}");
+        assertThat(deserializedValue.getRegex()).isEqualTo("##(d+)");
 
         ErrorCollection errors = deserializedValue.getErrors();
         assertTrue(errors.isEmpty());

@@ -49,9 +49,7 @@ import static com.thoughtworks.go.util.command.TaggedStreamConsumer.OUT;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.any;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class FetchPluggableArtifactBuilderTest {
@@ -102,8 +100,8 @@ public class FetchPluggableArtifactBuilderTest {
 
         final FetchArtifactBuilder fetchArtifactBuilder = argumentCaptor.getValue();
 
-        assertThat(fetchArtifactBuilder.getSrc(), is("pluggable-artifact-metadata/cd.go.s3.json"));
-        assertThat(fetchArtifactBuilder.getDest(), is("cd.go.s3.json"));
+        assertThat(fetchArtifactBuilder.getSrc()).isEqualTo("pluggable-artifact-metadata/cd.go.s3.json");
+        assertThat(fetchArtifactBuilder.getDest()).isEqualTo("cd.go.s3.json");
     }
 
     @Test
@@ -165,7 +163,7 @@ public class FetchPluggableArtifactBuilderTest {
 
         Map<String, String> newVariablesAfterFetchArtifact = environmentVariableContext.getProperties();
 
-        assertThat(newVariablesAfterFetchArtifact.size(), is(6));
+        assertThat(newVariablesAfterFetchArtifact.size()).isEqualTo(6);
 
         assertVariable(environmentVariableContext, "VAR1", "value1-is-now-secure", true);
         assertVariable(environmentVariableContext, "VAR2", "value2-is-now-insecure", false);
@@ -178,21 +176,21 @@ public class FetchPluggableArtifactBuilderTest {
         verify(publisher, atLeastOnce()).taggedConsumeLine(eq(OUT), captor.capture());
 
 
-        assertThat(captor.getAllValues(), hasItems(
+        assertThat(captor.getAllValues()).contains(
                 "WARNING: Replacing environment variable: VAR1 = ******** (previously: old-value1)",
                 "WARNING: Replacing environment variable: VAR2 = value2-is-now-insecure (previously: ********)",
                 "WARNING: Replacing environment variable: VAR3 = ******** (previously: ********)",
                 " NOTE: Setting new environment variable: VAR5 = new-value5-insecure",
-                " NOTE: Setting new environment variable: VAR6 = ********"));
+                " NOTE: Setting new environment variable: VAR6 = ********");
 
         String consoleOutput = String.join(" -- ", captor.getAllValues());
-        assertThat(consoleOutput, not(containsString("value1-is-now-secure")));
-        assertThat(consoleOutput, not(containsString("value3-but-secure-is-unchanged")));
-        assertThat(consoleOutput, not(containsString("new-value6-secure")));
+        assertThat(consoleOutput).doesNotContain("value1-is-now-secure");
+        assertThat(consoleOutput).doesNotContain("value3-but-secure-is-unchanged");
+        assertThat(consoleOutput).doesNotContain("new-value6-secure");
     }
 
     private void assertVariable(EnvironmentVariableContext environmentVariableContext, String key, String expectedValue, boolean expectedIsSecure) {
-        assertThat(environmentVariableContext.getProperty(key), is(expectedValue));
-        assertThat(environmentVariableContext.isPropertySecure(key), is(expectedIsSecure));
+        assertThat(environmentVariableContext.getProperty(key)).isEqualTo(expectedValue);
+        assertThat(environmentVariableContext.isPropertySecure(key)).isEqualTo(expectedIsSecure);
     }
 }

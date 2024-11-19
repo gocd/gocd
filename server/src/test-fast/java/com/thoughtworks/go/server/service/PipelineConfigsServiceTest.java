@@ -40,9 +40,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.any;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PipelineConfigsServiceTest {
@@ -81,8 +79,8 @@ public class PipelineConfigsServiceTest {
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenReturn(true);
         String actualXml = service.getXml(groupName, validUser, result);
         String expectedXml = "<pipelines group=\"group_name\">\n  <pipeline name=\"pipeline_name\">\n    <materials>\n      <svn url=\"file:///tmp/foo\" />\n    </materials>\n    <stage name=\"stage_name\">\n      <jobs>\n        <job name=\"job_name\">\n          <tasks>\n            <ant />\n          </tasks>\n        </job>\n      </jobs>\n    </stage>\n  </pipeline>\n</pipelines>";
-        assertThat(actualXml, is(expectedXml));
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(actualXml).isEqualTo(expectedXml);
+        assertThat(result.isSuccessful()).isTrue();
         verify(goConfigService, times(1)).getConfigForEditing();
     }
 
@@ -93,9 +91,9 @@ public class PipelineConfigsServiceTest {
 
         service.getXml(groupName, validUser, result);
 
-        assertThat(result.httpCode(), is(404));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(EntityType.PipelineGroup.notFoundMessage(groupName)));
+        assertThat(result.httpCode()).isEqualTo(404);
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.PipelineGroup.notFoundMessage(groupName));
         verify(securityService, times(1)).isUserAdminOfGroup(validUser.getUsername(), groupName);
         verify(goConfigService, never()).getConfigForEditing();
 
@@ -109,10 +107,10 @@ public class PipelineConfigsServiceTest {
 
         String actual = service.getXml(groupName, invalidUser, result);
 
-        assertThat(actual, is(nullValue()));
-        assertThat(result.httpCode(), is(403));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(EntityType.PipelineGroup.forbiddenToEdit(groupName, invalidUser.getUsername())));
+        assertThat(actual).isNull();
+        assertThat(result.httpCode()).isEqualTo(403);
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.PipelineGroup.forbiddenToEdit(groupName, invalidUser.getUsername()));
         verify(goConfigService, never()).getConfigForEditing();
         verify(securityService, times(1)).isUserAdminOfGroup(invalidUser.getUsername(), groupName);
     }
@@ -133,11 +131,11 @@ public class PipelineConfigsServiceTest {
         PipelineConfigs configs = actual.getConfigElement();
         GoConfigValidity validity = actual.getValidity();
 
-        assertThat(configs, is(not(nullValue())));
-        assertThat(configs.getGroup(), is("renamed_group_name"));
-        assertThat(result.httpCode(), is(200));
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(validity.isValid(), is(true));
+        assertThat(configs).isNotNull();
+        assertThat(configs.getGroup()).isEqualTo("renamed_group_name");
+        assertThat(result.httpCode()).isEqualTo(200);
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(validity.isValid()).isTrue();
         verify(groupSaver).saveXml(updatedPartial, md5);
     }
 
@@ -157,11 +155,11 @@ public class PipelineConfigsServiceTest {
         PipelineConfigs configs = actual.getConfigElement();
         GoConfigValidity validity = actual.getValidity();
 
-        assertThat(configs, is(nullValue()));
-        assertThat(result.httpCode(), is(500));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Failed to update group 'group_name'. Can not parse xml."));
-        assertThat(validity.isValid(), is(false));
+        assertThat(configs).isNull();
+        assertThat(result.httpCode()).isEqualTo(500);
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo("Failed to update group 'group_name'. Can not parse xml.");
+        assertThat(validity.isValid()).isFalse();
         verify(securityService, times(1)).isUserAdminOfGroup(validUser.getUsername(), groupName);
     }
 
@@ -175,11 +173,11 @@ public class PipelineConfigsServiceTest {
         PipelineConfigs configs = actual.getConfigElement();
         GoConfigValidity validity = actual.getValidity();
 
-        assertThat(configs, is(nullValue()));
-        assertThat(result.httpCode(), is(404));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(EntityType.PipelineGroup.notFoundMessage(groupName)));
-        assertThat(validity.isValid(), is(true));
+        assertThat(configs).isNull();
+        assertThat(result.httpCode()).isEqualTo(404);
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.PipelineGroup.notFoundMessage(groupName));
+        assertThat(validity.isValid()).isTrue();
         verify(securityService, times(1)).isUserAdminOfGroup(validUser.getUsername(), groupName);
     }
 
@@ -194,11 +192,11 @@ public class PipelineConfigsServiceTest {
         PipelineConfigs configElement = actual.getConfigElement();
         GoConfigValidity validity = actual.getValidity();
 
-        assertThat(configElement, is(nullValue()));
-        assertThat(result.httpCode(), is(403));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(EntityType.PipelineGroup.forbiddenToEdit(groupName, invalidUser.getUsername())));
-        assertThat(validity.isValid(), is(true));
+        assertThat(configElement).isNull();
+        assertThat(result.httpCode()).isEqualTo(403);
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.PipelineGroup.forbiddenToEdit(groupName, invalidUser.getUsername()));
+        assertThat(validity.isValid()).isTrue();
         verify(securityService, times(1)).isUserAdminOfGroup(invalidUser.getUsername(), groupName);
     }
 
@@ -215,8 +213,8 @@ public class PipelineConfigsServiceTest {
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, groupXml(), md5, validUser, result);
         GoConfigValidity validity = actual.getValidity();
 
-        assertThat(result.message(), is("Saved configuration successfully."));
-        assertThat(validity.isValid(), is(true));
+        assertThat(result.message()).isEqualTo("Saved configuration successfully.");
+        assertThat(validity.isValid()).isTrue();
     }
 
     @Test
@@ -231,8 +229,8 @@ public class PipelineConfigsServiceTest {
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, groupXml(), "md5", validUser, result);
         GoConfigValidity validity = actual.getValidity();
 
-        assertThat(result.message(), is(LocalizedMessage.composite("Saved configuration successfully.", "The configuration was modified by someone else, but your changes were merged successfully.")));
-        assertThat(validity.isValid(), is(true));
+        assertThat(result.message()).isEqualTo(LocalizedMessage.composite("Saved configuration successfully.", "The configuration was modified by someone else, but your changes were merged successfully."));
+        assertThat(validity.isValid()).isTrue();
     }
 
     @Test
@@ -248,13 +246,13 @@ public class PipelineConfigsServiceTest {
         PipelineConfigs configElement = actual.getConfigElement();
         GoConfigValidity validity = actual.getValidity();
 
-        assertThat(configElement, is(nullValue()));
-        assertThat(result.isSuccessful(), is(false));
+        assertThat(configElement).isNull();
+        assertThat(result.isSuccessful()).isFalse();
 
         GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
-        assertThat(invalidGoConfig.isValid(), is(false));
-        assertThat(invalidGoConfig.isMergeConflict(), is(true));
-        assertThat(result.message(), is("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry."));
+        assertThat(invalidGoConfig.isValid()).isFalse();
+        assertThat(invalidGoConfig.isMergeConflict()).isTrue();
+        assertThat(result.message()).isEqualTo("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.");
     }
 
     @Test
@@ -270,13 +268,13 @@ public class PipelineConfigsServiceTest {
         PipelineConfigs configElement = actual.getConfigElement();
         GoConfigValidity validity = actual.getValidity();
 
-        assertThat(configElement, is(nullValue()));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(validity.isValid(), is(false));
+        assertThat(configElement).isNull();
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(validity.isValid()).isFalse();
 
         GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
-        assertThat(invalidGoConfig.isPostValidationError(), is(true));
-        assertThat(result.message(), is("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry."));
+        assertThat(invalidGoConfig.isPostValidationError()).isTrue();
+        assertThat(result.message()).isEqualTo("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.");
     }
 
     @Test
@@ -295,7 +293,7 @@ public class PipelineConfigsServiceTest {
         List<PipelineConfigs> gotPipelineGroups = service.getGroupsForUser(user);
 
         verify(goConfigService, never()).getAllPipelinesForEditInGroup("group1");
-        assertThat(gotPipelineGroups, is(List.of(group1)));
+        assertThat(gotPipelineGroups).isEqualTo(List.of(group1));
     }
 
     @Test
@@ -310,13 +308,13 @@ public class PipelineConfigsServiceTest {
         verify(goConfigService).updateConfig(commandCaptor.capture(), eq(validUser));
         UpdatePipelineConfigsCommand command = (UpdatePipelineConfigsCommand) commandCaptor.getValue();
 
-        assertThat(ReflectionUtil.getField(command, "oldPipelineGroup"), is(pipelineConfigs));
-        assertThat(ReflectionUtil.getField(command, "newPipelineGroup"), is(pipelineConfigs));
-        assertThat(ReflectionUtil.getField(command, "digest"), is("digest"));
-        assertThat(ReflectionUtil.getField(command, "result"), is(result));
-        assertThat(ReflectionUtil.getField(command, "currentUser"), is(validUser));
-        assertThat(ReflectionUtil.getField(command, "entityHashingService"), is(entityHashingService));
-        assertThat(ReflectionUtil.getField(command, "securityService"), is(securityService));
+        assertThat((Object) ReflectionUtil.getField(command, "oldPipelineGroup")).isEqualTo(pipelineConfigs);
+        assertThat((Object) ReflectionUtil.getField(command, "newPipelineGroup")).isEqualTo(pipelineConfigs);
+        assertThat((Object) ReflectionUtil.getField(command, "digest")).isEqualTo("digest");
+        assertThat((Object) ReflectionUtil.getField(command, "result")).isEqualTo(result);
+        assertThat((Object) ReflectionUtil.getField(command, "currentUser")).isEqualTo(validUser);
+        assertThat((Object) ReflectionUtil.getField(command, "entityHashingService")).isEqualTo(entityHashingService);
+        assertThat((Object) ReflectionUtil.getField(command, "securityService")).isEqualTo(securityService);
     }
 
     @Test
@@ -331,8 +329,8 @@ public class PipelineConfigsServiceTest {
 
         PipelineConfigs updatedPipelineConfigs = service.updateGroup(validUser, pipelineConfigs, pipelineConfigs, result);
 
-        assertThat(updatedPipelineConfigs.getAuthorization(), is(authorization));
-        assertThat(updatedPipelineConfigs.getGroup(), is("group"));
+        assertThat(updatedPipelineConfigs.getAuthorization()).isEqualTo(authorization);
+        assertThat(updatedPipelineConfigs.getGroup()).isEqualTo("group");
     }
 
     @Test
@@ -343,8 +341,8 @@ public class PipelineConfigsServiceTest {
 
         service.updateGroup(validUser, pipelineConfigs, pipelineConfigs, result);
 
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
-        assertThat(result.message(), is("Validations failed for pipelines 'group'. Error(s): [error message]. Please correct and resubmit."));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        assertThat(result.message()).isEqualTo("Validations failed for pipelines 'group'. Error(s): [error message]. Please correct and resubmit.");
     }
 
     @Test
@@ -355,8 +353,8 @@ public class PipelineConfigsServiceTest {
 
         service.updateGroup(validUser, pipelineConfigs, pipelineConfigs, result);
 
-        assertThat(result.httpCode(), is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
-        assertThat(result.message(), is("Save failed. server error"));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        assertThat(result.message()).isEqualTo("Save failed. server error");
     }
 
     @Test
@@ -370,10 +368,10 @@ public class PipelineConfigsServiceTest {
         verify(goConfigService).updateConfig(commandCaptor.capture(), eq(validUser));
         DeletePipelineConfigsCommand command = (DeletePipelineConfigsCommand) commandCaptor.getValue();
 
-        assertThat(ReflectionUtil.getField(command, "group"), is(pipelineConfigs));
-        assertThat(ReflectionUtil.getField(command, "result"), is(result));
-        assertThat(ReflectionUtil.getField(command, "currentUser"), is(validUser));
-        assertThat(ReflectionUtil.getField(command, "securityService"), is(securityService));
+        assertThat((Object) ReflectionUtil.getField(command, "group")).isEqualTo(pipelineConfigs);
+        assertThat((Object) ReflectionUtil.getField(command, "result")).isEqualTo(result);
+        assertThat((Object) ReflectionUtil.getField(command, "currentUser")).isEqualTo(validUser);
+        assertThat((Object) ReflectionUtil.getField(command, "securityService")).isEqualTo(securityService);
     }
 
     @Test
@@ -384,8 +382,8 @@ public class PipelineConfigsServiceTest {
 
         service.deleteGroup(validUser, pipelineConfigs, result);
 
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
-        assertThat(result.message(), is("Validations failed for pipelines 'group'. Error(s): [error message]. Please correct and resubmit."));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        assertThat(result.message()).isEqualTo("Validations failed for pipelines 'group'. Error(s): [error message]. Please correct and resubmit.");
     }
 
     @Test
@@ -396,8 +394,8 @@ public class PipelineConfigsServiceTest {
 
         service.deleteGroup(validUser, pipelineConfigs, result);
 
-        assertThat(result.httpCode(), is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
-        assertThat(result.message(), is("Save failed. server error"));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        assertThat(result.message()).isEqualTo("Save failed. server error");
     }
 
     @Test
@@ -411,10 +409,10 @@ public class PipelineConfigsServiceTest {
         verify(goConfigService).updateConfig(commandCaptor.capture(), eq(validUser));
         CreatePipelineConfigsCommand command = (CreatePipelineConfigsCommand) commandCaptor.getValue();
 
-        assertThat(ReflectionUtil.getField(command, "pipelineConfigs"), is(pipelineConfigs));
-        assertThat(ReflectionUtil.getField(command, "result"), is(result));
-        assertThat(ReflectionUtil.getField(command, "currentUser"), is(validUser));
-        assertThat(ReflectionUtil.getField(command, "securityService"), is(securityService));
+        assertThat((Object) ReflectionUtil.getField(command, "pipelineConfigs")).isEqualTo(pipelineConfigs);
+        assertThat((Object) ReflectionUtil.getField(command, "result")).isEqualTo(result);
+        assertThat((Object) ReflectionUtil.getField(command, "currentUser")).isEqualTo(validUser);
+        assertThat((Object) ReflectionUtil.getField(command, "securityService")).isEqualTo(securityService);
     }
 
     @Test
@@ -425,8 +423,8 @@ public class PipelineConfigsServiceTest {
 
         service.createGroup(validUser, pipelineConfigs, result);
 
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
-        assertThat(result.message(), is("Validations failed for pipelines 'group'. Error(s): [error message]. Please correct and resubmit."));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        assertThat(result.message()).isEqualTo("Validations failed for pipelines 'group'. Error(s): [error message]. Please correct and resubmit.");
     }
 
     @Test
@@ -437,8 +435,8 @@ public class PipelineConfigsServiceTest {
 
         service.createGroup(validUser, pipelineConfigs, result);
 
-        assertThat(result.httpCode(), is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
-        assertThat(result.message(), is("Save failed. server error"));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        assertThat(result.message()).isEqualTo("Save failed. server error");
     }
 
     private String groupXml() {

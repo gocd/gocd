@@ -26,8 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.io.File;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileModelAndViewTest {
     private MockHttpServletResponse response;
@@ -43,38 +42,38 @@ public class FileModelAndViewTest {
     @Test
     public void shouldReturnFileViewWhenSha1IsEmpty() throws Exception {
         FileModelAndView.createFileView(existFile, null);
-        assertThat(response.getStatus(), is(200));
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
     public void shouldReturn304AsStatusCodeWhenSha1IsSameAsProvidedValue() throws Exception {
         ModelAndView modelAndView = FileModelAndView.createFileView(existFile, FileHandler.sha1Digest(existFile));
         modelAndView.getView().render(modelAndView.getModel(), new MockHttpServletRequest(), response);
-        assertThat(response.getStatus(), is(304));
+        assertThat(response.getStatus()).isEqualTo(304);
     }
 
     @Test
     public void shouldReturnModelWithZipFlagTurnedOnIfZipIsNeeded() throws Exception {
         ZippedArtifact zippedArtifact = new ZippedArtifact(existFile.getParentFile(), existFile.getName());
         ModelAndView modelAndView = FileModelAndView.createFileView(zippedArtifact, "");
-        assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP), is(true));
+        assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP)).isTrue();
     }
 
     @Test
     public void shouldReturnModelWithZipFlagTurnedOffIfZipIsNotNeeded() throws Exception {
         ModelAndView modelAndView = FileModelAndView.createFileView(existFile, "");
-        assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP), is(false));
+        assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP)).isFalse();
     }
 
     @Test
     public void shouldReturnAnErrorMessageForConsoleLogNotFound() throws Exception {
-        assertThat(((ResponseCodeView) FileModelAndView.fileNotFound("cruise-output/console.log").getView()).getContent(), is("Console log for this job is unavailable as it may have been purged by Go or "
-                + "deleted externally."));
+        assertThat(((ResponseCodeView) FileModelAndView.fileNotFound("cruise-output/console.log").getView()).getContent()).isEqualTo("Console log for this job is unavailable as it may have been purged by Go or "
+                + "deleted externally.");
     }
 
     @Test
     public void shouldReturnAnErrorMessageForNormalFileNotFound() throws Exception {
-        assertThat(((ResponseCodeView) FileModelAndView.fileNotFound("bring/sally/up/bring/sally/down").getView()).getContent(), is("Artifact 'bring/sally/up/bring/sally/down' is unavailable as "
-                + "it may have been purged by Go or deleted externally."));
+        assertThat(((ResponseCodeView) FileModelAndView.fileNotFound("bring/sally/up/bring/sally/down").getView()).getContent()).isEqualTo("Artifact 'bring/sally/up/bring/sally/down' is unavailable as "
+                + "it may have been purged by Go or deleted externally.");
     }
 }

@@ -42,9 +42,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -137,11 +135,11 @@ public class PipelineRepositoryTest {
 
         PipelineTimelineEntry timelineEntry1 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 1);
         PipelineTimelineEntry timelineEntry2 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 2);
-        assertThat(pipelineTimeline.instanceCount(new CaseInsensitiveString("p1")), is(2));
+        assertThat(pipelineTimeline.instanceCount(new CaseInsensitiveString("p1"))).isEqualTo(2);
         assertNotNull(timelineEntry1);
         assertNotNull(timelineEntry2);
-        assertThat(tempEntries.size(), is(2));
-        assertThat(tempEntries, containsInAnyOrder(timelineEntry1, timelineEntry2));
+        assertThat(tempEntries.size()).isEqualTo(2);
+        assertThat(tempEntries).contains(timelineEntry1, timelineEntry2);
     }
 
     @Test
@@ -157,8 +155,8 @@ public class PipelineRepositoryTest {
             pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries);
             fail("Should fail to retrieve pipeline.");
         } catch (ClassCastException e) {
-            assertThat(tempEntries.size(), is(0));
-            assertThat(pipelineTimeline.instanceCount(new CaseInsensitiveString("p1")), is(0));
+            assertThat(tempEntries.size()).isEqualTo(0);
+            assertThat(pipelineTimeline.instanceCount(new CaseInsensitiveString("p1"))).isEqualTo(0);
         }
     }
 
@@ -178,11 +176,11 @@ public class PipelineRepositoryTest {
         } catch (RuntimeException e) {
             PipelineTimelineEntry timelineEntry1 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 1);
             PipelineTimelineEntry timelineEntry2 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 2);
-            assertThat(pipelineTimeline.instanceCount(new CaseInsensitiveString("p1")), is(2));
+            assertThat(pipelineTimeline.instanceCount(new CaseInsensitiveString("p1"))).isEqualTo(2);
             assertNotNull(timelineEntry1);
             assertNotNull(timelineEntry2);
-            assertThat(tempEntries.size(), is(2));
-            assertThat(tempEntries, containsInAnyOrder(timelineEntry1, timelineEntry2));
+            assertThat(tempEntries.size()).isEqualTo(2);
+            assertThat(tempEntries).contains(timelineEntry1, timelineEntry2);
         }
     }
 

@@ -37,8 +37,7 @@ import static com.thoughtworks.go.helper.ConfigFileFixture.BASIC_CONFIG;
 import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -53,17 +52,17 @@ public abstract class GoConfigDaoTestBase {
     public void shouldCreateCruiseConfigFromBasicConfigFile() {
         CruiseConfig cruiseConfig = GoConfigFileHelper.load(BASIC_CONFIG);
 
-        assertThat(cruiseConfig, is(notNullValue()));
+        assertThat(cruiseConfig).isNotNull();
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
-        assertThat(pipelineConfig.size(), is(1));
+        assertThat(pipelineConfig.size()).isEqualTo(1);
         StageConfig stageConfig = pipelineConfig.get(0);
-        assertThat(stageConfig.name(), is(new CaseInsensitiveString("mingle")));
-        assertThat(pipelineConfig.materialConfigs(), is(notNullValue()));
+        assertThat(stageConfig.name()).isEqualTo(new CaseInsensitiveString("mingle"));
+        assertThat(pipelineConfig.materialConfigs()).isNotNull();
         final JobConfig cardList = stageConfig.jobConfigByInstanceName("cardlist", true);
-        assertThat(cardList.name(), is(new CaseInsensitiveString("cardlist")));
-        assertThat(stageConfig.jobConfigByInstanceName("bluemonkeybutt", true).name(), is(new CaseInsensitiveString("bluemonkeybutt")));
-        assertThat(cardList.tasks(), iterableWithSize(1));
-        assertThat(cardList.tasks().first(), instanceOf(AntTask.class));
+        assertThat(cardList.name()).isEqualTo(new CaseInsensitiveString("cardlist"));
+        assertThat(stageConfig.jobConfigByInstanceName("bluemonkeybutt", true).name()).isEqualTo(new CaseInsensitiveString("bluemonkeybutt"));
+        assertThat(cardList.tasks()).hasSize(1);
+        assertThat(cardList.tasks().first()).isInstanceOf(AntTask.class);
     }
 
     @Test
@@ -73,7 +72,7 @@ public abstract class GoConfigDaoTestBase {
             goConfigDao.load();
             fail("Should have thrown a parse exception");
         } catch (Exception expected) {
-            assertThat(expected.getMessage(), containsString("Content is not allowed in prolog."));
+            assertThat(expected.getMessage()).contains("Content is not allowed in prolog.");
         }
     }
 
@@ -84,8 +83,8 @@ public abstract class GoConfigDaoTestBase {
 
         final ArtifactTypeConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
                 "cardlist", true).artifactTypeConfigs();
-        assertThat(cardListArtifacts.size(), is(0));
-        assertThat(cruiseConfig.jobConfigByName("pipeline1", "mingle", "bluemonkeybutt", true).artifactTypeConfigs().size(), is(1));
+        assertThat(cardListArtifacts.size()).isEqualTo(0);
+        assertThat(cruiseConfig.jobConfigByName("pipeline1", "mingle", "bluemonkeybutt", true).artifactTypeConfigs().size()).isEqualTo(1);
     }
 
     @Test
@@ -97,8 +96,8 @@ public abstract class GoConfigDaoTestBase {
         goConfigDao.addPipeline(pipelineConfig, DEFAULT_GROUP);
 
         cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.numberOfPipelines(), is(oldsize + 1));
-        assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("spring")), is(pipelineConfig));
+        assertThat(cruiseConfig.numberOfPipelines()).isEqualTo(oldsize + 1);
+        assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("spring"))).isEqualTo(pipelineConfig);
     }
 
     @Test
@@ -110,15 +109,15 @@ public abstract class GoConfigDaoTestBase {
         goConfigDao.addPipeline(pipelineConfig, DEFAULT_GROUP);
 
         cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.numberOfPipelines(), is(oldsize + 1));
-        assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("spring")), is(pipelineConfig));
+        assertThat(cruiseConfig.numberOfPipelines()).isEqualTo(oldsize + 1);
+        assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("spring"))).isEqualTo(pipelineConfig);
 
         PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring", "ut",
                 "www.spring.com");
         try {
             goConfigDao.addPipeline(dupPipelineConfig, DEFAULT_GROUP);
         } catch (RuntimeException ex) {
-            assertThat(ex.getMessage(), is("You have defined multiple pipelines called 'spring'. Pipeline names must be unique."));
+            assertThat(ex.getMessage()).isEqualTo("You have defined multiple pipelines called 'spring'. Pipeline names must be unique.");
             return;
         }
         fail("Should have thrown");
@@ -151,7 +150,7 @@ public abstract class GoConfigDaoTestBase {
             });
             fail("should not have allowed no-overwrite stale update");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH));
+            assertThat(e.getMessage()).isEqualTo(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
         }
     }
 
@@ -171,7 +170,7 @@ public abstract class GoConfigDaoTestBase {
                     return cruiseConfig;
                 }
             });
-            assertThat(configSaveState, is(ConfigSaveState.UPDATED));
+            assertThat(configSaveState).isEqualTo(ConfigSaveState.UPDATED);
         } catch (RuntimeException e) {
             fail("should not have failed for edit on unmodified config.");
         }
@@ -204,11 +203,11 @@ public abstract class GoConfigDaoTestBase {
             }
         };
         goConfigDao.updateConfig(command);
-        assertThat(command.after.pipelineConfigByName(new CaseInsensitiveString("foo")).getLabelTemplate(), is("baz-${COUNT}"));
+        assertThat(command.after.pipelineConfigByName(new CaseInsensitiveString("foo")).getLabelTemplate()).isEqualTo("baz-${COUNT}");
 
-        assertThat(command.after.getEnvironments().size(), is(0));
+        assertThat(command.after.getEnvironments().size()).isEqualTo(0);
         command.after.addEnvironment("bar");
-        assertThat(cachedGoConfig.currentConfig().getEnvironments().size(), is(0));
+        assertThat(cachedGoConfig.currentConfig().getEnvironments().size()).isEqualTo(0);
     }
 
     @Test
@@ -219,15 +218,15 @@ public abstract class GoConfigDaoTestBase {
             fail("should have failed as check returned false");
         } catch (ConfigUpdateCheckFailedException ignored) {
         }
-        assertThat(command.wasUpdated, is(false));
-        assertThat(command.after, not(nullValue()));
+        assertThat(command.wasUpdated).isFalse();
+        assertThat(command.after).isNotNull();
     }
 
     @Test
     public void shouldPerformUpdateIfCanContinue() {
         CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true);
         goConfigDao.updateConfig(command);
-        assertThat(command.wasUpdated, is(true));
+        assertThat(command.wasUpdated).isTrue();
     }
 
     @Test
@@ -247,7 +246,7 @@ public abstract class GoConfigDaoTestBase {
         goConfigDao.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment")));
 
         cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.getEnvironments().size(), is(oldsize + 1));
+        assertThat(cruiseConfig.getEnvironments().size()).isEqualTo(oldsize + 1);
     }
 
     @Test
@@ -261,8 +260,8 @@ public abstract class GoConfigDaoTestBase {
         goConfigDao.addPipeline(mingleConfig, "group1");
 
         CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.numbersOfPipeline("group1"), is(2));
-        assertThat(cruiseConfig.find("group1", 0), is(mingleConfig));
+        assertThat(cruiseConfig.numbersOfPipeline("group1")).isEqualTo(2);
+        assertThat(cruiseConfig.find("group1", 0)).isEqualTo(mingleConfig);
     }
 
     @Test
@@ -276,8 +275,8 @@ public abstract class GoConfigDaoTestBase {
         goConfigDao.addPipeline(mingleConfig, "group");
 
         CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.numbersOfPipeline("group1"), is(1));
-        assertThat(cruiseConfig.numbersOfPipeline("group"), is(1));
+        assertThat(cruiseConfig.numbersOfPipeline("group1")).isEqualTo(1);
+        assertThat(cruiseConfig.numbersOfPipeline("group")).isEqualTo(1);
     }
 
     @Test
@@ -288,7 +287,7 @@ public abstract class GoConfigDaoTestBase {
         goConfigDao.addPipeline(springConfig, null);
 
         CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.numbersOfPipeline(DEFAULT_GROUP), is(1));
+        assertThat(cruiseConfig.numbersOfPipeline(DEFAULT_GROUP)).isEqualTo(1);
     }
 
     @Test
@@ -306,8 +305,8 @@ public abstract class GoConfigDaoTestBase {
         final String content = FileUtils.readFileToString(configFile, UTF_8);
         final int indexOfSecond = content.indexOf("addedSecond");
         final int indexOfFirst = content.indexOf("addedFirst");
-        assertThat(indexOfSecond, is(not(-1)));
-        assertThat(indexOfFirst, is(not(-1)));
+        assertThat(indexOfSecond).isNotEqualTo(-1);
+        assertThat(indexOfFirst).isNotEqualTo(-1);
         assertTrue(indexOfSecond < indexOfFirst);
     }
 
@@ -323,7 +322,7 @@ public abstract class GoConfigDaoTestBase {
         } catch (Exception ignored) {
         }
         cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.numberOfPipelines(), is(oldsize));
+        assertThat(cruiseConfig.numberOfPipelines()).isEqualTo(oldsize);
     }
 
     @Test
@@ -340,9 +339,9 @@ public abstract class GoConfigDaoTestBase {
         } catch (Exception e) {
             ex = e;
         }
-        assertThat(ex.getMessage(), containsString("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified"));
+        assertThat(ex.getMessage()).contains("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified");
         CruiseConfig config = goConfigDao.load();
-        assertThat(config.server().getServerId(), is(oldServerId));
+        assertThat(config.server().getServerId()).isEqualTo(oldServerId);
     }
 
     @Test
@@ -351,7 +350,7 @@ public abstract class GoConfigDaoTestBase {
             FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS, UTF_8);
             goConfigDao.forceReload();
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Invalid content was found starting with element 'trackingtool'. One of '{timer, environmentvariables, dependencies, materials}"));
+            assertThat(e.getMessage()).contains("Invalid content was found starting with element 'trackingtool'. One of '{timer, environmentvariables, dependencies, materials}");
         }
     }
 
@@ -364,9 +363,9 @@ public abstract class GoConfigDaoTestBase {
         ConfigSaveState configSaveState = goConfigDao.updateConfig(configHelper.addPipelineCommand(oldMd5, "p2", "stage1", "build1"));
 
         CruiseConfig updatedConfig = goConfigDao.load();
-        assertThat(updatedConfig.hasPipelineNamed(new CaseInsensitiveString("p2")), is(true));
-        assertThat(updatedConfig.mailHost().getHostName(), is("mailhost.local"));
-        assertThat(configSaveState, is(ConfigSaveState.MERGED));
+        assertThat(updatedConfig.hasPipelineNamed(new CaseInsensitiveString("p2"))).isTrue();
+        assertThat(updatedConfig.mailHost().getHostName()).isEqualTo("mailhost.local");
+        assertThat(configSaveState).isEqualTo(ConfigSaveState.MERGED);
     }
 
     @Test

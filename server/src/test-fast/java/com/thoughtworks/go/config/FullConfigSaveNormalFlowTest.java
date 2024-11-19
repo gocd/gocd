@@ -32,8 +32,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class FullConfigSaveNormalFlowTest {
@@ -76,7 +75,7 @@ public class FullConfigSaveNormalFlowTest {
     public void shouldUpdateGivenConfigWithPartials() throws Exception {
         flow.execute(updateConfigCommand, partials, null);
 
-        assertThat(configForEdit.getPartials(), is(partials));
+        assertThat(configForEdit.getPartials()).isEqualTo(partials);
     }
 
     @Test
@@ -118,11 +117,11 @@ public class FullConfigSaveNormalFlowTest {
 
 
         GoConfigRevision goConfigRevision = revisionArgumentCaptor.getValue();
-        assertThat(goConfigRevision.getContent(), is(configAsXml));
-        assertThat(goConfigRevision.getUsername(), is("test_user"));
-        assertThat(goConfigRevision.getMd5(), is(updateConfigCommand.configForEdit().getMd5()));
-        assertThat(goConfigRevision.getGoVersion(), is(CurrentGoCDVersion.getInstance().formatted()));
-        assertThat(goConfigRevision.getTime(), is(currentTime));
+        assertThat(goConfigRevision.getContent()).isEqualTo(configAsXml);
+        assertThat(goConfigRevision.getUsername()).isEqualTo("test_user");
+        assertThat(goConfigRevision.getMd5()).isEqualTo(updateConfigCommand.configForEdit().getMd5());
+        assertThat(goConfigRevision.getGoVersion()).isEqualTo(CurrentGoCDVersion.getInstance().formatted());
+        assertThat(goConfigRevision.getTime()).isEqualTo(currentTime);
     }
 
     @Test

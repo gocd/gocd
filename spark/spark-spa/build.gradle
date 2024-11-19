@@ -24,8 +24,9 @@ dependencies {
   implementation project.deps.freemarker
   implementation project.deps.guava
 
+  testImplementation localGroovy()
   testImplementation project(path: ':spark:spark-base', configuration: 'testOutput')
-  testImplementation project.deps.jsoup
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.logback
 }

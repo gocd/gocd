@@ -17,8 +17,7 @@ package com.thoughtworks.go.listener;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EntityConfigChangedListenerTest {
     @Test
@@ -29,7 +28,7 @@ public class EntityConfigChangedListenerTest {
 
             }
         };
-        assertThat(entityConfigChangedListenerForA.shouldCareAbout(new A()), is(true));
+        assertThat(entityConfigChangedListenerForA.shouldCareAbout(new A())).isTrue();
     }
 
     @Test
@@ -40,7 +39,7 @@ public class EntityConfigChangedListenerTest {
 
             }
         };
-        assertThat(entityConfigChangedListenerForA.shouldCareAbout(new B()), is(false));
+        assertThat(entityConfigChangedListenerForA.shouldCareAbout(new B())).isFalse();
     }
 
     private class A {

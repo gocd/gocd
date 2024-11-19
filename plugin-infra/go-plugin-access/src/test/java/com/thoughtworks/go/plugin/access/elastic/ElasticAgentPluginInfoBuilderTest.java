@@ -31,8 +31,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SUPPORTED_VERSIONS;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
@@ -67,12 +66,12 @@ public class ElasticAgentPluginInfoBuilderTest {
         ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
         ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("elastic-agent"));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("elastic-agent");
 
-        assertThat(pluginInfo.getImage(), is(icon));
-        assertThat(pluginInfo.getElasticAgentProfileSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("profile_view"))));
-        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html"))));
+        assertThat(pluginInfo.getImage()).isEqualTo(icon);
+        assertThat(pluginInfo.getElasticAgentProfileSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, new PluginView("profile_view")));
+        assertThat(pluginInfo.getPluginSettings()).isEqualTo(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html")));
         assertFalse(pluginInfo.supportsStatusReport());
     }
 
@@ -103,12 +102,12 @@ public class ElasticAgentPluginInfoBuilderTest {
         ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
         ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("elastic-agent"));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("elastic-agent");
 
-        assertThat(pluginInfo.getImage(), is(icon));
-        assertThat(pluginInfo.getElasticAgentProfileSettings(), is(new PluggableInstanceSettings(elasticAgentProfileConfigurations, new PluginView("elastic_agent_profile_view"))));
-        assertThat(pluginInfo.getClusterProfileSettings(), is(new PluggableInstanceSettings(clusterProfileConfigurations, new PluginView("cluster_profile_view"))));
+        assertThat(pluginInfo.getImage()).isEqualTo(icon);
+        assertThat(pluginInfo.getElasticAgentProfileSettings()).isEqualTo(new PluggableInstanceSettings(elasticAgentProfileConfigurations, new PluginView("elastic_agent_profile_view")));
+        assertThat(pluginInfo.getClusterProfileSettings()).isEqualTo(new PluggableInstanceSettings(clusterProfileConfigurations, new PluginView("cluster_profile_view")));
         assertNull(pluginInfo.getPluginSettings());
         assertFalse(pluginInfo.supportsStatusReport());
     }
@@ -136,13 +135,13 @@ public class ElasticAgentPluginInfoBuilderTest {
         ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
         ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("elastic-agent"));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("elastic-agent");
 
-        assertThat(pluginInfo.getImage(), is(icon));
-        assertThat(pluginInfo.getElasticAgentProfileSettings(), is(new PluggableInstanceSettings(elasticAgentProfileConfigurations, new PluginView("elastic_agent_profile_view"))));
-        assertThat(pluginInfo.getClusterProfileSettings(), is(new PluggableInstanceSettings(null, null)));
-        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html"))));
+        assertThat(pluginInfo.getImage()).isEqualTo(icon);
+        assertThat(pluginInfo.getElasticAgentProfileSettings()).isEqualTo(new PluggableInstanceSettings(elasticAgentProfileConfigurations, new PluginView("elastic_agent_profile_view")));
+        assertThat(pluginInfo.getClusterProfileSettings()).isEqualTo(new PluggableInstanceSettings(null, null));
+        assertThat(pluginInfo.getPluginSettings()).isEqualTo(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html")));
         assertFalse(pluginInfo.supportsStatusReport());
 
         verify(extension, never()).getClusterProfileMetadata(any());
@@ -166,11 +165,11 @@ public class ElasticAgentPluginInfoBuilderTest {
         ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
         ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getDescriptor(), is(descriptor));
-        assertThat(pluginInfo.getExtensionName(), is("elastic-agent"));
+        assertThat(pluginInfo.getDescriptor()).isEqualTo(descriptor);
+        assertThat(pluginInfo.getExtensionName()).isEqualTo("elastic-agent");
 
-        assertThat(pluginInfo.getImage(), is(icon));
-        assertThat(pluginInfo.getElasticAgentProfileSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("profile_view"))));
+        assertThat(pluginInfo.getImage()).isEqualTo(icon);
+        assertThat(pluginInfo.getElasticAgentProfileSettings()).isEqualTo(new PluggableInstanceSettings(pluginConfigurations, new PluginView("profile_view")));
         assertNull(pluginInfo.getPluginSettings());
     }
 
@@ -184,7 +183,7 @@ public class ElasticAgentPluginInfoBuilderTest {
 
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getCapabilities(), is(capabilities));
+        assertThat(pluginInfo.getCapabilities()).isEqualTo(capabilities);
     }
 
     @Test
@@ -202,7 +201,7 @@ public class ElasticAgentPluginInfoBuilderTest {
         ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
         ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html"))));
+        assertThat(pluginInfo.getPluginSettings()).isEqualTo(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html")));
     }
 
     @Test

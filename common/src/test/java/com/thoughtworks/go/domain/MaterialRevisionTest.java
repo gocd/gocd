@@ -33,7 +33,6 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -47,8 +46,7 @@ import java.util.UUID;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MaterialRevisionTest {
     private static final StringRevision REVISION_0 = new StringRevision("b61d12de515d82d3a377ae3aae6e8abe516a2651");
@@ -69,7 +67,7 @@ public class MaterialRevisionTest {
     @Test
     public void shouldGetModifiedTimeFromTheLatestModification() {
         final MaterialRevision materialRevision = new MaterialRevision(MaterialsMother.hgMaterial(), multipleModificationsInHg());
-        assertThat(materialRevision.getDateOfLatestModification(), is(ModificationsMother.TODAY_CHECKIN));
+        assertThat(materialRevision.getDateOfLatestModification()).isEqualTo(ModificationsMother.TODAY_CHECKIN);
     }
 
     @Test
@@ -83,10 +81,10 @@ public class MaterialRevisionTest {
 
         final MaterialRevision after = findNewRevision(original, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
 
-        assertThat(after, not(original));
-        assertThat(after.numberOfModifications(), is(3));
-        assertThat(after.getRevision(), is(not(original.getRevision())));
-        assertThat(after.hasChangedSince(original), is(true));
+        assertThat(after).isNotEqualTo(original);
+        assertThat(after.numberOfModifications()).isEqualTo(3);
+        assertThat(after.getRevision()).isNotEqualTo(original.getRevision());
+        assertThat(after.hasChangedSince(original)).isTrue();
 
     }
 
@@ -97,7 +95,7 @@ public class MaterialRevisionTest {
         checkInFiles(hgMaterial, "user.doc");
 
         MaterialRevision newRev = findNewRevision(original, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
-        assertThat(newRev.isChanged(), is(true));
+        assertThat(newRev.isChanged()).isTrue();
     }
 
     @Test
@@ -108,7 +106,7 @@ public class MaterialRevisionTest {
         original = findNewRevision(original, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
 
         MaterialRevision newRev = findNewRevision(original, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
-        assertThat(newRev.isChanged(), is(false));
+        assertThat(newRev.isChanged()).isFalse();
     }
 
     @Test
@@ -121,7 +119,7 @@ public class MaterialRevisionTest {
         checkInFiles(hgMaterial, "user.doc");
 
         MaterialRevision newRevision = findNewRevision(previousRevision, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
-        assertThat(newRevision.filter(previousRevision), is(previousRevision));
+        assertThat(newRevision.filter(previousRevision)).isEqualTo(previousRevision);
     }
 
     @Test
@@ -136,7 +134,7 @@ public class MaterialRevisionTest {
                 "helper/topics/installing_go_server.xml");
 
         MaterialRevision newRev = findNewRevision(original, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
-        assertThat(newRev.filter(original), is(original));
+        assertThat(newRev.filter(original)).isEqualTo(original);
     }
 
     @Test
@@ -149,7 +147,7 @@ public class MaterialRevisionTest {
         checkInFiles(hgMaterial, "user.doc");
 
         MaterialRevision newRev = findNewRevision(original, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
-        assertThat(newRev.filter(original), is(original));
+        assertThat(newRev.filter(original)).isEqualTo(original);
     }
 
     @Test
@@ -164,7 +162,7 @@ public class MaterialRevisionTest {
         checkInFiles(hgMaterial, "C.pdf");
 
         MaterialRevision newRev = findNewRevision(original, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
-        assertThat(newRev.filter(original), is(newRev));
+        assertThat(newRev.filter(original)).isEqualTo(newRev);
     }
 
     @Test
@@ -177,7 +175,7 @@ public class MaterialRevisionTest {
         checkInFiles(hgMaterial, "A.java");
 
         MaterialRevision newRev = findNewRevision(original, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
-        assertThat(newRev.filter(original), is(newRev));
+        assertThat(newRev.filter(original)).isEqualTo(newRev);
     }
 
     @Test
@@ -190,7 +188,7 @@ public class MaterialRevisionTest {
         checkInFiles(hgMaterial, "A.java");
 
         MaterialRevision newRev = findNewRevision(original, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
-        assertThat(newRev.filter(original), is(newRev));
+        assertThat(newRev.filter(original)).isEqualTo(newRev);
     }
 
     @Test
@@ -199,7 +197,7 @@ public class MaterialRevisionTest {
         MaterialRevision revision = new MaterialRevision(hgMaterial, modificationForRevisionTip);
         MaterialRevision unchangedRevision = findNewRevision(revision, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
 
-        assertThat(unchangedRevision.isChanged(), is(false));
+        assertThat(unchangedRevision.isChanged()).isFalse();
     }
 
     @Test
@@ -209,8 +207,8 @@ public class MaterialRevisionTest {
         MaterialRevision revision = new MaterialRevision(hgMaterial, modificationForRevisionTip, olderModification);
         MaterialRevision unchangedRevision = findNewRevision(revision, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
 
-        assertThat(unchangedRevision.getModifications().size(), is(1));
-        assertThat(unchangedRevision.getModifications().get(0), is(modificationForRevisionTip));
+        assertThat(unchangedRevision.getModifications().size()).isEqualTo(1);
+        assertThat(unchangedRevision.getModifications().get(0)).isEqualTo(modificationForRevisionTip);
     }
 
     @Test
@@ -222,8 +220,8 @@ public class MaterialRevisionTest {
         MaterialRevision changed = new MaterialRevision(material, true, modification);
         changed.markAsChanged();
 
-        assertThat(changed, is(notChanged));
-        assertThat(changed.hashCode(), is(notChanged.hashCode()));
+        assertThat(changed).isEqualTo(notChanged);
+        assertThat(changed.hashCode()).isEqualTo(notChanged.hashCode());
     }
 
     @Test
@@ -233,14 +231,14 @@ public class MaterialRevisionTest {
         SvnMaterial material = MaterialsMother.svnMaterial();
         MaterialRevision materialRevision1 = new MaterialRevision(material, modification1);
         MaterialRevision materialRevision2 = new MaterialRevision(material, modification2);
-        assertThat(materialRevision1.hasChangedSince(materialRevision2), is(true));
+        assertThat(materialRevision1.hasChangedSince(materialRevision2)).isTrue();
     }
 
     @Test
     public void shouldDisplayRevisionAsBuildCausedByForDependencyMaterial() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"));
         MaterialRevision materialRevision = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream/2/stage/1", "1.3-2", null));
-        assertThat(materialRevision.buildCausedBy(), is("upstream/2/stage/1"));
+        assertThat(materialRevision.buildCausedBy()).isEqualTo("upstream/2/stage/1");
     }
 
     @Test
@@ -252,27 +250,27 @@ public class MaterialRevisionTest {
         newMaterial.setFilter(new Filter(new IgnoredFiles("**/*.txt")));
         final MaterialRevision after = findNewRevision(original, newMaterial, workingFolder, new TestSubprocessExecutionContext());
 
-        assertThat(after.getMaterial(), is(newMaterial));
+        assertThat(after.getMaterial()).isEqualTo(newMaterial);
     }
 
     @Test
     public void shouldDetectLatestAndOldestModification() {
         MaterialRevision materialRevision = new MaterialRevision(hgMaterial, modification("3"), modification("2"), modification("1"));
 
-        assertThat(materialRevision.getLatestModification(), is(modification("3")));
-        assertThat(materialRevision.getOldestModification(), is(modification("1")));
+        assertThat(materialRevision.getLatestModification()).isEqualTo(modification("3"));
+        assertThat(materialRevision.getOldestModification()).isEqualTo(modification("1"));
     }
 
     @Test
     public void shouldDetectLatestRevision() {
         MaterialRevision materialRevision = new MaterialRevision(hgMaterial, modification("3"), modification("2"), modification("1"));
-        assertThat(materialRevision.getRevision(), is(new StringRevision("3")));
+        assertThat(materialRevision.getRevision()).isEqualTo(new StringRevision("3"));
     }
 
     @Test
     public void shouldDetectOldestScmRevision() {
         MaterialRevision materialRevision = new MaterialRevision(hgMaterial, modification("3"), modification("2"), modification("1"));
-        assertThat(materialRevision.getOldestRevision(), is(new StringRevision("1")));
+        assertThat(materialRevision.getOldestRevision()).isEqualTo(new StringRevision("1"));
     }
 
     @Test
@@ -280,20 +278,20 @@ public class MaterialRevisionTest {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"));
         MaterialRevision materialRevision = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream/3/stage/1", "1.3-3", null),
                 new Modification(new Date(), "upstream/2/stage/1", "1.3-2", null));
-        assertThat(materialRevision.getOldestRevision(), is(DependencyMaterialRevision.create("upstream/2/stage/1", "1.3-2")));
-        assertThat(materialRevision.getRevision(), is(DependencyMaterialRevision.create("upstream/3/stage/1", "1.3-3")));
+        assertThat(materialRevision.getOldestRevision()).isEqualTo(DependencyMaterialRevision.create("upstream/2/stage/1", "1.3-2"));
+        assertThat(materialRevision.getRevision()).isEqualTo(DependencyMaterialRevision.create("upstream/3/stage/1", "1.3-3"));
     }
 
     @Test
     public void shouldReturnNullRevisionWhenThereIsNoMaterial() {
         Revision revision = new MaterialRevision(null).getRevision();
-        assertThat(revision, is(not(nullValue())));
-        assertThat(revision.getRevision(), is(""));
+        assertThat(revision).isNotNull();
+        assertThat(revision.getRevision()).isEqualTo("");
     }
 
     @Test
     public void shouldReturnFullRevisionForTheLatestModification() {
-        assertThat(hgRevision().getLatestRevisionString(), is("012345678901234567890123456789"));
+        assertThat(hgRevision().getLatestRevisionString()).isEqualTo("012345678901234567890123456789");
     }
 
     private MaterialRevision hgRevision() {
@@ -302,32 +300,32 @@ public class MaterialRevisionTest {
 
     @Test
     public void shouldReturnShortRevisionForTheLatestModification() {
-        assertThat(hgRevision().getLatestShortRevision(), is("012345678901"));
+        assertThat(hgRevision().getLatestShortRevision()).isEqualTo("012345678901");
     }
 
     @Test
     public void shouldReturnMaterialName() {
-        assertThat(hgRevision().getMaterialName(), Matchers.is(hgMaterial.getDisplayName()));
+        assertThat(hgRevision().getMaterialName()).isEqualTo((hgMaterial.getDisplayName()));
     }
 
     @Test
     public void shouldReturnTruncatedMaterialName() {
-        assertThat(hgRevision().getTruncatedMaterialName(), Matchers.is(hgMaterial.getTruncatedDisplayName()));
+        assertThat(hgRevision().getTruncatedMaterialName()).isEqualTo((hgMaterial.getTruncatedDisplayName()));
     }
 
     @Test
     public void shouldReturnMaterialType() {
-        assertThat(hgRevision().getMaterialType(), is("Mercurial"));
+        assertThat(hgRevision().getMaterialType()).isEqualTo("Mercurial");
     }
 
     @Test
     public void shouldReturnLatestComments() {
-        assertThat(hgRevision().getLatestComment(), is("Checkin 012345678901234567890123456789"));
+        assertThat(hgRevision().getLatestComment()).isEqualTo("Checkin 012345678901234567890123456789");
     }
 
     @Test
     public void shouldReturnLatestUser() {
-        assertThat(hgRevision().getLatestUser(), is("user"));
+        assertThat(hgRevision().getLatestUser()).isEqualTo("user");
     }
 
     @Test
@@ -337,7 +335,7 @@ public class MaterialRevisionTest {
 
         MaterialRevision expected = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev2")).getMaterialRevision(0);
 
-        assertThat(revision.subtract(passedIn), is(expected));
+        assertThat(revision.subtract(passedIn)).isEqualTo(expected);
     }
 
     @Test
@@ -346,7 +344,7 @@ public class MaterialRevisionTest {
         MaterialRevision passedIn = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev1")).getMaterialRevision(0);
 
         MaterialRevision expected = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev2")).getMaterialRevision(0);
-        assertThat(revision.subtract(passedIn), is(expected));
+        assertThat(revision.subtract(passedIn)).isEqualTo(expected);
     }
 
     private Modification modification(String revision) {

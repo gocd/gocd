@@ -22,9 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StageInstanceModelTest {
 
@@ -32,31 +30,31 @@ public class StageInstanceModelTest {
     public void shouldUnderstandPreviousStageState() {
         StageInstanceModel item = new StageInstanceModel("foo", "10", JobHistory.withJob("unit", JobState.Assigned, JobResult.Unknown, new Date()));
         StageInstanceModel previous = new StageInstanceModel("foo", "1", JobHistory.withJob("unit", JobState.Completed, JobResult.Passed, new Date()));
-        assertThat(item.hasPreviousStage(), is(false));
+        assertThat(item.hasPreviousStage()).isFalse();
         item.setPreviousStage(previous);
-        assertThat(item.hasPreviousStage(), is(true));
-        assertThat(item.getPreviousStage(), is(previous));
+        assertThat(item.hasPreviousStage()).isTrue();
+        assertThat(item.getPreviousStage()).isEqualTo(previous);
     }
 
     @Test
     public void shouldBeAutoApproved() throws Exception {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();
         stageHistoryItem.setApprovalType(GoConstants.APPROVAL_SUCCESS);
-        assertThat(stageHistoryItem.isAutoApproved(), is(true));
+        assertThat(stageHistoryItem.isAutoApproved()).isTrue();
     }
 
     @Test
     public void shouldBeManualApproved() throws Exception {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();
         stageHistoryItem.setApprovalType(GoConstants.APPROVAL_MANUAL);
-        assertThat(stageHistoryItem.isAutoApproved(), is(false));
+        assertThat(stageHistoryItem.isAutoApproved()).isFalse();
     }
 
     @Test
     public void shouldReturnNullIfJobHistoryIsBlank() throws Exception {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();
         stageHistoryItem.setBuildHistory(new JobHistory());
-        assertThat(stageHistoryItem.getScheduledDate(), is(nullValue()));
+        assertThat(stageHistoryItem.getScheduledDate()).isNull();
     }
 
     @Test
@@ -66,6 +64,6 @@ public class StageInstanceModelTest {
         Date date = new Date(1367472329111L);
         jobHistory.addJob("jobName", JobState.Building, JobResult.Passed, date);
         stageHistoryItem.setBuildHistory(jobHistory);
-        assertThat(stageHistoryItem.getScheduledDate(), is(date));
+        assertThat(stageHistoryItem.getScheduledDate()).isEqualTo(date);
     }
 }

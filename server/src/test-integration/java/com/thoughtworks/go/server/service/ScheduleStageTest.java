@@ -40,8 +40,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(ClearSingleton.class)
 @ExtendWith(SpringExtension.class)
@@ -89,7 +88,7 @@ public class ScheduleStageTest {
         scheduleService.rerunStage(pipeline.getName(), pipeline.getCounter(), fixture.devStage);
         Stage stage = dbHelper.getStageDao().mostRecentStage(
                 new StageConfigIdentifier(pipeline.getName(), fixture.devStage));
-        assertThat(stage.getCounter(), is(oldStage.getCounter() + 1));
+        assertThat(stage.getCounter()).isEqualTo(oldStage.getCounter() + 1);
     }
 
     @Test
@@ -121,7 +120,7 @@ public class ScheduleStageTest {
         expectedVariableOrder.add("jobEnv", "jobBaz");
 
         JobInstances jobInstances = stage.getJobInstances();
-        assertThat(jobInstances.getByName(fixture.JOB_FOR_DEV_STAGE).getPlan().getVariables(), is(expectedVariableOrder));
+        assertThat(jobInstances.getByName(fixture.JOB_FOR_DEV_STAGE).getPlan().getVariables()).isEqualTo(expectedVariableOrder);
     }
 
     @Test
@@ -153,7 +152,7 @@ public class ScheduleStageTest {
         expectedVariableOrder.add("jobEnv", "jobBaz");
 
         JobInstances jobInstances = stage.getJobInstances();
-        assertThat(jobInstances.getByName(fixture.JOB_FOR_DEV_STAGE).getPlan().getVariables(), is(expectedVariableOrder));
+        assertThat(jobInstances.getByName(fixture.JOB_FOR_DEV_STAGE).getPlan().getVariables()).isEqualTo(expectedVariableOrder);
     }
 
     @Test
@@ -164,41 +163,41 @@ public class ScheduleStageTest {
 
         dbHelper.passStage(stage);
 
-        assertThat(stage.hasRerunJobs(), is(false));
+        assertThat(stage.hasRerunJobs()).isFalse();
 
         Stage oldStage = stageDao.stageById(pipeline.getStages().byName(fixture.devStage).getId());
 
-        assertThat(oldStage.hasRerunJobs(), is(false));
+        assertThat(oldStage.hasRerunJobs()).isFalse();
 
         HttpOperationResult result = new HttpOperationResult();
         Stage newStage = scheduleService.rerunJobs(oldStage, List.of("foo", "foo3"), result);
         Stage loadedLatestStage = dbHelper.getStageDao().findStageWithIdentifier(newStage.getIdentifier());
-        assertThat(loadedLatestStage.isLatestRun(), is(true));
+        assertThat(loadedLatestStage.isLatestRun()).isTrue();
 
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getResult(), is(JobResult.Unknown));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getState(), is(JobState.Scheduled));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getOriginalJobId(), is(nullValue()));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo").isRerun(), is(true));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo").isCopy(), is(false));
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getResult()).isEqualTo(JobResult.Unknown);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getState()).isEqualTo(JobState.Scheduled);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getOriginalJobId()).isNull();
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo").isRerun()).isTrue();
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo").isCopy()).isFalse();
 
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getResult(), is(JobResult.Passed));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getState(), is(JobState.Completed));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getOriginalJobId(), is(oldStage.getJobInstances().getByName("foo2").getId()));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").isRerun(), is(false));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").isCopy(), is(true));
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getResult()).isEqualTo(JobResult.Passed);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getState()).isEqualTo(JobState.Completed);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getOriginalJobId()).isEqualTo(oldStage.getJobInstances().getByName("foo2").getId());
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").isRerun()).isFalse();
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").isCopy()).isTrue();
 
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getResult(), is(JobResult.Unknown));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getState(), is(JobState.Scheduled));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getOriginalJobId(), is(nullValue()));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").isRerun(), is(true));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").isCopy(), is(false));
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getResult()).isEqualTo(JobResult.Unknown);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getState()).isEqualTo(JobState.Scheduled);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getOriginalJobId()).isNull();
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").isRerun()).isTrue();
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").isCopy()).isFalse();
 
 
-        assertThat(loadedLatestStage, is(newStage));
-        assertThat(loadedLatestStage.hasRerunJobs(), is(true));
-        assertThat(loadedLatestStage.getCounter(), is(oldStage.getCounter() + 2));
-        assertThat(loadedLatestStage.getIdentifier().getPipelineCounter(), is(oldStage.getIdentifier().getPipelineCounter()));
-        assertThat(result.canContinue(), is(true));
+        assertThat(loadedLatestStage).isEqualTo(newStage);
+        assertThat(loadedLatestStage.hasRerunJobs()).isTrue();
+        assertThat(loadedLatestStage.getCounter()).isEqualTo(oldStage.getCounter() + 2);
+        assertThat(loadedLatestStage.getIdentifier().getPipelineCounter()).isEqualTo(oldStage.getIdentifier().getPipelineCounter());
+        assertThat(result.canContinue()).isTrue();
     }
 
     @Test
@@ -207,19 +206,19 @@ public class ScheduleStageTest {
 
         Stage stage = scheduleService.rerunStage(pipeline.getName(), pipeline.getCounter(), fixture.devStage);
 
-        assertThat(stage.hasRerunJobs(), is(false));
+        assertThat(stage.hasRerunJobs()).isFalse();
 
         dbHelper.passStage(stage);
 
         Stage oldStage = stageDao.stageById(pipeline.getStages().byName(fixture.devStage).getId());
 
-        assertThat(oldStage.hasRerunJobs(), is(false));
+        assertThat(oldStage.hasRerunJobs()).isFalse();
 
         HttpOperationResult result = new HttpOperationResult();
         Stage newStage = scheduleService.rerunJobs(oldStage, List.of("foo", "foo3"), result);
         Stage loadedLatestStage = dbHelper.getStageDao().findStageWithIdentifier(newStage.getIdentifier());
 
-        assertThat(loadedLatestStage.hasRerunJobs(), is(true));
+        assertThat(loadedLatestStage.hasRerunJobs()).isTrue();
 
         dbHelper.passStage(loadedLatestStage);
         JobInstances jobsBeforeLatestRerunJobs = loadedLatestStage.getJobInstances();
@@ -228,29 +227,29 @@ public class ScheduleStageTest {
 
         loadedLatestStage = dbHelper.getStageDao().findStageWithIdentifier(newStage.getIdentifier());
 
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getResult(), is(JobResult.Passed));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getState(), is(JobState.Completed));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getOriginalJobId(), is(jobsBeforeLatestRerunJobs.getByName("foo").getId()));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo").isRerun(), is(false));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo").isCopy(), is(true));
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getResult()).isEqualTo(JobResult.Passed);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getState()).isEqualTo(JobState.Completed);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo").getOriginalJobId()).isEqualTo(jobsBeforeLatestRerunJobs.getByName("foo").getId());
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo").isRerun()).isFalse();
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo").isCopy()).isTrue();
 
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getResult(), is(JobResult.Unknown));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getState(), is(JobState.Scheduled));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getOriginalJobId(), is(nullValue()));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").isRerun(), is(true));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").isCopy(), is(false));
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getResult()).isEqualTo(JobResult.Unknown);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getState()).isEqualTo(JobState.Scheduled);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").getOriginalJobId()).isNull();
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").isRerun()).isTrue();
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo2").isCopy()).isFalse();
 
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getResult(), is(JobResult.Passed));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getState(), is(JobState.Completed));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getOriginalJobId(), is(jobsBeforeLatestRerunJobs.getByName("foo3").getId()));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").isRerun(), is(false));
-        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").isCopy(), is(true));
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getResult()).isEqualTo(JobResult.Passed);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getState()).isEqualTo(JobState.Completed);
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").getOriginalJobId()).isEqualTo(jobsBeforeLatestRerunJobs.getByName("foo3").getId());
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").isRerun()).isFalse();
+        assertThat(loadedLatestStage.getJobInstances().getByName("foo3").isCopy()).isTrue();
 
-        assertThat(loadedLatestStage, is(newStage));
-        assertThat(loadedLatestStage.hasRerunJobs(), is(true));
-        assertThat(loadedLatestStage.getCounter(), is(oldStage.getCounter() + 3));
-        assertThat(loadedLatestStage.getIdentifier().getPipelineCounter(), is(oldStage.getIdentifier().getPipelineCounter()));
-        assertThat(result.canContinue(), is(true));
+        assertThat(loadedLatestStage).isEqualTo(newStage);
+        assertThat(loadedLatestStage.hasRerunJobs()).isTrue();
+        assertThat(loadedLatestStage.getCounter()).isEqualTo(oldStage.getCounter() + 3);
+        assertThat(loadedLatestStage.getIdentifier().getPipelineCounter()).isEqualTo(oldStage.getIdentifier().getPipelineCounter());
+        assertThat(result.canContinue()).isTrue();
     }
 
     @Test
@@ -265,9 +264,9 @@ public class ScheduleStageTest {
 
         Stage newStage = scheduleService.rerunJobs(oldStage, List.of("foo3"), result);
 
-        assertThat(result.canContinue(), is(false));
-        assertThat(result.message(), containsString("Cannot rerun job 'foo3'. Configuration for job doesn't exist."));
-        assertThat(newStage, is(nullValue()));
+        assertThat(result.canContinue()).isFalse();
+        assertThat(result.message()).contains("Cannot rerun job 'foo3'. Configuration for job doesn't exist.");
+        assertThat(newStage).isNull();
     }
 
     @Test
@@ -279,9 +278,9 @@ public class ScheduleStageTest {
         HttpOperationResult result = new HttpOperationResult();
         Stage newStage = scheduleService.rerunJobs(oldStage, List.of("foo", "foo3"), result);
         Stage loadedLatestStage = dbHelper.getStageDao().findStageWithIdentifier(newStage.getIdentifier());
-        assertThat(loadedLatestStage.getApprovedBy(), is("looser"));
-        assertThat(oldStage.getApprovedBy(), is(not("looser")));
-        assertThat(result.canContinue(), is(true));
+        assertThat(loadedLatestStage.getApprovedBy()).isEqualTo("looser");
+        assertThat(oldStage.getApprovedBy()).isNotEqualTo("looser");
+        assertThat(result.canContinue()).isTrue();
     }
 
     @Test
@@ -292,10 +291,10 @@ public class ScheduleStageTest {
         HttpOperationResult result = new HttpOperationResult();
         Stage newStage = scheduleService.rerunJobs(oldStage, List.of("foo", "foo3"), result);
 
-        assertThat(result.canContinue(), is(false));
-        assertThat(result.message(), containsString("Pipeline[name='" + pipeline.getName() + "', counter='" + pipeline.getCounter() + "', label='" + pipeline.getLabel() + "'] is still in progress"));
-        assertThat(result.message(), containsString("Cannot schedule"));
-        assertThat(newStage, is(nullValue()));
+        assertThat(result.canContinue()).isFalse();
+        assertThat(result.message()).contains("Pipeline[name='" + pipeline.getName() + "', counter='" + pipeline.getCounter() + "', label='" + pipeline.getLabel() + "'] is still in progress");
+        assertThat(result.message()).contains("Cannot schedule");
+        assertThat(newStage).isNull();
     }
 
     @Test
@@ -305,9 +304,9 @@ public class ScheduleStageTest {
         try {
             scheduleService.rerunStage(pipeline.getName(), pipeline.getCounter(), theThirdStage);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is(String.format(
+            assertThat(e.getMessage()).isEqualTo(String.format(
                     "Can not run stage [%s] in pipeline [%s] because its previous stage has not been run.",
-                    theThirdStage, pipeline.getName())));
+                    theThirdStage, pipeline.getName()));
         }
     }
 
@@ -323,7 +322,7 @@ public class ScheduleStageTest {
 
         t1.join();
         t2.join();
-        assertThat(exceptions.size(), is(1));
+        assertThat(exceptions.size()).isEqualTo(1);
     }
 
     private Runnable rerunStage(final List<Exception> exceptions, final String ftStage) {

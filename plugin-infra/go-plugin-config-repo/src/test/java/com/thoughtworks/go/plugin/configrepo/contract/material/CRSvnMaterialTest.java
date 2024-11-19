@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CRSvnMaterialTest extends AbstractCRTest<CRSvnMaterial> {
 
@@ -31,7 +30,7 @@ public class CRSvnMaterialTest extends AbstractCRTest<CRSvnMaterial> {
     private final CRSvnMaterial simpleSvnAuth;
     private final CRSvnMaterial customSvn;
     private final CRSvnMaterial invalidNoUrl;
-    private final CRSvnMaterial invalidPasswordAndEncyptedPasswordSet;
+    private final CRSvnMaterial invalidPasswordAndEncryptedPasswordSet;
 
     public CRSvnMaterialTest() {
         simpleSvn = new CRSvnMaterial();
@@ -47,10 +46,10 @@ public class CRSvnMaterialTest extends AbstractCRTest<CRSvnMaterial> {
         customSvn.setPassword("pass1");
 
         invalidNoUrl = new CRSvnMaterial();
-        invalidPasswordAndEncyptedPasswordSet = new CRSvnMaterial();
-        invalidPasswordAndEncyptedPasswordSet.setUrl("http://myprivaterepo");
-        invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
-        invalidPasswordAndEncyptedPasswordSet.setEncryptedPassword("26t=$j64");
+        invalidPasswordAndEncryptedPasswordSet = new CRSvnMaterial();
+        invalidPasswordAndEncryptedPasswordSet.setUrl("http://myprivaterepo");
+        invalidPasswordAndEncryptedPasswordSet.setPassword("pa$sw0rd");
+        invalidPasswordAndEncryptedPasswordSet.setEncryptedPassword("26t=$j64");
     }
 
     @Override
@@ -63,13 +62,13 @@ public class CRSvnMaterialTest extends AbstractCRTest<CRSvnMaterial> {
     @Override
     public void addBadExamples(Map<String, CRSvnMaterial> examples) {
         examples.put("invalidNoUrl", invalidNoUrl);
-        examples.put("invalidPasswordAndEncyptedPasswordSet", invalidPasswordAndEncyptedPasswordSet);
+        examples.put("invalidPasswordAndEncryptedPasswordSet", invalidPasswordAndEncryptedPasswordSet);
     }
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
         JsonObject jsonObject = (JsonObject) gson.toJsonTree(customSvn);
-        assertThat(jsonObject.get("type").getAsString(), is(CRSvnMaterial.TYPE_NAME));
+        assertThat(jsonObject.get("type").getAsString()).isEqualTo(CRSvnMaterial.TYPE_NAME);
     }
 
     @Test
@@ -78,7 +77,6 @@ public class CRSvnMaterialTest extends AbstractCRTest<CRSvnMaterial> {
         String json = gson.toJson(value);
 
         CRSvnMaterial deserializedValue = (CRSvnMaterial) gson.fromJson(json, CRMaterial.class);
-        assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue, is(value));
+        assertThat(deserializedValue).isEqualTo(value);
     }
 }

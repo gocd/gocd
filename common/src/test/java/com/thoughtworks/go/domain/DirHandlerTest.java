@@ -29,8 +29,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -63,8 +62,8 @@ public class DirHandlerTest {
         dirHandler.handle(new FileInputStream(zip));
         dirHandler.handleResult(200, goPublisher);
 
-        assertThat(goPublisher.getMessage(), containsString(String.format("Saved artifact to [%s] after verifying the integrity of its contents.", agentDest)));
-        assertThat(goPublisher.getMessage(), not(containsString("[WARN]")));
+        assertThat(goPublisher.getMessage()).contains(String.format("Saved artifact to [%s] after verifying the integrity of its contents.", agentDest));
+        assertThat(goPublisher.getMessage()).doesNotContain("[WARN]");
         assertArtifactWasSaved("under_dir");
     }
 
@@ -94,9 +93,8 @@ public class DirHandlerTest {
         dirHandler.handle(new FileInputStream(zip));
         dirHandler.handleResult(200, goPublisher);
 
-        assertThat(goPublisher.getMessage(), not(
-                containsString(String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.", agentDest))));
-        assertThat(goPublisher.getMessage(), containsString(String.format("Saved artifact to [%s] without verifying the integrity of its contents.", agentDest)));
+        assertThat(goPublisher.getMessage()).doesNotContain(String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.", agentDest));
+        assertThat(goPublisher.getMessage()).contains(String.format("Saved artifact to [%s] without verifying the integrity of its contents.", agentDest));
         assertArtifactWasSaved("under_dir");
     }
 
@@ -109,12 +107,12 @@ public class DirHandlerTest {
         dirHandler.handle(new FileInputStream(zip));
         dirHandler.handleResult(200, goPublisher);
 
-        assertThat(goPublisher.getMessage(), containsString(
+        assertThat(goPublisher.getMessage()).contains(
                 String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.",
-                        "fetch_dest/under_dir/second")));
-        assertThat(goPublisher.getMessage(), containsString(
-                String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.", "fetch_dest/first")));
-        assertThat(goPublisher.getMessage(), containsString(String.format("Saved artifact to [%s] without verifying the integrity of its contents.", agentDest)));
+                        "fetch_dest/under_dir/second"));
+        assertThat(goPublisher.getMessage()).contains(
+                String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.", "fetch_dest/first"));
+        assertThat(goPublisher.getMessage()).contains(String.format("Saved artifact to [%s] without verifying the integrity of its contents.", agentDest));
         assertArtifactWasSaved("under_dir");
     }
 
@@ -129,9 +127,9 @@ public class DirHandlerTest {
             dirHandler.handleResult(200, goPublisher);
             fail("Should throw exception when check sums do not match.");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Artifact download failed for [fetch_dest/first]"));
-            assertThat(goPublisher.getMessage(),
-                    containsString("[ERROR] Verification of the integrity of the artifact [fetch_dest/first] failed. The artifact file on the server may have changed since its original upload."));
+            assertThat(e.getMessage()).isEqualTo("Artifact download failed for [fetch_dest/first]");
+            assertThat(goPublisher.getMessage())
+                .contains("[ERROR] Verification of the integrity of the artifact [fetch_dest/first] failed. The artifact file on the server may have changed since its original upload.");
         }
     }
 
@@ -147,8 +145,8 @@ public class DirHandlerTest {
         handler.handle(new FileInputStream(zip));
         handler.handleResult(200, goPublisher);
 
-        assertThat(goPublisher.getMessage(), containsString(String.format("Saved artifact to [%s] after verifying the integrity of its contents.", agentDest)));
-        assertThat(goPublisher.getMessage(), not(containsString("[WARN]")));
+        assertThat(goPublisher.getMessage()).contains(String.format("Saved artifact to [%s] after verifying the integrity of its contents.", agentDest));
+        assertThat(goPublisher.getMessage()).doesNotContain("[WARN]");
         assertArtifactWasSaved("under_dir");
 
     }
@@ -167,8 +165,8 @@ public class DirHandlerTest {
 
         verify(checksums).md5For("fetch_dest/first");
         verify(checksums).md5For("fetch_dest/fetch_dest/second");
-        assertThat(goPublisher.getMessage(), containsString(String.format("Saved artifact to [%s] after verifying the integrity of its contents.", agentDest)));
-        assertThat(goPublisher.getMessage(), not(containsString("[WARN]")));
+        assertThat(goPublisher.getMessage()).contains(String.format("Saved artifact to [%s] after verifying the integrity of its contents.", agentDest));
+        assertThat(goPublisher.getMessage()).doesNotContain("[WARN]");
         assertArtifactWasSaved("fetch_dest");
     }
 
@@ -183,10 +181,10 @@ public class DirHandlerTest {
 
     private void assertArtifactWasSaved(String subDirectoryName) throws IOException {
         File firstFile = new File(agentDest, "fetch_dest/first");
-        assertThat(firstFile.exists(), is(true));
-        assertThat(FileUtils.readFileToString(firstFile, UTF_8), is("First File"));
+        assertThat(firstFile.exists()).isTrue();
+        assertThat(FileUtils.readFileToString(firstFile, UTF_8)).isEqualTo("First File");
         File secondFile = new File(agentDest, "fetch_dest/" + subDirectoryName + "/second");
-        assertThat(secondFile.exists(), is(true));
-        assertThat(FileUtils.readFileToString(secondFile, UTF_8), is("Second File"));
+        assertThat(secondFile.exists()).isTrue();
+        assertThat(FileUtils.readFileToString(secondFile, UTF_8)).isEqualTo("Second File");
     }
 }

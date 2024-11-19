@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,9 +56,9 @@ public class ConfigRepositoryGCWarningServiceTest {
                 "'&lt;go server installation directory&gt;/db/config.git/' to address this problem. Go can do this " +
                 "automatically on a periodic basis if you enable automatic GC. <a target='_blank' href='" + docsUrl("/advanced_usage/config_repo.html") + "'>read more...</a>";
 
-        assertThat(healthStates.get(0).getDescription(), is(description));
-        assertThat(healthStates.get(0).getLogLevel(), is(HealthStateLevel.WARNING));
-        assertThat(healthStates.get(0).getMessage(), is(message));
+        assertThat(healthStates.get(0).getDescription()).isEqualTo(description);
+        assertThat(healthStates.get(0).getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
+        assertThat(healthStates.get(0).getMessage()).isEqualTo(message);
     }
 
     @Test
@@ -69,19 +68,19 @@ public class ConfigRepositoryGCWarningServiceTest {
 
         service.checkRepoAndAddWarningIfRequired();
         List<ServerHealthState> healthStates = serverHealthService.logsSortedForScope(HealthStateScope.forConfigRepo("GC"));
-        assertThat(healthStates.isEmpty(), is(true));
+        assertThat(healthStates.isEmpty()).isTrue();
     }
 
     @Test
     public void shouldRemoteExistingWarningAboutGCIfLooseObjectCountGoesBelowTheSetThreshold() throws Exception {
         serverHealthService.update(ServerHealthState.warning("message", "description", HealthStateType.general(HealthStateScope.forConfigRepo("GC"))));
-        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forConfigRepo("GC")).isEmpty(), is(false));
+        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forConfigRepo("GC")).isEmpty()).isFalse();
 
         when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD)).thenReturn(10L);
         when(configRepository.getLooseObjectCount()).thenReturn(1L);
 
         service.checkRepoAndAddWarningIfRequired();
-        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forConfigRepo("GC")).isEmpty(), is(true));
+        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forConfigRepo("GC")).isEmpty()).isTrue();
     }
 
 }

@@ -25,8 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -60,8 +59,8 @@ public class PackageDefinitionCreatorTest {
         PackageDefinitionCreator packageDefinitionCreator = new PackageDefinitionCreator(packageDefinitionService, params);
         PackageDefinition newPackageDefinition = packageDefinitionCreator.createNewPackageDefinition(cruiseConfig);
 
-        assertThat(newPackageDefinition.getName(), is(pkgName));
-        assertThat(newPackageDefinition.getRepository(), is(packageRepository));
+        assertThat(newPackageDefinition.getName()).isEqualTo(pkgName);
+        assertThat(newPackageDefinition.getRepository()).isEqualTo(packageRepository);
 
         verify(packageDefinitionService).performPluginValidationsFor(any(PackageDefinition.class));
         verify(cruiseConfig).savePackageDefinition(any(PackageDefinition.class));
@@ -73,6 +72,6 @@ public class PackageDefinitionCreatorTest {
         PackageDefinitionCreator packageDefinitionCreator = new PackageDefinitionCreator(packageDefinitionService, params);
         PackageDefinition fetchedPackageDefinition = packageDefinitionCreator.getPackageDefinition(cruiseConfig);
 
-        assertThat(fetchedPackageDefinition.getId(), is(pkgId));
+        assertThat(fetchedPackageDefinition.getId()).isEqualTo(pkgId);
     }
 }

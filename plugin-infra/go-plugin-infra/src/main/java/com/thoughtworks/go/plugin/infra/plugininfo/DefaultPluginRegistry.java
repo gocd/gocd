@@ -108,7 +108,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
     }
 
     @Override
-    public String pluginIDFor(String bundleSymbolicName, String extensionClassCannonicalName) {
+    public String pluginIDFor(String bundleSymbolicName, String extensionClassCanonicalName) {
         final GoPluginBundleDescriptor bundleDescriptor = getBundleDescriptor(bundleSymbolicName);
 
         final GoPluginDescriptor firstPluginDescriptor = bundleDescriptor.descriptors().get(0);
@@ -117,7 +117,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
         }
 
         final GoPluginDescriptor descriptorWithExtension = IterableUtils.find(bundleDescriptor.descriptors(),
-                pluginDescriptor -> pluginDescriptor.extensionClasses().contains(extensionClassCannonicalName));
+                pluginDescriptor -> pluginDescriptor.extensionClasses().contains(extensionClassCanonicalName));
 
         return descriptorWithExtension == null ? null : descriptorWithExtension.id();
     }

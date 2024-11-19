@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
@@ -47,7 +46,7 @@ public class GoDashboardCacheTest {
         cache.put(expectedPipeline);
         GoDashboardPipeline actualPipeline = cache.allEntries().find(cis("pipeline1"));
 
-        assertThat(expectedPipeline, is(sameInstance(actualPipeline)));
+        assertThat(expectedPipeline).isSameAs(actualPipeline);
     }
 
     @Test
@@ -59,7 +58,7 @@ public class GoDashboardCacheTest {
         cache.put(expectedPipeline);
         GoDashboardPipeline actualPipeline = cache.allEntries().find(cis("pipeline1"));
 
-        assertThat(expectedPipeline, is(sameInstance(actualPipeline)));
+        assertThat(expectedPipeline).isSameAs(actualPipeline);
     }
 
     @Test
@@ -78,11 +77,11 @@ public class GoDashboardCacheTest {
 
         cache.replaceAllEntriesInCacheWith(List.of(pipeline3, newPipeline4, pipeline5));
 
-        assertThat(cache.allEntries().find(cis("pipeline1")), is(nullValue()));
-        assertThat(cache.allEntries().find(cis("pipeline2")), is(nullValue()));
-        assertThat(cache.allEntries().find(cis("pipeline3")), is(sameInstance(pipeline3)));
-        assertThat(cache.allEntries().find(cis("pipeline4")), is(sameInstance(newPipeline4)));
-        assertThat(cache.allEntries().find(cis("pipeline5")), is(sameInstance(pipeline5)));
+        assertThat(cache.allEntries().find(cis("pipeline1"))).isNull();
+        assertThat(cache.allEntries().find(cis("pipeline2"))).isNull();
+        assertThat(cache.allEntries().find(cis("pipeline3"))).isSameAs(pipeline3);
+        assertThat(cache.allEntries().find(cis("pipeline4"))).isSameAs(newPipeline4);
+        assertThat(cache.allEntries().find(cis("pipeline5"))).isSameAs(pipeline5);
     }
 
     private CaseInsensitiveString cis(String value) {

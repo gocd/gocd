@@ -25,10 +25,8 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SecurityAuthConfigDeleteCommandTest {
@@ -47,19 +45,19 @@ public class SecurityAuthConfigDeleteCommandTest {
         SecurityAuthConfigDeleteCommand command = new SecurityAuthConfigDeleteCommand(null, authConfig, null, null, null);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.server().security().securityAuthConfigs(), is(empty()));
+        assertThat(cruiseConfig.server().security().securityAuthConfigs()).isEmpty();
     }
 
     @Test
     public void shouldRaiseExceptionInCaseProfileDoesNotExist() throws Exception {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("foo", "ldap");
 
-        assertThat(cruiseConfig.server().security().securityAuthConfigs(), is(empty()));
+        assertThat(cruiseConfig.server().security().securityAuthConfigs()).isEmpty();
         SecurityAuthConfigDeleteCommand command = new SecurityAuthConfigDeleteCommand(null, authConfig, null, null, new HttpLocalizedOperationResult());
 
         assertThatThrownBy(() -> command.update(cruiseConfig)).isInstanceOf(RecordNotFoundException.class);
 
-        assertThat(cruiseConfig.server().security().securityAuthConfigs(), is(empty()));
+        assertThat(cruiseConfig.server().security().securityAuthConfigs()).isEmpty();
     }
 
     @Test
@@ -77,7 +75,7 @@ public class SecurityAuthConfigDeleteCommandTest {
     public void shouldValidateIfProfileIsNotInUseByPipeline() throws Exception {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("foo", "ldap");
 
-        assertThat(cruiseConfig.server().security().securityAuthConfigs(), is(empty()));
+        assertThat(cruiseConfig.server().security().securityAuthConfigs()).isEmpty();
         SecurityAuthConfigDeleteCommand command = new SecurityAuthConfigDeleteCommand(null, authConfig, null, null, new HttpLocalizedOperationResult());
         assertTrue(command.isValid(cruiseConfig));
     }

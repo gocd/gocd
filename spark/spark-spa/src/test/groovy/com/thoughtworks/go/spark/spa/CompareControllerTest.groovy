@@ -74,7 +74,7 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
     class AsAdminUser {
       @Test
       void 'should return view if counters are valid'() {
-        Pipeline pipeline = mock(Pipeline.class);
+        Pipeline pipeline = mock(Pipeline.class)
 
         when(pipelineService.findPipelineByNameAndCounter(anyString(), anyInt())).thenReturn(pipeline)
 
@@ -102,7 +102,7 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
 
       @Test
       void 'should give 404 if from counter does not exist'() {
-        Pipeline pipeline = mock(Pipeline.class);
+        Pipeline pipeline = mock(Pipeline.class)
 
         when(pipelineService.findPipelineByNameAndCounter(anyString(), eq(4))).thenReturn(pipeline)
 
@@ -115,7 +115,7 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
 
       @Test
       void 'should give 404 if to counter does not exist'() {
-        Pipeline pipeline = mock(Pipeline.class);
+        Pipeline pipeline = mock(Pipeline.class)
 
         when(pipelineService.findPipelineByNameAndCounter(anyString(), eq(3))).thenReturn(pipeline)
 

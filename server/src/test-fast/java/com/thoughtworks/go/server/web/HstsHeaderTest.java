@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HstsHeaderTest {
 
@@ -45,16 +44,16 @@ public class HstsHeaderTest {
     @Test
     public void shouldReturnEmptyWhenHstsIsNotEnabled() {
         Optional<HstsHeader> hstsHeader = HstsHeader.fromSystemEnvironment(systemEnvironment);
-        assertThat(hstsHeader.isPresent(), is(false));
+        assertThat(hstsHeader.isPresent()).isFalse();
     }
 
     @Test
     public void shouldGenerateHstsHeaderWithDefaultMaxAge() {
         systemEnvironment.setProperty("gocd.enable.hsts.header", "true");
         Optional<HstsHeader> hstsHeader = HstsHeader.fromSystemEnvironment(systemEnvironment);
-        assertThat(hstsHeader.isPresent(), is(true));
-        assertThat(hstsHeader.get().headerName(), is("Strict-Transport-Security"));
-        assertThat(hstsHeader.get().headerValue(), is("max-age=31536000"));
+        assertThat(hstsHeader.isPresent()).isTrue();
+        assertThat(hstsHeader.get().headerName()).isEqualTo("Strict-Transport-Security");
+        assertThat(hstsHeader.get().headerValue()).isEqualTo("max-age=31536000");
     }
 
     @Test
@@ -62,9 +61,9 @@ public class HstsHeaderTest {
         systemEnvironment.setProperty("gocd.enable.hsts.header", "true");
         systemEnvironment.setProperty("gocd.hsts.header.max.age", "12345");
         Optional<HstsHeader> hstsHeader = HstsHeader.fromSystemEnvironment(systemEnvironment);
-        assertThat(hstsHeader.isPresent(), is(true));
-        assertThat(hstsHeader.get().headerName(), is("Strict-Transport-Security"));
-        assertThat(hstsHeader.get().headerValue(), is("max-age=12345"));
+        assertThat(hstsHeader.isPresent()).isTrue();
+        assertThat(hstsHeader.get().headerName()).isEqualTo("Strict-Transport-Security");
+        assertThat(hstsHeader.get().headerValue()).isEqualTo("max-age=12345");
     }
 
     @Test
@@ -72,9 +71,9 @@ public class HstsHeaderTest {
         systemEnvironment.setProperty("gocd.enable.hsts.header", "true");
         systemEnvironment.setProperty("gocd.hsts.header.include.subdomains", "true");
         Optional<HstsHeader> hstsHeader = HstsHeader.fromSystemEnvironment(systemEnvironment);
-        assertThat(hstsHeader.isPresent(), is(true));
-        assertThat(hstsHeader.get().headerName(), is("Strict-Transport-Security"));
-        assertThat(hstsHeader.get().headerValue(), is("max-age=31536000; includeSubDomains"));
+        assertThat(hstsHeader.isPresent()).isTrue();
+        assertThat(hstsHeader.get().headerName()).isEqualTo("Strict-Transport-Security");
+        assertThat(hstsHeader.get().headerValue()).isEqualTo("max-age=31536000; includeSubDomains");
     }
 
     @Test
@@ -82,9 +81,9 @@ public class HstsHeaderTest {
         systemEnvironment.setProperty("gocd.enable.hsts.header", "true");
         systemEnvironment.setProperty("gocd.hsts.header.preload", "true");
         Optional<HstsHeader> hstsHeader = HstsHeader.fromSystemEnvironment(systemEnvironment);
-        assertThat(hstsHeader.isPresent(), is(true));
-        assertThat(hstsHeader.get().headerName(), is("Strict-Transport-Security"));
-        assertThat(hstsHeader.get().headerValue(), is("max-age=31536000; preload"));
+        assertThat(hstsHeader.isPresent()).isTrue();
+        assertThat(hstsHeader.get().headerName()).isEqualTo("Strict-Transport-Security");
+        assertThat(hstsHeader.get().headerValue()).isEqualTo("max-age=31536000; preload");
     }
 
     @Test
@@ -94,9 +93,9 @@ public class HstsHeaderTest {
         systemEnvironment.setProperty("gocd.hsts.header.include.subdomains", "true");
         systemEnvironment.setProperty("gocd.hsts.header.preload", "true");
         Optional<HstsHeader> hstsHeader = HstsHeader.fromSystemEnvironment(systemEnvironment);
-        assertThat(hstsHeader.isPresent(), is(true));
-        assertThat(hstsHeader.get().headerName(), is("Strict-Transport-Security"));
-        assertThat(hstsHeader.get().headerValue(), is("max-age=12345; includeSubDomains; preload"));
+        assertThat(hstsHeader.isPresent()).isTrue();
+        assertThat(hstsHeader.get().headerName()).isEqualTo("Strict-Transport-Security");
+        assertThat(hstsHeader.get().headerValue()).isEqualTo("max-age=12345; includeSubDomains; preload");
     }
 
 }

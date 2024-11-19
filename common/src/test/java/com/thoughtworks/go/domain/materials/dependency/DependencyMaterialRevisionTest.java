@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.HashMap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class DependencyMaterialRevisionTest {
@@ -32,14 +31,14 @@ public class DependencyMaterialRevisionTest {
     @Test
     public void shouldRenderPipelineLabelToRenderer() {
         DependencyMaterialRevision revision = DependencyMaterialRevision.create("pipeline", 50, "1.0.123", "stage", 1);
-        assertThat(revision.getRevisionUrl(), is("pipelines/pipeline/50/stage/1"));
+        assertThat(revision.getRevisionUrl()).isEqualTo("pipelines/pipeline/50/stage/1");
     }
 
     @Test
     public void shouldReturnRevisionForSavingIntoDatabase() {
         DependencyMaterialRevision revision = DependencyMaterialRevision.create("pipeline", 2, "1.0.123", "stage", 1);
-        assertThat(revision.getRevision(), is("pipeline/2/stage/1"));
-        assertThat(revision.getPipelineLabel(), is("1.0.123"));
+        assertThat(revision.getRevision()).isEqualTo("pipeline/2/stage/1");
+        assertThat(revision.getPipelineLabel()).isEqualTo("1.0.123");
     }
 
     @Test
@@ -48,7 +47,7 @@ public class DependencyMaterialRevisionTest {
             DependencyMaterialRevision.create("pipeline", null, "1.0.123", "stage", 1);
             fail("creation without pipeline counter must not be allowed");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Dependency material revision can not be created without pipeline counter."));
+            assertThat(e.getMessage()).isEqualTo("Dependency material revision can not be created without pipeline counter.");
         }
     }
 
@@ -58,8 +57,8 @@ public class DependencyMaterialRevisionTest {
 
         MaterialRevision withRevision = materialRevision.convert(new DependencyMaterial(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage")), new Date());
         DependencyMaterialRevision revision = (DependencyMaterialRevision) withRevision.getRevision();
-        assertThat(revision.getRevision(), is("pipeline/10/stage/4"));
-        assertThat(revision.getPipelineLabel(), is("1.2.3"));
+        assertThat(revision.getRevision()).isEqualTo("pipeline/10/stage/4");
+        assertThat(revision.getPipelineLabel()).isEqualTo("1.2.3");
     }
 
     @Test
@@ -67,6 +66,6 @@ public class DependencyMaterialRevisionTest {
         DependencyMaterialRevision materialRevision = DependencyMaterialRevision.create("pipeline", 10, "foo-1.2.3", "stage", 4);
         HashMap<String, String> revMap = new HashMap<>();
         materialRevision.putRevision(revMap);
-        assertThat(revMap.get("pipeline"), is("foo-1.2.3"));
+        assertThat(revMap.get("pipeline")).isEqualTo("foo-1.2.3");
     }
 }

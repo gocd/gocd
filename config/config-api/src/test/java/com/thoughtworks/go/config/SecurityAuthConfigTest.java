@@ -31,9 +31,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -46,29 +44,29 @@ public class SecurityAuthConfigTest {
     }
 
     @Test
-    public void addConfigurations_shouldAddConfigurationsWithValue() throws Exception {
+    public void addConfigurations_shouldAddConfigurationsWithValue() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name"));
 
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id");
         authConfig.addConfigurations(List.of(property));
 
-        assertThat(authConfig.size(), is(1));
-        assertThat(authConfig, contains(new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name"))));
+        assertThat(authConfig.size()).isEqualTo(1);
+        assertThat(authConfig).contains(new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name")));
     }
 
     @Test
-    public void addConfigurations_shouldAddConfigurationsWithEncryptedValue() throws Exception {
+    public void addConfigurations_shouldAddConfigurationsWithEncryptedValue() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name"));
 
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id");
         authConfig.addConfigurations(List.of(property));
 
-        assertThat(authConfig.size(), is(1));
-        assertThat(authConfig, contains(new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name"))));
+        assertThat(authConfig.size()).isEqualTo(1);
+        assertThat(authConfig).contains(new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name")));
     }
 
     @Test
-    public void addConfiguration_shouldEncryptASecureVariable() throws Exception {
+    public void addConfiguration_shouldEncryptASecureVariable() {
         PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(List.of(new PluginConfiguration("password", new Metadata(true, true))));
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null);
 
@@ -76,25 +74,25 @@ public class SecurityAuthConfigTest {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id");
         authConfig.addConfigurations(List.of(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
-        assertThat(authConfig.size(), is(1));
+        assertThat(authConfig.size()).isEqualTo(1);
         assertTrue(authConfig.first().isSecure());
     }
 
     @Test
-    public void addConfiguration_shouldIgnoreEncryptionInAbsenceOfCorrespondingConfigurationInStore() throws Exception {
+    public void addConfiguration_shouldIgnoreEncryptionInAbsenceOfCorrespondingConfigurationInStore() {
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(pluginDescriptor("plugin_id"), new PluggableInstanceSettings(new ArrayList<>()), null, null, null);
 
         store.setPluginInfo(pluginInfo);
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id");
         authConfig.addConfigurations(List.of(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
-        assertThat(authConfig.size(), is(1));
+        assertThat(authConfig.size()).isEqualTo(1);
         assertFalse(authConfig.first().isSecure());
-        assertThat(authConfig, contains(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
+        assertThat(authConfig).contains(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
     }
 
     @Test
-    public void postConstruct_shouldEncryptSecureConfigurations() throws Exception {
+    public void postConstruct_shouldEncryptSecureConfigurations() {
         PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(List.of(new PluginConfiguration("password", new Metadata(true, true))));
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null);
 
@@ -103,17 +101,17 @@ public class SecurityAuthConfigTest {
 
         authConfig.encryptSecureConfigurations();
 
-        assertThat(authConfig.size(), is(1));
+        assertThat(authConfig.size()).isEqualTo(1);
         assertTrue(authConfig.first().isSecure());
     }
 
     @Test
-    public void postConstruct_shouldIgnoreEncryptionIfPluginInfoIsNotDefined() throws Exception {
+    public void postConstruct_shouldIgnoreEncryptionIfPluginInfoIsNotDefined() {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
 
         authConfig.encryptSecureConfigurations();
 
-        assertThat(authConfig.size(), is(1));
+        assertThat(authConfig.size()).isEqualTo(1);
         assertFalse(authConfig.first().isSecure());
     }
 

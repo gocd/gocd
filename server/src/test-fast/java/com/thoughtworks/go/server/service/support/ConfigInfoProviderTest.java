@@ -38,9 +38,7 @@ import java.util.Map;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasEntry;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -67,8 +65,8 @@ public class ConfigInfoProviderTest {
 
         final Map<String, Object> security = (Map<String, Object>) map.get("Security");
         assertNotNull(security);
-        assertThat(security, hasEntry("Enabled", false));
-        assertThat(security, hasEntry("Plugins", new ArrayList<>()));
+        assertThat(security).containsEntry("Enabled", false);
+        assertThat(security).containsEntry("Plugins", new ArrayList<>());
     }
 
     @Test
@@ -85,13 +83,13 @@ public class ConfigInfoProviderTest {
 
         final Map<String, Object> security = (Map<String, Object>) map.get("Security");
         assertNotNull(security);
-        assertThat(security, hasEntry("Enabled", true));
+        assertThat(security).containsEntry("Enabled", true);
 
         final List<Map<String, Boolean>> plugins = (List<Map<String, Boolean>>) security.get("Plugins");
-        assertThat(plugins, containsInAnyOrder(
+        assertThat(plugins).contains(
                 Map.of("Password File Authentication Plugin for GoCD", true),
                 Map.of("LDAP Authentication Plugin for GoCD", false)
-        ));
+        );
     }
 
     private AuthorizationPluginInfo pluginInfo(String pluginId, String pluginName) {

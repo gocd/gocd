@@ -63,11 +63,11 @@ import static org.mockito.Mockito.*
 @MockitoSettings(strictness = Strictness.LENIENT)
 class PipelineConfigControllerV11Test implements SecurityServiceTrait, ControllerTrait<PipelineConfigControllerV11> {
   @Mock
-  private FeatureToggleService featureToggleService;
+  private FeatureToggleService featureToggleService
 
   @BeforeEach
   void setUp() {
-    Toggles.initializeWith(featureToggleService);
+    Toggles.initializeWith(featureToggleService)
     when(featureToggleService.isToggleOn(Toggles.TEST_DRIVE)).thenReturn(false)
   }
 
@@ -683,7 +683,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
   @Nested
   class Destroy {
-    private PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1");
+    private PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
@@ -769,13 +769,13 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class AsAdmin {
-      private PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate("pipeline1", "new-template");
+      private PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate("pipeline1", "new-template")
 
       @BeforeEach
       void setup() {
         enableSecurity()
         loginAsAdmin()
-        pipeline.setOrigin(new FileConfigOrigin());
+        pipeline.setOrigin(new FileConfigOrigin())
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
         when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn("some-group")
       }

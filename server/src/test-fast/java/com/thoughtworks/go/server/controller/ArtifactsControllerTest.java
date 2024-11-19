@@ -40,9 +40,7 @@ import java.io.InputStream;
 import static com.thoughtworks.go.util.GoConstants.*;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.any;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ArtifactsControllerTest {
@@ -81,7 +79,7 @@ public class ArtifactsControllerTest {
         File artifactFile = new File("junk");
         when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(artifactFile);
         when(consoleService.updateConsoleLog(eq(artifactFile), any(InputStream.class))).thenReturn(true);
-        assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103L, path, "agent-id", request).getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
+        assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103L, path, "agent-id", request).getView()).getStatusCode()).isEqualTo(HttpServletResponse.SC_OK);
         verify(consoleActivityMonitor).consoleUpdatedFor(jobIdentifier);
     }
 
@@ -95,9 +93,9 @@ public class ArtifactsControllerTest {
 
         ModelAndView view = artifactsController.consoleout("pipeline", "10", "stage", "build", "2", 1L);
 
-        assertThat(view.getView().getContentType(), is(RESPONSE_CHARSET));
-        assertThat(view.getView(), is(instanceOf((ResponseCodeView.class))));
-        assertThat(((ResponseCodeView) view.getView()).getContent(), containsString("Console log for Build [pipeline/10/stage/2/build/103] is unavailable as it may have been purged by Go or deleted externally"));
+        assertThat(view.getView().getContentType()).isEqualTo(RESPONSE_CHARSET);
+        assertThat(view.getView()).isInstanceOf(ResponseCodeView.class);
+        assertThat(((ResponseCodeView) view.getView()).getContent()).contains("Console log for Build [pipeline/10/stage/2/build/103] is unavailable as it may have been purged by Go or deleted externally");
     }
 
     @Test
@@ -117,35 +115,35 @@ public class ArtifactsControllerTest {
 
 
         ResponseCodeView view = (ResponseCodeView) modelAndView.getView();
-        assertThat(view.getStatusCode(), is(SC_INTERNAL_SERVER_ERROR));
-        assertThat(view.getContent(), is("Error saving checksum file for the artifact at path 'some-path'"));
+        assertThat(view.getStatusCode()).isEqualTo(SC_INTERNAL_SERVER_ERROR);
+        assertThat(view.getContent()).isEqualTo("Error saving checksum file for the artifact at path 'some-path'");
     }
 
     @Test
     void shouldFailToPostAndPutWhenStageCounterIsNotAPositiveInteger() throws Exception {
         ModelAndView modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "NOT_AN_INTEGER", "job-1", 122L, "some-path", 1, null);
-        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode()).isEqualTo(SC_NOT_FOUND);
 
         modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "-123", "job-1", 122L, "some-path", 1, null);
-        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode()).isEqualTo(SC_NOT_FOUND);
 
         modelAndView = artifactsController.putArtifact("pipeline-1", "1", "stage-1", "NOT_AN_INTEGER", "job-1", 122L, "some-path", "1", null);
-        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode()).isEqualTo(SC_NOT_FOUND);
 
         modelAndView = artifactsController.putArtifact("pipeline-1", "1", "stage-1", "-123", "job-1", 122L, "some-path", "1", null);
-        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode()).isEqualTo(SC_NOT_FOUND);
     }
 
     @Test
     void shouldFailToGetConsoleOutWhenStageCounterIsNotAPositiveInteger() {
         ModelAndView modelAndView = artifactsController.consoleout("pipeline-1", "1", "stage-1", "job-1", "NOT_AN_INTEGER", 122L);
-        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode()).isEqualTo(SC_NOT_FOUND);
     }
 
     @Test
     void shouldFailToGetArtifactWhenStageCounterIsNotAPositiveInteger() throws Exception {
         ModelAndView modelAndView = artifactsController.getArtifactAsJson("pipeline-1", "1", "stage-1",  "NOT_AN_INTEGER", "job-1", "some-path", "sha1");
-        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode()).isEqualTo(SC_NOT_FOUND);
     }
 
     @Test
@@ -159,9 +157,9 @@ public class ArtifactsControllerTest {
             }
         };
 
-        assertThat(controller.getArtifactNonFolder("pipeline", "counter", "stage", "2", "job", "file_name", "sha1"), sameInstance(returnVal));
-        assertThat(controller.getArtifactAsZip("pipeline", "counter", "stage", "2", "job", "file_name", "sha1"), sameInstance(returnVal));
-        assertThat(controller.getArtifactAsJson("pipeline", "counter", "stage", "2", "job", "file_name", "sha1"), sameInstance(returnVal));
+        assertThat(controller.getArtifactNonFolder("pipeline", "counter", "stage", "2", "job", "file_name", "sha1")).isSameAs(returnVal);
+        assertThat(controller.getArtifactAsZip("pipeline", "counter", "stage", "2", "job", "file_name", "sha1")).isSameAs(returnVal);
+        assertThat(controller.getArtifactAsJson("pipeline", "counter", "stage", "2", "job", "file_name", "sha1")).isSameAs(returnVal);
     }
 
     @Test
@@ -172,8 +170,8 @@ public class ArtifactsControllerTest {
         ModelAndView modelAndView = artifactsController.postArtifact("pipeline", "invalid-label", "stage", "stage-counter", "job-name", 3L, "file-path", 3, multipartHttpServletRequest);
         ResponseCodeView codeView = (ResponseCodeView) modelAndView.getView();
 
-        assertThat(codeView.getStatusCode(), is(HttpServletResponse.SC_BAD_REQUEST));
-        assertThat(codeView.getContent(), is("Missing required header 'Confirm'"));
+        assertThat(codeView.getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+        assertThat(codeView.getContent()).isEqualTo("Missing required header 'Confirm'");
 
     }
 }

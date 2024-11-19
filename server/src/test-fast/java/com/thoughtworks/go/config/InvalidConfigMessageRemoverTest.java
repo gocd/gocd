@@ -25,8 +25,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class InvalidConfigMessageRemoverTest {
@@ -40,15 +39,15 @@ public class InvalidConfigMessageRemoverTest {
         invalidConfigMessageRemover.initialize();
         invalidConfigMessageRemover.onConfigChange(null);
         List<ConfigChangedListener> listeners = configChangedListenerArgumentCaptor.getAllValues();
-        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
         EntityConfigChangedListener listener = (EntityConfigChangedListener) listeners.get(1);
-        assertThat(listener.shouldCareAbout(mock(PipelineConfig.class)), is(true));
+        assertThat(listener.shouldCareAbout(mock(PipelineConfig.class))).isTrue();
 
         invalidConfigMessageRemover.pipelineConfigChangedListener().onEntityConfigChange(mock(PipelineConfig.class));
 
         ArgumentCaptor<HealthStateScope> captor = ArgumentCaptor.forClass(HealthStateScope.class);
         verify(serverHealthService).removeByScope(captor.capture());
-        assertThat(captor.getValue().compareTo(HealthStateScope.forInvalidConfig()), is(0));
+        assertThat(captor.getValue().compareTo(HealthStateScope.forInvalidConfig())).isEqualTo(0);
     }
 
 }

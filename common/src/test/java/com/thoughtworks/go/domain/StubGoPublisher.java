@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class StubGoPublisher extends DefaultGoPublisher {
@@ -84,7 +84,7 @@ public class StubGoPublisher extends DefaultGoPublisher {
 
         for (File file : uploadedFiles.keySet()) {
             if (file.getAbsolutePath().endsWith(endOfFileName)) {
-                org.hamcrest.MatcherAssert.assertThat(uploadedFiles.get(file), is(destination));
+                assertThat(uploadedFiles.get(file)).isEqualTo(destination);
                 return;
             }
         }

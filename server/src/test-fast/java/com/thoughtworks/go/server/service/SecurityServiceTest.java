@@ -26,8 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class SecurityServiceTest {
@@ -49,7 +48,7 @@ public class SecurityServiceTest {
         when(goConfigService.isUserAdmin(user)).thenReturn(false);
         SecurityService spy = spy(securityService);
         doReturn(true).when(spy).isAuthorizedToViewAndEditTemplates(user);
-        assertThat(spy.canViewAdminPage(new Username(new CaseInsensitiveString("user"))), is(true));
+        assertThat(spy.canViewAdminPage(new Username(new CaseInsensitiveString("user")))).isTrue();
     }
 
     @Test
@@ -63,7 +62,7 @@ public class SecurityServiceTest {
         when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(false);
         when(goConfigService.isUserAdmin(user)).thenReturn(false);
 
-        assertThat(securityService.canViewAdminPage(user), is(true));
+        assertThat(securityService.canViewAdminPage(user)).isTrue();
     }
 
     @Test
@@ -79,7 +78,7 @@ public class SecurityServiceTest {
         doReturn(false).when(spy).isAuthorizedToViewAndEditTemplates(user);
         doReturn(false).when(spy).isAuthorizedToViewTemplates(user);
 
-        assertThat(spy.canViewAdminPage(user), is(false));
+        assertThat(spy.canViewAdminPage(user)).isFalse();
     }
 
     @Test
@@ -87,7 +86,7 @@ public class SecurityServiceTest {
         Username username = new Username(new CaseInsensitiveString("user"));
         when(goConfigService.isUserAdmin(username)).thenReturn(Boolean.TRUE);
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
-        assertThat(securityService.canViewAdminPage(username), is(true));
+        assertThat(securityService.canViewAdminPage(username)).isTrue();
         verify(goConfigService).isUserAdmin(username);
     }
 
@@ -95,7 +94,7 @@ public class SecurityServiceTest {
     public void shouldBeAbleToTellIfAnUserCanViewTheAdminPage() {
         final Username user = new Username(new CaseInsensitiveString("user"));
         when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(Boolean.TRUE);
-        assertThat(securityService.canViewAdminPage(new Username(new CaseInsensitiveString("user"))), is(true));
+        assertThat(securityService.canViewAdminPage(new Username(new CaseInsensitiveString("user")))).isTrue();
     }
 
     @Test
@@ -106,7 +105,7 @@ public class SecurityServiceTest {
         SecurityService spy = spy(securityService);
         doReturn(false).when(spy).isAuthorizedToViewAndEditTemplates(user);
         doReturn(false).when(spy).isAuthorizedToViewTemplates(user);
-        assertThat(spy.canViewAdminPage(new Username(new CaseInsensitiveString("user"))), is(false));
+        assertThat(spy.canViewAdminPage(new Username(new CaseInsensitiveString("user")))).isFalse();
     }
 
     @Test
@@ -115,8 +114,8 @@ public class SecurityServiceTest {
         when(goConfigService.isGroupAdministrator(groupAdmin.getUsername())).thenReturn(Boolean.TRUE);
         final Username admin = new Username(new CaseInsensitiveString("admin"));
         when(goConfigService.isGroupAdministrator(admin.getUsername())).thenReturn(Boolean.TRUE);
-        assertThat(securityService.canCreatePipelines(new Username(new CaseInsensitiveString("groupAdmin"))), is(true));
-        assertThat(securityService.canCreatePipelines(new Username(new CaseInsensitiveString("admin"))), is(true));
+        assertThat(securityService.canCreatePipelines(new Username(new CaseInsensitiveString("groupAdmin")))).isTrue();
+        assertThat(securityService.canCreatePipelines(new Username(new CaseInsensitiveString("admin")))).isTrue();
     }
 
     @Test
@@ -127,7 +126,7 @@ public class SecurityServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         SecurityService spy = spy(securityService);
         doReturn(true).when(spy).isAuthorizedToViewAndEditTemplates(user);
-        assertThat(spy.canCreatePipelines(new Username(new CaseInsensitiveString("user"))), is(false));
+        assertThat(spy.canCreatePipelines(new Username(new CaseInsensitiveString("user")))).isFalse();
     }
 
     @Test
@@ -143,8 +142,8 @@ public class SecurityServiceTest {
         when(goConfigService.cruiseConfig()).thenReturn(config);
         when(goConfigService.isUserAdmin(new Username(templateAdminName))).thenReturn(false);
 
-        assertThat(securityService.isAuthorizedToEditTemplate(templateName, new Username(templateAdminName)), is(true));
-        assertThat(securityService.isAuthorizedToEditTemplate(templateName, new Username(new CaseInsensitiveString("someOtherUserWhoIsNotAnAdmin"))), is(false));
+        assertThat(securityService.isAuthorizedToEditTemplate(templateName, new Username(templateAdminName))).isTrue();
+        assertThat(securityService.isAuthorizedToEditTemplate(templateName, new Username(new CaseInsensitiveString("someOtherUserWhoIsNotAnAdmin")))).isFalse();
     }
 
     @Test
@@ -159,7 +158,7 @@ public class SecurityServiceTest {
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.isUserAdmin(new Username(new CaseInsensitiveString(adminName)))).thenReturn(true);
 
-        assertThat(securityService.isAuthorizedToEditTemplate(templateName, new Username(new CaseInsensitiveString(adminName))), is(true));
+        assertThat(securityService.isAuthorizedToEditTemplate(templateName, new Username(new CaseInsensitiveString(adminName)))).isTrue();
     }
 
     @Test
@@ -182,10 +181,10 @@ public class SecurityServiceTest {
         when(goConfigService.isUserAdmin(new Username(new CaseInsensitiveString(theSuperAdmin)))).thenReturn(true);
         when(goConfigService.isUserAdmin(new Username(new CaseInsensitiveString("someOtherUserWhoIsNotAdminOfAnyTemplates")))).thenReturn(false);
 
-        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(templateAdminName)), is(true));
-        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(secondTemplateAdminName)), is(true));
-        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(theSuperAdmin))), is(true));
-        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString("someOtherUserWhoIsNotAdminOfAnyTemplates"))), is(false));
+        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(templateAdminName))).isTrue();
+        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(secondTemplateAdminName))).isTrue();
+        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(theSuperAdmin)))).isTrue();
+        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString("someOtherUserWhoIsNotAdminOfAnyTemplates")))).isFalse();
     }
 
     @Test
@@ -199,7 +198,7 @@ public class SecurityServiceTest {
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.isUserAdmin(admin)).thenReturn(true);
 
-        assertThat(securityService.isAuthorizedToViewTemplate(templateName, admin), is(true));
+        assertThat(securityService.isAuthorizedToViewTemplate(templateName, admin)).isTrue();
     }
 
     @Test
@@ -213,7 +212,7 @@ public class SecurityServiceTest {
         when(goConfigService.cruiseConfig()).thenReturn(config);
         when(goConfigService.isUserAdmin(new Username(templateAdmin))).thenReturn(false);
 
-        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(templateAdmin)), is(true));
+        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(templateAdmin))).isTrue();
     }
 
     @Test
@@ -227,7 +226,7 @@ public class SecurityServiceTest {
         when(goConfigService.cruiseConfig()).thenReturn(config);
         when(goConfigService.isUserAdmin(new Username(templateViewUser))).thenReturn(false);
 
-        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(templateViewUser)), is(true));
+        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(templateViewUser))).isTrue();
     }
 
     @Test
@@ -243,7 +242,7 @@ public class SecurityServiceTest {
         when(goConfigService.isUserAdmin(new Username(groupAdmin))).thenReturn(false);
         when(goConfigService.isGroupAdministrator(groupAdmin)).thenReturn(true);
 
-        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(groupAdmin)), is(true));
+        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(groupAdmin))).isTrue();
     }
 
     @Test
@@ -263,7 +262,7 @@ public class SecurityServiceTest {
         when(goConfigService.isUserAdmin(new Username(groupAdmin))).thenReturn(false);
         when(goConfigService.isGroupAdministrator(groupAdmin)).thenReturn(true);
 
-        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(groupAdmin)), is(false));
+        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(groupAdmin))).isFalse();
     }
 
     @Test
@@ -286,7 +285,7 @@ public class SecurityServiceTest {
         when(goConfigService.isUserAdmin(new Username(groupAdmin))).thenReturn(false);
         when(goConfigService.isGroupAdministrator(groupAdmin)).thenReturn(true);
 
-        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(groupAdmin)), is(true));
+        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(groupAdmin))).isTrue();
     }
 
     @Test
@@ -311,7 +310,7 @@ public class SecurityServiceTest {
         when(goConfigService.isUserAdmin(new Username(groupAdmin))).thenReturn(false);
         when(goConfigService.isGroupAdministrator(groupAdmin)).thenReturn(true);
 
-        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(groupAdmin)), is(false));
+        assertThat(securityService.isAuthorizedToViewTemplate(templateName, new Username(groupAdmin))).isFalse();
     }
 
     @Test
@@ -334,10 +333,10 @@ public class SecurityServiceTest {
         when(goConfigService.isUserAdmin(new Username(new CaseInsensitiveString(theSuperAdmin)))).thenReturn(true);
         when(goConfigService.isUserAdmin(new Username(new CaseInsensitiveString("regularUser")))).thenReturn(false);
 
-        assertThat(securityService.isAuthorizedToViewTemplates(new Username(templateAdminName)), is(true));
-        assertThat(securityService.isAuthorizedToViewTemplates(new Username(templateViewUser)), is(true));
-        assertThat(securityService.isAuthorizedToViewTemplates(new Username(new CaseInsensitiveString(theSuperAdmin))), is(true));
-        assertThat(securityService.isAuthorizedToViewTemplates(new Username(new CaseInsensitiveString("regularUser"))), is(false));
+        assertThat(securityService.isAuthorizedToViewTemplates(new Username(templateAdminName))).isTrue();
+        assertThat(securityService.isAuthorizedToViewTemplates(new Username(templateViewUser))).isTrue();
+        assertThat(securityService.isAuthorizedToViewTemplates(new Username(new CaseInsensitiveString(theSuperAdmin)))).isTrue();
+        assertThat(securityService.isAuthorizedToViewTemplates(new Username(new CaseInsensitiveString("regularUser")))).isFalse();
     }
 
     @Test
@@ -352,7 +351,7 @@ public class SecurityServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig(roleConfig));
 
-        assertThat(securityService.doesUserHasPermissions(bob, SupportedAction.VIEW, SupportedEntity.ELASTIC_AGENT_PROFILE, elasticAgentProfileId, clusterProfileId), is(true));
+        assertThat(securityService.doesUserHasPermissions(bob, SupportedAction.VIEW, SupportedEntity.ELASTIC_AGENT_PROFILE, elasticAgentProfileId, clusterProfileId)).isTrue();
     }
 
     @Test
@@ -367,7 +366,7 @@ public class SecurityServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig(roleConfig));
 
-        assertThat(securityService.doesUserHasPermissions(bob, SupportedAction.VIEW, SupportedEntity.ELASTIC_AGENT_PROFILE, elasticAgentProfileId, clusterProfileId), is(false));
+        assertThat(securityService.doesUserHasPermissions(bob, SupportedAction.VIEW, SupportedEntity.ELASTIC_AGENT_PROFILE, elasticAgentProfileId, clusterProfileId)).isFalse();
     }
 
     @Test
@@ -378,7 +377,7 @@ public class SecurityServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig());
 
-        assertThat(securityService.doesUserHasPermissions(bob, SupportedAction.VIEW, SupportedEntity.ELASTIC_AGENT_PROFILE, elasticAgentProfileId, clusterProfileId), is(false));
+        assertThat(securityService.doesUserHasPermissions(bob, SupportedAction.VIEW, SupportedEntity.ELASTIC_AGENT_PROFILE, elasticAgentProfileId, clusterProfileId)).isFalse();
     }
 
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {

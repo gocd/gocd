@@ -24,8 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,25 +43,25 @@ public class GoConfigRevisionTest {
     @Test
     public void shouldGenerateCommentString() {
         GoConfigRevision configRevision = new GoConfigRevision("config-xml", "my-md5", "loser", "100.3.9.71", timeProvider);
-        assertThat(configRevision.getComment(), is(String.format("user:loser|timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.9.71|md5:my-md5", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION)));
+        assertThat(configRevision.getComment()).isEqualTo(String.format("user:loser|timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.9.71|md5:my-md5", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION));
     }
 
     @Test
     public void shouldGenerateCommentStringWithJoinCharacterEscaped() {
         GoConfigRevision configRevision = new GoConfigRevision("config-xml", "my-|md5||", "los|er|", "100.3.|9.71||", timeProvider);
-        assertThat(configRevision.getComment(), is(String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION)));
+        assertThat(configRevision.getComment()).isEqualTo(String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION));
     }
 
     @Test
     public void shouldParsePartsFromComment() {
         GoConfigRevision configRevision = new GoConfigRevision("config-xml", String.format("user:los||er|||timestamp:%s|schema_version:20|go_edition:Enterprise|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime()));
-        assertThat(configRevision.getContent(), is("config-xml"));
-        assertThat(configRevision.getMd5(), is("my-|md5||"));
-        assertThat(configRevision.getGoVersion(), is("100.3.|9.71||"));
-        assertThat(configRevision.getGoEdition(), is("Enterprise"));
-        assertThat(configRevision.getUsername(), is("los|er|"));
-        assertThat(configRevision.getTime(), is(date));
-        assertThat(configRevision.getSchemaVersion(), is(20));
+        assertThat(configRevision.getContent()).isEqualTo("config-xml");
+        assertThat(configRevision.getMd5()).isEqualTo("my-|md5||");
+        assertThat(configRevision.getGoVersion()).isEqualTo("100.3.|9.71||");
+        assertThat(configRevision.getGoEdition()).isEqualTo("Enterprise");
+        assertThat(configRevision.getUsername()).isEqualTo("los|er|");
+        assertThat(configRevision.getTime()).isEqualTo(date);
+        assertThat(configRevision.getSchemaVersion()).isEqualTo(20);
     }
 
     @Test
@@ -71,7 +70,7 @@ public class GoConfigRevisionTest {
             new GoConfigRevision("config-xml", "foo");
             fail("should have failed for invalid comment");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("failed to parse comment [foo]"));
+            assertThat(e.getMessage()).isEqualTo("failed to parse comment [foo]");
         }
     }
 
@@ -80,22 +79,22 @@ public class GoConfigRevisionTest {
         GoConfigRevision rev1 = new GoConfigRevision("blah", "md5", "loser", "2.2.2", new TimeProvider());
         GoConfigRevision rev2 = new GoConfigRevision("blah blah", "md5", "loser 2", "2.2.3", new TimeProvider());
 
-        assertThat(rev1, is(rev2));
+        assertThat(rev1).isEqualTo(rev2);
     }
 
     @Test
     public void canAnswerIfRevisionContentIsBackedByByteArrayWhenContentIsString() {
         GoConfigRevision rev = new GoConfigRevision("blah", "md5", "loser", "2.2.2", new TimeProvider());
-        assertThat(rev.isByteArrayBacked(), is(false));
-        assertThat(rev.getConfigXmlBytes(), is(nullValue()));
-        assertThat(rev.getContent(), is("blah"));
+        assertThat(rev.isByteArrayBacked()).isFalse();
+        assertThat(rev.getConfigXmlBytes()).isNull();
+        assertThat(rev.getContent()).isEqualTo("blah");
     }
 
     @Test
     public void canAnswerIfRevisionContentIsBackedByByteArrayWhenContentIsAByteArray() {
         GoConfigRevision rev = new GoConfigRevision("blah".getBytes(UTF_8), String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION));
-        assertThat(rev.isByteArrayBacked(), is(true));
-        assertThat(List.of(rev.getConfigXmlBytes()), hasItems("blah".getBytes(UTF_8)));
-        assertThat(rev.getContent(), is("blah"));
+        assertThat(rev.isByteArrayBacked()).isTrue();
+        assertThat(List.of(rev.getConfigXmlBytes())).contains("blah".getBytes(UTF_8));
+        assertThat(rev.getContent()).isEqualTo("blah");
     }
 }

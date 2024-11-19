@@ -33,8 +33,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GoConfigMaterialsTest {
 
@@ -43,7 +42,7 @@ public class GoConfigMaterialsTest {
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig("url", "svnDir", true);
         PipelineConfig pipeline1 = new PipelineConfig(new CaseInsensitiveString("pipeline1"), new MaterialConfigs(svnMaterialConfig));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
-        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines(), hasItem(svnMaterialConfig));
+        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines()).contains(svnMaterialConfig);
     }
 
     @Test
@@ -52,7 +51,7 @@ public class GoConfigMaterialsTest {
 
         pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
-        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size(), is(4));
+        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size()).isEqualTo(4);
     }
 
     @Test
@@ -63,7 +62,7 @@ public class GoConfigMaterialsTest {
 
         pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
-        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size(), is(4));
+        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size()).isEqualTo(4);
     }
 
     @Test
@@ -78,8 +77,8 @@ public class GoConfigMaterialsTest {
         pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
         Set<MaterialConfig> materialsBelongingToAutoPipelines = config.getAllUniqueMaterialsBelongingToAutoPipelines();
-        assertThat(materialsBelongingToAutoPipelines.size(), is(4));
-        assertThat(materialsBelongingToAutoPipelines, containsInAnyOrder(pipeline1.materialConfigs().get(1), pipeline1.materialConfigs().get(2), pipeline1.materialConfigs().get(3), pipeline1.materialConfigs().get(4)));
+        assertThat(materialsBelongingToAutoPipelines.size()).isEqualTo(4);
+        assertThat(materialsBelongingToAutoPipelines).contains(pipeline1.materialConfigs().get(1), pipeline1.materialConfigs().get(2), pipeline1.materialConfigs().get(3), pipeline1.materialConfigs().get(4));
     }
 
     private PackageMaterialConfig getPackageMaterialConfigWithAutoUpdateFalse() {
@@ -101,7 +100,7 @@ public class GoConfigMaterialsTest {
         PipelineConfig pipeline1 = pipelineWithManyMaterials(false);
         pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
-        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size(), is(3));
+        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size()).isEqualTo(3);
 
     }
 
@@ -122,8 +121,8 @@ public class GoConfigMaterialsTest {
         pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
         Set<MaterialConfig> materialConfigs = config.getAllUniqueMaterialsBelongingToAutoPipelines();
-        assertThat(materialConfigs.size(), is(1));
-        assertThat(materialConfigs.contains(dependencyMaterialConfig), is(true));
+        assertThat(materialConfigs.size()).isEqualTo(1);
+        assertThat(materialConfigs.contains(dependencyMaterialConfig)).isTrue();
     }
 
     @Test
@@ -142,8 +141,8 @@ public class GoConfigMaterialsTest {
 
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(up1, up2, down1, down2));
         Set<StageConfig> stages = config.getStagesUsedAsMaterials(up1);
-        assertThat(stages.size(), is(1));
-        assertThat(stages.contains(upStage), is(true));
+        assertThat(stages.size()).isEqualTo(1);
+        assertThat(stages.contains(upStage)).isTrue();
     }
 
     @Test
@@ -154,7 +153,7 @@ public class GoConfigMaterialsTest {
         PipelineConfig pipeline2 = new PipelineConfig(new CaseInsensitiveString("pipeline2"), new MaterialConfigs(svnInDifferentFolder));
 
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1, pipeline2));
-        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size(), is(1));
+        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size()).isEqualTo(1);
     }
 
     @Test
@@ -165,6 +164,6 @@ public class GoConfigMaterialsTest {
         PipelineConfig pipeline2 = new PipelineConfig(new CaseInsensitiveString("pipeline2"), new MaterialConfigs(hg));
 
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1, pipeline2));
-        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size(), is(2));
+        assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size()).isEqualTo(2);
     }
 }

@@ -18,15 +18,14 @@ package com.thoughtworks.go.config.remote;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RepoConfigOriginTest {
 
     @Test
     public void shouldShowDisplayName() {
         RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(svn("http://mysvn", false), "myplugin", "id"), "123");
-        assertThat(repoConfigOrigin.displayName(), is("http://mysvn at revision 123"));
+        assertThat(repoConfigOrigin.displayName()).isEqualTo("http://mysvn at revision 123");
     }
 
     // because we don't like null pointer exceptions
@@ -34,7 +33,7 @@ public class RepoConfigOriginTest {
     @Test
     public void shouldShowDisplayNameWhenEmptyConfig() {
         RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin();
-        assertThat(repoConfigOrigin.displayName(), is("NULL material at revision null"));
+        assertThat(repoConfigOrigin.displayName()).isEqualTo("NULL material at revision null");
     }
 
 

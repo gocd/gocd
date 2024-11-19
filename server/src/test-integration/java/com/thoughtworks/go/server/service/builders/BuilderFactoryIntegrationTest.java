@@ -32,8 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -77,7 +76,7 @@ public class BuilderFactoryIntegrationTest {
 
         final Builder builder = builderFactory.builderFor(fetchTask, pipeline, upstreamResolver);
 
-        assertThat(builder, instanceOf(FetchArtifactBuilder.class));
+        assertThat(builder).isInstanceOf(FetchArtifactBuilder.class);
     }
 
     @Test
@@ -96,6 +95,6 @@ public class BuilderFactoryIntegrationTest {
 
         final Builder builder = builderFactory.builderFor(pluggableArtifactTask, pipeline, upstreamResolver);
 
-        assertThat(builder, instanceOf(FetchPluggableArtifactBuilder.class));
+        assertThat(builder).isInstanceOf(FetchPluggableArtifactBuilder.class);
     }
 }

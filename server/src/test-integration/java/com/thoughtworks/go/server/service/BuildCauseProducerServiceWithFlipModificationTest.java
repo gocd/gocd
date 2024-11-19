@@ -61,8 +61,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -197,7 +196,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
 
     private BuildCause buildCauseForPipeline() {
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(PIPELINE_NAME));
-        assertThat("Should be scheduled", buildCause, is(not(nullValue())));
+        assertThat(buildCause).isNotNull();
         return buildCause;
     }
 
@@ -228,9 +227,9 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         for (BuildCause buildCause : load.values()) {
             for (MaterialRevision revision : buildCause.getMaterialRevisions()) {
                 if (revision.getMaterial() instanceof HgMaterial) {
-                    assertThat(revision.isChanged(), is(false));
+                    assertThat(revision.isChanged()).isFalse();
                 } else {
-                    assertThat(revision.isChanged(), is(true));
+                    assertThat(revision.isChanged()).isTrue();
                 }
             }
         }
@@ -252,7 +251,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
 
     private void assertBuildCauseWithModificationHasChangedStatus(boolean changed, BuildCause buildCause) {
         for (MaterialRevision revision : buildCause.getMaterialRevisions()) {
-            assertThat(revision.isChanged(), is(changed));
+            assertThat(revision.isChanged()).isEqualTo(changed);
         }
     }
 }

@@ -23,6 +23,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
+import static org.assertj.core.data.Percentage.withPercentage
 
 class ArtifactConfigRepresenterTest {
   @Test
@@ -90,9 +91,9 @@ class ArtifactConfigRepresenterTest {
     ]
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(artifactsJSON)
     def actualArtifactsConfig = ArtifactConfigRepresenter.fromJSON(jsonReader)
-    assertThat(actualArtifactsConfig.getArtifactsDir(), is(artifactsJSON.artifacts_dir))
-    assertThat(actualArtifactsConfig.getPurgeSettings().purgeStart.purgeStartDiskSpace, is(artifactsJSON.purge_settings.purge_start_disk_space))
-    assertThat(actualArtifactsConfig.getPurgeSettings().purgeUpto.purgeUptoDiskSpace, is(artifactsJSON.purge_settings.purge_upto_disk_space))
+    assertThat(actualArtifactsConfig.getArtifactsDir().artifactDir).isEqualTo(artifactsJSON.artifacts_dir)
+    assertThat(actualArtifactsConfig.getPurgeSettings().purgeStart.purgeStartDiskSpace).isCloseTo(artifactsJSON.purge_settings.purge_start_disk_space.toDouble(), withPercentage(0.0001))
+    assertThat(actualArtifactsConfig.getPurgeSettings().purgeUpto.purgeUptoDiskSpace).isCloseTo(artifactsJSON.purge_settings.purge_upto_disk_space.toDouble(), withPercentage(0.0001))
   }
 
   @Test

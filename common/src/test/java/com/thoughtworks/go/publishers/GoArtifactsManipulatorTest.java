@@ -41,8 +41,7 @@ import java.util.Properties;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -78,8 +77,8 @@ public class GoArtifactsManipulatorTest {
                 fail("should have thrown request entity too large error");
             } catch (RuntimeException e) {
                 String expectedMessage = "Artifact upload for file " + tempFile.getAbsolutePath() + " (Size: "+ tempFile.length() +") was denied by the server. This usually happens when server runs out of disk space.";
-                assertThat(e.getMessage(), is("java.lang.RuntimeException: " + expectedMessage + ".  HTTP return code is 413"));
-                assertThat(buffer.toString().contains(expectedMessage), is(true));
+                assertThat(e.getMessage()).isEqualTo("java.lang.RuntimeException: " + expectedMessage + ".  HTTP return code is 413");
+                assertThat(buffer.toString().contains(expectedMessage)).isTrue();
             }
         }
     }

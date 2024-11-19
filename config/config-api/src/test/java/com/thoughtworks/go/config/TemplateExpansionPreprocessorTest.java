@@ -22,8 +22,7 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TemplateExpansionPreprocessorTest {
     private TemplateExpansionPreprocessor preprocessor;
@@ -44,7 +43,7 @@ public class TemplateExpansionPreprocessorTest {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
         pipelineConfig.templatize(new CaseInsensitiveString("does_not_exist"));
         preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
-        assertThat(pipelineConfig.hasTemplateApplied(), is(false));
+        assertThat(pipelineConfig.hasTemplateApplied()).isFalse();
     }
 
     @Test
@@ -53,9 +52,9 @@ public class TemplateExpansionPreprocessorTest {
         pipelineConfig.templatize(new CaseInsensitiveString("template"));
         pipelineConfig.addStageWithoutValidityAssertion(new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs()));
         preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
-        assertThat(pipelineConfig.hasTemplateApplied(), is(false));
-        assertThat(pipelineConfig.errors().on("stages"), is("Cannot add stages to pipeline 'p' which already references template 'template'"));
-        assertThat(pipelineConfig.errors().on("template"), is("Cannot set template 'template' on pipeline 'p' because it already has stages defined"));
+        assertThat(pipelineConfig.hasTemplateApplied()).isFalse();
+        assertThat(pipelineConfig.errors().on("stages")).isEqualTo("Cannot add stages to pipeline 'p' which already references template 'template'");
+        assertThat(pipelineConfig.errors().on("template")).isEqualTo("Cannot set template 'template' on pipeline 'p' because it already has stages defined");
     }
 
     @Test
@@ -78,11 +77,11 @@ public class TemplateExpansionPreprocessorTest {
         jobConfigFromPipeline.setVariables(jobVariablesConfigFromPipeline);
 
 
-        assertThat(stageConfigFromPipeline.getVariables().isEmpty(), is(false));
-        assertThat(jobConfigFromPipeline.getVariables().isEmpty(), is(false));
+        assertThat(stageConfigFromPipeline.getVariables().isEmpty()).isFalse();
+        assertThat(jobConfigFromPipeline.getVariables().isEmpty()).isFalse();
 
-        assertThat(stageConfigFromTemplate.getVariables().isEmpty(), is(true));
-        assertThat(jobConfigFromTemplate.getVariables().isEmpty(), is(true));
+        assertThat(stageConfigFromTemplate.getVariables().isEmpty()).isTrue();
+        assertThat(jobConfigFromTemplate.getVariables().isEmpty()).isTrue();
     }
 
     private PipelineConfig pipelineConfigWithGivenStages(String... stageNames) {

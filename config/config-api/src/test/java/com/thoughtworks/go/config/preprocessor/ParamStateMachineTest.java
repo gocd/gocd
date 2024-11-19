@@ -18,8 +18,7 @@ package com.thoughtworks.go.config.preprocessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ParamStateMachineTest {
@@ -36,7 +35,7 @@ public class ParamStateMachineTest {
         ParamStateMachine stateMachine = new ParamStateMachine();
         stateMachine.process("#{pattern}", handler);
 
-        assertThat(ParamStateMachine.ReaderState.IN_PATTERN.pattern.length(), is(0));
+        assertThat(ParamStateMachine.ReaderState.IN_PATTERN.pattern.length()).isEqualTo(0);
         verify(handler).handlePatternFound(any(StringBuilder.class));
     }
 
@@ -50,7 +49,7 @@ public class ParamStateMachineTest {
         } catch (Exception e) {
             //Ignore to assert on the pattern
         }
-        assertThat(ParamStateMachine.ReaderState.IN_PATTERN.pattern.length(), is(0));
+        assertThat(ParamStateMachine.ReaderState.IN_PATTERN.pattern.length()).isEqualTo(0);
         verify(handler).handlePatternFound(any(StringBuilder.class));
     }
 }

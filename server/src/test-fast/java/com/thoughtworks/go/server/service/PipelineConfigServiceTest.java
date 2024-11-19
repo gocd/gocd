@@ -37,8 +37,7 @@ import java.util.UUID;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PipelineConfigServiceTest {
@@ -76,18 +75,18 @@ public class PipelineConfigServiceTest {
     public void shouldBeAbleToGetTheCanDeleteStatusOfAllPipelines() {
         Map<CaseInsensitiveString, CanDeleteResult> pipelineToCanDeleteIt = pipelineConfigService.canDeletePipelines();
 
-        assertThat(pipelineToCanDeleteIt.size(), is(4));
-        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("down")), is(new CanDeleteResult(true, "Delete this pipeline.")));
-        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("in_env")), is(new CanDeleteResult(false, "Cannot delete pipeline 'in_env' as it is present in environment 'foo'.")));
-        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("pipeline")), is(new CanDeleteResult(false, "Cannot delete pipeline 'pipeline' as pipeline 'down' depends on it.")));
-        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("remote")), is(new CanDeleteResult(false, "Cannot delete pipeline 'remote' defined in configuration repository 'url at revision 1234'.")));
+        assertThat(pipelineToCanDeleteIt.size()).isEqualTo(4);
+        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("down"))).isEqualTo(new CanDeleteResult(true, "Delete this pipeline."));
+        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("in_env"))).isEqualTo(new CanDeleteResult(false, "Cannot delete pipeline 'in_env' as it is present in environment 'foo'."));
+        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("pipeline"))).isEqualTo(new CanDeleteResult(false, "Cannot delete pipeline 'pipeline' as pipeline 'down' depends on it."));
+        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("remote"))).isEqualTo(new CanDeleteResult(false, "Cannot delete pipeline 'remote' defined in configuration repository 'url at revision 1234'."));
     }
 
     @Test
     public void shouldGetPipelineConfigBasedOnName() {
         String pipelineName = "pipeline";
         PipelineConfig pipeline = pipelineConfigService.getPipelineConfig(pipelineName);
-        assertThat(pipeline, is(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName))));
+        assertThat(pipeline).isEqualTo(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)));
     }
 
     private void downstream(PipelineConfigs configs) {
@@ -138,7 +137,7 @@ public class PipelineConfigServiceTest {
 
     @Test
     public void shouldGetPipelinesCount() {
-        assertThat(pipelineConfigService.totalPipelinesCount(), is(this.cruiseConfig.allPipelines().size()));
+        assertThat(pipelineConfigService.totalPipelinesCount()).isEqualTo(this.cruiseConfig.allPipelines().size());
     }
 
     @Test
@@ -150,7 +149,7 @@ public class PipelineConfigServiceTest {
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(mergedCruiseConfig.getAllPipelineConfigs());
 
-        assertThat(pipelineConfigService.totalPipelinesCount(), is(mergedCruiseConfig.allPipelines().size()));
+        assertThat(pipelineConfigService.totalPipelinesCount()).isEqualTo(mergedCruiseConfig.allPipelines().size());
     }
 
     @Test
@@ -172,9 +171,9 @@ public class PipelineConfigServiceTest {
 
         List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(username);
 
-        assertThat(pipelineConfigs.size(), is(2));
-        assertThat(pipelineConfigs.get(0).getGroup(), is("group2"));
-        assertThat(pipelineConfigs.get(1).getGroup(), is("group1"));
+        assertThat(pipelineConfigs.size()).isEqualTo(2);
+        assertThat(pipelineConfigs.get(0).getGroup()).isEqualTo("group2");
+        assertThat(pipelineConfigs.get(1).getGroup()).isEqualTo("group1");
     }
 
 
@@ -195,7 +194,7 @@ public class PipelineConfigServiceTest {
 
         List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsFor(username);
 
-        assertThat(pipelineConfigs.size(), is(1));
-        assertThat(pipelineConfigs.get(0).getGroup(), is("group1"));
+        assertThat(pipelineConfigs.size()).isEqualTo(1);
+        assertThat(pipelineConfigs.get(0).getGroup()).isEqualTo("group1");
     }
 }

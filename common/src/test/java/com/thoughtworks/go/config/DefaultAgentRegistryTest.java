@@ -19,9 +19,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DefaultAgentRegistryTest {
@@ -48,21 +46,21 @@ public class DefaultAgentRegistryTest {
     }
 
     @Test
-    public void shouldCreateGuidIfOneNotAlreadySet() throws Exception {
+    public void shouldCreateGuidIfOneNotAlreadySet() {
         guidService.delete();
         String guid = agentRegistry.uuid();
         assertNotNull(guid);
-        assertThat(guid, is(agentRegistry.uuid()));
-        assertThat(guid, is(not(GUID)));
+        assertThat(guid).isEqualTo(agentRegistry.uuid());
+        assertThat(guid).isNotEqualTo(GUID);
     }
 
     @Test
-    public void shouldUseGuidThatAlreadyExists() throws Exception {
-        assertThat(agentRegistry.uuid(), is(GUID));
+    public void shouldUseGuidThatAlreadyExists() {
+        assertThat(agentRegistry.uuid()).isEqualTo(GUID);
     }
 
     @Test
-    public void shouldCheckGuidPresent() throws Exception {
+    public void shouldCheckGuidPresent() {
         assertTrue(agentRegistry.guidPresent());
 
         guidService.delete();
@@ -70,12 +68,12 @@ public class DefaultAgentRegistryTest {
     }
 
     @Test
-    public void shouldGetTokenFromFile() throws Exception {
-        assertThat(agentRegistry.token(), is(TOKEN));
+    public void shouldGetTokenFromFile() {
+        assertThat(agentRegistry.token()).isEqualTo(TOKEN);
     }
 
     @Test
-    public void shouldCheckTokenPresent() throws Exception {
+    public void shouldCheckTokenPresent() {
         assertTrue(agentRegistry.tokenPresent());
 
         tokenService.delete();
@@ -84,17 +82,17 @@ public class DefaultAgentRegistryTest {
     }
 
     @Test
-    public void shouldStoreTokenToDisk() throws Exception {
-        assertThat(agentRegistry.token(), is(TOKEN));
+    public void shouldStoreTokenToDisk() {
+        assertThat(agentRegistry.token()).isEqualTo(TOKEN);
 
         agentRegistry.storeTokenToDisk("foo-token");
 
-        assertThat(agentRegistry.token(), is("foo-token"));
+        assertThat(agentRegistry.token()).isEqualTo("foo-token");
     }
 
     @Test
-    public void shouldDeleteTokenFromDisk() throws Exception {
-        assertThat(agentRegistry.token(), is(TOKEN));
+    public void shouldDeleteTokenFromDisk() {
+        assertThat(agentRegistry.token()).isEqualTo(TOKEN);
         assertTrue(agentRegistry.tokenPresent());
 
         agentRegistry.deleteToken();

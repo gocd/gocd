@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PluginSettingsConfigurationTest {
     @Test
@@ -37,10 +36,10 @@ public class PluginSettingsConfigurationTest {
         configuration.add(p1);
 
         List<? extends Property> properties = configuration.list();
-        assertThat(properties.get(0).getKey(), is("k0"));
-        assertThat(properties.get(1).getKey(), is("k1"));
-        assertThat(properties.get(2).getKey(), is("k2"));
-        assertThat(properties.get(3).getKey(), is("k3"));
+        assertThat(properties.get(0).getKey()).isEqualTo("k0");
+        assertThat(properties.get(1).getKey()).isEqualTo("k1");
+        assertThat(properties.get(2).getKey()).isEqualTo("k2");
+        assertThat(properties.get(3).getKey()).isEqualTo("k3");
     }
 
     private PluginSettingsProperty createProperty(String key, int order) {

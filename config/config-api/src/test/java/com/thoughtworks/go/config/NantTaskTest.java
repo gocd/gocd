@@ -22,8 +22,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NantTaskTest {
     @Test
@@ -34,22 +33,21 @@ public class NantTaskTest {
         task.setWorkingDirectory("lib");
         task.setNantPath("tmp");
 
-        assertThat(task.describe(),
-                is("tmp" + File.separator + "nant -buildfile:\"default.build\" test (workingDirectory: lib)"));
+        assertThat(task.describe()).isEqualTo("tmp" + File.separator + "nant -buildfile:\"default.build\" test (workingDirectory: lib)");
     }
 
     @Test
     public void shouldUpdateAllItsAttributes() {
         NantTask nant = new NantTask();
         nant.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "foo/build.xml", NantTask.NANT_PATH, "/usr/bin/nant"));
-        assertThat(nant.getBuildFile(), is("foo/build.xml"));
-        assertThat(nant.getNantPath(), is("/usr/bin/nant"));
+        assertThat(nant.getBuildFile()).isEqualTo("foo/build.xml");
+        assertThat(nant.getNantPath()).isEqualTo("/usr/bin/nant");
         nant.setConfigAttributes(Map.of());
-        assertThat(nant.getBuildFile(), is("foo/build.xml"));
-        assertThat(nant.getNantPath(), is("/usr/bin/nant"));
+        assertThat(nant.getBuildFile()).isEqualTo("foo/build.xml");
+        assertThat(nant.getNantPath()).isEqualTo("/usr/bin/nant");
         nant.setConfigAttributes(null);
-        assertThat(nant.getBuildFile(), is("foo/build.xml"));
-        assertThat(nant.getNantPath(), is("/usr/bin/nant"));
+        assertThat(nant.getBuildFile()).isEqualTo("foo/build.xml");
+        assertThat(nant.getNantPath()).isEqualTo("/usr/bin/nant");
     }
 
     @Test
@@ -59,22 +57,22 @@ public class NantTaskTest {
         attributes.put(BuildTask.BUILD_FILE, null);
         attributes.put(NantTask.NANT_PATH, null);
         nant.setConfigAttributes(attributes);
-        assertThat(nant.getBuildFile(), is(nullValue()));
-        assertThat(nant.getNantPath(), is(nullValue()));
+        assertThat(nant.getBuildFile()).isNull();
+        assertThat(nant.getNantPath()).isNull();
     }
 
     @Test
     public void shouldReturnPropertiesPopulatedWithNantpath() {
         NantTask nantTask = new NantTask();
-        assertThat(nantTask.getPropertiesForDisplay().isEmpty(), is(true));
+        assertThat(nantTask.getPropertiesForDisplay().isEmpty()).isTrue();
         nantTask.setBuildFile("some-file.xml");
         nantTask.setTarget("bulls_eye");
         nantTask.setWorkingDirectory("some/dir");
         nantTask.setNantPath("foo/bar/baz");
-        assertThat(nantTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Nant Path", "foo/bar/baz", "nant_path"),
+        assertThat(nantTask.getPropertiesForDisplay()).contains(new TaskProperty("Nant Path", "foo/bar/baz", "nant_path"),
                 new TaskProperty("Build File", "some-file.xml", "build_file"), new TaskProperty("Target", "bulls_eye", "target"),
-                new TaskProperty("Working Directory", "some/dir", "working_directory")));
-        assertThat(nantTask.getPropertiesForDisplay().size(), is(4));
+                new TaskProperty("Working Directory", "some/dir", "working_directory"));
+        assertThat(nantTask.getPropertiesForDisplay().size()).isEqualTo(4);
     }
 
     @Test
@@ -82,14 +80,14 @@ public class NantTaskTest {
         NantTask task = new NantTask();
         String path = "c:/nant/bin";
         task.setNantPath(path);
-        assertThat(task.command(), is(new File(path, "nant").getPath()));
+        assertThat(task.command()).isEqualTo(new File(path, "nant").getPath());
     }
 
     @Test
-    public void shouldGiveArgumentsIncludingBuildfileAndTarget() {
+    public void shouldGiveArgumentsIncludingBuildFileAndTarget() {
         NantTask task = new NantTask();
         task.setBuildFile("build/build.xml");
         task.setTarget("compile");
-        assertThat(task.arguments(), is("-buildfile:\"build/build.xml\" compile"));
+        assertThat(task.arguments()).isEqualTo("-buildfile:\"build/build.xml\" compile");
     }
 }

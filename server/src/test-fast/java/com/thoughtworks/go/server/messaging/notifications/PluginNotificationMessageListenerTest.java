@@ -25,8 +25,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PluginNotificationMessageListenerTest {
@@ -59,9 +58,9 @@ public class PluginNotificationMessageListenerTest {
 
         verify(serverHealthService).update(argumentCaptor.capture());
         ServerHealthState serverHealthState = argumentCaptor.getValue();
-        assertThat(serverHealthState.isSuccess(), is(false));
-        assertThat(serverHealthState.getMessage(), is("Notification update failed for plugin: pid"));
-        assertThat(serverHealthState.getDescription(), is("error message 1, error message 2"));
+        assertThat(serverHealthState.isSuccess()).isFalse();
+        assertThat(serverHealthState.getMessage()).isEqualTo("Notification update failed for plugin: pid");
+        assertThat(serverHealthState.getDescription()).isEqualTo("error message 1, error message 2");
         verify(notificationExtension).notify("pid", "request-name", message.getData());
     }
 
@@ -78,9 +77,9 @@ public class PluginNotificationMessageListenerTest {
 
         verify(serverHealthService).update(argumentCaptor.capture());
         ServerHealthState serverHealthState = argumentCaptor.getValue();
-        assertThat(serverHealthState.isSuccess(), is(false));
-        assertThat(serverHealthState.getMessage(), is("Notification update failed for plugin: pid"));
-        assertThat(serverHealthState.getDescription(), is("error!"));
+        assertThat(serverHealthState.isSuccess()).isFalse();
+        assertThat(serverHealthState.getMessage()).isEqualTo("Notification update failed for plugin: pid");
+        assertThat(serverHealthState.getDescription()).isEqualTo("error!");
         verify(notificationExtension).notify("pid", "request-name", message.getData());
     }
 

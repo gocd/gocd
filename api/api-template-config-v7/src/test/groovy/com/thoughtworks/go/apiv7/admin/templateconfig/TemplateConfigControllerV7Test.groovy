@@ -264,7 +264,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
     @Nested
     class AsAdmin {
 
-      private HttpLocalizedOperationResult result;
+      private HttpLocalizedOperationResult result
 
       @BeforeEach
       void setUp() {
@@ -324,7 +324,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
     @Nested
     class AsAdmin {
 
-      private HttpLocalizedOperationResult result;
+      private HttpLocalizedOperationResult result
 
       @BeforeEach
       void setUp() {

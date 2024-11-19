@@ -29,8 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -73,8 +72,8 @@ public class AddEnvironmentCommandTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unprocessableEntity("Could not add environment Dev Environment 'Dev' refers to an unknown pipeline 'Invalid-pipeline-name'.");
 
-        assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(result, is(expectedResult));
+        assertThat(command.isValid(cruiseConfig)).isFalse();
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
@@ -85,9 +84,9 @@ public class AddEnvironmentCommandTest {
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
 
-        assertThat(command.isValid(cruiseConfig), is(false));
+        assertThat(command.isValid(cruiseConfig)).isFalse();
         expectedResult.unprocessableEntity("Could not add environment Dev Environment Variable name 'foo' is not unique for environment 'Dev'., Environment Variable name 'foo' is not unique for environment 'Dev'.");
-        assertThat(result, is(expectedResult));
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
@@ -97,7 +96,7 @@ public class AddEnvironmentCommandTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.conflict(EntityType.Environment.alreadyExists(environmentName));
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result, is(expectedResult));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result).isEqualTo(expectedResult);
     }
 }

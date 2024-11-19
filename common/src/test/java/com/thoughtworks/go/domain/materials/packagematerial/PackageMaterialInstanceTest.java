@@ -24,9 +24,7 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PackageMaterialInstanceTest {
 
@@ -39,10 +37,10 @@ public class PackageMaterialInstanceTest {
 
         PackageMaterial constructedMaterial = (PackageMaterial) materialInstance.toOldMaterial(null, null, null);
 
-        assertThat(constructedMaterial.getPackageDefinition().getConfiguration(), is(packageDefinition.getConfiguration()));
-        assertThat(constructedMaterial.getPackageDefinition().getRepository().getPluginConfiguration().getId(), is(packageDefinition.getRepository().getPluginConfiguration().getId()));
-        assertThat(constructedMaterial.getPackageDefinition().getRepository().getConfiguration(), is(packageDefinition.getRepository().getConfiguration()));
-        assertThat(constructedMaterial.getId(), is(1L));
+        assertThat(constructedMaterial.getPackageDefinition().getConfiguration()).isEqualTo(packageDefinition.getConfiguration());
+        assertThat(constructedMaterial.getPackageDefinition().getRepository().getPluginConfiguration().getId()).isEqualTo(packageDefinition.getRepository().getPluginConfiguration().getId());
+        assertThat(constructedMaterial.getPackageDefinition().getRepository().getConfiguration()).isEqualTo(packageDefinition.getRepository().getConfiguration());
+        assertThat(constructedMaterial.getId()).isEqualTo(1L);
     }
 
     @Test
@@ -54,8 +52,8 @@ public class PackageMaterialInstanceTest {
         material.getPackageDefinition().getConfiguration().add(ConfigurationPropertyMother.create("key2", false, "value2"));
         MaterialInstance newMaterialInstance = material.createMaterialInstance();
 
-        assertThat(materialInstance, is(materialInstanceCopy));
-        assertThat(materialInstance, is(not(newMaterialInstance)));
+        assertThat(materialInstance).isEqualTo(materialInstanceCopy);
+        assertThat(materialInstance).isNotEqualTo(newMaterialInstance);
     }
 
     @Test
@@ -68,8 +66,8 @@ public class PackageMaterialInstanceTest {
         material.getPackageDefinition().getConfiguration().add(ConfigurationPropertyMother.create("key2", false, "value2"));
         PackageMaterialInstance newMaterialInstance = (PackageMaterialInstance) material.createMaterialInstance();
 
-        assertThat(materialInstance.shouldUpgradeTo(materialInstanceCopy), is(false));
-        assertThat(materialInstance.shouldUpgradeTo(newMaterialInstance), is(true));
+        assertThat(materialInstance.shouldUpgradeTo(materialInstanceCopy)).isFalse();
+        assertThat(materialInstance.shouldUpgradeTo(newMaterialInstance)).isTrue();
     }
 
     @Test
@@ -79,8 +77,8 @@ public class PackageMaterialInstanceTest {
         PackageMaterial latestMaterial = MaterialsMother.packageMaterial("repo-id", "name", "pkId", "name", ConfigurationPropertyMother.create("key1", false, "value1"));
         PackageMaterialInstance newPackageMaterialInstance = (PackageMaterialInstance) latestMaterial.createMaterialInstance();
         packageMaterialInstance.upgradeTo(newPackageMaterialInstance);
-        assertThat(packageMaterialInstance.getId(), is(10L));
-        assertThat(packageMaterialInstance.getConfiguration(), is(newPackageMaterialInstance.getConfiguration()));
+        assertThat(packageMaterialInstance.getId()).isEqualTo(10L);
+        assertThat(packageMaterialInstance.getConfiguration()).isEqualTo(newPackageMaterialInstance.getConfiguration());
     }
 
     @Test
@@ -93,7 +91,7 @@ public class PackageMaterialInstanceTest {
 
         PackageMaterial constructedMaterial = (PackageMaterial) materialInstance.toOldMaterial(null, null, null);
 
-        assertThat(constructedMaterial.getFingerprint(), is(fingerprint));
+        assertThat(constructedMaterial.getFingerprint()).isEqualTo(fingerprint);
     }
 
 

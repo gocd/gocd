@@ -34,8 +34,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -81,9 +80,9 @@ public class InvalidConfigMessageRemoverIntegrationTest {
         serverHealthService.update(ServerHealthState.warning("Invalid Configuration", "something",HealthStateType.general(HealthStateScope.forInvalidConfig())));
         InvalidConfigMessageRemover remover = new InvalidConfigMessageRemover(goConfigService, serverHealthService);
         remover.initialize();
-        assertThat(serverHealthService.logsSorted().isEmpty(), is(false));
+        assertThat(serverHealthService.logsSorted().isEmpty()).isFalse();
         configHelper.addEnvironments("uat"); //Any change to the config file
         cachedGoConfig.forceReload();
-        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forInvalidConfig()).isEmpty(), is(true));
+        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forInvalidConfig()).isEmpty()).isTrue();
     }
 }

@@ -42,8 +42,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
@@ -111,11 +110,10 @@ public class ChangeMaterialsTest {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(PIPELINE_NAME);
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(PIPELINE_NAME);
-        assertThat("Should schedule new instance after changed material", mostRecent.getId(),
-                is(not(pipeline.getId())));
+        assertThat(mostRecent.getId()).isNotEqualTo(pipeline.getId());
         MaterialRevisions materialRevisions = mostRecent.getBuildCause().getMaterialRevisions();
 
-        assertThat(materialRevisions.totalNumberOfModifications(), is(hgTestRepo.latestModifications().size()));
+        assertThat(materialRevisions.totalNumberOfModifications()).isEqualTo(hgTestRepo.latestModifications().size());
     }
 
     //TODO: CS&DY Revisit this test to use materials properly
@@ -127,7 +125,7 @@ public class ChangeMaterialsTest {
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(PIPELINE_NAME);
 
-        assertThat("Should schedule new instance after changed material", mostRecent.getId(), is(not(pipeline.getId())));
+        assertThat(mostRecent.getId()).isNotEqualTo(pipeline.getId());
         MaterialRevisions materialRevisions = mostRecent.getBuildCause().getMaterialRevisions();
         assertEquals(hgTestRepo.latestModifications().get(0).getModifiedTime(), materialRevisions.getDateOfLatestModification());
     }
@@ -146,13 +144,13 @@ public class ChangeMaterialsTest {
             cruiseConfig.replaceMaterialConfigForPipeline(PIPELINE_NAME, p4Fixture.materialConfig("//depot/... //localhost/..."));
             mingle = goConfigDao.load().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
 
-            assertThat(mingle.materialConfigs().get(0), is(instanceOf(P4MaterialConfig.class)));
+            assertThat(mingle.materialConfigs().get(0)).isInstanceOf(P4MaterialConfig.class);
 
             scheduleHelper.manuallySchedulePipelineWithRealMaterials(PIPELINE_NAME, username);
 
             scheduleService.autoSchedulePipelinesFromRequestBuffer();
             Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(PIPELINE_NAME);
-            assertThat(mostRecent.getMaterials().first(), is(new MaterialConfigConverter().toMaterial(mingle.materialConfigs().first())));
+            assertThat(mostRecent.getMaterials().first()).isEqualTo(new MaterialConfigConverter().toMaterial(mingle.materialConfigs().first()));
         }
     }
 

@@ -16,29 +16,19 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.api.config.Property;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PackageMaterialTestHelper {
 
-    public static void assertPackageConfigurations(List<PackageConfiguration> actual, Configuration expected) {
-        assertThat(actual, hasSize(expected.size()));
-        for (int i = 0; i < actual.size(); i++) {
-             assertThat(actual.get(i).getKey(), is(expected.get(i).getConfigurationKey().getName()));
-             assertThat(actual.get(i).getValue(), is(expected.get(i).getValue()));
-        }
-    }
     public static void assertPackageConfiguration(List<? extends Property> actual, Configuration expected) {
-        assertThat(actual, hasSize(expected.size()));
+        assertThat(actual).hasSize(expected.size());
         for (int i = 0; i < actual.size(); i++) {
-             assertThat(actual.get(i).getKey(), is(expected.get(i).getConfigurationKey().getName()));
-             assertThat(actual.get(i).getValue(), is(expected.get(i).getValue()));
+             assertThat(actual.get(i).getKey()).isEqualTo(expected.get(i).getConfigurationKey().getName());
+             assertThat(actual.get(i).getValue()).isEqualTo(expected.get(i).getValue());
         }
     }
 }

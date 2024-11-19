@@ -33,8 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class MaterialRepositoryTest {
@@ -89,10 +88,10 @@ public class MaterialRepositoryTest {
         when(query.uniqueResult()).thenReturn(modification);
 
         Modification actualModification = materialRepository.findModificationWithRevision(session, materialId, revision);//Prime cache, Cache get returns null twice
-        assertThat(actualModification, is(modification));
+        assertThat(actualModification).isEqualTo(modification);
 
         modification = materialRepository.findModificationWithRevision(session, materialId, revision); //Fetch from cache, Cache get returns modification
-        assertThat(actualModification, is(modification));
+        assertThat(actualModification).isEqualTo(modification);
 
         verify(query, times(1)).uniqueResult();
         verify(goCache, times(3)).get(key);

@@ -78,7 +78,7 @@ class InternalSCMsControllerV1Test implements SecurityServiceTrait, ControllerTr
       SCM scm = SCMMother.create("", "foobar", "plugin1", "v1.0", new Configuration(
         ConfigurationPropertyMother.create("key1", false, "value1")
       ))
-      HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+      HttpLocalizedOperationResult result = new HttpLocalizedOperationResult()
       result.setMessage("Connection ok.")
 
       when(pluggableScmService.checkConnection(any(SCM))).thenReturn(result)
@@ -97,7 +97,7 @@ class InternalSCMsControllerV1Test implements SecurityServiceTrait, ControllerTr
       SCM scm = SCMMother.create("", "foobar", "plugin1", "v1.0", new Configuration(
         ConfigurationPropertyMother.create("key1", false, "value1")
       ))
-      HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+      HttpLocalizedOperationResult result = new HttpLocalizedOperationResult()
       result.unprocessableEntity("Verify Connection failed.")
 
       when(pluggableScmService.checkConnection(any(SCM))).thenReturn(result)

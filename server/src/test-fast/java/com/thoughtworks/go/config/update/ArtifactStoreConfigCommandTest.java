@@ -32,10 +32,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -65,8 +63,8 @@ public class ArtifactStoreConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), is(EntityType.ArtifactStore.forbiddenToEdit(artifactStore.getId(), currentUser.getUsername())));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.ArtifactStore.forbiddenToEdit(artifactStore.getId(), currentUser.getUsername()));
     }
 
     @Test
@@ -77,8 +75,8 @@ public class ArtifactStoreConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
-        assertThat(result.httpCode(), is(200));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
+        assertThat(result.httpCode()).isEqualTo(200);
     }
 
     @Test
@@ -90,8 +88,8 @@ public class ArtifactStoreConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), is(EntityType.ArtifactStore.forbiddenToEdit(artifactStore.getId(), currentUser.getUsername())));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.ArtifactStore.forbiddenToEdit(artifactStore.getId(), currentUser.getUsername()));
     }
 
     @Test
@@ -125,9 +123,9 @@ public class ArtifactStoreConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
-        assertThat(cruiseConfig.getArtifactStores().find("docker"), nullValue());
+        assertThat(cruiseConfig.getArtifactStores().find("docker")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     @Test
@@ -139,9 +137,9 @@ public class ArtifactStoreConfigCommandTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
-        assertThat(cruiseConfig.getArtifactStores().find("docker"), nullValue());
+        assertThat(cruiseConfig.getArtifactStores().find("docker")).isNull();
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
     }
 
     @Test

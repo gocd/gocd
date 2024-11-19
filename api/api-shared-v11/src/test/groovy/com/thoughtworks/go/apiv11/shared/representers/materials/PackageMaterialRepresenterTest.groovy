@@ -75,7 +75,7 @@ class PackageMaterialRepresenterTest {
   @Test
   void "should render errors"() {
     def package_config = new PackageMaterialConfig(new CaseInsensitiveString(''), '', null)
-    def material_configs = new MaterialConfigs(package_config);
+    def material_configs = new MaterialConfigs(package_config)
     material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
 
     def actualJson = toObjectString({ MaterialsRepresenter.toJSON(it, material_configs.first()) })

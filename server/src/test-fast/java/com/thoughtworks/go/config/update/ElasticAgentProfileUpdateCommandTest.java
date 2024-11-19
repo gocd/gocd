@@ -26,9 +26,8 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 
 public class ElasticAgentProfileUpdateCommandTest {
@@ -58,7 +57,7 @@ public class ElasticAgentProfileUpdateCommandTest {
         cruiseConfig.getElasticConfig().getProfiles().add(oldProfile);
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, newProfile, null, null, null, null, null);
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getElasticConfig().getProfiles().find("foo"), is(equalTo(newProfile)));
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().find("foo")).isEqualTo(newProfile);
     }
 
     @Test
@@ -77,8 +76,8 @@ public class ElasticAgentProfileUpdateCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, null, currentUser, result, entityHashingService, "bad-digest");
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("Someone has modified the configuration for"));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.toString()).contains("Someone has modified the configuration for");
     }
 
     @Test

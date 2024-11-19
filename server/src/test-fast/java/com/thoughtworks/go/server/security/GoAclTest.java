@@ -20,39 +20,38 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GoAclTest {
 
     @Test
     public void shouldBeGrantedIfUserInApprovalList() {
         GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
-        assertThat("admin should be granted", acl.isGranted(new CaseInsensitiveString("admin")), is(true));
+        assertThat(acl.isGranted(new CaseInsensitiveString("admin"))).isTrue();
     }
 
     @Test
     public void shouldBeGrantedIfAnyUserInApprovalList() {
         GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
-        assertThat("admin should be granted", acl.isGranted(new CaseInsensitiveString("admin")), is(true));
+        assertThat(acl.isGranted(new CaseInsensitiveString("admin"))).isTrue();
     }
 
     @Test
     public void shouldNotBeGrantedIfUserNotInApprovalList() {
         GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
-        assertThat("noexist should not be granted", acl.isGranted(new CaseInsensitiveString("noexist")), is(false));
+        assertThat(acl.isGranted(new CaseInsensitiveString("noexist"))).isFalse();
     }
 
     @Test
     public void userNameShouldNotBeCaseSensitive() {
         GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
         boolean granted = acl.isGranted(new CaseInsensitiveString("ADMIN"));
-        assertThat("ADMIN should be granted", granted, is(true));
+        assertThat(granted).isTrue();
     }
 
     @Test
     public void shouldNotGrantIfNoUsersDefined() {
         GoAcl acl = new GoAcl(List.of());
-        assertThat("ADMIN should not be granted", acl.isGranted(new CaseInsensitiveString("ADMIN")), is(false));
+        assertThat(acl.isGranted(new CaseInsensitiveString("ADMIN"))).isFalse();
     }
 }

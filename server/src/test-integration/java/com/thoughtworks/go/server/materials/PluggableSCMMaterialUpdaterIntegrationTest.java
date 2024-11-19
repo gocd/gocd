@@ -47,8 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(ClearSingleton.class)
@@ -91,7 +90,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateMaterialInstanceWhenPluginIsUpgraded() throws Exception {
+    public void shouldUpdateMaterialInstanceWhenPluginIsUpgraded() {
         final PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
         final MaterialInstance materialInstance = material.createMaterialInstance();
         materialRepository.saveOrUpdate(materialInstance);
@@ -106,11 +105,11 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         });
 
         MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);
-        assertThat(actualInstance.getConfiguration(), is(material.createMaterialInstance().getConfiguration()));
+        assertThat(actualInstance.getConfiguration()).isEqualTo(material.createMaterialInstance().getConfiguration());
     }
 
     @Test
-    public void shouldUpdateMaterialInstanceWhenAdditionalDataIsUpdatedDuringLatestModification() throws Exception {
+    public void shouldUpdateMaterialInstanceWhenAdditionalDataIsUpdatedDuringLatestModification() {
         final PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
         final MaterialInstance materialInstance = material.createMaterialInstance();
         materialRepository.saveOrUpdate(materialInstance);
@@ -128,11 +127,11 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         });
 
         MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);
-        assertThat(actualInstance.getAdditionalDataMap(), is(data));
+        assertThat(actualInstance.getAdditionalDataMap()).isEqualTo(data);
     }
 
     @Test
-    public void shouldUpdateMaterialInstanceWhenAdditionalDataIsUpdatedDuringLatestModificationsSince() throws Exception {
+    public void shouldUpdateMaterialInstanceWhenAdditionalDataIsUpdatedDuringLatestModificationsSince() {
         final PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
         final MaterialInstance materialInstance = material.createMaterialInstance();
         Map<String, String> oldData = new HashMap<>();
@@ -153,7 +152,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         });
 
         MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);
-        assertThat(actualInstance.getAdditionalDataMap(), is(newData));
+        assertThat(actualInstance.getAdditionalDataMap()).isEqualTo(newData);
     }
 
     private void addMetadata(PluggableSCMMaterial material, String field, boolean partOfIdentity) {

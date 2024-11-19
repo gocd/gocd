@@ -27,8 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class UniqueRunIfStatusValidatorTest {
@@ -40,10 +39,9 @@ public class UniqueRunIfStatusValidatorTest {
             new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(IOUtils.toString(inputStream, UTF_8));
             fail();
         } catch (Exception e) {
-            assertThat(e.getMessage(), anyOf(
-                    is("Duplicate unique value [passed] declared for identity constraint of element \"exec\"."),
-                    is("Duplicate unique value [passed] declared for identity constraint \"uniqueRunIfTypeForExec\" of element \"exec\".")
-                    )
+            assertThat(e.getMessage()).containsAnyOf(
+                "Duplicate unique value [passed] declared for identity constraint of element \"exec\".",
+                "Duplicate unique value [passed] declared for identity constraint \"uniqueRunIfTypeForExec\" of element \"exec\"."
             );
         }
     }
@@ -53,6 +51,6 @@ public class UniqueRunIfStatusValidatorTest {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(ConfigMigrator.migrate(
                 ConfigFileFixture.CONTAINS_MULTI_DIFFERENT_STATUS_RUN_IF).getBytes());
         CruiseConfig cruiseConfig = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
-        assertThat(cruiseConfig, is(not(nullValue())));
+        assertThat(cruiseConfig).isNotNull();
     }
 }

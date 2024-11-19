@@ -23,8 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CRConfigMaterialTest extends AbstractCRTest<CRConfigMaterial> {
     private final CRConfigMaterial named;
@@ -60,7 +59,7 @@ public class CRConfigMaterialTest extends AbstractCRTest<CRConfigMaterial> {
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
         JsonObject jsonObject = (JsonObject) gson.toJsonTree(named);
-        assertThat(jsonObject.get("type").getAsString(), is(CRConfigMaterial.TYPE_NAME));
+        assertThat(jsonObject.get("type").getAsString()).isEqualTo(CRConfigMaterial.TYPE_NAME);
     }
 
     @Test
@@ -69,8 +68,9 @@ public class CRConfigMaterialTest extends AbstractCRTest<CRConfigMaterial> {
         String json = gson.toJson(value);
 
         CRConfigMaterial deserializedValue = (CRConfigMaterial) gson.fromJson(json, CRMaterial.class);
-        assertThat("Deserialized value should equal to value before serialization",
-            deserializedValue, is(value));
+        assertThat(deserializedValue)
+            .describedAs("Deserialized value should equal to value before serialization")
+            .isEqualTo(value);
     }
 
 }

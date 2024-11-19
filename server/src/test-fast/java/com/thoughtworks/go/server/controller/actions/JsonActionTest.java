@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class JsonActionTest {
@@ -43,7 +42,7 @@ public class JsonActionTest {
         JsonAction action = JsonAction.jsonByValidity(jsonAware, configValidity);
         MockHttpServletResponse response = new MockHttpServletResponse();
         action.respond(response);
-        assertThat(response.getStatus(), is(SC_CONFLICT));
+        assertThat(response.getStatus()).isEqualTo(SC_CONFLICT);
         verify(configValidity).isType(GoConfigValidity.VT_CONFLICT);
     }
 
@@ -53,7 +52,7 @@ public class JsonActionTest {
         JsonAction action = JsonAction.jsonByValidity(jsonAware, configValidity);
         MockHttpServletResponse response = new MockHttpServletResponse();
         action.respond(response);
-        assertThat(response.getStatus(), is(SC_CONFLICT));
+        assertThat(response.getStatus()).isEqualTo(SC_CONFLICT);
         verify(configValidity).isType(GoConfigValidity.VT_MERGE_OPERATION_ERROR);
     }
 
@@ -63,7 +62,7 @@ public class JsonActionTest {
         JsonAction action = JsonAction.jsonByValidity(jsonAware, configValidity);
         MockHttpServletResponse response = new MockHttpServletResponse();
         action.respond(response);
-        assertThat(response.getStatus(), is(SC_CONFLICT));
+        assertThat(response.getStatus()).isEqualTo(SC_CONFLICT);
         verify(configValidity).isType(GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR);
     }
 
@@ -73,7 +72,7 @@ public class JsonActionTest {
         JsonAction action = JsonAction.jsonByValidity(jsonAware, configValidity);
         MockHttpServletResponse response = new MockHttpServletResponse();
         action.respond(response);
-        assertThat(response.getStatus(), is(SC_CONFLICT));
+        assertThat(response.getStatus()).isEqualTo(SC_CONFLICT);
         verify(configValidity).isType(GoConfigValidity.VT_MERGE_PRE_VALIDATION_ERROR);
     }
 }

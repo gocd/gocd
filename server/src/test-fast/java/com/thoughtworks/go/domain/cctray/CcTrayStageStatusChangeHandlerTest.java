@@ -37,9 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,10 +69,10 @@ public class CcTrayStageStatusChangeHandlerTest {
 
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
-        assertThat(statuses.size(), is(3));
-        assertThat(statuses.get(0).name(), is("pipeline :: stage1"));
-        assertThat(statuses.get(1).name(), is("job1_name"));
-        assertThat(statuses.get(2).name(), is("job2_name"));
+        assertThat(statuses.size()).isEqualTo(3);
+        assertThat(statuses.get(0).name()).isEqualTo("pipeline :: stage1");
+        assertThat(statuses.get(1).name()).isEqualTo("job1_name");
+        assertThat(statuses.get(2).name()).isEqualTo("job2_name");
     }
 
     @Test
@@ -84,7 +82,7 @@ public class CcTrayStageStatusChangeHandlerTest {
 
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
-        assertThat(statuses.get(0).getBreakers(), is(Set.of("breaker1", "breaker2")));
+        assertThat(statuses.get(0).getBreakers()).isEqualTo(Set.of("breaker1", "breaker2"));
     }
 
     @Test
@@ -106,8 +104,8 @@ public class CcTrayStageStatusChangeHandlerTest {
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
         ProjectStatus statusOfStage = statuses.get(0);
-        assertThat(activityOf(statusOfStage), is("Building"));
-        assertThat(webUrlOf(statusOfStage), is(webUrlFor("stage1")));
+        assertThat(activityOf(statusOfStage)).isEqualTo("Building");
+        assertThat(webUrlOf(statusOfStage)).isEqualTo(webUrlFor("stage1"));
     }
 
     @Test
@@ -119,10 +117,10 @@ public class CcTrayStageStatusChangeHandlerTest {
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
         ProjectStatus statusOfStage = statuses.get(0);
-        assertThat(stage.getState().completed(), is(not(true)));
-        assertThat(statusOfStage.getLastBuildStatus(), is(defaultStatus.getLastBuildStatus()));
-        assertThat(statusOfStage.getLastBuildTime(), is(defaultStatus.getLastBuildTime()));
-        assertThat(statusOfStage.getLastBuildLabel(), is(defaultStatus.getLastBuildLabel()));
+        assertThat(stage.getState().completed()).isNotEqualTo(true);
+        assertThat(statusOfStage.getLastBuildStatus()).isEqualTo(defaultStatus.getLastBuildStatus());
+        assertThat(statusOfStage.getLastBuildTime()).isEqualTo(defaultStatus.getLastBuildTime());
+        assertThat(statusOfStage.getLastBuildLabel()).isEqualTo(defaultStatus.getLastBuildLabel());
     }
 
     @Test
@@ -135,10 +133,10 @@ public class CcTrayStageStatusChangeHandlerTest {
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
         ProjectStatus statusOfStage = statuses.get(0);
-        assertThat(stage.getState().completed(), is(not(true)));
-        assertThat(statusOfStage.getLastBuildStatus(), is(existingStageStatus.getLastBuildStatus()));
-        assertThat(statusOfStage.getLastBuildTime(), is(existingStageStatus.getLastBuildTime()));
-        assertThat(statusOfStage.getLastBuildLabel(), is(existingStageStatus.getLastBuildLabel()));
+        assertThat(stage.getState().completed()).isNotEqualTo(true);
+        assertThat(statusOfStage.getLastBuildStatus()).isEqualTo(existingStageStatus.getLastBuildStatus());
+        assertThat(statusOfStage.getLastBuildTime()).isEqualTo(existingStageStatus.getLastBuildTime());
+        assertThat(statusOfStage.getLastBuildLabel()).isEqualTo(existingStageStatus.getLastBuildLabel());
     }
 
     @Test
@@ -148,10 +146,10 @@ public class CcTrayStageStatusChangeHandlerTest {
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(completedStage);
 
         ProjectStatus statusOfStage = statuses.get(0);
-        assertThat(completedStage.isCompleted(), is(true));
-        assertThat(statusOfStage.getLastBuildStatus(), is("Success"));
-        assertThat(statusOfStage.getLastBuildTime(), is(completedStage.completedDate()));
-        assertThat(statusOfStage.getLastBuildLabel(), is("LABEL-1"));
+        assertThat(completedStage.isCompleted()).isTrue();
+        assertThat(statusOfStage.getLastBuildStatus()).isEqualTo("Success");
+        assertThat(statusOfStage.getLastBuildTime()).isEqualTo(completedStage.completedDate());
+        assertThat(statusOfStage.getLastBuildLabel()).isEqualTo("LABEL-1");
     }
 
     @Test
@@ -167,7 +165,7 @@ public class CcTrayStageStatusChangeHandlerTest {
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
         ProjectStatus statusOfStage = statuses.get(0);
-        assertThat(statusOfStage.viewers(), is(viewers));
+        assertThat(statusOfStage.viewers()).isEqualTo(viewers);
     }
 
     @Test
@@ -191,11 +189,11 @@ public class CcTrayStageStatusChangeHandlerTest {
         verify(cache).putAll(statusesCaptor.capture());
 
         List<ProjectStatus> statusesWhichWereCached = statusesCaptor.getValue();
-        assertThat(statusesWhichWereCached.size(), is(2));
-        assertThat(statusesWhichWereCached.get(0).name(), is("pipeline :: stage1"));
-        assertThat(statusesWhichWereCached.get(0).getLastBuildStatus(), is("Success"));
-        assertThat(activityOf(statusesWhichWereCached.get(0)), is("Sleeping"));
-        assertThat(statusesWhichWereCached.get(1), is(jobStatus));
+        assertThat(statusesWhichWereCached.size()).isEqualTo(2);
+        assertThat(statusesWhichWereCached.get(0).name()).isEqualTo("pipeline :: stage1");
+        assertThat(statusesWhichWereCached.get(0).getLastBuildStatus()).isEqualTo("Success");
+        assertThat(activityOf(statusesWhichWereCached.get(0))).isEqualTo("Sleeping");
+        assertThat(statusesWhichWereCached.get(1)).isEqualTo(jobStatus);
     }
 
     private String activityOf(ProjectStatus status) {

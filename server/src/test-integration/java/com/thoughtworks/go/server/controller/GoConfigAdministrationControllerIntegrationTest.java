@@ -39,8 +39,7 @@ import java.io.ByteArrayOutputStream;
 import static com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(ClearSingleton.class)
 @ExtendWith(SpringExtension.class)
@@ -82,7 +81,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(new ConfigCache(), registry).write(goConfigDao.loadForEditing(), os, true);
         assertValidContentAndStatus(SC_OK, "text/xml", os.toString());
-        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(goConfigDao.md5OfConfigFile()));
+        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5)).isEqualTo(goConfigDao.md5OfConfigFile());
     }
 
     @Test
@@ -93,7 +92,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(goConfigDao.loadForEditing(), os, true);
         assertValidContentAndStatus(SC_CONFLICT, "text/plain; charset=utf-8", CONFIG_CHANGED_PLEASE_REFRESH);
-        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(goConfigDao.md5OfConfigFile()));
+        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5)).isEqualTo(goConfigDao.md5OfConfigFile());
     }
 
     private void assertValidContentAndStatus(int status, String contentType, String content) throws Exception {

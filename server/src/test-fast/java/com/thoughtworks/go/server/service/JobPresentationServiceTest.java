@@ -28,8 +28,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.AgentInstanceMother.building;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 
@@ -55,16 +54,16 @@ public class JobPresentationServiceTest {
         AgentInstance agentInstance = building();
         when(agentService.findAgentAndRefreshStatus(any(String.class))).thenReturn(agentInstance);
         List<JobInstanceModel> models = new JobPresentationService(jobDurationStrategy, agentService).jobInstanceModelFor(new JobInstances(dev, bev, tev, lev, kev, DEv));
-        assertThat(models.size(), is(6));
+        assertThat(models.size()).isEqualTo(6);
         //failed
-        assertThat(models.get(0), is(new JobInstanceModel(kev, jobDurationStrategy, agentInstance)));
+        assertThat(models.get(0)).isEqualTo(new JobInstanceModel(kev, jobDurationStrategy, agentInstance));
         //in progress. sort by name (case insensitive)
-        assertThat(models.get(1), is(new JobInstanceModel(bev, jobDurationStrategy, agentInstance)));
-        assertThat(models.get(2), is(new JobInstanceModel(dev, jobDurationStrategy, agentInstance)));
-        assertThat(models.get(3), is(new JobInstanceModel(DEv, jobDurationStrategy, agentInstance)));
-        assertThat(models.get(4), is(new JobInstanceModel(tev, jobDurationStrategy)));
+        assertThat(models.get(1)).isEqualTo(new JobInstanceModel(bev, jobDurationStrategy, agentInstance));
+        assertThat(models.get(2)).isEqualTo(new JobInstanceModel(dev, jobDurationStrategy, agentInstance));
+        assertThat(models.get(3)).isEqualTo(new JobInstanceModel(DEv, jobDurationStrategy, agentInstance));
+        assertThat(models.get(4)).isEqualTo(new JobInstanceModel(tev, jobDurationStrategy));
         //passed
-        assertThat(models.get(5), is(new JobInstanceModel(lev, jobDurationStrategy, agentInstance)));
+        assertThat(models.get(5)).isEqualTo(new JobInstanceModel(lev, jobDurationStrategy, agentInstance));
         //assert agent info
         verify(agentService, times(2)).findAgentAndRefreshStatus("agent1");
         verify(agentService).findAgentAndRefreshStatus("agent2");
@@ -80,8 +79,8 @@ public class JobPresentationServiceTest {
         Agent agentFromDb = new Agent(deletedAgentUuid,"hostname", "1.2.3.4", "cookie");
         when(agentService.findAgentByUUID(deletedAgentUuid)).thenReturn(agentFromDb);
         List<JobInstanceModel> models = new JobPresentationService(jobDurationStrategy, agentService).jobInstanceModelFor(new JobInstances(jobWithDeletedAgent));
-        assertThat(models.size(), is(1));
-        assertThat(models.get(0), is(new JobInstanceModel(jobWithDeletedAgent, jobDurationStrategy, agentFromDb)));
+        assertThat(models.size()).isEqualTo(1);
+        assertThat(models.get(0)).isEqualTo(new JobInstanceModel(jobWithDeletedAgent, jobDurationStrategy, agentFromDb));
         verify(agentService, times(1)).findAgentAndRefreshStatus(deletedAgentUuid);
         verify(agentService, times(1)).findAgentByUUID(deletedAgentUuid);
         verifyNoMoreInteractions(agentService);

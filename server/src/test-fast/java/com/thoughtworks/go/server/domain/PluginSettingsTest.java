@@ -37,8 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,10 +52,10 @@ public class PluginSettingsTest {
         final PluginSettings pluginSettings = PluginSettings.from(getPlugin(PLUGIN_ID), elasticAgentPluginInfo);
 
         Map<String, String> settingsAsKeyValuePair = pluginSettings.getSettingsAsKeyValuePair();
-        assertThat(settingsAsKeyValuePair.size(), is(3));
-        assertThat(settingsAsKeyValuePair.get("key-1"), is("value1"));
-        assertThat(settingsAsKeyValuePair.get("key-2"), is(""));
-        assertThat(settingsAsKeyValuePair.get("key-3"), is(""));
+        assertThat(settingsAsKeyValuePair.size()).isEqualTo(3);
+        assertThat(settingsAsKeyValuePair.get("key-1")).isEqualTo("value1");
+        assertThat(settingsAsKeyValuePair.get("key-2")).isEqualTo("");
+        assertThat(settingsAsKeyValuePair.get("key-3")).isEqualTo("");
     }
 
     @Test
@@ -68,16 +67,16 @@ public class PluginSettingsTest {
 
         pluginSettings.populateErrorMessageFor("key-1", "e1");
 
-        assertThat(pluginSettings.getErrorFor("key-1"), is(List.of("e1")));
+        assertThat(pluginSettings.getErrorFor("key-1")).isEqualTo(List.of("e1"));
     }
 
     @Test
     public void shouldPopulateHasErrorsCorrectly() {
         PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
-        assertThat(pluginSettings.hasErrors(), is(false));
+        assertThat(pluginSettings.hasErrors()).isFalse();
 
         pluginSettings.populateErrorMessageFor("k1", "e1");
-        assertThat(pluginSettings.hasErrors(), is(true));
+        assertThat(pluginSettings.hasErrors()).isTrue();
     }
 
     @Test
@@ -89,10 +88,10 @@ public class PluginSettingsTest {
 
         PluginSettingsConfiguration configuration = pluginSettings.toPluginSettingsConfiguration();
 
-        assertThat(configuration.size(), is(3));
-        assertThat(configuration.get("key-1").getValue(), is("value1"));
-        assertThat(configuration.get("key-2").getValue(), is(""));
-        assertThat(configuration.get("key-3").getValue(), is(""));
+        assertThat(configuration.size()).isEqualTo(3);
+        assertThat(configuration.get("key-1").getValue()).isEqualTo("value1");
+        assertThat(configuration.get("key-2").getValue()).isEqualTo("");
+        assertThat(configuration.get("key-3").getValue()).isEqualTo("");
     }
 
     @Test
@@ -110,9 +109,9 @@ public class PluginSettingsTest {
         pluginSettings.addConfigurations(pluginInfo, configurationProperties);
 
         PluginSettingsConfiguration pluginSettingsProperties = pluginSettings.toPluginSettingsConfiguration();
-        assertThat(pluginSettingsProperties.size(), is(2));
-        assertThat(pluginSettingsProperties.get("k1").getValue(), is("v1"));
-        assertThat(pluginSettingsProperties.get("k2").getValue(), is("v2"));
+        assertThat(pluginSettingsProperties.size()).isEqualTo(2);
+        assertThat(pluginSettingsProperties.get("k1").getValue()).isEqualTo("v1");
+        assertThat(pluginSettingsProperties.get("k2").getValue()).isEqualTo("v2");
     }
 
     @Test
@@ -132,9 +131,9 @@ public class PluginSettingsTest {
         pluginSettings.addConfigurations(pluginInfo, configurationProperties);
 
         List<ConfigurationProperty> pluginSettingsProperties = pluginSettings.getPluginSettingsProperties();
-        assertThat(pluginSettingsProperties.size(), is(2));
-        assertThat(pluginSettingsProperties.get(0), is(configProperty1));
-        assertThat(pluginSettingsProperties.get(1), is(configProperty2));
+        assertThat(pluginSettingsProperties.size()).isEqualTo(2);
+        assertThat(pluginSettingsProperties.get(0)).isEqualTo(configProperty1);
+        assertThat(pluginSettingsProperties.get(1)).isEqualTo(configProperty2);
     }
 
     @Test
@@ -147,8 +146,8 @@ public class PluginSettingsTest {
         pluginSettings.addConfigurations(pluginInfo, List.of(new ConfigurationProperty(new ConfigurationKey(secureKey), new EncryptedConfigurationValue("value_encrypted_by_a_different_cipher"))));
         pluginSettings.validateTree();
 
-        assertThat(pluginSettings.hasErrors(), is(true));
-        assertThat(pluginSettings.getPluginSettingsProperties().get(0).errors().firstError(), is("Encrypted value for property with key 'supposedly-secure-key' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
+        assertThat(pluginSettings.hasErrors()).isTrue();
+        assertThat(pluginSettings.getPluginSettingsProperties().get(0).errors().firstError()).isEqualTo("Encrypted value for property with key 'supposedly-secure-key' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
     }
 
     @Test
@@ -161,7 +160,7 @@ public class PluginSettingsTest {
         pluginSettings.addConfigurations(pluginInfo, List.of(new ConfigurationProperty(new ConfigurationKey(secureKey), new EncryptedConfigurationValue(new GoCipher().encrypt("secure")))));
         pluginSettings.validateTree();
 
-        assertThat(pluginSettings.hasErrors(), is(false));
+        assertThat(pluginSettings.hasErrors()).isFalse();
     }
 
     private Plugin getPlugin(String pluginId) {

@@ -55,8 +55,7 @@ import org.springframework.transaction.TransactionStatus;
 
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -136,9 +135,9 @@ public class ScheduleServiceStageTriggerTest {
 
         // verifying that ftStage is rerun
         Stage ftStage = stageDao.mostRecentWithBuilds(preCondition.pipelineName, preCondition.ftStage());
-        assertThat(String.format("Should schedule new ft stage: old id: %s, new id: %s",
-                oldFtStage.getId(), ftStage.getId()), ftStage.getId() > oldFtStage.getId(), is(true));
-        assertThat(ftStage.getJobInstances().first().getState(), is(JobState.Scheduled));
+        assertThat(ftStage.getId() > oldFtStage.getId()).describedAs(String.format("Should schedule new ft stage: old id: %s, new id: %s",
+            oldFtStage.getId(), ftStage.getId())).isTrue();
+        assertThat(ftStage.getJobInstances().first().getState()).isEqualTo(JobState.Scheduled);
     }
 
     @Test
@@ -160,7 +159,7 @@ public class ScheduleServiceStageTriggerTest {
 
         // verifying that devStage is NOT rerun
         Stage devStage = stageDao.mostRecentWithBuilds(preCondition.pipelineName, preCondition.devStage());
-        assertThat("Should not schedule dev stage again", devStage.getId(), is(oldDevStage.getId()));
+        assertThat(devStage.getId()).isEqualTo(oldDevStage.getId());
     }
 
     @Test
@@ -176,7 +175,7 @@ public class ScheduleServiceStageTriggerTest {
 
         Stage ftStage = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName).getStages().byName(
                 preCondition.ftStage);
-        assertThat("Should not rerun ft in newer pipeline", ftStage.getId(), is(oldFtStage.getId()));
+        assertThat(ftStage.getId()).isEqualTo(oldFtStage.getId());
     }
 
     @Test
@@ -190,8 +189,8 @@ public class ScheduleServiceStageTriggerTest {
 
         Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
         Stage cancelledStage = stageService.stageById(cancelledStageId);
-        assertThat(cancelledStage.stageState(), is(StageState.Cancelled));
-        assertThat(mostRecent.getStages().byName(preCondition.ftStage).stageState(), is(StageState.Building));
+        assertThat(cancelledStage.stageState()).isEqualTo(StageState.Cancelled);
+        assertThat(mostRecent.getStages().byName(preCondition.ftStage).stageState()).isEqualTo(StageState.Building);
     }
 
     @Test
@@ -208,8 +207,8 @@ public class ScheduleServiceStageTriggerTest {
 
         Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
         Stage cancelledStage = stageService.stageById(cancelledStageId);
-        assertThat(cancelledStage.stageState(), is(StageState.Cancelled));
-        assertThat(mostRecent.getStages().size(), is(1));
+        assertThat(cancelledStage.stageState()).isEqualTo(StageState.Cancelled);
+        assertThat(mostRecent.getStages().size()).isEqualTo(1);
     }
 
 
@@ -225,8 +224,8 @@ public class ScheduleServiceStageTriggerTest {
 
         Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
         Stage cancelledStage = stageService.stageById(cancelledStageId);
-        assertThat(cancelledStage.stageState(), is(StageState.Cancelled));
-        assertThat(mostRecent.getStages().byName(preCondition.ftStage).stageState(), is(StageState.Passed));
+        assertThat(cancelledStage.stageState()).isEqualTo(StageState.Cancelled);
+        assertThat(mostRecent.getStages().byName(preCondition.ftStage).stageState()).isEqualTo(StageState.Passed);
     }
 
     @Test
@@ -325,9 +324,9 @@ public class ScheduleServiceStageTriggerTest {
         Stage cancelledStage = scheduleService.cancelAndTriggerRelevantStages(stage.getId(), null, result);
 
         Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
-        assertThat(cancelledStage.stageState(), is(StageState.Cancelled));
-        assertThat(mostRecent.getStages().byName(preCondition.ftStage).stageState(), is(StageState.Building));
-        assertThat(result.message(), is("Stage cancelled successfully."));
+        assertThat(cancelledStage.stageState()).isEqualTo(StageState.Cancelled);
+        assertThat(mostRecent.getStages().byName(preCondition.ftStage).stageState()).isEqualTo(StageState.Building);
+        assertThat(result.message()).isEqualTo("Stage cancelled successfully.");
     }
 
     @Test
@@ -338,7 +337,7 @@ public class ScheduleServiceStageTriggerTest {
 
         Throwable exception = assertThrows(RuntimeException.class, () -> scheduleService.rerunStage(pipeline.getName(), 1, stageConfig.name().toString()));
 
-        assertThat(exception.getMessage(), is("Cannot schedule ft as the previous stage dev has Failed!"));
+        assertThat(exception.getMessage()).isEqualTo("Cannot schedule ft as the previous stage dev has Failed!");
     }
 
     private void reOrderTwoStages() throws Exception {

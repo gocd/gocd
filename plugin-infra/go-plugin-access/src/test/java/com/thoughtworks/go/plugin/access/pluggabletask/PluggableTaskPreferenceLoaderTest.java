@@ -25,8 +25,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PluggableTaskPreferenceLoaderTest {
@@ -73,8 +72,8 @@ public class PluggableTaskPreferenceLoaderTest {
 
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
         pluggableTaskPreferenceLoader.pluginLoaded(descriptor);
-        assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId), is(true));
-        assertThat(PluggableTaskConfigStore.store().preferenceFor(pluginId), is(new TaskPreference(task)));
+        assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId)).isTrue();
+        assertThat(PluggableTaskConfigStore.store().preferenceFor(pluginId)).isEqualTo(new TaskPreference(task));
         verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader);
     }
 
@@ -91,9 +90,9 @@ public class PluggableTaskPreferenceLoaderTest {
         PluggableTaskConfigStore.store().setPreferenceFor(pluginId, new TaskPreference(task));
         PluginManager pluginManager = mock(PluginManager.class);
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
-        assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId), is(true));
+        assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId)).isTrue();
         pluggableTaskPreferenceLoader.pluginUnLoaded(descriptor);
-        assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId), is(false));
+        assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId)).isFalse();
         verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader);
     }
 
@@ -119,7 +118,7 @@ public class PluggableTaskPreferenceLoaderTest {
 
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
         pluggableTaskPreferenceLoader.pluginLoaded(descriptor);
-        assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId), is(false));
+        assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId)).isFalse();
         verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader);
     }
 }

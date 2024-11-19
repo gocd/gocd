@@ -51,8 +51,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
@@ -123,7 +122,7 @@ public class PipelineServiceIntegrationTest {
 
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName("pair01");
         MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
-        assertThat(materialRevisions.getMaterials().size(), is(1));
+        assertThat(materialRevisions.getMaterials().size()).isEqualTo(1);
     }
 
     @Test
@@ -147,8 +146,8 @@ public class PipelineServiceIntegrationTest {
 
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName("pair01");
         MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
-        assertThat(materialRevisions.getMaterials().size(), is(1));
-        assertThat(materialRevisions.getDateOfLatestModification().getTime(), is(latestModification.getTime()));
+        assertThat(materialRevisions.getMaterials().size()).isEqualTo(1);
+        assertThat(materialRevisions.getDateOfLatestModification().getTime()).isEqualTo(latestModification.getTime());
     }
 
     @Test
@@ -171,9 +170,9 @@ public class PipelineServiceIntegrationTest {
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName("pair01");
         MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
         Materials materials = materialRevisions.getMaterials();
-        assertThat(materials.size(), is(2));
-        assertThat(materials.get(0), is(hg1));
-        assertThat(materials.get(1), is(hg2));
+        assertThat(materials.size()).isEqualTo(2);
+        assertThat(materials.get(0)).isEqualTo(hg1);
+        assertThat(materials.get(1)).isEqualTo(hg2);
     }
 
     @Test
@@ -194,7 +193,7 @@ public class PipelineServiceIntegrationTest {
         Pipeline pipelineInstance = instanceFactory.createPipelineInstance(addedPipeline.config, buildCause, new DefaultSchedulingContext(), null, new TestingClock());
 
         pipelineService.save(pipelineInstance);
-        assertThat(pipelineInstance.getCounter(), is(31));
+        assertThat(pipelineInstance.getCounter()).isEqualTo(31);
     }
 
     @Test
@@ -203,16 +202,16 @@ public class PipelineServiceIntegrationTest {
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
 
         Pipeline slimPipeline = pipelineService.wrapBuildDetails(job);
-        assertThat(slimPipeline.getBuildCause().getMaterialRevisions().totalNumberOfModifications(), is(1));
-        assertThat(slimPipeline.getName(), is(pipeline.getName()));
-        assertThat(slimPipeline.getFirstStage().getJobInstances().size(), is(1));
+        assertThat(slimPipeline.getBuildCause().getMaterialRevisions().totalNumberOfModifications()).isEqualTo(1);
+        assertThat(slimPipeline.getName()).isEqualTo(pipeline.getName());
+        assertThat(slimPipeline.getFirstStage().getJobInstances().size()).isEqualTo(1);
     }
 
     @Test
     public void shouldApplyLabelFromPreviousPipeline() {
         String oldLabel = createNewPipeline().getLabel();
         String newLabel = createNewPipeline().getLabel();
-        assertThat(newLabel, is(greaterThan(oldLabel)));
+        assertThat(newLabel).isGreaterThan(oldLabel);
     }
 
     private Pipeline createNewPipeline() {
@@ -227,33 +226,33 @@ public class PipelineServiceIntegrationTest {
     public void shouldIncreaseCounterFromPreviousPipeline() {
         Pipeline pipeline1 = createNewPipeline();
         Pipeline pipeline2 = createNewPipeline();
-        assertThat(pipeline2.getCounter(), is(pipeline1.getCounter() + 1));
+        assertThat(pipeline2.getCounter()).isEqualTo(pipeline1.getCounter() + 1);
     }
 
     @Test
     public void shouldFindPipelineByLabel() {
         Pipeline pipeline = createPipelineWhoseLabelIsNumberAndNotSameWithCounter();
         Pipeline actual = pipelineService.findPipelineByNameAndCounter("Test", 10);
-        assertThat(actual.getId(), is(pipeline.getId()));
-        assertThat(actual.getLabel(), is(pipeline.getLabel()));
-        assertThat(actual.getCounter(), is(pipeline.getCounter()));
+        assertThat(actual.getId()).isEqualTo(pipeline.getId());
+        assertThat(actual.getLabel()).isEqualTo(pipeline.getLabel());
+        assertThat(actual.getCounter()).isEqualTo(pipeline.getCounter());
     }
 
     @Test
     public void shouldFindPipelineByCounter() {
         Pipeline pipeline = createNewPipeline();
         Pipeline actual = pipelineService.findPipelineByNameAndCounter("Test", pipeline.getCounter());
-        assertThat(actual.getId(), is(pipeline.getId()));
-        assertThat(actual.getLabel(), is(pipeline.getLabel()));
-        assertThat(actual.getCounter(), is(pipeline.getCounter()));
+        assertThat(actual.getId()).isEqualTo(pipeline.getId());
+        assertThat(actual.getLabel()).isEqualTo(pipeline.getLabel());
+        assertThat(actual.getCounter()).isEqualTo(pipeline.getCounter());
     }
 
     @Test
     public void shouldReturnFullPipelineByCounter() {
         Pipeline pipeline = createPipelineWithStagesAndMods();
         Pipeline actual = pipelineService.fullPipelineByCounter(pipeline.getName(), pipeline.getCounter());
-        assertThat(actual.getStages().size(), is(not(0)));
-        assertThat(actual.getBuildCause().getMaterialRevisions().getRevisions().size(), is(not(0)));
+        assertThat(actual.getStages().size()).isNotEqualTo(0);
+        assertThat(actual.getBuildCause().getMaterialRevisions().getRevisions().size()).isNotEqualTo(0);
     }
 
     private Pipeline createPipelineWhoseLabelIsNumberAndNotSameWithCounter() {

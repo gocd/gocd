@@ -71,9 +71,8 @@ import static com.thoughtworks.go.util.TriState.*;
 import static java.lang.String.format;
 import static java.util.Arrays.sort;
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -118,34 +117,34 @@ class AgentServiceTest {
             void shouldReturnTrueIfOnlyHostNameValueIsSpecifiedAsNotNull() {
                 TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.validateAnyOperationPerformedOnAgent(NOT_NULL_VALUE, null, null, unsetState);
-                assertThat(anyOpsPerformed, is(true));
+                assertThat(anyOpsPerformed).isTrue();
             }
 
             @Test
             void shouldReturnTrueIfOnlyEnvironmentsValueIsSpecifiedAsNotNull() {
                 TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.validateAnyOperationPerformedOnAgent(null, "", null, unsetState);
-                assertThat(anyOpsPerformed, is(true));
+                assertThat(anyOpsPerformed).isTrue();
             }
 
             @Test
             void shouldReturnTrueIfOnlyResourcesValueIsSpecifiedAsNotNull() {
                 TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.validateAnyOperationPerformedOnAgent(null, null, NOT_NULL_VALUE, unsetState);
-                assertThat(anyOpsPerformed, is(true));
+                assertThat(anyOpsPerformed).isTrue();
             }
 
             @Test
             void shouldReturnTrueIfOnlyTriStateValueIsSpecifiedAsTrueOrFalse() {
                 boolean anyOpsPerformed = agentService.validateAnyOperationPerformedOnAgent(null, null, null, TRUE);
-                assertThat(anyOpsPerformed, is(true));
+                assertThat(anyOpsPerformed).isTrue();
             }
 
             @Test
             void shouldReturnFalseOnlyIfNoneOfTheAgentAttributesAreSpecified() {
                 TriState unsetState = UNSET;
                 BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.validateAnyOperationPerformedOnAgent(null, null, null, unsetState));
-                assertThat(e.getMessage(), is("Bad Request. No operation is specified in the request to be performed on agent."));
+                assertThat(e.getMessage()).isEqualTo("Bad Request. No operation is specified in the request to be performed on agent.");
             }
         }
 
@@ -155,34 +154,34 @@ class AgentServiceTest {
             void shouldReturnTrueIfOnlyResourcesToAddListIsNotEmpty() {
                 TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(List.of("r1"), emptyList(), null, emptyList(), unsetState);
-                assertThat(anyOpsPerformed, is(true));
+                assertThat(anyOpsPerformed).isTrue();
             }
 
             @Test
             void shouldReturnTrueIfOnlyResourcesToRemoveListIsNotEmpty() {
                 TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), List.of("r1"), null, emptyList(), unsetState);
-                assertThat(anyOpsPerformed, is(true));
+                assertThat(anyOpsPerformed).isTrue();
             }
 
             @Test
             void shouldReturnTrueIfOnlyEnvsToAddListIsNotEmpty() {
                 TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, List.of("env1"), emptyList(), unsetState);
-                assertThat(anyOpsPerformed, is(true));
+                assertThat(anyOpsPerformed).isTrue();
             }
 
             @Test
             void shouldReturnTrueIfOnlyEnvsToRemoveListIsNotEmpty() {
                 TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyStrList, List.of("env1"), unsetState);
-                assertThat(anyOpsPerformed, is(true));
+                assertThat(anyOpsPerformed).isTrue();
             }
 
             @Test
             void shouldReturnTrueIfOnlyTriStateIsSetToTrueOrFalse() {
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyStrList, emptyList(), TRUE);
-                assertThat(anyOpsPerformed, is(true));
+                assertThat(anyOpsPerformed).isTrue();
             }
 
             @Test
@@ -254,7 +253,7 @@ class AgentServiceTest {
             void shouldThrow400BadRequestWhenNoOperationIsSpecifiedToBePerformedOnAgents() {
                 BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(List.of("uuid"), emptyStrList, emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
                 verifyNoInteractions(agentDao);
-                assertThat(e.getMessage(), is("Bad Request. No operation is specified in the request to be performed on agents."));
+                assertThat(e.getMessage()).isEqualTo("Bad Request. No operation is specified in the request to be performed on agents.");
             }
 
             @Test
@@ -265,7 +264,7 @@ class AgentServiceTest {
 
                 RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, List.of("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
                 verifyNoInteractions(agentDao);
-                assertThat(e.getMessage(), is("Agents with uuids [uuid1] were not found!"));
+                assertThat(e.getMessage()).isEqualTo("Agents with uuids [uuid1] were not found!");
             }
 
             @Test
@@ -277,7 +276,7 @@ class AgentServiceTest {
                 BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, List.of("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
                 verifyNoInteractions(agentDao);
-                assertThat(e.getMessage(), is("Resources on elastic agents with uuids [uuid1] can not be updated."));
+                assertThat(e.getMessage()).isEqualTo("Resources on elastic agents with uuids [uuid1] can not be updated.");
             }
 
             @Test
@@ -287,7 +286,7 @@ class AgentServiceTest {
                 UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, List.of("foo%"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
                 verifyNoInteractions(agentDao);
-                assertThat(e.getMessage(), is("Validations failed for bulk update of agents. Error(s): {resources=[Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$']}"));
+                assertThat(e.getMessage()).isEqualTo("Validations failed for bulk update of agents. Error(s): {resources=[Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$']}");
             }
 
             @Test
@@ -299,7 +298,7 @@ class AgentServiceTest {
                 BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, List.of("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
                 verifyNoInteractions(agentDao);
-                assertThat(e.getMessage(), is("Pending agents [uuid1] must be explicitly enabled or disabled when performing any operations on them."));
+                assertThat(e.getMessage()).isEqualTo("Pending agents [uuid1] must be explicitly enabled or disabled when performing any operations on them.");
             }
 
             @Test
@@ -374,7 +373,7 @@ class AgentServiceTest {
             }
 
             private void assertAllAgentsCookieIs(String value, Agent... agents) {
-                Arrays.stream(agents).forEach(agent -> assertThat(agent.getCookie(), is(value)));
+                Arrays.stream(agents).forEach(agent -> assertThat(agent.getCookie()).isEqualTo(value));
             }
         }
 
@@ -387,10 +386,10 @@ class AgentServiceTest {
                                                                              String resources, boolean isDisabled) {
                     verify(agentDao).saveOrUpdate(any(Agent.class));
 
-                    assertThat(updatedAgent.getHostname(), is(hostname));
-                    assertThat(updatedAgent.getResources(), is(resources));
-                    assertThat(updatedAgent.isDisabled(), is(isDisabled));
-                    assertThat(updatedAgent.getEnvironments(), is(envs));
+                    assertThat(updatedAgent.getHostname()).isEqualTo(hostname);
+                    assertThat(updatedAgent.getResources()).isEqualTo(resources);
+                    assertThat(updatedAgent.isDisabled()).isEqualTo(isDisabled);
+                    assertThat(updatedAgent.getEnvironments()).isEqualTo(envs);
                 }
 
                 @Test
@@ -479,10 +478,10 @@ class AgentServiceTest {
                     TriState state = FALSE;
 
                     assertThrows(RuntimeException.class, () -> agentService.updateAgentAttributes(uuid, hostname, resources, "env1,env2", state));
-                    assertThat(pending.getAgentConfigStatus(), is(Pending));
-                    assertThat(pending.getAgent().getResources(), is(""));
-                    assertThat(pending.getAgent().getEnvironments(), is(""));
-                    assertThat(pending.getHostname(), is("CCeDev03"));
+                    assertThat(pending.getAgentConfigStatus()).isEqualTo(Pending);
+                    assertThat(pending.getAgent().getResources()).isEqualTo("");
+                    assertThat(pending.getAgent().getEnvironments()).isEqualTo("");
+                    assertThat(pending.getHostname()).isEqualTo("CCeDev03");
                 }
             }
 
@@ -494,7 +493,7 @@ class AgentServiceTest {
                     BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(uuid, null, null, null, UNSET));
 
                     verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
-                    assertThat(e.getMessage(), is("Bad Request. No operation is specified in the request to be performed on agent."));
+                    assertThat(e.getMessage()).isEqualTo("Bad Request. No operation is specified in the request to be performed on agent.");
                 }
 
                 @Test
@@ -512,7 +511,7 @@ class AgentServiceTest {
                     RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", "env1,env2", TRUE));
 
                     verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
-                    assertThat(e.getMessage(), is(format("Agent with uuid '%s' was not found!", uuid)));
+                    assertThat(e.getMessage()).isEqualTo(format("Agent with uuid '%s' was not found!", uuid));
                 }
 
                 @Test
@@ -526,7 +525,7 @@ class AgentServiceTest {
                     BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(uuid, "new-hostname", "resource1", "env1", UNSET));
 
                     verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
-                    assertThat(e.getMessage(), is("Pending agent [uuid] must be explicitly enabled or disabled when performing any operation on it."));
+                    assertThat(e.getMessage()).isEqualTo("Pending agent [uuid] must be explicitly enabled or disabled when performing any operation on it.");
                 }
 
                 @Test
@@ -542,7 +541,7 @@ class AgentServiceTest {
 
                     Agent agent = agentInstance.getAgent();
                     assertTrue(agent.hasErrors());
-                    assertThat(agent.errors().on(JobConfig.RESOURCES), is("Resource name 'res%^1' is not valid. Valid names much match '^[-\\w\\s|.]*$'"));
+                    assertThat(agent.errors().on(JobConfig.RESOURCES)).isEqualTo("Resource name 'res%^1' is not valid. Valid names much match '^[-\\w\\s|.]*$'");
                 }
             }
         }
@@ -568,9 +567,9 @@ class AgentServiceTest {
                     agentService.updateRuntimeInfo(runtimeInfo);
                     fail("should throw exception when no cookie is set");
                 } catch (Exception e) {
-                    assertThat(e, instanceOf(AgentNoCookieSetException.class));
-                    assertThat(e.getMessage(), is(format("Agent [%s] has no cookie set", runtimeInfo.agentInfoDebugString())));
-                    assertThat(logFixture.getRawMessages(), hasItem(format("Agent [%s] has no cookie set", runtimeInfo.agentInfoDebugString())));
+                    assertThat(e).isInstanceOf(AgentNoCookieSetException.class);
+                    assertThat(e.getMessage()).isEqualTo(format("Agent [%s] has no cookie set", runtimeInfo.agentInfoDebugString()));
+                    assertThat(logFixture.getRawMessages()).contains(format("Agent [%s] has no cookie set", runtimeInfo.agentInfoDebugString()));
                 }
             }
 
@@ -588,8 +587,8 @@ class AgentServiceTest {
                     agentService.updateRuntimeInfo(runtimeInfo);
                     fail("should throw exception when cookie mismatched");
                 } catch (Exception e) {
-                    assertThat(e.getMessage(), is(format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString())));
-                    assertThat(logFixture.getRawMessages(), hasItem(format("Found agent [%s] with duplicate uuid. Please check the agent installation.", runtimeInfo.agentInfoDebugString())));
+                    assertThat(e.getMessage()).isEqualTo(format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString()));
+                    assertThat(logFixture.getRawMessages()).contains(format("Found agent [%s] with duplicate uuid. Please check the agent installation.", runtimeInfo.agentInfoDebugString()));
 
                     String msg = format("[%s] has duplicate unique identifier which conflicts with [%s]",
                             runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay());
@@ -678,7 +677,7 @@ class AgentServiceTest {
                         agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
                 RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.deleteAgents(List.of(uuid)));
-                assertThat(e.getMessage(), is("Agent with uuid '1234' was not found!"));
+                assertThat(e.getMessage()).isEqualTo("Agent with uuid '1234' was not found!");
             }
 
             @Test
@@ -699,7 +698,7 @@ class AgentServiceTest {
                         agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
                 UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(List.of(uuid)));
-                assertThat(e.getMessage(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
+                assertThat(e.getMessage()).isEqualTo("Failed to delete an agent, as it is not in a disabled state or is still building.");
             }
 
             @Test
@@ -729,7 +728,7 @@ class AgentServiceTest {
                         agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
                 UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(List.of(uuid1, uuid2)));
-                assertThat(e.getMessage(), is("Could not delete any agents, as one or more agents might not be disabled or are still building."));
+                assertThat(e.getMessage()).isEqualTo("Could not delete any agents, as one or more agents might not be disabled or are still building.");
             }
         }
 
@@ -829,7 +828,7 @@ class AgentServiceTest {
             agentService.setAgentChangeListeners(setOfListeners);
             agentService.registerAgentChangeListeners(null);
 
-            assertThat(setOfListeners.size(), is(0));
+            assertThat(setOfListeners.size()).isEqualTo(0);
         }
 
         @Test
@@ -856,7 +855,7 @@ class AgentServiceTest {
         @Test
         void shouldAssociateCookieForAnAgent() {
             when(uuidGenerator.randomUuid()).thenReturn("foo");
-            assertThat(agentService.assignCookie(agentIdentifier), is("foo"));
+            assertThat(agentService.assignCookie(agentIdentifier)).isEqualTo("foo");
             verify(agentDao).associateCookie(eq(agentIdentifier), any(String.class));
         }
     }
@@ -874,7 +873,7 @@ class AgentServiceTest {
             when(agentInstance.getAgent()).thenReturn(agent);
 
             boolean registration = agentService.requestRegistration(runtimeInfo);
-            assertThat(registration, is(false));
+            assertThat(registration).isFalse();
             verifyNoInteractions(agentDao);
             verify(agent, never()).getCookie();
             verify(agent, never()).setCookie(anyString());
@@ -897,7 +896,7 @@ class AgentServiceTest {
             when(uuidGenerator.randomUuid()).thenReturn(cookie);
 
             boolean requestedRegistration = agentService.requestRegistration(runtimeInfo);
-            assertThat(requestedRegistration, is(true));
+            assertThat(requestedRegistration).isTrue();
 
             verify(agentDao, only()).saveOrUpdate(agent);
             verify(agent, times(1)).cookieAssigned();
@@ -1061,13 +1060,13 @@ class AgentServiceTest {
             when(agentInstances.getAllAgents()).thenReturn(mockedAgentInstances);
 
             Map<AgentInstance, Collection<String>> map = agentService.getAgentInstanceToSortedEnvMap();
-            assertThat(map.size(), is(2));
+            assertThat(map.size()).isEqualTo(2);
 
             map.keySet().forEach(key -> {
                 Collection<String> envs = map.get(key);
-                assertThat(envs.size(), is(equalTo(7)));
-                assertThat(Ordering.natural().isOrdered(envs), is(true));
-                assertThat(envs.toArray(), is(splitEnvs));
+                assertThat(envs.size()).isEqualTo(7);
+                assertThat(Ordering.natural().isOrdered(envs)).isTrue();
+                assertThat(envs.toArray()).isEqualTo(splitEnvs);
             });
         }
 
@@ -1083,11 +1082,11 @@ class AgentServiceTest {
             when(agentInstances.getAllAgents()).thenReturn(mockedInstances);
 
             Map<AgentInstance, Collection<String>> map = agentService.getAgentInstanceToSortedEnvMap();
-            assertThat(map.size(), is(2));
+            assertThat(map.size()).isEqualTo(2);
 
             map.keySet().forEach(key -> {
                 Collection<String> envs = map.get(key);
-                assertThat(envs.size(), is(equalTo(0)));
+                assertThat(envs.size()).isEqualTo(0);
             });
         }
     }
@@ -1216,8 +1215,8 @@ class AgentServiceTest {
             AgentChangeListener mockListener = mock(AgentChangeListener.class);
             agentService.registerAgentChangeListeners(mockListener);
 
-            assertThat(setOfListeners.size(), is(1));
-            setOfListeners.forEach(listener -> assertThat(listener, is(mockListener)));
+            assertThat(setOfListeners.size()).isEqualTo(1);
+            setOfListeners.forEach(listener -> assertThat(listener).isEqualTo(mockListener));
         }
 
         @Test
@@ -1232,7 +1231,7 @@ class AgentServiceTest {
 
             when(agentInstances.findAgent(agentBeforeUpdate.getUuid())).thenReturn(agentInstanceBeforeUpdate);
             agentService.entityChanged(agentAfterUpdate);
-            assertThat(agentInstanceBeforeUpdate.getAgent(), is(agentAfterUpdate));
+            assertThat(agentInstanceBeforeUpdate.getAgent()).isEqualTo(agentAfterUpdate);
             verify(listener).agentChanged(agentAfterUpdate);
         }
 
@@ -1292,7 +1291,7 @@ class AgentServiceTest {
             when(agentInstances.findAgent(uuidToUse)).thenReturn(agentInstance);
             Agent agent = agentService.findAgentByUUID(uuidToUse);
 
-            assertThat(agent, is(agentInstance.getAgent()));
+            assertThat(agent).isEqualTo(agentInstance.getAgent());
         }
 
         @Test
@@ -1305,7 +1304,7 @@ class AgentServiceTest {
             when(agentDao.fetchAgentFromDBByUUIDIncludingDeleted(uuidToUse)).thenReturn(fromDB);
             Agent agent = agentService.findAgentByUUID(uuidToUse);
 
-            assertThat(agent, is(fromDB));
+            assertThat(agent).isEqualTo(fromDB);
         }
 
         @Test
@@ -1315,13 +1314,13 @@ class AgentServiceTest {
             when(agentDao.getAgentByUUIDFromCacheOrDB(uuidToUse)).thenReturn(null);
             Agent agent = agentService.findAgentByUUID(uuidToUse);
 
-            assertThat(agent, is(nullValue()));
+            assertThat(agent).isNull();
         }
 
         @Test
         void shouldReturnNullIfUUIDIsNotProvided() {
-            assertThat(agentService.findAgentByUUID(null), is(nullValue()));
-            assertThat(agentService.findAgentByUUID(" "), is(nullValue()));
+            assertThat(agentService.findAgentByUUID(null)).isNull();
+            assertThat(agentService.findAgentByUUID(" ")).isNull();
         }
     }
 
@@ -1338,7 +1337,7 @@ class AgentServiceTest {
             when(mockAgentInstance.getAgent()).thenReturn(mockAgent);
 
             Agent foundAgent = agentService.getAgentByUUID(uuid);
-            assertThat(foundAgent, is(mockAgent));
+            assertThat(foundAgent).isEqualTo(mockAgent);
         }
 
         @Test
@@ -1349,7 +1348,7 @@ class AgentServiceTest {
             when(agentInstances.findAgent(nonExistingUUID)).thenReturn(nullAgentInstance);
 
             Agent foundAgent = agentService.getAgentByUUID(nonExistingUUID);
-            assertThat(foundAgent instanceof NullAgent, is(true));
+            assertThat(foundAgent instanceof NullAgent).isTrue();
         }
 
         @Test
@@ -1362,7 +1361,7 @@ class AgentServiceTest {
             when(agentInstances.spliterator()).thenReturn(agentInstanceList.spliterator());
 
             List<String> allAgentUUIDs = agentService.getAllRegisteredAgentUUIDs();
-            assertThat(allAgentUUIDs.size(), is(2));
+            assertThat(allAgentUUIDs.size()).isEqualTo(2);
         }
 
         @Test
@@ -1420,7 +1419,7 @@ class AgentServiceTest {
         String hostNameForDisplay = "localhost";
 
         Username username = agentService.createAgentUsername(uuid, ip, hostNameForDisplay);
-        assertThat(username.getDisplayName(), is("agent_uuid1_127.0.0.1_localhost"));
+        assertThat(username.getDisplayName()).isEqualTo("agent_uuid1_127.0.0.1_localhost");
     }
 
     @Test
@@ -1477,9 +1476,9 @@ class AgentServiceTest {
 
             verify(serverHealthService).update(argument.capture());
             ServerHealthState serverHealthState = argument.getValue();
-            assertThat(serverHealthState.getMessage(), is("Agent `test_agent` is stuck in cancel."));
-            assertThat(serverHealthState.getLogLevel(), is(HealthStateLevel.WARNING));
-            assertThat(serverHealthState.getDescription(), is("Looks like the agent is stuck cancelling a job, the job was cancelled 20 minutes ago."));
+            assertThat(serverHealthState.getMessage()).isEqualTo("Agent `test_agent` is stuck in cancel.");
+            assertThat(serverHealthState.getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
+            assertThat(serverHealthState.getDescription()).isEqualTo("Looks like the agent is stuck cancelling a job, the job was cancelled 20 minutes ago.");
         }
     }
 

@@ -18,30 +18,29 @@ package com.thoughtworks.go.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StageIdentifierTest {
 
     @Test
     public void shouldContainCounterIfStageHasRerun() {
         StageIdentifier identifier = new StageIdentifier("cruise", null, "label", "dev", "2");
-        assertThat(identifier.ccTrayLastBuildLabel(), is("label :: 2"));
+        assertThat(identifier.ccTrayLastBuildLabel()).isEqualTo("label :: 2");
     }
 
     @Test
     public void shouldNotContainCounterForFirstRun() {
         StageIdentifier identifier = new StageIdentifier("cruise", null, "label", "dev", "1");
-        assertThat(identifier.ccTrayLastBuildLabel(), is("label"));
+        assertThat(identifier.ccTrayLastBuildLabel()).isEqualTo("label");
     }
 
     @Test
     public void shouldConstructFromStageLocator() {
         StageIdentifier identifier = new StageIdentifier("pipeline-name/10/stage-name/7");
-        assertThat(identifier.getPipelineName(), is("pipeline-name"));
-        assertThat(identifier.getStageName(), is("stage-name"));
-        assertThat(identifier.getPipelineCounter(), is(10));
-        assertThat(identifier.getStageCounter(), is("7"));
+        assertThat(identifier.getPipelineName()).isEqualTo("pipeline-name");
+        assertThat(identifier.getStageName()).isEqualTo("stage-name");
+        assertThat(identifier.getPipelineCounter()).isEqualTo(10);
+        assertThat(identifier.getStageCounter()).isEqualTo("7");
     }
 
     @Test
@@ -51,7 +50,7 @@ public class StageIdentifierTest {
             identifier.ccTrayLastBuildLabel();
             Assertions.fail("should throw exception if stage counter is not number");
         } catch (Exception e) {
-            assertThat(e, instanceOf(NumberFormatException.class));
+            assertThat(e).isInstanceOf(NumberFormatException.class);
         }
     }
 
@@ -62,16 +61,16 @@ public class StageIdentifierTest {
         StageIdentifier stage3 = new StageIdentifier("blahPipeline", 1, "blahStage", "1");
         StageIdentifier stage4 = new StageIdentifier("blahPipeline", 1, "blahStage", "2");
 
-        assertThat(stage1,is(stage2));
-        assertThat(stage1,is(stage3));
-        assertThat(stage2,is(stage3));
-        assertThat(stage2,is(not(stage4)));
+        assertThat(stage1).isEqualTo(stage2);
+        assertThat(stage1).isEqualTo(stage3);
+        assertThat(stage2).isEqualTo(stage3);
+        assertThat(stage2).isNotEqualTo((stage4));
     }
 
 
     @Test
     public void shouldReturnURN() throws Exception {
         StageIdentifier id = new StageIdentifier("cruise", 1, "dev", "1");
-        assertThat(id.asURN(), is("urn:x-go.studios.thoughtworks.com:stage-id:cruise:1:dev:1"));
+        assertThat(id.asURN()).isEqualTo("urn:x-go.studios.thoughtworks.com:stage-id:cruise:1:dev:1");
     }
 }

@@ -19,9 +19,7 @@ import com.thoughtworks.go.domain.NullAgent;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AgentsTest {
@@ -32,8 +30,8 @@ class AgentsTest {
             Agents agents = new Agents();
             agents.add(new Agent("1", "localhost", "2"));
 
-            assertThat(agents.getAgentByUUID("1").getHostname(), is("localhost"));
-            assertThat(agents.getAgentByUUID("1").getIpaddress(), is("2"));
+            assertThat(agents.getAgentByUUID("1").getHostname()).isEqualTo("localhost");
+            assertThat(agents.getAgentByUUID("1").getIpaddress()).isEqualTo("2");
         }
 
         @Test
@@ -41,7 +39,7 @@ class AgentsTest {
             Agents agents = new Agents();
             agents.add(new Agent("1", "localhost", "2"));
             assertTrue(agents.getAgentByUUID("uuid-that-does-not-exist") instanceof NullAgent);
-            assertThat(agents.getAgentByUUID("uuid-that-does-not-exist").isNull(), is(true));
+            assertThat(agents.getAgentByUUID("uuid-that-does-not-exist").isNull()).isTrue();
         }
     }
 
@@ -51,14 +49,14 @@ class AgentsTest {
         void hasAgentShouldReturnTrueForExistingUUID() {
             Agents agents = new Agents();
             agents.add(new Agent("1", "localhost", "2"));
-            assertThat(agents.hasAgent("1"), is(true));
+            assertThat(agents.hasAgent("1")).isTrue();
         }
 
         @Test
         void hasAgentShouldReturnFalseForUUIDThatDoesNotExist() {
             Agents agents = new Agents();
             agents.add(new Agent("1", "localhost", "2"));
-            assertThat(agents.hasAgent("uuid-that-does-not-exist"), is(false));
+            assertThat(agents.hasAgent("uuid-that-does-not-exist")).isFalse();
         }
     }
 
@@ -73,8 +71,8 @@ class AgentsTest {
             agents.add(agent1);
             agents.add(agent2);
 
-            assertThat(agents.getAgentByUUID("1"), is(equalTo(agent1)));
-            assertThat(agents.getAgentByUUID("2"), is(equalTo(agent2)));
+            assertThat(agents.getAgentByUUID("1")).isEqualTo(agent1);
+            assertThat(agents.getAgentByUUID("2")).isEqualTo(agent2);
         }
 
         @Test
@@ -86,8 +84,8 @@ class AgentsTest {
             agents.add(null);
             agents.add(agent);
 
-            assertThat(agents.size(), is(1));
-            assertThat(agents.getAgentByUUID("1"), is(equalTo(agent)));
+            assertThat(agents.size()).isEqualTo(1);
+            assertThat(agents.getAgentByUUID("1")).isEqualTo(agent);
         }
     }
 }

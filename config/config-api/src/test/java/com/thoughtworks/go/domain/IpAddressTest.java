@@ -40,7 +40,7 @@ public class IpAddressTest {
     @Test
     public void ipAddressComparator() {
         assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.3"))).isGreaterThan(0);
-        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.20"))).isEqualTo((0));
+        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.20"))).isEqualTo(0);
         assertThat(IpAddress.create("112.12.34.20").compareTo(IpAddress.create("10.12.34.20"))).isGreaterThan(0);
         assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create(""))).isGreaterThan(0);
         assertThat(IpAddress.create("").compareTo(IpAddress.create("10.12.34.3"))).isLessThan(0);

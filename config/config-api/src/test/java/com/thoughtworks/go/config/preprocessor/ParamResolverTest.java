@@ -33,8 +33,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ParamResolverTest {
 
@@ -51,9 +50,9 @@ public class ParamResolverTest {
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("lo#{foo}")));
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("boo#{bar}"), new RoleUser(new CaseInsensitiveString("choo#{foo}"))));
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "ser"), param("bar", "zer"))), fieldCache).resolve(securityConfig);
-        assertThat(CaseInsensitiveString.str(securityConfig.adminsConfig().get(0).getName()), is("loser"));
-        assertThat(CaseInsensitiveString.str(securityConfig.getRoles().get(0).getName()), is("boozer"));
-        assertThat(CaseInsensitiveString.str(securityConfig.getRoles().get(0).getUsers().get(0).getName()), is("chooser"));
+        assertThat(CaseInsensitiveString.str(securityConfig.adminsConfig().get(0).getName())).isEqualTo("loser");
+        assertThat(CaseInsensitiveString.str(securityConfig.getRoles().get(0).getName())).isEqualTo("boozer");
+        assertThat(CaseInsensitiveString.str(securityConfig.getRoles().get(0).getUsers().get(0).getName())).isEqualTo("chooser");
     }
 
     @Test
@@ -62,8 +61,8 @@ public class ParamResolverTest {
         pipelineConfig.setLabelTemplate("2.1-${COUNT}");
         setField(pipelineConfig, PipelineConfig.LOCK_BEHAVIOR, "#{partial}Finished");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("partial", "unlockWhen"), param("COUNT", "quux"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}"));
-        assertThat(pipelineConfig.explicitLock(), is(true));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}");
+        assertThat(pipelineConfig.explicitLock()).isTrue();
     }
 
     @Test
@@ -79,10 +78,10 @@ public class ParamResolverTest {
         svn.setPassword("#quux-#{foo}-#{bar}");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
-        assertThat(pipelineConfig.name(), is(new CaseInsensitiveString("cruise-#{foo}-#{bar}")));
-        assertThat(((SvnMaterialConfig) pipelineConfig.materialConfigs().get(0)).getPassword(), is("#quux-#{foo}-#{bar}"));
-        assertThat(pipelineConfig.getClass().getDeclaredField("name").getAnnotation(SkipParameterResolution.class), isA(SkipParameterResolution.class));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-pavan-bar-jj");
+        assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("cruise-#{foo}-#{bar}"));
+        assertThat(((SvnMaterialConfig) pipelineConfig.materialConfigs().get(0)).getPassword()).isEqualTo("#quux-#{foo}-#{bar}");
+        assertThat(pipelineConfig.getClass().getDeclaredField("name").getAnnotation(SkipParameterResolution.class)).isInstanceOf(SkipParameterResolution.class);
     }
 
     @Test
@@ -91,9 +90,9 @@ public class ParamResolverTest {
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
         pipelineConfig.addParam(param("#{foo}-name", "#{foo}-#{bar}-baz"));
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
-        assertThat(pipelineConfig.getParams().get(0), is(param("#{foo}-name", "#{foo}-#{bar}-baz")));
-        assertThat(pipelineConfig.getClass().getDeclaredField("params").getAnnotation(SkipParameterResolution.class), isA(SkipParameterResolution.class));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-pavan-bar-jj");
+        assertThat(pipelineConfig.getParams().get(0)).isEqualTo(param("#{foo}-name", "#{foo}-#{bar}-baz"));
+        assertThat(pipelineConfig.getClass().getDeclaredField("params").getAnnotation(SkipParameterResolution.class)).isInstanceOf(SkipParameterResolution.class);
     }
 
     @Test
@@ -101,7 +100,7 @@ public class ParamResolverTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-##{foo}-bar-#{bar}");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-#{foo}-bar-jj"));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-#{foo}-bar-jj");
     }
 
     @Test
@@ -109,7 +108,7 @@ public class ParamResolverTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-###{foo}-bar-#{bar}");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-#pavan-bar-jj"));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-#pavan-bar-jj");
     }
 
     @Test
@@ -117,7 +116,7 @@ public class ParamResolverTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#######{foo}-bar-####{bar}");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-###pavan-bar-##{bar}"));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-###pavan-bar-##{bar}");
     }
 
     @Test
@@ -127,12 +126,12 @@ public class ParamResolverTest {
         pipelineConfig.setLabelTemplate("#{foo}");
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "#{bar}"), param("bar", "baz"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.getLabelTemplate(), is("#{bar}"));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("#{bar}");
 
         pipelineConfig.setLabelTemplate("#{foo}");
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "###"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.getLabelTemplate(), is("###"));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("###");
     }
 
     @Test
@@ -144,8 +143,8 @@ public class ParamResolverTest {
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
 
-        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
-        assertThat(stageConfig.getApproval().getAuthConfig(), is(new AuthConfig(new AdminUser(new CaseInsensitiveString("pavan")), new AdminUser(new CaseInsensitiveString("jj")))));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-pavan-bar-jj");
+        assertThat(stageConfig.getApproval().getAuthConfig()).isEqualTo(new AuthConfig(new AdminUser(new CaseInsensitiveString("pavan")), new AdminUser(new CaseInsensitiveString("jj"))));
     }
 
     @Test
@@ -157,9 +156,9 @@ public class ParamResolverTest {
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
 
-        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
-        assertThat(trackingTool.getLink(), is("http://pavan.com/jj"));
-        assertThat(trackingTool.getRegex(), is("\\w+jj"));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-pavan-bar-jj");
+        assertThat(trackingTool.getLink()).isEqualTo("http://pavan.com/jj");
+        assertThat(trackingTool.getRegex()).isEqualTo("\\w+jj");
     }
 
     @Test
@@ -171,8 +170,8 @@ public class ParamResolverTest {
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
 
-        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
-        assertThat(pipelineConfig.materialConfigs().get(1).getUriForDisplay(), is("http://pavan.com/jj"));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-pavan-bar-jj");
+        assertThat(pipelineConfig.materialConfigs().get(1).getUriForDisplay()).isEqualTo("http://pavan.com/jj");
     }
 
     @Test
@@ -185,8 +184,8 @@ public class ParamResolverTest {
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelines);
 
-        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
-        assertThat(pipelineConfig.materialConfigs().get(1).getUriForDisplay(), is("http://pavan.com/jj"));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-pavan-bar-jj");
+        assertThat(pipelineConfig.materialConfigs().get(1).getUriForDisplay()).isEqualTo("http://pavan.com/jj");
     }
 
     @Test
@@ -199,8 +198,8 @@ public class ParamResolverTest {
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(merge);
 
-        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
-        assertThat(pipelineConfig.materialConfigs().get(1).getUriForDisplay(), is("http://pavan.com/jj"));
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-pavan-bar-jj");
+        assertThat(pipelineConfig.materialConfigs().get(1).getUriForDisplay()).isEqualTo("http://pavan.com/jj");
     }
 
     @Test
@@ -208,7 +207,7 @@ public class ParamResolverTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("#a");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.errors().on("labelTemplate"), is("Error when processing params for '#a' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #"));
+        assertThat(pipelineConfig.errors().on("labelTemplate")).isEqualTo("Error when processing params for '#a' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #");
     }
 
     @Test
@@ -217,8 +216,8 @@ public class ParamResolverTest {
         FetchTask task = new FetchTask(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("ant"), "#a", "dest");
         pipelineConfig.get(0).getJobs().getJob(new CaseInsensitiveString("nant")).addTask(task);
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(task.errors().isEmpty(), is(false));
-        assertThat(task.errors().on(FetchTask.SRC), is("Error when processing params for '#a' used in field 'src', # must be followed by a parameter pattern or escaped by another #"));
+        assertThat(task.errors().isEmpty()).isFalse();
+        assertThat(task.errors().on(FetchTask.SRC)).isEqualTo("Error when processing params for '#a' used in field 'src', # must be followed by a parameter pattern or escaped by another #");
     }
 
 
@@ -233,8 +232,8 @@ public class ParamResolverTest {
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
 
-        assertThat(pipelineConfig.errors().on("labelTemplate"), is("Error when processing params for '#a' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #"));
-        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES), is("Parameter 'not-found' is not defined. All pipelines using this parameter directly or via a template must define it."));
+        assertThat(pipelineConfig.errors().on("labelTemplate")).isEqualTo("Error when processing params for '#a' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #");
+        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES)).isEqualTo("Parameter 'not-found' is not defined. All pipelines using this parameter directly or via a template must define it.");
     }
 
     @Test
@@ -242,7 +241,7 @@ public class ParamResolverTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("abc#");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.errors().on("labelTemplate"), is("Error when processing params for 'abc#' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #"));
+        assertThat(pipelineConfig.errors().on("labelTemplate")).isEqualTo("Error when processing params for 'abc#' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #");
     }
 
     @Test
@@ -250,7 +249,7 @@ public class ParamResolverTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("abc#{");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.errors().on("labelTemplate"), is("Incomplete param usage in 'abc#{'"));
+        assertThat(pipelineConfig.errors().on("labelTemplate")).isEqualTo("Incomplete param usage in 'abc#{'");
     }
 
     @Test
@@ -262,7 +261,7 @@ public class ParamResolverTest {
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
 
-        assertThat(pipelineConfig.materialConfigs().get(1).getFolder(), is("work/pavan/jj/baz"));
+        assertThat(pipelineConfig.materialConfigs().get(1).getFolder()).isEqualTo("work/pavan/jj/baz");
     }
 
     @Test
@@ -271,14 +270,14 @@ public class ParamResolverTest {
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(p4MaterialViewConfig);
 
-        assertThat(p4MaterialViewConfig.errors().on(P4MaterialConfig.VIEW), is("Error when processing params for '#' used in field 'view', # must be followed by a parameter pattern or escaped by another #"));
+        assertThat(p4MaterialViewConfig.errors().on(P4MaterialConfig.VIEW)).isEqualTo("Error when processing params for '#' used in field 'view', # must be followed by a parameter pattern or escaped by another #");
     }
 
     @Test
     public void shouldErrorOutIfCannotResolveParamForP4View() {
         P4MaterialConfig p4MaterialConfig = p4("server:port", "#");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(p4MaterialConfig);
-        assertThat(p4MaterialConfig.getP4MaterialView().errors().on(P4MaterialConfig.VIEW), is("Error when processing params for '#' used in field 'view', # must be followed by a parameter pattern or escaped by another #"));
+        assertThat(p4MaterialConfig.getP4MaterialView().errors().on(P4MaterialConfig.VIEW)).isEqualTo("Error when processing params for '#' used in field 'view', # must be followed by a parameter pattern or escaped by another #");
     }
 
     @Test
@@ -302,9 +301,9 @@ public class ParamResolverTest {
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "global"), param("bar", "global-only"))), fieldCache).resolve(cruiseConfig);
 
-        assertThat(withParams.materialConfigs().get(1).getFolder(), is("work/pipeline/global-only/baz"));
-        assertThat(withParams.getLabelTemplate(), is("2.0.pipeline-global-only"));
-        assertThat(withoutParams.getLabelTemplate(), is("2.0.global-global-only"));
+        assertThat(withParams.materialConfigs().get(1).getFolder()).isEqualTo("work/pipeline/global-only/baz");
+        assertThat(withParams.getLabelTemplate()).isEqualTo("2.0.pipeline-global-only");
+        assertThat(withoutParams.getLabelTemplate()).isEqualTo("2.0.global-global-only");
     }
 
     @Test
@@ -331,8 +330,9 @@ public class ParamResolverTest {
     }
 
     private void assertSkipsResolution(Class clz, String fieldName) throws NoSuchFieldException {
-        assertThat(String.format("Field %s on class %s does not skip param resolution", clz.getName(), fieldName),
-                clz.getDeclaredField(fieldName).getAnnotation(SkipParameterResolution.class), is(not(nullValue())));
+        assertThat(clz.getDeclaredField(fieldName).getAnnotation(SkipParameterResolution.class))
+            .describedAs(String.format("Field %s on class %s does not skip param resolution", clz.getName(), fieldName))
+            .isNotNull();
     }
 
     private ParamConfig param(String name, String value) {

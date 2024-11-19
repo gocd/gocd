@@ -19,7 +19,6 @@ import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.StageEvent;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.cache.GoCache;
-import org.hamcrest.Matchers;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.SecondLevelCacheStatistics;
 import org.junit.jupiter.api.AfterEach;
@@ -35,8 +34,7 @@ import org.springframework.util.StopWatch;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -76,10 +74,10 @@ public class UserSqlMapDaoCachingTest {
         int originalNotificationsCacheSize = sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName() + ".notificationFilters").getEntries().size();
         userDao.saveOrUpdate(first);
         long userId = userDao.findUser("first").getId();
-        assertThat(sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName()).getEntries().size(), is(originalUserCacheSize + 1));
+        assertThat(sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName()).getEntries().size()).isEqualTo(originalUserCacheSize + 1);
         SecondLevelCacheStatistics notificationFilterCollectionCache = sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName() + ".notificationFilters");
-        assertThat(notificationFilterCollectionCache.getEntries().size(), is(originalNotificationsCacheSize + 1));
-        assertThat(notificationFilterCollectionCache.getEntries().get(userId), is(Matchers.notNullValue()));
+        assertThat(notificationFilterCollectionCache.getEntries().size()).isEqualTo(originalNotificationsCacheSize + 1);
+        assertThat(notificationFilterCollectionCache.getEntries().get(userId)).isNotNull();
     }
 
     @Test
@@ -207,11 +205,11 @@ public class UserSqlMapDaoCachingTest {
     }
 
     private void assertThatEnabledUserCacheHasBeenCleared() {
-        assertThat(goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY), is(nullValue()));
+        assertThat((Object) goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isNull();
     }
 
     private void assertThatEnabledUserCacheExists() {
-        assertThat(goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY), is(not(nullValue())));
+        assertThat((Object) goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isNotNull();
     }
 
     private void makeSureThatCacheIsInitialized() {

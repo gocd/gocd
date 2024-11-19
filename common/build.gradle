@@ -32,7 +32,6 @@ dependencies {
 
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(path: ':domain', configuration: 'testOutput')
-  testImplementation project.deps.jsonUnit
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

@@ -17,10 +17,8 @@ package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 
 public class BaseCollectionTest {
@@ -29,15 +27,15 @@ public class BaseCollectionTest {
         Object item1 = new Object();
         Object item2 = new Object();
         BaseCollection collection = new BaseCollection(item1, item2);
-        assertThat(collection.first(), is(item1));
-        assertThat(collection.last(), is(item2));
+        assertThat(collection.first()).isEqualTo(item1);
+        assertThat(collection.last()).isEqualTo(item2);
     }
 
     @Test
     public void shouldReturnNullForEmptyCollection() {
         BaseCollection collection = new BaseCollection();
-        assertThat(collection.first(), is(nullValue()));
-        assertThat(collection.last(), is(nullValue()));
+        assertThat(collection.first()).isNull();
+        assertThat(collection.last()).isNull();
     }
 
     @Test
@@ -47,13 +45,13 @@ public class BaseCollectionTest {
 
         BaseCollection collection = new BaseCollection(oldItem);
 
-        assertThat(collection.size(), is(1));
-        assertThat(collection.first(), is(oldItem));
+        assertThat(collection.size()).isEqualTo(1);
+        assertThat(collection.first()).isEqualTo(oldItem);
 
         collection.replace(oldItem, newItem);
 
-        assertThat(collection.size(), is(1));
-        assertThat(collection.first(), is(newItem));
+        assertThat(collection.size()).isEqualTo(1);
+        assertThat(collection.first()).isEqualTo(newItem);
     }
 
     @Test
@@ -63,7 +61,7 @@ public class BaseCollectionTest {
 
         collection.replace(1, newItem);
 
-        assertThat(collection.last(), is(newItem));
+        assertThat(collection.last()).isEqualTo(newItem);
     }
 
     @Test

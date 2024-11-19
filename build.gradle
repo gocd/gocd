@@ -1276,7 +1276,7 @@ task upgradeApi {
 
     String oldControllerClassSuffix = "ControllerV${currentMaxApiVersion}"
     String newControllerClassSuffix = "ControllerV${apiVersion}"
-    String newPackage = newPackagePrefix;
+    String newPackage = newPackagePrefix
 
     project.delete(moduleDir)
 

@@ -35,8 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -242,31 +241,31 @@ public class CcTrayConfigChangeHandlerTest {
 
         verify(cache).replaceAllEntriesInCacheWith(statusesCaptor.capture());
         List<ProjectStatus> statuses = statusesCaptor.getValue();
-        assertThat(statuses.size(), is(4));
+        assertThat(statuses.size()).isEqualTo(4);
 
-        assertThat(statuses.get(0).name(), is("pipeline1 :: stage1"));
-        assertThat(statuses.get(0).canBeViewedBy("user1"), is(true));
-        assertThat(statuses.get(0).canBeViewedBy("user2"), is(true));
-        assertThat(statuses.get(0).canBeViewedBy("user3"), is(false));
-        assertThat(statuses.get(0).canBeViewedBy("user4"), is(false));
+        assertThat(statuses.get(0).name()).isEqualTo("pipeline1 :: stage1");
+        assertThat(statuses.get(0).canBeViewedBy("user1")).isTrue();
+        assertThat(statuses.get(0).canBeViewedBy("user2")).isTrue();
+        assertThat(statuses.get(0).canBeViewedBy("user3")).isFalse();
+        assertThat(statuses.get(0).canBeViewedBy("user4")).isFalse();
 
-        assertThat(statuses.get(1).name(), is("pipeline1 :: stage1 :: job1"));
-        assertThat(statuses.get(1).canBeViewedBy("user1"), is(true));
-        assertThat(statuses.get(1).canBeViewedBy("user2"), is(true));
-        assertThat(statuses.get(1).canBeViewedBy("user3"), is(false));
-        assertThat(statuses.get(1).canBeViewedBy("user4"), is(false));
+        assertThat(statuses.get(1).name()).isEqualTo("pipeline1 :: stage1 :: job1");
+        assertThat(statuses.get(1).canBeViewedBy("user1")).isTrue();
+        assertThat(statuses.get(1).canBeViewedBy("user2")).isTrue();
+        assertThat(statuses.get(1).canBeViewedBy("user3")).isFalse();
+        assertThat(statuses.get(1).canBeViewedBy("user4")).isFalse();
 
-        assertThat(statuses.get(2).name(), is("pipeline2 :: stage2"));
-        assertThat(statuses.get(2).canBeViewedBy("user1"), is(false));
-        assertThat(statuses.get(2).canBeViewedBy("user2"), is(false));
-        assertThat(statuses.get(2).canBeViewedBy("user3"), is(true));
-        assertThat(statuses.get(2).canBeViewedBy("user4"), is(true));
+        assertThat(statuses.get(2).name()).isEqualTo("pipeline2 :: stage2");
+        assertThat(statuses.get(2).canBeViewedBy("user1")).isFalse();
+        assertThat(statuses.get(2).canBeViewedBy("user2")).isFalse();
+        assertThat(statuses.get(2).canBeViewedBy("user3")).isTrue();
+        assertThat(statuses.get(2).canBeViewedBy("user4")).isTrue();
 
-        assertThat(statuses.get(3).name(), is("pipeline2 :: stage2 :: job2"));
-        assertThat(statuses.get(3).canBeViewedBy("user1"), is(false));
-        assertThat(statuses.get(3).canBeViewedBy("user2"), is(false));
-        assertThat(statuses.get(3).canBeViewedBy("user3"), is(true));
-        assertThat(statuses.get(3).canBeViewedBy("user4"), is(true));
+        assertThat(statuses.get(3).name()).isEqualTo("pipeline2 :: stage2 :: job2");
+        assertThat(statuses.get(3).canBeViewedBy("user1")).isFalse();
+        assertThat(statuses.get(3).canBeViewedBy("user2")).isFalse();
+        assertThat(statuses.get(3).canBeViewedBy("user3")).isTrue();
+        assertThat(statuses.get(3).canBeViewedBy("user4")).isTrue();
     }
 
     @Test
@@ -288,8 +287,8 @@ public class CcTrayConfigChangeHandlerTest {
         verify(cache).putAll(argumentCaptor.capture());
 
         List<ProjectStatus> allValues = argumentCaptor.getValue();
-        assertThat(allValues.get(0).name(), is(pipeline1Stage));
-        assertThat(allValues.get(1).name(), is(pipeline1job));
+        assertThat(allValues.get(0).name()).isEqualTo(pipeline1Stage);
+        assertThat(allValues.get(1).name()).isEqualTo(pipeline1job);
 
         verify(cache, atLeastOnce()).get(pipeline1Stage);
         verify(cache, atLeastOnce()).get(pipeline1job);
@@ -314,14 +313,14 @@ public class CcTrayConfigChangeHandlerTest {
         verify(cache).putAll(argumentCaptor.capture());
 
         List<ProjectStatus> allValues = argumentCaptor.getValue();
-        assertThat(allValues.get(0).name(), is(pipeline1Stage));
-        assertThat(allValues.get(0).viewers().contains("user1"), is(true));
-        assertThat(allValues.get(0).viewers().contains("user2"), is(true));
-        assertThat(allValues.get(0).viewers().contains("user3"), is(false));
-        assertThat(allValues.get(1).name(), is(pipeline1job));
-        assertThat(allValues.get(1).viewers().contains("user1"), is(true));
-        assertThat(allValues.get(1).viewers().contains("user2"), is(true));
-        assertThat(allValues.get(1).viewers().contains("user3"), is(false));
+        assertThat(allValues.get(0).name()).isEqualTo(pipeline1Stage);
+        assertThat(allValues.get(0).viewers().contains("user1")).isTrue();
+        assertThat(allValues.get(0).viewers().contains("user2")).isTrue();
+        assertThat(allValues.get(0).viewers().contains("user3")).isFalse();
+        assertThat(allValues.get(1).name()).isEqualTo(pipeline1job);
+        assertThat(allValues.get(1).viewers().contains("user1")).isTrue();
+        assertThat(allValues.get(1).viewers().contains("user2")).isTrue();
+        assertThat(allValues.get(1).viewers().contains("user3")).isFalse();
     }
 
     private Users viewers(String... users) {

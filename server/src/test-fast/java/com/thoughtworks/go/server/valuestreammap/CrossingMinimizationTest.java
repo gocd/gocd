@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CrossingMinimizationTest {
 
@@ -58,19 +57,19 @@ public class CrossingMinimizationTest {
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g1.toString(), g1.toString(), "git"), null, p2, new MaterialRevision(null));
 
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
-        assertThat(levelToNodesMap.get(-1), is(List.of(graph.findNode(p1), graph.findNode(p2))));
+        assertThat(levelToNodesMap.get(-1)).isEqualTo(List.of(graph.findNode(p1), graph.findNode(p2)));
 
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(0), is(List.of(graph.findNode(p3))));
-        assertThat(levelToNodesMap.get(-1), is(List.of(graph.findNode(p2), graph.findNode(p1))));
-        assertThat(levelToNodesMap.get(-2), is(List.of(graph.findNode(g1), graph.findNode(g2))));
+        assertThat(levelToNodesMap.get(0)).isEqualTo(List.of(graph.findNode(p3)));
+        assertThat(levelToNodesMap.get(-1)).isEqualTo(List.of(graph.findNode(p2), graph.findNode(p1)));
+        assertThat(levelToNodesMap.get(-2)).isEqualTo(List.of(graph.findNode(g1), graph.findNode(g2)));
 
-        assertThat(graph.findNode(g1).getDepth(), is(1));
-        assertThat(graph.findNode(g2).getDepth(), is(2));
-        assertThat(graph.findNode(p1).getDepth(), is(2));
-        assertThat(graph.findNode(p2).getDepth(), is(1));
-        assertThat(graph.findNode(p3).getDepth(), is(1));
+        assertThat(graph.findNode(g1).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(g2).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(p1).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(p2).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(p3).getDepth()).isEqualTo(1);
     }
 
 
@@ -106,17 +105,17 @@ public class CrossingMinimizationTest {
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(0), is(List.of(graph.findNode(p))));
-        assertThat(levelToNodesMap.get(-1), is(List.of(graph.findNode(p1), graph.findNode(p2), graph.findNode(p3))));
-        assertThat(levelToNodesMap.get(-2), is(List.of(graph.findNode(g1), graph.findNode(g2), graph.findNode(g3))));
+        assertThat(levelToNodesMap.get(0)).isEqualTo(List.of(graph.findNode(p)));
+        assertThat(levelToNodesMap.get(-1)).isEqualTo(List.of(graph.findNode(p1), graph.findNode(p2), graph.findNode(p3)));
+        assertThat(levelToNodesMap.get(-2)).isEqualTo(List.of(graph.findNode(g1), graph.findNode(g2), graph.findNode(g3)));
 
-        assertThat(graph.findNode(g1).getDepth(), is(1));
-        assertThat(graph.findNode(g2).getDepth(), is(2));
-        assertThat(graph.findNode(g3).getDepth(), is(3));
-        assertThat(graph.findNode(p1).getDepth(), is(1));
-        assertThat(graph.findNode(p2).getDepth(), is(2));
-        assertThat(graph.findNode(p3).getDepth(), is(3));
-        assertThat(graph.findNode(p).getDepth(), is(1));
+        assertThat(graph.findNode(g1).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(g2).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(g3).getDepth()).isEqualTo(3);
+        assertThat(graph.findNode(p1).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(p2).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(p3).getDepth()).isEqualTo(3);
+        assertThat(graph.findNode(p).getDepth()).isEqualTo(1);
     }
 
     @Test
@@ -141,14 +140,14 @@ public class CrossingMinimizationTest {
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(-1), is(List.of(g1)));
-        assertThat(levelToNodesMap.get(0), is(List.of(graph.getCurrentPipeline())));
-        assertThat(levelToNodesMap.get(1), is(List.of(p1, p2)));
-        assertThat(levelToNodesMap.get(2), is(List.of(p3)));
+        assertThat(levelToNodesMap.get(-1)).isEqualTo(List.of(g1));
+        assertThat(levelToNodesMap.get(0)).isEqualTo(List.of(graph.getCurrentPipeline()));
+        assertThat(levelToNodesMap.get(1)).isEqualTo(List.of(p1, p2));
+        assertThat(levelToNodesMap.get(2)).isEqualTo(List.of(p3));
 
-        assertThat(p1.getDepth(), is(1));
-        assertThat(p2.getDepth(), is(2));
-        assertThat(p3.getDepth(), is(2));
+        assertThat(p1.getDepth()).isEqualTo(1);
+        assertThat(p2.getDepth()).isEqualTo(2);
+        assertThat(p3.getDepth()).isEqualTo(2);
     }
 
     @Test
@@ -181,17 +180,17 @@ public class CrossingMinimizationTest {
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(0), is(List.of(graph.getCurrentPipeline())));
-        assertThat(levelToNodesMap.get(-1), is(List.of(g4, p1, p2)));
-        assertThat(levelToNodesMap.get(-2), is(List.of(g1, g2, g3)));
+        assertThat(levelToNodesMap.get(0)).isEqualTo(List.of(graph.getCurrentPipeline()));
+        assertThat(levelToNodesMap.get(-1)).isEqualTo(List.of(g4, p1, p2));
+        assertThat(levelToNodesMap.get(-2)).isEqualTo(List.of(g1, g2, g3));
 
-        assertThat(graph.toString(), g1.getDepth(), is(1));
-        assertThat(g2.getDepth(), is(2));
-        assertThat(g3.getDepth(), is(3));
-        assertThat(g4.getDepth(), is(1));
-        assertThat(p1.getDepth(), is(2));
-        assertThat(p2.getDepth(), is(3));
-        assertThat(graph.getCurrentPipeline().getDepth(), is(1));
+        assertThat(g1.getDepth()).isEqualTo(1);
+        assertThat(g2.getDepth()).isEqualTo(2);
+        assertThat(g3.getDepth()).isEqualTo(3);
+        assertThat(g4.getDepth()).isEqualTo(1);
+        assertThat(p1.getDepth()).isEqualTo(2);
+        assertThat(p2.getDepth()).isEqualTo(3);
+        assertThat(graph.getCurrentPipeline().getDepth()).isEqualTo(1);
     }
 
     @Test
@@ -225,18 +224,18 @@ public class CrossingMinimizationTest {
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(0), is(List.of(graph.findNode(p))));
-        assertThat(levelToNodesMap.get(-1), is(List.of(graph.findNode(new CaseInsensitiveString(g1)))));
-        assertThat(levelToNodesMap.get(1), is(List.of(graph.findNode(p1), graph.findNode(p3), graph.findNode(p2))));
-        assertThat(levelToNodesMap.get(2), is(List.of(graph.findNode(p4), graph.findNode(p5))));
+        assertThat(levelToNodesMap.get(0)).isEqualTo(List.of(graph.findNode(p)));
+        assertThat(levelToNodesMap.get(-1)).isEqualTo(List.of(graph.findNode(new CaseInsensitiveString(g1))));
+        assertThat(levelToNodesMap.get(1)).isEqualTo(List.of(graph.findNode(p1), graph.findNode(p3), graph.findNode(p2)));
+        assertThat(levelToNodesMap.get(2)).isEqualTo(List.of(graph.findNode(p4), graph.findNode(p5)));
 
-        assertThat(graph.findNode(new CaseInsensitiveString(g1)).getDepth(), is(1));
-        assertThat(graph.findNode(p).getDepth(), is(1));
-        assertThat(graph.findNode(p1).getDepth(), is(1));
-        assertThat(graph.findNode(p2).getDepth(), is(3));
-        assertThat(graph.findNode(p3).getDepth(), is(2));
-        assertThat(graph.findNode(p4).getDepth(), is(1));
-        assertThat(graph.findNode(p5).getDepth(), is(3));
+        assertThat(graph.findNode(new CaseInsensitiveString(g1)).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(p).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(p1).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(p2).getDepth()).isEqualTo(3);
+        assertThat(graph.findNode(p3).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(p4).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(p5).getDepth()).isEqualTo(3);
     }
 
     @Test
@@ -264,15 +263,15 @@ public class CrossingMinimizationTest {
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(0), is(List.of(graph.findNode(p))));
-        assertThat(levelToNodesMap.get(-1), is(List.of(graph.findNode(new CaseInsensitiveString(g3)), graph.findNode(p1))));
-        assertThat(levelToNodesMap.get(-2), is(List.of(graph.findNode(new CaseInsensitiveString(g1)), graph.findNode(new CaseInsensitiveString(g2)))));
+        assertThat(levelToNodesMap.get(0)).isEqualTo(List.of(graph.findNode(p)));
+        assertThat(levelToNodesMap.get(-1)).isEqualTo(List.of(graph.findNode(new CaseInsensitiveString(g3)), graph.findNode(p1)));
+        assertThat(levelToNodesMap.get(-2)).isEqualTo(List.of(graph.findNode(new CaseInsensitiveString(g1)), graph.findNode(new CaseInsensitiveString(g2))));
 
-        assertThat(graph.findNode(new CaseInsensitiveString(g1)).getDepth(), is(1));
-        assertThat(graph.findNode(new CaseInsensitiveString(g2)).getDepth(), is(2));
-        assertThat(graph.findNode(new CaseInsensitiveString(g3)).getDepth(), is(1));
-        assertThat(graph.findNode(p1).getDepth(), is(2));
-        assertThat(graph.findNode(p).getDepth(), is(1));
+        assertThat(graph.findNode(new CaseInsensitiveString(g1)).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(new CaseInsensitiveString(g2)).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(new CaseInsensitiveString(g3)).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(p1).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(p).getDepth()).isEqualTo(1);
     }
 
     @Test
@@ -308,17 +307,17 @@ public class CrossingMinimizationTest {
 
         crossingMinimization.initializeNodeDepths(nodeLevelMap(graph));
 
-        assertThat(graph.findNode(new CaseInsensitiveString(g1)).getDepth(), is(1));
-        assertThat(graph.findNode(new CaseInsensitiveString(g2)).getDepth(), is(2));
-        assertThat(graph.findNode(p1).getDepth(), is(1));
-        assertThat(graph.findNode(p2).getDepth(), is(2));
+        assertThat(graph.findNode(new CaseInsensitiveString(g1)).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(new CaseInsensitiveString(g2)).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(p1).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(p2).getDepth()).isEqualTo(2);
 
-        assertThat(graph.findNode(p).getDepth(), is(1));
+        assertThat(graph.findNode(p).getDepth()).isEqualTo(1);
 
-        assertThat(graph.findNode(p3).getDepth(), is(1));
-        assertThat(graph.findNode(p4).getDepth(), is(2));
-        assertThat(graph.findNode(p5).getDepth(), is(1));
-        assertThat(graph.findNode(p6).getDepth(), is(2));
+        assertThat(graph.findNode(p3).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(p4).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(p5).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(p6).getDepth()).isEqualTo(2);
     }
 
     private NodeLevelMap nodeLevelMap(ValueStreamMap graph) {

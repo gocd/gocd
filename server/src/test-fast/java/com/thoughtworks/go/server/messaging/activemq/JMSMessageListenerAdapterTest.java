@@ -36,9 +36,7 @@ import javax.jms.MessageConsumer;
 
 import static com.thoughtworks.go.serverhealth.HealthStateLevel.ERROR;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -106,8 +104,8 @@ public class JMSMessageListenerAdapterTest {
             final long endTime = System.nanoTime();
 
             assertTrue(logFixture.contains(Level.WARN, "Backing off for a few seconds"));
-            assertThat(endTime - startTime, greaterThan(2000 * 1000 * 1000L));
-            assertThat(endTime - startTime, lessThan(4000 * 1000 * 1000L));
+            assertThat(endTime - startTime).isGreaterThan(2000 * 1000 * 1000L);
+            assertThat(endTime - startTime).isLessThan(4000 * 1000 * 1000L);
 
             verify(serverHealthService, atLeastOnce()).update(matchesServerHealthMessage(ERROR, "Message queue closed"));
         }
@@ -125,7 +123,7 @@ public class JMSMessageListenerAdapterTest {
             final long endTime = System.nanoTime();
 
             assertFalse(logFixture.contains(Level.WARN, "Backing off for a few seconds"));
-            assertThat(endTime - startTime, lessThan(1000 * 1000 * 1000L));
+            assertThat(endTime - startTime).isLessThan(1000 * 1000 * 1000L);
 
             verify(serverHealthService, never()).update(any(ServerHealthState.class));
             verify(systemEnvironment, never()).get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME_IN_MILLIS);

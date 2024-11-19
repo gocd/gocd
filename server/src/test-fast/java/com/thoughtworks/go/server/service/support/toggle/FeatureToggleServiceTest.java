@@ -26,8 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -51,7 +50,7 @@ public class FeatureToggleServiceTest {
 
         FeatureToggleService service = new FeatureToggleService(repository, goCache);
 
-        assertThat(service.allToggles(), is(existingToggles));
+        assertThat(service.allToggles()).isEqualTo(existingToggles);
     }
 
     @Test
@@ -66,8 +65,8 @@ public class FeatureToggleServiceTest {
 
         FeatureToggleService service = new FeatureToggleService(repository, goCache);
 
-        assertThat(service.isToggleOn("key1"), is(true));
-        assertThat(service.isToggleOn("key2"), is(false));
+        assertThat(service.isToggleOn("key1")).isTrue();
+        assertThat(service.isToggleOn("key2")).isFalse();
     }
 
     @Test
@@ -82,7 +81,7 @@ public class FeatureToggleServiceTest {
 
         FeatureToggleService service = new FeatureToggleService(repository, goCache);
 
-        assertThat(service.isToggleOn("NON_EXISTENT_KEY"), is(false));
+        assertThat(service.isToggleOn("NON_EXISTENT_KEY")).isFalse();
     }
 
     @Test
@@ -115,10 +114,10 @@ public class FeatureToggleServiceTest {
         FeatureToggleService service = new FeatureToggleService(repository, goCache);
         FeatureToggles toggles = service.allToggles();
 
-        assertThat(toggles.all().size(), is(3));
-        assertThat(toggles.all().get(0), is(new FeatureToggle("key1", "NEW_desc1_WITH_NO_change_to_value", true).withValueHasBeenChangedFlag(false)));
-        assertThat(toggles.all().get(1), is(new FeatureToggle("key2", "NEW_desc2_WITH_CHANGE_TO_VALUE", false).withValueHasBeenChangedFlag(true)));
-        assertThat(toggles.all().get(2), is(new FeatureToggle("key3", "desc3", true).withValueHasBeenChangedFlag(false)));
+        assertThat(toggles.all().size()).isEqualTo(3);
+        assertThat(toggles.all().get(0)).isEqualTo(new FeatureToggle("key1", "NEW_desc1_WITH_NO_change_to_value", true).withValueHasBeenChangedFlag(false));
+        assertThat(toggles.all().get(1)).isEqualTo(new FeatureToggle("key2", "NEW_desc2_WITH_CHANGE_TO_VALUE", false).withValueHasBeenChangedFlag(true));
+        assertThat(toggles.all().get(2)).isEqualTo(new FeatureToggle("key3", "desc3", true).withValueHasBeenChangedFlag(false));
     }
 
     @Test
@@ -145,7 +144,7 @@ public class FeatureToggleServiceTest {
             service.changeValueOfToggle("keyNOTVALID", true);
             fail("This should have failed with an exception, since the feature toggle is invalid.");
         } catch (RecordNotFoundException e) {
-            assertThat(e.getMessage(), is("Feature toggle: 'keyNOTVALID' is not valid."));
+            assertThat(e.getMessage()).isEqualTo("Feature toggle: 'keyNOTVALID' is not valid.");
         }
     }
 

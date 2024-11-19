@@ -17,8 +17,7 @@ package com.thoughtworks.go.domain.feed;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class AuthorTest {
@@ -26,21 +25,21 @@ public class AuthorTest {
     public void shouldBeEqualToAnotherAuthorWithSameNameAndEmail(){
         Author author1 = new Author("name", "email");
         Author author2 = new Author("name", "email");
-        assertThat(author1.equals(author2), is(true));
+        assertThat(author1.equals(author2)).isTrue();
     }
 
     @Test
     public void shouldNotBeEqualToAnotherMingleCardWithSameNameButDifferentEmail(){
         Author author1 = new Author("name", "email1");
         Author author2 = new Author("name", "email2");
-        assertThat(author1.equals(author2), is(false));
+        assertThat(author1.equals(author2)).isFalse();
     }
 
     @Test
     public void shouldNotBeEqualToAnotherMingleCardWithDifferentNameButSameEmail(){
         Author author1 = new Author("name1", "email");
         Author author2 = new Author("name2", "email");
-        assertThat(author1.equals(author2), is(false));
+        assertThat(author1.equals(author2)).isFalse();
     }
 
     @Test

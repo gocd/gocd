@@ -22,62 +22,61 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URISyntaxException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ServerSiteUrlConfigTest {
     @Test
     public void shouldGenerateSiteUrlForGivenPath() throws URISyntaxException {
         ServerSiteUrlConfig url = new SiteUrl("http://someurl.com");
-        assertThat(url.siteUrlFor("/foo/bar"), is("/foo/bar"));
-        assertThat(url.siteUrlFor("http/bar"), is("http/bar"));
+        assertThat(url.siteUrlFor("/foo/bar")).isEqualTo("/foo/bar");
+        assertThat(url.siteUrlFor("http/bar")).isEqualTo("http/bar");
     }
 
     @Test
     public void shouldGenerateSiteUrlForGivenUrl() throws URISyntaxException {
         ServerSiteUrlConfig url = new SiteUrl("http://someurl.com");
-        assertThat(url.siteUrlFor("http://test.host/foo/bar"), is("http://someurl.com/foo/bar"));
+        assertThat(url.siteUrlFor("http://test.host/foo/bar")).isEqualTo("http://someurl.com/foo/bar");
     }
 
     @Test
     public void shouldGenerateSiteUrlUsingPortFromConfiguredSiteUrl() throws URISyntaxException {
         ServerSiteUrlConfig url = new SiteUrl("http://someurl.com:8153");
-        assertThat(url.siteUrlFor("http://test.host/foo/bar"), is("http://someurl.com:8153/foo/bar"));
-        assertThat(url.siteUrlFor("http://test.host:3000/foo/bar"), is("http://someurl.com:8153/foo/bar"));
+        assertThat(url.siteUrlFor("http://test.host/foo/bar")).isEqualTo("http://someurl.com:8153/foo/bar");
+        assertThat(url.siteUrlFor("http://test.host:3000/foo/bar")).isEqualTo("http://someurl.com:8153/foo/bar");
         url = new SiteUrl("http://someurl.com:8153/");
-        assertThat(url.siteUrlFor("http://test.host/foo/bar"), is("http://someurl.com:8153/foo/bar"));
-        assertThat(url.siteUrlFor("http://test.host:4000/foo/bar"), is("http://someurl.com:8153/foo/bar"));
+        assertThat(url.siteUrlFor("http://test.host/foo/bar")).isEqualTo("http://someurl.com:8153/foo/bar");
+        assertThat(url.siteUrlFor("http://test.host:4000/foo/bar")).isEqualTo("http://someurl.com:8153/foo/bar");
     }
 
     @Test
     public void shouldGenerateSiteUrlUsingConfiguredSiteUrlForQueryString() throws URISyntaxException {
         ServerSiteUrlConfig url = new SiteUrl("http://someurl.com");
-        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar"), is("http://someurl.com/foo/bar?foo=bar"));
-        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar&baz=quux"), is("http://someurl.com/foo/bar?foo=bar&baz=quux"));
+        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar")).isEqualTo("http://someurl.com/foo/bar?foo=bar");
+        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar&baz=quux")).isEqualTo("http://someurl.com/foo/bar?foo=bar&baz=quux");
         url = new SiteUrl("http://someurl.com/");
-        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar"), is("http://someurl.com/foo/bar?foo=bar"));
-        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar&baz=quux"), is("http://someurl.com/foo/bar?foo=bar&baz=quux"));
+        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar")).isEqualTo("http://someurl.com/foo/bar?foo=bar");
+        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar&baz=quux")).isEqualTo("http://someurl.com/foo/bar?foo=bar&baz=quux");
     }
 
     @Test
     public void shouldGenerateSiteUrlUsingConfiguredSiteUrlForFragment() throws URISyntaxException {
         ServerSiteUrlConfig url = new SiteUrl("http://someurl.com");
-        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar#quux"), is("http://someurl.com/foo/bar?foo=bar#quux"));
+        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar#quux")).isEqualTo("http://someurl.com/foo/bar?foo=bar#quux");
         url = new SiteUrl("http://someurl.com/");
-        assertThat(url.siteUrlFor("http://test.host/foo/bar#something"), is("http://someurl.com/foo/bar#something"));
+        assertThat(url.siteUrlFor("http://test.host/foo/bar#something")).isEqualTo("http://someurl.com/foo/bar#something");
     }
 
     @Test
     public void shouldGenerateSiteUrlUsingConfiguredSiteUrlForAuth() throws URISyntaxException {
         ServerSiteUrlConfig url = new SiteUrl("http://someurl.com");
-        assertThat(url.siteUrlFor("http://admin:badger@test.host/foo"), is("http://admin:badger@someurl.com/foo"));
-        assertThat(url.siteUrlFor("http://admin@test.host/foo"), is("http://admin@someurl.com/foo"));
+        assertThat(url.siteUrlFor("http://admin:badger@test.host/foo")).isEqualTo("http://admin:badger@someurl.com/foo");
+        assertThat(url.siteUrlFor("http://admin@test.host/foo")).isEqualTo("http://admin@someurl.com/foo");
     }
 
     @Test
     public void shouldReturnUrlForToString() throws Exception {
         ServerSiteUrlConfig url = new SiteUrl("http://someurl.com");
-        assertThat(url.toString(), is("http://someurl.com"));
+        assertThat(url.toString()).isEqualTo("http://someurl.com");
     }
 
     @ParameterizedTest
@@ -85,9 +84,9 @@ public class ServerSiteUrlConfigTest {
     @ValueSource(strings = {"", " "})
     public void shouldHandleBlankUrlsConsistently(String input) throws Exception {
         ServerSiteUrlConfig url = new SiteUrl(input);
-        assertThat(url.toString(), is(""));
-        assertThat(url.isBlank(), is(true));
-        assertThat(url.isAHttpsUrl(), is(false));
-        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar#quux"), is("http://test.host/foo/bar?foo=bar#quux"));
+        assertThat(url.toString()).isEqualTo("");
+        assertThat(url.isBlank()).isTrue();
+        assertThat(url.isAHttpsUrl()).isFalse();
+        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar#quux")).isEqualTo("http://test.host/foo/bar?foo=bar#quux");
     }
 }

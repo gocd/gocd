@@ -33,8 +33,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SvnExternalTest {
 
@@ -52,7 +51,7 @@ public class SvnExternalTest {
         String url = svnRepo.projectRepositoryUrl();
         SvnCommand svn = new SvnCommand(null, url, "user", "pass", false);
         List<SvnExternal> urls = svn.getAllExternalURLs();
-        assertThat(urls.size(), is(1));
+        assertThat(urls.size()).isEqualTo(1);
     }
 
     @Test
@@ -62,10 +61,10 @@ public class SvnExternalTest {
         List<Modification> modifications = ((SvnMaterial) svnExt).latestModification(svnRepo.workingFolder(), new TestSubprocessExecutionContext());
         materialRevisions.addRevision(svnExt, modifications);
 
-        assertThat(materialRevisions.numberOfRevisions(), is(1));
+        assertThat(materialRevisions.numberOfRevisions()).isEqualTo(1);
         MaterialRevision materialRevision = materialRevisions.getRevisions().get(0);
-        assertThat(materialRevision.getMaterial(), is(svnExt));
-        assertThat(materialRevision.getRevision().getRevision(), is("4"));
+        assertThat(materialRevision.getMaterial()).isEqualTo(svnExt);
+        assertThat(materialRevision.getRevision().getRevision()).isEqualTo("4");
     }
 
     @Test
@@ -75,16 +74,16 @@ public class SvnExternalTest {
         final Materials materials = new Materials(svn, svnExt);
 
         final MaterialRevisions materialRevisions = materials.latestModification(svnRepo.workingFolder(), new TestSubprocessExecutionContext());
-        assertThat(materialRevisions.numberOfRevisions(), is(2));
+        assertThat(materialRevisions.numberOfRevisions()).isEqualTo(2);
 
         MaterialRevision main = materialRevisions.getRevisions().get(0);
-        assertThat(main.getMaterial(), is(svn));
-        assertThat(main.getModifications().size(), is(1));
-        assertThat(main.getRevision().getRevision(), is("5"));
+        assertThat(main.getMaterial()).isEqualTo(svn);
+        assertThat(main.getModifications().size()).isEqualTo(1);
+        assertThat(main.getRevision().getRevision()).isEqualTo("5");
 
         MaterialRevision external = materialRevisions.getRevisions().get(1);
-        assertThat(external.getMaterial(), is(svnExt));
-        assertThat(external.getRevision().getRevision(), is("4"));
-        assertThat(external.getModifications().size(), is(1));
+        assertThat(external.getMaterial()).isEqualTo(svnExt);
+        assertThat(external.getRevision().getRevision()).isEqualTo("4");
+        assertThat(external.getModifications().size()).isEqualTo(1);
     }
 }

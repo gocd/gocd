@@ -25,8 +25,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ArtifactMd5ChecksumsTest {
@@ -46,7 +45,7 @@ public class ArtifactMd5ChecksumsTest {
         Properties properties = new Properties();
         properties.setProperty("first/path", "md5");
         ArtifactMd5Checksums artifactMd5Checksums = new ArtifactMd5Checksums(properties);
-        assertThat(artifactMd5Checksums.md5For("first/path"), is("md5"));
+        assertThat(artifactMd5Checksums.md5For("first/path")).isEqualTo("md5");
     }
 
     @Test
@@ -54,14 +53,14 @@ public class ArtifactMd5ChecksumsTest {
         Properties properties = new Properties();
         properties.setProperty("first/path", "md5");
         ArtifactMd5Checksums artifactMd5Checksums = new ArtifactMd5Checksums(properties);
-        assertThat(artifactMd5Checksums.md5For("foo"), is(nullValue()));
+        assertThat(artifactMd5Checksums.md5For("foo")).isNull();
     }
 
     @Test
     public void shouldLoadThePropertiesFromTheGivenFile() throws IOException {
         FileUtils.writeStringToFile(file, "first/path:md5=", UTF_8);
         ArtifactMd5Checksums artifactMd5Checksums = new ArtifactMd5Checksums(file);
-        assertThat(artifactMd5Checksums.md5For("first/path"), is("md5="));
+        assertThat(artifactMd5Checksums.md5For("first/path")).isEqualTo("md5=");
     }
 
     @Test
@@ -71,8 +70,8 @@ public class ArtifactMd5ChecksumsTest {
             new ArtifactMd5Checksums(file);
             fail("Should have failed because of an invalid properites file");
         } catch (RuntimeException e) {
-            assertThat(e.getCause(), instanceOf(IOException.class));
-            assertThat(e.getMessage(), is(String.format("[Checksum Verification] Could not load the MD5 from the checksum file '%s'", file)));
+            assertThat(e.getCause()).isInstanceOf(IOException.class);
+            assertThat(e.getMessage()).isEqualTo(String.format("[Checksum Verification] Could not load the MD5 from the checksum file '%s'", file));
         }
     }
 }

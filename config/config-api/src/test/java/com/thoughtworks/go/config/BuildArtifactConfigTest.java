@@ -20,22 +20,21 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BuildArtifactConfigTest {
     @Test
     public void validate_shouldFailIfSourceIsEmpty() {
         BuildArtifactConfig artifactPlan = new BuildArtifactConfig(null, "bar");
         artifactPlan.validate(ConfigSaveValidationContext.forChain(new JobConfig("jobname")));
-        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.SRC), is("Job 'jobname' has an artifact with an empty source"));
+        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.SRC)).isEqualTo("Job 'jobname' has an artifact with an empty source");
     }
 
     @Test
     public void validate_shouldFailIfDestDoesNotMatchAFilePattern() {
         BuildArtifactConfig artifactPlan = new BuildArtifactConfig("foo/bar", "..");
         artifactPlan.validate(null);
-        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.DEST), is("Invalid destination path. Destination path should match the pattern (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
+        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.DEST)).isEqualTo("Invalid destination path. Destination path should match the pattern (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])");
     }
 
     @Test
@@ -43,7 +42,7 @@ public class BuildArtifactConfigTest {
         BuildArtifactConfig artifactPlan = new BuildArtifactConfig(null, null);
         artifactPlan.setSource("source");
         artifactPlan.validate(null);
-        assertThat(artifactPlan.errors().isEmpty(), is(true));
+        assertThat(artifactPlan.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -55,12 +54,12 @@ public class BuildArtifactConfigTest {
 
         artifactPlan.validateUniqueness(plans);
 
-        assertThat(artifactPlan.errors().isEmpty(), is(false));
-        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.SRC), is("Duplicate artifacts defined."));
-        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.DEST), is("Duplicate artifacts defined."));
-        assertThat(existingPlan.errors().isEmpty(), is(false));
-        assertThat(existingPlan.errors().on(BuiltinArtifactConfig.SRC), is("Duplicate artifacts defined."));
-        assertThat(existingPlan.errors().on(BuiltinArtifactConfig.DEST), is("Duplicate artifacts defined."));
+        assertThat(artifactPlan.errors().isEmpty()).isFalse();
+        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.SRC)).isEqualTo("Duplicate artifacts defined.");
+        assertThat(artifactPlan.errors().on(BuiltinArtifactConfig.DEST)).isEqualTo("Duplicate artifacts defined.");
+        assertThat(existingPlan.errors().isEmpty()).isFalse();
+        assertThat(existingPlan.errors().on(BuiltinArtifactConfig.SRC)).isEqualTo("Duplicate artifacts defined.");
+        assertThat(existingPlan.errors().on(BuiltinArtifactConfig.DEST)).isEqualTo("Duplicate artifacts defined.");
     }
 
     @Test
@@ -72,24 +71,24 @@ public class BuildArtifactConfigTest {
 
         buildArtifactConfig.validateUniqueness(plans);
 
-        assertThat(buildArtifactConfig.errors().isEmpty(), is(true));
+        assertThat(buildArtifactConfig.errors().isEmpty()).isTrue();
     }
 
     @Test
     public void shouldAllowOverridingDefaultArtifactDestination() {
         BuildArtifactConfig artifactConfig = new BuildArtifactConfig("src", "dest");
-        assertThat(artifactConfig.getDestination(), is("dest"));
+        assertThat(artifactConfig.getDestination()).isEqualTo("dest");
 
         TestArtifactConfig testArtifactConfig = new TestArtifactConfig("src", "destination");
-        assertThat(testArtifactConfig.getDestination(), is("destination"));
+        assertThat(testArtifactConfig.getDestination()).isEqualTo("destination");
     }
 
     @Test
     public void shouldNotOverrideDefaultArtifactDestinationWhenNotSpecified() {
         BuildArtifactConfig artifactConfig = new BuildArtifactConfig("src", null);
-        assertThat(artifactConfig.getDestination(), is(""));
+        assertThat(artifactConfig.getDestination()).isEqualTo("");
 
         TestArtifactConfig testArtifactConfig = new TestArtifactConfig("src", null);
-        assertThat(testArtifactConfig.getDestination(), is("testoutput"));
+        assertThat(testArtifactConfig.getDestination()).isEqualTo("testoutput");
     }
 }

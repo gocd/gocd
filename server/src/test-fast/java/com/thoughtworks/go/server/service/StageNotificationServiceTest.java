@@ -33,8 +33,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.server.service.StageNotificationService.MATERIAL_SECTION_HEADER;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -70,7 +69,7 @@ public class StageNotificationServiceTest {
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
 
         String body = inMemoryEmailNotificationTopic.getBody(jezMail);
-        assertThat(body, containsString(MATERIAL_SECTION_HEADER));
+        assertThat(body).contains(MATERIAL_SECTION_HEADER);
         String materialBody = textAfter(body, MATERIAL_SECTION_HEADER);
         assertEquals("\n\nSubversion: http://some/svn/url\n"
                 + String.format("revision: 123, modified by lgao on %s\n", date)

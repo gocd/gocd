@@ -21,8 +21,7 @@ import org.eclipse.jetty.server.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +46,7 @@ public class SiteUrlProviderTest {
 
         String siteUrl = siteUrlProvider.siteUrl(httpRequest);
 
-        assertThat(siteUrl, is("https://secure_site_url"));
+        assertThat(siteUrl).isEqualTo("https://secure_site_url");
     }
 
     @Test
@@ -62,7 +61,7 @@ public class SiteUrlProviderTest {
 
         String siteUrl = siteUrlProvider.siteUrl(httpRequest);
 
-        assertThat(siteUrl, is("http://site_url"));
+        assertThat(siteUrl).isEqualTo("http://site_url");
     }
 
     @Test
@@ -77,6 +76,6 @@ public class SiteUrlProviderTest {
 
         String siteUrl = siteUrlProvider.siteUrl(httpRequest);
 
-        assertThat(siteUrl, is(requestRootUrl));
+        assertThat(siteUrl).isEqualTo(requestRootUrl);
     }
 }

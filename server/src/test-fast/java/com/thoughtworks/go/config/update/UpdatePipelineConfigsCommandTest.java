@@ -35,9 +35,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -72,10 +71,10 @@ public class UpdatePipelineConfigsCommandTest {
         UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, new HttpLocalizedOperationResult(), user, "digest", entityHashingService, securityService);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.hasPipelineGroup(this.pipelineConfigs.getGroup()), is(true));
+        assertThat(cruiseConfig.hasPipelineGroup(this.pipelineConfigs.getGroup())).isTrue();
         Authorization expectedTemplateAuthorization = cruiseConfig.findGroup(this.pipelineConfigs.getGroup()).getAuthorization();
         assertNotEquals(expectedTemplateAuthorization, authorization);
-        assertThat(expectedTemplateAuthorization, is(newAuthorization));
+        assertThat(expectedTemplateAuthorization).isEqualTo(newAuthorization);
     }
 
     @Test
@@ -85,7 +84,7 @@ public class UpdatePipelineConfigsCommandTest {
 
         UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, new HttpLocalizedOperationResult(), user, "digest", entityHashingService, securityService);
         command.isValid(cruiseConfig);
-        assertThat(authorization.getAllErrors(), is(Collections.emptyList()));
+        assertThat(authorization.getAllErrors()).isEqualTo(Collections.emptyList());
     }
 
     @Test
@@ -97,7 +96,7 @@ public class UpdatePipelineConfigsCommandTest {
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
 
-        assertThat(newAuthorization.getAllErrors().get(0).getAllOn("roles"), is(List.of("Role \"invalidRole\" does not exist.")));
+        assertThat(newAuthorization.getAllErrors().get(0).getAllOn("roles")).isEqualTo(List.of("Role \"invalidRole\" does not exist."));
     }
 
     @Test
@@ -112,8 +111,8 @@ public class UpdatePipelineConfigsCommandTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Group name cannot be null.");
 
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
-        assertThat(result.message(), is("The group is invalid. Attribute 'name' cannot be null."));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        assertThat(result.message()).isEqualTo("The group is invalid. Attribute 'name' cannot be null.");
     }
 
     @Test
@@ -166,7 +165,7 @@ public class UpdatePipelineConfigsCommandTest {
         UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
-        assertThat(result.httpCode(), is(HttpStatus.SC_PRECONDITION_FAILED));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_PRECONDITION_FAILED);
     }
 
     @Test
@@ -180,7 +179,7 @@ public class UpdatePipelineConfigsCommandTest {
         UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
-        assertThat(result.httpCode(), is(HttpStatus.SC_FORBIDDEN));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
@@ -213,6 +212,6 @@ public class UpdatePipelineConfigsCommandTest {
 
         assertFalse(command.canContinue(cruiseConfig));
         assertFalse(result.isSuccessful());
-        assertThat(result.message(), is("Can not rename pipeline group 'group' as it contains remote pipelines."));
+        assertThat(result.message()).isEqualTo("Can not rename pipeline group 'group' as it contains remote pipelines.");
     }
 }

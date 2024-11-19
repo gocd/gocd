@@ -21,8 +21,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.server.service.CompositeCheckerTest.StubCheckerFactory.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CompositeCheckerTest {
 
@@ -31,7 +30,7 @@ public class CompositeCheckerTest {
         CompositeChecker checker = new CompositeChecker(successful(), successful());
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
-        assertThat(result.getServerHealthState(), is(SUCCESS_SERVER_HEALTH_STATE));
+        assertThat(result.getServerHealthState()).isEqualTo(SUCCESS_SERVER_HEALTH_STATE);
     }
 
     @Test
@@ -39,7 +38,7 @@ public class CompositeCheckerTest {
         CompositeChecker checker = new CompositeChecker(StubCheckerFactory.warning(), StubCheckerFactory.successful());
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
-        assertThat(result.getServerHealthState(), is(WARNING_SERVER_HEALTH_STATE));
+        assertThat(result.getServerHealthState()).isEqualTo(WARNING_SERVER_HEALTH_STATE);
     }
 
     @Test
@@ -47,7 +46,7 @@ public class CompositeCheckerTest {
         CompositeChecker checker = new CompositeChecker(StubCheckerFactory.warning(), StubCheckerFactory.error());
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
-        assertThat(result.getServerHealthState(), is(ERROR_SERVER_HEALTH_STATE));
+        assertThat(result.getServerHealthState()).isEqualTo(ERROR_SERVER_HEALTH_STATE);
     }
 
     @Test
@@ -55,7 +54,7 @@ public class CompositeCheckerTest {
         CompositeChecker checker = new CompositeChecker(StubCheckerFactory.error(), StubCheckerFactory.anotherError());
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
-        assertThat(result.getServerHealthState(), is(ERROR_SERVER_HEALTH_STATE));
+        assertThat(result.getServerHealthState()).isEqualTo(ERROR_SERVER_HEALTH_STATE);
     }
 
    static class StubCheckerFactory {

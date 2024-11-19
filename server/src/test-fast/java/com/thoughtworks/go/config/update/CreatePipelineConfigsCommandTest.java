@@ -30,9 +30,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -60,8 +59,8 @@ public class CreatePipelineConfigsCommandTest {
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, new HttpLocalizedOperationResult(), securityService);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.hasPipelineGroup("group"), is(true));
-        assertThat(cruiseConfig.findGroup("group").getAuthorization(), is(authorization));
+        assertThat(cruiseConfig.hasPipelineGroup("group")).isTrue();
+        assertThat(cruiseConfig.findGroup("group").getAuthorization()).isEqualTo(authorization);
     }
 
     @Test
@@ -71,8 +70,8 @@ public class CreatePipelineConfigsCommandTest {
 
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, new HttpLocalizedOperationResult(), securityService);
         command.isValid(cruiseConfig);
-        assertThat(authorization.getAllErrors(), is(Collections.emptyList()));
-        assertThat(newPipelineConfigs.errors().getAll(), is(Collections.emptyList()));
+        assertThat(authorization.getAllErrors()).isEqualTo(Collections.emptyList());
+        assertThat(newPipelineConfigs.errors().getAll()).isEqualTo(Collections.emptyList());
     }
 
     @Test
@@ -81,7 +80,7 @@ public class CreatePipelineConfigsCommandTest {
 
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, new HttpLocalizedOperationResult(), securityService);
         command.isValid(cruiseConfig);
-        assertThat(newPipelineConfigs.errors().getAll(), is(Collections.emptyList()));
+        assertThat(newPipelineConfigs.errors().getAll()).isEqualTo(Collections.emptyList());
     }
 
     @Test
@@ -92,7 +91,7 @@ public class CreatePipelineConfigsCommandTest {
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, new HttpLocalizedOperationResult(), securityService);
         assertFalse(command.isValid(cruiseConfig));
 
-        assertThat(authorization.getAllErrors().get(0).getAllOn("roles"), is(List.of("Role \"invalidRole\" does not exist.")));
+        assertThat(authorization.getAllErrors().get(0).getAllOn("roles")).isEqualTo(List.of("Role \"invalidRole\" does not exist."));
     }
 
     @Test
@@ -102,7 +101,7 @@ public class CreatePipelineConfigsCommandTest {
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, new HttpLocalizedOperationResult(), securityService);
         assertFalse(command.isValid(cruiseConfig));
 
-        assertThat(newPipelineConfigs.errors().on("group"), is("Invalid group name '@group'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(newPipelineConfigs.errors().on("group")).isEqualTo("Invalid group name '@group'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -117,8 +116,8 @@ public class CreatePipelineConfigsCommandTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Group name cannot be null.");
 
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
-        assertThat(result.message(), is("The group is invalid. Attribute 'name' cannot be null."));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        assertThat(result.message()).isEqualTo("The group is invalid. Attribute 'name' cannot be null.");
     }
 
     @Test
@@ -158,6 +157,6 @@ public class CreatePipelineConfigsCommandTest {
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, result, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
-        assertThat(result.httpCode(), is(HttpStatus.SC_FORBIDDEN));
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_FORBIDDEN);
     }
 }

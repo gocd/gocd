@@ -21,9 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NotificationPluginRegistryTest {
@@ -55,34 +53,34 @@ public class NotificationPluginRegistryTest {
 
     @Test
     public void should_getPluginsInterestedIn_Correctly() {
-        assertThat(notificationPluginRegistry.getPluginsInterestedIn(PIPELINE_STATUS), containsInAnyOrder(PLUGIN_ID_1, PLUGIN_ID_2));
-        assertThat(notificationPluginRegistry.getPluginsInterestedIn(STAGE_STATUS), containsInAnyOrder(PLUGIN_ID_1, PLUGIN_ID_3));
-        assertThat(notificationPluginRegistry.getPluginsInterestedIn(JOB_STATUS), containsInAnyOrder(PLUGIN_ID_1));
-        assertThat(notificationPluginRegistry.getPluginsInterestedIn(UNKNOWN_NOTIFICATION), containsInAnyOrder());
+        assertThat(notificationPluginRegistry.getPluginsInterestedIn(PIPELINE_STATUS)).contains(PLUGIN_ID_1, PLUGIN_ID_2);
+        assertThat(notificationPluginRegistry.getPluginsInterestedIn(STAGE_STATUS)).contains(PLUGIN_ID_1, PLUGIN_ID_3);
+        assertThat(notificationPluginRegistry.getPluginsInterestedIn(JOB_STATUS)).contains(PLUGIN_ID_1);
+        assertThat(notificationPluginRegistry.getPluginsInterestedIn(UNKNOWN_NOTIFICATION)).contains();
     }
 
     @Test
     public void should_getPluginInterests_Correctly() {
-        assertThat(notificationPluginRegistry.getPluginInterests(PLUGIN_ID_1), containsInAnyOrder(PIPELINE_STATUS, STAGE_STATUS, JOB_STATUS));
-        assertThat(notificationPluginRegistry.getPluginInterests(PLUGIN_ID_2), containsInAnyOrder(PIPELINE_STATUS));
-        assertThat(notificationPluginRegistry.getPluginInterests(PLUGIN_ID_3), containsInAnyOrder(STAGE_STATUS));
-        assertThat(notificationPluginRegistry.getPluginInterests(PLUGIN_ID_4), containsInAnyOrder());
+        assertThat(notificationPluginRegistry.getPluginInterests(PLUGIN_ID_1)).contains(PIPELINE_STATUS, STAGE_STATUS, JOB_STATUS);
+        assertThat(notificationPluginRegistry.getPluginInterests(PLUGIN_ID_2)).contains(PIPELINE_STATUS);
+        assertThat(notificationPluginRegistry.getPluginInterests(PLUGIN_ID_3)).contains(STAGE_STATUS);
+        assertThat(notificationPluginRegistry.getPluginInterests(PLUGIN_ID_4)).contains();
     }
 
     @Test
     public void should_removePluginInterests_Correctly() {
         notificationPluginRegistry.removePluginInterests(PLUGIN_ID_1);
 
-        assertThat(notificationPluginRegistry.getPluginsInterestedIn(PIPELINE_STATUS), containsInAnyOrder(PLUGIN_ID_2));
-        assertThat(notificationPluginRegistry.getPluginsInterestedIn(STAGE_STATUS), containsInAnyOrder(PLUGIN_ID_3));
-        assertThat(notificationPluginRegistry.getPluginsInterestedIn(JOB_STATUS), containsInAnyOrder());
-        assertThat(notificationPluginRegistry.getPluginsInterestedIn(UNKNOWN_NOTIFICATION), containsInAnyOrder());
+        assertThat(notificationPluginRegistry.getPluginsInterestedIn(PIPELINE_STATUS)).contains(PLUGIN_ID_2);
+        assertThat(notificationPluginRegistry.getPluginsInterestedIn(STAGE_STATUS)).contains(PLUGIN_ID_3);
+        assertThat(notificationPluginRegistry.getPluginsInterestedIn(JOB_STATUS)).contains();
+        assertThat(notificationPluginRegistry.getPluginsInterestedIn(UNKNOWN_NOTIFICATION)).contains();
     }
 
     @Test
     public void should_isAnyPluginInterestedIn_Correctly() {
-        assertThat(notificationPluginRegistry.isAnyPluginInterestedIn(PIPELINE_STATUS), is(true));
-        assertThat(notificationPluginRegistry.isAnyPluginInterestedIn(UNKNOWN_NOTIFICATION), is(false));
+        assertThat(notificationPluginRegistry.isAnyPluginInterestedIn(PIPELINE_STATUS)).isTrue();
+        assertThat(notificationPluginRegistry.isAnyPluginInterestedIn(UNKNOWN_NOTIFICATION)).isFalse();
     }
 
     @Test
@@ -90,7 +88,7 @@ public class NotificationPluginRegistryTest {
         notificationPluginRegistry.registerPlugin("plugin_id_1");
         notificationPluginRegistry.registerPlugin("plugin_id_2");
 
-        assertThat(notificationPluginRegistry.getNotificationPlugins().size(), is(2));
+        assertThat(notificationPluginRegistry.getNotificationPlugins().size()).isEqualTo(2);
         assertTrue(notificationPluginRegistry.getNotificationPlugins().contains("plugin_id_1"));
         assertTrue(notificationPluginRegistry.getNotificationPlugins().contains("plugin_id_2"));
     }
@@ -100,7 +98,7 @@ public class NotificationPluginRegistryTest {
         notificationPluginRegistry.registerPlugin("plugin_id_1");
         notificationPluginRegistry.registerPlugin("plugin_id_1");
 
-        assertThat(notificationPluginRegistry.getNotificationPlugins().size(), is(1));
+        assertThat(notificationPluginRegistry.getNotificationPlugins().size()).isEqualTo(1);
         assertTrue(notificationPluginRegistry.getNotificationPlugins().contains("plugin_id_1"));
     }
 

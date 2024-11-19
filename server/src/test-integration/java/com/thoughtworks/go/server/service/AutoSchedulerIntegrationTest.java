@@ -37,8 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.nio.file.Path;
 
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.containsState;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -85,14 +84,13 @@ public class AutoSchedulerIntegrationTest {
     @Test
     public void shouldProduceBuildCauseForFirstGroupPipeline() throws Exception {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(CaseInsensitiveString.str(twoPipelineGroups.pipelineInFirstGroup()));
-        assertThat(pipelineScheduleQueue.hasBuildCause(twoPipelineGroups.pipelineInFirstGroup()), is(true));
+        assertThat(pipelineScheduleQueue.hasBuildCause(twoPipelineGroups.pipelineInFirstGroup())).isTrue();
     }
 
     @Test
     public void shouldNotProduceBuildCauseForNonFirstGroupPipelineWhenUsingNonEnterpriseEdition() throws Exception {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials();
-        assertThat("shouldNotProduceBuildCauseForNonFirstGroupPipelineUsingNonEnterpriseEdition",
-                pipelineScheduleQueue.hasBuildCause(twoPipelineGroups.pipelineInSecondGroup()), is(false));
+        assertThat(pipelineScheduleQueue.hasBuildCause(twoPipelineGroups.pipelineInSecondGroup())).isFalse();
     }
 
     @Test
@@ -105,7 +103,7 @@ public class AutoSchedulerIntegrationTest {
         try {
             pipelineScheduler.onTimer();
             HealthStateType healthStateType = HealthStateType.artifactsDiskFull();
-            assertThat(serverHealthService, containsState(healthStateType, HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
+            assertThat(serverHealthService).satisfies(containsState(healthStateType, HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
         } finally {
             configService.artifactsDir().delete();
         }

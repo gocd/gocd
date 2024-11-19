@@ -32,8 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.lenient;
@@ -71,8 +70,8 @@ public class CreatePackageRepositoryCommandTest {
         assertNull(cruiseConfig.getPackageRepositories().find("id"));
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        assertThat(result, is(expectedResult));
-        assertThat(cruiseConfig.getPackageRepositories().find("id"), is(repository));
+        assertThat(result).isEqualTo(expectedResult);
+        assertThat(cruiseConfig.getPackageRepositories().find("id")).isEqualTo(repository);
     }
 
     @Test
@@ -87,7 +86,7 @@ public class CreatePackageRepositoryCommandTest {
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(packageRepository.errors().firstError(), is("You have defined multiple repositories called 'npmOrg'. Repository names are case-insensitive and must be unique."));
+        assertThat(packageRepository.errors().firstError()).isEqualTo("You have defined multiple repositories called 'npmOrg'. Repository names are case-insensitive and must be unique.");
     }
 
     @Test
@@ -97,7 +96,7 @@ public class CreatePackageRepositoryCommandTest {
         packageRepository.setConfiguration(configuration);
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(property.errors().firstError(), is("Duplicate key 'foo' found for Repository 'npmOrg'"));
+        assertThat(property.errors().firstError()).isEqualTo("Duplicate key 'foo' found for Repository 'npmOrg'");
     }
 
     @Test
@@ -106,7 +105,7 @@ public class CreatePackageRepositoryCommandTest {
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(packageRepository.errors().firstError(), is("Invalid PackageRepository name '~!@#$%^&*('. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(packageRepository.errors().firstError()).isEqualTo("Invalid PackageRepository name '~!@#$%^&*('. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -117,8 +116,8 @@ public class CreatePackageRepositoryCommandTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(EntityType.PackageRepository.forbiddenToEdit(packageRepository.getId(), currentUser.getUsername()), forbidden());
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result, is(expectedResult));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
@@ -128,7 +127,7 @@ public class CreatePackageRepositoryCommandTest {
 
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     @Test
@@ -138,7 +137,7 @@ public class CreatePackageRepositoryCommandTest {
 
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 }
 

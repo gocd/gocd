@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ProjectStatusTest {
@@ -43,13 +42,13 @@ public class ProjectStatusTest {
 
         Element element = projectStatus.ccTrayXmlElement(contextPath);
 
-        assertThat(element.getName(), is("Project"));
-        assertThat(element.getAttributeValue("name"), is(projectName));
-        assertThat(element.getAttributeValue("activity"), is(activity));
-        assertThat(element.getAttributeValue("lastBuildStatus"), is(lastBuildStatus));
-        assertThat(element.getAttributeValue("lastBuildLabel"), is(lastBuildLabel));
-        assertThat(element.getAttributeValue("lastBuildTime"), is(DateUtils.formatIso8601ForCCTray(lastBuildTime)));
-        assertThat(element.getAttributeValue("webUrl"), is(contextPath + "/" + webUrl));
+        assertThat(element.getName()).isEqualTo("Project");
+        assertThat(element.getAttributeValue("name")).isEqualTo(projectName);
+        assertThat(element.getAttributeValue("activity")).isEqualTo(activity);
+        assertThat(element.getAttributeValue("lastBuildStatus")).isEqualTo(lastBuildStatus);
+        assertThat(element.getAttributeValue("lastBuildLabel")).isEqualTo(lastBuildLabel);
+        assertThat(element.getAttributeValue("lastBuildTime")).isEqualTo(DateUtils.formatIso8601ForCCTray(lastBuildTime));
+        assertThat(element.getAttributeValue("webUrl")).isEqualTo(contextPath + "/" + webUrl);
     }
 
     @Test
@@ -59,7 +58,7 @@ public class ProjectStatusTest {
         ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
         status.updateViewers(viewers);
 
-        assertThat(status.viewers(), is(viewers));
+        assertThat(status.viewers()).isEqualTo(viewers);
     }
 
     @Test
@@ -67,9 +66,8 @@ public class ProjectStatusTest {
         ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
                 DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url");
 
-        assertThat(status.xmlRepresentation(),
-                is("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
-                        "lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"__SITE_URL_PREFIX__/web-url\" />"));
+        assertThat(status.xmlRepresentation()).isEqualTo("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
+                        "lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"__SITE_URL_PREFIX__/web-url\" />");
     }
 
     @Test
@@ -77,29 +75,28 @@ public class ProjectStatusTest {
         ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
                 DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url", new LinkedHashSet<>(List.of("breaker1", "breaker2")));
 
-        assertThat(status.xmlRepresentation(),
-                is("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
+        assertThat(status.xmlRepresentation()).isEqualTo("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
                         "lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"__SITE_URL_PREFIX__/web-url\">" +
-                        "<messages><message text=\"breaker1, breaker2\" kind=\"Breakers\" /></messages></Project>"));
+                        "<messages><message text=\"breaker1, breaker2\" kind=\"Breakers\" /></messages></Project>");
     }
 
     @Test
     public void shouldAlwaysHaveEmptyStringAsXMLRepresentationOfANullProjectStatus() {
-        assertThat(new ProjectStatus.NullProjectStatus("some-name").xmlRepresentation(), is(""));
-        assertThat(new ProjectStatus.NullProjectStatus("some-other-name").xmlRepresentation(), is(""));
+        assertThat(new ProjectStatus.NullProjectStatus("some-name").xmlRepresentation()).isEqualTo("");
+        assertThat(new ProjectStatus.NullProjectStatus("some-other-name").xmlRepresentation()).isEqualTo("");
     }
 
     @Test
     public void shouldNotBeViewableByAnyoneTillViewersAreUpdated() {
         ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
 
-        assertThat(status.canBeViewedBy("abc"), is(false));
-        assertThat(status.canBeViewedBy("def"), is(false));
+        assertThat(status.canBeViewedBy("abc")).isFalse();
+        assertThat(status.canBeViewedBy("def")).isFalse();
 
         status.updateViewers(new AllowedUsers(Set.of("abc", "ghi"), Collections.emptySet()));
 
-        assertThat(status.canBeViewedBy("abc"), is(true));
-        assertThat(status.canBeViewedBy("def"), is(false));
-        assertThat(status.canBeViewedBy("ghi"), is(true));
+        assertThat(status.canBeViewedBy("abc")).isTrue();
+        assertThat(status.canBeViewedBy("def")).isFalse();
+        assertThat(status.canBeViewedBy("ghi")).isTrue();
     }
 }

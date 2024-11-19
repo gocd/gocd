@@ -26,8 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ExecTaskTest {
@@ -36,25 +35,23 @@ public class ExecTaskTest {
     public void describeTest() {
         ExecTask task = new ExecTask("ant", "-f build.xml run", "subfolder");
         task.setTimeout(600);
-        assertThat(task.describe(),
-                is("ant -f build.xml run"));
+        assertThat(task.describe()).isEqualTo("ant -f build.xml run");
     }
 
     @Test
     public void describeMultipleArgumentsTest() {
         ExecTask task = new ExecTask("echo", null, new Arguments(new Argument("abc"), new Argument("hello baby!")));
         task.setTimeout(600);
-        assertThat(task.describe(),
-                is("echo abc \"hello baby!\""));
+        assertThat(task.describe()).isEqualTo("echo abc \"hello baby!\"");
     }
 
     @Test
     public void shouldValidateConfig() {
         ExecTask execTask = new ExecTask("arg1 arg2", new Arguments(new Argument("arg1"), new Argument("arg2")));
         execTask.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
-        assertThat(execTask.errors().isEmpty(), is(false));
-        assertThat(execTask.errors().on(ExecTask.ARGS), is(ExecTask.EXEC_CONFIG_ERROR));
-        assertThat(execTask.errors().on(ExecTask.ARG_LIST_STRING), is(ExecTask.EXEC_CONFIG_ERROR));
+        assertThat(execTask.errors().isEmpty()).isFalse();
+        assertThat(execTask.errors().on(ExecTask.ARGS)).isEqualTo(ExecTask.EXEC_CONFIG_ERROR);
+        assertThat(execTask.errors().on(ExecTask.ARG_LIST_STRING)).isEqualTo(ExecTask.EXEC_CONFIG_ERROR);
     }
 
     @Test
@@ -63,7 +60,7 @@ public class ExecTaskTest {
 
         execTask.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
 
-        assertThat(execTask.errors().on(ExecTask.ARG_LIST_STRING), is("Invalid argument, cannot be null."));
+        assertThat(execTask.errors().on(ExecTask.ARG_LIST_STRING)).isEqualTo("Invalid argument, cannot be null.");
     }
 
 
@@ -71,10 +68,10 @@ public class ExecTaskTest {
     public void shouldBeValid() {
         ExecTask execTask = new ExecTask("", new Arguments(new Argument("arg1"), new Argument("arg2")));
         execTask.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
-        assertThat(execTask.errors().isEmpty(), is(true));
+        assertThat(execTask.errors().isEmpty()).isTrue();
         execTask = new ExecTask("command", "", "blah");
         execTask.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
-        assertThat(execTask.errors().isEmpty(), is(true));
+        assertThat(execTask.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -87,42 +84,42 @@ public class ExecTaskTest {
         job.addTask(task);
 
         List<ConfigErrors> errors = config.validateAfterPreprocess();
-        assertThat(errors.size(), is(1));
+        assertThat(errors.size()).isEqualTo(1);
         String message = "The path of the working directory for the custom command in job 'job' in stage 'stage' of pipeline 'pipeline' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials.";
-        assertThat(errors.get(0).firstError(), is(message));
-        assertThat(task.errors().on(ExecTask.WORKING_DIR), is(message));
+        assertThat(errors.get(0).firstError()).isEqualTo(message);
+        assertThat(task.errors().on(ExecTask.WORKING_DIR)).isEqualTo(message);
     }
 
     @Test
     public void shouldAllowSettingOfConfigAttributes() {
         ExecTask exec = new ExecTask();
         exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "my_dir"));
-        assertThat(exec.command(), is("ls"));
-        assertThat(exec.getArgs(), is("-la"));
-        assertThat(exec.getArgListString(), is(""));
-        assertThat(exec.workingDirectory(), is("my_dir"));
+        assertThat(exec.command()).isEqualTo("ls");
+        assertThat(exec.getArgs()).isEqualTo("-la");
+        assertThat(exec.getArgListString()).isEqualTo("");
+        assertThat(exec.workingDirectory()).isEqualTo("my_dir");
 
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(ExecTask.COMMAND, null);
         attributes.put(ExecTask.ARGS, null);
         attributes.put(ExecTask.WORKING_DIR, null);
         exec.setConfigAttributes(attributes);
-        assertThat(exec.command(), is(nullValue()));
-        assertThat(exec.getArgs(), is(""));
-        assertThat(exec.workingDirectory(), is(nullValue()));
+        assertThat(exec.command()).isNull();
+        assertThat(exec.getArgs()).isEqualTo("");
+        assertThat(exec.workingDirectory()).isNull();
 
         Map<String, String> attributes1 = new HashMap<>();
         attributes1.put(ExecTask.COMMAND, null);
         attributes1.put(ExecTask.ARG_LIST_STRING, "-l\n-a\npavan's\\n working dir?");
         attributes1.put(ExecTask.WORKING_DIR, null);
         exec.setConfigAttributes(attributes1);
-        assertThat(exec.command(), is(nullValue()));
-        assertThat(exec.getArgListString(), is("-l\n-a\npavan's\\n working dir?"));
-        assertThat(exec.getArgList().size(), is(3));
-        assertThat(exec.getArgList().get(0), is(new Argument("-l")));
-        assertThat(exec.getArgList().get(1), is(new Argument("-a")));
-        assertThat(exec.getArgList().get(2), is(new Argument("pavan's\\n working dir?")));
-        assertThat(exec.workingDirectory(), is(nullValue()));
+        assertThat(exec.command()).isNull();
+        assertThat(exec.getArgListString()).isEqualTo("-l\n-a\npavan's\\n working dir?");
+        assertThat(exec.getArgList().size()).isEqualTo(3);
+        assertThat(exec.getArgList().get(0)).isEqualTo(new Argument("-l"));
+        assertThat(exec.getArgList().get(1)).isEqualTo(new Argument("-a"));
+        assertThat(exec.getArgList().get(2)).isEqualTo(new Argument("pavan's\\n working dir?"));
+        assertThat(exec.workingDirectory()).isNull();
     }
 
     @Test
@@ -130,9 +127,9 @@ public class ExecTaskTest {
         ExecTask exec = new ExecTask();
         exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "my_dir"));
         exec.setConfigAttributes(Map.of());//Key is not present
-        assertThat(exec.command(), is("ls"));
-        assertThat(exec.getArgs(), is("-la"));
-        assertThat(exec.workingDirectory(), is("my_dir"));
+        assertThat(exec.command()).isEqualTo("ls");
+        assertThat(exec.getArgs()).isEqualTo("-la");
+        assertThat(exec.workingDirectory()).isEqualTo("my_dir");
     }
 
     @Test
@@ -140,39 +137,39 @@ public class ExecTaskTest {
         ExecTask exec = new ExecTask();
         exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "ls", ExecTask.ARGS, "", ExecTask.WORKING_DIR, "my_dir"));
         exec.setConfigAttributes(Map.of());
-        assertThat(exec.command(), is("ls"));
-        assertThat(exec.getArgList().size(), is(0));
-        assertThat(exec.workingDirectory(), is("my_dir"));
+        assertThat(exec.command()).isEqualTo("ls");
+        assertThat(exec.getArgList().size()).isEqualTo(0);
+        assertThat(exec.workingDirectory()).isEqualTo("my_dir");
     }
 
     @Test
     public void shouldNullOutWorkingDirectoryIfGivenBlank() {
         ExecTask exec = new ExecTask("ls", "-la", "foo");
         exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "", ExecTask.ARGS, "", ExecTask.WORKING_DIR, ""));
-        assertThat(exec.command(), is(""));
-        assertThat(exec.getArgs(), is(""));
-        assertThat(exec.workingDirectory(), is(nullValue()));
+        assertThat(exec.command()).isEqualTo("");
+        assertThat(exec.getArgs()).isEqualTo("");
+        assertThat(exec.workingDirectory()).isNull();
     }
 
     @Test
     public void shouldPopulateAllAttributesOnPropertiesForDisplay() {
         ExecTask execTask = new ExecTask("ls", "-la", "holy/dir");
         execTask.setTimeout(10L);
-        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Command", "ls", "command"), new TaskProperty("Arguments", "-la", "arguments"), new TaskProperty("Working Directory", "holy/dir", "working_directory"), new TaskProperty("Timeout", "10", "timeout")));
-        assertThat(execTask.getPropertiesForDisplay().size(), is(4));
+        assertThat(execTask.getPropertiesForDisplay()).contains(new TaskProperty("Command", "ls", "command"), new TaskProperty("Arguments", "-la", "arguments"), new TaskProperty("Working Directory", "holy/dir", "working_directory"), new TaskProperty("Timeout", "10", "timeout"));
+        assertThat(execTask.getPropertiesForDisplay().size()).isEqualTo(4);
 
         execTask = new ExecTask("ls", new Arguments(new Argument("-la"), new Argument("/proc")), "holy/dir");
         execTask.setTimeout(10L);
-        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Command", "ls", "command"), new TaskProperty("Arguments", "-la /proc", "arguments"), new TaskProperty("Working Directory", "holy/dir", "working_directory"), new TaskProperty("Timeout", "10", "timeout")));
-        assertThat(execTask.getPropertiesForDisplay().size(), is(4));
+        assertThat(execTask.getPropertiesForDisplay()).contains(new TaskProperty("Command", "ls", "command"), new TaskProperty("Arguments", "-la /proc", "arguments"), new TaskProperty("Working Directory", "holy/dir", "working_directory"), new TaskProperty("Timeout", "10", "timeout"));
+        assertThat(execTask.getPropertiesForDisplay().size()).isEqualTo(4);
 
         execTask = new ExecTask("ls", new Arguments(new Argument()), null);
-        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Command", "ls", "command")));
-        assertThat(execTask.getPropertiesForDisplay().size(), is(1));
+        assertThat(execTask.getPropertiesForDisplay()).contains(new TaskProperty("Command", "ls", "command"));
+        assertThat(execTask.getPropertiesForDisplay().size()).isEqualTo(1);
 
         execTask = new ExecTask("ls", "", (String) null);
-        assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Command", "ls", "command")));
-        assertThat(execTask.getPropertiesForDisplay().size(), is(1));
+        assertThat(execTask.getPropertiesForDisplay()).contains(new TaskProperty("Command", "ls", "command"));
+        assertThat(execTask.getPropertiesForDisplay().size()).isEqualTo(1);
     }
 
     @Test
@@ -186,8 +183,8 @@ public class ExecTaskTest {
 
         try {
             execTask.validateTask(ConfigSaveValidationContext.forChain(cruiseConfig, template, templateStage, templateStage.getJobs().first()));
-            assertThat(execTask.errors().isEmpty(), is(false));
-            assertThat(execTask.errors().on(ExecTask.WORKING_DIR), is("The path of the working directory for the custom command in job 'job' in stage 'templateStage' of template 'template_name' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials."));
+            assertThat(execTask.errors().isEmpty()).isFalse();
+            assertThat(execTask.errors().on(ExecTask.WORKING_DIR)).isEqualTo("The path of the working directory for the custom command in job 'job' in stage 'templateStage' of template 'template_name' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials.");
         } catch (Exception e) {
             fail("should not have failed. Exception: " + e.getMessage());
         }
@@ -196,21 +193,21 @@ public class ExecTaskTest {
     @Test
     public void shouldReturnCommandTaskAttributes(){
         ExecTask task = new ExecTask("ls", "-laht", "src/build");
-        assertThat(task.command(),is("ls"));
-        assertThat(task.arguments(), is("-laht"));
-        assertThat(task.workingDirectory(), is("src/build"));
+        assertThat(task.command()).isEqualTo("ls");
+        assertThat(task.arguments()).isEqualTo("-laht");
+        assertThat(task.workingDirectory()).isEqualTo("src/build");
     }
 
     @Test
     public void shouldReturnCommandArgumentList(){
         ExecTask task = new ExecTask("./bn", new Arguments(new Argument("clean"), new Argument("compile"), new Argument("\"buildfile\"")), "src/build" );
-        assertThat(task.arguments(),is("clean compile \"buildfile\""));
+        assertThat(task.arguments()).isEqualTo("clean compile \"buildfile\"");
     }
 
     @Test
     public void shouldReturnEmptyCommandArguments(){
         ExecTask task = new ExecTask("./bn", new Arguments(), "src/build" );
-        assertThat(task.arguments(),is(""));
+        assertThat(task.arguments()).isEqualTo("");
     }
 
     @Test
@@ -248,12 +245,12 @@ public class ExecTaskTest {
         attributes.put(ExecTask.COMMAND, null);
         attributes.put(ExecTask.ARG_LIST_STRING, "ls\r\n-al\r\n&&\npwd");
         exec.setConfigAttributes(attributes);
-        assertThat(exec.command(), is(nullValue()));
-        assertThat(exec.getArgListString(), is("ls\n-al\n&&\npwd"));
-        assertThat(exec.getArgList().size(), is(4));
-        assertThat(exec.getArgList().get(0), is(new Argument("ls")));
-        assertThat(exec.getArgList().get(1), is(new Argument("-al")));
-        assertThat(exec.getArgList().get(2), is(new Argument("&&")));
-        assertThat(exec.getArgList().get(3), is(new Argument("pwd")));
+        assertThat(exec.command()).isNull();
+        assertThat(exec.getArgListString()).isEqualTo("ls\n-al\n&&\npwd");
+        assertThat(exec.getArgList().size()).isEqualTo(4);
+        assertThat(exec.getArgList().get(0)).isEqualTo(new Argument("ls"));
+        assertThat(exec.getArgList().get(1)).isEqualTo(new Argument("-al"));
+        assertThat(exec.getArgList().get(2)).isEqualTo(new Argument("&&"));
+        assertThat(exec.getArgList().get(3)).isEqualTo(new Argument("pwd"));
     }
 }

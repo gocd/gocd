@@ -37,9 +37,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -102,7 +100,7 @@ public class PluginRoleConfigTest {
     }
 
     @Test
-    public void hasErrors_shouldBeTrueIfRoleHasErrors() throws Exception {
+    public void hasErrors_shouldBeTrueIfRoleHasErrors() {
         Role role = new PluginRoleConfig("", "auth_config_id");
 
         SecurityConfig securityConfig = new SecurityConfig();
@@ -114,7 +112,7 @@ public class PluginRoleConfigTest {
     }
 
     @Test
-    public void hasErrors_shouldBeTrueIfConfigurationPropertiesHasErrors() throws Exception {
+    public void hasErrors_shouldBeTrueIfConfigurationPropertiesHasErrors() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("view"));
         PluginRoleConfig roleConfig = new PluginRoleConfig("admin", "auth_id", property);
 
@@ -144,9 +142,9 @@ public class PluginRoleConfigTest {
         v.validate(role, ValidationContextMother.validationContext(securityConfig));
 
         assertTrue(role.hasErrors());
-        assertThat(role.errors().size(), is(1));
-        assertThat(role.errors().get("name").get(0), is("Invalid role name name ''. This must be alphanumeric and can" +
-                " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(role.errors().size()).isEqualTo(1);
+        assertThat(role.errors().get("name").get(0)).isEqualTo("Invalid role name name ''. This must be alphanumeric and can" +
+                " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     private void validateNullRoleName(Validator v) {
@@ -159,9 +157,9 @@ public class PluginRoleConfigTest {
         v.validate(role, ValidationContextMother.validationContext(securityConfig));
 
         assertTrue(role.hasErrors());
-        assertThat(role.errors().size(), is(1));
-        assertThat(role.errors().get("name").get(0), is("Invalid role name name 'null'. This must be alphanumeric and can" +
-                " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(role.errors().size()).isEqualTo(1);
+        assertThat(role.errors().get("name").get(0)).isEqualTo("Invalid role name name 'null'. This must be alphanumeric and can" +
+                " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     public void validatePresenceAuthConfigId(Validator v) {
@@ -171,24 +169,24 @@ public class PluginRoleConfigTest {
 
         v.validate(role, ValidationContextMother.validationContext(securityConfig));
 
-        assertThat(role.errors().size(), is(1));
-        assertThat(role.errors().get("authConfigId").size(), is(1));
-        assertThat(role.errors().get("authConfigId").get(0), is("Invalid plugin role authConfigId name ''. This must be alphanumeric and can" +
-                " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(role.errors().size()).isEqualTo(1);
+        assertThat(role.errors().get("authConfigId").size()).isEqualTo(1);
+        assertThat(role.errors().get("authConfigId").get(0)).isEqualTo("Invalid plugin role authConfigId name ''. This must be alphanumeric and can" +
+                " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
-    public void validatePresenceOfAuthConfigIdInSecurityConfig(Validator v) throws Exception {
+    public void validatePresenceOfAuthConfigIdInSecurityConfig(Validator v) {
         PluginRoleConfig role = new PluginRoleConfig("admin", "auth_config_id");
         SecurityConfig securityConfig = new SecurityConfig();
 
         v.validate(role, ValidationContextMother.validationContext(securityConfig));
 
-        assertThat(role.errors().size(), is(1));
-        assertThat(role.errors().get("authConfigId").size(), is(1));
-        assertThat(role.errors().get("authConfigId").get(0), is("No such security auth configuration present for id: `auth_config_id`"));
+        assertThat(role.errors().size()).isEqualTo(1);
+        assertThat(role.errors().get("authConfigId").size()).isEqualTo(1);
+        assertThat(role.errors().get("authConfigId").get(0)).isEqualTo("No such security auth configuration present for id: `auth_config_id`");
     }
 
-    public void validateUniquenessOfRoleName(Validator v) throws Exception {
+    public void validateUniquenessOfRoleName(Validator v) {
         PluginRoleConfig role = new PluginRoleConfig("admin", "auth_config_id");
         SecurityConfig securityConfig = new SecurityConfig();
         ValidationContext validationContext = ValidationContextMother.validationContext(securityConfig);
@@ -199,8 +197,8 @@ public class PluginRoleConfigTest {
 
         v.validate(role, validationContext);
 
-        assertThat(role.errors().size(), is(1));
-        assertThat(role.errors().get("name").get(0), is("Role names should be unique. Role with the same name exists."));
+        assertThat(role.errors().size()).isEqualTo(1);
+        assertThat(role.errors().get("name").get(0)).isEqualTo("Role names should be unique. Role with the same name exists.");
     }
 
     @Test
@@ -219,31 +217,31 @@ public class PluginRoleConfigTest {
 
         GoCipher goCipher = new GoCipher();
 
-        assertThat(role.getProperty("k1").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k1").getConfigValue(), is("pub_v1"));
-        assertThat(role.getProperty("k1").getValue(), is("pub_v1"));
-        assertThat(role.getProperty("k2").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k2").getConfigValue(), is("pub_v2"));
-        assertThat(role.getProperty("k2").getValue(), is("pub_v2"));
-        assertThat(role.getProperty("k3").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k3").getConfigValue(), is("pub_v3"));
-        assertThat(role.getProperty("k3").getValue(), is("pub_v3"));
+        assertThat(role.getProperty("k1").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k1").getConfigValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k1").getValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k2").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k2").getConfigValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k2").getValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k3").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k3").getConfigValue()).isEqualTo("pub_v3");
+        assertThat(role.getProperty("k3").getValue()).isEqualTo("pub_v3");
 
         role.encryptSecureProperties(basicCruiseConfig);
 
-        assertThat(role.getProperty("k1").getEncryptedValue(), is(goCipher.encrypt("pub_v1")));
-        assertThat(role.getProperty("k1").getConfigValue(), is(nullValue()));
-        assertThat(role.getProperty("k1").getValue(), is("pub_v1"));
-        assertThat(role.getProperty("k2").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k2").getConfigValue(), is("pub_v2"));
-        assertThat(role.getProperty("k2").getValue(), is("pub_v2"));
-        assertThat(role.getProperty("k3").getEncryptedValue(), is(goCipher.encrypt("pub_v3")));
-        assertThat(role.getProperty("k3").getConfigValue(), is(nullValue()));
-        assertThat(role.getProperty("k3").getValue(), is("pub_v3"));
+        assertThat(role.getProperty("k1").getEncryptedValue()).isEqualTo(goCipher.encrypt("pub_v1"));
+        assertThat(role.getProperty("k1").getConfigValue()).isNull();
+        assertThat(role.getProperty("k1").getValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k2").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k2").getConfigValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k2").getValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k3").getEncryptedValue()).isEqualTo(goCipher.encrypt("pub_v3"));
+        assertThat(role.getProperty("k3").getConfigValue()).isNull();
+        assertThat(role.getProperty("k3").getValue()).isEqualTo("pub_v3");
     }
 
     @Test
-    public void shouldNotEncryptSecurePluginProperties_WhenPluginInfosIsAbsent() throws CryptoException {
+    public void shouldNotEncryptSecurePluginProperties_WhenPluginInfosIsAbsent() {
         String authConfigId = "auth_config_id";
         String pluginId = "cd.go.github";
 
@@ -255,31 +253,31 @@ public class PluginRoleConfigTest {
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
 
-        assertThat(role.getProperty("k1").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k1").getConfigValue(), is("pub_v1"));
-        assertThat(role.getProperty("k1").getValue(), is("pub_v1"));
-        assertThat(role.getProperty("k2").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k2").getConfigValue(), is("pub_v2"));
-        assertThat(role.getProperty("k2").getValue(), is("pub_v2"));
-        assertThat(role.getProperty("k3").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k3").getConfigValue(), is("pub_v3"));
-        assertThat(role.getProperty("k3").getValue(), is("pub_v3"));
+        assertThat(role.getProperty("k1").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k1").getConfigValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k1").getValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k2").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k2").getConfigValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k2").getValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k3").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k3").getConfigValue()).isEqualTo("pub_v3");
+        assertThat(role.getProperty("k3").getValue()).isEqualTo("pub_v3");
 
         role.encryptSecureProperties(basicCruiseConfig);
 
-        assertThat(role.getProperty("k1").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k1").getConfigValue(), is("pub_v1"));
-        assertThat(role.getProperty("k1").getValue(), is("pub_v1"));
-        assertThat(role.getProperty("k2").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k2").getConfigValue(), is("pub_v2"));
-        assertThat(role.getProperty("k2").getValue(), is("pub_v2"));
-        assertThat(role.getProperty("k3").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k3").getConfigValue(), is("pub_v3"));
-        assertThat(role.getProperty("k3").getValue(), is("pub_v3"));
+        assertThat(role.getProperty("k1").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k1").getConfigValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k1").getValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k2").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k2").getConfigValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k2").getValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k3").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k3").getConfigValue()).isEqualTo("pub_v3");
+        assertThat(role.getProperty("k3").getValue()).isEqualTo("pub_v3");
     }
 
     @Test
-    public void shouldNotEncryptSecurePluginProperties_WhenReferencedAuthConfigDoesNotExists() throws CryptoException {
+    public void shouldNotEncryptSecurePluginProperties_WhenReferencedAuthConfigDoesNotExists() {
         setAuthorizationPluginInfo();
         String authConfigId = "auth_config_id";
 
@@ -290,27 +288,27 @@ public class PluginRoleConfigTest {
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
 
-        assertThat(role.getProperty("k1").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k1").getConfigValue(), is("pub_v1"));
-        assertThat(role.getProperty("k1").getValue(), is("pub_v1"));
-        assertThat(role.getProperty("k2").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k2").getConfigValue(), is("pub_v2"));
-        assertThat(role.getProperty("k2").getValue(), is("pub_v2"));
-        assertThat(role.getProperty("k3").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k3").getConfigValue(), is("pub_v3"));
-        assertThat(role.getProperty("k3").getValue(), is("pub_v3"));
+        assertThat(role.getProperty("k1").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k1").getConfigValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k1").getValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k2").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k2").getConfigValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k2").getValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k3").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k3").getConfigValue()).isEqualTo("pub_v3");
+        assertThat(role.getProperty("k3").getValue()).isEqualTo("pub_v3");
 
         role.encryptSecureProperties(basicCruiseConfig);
 
-        assertThat(role.getProperty("k1").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k1").getConfigValue(), is("pub_v1"));
-        assertThat(role.getProperty("k1").getValue(), is("pub_v1"));
-        assertThat(role.getProperty("k2").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k2").getConfigValue(), is("pub_v2"));
-        assertThat(role.getProperty("k2").getValue(), is("pub_v2"));
-        assertThat(role.getProperty("k3").getEncryptedValue(), is(nullValue()));
-        assertThat(role.getProperty("k3").getConfigValue(), is("pub_v3"));
-        assertThat(role.getProperty("k3").getValue(), is("pub_v3"));
+        assertThat(role.getProperty("k1").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k1").getConfigValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k1").getValue()).isEqualTo("pub_v1");
+        assertThat(role.getProperty("k2").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k2").getConfigValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k2").getValue()).isEqualTo("pub_v2");
+        assertThat(role.getProperty("k3").getEncryptedValue()).isNull();
+        assertThat(role.getProperty("k3").getConfigValue()).isEqualTo("pub_v3");
+        assertThat(role.getProperty("k3").getValue()).isEqualTo("pub_v3");
     }
 
     interface Validator {

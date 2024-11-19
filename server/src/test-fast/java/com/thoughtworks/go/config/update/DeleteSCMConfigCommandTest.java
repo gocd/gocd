@@ -33,9 +33,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -66,9 +65,9 @@ public class DeleteSCMConfigCommandTest {
     public void shouldDeleteTemplateFromTheGivenConfig() throws Exception {
         cruiseConfig.getSCMs().add(scmConfig);
         DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(scmConfig, pluggableScmService, result, currentUser, goConfigService);
-        assertThat(cruiseConfig.getSCMs().contains(scmConfig), is(true));
+        assertThat(cruiseConfig.getSCMs().contains(scmConfig)).isTrue();
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getSCMs().contains(scmConfig), is(false));
+        assertThat(cruiseConfig.getSCMs().contains(scmConfig)).isFalse();
     }
 
     @Test
@@ -98,8 +97,8 @@ public class DeleteSCMConfigCommandTest {
         SCM scm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), is(EntityType.SCM.forbiddenToEdit(scm.getId(), currentUser.getUsername())));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.SCM.forbiddenToEdit(scm.getId(), currentUser.getUsername()));
     }
 
     @Test
@@ -110,6 +109,6 @@ public class DeleteSCMConfigCommandTest {
         SCM scm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 }

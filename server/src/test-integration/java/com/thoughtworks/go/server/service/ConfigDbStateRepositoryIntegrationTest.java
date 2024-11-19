@@ -31,8 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -64,7 +63,7 @@ public class ConfigDbStateRepositoryIntegrationTest {
 
     @Test
     public void shouldPopulateSessionFactory() {
-        assertThat(configDbStateRepository.getHibernateTemplate().getSessionFactory(), is(not(nullValue())));
+        assertThat(configDbStateRepository.getHibernateTemplate().getSessionFactory()).isNotNull();
     }
 
     @Test
@@ -78,14 +77,14 @@ public class ConfigDbStateRepositoryIntegrationTest {
         configDbStateRepository.flushConfigState();
 
         List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
-        assertThat(list.size(), is(5));
+        assertThat(list.size()).isEqualTo(5);
 
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false)));
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-one", true)));
+        assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false));
+        assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-one", "stage-one", true));
 
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-two", "stage-two-zero", false)));
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-two", "stage-two-one", true)));
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-two", "stage-one", false)));
+        assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-two", "stage-two-zero", false));
+        assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-two", "stage-two-one", true));
+        assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-two", "stage-one", false));
     }
 
     @Test
@@ -103,10 +102,10 @@ public class ConfigDbStateRepositoryIntegrationTest {
         configDbStateRepository.flushConfigState();
 
         List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
-        assertThat(list.size(), is(2));
+        assertThat(list.size()).isEqualTo(2);
 
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false)));
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-one", true)));
+        assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false));
+        assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-one", "stage-one", true));
     }
 
     @Test
@@ -125,9 +124,9 @@ public class ConfigDbStateRepositoryIntegrationTest {
         configDbStateRepository.flushConfigState();
 
         List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
-        assertThat(list.size(), is(2));
+        assertThat(list.size()).isEqualTo(2);
 
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false)));
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-one", false)));
+        assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false));
+        assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-one", "stage-one", false));
     }
 }

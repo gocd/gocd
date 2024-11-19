@@ -18,15 +18,13 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GoConfigSchemaTest {
     @Test
     public void shouldResolveToCorrectSchemaFile() {
-        assertThat(GoConfigSchema.resolveSchemaFile(GoConstants.CONFIG_SCHEMA_VERSION),
-                is("/cruise-config.xsd"));
-        assertThat(GoConfigSchema.resolveSchemaFile(1), is("/schemas/1_cruise-config.xsd"));
+        assertThat(GoConfigSchema.resolveSchemaFile(GoConstants.CONFIG_SCHEMA_VERSION)).isEqualTo("/cruise-config.xsd");
+        assertThat(GoConfigSchema.resolveSchemaFile(1)).isEqualTo("/schemas/1_cruise-config.xsd");
     }
 }
 

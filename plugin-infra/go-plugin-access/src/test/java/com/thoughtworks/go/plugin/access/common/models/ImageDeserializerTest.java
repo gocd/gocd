@@ -17,16 +17,15 @@ package com.thoughtworks.go.plugin.access.common.models;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ImageDeserializerTest {
 
     @Test
     public void shouldDeserializeFromJSON() throws Exception {
         com.thoughtworks.go.plugin.domain.common.Image image = new ImageDeserializer().fromJSON("{\"content_type\":\"image/png\",\"data\":\"Zm9vYmEK\"}");
-        assertThat(image.getContentType(), is("image/png"));
-        assertThat(image.getData(), is("Zm9vYmEK"));
-        assertThat(image.getHash(), is("a67bb2a01e8bbf37082c1288c7bfcc0e33bcc6ae65861df19b94e36600baa5a0"));
+        assertThat(image.getContentType()).isEqualTo("image/png");
+        assertThat(image.getData()).isEqualTo("Zm9vYmEK");
+        assertThat(image.getHash()).isEqualTo("a67bb2a01e8bbf37082c1288c7bfcc0e33bcc6ae65861df19b94e36600baa5a0");
     }
 }

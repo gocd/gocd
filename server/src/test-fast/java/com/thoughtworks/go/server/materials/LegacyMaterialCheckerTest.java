@@ -27,8 +27,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -55,8 +54,7 @@ public class LegacyMaterialCheckerTest {
             checker.findLatestModification(file, material, null);
             fail("Should have failed since the latest modification check failed");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(),
-                    is("Latest modifications check for the material 'material' returned an empty modification list. This might be because the material might be wrongly configured."));
+            assertThat(e.getMessage()).isEqualTo("Latest modifications check for the material 'material' returned an empty modification list. This might be because the material might be wrongly configured.");
         }
     }
 
@@ -69,6 +67,6 @@ public class LegacyMaterialCheckerTest {
         when(materialRevision.getRevision()).thenReturn(revision);
         when(materialService.modificationsSince(material, file, revision, null)).thenReturn(modifications);
         List<Modification> actual = checker.findModificationsSince(file, material, materialRevision);
-        assertThat(actual, is(modifications));
+        assertThat(actual).isEqualTo(modifications);
     }
 }

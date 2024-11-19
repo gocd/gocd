@@ -42,9 +42,7 @@ import java.sql.SQLException;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -95,14 +93,14 @@ public class PipelineLabelCorrectorIntegrationTest {
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size(), is(1));
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName), is(true));
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
 
         pipelineLabelCorrector.correctPipelineLabelCountEntries();
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().isEmpty(), is(true));
-        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName), is(30));
-        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName.toLowerCase()), is(30));
-        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName.toUpperCase()), is(30));
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().isEmpty()).isTrue();
+        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName)).isEqualTo(30);
+        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName.toLowerCase())).isEqualTo(30);
+        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName.toUpperCase())).isEqualTo(30);
     }
 
     @Test
@@ -113,14 +111,14 @@ public class PipelineLabelCorrectorIntegrationTest {
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size(), is(1));
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName), is(true));
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
         configHelper.removePipeline(pipelineName);
 
         pipelineLabelCorrector.correctPipelineLabelCountEntries();
 
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount(), hasSize(0));
-        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName), is(0));
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount()).hasSize(0);
+        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName)).isEqualTo(0);
     }
 
     @Test
@@ -143,14 +141,14 @@ public class PipelineLabelCorrectorIntegrationTest {
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 20).asMap());
 
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size(), is(1));
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName), is(true));
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
         configHelper.removePipeline(pipelineName);
 
         pipelineLabelCorrector.correctPipelineLabelCountEntries();
 
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount(), hasSize(0));
-        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName), is(20));
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount()).hasSize(0);
+        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName)).isEqualTo(20);
     }
 
     @Test
@@ -175,10 +173,10 @@ public class PipelineLabelCorrectorIntegrationTest {
 
         addConfigRepoPipeline(repoConfig, pipelineName.toUpperCase());
 
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount(), hasSize(0));
-        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName), is(10));
-        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName.toUpperCase()), is(10));
-        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName.toLowerCase()), is(10));
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount()).hasSize(0);
+        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName)).isEqualTo(10);
+        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName.toUpperCase())).isEqualTo(10);
+        assertThat(pipelineSqlMapDao.getCounterForPipeline(pipelineName.toLowerCase())).isEqualTo(10);
     }
 
     private PipelineConfig addConfigRepoPipeline(ConfigRepoConfig repoConfig, String pipeline) {

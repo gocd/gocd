@@ -30,8 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,10 +79,10 @@ public class GoConfigMigratorTest {
 
         GoConfigHolder configHolder = goConfigMigrator.migrate();
 
-        assertThat(configHolder, is(goConfigHolder));
-        assertThat(stringArgumentCaptor.getValue(), is("Upgrade"));
-        assertThat(commandArgumentCaptor.getValue().configForEdit(), is(cruiseConfig));
-        assertThat(listArgumentCaptor.getValue().size(), is(0));
+        assertThat(configHolder).isEqualTo(goConfigHolder);
+        assertThat(stringArgumentCaptor.getValue()).isEqualTo("Upgrade");
+        assertThat(commandArgumentCaptor.getValue().configForEdit()).isEqualTo(cruiseConfig);
+        assertThat(listArgumentCaptor.getValue().size()).isEqualTo(0);
     }
 
     @Test
@@ -106,9 +105,9 @@ public class GoConfigMigratorTest {
 
         goConfigMigrator.migrate();
 
-        assertThat(stringArgumentCaptor.getValue(), is("Upgrade"));
-        assertThat(commandArgumentCaptor.getValue().configForEdit(), is(cruiseConfig));
-        assertThat(listArgumentCaptor.getValue().size(), is(0));
+        assertThat(stringArgumentCaptor.getValue()).isEqualTo("Upgrade");
+        assertThat(commandArgumentCaptor.getValue().configForEdit()).isEqualTo(cruiseConfig);
+        assertThat(listArgumentCaptor.getValue().size()).isEqualTo(0);
         verify(goConfigMigration).revertFileToVersion(any(File.class), any(GoConfigRevision.class));
     }
 

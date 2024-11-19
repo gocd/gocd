@@ -22,37 +22,35 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineTemplateConfigTest {
     @Test
     public void shouldFindByName() {
         PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("pipeline"), StageConfigMother.manualStage("manual"),
                 StageConfigMother.manualStage("manual2"));
-        assertThat(pipelineTemplateConfig.findBy(new CaseInsensitiveString("manuaL2")).name(), is(new CaseInsensitiveString("manual2")));
+        assertThat(pipelineTemplateConfig.findBy(new CaseInsensitiveString("manuaL2")).name()).isEqualTo(new CaseInsensitiveString("manual2"));
     }
 
     @Test
     public void shouldGetStageByName() {
         PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("pipeline"), StageConfigMother.manualStage("manual"),
                 StageConfigMother.manualStage("manual2"));
-        assertThat(pipelineTemplateConfig.findBy(new CaseInsensitiveString("manual")).name(), is(new CaseInsensitiveString("manual")));
-        assertThat(pipelineTemplateConfig.findBy(new CaseInsensitiveString("Does-not-exist")), is(nullValue()));
+        assertThat(pipelineTemplateConfig.findBy(new CaseInsensitiveString("manual")).name()).isEqualTo(new CaseInsensitiveString("manual"));
+        assertThat(pipelineTemplateConfig.findBy(new CaseInsensitiveString("Does-not-exist"))).isNull();
     }
 
 
     @Test
     public void shouldIgnoreCaseWhileMatchingATemplateWithName() {
-        assertThat(new PipelineTemplateConfig(new CaseInsensitiveString("FOO")).matches(new CaseInsensitiveString("foo")), is(true));
-        assertThat(new PipelineTemplateConfig(new CaseInsensitiveString("FOO")).matches(new CaseInsensitiveString("FOO")), is(true));
-        assertThat(new PipelineTemplateConfig(new CaseInsensitiveString("FOO")).matches(new CaseInsensitiveString("bar")), is(false));
+        assertThat(new PipelineTemplateConfig(new CaseInsensitiveString("FOO")).matches(new CaseInsensitiveString("foo"))).isTrue();
+        assertThat(new PipelineTemplateConfig(new CaseInsensitiveString("FOO")).matches(new CaseInsensitiveString("FOO"))).isTrue();
+        assertThat(new PipelineTemplateConfig(new CaseInsensitiveString("FOO")).matches(new CaseInsensitiveString("bar"))).isFalse();
     }
 
     @Test
@@ -62,7 +60,7 @@ public class PipelineTemplateConfigTest {
 
         pipelineTemplateConfig.setConfigAttributes(map);
 
-        assertThat(pipelineTemplateConfig.name(), is(new CaseInsensitiveString("templateName")));
+        assertThat(pipelineTemplateConfig.name()).isEqualTo(new CaseInsensitiveString("templateName"));
     }
 
     @Test
@@ -74,13 +72,13 @@ public class PipelineTemplateConfigTest {
                 Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size(), Matchers.is(3));
-        assertThat(authorization.getAdminsConfig(), hasItem(new AdminUser(new CaseInsensitiveString("loser"))));
-        assertThat(authorization.getAdminsConfig(), hasItem(new AdminUser(new CaseInsensitiveString("boozer"))));
-        assertThat(authorization.getAdminsConfig(), hasItem(new AdminUser(new CaseInsensitiveString("geezer"))));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo((3));
+        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("loser")));
+        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("boozer")));
+        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("geezer")));
 
-        assertThat(authorization.getOperationConfig().size(), Matchers.is(0));
-        assertThat(authorization.getViewConfig().size(), Matchers.is(0));
+        assertThat(authorization.getOperationConfig().size()).isEqualTo(0);
+        assertThat(authorization.getViewConfig().size()).isEqualTo(0);
     }
 
     @Test
@@ -92,12 +90,12 @@ public class PipelineTemplateConfigTest {
                 Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size(), Matchers.is(3));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo((3));
 
         templateConfig.setConfigAttributes(Map.of());
 
         authorization = templateConfig.getAuthorization();
-        assertThat(authorization.getAdminsConfig().size(), Matchers.is(0));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(0);
     }
 
     @Test
@@ -109,8 +107,8 @@ public class PipelineTemplateConfigTest {
                 Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size(), Matchers.is(1));
-        assertThat(authorization.getAdminsConfig(), hasItem(new AdminUser(new CaseInsensitiveString("geezer"))));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo((1));
+        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("geezer")));
     }
 
     @Test
@@ -118,9 +116,8 @@ public class PipelineTemplateConfigTest {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         PipelineTemplateConfig config = new PipelineTemplateConfig(new CaseInsensitiveString(".Abc"));
         config.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
-        assertThat(config.errors().isEmpty(), is(false));
-        assertThat(config.errors().on(PipelineTemplateConfig.NAME),
-                is("Invalid template name '.Abc'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(config.errors().isEmpty()).isFalse();
+        assertThat(config.errors().on(PipelineTemplateConfig.NAME)).isEqualTo("Invalid template name '.Abc'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -129,10 +126,10 @@ public class PipelineTemplateConfigTest {
         PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.manualStage("stage1"),
                 StageConfigMother.manualStage("stage1"));
         pipelineTemplateConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
-        assertThat(pipelineTemplateConfig.get(0).errors().isEmpty(), is(false));
-        assertThat(pipelineTemplateConfig.get(1).errors().isEmpty(), is(false));
-        assertThat(pipelineTemplateConfig.get(0).errors().on(StageConfig.NAME), is("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique."));
-        assertThat(pipelineTemplateConfig.get(1).errors().on(StageConfig.NAME), is("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique."));
+        assertThat(pipelineTemplateConfig.get(0).errors().isEmpty()).isFalse();
+        assertThat(pipelineTemplateConfig.get(1).errors().isEmpty()).isFalse();
+        assertThat(pipelineTemplateConfig.get(0).errors().on(StageConfig.NAME)).isEqualTo("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique.");
+        assertThat(pipelineTemplateConfig.get(1).errors().on(StageConfig.NAME)).isEqualTo("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique.");
     }
 
     @Test
@@ -147,7 +144,7 @@ public class PipelineTemplateConfigTest {
 
         template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
 
-        assertThat(template.getAllErrors().get(0).getAllOn("name"), is(List.of("Role \"non-existent-role\" does not exist.")));
+        assertThat(template.getAllErrors().get(0).getAllOn("name")).isEqualTo(List.of("Role \"non-existent-role\" does not exist."));
     }
 
     @Test
@@ -162,19 +159,19 @@ public class PipelineTemplateConfigTest {
 
         template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
 
-        assertThat(template.getAllErrors().get(0).getAllOn("name"), is(List.of("Role \"non-existent-role\" does not exist.")));
+        assertThat(template.getAllErrors().get(0).getAllOn("name")).isEqualTo(List.of("Role \"non-existent-role\" does not exist."));
     }
 
     @Test
     public void shouldUnderstandUsedParams() {
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplateWithParams("template-name", "foo", "bar", "baz");
         ParamsConfig params = template.referredParams();
-        assertThat(params.size(), is(3));
-        assertThat(params, hasItem(new ParamConfig("foo", null)));
-        assertThat(params, hasItem(new ParamConfig("bar", null)));
-        assertThat(params, hasItem(new ParamConfig("baz", null)));
+        assertThat(params.size()).isEqualTo(3);
+        assertThat(params).contains(new ParamConfig("foo", null));
+        assertThat(params).contains(new ParamConfig("bar", null));
+        assertThat(params).contains(new ParamConfig("baz", null));
         params = template.referredParams();//should not mutate
-        assertThat(params.size(), is(3));
+        assertThat(params.size()).isEqualTo(3);
     }
 
     @Test
@@ -187,11 +184,11 @@ public class PipelineTemplateConfigTest {
 
         templateWithParams.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(templateWithParams.errors().getAllOn("params"), is(List.of("The param 'param1' is not defined in pipeline 'pipeline'", "The param 'param2' is not defined in pipeline 'pipeline'")));
+        assertThat(templateWithParams.errors().getAllOn("params")).isEqualTo(List.of("The param 'param1' is not defined in pipeline 'pipeline'", "The param 'param2' is not defined in pipeline 'pipeline'"));
     }
 
     @Test
-    public void shouldValidateFetchTasksOfATemplateInTheContextOfPipelinesUsingTheTemplate() throws Exception {
+    public void shouldValidateFetchTasksOfATemplateInTheContextOfPipelinesUsingTheTemplate() {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
         jobConfig.addTask(new FetchTask(new CaseInsensitiveString("non-existent-pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "src", "dest"));
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
@@ -205,12 +202,12 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("pipeline"), is(List.of("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist.")));
+        assertThat(template.errors().getAllOn("pipeline")).isEqualTo(List.of("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist."));
     }
 
 
     @Test
-    public void shouldValidateFetchPluggableTasksOfATemplateInTheContextOfPipelinesUsingTheTemplate() throws Exception {
+    public void shouldValidateFetchPluggableTasksOfATemplateInTheContextOfPipelinesUsingTheTemplate() {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
         jobConfig.addTask(new FetchPluggableArtifactTask(new CaseInsensitiveString("non-existent-pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "artifactId"));
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
@@ -224,11 +221,11 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("pipeline"), is(List.of("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist.")));
+        assertThat(template.errors().getAllOn("pipeline")).isEqualTo(List.of("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist."));
     }
 
     @Test
-    public void shouldValidatePublishExternalArtifactOfATemplateInTheContextOfPipelinesUsingTheTemplate() throws Exception {
+    public void shouldValidatePublishExternalArtifactOfATemplateInTheContextOfPipelinesUsingTheTemplate() {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
         jobConfig.artifactTypeConfigs().add(new PluggableArtifactConfig("some-id", "non-existent-store-id"));
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
@@ -242,11 +239,11 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("storeId"), is(List.of("Artifact store with id `non-existent-store-id` does not exist. Please correct the `storeId` attribute on pipeline `pipeline`.")));
+        assertThat(template.errors().getAllOn("storeId")).isEqualTo(List.of("Artifact store with id `non-existent-store-id` does not exist. Please correct the `storeId` attribute on pipeline `pipeline`."));
     }
 
     @Test
-    public void shouldValidateStageApprovalAuthorizationOfATemplateInTheContextOfPipelinesUsingTheTemplate() throws Exception {
+    public void shouldValidateStageApprovalAuthorizationOfATemplateInTheContextOfPipelinesUsingTheTemplate() {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
         StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
@@ -260,7 +257,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("name"), is(List.of("Role \"non-existent-role\" does not exist.")));
+        assertThat(template.errors().getAllOn("name")).isEqualTo(List.of("Role \"non-existent-role\" does not exist."));
     }
 
     @Test
@@ -280,7 +277,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("name"), is(List.of("User \"non-admin-non-operate\" who is not authorized to operate pipeline group `group` can not be authorized to approve stage")));
+        assertThat(template.errors().getAllOn("name")).isEqualTo(List.of("User \"non-admin-non-operate\" who is not authorized to operate pipeline group `group` can not be authorized to approve stage"));
     }
 
     @Test
@@ -306,7 +303,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("base"), is(List.of("Stage with name 'non-existent-stage' does not exist on pipeline 'pipeline', it is being referred to from pipeline 'downstreamPipeline' (cruise-config.xml)")));
+        assertThat(template.errors().getAllOn("base")).isEqualTo(List.of("Stage with name 'non-existent-stage' does not exist on pipeline 'pipeline', it is being referred to from pipeline 'downstreamPipeline' (cruise-config.xml)"));
     }
 
     @Test
@@ -336,11 +333,11 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("base"), is(List.of("\"downstreamPipeline :: mingle :: fetchJob\" tries to fetch artifact from job \"pipeline :: stage :: non-existent-job\" which does not exist.")));
+        assertThat(template.errors().getAllOn("base")).isEqualTo(List.of("\"downstreamPipeline :: mingle :: fetchJob\" tries to fetch artifact from job \"pipeline :: stage :: non-existent-job\" which does not exist."));
     }
 
     @Test
-    public void shouldAllowEditingOfStageNameWhenItIsNotUsedAsDependencyMaterial() throws Exception {
+    public void shouldAllowEditingOfStageNameWhenItIsNotUsedAsDependencyMaterial() {
         PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.addTemplate(template);
@@ -348,11 +345,11 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().isEmpty(), is(true));
+        assertThat(template.errors().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldAllowEditingOfJobNameWhenItIsNotUsedAsFetchArtifact() throws Exception {
+    public void shouldAllowEditingOfJobNameWhenItIsNotUsedAsFetchArtifact() {
         PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job2"));
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.addTemplate(template);
@@ -360,7 +357,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().isEmpty(), is(true));
+        assertThat(template.errors().isEmpty()).isTrue();
     }
 
     @Test
@@ -368,7 +365,7 @@ public class PipelineTemplateConfigTest {
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplateWithParams("template-name", "foo", "bar", "baz");
         int sizeBeforeCopy = template.size();
         template.copyStages(null);
-        assertThat(template.size(), is(sizeBeforeCopy));
+        assertThat(template.size()).isEqualTo(sizeBeforeCopy);
     }
 
 }

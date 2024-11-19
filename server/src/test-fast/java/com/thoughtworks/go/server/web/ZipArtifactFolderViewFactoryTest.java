@@ -27,9 +27,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ZipArtifactFolderViewFactoryTest {
     private static final JobIdentifier JOB_IDENTIFIER = new JobIdentifier("pipeline-name", 1, "label-111", "stage-name", "1", "job-name", 666L);
@@ -49,7 +47,7 @@ public class ZipArtifactFolderViewFactoryTest {
         folderViewFactory = new ZipArtifactFolderViewFactory(cacheNotCreated());
 
         ModelAndView modelAndView = folderViewFactory.createView(JOB_IDENTIFIER, new ArtifactFolder(JOB_IDENTIFIER, folder.toFile(), "dir"));
-        assertThat(modelAndView.getView(), is(instanceOf(PreparingArtifactFile.class)));
+        assertThat(modelAndView.getView()).isInstanceOf(PreparingArtifactFile.class);
     }
 
     @Test
@@ -57,9 +55,9 @@ public class ZipArtifactFolderViewFactoryTest {
         folderViewFactory = new ZipArtifactFolderViewFactory(cacheAlreadyCreated());
 
         ModelAndView modelAndView = folderViewFactory.createView(JOB_IDENTIFIER, new ArtifactFolder(JOB_IDENTIFIER, folder.toFile(), "dir"));
-        assertThat(modelAndView.getViewName(), is("fileView"));
+        assertThat(modelAndView.getViewName()).isEqualTo("fileView");
         File targetFile = (File) modelAndView.getModel().get("targetFile");
-        assertThat(targetFile, is(cacheZipFile));
+        assertThat(targetFile).isEqualTo(cacheZipFile);
     }
 
     private ZipArtifactCache cacheAlreadyCreated() {

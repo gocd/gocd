@@ -23,9 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class RolesConfigTest {
@@ -58,14 +56,14 @@ public class RolesConfigTest {
             addRole(role("test_role"));
             fail("Role already exists");
         } catch (Exception expected) {
-            assertThat(expected.getCause().getMessage(), is("Role names should be unique. Duplicate names found."));
+            assertThat(expected.getCause().getMessage()).isEqualTo("Role names should be unique. Duplicate names found.");
         }
     }
 
     @Test
     public void shouldNotSupportRoleWithTheMultipleUsersThatAreTheSame() throws Exception {
         Role role = role("test_role", user("chris"), user("chris"), user("bob"), user("john"));
-        assertThat(role.getUsers(), hasSize(3));
+        assertThat(role.getUsers()).hasSize(3);
     }
 
     private RoleUser user(String name) {

@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GoServerValidatorTest {
     private ServerPortValidator serverPortValidator;
@@ -36,7 +35,7 @@ public class GoServerValidatorTest {
             startServerOnPort(PORT_TO_TRY);
             serverPortValidator = new ServerPortValidator(PORT_TO_TRY);
             Validation validation = serverPortValidator.validate(new Validation());
-            assertThat(validation.isSuccessful(), is(false));
+            assertThat(validation.isSuccessful()).isFalse();
 
         } finally {
             shutDownServer();
@@ -47,7 +46,7 @@ public class GoServerValidatorTest {
     public void shouldNotFailIfPortIsAvailable() throws IOException, InterruptedException {
         serverPortValidator = new ServerPortValidator(PORT_TO_TRY);
         Validation validation = serverPortValidator.validate(new Validation());
-        assertThat(validation.isSuccessful(), is(true));
+        assertThat(validation.isSuccessful()).isTrue();
     }
 
     private void shutDownServer() throws IOException {

@@ -31,8 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -86,8 +85,8 @@ public class UpdateEnvironmentCommandTest {
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.unprocessableEntity(actionFailed + " Environment 'Test' refers to an unknown pipeline 'Invalid-pipeline-name'.");
 
-        assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(result, is(expectResult));
+        assertThat(command.isValid(cruiseConfig)).isFalse();
+        assertThat(result).isEqualTo(expectResult);
     }
 
     @Test
@@ -97,13 +96,13 @@ public class UpdateEnvironmentCommandTest {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, digest, entityHashingService, result);
         command.update(cruiseConfig);
 
-        assertThat(command.isValid(cruiseConfig), is(false));
+        assertThat(command.isValid(cruiseConfig)).isFalse();
 
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         String allErrors = new AllConfigErrors(cruiseConfig.getAllErrors()).asString();
         expectResult.unprocessableEntity(actionFailed + " " + allErrors);
 
-        assertThat(result, is(expectResult));
+        assertThat(result).isEqualTo(expectResult);
 
     }
 
@@ -111,10 +110,10 @@ public class UpdateEnvironmentCommandTest {
     public void shouldNotContinueIfTheUserSubmittedStaleEtag() throws Exception {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, digest, entityHashingService, result);
         when(entityHashingService.hashForEntity(oldEnvironmentConfig)).thenReturn("foo");
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.stale(EntityType.Environment.staleConfig(oldEnvironmentName));
 
-        assertThat(result, is(expectResult));
+        assertThat(result).isEqualTo(expectResult);
     }
 }

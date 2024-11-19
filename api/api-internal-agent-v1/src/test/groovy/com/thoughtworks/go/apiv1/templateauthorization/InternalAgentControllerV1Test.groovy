@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when
 @MockitoSettings(strictness = Strictness.LENIENT)
 class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentControllerV1> {
   @Mock
-  BuildRepositoryMessageProducer buildRepositoryMessageProducer;
+  BuildRepositoryMessageProducer buildRepositoryMessageProducer
 
 
   @Override

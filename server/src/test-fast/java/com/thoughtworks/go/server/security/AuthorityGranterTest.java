@@ -24,9 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,9 +43,9 @@ public class AuthorityGranterTest {
         String templateAdmin = "template-admin";
         when(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(templateAdmin)))).thenReturn(true);
         Set<GrantedAuthority> authorities = authorityGranter.authorities(templateAdmin);
-        assertThat(authorities, hasItem(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority()));
-        assertThat(authorities, not(hasItem(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority())));
-        assertThat(authorities, hasItem(GoAuthority.ROLE_USER.asAuthority()));
+        assertThat(authorities).contains(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
+        assertThat(authorities).doesNotContain(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
+        assertThat(authorities).contains(GoAuthority.ROLE_USER.asAuthority());
     }
 
     @Test
@@ -57,19 +55,19 @@ public class AuthorityGranterTest {
         when(securityService.isAuthorizedToViewTemplates(new Username(templateViewUser))).thenReturn(true);
 
         Set<GrantedAuthority> authorities = authorityGranter.authorities(templateViewUser);
-        assertThat(authorities, hasItem(GoAuthority.ROLE_TEMPLATE_VIEW_USER.asAuthority()));
-        assertThat(authorities, not(hasItem(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority())));
-        assertThat(authorities, not(hasItem(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority())));
-        assertThat(authorities, hasItem(GoAuthority.ROLE_USER.asAuthority()));
+        assertThat(authorities).contains(GoAuthority.ROLE_TEMPLATE_VIEW_USER.asAuthority());
+        assertThat(authorities).doesNotContain(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
+        assertThat(authorities).doesNotContain(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
+        assertThat(authorities).contains(GoAuthority.ROLE_USER.asAuthority());
     }
 
     @Test
     public void shouldGrantGroupSupervisorRoleToPipelineGroupAdmins() {
         when(securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString("group-admin")))).thenReturn(true);
         Set<GrantedAuthority> authorities = authorityGranter.authorities("group-admin");
-        assertThat("Should not have " + GoAuthority.ROLE_SUPERVISOR + " authority", authorities, not(hasItem(GoAuthority.ROLE_SUPERVISOR.asAuthority())));
-        assertThat("Should have " + GoAuthority.ROLE_GROUP_SUPERVISOR + " authority", authorities, hasItem(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority()));
-        assertThat("Should have " + GoAuthority.ROLE_USER + " authority", authorities, hasItem(GoAuthority.ROLE_USER.asAuthority()));
+        assertThat(authorities).doesNotContain(GoAuthority.ROLE_SUPERVISOR.asAuthority());
+        assertThat(authorities).contains(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
+        assertThat(authorities).contains(GoAuthority.ROLE_USER.asAuthority());
     }
 
     @Test
@@ -77,9 +75,9 @@ public class AuthorityGranterTest {
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(true);
         when(securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(true);
         Set<GrantedAuthority> authorities = authorityGranter.authorities("admin");
-        assertThat("Should have " + GoAuthority.ROLE_SUPERVISOR + " authority", authorities, hasItem(GoAuthority.ROLE_SUPERVISOR.asAuthority()));
-        assertThat("Should have " + GoAuthority.ROLE_GROUP_SUPERVISOR + " authority", authorities, hasItem(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority()));
-        assertThat("Should have " + GoAuthority.ROLE_USER + " authority", authorities, hasItem(GoAuthority.ROLE_USER.asAuthority()));
+        assertThat(authorities).contains(GoAuthority.ROLE_SUPERVISOR.asAuthority());
+        assertThat(authorities).contains(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
+        assertThat(authorities).contains(GoAuthority.ROLE_USER.asAuthority());
     }
 
     @Test
@@ -87,8 +85,8 @@ public class AuthorityGranterTest {
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(false);
         when(securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(false);
         Set<GrantedAuthority> authorities = authorityGranter.authorities("admin");
-        assertThat("Should not have " + GoAuthority.ROLE_SUPERVISOR + " authority", authorities, not(hasItem(GoAuthority.ROLE_SUPERVISOR.asAuthority())));
-        assertThat("Should not have " + GoAuthority.ROLE_GROUP_SUPERVISOR + " authority", authorities, not(hasItem(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority())));
-        assertThat("Should have " + GoAuthority.ROLE_USER + " authority", authorities, hasItem(GoAuthority.ROLE_USER.asAuthority()));
+        assertThat(authorities).doesNotContain(GoAuthority.ROLE_SUPERVISOR.asAuthority());
+        assertThat(authorities).doesNotContain(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
+        assertThat(authorities).contains(GoAuthority.ROLE_USER.asAuthority());
     }
 }

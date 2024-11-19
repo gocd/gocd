@@ -81,7 +81,7 @@
   <logger name="com.thoughtworks.go.domain.AccessToken" level="DEBUG"/>
 
   <!-- Change to INFO to enable request logging -->
-  <logger name="org.eclipse.jetty.server.RequestLog" level="WARN"/>
+  <logger name="org.eclipse.jetty.server.RequestLog" level="INFO"/>
 
   <!-- Lower default log levels of certain loggers to improve debuggability if something goes wrong -->
   <logger name="org.jruby.rack.JRubyRack" level="INFO"/>

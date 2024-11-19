@@ -33,8 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,7 +68,7 @@ public class SCMConfigCommandTest {
         cruiseConfig.setSCMs(scms);
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
-        assertThat(command.isValid(cruiseConfig), is(false));
+        assertThat(command.isValid(cruiseConfig)).isFalse();
     }
 
     @Test
@@ -78,8 +77,8 @@ public class SCMConfigCommandTest {
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
-        assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(scm.errors().getAllOn("name"), is(List.of("Please provide name")));
+        assertThat(command.isValid(cruiseConfig)).isFalse();
+        assertThat(scm.errors().getAllOn("name")).isEqualTo(List.of("Please provide name"));
     }
 
     @Test
@@ -88,7 +87,7 @@ public class SCMConfigCommandTest {
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
-        assertThat(command.isValid(cruiseConfig), is(false));
+        assertThat(command.isValid(cruiseConfig)).isFalse();
 
         command.clearErrors();
         assertTrue(cruiseConfig.errors().isEmpty());
@@ -101,8 +100,8 @@ public class SCMConfigCommandTest {
         cruiseConfig.setSCMs(scms);
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
-        assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(scm.errors().getAllOn("name"), is(List.of("Invalid SCM name '+!@'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+        assertThat(command.isValid(cruiseConfig)).isFalse();
+        assertThat(scm.errors().getAllOn("name")).isEqualTo(List.of("Invalid SCM name '+!@'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
 
     }
 
@@ -115,8 +114,8 @@ public class SCMConfigCommandTest {
         cruiseConfig.setSCMs(scms);
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(duplicateSCM, pluggableScmService, result, currentUser, goConfigService);
-        assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(duplicateSCM.errors().getAllOn("scmId"), is(List.of("Cannot save SCM, found duplicate SCMs. material, duplicate.material")));
+        assertThat(command.isValid(cruiseConfig)).isFalse();
+        assertThat(duplicateSCM.errors().getAllOn("scmId")).isEqualTo(List.of("Cannot save SCM, found duplicate SCMs. material, duplicate.material"));
     }
 
     @Test
@@ -128,8 +127,8 @@ public class SCMConfigCommandTest {
         cruiseConfig.setSCMs(scms);
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(duplicateSCM, pluggableScmService, result, currentUser, goConfigService);
-        assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(duplicateSCM.errors().getAllOn("name"), is(List.of("Cannot save SCM, found multiple SCMs called 'material'. SCM names are case-insensitive and must be unique.")));
+        assertThat(command.isValid(cruiseConfig)).isFalse();
+        assertThat(duplicateSCM.errors().getAllOn("name")).isEqualTo(List.of("Cannot save SCM, found multiple SCMs called 'material'. SCM names are case-insensitive and must be unique."));
     }
 
     @Test
@@ -141,8 +140,8 @@ public class SCMConfigCommandTest {
         cruiseConfig.setSCMs(scms);
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(duplicateSCM, pluggableScmService, result, currentUser, goConfigService);
-        assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(duplicateSCM.errors().getAllOn("scmId"), is(List.of("Cannot save SCM, found duplicate SCMs. material, another.material")));
+        assertThat(command.isValid(cruiseConfig)).isFalse();
+        assertThat(duplicateSCM.errors().getAllOn("scmId")).isEqualTo(List.of("Cannot save SCM, found duplicate SCMs. material, another.material"));
     }
 
 }

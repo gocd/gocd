@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.HashMap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -57,7 +56,7 @@ public class JobConsoleLoggerTest {
             JobConsoleLogger.getConsoleLogger();
             fail("expected this to fail");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("context is null"));
+            assertThat(e.getMessage()).isEqualTo("context is null");
         }
     }
 

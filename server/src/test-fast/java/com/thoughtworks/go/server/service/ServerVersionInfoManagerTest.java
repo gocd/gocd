@@ -27,8 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -108,7 +107,7 @@ public class ServerVersionInfoManagerTest {
         manager.initialize();
         VersionInfo goVersionInfo = manager.versionInfoForUpdate();
 
-        assertThat(goVersionInfo, is(versionInfo));
+        assertThat(goVersionInfo).isEqualTo(versionInfo);
     }
 
     @Test
@@ -183,8 +182,8 @@ public class ServerVersionInfoManagerTest {
         manager.initialize();
         VersionInfo info = manager.updateLatestVersion("15.0.1-123");
 
-        assertThat(info.getLatestVersion().toString(), is("15.0.1-123"));
-        assertThat(info.getLatestVersionUpdatedAt(), is(now));
+        assertThat(info.getLatestVersion().toString()).isEqualTo("15.0.1-123");
+        assertThat(info.getLatestVersionUpdatedAt()).isEqualTo(now);
         verify(versionInfoDao).saveOrUpdate(versionInfo);
     }
 
@@ -213,7 +212,7 @@ public class ServerVersionInfoManagerTest {
 
         manager = new ServerVersionInfoManager(builder, versionInfoDao, new SystemTimeClock(), goCache, null);
 
-        assertThat(manager.getGoUpdate(), is(newRelease));
+        assertThat(manager.getGoUpdate()).isEqualTo(newRelease);
     }
 
     @Test

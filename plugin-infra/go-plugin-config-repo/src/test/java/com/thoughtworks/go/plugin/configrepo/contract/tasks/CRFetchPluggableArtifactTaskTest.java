@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CRFetchPluggableArtifactTaskTest extends AbstractCRTest<CRFetchPluggableArtifactTask> {
@@ -77,11 +76,11 @@ public class CRFetchPluggableArtifactTaskTest extends AbstractCRTest<CRFetchPlug
                             }""";
         CRFetchPluggableArtifactTask deserializedValue = (CRFetchPluggableArtifactTask) gson.fromJson(json, CRTask.class);
 
-        assertThat(deserializedValue.getPipeline(), is("pip"));
-        assertThat(deserializedValue.getJob(), is("build"));
-        assertThat(deserializedValue.getStage(), is("build1"));
-        assertThat(deserializedValue.getArtifactId(), is("s3"));
-        assertThat(deserializedValue.getRunIf(), is(CRRunIf.passed));
+        assertThat(deserializedValue.getPipeline()).isEqualTo("pip");
+        assertThat(deserializedValue.getJob()).isEqualTo("build");
+        assertThat(deserializedValue.getStage()).isEqualTo("build1");
+        assertThat(deserializedValue.getArtifactId()).isEqualTo("s3");
+        assertThat(deserializedValue.getRunIf()).isEqualTo(CRRunIf.passed);
         assertNull(deserializedValue.getConfiguration());
     }
 }

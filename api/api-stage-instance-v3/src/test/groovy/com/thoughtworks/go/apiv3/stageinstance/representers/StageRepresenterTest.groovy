@@ -44,7 +44,7 @@ class StageRepresenterTest {
 
   def getJobInstance() {
     def jobInstance = new JobInstance("job")
-    jobInstance.setId(1);
+    jobInstance.setId(1)
     jobInstance.setState(JobState.Assigned)
     jobInstance.setResult(JobResult.Unknown)
     jobInstance.setAgentUuid("uuid")

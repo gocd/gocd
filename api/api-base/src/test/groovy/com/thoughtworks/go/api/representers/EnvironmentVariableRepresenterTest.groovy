@@ -118,15 +118,15 @@ class EnvironmentVariableRepresenterTest {
     def secureVariable = environmentVariableConfig.get(0)
     def plainVariable = environmentVariableConfig.get(1)
 
-    assertThat(secureVariable.secure, is(true))
-    assertThat(secureVariable.name, is("secured"))
-    assertThat(secureVariable.value, is("confidential"))
-    assertThat(secureVariable.errors().isEmpty(), is(true))
+    assertThat(secureVariable.secure).isEqualTo(true)
+    assertThat(secureVariable.name).isEqualTo("secured")
+    assertThat(secureVariable.value).isEqualTo("confidential")
+    assertThat(secureVariable.errors().isEmpty()).isEqualTo(true)
 
-    assertThat(plainVariable.secure, is(false))
-    assertThat(plainVariable.name, is("plain"))
-    assertThat(plainVariable.value, is("plaint text value"))
-    assertThat(plainVariable.errors().isEmpty(), is(true))
+    assertThat(plainVariable.secure).isEqualTo(false)
+    assertThat(plainVariable.name).isEqualTo("plain")
+    assertThat(plainVariable.value).isEqualTo("plaint text value")
+    assertThat(plainVariable.errors().isEmpty()).isEqualTo(true)
   }
 
   @Test

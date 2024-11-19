@@ -25,8 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(ResetCipher.class)
@@ -36,8 +35,8 @@ public class PasswordDeserializerTest {
         SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         passwordDeserializer.deserialize("password", new GoCipher().encrypt("encryptedPassword"), svnMaterialConfig);
-        assertThat(svnMaterialConfig.errors().getAllOn("password"), is(List.of("You may only specify `password` or `encrypted_password`, not both!")));
-        assertThat(svnMaterialConfig.errors().getAllOn("encryptedPassword"), is(List.of("You may only specify `password` or `encrypted_password`, not both!")));
+        assertThat(svnMaterialConfig.errors().getAllOn("password")).isEqualTo(List.of("You may only specify `password` or `encrypted_password`, not both!"));
+        assertThat(svnMaterialConfig.errors().getAllOn("encryptedPassword")).isEqualTo(List.of("You may only specify `password` or `encrypted_password`, not both!"));
     }
 
     @Test
@@ -45,7 +44,7 @@ public class PasswordDeserializerTest {
         SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         passwordDeserializer.deserialize(null, "invalidEncryptedPassword", svnMaterialConfig);
-        assertThat(svnMaterialConfig.errors().getAllOn("encryptedPassword"), is(List.of("Encrypted value for password is invalid. This usually happens when the cipher text is invalid.")));
+        assertThat(svnMaterialConfig.errors().getAllOn("encryptedPassword")).isEqualTo(List.of("Encrypted value for password is invalid. This usually happens when the cipher text is invalid."));
     }
 
     @Test
@@ -53,7 +52,7 @@ public class PasswordDeserializerTest {
         SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         String encrypted = passwordDeserializer.deserialize("password", null, svnMaterialConfig);
-        assertThat(encrypted, is(new GoCipher().encrypt("password")));
+        assertThat(encrypted).isEqualTo(new GoCipher().encrypt("password"));
     }
 
     @Test
@@ -62,7 +61,7 @@ public class PasswordDeserializerTest {
         SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         String encrypted = passwordDeserializer.deserialize(null, encryptedPassword, svnMaterialConfig);
-        assertThat(encrypted, is(encryptedPassword));
+        assertThat(encrypted).isEqualTo(encryptedPassword);
     }
 
     @Test

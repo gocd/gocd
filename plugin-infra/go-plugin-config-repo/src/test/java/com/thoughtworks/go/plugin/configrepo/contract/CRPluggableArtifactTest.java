@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -65,9 +64,9 @@ public class CRPluggableArtifactTest extends AbstractCRTest<CRPluggableArtifact>
 
         CRPluggableArtifact crPluggableArtifact = gson.fromJson(json, CRPluggableArtifact.class);
 
-        assertThat(crPluggableArtifact.getId(), is("id"));
-        assertThat(crPluggableArtifact.getStoreId(), is("s3"));
-        assertThat(crPluggableArtifact.getType(), is(CRArtifactType.external));
+        assertThat(crPluggableArtifact.getId()).isEqualTo("id");
+        assertThat(crPluggableArtifact.getStoreId()).isEqualTo("s3");
+        assertThat(crPluggableArtifact.getType()).isEqualTo(CRArtifactType.external);
         assertNull(crPluggableArtifact.getConfiguration());
     }
 
@@ -82,8 +81,8 @@ public class CRPluggableArtifactTest extends AbstractCRTest<CRPluggableArtifact>
 
         CRPluggableArtifact crPluggableArtifact = gson.fromJson(json, CRPluggableArtifact.class);
 
-        assertThat(crPluggableArtifact.getId(), is("id"));
-        assertThat(crPluggableArtifact.getStoreId(), is("s3"));
+        assertThat(crPluggableArtifact.getId()).isEqualTo("id");
+        assertThat(crPluggableArtifact.getStoreId()).isEqualTo("s3");
         assertNull(crPluggableArtifact.getType());
         assertNull(crPluggableArtifact.getConfiguration());
 
@@ -101,8 +100,8 @@ public class CRPluggableArtifactTest extends AbstractCRTest<CRPluggableArtifact>
 
         CRPluggableArtifact crPluggableArtifact = gson.fromJson(json, CRPluggableArtifact.class);
 
-        assertThat(crPluggableArtifact.getId(), is("id"));
-        assertThat(crPluggableArtifact.getStoreId(), is("s3"));
-        assertThat(crPluggableArtifact.getConfiguration(), is(List.of(new CRConfigurationProperty("image", "gocd-agent"))));
+        assertThat(crPluggableArtifact.getId()).isEqualTo("id");
+        assertThat(crPluggableArtifact.getStoreId()).isEqualTo("s3");
+        assertThat(crPluggableArtifact.getConfiguration()).isEqualTo(List.of(new CRConfigurationProperty("image", "gocd-agent")));
     }
 }

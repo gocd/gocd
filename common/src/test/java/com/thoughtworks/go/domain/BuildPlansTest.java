@@ -20,8 +20,7 @@ import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.JobConfigs;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BuildPlansTest {
@@ -30,7 +29,7 @@ public class BuildPlansTest {
     public void shouldFindBuildPlanByName() {
         JobConfigs jobConfigs = new JobConfigs();
         jobConfigs.add(jobConfig("Test"));
-        assertThat(jobConfigs.containsName(new CaseInsensitiveString("Poo")), is(false));
+        assertThat(jobConfigs.containsName(new CaseInsensitiveString("Poo"))).isFalse();
     }
 
     @Test

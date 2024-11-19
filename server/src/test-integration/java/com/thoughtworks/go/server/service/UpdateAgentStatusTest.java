@@ -39,9 +39,7 @@ import java.nio.file.Path;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -85,7 +83,7 @@ public class UpdateAgentStatusTest {
     @Test
     public void shouldUpdateAgentIPAddressWhenItChanges_asAgent() {
         String oldIp = agentService.getAgentByUUID("uuid").getIpaddress();
-        assertThat(oldIp, is("10.81.2.1"));
+        assertThat(oldIp).isEqualTo("10.81.2.1");
 
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
         AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
@@ -94,7 +92,7 @@ public class UpdateAgentStatusTest {
         agentService.updateRuntimeInfo(agentRuntimeInfo1);
 
         String newIp = agentService.getAgentByUUID("uuid").getIpaddress();
-        assertThat(newIp, is("10.18.3.95"));
+        assertThat(newIp).isEqualTo("10.18.3.95");
     }
 
     @Test
@@ -106,7 +104,7 @@ public class UpdateAgentStatusTest {
 
         agentService.updateRuntimeInfo(agentRuntimeInfo1);
 
-        assertThat(agentService.findAgentAndRefreshStatus("uuid").getLocation(), is("/myDirectory"));
+        assertThat(agentService.findAgentAndRefreshStatus("uuid").getLocation()).isEqualTo("/myDirectory");
     }
 
 
@@ -119,8 +117,7 @@ public class UpdateAgentStatusTest {
 
         try (LogFixture logging = logFixtureFor(AgentService.class, Level.DEBUG)) {
             agentService.updateRuntimeInfo(agentRuntimeInfo1);
-            assertThat(logging.getLog(),
-                    containsString("Agent with UUID [uuid] changed IP Address from [10.81.2.1] to [10.18.3.95]"));
+            assertThat(logging.getLog()).contains("Agent with UUID [uuid] changed IP Address from [10.81.2.1] to [10.18.3.95]");
         }
     }
 }

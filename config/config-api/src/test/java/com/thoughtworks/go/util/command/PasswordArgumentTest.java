@@ -17,31 +17,30 @@ package com.thoughtworks.go.util.command;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PasswordArgumentTest {
     private final CommandArgument argument = new PasswordArgument("secret");
 
     @Test
     public void shouldReturnStringValueForCommandLine() {
-        assertThat(argument.originalArgument(), is("secret"));
+        assertThat(argument.originalArgument()).isEqualTo("secret");
     }
 
     @Test
     public void shouldReturnStringValueForReporting() {
-        assertThat(argument.forDisplay(), is("******"));
+        assertThat(argument.forDisplay()).isEqualTo("******");
     }
 
     @Test
     public void shouldReturnValueForToString() {
-        assertThat(argument.toString(), is("******"));
+        assertThat(argument.toString()).isEqualTo("******");
     }
 
     @Test
     public void shouldReturnSampNumberOfStarsForAnyPassword() {
-        assertThat(new PasswordArgument("foo").toString(), is("******"));
-        assertThat(new PasswordArgument("very very long password").toString(), is("******"));
+        assertThat(new PasswordArgument("foo").toString()).isEqualTo("******");
+        assertThat(new PasswordArgument("very very long password").toString()).isEqualTo("******");
     }
 
 }

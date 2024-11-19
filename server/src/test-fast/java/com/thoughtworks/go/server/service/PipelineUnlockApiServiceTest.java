@@ -26,8 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PipelineUnlockApiServiceTest {
@@ -60,8 +59,8 @@ public class PipelineUnlockApiServiceTest {
 
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
 
-        assertThat(result.httpCode(), is(200));
-        assertThat(result.message(), is("Pipeline lock released for pipeline-name"));
+        assertThat(result.httpCode()).isEqualTo(200);
+        assertThat(result.message()).isEqualTo("Pipeline lock released for pipeline-name");
         verify(pipelineLockService).unlock("pipeline-name");
     }
 
@@ -73,8 +72,8 @@ public class PipelineUnlockApiServiceTest {
 
         pipelineUnlockApiService.unlock("does-not-exist", new Username(new CaseInsensitiveString("username")), result);
 
-        assertThat(result.httpCode(), is(404));
-        assertThat(result.message(), is("pipeline name does-not-exist is incorrect"));
+        assertThat(result.httpCode()).isEqualTo(404);
+        assertThat(result.message()).isEqualTo("pipeline name does-not-exist is incorrect");
         verify(goConfigService).hasPipelineNamed(new CaseInsensitiveString("does-not-exist"));
         verify(pipelineLockService, never()).unlock("does-not-exist");
     }
@@ -88,8 +87,8 @@ public class PipelineUnlockApiServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
 
-        assertThat(result.httpCode(), is(409));
-        assertThat(result.message(), is("No lock exists within the pipeline configuration for pipeline-name"));
+        assertThat(result.httpCode()).isEqualTo(409);
+        assertThat(result.message()).isEqualTo("No lock exists within the pipeline configuration for pipeline-name");
         verify(pipelineLockService, never()).unlock(Mockito.any(String.class));
     }
 
@@ -103,8 +102,8 @@ public class PipelineUnlockApiServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
 
-        assertThat(result.httpCode(), is(409));
-        assertThat(result.message(), is("Lock exists within the pipeline configuration but no pipeline instance is currently in progress"));
+        assertThat(result.httpCode()).isEqualTo(409);
+        assertThat(result.message()).isEqualTo("Lock exists within the pipeline configuration but no pipeline instance is currently in progress");
     }
 
     @Test
@@ -119,8 +118,8 @@ public class PipelineUnlockApiServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
 
-        assertThat(result.httpCode(), is(409));
-        assertThat(result.message(), is("Locked pipeline instance is currently running (one of the stages is in progress)"));
+        assertThat(result.httpCode()).isEqualTo(409);
+        assertThat(result.message()).isEqualTo("Locked pipeline instance is currently running (one of the stages is in progress)");
     }
 
     @Test
@@ -136,8 +135,8 @@ public class PipelineUnlockApiServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock(pipelineName, new Username(new CaseInsensitiveString("username")), result);
 
-        assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), is("user does not have operate permission on the pipeline"));
+        assertThat(result.httpCode()).isEqualTo(403);
+        assertThat(result.message()).isEqualTo("user does not have operate permission on the pipeline");
     }
 
     @Test
@@ -146,7 +145,7 @@ public class PipelineUnlockApiServiceTest {
         when(pipelineLockService.lockedPipeline("pipeline-name")).thenReturn(new StageIdentifier("pipeline-name", 10, "10", "stage", "2"));
         when(stageService.isAnyStageActiveForPipeline(new PipelineIdentifier("pipeline-name", 10, "10"))).thenReturn(false);
 
-        assertThat(pipelineUnlockApiService.isUnlockable("pipeline-name"), is(true));
+        assertThat(pipelineUnlockApiService.isUnlockable("pipeline-name")).isTrue();
 
         verify(pipelineLockService, times(0)).unlock("pipeline-name");
     }

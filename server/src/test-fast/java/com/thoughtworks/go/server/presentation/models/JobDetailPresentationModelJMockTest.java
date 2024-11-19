@@ -26,8 +26,7 @@ import com.thoughtworks.go.server.service.ArtifactsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,6 +56,6 @@ public class JobDetailPresentationModelJMockTest {
     @Test
     public void shouldReturnBuildMessageFromPipeline() throws Exception {
         String message = jobDetailPresenter.getBuildCauseMessage();
-        assertThat(message, is("Unknown"));
+        assertThat(message).isEqualTo("Unknown");
     }
 }

@@ -21,8 +21,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class PluginSettingsJsonMessageHandlerTestBase {
@@ -56,37 +55,37 @@ public abstract class PluginSettingsJsonMessageHandlerTestBase {
 
         String view = messageHandler.responseMessageForPluginSettingsView(jsonResponse);
 
-        assertThat(view, is("<html>junk</html>"));
+        assertThat(view).isEqualTo("<html>junk</html>");
     }
 
     @Test
     public void shouldValidateIncorrectJsonResponseForPluginSettingsConfiguration() {
-        assertThat(errorMessageForPluginSettingsConfiguration(""), is("Unable to de-serialize json response. Empty response body"));
-        assertThat(errorMessageForPluginSettingsConfiguration(null), is("Unable to de-serialize json response. Empty response body"));
-        assertThat(errorMessageForPluginSettingsConfiguration("[{\"key-one\":\"value\"},{\"key-two\":\"value\"}]"), is("Unable to de-serialize json response. Plugin Settings Configuration should be returned as a map"));
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"\":{}}"), is("Unable to de-serialize json response. Plugin Settings Configuration key cannot be empty"));
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":[{}]}"), is("Unable to de-serialize json response. Plugin Settings Configuration properties for key 'key' should be represented as a Map"));
+        assertThat(errorMessageForPluginSettingsConfiguration("")).isEqualTo("Unable to de-serialize json response. Empty response body");
+        assertThat(errorMessageForPluginSettingsConfiguration(null)).isEqualTo("Unable to de-serialize json response. Empty response body");
+        assertThat(errorMessageForPluginSettingsConfiguration("[{\"key-one\":\"value\"},{\"key-two\":\"value\"}]")).isEqualTo("Unable to de-serialize json response. Plugin Settings Configuration should be returned as a map");
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"\":{}}")).isEqualTo("Unable to de-serialize json response. Plugin Settings Configuration key cannot be empty");
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":[{}]}")).isEqualTo("Unable to de-serialize json response. Plugin Settings Configuration properties for key 'key' should be represented as a Map");
 
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"secure\":\"true\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"secure\":100}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"secure\":\"\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"secure\":\"true\"}}")).isEqualTo("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean");
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"secure\":100}}")).isEqualTo("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean");
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"secure\":\"\"}}")).isEqualTo("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean");
 
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"required\":\"true\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"required\":100}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"required\":\"\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"required\":\"true\"}}")).isEqualTo("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean");
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"required\":100}}")).isEqualTo("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean");
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"required\":\"\"}}")).isEqualTo("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean");
 
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"display-name\":true}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string"));
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"display-name\":100}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string"));
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"display-name\":true}}")).isEqualTo("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string");
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"display-name\":100}}")).isEqualTo("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string");
 
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"display-order\":true}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"display-order\":10.0}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
-        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"display-order\":\"\"}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"display-order\":true}}")).isEqualTo("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer");
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"display-order\":10.0}}")).isEqualTo("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer");
+        assertThat(errorMessageForPluginSettingsConfiguration("{\"key\":{\"display-order\":\"\"}}")).isEqualTo("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer");
     }
 
     @Test
     public void shouldValidateIncorrectJsonResponseForPluginSettingsView() {
-        assertThat(errorMessageForPluginSettingsView("{\"template\":null}"), is("Unable to de-serialize json response. Error: Plugin Settings View's 'template' is a required field."));
-        assertThat(errorMessageForPluginSettingsView("{\"template\":true}"), is("Unable to de-serialize json response. Error: Plugin Settings View's 'template' should be of type string."));
+        assertThat(errorMessageForPluginSettingsView("{\"template\":null}")).isEqualTo("Unable to de-serialize json response. Error: Plugin Settings View's 'template' is a required field.");
+        assertThat(errorMessageForPluginSettingsView("{\"template\":true}")).isEqualTo("Unable to de-serialize json response. Error: Plugin Settings View's 'template' should be of type string.");
     }
 
     @Test
@@ -97,7 +96,7 @@ public abstract class PluginSettingsJsonMessageHandlerTestBase {
 
         String requestMessage = messageHandler.requestMessageForPluginSettingsValidation(configuration);
 
-        assertThat(requestMessage, is("{\"plugin-settings\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}"));
+        assertThat(requestMessage).isEqualTo("{\"plugin-settings\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}");
     }
 
     @Test
@@ -110,12 +109,12 @@ public abstract class PluginSettingsJsonMessageHandlerTestBase {
     }
 
     private void assertPropertyConfiguration(PluginSettingsProperty property, String key, String value, boolean required, boolean secure, String displayName, int displayOrder) {
-        assertThat(property.getKey(), is(key));
-        assertThat(property.getValue(), is(value));
-        assertThat(property.getOption(Property.REQUIRED), is(required));
-        assertThat(property.getOption(Property.SECURE), is(secure));
-        assertThat(property.getOption(Property.DISPLAY_NAME), is(displayName));
-        assertThat(property.getOption(Property.DISPLAY_ORDER), is(displayOrder));
+        assertThat(property.getKey()).isEqualTo(key);
+        assertThat(property.getValue()).isEqualTo(value);
+        assertThat(property.getOption(Property.REQUIRED)).isEqualTo(required);
+        assertThat(property.getOption(Property.SECURE)).isEqualTo(secure);
+        assertThat(property.getOption(Property.DISPLAY_NAME)).isEqualTo(displayName);
+        assertThat(property.getOption(Property.DISPLAY_ORDER)).isEqualTo(displayOrder);
     }
 
     private String errorMessageForPluginSettingsConfiguration(String message) {
@@ -139,7 +138,7 @@ public abstract class PluginSettingsJsonMessageHandlerTestBase {
     }
 
     private void assertValidationError(ValidationError validationError, String expectedKey, String expectedMessage) {
-        assertThat(validationError.getKey(), is(expectedKey));
-        assertThat(validationError.getMessage(), is(expectedMessage));
+        assertThat(validationError.getKey()).isEqualTo(expectedKey);
+        assertThat(validationError.getMessage()).isEqualTo(expectedMessage);
     }
 }

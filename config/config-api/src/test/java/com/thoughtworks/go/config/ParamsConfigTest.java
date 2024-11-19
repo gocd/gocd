@@ -63,7 +63,7 @@ public class ParamsConfigTest {
         paramsConfig.add(two);
 
         assertThat(paramsConfig.getIndex("other")).isEqualTo((1));
-        assertThat(paramsConfig.getIndex("name")).isEqualTo((0));
+        assertThat(paramsConfig.getIndex("name")).isEqualTo(0);
     }
 
     @Test

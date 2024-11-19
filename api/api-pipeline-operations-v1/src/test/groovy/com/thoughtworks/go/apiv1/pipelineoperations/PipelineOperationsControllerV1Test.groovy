@@ -404,7 +404,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
       @Test
       void 'should schedule a pipeline with provided options'() {
         def pipelineScheduleOptions = new PipelineScheduleOptions()
-        pipelineScheduleOptions.shouldPerformMDUBeforeScheduling(true);
+        pipelineScheduleOptions.shouldPerformMDUBeforeScheduling(true)
         def goCipher = new GoCipher()
         pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(goCipher, "VAR1", "overridden_value", false))
         pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(goCipher, "SEC_VAR1", "overridden_secure_value", true))
@@ -428,7 +428,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
       @Test
       void 'should schedule a pipeline with encrypted variable'() {
         def pipelineScheduleOptions = new PipelineScheduleOptions()
-        pipelineScheduleOptions.shouldPerformMDUBeforeScheduling(false);
+        pipelineScheduleOptions.shouldPerformMDUBeforeScheduling(false)
         pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(new GoCipher(), "SEC_VAR1", new GoCipher().encrypt("ENCRYPTED")))
 
         doAnswer({ InvocationOnMock invocation ->
@@ -488,7 +488,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
       scheduleOptionsJson.put("update_materials_before_scheduling", scheduleOptions.shouldPerformMDUBeforeScheduling())
       scheduleOptionsJson.put("materials", materials)
       scheduleOptionsJson.put("environment_variables", environmentVariables)
-      return scheduleOptionsJson;
+      return scheduleOptionsJson
     }
 
   }

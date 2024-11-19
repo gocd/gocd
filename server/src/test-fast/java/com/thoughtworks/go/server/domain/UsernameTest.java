@@ -18,8 +18,7 @@ package com.thoughtworks.go.server.domain;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,22 +27,22 @@ public class UsernameTest {
     @Test
     public void shouldReturnDisplayName() {
         Username username2 = new Username(new CaseInsensitiveString("dyang"), "Derek Yang");
-        assertThat("dyang should be Username.", username2.getUsername(), is(new CaseInsensitiveString("dyang")));
-        assertThat("Derek Yang should be display name.", username2.getDisplayName(), is("Derek Yang"));
+        assertThat(username2.getUsername()).isEqualTo(new CaseInsensitiveString("dyang"));
+        assertThat(username2.getDisplayName()).isEqualTo("Derek Yang");
     }
 
     @Test
     public void shouldReturnUsernameAsDisplayNameIfDisplayNameIsNotSet() {
         Username username1 = new Username(new CaseInsensitiveString("dyang"));
-        assertThat("dyang should be Username.", username1.getUsername(), is(new CaseInsensitiveString("dyang")));
-        assertThat("dyang should be display name.", username1.getDisplayName(), is("dyang"));
+        assertThat(username1.getUsername()).isEqualTo(new CaseInsensitiveString("dyang"));
+        assertThat(username1.getDisplayName()).isEqualTo("dyang");
     }
 
     @Test
     public void shouldAllowBuildingUsernameFromString() {
         Username one = new Username(new CaseInsensitiveString("myusername"));
         Username two = Username.valueOf("myusername");
-        assertThat(one, is(two));
+        assertThat(one).isEqualTo(two);
     }
 
     @Test

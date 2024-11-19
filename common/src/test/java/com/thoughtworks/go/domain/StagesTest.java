@@ -16,15 +16,12 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.helper.StageMother;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class StagesTest {
@@ -33,7 +30,7 @@ public class StagesTest {
     public void shouldFindStageById() throws Exception {
         Stage expected = new Stage();
         expected.setId(1);
-        assertThat(new Stages(expected).byId(1), is(expected));
+        assertThat(new Stages(expected).byId(1)).isEqualTo(expected);
     }
 
     @Test
@@ -44,7 +41,7 @@ public class StagesTest {
     @Test
     public void shouldReturnFalseWhenNoStageExist() throws Exception {
         Stages stages = new Stages();
-        assertThat(stages.isAnyStageActive(), is(false));
+        assertThat(stages.isAnyStageActive()).isFalse();
     }
 
     @Test
@@ -52,7 +49,7 @@ public class StagesTest {
         Stage notActiveFt = StageMother.completedFailedStageInstance("pipeline-name", "dev", "ft");
         Stage activeStage = StageMother.scheduledStage("pipeline-name", 1, "dev", 1, "ut");
         Stages stages = new Stages(notActiveFt, activeStage);
-        assertThat(stages.isAnyStageActive(), is(true));
+        assertThat(stages.isAnyStageActive()).isTrue();
     }
 
     @Test
@@ -60,7 +57,7 @@ public class StagesTest {
         Stage notActiveUt = StageMother.completedFailedStageInstance("pipeline-name", "dev", "ut");
         Stage notActiveFt = StageMother.completedFailedStageInstance("pipeline-name", "dev", "ft");
         Stages stages = new Stages(notActiveUt, notActiveFt);
-        assertThat(stages.isAnyStageActive(), is(false));
+        assertThat(stages.isAnyStageActive()).isFalse();
     }
 
     @Test
@@ -69,23 +66,23 @@ public class StagesTest {
         Stage run2 = StageMother.createPassedStage("pipeline", 1, "stage", 2, "job", new Date());
         Stage run3 = StageMother.createPassedStage("pipeline", 1, "stage", 3, "job", new Date());
         Stages stages = new Stages(run1, run2, run3);
-        assertThat(stages.byCounter(2), is(run2));
+        assertThat(stages.byCounter(2)).isEqualTo(run2);
         try {
-            assertThat(stages.byCounter(4), is(run2));
+            assertThat(stages.byCounter(4)).isEqualTo(run2);
             fail("Should throw exception if the stage does not exist");
         }
         catch (Exception e) {
-            assertThat(e.getMessage(), containsString(run1.toString()));
-            assertThat(e.getMessage(), containsString(run2.toString()));
-            assertThat(e.getMessage(), containsString(run3.toString()));
+            assertThat(e.getMessage()).contains(run1.toString());
+            assertThat(e.getMessage()).contains(run2.toString());
+            assertThat(e.getMessage()).contains(run3.toString());
         }
     }
 
     @Test
     public void shouldFindStageWhenStageNameIsOfDifferentCase() throws Exception {
         Stages stages = new Stages(StageMother.custom("stageName"));
-        assertThat(stages.hasStage("Stagename"), Matchers.is(true));
-        assertThat(stages.hasStage("stageName"), Matchers.is(true));
+        assertThat(stages.hasStage("Stagename")).isEqualTo((true));
+        assertThat(stages.hasStage("stageName")).isEqualTo((true));
     }
 
     @Test
@@ -100,6 +97,6 @@ public class StagesTest {
 
         Stages stages = new Stages(s2_1, s1_2, s1_1);
         Stages latestStagesInRunOrder = stages.latestStagesInRunOrder();
-        assertThat(latestStagesInRunOrder, is(new Stages(s1_2,s2_1)));
+        assertThat(latestStagesInRunOrder).isEqualTo(new Stages(s1_2,s2_1));
     }
 }

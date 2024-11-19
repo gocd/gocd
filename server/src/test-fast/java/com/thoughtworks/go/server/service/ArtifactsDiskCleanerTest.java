@@ -35,8 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ArtifactsDiskCleanerTest {
@@ -73,11 +72,11 @@ public class ArtifactsDiskCleanerTest {
     @Test
     public void shouldTriggerOnConfiguredPurgeStartLimit() {
         serverConfig.setPurgeLimits(null, null);
-        assertThat(artifactsDiskCleaner.limitInMb(), is(Long.valueOf(Integer.MAX_VALUE)));
+        assertThat(artifactsDiskCleaner.limitInMb()).isEqualTo(Long.valueOf(Integer.MAX_VALUE));
         serverConfig.setPurgeLimits(20.0, 30.0);
-        assertThat(artifactsDiskCleaner.limitInMb(), is(20 * GoConstants.MEGABYTES_IN_GIGABYTE));
+        assertThat(artifactsDiskCleaner.limitInMb()).isEqualTo(20 * GoConstants.MEGABYTES_IN_GIGABYTE);
         serverConfig.setPurgeLimits(15.0, 30.0);
-        assertThat(artifactsDiskCleaner.limitInMb(), is(15 * GoConstants.MEGABYTES_IN_GIGABYTE));
+        assertThat(artifactsDiskCleaner.limitInMb()).isEqualTo(15 * GoConstants.MEGABYTES_IN_GIGABYTE);
     }
 
     @Test
@@ -101,8 +100,8 @@ public class ArtifactsDiskCleanerTest {
         }
         artifactsDiskCleaner.createFailure(new HttpOperationResult(), 10, 100);
         sem.acquire();
-        assertThat(artifactsDeletionTriggered[0], is(true));
-        assertThat(artifactDeleterThread[0], not(sameInstance(Thread.currentThread())));
+        assertThat(artifactsDeletionTriggered[0]).isTrue();
+        assertThat(artifactDeleterThread[0]).isNotSameAs(Thread.currentThread());
     }
 
     @Test
@@ -178,6 +177,6 @@ public class ArtifactsDiskCleanerTest {
     public void shouldUseA_NonServerHealthAware_result() {
         serverHealthService = mock(ServerHealthService.class);
         OperationResult operationResult = artifactsDiskCleaner.resultFor(new DiskSpaceOperationResult(serverHealthService));
-        assertThat(operationResult, is(instanceOf(ServerHealthStateOperationResult.class)));
+        assertThat(operationResult).isInstanceOf(ServerHealthStateOperationResult.class);
     }
 }

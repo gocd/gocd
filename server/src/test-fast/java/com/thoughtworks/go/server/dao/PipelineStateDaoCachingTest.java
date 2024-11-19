@@ -43,9 +43,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.domain.PipelineState.NOT_LOCKED;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.*;
@@ -91,7 +89,7 @@ public class PipelineStateDaoCachingTest {
 
         PipelineState pipelineState = pipelineStateDao.pipelineStateFor(pipelineName);
 
-        assertThat(goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName)), is(pipelineState));
+        assertThat((Object) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName))).isEqualTo(pipelineState);
         PipelineState secondAttempt = pipelineStateDao.pipelineStateFor(pipelineName);
 
         assertSame(pipelineState, secondAttempt);
@@ -105,7 +103,7 @@ public class PipelineStateDaoCachingTest {
         PipelineState actual = pipelineStateDao.pipelineStateFor(pipelineName);
 
         assertNull(actual);
-        assertThat(goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName)), is(NOT_LOCKED));
+        assertThat((Object) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName))).isEqualTo(NOT_LOCKED);
 
         verify(transactionTemplate, times(1)).execute(any(org.springframework.transaction.support.TransactionCallback.class));
     }
@@ -126,13 +124,13 @@ public class PipelineStateDaoCachingTest {
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName()), pipelineState);
         pipelineStateDao.lockPipeline(pipeline);
 
-        assertThat(goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName())), is(nullValue()));
+        assertThat((Object) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName()))).isNull();
 
         ArgumentCaptor<PipelineState> pipelineStateArgumentCaptor = ArgumentCaptor.forClass(PipelineState.class);
         verify(session).saveOrUpdate(pipelineStateArgumentCaptor.capture());
         PipelineState savedPipelineState = pipelineStateArgumentCaptor.getValue();
-        assertThat(savedPipelineState.isLocked(), is(true));
-        assertThat(savedPipelineState.getLockedByPipelineId(), is(pipeline.getId()));
+        assertThat(savedPipelineState.isLocked()).isTrue();
+        assertThat(savedPipelineState.getLockedByPipelineId()).isEqualTo(pipeline.getId());
     }
 
     @Test
@@ -159,13 +157,13 @@ public class PipelineStateDaoCachingTest {
         when(session.load(PipelineState.class, pipeline.getId())).thenReturn(pipelineState);
         pipelineStateDao.unlockPipeline(pipeline.getName());
 
-        assertThat(goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName())), is(nullValue()));
+        assertThat((Object) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName()))).isNull();
 
         ArgumentCaptor<PipelineState> pipelineStateArgumentCaptor = ArgumentCaptor.forClass(PipelineState.class);
         verify(session).saveOrUpdate(pipelineStateArgumentCaptor.capture());
         PipelineState savedPipelineState = pipelineStateArgumentCaptor.getValue();
-        assertThat(savedPipelineState.isLocked(), is(false));
-        assertThat(savedPipelineState.getLockedBy(), is(nullValue()));
+        assertThat(savedPipelineState.isLocked()).isFalse();
+        assertThat(savedPipelineState.getLockedBy()).isNull();
     }
 
     private void setupTransactionTemplate(List<TransactionSynchronizationAdapter> transactionSynchronizationAdapters) {

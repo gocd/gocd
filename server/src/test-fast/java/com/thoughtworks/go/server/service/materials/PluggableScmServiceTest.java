@@ -41,9 +41,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -93,7 +92,7 @@ public class PluggableScmServiceTest {
         pluggableScmService.validate(modifiedSCM);
 
         assertFalse(modifiedSCM.getConfiguration().getProperty("KEY1").errors().isEmpty());
-        assertThat(modifiedSCM.getConfiguration().getProperty("KEY1").errors().firstError(), is("error message"));
+        assertThat(modifiedSCM.getConfiguration().getProperty("KEY1").errors().firstError()).isEqualTo("error message");
         verify(scmExtension).isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class));
     }
 
@@ -124,7 +123,7 @@ public class PluggableScmServiceTest {
         assertFalse(validationErrors.isEmpty());
         final ValidationError validationError = getValidationErrorFor(validationErrors, "KEY1");
         assertNotNull(validationError);
-        assertThat(validationError.getMessage(), is("This field is required"));
+        assertThat(validationError.getMessage()).isEqualTo("This field is required");
     }
 
     @Test
@@ -143,10 +142,10 @@ public class PluggableScmServiceTest {
         assertFalse(validationErrors.isEmpty());
         final ValidationError validationErrorForKey1 = getValidationErrorFor(validationErrors, "KEY1");
         assertNotNull(validationErrorForKey1);
-        assertThat(validationErrorForKey1.getMessage(), is("This field is required"));
+        assertThat(validationErrorForKey1.getMessage()).isEqualTo("This field is required");
         final ValidationError validationErrorForKey2 = getValidationErrorFor(validationErrors, "KEY2");
         assertNotNull(validationErrorForKey2);
-        assertThat(validationErrorForKey2.getMessage(), is("This field is required"));
+        assertThat(validationErrorForKey2.getMessage()).isEqualTo("This field is required");
     }
 
     @Test
@@ -174,7 +173,7 @@ public class PluggableScmServiceTest {
         HttpLocalizedOperationResult result = pluggableScmService.checkConnection(modifiedSCM);
 
         assertTrue(result.isSuccessful());
-        assertThat(result.message(), is("Connection OK. message"));
+        assertThat(result.message()).isEqualTo("Connection OK. message");
     }
 
     @Test
@@ -188,8 +187,8 @@ public class PluggableScmServiceTest {
 
         HttpLocalizedOperationResult result = pluggableScmService.checkConnection(modifiedSCM);
 
-        assertThat(result.httpCode(), is(422));
-        assertThat(result.message(), is("Check connection failed. Reason(s): connection failed"));
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(result.message()).isEqualTo("Check connection failed. Reason(s): connection failed");
     }
 
     @Test
@@ -200,7 +199,7 @@ public class PluggableScmServiceTest {
 
         SCMs scms = pluggableScmService.listAllScms();
 
-        assertThat(scms, is(list));
+        assertThat(scms).isEqualTo(list);
     }
 
     @Test
@@ -212,7 +211,7 @@ public class PluggableScmServiceTest {
         list.add(scm);
         when(goConfigService.getSCMs()).thenReturn(list);
 
-        assertThat(pluggableScmService.findPluggableScmMaterial("foo"), is(scm));
+        assertThat(pluggableScmService.findPluggableScmMaterial("foo")).isEqualTo(scm);
     }
 
     @Test
@@ -230,7 +229,7 @@ public class PluggableScmServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         pluggableScmService.deletePluggableSCM(new Username("admin"), scm, result);
 
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -264,8 +263,8 @@ public class PluggableScmServiceTest {
         when(scmExtension.isSCMConfigurationValid(any(String.class), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
 
         assertFalse(pluggableScmService.isValid(scmConfig));
-        assertThat(configuration.getProperty("url").errors().get("url").get(0), is("invalid"));
-        assertThat(configuration.getProperty("username").errors().get("username").get(0), is("invalid"));
+        assertThat(configuration.getProperty("url").errors().get("url").get(0)).isEqualTo("invalid");
+        assertThat(configuration.getProperty("username").errors().get("username").get(0)).isEqualTo("invalid");
     }
 
     @Test
@@ -306,10 +305,10 @@ public class PluggableScmServiceTest {
 
         verify(secretParamResolver).resolve(modifiedSCM);
         assertFalse(modifiedSCM.getConfiguration().getProperty("KEY1").errors().isEmpty());
-        assertThat(modifiedSCM.getConfiguration().getProperty("KEY1").errors().firstError(), is("error message"));
+        assertThat(modifiedSCM.getConfiguration().getProperty("KEY1").errors().firstError()).isEqualTo("error message");
         ArgumentCaptor<SCMPropertyConfiguration> captor = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
         verify(scmExtension).isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), captor.capture());
-        assertThat(captor.getValue().list().get(0).getValue(), is("resolved-value"));
+        assertThat(captor.getValue().list().get(0).getValue()).isEqualTo("resolved-value");
     }
 
     @Test
@@ -334,7 +333,7 @@ public class PluggableScmServiceTest {
 
         ArgumentCaptor<SCMPropertyConfiguration> captor = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
         verify(scmExtension).isSCMConfigurationValid(anyString(), captor.capture());
-        assertThat(captor.getValue().list().get(1).getValue(), is("resolved-value"));
+        assertThat(captor.getValue().list().get(1).getValue()).isEqualTo("resolved-value");
     }
 
     @Test
@@ -354,8 +353,8 @@ public class PluggableScmServiceTest {
         HttpLocalizedOperationResult result = pluggableScmService.checkConnection(modifiedSCM);
 
         assertTrue(result.isSuccessful());
-        assertThat(result.message(), is("Connection OK. message"));
-        assertThat(captor.getValue().list().get(0).getValue(), is("resolved-value"));
+        assertThat(result.message()).isEqualTo("Connection OK. message");
+        assertThat(captor.getValue().list().get(0).getValue()).isEqualTo("resolved-value");
     }
 
     private ValidationError getValidationErrorFor(List<ValidationError> validationErrors, final String key) {

@@ -21,8 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackingToolTest {
     private MagicalGoConfigXmlLoader loader;
@@ -41,8 +40,8 @@ public class TrackingToolTest {
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         TrackingTool trackingTool = pipelineConfig.trackingTool();
 
-        assertThat(trackingTool.getLink(), is("http://mingle05/projects/cce/cards/${ID}"));
-        assertThat(trackingTool.getRegex(), is("(evo-\\d+)"));
+        assertThat(trackingTool.getLink()).isEqualTo("http://mingle05/projects/cce/cards/${ID}");
+        assertThat(trackingTool.getRegex()).isEqualTo("(evo-\\d+)");
     }
 
     @Test
@@ -50,7 +49,7 @@ public class TrackingToolTest {
         CruiseConfig cruiseConfig = loader.loadConfigHolder(CONFIG_WITH_TRACKINGTOOL).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
 
-        assertThat(writer.toXmlPartial(pipelineConfig), is(PIPELINE_WITH_TRACKINGTOOL));
+        assertThat(writer.toXmlPartial(pipelineConfig)).isEqualTo(PIPELINE_WITH_TRACKINGTOOL);
     }
 
     @Test
@@ -59,8 +58,8 @@ public class TrackingToolTest {
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         TrackingTool trackingTool = pipelineConfig.trackingTool();
 
-        assertThat(trackingTool, is(not(nullValue())));
-        assertThat(trackingTool.getLink(), is(""));
-        assertThat(trackingTool.getRegex(), is(""));
+        assertThat(trackingTool).isNotNull();
+        assertThat(trackingTool.getLink()).isEqualTo("");
+        assertThat(trackingTool.getRegex()).isEqualTo("");
     }
 }

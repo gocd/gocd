@@ -20,9 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NodeLevelMapTest {
 
@@ -49,9 +47,9 @@ public class NodeLevelMapTest {
         nodeLevelMap.add(current);
 
         List<List<Node>> nodeLevels = nodeLevelMap.nodesAtEachLevel();
-        assertThat(nodeLevels.size(), is(3));
-        assertThat(nodeLevels.get(0), contains(svn));
-        assertThat(nodeLevels.get(1), contains(current));
-        assertThat(nodeLevels.get(2), contains(p1, p2));
+        assertThat(nodeLevels.size()).isEqualTo(3);
+        assertThat(nodeLevels.get(0)).contains(svn);
+        assertThat(nodeLevels.get(1)).contains(current);
+        assertThat(nodeLevels.get(2)).contains(p1, p2);
     }
 }

@@ -28,8 +28,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -68,7 +67,7 @@ public abstract class ArtifactRequestProcessorTestBase {
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> artifactRequestProcessorForPublish.process(descriptor, request));
 
-        assertThat(exception.getMessage(), containsString("Unsupported 'go.processor.artifact.console-log' API version: 3.0"));
+        assertThat(exception.getMessage()).contains("Unsupported 'go.processor.artifact.console-log' API version: 3.0");
     }
 
     @Test

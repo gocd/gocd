@@ -50,8 +50,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
@@ -152,7 +151,7 @@ public class ChangesetServiceIntegrationTest {
 
 
         assertMaterialRevisions(expectedRevisions, revisions);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     private PipelineRevisionRange pipelineRevRange(Pipeline from, Pipeline to) {
@@ -191,7 +190,7 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", pipelineOne.getCounter(), pipelineThree.getCounter(), loser, result, false);
         assertMaterialRevisions(expectedRevisions, revisions);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -215,7 +214,7 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MaterialRevision> revisions = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfig.name()), pipelineOne.getCounter(), pipelineFour.getCounter(), loser, result, false);
         assertMaterialRevisions(expectedRevisions, revisions);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -234,7 +233,7 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", 0, pipelineOne.getCounter(), loser, result, false);
         assertMaterialRevisions(expectedRevisions, revisions);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -253,7 +252,7 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", pipelineOne.getCounter(), pipelineOne.getCounter(), loser, result, false);
         assertMaterialRevisions(expectedRevisions, revisions);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -265,18 +264,18 @@ public class ChangesetServiceIntegrationTest {
         configHelper.writeConfigFile(config);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         changesetService.revisionsBetween("foo", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, false);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(EntityType.Pipeline.forbiddenToView("foo", "some_loser")));
-        assertThat(result.httpCode(), is(403));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.Pipeline.forbiddenToView("foo", "some_loser"));
+        assertThat(result.httpCode()).isEqualTo(403);
     }
 
     @Test
     public void shouldReturn404WhenPipelineIsNotFound() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         changesetService.revisionsBetween("Pipeline_Not_Found", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, false);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(EntityType.Pipeline.notFoundMessage("Pipeline_Not_Found")));
-        assertThat(result.httpCode(), is(404));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.Pipeline.notFoundMessage("Pipeline_Not_Found"));
+        assertThat(result.httpCode()).isEqualTo(404);
     }
 
     @Test
@@ -310,11 +309,11 @@ public class ChangesetServiceIntegrationTest {
         //when to counter is a bisect
         List<MaterialRevision> revisionList = changesetService.
                 revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
-        assertThat(stringRevisions(revisionList), is(List.of("5", "2", "3", "4")));
+        assertThat(stringRevisions(revisionList)).isEqualTo(List.of("5", "2", "3", "4"));
 
         //When from counter is a bisect
         revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
-        assertThat(stringRevisions(revisionList), is(List.of("6", "5", "2")));
+        assertThat(stringRevisions(revisionList)).isEqualTo(List.of("6", "5", "2"));
     }
 
     @Test
@@ -339,11 +338,11 @@ public class ChangesetServiceIntegrationTest {
         //when to counter is a bisect
         List<MaterialRevision> revisionList = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result,
                 false);
-        assertThat(revisionList.isEmpty(), is(true));
+        assertThat(revisionList.isEmpty()).isTrue();
 
         //When from counter is a bisect
         revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, false);
-        assertThat(revisionList.isEmpty(), is(true));
+        assertThat(revisionList.isEmpty()).isTrue();
     }
 
     @Test
@@ -371,10 +370,10 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MaterialRevision> revisionsBetween = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), lastPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result,
                 false);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(revisionsBetween.size(), is(1));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(revisionsBetween.size()).isEqualTo(1);
         Modifications actualMods = revisionsBetween.get(0).getModifications();
-        assertThat(actualMods.size(), is(5));
+        assertThat(actualMods.size()).isEqualTo(5);
     }
 
     @Test
@@ -428,8 +427,8 @@ public class ChangesetServiceIntegrationTest {
         Pipeline downstream2 = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), downstreamConfig, revisionsForDownstream2);
         List<PipelineMaterialRevision> pmrs = materialRepository.findPipelineMaterialRevisions(downstream2.getId());
 
-        assertThat(pmrs.size(), is(1));
-        assertThat(pmrs.get(0).getActualFromRevisionId(), is(expectedMod.getId()));
+        assertThat(pmrs.size()).isEqualTo(1);
+        assertThat(pmrs.get(0).getActualFromRevisionId()).isEqualTo(expectedMod.getId());
     }
 
     private void saveRev(final Modification expectedMod, final MaterialInstance dep) {
@@ -443,8 +442,8 @@ public class ChangesetServiceIntegrationTest {
 
     private void assertPipelineMaterialRevisions(Pipeline upstreamOne) {
         List<PipelineMaterialRevision> pmrs = materialRepository.findPipelineMaterialRevisions(upstreamOne.getId());
-        assertThat(pmrs.size(), is(1));
-        assertThat(pmrs.get(0).getActualFromRevisionId(), is(pmrs.get(0).getFromModification().getId()));
+        assertThat(pmrs.size()).isEqualTo(1);
+        assertThat(pmrs.get(0).getActualFromRevisionId()).isEqualTo(pmrs.get(0).getFromModification().getId());
     }
 
     @Test
@@ -460,7 +459,7 @@ public class ChangesetServiceIntegrationTest {
                 false);
 
         assertMaterialRevisions(revisions, actual);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -477,7 +476,7 @@ public class ChangesetServiceIntegrationTest {
                 false);
 
         assertMaterialRevisions(revisions, actual);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -502,7 +501,7 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForPipeline2);
 
         assertMaterialRevisions(expectedRevisions, actual);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -531,7 +530,7 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream1, revisionsForPipeline1);
 
         assertMaterialRevisions(expectedRevisions, actual);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -572,7 +571,7 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForGrandfather1, revisionsForUpstream1, revisionsForPipeline1);
 
         assertMaterialRevisions(expectedRevisions, actual);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -616,7 +615,7 @@ public class ChangesetServiceIntegrationTest {
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream1, revisionsForDownstream);
         assertMaterialRevisions(expectedRevisions, actual);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -654,7 +653,7 @@ public class ChangesetServiceIntegrationTest {
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForGrandfather1, revisionsForUpstream1, revisionsForDownstream);
         assertMaterialRevisions(expectedRevisions, actual);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -714,7 +713,7 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream2, revisionsForUpstream3, revisionsForUpstream4, revisionsForUpstream5, revisionsForDownstream2, revisionsForDownstream3);
 
         assertMaterialRevisions(expectedRevisions, actual);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -752,7 +751,7 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream2, up2Rev);//Should not contain the hg revision that has not changed
 
         assertMaterialRevisions(expectedRevisions, actual);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -802,13 +801,13 @@ public class ChangesetServiceIntegrationTest {
 
         assertMaterialRevisions(expectedRevisions, actual);
 
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
 
         actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), downstreamTwo.getCounter(), downstreamTwo.getCounter(), username, result, false);//same to and from
 
         assertMaterialRevisions(expectedRevisions, actual);
 
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -856,7 +855,7 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream2, revisionsForUpstream3, revisionsForUpstream4, revisionsForDownstream2);
 
         assertMaterialRevisions(expectedRevisions, actual);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -869,12 +868,12 @@ public class ChangesetServiceIntegrationTest {
         mod2.setMaterialInstance(new SvnMaterialInstance("url", "user1", "flyweight1", false));
 
         Map<Material, Modifications> map = changesetService.groupModsByMaterial(List.of(mod1, mod2));
-        assertThat(map.size(), is(1));
-        assertThat(map.get(first), is(new Modifications(mod1, mod2)));
+        assertThat(map.size()).isEqualTo(1);
+        assertThat(map.get(first)).isEqualTo(new Modifications(mod1, mod2));
     }
 
     private void assertMaterialRevisions(List<MaterialRevision> expected, List<MaterialRevision> actual) {
-        assertThat(actual.size(), is(expected.size()));
+        assertThat(actual.size()).isEqualTo(expected.size());
         for (MaterialRevision expectedRevision : expected) {
             MaterialRevision actualRevision = revisionFor(expectedRevision.getMaterial().getFingerprint(), actual);
 
@@ -925,9 +924,9 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result;
         result = new HttpLocalizedOperationResult();
         changesetService.revisionsBetween("foo", fromCounter, toCounter, new Username(new CaseInsensitiveString("loser")), result, false);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Pipeline counters should be positive."));
-        assertThat(result.httpCode(), is(400));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo("Pipeline counters should be positive.");
+        assertThat(result.httpCode()).isEqualTo(400);
     }
 
     private List<String> stringRevisions(List<MaterialRevision> revisionList) {

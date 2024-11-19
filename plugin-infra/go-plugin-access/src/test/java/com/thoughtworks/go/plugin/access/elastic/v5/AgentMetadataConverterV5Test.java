@@ -18,8 +18,7 @@ package com.thoughtworks.go.plugin.access.elastic.v5;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AgentMetadataConverterV5Test {
 
@@ -29,10 +28,10 @@ public class AgentMetadataConverterV5Test {
 
         final AgentMetadata agentMetadata = new AgentMetadataConverterV5().fromDTO(agentMetadataDTO);
 
-        assertThat(agentMetadata.elasticAgentId(), is("agent-id"));
-        assertThat(agentMetadata.agentState(), is("Idle"));
-        assertThat(agentMetadata.buildState(), is("Building"));
-        assertThat(agentMetadata.configState(), is("Enabled"));
+        assertThat(agentMetadata.elasticAgentId()).isEqualTo("agent-id");
+        assertThat(agentMetadata.agentState()).isEqualTo("Idle");
+        assertThat(agentMetadata.buildState()).isEqualTo("Building");
+        assertThat(agentMetadata.configState()).isEqualTo("Enabled");
     }
 
     @Test
@@ -41,9 +40,9 @@ public class AgentMetadataConverterV5Test {
 
         final com.thoughtworks.go.plugin.access.elastic.v5.AgentMetadataDTO agentMetadataDTO = new AgentMetadataConverterV5().toDTO(agentMetadata);
 
-        assertThat(agentMetadataDTO.elasticAgentId(), is("agent-id"));
-        assertThat(agentMetadataDTO.agentState(), is("Idle"));
-        assertThat(agentMetadataDTO.buildState(), is("Building"));
-        assertThat(agentMetadataDTO.configState(), is("Enabled"));
+        assertThat(agentMetadataDTO.elasticAgentId()).isEqualTo("agent-id");
+        assertThat(agentMetadataDTO.agentState()).isEqualTo("Idle");
+        assertThat(agentMetadataDTO.buildState()).isEqualTo("Building");
+        assertThat(agentMetadataDTO.configState()).isEqualTo("Enabled");
     }
 }

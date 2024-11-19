@@ -36,9 +36,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -69,7 +67,7 @@ public class ElasticProfileTest {
         ElasticProfile profile = new ElasticProfile();
 
         profile.validate(validationContext);
-        assertThat(profile.errors().on(ElasticProfile.ID), is("Elastic agent profile cannot have a blank id."));
+        assertThat(profile.errors().on(ElasticProfile.ID)).isEqualTo("Elastic agent profile cannot have a blank id.");
     }
 
     @Test
@@ -77,15 +75,15 @@ public class ElasticProfileTest {
         ElasticProfile profile = new ElasticProfile("foo", "non-existing-cluster");
 
         profile.validate(validationContext);
-        assertThat(profile.errors().on(ElasticProfile.CLUSTER_PROFILE_ID), is("No Cluster Profile exists with the specified cluster_profile_id 'non-existing-cluster'."));
+        assertThat(profile.errors().on(ElasticProfile.CLUSTER_PROFILE_ID)).isEqualTo("No Cluster Profile exists with the specified cluster_profile_id 'non-existing-cluster'.");
     }
 
     @Test
     public void shouldValidateElasticPluginIdPattern() throws Exception {
         ElasticProfile profile = new ElasticProfile("!123", "prod-cluster");
         profile.validate(null);
-        assertThat(profile.errors().size(), is(1));
-        assertThat(profile.errors().on(ElasticProfile.ID), is("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(profile.errors().size()).isEqualTo(1);
+        assertThat(profile.errors().on(ElasticProfile.ID)).isEqualTo("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -96,13 +94,13 @@ public class ElasticProfileTest {
 
         profile.validate(validationContext);
 
-        assertThat(profile.errors().size(), is(0));
+        assertThat(profile.errors().size()).isEqualTo(0);
 
-        assertThat(prop1.errors().size(), is(1));
-        assertThat(prop2.errors().size(), is(1));
+        assertThat(prop1.errors().size()).isEqualTo(1);
+        assertThat(prop2.errors().size()).isEqualTo(1);
 
-        assertThat(prop1.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'"));
-        assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'"));
+        assertThat(prop1.errors().on(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'");
+        assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'");
     }
 
     @Test
@@ -112,7 +110,7 @@ public class ElasticProfileTest {
         config.getElasticConfig().setClusterProfiles(new ClusterProfiles(new ClusterProfile("prod-cluster", "cd.go.elastic-agent.docker")));
         profile.validate(new ConfigSaveValidationContext(config));
 
-        assertThat(profile.errors().size(), is(0));
+        assertThat(profile.errors().size()).isEqualTo(0);
     }
 
     @Test
@@ -122,8 +120,8 @@ public class ElasticProfileTest {
         ElasticProfile profile = new ElasticProfile("id", "prod-cluster");
         profile.addConfigurations(List.of(property));
 
-        assertThat(profile.size(), is(1));
-        assertThat(profile, contains(new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name"))));
+        assertThat(profile.size()).isEqualTo(1);
+        assertThat(profile).contains(new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name")));
     }
 
     @Test
@@ -133,8 +131,8 @@ public class ElasticProfileTest {
         ElasticProfile profile = new ElasticProfile("id", "prod-cluster");
         profile.addConfigurations(List.of(property));
 
-        assertThat(profile.size(), is(1));
-        assertThat(profile, contains(new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name"))));
+        assertThat(profile.size()).isEqualTo(1);
+        assertThat(profile).contains(new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name")));
     }
 
     @Test
@@ -145,9 +143,9 @@ public class ElasticProfileTest {
         ElasticProfile profile = new ElasticProfile("id", "prod-cluster");
         profile.addConfigurations(List.of(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
-        assertThat(profile.size(), is(1));
+        assertThat(profile.size()).isEqualTo(1);
         assertFalse(profile.first().isSecure());
-        assertThat(profile, contains(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
+        assertThat(profile).contains(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
     }
 
     @Test
@@ -160,7 +158,7 @@ public class ElasticProfileTest {
 
         profile.encryptSecureProperties(config);
 
-        assertThat(profile.size(), is(1));
+        assertThat(profile.size()).isEqualTo(1);
         assertTrue(profile.first().isSecure());
     }
 
@@ -170,7 +168,7 @@ public class ElasticProfileTest {
 
 //        profile.encryptSecureConfigurations();
 
-        assertThat(profile.size(), is(1));
+        assertThat(profile.size()).isEqualTo(1);
         assertFalse(profile.first().isSecure());
     }
 

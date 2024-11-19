@@ -22,19 +22,18 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.PipelineTimelineEntryMother.modification;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineTimelineEntryTest {
     @Test
     public void shouldReturn0IfComparedToItself() {
         DateTime now = new DateTime();
         PipelineTimelineEntry self = modification(List.of("flyweight"), 1, "123", now);
-        assertThat(self.compareTo(self), is(0));
+        assertThat(self.compareTo(self)).isEqualTo(0);
 
         PipelineTimelineEntry another = modification(List.of("flyweight"), 1, "123", now);
-        assertThat(self.compareTo(another), is(0));
-        assertThat(another.compareTo(self), is(0));
+        assertThat(self.compareTo(another)).isEqualTo(0);
+        assertThat(another.compareTo(self)).isEqualTo(0);
     }
 
     @Test
@@ -42,8 +41,8 @@ public class PipelineTimelineEntryTest {
         PipelineTimelineEntry modification = modification(List.of("flyweight"), 1, "123", new DateTime());
         PipelineTimelineEntry that = modification(2, List.of("flyweight"), List.of(new DateTime().plusMinutes(1)), 1, "123");
 
-        assertThat(modification.compareTo(that), is(-1));
-        assertThat(that.compareTo(modification), is(1));
+        assertThat(modification.compareTo(that)).isEqualTo(-1);
+        assertThat(that.compareTo(modification)).isEqualTo(1);
     }
 
     @Test
@@ -54,8 +53,8 @@ public class PipelineTimelineEntryTest {
         PipelineTimelineEntry modification = modification(1, materials, List.of(base.plusMinutes(1), base.plusMinutes(3)), 1, "123");
         PipelineTimelineEntry that = modification(2, materials, List.of(base.plusMinutes(4), base.plusMinutes(2)), 1, "123");
 
-        assertThat(modification.compareTo(that), is(-1));
-        assertThat(that.compareTo(modification), is(1));
+        assertThat(modification.compareTo(that)).isEqualTo(-1);
+        assertThat(that.compareTo(modification)).isEqualTo(1);
     }
 
     @Test
@@ -66,8 +65,8 @@ public class PipelineTimelineEntryTest {
         PipelineTimelineEntry modification = modification(1, materials, List.of(base, base.plusMinutes(3)), 1, "123");
         PipelineTimelineEntry that = modification(2, materials, List.of(base, base.plusMinutes(2)), 1, "123");
 
-        assertThat(modification.compareTo(that), is(1));
-        assertThat(that.compareTo(modification), is(-1));
+        assertThat(modification.compareTo(that)).isEqualTo(1);
+        assertThat(that.compareTo(modification)).isEqualTo(-1);
     }
 
     @Test
@@ -78,8 +77,8 @@ public class PipelineTimelineEntryTest {
         PipelineTimelineEntry modification = modification(1, materials, List.of(base, base.plusMinutes(3)), 1, "123", "pipeline");
         PipelineTimelineEntry that = modification(2, materials, List.of(base, base.plusMinutes(3)), 2, "123", "pipeline");
 
-        assertThat(modification.compareTo(that), is(-1));
-        assertThat(that.compareTo(modification), is(1));
+        assertThat(modification.compareTo(that)).isEqualTo(-1);
+        assertThat(that.compareTo(modification)).isEqualTo(1);
     }
 
     @Test
@@ -91,8 +90,8 @@ public class PipelineTimelineEntryTest {
         PipelineTimelineEntry modification = modification(1, materials, List.of(base, base.plusMinutes(3), base.plusMinutes(2), base.plusMinutes(4)), 1, "123", "pipeline");
         PipelineTimelineEntry that = modification(2, materials, List.of(base, base.plusMinutes(2), base.plusMinutes(3), base.plusMinutes(2)), 2, "123", "pipeline");
 
-        assertThat(modification.compareTo(that), is(-1));
-        assertThat(that.compareTo(modification), is(1));
+        assertThat(modification.compareTo(that)).isEqualTo(-1);
+        assertThat(that.compareTo(modification)).isEqualTo(1);
     }
 
     @Test
@@ -103,8 +102,8 @@ public class PipelineTimelineEntryTest {
         PipelineTimelineEntry modification = modification(1, materials, List.of(base, base.plusMinutes(3), base.plusMinutes(2), base.plusMinutes(4)), 1, "123", "pipeline");
         PipelineTimelineEntry that = modification(2, materials, List.of(base, base.plusMinutes(2), base.plusMinutes(3), base.plusMinutes(1)), 2, "123", "pipeline");
 
-        assertThat(modification.compareTo(that), is(1));
-        assertThat(that.compareTo(modification), is(-1));
+        assertThat(modification.compareTo(that)).isEqualTo(1);
+        assertThat(that.compareTo(modification)).isEqualTo(-1);
     }
 
     @Test
@@ -115,8 +114,8 @@ public class PipelineTimelineEntryTest {
         PipelineTimelineEntry modification = modification(1, materials, List.of(base, base.plusMinutes(3), base.plusMinutes(2)), 1, "123", "pipeline");
         PipelineTimelineEntry that = modification(2, materials, List.of(base, base.plusMinutes(2), base.plusMinutes(3)), 2, "123", "pipeline");
 
-        assertThat(modification.compareTo(that), is(-1));
-        assertThat(that.compareTo(modification), is(1));
+        assertThat(modification.compareTo(that)).isEqualTo(-1);
+        assertThat(that.compareTo(modification)).isEqualTo(1);
     }
 
     @Test
@@ -127,14 +126,14 @@ public class PipelineTimelineEntryTest {
         PipelineTimelineEntry modification = modification(1, List.of("first", "second", "third"), List.of(base, base.plusMinutes(3), base.plusMinutes(2)), 1, "123", "pipeline");
         PipelineTimelineEntry that = modification(2, List.of("first", "second"), List.of(base, base.plusMinutes(2)), 2, "123", "pipeline");
 
-        assertThat(modification.compareTo(that), is(1));
-        assertThat(that.compareTo(modification), is(-1));
+        assertThat(modification.compareTo(that)).isEqualTo(1);
+        assertThat(that.compareTo(modification)).isEqualTo(-1);
 
         //Now break the tie using counter and ignore the extra third material
         modification = modification(1, List.of("first", "second", "third"), List.of(base, base.plusMinutes(3), base.plusMinutes(2)), 1, "123", "pipeline");
         that = modification(2, List.of("first", "second"), List.of(base, base.plusMinutes(3)), 2, "123", "pipeline");
 
-        assertThat(modification.compareTo(that), is(-1));
-        assertThat(that.compareTo(modification), is(1));
+        assertThat(modification.compareTo(that)).isEqualTo(-1);
+        assertThat(that.compareTo(modification)).isEqualTo(1);
     }
 }

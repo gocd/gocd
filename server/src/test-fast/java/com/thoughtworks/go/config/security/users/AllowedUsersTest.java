@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -46,13 +45,13 @@ public class AllowedUsersTest {
     public void shouldCheckViewPermissionsInACaseInsensitiveWay() {
         AllowedUsers users = new AllowedUsers(Set.of("USER1", "user2", "User3", "AnoTherUsEr"), Collections.emptySet());
 
-        assertThat(users.contains("user1"), is(true));
-        assertThat(users.contains("USER1"), is(true));
-        assertThat(users.contains("User1"), is(true));
-        assertThat(users.contains("USER2"), is(true));
-        assertThat(users.contains("uSEr3"), is(true));
-        assertThat(users.contains("anotheruser"), is(true));
-        assertThat(users.contains("NON-EXISTENT-USER"), is(false));
+        assertThat(users.contains("user1")).isTrue();
+        assertThat(users.contains("USER1")).isTrue();
+        assertThat(users.contains("User1")).isTrue();
+        assertThat(users.contains("USER2")).isTrue();
+        assertThat(users.contains("uSEr3")).isTrue();
+        assertThat(users.contains("anotheruser")).isTrue();
+        assertThat(users.contains("NON-EXISTENT-USER")).isFalse();
     }
 
     @Test

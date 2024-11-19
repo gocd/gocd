@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -55,7 +54,7 @@ public class CapabilitiesTest {
         Capabilities capabilities = new Capabilities(List.of(new SupportedAnalytics("dashboard", "id1", "title1" ),
                 new SupportedAnalytics("DashBoard", "id2", "title2" )));
 
-        assertThat(capabilities.supportedAnalyticsDashboardMetrics(), is(List.of("title1", "title2")));
+        assertThat(capabilities.supportedAnalyticsDashboardMetrics()).isEqualTo(List.of("title1", "title2"));
         assertTrue(new Capabilities(Collections.emptyList()).supportedAnalyticsDashboardMetrics().isEmpty());
     }
 
@@ -64,8 +63,8 @@ public class CapabilitiesTest {
         Capabilities capabilities = new Capabilities(List.of(new SupportedAnalytics("dashboard", "id1", "title1" ),
                 new SupportedAnalytics("DashBoard", "id2", "title2" )));
 
-        assertThat(capabilities.supportedDashboardAnalytics(), is(List.of(new SupportedAnalytics("dashboard", "id1", "title1" ),
-                new SupportedAnalytics("DashBoard", "id2", "title2" ))));
+        assertThat(capabilities.supportedDashboardAnalytics()).isEqualTo(List.of(new SupportedAnalytics("dashboard", "id1", "title1" ),
+                new SupportedAnalytics("DashBoard", "id2", "title2" )));
         assertTrue(new Capabilities(Collections.emptyList()).supportedDashboardAnalytics().isEmpty());
     }
 
@@ -74,8 +73,8 @@ public class CapabilitiesTest {
         Capabilities capabilities = new Capabilities(List.of(new SupportedAnalytics("pipeline", "id1", "title1" ),
                 new SupportedAnalytics("Pipeline", "id2", "title2" )));
 
-        assertThat(capabilities.supportedPipelineAnalytics(), is(List.of(new SupportedAnalytics("pipeline", "id1", "title1" ),
-                new SupportedAnalytics("Pipeline", "id2", "title2" ))));
+        assertThat(capabilities.supportedPipelineAnalytics()).isEqualTo(List.of(new SupportedAnalytics("pipeline", "id1", "title1" ),
+                new SupportedAnalytics("Pipeline", "id2", "title2" )));
         assertTrue(new Capabilities(Collections.emptyList()).supportedPipelineAnalytics().isEmpty());
     }
 
@@ -84,8 +83,8 @@ public class CapabilitiesTest {
         Capabilities capabilities = new Capabilities(List.of(new SupportedAnalytics("vsm", "id1", "title1" ),
                 new SupportedAnalytics("VsM", "id2", "title2" )));
 
-        assertThat(capabilities.supportedVSMAnalytics(), is(List.of(new SupportedAnalytics("vsm", "id1", "title1" ),
-                new SupportedAnalytics("VsM", "id2", "title2" ))));
+        assertThat(capabilities.supportedVSMAnalytics()).isEqualTo(List.of(new SupportedAnalytics("vsm", "id1", "title1" ),
+                new SupportedAnalytics("VsM", "id2", "title2" )));
         assertTrue(new Capabilities(Collections.emptyList()).supportedVSMAnalytics().isEmpty());
     }
 }

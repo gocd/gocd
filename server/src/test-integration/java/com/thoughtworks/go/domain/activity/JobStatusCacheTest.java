@@ -37,8 +37,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -84,7 +83,7 @@ public class JobStatusCacheTest {
         JobInstance expect = pipeline.getStages().byName(pipelineFixture.devStage).getJobInstances().first();
 
         assertThat(jobStatusCache.currentJob(new JobConfigIdentifier(pipelineFixture.pipelineName,
-            pipelineFixture.devStage, PipelineWithTwoStages.JOB_FOR_DEV_STAGE)), is(expect));
+            pipelineFixture.devStage, PipelineWithTwoStages.JOB_FOR_DEV_STAGE))).isEqualTo(expect);
     }
 
     @Test
@@ -98,10 +97,10 @@ public class JobStatusCacheTest {
         when(mock.mostRecentJobsForStage("pipeline", "stage")).thenReturn(found);
         JobConfigIdentifier identifier = new JobConfigIdentifier(instance.getPipelineName(), instance.getStageName(), instance.getName());
         JobStatusCache cache = new JobStatusCache(mock);
-        assertThat(cache.currentJob(identifier).getState(), is(instance.getState()));
+        assertThat(cache.currentJob(identifier).getState()).isEqualTo(instance.getState());
 
         //call currentJob for the second time, should not call jobInstanceDao now
-        assertThat(cache.currentJob(identifier).getState(), is(instance.getState()));
+        assertThat(cache.currentJob(identifier).getState()).isEqualTo(instance.getState());
     }
 
     @Test
@@ -109,13 +108,13 @@ public class JobStatusCacheTest {
         JobInstance job = JobInstanceMother.buildingInstance("cruise", "dev", "linux-firefox", "1");
 
         jobStatusCache.jobStatusChanged(job);
-        assertThat(jobStatusCache.currentJob(job.getIdentifier().jobConfigIdentifier()).getState(), is(JobState.Building));
+        assertThat(jobStatusCache.currentJob(job.getIdentifier().jobConfigIdentifier()).getState()).isEqualTo(JobState.Building);
 
         JobInstance passing = job.clone();
         passing.changeState(JobState.Completed);
 
         jobStatusCache.jobStatusChanged(passing);
-        assertThat(jobStatusCache.currentJob(passing.getIdentifier().jobConfigIdentifier()).getState(), is(JobState.Completed));
+        assertThat(jobStatusCache.currentJob(passing.getIdentifier().jobConfigIdentifier()).getState()).isEqualTo(JobState.Completed);
     }
 
     @Test
@@ -124,9 +123,9 @@ public class JobStatusCacheTest {
         when(dao.mostRecentJobsForStage("cruise", "dev")).thenReturn(new ArrayList<>());
 
         JobStatusCache cache = new JobStatusCache(dao);
-        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).isEmpty(), is(true));
+        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).isEmpty()).isTrue();
 
-        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).isEmpty(), is(true));
+        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).isEmpty()).isTrue();
 
         verify(dao, times(1)).mostRecentJobsForStage("cruise", "dev");
     }
@@ -138,9 +137,9 @@ public class JobStatusCacheTest {
         when(dao.mostRecentJobsForStage("cruise", "dev")).thenReturn(List.of(random));
 
         JobStatusCache cache = new JobStatusCache(dao);
-        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).isEmpty(), is(true));
+        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).isEmpty()).isTrue();
 
-        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "random")).get(0), is(random));
+        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "random")).get(0)).isEqualTo(random);
         verify(dao, times(2)).mostRecentJobsForStage("cruise", "dev");
     }
 
@@ -150,12 +149,12 @@ public class JobStatusCacheTest {
         when(dao.mostRecentJobsForStage("cruise", "dev")).thenReturn(new ArrayList<>());
 
         JobStatusCache cache = new JobStatusCache(dao);
-        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).isEmpty(), is(true));
+        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).isEmpty()).isTrue();
 
         JobInstance instance = jobInstance("linux-firefox");
         cache.jobStatusChanged(instance);
 
-        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).get(0), is(instance));
+        assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).get(0)).isEqualTo(instance);
         verify(dao, times(1)).mostRecentJobsForStage("cruise", "dev");
     }
 
@@ -171,7 +170,7 @@ public class JobStatusCacheTest {
 
         JobConfigIdentifier jobConfigIdentifier = new JobConfigIdentifier(pipelineFixture.pipelineName, pipelineFixture.devStage, "wrong-job");
         JobInstance currentJob = jobStatusCache.currentJob(jobConfigIdentifier);
-        assertThat(currentJob, is(nullValue()));
+        assertThat(currentJob).isNull();
     }
 
     @Test
@@ -185,9 +184,9 @@ public class JobStatusCacheTest {
         JobConfigIdentifier config = new JobConfigIdentifier("cruise", "dev", "linux-firefox");
 
         List<JobInstance> list = jobStatusCache.currentJobs(config);
-        assertThat(list, hasItem(job1));
-        assertThat(list, hasItem(job2));
-        assertThat(list.size(), is(2));
+        assertThat(list).contains(job1);
+        assertThat(list).contains(job2);
+        assertThat(list.size()).isEqualTo(2);
     }
 
     @Test
@@ -201,9 +200,9 @@ public class JobStatusCacheTest {
         JobConfigIdentifier config = new JobConfigIdentifier("cruise", "dev", "linux-firefox");
 
         List<JobInstance> list = jobStatusCache.currentJobs(config);
-        assertThat(list, hasItem(job1));
-        assertThat(list, hasItem(job2));
-        assertThat(list.size(), is(2));
+        assertThat(list).contains(job1);
+        assertThat(list).contains(job2);
+        assertThat(list.size()).isEqualTo(2);
     }
 
     @Test
@@ -220,7 +219,7 @@ public class JobStatusCacheTest {
         JobConfigIdentifier config = new JobConfigIdentifier("cruise", "dev", "linux-firefox");
 
         List<JobInstance> list = jobStatusCache.currentJobs(config);
-        assertThat(list, not(hasItem(otherPipeline)));
+        assertThat(list).doesNotContain(otherPipeline);
     }
 
     @Test
@@ -237,7 +236,7 @@ public class JobStatusCacheTest {
         JobConfigIdentifier config = new JobConfigIdentifier("cruise", "dev", "linux-firefox");
 
         List<JobInstance> list = jobStatusCache.currentJobs(config);
-        assertThat(list, not(hasItem(otherStage)));
+        assertThat(list).doesNotContain(otherStage);
     }
 
     @Test
@@ -251,8 +250,8 @@ public class JobStatusCacheTest {
         JobConfigIdentifier config = new JobConfigIdentifier("cruise", "dev", "linux-firefox");
 
         List<JobInstance> list = jobStatusCache.currentJobs(config);
-        assertThat(list, hasItem(job2));
-        assertThat(list, not(hasItem(job1)));
+        assertThat(list).contains(job2);
+        assertThat(list).doesNotContain(job1);
     }
 
 }

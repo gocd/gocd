@@ -26,9 +26,8 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +58,7 @@ public class SecurityAuthConfigUpdateCommandTest {
         cruiseConfig.server().security().securityAuthConfigs().add(oldAuthConfig);
         SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(null, newAuthConfig, null, null, null, null, null);
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), is(equalTo(newAuthConfig)));
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo")).isEqualTo(newAuthConfig);
     }
 
     @Test
@@ -78,7 +77,7 @@ public class SecurityAuthConfigUpdateCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(goConfigService, newAuthConfig, null, currentUser, result, entityHashingService, "bad-digest");
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("Someone has modified the configuration for"));
+        assertThat(command.canContinue(cruiseConfig)).isFalse();
+        assertThat(result.toString()).contains("Someone has modified the configuration for");
     }
 }

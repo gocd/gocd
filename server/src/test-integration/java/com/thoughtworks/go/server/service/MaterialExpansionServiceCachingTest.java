@@ -33,9 +33,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -74,9 +72,9 @@ public class MaterialExpansionServiceCachingTest {
 
         materialExpansionService.expandForScheduling(svnMaterialConfig, materialConfigs);
 
-        assertThat(materialConfigs.size(), is(2));
-        assertThat(materialConfigs.get(0), is(svnMaterialConfig));
-        assertThat(((SvnMaterialConfig) materialConfigs.get(1)).getUrl(), endsWith("end2end/"));
+        assertThat(materialConfigs.size()).isEqualTo(2);
+        assertThat(materialConfigs.get(0)).isEqualTo(svnMaterialConfig);
+        assertThat(((SvnMaterialConfig) materialConfigs.get(1)).getUrl()).endsWith("end2end/");
     }
 
     @Test
@@ -92,6 +90,6 @@ public class MaterialExpansionServiceCachingTest {
         svn = goCache.get(cacheKey);
 
         assertNotNull(svn);
-        assertThat(svn.getUrl().originalArgument(), is(svnMaterialConfig.getUrl()));
+        assertThat(svn.getUrl().originalArgument()).isEqualTo(svnMaterialConfig.getUrl());
     }
 }

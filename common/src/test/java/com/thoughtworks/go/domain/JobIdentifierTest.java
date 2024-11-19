@@ -18,52 +18,49 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JobIdentifierTest {
     @Test
     public void shouldReturnBuildLocator() throws Exception {
         JobIdentifier id = new JobIdentifier("cruise", 1, "label-", "dev", "1", "linux-firefox-1", 100L);
-        assertThat(id.buildLocator(), is("cruise/1/dev/1/linux-firefox-1"));
+        assertThat(id.buildLocator()).isEqualTo("cruise/1/dev/1/linux-firefox-1");
     }
 
     @Test
     public void shouldReturnPropertyLocatorUsingLabel() throws Exception {
         JobIdentifier id = new JobIdentifier("cruise", -1, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
-        assertThat(id.propertyLocator("test-duration"), is("cruise/1.0.1234/dev/1/linux-firefox-1/test-duration"));
+        assertThat(id.propertyLocator("test-duration")).isEqualTo("cruise/1.0.1234/dev/1/linux-firefox-1/test-duration");
     }
 
     @Test
     public void shouldReturnPropertyLocatorUsingPipelineCounter() throws Exception {
         JobIdentifier id = new JobIdentifier("cruise", 1234, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
-        assertThat(id.propertyLocator("test-duration"), is("cruise/1234/dev/1/linux-firefox-1/test-duration"));
+        assertThat(id.propertyLocator("test-duration")).isEqualTo("cruise/1234/dev/1/linux-firefox-1/test-duration");
     }
 
     @Test
     public void shouldReturnArtifactLocatorUsingLabel() throws Exception {
         JobIdentifier id = new JobIdentifier("cruise", -2, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
-        assertThat(id.artifactLocator("consoleoutput/log.xml"), is("cruise/1.0.1234/dev/1/linux-firefox-1/consoleoutput/log.xml"));
+        assertThat(id.artifactLocator("consoleoutput/log.xml")).isEqualTo("cruise/1.0.1234/dev/1/linux-firefox-1/consoleoutput/log.xml");
     }
 
     @Test
     public void shouldReturnArtifactLocatorUsingPipelineCounter() throws Exception {
         JobIdentifier id = new JobIdentifier("cruise", 1234, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
-        assertThat(id.artifactLocator("consoleoutput/log.xml"),
-                is("cruise/1234/dev/1/linux-firefox-1/consoleoutput/log.xml"));
+        assertThat(id.artifactLocator("consoleoutput/log.xml")).isEqualTo("cruise/1234/dev/1/linux-firefox-1/consoleoutput/log.xml");
     }
 
     @Test
     public void shouldFixFilePathWithPrecedingSlash() {
         JobIdentifier id = new JobIdentifier("cruise", 1234, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
-        assertThat(id.artifactLocator("/consoleoutput/log.xml"),
-                is("cruise/1234/dev/1/linux-firefox-1/consoleoutput/log.xml"));
+        assertThat(id.artifactLocator("/consoleoutput/log.xml")).isEqualTo("cruise/1234/dev/1/linux-firefox-1/consoleoutput/log.xml");
     }
 
     @Test
     public void shouldReturnURN() throws Exception {
         JobIdentifier id = new JobIdentifier("cruise", 1, "label-", "dev", "1", "linux-firefox-1", 100L);
-        assertThat(id.asURN(), is("urn:x-go.studios.thoughtworks.com:job-id:cruise:1:dev:1:linux-firefox-1"));
+        assertThat(id.asURN()).isEqualTo("urn:x-go.studios.thoughtworks.com:job-id:cruise:1:dev:1:linux-firefox-1");
     }
 
     @Test
@@ -84,7 +81,7 @@ public class JobIdentifierTest {
         expected.setProperty("GO_RERUN_OF_STAGE_COUNTER", "1", false);
         expected.setProperty("GO_JOB_NAME", "build-name", false);
 
-        assertThat(context, is(expected));
+        assertThat(context).isEqualTo(expected);
     }
 
     @Test
@@ -93,12 +90,12 @@ public class JobIdentifierTest {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         id.populateEnvironmentVariables(context);
 
-        assertThat(context.hasProperty("GO_RERUN_OF_STAGE_COUNTER"), is(false));
+        assertThat(context.hasProperty("GO_RERUN_OF_STAGE_COUNTER")).isFalse();
 
         id.setRerunOfCounter(1);
         context = new EnvironmentVariableContext();
         id.populateEnvironmentVariables(context);
 
-        assertThat(context.hasProperty("GO_RERUN_OF_STAGE_COUNTER"), is(true));
+        assertThat(context.hasProperty("GO_RERUN_OF_STAGE_COUNTER")).isTrue();
     }
 }

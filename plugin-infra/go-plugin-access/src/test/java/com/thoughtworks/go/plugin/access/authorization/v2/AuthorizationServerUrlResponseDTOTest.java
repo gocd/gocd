@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AuthorizationServerUrlResponseDTOTest {
 
@@ -39,11 +38,11 @@ class AuthorizationServerUrlResponseDTOTest {
 
         AuthorizationServerUrlResponseDTO dto = AuthorizationServerUrlResponseDTO.fromJSON(json);
 
-        assertThat(dto.getAuthorizationServerUrl(), is("https://example.tld/auth"));
-        assertThat(dto.getAuthSession(), is(Map.of(
+        assertThat(dto.getAuthorizationServerUrl()).isEqualTo("https://example.tld/auth");
+        assertThat(dto.getAuthSession()).isEqualTo(Map.of(
             "foo", "bar",
             "apple", "banana"
-        )));
+        ));
     }
 
     @Nested
@@ -58,11 +57,11 @@ class AuthorizationServerUrlResponseDTOTest {
 
             AuthorizationServerUrlResponse domainModel = dto.toDomainModel();
 
-            assertThat(domainModel.getAuthorizationServerUrl(), is("https://example.tld/auth"));
-            assertThat(domainModel.getAuthSession(), is(Map.of(
+            assertThat(domainModel.getAuthorizationServerUrl()).isEqualTo("https://example.tld/auth");
+            assertThat(domainModel.getAuthSession()).isEqualTo(Map.of(
                 "foo", "bar",
                 "apple", "banana"
-            )));
+            ));
         }
 
         @Test
@@ -71,8 +70,8 @@ class AuthorizationServerUrlResponseDTOTest {
 
             AuthorizationServerUrlResponse domainModel = dto.toDomainModel();
 
-            assertThat(domainModel.getAuthorizationServerUrl(), is("https://example.tld/auth"));
-            assertThat(domainModel.getAuthSession(), is(Map.of()));
+            assertThat(domainModel.getAuthorizationServerUrl()).isEqualTo("https://example.tld/auth");
+            assertThat(domainModel.getAuthSession()).isEqualTo(Map.of());
         }
     }
 

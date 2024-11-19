@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CRP4MaterialTest extends AbstractCRTest<CRP4Material> {
 
@@ -33,7 +32,7 @@ public class CRP4MaterialTest extends AbstractCRTest<CRP4Material> {
     private final CRP4Material p4custom;
     private final CRP4Material invalidP4NoView;
     private final CRP4Material invalidP4NoServer;
-    private final CRP4Material invalidPasswordAndEncyptedPasswordSet;
+    private final CRP4Material invalidPasswordAndEncryptedPasswordSet;
 
 
     public CRP4MaterialTest() {
@@ -44,9 +43,9 @@ public class CRP4MaterialTest extends AbstractCRTest<CRP4Material> {
 
         invalidP4NoView = new CRP4Material(null, null, false, false, null, null, "10.18.3.102:1666", null, false);
         invalidP4NoServer = new CRP4Material(null, null, false, false, null, null, null, exampleView, false);
-        invalidPasswordAndEncyptedPasswordSet = new CRP4Material(null, null, false, false, null, null, "10.18.3.102:1666", null, false);
-        invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
-        invalidPasswordAndEncyptedPasswordSet.setEncryptedPassword("26t=$j64");
+        invalidPasswordAndEncryptedPasswordSet = new CRP4Material(null, null, false, false, null, null, "10.18.3.102:1666", null, false);
+        invalidPasswordAndEncryptedPasswordSet.setPassword("pa$sw0rd");
+        invalidPasswordAndEncryptedPasswordSet.setEncryptedPassword("26t=$j64");
     }
 
     @Override
@@ -59,14 +58,14 @@ public class CRP4MaterialTest extends AbstractCRTest<CRP4Material> {
     public void addBadExamples(Map<String, CRP4Material> examples) {
         examples.put("invalidP4NoView", invalidP4NoView);
         examples.put("invalidP4NoServer", invalidP4NoServer);
-        examples.put("invalidPasswordAndEncyptedPasswordSet", invalidPasswordAndEncyptedPasswordSet);
+        examples.put("invalidPasswordAndEncryptedPasswordSet", invalidPasswordAndEncryptedPasswordSet);
     }
 
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
         JsonObject jsonObject = (JsonObject) gson.toJsonTree(p4custom);
-        assertThat(jsonObject.get("type").getAsString(), is(CRP4Material.TYPE_NAME));
+        assertThat(jsonObject.get("type").getAsString()).isEqualTo(CRP4Material.TYPE_NAME);
     }
 
     @Test
@@ -75,7 +74,8 @@ public class CRP4MaterialTest extends AbstractCRTest<CRP4Material> {
         String json = gson.toJson(value);
 
         CRP4Material deserializedValue = (CRP4Material) gson.fromJson(json, CRMaterial.class);
-        assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue, is(value));
+        assertThat(deserializedValue)
+            .describedAs("Deserialized value should equal to value before serialization")
+            .isEqualTo(value);
     }
 }

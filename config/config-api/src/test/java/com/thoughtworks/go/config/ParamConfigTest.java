@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,16 +28,16 @@ public class ParamConfigTest {
 
     @Test
     public void validate_shouldMakeSureParamNameIsOfNameType() {
-        assertThat(createAndValidate("name").errors().isEmpty(), is(true));
+        assertThat(createAndValidate("name").errors().isEmpty()).isTrue();
         ConfigErrors errors = createAndValidate(".name").errors();
-        assertThat(errors.isEmpty(), is(false));
-        assertThat(errors.on(ParamConfig.NAME), is("Invalid parameter name '.name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(errors.isEmpty()).isFalse();
+        assertThat(errors.on(ParamConfig.NAME)).isEqualTo("Invalid parameter name '.name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
     public void shouldReturnValueForDisplay() {
         ParamConfig paramConfig = new ParamConfig("foo", "bar");
-        assertThat(paramConfig.getValueForDisplay(), is("bar"));
+        assertThat(paramConfig.getValueForDisplay()).isEqualTo("bar");
     }
 
     @Test
@@ -47,7 +46,7 @@ public class ParamConfigTest {
         ValidationContext validationContext = mock(ValidationContext.class);
         when(validationContext.getPipeline()).thenReturn(new PipelineConfig(new CaseInsensitiveString("p"), null));
         paramConfig.validateName(new HashMap<>(), validationContext);
-        assertThat(paramConfig.errors().on(ParamConfig.NAME), is("Parameter cannot have an empty name for pipeline 'p'."));
+        assertThat(paramConfig.errors().on(ParamConfig.NAME)).isEqualTo("Parameter cannot have an empty name for pipeline 'p'.");
     }
 
     private ParamConfig createAndValidate(final String name) {

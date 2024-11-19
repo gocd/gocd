@@ -30,8 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForDatabaseUpdater {
@@ -52,7 +51,7 @@ public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForData
     public void shouldUpdateModificationsForExternalsAsWell() throws Exception {
         updater.updateMaterial(material);
         MaterialRevisions materialRevisions = materialRepository.findLatestModification(material);
-        assertThat(materialRevisions.numberOfRevisions(), is(2));
+        assertThat(materialRevisions.numberOfRevisions()).isEqualTo(2);
     }
 
     @Test
@@ -62,7 +61,7 @@ public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForData
         testRepoWithExternal.setupExternals("another_repo", new File(testRepoWithExternal.workingFolder(), "another_dir"));
         updater.updateMaterial(material);
         MaterialRevisions materialRevisions = materialRepository.findLatestModification(material);
-        assertThat(materialRevisions.numberOfRevisions(), is(3));
+        assertThat(materialRevisions.numberOfRevisions()).isEqualTo(3);
     }
 
     @Test
@@ -74,7 +73,7 @@ public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForData
         updater.updateMaterial(otherMaterial);
 
         MaterialRevisions materialRevisions = materialRepository.findLatestModification(otherMaterial);
-        assertThat(materialRevisions.numberOfRevisions(), is(2));
+        assertThat(materialRevisions.numberOfRevisions()).isEqualTo(2);
     }
 
     @Test
@@ -83,11 +82,11 @@ public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForData
         testRepoWithExternal.checkInExternalFile("foo_bar", "foo bar quux");
         updater.updateMaterial(material);
         MaterialRevisions materialRevisions = materialRepository.findLatestModification(material);
-        assertThat(materialRevisions.numberOfRevisions(), is(2));
+        assertThat(materialRevisions.numberOfRevisions()).isEqualTo(2);
         SvnMaterial externalMaterial = testRepoWithExternal.externalMaterial();
 
         MaterialRevision revisionForExternal = materialRevisions.findRevisionFor(externalMaterial);
-        assertThat(revisionForExternal.getModification(0).getComment(), is("foo bar quux"));
+        assertThat(revisionForExternal.getModification(0).getComment()).isEqualTo("foo bar quux");
     }
 
     @Test
@@ -95,9 +94,9 @@ public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForData
         ((SvnTestRepoWithExternal)testRepo).checkInExternalFile("external.txt", "EXTERNAL");
         updater.updateMaterial(material);
         MaterialRevisions materialRevisions = materialRepository.findLatestModification(material);
-        assertThat(materialRevisions.numberOfRevisions(), is(2));
+        assertThat(materialRevisions.numberOfRevisions()).isEqualTo(2);
 
-        assertThat(materialRevisions.getMaterialRevision(1).getModification(0).getComment(), is("EXTERNAL"));
+        assertThat(materialRevisions.getMaterialRevision(1).getModification(0).getComment()).isEqualTo("EXTERNAL");
     }
 
 

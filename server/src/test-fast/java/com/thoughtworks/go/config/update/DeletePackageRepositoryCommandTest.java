@@ -35,8 +35,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.lenient;
@@ -66,11 +65,11 @@ public class DeletePackageRepositoryCommandTest {
 
     @Test
     public void shouldDeletePackageRepository() throws Exception {
-        assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId), is(packageRepository));
+        assertThat(cruiseConfig.getPackageRepositories().size()).isEqualTo(1);
+        assertThat(cruiseConfig.getPackageRepositories().find(repoId)).isEqualTo(packageRepository);
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getPackageRepositories().size(), is(0));
+        assertThat(cruiseConfig.getPackageRepositories().size()).isEqualTo(0);
         assertNull(cruiseConfig.getPackageRepositories().find(repoId));
     }
 
@@ -84,8 +83,8 @@ public class DeletePackageRepositoryCommandTest {
         pipeline.setMaterialConfigs(new MaterialConfigs(packageMaterial));
         cruiseConfig.addPipeline("first", pipeline);
 
-        assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId), is(packageRepository));
+        assertThat(cruiseConfig.getPackageRepositories().size()).isEqualTo(1);
+        assertThat(cruiseConfig.getPackageRepositories().find(repoId)).isEqualTo(packageRepository);
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
@@ -99,7 +98,7 @@ public class DeletePackageRepositoryCommandTest {
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
 
         assertFalse(command.canContinue(cruiseConfig));
-        assertThat(result, is(expectedResult));
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
@@ -109,7 +108,7 @@ public class DeletePackageRepositoryCommandTest {
 
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
     @Test
@@ -119,6 +118,6 @@ public class DeletePackageRepositoryCommandTest {
 
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
 
-        assertThat(command.canContinue(cruiseConfig), is(true));
+        assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 }

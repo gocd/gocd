@@ -1115,7 +1115,7 @@ public class MaterialRepositoryIntegrationTest {
         List<Modification> mod_p2_s1 = repo.modificationFor(p2_s1_stageId);
         assertThat((Object) goCache.get(repo.cacheKeyForModificationsForStageLocator(p2_s1_stageId))).isEqualTo(mod_p2_s1);
         StageIdentifier p2_s1_3 = new StageIdentifier("P2", 1, "S1", "3");
-        assertThat(repo.modificationFor(p2_s1_3).isEmpty()).isTrue();
+        assertThat(repo.modificationFor(p2_s1_3)).isEmpty();
         assertThat((Object) goCache.get(repo.cacheKeyForModificationsForStageLocator(p2_s1_3))).isNull();
     }
 
@@ -1280,7 +1280,7 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(instance.getFingerprint()).isEqualTo(material.getFingerprint());
         assertThat(instance.getUrl()).isEqualTo(material.getUrl());
         assertThat(instance.getUsername()).isEqualTo(material.getUserName());
-        assertThat(instance.getBranch()).isEmpty();
+        assertThat(instance.getBranch()).isNullOrEmpty();
         assertThat(instance.getCheckExternals()).isEqualTo(material.isCheckExternals());
     }
 
@@ -1360,7 +1360,7 @@ public class MaterialRepositoryIntegrationTest {
 
         assertThat(instance).isInstanceOf(PackageMaterialInstance.class);
         assertThat(instance.getFingerprint()).isEqualTo(material.getFingerprint());
-        assertThat(instance.getAdditionalData()).isEmpty();
+        assertThat(instance.getAdditionalData()).isNullOrEmpty();
         PackageMaterial packageMaterial = JsonHelper.fromJson(instance.getConfiguration(), PackageMaterial.class);
         assertThat(packageMaterial).isEqualTo(material);
     }
@@ -1380,7 +1380,7 @@ public class MaterialRepositoryIntegrationTest {
 
         assertThat(instance).isInstanceOf(PluggableSCMMaterialInstance.class);
         assertThat(instance.getFingerprint()).isEqualTo(material.getFingerprint());
-        assertThat(instance.getAdditionalData()).isEmpty();
+        assertThat(instance.getAdditionalData()).isNullOrEmpty();
         PluggableSCMMaterial pluggableSCMMaterial = JsonHelper.fromJson(instance.getConfiguration(), PluggableSCMMaterial.class);
         assertThat(pluggableSCMMaterial).isEqualTo(material);
     }

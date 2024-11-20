@@ -42,7 +42,6 @@ import com.thoughtworks.go.server.scheduling.ScheduleOptions;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -237,8 +236,6 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
 
     private void preparePipelineWithMaterial() throws Exception {
         SvnMaterial svnMaterial = new SvnMaterial(repository);
-        ReflectionUtil.setField(svnMaterial, ScmMaterialConfig.FOLDER, "asc");
-        ReflectionUtil.invoke(svnMaterial, "resetCachedIdentityAttributes");
 
         MaterialConfigs materialConfigs = new MaterialConfigs();
         materialConfigs.add(svnMaterial.config());

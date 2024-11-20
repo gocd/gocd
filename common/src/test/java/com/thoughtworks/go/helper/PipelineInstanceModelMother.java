@@ -19,7 +19,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 
-public class PipelineHistoryItemMother {
+public class PipelineInstanceModelMother {
 
     public static PipelineInstanceModel custom(String... stageNames) {
         PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModel.createEmptyModel();

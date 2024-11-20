@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.config.materials.perforce;
 
+import com.thoughtworks.go.config.MaterialRevisionsMatchers;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -25,7 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -76,8 +76,8 @@ public class P4MultipleMaterialsTest extends PerforceFixture {
 
         assertThat(materialRevisions.getRevisions().size()).isEqualTo(2);
         assertThat(materialRevisions).satisfiesExactlyInAnyOrder(
-            containsModifiedFile("src/filename.txt"),
-            containsModifiedFile("lib/filename2.txt")
+            MaterialRevisionsMatchers.containsModifiedFile("src/filename.txt"),
+            MaterialRevisionsMatchers.containsModifiedFile("lib/filename2.txt")
         );
     }
 }

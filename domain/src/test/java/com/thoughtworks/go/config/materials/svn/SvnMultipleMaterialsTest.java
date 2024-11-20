@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.config.materials.svn;
 
+import com.thoughtworks.go.config.MaterialRevisionsMatchers;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -235,8 +235,8 @@ public class SvnMultipleMaterialsTest {
 
         assertThat(materialRevisions.getRevisions().size()).isEqualTo(2);
         assertThat(materialRevisions.getRevisions()).satisfiesExactlyInAnyOrder(
-            containsModifiedFile("/trunk/part1/filename.txt"),
-            containsModifiedFile("/trunk/part2/filename2.txt")
+            MaterialRevisionsMatchers.containsModifiedFile("/trunk/part1/filename.txt"),
+            MaterialRevisionsMatchers.containsModifiedFile("/trunk/part2/filename2.txt")
         );
     }
 

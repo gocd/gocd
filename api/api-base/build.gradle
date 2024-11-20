@@ -23,7 +23,10 @@ dependencies {
   api project(path: ':spark:spark-base', configuration: 'runtimeElements')
   implementation project.deps.guava
   testImplementation localGroovy()
-  testImplementation project(path: ':server', configuration: 'testOutput')
+  testImplementation project(path: ':common', configuration: 'testOutput')
+  testImplementation project(path: ':domain', configuration: 'testOutput')
+  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
+  testImplementation project(path: ':test:http-mocks', configuration: 'runtimeElements')
   testImplementation project(path: ':spark:spark-base', configuration: 'testOutput')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

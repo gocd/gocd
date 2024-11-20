@@ -20,7 +20,7 @@ import com.thoughtworks.go.util.GoConstants;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StageHistoryItemMother {
+public class StageInstanceModelMother {
 
     public static StageInstanceModel custom(String stageName, boolean isAutoApproved) {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();

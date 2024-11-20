@@ -58,7 +58,7 @@ public class HgCommandTest {
         clientRepo = TempDirUtils.createTempDirectoryIn(tempDir, "testHgClientRepo").toFile();
         secondBranchWorkingCopy = TempDirUtils.createTempDirectoryIn(tempDir, "second").toFile();
 
-        setUpServerRepoFromHgBundle(serverRepo, new File("../common/src/test/resources/data/repos/hgrepo.hgbundle"));
+        setUpServerRepoFromHgBundle(serverRepo, new File("../domain/src/test/resources/data/repos/hgrepo.hgbundle"));
         workingDirectory = new File(clientRepo.getPath());
         hgCommand = new HgCommand(null, workingDirectory, "default", serverRepo.getAbsolutePath(), null);
         hgCommand.clone(outputStreamConsumer, new UrlArgument(serverRepo.getAbsolutePath()));

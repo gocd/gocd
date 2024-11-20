@@ -60,7 +60,7 @@ public class CreateConfigRepoCommandTest {
 
     @Test
     public void shouldAddTheSpecifiedConfigRepo() {
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(configRepo, configRepoExtension);
         assertNull(cruiseConfig.getConfigRepos().getConfigRepo(REPO_1));
         command.update(cruiseConfig);
         assertEquals(configRepo, cruiseConfig.getConfigRepos().getConfigRepo(REPO_1));
@@ -72,7 +72,7 @@ public class CreateConfigRepoCommandTest {
         configRepo.setRepo(material);
         when(configRepoExtension.canHandlePlugin(configRepo.getPluginId())).thenReturn(true);
 
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(configRepo, configRepoExtension);
         command.update(cruiseConfig);
 
         assertFalse(command.isValid(cruiseConfig));
@@ -84,7 +84,7 @@ public class CreateConfigRepoCommandTest {
         ConfigRepoConfig configRepo = new ConfigRepoConfig();
         configRepo.setId("");
 
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(configRepo, configRepoExtension);
 
         assertFalse(command.isValid(cruiseConfig));
         assertEquals("Configuration repository id not specified", configRepo.errors().on("id"));
@@ -94,7 +94,7 @@ public class CreateConfigRepoCommandTest {
     public void isValid_shouldValidatePluginId() {
         when(configRepoExtension.canHandlePlugin(configRepo.getPluginId())).thenReturn(false);
 
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(configRepo, configRepoExtension);
 
         assertFalse(command.isValid(cruiseConfig));
         assertEquals("Invalid plugin id: json-plugin", configRepo.errors().on("plugin_id"));

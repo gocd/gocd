@@ -67,11 +67,6 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     @Override
-    protected String getLocation() {
-        return url == null ? null : url.forDisplay();
-    }
-
-    @Override
     public String getUriForDisplay() {
         return this.url.forDisplay();
     }
@@ -85,13 +80,6 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, url.originalArgument());
-        parameters.put(ScmMaterialConfig.USERNAME, userName);
-        parameters.put("checkExternals", checkExternals);
-    }
-
-    @Override
-    protected void appendAttributes(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url);
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put("checkExternals", checkExternals);
     }

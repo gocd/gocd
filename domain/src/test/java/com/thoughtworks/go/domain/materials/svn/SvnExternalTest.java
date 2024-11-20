@@ -27,7 +27,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -38,16 +37,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SvnExternalTest {
 
     private static SvnTestRepoWithExternal svnRepo;
-    public static File workingDir;
 
     @BeforeAll
     public static void copyRepository(@TempDir Path tempDir) throws IOException {
         svnRepo = new SvnTestRepoWithExternal(tempDir);
-        workingDir = svnRepo.projectRepositoryUrlAsFile();
     }
 
     @Test
-    public void shouldGetAllExternalURLSByPropgetOnMainURL() throws Exception {
+    public void shouldGetAllExternalURLSByPropGetOnMainURL() {
         String url = svnRepo.projectRepositoryUrl();
         SvnCommand svn = new SvnCommand(null, url, "user", "pass", false);
         List<SvnExternal> urls = svn.getAllExternalURLs();

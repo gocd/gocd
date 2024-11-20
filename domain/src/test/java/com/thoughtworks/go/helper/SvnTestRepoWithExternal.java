@@ -25,14 +25,11 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 
 public class SvnTestRepoWithExternal extends SvnTestRepo {
-    private Date beforeCheckin;
-    private Date afterCheckin;
     private ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
     private File workingFolder;
     public static final String EXTERNAL_REPO_NAME = "end2end";
@@ -53,24 +50,13 @@ public class SvnTestRepoWithExternal extends SvnTestRepo {
         workingFolder = super.createRandomTempDirectory().toFile();
     }
 
-    public Date beforeCheckin() {
-        return beforeCheckin;
-    }
-
-    public Date afterCheckin() {
-        return afterCheckin;
-    }
-
     public void setupExternals(String externalRepoName, File externalsHost) throws IOException {
         String url = projectRepositoryUrl();
         SvnCommand svnRepo = getSvnExternalCommand(url, false);
         svnRepo.checkoutTo(outputStreamConsumer, workingFolder, SubversionRevision.HEAD);
         svnRepo.propset(externalsHost, "svn:externals", externalRepoName + " " + externalRepositoryUrl());
-        beforeCheckin = new Date();
         svnRepo.commit(inMemoryConsumer(), workingFolder, "changed svn externals");
         commitToExternalRepo(externalRepositoryUrl());
-
-        afterCheckin = new Date();
     }
 
     private String escape(String externalUrl) {

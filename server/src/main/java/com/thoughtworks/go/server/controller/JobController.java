@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationM
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ErrorHandler;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +68,6 @@ public class JobController {
     private ArtifactsService artifactService;
     private StageService stageService;
     private JobAgentMetadataDao jobAgentMetadataDao;
-    private SystemEnvironment systemEnvironment;
     private SecurityService securityService;
 
     private final ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
@@ -79,10 +77,10 @@ public class JobController {
 
     @Autowired
     public JobController(
-            JobInstanceService jobInstanceService, AgentService agentService, JobInstanceDao jobInstanceDao,
-            GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
-            ArtifactsService artifactService, StageService stageService,
-            JobAgentMetadataDao jobAgentMetadataDao, SystemEnvironment systemEnvironment, SecurityService securityService) {
+        JobInstanceService jobInstanceService, AgentService agentService, JobInstanceDao jobInstanceDao,
+        GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
+        ArtifactsService artifactService, StageService stageService,
+        JobAgentMetadataDao jobAgentMetadataDao, SecurityService securityService) {
         this.jobInstanceService = jobInstanceService;
         this.agentService = agentService;
         this.jobInstanceDao = jobInstanceDao;
@@ -92,7 +90,6 @@ public class JobController {
         this.artifactService = artifactService;
         this.stageService = stageService;
         this.jobAgentMetadataDao = jobAgentMetadataDao;
-        this.systemEnvironment = systemEnvironment;
         this.securityService = securityService;
     }
 

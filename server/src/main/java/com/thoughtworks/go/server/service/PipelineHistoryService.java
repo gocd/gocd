@@ -53,18 +53,19 @@ import static java.lang.String.format;
 
 @Service
 public class PipelineHistoryService {
-    private PipelineDao pipelineDao;
-    private GoConfigService goConfigService;
-    private SecurityService securityService;
-    private MaterialRepository materialRepository;
-    private ScheduleService scheduleService;
-    private TriggerMonitor triggerMonitor;
-    private final PipelineTimeline pipelineTimeline;
-    private PipelineUnlockApiService pipelineUnlockService;
-    private SchedulingCheckerService schedulingCheckerService;
-    private PipelineLockService pipelineLockService;
-    private PipelinePauseService pipelinePauseService;
     private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
+
+    private final PipelineDao pipelineDao;
+    private final GoConfigService goConfigService;
+    private final SecurityService securityService;
+    private final MaterialRepository materialRepository;
+    private final ScheduleService scheduleService;
+    private final TriggerMonitor triggerMonitor;
+    private final PipelineTimeline pipelineTimeline;
+    private final PipelineUnlockApiService pipelineUnlockService;
+    private final SchedulingCheckerService schedulingCheckerService;
+    private final PipelineLockService pipelineLockService;
+    private final PipelinePauseService pipelinePauseService;
 
     @Autowired
     public PipelineHistoryService(PipelineDao pipelineDao,
@@ -432,19 +433,6 @@ public class PipelineHistoryService {
         for (PipelineGroupModel pipelineGroupModel : groupModels.asList()) {
             if (pipelineGroupModel.getPipelineModels().isEmpty()) {
                 groupModels.remove(pipelineGroupModel);
-            }
-        }
-    }
-
-    private void updateGroupAdministrability(Username username, PipelineGroupModels groupModels) {
-        for (PipelineGroupModel groupModel : groupModels.asList()) {
-            if (!goConfigService.isUserAdminOfGroup(username.getUsername(), groupModel.getName())) {
-                continue;
-            }
-
-            for (PipelineModel pipelineModel : groupModel.getPipelineModels()) {
-                if (goConfigService.isPipelineEditable(pipelineModel.getName()))
-                    pipelineModel.updateAdministrability(true);
             }
         }
     }

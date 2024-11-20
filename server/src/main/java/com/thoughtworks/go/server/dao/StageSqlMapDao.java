@@ -81,7 +81,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                           TransactionSynchronizationManager transactionSynchronizationManager,
                           SystemEnvironment systemEnvironment,
                           Database database) {
-        super(goCache, sqlSessionFactory, systemEnvironment, database);
+        super(goCache, sqlSessionFactory);
         this.buildInstanceDao = buildInstanceDao;
         this.cache = cache;
         this.transactionTemplate = transactionTemplate;

@@ -45,10 +45,6 @@ public class AgentIdentifier implements Serializable {
         return uuid;
     }
 
-    public boolean matches(String agentUuid) {
-        return uuid.equals(agentUuid);
-    }
-
     @Override
     public String toString() {
         return String.format("Agent [%s, %s, %s]", hostName, ipAddress, uuid);

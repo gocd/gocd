@@ -72,7 +72,7 @@ public class PackageRepositoryServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, secretParamResolver);
+        service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, entityHashingService, secretParamResolver);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class PackageRepositoryServiceTest {
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(getPluginDescriptor("yum"));
         when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), packageConfigurationsArgumentCaptor.capture())).thenReturn(expectedValidationResult);
 
-        service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, secretParamResolver);
+        service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, entityHashingService, secretParamResolver);
         service.performPluginValidationsFor(packageRepository);
         assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value")).isEqualTo(List.of("url format incorrect"));
     }
@@ -160,7 +160,7 @@ public class PackageRepositoryServiceTest {
         PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, secretParamResolver);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, entityHashingService, secretParamResolver);
 
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
         when(packageRepositoryExtension.checkConnectionToRepository(eq(pluginId), argumentCaptor.capture())).thenReturn(new Result().withSuccessMessages("Accessed Repo File!!!"));
@@ -180,7 +180,7 @@ public class PackageRepositoryServiceTest {
         PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, secretParamResolver);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, entityHashingService, secretParamResolver);
 
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
         when(packageRepositoryExtension.checkConnectionToRepository(eq(pluginId), argumentCaptor.capture())).thenThrow(new RuntimeException("Check Connection not implemented!!"));
@@ -197,7 +197,7 @@ public class PackageRepositoryServiceTest {
         String pluginId = "yum";
         PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, secretParamResolver);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, entityHashingService, secretParamResolver);
 
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
@@ -218,7 +218,7 @@ public class PackageRepositoryServiceTest {
         PackageRepository packageRepository = packageRepository(pluginId);
         packageRepository.getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][username]}}"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, secretParamResolver);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, entityHashingService, secretParamResolver);
 
         when(packageRepositoryExtension.checkConnectionToRepository(eq(pluginId), any())).thenReturn(new Result().withErrorMessages("Repo invalid!!", "Could not connect"));
         doAnswer(invocation -> {
@@ -245,7 +245,7 @@ public class PackageRepositoryServiceTest {
         RepositoryMetadataStore.getInstance().addMetadataFor(pluginId, new PackageConfigurations());
         PackageRepository packageRepository = packageRepository(pluginId);
         packageRepository.getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][username]}}"));
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, secretParamResolver);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, entityHashingService, secretParamResolver);
 
         when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), any())).thenReturn(new ValidationResult());
         doAnswer(invocation -> {

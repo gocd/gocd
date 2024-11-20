@@ -19,22 +19,13 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 public class DeleteConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
     private ConfigRepoConfig preprocessedConfigRepo;
-    private SecurityService securityService;
     private final String repoId;
-    private final Username username;
-    private final HttpLocalizedOperationResult result;
 
-    public DeleteConfigRepoCommand(SecurityService securityService, String repoId, Username username, HttpLocalizedOperationResult result) {
-        this.securityService = securityService;
+    public DeleteConfigRepoCommand(String repoId) {
         this.repoId = repoId;
-        this.username = username;
-        this.result = result;
     }
 
     @Override

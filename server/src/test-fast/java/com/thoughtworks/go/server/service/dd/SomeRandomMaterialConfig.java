@@ -33,11 +33,6 @@ public class SomeRandomMaterialConfig extends AbstractMaterialConfig {
     }
 
     @Override
-    protected void appendAttributes(Map<String, Object> parameters) {
-        throw new RuntimeException("Ouch!");
-    }
-
-    @Override
     protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
         throw new RuntimeException("Ouch!");
     }

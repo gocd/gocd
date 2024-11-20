@@ -57,7 +57,6 @@ public class UrlRewriterIntegrationTest {
 
     private static HttpTestUtil httpUtil;
     private static WebApplicationContext wac;
-    private static boolean useConfiguredUrls;
 
     private static final ResponseAssertion NO_REWRITE = new ResponseAssertion(HTTP_URL + "/go/quux?hello=world", HTTP_URL + "/go/quux?hello=world");
     private static final ResponseAssertion PIPELINE_GROUP_CREATE = new ResponseAssertion(HTTP_URL + "/go/api/admin/pipeline_groups", HTTP_URL + "/go/spark/api/admin/pipeline_groups", METHOD.POST);
@@ -155,10 +154,6 @@ public class UrlRewriterIntegrationTest {
         });
         httpUtil.httpConnector(HTTP);
         when(wac.getBean("serverConfigService")).thenReturn(new BaseUrlProvider() {
-            @Override
-            public boolean hasAnyUrlConfigured() {
-                return useConfiguredUrls;
-            }
 
             @Override
             public String siteUrlFor(String url, boolean forceSsl) throws URISyntaxException {
@@ -220,7 +215,6 @@ public class UrlRewriterIntegrationTest {
     @ParameterizedTest
     @MethodSource("testResponseAssertions")
     public void shouldRewrite(final ResponseAssertion assertion) throws Exception {
-        useConfiguredUrls = assertion.useConfiguredUrls;
         GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null);
         try (CloseableHttpClient httpClient = builder.build()) {
             HttpRequestBase httpMethod;

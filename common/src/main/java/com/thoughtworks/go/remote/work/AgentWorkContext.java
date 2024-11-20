@@ -16,7 +16,6 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
@@ -30,18 +29,16 @@ public class AgentWorkContext {
     private final BuildRepositoryRemote repositoryRemote;
     private final GoArtifactsManipulator artifactsManipulator;
     private final AgentRuntimeInfo agentRuntimeInfo;
-    private final PackageRepositoryExtension packageRepositoryExtension;
     private final SCMExtension scmExtension;
     private final TaskExtension taskExtension;
     private final ArtifactExtension artifactExtension;
     private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
 
-    public AgentWorkContext(AgentIdentifier agentIdentifier, BuildRepositoryRemote repositoryRemote, GoArtifactsManipulator artifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) {
+    public AgentWorkContext(AgentIdentifier agentIdentifier, BuildRepositoryRemote repositoryRemote, GoArtifactsManipulator artifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, SCMExtension scmExtension, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) {
         this.agentIdentifier = agentIdentifier;
         this.repositoryRemote = repositoryRemote;
         this.artifactsManipulator = artifactsManipulator;
         this.agentRuntimeInfo = agentRuntimeInfo;
-        this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
         this.artifactExtension = artifactExtension;
@@ -62,10 +59,6 @@ public class AgentWorkContext {
 
     public AgentRuntimeInfo getAgentRuntimeInfo() {
         return agentRuntimeInfo;
-    }
-
-    public PackageRepositoryExtension getPackageRepositoryExtension() {
-        return packageRepositoryExtension;
     }
 
     public SCMExtension getScmExtension() {

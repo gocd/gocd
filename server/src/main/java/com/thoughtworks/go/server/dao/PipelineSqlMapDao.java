@@ -98,7 +98,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                              GoConfigDao configFileDao,
                              Database database,
                              TimeProvider timeProvider) {
-        super(goCache, sqlSessionFactory, systemEnvironment, database);
+        super(goCache, sqlSessionFactory);
         this.stageDao = stageDao;
         this.materialRepository = materialRepository;
         this.environmentVariableDao = environmentVariableDao;

@@ -181,18 +181,6 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
         parameters.put("branch", branch);
     }
 
-    @Override
-    protected void appendAttributes(Map<String, Object> parameters) {
-        parameters.put("url", url);
-        parameters.put("branch", branch);
-        parameters.put("shallowClone", shallowClone);
-    }
-
-    @Override
-    protected String getLocation() {
-        return url.forDisplay();
-    }
-
     /**
      * This does not thoroughly validate the ref format as `git check-ref-format` would; it only does the
      * basic necessities of checking for the presence of refspec components and asserting that no wildcards

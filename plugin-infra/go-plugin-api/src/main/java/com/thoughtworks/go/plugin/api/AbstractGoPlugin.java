@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.api;
 /**
  * An abstract implementation GoPlugin which will take care of GoApplicationAccessor initialization.
  */
+@SuppressWarnings("unused") // Part of plugin API used by some plugins
 public abstract class AbstractGoPlugin implements GoPlugin {
 
     protected GoApplicationAccessor goApplicationAccessor;

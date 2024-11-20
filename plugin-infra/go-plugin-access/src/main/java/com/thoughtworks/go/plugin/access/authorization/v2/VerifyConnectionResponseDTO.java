@@ -55,7 +55,7 @@ class VerifyConnectionResponseDTO {
     }
 
     private com.thoughtworks.go.plugin.domain.common.ValidationResult result() {
-        if(validationResult == null) {
+        if (validationResult == null) {
             return null;
         }
 
@@ -75,7 +75,7 @@ class VerifyConnectionResponseDTO {
         return errors != null ? new JSONResultMessageHandler().toValidationResult(errors.toString()) : null;
     }
 
-    private enum Status {
+    public enum Status {
         @SerializedName("success")
         success("success"),
         @SerializedName("failure")

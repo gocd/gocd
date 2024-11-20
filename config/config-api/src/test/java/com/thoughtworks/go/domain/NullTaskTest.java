@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.ValidationContext;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -24,8 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class NullTaskTest {
-    private ValidationContext validationContext;
-
     @Test
     public void shouldNotAllowSettingOfConfigAttributes() throws Exception {
         Task task = new NullTask();
@@ -40,7 +37,7 @@ public class NullTaskTest {
     @Test
     public void validateShouldReturnNoErrors() throws Exception {
         Task task = new NullTask();
-        task.validate(validationContext);
+        task.validate(null);
         assertThat(task.errors().isEmpty()).isTrue();
     }
 

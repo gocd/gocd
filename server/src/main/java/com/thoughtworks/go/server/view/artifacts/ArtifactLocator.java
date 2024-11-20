@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.LocatableEntity;
 import java.io.File;
 
 public interface ArtifactLocator {
-    File findArtifact(LocatableEntity locatableEntity, String artifactPath);
 
     boolean directoryExists(LocatableEntity locatableEntity);
 

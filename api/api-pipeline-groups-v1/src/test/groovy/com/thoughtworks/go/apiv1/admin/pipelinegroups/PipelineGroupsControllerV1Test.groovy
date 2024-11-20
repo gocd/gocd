@@ -59,7 +59,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
   @Override
   PipelineGroupsControllerV1 createControllerInstance() {
-    return new PipelineGroupsControllerV1(pipelineConfigsService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, securityService)
+    return new PipelineGroupsControllerV1(pipelineConfigsService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested

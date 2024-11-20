@@ -192,12 +192,6 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         return String.format("AbstractMaterial{name=%s, type=%s}", name, materialType);
     }
 
-    protected void resetCachedIdentityAttributes() {
-        sqlCriteria = null;
-        attributesForXml = null;
-        pipelineUniqueFingerprint = null;
-    }
-
     @Override
     public MaterialConfig config() {
         throw new RuntimeException("You need to implement this");

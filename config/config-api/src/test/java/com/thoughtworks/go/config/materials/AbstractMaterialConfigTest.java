@@ -161,11 +161,6 @@ class AbstractMaterialConfigTest {
         }
 
         @Override
-        protected void appendAttributes(Map<String, Object> parameters) {
-            parameters.put("baz", quux);
-        }
-
-        @Override
         public String getFolder() {
             throw new UnsupportedOperationException();
         }

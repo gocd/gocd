@@ -149,11 +149,6 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
     }
 
     @Override
-    protected void appendAttributes(Map<String, Object> parameters) {
-        parameters.put("scmName", scmConfig.getName());
-    }
-
-    @Override
     protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
         basicCriteria.put("dest", folder);
     }

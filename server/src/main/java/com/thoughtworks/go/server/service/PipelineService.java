@@ -44,19 +44,18 @@ import static java.lang.String.format;
 @Service
 public class PipelineService implements UpstreamPipelineResolver {
 
-    private TransactionTemplate transactionTemplate;
-    private PipelineSqlMapDao pipelineDao;
-    private StageService stageService;
-    private PipelineLockService pipelineLockService;
-    private PipelineTimeline pipelineTimeline;
-    private MaterialRepository materialRepository;
+    private final TransactionTemplate transactionTemplate;
+    private final PipelineSqlMapDao pipelineDao;
+    private final StageService stageService;
+    private final PipelineLockService pipelineLockService;
+    private final PipelineTimeline pipelineTimeline;
+    private final MaterialRepository materialRepository;
     private final SystemEnvironment systemEnvironment;
-    private final GoConfigService goConfigService;
-    private MaterialConfigConverter materialConfigConverter;
+    private final MaterialConfigConverter materialConfigConverter;
 
     @Autowired
     public PipelineService(PipelineSqlMapDao pipelineDao, StageService stageService, PipelineLockService pipelineLockService, PipelineTimeline pipelineTimeline, MaterialRepository materialRepository,
-                           TransactionTemplate transactionTemplate, SystemEnvironment systemEnvironment, GoConfigService goConfigService, MaterialConfigConverter materialConfigConverter) {
+                           TransactionTemplate transactionTemplate, SystemEnvironment systemEnvironment, MaterialConfigConverter materialConfigConverter) {
         this.pipelineDao = pipelineDao;
         this.stageService = stageService;
         this.pipelineLockService = pipelineLockService;
@@ -64,7 +63,6 @@ public class PipelineService implements UpstreamPipelineResolver {
         this.materialRepository = materialRepository;
         this.transactionTemplate = transactionTemplate;
         this.systemEnvironment = systemEnvironment;
-        this.goConfigService = goConfigService;
         this.materialConfigConverter = materialConfigConverter;
     }
 

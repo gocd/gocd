@@ -54,11 +54,6 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     @Override
-    protected void appendAttributes(Map<String, Object> parameters) {
-        parameters.put("url", url);
-    }
-
-    @Override
     public boolean isCheckExternals() {
         return false;
     }
@@ -133,11 +128,6 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         if (isNotBlank(this.branch) && hasBranchInUrl()) {
             errors().add(URL, "Ambiguous branch, must be provided either in URL or as an attribute.");
         }
-    }
-
-    @Override
-    protected String getLocation() {
-        return this.url.forDisplay();
     }
 
     @Override

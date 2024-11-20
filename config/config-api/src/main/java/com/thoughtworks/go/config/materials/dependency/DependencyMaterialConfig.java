@@ -134,11 +134,6 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         parameters.put("stageName", CaseInsensitiveString.str(stageName));
     }
 
-    @Override
-    protected void appendAttributes(Map<String, Object> parameters) {
-        appendCriteria(parameters);
-    }
-
     public CaseInsensitiveString getPipelineName() {
         return pipelineName;
     }

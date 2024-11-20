@@ -57,7 +57,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                             SystemEnvironment systemEnvironment,
                             Database database,
                             SessionFactory sessionFactory) {
-        super(goCache, sqlSessionFactory, systemEnvironment, database);
+        super(goCache, sqlSessionFactory);
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.sessionFactory = sessionFactory;

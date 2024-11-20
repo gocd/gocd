@@ -18,7 +18,6 @@ package com.thoughtworks.go.spark
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder
-import com.thoughtworks.go.server.cache.GoCache
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken
@@ -26,7 +25,6 @@ import com.thoughtworks.go.server.newsecurity.models.UsernamePassword
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
 import com.thoughtworks.go.spark.mocks.StubTemplateEngine
 import com.thoughtworks.go.spark.mocks.TestApplication
-import com.thoughtworks.go.spark.mocks.TestRequestContext
 import com.thoughtworks.go.spark.mocks.TestSparkPreFilter
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -47,9 +45,7 @@ trait ControllerTrait<T extends SparkController> {
   Filter prefilter
   MockHttpServletRequest request
   MockHttpServletResponse response
-  RequestContext requestContext = new TestRequestContext()
   StubTemplateEngine templateEngine = new StubTemplateEngine()
-  GoCache goCache = mock(GoCache.class)
   MockHttpSession session = new MockHttpSession()
   HttpRequestBuilder httpRequestBuilder = new HttpRequestBuilder().withSession(session)
   Part part = mock(Part)

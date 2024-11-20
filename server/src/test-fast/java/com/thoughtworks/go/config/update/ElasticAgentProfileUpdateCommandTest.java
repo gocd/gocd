@@ -45,7 +45,7 @@ public class ElasticAgentProfileUpdateCommandTest {
     @Test
     public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
         cruiseConfig.getElasticConfig().getProfiles().clear();
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, new ElasticProfile("foo", "prod-cluster"), null, null, new HttpLocalizedOperationResult(), null, null);
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(new ElasticProfile("foo", "prod-cluster"), null, new HttpLocalizedOperationResult(), null, null);
         assertThatThrownBy(() -> command.update(cruiseConfig)).isInstanceOf(RecordNotFoundException.class);
     }
 
@@ -55,7 +55,7 @@ public class ElasticAgentProfileUpdateCommandTest {
         ElasticProfile newProfile = new ElasticProfile("foo", "prod-cluster");
 
         cruiseConfig.getElasticConfig().getProfiles().add(oldProfile);
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, newProfile, null, null, null, null, null);
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(newProfile, null, null, null, null);
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getElasticConfig().getProfiles().find("foo")).isEqualTo(newProfile);
     }
@@ -74,7 +74,7 @@ public class ElasticAgentProfileUpdateCommandTest {
         when(entityHashingService.hashForEntity(oldProfile)).thenReturn("digest");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, null, currentUser, result, entityHashingService, "bad-digest");
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(newProfile, null, result, entityHashingService, "bad-digest");
 
         assertThat(command.canContinue(cruiseConfig)).isFalse();
         assertThat(result.toString()).contains("Someone has modified the configuration for");
@@ -83,7 +83,7 @@ public class ElasticAgentProfileUpdateCommandTest {
     @Test
     public void shouldEncryptSecurePluginProperties() {
         ElasticProfile elasticProfile = mock(ElasticProfile.class);
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, elasticProfile, null, null, null, null, null);
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(elasticProfile, null, null, null, null);
 
         BasicCruiseConfig preProcessedConfig = new BasicCruiseConfig();
         command.encrypt(preProcessedConfig);

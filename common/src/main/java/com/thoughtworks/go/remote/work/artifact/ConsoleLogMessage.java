@@ -19,7 +19,9 @@ import com.google.gson.Gson;
 
 public class ConsoleLogMessage {
     private static final Gson GSON = new Gson();
+    @SuppressWarnings("unused")
     private String message;
+    @SuppressWarnings("unused")
     private LogLevel logLevel;
 
     public String getMessage() {

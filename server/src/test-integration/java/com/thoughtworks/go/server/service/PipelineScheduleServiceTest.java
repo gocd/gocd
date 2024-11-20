@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.exception.StageAlreadyBuildingException;
 import com.thoughtworks.go.domain.materials.TestingMaterial;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
@@ -408,7 +407,7 @@ public class PipelineScheduleServiceTest {
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
     }
 
-    private Pipeline manualSchedule(String pipelineName) throws Exception, StageAlreadyBuildingException {
+    private Pipeline manualSchedule(String pipelineName) throws Exception {
         scheduleHelper.manuallySchedulePipelineWithRealMaterials(pipelineName, new Username(new CaseInsensitiveString("some user name")));
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         return pipelineService.mostRecentFullPipelineByName(pipelineName);

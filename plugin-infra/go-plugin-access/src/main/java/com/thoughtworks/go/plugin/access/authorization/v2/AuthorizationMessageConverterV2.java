@@ -233,16 +233,6 @@ public class AuthorizationMessageConverterV2 implements AuthorizationMessageConv
         }.getType());
     }
 
-    @Override
-    public String authenticateUserRequestBody(String username, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
-        Map<String, Object> requestMap = new HashMap<>();
-
-        requestMap.put("username", username);
-        requestMap.put("auth_configs", getAuthConfigs(authConfigs));
-        requestMap.put("role_configs", getRoleConfigs(roleConfigs));
-        return GSON.toJson(requestMap);
-    }
-
     private AuthenticationResponse createAuthResponse(String responseBody) {
         return AuthenticationResponseDTO.fromJSON(responseBody).toDomainModel();
     }

@@ -28,9 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
     public final static List<AgentRuntimeStatus> AGENT_STATUS = new ArrayList<>();
@@ -38,11 +35,7 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
     private static final Logger LOGGER = LoggerFactory.getLogger(FakeBuildRepositoryRemote.class);
 
     public static final String PIPELINE_NAME = "studios";
-    public static final String PIPELINE_LABEL = "100";
     public static final String STAGE_NAME = "pipeline";
-    public static final String JOB_PLAN_NAME = "cruise-test-data";
-
-    private static final BlockingQueue<Boolean> buildResult = new LinkedBlockingQueue<>();
 
     @Override
     public AgentInstruction ping(AgentRuntimeInfo info) {
@@ -52,15 +45,12 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
 
     @Override
     public Work getWork(AgentRuntimeInfo runtimeInfo) {
-        return new DefaultWorkCreator().work(runtimeInfo.getIdentifier());
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
         LOGGER.info("Current status of build instance with id {} is {}", jobIdentifier, jobState);
-        if (jobState.isCompleted()) {
-            buildResult.offer(Boolean.TRUE);
-        }
     }
 
     @Override
@@ -82,17 +72,4 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
     public String getCookie(AgentRuntimeInfo agentRuntimeInfo) {
         throw new UnsupportedOperationException("Not implemented");
     }
-
-    public static void waitUntilBuildCompleted() throws InterruptedException {
-        while (!isBuildCompleted()) {
-            Thread.sleep(1000);
-        }
-    }
-
-    private static boolean isBuildCompleted() throws InterruptedException {
-        Boolean aBoolean = buildResult.poll(1, TimeUnit.SECONDS);
-        return aBoolean != null && aBoolean;
-    }
-
-
 }

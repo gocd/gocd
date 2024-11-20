@@ -22,7 +22,6 @@ public class CRConfigurationPropertyTest extends AbstractCRTest<CRConfigurationP
     private final CRConfigurationProperty configProperty;
     private final CRConfigurationProperty configPropertyEncrypted;
     private final CRConfigurationProperty invalid2ValuesSet;
-    private final CRConfigurationProperty invalidEmpty;
 
     public CRConfigurationPropertyTest() {
         configProperty = new CRConfigurationProperty("key1", "value1");
@@ -30,7 +29,6 @@ public class CRConfigurationPropertyTest extends AbstractCRTest<CRConfigurationP
         configPropertyEncrypted.setKey("213476%$");
 
         invalid2ValuesSet = new CRConfigurationProperty("key1", "value1", "213476%$");
-        invalidEmpty = new CRConfigurationProperty();
     }
 
     @Override

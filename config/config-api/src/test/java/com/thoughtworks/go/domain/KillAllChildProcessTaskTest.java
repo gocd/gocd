@@ -15,11 +15,8 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.ValidationContext;
 import org.junit.jupiter.api.Test;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,14 +24,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 
 public class KillAllChildProcessTaskTest {
-    private ValidationContext validationContext;
-
-    public long getSystemTime() {
-        ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-        return bean.isCurrentThreadCpuTimeSupported() ?
-                (bean.getCurrentThreadCpuTime() - bean.getCurrentThreadUserTime()) : 0L;
-    }
-
     @Test
     public void shouldReturnDefaultsForCancelTaskAndGetConditions() {
         KillAllChildProcessTask processTask = new KillAllChildProcessTask();
@@ -57,7 +46,7 @@ public class KillAllChildProcessTaskTest {
     @Test
     public void validateShouldReturnNoErrors() {
         KillAllChildProcessTask processTask = new KillAllChildProcessTask();
-        processTask.validate(validationContext);
+        processTask.validate(null);
         assertThat(processTask.errors().isEmpty()).isTrue();
     }
 

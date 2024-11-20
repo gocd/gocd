@@ -18,13 +18,11 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public class ElasticAgentProfileCreateCommand extends ElasticAgentProfileCommand {
-    public ElasticAgentProfileCreateCommand(GoConfigService goConfigService, ElasticProfile elasticProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result) {
-        super(goConfigService, elasticProfile, extension, currentUser, result);
+    public ElasticAgentProfileCreateCommand(ElasticProfile elasticProfile, ElasticAgentExtension extension, LocalizedOperationResult result) {
+        super(elasticProfile, extension, result);
     }
 
     @Override

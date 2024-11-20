@@ -52,8 +52,6 @@ public interface AuthorizationMessageConverter {
 
     String authenticateUserRequestBody(String username, String password, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs);
 
-    String authenticateUserRequestBody(String username, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs);
-
     AuthenticationResponse getAuthenticatedUserFromResponseBody(String responseBody);
 
     List<User> getSearchUsersFromResponseBody(String responseBody);

@@ -21,7 +21,6 @@ import com.thoughtworks.go.agent.statusapi.AgentHealthHolder;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -51,7 +50,6 @@ public class AgentHTTPClientController extends AgentController {
     private final ArtifactExtension artifactExtension;
     private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
 
-    private final PackageRepositoryExtension packageRepositoryExtension;
     private final SCMExtension scmExtension;
     private final TaskExtension taskExtension;
     private volatile JobRunner runner;
@@ -66,7 +64,6 @@ public class AgentHTTPClientController extends AgentController {
                                      SubprocessLogger subprocessLogger,
                                      SystemEnvironment systemEnvironment,
                                      PluginManager pluginManager,
-                                     PackageRepositoryExtension packageRepositoryExtension,
                                      SCMExtension scmExtension,
                                      TaskExtension taskExtension,
                                      ArtifactExtension artifactExtension,
@@ -75,7 +72,6 @@ public class AgentHTTPClientController extends AgentController {
                                      PluginJarLocationMonitor pluginJarLocationMonitor) {
         super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, agentHealthHolder, pluginJarLocationMonitor);
         this.client = client;
-        this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
         this.manipulator = manipulator;
@@ -132,7 +128,7 @@ public class AgentHTTPClientController extends AgentController {
             Work work = client.getWork(getAgentRuntimeInfo());
             LOG.debug("[Agent Loop] Got work from server: [{}]", work.description());
             runner = new JobRunner();
-            final AgentWorkContext agentWorkContext = new AgentWorkContext(agentIdentifier, client, manipulator, getAgentRuntimeInfo(), packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry);
+            final AgentWorkContext agentWorkContext = new AgentWorkContext(agentIdentifier, client, manipulator, getAgentRuntimeInfo(), scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry);
             runner.run(work, agentWorkContext);
             LOG.debug("[Agent Loop] Successfully executed work.");
             return WorkAttempt.fromWork(work);

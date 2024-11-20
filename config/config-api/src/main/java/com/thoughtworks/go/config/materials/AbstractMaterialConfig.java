@@ -132,8 +132,6 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
     protected abstract void appendCriteria(Map<String, Object> parameters);
 
-    protected abstract void appendAttributes(Map<String,Object> parameters);
-
     protected abstract void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria);
 
     @Override

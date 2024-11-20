@@ -47,15 +47,13 @@ import static java.lang.String.format;
 public class ConfigRepoService {
     public static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepoService.class);
     private final GoConfigService goConfigService;
-    private final SecurityService securityService;
     private final EntityHashingService entityHashingService;
     private final ConfigRepoExtension configRepoExtension;
 
     @Autowired
-    public ConfigRepoService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, ConfigRepoExtension configRepoExtension,
+    public ConfigRepoService(GoConfigService goConfigService, EntityHashingService entityHashingService, ConfigRepoExtension configRepoExtension,
                              MaterialUpdateService materialUpdateService, MaterialConfigConverter converter) {
         this.goConfigService = goConfigService;
-        this.securityService = securityService;
         this.entityHashingService = entityHashingService;
         this.configRepoExtension = configRepoExtension;
         goConfigService.register(new EntityConfigChangedListener<ConfigRepoConfig>() {
@@ -93,7 +91,7 @@ public class ConfigRepoService {
     }
 
     public void deleteConfigRepo(String repoId, Username username, HttpLocalizedOperationResult result) {
-        DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(securityService, repoId, username, result);
+        DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(repoId);
 
         update(username, repoId, result, command);
         if (result.isSuccessful()) {
@@ -102,7 +100,7 @@ public class ConfigRepoService {
     }
 
     public void createConfigRepo(ConfigRepoConfig configRepo, Username username, HttpLocalizedOperationResult result) {
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, username, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(configRepo, configRepoExtension);
         update(username, configRepo.getId(), result, command);
     }
 
@@ -119,8 +117,8 @@ public class ConfigRepoService {
 
     public void updateConfigRepo(String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String digestOfExistingConfigRepo,
                                  Username username, HttpLocalizedOperationResult result) {
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, repoIdToUpdate,
-                newConfigRepo, digestOfExistingConfigRepo, username, result, configRepoExtension);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(entityHashingService, repoIdToUpdate,
+                newConfigRepo, digestOfExistingConfigRepo, result, configRepoExtension);
 
         update(username, newConfigRepo.getId(), result, command);
         if (result.isSuccessful()) {

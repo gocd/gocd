@@ -124,9 +124,6 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return currentInstances().iterator();
     }
 
-    public boolean isEmpty() {
-        return uuidToAgentInstanceMap.isEmpty();
-    }
 
     public Integer size() {
         return uuidToAgentInstanceMap.size();

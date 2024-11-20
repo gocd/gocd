@@ -62,7 +62,7 @@ class ConfigRepoServiceTest {
 
     @Test
     void shouldRegisterListener() {
-        new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, converter);
+        new ConfigRepoService(goConfigService, entityHashingService, configRepoExtension, materialUpdateService, converter);
         verify(goConfigService).register(any(EntityConfigChangedListener.class));
     }
 
@@ -72,7 +72,7 @@ class ConfigRepoServiceTest {
         cruiseConfig.getConfigRepos().add(configRepo);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 
-        new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, converter);
+        new ConfigRepoService(goConfigService, entityHashingService, configRepoExtension, materialUpdateService, converter);
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<EntityConfigChangedListener<ConfigRepoConfig>> listenerCaptor = ArgumentCaptor.forClass(EntityConfigChangedListener.class);
@@ -94,7 +94,7 @@ class ConfigRepoServiceTest {
 
         @BeforeEach
         void setUp() {
-            service = new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, converter);
+            service = new ConfigRepoService(goConfigService, entityHashingService, configRepoExtension, materialUpdateService, converter);
         }
 
         @Test

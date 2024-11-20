@@ -88,7 +88,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
   @Override
   PipelineConfigControllerV11 createControllerInstance() {
-    return new PipelineConfigControllerV11(pipelineConfigService, pipelinePauseService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService, goCache)
+    return new PipelineConfigControllerV11(pipelineConfigService, pipelinePauseService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService)
   }
 
   @Nested

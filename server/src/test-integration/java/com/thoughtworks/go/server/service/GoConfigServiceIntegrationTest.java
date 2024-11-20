@@ -138,7 +138,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(result.message()).isEqualTo(EntityType.Pipeline.notFoundMessage("non-existent-pipeline"));
     }
 
-    private void setupSecurity() throws IOException {
+    private void setupSecurity() {
         configHelper.enableSecurity();
         configHelper.addAdmins("root");
         configHelper.addPipeline("my-pipeline", "my-stage");
@@ -174,7 +174,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturn403WhenAUserIsNotAnAdmin() throws IOException {
+    public void shouldReturn403WhenAUserIsNotAnAdmin() {
         configHelper.enableSecurity();
         configHelper.addAdmins("hero");
 
@@ -191,7 +191,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnANewCopyOfConfigForEditWhenAUserIsATemplateAdmin() throws IOException {
+    public void shouldReturnANewCopyOfConfigForEditWhenAUserIsATemplateAdmin() {
         configHelper.enableSecurity();
         configHelper.addAdmins("hero");
 
@@ -208,7 +208,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnANewCopyOfConfigForEditWhenLoadingForEdit() throws IOException {
+    public void shouldReturnANewCopyOfConfigForEditWhenLoadingForEdit() {
         configHelper.enableSecurity();
         configHelper.addAdmins("hero");
 
@@ -225,7 +225,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLoadPipelineGroupForEdit() throws IOException {
+    public void shouldLoadPipelineGroupForEdit() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-build");
         pipelineConfig.addParam(new ParamConfig("label-param", "param-value"));
         pipelineConfig.setLabelTemplate("${COUNT}-#{label-param}");
@@ -244,7 +244,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCloneTheConfigObjectBeforeHandingOffForEdit() throws IOException {
+    public void shouldCloneTheConfigObjectBeforeHandingOffForEdit() {
         configHelper.addAdmins("hero");
         configHelper.addPipelineWithGroup("group_one", "pipeline", "stage", "my_job");
 
@@ -273,7 +273,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldErrorOutWhenUserIsNotAuthorizedToLoadGroupForEdit() throws IOException {
+    public void shouldErrorOutWhenUserIsNotAuthorizedToLoadGroupForEdit() {
         configHelper.enableSecurity();
         configHelper.addAdmins("hero");
         configHelper.addPipelineWithGroup("group_one", "pipeline", "stage", "my_job");
@@ -287,7 +287,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFailLoadingWhenGivenInvalidGroupName() throws IOException {
+    public void shouldFailLoadingWhenGivenInvalidGroupName() {
         configHelper.addPipelineWithGroup("group_one", "pipeline", "stage", "my_job");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -550,15 +550,4 @@ public class GoConfigServiceIntegrationTest {
         config.server().setJobTimeout(jobTimeout);
         configHelper.writeConfigFile(config);
     }
-
-    private void assertFailedResult(HttpLocalizedOperationResult result, final String message) {
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.message()).isEqualTo(message);
-    }
-
-    private void assertStageError(StageConfig duplicatedStage, final String message, final String field) {
-        assertThat(duplicatedStage.errors().isEmpty()).isFalse();
-        assertThat(duplicatedStage.errors().on(field)).isEqualTo(message);
-    }
-
 }

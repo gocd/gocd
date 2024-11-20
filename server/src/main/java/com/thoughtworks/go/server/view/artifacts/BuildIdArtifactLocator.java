@@ -27,11 +27,6 @@ public class BuildIdArtifactLocator implements ArtifactLocator {
     }
 
     @Override
-    public File findArtifact(LocatableEntity identifier, String artifactPath) {
-        return new File(directoryFor(identifier), artifactPath);
-    }
-
-    @Override
     public boolean directoryExists(LocatableEntity locatableEntity) {
         return directoryFor(locatableEntity).exists();
     }

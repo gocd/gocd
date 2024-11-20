@@ -16,8 +16,6 @@
 package com.thoughtworks.go.server.transaction;
 
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.database.Database;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -25,14 +23,10 @@ public abstract class SqlMapClientDaoSupport implements InitializingBean {
     protected final GoCache goCache;
     private final SqlSessionFactory sqlSessionFactory;
     private SqlMapClientTemplate sqlSession;
-    private SystemEnvironment systemEnvironment;
-    private Database database;
 
-    public SqlMapClientDaoSupport(GoCache goCache, SqlSessionFactory sqlSessionFactory, SystemEnvironment systemEnvironment, Database database) {
+    public SqlMapClientDaoSupport(GoCache goCache, SqlSessionFactory sqlSessionFactory) {
         this.goCache = goCache;
         this.sqlSessionFactory = sqlSessionFactory;
-        this.systemEnvironment = systemEnvironment;
-        this.database = database;
     }
 
     public SqlMapClientTemplate getSqlMapClientTemplate() {

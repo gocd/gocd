@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.spark.spa;
 
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
 import spark.ModelAndView;
@@ -32,12 +31,10 @@ import static spark.Spark.*;
 public class PipelinesController implements SparkController {
     private SPAAuthenticationHelper authenticationHelper;
     private TemplateEngine engine;
-    private GoCache goCache;
 
-    public PipelinesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, GoCache goCache) {
+    public PipelinesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
-        this.goCache = goCache;
     }
 
     @Override

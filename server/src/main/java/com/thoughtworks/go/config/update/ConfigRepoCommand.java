@@ -23,9 +23,6 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 import java.util.List;
 
@@ -35,19 +32,12 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
 
-    private final SecurityService securityService;
+    private final ConfigRepoConfig configRepo;
+    private final ConfigRepoExtension configRepoExtension;
     private ConfigRepoConfig preprocessedConfigRepo;
-    private ConfigRepoConfig configRepo;
-    private final Username username;
-    private final HttpLocalizedOperationResult result;
-    private ConfigRepoExtension configRepoExtension;
 
-    public ConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, Username username, HttpLocalizedOperationResult result,
-                             ConfigRepoExtension configRepoExtension) {
-        this.securityService = securityService;
+    public ConfigRepoCommand(ConfigRepoConfig configRepo, ConfigRepoExtension configRepoExtension) {
         this.configRepo = configRepo;
-        this.username = username;
-        this.result = result;
         this.configRepoExtension = configRepoExtension;
     }
 
@@ -77,7 +67,7 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
      * cannot be moved to ConfigRepoConfig
      * */
     private void validateConfigRepoId(ConfigRepoConfig configRepo) {
-        if (isBlank(this.configRepo.getId())) {
+        if (isBlank(configRepo.getId())) {
             this.configRepo.addError("id", "Configuration repository id not specified");
         }
     }

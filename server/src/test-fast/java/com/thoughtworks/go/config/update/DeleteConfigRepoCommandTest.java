@@ -56,7 +56,7 @@ public class DeleteConfigRepoCommandTest {
 
     @Test
     public void shouldDeleteTheSpecifiedConfigRepo() throws Exception {
-        DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(securityService, repoId, currentUser, result);
+        DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(repoId);
         assertNotNull(cruiseConfig.getConfigRepos().getConfigRepo(repoId));
         command.update(cruiseConfig);
         assertNull(cruiseConfig.getConfigRepos().getConfigRepo(repoId));
@@ -65,7 +65,7 @@ public class DeleteConfigRepoCommandTest {
     @Test
     public void shouldNotContinueWhenConfigRepoNoLongerExists() {
         cruiseConfig.getConfigRepos().remove(0);
-        DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(securityService, repoId, currentUser, result);
+        DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(repoId);
         assertThat(command.canContinue(cruiseConfig)).isFalse();
     }
 }

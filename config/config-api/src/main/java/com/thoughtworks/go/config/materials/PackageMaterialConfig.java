@@ -85,12 +85,6 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
     }
 
     @Override
-    protected void appendAttributes(Map<String, Object> parameters) {
-        parameters.put("repositoryName", this.getPackageDefinition().getRepository().getName());
-        parameters.put("packageName", this.getPackageDefinition().getName());
-    }
-
-    @Override
     protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
         //do nothing
     }

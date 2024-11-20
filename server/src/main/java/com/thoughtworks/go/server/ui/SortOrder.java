@@ -32,8 +32,4 @@ public enum SortOrder {
     };
 
     public abstract <T> Comparator<T> comparator(final Comparator<T> comparator);
-
-    public static SortOrder orderFor(String order) {
-        return "DESC".equals(order) ? DESC : ASC;
-    }
 }

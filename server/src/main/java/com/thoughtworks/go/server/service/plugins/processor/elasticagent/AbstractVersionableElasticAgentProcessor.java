@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service.plugins.processor.elasticagent;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractVersionableElasticAgentProcessor implements VersionableElasticAgentProcessor {
@@ -48,10 +46,6 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
             metadata = elasticAgents.stream().map(ElasticAgentPluginService::toAgentMetadata).collect(toList());
         }
         return metadata;
-    }
-
-    public Username usernameFor(String pluginId) {
-        return new Username(format("plugin-%s", pluginId));
     }
 
     protected Collection<AgentInstance> getAgentInstances(String pluginId, Collection<AgentMetadata> agentMetadataListFromRequest) {

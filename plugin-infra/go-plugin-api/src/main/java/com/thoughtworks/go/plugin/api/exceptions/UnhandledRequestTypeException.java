@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.api.exceptions;
 
+@SuppressWarnings("unused") // Part of plugin-api contract
 public class UnhandledRequestTypeException extends Exception {
     public UnhandledRequestTypeException(String requestType) {
         super("This is an invalid request type :" + requestType);

@@ -31,7 +31,7 @@ import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_
 @Service
 public class SecurityService {
     private final SystemEnvironment systemEnvironment;
-    private GoConfigService goConfigService;
+    private final GoConfigService goConfigService;
 
     @Autowired
     public SecurityService(GoConfigService goConfigService, SystemEnvironment systemEnvironment) {
@@ -165,10 +165,6 @@ public class SecurityService {
                 hasOperatePermissionForPipeline(username.getUsername(), pipelineName);
     }
 
-    public String logoutSuccessUrl() {
-        return "/";
-    }
-
     public String casServiceBaseUrl() {
         return goConfigService.serverConfig().getSiteUrlPreferablySecured().getUrl();
     }
@@ -237,10 +233,6 @@ public class SecurityService {
         }
 
         return hasPermission;
-    }
-
-    public boolean noAdminsConfigured() {
-        return goConfigService.security().noAdminsConfigured();
     }
 
     public static class UserRoleMatcherImpl implements UserRoleMatcher {

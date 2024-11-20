@@ -55,11 +55,6 @@ public class TestingMaterialConfig extends ScmMaterialConfig{
     }
 
     @Override
-    protected String getLocation() {
-        return getUrl();
-    }
-
-    @Override
     public String getUriForDisplay() {
         return this.url;
     }
@@ -77,7 +72,4 @@ public class TestingMaterialConfig extends ScmMaterialConfig{
     protected void appendCriteria(Map<String, Object> parameters) {
     }
 
-    @Override
-    protected void appendAttributes(Map<String, Object> parameters) {
-    }
 }

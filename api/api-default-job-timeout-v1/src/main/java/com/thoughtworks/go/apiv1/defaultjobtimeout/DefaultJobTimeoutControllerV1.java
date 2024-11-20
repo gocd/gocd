@@ -23,7 +23,6 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.defaultjobtimeout.representers.DefaultJobTimeOutRepresenter;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.spark.Routes.DefaultJobTimeout;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -41,14 +40,12 @@ import static spark.Spark.*;
 public class DefaultJobTimeoutControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final EntityHashingService entityHashingService;
     private final ServerConfigService serverConfigService;
 
     @Autowired
-    public DefaultJobTimeoutControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, ServerConfigService serverConfigService) {
+    public DefaultJobTimeoutControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, ServerConfigService serverConfigService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.entityHashingService = entityHashingService;
         this.serverConfigService = serverConfigService;
     }
 

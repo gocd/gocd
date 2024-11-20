@@ -25,7 +25,7 @@ import java.util.Arrays;
 @ConfigCollection(value = RunIfConfig.class)
 public class RunIfConfigs extends BaseCollection<RunIfConfig> implements Validatable {
     public static final RunIfConfigs CONFIGS = new RunIfConfigs();
-    private ConfigErrors configErrors = new ConfigErrors();
+    private final ConfigErrors configErrors = new ConfigErrors();
 
     static {
         CONFIGS.add(RunIfConfig.ANY);
@@ -64,25 +64,6 @@ public class RunIfConfigs extends BaseCollection<RunIfConfig> implements Validat
     @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
-    }
-
-    public RunIfConfig resolveToSingle() {
-        if (this.contains(RunIfConfig.ANY)) {
-            return RunIfConfig.ANY;
-        }
-
-        if (this.contains(RunIfConfig.PASSED)) {
-            if (this.contains(RunIfConfig.FAILED)) {
-                return RunIfConfig.ANY;
-            }
-            return RunIfConfig.PASSED;
-        }
-
-        if (this.contains(RunIfConfig.FAILED)) {
-            return RunIfConfig.FAILED;
-        }
-
-        return RunIfConfig.PASSED;
     }
 }
 

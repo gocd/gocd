@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.cache.LazyCache;
-import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
@@ -33,7 +32,6 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.util.ClonerFactory;
-import com.thoughtworks.go.util.SystemEnvironment;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -74,12 +72,10 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                 SqlSessionFactory sqlSessionFactory,
                                 Cache cache,
                                 TransactionSynchronizationManager transactionSynchronizationManager,
-                                SystemEnvironment systemEnvironment,
-                                Database database,
                                 ResourceRepository resourceRepository,
                                 ArtifactPlanRepository artifactPlanRepository,
                                 JobAgentMetadataDao jobAgentMetadataDao) {
-        super(goCache, sqlSessionFactory, systemEnvironment, database);
+        super(goCache, sqlSessionFactory);
         this.environmentVariableDao = environmentVariableDao;
         this.transactionTemplate = transactionTemplate;
         this.cache = cache;

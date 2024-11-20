@@ -20,9 +20,7 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
-import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 public class UpdateConfigRepoCommand extends ConfigRepoCommand {
@@ -32,10 +30,10 @@ public class UpdateConfigRepoCommand extends ConfigRepoCommand {
     private final String digest;
     private final HttpLocalizedOperationResult result;
 
-    public UpdateConfigRepoCommand(SecurityService securityService, EntityHashingService entityHashingService,
-                                   String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String digest, Username username,
+    public UpdateConfigRepoCommand(EntityHashingService entityHashingService,
+                                   String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String digest,
                                    HttpLocalizedOperationResult result, ConfigRepoExtension configRepoExtension) {
-        super(securityService, newConfigRepo, username, result, configRepoExtension);
+        super(newConfigRepo, configRepoExtension);
         this.entityHashingService = entityHashingService;
         this.repoIdToUpdate = repoIdToUpdate;
         this.newConfigRepo = newConfigRepo;

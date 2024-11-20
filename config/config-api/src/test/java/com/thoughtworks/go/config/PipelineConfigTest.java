@@ -53,10 +53,6 @@ public class PipelineConfigTest {
     private final EnvironmentVariablesConfig mockEnvironmentVariablesConfig = mock(EnvironmentVariablesConfig.class);
     private final ParamsConfig mockParamsConfig = mock(ParamsConfig.class);
 
-    public enum Foo {
-        Bar, Baz
-    }
-
     @Test
     public void shouldFindByName() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());

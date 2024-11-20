@@ -44,7 +44,7 @@ public class AgentStatusReportTest {
     @Test
     public void shouldReportIdleWhenAgentRunningNoWork() {
         NoWork work = new NoWork();
-        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null, null));
+        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null));
         assertThat(agentRuntimeInfo).isEqualTo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
     }
 
@@ -58,7 +58,7 @@ public class AgentStatusReportTest {
     @Test
     public void shouldReportIdleWhenAgentRunningDeniedWork() {
         Work work = new DeniedAgentWork("uuid");
-        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null, null));
+        work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null));
         assertThat(agentRuntimeInfo).isEqualTo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
     }
 
@@ -73,7 +73,7 @@ public class AgentStatusReportTest {
     public void shouldNotChangeWhenAgentRunningUnregisteredAgentWork() {
         Work work = new UnregisteredAgentWork("uuid");
         try {
-            work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null, null));
+            work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, agentRuntimeInfo, null, null, null, null));
         } catch (Exception e) {
         }
         assertThat(agentRuntimeInfo).isEqualTo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));

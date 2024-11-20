@@ -43,7 +43,6 @@ import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecretParamResolver;
-import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang3.StringUtils;
@@ -61,7 +60,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class PackageRepositoryService {
     private PluginManager pluginManager;
     private GoConfigService goConfigService;
-    private SecurityService securityService;
     private EntityHashingService entityHashingService;
     private final SecretParamResolver secretParamResolver;
     private RepositoryMetadataStore repositoryMetadataStore;
@@ -70,12 +68,11 @@ public class PackageRepositoryService {
     public static final Logger LOGGER = LoggerFactory.getLogger(PackageRepositoryService.class);
 
     @Autowired
-    public PackageRepositoryService(PluginManager pluginManager, PackageRepositoryExtension packageRepositoryExtension, GoConfigService goConfigService, SecurityService securityService,
+    public PackageRepositoryService(PluginManager pluginManager, PackageRepositoryExtension packageRepositoryExtension, GoConfigService goConfigService,
                                     EntityHashingService entityHashingService, SecretParamResolver secretParamResolver) {
         this.pluginManager = pluginManager;
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.goConfigService = goConfigService;
-        this.securityService = securityService;
         this.entityHashingService = entityHashingService;
         this.secretParamResolver = secretParamResolver;
         repositoryMetadataStore = RepositoryMetadataStore.getInstance();

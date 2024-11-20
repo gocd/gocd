@@ -80,7 +80,7 @@ public class JobControllerTest {
         jobAgentMetadataDao = mock(JobAgentMetadataDao.class);
         securityService = mock(SecurityService.class);
         jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService,
-                pipelineService, restfulService, null, stageService, jobAgentMetadataDao, systemEnvironment, securityService);
+                pipelineService, restfulService, null, stageService, jobAgentMetadataDao, securityService);
     }
 
     @Test

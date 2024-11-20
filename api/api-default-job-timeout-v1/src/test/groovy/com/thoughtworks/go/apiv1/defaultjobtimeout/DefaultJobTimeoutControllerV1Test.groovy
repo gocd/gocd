@@ -46,7 +46,7 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
   @Override
   DefaultJobTimeoutControllerV1 createControllerInstance() {
-    new DefaultJobTimeoutControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, serverConfigService)
+    new DefaultJobTimeoutControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), serverConfigService)
   }
 
   @Nested

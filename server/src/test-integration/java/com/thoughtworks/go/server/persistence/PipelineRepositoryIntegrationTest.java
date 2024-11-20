@@ -32,7 +32,10 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.dao.UserSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
-import com.thoughtworks.go.server.domain.user.*;
+import com.thoughtworks.go.server.domain.user.ExcludesFilter;
+import com.thoughtworks.go.server.domain.user.Filters;
+import com.thoughtworks.go.server.domain.user.IncludesFilter;
+import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -54,7 +57,8 @@ import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -367,18 +371,6 @@ public class PipelineRepositoryIntegrationTest {
     private User createUser() {
         userSqlMapDao.saveOrUpdate(new User("loser"));
         return userSqlMapDao.findUser("loser");
-    }
-
-    private void assertAllowsPipelines(DashboardFilter filter, String... pipelines) {
-        for (String pipeline : pipelines) {
-            assertTrue(filter.isPipelineVisible(new CaseInsensitiveString(pipeline)));
-        }
-    }
-
-    private void assertDeniesPipelines(DashboardFilter filter, String... pipelines) {
-        for (String pipeline : pipelines) {
-            assertFalse(filter.isPipelineVisible(new CaseInsensitiveString(pipeline)));
-        }
     }
 
     private PipelineSelections excludes(List<String> pipelines, Long userId) {

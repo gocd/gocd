@@ -74,15 +74,8 @@ public class AESCipherProvider implements Serializable {
         return keygen.generateKey().getEncoded();
     }
 
-    public void resetCipher() {
-        removeCachedKey();
-        primeKeyCache();
-    }
-
     public void removeCachedKey() {
         cachedKey = null;
         FileUtils.deleteQuietly(cipherFile);
     }
-
-
 }

@@ -18,6 +18,5 @@ package com.thoughtworks.go.server.web;
 import java.net.URISyntaxException;
 
 public interface BaseUrlProvider {
-    boolean hasAnyUrlConfigured();
     String siteUrlFor(String url, boolean forceSsl) throws URISyntaxException;
 }

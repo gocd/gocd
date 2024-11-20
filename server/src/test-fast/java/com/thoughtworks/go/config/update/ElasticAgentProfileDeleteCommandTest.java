@@ -43,7 +43,7 @@ public class ElasticAgentProfileDeleteCommandTest {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster");
         cruiseConfig.getElasticConfig().getProfiles().add(elasticProfile);
 
-        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, null);
+        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, null);
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();
@@ -54,7 +54,7 @@ public class ElasticAgentProfileDeleteCommandTest {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster");
 
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();
-        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, new HttpLocalizedOperationResult());
+        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, new HttpLocalizedOperationResult());
 
         assertThatThrownBy(() -> command.update(cruiseConfig)).isInstanceOf(RecordNotFoundException.class);
 
@@ -71,7 +71,7 @@ public class ElasticAgentProfileDeleteCommandTest {
         cruiseConfig.addPipeline("all", pipelineConfig);
 
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();
-        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, new HttpLocalizedOperationResult());
+        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, new HttpLocalizedOperationResult());
         assertThatThrownBy(() -> command.isValid(cruiseConfig))
                 .isInstanceOf(GoConfigInvalidException.class)
                 .hasMessageContaining("The elastic agent profile 'foo' is being referenced by pipeline(s): JobConfigIdentifier[build-linux:mingle:defaultJob].");
@@ -82,7 +82,7 @@ public class ElasticAgentProfileDeleteCommandTest {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster");
 
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();
-        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, new HttpLocalizedOperationResult());
+        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, new HttpLocalizedOperationResult());
         assertTrue(command.isValid(cruiseConfig));
     }
 }

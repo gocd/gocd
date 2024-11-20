@@ -27,11 +27,6 @@ public class PathBasedArtifactsLocator implements ArtifactLocator {
         this.artifactsRoot = artifactsRoot;
     }
 
-    @Override
-    public File findArtifact(LocatableEntity identifier, String artifactPath) {
-        return new File(jobFolder(identifier), artifactPath);
-    }
-
     private File jobFolder(LocatableEntity identifier) {
         String jobPath = entityPath(identifier);
         return new File(artifactsRoot, jobPath);

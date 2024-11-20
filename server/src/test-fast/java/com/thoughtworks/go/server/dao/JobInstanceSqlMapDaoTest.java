@@ -66,7 +66,7 @@ class JobInstanceSqlMapDaoTest {
     void setUp() {
         GoCache goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         jobInstanceSqlMapDao = new JobInstanceSqlMapDao(environmentVariableDao, goCache, transactionTemplate, null,
-            cache, transactionSynchronizationManager, systemEnvironment, null, resourceRepository,
+            cache, transactionSynchronizationManager, resourceRepository,
             artifactPlanRepository, jobAgentMetadataDao);
         jobInstanceSqlMapDao.setSqlMapClientTemplate(template);
     }

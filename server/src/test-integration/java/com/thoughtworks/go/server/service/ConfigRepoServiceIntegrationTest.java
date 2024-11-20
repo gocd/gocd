@@ -142,7 +142,7 @@ public class ConfigRepoServiceIntegrationTest {
     public void shouldCreateSpecifiedConfigRepository() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.enableSecurity();
-        configRepoService = new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
+        configRepoService = new ConfigRepoService(goConfigService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
 
         when(configRepoExtension.canHandlePlugin(any())).thenReturn(true);
 
@@ -156,7 +156,7 @@ public class ConfigRepoServiceIntegrationTest {
 
     @Test
     public void shouldUpdateSpecifiedConfigRepository() throws Exception {
-        configRepoService = new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
+        configRepoService = new ConfigRepoService(goConfigService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
 
         when(configRepoExtension.canHandlePlugin(any())).thenReturn(true);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();

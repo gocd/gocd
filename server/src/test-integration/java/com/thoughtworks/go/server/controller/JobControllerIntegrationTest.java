@@ -117,7 +117,7 @@ public class JobControllerIntegrationTest {
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
-                goConfigService, pipelineService, restfulService, artifactService, stageService, jobAgentMetadataDao, systemEnvironment, securityService);
+                goConfigService, pipelineService, restfulService, artifactService, stageService, jobAgentMetadataDao, securityService);
     }
 
     @AfterEach
@@ -160,7 +160,7 @@ public class JobControllerIntegrationTest {
     @Test
     public void shouldCreateJobPresentationModelWithRightStage() throws Exception {
         controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
-                goConfigService, pipelineService, restfulService, artifactService, stageService, jobAgentMetadataDao, systemEnvironment, securityService);
+                goConfigService, pipelineService, restfulService, artifactService, stageService, jobAgentMetadataDao, securityService);
         fixture.configLabelTemplateUsingMaterialRevision();
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage devStage = pipeline.getStages().byName("dev");

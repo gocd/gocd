@@ -25,6 +25,5 @@ public interface SecretsPluginConstants {
     String REQUEST_GET_SECRETS_CONFIG_METADATA = join(".", REQUEST_PREFIX, _SECRETS_CONFIG_METADATA, "get-metadata");
     String REQUEST_GET_SECRETS_CONFIG_VIEW = join(".", REQUEST_PREFIX, _SECRETS_CONFIG_METADATA, "get-view");
     String REQUEST_VALIDATE_SECRETS_CONFIG = join(".", REQUEST_PREFIX, _SECRETS_CONFIG_METADATA, "validate");
-    String REQUEST_VERIFY_CONNECTION = join(".", REQUEST_PREFIX, _SECRETS_CONFIG_METADATA, "verify-connection");
     String REQUEST_LOOKUP_SECRETS = join(".", REQUEST_PREFIX, "secrets-lookup");
 }

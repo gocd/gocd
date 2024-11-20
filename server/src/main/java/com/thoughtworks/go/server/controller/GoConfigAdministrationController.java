@@ -138,10 +138,6 @@ public class GoConfigAdministrationController {
         return securityService.isUserAdmin(getCurrentUser());
     }
 
-    private boolean isCurrentUserAdminOfGroup(String groupName) {
-        return securityService.isUserAdminOfGroup(getCurrentUsername(), groupName);
-    }
-
     private CaseInsensitiveString getCurrentUsername() {
         return getCurrentUser().getUsername();
     }

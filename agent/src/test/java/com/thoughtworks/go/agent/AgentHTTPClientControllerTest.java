@@ -190,8 +190,7 @@ public class AgentHTTPClientControllerTest {
             subprocessLogger,
             systemEnvironment,
             pluginManager,
-            packageRepositoryExtension,
-            scmExtension,
+                scmExtension,
             taskExtension,
             artifactExtension, null, null, pluginJarLocationMonitor);
     }

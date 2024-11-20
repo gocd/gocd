@@ -123,11 +123,6 @@ public class ServerConfigService implements BaseUrlProvider {
         return serverConfig().getWebhookSecret();
     }
 
-    @Override
-    public boolean hasAnyUrlConfigured() {
-        return serverConfig().hasAnyUrlConfigured();
-    }
-
     public SiteUrls getServerSiteUrls() {
         return serverConfig().getSiteUrls();
     }

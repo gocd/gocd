@@ -73,19 +73,19 @@ public class ElasticProfileService {
     }
 
     public void update(Username currentUser, String md5, ElasticProfile newProfile, LocalizedOperationResult result) {
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, elasticAgentExtension, currentUser, result, hashingService, md5);
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(newProfile, elasticAgentExtension, result, hashingService, md5);
         update(command, newProfile, currentUser, result, true);
     }
 
     public void delete(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
-        update(new ElasticAgentProfileDeleteCommand(goConfigService, elasticProfile, elasticAgentExtension, currentUser, result), elasticProfile, currentUser, result, false);
+        update(new ElasticAgentProfileDeleteCommand(elasticProfile, elasticAgentExtension, result), elasticProfile, currentUser, result, false);
         if (result.isSuccessful()) {
             result.setMessage(EntityType.ElasticProfile.deleteSuccessful(elasticProfile.getId()));
         }
     }
 
     public void create(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
-        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(goConfigService, elasticProfile, elasticAgentExtension, currentUser, result);
+        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(elasticProfile, elasticAgentExtension, result);
         update(command, elasticProfile, currentUser, result, true);
     }
 

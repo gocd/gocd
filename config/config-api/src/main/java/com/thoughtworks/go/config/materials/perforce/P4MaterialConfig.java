@@ -52,11 +52,6 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         parameters.put("view", view.getValue());
     }
 
-    @Override
-    protected void appendAttributes(Map<String, Object> parameters) {
-        appendCriteria(parameters);
-    }
-
     public String getServerAndPort() {
         return serverAndPort;
     }
@@ -146,11 +141,6 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         }
 
         validateEncryptedPassword();
-    }
-
-    @Override
-    protected String getLocation() {
-        return getServerAndPort();
     }
 
     @Override

@@ -22,11 +22,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ScheduleCheckListenerFactory {
-    private ScheduleCheckCompletedTopic topic;
-    private BuildCauseProducerService producerService;
-    private ScheduleCheckQueue queue;
-    private SystemEnvironment systemEnvironment;
-    private SchedulingPerformanceLogger schedulingPerformanceLogger;
+    private final ScheduleCheckCompletedTopic topic;
+    private final BuildCauseProducerService producerService;
+    private final ScheduleCheckQueue queue;
+    private final SystemEnvironment systemEnvironment;
+    private final SchedulingPerformanceLogger schedulingPerformanceLogger;
 
     @Autowired
     public ScheduleCheckListenerFactory(ScheduleCheckCompletedTopic topic,
@@ -41,7 +41,7 @@ public class ScheduleCheckListenerFactory {
         this.schedulingPerformanceLogger = schedulingPerformanceLogger;
     }
 
-    public void init(){
+    public void init() {
         int numberOfListeners = systemEnvironment.getNumberOfMaterialCheckListener();
 
         for (int i = 0; i < numberOfListeners; i++) {

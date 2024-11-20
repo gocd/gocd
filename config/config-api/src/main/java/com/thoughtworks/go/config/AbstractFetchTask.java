@@ -69,10 +69,6 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
         return job;
     }
 
-    public void setPipelineName(PathFromAncestor pipelineName) {
-        this.pipelineName = pipelineName;
-    }
-
     public void setPipelineName(CaseInsensitiveString pipelineName) {
         this.pipelineName = new PathFromAncestor(pipelineName);
     }

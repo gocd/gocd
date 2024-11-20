@@ -26,8 +26,6 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang3.StringUtils;
 
@@ -37,18 +35,14 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 public abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCommand<ElasticProfile> {
-    private final GoConfigService goConfigService;
     private final ElasticAgentExtension extension;
-    private final Username currentUser;
     final LocalizedOperationResult result;
     final ElasticProfile elasticProfile;
     ElasticProfile preprocessedProfile;
 
-    public ElasticAgentProfileCommand(GoConfigService goConfigService, ElasticProfile profile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result) {
-        this.goConfigService = goConfigService;
+    public ElasticAgentProfileCommand(ElasticProfile profile, ElasticAgentExtension extension, LocalizedOperationResult result) {
         this.elasticProfile = profile;
         this.extension = extension;
-        this.currentUser = currentUser;
         this.result = result;
     }
 

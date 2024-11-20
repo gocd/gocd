@@ -23,31 +23,35 @@ import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 
 public class TaskMother {
-  public class StubTask implements Task {
+    private TaskMother() {
+    }
 
-      private TaskConfig taskConfig;
+    public class StubTask implements Task {
 
-      public StubTask() {
-          this.taskConfig = new TaskConfig();
-      }
-      @Override
-      public TaskConfig config() {
-          return taskConfig;
-      }
+        private TaskConfig taskConfig;
 
-      @Override
-      public TaskExecutor executor() {
-          return null;
-      }
+        public StubTask() {
+            this.taskConfig = new TaskConfig();
+        }
 
-      @Override
-      public TaskView view() {
-          return null;
-      }
+        @Override
+        public TaskConfig config() {
+            return taskConfig;
+        }
 
-      @Override
-      public ValidationResult validate(TaskConfig configuration) {
-          return null;
-      }
-  }
+        @Override
+        public TaskExecutor executor() {
+            return null;
+        }
+
+        @Override
+        public TaskView view() {
+            return null;
+        }
+
+        @Override
+        public ValidationResult validate(TaskConfig configuration) {
+            return null;
+        }
+    }
 }

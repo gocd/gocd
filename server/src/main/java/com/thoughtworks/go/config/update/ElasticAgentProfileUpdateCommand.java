@@ -19,17 +19,15 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand {
     private final EntityHashingService hashingService;
     private final String digest;
 
-    public ElasticAgentProfileUpdateCommand(GoConfigService goConfigService, ElasticProfile newProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String digest) {
-        super(goConfigService, newProfile, extension, currentUser, result);
+    public ElasticAgentProfileUpdateCommand(ElasticProfile newProfile, ElasticAgentExtension extension, LocalizedOperationResult result, EntityHashingService hashingService, String digest) {
+        super(newProfile, extension, result);
         this.hashingService = hashingService;
         this.digest = digest;
     }

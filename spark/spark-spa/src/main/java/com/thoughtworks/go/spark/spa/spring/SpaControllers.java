@@ -63,7 +63,7 @@ public class SpaControllers implements SparkSpringController {
         LayoutTemplateProvider railsCompatibleTemplate = () -> RAILS_COMPATIBLE_PAGE_LAYOUT_PATH;
 
         sparkControllers.add(new NewPreferencesController(authenticationHelper, templateEngineFactory.create(NewPreferencesController.class, () -> COMPONENT_LAYOUT_PATH), goConfigService));
-		sparkControllers.add(new MaterialsController(authenticationHelper, featureToggleService, templateEngineFactory.create(MaterialsController.class, () -> COMPONENT_LAYOUT_PATH)));
+		sparkControllers.add(new MaterialsController(authenticationHelper, templateEngineFactory.create(MaterialsController.class, () -> COMPONENT_LAYOUT_PATH)));
 		sparkControllers.add(new TemplateConfigController(authenticationHelper, templateEngineFactory.create(TemplateConfigController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new PluggableScmsController(authenticationHelper, templateEngineFactory.create(PluggableScmsController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new PackageRepositoriesController(authenticationHelper, templateEngineFactory.create(PackageRepositoriesController.class, () -> COMPONENT_LAYOUT_PATH)));
@@ -95,7 +95,7 @@ public class SpaControllers implements SparkSpringController {
         sparkControllers.add(new PluginsController(authenticationHelper, templateEngineFactory.create(PluginsController.class, componentTemplate)));
         sparkControllers.add(new ElasticAgentConfigurationsController(authenticationHelper, templateEngineFactory.create(ElasticAgentConfigurationsController.class, componentTemplate)));
         sparkControllers.add(new BackupsController(authenticationHelper, templateEngineFactory.create(BackupsController.class, componentTemplate), backupService));
-        sparkControllers.add(new PipelinesController(authenticationHelper, templateEngineFactory.create(PipelinesController.class, componentTemplate), goCache));
+        sparkControllers.add(new PipelinesController(authenticationHelper, templateEngineFactory.create(PipelinesController.class, componentTemplate)));
         sparkControllers.add(new PipelinesAsCodeController(authenticationHelper, templateEngineFactory.create(PipelinesAsCodeController.class, componentTemplate)));
         sparkControllers.add(new SecretConfigsController(authenticationHelper, templateEngineFactory.create(SecretConfigsController.class, componentTemplate)));
     }

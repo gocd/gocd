@@ -19,7 +19,10 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.PipelinePauseInfo;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
+import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -47,7 +50,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
@@ -141,38 +143,11 @@ class PipelineHistoryServiceTest {
         assertThat(loadedPipeline.canAdminister()).isTrue();
     }
 
-    private void setupExpectationsForAllActivePipelinesWithTwoGroups(Username jez) {
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(ConfigFileFixture.CONFIG).config;
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        PipelineInstanceModels activePipelineInstances = createPipelineInstanceModels();
-
-        when(pipelineDao.loadActivePipelines()).thenReturn(activePipelineInstances);
-        stubForNonActivePipeline(jez, cruiseConfig, "pipeline1", true, true,
-            activePipeline("pipeline1", 10, 2.0, new StageInstanceModel("stage1", "10", JobHistory.withJob("plan1", JobState.Completed, JobResult.Failed, new Date()))));
-        stubForNonActivePipeline(jez, cruiseConfig, "pipeline2", true, false,
-            activePipeline("pipeline2", 10, 2.0, new StageInstanceModel("stage1", "8", JobHistory.withJob("plan1", JobState.Completed, JobResult.Passed, new Date()))));
-        stubForNonActivePipeline(jez, cruiseConfig, "non-operatable-pipeline", false, false,
-            activePipeline("non-operatable-pipeline", 10, 2.0, new StageInstanceModel("one", "10", JobHistory.withJob("defaultJob", JobState.Completed, JobResult.Failed, new Date()))));
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(any(String.class)))).thenReturn(true);
-    }
-
-    private void stubForNonActivePipeline(Username username, CruiseConfig cruiseConfig, String pipelineName, boolean operatePermission, boolean canTrigger, PipelineInstanceModel pipeline) {
-        stubPermisssionsForActivePipeline(username, cruiseConfig, pipelineName, operatePermission, canTrigger);
-        when(pipelineDao.loadHistory(pipelineName, 1, 0)).thenReturn(createPipelineInstanceModels(pipeline));
-    }
-
-    private void stubPermisssionsForActivePipeline(Username username, CruiseConfig cruiseConfig, String pipelineName, boolean operatePermission, boolean canTrigger) {
+    private void stubPermissionsForActivePipeline(Username username, CruiseConfig cruiseConfig, String pipelineName, boolean operatePermission, boolean canTrigger) {
         when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
         when(securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)).thenReturn(operatePermission);
         stubConfigServiceToReturnPipeline(pipelineName, cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)));
         when(schedulingCheckerService.canManuallyTrigger(pipelineName, username)).thenReturn(canTrigger);
-    }
-
-    private void assertPipelineIs(PipelineModel secondPipelineModel, String pipelineName, boolean canOperate, boolean canForce) {
-        assertThat(secondPipelineModel.canOperate()).isEqualTo(canOperate);
-        assertThat(secondPipelineModel.canForce()).isEqualTo(canForce);
-        PipelineInstanceModel secondActivePipeline = secondPipelineModel.getActivePipelineInstances().get(0);
-        assertThat(secondActivePipeline.getName()).isEqualTo(pipelineName);
     }
 
     private PipelineInstanceModel activePipeline(String pipelineName, int pipelineCounter, double naturalOrder, StageInstanceModel... moreStages) {
@@ -196,7 +171,7 @@ class PipelineHistoryServiceTest {
             activePipeline("non-operatable-pipeline", 1, 1.0)
         );
         for (String pipeline : new String[]{"pipeline1", "pipeline2", "pipeline3", "pipeline4", "non-operatable-pipeline"}) {
-            stubPermisssionsForActivePipeline(foo, cruiseConfig, pipeline, true, true);
+            stubPermissionsForActivePipeline(foo, cruiseConfig, pipeline, true, true);
             lenient().when(pipelineDao.loadHistory(pipeline, 1, 0)).thenReturn(createPipelineInstanceModels());
         }
         when(pipelineDao.loadActivePipelines()).thenReturn(activePipelineInstances);

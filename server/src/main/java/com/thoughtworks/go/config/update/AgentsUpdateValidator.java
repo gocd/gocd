@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -32,12 +31,11 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.join;
 
 public class AgentsUpdateValidator {
-    private AgentInstances agentInstances;
+    private final AgentInstances agentInstances;
     private final List<String> uuids;
     private final TriState state;
     private final List<String> resourcesToAdd;
     private final List<String> resourcesToRemove;
-    public Agents agents;
 
     public AgentsUpdateValidator(AgentInstances agentInstances, List<String> uuids, TriState state,
                                  List<String> resourcesToAdd, List<String> resourcesToRemove) {

@@ -35,8 +35,6 @@ public class ServerHealthStateTest {
             HEALTH_STATE_TYPE_IDENTIFIER);
     static final ServerHealthState WARNING_SERVER_HEALTH_STATE = ServerHealthState.warning("warning", "warning",
             HEALTH_STATE_TYPE_IDENTIFIER);
-    static final ServerHealthState ANOTHER_ERROR_SERVER_HEALTH_STATE = ServerHealthState.error("Second", "Hi World",
-            HEALTH_STATE_TYPE_IDENTIFIER);
     static final ServerHealthState SUCCESS_SERVER_HEALTH_STATE = ServerHealthState.success(HEALTH_STATE_TYPE_IDENTIFIER);
     static final ServerHealthState ANOTHER_SUCCESS_SERVER_HEALTH_STATE = ServerHealthState.success(
             HEALTH_STATE_TYPE_IDENTIFIER);

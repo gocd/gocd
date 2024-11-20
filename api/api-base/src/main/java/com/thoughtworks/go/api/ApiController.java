@@ -62,14 +62,6 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         res.type(mimeType);
     }
 
-    protected void setEncryptedContentType(Request req, Response res) {
-        res.type("application/octet-stream");
-    }
-
-    protected String messageJson(Exception ex) {
-        return messageJson(ex.getMessage());
-    }
-
     protected String messageJson(String message) {
         return MessageJson.create(message);
     }

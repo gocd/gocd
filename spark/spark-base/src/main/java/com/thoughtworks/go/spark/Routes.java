@@ -117,10 +117,6 @@ public class Routes {
     public static class Export {
         public static final String BASE = "/api/admin/export";
         public static final String PIPELINES_PATH = "/pipelines/:pipeline_name";
-
-        public static String pipeline(String name) {
-            return (BASE + PIPELINES_PATH).replaceAll(":pipeline_name", name);
-        }
     }
 
     public static class Roles {

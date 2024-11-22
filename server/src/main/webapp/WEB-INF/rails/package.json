@@ -20,13 +20,13 @@
     "tslint:fix": "yarn run tslint:prod --fix && yarn run tslint:spec --fix"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.7.0",
+    "@fortawesome/fontawesome-free": "^6.7.1",
     "@shopify/draggable": "1.0.0-beta.12",
     "angular": "file:node-vendor/angular",
     "awesomplete": "^1.1.7",
     "bourbon": "~7.1.0",
     "chart.js": "^3.9.1",
-    "chartjs-plugin-zoom": "^2.0.1",
+    "chartjs-plugin-zoom": "~2.0.1",
     "classnames": "^2.5.1",
     "core-js": "^3.39.0",
     "filesize": "^10.1.6",
@@ -64,14 +64,14 @@
     "@types/lodash": "^4.17.13",
     "@types/mini-css-extract-plugin": "^1.4.3",
     "@types/mithril": "2.2.7",
-    "@types/node": "^22.9.0",
+    "@types/node": "^22.9.1",
     "@types/optimize-css-assets-webpack-plugin": "^5.0.8",
     "@types/prismjs": "^1.26.5",
     "@types/shell-quote": "^1.7.5",
     "@types/underscore.string": "^0.0.41",
     "@types/url-parse": "^1.4.11",
     "@types/uuid": "^10.0.0",
-    "@types/webpack": "^4.41.39",
+    "@types/webpack": "^4.41.40",
     "add-matchers": "^0.6.2",
     "babel-loader": "^8.4.1",
     "cache-loader": "^4.1.0",
@@ -132,5 +132,5 @@
     "watchpack-chokidar2@npm:2.0.1/chokidar": "^3.6.0",
     "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1"
   },
-  "packageManager": "yarn@4.5.1"
+  "packageManager": "yarn@4.5.2"
 }

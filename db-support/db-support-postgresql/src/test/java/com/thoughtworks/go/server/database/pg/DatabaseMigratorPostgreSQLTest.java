@@ -28,7 +28,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @EnabledOnOs({OS.LINUX, OS.MAC})
 class DatabaseMigratorPostgreSQLTest extends AbstractMigratorIntegrationTest {
     @Container
-    private final JdbcDatabaseContainer postgresqlContainer = new PostgreSQLContainer("postgres:16");
+    private final JdbcDatabaseContainer<?> postgresqlContainer = new PostgreSQLContainer<>("postgres:17");
 
     @Test
     void shouldMigrate() throws Exception {

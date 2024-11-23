@@ -158,20 +158,6 @@ allprojects {
     mavenCentral()
     maven { url 'https://repo.terracotta.org/maven2/' } // Needed for later ehcache repos
   }
-
-  if (project.name == 'build-platform') {
-    return
-  }
-
-  configurations {
-    // Ensure that we use the jar artifacts from even `java-library` modules; by default they
-    // resolve to the classes directory instead
-    compileClasspath {
-      attributes {
-        attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LibraryElements.JAR))
-      }
-    }
-  }
 }
 
 idea {

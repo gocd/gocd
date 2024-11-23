@@ -45,7 +45,7 @@ assemble.dependsOn(":installers:agentGenericZip", ":installers:serverGenericZip"
 def configureGenericZip(Zip zipTask, InstallerType installerType) {
   zipTask.with {
     dependsOn extractDeltaPack
-    destinationDirectory = file("${project.buildDir.path}/${project.base.distsDirName}/zip")
+    destinationDirectory = project.base.distsDirectory.dir("zip")
     archiveBaseName = installerType.baseName
 
     into("${installerType.baseName}-${project.goVersion}")
@@ -81,7 +81,9 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
       filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.UNIX)
       rename 'App.sh.in', installerType.baseName
       into "bin"
-      fileMode = 0755
+      filePermissions {
+        unix(0755)
+      }
     }
 
     from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}/src/bin") {

@@ -30,7 +30,7 @@ plugins {
 
 subprojects {
   apply plugin: 'base'
-  project.buildDir = file("${parent.buildDir}/${project.name}")
+  project.layout.buildDirectory = file("${parent.layout.buildDirectory.get()}/${project.name}")
 
   // detect the distro name and version from the project name.
   // For e.g. `ubuntu-20.04` will map to `Distro.ubuntu` and version `20.04` as returned by `Distro.ubuntu.supportedVersions`
@@ -66,7 +66,7 @@ subprojects {
     task.distroVersion = distroVersion
     task.tiniVersion = project.versions.tini
     task.imageType = ImageType.agent
-    task.outputDir = project.file("${project.parent.buildDir}/docker")
+    task.outputDir = project.file("${project.parent.layout.buildDirectory.get()}/docker")
 
     task.templateHelper = {
       project.delete(project.fileTree(task.gitRepoDirectory).include("*"))
@@ -168,7 +168,7 @@ task generateManifest() {
       ]
     }
 
-    def jsonFile = project.file("${project.buildDir}/docker/manifest.json")
+    def jsonFile = project.file("${project.layout.buildDirectory.get()}/docker/manifest.json")
     project.mkdir(jsonFile.parentFile)
     jsonFile.withWriter("utf-8") { Writer out ->
       out << JsonOutput.toJson(meta)

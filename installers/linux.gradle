@@ -158,7 +158,9 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
       project.copy {
         into "${buildRoot.path}/usr/share/${installerType.baseName}/bin"
-        fileMode = 0755
+        filePermissions {
+          unix(0755)
+        }
 
         from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}/src/bin/App.sh.in") {
           filter({ String eachLine ->

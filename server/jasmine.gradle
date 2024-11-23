@@ -33,10 +33,8 @@ final Map<String, String> seleniumDrivers = [
 ]
 
 def execute = { String path, String... argv ->
-  ByteArrayOutputStream stdout = new ByteArrayOutputStream()
-
   try {
-    project.exec {
+    return providers.exec {
       def pathVariable = 'PATH'
       if (currentOS.isWindows()) {
         // because windows PATH variable is case-insensitive :-/
@@ -57,16 +55,11 @@ def execute = { String path, String... argv ->
         }
       }
 
-      args(argv.tail())
-      standardOutput = stdout
-      errorOutput = stdout
-      ignoreExitValue = true
-    }
+      commandLine(argv.tail())
+    }.standardOutput.asText.getOrElse("could not determine version!").trim()
   } catch (Exception ignored) {
     return "could not determine version!"
   }
-
-  return stdout.toString().trim()
 }
 
 def browser = { ->

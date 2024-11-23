@@ -138,7 +138,7 @@ project.ext.jrubyDefaultSystemProperties = [
   // 'jruby.debug.loadService': 'true',
 ]
 
-project.ext.jrubyJar = { project.configurations.compileClasspath.files { it.name == 'jruby-complete' }.first() }
+project.ext.jrubyJar = { project.configurations.compileClasspath.incoming.artifactView {componentFilter {it instanceof ModuleComponentIdentifier && it.module == "jruby-complete"} }.files.first() }
 
 project.ext.jrubyScriptsDir = project.file("scripts")
 
@@ -153,9 +153,9 @@ project.ext.defaultJRubyEnvironment = [
 ]
 
 project.ext.rails = [:]
-project.ext.rails.testDataDir = project.file("${project.buildDir}/railsTests")
-project.ext.rails.testConfigDir = project.file("${project.buildDir}/railsTests/config")
-project.ext.rails.testPluginsDir = project.file("${project.buildDir}/railsTests/plugins")
+project.ext.rails.testDataDir = project.file("${project.layout.getBuildDirectory().get()}/railsTests")
+project.ext.rails.testConfigDir = project.file("${project.layout.getBuildDirectory().get()}/railsTests/config")
+project.ext.rails.testPluginsDir = project.file("${project.layout.getBuildDirectory().get()}/railsTests/plugins")
 project.ext.rails.testBundledPluginsDir = project.file("${project.rails.testPluginsDir}/bundled")
 project.ext.rails.testExternalPluginsDir = project.file("${project.rails.testPluginsDir}/external")
 project.ext.rails.testPluginsWorkDir = project.file("${project.rails.testPluginsDir}/work")
@@ -321,6 +321,7 @@ jar {
 
 idea {
   module {
+    testSources.from(sourceSets.sharedTest.java.srcDirs)
     testSources.from(sourceSets.fastUnitTest.java.srcDirs)
     testSources.from(sourceSets.integrationTest.java.srcDirs)
   }
@@ -359,7 +360,7 @@ task fastUnitTest(type: Test) { thisTask ->
   description = 'Runs the fast unit tests.'
   group = 'verification'
 
-  testClassesDirs += sourceSets.fastUnitTest.output.classesDirs
+  testClassesDirs = sourceSets.fastUnitTest.output.classesDirs
   classpath += sourceSets.fastUnitTest.runtimeClasspath
 
   mustRunAfter test
@@ -392,7 +393,7 @@ task fastUnitTest(type: Test) { thisTask ->
 task integrationTest(type: Test) { thisTask ->
   description = 'Runs the integration tests.'
   group = 'verification'
-  testClassesDirs += sourceSets.integrationTest.output.classesDirs
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
   classpath += sourceSets.integrationTest.runtimeClasspath
   mustRunAfter test
 
@@ -444,7 +445,7 @@ task findGemsToNotPack {
   inputs.file("${project.railsRoot}/Gemfile")
   inputs.file("${project.railsRoot}/Gemfile.lock")
   inputs.file("find-gems-to-package.rake")
-  ext.outputFile = file("${project.buildDir}/gems-to-not-package.json")
+  ext.outputFile = file("${project.layout.getBuildDirectory().get()}/gems-to-not-package.json")
   outputs.file(outputFile)
   outputs.cacheIf { true }
 
@@ -465,7 +466,7 @@ task generateRubygemsLicenseReport {
   inputs.file("${project.railsRoot}/Gemfile")
   inputs.file("${project.railsRoot}/Gemfile.lock")
   inputs.file("rubygems-license-report.rake")
-  ext.licenseReportFile = file("${project.buildDir}/rubygems-license.json")
+  ext.licenseReportFile = file("${project.layout.getBuildDirectory().get()}/rubygems-license.json")
   outputs.file(licenseReportFile)
   outputs.cacheIf { true }
 
@@ -872,7 +873,7 @@ task licenseReportAggregate {
 
   onlyIf { !project.hasProperty('fastBuild') }
 
-  def licenseReportAggregateOutputDir = project.file("${project.buildDir}/reports/license-report-aggregate")
+  def licenseReportAggregateOutputDir = project.file("${project.layout.getBuildDirectory().get()}/reports/license-report-aggregate")
   outputs.dir(licenseReportAggregateOutputDir)
 
   LinkedHashSet<Map<String, Object>> missingLicenseData = [

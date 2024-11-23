@@ -29,7 +29,7 @@ task pathingJar(type: Jar) {
 
   doFirst {
     manifest {
-      attributes 'Class-Path': (project.railsClasspath.files - [project.configurations.compileClasspath.files { it.name == 'jruby-complete' }.first()]).collect { it.toURI() }.join(' ')
+      attributes 'Class-Path': (project.railsClasspath.files - [project.jrubyJar()]).collect { it.toURI() }.join(' ')
     }
   }
 }
@@ -64,14 +64,12 @@ task createJRubyBinstubs {
     railsRoot    : project.railsRoot
   ])
 
-  def jrubyJar = project.configurations.compileClasspath.files { it.name == 'jruby-complete' }.first()
-
   def templateProperties = [
     mainClassName       : 'org.jruby.Main',
     jvmArgs             : project.jrubyOptimizationJvmArgs,
     systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties + project.railsSystemProperties),
     classpath           : [pathingJar.archiveFile.get().asFile],
-    jrubyJar            : jrubyJar,
+    jrubyJar            : project.jrubyJar(),
     environment         : project.defaultJRubyEnvironment,
     additionalJRubyPaths: project.additionalJRubyPaths,
     javaExecutable      : Jvm.current().getExecutable("java")
@@ -88,8 +86,8 @@ task createJRubyBinstubs {
       copy {
         from "script-templates/${file}"
         into outputDir
-        eachFile { FileCopyDetails fcp ->
-          fcp.mode = 0755
+        filePermissions {
+          unix(0755)
         }
       }
     }

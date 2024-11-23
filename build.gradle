@@ -56,20 +56,13 @@ def determineReleaseRevision = { ->
 }
 
 def getVersion = { ... args ->
-  ByteArrayOutputStream stdout = new ByteArrayOutputStream()
-
   try {
-    project.exec {
-      commandLine = args
-      standardOutput = stdout
-      errorOutput = stdout
-      ignoreExitValue = true
-    }
-  } catch (Exception ignored) {
-    return "could not determine version!"
+    return providers.exec {
+      commandLine(args)
+    }.standardOutput.asText.getOrElse("could not determine version!").trim()
+  } catch (Exception e) {
+    return "could not determine version! (${e.message})"
   }
-
-  return stdout.toString().trim()
 }
 
 List<String> partitionFiles(Collection originalFiles) {
@@ -152,7 +145,7 @@ allprojects {
   apply plugin: 'idea'
   group = 'com.thoughtworks.go'
   version = project.fullVersion
-  buildDir = "${projectDir}/target"
+  layout.buildDirectory = "${projectDir}/target"
 
   repositories {
     mavenCentral()
@@ -293,7 +286,7 @@ subprojects {
   if (hasJavaSources) {
     apply plugin: 'java-library'
 
-    buildDir = "${projectDir}/target"
+    layout.buildDirectory = "${projectDir}/target"
 
     configurations {
       packagingOnly
@@ -401,11 +394,11 @@ subprojects {
 
     includeEmptyDirs false
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
+  }
 
-    if (jarTask.name == 'testJar') {
-      project.artifacts.add 'testOutput', jarTask
-    } else {
-      project.artifacts.add 'archives', jarTask
+  artifacts { artifacts ->
+    tasks.withType(Jar).each { jarTask ->
+      artifacts.add(jarTask.name == 'testJar' ? 'testOutput' : 'archives', jarTask)
     }
   }
 

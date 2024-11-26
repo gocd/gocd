@@ -84,7 +84,6 @@ configurations {
   integrationTestImplementation.extendsFrom testImplementation
 
   warConfig
-  jarConfig
   additionalClasspath
 
   copyOnly {
@@ -361,7 +360,7 @@ task fastUnitTest(type: Test) { thisTask ->
   group = 'verification'
 
   testClassesDirs = sourceSets.fastUnitTest.output.classesDirs
-  classpath += sourceSets.fastUnitTest.runtimeClasspath
+  classpath = testing.suites.test.sources.runtimeClasspath + sourceSets.fastUnitTest.runtimeClasspath
 
   mustRunAfter test
 
@@ -394,7 +393,7 @@ task integrationTest(type: Test) { thisTask ->
   description = 'Runs the integration tests.'
   group = 'verification'
   testClassesDirs = sourceSets.integrationTest.output.classesDirs
-  classpath += sourceSets.integrationTest.runtimeClasspath
+  classpath = testing.suites.test.sources.runtimeClasspath + sourceSets.integrationTest.runtimeClasspath
   mustRunAfter test
 
   forkEvery System.properties.containsKey('idea.home.path') ? 0 : 1
@@ -572,7 +571,7 @@ tasks.withType(Test) {
   dependsOn copyAgentSideJarsToServerDir
   dependsOn prepareNoRails
 
-  def heapDumpDir = project.file("${buildDir}/heap-dumps")
+  def heapDumpDir = project.file("${layout.buildDirectory.get()}/heap-dumps")
   if (project.hasProperty("heapDumpOnOOM")) {
     jvmArgs("-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=${heapDumpDir}")
   }
@@ -1060,11 +1059,4 @@ generateLicenseReport.dependsOn(compileAssetsWebpackProd, generateRubygemsLicens
 
 task verifyJar {
   dependsOn verifyWar
-}
-
-artifacts {
-  warConfig war
-  jarConfig jar
-
-  sharedTestOutput sharedTestJar
 }

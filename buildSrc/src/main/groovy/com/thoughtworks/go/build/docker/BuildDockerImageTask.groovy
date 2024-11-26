@@ -226,7 +226,7 @@ class BuildDockerImageTask extends DefaultTask {
       dockerAliasToWrapperArchAsShell: Architecture.dockerAliasToWrapperArchAsShell(),
     ]
 
-    project.mkdir(project.buildDir)
+    project.mkdir(project.layout.buildDirectory)
 
     outputFile.withWriter("utf-8") { writer ->
       template.process(templateVars, writer)
@@ -239,7 +239,7 @@ class BuildDockerImageTask extends DefaultTask {
 
   @Internal
   File getGitRepoDirectory() {
-    project.file("${project.buildDir}/${gitHubRepoName}")
+    project.layout.buildDirectory.dir(gitHubRepoName).get().asFile
   }
 
   @Internal

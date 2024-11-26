@@ -19,7 +19,7 @@ import com.thoughtworks.go.build.DownloadFile
 import org.apache.commons.codec.digest.DigestUtils
 
 private File destFile(String url) {
-  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
+  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
 task downloadTanukiDeltaPack(type: DownloadFile) {
@@ -32,5 +32,5 @@ task downloadTanukiDeltaPack(type: DownloadFile) {
 task extractDeltaPack(type: Copy) {
   dependsOn downloadTanukiDeltaPack
   from(project.tarTree(downloadTanukiDeltaPack.outputs.files.singleFile))
-  into project.buildDir
+  into project.layout.buildDirectory
 }

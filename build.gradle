@@ -269,7 +269,7 @@ subprojects {
       renderers = [new JsonReportRenderer("index.json", false)]
       excludeGroups = ["com.thoughtworks.go"]
       filters = [new LicenseBundleNormalizer()]
-      outputDir = file("${project.buildDir}/reports/dependency-license")
+      outputDir = project.layout.buildDirectory.dir("reports/dependency-license").get().asFile
       configurations = ['runtimeClasspath', 'packagingInLibDir']
     }
 
@@ -611,7 +611,7 @@ task sparkTestJunitHtmlReport(type: TestReport) {
 
   testResults.from(project(':api').subprojects*.test.binaryResultsDirectory.locationOnly)
   testResults.from(project(':spark').subprojects*.test.binaryResultsDirectory.locationOnly)
-  destinationDirectory = file("${project.buildDir}/reports/tests/sparkTest")
+  destinationDirectory = layout.buildDirectory.dir("reports/tests/sparkTest")
 }
 
 private void forAllTask(Closure<Task> closure) {
@@ -647,7 +647,7 @@ task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
     testResults.from(eachTestTask.binaryResultsDirectory.locationOnly)
     eachTestTask.finalizedBy(thisTask)
   }
-  destinationDirectory = file("${project.buildDir}/reports/tests/allTests")
+  destinationDirectory = layout.buildDirectory.dir("reports/tests/allTests")
 }
 
 static def toCamelCase(String input) {
@@ -694,7 +694,7 @@ dependencyCheckAggregate {
 
 if (System.getenv().containsKey("GO_SERVER_URL")) {
   dependencyCheck {
-    data.directory = "${layout.buildDirectory.get()}/dependency-check-data"
+    data.directory = layout.buildDirectory.dir("dependency-check-data").get()
   }
 
   tasks.register('downloadDependencyCheckCache', Download) {

@@ -62,7 +62,7 @@ def dependencies = [
 ]
 
 task createVersionFile {
-  def file = file("${project.buildDir}/version.txt")
+  def file = layout.buildDirectory.file("version.txt").get().asFile
   inputs.property('version', rootProject.version)
   inputs.property('gitRevision', rootProject.gitRevision)
 

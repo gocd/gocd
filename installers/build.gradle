@@ -38,7 +38,7 @@ dependencies {
 
 task versionFile {
   outputs.upToDateWhen { false }
-  def versionFile = file("${project.buildDir}/${project.base.distsDirName}/meta/version.json")
+  def versionFile = base.distsDirectory.file("meta/version.json")
 
   inputs.property('goVersion', rootProject.goVersion)
   inputs.property('distVersion', rootProject.distVersion)
@@ -46,23 +46,26 @@ task versionFile {
 
   outputs.file versionFile
   doLast {
-    versionFile.getParentFile().mkdirs()
-    versionFile.withWriter { out ->
-      out.write(JsonOutput.prettyPrint(JsonOutput.toJson([
-        go_version         : rootProject.goVersion,
-        previous_go_version: rootProject.previousVersion,
-        next_go_version    : rootProject.nextVersion,
-        go_build_number    : rootProject.distVersion,
-        go_full_version    : rootProject.fullVersion,
-        git_sha            : rootProject.gitRevision,
-        pipeline_name      : System.getenv('GO_PIPELINE_NAME'),
-        pipeline_counter   : System.getenv('GO_PIPELINE_COUNTER'),
-        pipeline_label     : System.getenv('GO_PIPELINE_LABEL'),
-        stage_name         : System.getenv('GO_STAGE_NAME'),
-        stage_counter      : System.getenv('GO_STAGE_COUNTER'),
-        job_name           : System.getenv('GO_JOB_NAME')
-      ])))
+    versionFile.get().asFile.with {
+      parentFile.mkdirs()
+      withWriter { out ->
+        out.write(JsonOutput.prettyPrint(JsonOutput.toJson([
+          go_version         : rootProject.goVersion,
+          previous_go_version: rootProject.previousVersion,
+          next_go_version    : rootProject.nextVersion,
+          go_build_number    : rootProject.distVersion,
+          go_full_version    : rootProject.fullVersion,
+          git_sha            : rootProject.gitRevision,
+          pipeline_name      : System.getenv('GO_PIPELINE_NAME'),
+          pipeline_counter   : System.getenv('GO_PIPELINE_COUNTER'),
+          pipeline_label     : System.getenv('GO_PIPELINE_LABEL'),
+          stage_name         : System.getenv('GO_STAGE_NAME'),
+          stage_counter      : System.getenv('GO_STAGE_COUNTER'),
+          job_name           : System.getenv('GO_JOB_NAME')
+        ])))
+      }
     }
+
   }
 }
 
@@ -73,4 +76,3 @@ apply from: 'generic.gradle'
 apply from: 'osx.gradle'
 apply from: 'linux.gradle'
 apply from: 'windows.gradle'
-apply from: 'release-notes.gradle'

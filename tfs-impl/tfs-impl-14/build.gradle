@@ -20,9 +20,11 @@ import org.apache.commons.codec.digest.DigestUtils
 
 description = 'GoCD TFS SDK wrapper v14'
 
+def sdkTarget = layout.buildDirectory.dir("tfssdk")
+
 dependencies {
   implementation project(path: ':common', configuration: 'runtimeElements')
-  implementation files("${project.buildDir}/tfssdk/lib/com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar")
+  implementation files(sdkTarget.get().file("lib/com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar"))
   compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation project.deps.junit5Api
@@ -36,7 +38,7 @@ jar {
 }
 
 private File destFile(String url) {
-  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
+  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
 task downloadTfsSdk(type: DownloadFile) {
@@ -48,7 +50,7 @@ task downloadTfsSdk(type: DownloadFile) {
 
 task extractTfsSdk(type: Copy) {
   doFirst {
-    delete "${project.buildDir}/tfssdk"
+    delete sdkTarget
   }
   dependsOn downloadTfsSdk
   from(project.zipTree(downloadTfsSdk.outputs.files.singleFile)) {
@@ -58,7 +60,7 @@ task extractTfsSdk(type: Copy) {
     }
     includeEmptyDirs = false
   }
-  into "${project.buildDir}/tfssdk"
+  into sdkTarget
 }
 
 compileJava.dependsOn extractTfsSdk

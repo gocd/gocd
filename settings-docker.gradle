@@ -20,13 +20,19 @@
 // See:
 //   https://docs.gradle.org/current/userguide/upgrading_version_5.html#classes_from_buildsrc_are_no_longer_visible_to_settings_scripts
 def Distro = new GroovyScriptEngine(file('buildSrc/src/main/groovy').absolutePath).with {
-  loadScriptByName("com/thoughtworks/go/build/docker/Distro.groovy")
+  loadScriptByName('com/thoughtworks/go/build/docker/Distro.groovy')
 }
 
 Distro.values().each { distro ->
   distro.supportedVersions.each { version ->
-    include ":docker:gocd-agent:${distro.projectName(version)}"
+    dynamicProjectForPath(':docker:gocd-agent', distro.projectName(version) as String)
   }
 }
 
-include ":docker:gocd-server:${Distro.wolfi.projectName(Distro.wolfi.getVersion('latest'))}"
+dynamicProjectForPath(':docker:gocd-server', Distro.wolfi.projectName(Distro.wolfi.getVersion('latest')) as String)
+
+def dynamicProjectForPath(String parentPath, String subProjectName) {
+  def subProjectPath = "$parentPath:$subProjectName"
+  include subProjectPath
+  project(subProjectPath).projectDir = project(parentPath).projectDir
+}

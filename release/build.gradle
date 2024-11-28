@@ -18,7 +18,7 @@ description = 'GoCD Release Scripts'
 
 task updateBuildMap {
   outputs.upToDateWhen { false }
-  def checkoutDir = "${project.buildDir}/build-map"
+  def checkoutDir = "${layout.buildDirectory.get()}/build-map"
   String username = System.getenv('BUILD_MAP_USER')
   String password = System.getenv('BUILD_MAP_PASSWORD')
 

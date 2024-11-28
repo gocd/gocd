@@ -56,20 +56,13 @@ def determineReleaseRevision = { ->
 }
 
 def getVersion = { ... args ->
-  ByteArrayOutputStream stdout = new ByteArrayOutputStream()
-
   try {
-    project.exec {
-      commandLine = args
-      standardOutput = stdout
-      errorOutput = stdout
-      ignoreExitValue = true
-    }
-  } catch (Exception ignored) {
-    return "could not determine version!"
+    return providers.exec {
+      commandLine(args)
+    }.standardOutput.asText.getOrElse("could not determine version!").trim()
+  } catch (Exception e) {
+    return "could not determine version! (${e.message})"
   }
-
-  return stdout.toString().trim()
 }
 
 List<String> partitionFiles(Collection originalFiles) {
@@ -152,25 +145,11 @@ allprojects {
   apply plugin: 'idea'
   group = 'com.thoughtworks.go'
   version = project.fullVersion
-  buildDir = "${projectDir}/target"
+  layout.buildDirectory = "${projectDir}/target"
 
   repositories {
     mavenCentral()
     maven { url 'https://repo.terracotta.org/maven2/' } // Needed for later ehcache repos
-  }
-
-  if (project.name == 'build-platform') {
-    return
-  }
-
-  configurations {
-    // Ensure that we use the jar artifacts from even `java-library` modules; by default they
-    // resolve to the classes directory instead
-    compileClasspath {
-      attributes {
-        attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LibraryElements.JAR))
-      }
-    }
   }
 }
 
@@ -290,7 +269,7 @@ subprojects {
       renderers = [new JsonReportRenderer("index.json", false)]
       excludeGroups = ["com.thoughtworks.go"]
       filters = [new LicenseBundleNormalizer()]
-      outputDir = file("${project.buildDir}/reports/dependency-license")
+      outputDir = project.layout.buildDirectory.dir("reports/dependency-license").get().asFile
       configurations = ['runtimeClasspath', 'packagingInLibDir']
     }
 
@@ -307,7 +286,7 @@ subprojects {
   if (hasJavaSources) {
     apply plugin: 'java-library'
 
-    buildDir = "${projectDir}/target"
+    layout.buildDirectory = "${projectDir}/target"
 
     configurations {
       packagingOnly
@@ -415,11 +394,11 @@ subprojects {
 
     includeEmptyDirs false
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
+  }
 
-    if (jarTask.name == 'testJar') {
-      project.artifacts.add 'testOutput', jarTask
-    } else {
-      project.artifacts.add 'archives', jarTask
+  artifacts { artifacts ->
+    tasks.withType(Jar).each { jarTask ->
+      artifacts.add(jarTask.name == 'testJar' ? 'testOutput' : 'archives', jarTask)
     }
   }
 
@@ -632,7 +611,7 @@ task sparkTestJunitHtmlReport(type: TestReport) {
 
   testResults.from(project(':api').subprojects*.test.binaryResultsDirectory.locationOnly)
   testResults.from(project(':spark').subprojects*.test.binaryResultsDirectory.locationOnly)
-  destinationDirectory = file("${project.buildDir}/reports/tests/sparkTest")
+  destinationDirectory = layout.buildDirectory.dir("reports/tests/sparkTest")
 }
 
 private void forAllTask(Closure<Task> closure) {
@@ -668,7 +647,7 @@ task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
     testResults.from(eachTestTask.binaryResultsDirectory.locationOnly)
     eachTestTask.finalizedBy(thisTask)
   }
-  destinationDirectory = file("${project.buildDir}/reports/tests/allTests")
+  destinationDirectory = layout.buildDirectory.dir("reports/tests/allTests")
 }
 
 static def toCamelCase(String input) {
@@ -715,7 +694,7 @@ dependencyCheckAggregate {
 
 if (System.getenv().containsKey("GO_SERVER_URL")) {
   dependencyCheck {
-    data.directory = "${layout.buildDirectory.get()}/dependency-check-data"
+    data.directory = layout.buildDirectory.dir("dependency-check-data").get()
   }
 
   tasks.register('downloadDependencyCheckCache', Download) {

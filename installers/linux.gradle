@@ -51,7 +51,7 @@ enum PackageType {
       fpmArgs += ['--deb-recommends', jreDependency(project)]
 
       // HACK: for debian packages :(, since manifests cannot contain fine grained ownership
-      def tmpDir = project.file("${project.buildDir}/tmp")
+      def tmpDir = project.layout.buildDirectory.dir("tmp").get().asFile
       tmpDir.mkdirs()
 
       File dirPermissons = File.createTempFile("dirPermissions-", ".json", tmpDir)
@@ -158,7 +158,9 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
       project.copy {
         into "${buildRoot.path}/usr/share/${installerType.baseName}/bin"
-        fileMode = 0755
+        filePermissions {
+          unix(0755)
+        }
 
         from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}/src/bin/App.sh.in") {
           filter({ String eachLine ->
@@ -346,7 +348,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
         environment += ['JRE_BINARY_LOCATOR': packageType.jreBinaryLocator(project)]
 
-        workingDir "${project.buildDir}/distributions/${packageType}"
+        workingDir project.layout.buildDirectory.dir("distributions/${packageType}")
 
         standardOutput = System.out
         errorOutput = System.err
@@ -373,8 +375,8 @@ def copyMultipleAgentsReadme(DefaultTask packageTask, File buildRoot, InstallerT
 task agentPackageRpm { DefaultTask thisTask ->
   def installerType = InstallerType.agent
   def packageType = PackageType.rpm
-  def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${packageType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.buildDir}/distributions/${packageType}")
+  def buildRoot = project.layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
+  def destDir = project.layout.buildDirectory.dir("distributions/${packageType}").get().asFile
 
   copyMultipleAgentsReadme(thisTask, buildRoot, installerType)
   configureLinuxPackage(thisTask, installerType, packageType, buildRoot, configurations.agentBootstrapperJar, destDir)
@@ -384,8 +386,8 @@ task agentPackageRpm { DefaultTask thisTask ->
 task agentPackageDeb { DefaultTask thisTask ->
   def installerType = InstallerType.agent
   def packageType = PackageType.deb
-  def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${packageType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.buildDir}/distributions/${packageType}")
+  def buildRoot = project.layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
+  def destDir = project.layout.buildDirectory.dir("distributions/${packageType}").get().asFile
 
   copyMultipleAgentsReadme(thisTask, buildRoot, installerType)
   configureLinuxPackage(thisTask, installerType, packageType, buildRoot, configurations.agentBootstrapperJar, destDir)
@@ -394,8 +396,8 @@ task agentPackageDeb { DefaultTask thisTask ->
 task serverPackageRpm { DefaultTask thisTask ->
   def installerType = InstallerType.server
   def packageType = PackageType.rpm
-  def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${packageType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.buildDir}/distributions/${packageType}")
+  def buildRoot = project.layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
+  def destDir = project.layout.buildDirectory.dir("distributions/${packageType}").get().asFile
 
   configureLinuxPackage(thisTask, installerType, packageType, buildRoot, configurations.serverJar, destDir)
 }
@@ -403,8 +405,8 @@ task serverPackageRpm { DefaultTask thisTask ->
 task serverPackageDeb { DefaultTask thisTask ->
   def installerType = InstallerType.server
   def packageType = PackageType.deb
-  def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${packageType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.buildDir}/distributions/${packageType}")
+  def buildRoot = project.layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
+  def destDir = project.layout.buildDirectory.dir("distributions/${packageType}").get().asFile
 
   configureLinuxPackage(thisTask, installerType, packageType, buildRoot, configurations.serverJar, destDir)
 }

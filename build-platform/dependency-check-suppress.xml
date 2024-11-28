@@ -79,8 +79,8 @@
     runs on Jetty, which is noted as not vulnerable at https://spring.io/security/cve-2024-38816
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
-    <cve>CVE-2024-38816</cve>
-    <cve>CVE-2024-38819</cve>
+    <vulnerabilityName>CVE-2024-38816</vulnerabilityName>
+    <vulnerabilityName>CVE-2024-38819</vulnerabilityName>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -158,7 +158,7 @@
     According to https://spring.io/security/cve-2024-38821 this only affects WebFlux applications which GoCD is not.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-web@4.*$</packageUrl>
-    <cve>CVE-2024-38821</cve>
+    <vulnerabilityName>CVE-2024-38821</vulnerabilityName>
   </suppress>
 
   <suppress>
@@ -201,15 +201,6 @@
     <cve>CVE-2022-23221</cve>
     <cve>CVE-2022-45868</cve>
     <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    GoCD is not affected by the issue claimed at https://github.com/quartz-scheduler/quartz/issues/943 and https://nvd.nist.gov/vuln/detail/CVE-2023-39017
-    because there is no way to affect contents of JobDataMaps, and GoCD does not use JMS in this way either.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.quartz-scheduler/quartz@.*$</packageUrl>
-    <cve>CVE-2023-39017</cve>
   </suppress>
 
   <suppress>

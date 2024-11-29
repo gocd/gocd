@@ -38,8 +38,6 @@ enum ImageType {
 }
 
 class BuildDockerImageTask extends DefaultTask {
-  ExecOperations execOperations
-
   @Input Distro distro
   @Input DistroVersion distroVersion
   @Input String tiniVersion
@@ -48,8 +46,10 @@ class BuildDockerImageTask extends DefaultTask {
   // Not really a classic output dir from Gradle perspective, as multiple tasks share dir from parent with unique tarballs per distribution.
   // We use a string for Gradle 7 compatibility, and because we don't want Gradle to consider the actual contents.
   @Input String outputDir
+  
   @Internal Closure templateHelper
   @Internal Closure verifyHelper
+  @Internal ExecOperations execOperations
 
   @Inject
   BuildDockerImageTask(ExecOperations execOperations) {

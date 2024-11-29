@@ -104,7 +104,7 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
   }
 }
 
-def executeNSIS(InstallerType installerType, File buildRoot, File destDir) {
+def executeNSIS(ExecOperations execOperations, InstallerType installerType, File buildRoot, File destDir) {
 
   project.mkdir(destDir)
 
@@ -141,7 +141,7 @@ def executeNSIS(InstallerType installerType, File buildRoot, File destDir) {
 
   cmdArgs += ["-V4"] // verbose
 
-  project.exec { ExecSpec execSpec ->
+  execOperations.exec { ExecSpec execSpec ->
     commandLine = (["makensis"] + cmdArgs + [project.file("windows/${installerType.baseName}.nsi").path])
 
     standardOutput = System.out
@@ -159,9 +159,10 @@ task agentWindows64bitExe { DefaultTask thisTask ->
 
   configureWindowsFilesystem(thisTask, installerType, agentGenericZip, buildRoot)
 
+  def injected = project.objects.newInstance(InjectedExecOps)
   doLast {
     project.copy { from('go-agent/win/ServerURL.ini') into(buildRoot) }
-    executeNSIS(installerType, buildRoot, destDir)
+    executeNSIS(injected.execOps, installerType, buildRoot, destDir)
   }
 
   finalizedBy(project.tasks.create("${thisTask.name}Metadata", InstallerMetadataTask.class) {
@@ -180,8 +181,9 @@ task serverWindows64bitExe { DefaultTask thisTask ->
 
   configureWindowsFilesystem(thisTask, installerType, serverGenericZip, buildRoot)
 
+  def injected = project.objects.newInstance(InjectedExecOps)
   doLast {
-    executeNSIS(installerType, buildRoot, destDir)
+    executeNSIS(injected.execOps, installerType, buildRoot, destDir)
   }
 
   finalizedBy(project.tasks.create("${thisTask.name}Metadata", InstallerMetadataTask.class) {

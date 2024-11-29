@@ -21,13 +21,20 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.process.ExecOperations
+
+import javax.inject.Inject
 
 class YarnInstallTask extends DefaultTask {
+
+  private ExecOperations execOperations
 
   private File workingDir
   private File nodeModules
 
-  YarnInstallTask() {
+  @Inject
+  YarnInstallTask(ExecOperations execOperations) {
+    this.execOperations = execOperations
     inputs.property('os', OperatingSystem.current().toString())
     project.afterEvaluate({
       inputs.file(project.file("${getWorkingDir()}/package.json"))
@@ -55,7 +62,7 @@ class YarnInstallTask extends DefaultTask {
 
   @TaskAction
   def install() {
-    project.exec { execTask ->
+    execOperations.exec { execTask ->
       execTask.environment("FORCE_COLOR", "true")
       execTask.standardOutput = System.out
       execTask.errorOutput = System.err

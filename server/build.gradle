@@ -169,9 +169,9 @@ project.ext.railsSystemProperties = [
   'jdk.net.URLClassPath.disableClassPathURLCheck': true
 ]
 
-project.ext.jrubyexec = { Closure<JavaExecSpec> cl ->
+project.ext.jrubyexec = { ExecOperations execOperations, Closure<JavaExecSpec> cl ->
   try {
-    project.javaexec { JavaExecSpec javaExecSpec ->
+    execOperations.javaexec { JavaExecSpec javaExecSpec ->
       cl.delegate = javaExecSpec
 
       LinkedHashMap<String, Object> originalEnv = new LinkedHashMap<String, Object>(javaExecSpec.environment)
@@ -448,8 +448,9 @@ task findGemsToNotPack {
   outputs.file(outputFile)
   outputs.cacheIf { true }
 
+  def injected = project.objects.newInstance(InjectedExecOps)
   doFirst {
-    project.jrubyexec {
+    project.jrubyexec(injected.execOps) {
       environment += [
         'OUTPUT_FILE'   : outputFile,
         'BUNDLE_GEMFILE': file("${project.railsRoot}/Gemfile")
@@ -469,8 +470,9 @@ task generateRubygemsLicenseReport {
   outputs.file(licenseReportFile)
   outputs.cacheIf { true }
 
+  def injected = project.objects.newInstance(InjectedExecOps)
   doFirst {
-    project.jrubyexec {
+    project.jrubyexec(injected.execOps) {
       environment += [
         'OUTPUT_FILE'   : licenseReportFile,
         'BUNDLE_GEMFILE': file("${project.railsRoot}/Gemfile")

@@ -23,19 +23,20 @@ subprojects {
 }
 
 tasks.register('initializeBuildx') {
+  def injected = project.objects.newInstance(InjectedExecOps)
   doFirst {
     if (!project.hasProperty('skipDockerBuild')) {
       // Need to do once before everything (not in parallel) see https://github.com/docker/buildx/issues/344
       def builderName = 'gocd-builder'
       logger.lifecycle("Initializing docker buildx builder [$builderName]...")
 
-      project.exec { commandLine = ['docker', 'buildx', 'version'] }
-      project.exec {
+      injected.execOps.exec { commandLine = ['docker', 'buildx', 'version'] }
+      injected.execOps.exec {
         commandLine = ['docker', 'buildx', 'rm', '--force', '--keep-state', builderName]
         ignoreExitValue = true
       }
-      project.exec { commandLine = ['docker', 'buildx', 'create', '--use', '--name', builderName, '--driver-opt', 'image=moby/buildkit:buildx-stable-1-rootless'] }
-      project.exec { commandLine = ['docker', 'buildx', 'inspect', '--bootstrap', builderName] }
+      injected.execOps.exec { commandLine = ['docker', 'buildx', 'create', '--use', '--name', builderName, '--driver-opt', 'image=moby/buildkit:buildx-stable-1-rootless'] }
+      injected.execOps.exec { commandLine = ['docker', 'buildx', 'inspect', '--bootstrap', builderName] }
     }
   }
 }

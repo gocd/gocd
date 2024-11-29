@@ -20,12 +20,16 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.*
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.process.ExecOperations
 import org.gradle.process.ExecSpec
+
+import javax.inject.Inject
 
 import static com.thoughtworks.go.build.OperatingSystemHelper.normalizeEnvironmentPath
 
 @CacheableTask
 class YarnRunTask extends DefaultTask {
+  private ExecOperations execOperations
   private File workingDir
 
   private List<String> yarnCommand = new ArrayList<>()
@@ -33,7 +37,9 @@ class YarnRunTask extends DefaultTask {
   private File destinationDir
   private String additionalPath
 
-  YarnRunTask() {
+  @Inject
+  YarnRunTask(ExecOperations execOperations) {
+    this.execOperations = execOperations
     inputs.property('os', OperatingSystem.current().toString())
     project.afterEvaluate({
       source(project.file("${getWorkingDir()}/package.json"))
@@ -98,7 +104,7 @@ class YarnRunTask extends DefaultTask {
       project.delete(getDestinationDir())
     }
 
-    project.exec { ExecSpec execSpec ->
+    execOperations.exec { ExecSpec execSpec ->
       if (additionalPath) {
         execSpec.environment = normalizeEnvironmentPath(execSpec.environment)
         execSpec.environment("PATH", ([additionalPath] + execSpec.environment["PATH"].toString()).join(File.pathSeparator))

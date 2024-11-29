@@ -127,7 +127,7 @@ enum PackageType {
 }
 
 private File destFile(String url) {
-  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
+  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
 def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, PackageType packageType, File buildRoot, Configuration configuration, File destDir) {
@@ -135,6 +135,8 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
     dependsOn configuration
     dependsOn extractDeltaPack
     outputs.dir(destDir)
+
+    def injected = project.objects.newInstance(InjectedExecOps)
 
     doFirst {
       project.delete(buildRoot)
@@ -299,7 +301,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
     }
 
     doLast {
-      project.exec {
+      injected.execOps.exec {
         List<String> cmd = []
         cmd += ['fpm']
 

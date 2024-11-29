@@ -108,7 +108,7 @@ subprojects {
     // test image
     task.verifyHelper = {
       def cleanContainer = { OutputStream errorStream = System.err ->
-        project.exec {
+        execOperations.exec {
           workingDir = project.rootProject.projectDir
           commandLine = ["docker", "rm", "--force", docker.dockerImageName]
           standardOutput = System.out
@@ -119,7 +119,7 @@ subprojects {
       cleanContainer.call(OutputStream.nullOutputStream()) // Clean-up after any previous aborted runs
 
       // daemonize the container
-      project.exec {
+      execOperations.exec {
         def additionalFlags = distro == Distro.docker ? ["--privileged"] : []
         workingDir = project.rootProject.projectDir
         commandLine = ["docker", "run", "-e", "GO_SERVER_URL=http://localhost:8153/go", "-d", "--name", docker.dockerImageName] + additionalFlags + [docker.imageNameWithTag] as List<String>
@@ -139,7 +139,7 @@ subprojects {
         }
 
         distro.additionalVerifyCommands.each { command ->
-          project.exec {
+          execOperations.exec {
             workingDir = project.rootProject.projectDir
             commandLine = ["docker", "exec", docker.dockerImageName] + command
             standardOutput = System.out

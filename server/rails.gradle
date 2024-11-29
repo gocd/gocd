@@ -118,8 +118,9 @@ task initializeRailsGems {
 
   outputs.dir(project.bundledGemDir)
 
+  def injected = project.objects.newInstance(InjectedExecOps)
   doFirst {
-    project.jrubyexec {
+    project.jrubyexec(injected.execOps) {
       workingDir = project.railsRoot
       args = ['-S', 'bundle', 'install']
       maxHeapSize = '1g'

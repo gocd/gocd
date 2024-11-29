@@ -678,13 +678,14 @@ dependencyCheck {
 }
 
 dependencyCheckAggregate {
+  def injected = project.objects.newInstance(InjectedExecOps)
   doFirst {
-    project.exec {
+    injected.execOps.exec {
       commandLine = [ "gem", "install", "bundler-audit", "--no-document" ]
       standardOutput = System.out
       errorOutput = System.err
     }
-    project.exec {
+    injected.execOps.exec {
       commandLine = [ "bundle", "audit", "update" ]
       standardOutput = System.out
       errorOutput = System.err
@@ -728,8 +729,9 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
     archiveFileName = "dependency-check-data-updated.zip"
     destinationDirectory = layout.buildDirectory
 
+    def injected = project.objects.newInstance(InjectedExecOps)
     doLast {
-      project.exec {
+      injected.execOps.exec {
         workingDir = projectDir
         commandLine = [
           "curl",
@@ -777,7 +779,7 @@ task newSPA {
       * limitations under the License.
       """.stripIndent().trim()
 
-    String javaOrJavaScriptLicencseHeader = "/*\n${licenseHeader.split('\n').collect { eachLine -> " ${eachLine}" }.join("\n")}\n */\n\n"
+    String javaOrJavaScriptLicenseHeader = "/*\n${licenseHeader.split('\n').collect { eachLine -> " ${eachLine}" }.join("\n")}\n */\n\n"
 
 
     file("${mountPoint}/${spaName}.tsx").withWriter { out ->
@@ -795,7 +797,7 @@ task newSPA {
           //tslint:disable-next-line
           new ${entityName}SPA();
         """
-      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim() + "\n")
+      out.println(javaOrJavaScriptLicenseHeader + contents.stripIndent().trim() + "\n")
     }
 
     file("${pagesBase}/${spaName}.tsx").withWriter { out ->
@@ -825,7 +827,7 @@ task newSPA {
             }
           }
         """
-      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim() + "\n")
+      out.println(javaOrJavaScriptLicenseHeader + contents.stripIndent().trim() + "\n")
     }
 
     file("${widgetBase}/${spaName}_widget.tsx").withWriter { out ->
@@ -845,7 +847,7 @@ task newSPA {
             }
           }
         """
-      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim() + "\n")
+      out.println(javaOrJavaScriptLicenseHeader + contents.stripIndent().trim() + "\n")
     }
 
     file("${modelsBase}/${spaName}.ts").withWriter { out ->
@@ -867,7 +869,7 @@ task newSPA {
             }
           }
         """
-      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim() + "\n")
+      out.println(javaOrJavaScriptLicenseHeader + contents.stripIndent().trim() + "\n")
     }
 
     file("spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/${entityName}Controller.java").withWriter { out ->
@@ -914,7 +916,7 @@ task newSPA {
             }
           }
         """
-      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim() + "\n")
+      out.println(javaOrJavaScriptLicenseHeader + contents.stripIndent().trim() + "\n")
     }
 
     addUrlRewriteRule("${spaName} UI")
@@ -933,6 +935,7 @@ task newSPA {
 
 task removeApi {
   description = "Helper to create a delete an api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
+  def injected = project.objects.newInstance(InjectedExecOps)
 
   doFirst {
     String apiName = project.apiName
@@ -972,11 +975,11 @@ task removeApi {
       out.println(newContents)
     }
 
-    project.exec {
+    injected.execOps.exec {
       commandLine = ['git', 'add', '-u']
     }
 
-    project.exec {
+    injected.execOps.exec {
       commandLine = ['git', 'commit', '-m', "Removed ${apiName} version ${project.apiVersion}"]
     }
   }

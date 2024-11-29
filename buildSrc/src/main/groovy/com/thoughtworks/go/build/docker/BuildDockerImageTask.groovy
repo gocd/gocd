@@ -28,6 +28,9 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
+
+import javax.inject.Inject
 
 enum ImageType {
   server,
@@ -35,6 +38,8 @@ enum ImageType {
 }
 
 class BuildDockerImageTask extends DefaultTask {
+  ExecOperations execOperations
+
   @Input Distro distro
   @Input DistroVersion distroVersion
   @Input String tiniVersion
@@ -46,7 +51,9 @@ class BuildDockerImageTask extends DefaultTask {
   @Internal Closure templateHelper
   @Internal Closure verifyHelper
 
-  BuildDockerImageTask() {
+  @Inject
+  BuildDockerImageTask(ExecOperations execOperations) {
+    this.execOperations = execOperations
     outputs.cacheIf { false }
     outputs.upToDateWhen { false }
   }
@@ -68,7 +75,7 @@ class BuildDockerImageTask extends DefaultTask {
     project.delete(gitRepoDirectory)
     project.mkdir(gitRepoDirectory)
     def credentials = "${System.getenv("GIT_USER")}:${System.getenv("GIT_PASSWORD")}"
-    project.exec {
+    execOperations.exec {
       workingDir = project.rootProject.projectDir
       commandLine = ["git", "clone", "--depth=1", "--quiet", "https://${credentials}@github.com/gocd/${gitHubRepoName}", gitRepoDirectory]
     }
@@ -117,7 +124,7 @@ class BuildDockerImageTask extends DefaultTask {
       logger.lifecycle("Cleaning up...")
       // delete the image, to save space
       if (!project.hasProperty('dockerBuildKeepImages')) {
-        project.exec {
+        execOperations.exec {
           workingDir = project.rootProject.projectDir
           commandLine = ["docker", "rmi", imageNameWithTag]
         }
@@ -130,7 +137,7 @@ class BuildDockerImageTask extends DefaultTask {
       logger.lifecycle("Pushing changed Dockerfile for ${imageNameWithTag} to ${gitHubRepoName}...")
       executeInGitRepo("git", "add", ".")
 
-      if (project.exec { workingDir = getGitRepoDirectory(); commandLine = ["git", "diff-index", "--quiet", "HEAD"]; ignoreExitValue = true}.exitValue != 0) {
+      if (execOperations.exec { workingDir = getGitRepoDirectory(); commandLine = ["git", "diff-index", "--quiet", "HEAD"]; ignoreExitValue = true}.exitValue != 0) {
         executeInGitRepo("git", "commit", "-m", "Bump to version ${project.fullVersion}", "--author", "GoCD CI User <godev+gocd-ci-user@thoughtworks.com>")
         executeInGitRepo("git", "tag", "v${project.goVersion}")
         executeInGitRepo("git", "push")
@@ -145,7 +152,7 @@ class BuildDockerImageTask extends DefaultTask {
   def verifyProcessInContainerStarted(String expectedProcess, String expectedOutput = "") {
     // run a `ps aux`
     ByteArrayOutputStream psOutput = new ByteArrayOutputStream()
-    project.exec {
+    execOperations.exec {
       workingDir = project.rootProject.projectDir
       commandLine = ["docker", "exec", dockerImageName, "ps", "aux"]
       standardOutput = psOutput
@@ -154,7 +161,7 @@ class BuildDockerImageTask extends DefaultTask {
     }
 
     ByteArrayOutputStream containerOutput = new ByteArrayOutputStream()
-    project.exec {
+    execOperations.exec {
       workingDir = project.rootProject.projectDir
       commandLine = ["docker", "logs", dockerImageName]
       standardOutput = containerOutput
@@ -175,7 +182,7 @@ class BuildDockerImageTask extends DefaultTask {
   }
 
   def executeInGitRepo(Object... args) {
-    project.exec {
+    execOperations.exec {
       workingDir = gitRepoDirectory
       commandLine = args
     }

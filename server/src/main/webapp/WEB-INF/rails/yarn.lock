@@ -1701,10 +1701,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jasmine@npm:^5.1.4":
-  version: 5.1.4
-  resolution: "@types/jasmine@npm:5.1.4"
-  checksum: 10/6b21eb0fc75e38783b7ee3f162ac47fd32ceaca3fb9eca0f4ed0730e56269bd61728e38ebe7c0d40b2d09382cc245deeabc556b2e46670eefee27f8d84c3f84c
+"@types/jasmine@npm:^5.1.5":
+  version: 5.1.5
+  resolution: "@types/jasmine@npm:5.1.5"
+  checksum: 10/3d1c79d9b563e7fa3509c08c9fbdf88ec7a5043a351eea5ea138e9f3eaea149fc30afe2c3bc9189b9704292eed46eb45316dd09d50657b539a294b9cb83433fa
   languageName: node
   linkType: hard
 
@@ -5379,7 +5379,7 @@ __metadata:
     "@types/awesomplete": "npm:^1.1.16"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/html-webpack-plugin": "npm:^3.2.9"
-    "@types/jasmine": "npm:^5.1.4"
+    "@types/jasmine": "npm:^5.1.5"
     "@types/jasmine-ajax": "npm:^3.3.5"
     "@types/jquery": "npm:^3.5.32"
     "@types/license-checker": "npm:^25.0.6"

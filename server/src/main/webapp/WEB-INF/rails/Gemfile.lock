@@ -171,7 +171,7 @@ GEM
       rake (>= 12.2)
       thor (~> 1.0)
     rake (13.2.1)
-    regexp_parser (2.9.2)
+    regexp_parser (2.9.3)
     rspec-core (3.13.2)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.3)

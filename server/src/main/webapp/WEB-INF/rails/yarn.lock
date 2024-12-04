@@ -5455,7 +5455,7 @@ __metadata:
     opensans: "file:vendor/assets/fonts/opensans"
     optimize-css-assets-webpack-plugin: "npm:^6.0.1"
     prismjs: "npm:^1.29.0"
-    sass-embedded: "npm:^1.81.0"
+    sass-embedded: "npm:^1.82.0"
     sass-loader: "npm:^10.5.2"
     shell-quote: "npm:^1.8.2"
     shellwords-ts: "npm:^3.0.1"
@@ -9188,175 +9188,175 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-embedded-android-arm64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-android-arm64@npm:1.81.0"
+"sass-embedded-android-arm64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-android-arm64@npm:1.82.0"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-android-arm@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-android-arm@npm:1.81.0"
+"sass-embedded-android-arm@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-android-arm@npm:1.82.0"
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-android-ia32@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-android-ia32@npm:1.81.0"
+"sass-embedded-android-ia32@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-android-ia32@npm:1.82.0"
   conditions: os=android & cpu=ia32
   languageName: node
   linkType: hard
 
-"sass-embedded-android-riscv64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-android-riscv64@npm:1.81.0"
+"sass-embedded-android-riscv64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-android-riscv64@npm:1.82.0"
   conditions: os=android & cpu=riscv64
   languageName: node
   linkType: hard
 
-"sass-embedded-android-x64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-android-x64@npm:1.81.0"
+"sass-embedded-android-x64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-android-x64@npm:1.82.0"
   conditions: os=android & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-darwin-arm64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-darwin-arm64@npm:1.81.0"
+"sass-embedded-darwin-arm64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-darwin-arm64@npm:1.82.0"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-darwin-x64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-darwin-x64@npm:1.81.0"
+"sass-embedded-darwin-x64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-darwin-x64@npm:1.82.0"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-arm64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-linux-arm64@npm:1.81.0"
+"sass-embedded-linux-arm64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-linux-arm64@npm:1.82.0"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-arm@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-linux-arm@npm:1.81.0"
+"sass-embedded-linux-arm@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-linux-arm@npm:1.82.0"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-ia32@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-linux-ia32@npm:1.81.0"
+"sass-embedded-linux-ia32@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-linux-ia32@npm:1.82.0"
   conditions: os=linux & cpu=ia32
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-arm64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-linux-musl-arm64@npm:1.81.0"
+"sass-embedded-linux-musl-arm64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-linux-musl-arm64@npm:1.82.0"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-arm@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-linux-musl-arm@npm:1.81.0"
+"sass-embedded-linux-musl-arm@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-linux-musl-arm@npm:1.82.0"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-ia32@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-linux-musl-ia32@npm:1.81.0"
+"sass-embedded-linux-musl-ia32@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-linux-musl-ia32@npm:1.82.0"
   conditions: os=linux & cpu=ia32
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-riscv64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-linux-musl-riscv64@npm:1.81.0"
+"sass-embedded-linux-musl-riscv64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-linux-musl-riscv64@npm:1.82.0"
   conditions: os=linux & cpu=riscv64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-x64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-linux-musl-x64@npm:1.81.0"
+"sass-embedded-linux-musl-x64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-linux-musl-x64@npm:1.82.0"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-riscv64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-linux-riscv64@npm:1.81.0"
+"sass-embedded-linux-riscv64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-linux-riscv64@npm:1.82.0"
   conditions: os=linux & cpu=riscv64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-x64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-linux-x64@npm:1.81.0"
+"sass-embedded-linux-x64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-linux-x64@npm:1.82.0"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-win32-arm64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-win32-arm64@npm:1.81.0"
+"sass-embedded-win32-arm64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-win32-arm64@npm:1.82.0"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-win32-ia32@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-win32-ia32@npm:1.81.0"
+"sass-embedded-win32-ia32@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-win32-ia32@npm:1.82.0"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"sass-embedded-win32-x64@npm:1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded-win32-x64@npm:1.81.0"
+"sass-embedded-win32-x64@npm:1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded-win32-x64@npm:1.82.0"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded@npm:^1.81.0":
-  version: 1.81.0
-  resolution: "sass-embedded@npm:1.81.0"
+"sass-embedded@npm:^1.82.0":
+  version: 1.82.0
+  resolution: "sass-embedded@npm:1.82.0"
   dependencies:
     "@bufbuild/protobuf": "npm:^2.0.0"
     buffer-builder: "npm:^0.2.0"
     colorjs.io: "npm:^0.5.0"
     immutable: "npm:^5.0.2"
     rxjs: "npm:^7.4.0"
-    sass-embedded-android-arm: "npm:1.81.0"
-    sass-embedded-android-arm64: "npm:1.81.0"
-    sass-embedded-android-ia32: "npm:1.81.0"
-    sass-embedded-android-riscv64: "npm:1.81.0"
-    sass-embedded-android-x64: "npm:1.81.0"
-    sass-embedded-darwin-arm64: "npm:1.81.0"
-    sass-embedded-darwin-x64: "npm:1.81.0"
-    sass-embedded-linux-arm: "npm:1.81.0"
-    sass-embedded-linux-arm64: "npm:1.81.0"
-    sass-embedded-linux-ia32: "npm:1.81.0"
-    sass-embedded-linux-musl-arm: "npm:1.81.0"
-    sass-embedded-linux-musl-arm64: "npm:1.81.0"
-    sass-embedded-linux-musl-ia32: "npm:1.81.0"
-    sass-embedded-linux-musl-riscv64: "npm:1.81.0"
-    sass-embedded-linux-musl-x64: "npm:1.81.0"
-    sass-embedded-linux-riscv64: "npm:1.81.0"
-    sass-embedded-linux-x64: "npm:1.81.0"
-    sass-embedded-win32-arm64: "npm:1.81.0"
-    sass-embedded-win32-ia32: "npm:1.81.0"
-    sass-embedded-win32-x64: "npm:1.81.0"
+    sass-embedded-android-arm: "npm:1.82.0"
+    sass-embedded-android-arm64: "npm:1.82.0"
+    sass-embedded-android-ia32: "npm:1.82.0"
+    sass-embedded-android-riscv64: "npm:1.82.0"
+    sass-embedded-android-x64: "npm:1.82.0"
+    sass-embedded-darwin-arm64: "npm:1.82.0"
+    sass-embedded-darwin-x64: "npm:1.82.0"
+    sass-embedded-linux-arm: "npm:1.82.0"
+    sass-embedded-linux-arm64: "npm:1.82.0"
+    sass-embedded-linux-ia32: "npm:1.82.0"
+    sass-embedded-linux-musl-arm: "npm:1.82.0"
+    sass-embedded-linux-musl-arm64: "npm:1.82.0"
+    sass-embedded-linux-musl-ia32: "npm:1.82.0"
+    sass-embedded-linux-musl-riscv64: "npm:1.82.0"
+    sass-embedded-linux-musl-x64: "npm:1.82.0"
+    sass-embedded-linux-riscv64: "npm:1.82.0"
+    sass-embedded-linux-x64: "npm:1.82.0"
+    sass-embedded-win32-arm64: "npm:1.82.0"
+    sass-embedded-win32-ia32: "npm:1.82.0"
+    sass-embedded-win32-x64: "npm:1.82.0"
     supports-color: "npm:^8.1.1"
     sync-child-process: "npm:^1.0.2"
     varint: "npm:^6.0.0"
@@ -9403,7 +9403,7 @@ __metadata:
       optional: true
   bin:
     sass: dist/bin/sass.js
-  checksum: 10/e8e1239077257f3e6799968a7232b47cdcea14d6afaef2765a6d7962ac57f9c38494c7032247b40bb1bd251ff80f900f5a3931100fa981ff5846c9f3670567ab
+  checksum: 10/e8d4c2f218c7f4704ccd6db1826111c20ed6e50e9e15aff206aa68cdd184c3d022015af295b8bc47727d904a6a603091c4a2f17e2d3da3dd2de19ff008fb7a20
   languageName: node
   linkType: hard
 

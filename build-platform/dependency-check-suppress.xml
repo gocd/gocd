@@ -284,15 +284,27 @@
 
   <suppress>
     <notes><![CDATA[
+    Suppress false positive from nokogiri-java via embedded xercesImpl-2.12.2.jar which claims the somewhat vaguely defined possible
+    threading deadlock at https://nvd.nist.gov/vuln/detail/CVE-2017-10355 This doesn't appear to be legitimately tagged or expoitable 
+    based on conversation at https://github.com/jeremylong/DependencyCheck/issues/4614  
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/xerces/xercesImpl@.*$</packageUrl>
+    <vulnerabilityName>CVE-2017-10355</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     Suppress false positives from nokogiri-java via embedded neko-htmlunit-2.63.0.jar pending https://github.com/sparklemotion/nokogiri/issues/2565
     and corresponding release of nokogiri. The issues highlighted here appear to affect only htmlunit, not neko-htmlunit however
     due to them sharing a CPE are grouped here. https://github.com/jeremylong/DependencyCheck/issues/5656#issuecomment-1846504862 has
-    an assessment so GoCD is not believed to be affected by the suppressed CVEs.
+    an assessment so GoCD is not believed to be affected by the suppressed CVEs, even if it did use nokigiri via JRuby to parse malicious HTML
+    which it is understood it does not.
     ]]></notes>
     <sha1>d4d159a789c5446eea7edc184cab9adab12baa1c</sha1>
     <cve>CVE-2023-2798</cve>
     <cve>CVE-2023-26119</cve>
     <cve>CVE-2023-49093</cve>
+    <cve>CVE-2024-23635</cve>
   </suppress>
 
   <suppress>

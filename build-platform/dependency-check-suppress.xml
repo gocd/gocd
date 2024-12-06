@@ -77,15 +77,6 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    GoCD does not seem to be affected as does not use the functional Spring web frameworks/RouterFunctions. Also, it 
-    runs on Jetty, which is noted as not vulnerable at https://spring.io/security/cve-2024-38816
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
-    <vulnerabilityName>CVE-2024-38816</vulnerabilityName>
-    <vulnerabilityName>CVE-2024-38819</vulnerabilityName>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
     GoCD is not vulnerable to the default as described at https://nvd.nist.gov/vuln/detail/CVE-2022-22970 as we do not
     rely on data binding for dealing with MultipartFile or javax.servlet.Part objects into models.
     ]]></notes>
@@ -154,13 +145,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-core@4.*$</packageUrl>
     <cve>CVE-2024-22257</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-    According to https://spring.io/security/cve-2024-38821 this only affects WebFlux applications which GoCD is not.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-web@4.*$</packageUrl>
-    <vulnerabilityName>CVE-2024-38821</vulnerabilityName>
   </suppress>
 
   <suppress>
@@ -274,16 +258,6 @@
 
   <suppress>
     <notes><![CDATA[
-    Suppress false positive from nokogiri-java via embedded xalan-2.7.3.jar which is correctly identifying that BCEL is embedded, but
-    incorrectly identifying the version as 2.7.3 (Xalan version). BCEL version embedded is 6.7.0 https://xalan.apache.org/xalan-j/readme.html
-    which is not affected by this issue.
-    ]]></notes>
-    <sha1>5095bedf29e73756fb5729f2241fd5ffa33d87e0</sha1>
-    <cve>CVE-2022-42920</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     Suppress false positive from nokogiri-java via embedded xercesImpl-2.12.2.jar which claims the somewhat vaguely defined possible
     threading deadlock at https://nvd.nist.gov/vuln/detail/CVE-2017-10355 This doesn't appear to be legitimately tagged or expoitable 
     based on conversation at https://github.com/jeremylong/DependencyCheck/issues/4614  
@@ -300,7 +274,7 @@
     an assessment so GoCD is not believed to be affected by the suppressed CVEs, even if it did use nokigiri via JRuby to parse malicious HTML
     which it is understood it does not.
     ]]></notes>
-    <sha1>d4d159a789c5446eea7edc184cab9adab12baa1c</sha1>
+    <packageUrl regex="true">^pkg:maven/net\.sourceforge\.htmlunit/neko-htmlunit@.*$</packageUrl>
     <cve>CVE-2023-2798</cve>
     <cve>CVE-2023-26119</cve>
     <cve>CVE-2023-49093</cve>

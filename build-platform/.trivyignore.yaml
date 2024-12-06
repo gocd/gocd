@@ -1,6 +1,17 @@
 # Additional suppressions for issues detected by Trivy that are not found by OWASP dependency check
 
 vulnerabilities:
+  - id: CVE-2024-38816
+    statement: >
+      GoCD does not seem to be affected as does not use the functional Spring web frameworks/RouterFunctions. Also, it 
+      runs on Jetty, which is noted as not vulnerable at https://spring.io/security/cve-2024-38816
+      org.springframework:spring-webmvc (go.jar) Fixed: 6.1.13 
+      https://avd.aquasec.com/nvd/cve-2024-38816
+  - id: CVE-2024-38821
+    statement: >
+      According to https://spring.io/security/cve-2024-38821 this only affects WebFlux applications which GoCD is not.
+      org.springframework.security:spring-security-web (go.jar) Fixed: 5.7.13, 5.8.15, 6.2.7, 6.0.13, 6.1.11, 6.3.4
+      https://avd.aquasec.com/nvd/cve-2024-38821
 
   # Leave whitespace at the end of the file for appending suppressions from OWASP dependency check :-)
   # Augment to this file with

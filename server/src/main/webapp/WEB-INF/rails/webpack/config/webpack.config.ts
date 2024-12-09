@@ -21,6 +21,7 @@ import {loaders} from "./loaders";
 import {plugins} from "./plugins";
 import {ConfigOptions, getEntries, getModules} from "./variables";
 
+const TerserPlugin = require("terser-webpack-plugin");
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 
 function getConfigOptions(argv: any, env: any): ConfigOptions {
@@ -56,7 +57,12 @@ function getOptimization(configOptions: ConfigOptions): webpack.Options.Optimiza
           minChunks: 2
         }
       }
-    }
+    },
+    minimizer: [
+      new TerserPlugin({
+        parallel: 4,
+      })
+    ]
   } : {
     splitChunks: {
       chunks: "all",

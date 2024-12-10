@@ -16,7 +16,11 @@
 # shellcheck disable=SC2086
 $(which dind) dockerd --host=unix:///var/run/docker.sock ${DOCKERD_ADDITIONAL_ARGS:-'--host=tcp://localhost:2375'} > /var/log/dockerd.log 2>&1 &
 
-waited=0
+# Wait a short amount of time to avoid race conditions with the dind script on cgroupsv2, which seems to be due to
+# script code at https://github.com/moby/moby/blob/b249c5ebd214e2977d0fdb1e07d82366f5849cf9/hack/dind#L59-L69
+waited=${DOCKERD_INITIAL_WAIT_SECS:-1}
+sleep ${waited}
+
 until [ $waited -ge ${DOCKERD_MAX_WAIT_SECS:-30} ] || docker stats --no-stream; do
   sleep 1
   ((waited++))

@@ -16,7 +16,6 @@
 
 module Admin
   class StagesController < AdminController
-    include AuthorizationHelper
     before_action :check_admin_user_and_403
     layout "application"
 

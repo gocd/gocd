@@ -33,6 +33,9 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                                 BasicAuthenticationWithChallengeFailureResponseHandler apiAccessDeniedHandler,
                                 GenericAccessDeniedHandler genericAccessDeniedHandler) {
         super(FilterChainBuilder.newInstance()
+                // internal routes
+                .addFilterChain("/rails/**", new DenyAllAccessFilter())
+
                 // agent access
                 .addAuthorityFilterChain("/remoting/files/**", apiAccessDeniedHandler, ROLE_AGENT)
                 .addAuthorityFilterChain("/remoting/api/agent/**", apiAccessDeniedHandler, ROLE_AGENT)

@@ -18,9 +18,9 @@ package com.thoughtworks.go.domain.materials.svn;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
+import com.thoughtworks.go.util.SafeSaxBuilder;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.*;
-import org.jdom2.input.SAXBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -280,7 +280,7 @@ public class SvnCommandTest {
                 </entry>
                 </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder());
+        svnInfo.parse(output, new SafeSaxBuilder());
         assertThat(svnInfo.getPath()).isEqualTo("/bloresvn/TISSIP/branch/DEV/PurchaseDeliverables");
         assertThat(svnInfo.getUrl()).isEqualTo("http://svn.somewhere.com/someotherline/bloresvn/TISSIP/branch/DEV/PurchaseDeliverables");
     }
@@ -307,7 +307,7 @@ public class SvnCommandTest {
                 </entry>
                 </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder());
+        svnInfo.parse(output, new SafeSaxBuilder());
         assertThat(svnInfo.getPath()).isEqualTo("/someotherline");
         assertThat(svnInfo.getUrl()).isEqualTo("http://svn.somewhere.com/svn/someotherline");
         assertThat(svnInfo.getRoot()).isEqualTo("http://svn.somewhere.com/svn");
@@ -335,7 +335,7 @@ public class SvnCommandTest {
                 </entry>
                 </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder());
+        svnInfo.parse(output, new SafeSaxBuilder());
         assertThat(svnInfo.getPath()).isEqualTo("/司徒空在此");
         assertThat(svnInfo.getUrl()).isEqualTo("file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/repos/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4");
     }
@@ -362,7 +362,7 @@ public class SvnCommandTest {
                 </entry>
                 </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder());
+        svnInfo.parse(output, new SafeSaxBuilder());
         assertThat(svnInfo.getUrl()).isEqualTo("https://217.45.214.17:8443/svn/Entropy%20System/Envoy%20Enterprise/trunk");
         assertThat(svnInfo.getPath()).isEqualTo("/Entropy System/Envoy Enterprise/trunk");
     }
@@ -389,7 +389,7 @@ public class SvnCommandTest {
                 </entry>
                 </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder());
+        svnInfo.parse(output, new SafeSaxBuilder());
         assertThat(svnInfo.getUrl()).isEqualTo("file:///C:/Documents%20and%20Settings/cceuser/Local%20Settings/Temp/testSvnRepo-1243722556125/end2end/unit-reports");
         assertThat(svnInfo.getPath()).isEqualTo("/unit-reports");
     }
@@ -416,7 +416,7 @@ public class SvnCommandTest {
                 </entry>
                 </info>""";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder());
+        svnInfo.parse(output, new SafeSaxBuilder());
         assertThat(svnInfo.getUrl()).isEqualTo("svn+ssh://hostname/foo%20bar%20baz/end2end");
         assertThat(svnInfo.getPath()).isEqualTo("/end2end");
     }

@@ -23,9 +23,9 @@ import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 public final class GoPluginDescriptorParser {
@@ -53,40 +53,47 @@ public final class GoPluginDescriptorParser {
     }
 
     public static GoPluginBundleDescriptor parseXML(InputStream pluginXml,
-                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws IOException, JAXBException, XMLStreamException, SAXException {
+                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws JAXBException, XMLStreamException, SAXException {
         return parseXML(pluginXml, bundleOrPluginJarFile.file().getAbsolutePath(), bundleOrPluginJarFile.extractionLocation(), bundleOrPluginJarFile.isBundledPlugin());
     }
 
     static GoPluginBundleDescriptor parseXML(InputStream pluginXML,
                                              String pluginJarFileLocation,
                                              File pluginBundleLocation,
-                                             boolean isBundledPlugin) throws IOException, JAXBException, XMLStreamException, SAXException {
-        GoPluginDescriptor plugin = deserializeXML(pluginXML, GoPluginDescriptor.class);
+                                             boolean isBundledPlugin) throws JAXBException, XMLStreamException, SAXException {
+        GoPluginDescriptor plugin = deserializeXML(pluginXML, GoPluginDescriptor.class, "/plugin-descriptor.xsd", "plugin.xml");
         plugin.pluginJarFileLocation(pluginJarFileLocation);
         plugin.bundleLocation(pluginBundleLocation);
         plugin.isBundledPlugin(isBundledPlugin);
         return new GoPluginBundleDescriptor(plugin);
     }
 
-    @SuppressWarnings("SameParameterValue")
-    private static <T> T deserializeXML(InputStream pluginXML, Class<T> klass) throws JAXBException, XMLStreamException, SAXException {
-        JAXBContext ctx = JAXBContext.newInstance(klass);
-        XMLStreamReader data = XMLInputFactory.newInstance().createXMLStreamReader(pluginXML);
-        final Unmarshaller unmarshaller = ctx.createUnmarshaller();
-        unmarshaller.setSchema(SchemaFactory.
-                newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).
-                newSchema(GoPluginDescriptorParser.class.getResource("/plugin-descriptor.xsd")));
+    static <T> T deserializeXML(InputStream pluginXML, Class<T> klass, String schemaResourcePath, String resourceType) throws JAXBException, XMLStreamException, SAXException {
+        XMLStreamReader data = streamReaderFor(pluginXML);
+        final Unmarshaller unmarshaller = JAXBContext.newInstance(klass).createUnmarshaller();
+        unmarshaller.setSchema(schemaFor(klass, schemaResourcePath));
 
         try {
-            final JAXBElement<T> result = unmarshaller.unmarshal(data, klass);
-            return result.getValue();
+            return unmarshaller.unmarshal(data, klass).getValue();
         } catch (UnmarshalException e) {
             // there is no non-frustrating way to customize error messages (without other pitfalls anyway),
             // and `UnmarshalException` instances are rarely informative; assume a validation error.
             if (null == e.getMessage()) {
-                throw new ValidationException("XML Schema validation of Plugin Descriptor(plugin.xml) failed", e.getCause());
+                throw new ValidationException("XML Schema validation of Plugin Descriptor(" + resourceType + ") failed", e.getCause());
             }
             throw e;
         }
+    }
+
+    private static XMLStreamReader streamReaderFor(InputStream pluginXML) throws XMLStreamException {
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        return factory.createXMLStreamReader(pluginXML);
+    }
+
+    private static Schema schemaFor(Class<?> klass, String schemaResourcePath) throws SAXException {
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        schemaFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        return schemaFactory.newSchema(klass.getResource(schemaResourcePath));
     }
 }

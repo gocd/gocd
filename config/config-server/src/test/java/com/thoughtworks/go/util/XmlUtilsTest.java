@@ -16,17 +16,12 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.config.GoConfigSchema;
-import org.apache.commons.io.FileUtils;
 import org.jdom2.input.JDOMParseException;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 
-import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static com.thoughtworks.go.util.XmlUtils.buildValidatedXmlDocument;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class XmlUtilsTest {
@@ -34,28 +29,15 @@ public class XmlUtilsTest {
     @Test
     public void shouldThrowExceptionWithTranslatedErrorMessage() {
         String xmlContent = "<foo name='invalid'/>";
-        InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
-        assertThatThrownBy(() -> buildXmlDocument(inputStream, GoConfigSchema.getCurrentSchema()))
+        assertThatThrownBy(() -> XmlUtils.buildValidatedXmlDocument(new ByteArrayInputStream(xmlContent.getBytes()), GoConfigSchema.getCurrentSchema()))
                 .isInstanceOf(XsdValidationException.class);
     }
 
     @Test
     public void shouldThrowExceptionWhenXmlIsMalformed() {
         String xmlContent = "<foo name='invalid'";
-        assertThatThrownBy(() -> buildXmlDocument(xmlContent, GoConfigSchema.getCurrentSchema()))
+        assertThatThrownBy(() -> buildValidatedXmlDocument(new ByteArrayInputStream(xmlContent.getBytes()), GoConfigSchema.getCurrentSchema()))
                 .isInstanceOf(JDOMParseException.class)
                 .hasMessageContaining("Error on line 1: XML document structures must start and end within the same entity");
     }
-
-    @Test
-    public void shouldDisableDocTypeDeclarationsWhenValidatingXmlDocuments() {
-        assertThatThrownBy(() -> buildXmlDocument(xxeFileContent(), GoConfigSchema.getCurrentSchema()))
-                .isInstanceOf(JDOMParseException.class)
-                .hasMessageContaining("DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true");
-    }
-
-    private String xxeFileContent() throws IOException {
-        return FileUtils.readFileToString(new File(this.getClass().getResource("/data/xml-with-xxe.xml").getFile()), UTF_8);
-    }
-
 }

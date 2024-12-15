@@ -32,7 +32,6 @@ dependencies {
     transitive = false
   }
   api project.deps.cloning
-  api project.deps.jdom
   api project.deps.springWeb
   implementation project.deps.slf4jApi
   implementation project.deps.felix

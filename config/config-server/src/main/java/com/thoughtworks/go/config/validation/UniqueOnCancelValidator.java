@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigUtil;
 import org.jdom2.Element;
 import org.jdom2.filter.Filters;
+import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 
 import java.util.List;
@@ -27,12 +28,13 @@ public class UniqueOnCancelValidator implements GoConfigXMLValidator {
     @Override
     public void validate(Element element, ConfigElementImplementationRegistry registry) {
         XPathFactory xPathFactory = XPathFactory.instance();
+        XPathExpression<Element> onCancelExpression = xPathFactory.compile("oncancel", Filters.element());
+
         List<String> tasks = ConfigUtil.allTasks(registry);
         for (String task : tasks) {
             List<Element> taskNodes = xPathFactory.compile("//" + task, Filters.element()).evaluate(element);
             for (Element taskNode : taskNodes) {
-                List<Element> list = xPathFactory.compile("oncancel", Filters.element()).evaluate(taskNode);
-                if (list.size() > 1) {
+                if (onCancelExpression.evaluate(taskNode).size() > 1) {
                     throw new RuntimeException("Task [" + task + "] should not contain more than 1 oncancel task");
                 }
             }

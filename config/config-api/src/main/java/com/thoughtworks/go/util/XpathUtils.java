@@ -16,22 +16,26 @@
 package com.thoughtworks.go.util;
 
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 public class XpathUtils {
 
-    private static final XPathFactory XPATH = XPathFactory.newInstance();
+    private static final DocumentBuilderFactory DOC_BUILDER_FACTORY = createDocumentBuilderFactory();
 
     public static String evaluate(File file, String xpath) throws XPathExpressionException, IOException {
         try (InputStream stream = new FileInputStream(file)) {
             InputSource inputSource = new InputSource(stream);
-            return evaluate(inputSource, xpath);
+            return safeEvaluate(inputSource, xpath);
         }
     }
 
@@ -46,20 +50,49 @@ public class XpathUtils {
     }
 
     public static boolean nodeExists(InputSource inputSource, String xpath) throws XPathExpressionException {
-        XPathFactory factory = XPathFactory.newInstance();
-        XPathExpression expression = factory.newXPath().compile(xpath);
-        Boolean b = (Boolean) expression.evaluate(inputSource, XPathConstants.BOOLEAN);
-        return b != null && b;
+        return Boolean.TRUE.equals(safeEvaluate(inputSource, xpath, XPathConstants.BOOLEAN));
     }
 
-    public static boolean nodeExists(String xmlPartial, String xpath) throws XPathExpressionException {
-        return nodeExists(new ByteArrayInputStream(xmlPartial.getBytes(StandardCharsets.UTF_8)), xpath);
+    public static boolean nodeExists(String xmlContent, String xpath) throws XPathExpressionException {
+        return nodeExists(new InputSource(new StringReader(xmlContent)), xpath);
     }
 
-    private static String evaluate(InputSource inputSource, String xpath)
-        throws XPathExpressionException {
-        XPathExpression expression = XpathUtils.XPATH.newXPath().compile(xpath);
-        return expression.evaluate(inputSource).trim();
+    private static <T> T safeEvaluate(InputSource inputSource, String xpath, QName type) throws XPathExpressionException {
+        try {
+            return safeEvaluate(inputSource, compile(xpath), type);
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+            throw new XPathExpressionException(e);
+        }
     }
 
+    private static String safeEvaluate(InputSource inputSource, String xpath) throws XPathExpressionException {
+        try {
+            return safeEvaluate(inputSource, compile(xpath));
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+            throw new XPathExpressionException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T safeEvaluate(InputSource inputSource, XPathExpression xpath, QName type) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
+        return (T) xpath.evaluate(DOC_BUILDER_FACTORY.newDocumentBuilder().parse(inputSource), type);
+    }
+
+    private static String safeEvaluate(InputSource inputSource, XPathExpression xpath) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
+        return xpath.evaluate(DOC_BUILDER_FACTORY.newDocumentBuilder().parse(inputSource)).trim();
+    }
+
+    private static XPathExpression compile(String xpath) throws XPathExpressionException {
+        return XPathFactory.newInstance().newXPath().compile(xpath);
+    }
+
+    private static DocumentBuilderFactory createDocumentBuilderFactory() {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            return factory;
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

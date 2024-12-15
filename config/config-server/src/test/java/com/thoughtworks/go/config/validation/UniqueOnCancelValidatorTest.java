@@ -19,12 +19,11 @@ import com.thoughtworks.go.config.ExecTask;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.util.XmlUtils;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -257,7 +256,6 @@ public class UniqueOnCancelValidatorTest {
     }
 
     private Element elementFor(String content) throws JDOMException, IOException {
-        SAXBuilder builder = new SAXBuilder();
-        return builder.build(new ByteArrayInputStream(content.getBytes())).getRootElement();
+        return XmlUtils.buildXmlDocument(content).getRootElement();
     }
 }

@@ -17,15 +17,15 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.io.FileUtils;
-import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -40,7 +40,6 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 
 /**
  * Understands how to migrate from a previous version of config
@@ -105,17 +104,16 @@ public class GoConfigMigration {
     private void validate(String content) {
         int currentVersion = getCurrentSchemaVersion(content);
         try {
-            buildXmlDocument(new ByteArrayInputStream(content.getBytes()), GoConfigSchema.getResource(currentVersion));
+            XmlUtils.buildValidatedXmlDocument(new ByteArrayInputStream(content.getBytes()), GoConfigSchema.getResource(currentVersion));
         } catch (Exception e) {
             throw bomb("Cruise config file with version " + currentVersion + " is invalid. Unable to upgrade.", e);
         }
     }
 
     private String upgrade(String originalContent, URL upgradeScript) {
-        try (InputStream xslt = upgradeScript.openStream()) {
-            ByteArrayOutputStream convertedConfig = new ByteArrayOutputStream();
-            transformer(upgradeScript.getPath(), xslt)
-                    .transform(new StreamSource(new ByteArrayInputStream(originalContent.getBytes())), new StreamResult(convertedConfig));
+        try {
+            ByteArrayOutputStream convertedConfig = new ByteArrayOutputStream(originalContent.length());
+            transformer(upgradeScript).transform(new StreamSource(new StringReader(originalContent)), new StreamResult(convertedConfig));
             return convertedConfig.toString();
         } catch (TransformerException e) {
             throw bomb("Couldn't transform configuration file using upgrade script " + upgradeScript.getPath(), e);
@@ -125,7 +123,7 @@ public class GoConfigMigration {
     }
 
     private List<URL> upgradeScripts(int currentVersion, int targetVersion) {
-        ArrayList<URL> xsls = new ArrayList<>();
+        List<URL> xsls = new ArrayList<>();
         for (int i = currentVersion + 1; i <= targetVersion; i++) {
             String scriptFile = i + ".xsl";
             URL xsl = getResource("/upgrades/" + scriptFile);
@@ -139,29 +137,21 @@ public class GoConfigMigration {
         return GoConfigMigration.class.getResource(script);
     }
 
-    private Transformer transformer(String xsltName, InputStream xslt) {
-        try {
+    private Transformer transformer(URL upgradeScriptLocation) throws IOException {
+        try (InputStream xslt = upgradeScriptLocation.openStream()) {
             TransformerFactory factory = TransformerFactory.newInstance();
-            tryIncreaseXpathExpressionOperationLimit(factory);
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+            factory.setAttribute("jdk.xml.xpathExprOpLimit", XPATH_EXPRESSION_OPERATION_LIMIT);
             return factory.newTransformer(new StreamSource(xslt));
         } catch (TransformerConfigurationException tce) {
-            throw bomb("Couldn't parse XSL template " + xsltName, tce);
-        }
-    }
-
-    private void tryIncreaseXpathExpressionOperationLimit(TransformerFactory factory) {
-        try {
-            factory.setAttribute("jdk.xml.xpathExprOpLimit", XPATH_EXPRESSION_OPERATION_LIMIT);
-        } catch (IllegalArgumentException e) {
-            LOG.info("Cannot increase Xpath Expression Operation Limit, may not be supported on this JDK. Continuing... [{}]", e.getMessage());
+            throw bomb("Couldn't parse XSL template " + upgradeScriptLocation.getPath(), tce);
         }
     }
 
     private int getCurrentSchemaVersion(String content) {
         try {
-            SAXBuilder builder = new SAXBuilder();
-            Document document = builder.build(new ByteArrayInputStream(content.getBytes()));
-            Element root = document.getRootElement();
+            Element root = XmlUtils.buildXmlDocument(content).getRootElement();
 
             String schemaVersion = "schemaVersion";
             String currentVersion = root.getAttributeValue(schemaVersion) == null ? "0" : root.getAttributeValue(schemaVersion);

@@ -16,13 +16,12 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.server.presentation.html.HtmlRenderer;
+import com.thoughtworks.go.util.XmlUtils;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.StringReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -98,7 +97,7 @@ public class DirectoryEntriesTest {
 
     private Element getRenderedDocument(HtmlRenderer renderer) throws JDOMException, IOException {
         String renderedString = "<div>" + renderer.asString() + "</div>";
-        return new SAXBuilder().build(new StringReader(renderedString)).getRootElement();
+        return XmlUtils.buildXmlDocument(renderedString).getRootElement();
     }
 
 }

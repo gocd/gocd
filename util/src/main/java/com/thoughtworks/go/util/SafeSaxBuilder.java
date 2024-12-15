@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.thoughtworks.go.util;
 
-description = 'GoCD Utils'
+import org.jdom2.input.SAXBuilder;
 
-dependencies {
-  implementation project(path: ':base', configuration: 'runtimeElements')
-  api project.deps.springContext
-  api project.deps.gson
-  implementation project.deps.cloning
-  api project.deps.jdom
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testImplementation project.deps.junit5Params
-  testImplementation project.deps.assertJ
+public class SafeSaxBuilder extends SAXBuilder {
+    public SafeSaxBuilder() {
+        // Disable DTDs entirely, as we don't use/rely on them - rather than just disallowing external entities
+        this.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    }
 }

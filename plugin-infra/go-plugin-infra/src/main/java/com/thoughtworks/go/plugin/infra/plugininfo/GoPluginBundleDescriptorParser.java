@@ -16,16 +16,11 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import com.thoughtworks.go.plugin.infra.monitor.BundleOrPluginFileDetails;
-import jakarta.xml.bind.*;
+import jakarta.xml.bind.JAXBException;
 import org.xml.sax.SAXException;
 
-import javax.xml.XMLConstants;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.validation.SchemaFactory;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 /* Parses an XML of this kind (see below). Also see @GoPluginDescriptorParser and gocd-bundle-descriptor.xsd.
@@ -83,16 +78,16 @@ public final class GoPluginBundleDescriptorParser {
     }
 
     public static GoPluginBundleDescriptor parseXML(InputStream pluginXml,
-                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws IOException, JAXBException, XMLStreamException, SAXException {
+                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws JAXBException, XMLStreamException, SAXException {
         return parseXML(pluginXml, bundleOrPluginJarFile.file().getAbsolutePath(), bundleOrPluginJarFile.extractionLocation(), bundleOrPluginJarFile.isBundledPlugin());
     }
 
     static GoPluginBundleDescriptor parseXML(InputStream pluginXML,
                                              String pluginJarFileLocation,
                                              File pluginBundleLocation,
-                                             boolean isBundledPlugin) throws IOException, JAXBException, XMLStreamException, SAXException {
+                                             boolean isBundledPlugin) throws JAXBException, XMLStreamException, SAXException {
 
-        GoPluginBundleDescriptor bundle = deserializeXML(pluginXML, GoPluginBundleDescriptor.class);
+        GoPluginBundleDescriptor bundle = GoPluginDescriptorParser.deserializeXML(pluginXML, GoPluginBundleDescriptor.class, "/gocd-bundle-descriptor.xsd", "bundle.xml");
         bundle.pluginDescriptors().forEach(d -> {
             d.setBundleDescriptor(bundle);
             d.version(bundle.version());
@@ -101,28 +96,6 @@ public final class GoPluginBundleDescriptorParser {
             d.isBundledPlugin(isBundledPlugin);
         });
         return bundle;
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private static <T> T deserializeXML(InputStream pluginXML, Class<T> klass) throws JAXBException, XMLStreamException, SAXException {
-        JAXBContext ctx = JAXBContext.newInstance(klass);
-        XMLStreamReader data = XMLInputFactory.newInstance().createXMLStreamReader(pluginXML);
-        final Unmarshaller unmarshaller = ctx.createUnmarshaller();
-        unmarshaller.setSchema(SchemaFactory.
-                newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).
-                newSchema(GoPluginBundleDescriptorParser.class.getResource("/gocd-bundle-descriptor.xsd")));
-
-        try {
-            final JAXBElement<T> result = unmarshaller.unmarshal(data, klass);
-            return result.getValue();
-        } catch (UnmarshalException e) {
-            // there is no non-frustrating way to customize error messages (without other pitfalls anyway),
-            // and `UnmarshalException` instances are rarely informative; assume a validation error.
-            if (null == e.getMessage()) {
-                throw new ValidationException("XML Schema validation of Plugin Descriptor(bundle.xml) failed", e.getCause());
-            }
-            throw e;
-        }
     }
 
 }

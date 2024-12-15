@@ -18,49 +18,50 @@ package com.thoughtworks.go.util;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
 public class XmlUtils {
     public static void writeXml(Document document, OutputStream outputStream) throws IOException {
-        xmlOutputer().output(document, outputStream);
+        xmlOutputter().output(document, outputStream);
     }
 
-    private static XMLOutputter xmlOutputer() {
+    private static XMLOutputter xmlOutputter() {
         Format format = Format.getPrettyFormat().setEncoding("utf-8").setLineSeparator("\n");
         return new XMLOutputter(format);
     }
 
-
     public static void writeXml(Element element, OutputStream outputStream) throws IOException {
-        xmlOutputer().output(element, outputStream);
+        xmlOutputter().output(element, outputStream);
     }
 
-    public static Document buildXmlDocument(InputStream inputStream, URL resource) throws Exception {
-        return buildXmlDocument(inputStream, new ValidatingSaxBuilder(resource));
+    public static Document buildXmlDocument(InputStream inputStream) throws IOException, JDOMException {
+        return new SafeSaxBuilder().build(inputStream);
     }
 
-    public static Document buildXmlDocument(String xmlContent, URL resource) throws Exception {
-        return buildXmlDocument(new ByteArrayInputStream(xmlContent.getBytes()), new ValidatingSaxBuilder(resource));
+    public static Document buildXmlDocument(File file) throws IOException, JDOMException {
+        return new SafeSaxBuilder().build(file);
     }
 
-    private static Document buildXmlDocument(InputStream inputStream, SAXBuilder builder) throws JDOMException, IOException {
+    public static Document buildXmlDocument(String xmlContent) throws IOException, JDOMException {
+        return new SafeSaxBuilder().build(new StringReader(xmlContent));
+    }
+
+    public static Document buildValidatedXmlDocument(InputStream inputStream, URL schemaLocation) throws URISyntaxException, IOException, JDOMException {
+        ValidatingSaxBuilder builder = new ValidatingSaxBuilder(schemaLocation);
         XsdErrorTranslator errorHandler = new XsdErrorTranslator();
         builder.setErrorHandler(errorHandler);
 
-        Document cruiseRoot = builder.build(inputStream);
+        Document document = builder.build(inputStream);
         if (errorHandler.hasValidationError()) {
             throw new XsdValidationException(errorHandler.translate());
         }
-        return cruiseRoot;
+        return document;
     }
 
     public static boolean doesNotMatchUsingXsdRegex(Pattern pattern, String textToMatch) {

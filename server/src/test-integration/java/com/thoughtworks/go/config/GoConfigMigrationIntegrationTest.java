@@ -27,14 +27,10 @@ import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Document;
 import org.jdom2.filter.ElementFilter;
-import org.jdom2.input.SAXBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +44,6 @@ import org.xmlunit.assertj.XmlAssert;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.Objects;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
@@ -296,7 +291,7 @@ public class GoConfigMigrationIntegrationTest {
                         </cruise>""";
 
         String migratedContent = migrateXmlString(configString, 66);
-        Document document = new SAXBuilder().build(new StringReader(migratedContent));
+        Document document = XmlUtils.buildXmlDocument(migratedContent);
 
         assertThat(document.getDescendants(new ElementFilter("luau")).hasNext()).isFalse();
         assertThat(document.getDescendants(new ElementFilter("groups")).hasNext()).isFalse();

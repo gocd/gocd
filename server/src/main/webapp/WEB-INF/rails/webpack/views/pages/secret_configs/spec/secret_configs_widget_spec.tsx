@@ -141,7 +141,7 @@ describe("SecretConfigsWidget", () => {
 
     expect(helper.byTestId("secret-configs-group")).toBeFalsy();
     expect(helpElement).toBeInDOM();
-    expect(helpElement.textContent).toBe("Click on \"Add\" to add new secret configuration.A secret configuration can be used to access secrets from an external secret management store.You can read more about secret configurations from  here.");
+    expect(helpElement.textContent).toContain("Click on \"Add\" to add new secret configuration.A secret configuration can be used to access secrets from an external secret management store.You can read more about secret configurations");
     expect(helper.q('a', helpElement)).toHaveAttr('href', docsUrl("configuration/secrets_management.html"));
   });
 

@@ -54,7 +54,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.sql.DataSource;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -82,7 +81,6 @@ public class BackupServiceIntegrationTest {
     BackupService backupService;
     @Autowired
     GoConfigService goConfigService;
-    @Autowired DataSource dataSource;
     @Autowired ArtifactsDirHolder artifactsDirHolder;
     @Autowired DatabaseAccessHelper dbHelper;
     @Autowired
@@ -96,7 +94,7 @@ public class BackupServiceIntegrationTest {
     @Autowired Database databaseStrategy;
     @Autowired ServerBackupQueue backupQueue;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     private File backupsDirectory;
     private byte[] originalCipher;
@@ -298,7 +296,7 @@ public class BackupServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSendEmailToAdminWhenTheBackupFails() throws Exception {
+    public void shouldSendEmailToAdminWhenTheBackupFails() {
         GoConfigService configService = mock(GoConfigService.class);
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setBackupConfig(new BackupConfig().setEmailOnFailure(true));
@@ -327,11 +325,11 @@ public class BackupServiceIntegrationTest {
         verify(goMailSender).send(new SendEmailMessage("Server Backup Failed", body, "mail@admin.com"));
         verifyNoMoreInteractions(goMailSender);
 
-        assertThat(FileUtils.listFiles(backupsDirectory, TrueFileFilter.TRUE, TrueFileFilter.TRUE).isEmpty()).isTrue();
+        assertThat(FileUtils.listFiles(backupsDirectory, TrueFileFilter.TRUE, TrueFileFilter.TRUE)).isEmpty();
     }
 
     @Test
-    public void shouldNotSendEmailToAdminWhenTheBackupFailsAndEmailConfigIsNotSet() throws Exception {
+    public void shouldNotSendEmailToAdminWhenTheBackupFailsAndEmailConfigIsNotSet() {
         GoConfigService configService = mock(GoConfigService.class);
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setBackupConfig(new BackupConfig());
@@ -356,7 +354,7 @@ public class BackupServiceIntegrationTest {
         assertThat(backup.getMessage()).isEqualTo("Failed to perform backup. Reason: Oh no!");
         verifyNoMoreInteractions(goMailSender);
 
-        assertThat(FileUtils.listFiles(backupsDirectory, TrueFileFilter.TRUE, TrueFileFilter.TRUE).isEmpty()).isTrue();
+        assertThat(FileUtils.listFiles(backupsDirectory, TrueFileFilter.TRUE, TrueFileFilter.TRUE)).isEmpty();
     }
 
     @Test
@@ -450,6 +448,36 @@ public class BackupServiceIntegrationTest {
     }
 
     @Test
+    public void shouldFailFastOnBadPostBackupScriptLocation() throws InterruptedException {
+        final Semaphore waitForBackupToComplete = new Semaphore(1);
+        GoConfigService configService = mock(GoConfigService.class);
+        ServerConfig serverConfig = new ServerConfig();
+        String badPostBackupScriptLocation = CruiseConfig.WORKING_BASE_DIR + "artifacts/should-not-be-here.sh";
+        serverConfig.setBackupConfig(new BackupConfig().setSchedule(null).setPostBackupScript(badPostBackupScriptLocation));
+        when(configService.serverConfig()).thenReturn(serverConfig);
+        GoMailSender goMailSender = mock(GoMailSender.class);
+        when(configService.getMailSender()).thenReturn(goMailSender);
+        when(configService.adminEmail()).thenReturn("mail@admin.com");
+        when(configService.isUserAdmin(admin)).thenReturn(true);
+        TimeProvider timeProvider = mock(TimeProvider.class);
+        DateTime now = new DateTime();
+        when(timeProvider.currentDateTime()).thenReturn(now);
+
+        final MessageCollectingBackupUpdateListener backupUpdateListener = new MessageCollectingBackupUpdateListener(waitForBackupToComplete);
+
+        waitForBackupToComplete.acquire();
+        backupService = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
+            databaseStrategy, backupQueue);
+        Thread backupThd = new Thread(() -> backupService.startBackup(admin, backupUpdateListener));
+
+        backupThd.start();
+        waitForBackupToComplete.acquire();
+        assertThat(backupUpdateListener.messages).isEmpty();
+        assertThat(backupUpdateListener.errors).containsExactly("Failed to perform backup. Reason: Post backup script cannot be executed when located within pipelines or artifact storage.");
+        backupThd.join();
+    }
+
+    @Test
     public void shouldExecutePostBackupScriptAndReturnResultOnSuccess() throws InterruptedException {
         final Semaphore waitForBackupToComplete = new Semaphore(1);
         GoConfigService configService = mock(GoConfigService.class);
@@ -473,7 +501,7 @@ public class BackupServiceIntegrationTest {
 
         backupThd.start();
         waitForBackupToComplete.acquire();
-        assertThat(backupUpdateListener.getMessages().contains(BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE.getMessage())).isTrue();
+        assertThat(backupUpdateListener.messages).contains(BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE.getMessage());
         backupThd.join();
     }
 
@@ -603,18 +631,19 @@ public class BackupServiceIntegrationTest {
         return new ArrayList<>(FileUtils.listFiles(backupsDirectory, new NameFileFilter(filename), TrueFileFilter.TRUE)).get(0);
     }
 
-    private void cleanupBackups() throws IOException {
+    private void cleanupBackups() {
         FileUtils.deleteQuietly(artifactsDirHolder.getArtifactsDir());
     }
 
-    class MessageCollectingBackupUpdateListener implements BackupUpdateListener {
+    static class MessageCollectingBackupUpdateListener implements BackupUpdateListener {
 
-        private final List<String> messages;
+        private final List<String> messages = new ArrayList<>();
+        private final List<String> errors = new ArrayList<>();
 
         private final Semaphore backupComplete;
+
         MessageCollectingBackupUpdateListener(Semaphore backupComplete) {
             this.backupComplete = backupComplete;
-            this.messages = new ArrayList<>();
         }
 
         @Override
@@ -622,12 +651,10 @@ public class BackupServiceIntegrationTest {
             messages.add(step.getMessage());
         }
 
-        public List<String> getMessages() {
-            return messages;
-        }
-
         @Override
         public void error(String message) {
+            errors.add(message);
+            backupComplete.release();
         }
 
         @Override

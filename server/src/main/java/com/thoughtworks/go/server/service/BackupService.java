@@ -81,6 +81,7 @@ public class BackupService implements BackupStatusProvider {
     private final SystemEnvironment systemEnvironment;
     private final ConfigRepository configRepository;
     private final Database databaseStrategy;
+    private final BackupRuntimeValidator validator;
     private volatile ServerBackup runningBackup;
     private static final String CONFIG_BACKUP_ZIP = "config-dir.zip";
     private static final String WRAPPER_CONFIG_BACKUP_ZIP = "wrapper-config-dir.zip";
@@ -106,6 +107,7 @@ public class BackupService implements BackupStatusProvider {
         this.databaseStrategy = databaseStrategy;
         this.timeProvider = timeProvider;
         this.backupQueue = backupQueue;
+        this.validator = new BackupRuntimeValidator(artifactsDirHolder);
     }
 
     public void initialize() {
@@ -160,6 +162,7 @@ public class BackupService implements BackupStatusProvider {
         synchronized (BACKUP_MUTEX) {
             try {
                 runningBackup = backup;
+                validator.validatePostBackupScript(postBackupScriptFile());
                 notifyUpdateToListeners(backupUpdateListeners, BackupProgressStatus.CREATING_DIR);
                 if (!destDir.mkdirs()) {
                     notifyErrorToListeners(backupUpdateListeners, "Failed to perform backup. Reason: Could not create the backup directory.");

@@ -163,7 +163,7 @@ export class PipelineCreatePage extends Page<{}, State> {
 
   helpText(): m.Children {
     return <div>
-      To read about the basic pipeline setup, follow
+      To read about the basic pipeline setup, follow%nbsp;
       <Link href={docsUrl('configuration/quick_pipeline_setup.html')} target="_blank" externalLinkIcon={true}>this.</Link>
     </div>;
   }

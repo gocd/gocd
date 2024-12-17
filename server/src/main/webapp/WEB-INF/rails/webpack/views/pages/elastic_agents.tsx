@@ -356,7 +356,7 @@ export class ElasticAgentsPage extends Page<null, State> {
       <li>An elastic profile usually contains the configuration for your elastic agent. Depending on the plugin used, this may contain the machine
         image (ami, container image), size of the CPU/memory/disk, network settings among other things.
       </li>
-      <li>You can read more about elastic agent configurations from
+      <li>You can read more about elastic agent configurations from&nbsp;
         <Link href={docsUrl("configuration/elastic_agents.html")} target="_blank" externalLinkIcon={true}>here</Link>.
       </li>
     </ul>;

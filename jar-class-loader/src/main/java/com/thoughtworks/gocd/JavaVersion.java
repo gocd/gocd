@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Copied verbatim from gradle's source and unused bits removed.
-// https://github.com/gradle/gradle/blob/master/platforms/core-runtime/base-services/src/main/java/org/gradle/api/JavaVersion.java
+// Copied from gradle's source and unused/misleading bits removed.
+// https://github.com/gradle/gradle/blob/master/platforms/core-runtime/stdlib-java-extensions/src/main/java/org/gradle/api/JavaVersion.java
 package com.thoughtworks.gocd;
 
 import java.util.ArrayList;
@@ -29,118 +29,23 @@ public enum JavaVersion {
     VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4,
     VERSION_1_5, VERSION_1_6, VERSION_1_7, VERSION_1_8,
     VERSION_1_9, VERSION_1_10,
-    /**
-     * Java 11 major version.
-     *
-     * @since 4.7
-     */
     VERSION_11,
-
-    /**
-     * Java 12 major version.
-     *
-     * @since 5.0
-     */
     VERSION_12,
-
-    /**
-     * Java 13 major version.
-     *
-     * @since 6.0
-     */
     VERSION_13,
-
-    /**
-     * Java 14 major version.
-     *
-     * @since 6.3
-     */
     VERSION_14,
-
-    /**
-     * Java 15 major version.
-     *
-     * @since 6.3
-     */
     VERSION_15,
-
-    /**
-     * Java 16 major version.
-     *
-     * @since 6.3
-     */
     VERSION_16,
-
-    /**
-     * Java 17 major version.
-     *
-     * @since 6.3
-     */
     VERSION_17,
-
-    /**
-     * Java 18 major version.
-     *
-     * @since 7.0
-     */
     VERSION_18,
-
-    /**
-     * Java 19 major version.
-     *
-     * @since 7.0
-     */
     VERSION_19,
-
-    /**
-     * Java 20 major version.
-     *
-     * @since 7.0
-     */
     VERSION_20,
-
-    /**
-     * Java 21 major version.
-     *
-     * @since 7.6
-     */
     VERSION_21,
-
-    /**
-     * Java 22 major version.
-     * Not officially supported by Gradle. Use at your own risk.
-     *
-     * @since 7.6
-     */
     VERSION_22,
-
-    /**
-     * Java 23 major version.
-     * Not officially supported by Gradle. Use at your own risk.
-     *
-     * @since 7.6
-     */
     VERSION_23,
-
-    /**
-     * Java 24 major version.
-     * Not officially supported by Gradle. Use at your own risk.
-     *
-     * @since 7.6
-     */
     VERSION_24,
-
-    /**
-     * Java 25 major version.
-     *
-     * @since 8.4
-     */
     VERSION_25,
-
-    /**
-     * Higher version of Java.
-     * @since 4.7
-     */
+    VERSION_26,
+    VERSION_27,
     VERSION_HIGHER;
     // Since Java 9, version should be X instead of 1.X
     private static final int FIRST_MAJOR_VERSION_ORDINAL = 9 - 1;
@@ -170,18 +75,7 @@ public enum JavaVersion {
         }
 
         String name = value.toString();
-
-        int firstNonVersionCharIndex = findFirstNonVersionCharIndex(name);
-
-        String[] versionStrings = name.substring(0, firstNonVersionCharIndex).split("\\.");
-        List<Integer> versions = convertToNumber(name, versionStrings);
-
-        if (isLegacyVersion(versions)) {
-            assertTrue(name, versions.get(1) > 0);
-            return getVersionForMajor(versions.get(1));
-        } else {
-            return getVersionForMajor(versions.get(0));
-        }
+        return getVersionForMajor(JavaVersionParser.parseMajorVersion(name));
     }
 
     /**
@@ -198,8 +92,6 @@ public enum JavaVersion {
 
     /**
      * Returns if this version is compatible with the given version
-     *
-     * @since 6.0
      */
     public boolean isCompatibleWith(JavaVersion otherVersion) {
         return this.compareTo(otherVersion) >= 0;
@@ -218,48 +110,86 @@ public enum JavaVersion {
         return major >= values().length ? JavaVersion.VERSION_HIGHER : values()[major - 1];
     }
 
-    private static void assertTrue(String value, boolean condition) {
-        if (!condition) {
-            throw new IllegalArgumentException("Could not determine java version from '" + value + "'.");
-        }
-    }
+    /*
+     * Copyright 2024 the original author or authors.
+     *
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     *      http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     */
+    /**
+     * Shared code between {@link JavaVersion} and other code for parsing a full
+     * Java version string.
+     */
+    // Copied  from gradle's source and unused bits removed.
+    // https://github.com/gradle/gradle/blob/master/platforms/core-runtime/stdlib-java-extensions/src/main/java/org/gradle/api/internal/jvm/JavaVersionParser.java
+    private static class JavaVersionParser {
 
-    private static boolean isLegacyVersion(List<Integer> versions) {
-        return 1 == versions.get(0) && versions.size() > 1;
-    }
+        public static int parseMajorVersion(String fullVersion) {
+            int firstNonVersionCharIndex = findFirstNonVersionCharIndex(fullVersion);
 
-    private static List<Integer> convertToNumber(String value, String[] versionStrs) {
-        List<Integer> result = new ArrayList<>();
-        for (String s : versionStrs) {
-            assertTrue(value, !isNumberStartingWithZero(s));
-            try {
-                result.add(Integer.parseInt(s));
-            } catch (NumberFormatException e) {
-                assertTrue(value, false);
+            String[] versionStrings = fullVersion.substring(0, firstNonVersionCharIndex).split("\\.");
+            List<Integer> versions = convertToNumber(fullVersion, versionStrings);
+
+            if (isLegacyVersion(versions)) {
+                assertTrue(fullVersion, versions.get(1) > 0);
+                return versions.get(1);
+            } else {
+                return versions.get(0);
             }
         }
-        assertTrue(value, !result.isEmpty() && result.get(0) > 0);
-        return result;
-    }
 
-    private static boolean isNumberStartingWithZero(String number) {
-        return number.length() > 1 && number.startsWith("0");
-    }
-
-    private static int findFirstNonVersionCharIndex(String s) {
-        assertTrue(s, s.length() != 0);
-
-        for (int i = 0; i < s.length(); ++i) {
-            if (!isDigitOrPeriod(s.charAt(i))) {
-                assertTrue(s, i != 0);
-                return i;
+        private static void assertTrue(String value, boolean condition) {
+            if (!condition) {
+                throw new IllegalArgumentException("Could not determine Java version from '" + value + "'.");
             }
         }
 
-        return s.length();
-    }
+        private static boolean isLegacyVersion(List<Integer> versions) {
+            return 1 == versions.get(0) && versions.size() > 1;
+        }
 
-    private static boolean isDigitOrPeriod(char c) {
-        return (c >= '0' && c <= '9') || c == '.';
+        private static List<Integer> convertToNumber(String value, String[] versionStrs) {
+            List<Integer> result = new ArrayList<>();
+            for (String s : versionStrs) {
+                assertTrue(value, !isNumberStartingWithZero(s));
+                try {
+                    result.add(Integer.parseInt(s));
+                } catch (NumberFormatException e) {
+                    assertTrue(value, false);
+                }
+            }
+            assertTrue(value, !result.isEmpty() && result.get(0) > 0);
+            return result;
+        }
+
+        private static boolean isNumberStartingWithZero(String number) {
+            return number.length() > 1 && number.startsWith("0");
+        }
+
+        private static int findFirstNonVersionCharIndex(String s) {
+            assertTrue(s, !s.isEmpty());
+
+            for (int i = 0; i < s.length(); ++i) {
+                if (!isDigitOrPeriod(s.charAt(i))) {
+                    assertTrue(s, i != 0);
+                    return i;
+                }
+            }
+
+            return s.length();
+        }
+
+        private static boolean isDigitOrPeriod(char c) {
+            return (c >= '0' && c <= '9') || c == '.';
+        }
     }
 }

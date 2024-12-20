@@ -49,3 +49,5 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
   archiveClassifier = 'javadoc'
   from javadoc.destinationDir
 }
+
+assemble.dependsOn sourcesJar, javadocJar

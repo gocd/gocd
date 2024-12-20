@@ -55,6 +55,8 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
   from javadoc.destinationDir
 }
 
+assemble.dependsOn sourcesJar, javadocJar
+
 publishing {
   publications {
     mavenJava(MavenPublication) {

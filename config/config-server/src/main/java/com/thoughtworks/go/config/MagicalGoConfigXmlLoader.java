@@ -26,9 +26,8 @@ import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.jdom2.Document;
+import com.thoughtworks.go.util.XmlUtils;
 import org.jdom2.Element;
-import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +39,6 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.parser.GoConfigClassLoader.classParser;
 import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
-import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.io.IOUtils.toInputStream;
 
 public class MagicalGoConfigXmlLoader {
     public static final List<GoConfigPreprocessor> PREPROCESSORS = List.of(
@@ -144,18 +140,20 @@ public class MagicalGoConfigXmlLoader {
     }
 
     private Element parseInputStream(InputStream inputStream) throws Exception {
-        Element rootElement = buildXmlDocument(inputStream, GoConfigSchema.getCurrentSchema()).getRootElement();
+        Element rootElement = XmlUtils.buildValidatedXmlDocument(inputStream, GoConfigSchema.getCurrentSchema()).getRootElement();
         validateDom(rootElement, registry);
         return rootElement;
     }
 
     public <T> T fromXmlPartial(String partial, Class<T> o) throws Exception {
-        return fromXmlPartial(toInputStream(partial, UTF_8), o);
+        return parse(o, XmlUtils.buildXmlDocument(partial).getRootElement());
     }
 
     public <T> T fromXmlPartial(InputStream inputStream, Class<T> o) throws Exception {
-        Document document = new SAXBuilder().build(inputStream);
-        Element element = document.getRootElement();
+        return parse(o, XmlUtils.buildXmlDocument(inputStream).getRootElement());
+    }
+
+    private <T> T parse(Class<T> o, Element element) {
         return classParser(element, o, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
     }
 

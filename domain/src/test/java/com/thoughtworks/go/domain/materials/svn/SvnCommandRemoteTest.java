@@ -18,11 +18,11 @@ package com.thoughtworks.go.domain.materials.svn;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.helper.SvnRemoteRepository;
+import com.thoughtworks.go.util.SafeSaxBuilder;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.jdom2.input.SAXBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,7 +63,7 @@ public class SvnCommandRemoteTest {
 
     @Test
     public void shouldSupportSvnInfo() {
-        SvnCommand.SvnInfo info = command.remoteInfo(new SAXBuilder());
+        SvnCommand.SvnInfo info = command.remoteInfo(new SafeSaxBuilder());
         assertThat(info.getUrl()).isEqualTo(repository.getUrl());
     }
 
@@ -249,21 +249,21 @@ public class SvnCommandRemoteTest {
     @Test
     public void shouldMaskPassword_remoteInfo() {
         try {
-            badUserNameCommand().remoteInfo(new SAXBuilder());
+            badUserNameCommand().remoteInfo(new SafeSaxBuilder());
             fail("should have failed");
         } catch (Exception e) {
             assertThat(e.getMessage().contains(HARRYS_PASSWORD)).isFalse();
         }
 
         try {
-            badPasswordCommand().remoteInfo(new SAXBuilder());
+            badPasswordCommand().remoteInfo(new SafeSaxBuilder());
             fail("should have failed");
         } catch (Exception e) {
             assertThat(e.getMessage().contains("some_bad_password")).isFalse();
         }
 
         try {
-            badUrlCommand().remoteInfo(new SAXBuilder());
+            badUrlCommand().remoteInfo(new SafeSaxBuilder());
             fail("should have failed");
         } catch (Exception e) {
             assertThat(e.getMessage().contains(HARRYS_PASSWORD)).isFalse();

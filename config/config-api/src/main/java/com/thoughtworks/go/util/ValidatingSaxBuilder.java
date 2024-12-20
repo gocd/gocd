@@ -15,21 +15,20 @@
  */
 package com.thoughtworks.go.util;
 
-import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaders;
 
 import java.net.URISyntaxException;
 import java.net.URL;
 
-class ValidatingSaxBuilder extends SAXBuilder {
+class ValidatingSaxBuilder extends SafeSaxBuilder {
     public ValidatingSaxBuilder() {
+        super();
         this.setFeature("http://apache.org/xml/features/validation/schema", true);
-        this.setXMLReaderFactory(XMLReaders.DTDVALIDATING);
-        this.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        this.setXMLReaderFactory(XMLReaders.XSDVALIDATING);
     }
 
-    public ValidatingSaxBuilder(URL resource) throws URISyntaxException {
+    public ValidatingSaxBuilder(URL schemaLocation) throws URISyntaxException {
         this();
-        this.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation", resource.toURI().toString());
+        this.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation", schemaLocation.toURI().toString());
     }
 }

@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.input.SAXBuilder;
 
 import java.io.StringReader;
 import java.text.DateFormat;
@@ -34,7 +33,7 @@ public class SvnLogXmlParser {
 
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 
-    public List<Modification> parse(String svnLogOutput, String path, SAXBuilder builder) {
+    public List<Modification> parse(String svnLogOutput, String path, SafeSaxBuilder builder) {
         try {
             Document document = builder.build(new StringReader(svnLogOutput));
             return parseDOMTree(document, path);
@@ -47,10 +46,7 @@ public class SvnLogXmlParser {
         List<Modification> modifications = new ArrayList<>();
 
         Element rootElement = document.getRootElement();
-        List logEntries = rootElement.getChildren("logentry");
-        for (Iterator iterator = logEntries.iterator(); iterator.hasNext();) {
-            Element logEntry = (Element) iterator.next();
-
+        for (Element logEntry : rootElement.getChildren("logentry")) {
             Modification modification = parseLogEntry(logEntry, path);
             if (modification != null) {
                 modifications.add(modification);
@@ -75,9 +71,7 @@ public class SvnLogXmlParser {
 
         Modification modification = new Modification(author, comment, null, modifiedTime, revision);
 
-        List paths = logEntryPaths.getChildren("path");
-        for (Iterator iterator = paths.iterator(); iterator.hasNext();) {
-            Element node = (Element) iterator.next();
+        for (Element node : logEntryPaths.getChildren("path")) {
             if (underPath(path, node.getText())) {
                 ModifiedAction action = convertAction(node.getAttributeValue("action"));
                 modification.createModifiedFile(node.getText(), null, action);
@@ -116,20 +110,16 @@ public class SvnLogXmlParser {
     }
 
     private ModifiedAction convertAction(String action) {
-        if (action.equals("A")) {
-            return ModifiedAction.added;
-        }
-        if (action.equals("M")) {
-            return ModifiedAction.modified;
-        }
-        if (action.equals("D")) {
-            return ModifiedAction.deleted;
-        }
-        return ModifiedAction.unknown;
+        return switch (action) {
+            case "A" -> ModifiedAction.added;
+            case "M" -> ModifiedAction.modified;
+            case "D" -> ModifiedAction.deleted;
+            default -> ModifiedAction.unknown;
+        };
     }
 
-    public HashMap<String, String> parseInfoToGetUUID(String output, String queryURL, SAXBuilder builder) {
-        HashMap<String, String> uidToUrlMap = new HashMap<>();
+    public Map<String, String> parseInfoToGetUUID(String output, String queryURL, SafeSaxBuilder builder) {
+        Map<String, String> uidToUrlMap = new HashMap<>();
         try {
             Document document = builder.build(new StringReader(output));
             Element root = document.getRootElement();

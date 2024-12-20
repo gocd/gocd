@@ -21,14 +21,13 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.ExceptionUtils;
+import com.thoughtworks.go.util.XmlUtils;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.input.SAXBuilder;
 
 import java.io.File;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,9 +44,7 @@ public class HgModificationSplitter {
 
     public List<Modification> modifications() {
         try {
-            SAXBuilder builder = new SAXBuilder();
-            Document document = builder.build(new StringReader(output));
-            return parseDOMTree(document);
+            return parseDOMTree(XmlUtils.buildXmlDocument(output));
         } catch (Exception e) {
             throw ExceptionUtils.bomb("Unable to parse hg log output: " + result.replaceSecretInfo(output), result.smudgedException(e));
         }

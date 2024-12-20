@@ -26,7 +26,6 @@ import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.filter.Filters;
-import org.jdom2.input.SAXBuilder;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 import org.slf4j.Logger;
@@ -85,7 +84,7 @@ public class ConfigCipherUpdater {
                 FileUtils.deleteQuietly(backupConfigFile);
                 return;
             }
-            Document document = new SAXBuilder().build(configFile);
+            Document document = XmlUtils.buildXmlDocument(configFile);
             List<String> encryptedAttributes = List.of("encryptedPassword", "encryptedManagerPassword");
             List<String> encryptedNodes = List.of("encryptedValue");
             XPathFactory xPathFactory = XPathFactory.instance();

@@ -15,6 +15,7 @@
 #
 
 class Admin::ConfigurationController < AdminController
+  before_action :check_admin_user_and_403
   before_action :fetch_config , :only => [:show, :edit]
   before_action :tab_name, :page_title
 

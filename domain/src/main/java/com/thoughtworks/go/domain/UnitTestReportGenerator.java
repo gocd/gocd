@@ -23,6 +23,7 @@ import org.apache.commons.lang3.RegExUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerFactory;
@@ -42,7 +43,9 @@ public class UnitTestReportGenerator {
 
     static {
         try (InputStream xslt = UnitTestReportGenerator.class.getResourceAsStream("unittests.xsl")) {
-            templates = TransformerFactory.newInstance().newTemplates(new StreamSource(xslt));
+            TransformerFactory factory = TransformerFactory.newInstance();
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            templates = factory.newTemplates(new StreamSource(xslt));
         } catch (Exception e) {
             LOG.error("Could not load unit test converters", e);
         }

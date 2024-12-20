@@ -7,7 +7,7 @@ vulnerabilities:
       runs on Jetty, which is noted as not vulnerable at https://spring.io/security/cve-2024-38816
       org.springframework:spring-webmvc (go.jar) Fixed: 6.1.13 
       https://avd.aquasec.com/nvd/cve-2024-38816
-  - id: CVE-204-38819
+  - id: CVE-2024-38819
     statement: >
       GoCD does not seem to be affected as does not use the functional Spring web frameworks/RouterFunctions per
       https://spring.io/security/cve-2024-38819

@@ -37,8 +37,8 @@ task downloadWindowsJre(type: DownloadFile) {
 
 def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installerType, Zip genericZipTask, File buildRoot) {
   windowsInstallerTask.with {
-    group project.name
-    description "Build the ${installerType.baseName} windows (exe) installer"
+    group = project.name
+    description = "Build the ${installerType.baseName} windows (exe) installer"
 
     dependsOn downloadWindowsJre
     dependsOn genericZipTask

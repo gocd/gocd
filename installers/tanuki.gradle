@@ -26,7 +26,7 @@ task downloadTanukiDeltaPack(type: DownloadFile) {
   def srcUrl = System.getenv("TANUKI_WRAPPER_URL") ?: "https://nexus.gocd.io/repository/tanuki-proxy/${project.versions.tanuki.split("-").first()}/wrapper-delta-pack-${project.versions.tanuki}.tar.gz"
   src srcUrl
   dest destFile(srcUrl)
-  checksum project.versions.tanukiSha256sum
+  checksum = project.versions.tanukiSha256sum
 }
 
 task extractDeltaPack(type: Copy) {

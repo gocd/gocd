@@ -149,7 +149,7 @@ allprojects {
 
   repositories {
     mavenCentral()
-    maven { url 'https://repo.terracotta.org/maven2/' } // Needed for later ehcache repos
+    maven { url = 'https://repo.terracotta.org/maven2/' } // Needed for later ehcache repos
   }
 }
 
@@ -212,7 +212,7 @@ subprojects {
 
     // used by intellij for type hints when editing ftl files, intellij gets confused if it sees a license header in this file
     exclude '**/freemarker_implicit.ftl'
-    header rootProject.file('build-platform/Apache-2.0.txt')
+    header = rootProject.file('build-platform/Apache-2.0.txt')
     headerDefinitions {
       intellijStyleXML {
         firstLine = "<!--"
@@ -392,8 +392,8 @@ subprojects {
       )
     }
 
-    includeEmptyDirs false
-    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    includeEmptyDirs = false
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   }
 
   artifacts { artifacts ->
@@ -403,8 +403,8 @@ subprojects {
   }
 
   tasks.withType(AbstractArchiveTask) {
-    includeEmptyDirs false
-    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    includeEmptyDirs = false
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     preserveFileTimestamps = false
     reproducibleFileOrder = true
@@ -539,7 +539,7 @@ subprojects {
     testLogging {
       showStandardStreams = project.path != ':server'
 
-      exceptionFormat 'full'
+      exceptionFormat = 'full'
 
       beforeSuite { suite ->
         if (suite.parent) {
@@ -588,17 +588,17 @@ private allCompileTasks(Closure<Boolean> include = { t -> true }) {
 
 
 task compileAll { compileAllTask ->
-  group LifecycleBasePlugin.BUILD_GROUP
+  group = LifecycleBasePlugin.BUILD_GROUP
   allCompileTasks()
 }
 
 task prepare {
-  group LifecycleBasePlugin.BUILD_GROUP
+  group = LifecycleBasePlugin.BUILD_GROUP
   allCompileTasks { Task task -> !task.name.toLowerCase().contains('test') && !task.project.path.toLowerCase().contains('test') }
 }
 
 task sparkTest { thisTask ->
-  group LifecycleBasePlugin.VERIFICATION_GROUP
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all api tests"
   (project(':api').subprojects + project(':spark').subprojects).each { Project subPrj ->
     thisTask.dependsOn subPrj.tasks.withType(Test)
@@ -629,7 +629,7 @@ private void forAllTask(Closure<Task> closure) {
 }
 
 task allTests { thisTask ->
-  group LifecycleBasePlugin.VERIFICATION_GROUP
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all tests"
 
   forAllTask { Test eachTestTask ->
@@ -640,7 +640,7 @@ task allTests { thisTask ->
 }
 
 task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
-  group LifecycleBasePlugin.VERIFICATION_GROUP
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all api tests"
 
   forAllTask { Test eachTestTask ->

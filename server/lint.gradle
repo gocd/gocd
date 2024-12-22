@@ -17,7 +17,7 @@ import com.thoughtworks.go.build.YarnRunTask
  */
 
 task stylelintold(type: YarnRunTask) {
-  description "Run stylelint for SCSS on old Rails-bundled SCSS"
+  description = "Run stylelint for SCSS on old Rails-bundled SCSS"
   dependsOn 'yarnInstall'
 
   workingDir = project.railsRoot
@@ -28,7 +28,7 @@ task stylelintold(type: YarnRunTask) {
 }
 
 task eslintold(type: YarnRunTask) {
-  description "Run ESLint for old javascript code"
+  description = "Run ESLint for old javascript code"
   dependsOn 'yarnInstall'
 
   workingDir = project.railsRoot
@@ -40,7 +40,7 @@ task eslintold(type: YarnRunTask) {
 }
 
 task eslint(type: YarnRunTask) {
-  description "Run ESLint"
+  description = "Run ESLint"
   dependsOn 'yarnInstall'
   dependsOn 'generateJSRoutes'
 
@@ -54,7 +54,7 @@ task eslint(type: YarnRunTask) {
 }
 
 task tslint(type: YarnRunTask) {
-  description "Run TSLint"
+  description = "Run TSLint"
   dependsOn 'yarnInstall'
   dependsOn 'generateJSRoutes'
 
@@ -67,16 +67,16 @@ task tslint(type: YarnRunTask) {
 }
 
 task lintNew {
-  description 'Run lint tools on newer js/scss'
+  description = 'Run lint tools on newer js/scss'
   dependsOn eslint, tslint
 }
 
 task lintOld {
-  description 'Run lint tools on older legacy js/scss'
+  description = 'Run lint tools on older legacy js/scss'
   dependsOn stylelintold, eslintold
 }
 
 task lint {
-  description 'Run all lint tools'
+  description = 'Run all lint tools'
   dependsOn lintNew, lintOld
 }

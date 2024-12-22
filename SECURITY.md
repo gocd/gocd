@@ -14,7 +14,7 @@ Please report any issues to https://hackerone.com/gocd according to the listed p
 
 ## Baseline
 
-This represents the oldest versions which have **no known exploitable vulnerabilities** of a given severity, as assessed by GoCD maintainers and/or NIST NVD via CVSS 3.1. Users are strongly recommended to be on at least these versions; and preferably the latest version. 
+This represents the oldest versions which have **no known exploitable vulnerabilities** of a given severity, as assessed by GoCD maintainers and/or NIST NVD via CVSS 4.0 or 3.1. Users are strongly recommended to be on at least these versions; and preferably the latest version. 
 
 | Without known vulns             | Version                                            |
 | ------------------------------- | -------------------------------------------------- |

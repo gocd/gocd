@@ -39,7 +39,7 @@ buildscript {
 }
 
 repositories {
-  maven { url 'https://jitpack.io' } // Needed for spring-test-junit5
+  maven { url = 'https://jitpack.io' } // Needed for spring-test-junit5
 }
 
 sourceSets {
@@ -364,8 +364,8 @@ task fastUnitTest(type: Test) { thisTask ->
 
   mustRunAfter test
 
-  forkEvery 256
-  maxHeapSize '2g'
+  forkEvery = 256
+  maxHeapSize = '2g'
 
   reports {
     html.required = true
@@ -396,9 +396,9 @@ task integrationTest(type: Test) { thisTask ->
   classpath = testing.suites.test.sources.runtimeClasspath + sourceSets.integrationTest.runtimeClasspath
   mustRunAfter test
 
-  forkEvery System.properties.containsKey('idea.home.path') ? 0 : 1
-  minHeapSize '1g'
-  maxHeapSize '2g'
+  forkEvery = System.properties.containsKey('idea.home.path') ? 0 : 1
+  minHeapSize = '1g'
+  maxHeapSize = '2g'
 
   reports {
     html.required = true
@@ -597,7 +597,7 @@ tasks.withType(Test) {
 
   testLogging {
     showStandardStreams = false
-    exceptionFormat 'full'
+    exceptionFormat = 'full'
   }
 
   onOutput { TestDescriptor descriptor, TestOutputEvent event ->

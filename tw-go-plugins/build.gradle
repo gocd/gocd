@@ -107,7 +107,7 @@ dependencies.each { dep ->
     downloadPlugins.dependsOn downloadTask
     downloadTask.src dep.downloadUrl
     downloadTask.dest destFile(dep)
-    downloadTask.checksum dep.checksum
+    downloadTask.checksum = dep.checksum
   }
 
   pluginsZip.from(destFile(dep))

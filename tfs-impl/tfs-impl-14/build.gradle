@@ -45,7 +45,7 @@ task downloadTfsSdk(type: DownloadFile) {
   def srcUrl = "https://github.com/microsoft/team-explorer-everywhere/releases/download/${project.versions.tfsSdk}/TFS-SDK-${project.versions.tfsSdk}.zip"
   src srcUrl
   dest destFile(srcUrl)
-  checksum project.versions.tfsSdkSha256sum
+  checksum = project.versions.tfsSdkSha256sum
 }
 
 task extractTfsSdk(type: Copy) {

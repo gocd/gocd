@@ -50,8 +50,8 @@ def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
   DownloadFile downloadTask = arch == Architecture.aarch64 ? downloadMacJreArm64 : downloadMacJreX64
 
   zipTask.with {
-    group project.name
-    description "Build the ${installerType.baseName} osx (zip) installer"
+    group = project.name
+    description = "Build the ${installerType.baseName} osx (zip) installer"
 
     dependsOn downloadTask
     dependsOn genericZipTask

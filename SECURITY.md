@@ -8,10 +8,6 @@ Since breaking changes are rare, and generally sign-posted well in advance, we e
 
 Having said this, wherever possible we will try and provide suggested mitigations or workarounds for older versions.
 
-## Reporting a Vulnerability
-
-Please report any issues to https://hackerone.com/gocd according to the listed policy.
-
 ## Baseline
 
 This represents the oldest versions which have **no known exploitable vulnerabilities** of a given severity, as assessed by GoCD maintainers and/or NIST NVD via CVSS 4.0 or 3.1. Users are strongly recommended to be on at least these versions; and preferably the latest version. 
@@ -25,6 +21,21 @@ This represents the oldest versions which have **no known exploitable vulnerabil
 Please note that this does *not* mean that there are zero potential vulnerabilities known from GoCD's dependencies
 in this or subsequent versions. However where such vulnerabilities exist, none have been confirmed to be exploitable via GoCD
 itself (without a prior non-GoCD breach).
+
+## Reporting a Vulnerability
+
+Please report any issues to https://hackerone.com/gocd according to the listed policy.
+
+## Disclosure policy
+
+GoCD does not have a formal disclosure policy for vulnerability details, however generally our practice has been
+
+| Severity                     | During fix/patch development     | Upon fix/patched release             | Detailed disclosure / published CVE         |
+| ---------------------------- | -------------------------------- | ------------------------------------ | ------------------------------------------- |
+| >= **high** severity vulns   | Limited _(*)_ or zero disclosure | Limited disclosure with mitigations. | 2-4 weeks after patched version's release.  |
+| <= **medium** severity vulns | Limited _(*)_ disclosure         | More detailed disclosure             | Immediately upon patched version's release. |
+
+_(*)_ - As an open-source project for ease of collaboration fixes _may_ be developed in the open (with somewhat obfuscated PR or commit comments) rather than entirely developed in private.
 
 ## How do I know if I am using a release with known vulnerabilities?
 

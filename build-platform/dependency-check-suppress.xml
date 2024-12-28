@@ -208,6 +208,15 @@
 
   <suppress>
     <notes><![CDATA[
+    GoCD does not use the content_security_policy helper from Rails and is thus unlikely to be vulnerable to the issue described at
+    https://github.com/advisories/GHSA-vfm5-rmrh-j26v
+    ]]></notes>
+    <packageUrl regex="true">^pkg:gem/actionpack@.*$</packageUrl>
+    <vulnerabilityName>CVE-2024-54133</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     GoCD does not seem to be vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to use `.merge()`, `.sanitize()`, `.copy()`, `$resource` service, set `xlink:href`,
     no use of `<select>` elements, no use of `usemap` attribute, not a Firefox add-on, don't care about Internet Explorer,

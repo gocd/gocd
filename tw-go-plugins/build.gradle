@@ -27,16 +27,16 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-ldap-authentication-plugin',
-    tagName: 'v2.3.0-325',
-    asset: 'gocd-ldap-authentication-plugin-2.3.0-325.jar',
-    checksum: 'edb358288129f09d59f4c5d0a44f4bfdea4059e64d1a09daca7ed19e5d94951d'
+    tagName: 'v2.3.0-367',
+    asset: 'gocd-ldap-authentication-plugin-2.3.0-367.jar',
+    checksum: 'bf8cdaddb6120c9534f0672d5361ed9014677ff2a0b955b04c72e58c0149c09f'
   ),
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-filebased-authentication-plugin',
-    tagName: 'v2.2.0-246',
-    asset: 'gocd-filebased-authentication-plugin-2.2.0-246.jar',
-    checksum: 'ea6cb1913e5347db25322a4b2aa1d4c7ad320dd358a8141b3384aa3bef608fb0'
+    tagName: 'v2.2.0-290',
+    asset: 'gocd-filebased-authentication-plugin-2.2.0-290.jar',
+    checksum: '96d118ac23cd37802d166526576a2515c486c7b8de466849c48fa1333a2d19bc'
   ),
   new GithubArtifact(
     user: 'tomzo',
@@ -55,9 +55,9 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-file-based-secrets-plugin',
-    tagName: 'v1.2.0-252',
-    asset: 'gocd-file-based-secrets-plugin-1.2.0-252.jar',
-    checksum: '99611b6f8ee812e9e3ffd829b284ecb2d7906f22022c5e92f210a089db25d336'
+    tagName: 'v1.2.0-290',
+    asset: 'gocd-file-based-secrets-plugin-1.2.0-290.jar',
+    checksum: '4e70b2487fbc8bdda438d07e0c45cd19eff9705350665354a6f299455c45b3dd'
   )
 ]
 

@@ -19,12 +19,8 @@ import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
-import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
-import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.configrepo.v3.JsonMessageHandler3_0;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
@@ -51,18 +47,13 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     public static final String REQUEST_CAPABILITIES = "get-capabilities";
     public static final String REQUEST_CONFIG_FILES = "config-files";
 
-    private static final List<String> goSupportedVersions = List.of("1.0", "2.0", "3.0");
+    private static final List<String> goSupportedVersions = List.of("3.0");
 
     private final Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public ConfigRepoExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
         super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, goSupportedVersions, CONFIG_REPO_EXTENSION), CONFIG_REPO_EXTENSION);
-        registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
-        messageHandlerMap.put("1.0", new JsonMessageHandler1_0(new GsonCodec(), new ConfigRepoMigrator()));
-
-        registerHandler("2.0", new PluginSettingsJsonMessageHandler2_0());
-        messageHandlerMap.put("2.0", new JsonMessageHandler2_0(new GsonCodec(), new ConfigRepoMigrator()));
 
         registerHandler("3.0", new PluginSettingsJsonMessageHandler2_0());
         messageHandlerMap.put("3.0", new JsonMessageHandler3_0(new GsonCodec(), new ConfigRepoMigrator()));
@@ -85,10 +76,6 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     @Override
     public Capabilities getCapabilities(String pluginId) {
-        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, CONFIG_REPO_EXTENSION, goSupportedVersions);
-        if (resolvedExtensionVersion.equals("1.0")) {
-            return new Capabilities(false, false, false, false);
-        }
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<>() {
             @Override
             public Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
@@ -99,10 +86,6 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     @Override
     public ConfigFileList getConfigFiles(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations) {
-        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, CONFIG_REPO_EXTENSION, goSupportedVersions);
-        if (resolvedExtensionVersion.equals("1.0") || resolvedExtensionVersion.equals("2.0")) {
-            return ConfigFileList.withError("Unsupported Operation", "This plugin version does not support list config files");
-        }
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_CONFIG_FILES, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
@@ -152,10 +135,6 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     public boolean isConfigRepoPlugin(String pluginId) {
         return pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, pluginId);
-    }
-
-    public PluginDescriptor pluginDescriptorFor(String pluginId) {
-        return pluginManager.getPluginDescriptorFor(pluginId);
     }
 
     @Override

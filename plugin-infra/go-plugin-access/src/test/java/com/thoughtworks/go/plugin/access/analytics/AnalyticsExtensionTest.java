@@ -41,7 +41,6 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 
@@ -60,7 +59,7 @@ public class AnalyticsExtensionTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ANALYTICS_EXTENSION, List.of("1.0", "2.0"))).thenReturn("1.0", "2.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ANALYTICS_EXTENSION, List.of("2.0"))).thenReturn("2.0");
         when(pluginManager.isPluginOfType(ANALYTICS_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
         analyticsExtension = new AnalyticsExtension(pluginManager, extensionsRegistry);
@@ -86,7 +85,7 @@ public class AnalyticsExtensionTest {
 
         com.thoughtworks.go.plugin.domain.analytics.Capabilities capabilities = analyticsExtension.getCapabilities(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), PluginConstants.ANALYTICS_EXTENSION, "1.0", REQUEST_GET_CAPABILITIES, null);
+        assertRequest(requestArgumentCaptor.getValue(), PluginConstants.ANALYTICS_EXTENSION, "2.0", REQUEST_GET_CAPABILITIES, null);
 
         assertThat(capabilities.supportedDashboardAnalytics()).containsExactlyInAnyOrder(new SupportedAnalytics("dashboard", "abc", "Title 1"));
         assertThat(capabilities.supportedPipelineAnalytics()).containsExactlyInAnyOrder(new SupportedAnalytics("pipeline", "abc", "Title 1"));
@@ -110,7 +109,7 @@ public class AnalyticsExtensionTest {
                 "\"id\": \"pipeline_with_highest_wait_time\"," +
                 " \"params\": {\"pipeline_name\": \"test_pipeline\"}}";
 
-        assertRequest(requestArgumentCaptor.getValue(), PluginConstants.ANALYTICS_EXTENSION, "1.0", REQUEST_GET_ANALYTICS, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PluginConstants.ANALYTICS_EXTENSION, "2.0", REQUEST_GET_ANALYTICS, expectedRequestBody);
 
         assertThat(pipelineAnalytics.getData()).isEqualTo("{}");
         assertThat(pipelineAnalytics.getViewPath()).isEqualTo("path/to/view");
@@ -123,7 +122,7 @@ public class AnalyticsExtensionTest {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ANALYTICS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
         String assets = analyticsExtension.getStaticAssets(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), ANALYTICS_EXTENSION, "1.0", REQUEST_GET_STATIC_ASSETS, null);
+        assertRequest(requestArgumentCaptor.getValue(), ANALYTICS_EXTENSION, "2.0", REQUEST_GET_STATIC_ASSETS, null);
 
         assertThat(assets).isEqualTo("assets payload");
     }
@@ -139,8 +138,7 @@ public class AnalyticsExtensionTest {
 
     @Test
     public void shouldVerifyGoSupportedVersion() {
-        assertTrue(analyticsExtension.goSupportedVersions().contains("1.0"));
-        assertTrue(analyticsExtension.goSupportedVersions().contains("2.0"));
+        assertThat(analyticsExtension.goSupportedVersions()).containsExactly("2.0");
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {

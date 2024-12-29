@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.access.analytics.V2.models;
+package com.thoughtworks.go.plugin.access.analytics.V2;
 
+import com.thoughtworks.go.plugin.access.analytics.V2.models.Capabilities;
+import com.thoughtworks.go.plugin.access.analytics.V2.models.SupportedAnalytics;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

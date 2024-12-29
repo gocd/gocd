@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo;
 
-import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
-import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.configrepo.v3.JsonMessageHandler3_0;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -25,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ConfigRepoMigratorTest {
@@ -250,9 +247,6 @@ class ConfigRepoMigratorTest {
 
     @Test
     void currentContractVersionShouldBeTheHighestPossibleMigration() {
-        assertThat(JsonMessageHandler1_0.CURRENT_CONTRACT_VERSION).isEqualTo(JsonMessageHandler3_0.CURRENT_CONTRACT_VERSION);
-        assertThat(JsonMessageHandler2_0.CURRENT_CONTRACT_VERSION).isEqualTo(JsonMessageHandler3_0.CURRENT_CONTRACT_VERSION);
-
         new ConfigRepoMigrator().migrate("{}", JsonMessageHandler3_0.CURRENT_CONTRACT_VERSION);
 
         assertThatThrownBy(() -> new ConfigRepoMigrator().migrate("{}", JsonMessageHandler3_0.CURRENT_CONTRACT_VERSION + 1))

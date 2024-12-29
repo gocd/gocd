@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.access.analytics;
+package com.thoughtworks.go.plugin.access.analytics.V2;
 
 import com.google.gson.Gson;
-import com.thoughtworks.go.plugin.access.analytics.V1.AnalyticsMessageConverterV1;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,14 +25,14 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AnalyticsMessageConverterV1Test {
+public class AnalyticsMessageConverterV2Test {
 
-    private AnalyticsMessageConverterV1 converter;
+    private AnalyticsMessageConverterV2 converter;
     private static final Gson GSON = new Gson();
 
     @BeforeEach
     public void setUp() throws Exception {
-        converter = new AnalyticsMessageConverterV1();
+        converter = new AnalyticsMessageConverterV2();
     }
 
     @Test
@@ -51,7 +50,7 @@ public class AnalyticsMessageConverterV1Test {
         String response = "{\"foo\": \"bar\"}";
 
         assertThatThrownBy(() -> converter.getAnalyticsFromResponseBody(response))
-                .isInstanceOf(com.thoughtworks.go.plugin.access.analytics.V1.models.AnalyticsData.MissingRequiredKeyException.class)
+                .isInstanceOf(com.thoughtworks.go.plugin.access.analytics.V2.models.AnalyticsData.MissingRequiredKeyException.class)
                 .hasMessageContaining("Missing \"data\" key in analytics payload");
     }
 
@@ -60,7 +59,7 @@ public class AnalyticsMessageConverterV1Test {
         String response = "{\"data\": \"hi\", \"foo\": \"bar\"}";
 
         assertThatThrownBy(() -> converter.getAnalyticsFromResponseBody(response))
-                .isInstanceOf(com.thoughtworks.go.plugin.access.analytics.V1.models.AnalyticsData.MissingRequiredKeyException.class)
+                .isInstanceOf(com.thoughtworks.go.plugin.access.analytics.V2.models.AnalyticsData.MissingRequiredKeyException.class)
                 .hasMessageContaining("Missing \"view_path\" key in analytics payload");
     }
 

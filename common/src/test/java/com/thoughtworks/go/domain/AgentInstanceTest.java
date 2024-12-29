@@ -933,7 +933,7 @@ public class AgentInstanceTest {
     }
 
     private List<JobPlan> jobPlans(String... resources) {
-        ArrayList<JobPlan> plans = new ArrayList<>();
+        List<JobPlan> plans = new ArrayList<>();
         int count = 1;
         for (String resource : resources) {
             plans.add(jobPlan("pipeline" + count, "job" + count, resource, null));

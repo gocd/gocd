@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,7 +50,7 @@ public class ServerHealthInformationProvider implements ServerInfoProvider {
         ServerHealthStates allLogs = service.logsSorted();
         json.put("Messages Count", allLogs.size());
 
-        ArrayList<Map<String, String>> messages = new ArrayList<>();
+        List<Map<String, String>> messages = new ArrayList<>();
         for (ServerHealthState log : allLogs) {
             messages.add(log.asJson());
         }

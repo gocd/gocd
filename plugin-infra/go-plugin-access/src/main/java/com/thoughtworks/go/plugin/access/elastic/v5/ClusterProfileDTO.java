@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -85,7 +86,7 @@ public class ClusterProfileDTO {
     }
 
     public ClusterProfile toDomainModel() {
-        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        List<ConfigurationProperty> configurationProperties = new ArrayList<>();
         this.properties.forEach((key, value) -> configurationProperties.add(new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value))));
 
         ClusterProfile clusterProfile = new ClusterProfile(this.id, this.pluginId);

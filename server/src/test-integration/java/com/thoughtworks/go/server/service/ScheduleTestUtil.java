@@ -80,7 +80,7 @@ public class ScheduleTestUtil {
     }
 
     public MaterialRevision mr(Material material, final boolean changed, final String... revs) {
-        ArrayList<Modification> modifications = new ArrayList<>();
+        List<Modification> modifications = new ArrayList<>();
         for (String rev : revs) {
             Modification mod = modForRev(rev);
             modifications.add(0, mod);

@@ -27,8 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -117,7 +117,7 @@ public class RailsAssetsServiceTest {
         }).toList();
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.isEmpty()).isFalse();
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.size()).isEqualTo(1);
-        assertThat(fieldsAnnotatedWithSerializedNameAsAssets.get(0).getType().getCanonicalName()).isEqualTo(HashMap.class.getCanonicalName());
+        assertThat(fieldsAnnotatedWithSerializedNameAsAssets.get(0).getType().getCanonicalName()).isEqualTo(Map.class.getCanonicalName());
     }
 
     private String json = """

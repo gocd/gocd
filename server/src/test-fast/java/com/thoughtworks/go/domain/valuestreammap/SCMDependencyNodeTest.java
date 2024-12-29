@@ -73,7 +73,7 @@ public class SCMDependencyNodeTest {
 
     @Test
     public void addRevisionsShouldBeDisallowed() {
-        ArrayList<Revision> revisions = new ArrayList<>();
+        List<Revision> revisions = new ArrayList<>();
         revisions.add(new SCMRevision(ModificationsMother.oneModifiedFile("some_revision")));
 
         assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT").addRevisions(revisions))

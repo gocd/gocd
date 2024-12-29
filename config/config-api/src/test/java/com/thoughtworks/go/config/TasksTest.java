@@ -21,6 +21,7 @@ import com.thoughtworks.go.service.TaskFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -40,7 +41,7 @@ public class TasksTest {
 
     @Test
     public void shouldSetConfigAttributesForBuiltinTask() throws Exception {
-        HashMap attributes = new HashMap();
+        Map attributes = new HashMap();
         attributes.put(Tasks.TASK_OPTIONS, "ant");
         attributes.put("ant", antTaskAttribs("build.xml", "test", "foo"));
         TaskFactory taskFactory = mock(TaskFactory.class);
@@ -140,12 +141,12 @@ public class TasksTest {
         return antTask;
     }
 
-    private HashMap antTaskAttribs(final String buildFile, final String target, final String workingDir) {
-        HashMap taskAttributes = new HashMap();
-        taskAttributes.put(AntTask.BUILD_FILE, buildFile);
-        taskAttributes.put(AntTask.WORKING_DIRECTORY, workingDir);
-        taskAttributes.put(AntTask.TARGET, target);
-        return taskAttributes;
+    private Map<String, String> antTaskAttribs(final String buildFile, final String target, final String workingDir) {
+        return Map.of(
+            AntTask.BUILD_FILE, buildFile,
+            AntTask.WORKING_DIRECTORY, workingDir,
+            AntTask.TARGET, target
+        );
     }
 
 }

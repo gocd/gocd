@@ -515,7 +515,7 @@ Above scenario allowed
         hashMap.put(GitMaterialConfig.URL, "foo");
         hashMap.put(GitMaterialConfig.BRANCH, "master");
 
-        HashMap<String, Object> attributeMap = new HashMap<>();
+        Map<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(AbstractMaterialConfig.MATERIAL_TYPE, GitMaterialConfig.TYPE);
         attributeMap.put(GitMaterialConfig.TYPE, hashMap);
         materialConfigs.setConfigAttributes(attributeMap);

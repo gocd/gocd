@@ -97,9 +97,9 @@ public class ElasticAgentExtensionConverterV5Test {
 
     @Test
     public void shouldJSONizeShouldAssignWorkRequestBody() throws Exception {
-        HashMap<String, String> configuration = new HashMap<>();
+        Map<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
-        HashMap<String, String> clusterProfileProperties = new HashMap<>();
+        Map<String, String> clusterProfileProperties = new HashMap<>();
         clusterProfileProperties.put("property_name", "property_value");
 
         String actual = new ElasticAgentExtensionConverterV5().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration, clusterProfileProperties, jobIdentifier);
@@ -120,9 +120,9 @@ public class ElasticAgentExtensionConverterV5Test {
 
     @Test
     public void shouldJSONizeJobCompletionRequestBody() throws Exception {
-        HashMap<String, String> elasticProfileConfiguration = new HashMap<>();
+        Map<String, String> elasticProfileConfiguration = new HashMap<>();
         elasticProfileConfiguration.put("property_name", "property_value");
-        HashMap<String, String> clusterProfileConfiguration = new HashMap<>();
+        Map<String, String> clusterProfileConfiguration = new HashMap<>();
         clusterProfileConfiguration.put("property_name", "property_value");
         String actual = new ElasticAgentExtensionConverterV5().getJobCompletionRequestBody("ea1", jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
 
@@ -143,9 +143,9 @@ public class ElasticAgentExtensionConverterV5Test {
 
     @Test
     public void shouldJSONizeServerPingRequestBody() throws Exception {
-        HashMap<String, String> clusterProfileConfiguration1 = new HashMap<>();
+        Map<String, String> clusterProfileConfiguration1 = new HashMap<>();
         clusterProfileConfiguration1.put("property_name", "property_value");
-        HashMap<String, String> clusterProfileConfiguration2 = new HashMap<>();
+        Map<String, String> clusterProfileConfiguration2 = new HashMap<>();
         clusterProfileConfiguration2.put("property_name_1", "property_value_1");
         clusterProfileConfiguration2.put("property_name_2", "property_value_2");
         String actual = new ElasticAgentExtensionConverterV5().serverPingRequestBody(List.of(clusterProfileConfiguration1, clusterProfileConfiguration2));
@@ -211,7 +211,7 @@ public class ElasticAgentExtensionConverterV5Test {
 
     @Test
     public void shouldConstructValidationRequest() {
-        HashMap<String, String> configuration = new HashMap<>();
+        Map<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
         configuration.put("key3", null);

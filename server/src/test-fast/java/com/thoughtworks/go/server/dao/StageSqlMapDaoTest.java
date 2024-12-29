@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -129,7 +130,7 @@ class StageSqlMapDaoTest {
         StageHistoryEntry bottomOfPreviousPage = mock(StageHistoryEntry.class);
         when(topOfThisPage.getId()).thenReturn(pipelineId);
         when(topOfThisPage.getIdentifier()).thenReturn(stageIdentifier);
-        HashMap args = new HashMap();
+        Map<String, Object> args = new HashMap<>();
         args.put("pipelineName", pipelineName);
         args.put("stageName", stageName);
         args.put("id", pipelineId);

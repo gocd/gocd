@@ -22,6 +22,7 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -105,7 +106,7 @@ public class StageConfigMother {
 
     public static StageConfig stageConfigWithParams(String stageName, String paramName) {
         StageConfig stageConfig = StageConfigMother.stageConfig(stageName);
-        ArrayList<EnvironmentVariableConfig> environmentVariableConfigs = new ArrayList<>();
+        List<EnvironmentVariableConfig> environmentVariableConfigs = new ArrayList<>();
         environmentVariableConfigs.add(new EnvironmentVariableConfig("env1", "#{" + paramName + "}"));
         stageConfig.setVariables(new EnvironmentVariablesConfig(environmentVariableConfigs));
         stageConfig.getJobs().add(JobConfigMother.jobConfig());
@@ -158,7 +159,7 @@ public class StageConfigMother {
     }
 
     public static void renameStage(StageConfig stageConfig, String stageName) {
-        HashMap attributes = new HashMap();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put(StageConfig.NAME, stageName);
         stageConfig.setConfigAttributes(attributes);
     }

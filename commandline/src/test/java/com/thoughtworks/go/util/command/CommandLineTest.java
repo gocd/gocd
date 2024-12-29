@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
@@ -194,7 +195,7 @@ public class CommandLineTest {
 
     @Test
     void shouldShowPasswordsInDescribeAsStars() {
-        HashMap<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         map.put("password1", "secret");
         map.put("password2", "secret");
         CommandLine line = CommandLine.createCommandLine("echo")

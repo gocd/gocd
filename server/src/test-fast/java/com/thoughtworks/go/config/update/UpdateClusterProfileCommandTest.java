@@ -33,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -96,7 +97,7 @@ class UpdateClusterProfileCommandTest {
     @Test
     void shouldMakeACallToExtensionToValidateClusterProfile() {
         String pluginId = "plugin-id";
-        HashMap<String, String> configuration = new HashMap<>();
+        Map<String, String> configuration = new HashMap<>();
         command.validateUsingExtension(pluginId, configuration);
 
         verify(extension, times(1)).validateClusterProfile(pluginId, configuration);

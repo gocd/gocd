@@ -115,7 +115,7 @@ public class NotificationFilter extends PersistentObject implements Validatable 
      * @return a Map representation of this {@link NotificationFilter} instance that is serializable by JRuby
      */
     public Map<String, Object> toMap() {
-        HashMap<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
 
         map.put("id", id);
         map.put("pipelineName", pipelineName);

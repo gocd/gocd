@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class JsonBasedPluggableTask implements Task {
     private PluginRequestHelper pluginRequestHelper;
-    private HashMap<String, JsonBasedTaskExtensionHandler> handlerMap;
+    private Map<String, JsonBasedTaskExtensionHandler> handlerMap;
     private String pluginId;
 
     public JsonBasedPluggableTask(String pluginId, PluginRequestHelper pluginRequestHelper, HashMap<String, JsonBasedTaskExtensionHandler> handlerMap) {

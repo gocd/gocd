@@ -166,8 +166,8 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
         }
     }
 
-    private HashMap<String, Material> dependencyMaterials() {
-        HashMap<String, Material> map = new HashMap<>();
+    private Map<String, Material> dependencyMaterials() {
+        Map<String, Material> map = new HashMap<>();
         for (DependencyMaterialConfig materialConfig : goConfigService.getSchedulableDependencyMaterials()) {
             String stageIdentifier = stageIdentifier(materialConfig.getPipelineName().toString(), materialConfig.getStageName().toString());
             map.put(stageIdentifier, materialConfigConverter.toMaterial(materialConfig));

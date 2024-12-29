@@ -52,7 +52,7 @@ public class BuilderFactory {
     }
 
     public List<Builder> buildersForTasks(Pipeline pipeline, List<Task> tasks, UpstreamPipelineResolver resolver) {
-        ArrayList<Builder> builders = new ArrayList<>();
+        List<Builder> builders = new ArrayList<>();
         for (Task task : tasks) {
             builders.add(builderFor(task, pipeline, resolver));
         }

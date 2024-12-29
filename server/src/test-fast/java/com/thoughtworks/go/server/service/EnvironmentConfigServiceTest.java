@@ -335,7 +335,7 @@ class EnvironmentConfigServiceTest {
         }
 
         private Map<String, String> envVar(String name, String value) {
-            HashMap<String, String> map = new HashMap<>();
+            Map<String, String> map = new HashMap<>();
             map.put("name", name);
             map.put("value", value);
             return map;
@@ -858,7 +858,7 @@ class EnvironmentConfigServiceTest {
     }
 
     private List<JobPlan> jobs(String... envNames) {
-        ArrayList<JobPlan> plans = new ArrayList<>();
+        List<JobPlan> plans = new ArrayList<>();
         for (String envName : envNames) {
             plans.add(jobForPipeline(envName + "-pipeline"));
         }

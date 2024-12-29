@@ -354,7 +354,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     void shouldValidateUniqueNames() {
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setName("REPO");
-        HashMap<String, PackageRepository> nameMap = new HashMap<>();
+        Map<String, PackageRepository> nameMap = new HashMap<>();
         PackageRepository original = new PackageRepository();
         original.setName("repo");
         nameMap.put("repo", original);
@@ -450,7 +450,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
         attributes.put(PackageRepository.NAME, name);
         attributes.put(PackageRepository.REPO_ID, repoId);
 
-        HashMap pluginConfiguration = new HashMap();
+        Map pluginConfiguration = new HashMap();
         pluginConfiguration.put(PluginConfiguration.ID, pluginId);
         attributes.put(PackageRepository.PLUGIN_CONFIGURATION, pluginConfiguration);
 

@@ -249,7 +249,7 @@ class JobConfigTest {
 
     @Test
     void shouldErrorOutIfTwoJobsHaveSameName() {
-        HashMap<String, JobConfig> visitedConfigs = new HashMap<>();
+        Map<String, JobConfig> visitedConfigs = new HashMap<>();
         visitedConfigs.put("defaultJob".toLowerCase(), new JobConfig("defaultJob"));
         JobConfig defaultJob = new JobConfig("defaultJob");
         defaultJob.validateNameUniqueness(visitedConfigs);

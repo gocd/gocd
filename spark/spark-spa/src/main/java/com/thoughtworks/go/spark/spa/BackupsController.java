@@ -66,7 +66,7 @@ public class BackupsController implements SparkController {
     }
 
     private Map<String, String> meta() {
-        HashMap<String, String> meta = new HashMap<>();
+        Map<String, String> meta = new HashMap<>();
         Optional<DateTime> dateTime = backupService.lastBackupTime().map(DateTime::new);
         meta.put("lastBackupTime", dateTime.map(Object::toString).orElse(null));
         meta.put("lastBackupUser", backupService.lastBackupUser().orElse(null));

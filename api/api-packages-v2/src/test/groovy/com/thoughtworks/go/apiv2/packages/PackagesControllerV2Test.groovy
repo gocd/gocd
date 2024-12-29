@@ -505,7 +505,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
     void 'should return a list of pipelines which uses the specified package'() {
       def pipelineConfig = PipelineConfigMother.pipelineConfig("some-pipeline")
       Pair<PipelineConfig, PipelineConfigs> pair = new Pair<>(pipelineConfig, new BasicPipelineConfigs("pipeline-group", new Authorization(), pipelineConfig))
-      ArrayList<Pair<PipelineConfig, PipelineConfigs>> pairs = new ArrayList<>()
+      List<Pair<PipelineConfig, PipelineConfigs>> pairs = new ArrayList<>()
       pairs.add(pair)
 
       def allUsages = new HashMap()

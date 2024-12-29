@@ -557,11 +557,11 @@ public class UserService {
 
     private List<UserModel> allUsersForDisplay() {
         Collection<User> users = allUsers();
-        ArrayList<UserModel> userModels = new ArrayList<>();
+        List<UserModel> userModels = new ArrayList<>();
         for (User user : users) {
             String userName = user.getName();
 
-            ArrayList<String> roles = new ArrayList<>();
+            List<String> roles = new ArrayList<>();
             for (Role role : goConfigService.rolesForUser(new CaseInsensitiveString(userName))) {
                 roles.add(CaseInsensitiveString.str(role.getName()));
             }

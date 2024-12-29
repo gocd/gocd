@@ -42,10 +42,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static spark.Spark.*;
 
@@ -144,7 +141,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
 
     private Pair<List<JobInstance>, List<JobInstance>> getRunningJobs() {
         Collection<GoDashboardPipeline> pipelines = dashboardCache.allEntries().getPipelines();
-        HashMap<String, String> buildToAgentUUIDMap = getBuildLocatorToAgentUUIDMap();
+        Map<String, String> buildToAgentUUIDMap = getBuildLocatorToAgentUUIDMap();
 
         List<JobInstance> buildingJobs = new ArrayList<>();
         List<JobInstance> scheduledJobs = new ArrayList<>();
@@ -179,10 +176,10 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
         return Pair.pair(buildingJobs, scheduledJobs);
     }
 
-    private HashMap<String, String> getBuildLocatorToAgentUUIDMap() {
+    private Map<String, String> getBuildLocatorToAgentUUIDMap() {
         AgentInstances agentInstances = agentService.getAgentInstances();
 
-        HashMap<String, String> buildToAgentUUIDMap = new HashMap<>();
+        Map<String, String> buildToAgentUUIDMap = new HashMap<>();
         for (AgentInstance agentInstance : agentInstances) {
             if (agentInstance.isBuilding()) {
                 buildToAgentUUIDMap.put(agentInstance.getBuildLocator(), agentInstance.getUuid());

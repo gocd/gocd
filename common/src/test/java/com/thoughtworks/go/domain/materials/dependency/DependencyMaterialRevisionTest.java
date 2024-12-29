@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -64,7 +65,7 @@ public class DependencyMaterialRevisionTest {
     @Test
     public void shouldAddPipelineLabelAsRevisionForMaterial() {
         DependencyMaterialRevision materialRevision = DependencyMaterialRevision.create("pipeline", 10, "foo-1.2.3", "stage", 4);
-        HashMap<String, String> revMap = new HashMap<>();
+        Map<String, String> revMap = new HashMap<>();
         materialRevision.putRevision(revMap);
         assertThat(revMap.get("pipeline")).isEqualTo("foo-1.2.3");
     }

@@ -180,7 +180,7 @@ public class PipelineRepositoryIntegrationTest {
 
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
-        ArrayList<PipelineTimelineEntry> entries = new ArrayList<>();
+        List<PipelineTimelineEntry> entries = new ArrayList<>();
         pipelineRepository.updatePipelineTimeline(pipelineTimeline, entries);
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size()).isEqualTo(2);

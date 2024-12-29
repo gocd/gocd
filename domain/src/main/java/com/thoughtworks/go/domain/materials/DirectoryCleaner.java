@@ -44,7 +44,7 @@ public class DirectoryCleaner {
     }
 
     public void allowed(List<String> allowedFolders) {
-        ArrayList<File> allowedDirs = convertToFiles(allowedFolders);
+        List<File> allowedDirs = convertToFiles(allowedFolders);
         for (File allowedDir : allowedDirs) {
             allowed(allowedDir, allowedDirs);
         }
@@ -65,8 +65,8 @@ public class DirectoryCleaner {
         allow(allowedDir, allowedDirs);
     }
 
-    private ArrayList<File> convertToFiles(List<String> allowedFolders) {
-        ArrayList<File> allowedDirs = new ArrayList<>();
+    private List<File> convertToFiles(List<String> allowedFolders) {
+        List<File> allowedDirs = new ArrayList<>();
         for (String folder : allowedFolders) {
             allowedDirs.add(new File(baseFolder, folder));
         }

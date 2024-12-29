@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionHandler {
@@ -52,7 +53,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     @Override
     public TaskConfig convertJsonToTaskConfig(String configJson) {
         final TaskConfig taskConfig = new TaskConfig();
-        ArrayList<String> exceptions = new ArrayList<>();
+        List<String> exceptions = new ArrayList<>();
         try {
             Map<String, Object> configMap = (Map) GSON.fromJson(configJson, Object.class);
             if (configMap.isEmpty()) {
@@ -115,7 +116,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     @Override
     public ValidationResult toValidationResult(String responseBody) {
         ValidationResult validationResult = new ValidationResult();
-        ArrayList<String> exceptions = new ArrayList<>();
+        List<String> exceptions = new ArrayList<>();
         try {
             Map result = (Map) GSON.fromJson(responseBody, Object.class);
             if (result == null) return validationResult;
@@ -141,7 +142,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
 
     @Override
     public TaskView toTaskView(String responseBody) {
-        ArrayList<String> exceptions = new ArrayList<>();
+        List<String> exceptions = new ArrayList<>();
         try {
             final Map map = (Map) GSON.fromJson(responseBody, Object.class);
             if (map.isEmpty()) {
@@ -177,7 +178,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     @Override
     public ExecutionResult toExecutionResult(String responseBody) {
         ExecutionResult executionResult = new ExecutionResult();
-        ArrayList<String> exceptions = new ArrayList<>();
+        List<String> exceptions = new ArrayList<>();
         try {
             Map result = (Map) GSON.fromJson(responseBody, Object.class);
             if (!(result.containsKey("success") && result.get("success") instanceof Boolean)) {
@@ -214,7 +215,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     }
 
     private Map configPropertiesAsMap(TaskConfig taskConfig) {
-        HashMap properties = new HashMap();
+        Map properties = new HashMap();
 
         for (Property property : taskConfig.list()) {
             final HashMap propertyValue = new HashMap();

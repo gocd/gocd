@@ -19,6 +19,7 @@ import com.thoughtworks.go.util.Clock;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -36,7 +37,7 @@ public class TimeStampBasedCounterTest {
 
     @Test
     public void shouldAllow() throws InterruptedException {
-        ArrayList<Thread> list = new ArrayList<>();
+        List<Thread> list = new ArrayList<>();
         Clock clock = mock(Clock.class);
         when(clock.currentTimeMillis()).thenReturn(0L);
         TimeStampBasedCounter provider = new TimeStampBasedCounter(clock);

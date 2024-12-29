@@ -174,7 +174,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldMigratePluggableTask() {
-        ArrayList<CRConfigurationProperty> configs = new ArrayList<>();
+        List<CRConfigurationProperty> configs = new ArrayList<>();
         configs.add(new CRConfigurationProperty("k", "m", null));
         CRPluggableTask pluggableTask = new CRPluggableTask(CRRunIf.any, null,
                 new CRPluginConfiguration("myplugin", "1"), configs);

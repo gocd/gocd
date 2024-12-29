@@ -89,7 +89,7 @@ public class CacheInformationProvider implements ServerInfoProvider {
         return json;
     }
 
-    private LinkedHashMap<String, Object> getStatisticsFrom(ExtendedStatistics.Result result) {
+    private Map<String, Object> getStatisticsFrom(ExtendedStatistics.Result result) {
         LinkedHashMap<String, Object> time = new LinkedHashMap<>();
         time.put("Average", String.valueOf(result.latency().average().value()));
         time.put("Minimum", String.valueOf(result.latency().minimum().value()));

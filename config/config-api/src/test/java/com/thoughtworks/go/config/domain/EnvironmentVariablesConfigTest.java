@@ -142,7 +142,7 @@ class EnvironmentVariablesConfigTest {
     @Test
     void shouldSetConfigAttributesSecurely() {
         environmentVariablesConfig = new EnvironmentVariablesConfig();
-        ArrayList<Map<String, String>> attribs = new ArrayList<>();
+        List<Map<String, String>> attribs = new ArrayList<>();
         Map<String, String> var1 = new HashMap<>();
         var1.put(EnvironmentVariableConfig.NAME, "name-var1");
         var1.put(EnvironmentVariableConfig.VALUE, "val-var1");

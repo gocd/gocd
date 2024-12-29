@@ -31,6 +31,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,10 +47,10 @@ public class PatchEnvironmentCommandTest {
     private HttpLocalizedOperationResult result;
     private String actionFailed;
 
-    private ArrayList<String> pipelinesToAdd;
-    private ArrayList<String> pipelinesToRemove;
-    private ArrayList<EnvironmentVariableConfig> envVarsToAdd;
-    private ArrayList<String> envVarsToRemove;
+    private List<String> pipelinesToAdd;
+    private List<String> pipelinesToRemove;
+    private List<EnvironmentVariableConfig> envVarsToAdd;
+    private List<String> envVarsToRemove;
 
     private PipelineConfig pipelineConfig;
 

@@ -33,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
@@ -52,7 +53,7 @@ class ClusterProfilesChangedPluginNotifierTest {
     private ClusterProfile newClusterProfile;
     private String pluginId;
     private ClusterProfile oldClusterProfile;
-    private ArrayList<ConfigurationProperty> properties;
+    private List<ConfigurationProperty> properties;
 
     @BeforeEach
     void setUp() {

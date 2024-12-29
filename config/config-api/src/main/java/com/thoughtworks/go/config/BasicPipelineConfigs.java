@@ -326,7 +326,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     private void verifyPipelineNameUniqueness() {
-        HashMap<CaseInsensitiveString, PipelineConfig> hashMap = new HashMap<>();
+        Map<CaseInsensitiveString, PipelineConfig> hashMap = new HashMap<>();
         for (PipelineConfig pipelineConfig : this) {
             pipelineConfig.validateNameUniqueness(hashMap);
         }

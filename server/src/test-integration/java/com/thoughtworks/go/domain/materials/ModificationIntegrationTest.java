@@ -33,6 +33,7 @@ import org.springframework.transaction.TransactionStatus;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,7 +64,7 @@ public class ModificationIntegrationTest {
     @Test
     public void shouldPersistAdditionalDataIntoModificationsTable() throws Exception {
         String revision = "revision";
-        HashMap<String, String> additionalDataMap = new HashMap<>();
+        Map<String, String> additionalDataMap = new HashMap<>();
         additionalDataMap.put("key", "value");
         String additionalData = JsonHelper.toJsonString(additionalDataMap);
         final Modification modification = new Modification("user", "comment", "foo@bar.fooadsf", new Date(), revision, additionalData);

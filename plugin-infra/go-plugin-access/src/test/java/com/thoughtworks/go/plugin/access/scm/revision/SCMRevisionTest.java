@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -66,7 +67,7 @@ public class SCMRevisionTest {
     }
 
     private void assertForInvalidKey(String key, String expectedMessage) {
-        HashMap<String, String> data = new HashMap<>();
+        Map<String, String> data = new HashMap<>();
         data.put(key, "value");
         try {
             new SCMRevision(null, null, null, null, data, null);

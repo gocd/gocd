@@ -26,10 +26,7 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.aCheckIn;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleCheckin;
@@ -125,7 +122,7 @@ public class ModificationsTest {
     public void shouldGetLatestModificationsForPackageMaterial() {
         Date timestamp = new Date();
         String revisionString = "123";
-        HashMap<String, String> data = new HashMap<>();
+        Map<String, String> data = new HashMap<>();
         data.put("1", "one");
         data.put("2", "two");
         Modification modification = new Modification(null, null, null, timestamp, revisionString, JsonHelper.toJsonString(data));
@@ -146,7 +143,7 @@ public class ModificationsTest {
     public void shouldGetLatestModificationsForPluggableSCMMaterial() {
         String revisionString = "123";
         Date timestamp = new Date();
-        HashMap<String, String> data = new HashMap<>();
+        Map<String, String> data = new HashMap<>();
         data.put("1", "one");
         data.put("2", "two");
         Modification modification = new Modification(null, null, null, timestamp, revisionString, JsonHelper.toJsonString(data));

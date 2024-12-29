@@ -55,8 +55,8 @@ public class EnvironmentPipelinesConfig extends BaseCollection<EnvironmentPipeli
         configErrors.add(fieldName, message);
     }
 
-    public ArrayList<CaseInsensitiveString> getNames() {
-        ArrayList<CaseInsensitiveString> names = new ArrayList<>();
+    public List<CaseInsensitiveString> getNames() {
+        List<CaseInsensitiveString> names = new ArrayList<>();
         for (EnvironmentPipelineConfig environmentPipelineConfig : this) {
             names.add(environmentPipelineConfig.getName());
         }

@@ -18,14 +18,15 @@ package com.thoughtworks.go.util.validators;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Validation {
     public static final Validation SUCCESS = new Validation();
 
-    private ArrayList<Exception> errors = new ArrayList<>();
+    private final List<Exception> errors = new ArrayList<>();
 
     public boolean isSuccessful() {
-        return errors.size() == 0;
+        return errors.isEmpty();
     }
 
     public void logErrors() {

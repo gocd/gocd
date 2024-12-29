@@ -416,7 +416,7 @@ public class MaterialServiceTest {
         MaterialInstance instance = MaterialsMother.gitMaterial("http://example.com/gocd.git").createMaterialInstance();
         Modification modification = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK();
         modification.setMaterialInstance(instance);
-        ArrayList<Modification> mods = new ArrayList<>();
+        List<Modification> mods = new ArrayList<>();
         mods.add(modification);
 
         when(materialRepository.getLatestModificationForEachMaterial()).thenReturn(mods);

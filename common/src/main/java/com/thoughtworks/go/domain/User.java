@@ -212,7 +212,7 @@ public class User extends PersistentObject {
         return isEmailMe() && !StringUtils.isEmpty(email);
     }
 
-    public void populateModel(HashMap<String, Object> model) {
+    public void populateModel(Map<String, Object> model) {
         model.put("matchers", matcher());
         model.put("email", email);
         model.put("emailMe", emailMe);

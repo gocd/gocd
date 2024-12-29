@@ -38,12 +38,12 @@ public abstract class PackageMaterialTestBase {
         for (int i = 0; i < configurations.length; i++) {
             ConfigurationHolder currentConfiguration = configurations[i];
 
-            HashMap config = new HashMap();
-            HashMap firstConfigKey = new HashMap();
+            Map config = new HashMap();
+            Map firstConfigKey = new HashMap();
             firstConfigKey.put(ConfigurationKey.NAME, currentConfiguration.name);
             config.put(ConfigurationProperty.CONFIGURATION_KEY, firstConfigKey);
 
-            HashMap firstConfigValue = new HashMap();
+            Map firstConfigValue = new HashMap();
             firstConfigValue.put(ConfigurationValue.VALUE, currentConfiguration.value);
             config.put(ConfigurationProperty.CONFIGURATION_VALUE, firstConfigValue);
 
@@ -51,7 +51,7 @@ public abstract class PackageMaterialTestBase {
                 config.put(ConfigurationProperty.IS_CHANGED, "1");
             }
             if (currentConfiguration.isSecure) {
-                HashMap encryptedValue = new HashMap();
+                Map encryptedValue = new HashMap();
                 encryptedValue.put(EncryptedConfigurationValue.VALUE, currentConfiguration.encryptedValue);
                 config.put(ConfigurationProperty.ENCRYPTED_VALUE, encryptedValue);
             }

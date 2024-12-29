@@ -19,6 +19,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @ConfigTag("rake")
 public class RakeTask extends BuildTask {
@@ -36,7 +37,7 @@ public class RakeTask extends BuildTask {
 
     @Override
     public String arguments() {
-        ArrayList<String> args = new ArrayList<>();
+        List<String> args = new ArrayList<>();
         if (buildFile != null) {
             args.add("-f \"" + FilenameUtils.separatorsToUnix(buildFile) + "\"");
         }

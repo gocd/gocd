@@ -68,7 +68,7 @@ class DependencyMaterialTest {
 
     @Test
     void shouldParseMaterialRevisionWithPipelineLabel() {
-        ArrayList<Modification> mods = new ArrayList<>();
+        List<Modification> mods = new ArrayList<>();
         Modification mod = new Modification(new Date(), "pipelineName/123/stageName/2", "pipeline-label-123", null);
         mods.add(mod);
         DependencyMaterialRevision revision = (DependencyMaterialRevision) new Modifications(mods).latestRevision(dependencyMaterial);
@@ -164,7 +164,7 @@ class DependencyMaterialTest {
     void shouldDetectDependencyMaterialUsedInFetchArtifact() {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        ArrayList<FetchTask> fetchTasks = new ArrayList<>();
+        List<FetchTask> fetchTasks = new ArrayList<>();
         fetchTasks.add(new FetchTask(new CaseInsensitiveString("something"), new CaseInsensitiveString("new"), "src", "dest"));
         fetchTasks.add(new FetchTask(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"), new CaseInsensitiveString("job"), "src", "dest"));
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);
@@ -176,7 +176,7 @@ class DependencyMaterialTest {
     void shouldDetectDependencyMaterialUsedInFetchArtifactFromAncestor() {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("parent-pipeline"), new CaseInsensitiveString("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        ArrayList<FetchTask> fetchTasks = new ArrayList<>();
+        List<FetchTask> fetchTasks = new ArrayList<>();
         fetchTasks.add(new FetchTask(new CaseInsensitiveString("grandparent-pipeline/parent-pipeline"), new CaseInsensitiveString("grandparent-stage"), new CaseInsensitiveString("grandparent-job"), "src", "dest"));
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);
 
@@ -187,7 +187,7 @@ class DependencyMaterialTest {
     void shouldDetectDependencyMaterialNotUsedInFetchArtifact() {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        ArrayList<FetchTask> fetchTasks = new ArrayList<>();
+        List<FetchTask> fetchTasks = new ArrayList<>();
         fetchTasks.add(new FetchTask(new CaseInsensitiveString("something"), new CaseInsensitiveString("new"), "src", "dest"));
         fetchTasks.add(new FetchTask(new CaseInsensitiveString("another"), new CaseInsensitiveString("boo"), new CaseInsensitiveString("foo"), "src", "dest"));
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);

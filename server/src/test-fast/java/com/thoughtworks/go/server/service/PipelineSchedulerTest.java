@@ -169,7 +169,7 @@ public class PipelineSchedulerTest {
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         PipelineConfig newPipeline = mock(PipelineConfig.class);
         String pipelineName = "newly-added-pipeline";
-        ArrayList<PipelineConfig> pipelineConfigs = new ArrayList<>();
+        List<PipelineConfig> pipelineConfigs = new ArrayList<>();
         pipelineConfigs.add(newPipeline);
         when(configService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
         doNothing().when(configService).register(captor.capture());

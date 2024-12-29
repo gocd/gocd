@@ -815,7 +815,7 @@ public class StageServiceIntegrationTest {
 
         Pipeline pipelineP4 = dbHelper.checkinRevisionsToBuild(build, upstreamWithoutMingle, new MaterialRevision(p4, p4Commit1));
 
-        ArrayList<MaterialRevision> materialRevisionsFor1 = new ArrayList<>();
+        List<MaterialRevision> materialRevisionsFor1 = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(materialRevisionsFor1, dependencyMaterial, pipelineOne);
         dbHelper.addDependencyRevisionModification(materialRevisionsFor1, dependencyMaterialViaP4, pipelineP4);
 
@@ -829,7 +829,7 @@ public class StageServiceIntegrationTest {
 
         Pipeline pipeline2P4 = dbHelper.checkinRevisionsToBuild(build, upstreamWithoutMingle, new MaterialRevision(p4, p4Commit2));
 
-        ArrayList<MaterialRevision> materialRevisionsFor2 = new ArrayList<>();
+        List<MaterialRevision> materialRevisionsFor2 = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(materialRevisionsFor2, dependencyMaterial, pipelineTwo);
         dbHelper.addDependencyRevisionModification(materialRevisionsFor2, dependencyMaterialViaP4, pipeline2P4);
 

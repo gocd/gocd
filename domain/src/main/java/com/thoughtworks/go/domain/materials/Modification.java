@@ -258,8 +258,8 @@ public class Modification extends PersistentObject implements Comparable<Modific
         return materialInstance;
     }
 
-    public static ArrayList<Modification> modifications(Modification modification) {
-        ArrayList<Modification> modifications = new ArrayList<>();
+    public static List<Modification> modifications(Modification modification) {
+        List<Modification> modifications = new ArrayList<>();
         modifications.add(modification);
         return modifications;
     }

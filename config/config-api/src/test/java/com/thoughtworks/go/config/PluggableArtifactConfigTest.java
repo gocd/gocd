@@ -209,7 +209,7 @@ public class PluggableArtifactConfigTest {
     public void shouldHandleEncryptionOfConfigProperties() throws CryptoException {
         GoCipher goCipher = new GoCipher();
 
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
         pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
         when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
@@ -236,7 +236,7 @@ public class PluggableArtifactConfigTest {
     public void shouldNotEncryptConfigPropertiesWhenSpecifiedAsParameters() {
         GoCipher goCipher = new GoCipher();
 
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
         pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
         when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
@@ -262,7 +262,7 @@ public class PluggableArtifactConfigTest {
     public void shouldHandleEncryptionOfConfigPropertiesIfStoreIdIsAValidParam() throws Exception {
         GoCipher goCipher = new GoCipher();
 
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
         pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
         when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
@@ -290,7 +290,7 @@ public class PluggableArtifactConfigTest {
     public void shouldIgnoreEncryptionOfSecurePropertyForNonExistentParam() {
         GoCipher goCipher = new GoCipher();
 
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
         pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
         when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
@@ -315,7 +315,7 @@ public class PluggableArtifactConfigTest {
     public void shouldIgnoreEncryptionOfSecurePropertyIfParamsIsUndefined() {
         GoCipher goCipher = new GoCipher();
 
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
         pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
         when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
@@ -348,7 +348,7 @@ public class PluggableArtifactConfigTest {
     public void shouldIgnoreEncryptionOfSecurePropertyForInvalidParamSpecification() {
         GoCipher goCipher = new GoCipher();
 
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
         pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
         when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
@@ -373,7 +373,7 @@ public class PluggableArtifactConfigTest {
     public void shouldIgnoreEncryptionOfSecurePropertyIfStoreIdIsNull() {
         GoCipher goCipher = new GoCipher();
 
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
         pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
         when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
@@ -397,7 +397,7 @@ public class PluggableArtifactConfigTest {
     @Test
     public void addConfigurations_shouldLeaveUserEnteredValuesAsIsIfArtifactStoreIsNull() throws CryptoException {
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "non-existent-store-id");
-        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        List<ConfigurationProperty> configurationProperties = new ArrayList<>();
         configurationProperties.add(ConfigurationPropertyMother.create("plain", false, "plain"));
         configurationProperties.add(ConfigurationPropertyMother.create("secure", true, new GoCipher().encrypt("password")));
 
@@ -410,7 +410,7 @@ public class PluggableArtifactConfigTest {
     public void addConfigurations_shouldLeaveUserEnteredValuesAsIsIfPluginIsMissing() throws CryptoException {
         ArtifactMetadataStore.instance().remove("cd.go.s3");
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "storeId");
-        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        List<ConfigurationProperty> configurationProperties = new ArrayList<>();
         configurationProperties.add(ConfigurationPropertyMother.create("plain", false, "plain"));
         configurationProperties.add(ConfigurationPropertyMother.create("secure", true, new GoCipher().encrypt("password")));
 
@@ -424,7 +424,7 @@ public class PluggableArtifactConfigTest {
 
     @Test
     public void addConfigurations_shouldSetUserSpecifiedConfigurationAsIs() throws CryptoException {
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
 
         pluginConfigurations.add(new PluginConfiguration("secure_property1", new Metadata(true, true)));
         pluginConfigurations.add(new PluginConfiguration("secure_property2", new Metadata(true, true)));
@@ -433,7 +433,7 @@ public class PluggableArtifactConfigTest {
 
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "storeId");
 
-        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        List<ConfigurationProperty> configurationProperties = new ArrayList<>();
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("plain"), new ConfigurationValue("plain")));
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new ConfigurationValue("password")));
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property2"), new EncryptedConfigurationValue(new GoCipher().encrypt("secret"))));

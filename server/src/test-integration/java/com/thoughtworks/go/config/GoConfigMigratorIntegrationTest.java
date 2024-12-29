@@ -104,7 +104,7 @@ public class GoConfigMigratorIntegrationTest {
     private SessionFactory sessionFactory;
     @Autowired
     private DatabaseAccessHelper dbHelper;
-    private ArrayList<Exception> exceptions;
+    private List<Exception> exceptions;
 
     @BeforeEach
     public void setUp(@TempDir File temporaryFolder, ResetCipher resetCipher) throws Exception {

@@ -180,7 +180,7 @@ public class PluggableTask extends AbstractTask {
 
     @Override
     public List<TaskProperty> getPropertiesForDisplay() {
-        ArrayList<TaskProperty> taskProperties = new ArrayList<>();
+        List<TaskProperty> taskProperties = new ArrayList<>();
         if (PluggableTaskConfigStore.store().hasPreferenceFor(pluginConfiguration.getId())) {
             TaskPreference preference = taskPreference();
             List<? extends Property> propertyDefinitions = preference.getConfig().list();

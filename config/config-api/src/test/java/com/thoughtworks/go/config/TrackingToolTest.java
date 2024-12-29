@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,7 +30,7 @@ public class TrackingToolTest {
     @Test
     public void shouldSetTrackingToolAttributesFromConfigMap() {
         trackingTool = new TrackingTool();
-        HashMap attributeMap = new HashMap();
+        Map<String, String> attributeMap = new HashMap<>();
         String expectedLink = "http://blah.com";
         attributeMap.put(TrackingTool.LINK, expectedLink);
         String expectedRegex = "[a-z]*";

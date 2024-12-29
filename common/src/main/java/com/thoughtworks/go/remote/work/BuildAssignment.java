@@ -57,7 +57,7 @@ public class BuildAssignment implements Serializable, SecretParamAware {
         this.artifactPlans = artifactPlans;
         this.artifactStores = artifactStores;
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
-            ArrayList<Modification> modifications = new ArrayList<>();
+            List<Modification> modifications = new ArrayList<>();
             for (Modification modification : materialRevision.getModifications()) {
                 modifications.add(new Modification(modification, false));
             }

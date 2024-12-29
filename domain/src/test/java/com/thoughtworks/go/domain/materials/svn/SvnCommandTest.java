@@ -35,9 +35,9 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -503,7 +503,7 @@ public class SvnCommandTest {
             assertThat(commandLine.toString()).contains("svn info --xml --username user --password ****** http://localhost/svn/project1");
             return consoleResult;
         }).when(spy).executeCommand(any(CommandLine.class));
-        final HashMap<String, String> urlToRemoteUUIDMap = spy.createUrlToRemoteUUIDMap(svnMaterials);
+        final Map<String, String> urlToRemoteUUIDMap = spy.createUrlToRemoteUUIDMap(svnMaterials);
         assertThat(urlToRemoteUUIDMap.size()).isEqualTo(1);
         assertThat(urlToRemoteUUIDMap.get("http://localhost/svn/project1")).isEqualTo("b51fe673-20c0-4205-a07b-5deb54bb09f3");
     }
@@ -529,7 +529,7 @@ public class SvnCommandTest {
             }
         }).when(spy).executeCommand(any(CommandLine.class));
 
-        HashMap<String, String> urlToRemoteUUIDMap = null;
+        Map<String, String> urlToRemoteUUIDMap = null;
         try {
             urlToRemoteUUIDMap = spy.createUrlToRemoteUUIDMap(svnMaterials);
         } catch (Exception e) {

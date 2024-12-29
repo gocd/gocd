@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class M002 {
     private static final Type FILTERS_TYPE = new TypeToken<HashMap<String, List<Filter>>>() {}.getType();
@@ -54,7 +55,7 @@ public class M002 {
     }
 
     static String addStateIfNull(String rawFilters) {
-        HashMap<String, List<Filter>> filters = GSON.fromJson(rawFilters, FILTERS_TYPE);
+        Map<String, List<Filter>> filters = GSON.fromJson(rawFilters, FILTERS_TYPE);
 
         for (Filter filter : filters.get("filters")) {
             filter.setStateIfNull();

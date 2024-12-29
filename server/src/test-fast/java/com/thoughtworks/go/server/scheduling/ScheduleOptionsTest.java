@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +37,7 @@ public class ScheduleOptionsTest {
 
     @Test
     public void shouldReturnEnvironmentVariablesConfig() {
-        HashMap<String, String> variables = new HashMap<>();
+        Map<String, String> variables = new HashMap<>();
         variables.put("name", "value");
         variables.put("foo", "bar");
         ScheduleOptions scheduleOptions = new ScheduleOptions(new HashMap<>(), variables, new HashMap<>());
@@ -47,7 +48,7 @@ public class ScheduleOptionsTest {
     @Test
     public void shouldReturnSecureEnvironmentVariablesConfig() throws CryptoException {
         String plainText = "secure_value";
-        HashMap<String, String> secureVariables = new HashMap<>();
+        Map<String, String> secureVariables = new HashMap<>();
         secureVariables.put("secure_name", plainText);
         ScheduleOptions scheduleOptions = new ScheduleOptions(goCipher, new HashMap<>(), new HashMap<>(), secureVariables);
         assertThat(scheduleOptions.getVariables().size()).isEqualTo(1);

@@ -68,7 +68,7 @@ public class ConfigInfoProvider implements ServerInfoProvider {
         return json;
     }
 
-    private LinkedHashMap<String, Object> securityInformation() {
+    private Map<String, Object> securityInformation() {
         final LinkedHashMap<String, Object> security = new LinkedHashMap<>();
         final List<Map<String, Object>> pluginsConfigured = new ArrayList<>();
         security.put("Plugins", pluginsConfigured);

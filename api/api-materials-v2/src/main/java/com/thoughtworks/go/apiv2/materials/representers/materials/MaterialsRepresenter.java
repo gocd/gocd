@@ -30,6 +30,7 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static java.util.Arrays.stream;
@@ -63,7 +64,7 @@ public class MaterialsRepresenter {
         return materialWriter -> {
             if (!materialConfig.errors().isEmpty()) {
                 materialWriter.addChild("errors", errorWriter -> {
-                    HashMap<String, String> errorMapping = new HashMap<>();
+                    Map<String, String> errorMapping = new HashMap<>();
                     errorMapping.put("materialName", "name");
                     errorMapping.put("folder", "destination");
                     errorMapping.put("autoUpdate", "auto_update");

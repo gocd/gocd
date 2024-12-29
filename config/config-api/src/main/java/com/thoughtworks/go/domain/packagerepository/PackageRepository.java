@@ -36,7 +36,10 @@ import org.jetbrains.annotations.TestOnly;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -312,7 +315,7 @@ public class PackageRepository implements Serializable, Validatable, SecretParam
         return packageDefinition;
     }
 
-    public void validateNameUniqueness(HashMap<String, PackageRepository> nameMap) {
+    public void validateNameUniqueness(Map<String, PackageRepository> nameMap) {
         if (name == null) {
             return;
         }

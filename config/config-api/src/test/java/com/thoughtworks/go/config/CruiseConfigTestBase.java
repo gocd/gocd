@@ -208,7 +208,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> allTemplatesWithAssociatedPipelines = cruiseConfig.templatesWithAssociatedPipelines();
 
         assertThat(allTemplatesWithAssociatedPipelines.size()).isEqualTo(1);
-        HashMap<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> expectedTemplatesMap = new HashMap<>();
+        Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> expectedTemplatesMap = new HashMap<>();
         expectedTemplatesMap.put(new CaseInsensitiveString("first_template"), new HashMap<>());
         expectedTemplatesMap.get(new CaseInsensitiveString("first_template")).put(new CaseInsensitiveString("first"), new Authorization());
         expectedTemplatesMap.get(new CaseInsensitiveString("first_template")).put(new CaseInsensitiveString("second"), new Authorization());

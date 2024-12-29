@@ -22,8 +22,7 @@ import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.Serializable;
-import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,7 +53,7 @@ public class PackageDefinitionCreatorTest {
 
     @Test
     public void testCreateNewPackageDefinition() throws Exception {
-        HashMap<String, Serializable> params = PackageDefinitionMother.paramsForPackageMaterialCreation(repoId, pkgName);
+        Map<String, Object> params = PackageDefinitionMother.paramsForPackageMaterialCreation(repoId, pkgName);
 
         PackageDefinitionCreator packageDefinitionCreator = new PackageDefinitionCreator(packageDefinitionService, params);
         PackageDefinition newPackageDefinition = packageDefinitionCreator.createNewPackageDefinition(cruiseConfig);
@@ -68,7 +67,7 @@ public class PackageDefinitionCreatorTest {
 
     @Test
     public void testGetPackageDefinition() throws Exception {
-        HashMap<String, Serializable> params = PackageDefinitionMother.paramsForPackageMaterialAssociation(repoId, pkgId);
+        Map<String, Object> params = PackageDefinitionMother.paramsForPackageMaterialAssociation(repoId, pkgId);
         PackageDefinitionCreator packageDefinitionCreator = new PackageDefinitionCreator(packageDefinitionService, params);
         PackageDefinition fetchedPackageDefinition = packageDefinitionCreator.getPackageDefinition(cruiseConfig);
 

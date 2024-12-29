@@ -94,7 +94,7 @@ public class ValueStreamMapPerformanceTest {
     public void shouldTestVSMForNPipelines() throws Exception {
         final int numberOfDownstreamPipelines = 5;
         final CruiseConfig cruiseConfig = setupVSM(numberOfDownstreamPipelines);
-        ArrayList<Thread> ts = new ArrayList<>();
+        List<Thread> ts = new ArrayList<>();
         int numberOfParallelRequests = 10;
         for (int i = 0; i < numberOfParallelRequests; i++) {
             final int finalI = i;
@@ -151,7 +151,7 @@ public class ValueStreamMapPerformanceTest {
     }
 
     private List<Node> getAllNodes(ValueStreamMapPresentationModel presentationModel) {
-        ArrayList<Node> nodes = new ArrayList<>();
+        List<Node> nodes = new ArrayList<>();
         List<List<Node>> nodesAtEachLevel = presentationModel.getNodesAtEachLevel();
         for (List<Node> nodesAtLevel : nodesAtEachLevel) {
             nodes.addAll(nodesAtLevel);

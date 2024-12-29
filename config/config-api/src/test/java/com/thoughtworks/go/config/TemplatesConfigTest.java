@@ -130,7 +130,7 @@ public class TemplatesConfigTest {
         Role securityConfigRole = getSecurityConfigRole(templateAdmin);
         List<Role> roles = setupRoles(securityConfigRole);
 
-        ArrayList<PipelineTemplateConfig> templateList = new ArrayList<>();
+        List<PipelineTemplateConfig> templateList = new ArrayList<>();
         templateList.add(PipelineTemplateConfigMother.createTemplate("templateName", new Authorization(new AdminsConfig(new AdminRole(securityConfigRole))), StageConfigMother.manualStage("some-random-stage")));
         TemplatesConfig templates = new TemplatesConfig(templateList.toArray(new PipelineTemplateConfig[0]));
 
@@ -144,7 +144,7 @@ public class TemplatesConfigTest {
         Role securityConfigRole = getSecurityConfigRole(templateAdmin);
         List<Role> roles = setupRoles(securityConfigRole);
 
-        ArrayList<PipelineTemplateConfig> templateList = new ArrayList<>();
+        List<PipelineTemplateConfig> templateList = new ArrayList<>();
         templateList.add(PipelineTemplateConfigMother.createTemplate("templateName", new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("random-user")))), StageConfigMother.manualStage("stage-name")));
         TemplatesConfig templates = new TemplatesConfig(templateList.toArray(new PipelineTemplateConfig[0]));
 
@@ -286,7 +286,7 @@ public class TemplatesConfigTest {
     }
 
     private TemplatesConfig configForUserWhoCanViewATemplate() {
-        ArrayList<PipelineTemplateConfig> templateList = new ArrayList<>();
+        List<PipelineTemplateConfig> templateList = new ArrayList<>();
         templateList.add(PipelineTemplateConfigMother.createTemplate("template100", StageConfigMother.manualStage("stage-name")));
         return new TemplatesConfig(templateList.toArray(new PipelineTemplateConfig[0]));
     }

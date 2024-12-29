@@ -55,7 +55,7 @@ public class MaterialRepresenter {
     public static void toJSON(OutputWriter jsonWriter, MaterialConfig materialConfig) {
         if (!materialConfig.errors().isEmpty()) {
             jsonWriter.addChild("errors", errorWriter -> {
-                HashMap<String, String> errorMapping = new HashMap<>();
+                Map<String, String> errorMapping = new HashMap<>();
                 errorMapping.put("materialName", "name");
                 errorMapping.put("folder", "destination");
                 errorMapping.put("autoUpdate", "auto_update");

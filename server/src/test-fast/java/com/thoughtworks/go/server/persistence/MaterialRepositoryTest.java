@@ -31,6 +31,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +44,7 @@ public class MaterialRepositoryTest {
     private GoCache goCache;
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private HibernateTemplate mockHibernateTemplate;
-    private HashMap<String, Object> ourCustomCache;
+    private Map<String, Object> ourCustomCache;
     private MaterialConfigConverter materialConfigConverter;
     private MaterialExpansionService materialExpansionService;
     private Database databaseStrategy;

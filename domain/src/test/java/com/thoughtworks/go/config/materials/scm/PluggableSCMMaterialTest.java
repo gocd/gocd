@@ -265,7 +265,7 @@ class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
         material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
-        HashMap<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         map.put("MY_NEW_KEY", "my_value");
         Modification modification = new Modification("loser", "comment", "email", new Date(), "revision-123", JsonHelper.toJsonString(map));
         Modifications modifications = new Modifications(modification);
@@ -287,7 +287,7 @@ class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
         material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
-        HashMap<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         map.put("ADDITIONAL_DATA_ONE", "foobar:!secure_value:with_special_chars");
         map.put("ADDITIONAL_DATA_URL_ENCODED", "something:%21secure_value%3Awith_special_chars");
         map.put("ADDITIONAL_DATA_TWO", "foobar:secure_value_with_regular_chars");

@@ -133,7 +133,7 @@ public class StageSummaryModel {
     }
 
     private List<JobInstanceModel> summarize(JobInstances jobInstances) {
-        ArrayList<JobInstanceModel> models = new ArrayList<>();
+        List<JobInstanceModel> models = new ArrayList<>();
         for (JobInstance jobInstance : jobInstances) {
             models.add(new JobInstanceModel(jobInstance, jobDurationStrategy));
         }

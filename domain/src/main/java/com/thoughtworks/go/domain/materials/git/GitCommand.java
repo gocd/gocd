@@ -248,7 +248,7 @@ public class GitCommand extends SCMCommand {
 
     @TestOnly
     public void commitOnDate(String message, Date commitDate) {
-        HashMap<String, String> env = new HashMap<>();
+        Map<String, String> env = new HashMap<>();
         env.put("GIT_AUTHOR_DATE", formatRFC822(commitDate));
         CommandLine gitCmd = gitWd().withArgs("commit", "-m", message).withEnv(env);
         runOrBomb(gitCmd);
@@ -375,7 +375,7 @@ public class GitCommand extends SCMCommand {
         CommandLine gitCmd = gitWd().withArgs(args);
         ConsoleResult result = runOrBomb(gitCmd, false);
         List<String> submoduleList = result.output();
-        HashMap<String, String> submoduleUrls = new HashMap<>();
+        Map<String, String> submoduleUrls = new HashMap<>();
         for (String submoduleLine : submoduleList) {
             Matcher m = GIT_SUBMODULE_URL_PATTERN.matcher(submoduleLine);
             if (!m.find()) {
@@ -566,7 +566,7 @@ public class GitCommand extends SCMCommand {
 
     @TestOnly
     private List<String> submoduleFolders(List<String> submoduleLines) {
-        ArrayList<String> submoduleFolders = new ArrayList<>();
+        List<String> submoduleFolders = new ArrayList<>();
         for (String submoduleLine : submoduleLines) {
             Matcher m = GIT_SUBMODULE_STATUS_PATTERN.matcher(submoduleLine);
             if (!m.find()) {

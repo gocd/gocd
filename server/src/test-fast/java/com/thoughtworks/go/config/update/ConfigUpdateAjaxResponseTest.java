@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
@@ -29,7 +30,7 @@ public class ConfigUpdateAjaxResponseTest {
 
     @Test
     public void shouldGetJsonRepresentationForFailure() {
-        HashMap<String, List<String>> fieldErrors = new HashMap<>();
+        Map<String, List<String>> fieldErrors = new HashMap<>();
         fieldErrors.put("field1", List.of("error 1"));
         fieldErrors.put("field2", List.of("error 2"));
         ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.failure("id", SC_BAD_REQUEST, "Save failed", fieldErrors, List.of("global1", "global2"));

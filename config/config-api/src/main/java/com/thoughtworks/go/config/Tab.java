@@ -17,7 +17,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,7 +115,7 @@ public class Tab implements Validatable {
         configErrors.add(fieldName, message);
     }
 
-    public void validateTabNameUniqueness(ArrayList<Tab> tabs) {
+    public void validateTabNameUniqueness(List<Tab> tabs) {
         for (Tab tab : tabs) {
             if(name.equals(tab.getName())){
                 this.addError(NAME, String.format("Tab name '%s' is not unique.", name));

@@ -373,7 +373,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     private List<CaseInsensitiveString> getAuthorizedUsers(AdminsConfig authorizedAdmins) {
-        ArrayList<CaseInsensitiveString> users = new ArrayList<>();
+        List<CaseInsensitiveString> users = new ArrayList<>();
         for (Admin admin : authorizedAdmins) {
             if (admin instanceof AdminRole) {
                 addRoleUsers(users, admin.getName());
@@ -471,7 +471,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public List<PipelineConfig> getAllPipelineConfigsForEditForUser(Username username) {
-        ArrayList<PipelineConfig> pipelineConfigs = new ArrayList<>();
+        List<PipelineConfig> pipelineConfigs = new ArrayList<>();
 
         List<String> groupsForUser = getConfigForEditing().getGroupsForUser(username.getUsername(), rolesForUser(username.getUsername()));
 
@@ -531,13 +531,13 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public List<CaseInsensitiveString> pipelinesWithMaterial(String fingerprint) {
-        ArrayList<CaseInsensitiveString> pipelineNames = new ArrayList<>();
+        List<CaseInsensitiveString> pipelineNames = new ArrayList<>();
         getAllPipelineConfigs().forEach(pipeline -> pipeline.materialConfigs().stream().filter(materialConfig -> materialConfig.getFingerprint().equals(fingerprint)).findFirst().ifPresent(expectedMaterialConfig -> pipelineNames.add(pipeline.name())));
         return pipelineNames;
     }
 
     public List<PackageDefinition> getPackages() {
-        ArrayList<PackageDefinition> packages = new ArrayList<>();
+        List<PackageDefinition> packages = new ArrayList<>();
         for (PackageRepository repository : this.getCurrentConfig().getPackageRepositories()) {
             packages.addAll(repository.getPackages());
         }
@@ -598,7 +598,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public List<String> getResourceList() {
-        ArrayList<String> resources = new ArrayList<>();
+        List<String> resources = new ArrayList<>();
         for (ResourceConfig res : getCurrentConfig().getAllResources()) {
             resources.add(res.getName());
         }

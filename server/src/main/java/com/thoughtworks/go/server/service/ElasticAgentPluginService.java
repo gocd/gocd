@@ -198,7 +198,7 @@ public class ElasticAgentPluginService {
             }
         }
 
-        ArrayList<JobPlan> jobsThatRequireAgent = new ArrayList<>();
+        List<JobPlan> jobsThatRequireAgent = new ArrayList<>();
         jobsThatRequireAgent.addAll(Sets.difference(new HashSet<>(newPlan), new HashSet<>(old)));
         jobsThatRequireAgent.addAll(starvingJobs);
 

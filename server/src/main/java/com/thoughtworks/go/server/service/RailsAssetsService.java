@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -86,9 +87,9 @@ public class RailsAssetsService implements ServletContextAware {
         return railsAssetsManifest;
     }
 
-    class RailsAssetsManifest {
+    static class RailsAssetsManifest {
         @SerializedName("assets")
-        private HashMap<String, String> assets = new HashMap<>();
+        private Map<String, String> assets = new HashMap<>();
 
         public String getAssetWithDigest(String name) {
             return assets.get(name);

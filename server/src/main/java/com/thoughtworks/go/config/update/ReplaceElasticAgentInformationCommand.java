@@ -25,17 +25,17 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ReplaceElasticAgentInformationCommand implements UpdateConfigCommand {
     private final ClusterProfilesService clusterProfilesService;
     private final ElasticProfileService elasticProfileService;
     private final ElasticAgentExtension elasticAgentExtension;
     private final GoPluginDescriptor pluginDescriptor;
-    private final HashMap<String, String> pluginSettings;
+    private final Map<String, String> pluginSettings;
 
-    public ReplaceElasticAgentInformationCommand(ClusterProfilesService clusterProfilesService, ElasticProfileService elasticProfileService, ElasticAgentExtension elasticAgentExtension, GoPluginDescriptor pluginDescriptor, HashMap<String, String> pluginSettings) {
+    public ReplaceElasticAgentInformationCommand(ClusterProfilesService clusterProfilesService, ElasticProfileService elasticProfileService, ElasticAgentExtension elasticAgentExtension, GoPluginDescriptor pluginDescriptor, Map<String, String> pluginSettings) {
         this.clusterProfilesService = clusterProfilesService;
         this.elasticProfileService = elasticProfileService;
         this.elasticAgentExtension = elasticAgentExtension;

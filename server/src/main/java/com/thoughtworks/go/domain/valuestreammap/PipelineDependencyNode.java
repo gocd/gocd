@@ -45,7 +45,7 @@ public class PipelineDependencyNode extends Node {
 
     @Override
     public List<Revision> revisions() {
-        ArrayList<Revision> revisions = new ArrayList<>(this.revisions);
+        List<Revision> revisions = new ArrayList<>(this.revisions);
         revisions.sort((o1, o2) -> ((PipelineRevision) o1).compareTo((PipelineRevision) o2));
         return revisions;
     }

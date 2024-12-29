@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ConfigTag("packages")
 @ConfigCollection(value = PackageDefinition.class)
@@ -46,7 +47,7 @@ public class Packages extends BaseCollection<PackageDefinition> implements Valid
 
     @Override
     public void validate(ValidationContext validationContext) {
-        HashMap<String, PackageDefinition> nameMap = new HashMap<>();
+        Map<String, PackageDefinition> nameMap = new HashMap<>();
         for(PackageDefinition packageDefinition : this){
             packageDefinition.validateNameUniqueness(nameMap);
         }

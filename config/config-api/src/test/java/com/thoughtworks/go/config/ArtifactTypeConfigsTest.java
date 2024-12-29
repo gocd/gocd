@@ -52,16 +52,16 @@ public class ArtifactTypeConfigsTest {
 
     @Test
     public void shouldLoadArtifactPlans() {
-        HashMap<String, String> artifactPlan1 = new HashMap<>();
+        Map<String, String> artifactPlan1 = new HashMap<>();
         artifactPlan1.put(SRC, "blah");
         artifactPlan1.put(DEST, "something");
         artifactPlan1.put("artifactTypeValue", TestArtifactConfig.TEST_PLAN_DISPLAY_NAME);
-        HashMap<String, String> artifactPlan2 = new HashMap<>();
+        Map<String, String> artifactPlan2 = new HashMap<>();
         artifactPlan2.put(SRC, "blah2");
         artifactPlan2.put(DEST, "something2");
         artifactPlan2.put("artifactTypeValue", BuildArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
 
-        List<HashMap> artifactPlansList = new ArrayList<>();
+        List<Map<String, String>> artifactPlansList = new ArrayList<>();
         artifactPlansList.add(artifactPlan1);
         artifactPlansList.add(artifactPlan2);
 
@@ -78,21 +78,21 @@ public class ArtifactTypeConfigsTest {
 
     @Test
     public void setConfigAttributes_shouldIgnoreEmptySourceAndDest() {
-        HashMap<String, String> artifactPlan1 = new HashMap<>();
+        Map<String, String> artifactPlan1 = new HashMap<>();
         artifactPlan1.put(SRC, "blah");
         artifactPlan1.put(DEST, "something");
         artifactPlan1.put("artifactTypeValue", TestArtifactConfig.TEST_PLAN_DISPLAY_NAME);
-        HashMap<String, String> artifactPlan2 = new HashMap<>();
+        Map<String, String> artifactPlan2 = new HashMap<>();
         artifactPlan2.put(SRC, "blah2");
         artifactPlan2.put(DEST, "something2");
         artifactPlan2.put("artifactTypeValue", BuildArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
 
-        HashMap<String, String> artifactPlan3 = new HashMap<>();
+        Map<String, String> artifactPlan3 = new HashMap<>();
         artifactPlan3.put(SRC, "");
         artifactPlan3.put(DEST, "");
         artifactPlan3.put("artifactTypeValue", BuildArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME);
 
-        List<HashMap> artifactPlansList = new ArrayList<>();
+        List<Map<String, String>> artifactPlansList = new ArrayList<>();
         artifactPlansList.add(artifactPlan1);
         artifactPlansList.add(artifactPlan3);
         artifactPlansList.add(artifactPlan2);
@@ -116,25 +116,25 @@ public class ArtifactTypeConfigsTest {
         when(pluginDescriptor.id()).thenReturn("cd.go.artifact.foo");
         PluginConfiguration image = new PluginConfiguration("Image", new Metadata(true, true));
         PluginConfiguration tag = new PluginConfiguration("Tag", new Metadata(true, false));
-        ArrayList<PluginConfiguration> pluginMetadata = new ArrayList<>();
+        List<PluginConfiguration> pluginMetadata = new ArrayList<>();
         pluginMetadata.add(image);
         pluginMetadata.add(tag);
         when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginMetadata));
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
 
 
-        Map<Object, Object> configurationMap1 = new HashMap<>();
+        Map<String, String> configurationMap1 = new HashMap<>();
         configurationMap1.put("Image", "gocd/gocd-server");
         configurationMap1.put("Tag", "v18.6.0");
 
-        HashMap<String, Object> artifactPlan1 = new HashMap<>();
+        Map<String, Object> artifactPlan1 = new HashMap<>();
         artifactPlan1.put("artifactTypeValue", "Pluggable Artifact");
         artifactPlan1.put("id", "artifactId");
         artifactPlan1.put("storeId", "storeId");
         artifactPlan1.put("pluginId", "cd.go.artifact.foo");
         artifactPlan1.put("configuration", configurationMap1);
 
-        List<Map> artifactPlansList = new ArrayList<>();
+        List<Map<String, Object>> artifactPlansList = new ArrayList<>();
         artifactPlansList.add(artifactPlan1);
 
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
@@ -163,14 +163,14 @@ public class ArtifactTypeConfigsTest {
         configurationMap1.put("Image", imageMap);
         configurationMap1.put("Tag", tagMap);
 
-        HashMap<String, Object> artifactPlan1 = new HashMap<>();
+        Map<String, Object> artifactPlan1 = new HashMap<>();
         artifactPlan1.put("artifactTypeValue", "Pluggable Artifact");
         artifactPlan1.put("id", "artifactId");
         artifactPlan1.put("storeId", "storeId");
         artifactPlan1.put("pluginId", "");
         artifactPlan1.put("configuration", configurationMap1);
 
-        List<Map> artifactPlansList = new ArrayList<>();
+        List<Map<String, Object>> artifactPlansList = new ArrayList<>();
         artifactPlansList.add(artifactPlan1);
 
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();

@@ -69,7 +69,7 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
     }
 
     private List<String> populateList(Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageUsageInPipelines) {
-        ArrayList<String> pipelines = new ArrayList<>();
+        List<String> pipelines = new ArrayList<>();
         for(String key: packageUsageInPipelines.keySet()) {
             List<Pair<PipelineConfig, PipelineConfigs>> pairs = packageUsageInPipelines.get(key);
             for(Pair<PipelineConfig, PipelineConfigs> pair : pairs) {

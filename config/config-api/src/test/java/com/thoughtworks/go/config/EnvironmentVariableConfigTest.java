@@ -29,6 +29,7 @@ import javax.annotation.PostConstruct;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -49,7 +50,7 @@ class EnvironmentVariableConfigTest {
         String encryptedText = "encrypted";
         when(goCipher.encrypt("password")).thenReturn(encryptedText);
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher);
-        HashMap attrs = getAttributeMap("password", "true", "true");
+        Map attrs = getAttributeMap("password", "true", "true");
 
         environmentVariableConfig.setConfigAttributes(attrs);
 
@@ -61,7 +62,7 @@ class EnvironmentVariableConfigTest {
     @Test
     void shouldAssignNameAndValueForAVanillaEnvironmentVariable() {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig((GoCipher) null);
-        HashMap attrs = new HashMap();
+        Map attrs = new HashMap();
         attrs.put(EnvironmentVariableConfig.NAME, "foo");
         attrs.put(EnvironmentVariableConfig.VALUE, "password");
 
@@ -75,7 +76,7 @@ class EnvironmentVariableConfigTest {
     @Test
     void shouldThrowUpWhenTheAttributeMapHasBothNameAndValueAreEmpty() {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig((GoCipher) null);
-        HashMap attrs = new HashMap();
+        Map attrs = new HashMap();
         attrs.put(EnvironmentVariableConfig.VALUE, "");
 
         assertThatCode(() -> environmentVariableConfig.setConfigAttributes(attrs))
@@ -90,7 +91,7 @@ class EnvironmentVariableConfigTest {
         when(mockGoCipher.encrypt(plainText)).thenReturn(cipherText);
         when(mockGoCipher.decrypt(cipherText)).thenReturn(plainText);
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
-        HashMap attrs = getAttributeMap(plainText, "true", "true");
+        Map attrs = getAttributeMap(plainText, "true", "true");
 
         environmentVariableConfig.setConfigAttributes(attrs);
 
@@ -104,7 +105,7 @@ class EnvironmentVariableConfigTest {
         GoCipher mockGoCipher = mock(GoCipher.class);
         String plainText = "password";
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
-        HashMap attrs = getAttributeMap(plainText, "false", "1");
+        Map attrs = getAttributeMap(plainText, "false", "1");
 
         environmentVariableConfig.setConfigAttributes(attrs);
 
@@ -140,7 +141,7 @@ class EnvironmentVariableConfigTest {
         when(mockGoCipher.encrypt(plainText)).thenReturn(cipherText);
         when(mockGoCipher.decrypt(cipherText)).thenReturn(plainText);
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
-        HashMap firstSubmit = getAttributeMap(plainText, "true", "true");
+        Map firstSubmit = getAttributeMap(plainText, "true", "true");
         environmentVariableConfig.setConfigAttributes(firstSubmit);
 
         assertThat(environmentVariableConfig.getEncryptedValue()).isEqualTo(cipherText);
@@ -155,10 +156,10 @@ class EnvironmentVariableConfigTest {
         when(mockGoCipher.decrypt(cipherText)).thenReturn(plainText);
         when(mockGoCipher.encrypt(cipherText)).thenReturn("SHOULD NOT DO THIS");
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
-        HashMap firstSubmit = getAttributeMap(plainText, "true", "true");
+        Map firstSubmit = getAttributeMap(plainText, "true", "true");
         environmentVariableConfig.setConfigAttributes(firstSubmit);
 
-        HashMap secondSubmit = getAttributeMap(cipherText, "true", "false");
+        Map secondSubmit = getAttributeMap(cipherText, "true", "false");
         environmentVariableConfig.setConfigAttributes(secondSubmit);
 
         assertThat(environmentVariableConfig.getEncryptedValue()).isEqualTo(cipherText);
@@ -297,18 +298,17 @@ class EnvironmentVariableConfigTest {
         assertThat(config1.equals(config2)).isTrue();
     }
 
-    private HashMap getAttributeMap(String value, final String secure, String isChanged) {
-        HashMap attrs;
-        attrs = new HashMap();
-        attrs.put(EnvironmentVariableConfig.NAME, "foo");
-        attrs.put(EnvironmentVariableConfig.VALUE, value);
-        attrs.put(EnvironmentVariableConfig.SECURE, secure);
-        attrs.put(EnvironmentVariableConfig.ISCHANGED, isChanged);
-        return attrs;
+    private Map<String, String> getAttributeMap(String value, final String secure, String isChanged) {
+        return Map.of(
+            EnvironmentVariableConfig.NAME, "foo",
+            EnvironmentVariableConfig.VALUE, value,
+            EnvironmentVariableConfig.SECURE, secure,
+            EnvironmentVariableConfig.ISCHANGED, isChanged
+        );
     }
 
     @Test
-    void shouldDeserializeWithErrorFlagIfAnEncryptedVarialeHasBothClearTextAndCipherText() throws Exception {
+    void shouldDeserializeWithErrorFlagIfAnEncryptedVariableHasBothClearTextAndCipherText() throws Exception {
         EnvironmentVariableConfig variable = new EnvironmentVariableConfig();
         variable.deserialize("PASSWORD", "clearText", true, new GoCipher().encrypt("c!ph3rt3xt"));
         assertThat(variable.errors().getAllOn("value")).isEqualTo(List.of("You may only specify `value` or `encrypted_value`, not both!"));
@@ -316,7 +316,7 @@ class EnvironmentVariableConfigTest {
     }
 
     @Test
-    void shouldDeserializeWithNoErrorFlagIfAnEncryptedVarialeHasClearTextWithSecureTrue() throws Exception {
+    void shouldDeserializeWithNoErrorFlagIfAnEncryptedVariableHasClearTextWithSecureTrue() throws Exception {
         EnvironmentVariableConfig variable = new EnvironmentVariableConfig();
         variable.deserialize("PASSWORD", "clearText", true, null);
         assertThat(variable.errors().isEmpty()).isTrue();

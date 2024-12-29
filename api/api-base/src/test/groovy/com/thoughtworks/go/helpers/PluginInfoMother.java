@@ -64,7 +64,7 @@ public class PluginInfoMother {
 
     public static SCMPluginInfo createSCMPluginInfo() {
 
-        ArrayList<PluginConfiguration> configurations = new ArrayList<>();
+        List<PluginConfiguration> configurations = new ArrayList<>();
         PluginConfiguration pluginConfiguration1 = new PluginConfiguration("key1", new MetadataWithPartOfIdentity(true, false, true));
         configurations.add(pluginConfiguration1);
         return new SCMPluginInfo(getGoPluginDescriptor(), "SCM", new PluggableInstanceSettings(configurations, new PluginView("Template")), null);
@@ -125,7 +125,7 @@ public class PluginInfoMother {
     public static PluggableInstanceSettings getPluggableSettings() {
         PluginConfiguration pluginConfiguration1 = new PluginConfiguration("key1", new Metadata(true, false));
         PluginConfiguration pluginConfiguration2 = new PluginConfiguration("key2", new Metadata(true, false));
-        ArrayList<PluginConfiguration> configurations = new ArrayList<>();
+        List<PluginConfiguration> configurations = new ArrayList<>();
 
         configurations.add(pluginConfiguration1);
         configurations.add(pluginConfiguration2);
@@ -140,11 +140,11 @@ public class PluginInfoMother {
 
     public static PackageMaterialPluginInfo createPackageMaterialPluginInfo() {
         PluginConfiguration settings = new PluginConfiguration("key1", new PackageMaterialMetadata(true, true, true, "Test", 0));
-        ArrayList<PluginConfiguration> repositorySettings = new ArrayList<>();
+        List<PluginConfiguration> repositorySettings = new ArrayList<>();
         repositorySettings.add(settings);
         PluggableInstanceSettings pluggableRepositorySettings = new PluggableInstanceSettings(repositorySettings, new PluginView("Template"));
 
-        ArrayList<PluginConfiguration> packageSettings = new ArrayList<>();
+        List<PluginConfiguration> packageSettings = new ArrayList<>();
         packageSettings.add(settings);
         PluggableInstanceSettings pluggablePackageSettings = new PluggableInstanceSettings(packageSettings, new PluginView("Template"));
 

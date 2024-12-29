@@ -47,7 +47,7 @@ public class Capabilities {
     }
 
     private List<com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics> supportedAnalytics() {
-        ArrayList<com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics> list = new ArrayList<>();
+        List<com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics> list = new ArrayList<>();
 
         if (this.supportedAnalytics != null) {
             for (SupportedAnalytics analytics : this.supportedAnalytics) {

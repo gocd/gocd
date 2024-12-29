@@ -78,7 +78,7 @@ public class PackageMaterialPoller implements MaterialPoller<PackageMaterial> {
     }
 
     private Map<String, String> getCommentParameters(PackageRevision packageRevision) {
-        HashMap<String, String> commentParametersMap = new HashMap<>();
+        Map<String, String> commentParametersMap = new HashMap<>();
         commentParametersMap.put("TYPE", "PACKAGE_MATERIAL");
         commentParametersMap.put("TRACKBACK_URL", packageRevision.getTrackbackUrl());
         commentParametersMap.put("COMMENT", packageRevision.getRevisionComment());

@@ -71,7 +71,7 @@ public class ModificationTest {
 
     @Test
     public void shouldSerializeAndUnserializeAllAttributes() throws IOException, ClassNotFoundException {
-        HashMap<String, String> additionalData = new HashMap<>();
+        Map<String, String> additionalData = new HashMap<>();
         additionalData.put("foo", "bar");
         Modification modification = new Modification("user", "comment", "foo@bar.com", new Date(), "pipe/1/stage/2", JsonHelper.toJsonString(additionalData));
         modification.setPipelineLabel("label-1");

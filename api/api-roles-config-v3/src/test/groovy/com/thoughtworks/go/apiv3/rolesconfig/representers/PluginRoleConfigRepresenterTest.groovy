@@ -30,7 +30,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class PluginRoleConfigRepresenterTest {
-  private LinkedHashMap<String, Object> map
+  private Map<String, Object> map
   private PluginRoleConfig roleConfig
 
   @BeforeEach

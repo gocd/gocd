@@ -123,7 +123,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     public List<Modification> history(String latestRevision, long revsToLoad) {
         LOGGER.debug("[TFS SDK] History for Server: {}, Project Path: {}, Latest Revision: {}, RevToLoad: {}", getUrl(), getProjectPath(), latestRevision, revsToLoad);
         Changeset[] changesets = retrieveChangeset(latestRevision, (int) revsToLoad);
-        ArrayList<Modification> modifications = new ArrayList<>();
+        List<Modification> modifications = new ArrayList<>();
         for (Changeset changeset : changesets) {
             Modification modification = new Modification(changeset.getCommitter(), changeset.getComment(), null, changeset.getDate().getTime(), String.valueOf(changeset.getChangesetID()));
             modification.setModifiedFiles(getModifiedFiles(changeset));
@@ -134,8 +134,8 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
 
-    ArrayList<ModifiedFile> getModifiedFiles(Changeset changeset) {
-        ArrayList<ModifiedFile> files = new ArrayList<>();
+    List<ModifiedFile> getModifiedFiles(Changeset changeset) {
+        List<ModifiedFile> files = new ArrayList<>();
         for (Change change : changeset.getChanges()) {
             ModifiedFile modifiedFile = new ModifiedFile(change.getItem().getServerItem(), "", ModifiedAction.unknown);
             files.add(modifiedFile);

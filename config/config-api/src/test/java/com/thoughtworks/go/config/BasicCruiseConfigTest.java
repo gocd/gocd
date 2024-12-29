@@ -199,7 +199,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
 
     @Test
     public void shouldReturnAListOfPipelineNamesAssociatedWithOneTemplate() {
-        ArrayList<CaseInsensitiveString> pipelinesAssociatedWithATemplate = new ArrayList<>();
+        List<CaseInsensitiveString> pipelinesAssociatedWithATemplate = new ArrayList<>();
         pipelinesAssociatedWithATemplate.add(new CaseInsensitiveString("p1"));
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
@@ -209,7 +209,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
 
     @Test
     public void shouldReturnNullForAssociatedPipelineNamesWhenTemplateNameIsBlank() {
-        ArrayList<CaseInsensitiveString> pipelinesAssociatedWithATemplate = new ArrayList<>();
+        List<CaseInsensitiveString> pipelinesAssociatedWithATemplate = new ArrayList<>();
         pipelinesAssociatedWithATemplate.add(new CaseInsensitiveString("p1"));
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
@@ -254,7 +254,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         cruiseConfig.server().security().addRole(role);
         goConfigMother.addRoleAsSuperAdmin(cruiseConfig, "role1");
 
-        ArrayList<Role> roles = new ArrayList<>();
+        List<Role> roles = new ArrayList<>();
         roles.add(role);
 
         List<String> groupsForUser = cruiseConfig.getGroupsForUser(new CaseInsensitiveString("foo"), roles);
@@ -296,7 +296,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         goConfigMother.addAdminRoleForPipelineGroup(cruiseConfig, "role1", "group1");
         goConfigMother.addAdminRoleForPipelineGroup(cruiseConfig, "role1", "group2");
 
-        ArrayList<Role> roles = new ArrayList<>();
+        List<Role> roles = new ArrayList<>();
         roles.add(role);
         List<String> groupsForUser = cruiseConfig.getGroupsForUser(new CaseInsensitiveString("foo"), roles);
 

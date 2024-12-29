@@ -123,7 +123,7 @@ public class PipelineLabelTest {
     @Test
     public void shouldTrimLongLabelTo255() {
         PipelineLabel label = PipelineLabel.create("Pipeline-${upstream}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        HashMap<CaseInsensitiveString, String> namedRevisions = new HashMap<>();
+        Map<CaseInsensitiveString, String> namedRevisions = new HashMap<>();
         namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(300));
 
         label.updateLabel(namedRevisions, 1);
@@ -133,7 +133,7 @@ public class PipelineLabelTest {
     @Test
     public void shouldKeepLabelIfLessThan255() {
         PipelineLabel label = PipelineLabel.create("${upstream}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        HashMap<CaseInsensitiveString, String> namedRevisions = new HashMap<>();
+        Map<CaseInsensitiveString, String> namedRevisions = new HashMap<>();
         namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(154));
 
         label.updateLabel(namedRevisions, 1);

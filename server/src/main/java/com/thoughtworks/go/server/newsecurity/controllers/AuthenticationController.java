@@ -167,8 +167,8 @@ public class AuthenticationController {
         return badAuthentication(request, UNKNOWN_ERROR_WHILE_AUTHENTICATION);
     }
 
-    private HashMap<String, String> getRequestHeaders(HttpServletRequest request) {
-        HashMap<String, String> headers = new HashMap<>();
+    private Map<String, String> getRequestHeaders(HttpServletRequest request) {
+        Map<String, String> headers = new HashMap<>();
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String header = headerNames.nextElement();

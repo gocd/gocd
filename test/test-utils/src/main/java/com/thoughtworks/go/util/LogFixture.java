@@ -114,7 +114,7 @@ public class LogFixture implements Closeable {
         }
 
         List<String> getFormattedEvents() {
-            ArrayList<String> strings = new ArrayList<>();
+            List<String> strings = new ArrayList<>();
             for (ILoggingEvent event : events) {
                 strings.add(new String(encoder.encode(event)));
             }
@@ -122,7 +122,7 @@ public class LogFixture implements Closeable {
         }
 
         List<String> getRawMessages() {
-            ArrayList<String> strings = new ArrayList<>();
+            List<String> strings = new ArrayList<>();
             for (ILoggingEvent event : events) {
                 strings.add(event.getFormattedMessage());
             }

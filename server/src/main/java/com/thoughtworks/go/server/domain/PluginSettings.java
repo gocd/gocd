@@ -129,7 +129,7 @@ public class PluginSettings implements Validatable {
     }
 
     public static PluginSettings from(Plugin plugin, PluginInfo pluginInfo) {
-        ArrayList<ConfigurationProperty> settingsMap = new ArrayList<>();
+        List<ConfigurationProperty> settingsMap = new ArrayList<>();
         ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
 
         for (String key : plugin.getAllConfigurationKeys()) {

@@ -73,7 +73,7 @@ class YarnRunTask extends DefaultTask {
   @InputFiles
   @PathSensitive(PathSensitivity.NONE)
   FileTree getSourceFiles() {
-    ArrayList<Object> copy = new ArrayList<Object>(this.sourceFiles)
+    List<Object> copy = new ArrayList<Object>(this.sourceFiles)
     FileTree src = getProject().files(copy).getAsFileTree()
     src == null ? getProject().files().getAsFileTree() : src
   }

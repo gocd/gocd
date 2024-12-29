@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -91,7 +92,7 @@ public class JobConsoleLoggerTest {
     public void shouldDelegatePrintEnvironmentToConsole() {
         com.thoughtworks.go.plugin.api.task.Console.SecureEnvVarSpecifier secureEnvVarSpecifier = mock(com.thoughtworks.go.plugin.api.task.Console.SecureEnvVarSpecifier.class);
         when(environment.secureEnvSpecifier()).thenReturn(secureEnvVarSpecifier);
-        HashMap<String, String> environmentVariablesMap = new HashMap<>();
+        Map<String, String> environmentVariablesMap = new HashMap<>();
 
         consoleLogger.printEnvironment(environmentVariablesMap);
 

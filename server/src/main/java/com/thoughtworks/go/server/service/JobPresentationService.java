@@ -41,7 +41,7 @@ public class JobPresentationService {
     }
 
     public List<JobInstanceModel> jobInstanceModelFor(JobInstances jobInstances) {
-        ArrayList<JobInstanceModel> models = new ArrayList<>();
+        List<JobInstanceModel> models = new ArrayList<>();
         for (JobInstance jobInstance : jobInstances) {
             AgentInstance agentInstance = jobInstance.isAssignedToAgent() ? agentService.findAgentAndRefreshStatus(jobInstance.getAgentUuid()) : null;
             JobInstanceModel model;

@@ -299,7 +299,7 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
     void shouldValidateUniqueNames() {
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.setName("PKG");
-        HashMap<String, PackageDefinition> nameMap = new HashMap<>();
+        Map<String, PackageDefinition> nameMap = new HashMap<>();
         PackageDefinition original = new PackageDefinition();
         original.setName("pkg");
         nameMap.put("pkg", original);
@@ -351,7 +351,7 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
         PackageDefinition definition3 = PackageDefinitionMother.create("3", "pkg3", new Configuration(new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1"))), repository);
 
 
-        HashMap<String, Packages> map = new HashMap<>();
+        Map<String, Packages> map = new HashMap<>();
         map.put(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER), new Packages(definition1, definition3));
         map.put(definition2.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER), new Packages(definition2));
         definition1.validateFingerprintUniqueness(map);
@@ -370,7 +370,7 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
         PackageRepository repository = PackageRepositoryMother.create("repo1");
         PackageDefinition packageDefinition = PackageDefinitionMother.create("1", "pkg1", new Configuration(new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1"))), repository);
 
-        HashMap<String, Packages> map = new HashMap<>();
+        Map<String, Packages> map = new HashMap<>();
         map.put(packageDefinition.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER), new Packages(packageDefinition));
         packageDefinition.validateFingerprintUniqueness(map);
 

@@ -68,7 +68,7 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
 
     void validateKeyUniqueness(ErrorCollection errors, String location) {
         if (this.configuration != null) {
-            ArrayList<String> keys = new ArrayList<>();
+            List<String> keys = new ArrayList<>();
             for (CRConfigurationProperty property : this.configuration) {
                 String key = property.getKey();
                 if (keys.contains(key))

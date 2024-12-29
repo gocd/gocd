@@ -206,7 +206,7 @@ class PluggableSCMMaterialPollerTest {
         assertThat(knownSCMRevision.getValue().getData().size()).isEqualTo(dataInPreviousRevision.size());
         assertThat(knownSCMRevision.getValue().getData().get("1")).isEqualTo(dataInPreviousRevision.get("1"));
 
-        HashMap<String, String> expected = new HashMap<>();
+        Map<String, String> expected = new HashMap<>();
         expected.put(dataKey, dataValue);
 
         Modification firstModification = modifications.get(0);

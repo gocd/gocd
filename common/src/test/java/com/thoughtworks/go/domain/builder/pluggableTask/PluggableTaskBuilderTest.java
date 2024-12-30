@@ -70,7 +70,7 @@ public class PluggableTaskBuilderTest {
     public void setUp() {
         PluginManagerReference.reference().setPluginManager(pluginManager);
         when(pluggableTask.getPluginConfiguration()).thenReturn(new PluginConfiguration(TEST_PLUGIN_ID, "1.0"));
-        HashMap<String, Map<String, String>> pluginConfig = new HashMap<>();
+        Map<String, Map<String, String>> pluginConfig = new HashMap<>();
         when(pluggableTask.configAsMap()).thenReturn(pluginConfig);
         taskExtension = new TaskExtension(pluginManager, extensionsRegistry);
     }
@@ -177,7 +177,7 @@ public class PluggableTaskBuilderTest {
         String defaultValue = "ABC.TXT";
 
         Map<String, Map<String, String>> configMap = new HashMap<>();
-        HashMap<String, String> configValue = new HashMap<>();
+        Map<String, String> configValue = new HashMap<>();
         configValue.put("value", "");
 
         configMap.put(propertyName, configValue);
@@ -199,7 +199,7 @@ public class PluggableTaskBuilderTest {
         TaskConfig defaultTaskConfig = new TaskConfig();
         String propertyName = "URL";
         String defaultValue = "ABC.TXT";
-        HashMap<String, String> configValue = new HashMap<>();
+        Map<String, String> configValue = new HashMap<>();
         configValue.put("value", "XYZ.TXT");
 
         Map<String, Map<String, String>> configMap = new HashMap<>();

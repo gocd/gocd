@@ -58,7 +58,7 @@ public class TaskConfig extends Configuration {
 
     @Override
     public List<? extends  Property> list() {
-        ArrayList<TaskConfigProperty> list = new ArrayList<>();
+        List<TaskConfigProperty> list = new ArrayList<>();
         for (Property property : super.list()) {
             list.add((TaskConfigProperty) property);
         }

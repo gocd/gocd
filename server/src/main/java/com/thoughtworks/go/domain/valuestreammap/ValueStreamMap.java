@@ -31,7 +31,7 @@ public class ValueStreamMap {
     private Node currentPipeline;
     private Node currentMaterial;
 	private MaterialInstance currentMaterialInstance;
-    private LinkedHashMap<CaseInsensitiveString, Node> nodeIdToNodeMap = new LinkedHashMap<>();
+    private Map<CaseInsensitiveString, Node> nodeIdToNodeMap = new LinkedHashMap<>();
 	private List<Node> rootNodes = new ArrayList<>();
 
 	private LevelAssignment levelAssignment = new LevelAssignment();

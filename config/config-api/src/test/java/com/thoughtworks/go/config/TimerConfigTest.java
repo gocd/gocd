@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +49,7 @@ public class TimerConfigTest {
 
     @Test
     public void shouldCreateTimerGivenTheAttributeMapIfOnlyOnChangesIsCheckedInUI(){
-        HashMap<String, String> mapOfTimerValues = new HashMap<>();
+        Map<String, String> mapOfTimerValues = new HashMap<>();
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         mapOfTimerValues.put(TimerConfig.TIMER_ONLY_ON_CHANGES, "1");
         TimerConfig timer = TimerConfig.createTimer(mapOfTimerValues);
@@ -58,7 +59,7 @@ public class TimerConfigTest {
 
     @Test
     public void shouldCreateTimerGivenTheAttributeMapOnlyOnChangesIsNotPresent(){
-        HashMap<String, String> mapOfTimerValues = new HashMap<>();
+        Map<String, String> mapOfTimerValues = new HashMap<>();
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         TimerConfig timer = TimerConfig.createTimer(mapOfTimerValues);
         assertThat(timer.getTimerSpec()).isEqualTo("0 0 * * * ?");
@@ -67,7 +68,7 @@ public class TimerConfigTest {
 
     @Test
     public void shouldCreateTimerGivenTheAttributeMapIfOnlyOnChangesIsNotCheckedInUI(){
-        HashMap<String, String> mapOfTimerValues = new HashMap<>();
+        Map<String, String> mapOfTimerValues = new HashMap<>();
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         mapOfTimerValues.put(TimerConfig.TIMER_ONLY_ON_CHANGES, "0");
         TimerConfig timer = TimerConfig.createTimer(mapOfTimerValues);

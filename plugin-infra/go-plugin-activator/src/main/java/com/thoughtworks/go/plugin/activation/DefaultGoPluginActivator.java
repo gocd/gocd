@@ -225,7 +225,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     private Method[] getMethodsWithAnnotation(Object extensionObject, Class<? extends Annotation> annotation) {
         // public,non-static,non-inherited zero-argument with @Load annotation
         Class<?> extnPointClass = extensionObject.getClass();
-        ArrayList<Method> methodsWithLoadAnnotation = new ArrayList<>();
+        List<Method> methodsWithLoadAnnotation = new ArrayList<>();
         for (Method method : extnPointClass.getDeclaredMethods()) {
             boolean annotated = hasAnnotation(annotation, method);
             if (annotated

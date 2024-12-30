@@ -22,11 +22,13 @@ import org.slf4j.LoggerFactory;
 import javax.jms.JMSException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class PluginAwareMessageQueue extends GoMessageQueue {
-    protected final HashMap<String, ArrayList<JMSMessageListenerAdapter>> listeners = new HashMap<>();
+    protected final Map<String, List<JMSMessageListenerAdapter>> listeners = new HashMap<>();
     private final String pluginId;
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginAwareMessageQueue.class.getName());
 
@@ -46,7 +48,7 @@ public class PluginAwareMessageQueue extends GoMessageQueue {
     @Override
     public void stop() {
         super.stop();
-        ArrayList<JMSMessageListenerAdapter> listenerAdapters = listeners.get(pluginId);
+        List<JMSMessageListenerAdapter> listenerAdapters = listeners.get(pluginId);
         for (JMSMessageListenerAdapter listenerAdapter : listenerAdapters) {
             try {
                 listenerAdapter.stop();

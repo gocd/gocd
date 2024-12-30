@@ -30,6 +30,7 @@ import org.springframework.util.ReflectionUtils;
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -158,11 +159,11 @@ public class ConfigurationPropertyTest {
     @Test
     void shouldSetConfigAttributesForNonSecureProperty() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
-        HashMap attributes = new HashMap();
-        HashMap keyMap = new HashMap();
+        Map<String, Object> attributes = new HashMap<>();
+        Map<String, String> keyMap = new HashMap<>();
         keyMap.put("name", "fooKey");
         attributes.put(ConfigurationProperty.CONFIGURATION_KEY, keyMap);
-        HashMap valueMap = new HashMap();
+        Map<String, String> valueMap = new HashMap<>();
         valueMap.put("value", "fooValue");
         attributes.put(ConfigurationProperty.CONFIGURATION_VALUE, valueMap);
 
@@ -193,12 +194,12 @@ public class ConfigurationPropertyTest {
     @Test
     void shouldSetConfigAttributesForSecurePropertyWhenUserChangesIt() throws Exception {
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
-        HashMap attributes = new HashMap();
-        HashMap keyMap = new HashMap();
+        Map<String, Object> attributes = new HashMap<>();
+        Map<String, String> keyMap = new HashMap<>();
         final String secureKey = "fooKey";
         keyMap.put("name", secureKey);
         attributes.put(ConfigurationProperty.CONFIGURATION_KEY, keyMap);
-        HashMap valueMap = new HashMap();
+        Map<String, String> valueMap = new HashMap<>();
         valueMap.put("value", "fooValue");
         attributes.put(ConfigurationProperty.CONFIGURATION_VALUE, valueMap);
         attributes.put(ConfigurationProperty.IS_CHANGED, "0");
@@ -215,15 +216,15 @@ public class ConfigurationPropertyTest {
     @Test
     void shouldSetConfigAttributesForSecurePropertyWhenUserDoesNotChangeIt() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
-        HashMap attributes = new HashMap();
-        HashMap keyMap = new HashMap();
+        Map<String, Object> attributes = new HashMap<>();
+        Map<String, String> keyMap = new HashMap<>();
         final String secureKey = "fooKey";
         keyMap.put("name", secureKey);
         attributes.put(ConfigurationProperty.CONFIGURATION_KEY, keyMap);
-        HashMap valueMap = new HashMap();
+        Map<String, String> valueMap = new HashMap<>();
         valueMap.put("value", "fooValue");
         attributes.put(ConfigurationProperty.CONFIGURATION_VALUE, valueMap);
-        HashMap encryptedValueMap = new HashMap();
+        Map<String, String> encryptedValueMap = new HashMap<>();
         encryptedValueMap.put("value", "encryptedValue");
         attributes.put(ConfigurationProperty.ENCRYPTED_VALUE, encryptedValueMap);
 
@@ -237,11 +238,11 @@ public class ConfigurationPropertyTest {
     @Test
     void shouldSetConfigAttributesWhenMetadataIsNotPassedInMap() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
-        HashMap attributes = new HashMap();
-        HashMap keyMap = new HashMap();
+        Map<String, Object> attributes = new HashMap<>();
+        Map<String, String> keyMap = new HashMap<>();
         keyMap.put("name", "fooKey");
         attributes.put(ConfigurationProperty.CONFIGURATION_KEY, keyMap);
-        HashMap valueMap = new HashMap();
+        Map<String, String> valueMap = new HashMap<>();
         valueMap.put("value", "fooValue");
         attributes.put(ConfigurationProperty.CONFIGURATION_VALUE, valueMap);
 
@@ -297,7 +298,7 @@ public class ConfigurationPropertyTest {
     @Test
     void shouldValidateKeyUniqueness() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue());
-        HashMap<String, ConfigurationProperty> map = new HashMap<>();
+        Map<String, ConfigurationProperty> map = new HashMap<>();
         ConfigurationProperty original = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue());
         map.put("key", original);
         property.validateKeyUniqueness(map, "Repo");

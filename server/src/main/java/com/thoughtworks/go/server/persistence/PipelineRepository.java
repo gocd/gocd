@@ -125,7 +125,7 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
 
 
             private List<PipelineTimelineEntry> populateFrom(List<Object[]> matches) {
-                ArrayList<PipelineTimelineEntry> newPipelines = new ArrayList<>();
+                List<PipelineTimelineEntry> newPipelines = new ArrayList<>();
                 if (matches.isEmpty()) {
                     return newPipelines;
                 }

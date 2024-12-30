@@ -96,12 +96,12 @@ public class PluginSettingsTest {
 
     @Test
     public void shouldAddConfigurationsToSettingsMapCorrectly() throws CryptoException {
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("k1", new Metadata(true, false)));
         pluginConfigurations.add(new PluginConfiguration("k2", new Metadata(true, true)));
         ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfo(null, null, new PluggableInstanceSettings(pluginConfigurations), new Capabilities());
 
-        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        List<ConfigurationProperty> configurationProperties = new ArrayList<>();
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1")));
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("k2"), new EncryptedConfigurationValue(new GoCipher().encrypt("v2"))));
 
@@ -116,14 +116,14 @@ public class PluginSettingsTest {
 
     @Test
     public void shouldEncryptedValuesForSecureProperties() throws CryptoException {
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("k1", new Metadata(true, false)));
         pluginConfigurations.add(new PluginConfiguration("k2", new Metadata(true, true)));
         ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfo(null, null, new PluggableInstanceSettings(pluginConfigurations), new Capabilities());
 
         ConfigurationProperty configProperty1 = new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1"));
         ConfigurationProperty configProperty2 = new ConfigurationProperty(new ConfigurationKey("k2"), new EncryptedConfigurationValue(new GoCipher().encrypt("v2")));
-        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        List<ConfigurationProperty> configurationProperties = new ArrayList<>();
         configurationProperties.add(configProperty1);
         configurationProperties.add(configProperty2);
 

@@ -23,11 +23,12 @@ import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class TrackingToolRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, PipelineConfig pipelineConfig) {
-        HashMap<String, String> mapping = new HashMap<>();
+        Map<String, String> mapping = new HashMap<>();
         mapping.put("projectIdentifier", "project_identifier");
         mapping.put("baseUrl", "base_url");
         mapping.put("link", "url_pattern");

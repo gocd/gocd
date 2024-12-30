@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GoServer {
     private static final Logger LOG = LoggerFactory.getLogger(GoServer.class);
@@ -94,8 +95,8 @@ public class GoServer {
         return validation;
     }
 
-    ArrayList<Validator> validators() {
-        ArrayList<Validator> validators = new ArrayList<>();
+    List<Validator> validators() {
+        List<Validator> validators = new ArrayList<>();
         validators.add(new ServerPortValidator(systemEnvironment.getServerPort()));
         validators.add(FileValidator.defaultFile("cruise.war"));
         validators.add(FileValidator.configFile("cruise-config.xml", systemEnvironment));

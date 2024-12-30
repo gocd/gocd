@@ -228,7 +228,7 @@ public class SecurityAuthConfigServiceTest {
         securityConfig.securityAuthConfigs().add(authConfig);
         when(goConfigService.security()).thenReturn(securityConfig);
 
-        HashMap<String, SecurityAuthConfig> expectedMap = new HashMap<>();
+        Map<String, SecurityAuthConfig> expectedMap = new HashMap<>();
         expectedMap.put("ldap", authConfig);
 
         Map<String, SecurityAuthConfig> authConfigMap = securityAuthConfigService.listAll();

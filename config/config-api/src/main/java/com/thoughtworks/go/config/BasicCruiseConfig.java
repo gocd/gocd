@@ -836,7 +836,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public List<String> getGroupsForUser(CaseInsensitiveString username, List<Role> roles) {
-        ArrayList<String> groups = new ArrayList<>();
+        List<String> groups = new ArrayList<>();
         for (PipelineConfigs group : this.groups) {
             if (isAdministrator(username.toString()) || group.isUserAnAdmin(username, roles)) {
                 groups.add(group.getGroup());
@@ -1190,7 +1190,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public Iterable<PipelineConfig> getDownstreamPipelines(String pipelineName) {
-        ArrayList<PipelineConfig> configs = new ArrayList<>();
+        List<PipelineConfig> configs = new ArrayList<>();
         for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {
             if (pipelineConfig.dependsOn(new CaseInsensitiveString(pipelineName))) {
                 configs.add(pipelineConfig);
@@ -1345,8 +1345,8 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public ArrayList<CaseInsensitiveString> pipelinesAssociatedWithTemplate(CaseInsensitiveString templateName) {
-        ArrayList<CaseInsensitiveString> pipelines = new ArrayList<>();
+    public List<CaseInsensitiveString> pipelinesAssociatedWithTemplate(CaseInsensitiveString templateName) {
+        List<CaseInsensitiveString> pipelines = new ArrayList<>();
         if (templateName != null) {
             for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
                 if (pipelineConfig.hasTemplate() && pipelineConfig.getTemplateName().equals(templateName)) {
@@ -1358,8 +1358,8 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public ArrayList<PipelineConfig> pipelineConfigsAssociatedWithTemplate(CaseInsensitiveString templateName) {
-        ArrayList<PipelineConfig> pipelines = new ArrayList<>();
+    public List<PipelineConfig> pipelineConfigsAssociatedWithTemplate(CaseInsensitiveString templateName) {
+        List<PipelineConfig> pipelines = new ArrayList<>();
         if (templateName != null) {
             for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
                 if (pipelineConfig.hasTemplate() && pipelineConfig.getTemplateName().equals(templateName)) {

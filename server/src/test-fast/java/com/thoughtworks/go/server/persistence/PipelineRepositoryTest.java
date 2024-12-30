@@ -128,7 +128,7 @@ public class PipelineRepositoryTest {
         Object[] pipelineRow2 = {"p1", new BigInteger("2"), new BigInteger("2"), new Date(), "fingerprint", 2.0, "r2", null, new BigInteger("1"), new BigInteger("1")};
 
         stubPipelineInstancesInDb(pipelineRow1, pipelineRow2);
-        ArrayList<PipelineTimelineEntry> tempEntries = new ArrayList<>();
+        List<PipelineTimelineEntry> tempEntries = new ArrayList<>();
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
         pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries);
@@ -148,7 +148,7 @@ public class PipelineRepositoryTest {
         Object[] pipelineRow2 = {"p1", "cause-failure-during-retrieval", new BigInteger("2"), new Date(), "fingerprint", 2.0, "r2", null, new BigInteger("1"), new BigInteger("1")};
 
         stubPipelineInstancesInDb(pipelineRow1, pipelineRow2);
-        ArrayList<PipelineTimelineEntry> tempEntries = new ArrayList<>();
+        List<PipelineTimelineEntry> tempEntries = new ArrayList<>();
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
         try {
@@ -168,7 +168,7 @@ public class PipelineRepositoryTest {
         stubPipelineInstancesInDb(pipelineRow1, pipelineRow2);
 
         when(sqlQuery.executeUpdate()).thenThrow(new RuntimeException("Failure during update natural order in db"));
-        ArrayList<PipelineTimelineEntry> tempEntries = new ArrayList<>();
+        List<PipelineTimelineEntry> tempEntries = new ArrayList<>();
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
         try {

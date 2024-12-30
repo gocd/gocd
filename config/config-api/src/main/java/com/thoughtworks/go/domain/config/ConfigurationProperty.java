@@ -25,7 +25,6 @@ import org.jetbrains.annotations.TestOnly;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -293,7 +292,7 @@ public class ConfigurationProperty implements Serializable, Validatable, SecretP
         setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
     }
 
-    public void validateKeyUniqueness(HashMap<String, ConfigurationProperty> map, String entity) {
+    public void validateKeyUniqueness(Map<String, ConfigurationProperty> map, String entity) {
         String name = configurationKey.getName().toLowerCase();
         ConfigurationProperty propertyWithSameKey = map.get(name);
         if (propertyWithSameKey == null) {

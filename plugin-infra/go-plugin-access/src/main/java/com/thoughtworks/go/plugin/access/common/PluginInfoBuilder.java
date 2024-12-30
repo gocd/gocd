@@ -32,7 +32,7 @@ public interface PluginInfoBuilder<T extends PluginInfo> {
     T pluginInfoFor(GoPluginDescriptor descriptor);
 
     default List<PluginConfiguration> configurations(Configuration config) {
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
 
         for (Property property : config.list()) {
             Metadata metadata = new Metadata(property.getOption(Property.REQUIRED), property.getOption(Property.SECURE));

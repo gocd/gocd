@@ -53,7 +53,7 @@ class PluginSettingsRepresenterTest {
   }
 
   PluginSettings pluginSettings() {
-    ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>()
+    List<ConfigurationProperty> configurationProperties = new ArrayList<>()
     configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1")))
     configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("k2"), new EncryptedConfigurationValue(new GoCipher().encrypt("v2"))))
 
@@ -63,7 +63,7 @@ class PluginSettingsRepresenterTest {
   }
 
   PluginInfo pluginInfo() {
-    ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>()
+    List<PluginConfiguration> pluginConfigurations = new ArrayList<>()
     pluginConfigurations.add(new PluginConfiguration("k1", new Metadata(true, false)))
     pluginConfigurations.add(new PluginConfiguration("k2", new Metadata(true, true)))
     return new ConfigRepoPluginInfo(null, null, new PluggableInstanceSettings(pluginConfigurations), new Capabilities())

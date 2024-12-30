@@ -273,7 +273,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should return all plugin infos with specified type'() {
-        HashMap<String, String> queryParams = new HashMap<String, String>()
+        Map<String, String> queryParams = new HashMap<String, String>()
         queryParams.put("type", "authorization")
 
         getWithApiHeader(controller.controllerPath(queryParams))
@@ -283,7 +283,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should include bad plugins infos if `include_bad` parameter is passed via request'() {
-        HashMap<String, String> queryParams = new HashMap<String, String>()
+        Map<String, String> queryParams = new HashMap<String, String>()
         queryParams.put("include_bad", "true")
 
         def about = GoPluginDescriptor.About.builder()
@@ -327,7 +327,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should return 422 for invalid plugin type'() {
-        HashMap<String, String> queryParams = new HashMap<String, String>()
+        Map<String, String> queryParams = new HashMap<String, String>()
         def pluginType = "foobar"
         queryParams.put("type", pluginType)
 

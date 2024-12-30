@@ -41,7 +41,7 @@ public class UserModel {
     }
 
     public List<String> getRoles() {
-        ArrayList<String> sortedRoles = new ArrayList<>(roles);
+        List<String> sortedRoles = new ArrayList<>(roles);
         Collections.sort(sortedRoles);
         return sortedRoles;
     }

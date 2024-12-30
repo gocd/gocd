@@ -253,7 +253,7 @@ class FelixGoPluginOSGiFrameworkTest {
     }
 
     private void registerServicesWithSamePluginID(String pluginID, String extensionType, SomeInterface... someInterfaces) throws InvalidSyntaxException {
-        ArrayList<ServiceReference<SomeInterface>> references = new ArrayList<>();
+        List<ServiceReference<SomeInterface>> references = new ArrayList<>();
 
         for (SomeInterface someInterface : someInterfaces) {
             ServiceReference<SomeInterface> reference = mock(ServiceReference.class);

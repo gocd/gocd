@@ -166,7 +166,7 @@ public class EnvironmentVariableContext implements Serializable, SecretParamAwar
     }
 
     public List<String> getPropertyKeys() {
-        ArrayList<String> keys = new ArrayList<>(properties.size());
+        List<String> keys = new ArrayList<>(properties.size());
         for (EnvironmentVariable property : properties) {
             keys.add(property.name());
         }
@@ -219,7 +219,7 @@ public class EnvironmentVariableContext implements Serializable, SecretParamAwar
     }
 
     public Map<String, String> getProperties() {
-        HashMap<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         for (EnvironmentVariable property : properties) {
             map.put(property.name(), property.value());
         }
@@ -273,7 +273,7 @@ public class EnvironmentVariableContext implements Serializable, SecretParamAwar
     }
 
     public List<String> report(Collection<String> predefinedEnvs) {
-        ArrayList<String> lines = new ArrayList<>(properties.size());
+        List<String> lines = new ArrayList<>(properties.size());
         Set<String> existing = new HashSet<>(predefinedEnvs);
         for (EnvironmentVariable property : properties) {
             String name = property.name;

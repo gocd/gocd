@@ -49,7 +49,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
     }
 
     public String forDisplay(List<ConfigurationProperty> propertiesToDisplay) {
-        ArrayList<String> list = new ArrayList<>();
+        List<String> list = new ArrayList<>();
         for (ConfigurationProperty property : propertiesToDisplay) {
             if (!property.isSecure()) {
                 list.add(format("%s=%s", property.getConfigurationKey().getName().toLowerCase(), property.getConfigurationValue().getValue()));
@@ -70,7 +70,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
     }
 
     public List<String> listOfConfigKeys() {
-        ArrayList<String> list = new ArrayList<>();
+        List<String> list = new ArrayList<>();
         for (ConfigurationProperty configurationProperty : this) {
             list.add(configurationProperty.getConfigurationKey().getName());
         }
@@ -120,7 +120,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
     }
 
     public void validateUniqueness(String entity) {
-        HashMap<String, ConfigurationProperty> map = new HashMap<>();
+        Map<String, ConfigurationProperty> map = new HashMap<>();
         for (ConfigurationProperty property : this) {
             property.validateKeyUniqueness(map, entity);
         }

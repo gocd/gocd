@@ -399,8 +399,8 @@ public class ApprovalTest {
         return group;
     }
 
-    private HashMap nameMap(final String name) {
-        HashMap nameMap = new HashMap();
+    private Map nameMap(final String name) {
+        Map nameMap = new HashMap();
         nameMap.put("name", name);
         return nameMap;
     }

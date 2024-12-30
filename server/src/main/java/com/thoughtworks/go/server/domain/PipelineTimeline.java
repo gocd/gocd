@@ -237,7 +237,7 @@ public class PipelineTimeline {
         return naturalOrderPmm.get(pipelineName);
     }
 
-    private ArrayList<PipelineTimelineEntry> initializedScheduleOrderCollection(final CaseInsensitiveString pipelineName) {
+    private List<PipelineTimelineEntry> initializedScheduleOrderCollection(final CaseInsensitiveString pipelineName) {
         if (!scheduleOrderPmm.containsKey(pipelineName)) {
             scheduleOrderPmm.put(pipelineName, new ArrayList<>());
         }
@@ -279,7 +279,7 @@ public class PipelineTimeline {
     public int instanceCount(CaseInsensitiveString pipelineName) {
         scheduleOrderLock.readLock().lock();
         try {
-            ArrayList<PipelineTimelineEntry> instances = scheduleOrderPmm.get(pipelineName);
+            List<PipelineTimelineEntry> instances = scheduleOrderPmm.get(pipelineName);
             return instances == null ? 0 : instances.size();
         } finally {
             scheduleOrderLock.readLock().unlock();
@@ -289,7 +289,7 @@ public class PipelineTimeline {
     public PipelineTimelineEntry instanceFor(CaseInsensitiveString pipelineName, int index) {
         scheduleOrderLock.readLock().lock();
         try {
-            ArrayList<PipelineTimelineEntry> instances = scheduleOrderPmm.get(pipelineName);
+            List<PipelineTimelineEntry> instances = scheduleOrderPmm.get(pipelineName);
             return instances == null ? null : instances.get(index);
         } finally {
             scheduleOrderLock.readLock().unlock();
@@ -300,7 +300,7 @@ public class PipelineTimeline {
     public PipelineTimelineEntry getEntryFor(CaseInsensitiveString pipelineName, Integer pipelineCounter) {
         scheduleOrderLock.readLock().lock();
         try {
-            ArrayList<PipelineTimelineEntry> instances = scheduleOrderPmm.get(pipelineName);
+            List<PipelineTimelineEntry> instances = scheduleOrderPmm.get(pipelineName);
             for (int i = instances.size() - 1; i >= 0; i--) {
                 PipelineTimelineEntry instance = instances.get(i);
                 if (instance.getCounter() == pipelineCounter) {

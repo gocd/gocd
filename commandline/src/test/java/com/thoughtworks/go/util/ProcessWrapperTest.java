@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -54,7 +55,7 @@ class ProcessWrapperTest {
         OutputStream processInputStream = new ByteArrayOutputStream();
         Process process = getMockedProcess(processInputStream);
         ProcessWrapper processWrapper = new ProcessWrapper(process, null, "", inMemoryConsumer(), UTF_8, null);
-        ArrayList<String> inputs = new ArrayList<>();
+        List<String> inputs = new ArrayList<>();
         inputs.add("input1");
         inputs.add("input2");
         processWrapper.typeInputToConsole(inputs);

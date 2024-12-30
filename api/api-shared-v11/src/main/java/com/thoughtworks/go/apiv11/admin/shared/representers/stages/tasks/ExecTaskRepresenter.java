@@ -46,7 +46,7 @@ public class ExecTaskRepresenter {
         BaseTaskRepresenter.fromJSON(jsonReader, execTask);
         jsonReader.readStringIfPresent("command", execTask::setCommand);
         jsonReader.readArrayIfPresent("arguments", arguments -> {
-            ArrayList<String> argList = new ArrayList<>();
+            List<String> argList = new ArrayList<>();
             arguments.forEach(argument -> argList.add(argument.getAsString()));
             execTask.setArgsList(argList.toArray(new String[arguments.size()]));
         });

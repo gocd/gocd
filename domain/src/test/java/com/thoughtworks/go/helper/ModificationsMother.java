@@ -292,7 +292,7 @@ public class ModificationsMother {
     public static BuildCause modifyNoFiles(PipelineConfig config) {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         for (Material material : new MaterialConfigConverter().toMaterials(config.materialConfigs())) {
-            ArrayList<Modification> list = new ArrayList<>();
+            List<Modification> list = new ArrayList<>();
             list.add(new Modification("no-user", "comment", "dummy-email", new Date(), "Dummy Modification"+ UUID.randomUUID().toString()));
             materialRevisions.addRevision(material, list);
         }

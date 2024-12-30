@@ -38,6 +38,7 @@ import org.mockito.ArgumentCaptor;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
@@ -85,7 +86,7 @@ class PackageMaterialPollerTest {
         packageRevision.addData(dataKey, dataValue);
         when(packageRepositoryExtension.getLatestRevision(eq(material.getPluginId()), packageConfiguration.capture(), repositoryConfiguration.capture())).thenReturn(packageRevision);
 
-        HashMap<String, String> expected = new HashMap<>();
+        Map<String, String> expected = new HashMap<>();
         expected.put(dataKey, dataValue);
 
         List<Modification> modifications = poller.latestModification(material, null, null);
@@ -111,7 +112,7 @@ class PackageMaterialPollerTest {
     void shouldGetModificationsSinceAGivenRevisionAlongWithAdditionalDataFromThePackageRevision() {
         String previousRevision = "rev-122";
         Date timestamp = new Date();
-        HashMap<String, String> dataInPreviousRevision = new HashMap<>();
+        Map<String, String> dataInPreviousRevision = new HashMap<>();
         dataInPreviousRevision.put("1", "one");
         PackageMaterialRevision knownRevision = new PackageMaterialRevision(previousRevision, timestamp, dataInPreviousRevision);
         ArgumentCaptor<PackageRevision> knownPackageRevision = ArgumentCaptor.forClass(PackageRevision.class);
@@ -131,7 +132,7 @@ class PackageMaterialPollerTest {
         assertThat(knownPackageRevision.getValue().getData().size()).isEqualTo(dataInPreviousRevision.size());
         assertThat(knownPackageRevision.getValue().getData().get("1")).isEqualTo(dataInPreviousRevision.get("1"));
 
-        HashMap<String, String> expected = new HashMap<>();
+        Map<String, String> expected = new HashMap<>();
         expected.put(dataKey, dataValue);
         String expectedDataString = JsonHelper.toJsonString(expected);
 
@@ -253,7 +254,7 @@ class PackageMaterialPollerTest {
 
             String previousRevision = "rev-122";
             Date timestamp = new Date();
-            HashMap<String, String> dataInPreviousRevision = new HashMap<>();
+            Map<String, String> dataInPreviousRevision = new HashMap<>();
             dataInPreviousRevision.put("1", "one");
             PackageMaterialRevision knownRevision = new PackageMaterialRevision(previousRevision, timestamp, dataInPreviousRevision);
 

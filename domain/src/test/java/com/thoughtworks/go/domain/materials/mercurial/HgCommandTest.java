@@ -205,7 +205,7 @@ public class HgCommandTest {
         assertThat(currentBranch).isEqualTo(branchName);
 
         List<String> branches = hg(secondBranchWorkingCopy, "branches").runOrBomb(null).output();
-        ArrayList<String> branchNames = new ArrayList<>();
+        List<String> branchNames = new ArrayList<>();
         for (String branchDetails : branches) {
             branchNames.add(StringUtils.split(branchDetails, " ")[0]);
         }

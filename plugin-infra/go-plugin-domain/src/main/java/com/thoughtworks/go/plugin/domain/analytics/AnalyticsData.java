@@ -53,7 +53,7 @@ public class AnalyticsData {
     }
 
     public Map<String, String> toMap() {
-        HashMap<String, String> m = new HashMap<>();
+        Map<String, String> m = new HashMap<>();
         m.put("data", data);
         m.put("view_path", getFullViewPath());
 

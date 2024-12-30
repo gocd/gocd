@@ -19,6 +19,7 @@ package com.thoughtworks.go.config;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,7 +28,7 @@ public class TabTest {
     @Test
     public void shouldErrorOutWhenTabNameIsNotUnique() {
         Tab tab = new Tab("foo", "bar");
-        ArrayList<Tab> visitedTabs = new ArrayList<>();
+        List<Tab> visitedTabs = new ArrayList<>();
         Tab existingTab = new Tab("foo", "bar");
         visitedTabs.add(existingTab);
 
@@ -57,7 +58,7 @@ public class TabTest {
     @Test
     public void shouldNotErrorOutWhenNamesAreOfDifferentCase() {
         Tab tab = new Tab("foO", "bar");
-        ArrayList<Tab> visitedTabs = new ArrayList<>();
+        List<Tab> visitedTabs = new ArrayList<>();
         Tab existingTab = new Tab("foo", "bar");
         visitedTabs.add(existingTab);
 
@@ -69,7 +70,7 @@ public class TabTest {
     @Test
     public void shouldAddToListWhenNoErrorIsEncountered() {
         Tab tab = new Tab("foo1", "bar");
-        ArrayList<Tab> visitedTabs = new ArrayList<>();
+        List<Tab> visitedTabs = new ArrayList<>();
         Tab existingTab = new Tab("foo0", "bar");
         visitedTabs.add(existingTab);
 

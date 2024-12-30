@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @ConfigCollection(Argument.class)
 public class Arguments extends BaseCollection<Argument> implements Validatable {
@@ -50,7 +51,7 @@ public class Arguments extends BaseCollection<Argument> implements Validatable {
     }
 
     public String[] toStringArray() {
-        ArrayList<String> list = new ArrayList<>(this.size());
+        List<String> list = new ArrayList<>(this.size());
         for (Argument arg : this) {
             list.add(arg.getValue());
         }

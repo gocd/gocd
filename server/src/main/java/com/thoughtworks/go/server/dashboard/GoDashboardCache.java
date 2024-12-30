@@ -34,13 +34,13 @@ public class GoDashboardCache {
      * So, not surrounding it with a synchronizedMap. Also, uses {@link LinkedHashMap} to preserve insertion order. That
      * order is not very important in this case, but it comes for free (almost) because of the map.
      */
-    private LinkedHashMap<CaseInsensitiveString, GoDashboardPipeline> cache;
+    private final Map<CaseInsensitiveString, GoDashboardPipeline> cache = new LinkedHashMap<>();
+
     private volatile GoDashboardPipelines dashboardPipelines;
 
     @Autowired
     public GoDashboardCache(TimeStampBasedCounter timeStampBasedCounter) {
         this.timeStampBasedCounter = timeStampBasedCounter;
-        cache = new LinkedHashMap<>();
         dashboardPipelines = new GoDashboardPipelines(new HashMap<>(), timeStampBasedCounter);
     }
 

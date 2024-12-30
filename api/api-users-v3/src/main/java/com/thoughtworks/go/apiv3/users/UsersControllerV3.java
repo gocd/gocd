@@ -102,7 +102,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
 
     public String index(Request req, Response res) throws Exception {
         Collection<User> allUsers = userService.allUsers();
-        HashMap<Username, RolesConfig> usersToRolesMap = roleConfigService.getRolesForUser(allUsers.stream().map(User::getUsername).collect(Collectors.toCollection(ArrayList::new)));
+        Map<Username, RolesConfig> usersToRolesMap = roleConfigService.getRolesForUser(allUsers.stream().map(User::getUsername).collect(Collectors.toCollection(ArrayList::new)));
         List<UserToRepresent> users = allUsers.stream().map((User user) -> getUserToRepresent(user, usersToRolesMap)).collect(Collectors.toList());
         return writerForTopLevelObject(req, res, writer -> UsersRepresenter.toJSON(writer, users));
     }
@@ -209,7 +209,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         return !req.params("login_name").equalsIgnoreCase(user.getName());
     }
 
-    private UserToRepresent getUserToRepresent(User user, HashMap<Username, RolesConfig> userToRolesMap) {
+    private UserToRepresent getUserToRepresent(User user, Map<Username, RolesConfig> userToRolesMap) {
         return UserToRepresent.from(user, securityService.isUserAdmin(user.getUsername()), userToRolesMap.get(user.getUsername()));
     }
 

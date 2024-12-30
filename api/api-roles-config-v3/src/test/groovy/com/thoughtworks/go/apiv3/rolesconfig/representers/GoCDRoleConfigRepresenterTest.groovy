@@ -30,7 +30,7 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
 class GoCDRoleConfigRepresenterTest {
-  private LinkedHashMap<String, Object> map
+  private Map<String, Object> map
   private RoleConfig roleConfig
 
   @BeforeEach

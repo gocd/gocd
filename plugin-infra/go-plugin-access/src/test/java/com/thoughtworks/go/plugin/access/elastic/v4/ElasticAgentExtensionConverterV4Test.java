@@ -74,7 +74,7 @@ public class ElasticAgentExtensionConverterV4Test {
 
     @Test
     public void shouldJSONizeShouldAssignWorkRequestBody() throws Exception {
-        HashMap<String, String> configuration = new HashMap<>();
+        Map<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
         String actual = new ElasticAgentExtensionConverterV4().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration, jobIdentifier);
         String expected = """
@@ -142,7 +142,7 @@ public class ElasticAgentExtensionConverterV4Test {
 
     @Test
     public void shouldConstructValidationRequest() {
-        HashMap<String, String> configuration = new HashMap<>();
+        Map<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
         configuration.put("key3", null);

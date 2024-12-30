@@ -104,8 +104,8 @@ public class ConfigReposInternalControllerV4 extends AbstractMaterialTestControl
             return notModified(res);
         }
         Map<String, List<String>> autoSuggestions = new HashMap<>();
-        ArrayList<String> pipelineNames = new ArrayList<>();
-        ArrayList<String> pipelineGroupNames = new ArrayList<>();
+        List<String> pipelineNames = new ArrayList<>();
+        List<String> pipelineGroupNames = new ArrayList<>();
 
         List<String> envNames = environmentConfigService.getEnvironmentNames();
         List<PipelineConfigs> groupsForUser = pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString());

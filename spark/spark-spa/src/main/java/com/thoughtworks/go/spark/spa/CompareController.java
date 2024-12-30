@@ -94,8 +94,8 @@ public class CompareController implements SparkController {
         return counter;
     }
 
-    private HashMap<String, String> meta(Request request) {
-        HashMap<String, String> meta = new HashMap<>();
+    private Map<String, String> meta(Request request) {
+        Map<String, String> meta = new HashMap<>();
         meta.put("pipelineName", request.params("pipeline_name"));
         meta.put("fromCounter", request.params("from_counter"));
         meta.put("toCounter", request.params("to_counter"));

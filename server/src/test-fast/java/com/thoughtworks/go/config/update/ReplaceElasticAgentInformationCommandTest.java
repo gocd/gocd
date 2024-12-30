@@ -32,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -52,7 +53,7 @@ class ReplaceElasticAgentInformationCommandTest {
     private ReplaceElasticAgentInformationCommand replaceElasticAgentInformationCommand;
     private BasicCruiseConfig basicCruiseConfig;
     private String pluginId;
-    private HashMap<String, String> pluginSettings;
+    private Map<String, String> pluginSettings;
     private ClusterProfiles clusterProfiles;
     private ElasticProfiles elasticProfiles;
 

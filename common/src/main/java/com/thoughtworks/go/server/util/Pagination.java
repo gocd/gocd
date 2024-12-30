@@ -166,7 +166,7 @@ public class Pagination {
     }
 
     public List<PageNumber> getPages() {
-        ArrayList<PageNumber> pages = new ArrayList<>();
+        List<PageNumber> pages = new ArrayList<>();
         if (getCurrentPage() > getFirstPage()) {
             pages.add(new PageNumber(getCurrentPage() - 1, "prev"));
         }
@@ -204,7 +204,7 @@ public class Pagination {
         return pages;
     }
 
-    private void addPage(ArrayList<PageNumber> pages, int i) {
+    private void addPage(List<PageNumber> pages, int i) {
         pages.add(new PageNumber(i, i == getCurrentPage()));
     }
 

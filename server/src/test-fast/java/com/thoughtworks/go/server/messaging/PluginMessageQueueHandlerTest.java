@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import javax.jms.JMSException;
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -59,7 +59,7 @@ public class PluginMessageQueueHandlerTest {
 
         assertThat(handler.queues.containsKey(pluginId)).isTrue();
         assertThat(handler.queues.get(pluginId).listeners.containsKey(pluginId)).isTrue();
-        ArrayList<JMSMessageListenerAdapter> listeners = handler.queues.get(pluginId).listeners.get(pluginId);
+        List<JMSMessageListenerAdapter> listeners = handler.queues.get(pluginId).listeners.get(pluginId);
         assertThat(listeners.size()).isEqualTo(10);
         ArgumentCaptor<GoMessageListener> argumentCaptor = ArgumentCaptor.forClass(GoMessageListener.class);
         verify(messaging, times(10)).addQueueListener(eq(queueName), argumentCaptor.capture());

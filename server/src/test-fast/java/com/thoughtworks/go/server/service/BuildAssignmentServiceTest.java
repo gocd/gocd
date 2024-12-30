@@ -51,10 +51,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.MaterialsMother.packageMaterial;
 import static com.thoughtworks.go.helper.MaterialsMother.pluggableSCMMaterial;
@@ -100,7 +97,7 @@ class BuildAssignmentServiceTest {
     private BuildAssignmentService buildAssignmentService;
     private TransactionTemplate transactionTemplate;
     private SchedulingContext schedulingContext;
-    private ArrayList<JobPlan> jobPlans;
+    private List<JobPlan> jobPlans;
     private Agent elasticAgent;
     private AgentInstance elasticAgentInstance;
     private ElasticProfile elasticProfile1;
@@ -124,7 +121,7 @@ class BuildAssignmentServiceTest {
         elasticProfile1 = new ElasticProfile(elasticProfileId1, "prod-cluster");
         elasticProfile2 = new ElasticProfile(elasticProfileId2, "prod-cluster");
         jobPlans = new ArrayList<>();
-        HashMap<String, ElasticProfile> profiles = new HashMap<>();
+        Map<String, ElasticProfile> profiles = new HashMap<>();
         profiles.put(elasticProfile1.getId(), elasticProfile1);
         profiles.put(elasticProfile2.getId(), elasticProfile2);
         schedulingContext = new DefaultSchedulingContext("me", new Agents(elasticAgent), profiles);

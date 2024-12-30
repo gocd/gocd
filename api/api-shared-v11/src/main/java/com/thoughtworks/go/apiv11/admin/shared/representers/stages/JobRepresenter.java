@@ -29,6 +29,7 @@ import com.thoughtworks.go.config.ResourceConfigs;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -37,11 +38,11 @@ public class JobRepresenter {
     public static void toJSON(OutputWriter jsonWriter, JobConfig jobConfig) {
         if (!jobConfig.errors().isEmpty() || !jobConfig.resourceConfigs().errors().isEmpty()) {
             jsonWriter.addChild("errors", errorWriter -> {
-                HashMap<String, String> errorMapping = new HashMap<>();
+                Map<String, String> errorMapping = new HashMap<>();
                 errorMapping.put("runType", "run_instance_count");
                 new ErrorGetter(errorMapping).toJSON(errorWriter, jobConfig);
 
-                HashMap<String, String> resourcesErrorMapping = new HashMap<>();
+                Map<String, String> resourcesErrorMapping = new HashMap<>();
                 resourcesErrorMapping.put("resources", "resources");
                 new ErrorGetter(resourcesErrorMapping).toJSON(errorWriter, jobConfig.resourceConfigs());
             });

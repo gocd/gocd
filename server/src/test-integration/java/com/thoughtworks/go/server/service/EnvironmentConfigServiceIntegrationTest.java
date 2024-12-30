@@ -103,7 +103,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         environmentConfig.addPipeline(new CaseInsensitiveString("foo"));
         goConfigService.addEnvironment(environmentConfig);
 
-        ArrayList<String> pipelines = new ArrayList<>();
+        List<String> pipelines = new ArrayList<>();
         pipelines.add("foo");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         environmentConfigService.createEnvironment(env("foo-env", pipelines, new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), result);

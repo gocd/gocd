@@ -190,7 +190,7 @@ public class FullConfigSaveMergeFlowTest {
     @Test
     public void shouldUpdateCachedGoPartialsWithValidPartials() throws Exception {
         String mergedConfig = "merged_config";
-        ArrayList<PartialConfig> partials = new ArrayList<>();
+        List<PartialConfig> partials = new ArrayList<>();
 
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))

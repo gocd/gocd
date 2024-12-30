@@ -56,7 +56,7 @@ public class Tabs extends BaseCollection<Tab> implements Validatable, ParamsAttr
     }
     @Override
     public void validate(ValidationContext validationContext) {
-        ArrayList<Tab> visitedTabs = new ArrayList<>();
+        List<Tab> visitedTabs = new ArrayList<>();
         for (Tab tab : this) {
             tab.validateTabNameUniqueness(visitedTabs);
         }

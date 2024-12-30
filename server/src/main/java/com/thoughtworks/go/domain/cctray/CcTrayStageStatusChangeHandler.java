@@ -48,7 +48,7 @@ public class CcTrayStageStatusChangeHandler {
     }
 
     public List<ProjectStatus> statusesOfStageAndItsJobsFor(Stage stage) {
-        ArrayList<ProjectStatus> statuses = new ArrayList<>();
+        List<ProjectStatus> statuses = new ArrayList<>();
 
         String projectName = stage.getIdentifier().ccProjectName();
         Set<String> breakers = breakersCalculator.calculateFor(stage);

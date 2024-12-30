@@ -26,7 +26,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
@@ -125,7 +124,7 @@ public class FetchArtifactViewHelperTest {
     public void shouldNotSuggestIfTurnedOff() {
         when(systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)).thenReturn(false);
 
-        HashMap<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest_stage_3"), false).autosuggestMap();
+        Map<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest_stage_3"), false).autosuggestMap();
 
         assertThat(jobForFetchHierarchy.isEmpty()).isTrue();
     }
@@ -134,14 +133,14 @@ public class FetchArtifactViewHelperTest {
     public void shouldNotSuggestForTemplatesIfToggleIsTurnedOff() {
         when(systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)).thenReturn(true);
         when(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()).thenReturn(false);
-        HashMap<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("templateName"), new CaseInsensitiveString("template_stage_3"), true).autosuggestMap();
+        Map<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("templateName"), new CaseInsensitiveString("template_stage_3"), true).autosuggestMap();
 
         assertThat(jobForFetchHierarchy.isEmpty()).isTrue();
     }
 
     @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromLocalPipeline() {
-        HashMap<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest_stage_3"), false).autosuggestMap();
+        Map<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest_stage_3"), false).autosuggestMap();
 
         assertThat(jobForFetchHierarchy).isEqualTo(
                 Map.of(str("uppest"),
@@ -158,7 +157,7 @@ public class FetchArtifactViewHelperTest {
 
     @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromDirectUpstream() {
-        HashMap<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("upper"), new CaseInsensitiveString("upper_stage_3"), false).autosuggestMap();
+        Map<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("upper"), new CaseInsensitiveString("upper_stage_3"), false).autosuggestMap();
 
         assertThat(jobForFetchHierarchy).isEqualTo(
                 Map.of(str("uppest"),
@@ -180,7 +179,7 @@ public class FetchArtifactViewHelperTest {
 
     @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromAncestorUpstream() {
-        HashMap<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("downest"), new CaseInsensitiveString("downest_stage_3"), false).autosuggestMap();
+        Map<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("downest"), new CaseInsensitiveString("downest_stage_3"), false).autosuggestMap();
 
         assertThat(jobForFetchHierarchy).isEqualTo(
                 Map.of(str("uppest/upper/downer"),
@@ -212,7 +211,7 @@ public class FetchArtifactViewHelperTest {
 
     @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromAncestorUpstream_withMultiplePathsToSameDestination() {
-        HashMap<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("downest_wmp"), new CaseInsensitiveString("downest_wmp_stage_3"), false).autosuggestMap();
+        Map<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("downest_wmp"), new CaseInsensitiveString("downest_wmp_stage_3"), false).autosuggestMap();
 
 
         assertThat(jobForFetchHierarchy).isEqualTo(
@@ -258,7 +257,7 @@ public class FetchArtifactViewHelperTest {
 
     @Test
     public void shouldSuggest_AllPathsInEntireConfigDependencyGraph_fromAnyStageToAnyUpstreamStage() {
-        HashMap<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("template-1"), new CaseInsensitiveString("t1-stage-3"), true).autosuggestMap();
+        Map<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("template-1"), new CaseInsensitiveString("t1-stage-3"), true).autosuggestMap();
 
         assertThat(jobForFetchHierarchy).isEqualTo(
             Map.ofEntries(
@@ -387,7 +386,7 @@ public class FetchArtifactViewHelperTest {
         cruiseConfig.addTemplate(template);
         cruiseConfig.addPipeline("first", pipeline);
 
-        HashMap<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString(templateName), new CaseInsensitiveString("stage-1"), true).autosuggestMap();
+        Map<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString(templateName), new CaseInsensitiveString("stage-1"), true).autosuggestMap();
 
         assertTrue(jobForFetchHierarchy.isEmpty());
     }
@@ -413,7 +412,7 @@ public class FetchArtifactViewHelperTest {
         cruiseConfig.addPipeline("first", pipelineUsingTemplate);
         cruiseConfig.addPipeline("first", normalPipeline);
 
-        HashMap<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString(templateName), new CaseInsensitiveString("stage-1"), true).autosuggestMap();
+        Map<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString(templateName), new CaseInsensitiveString("stage-1"), true).autosuggestMap();
 
         assertThat(jobForFetchHierarchy).isEqualTo(Map.of(str("downest"), Map.of(str("downest_stage_1"), Map.of(str("downest_job_1"), Map.of(), str("downest_job_1a"), Map.of()))));
     }

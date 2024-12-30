@@ -255,9 +255,9 @@ public class AgentServiceIntegrationTest {
             agentService.requestRegistration(pendingAgent);
             assertThat(agentService.findAgent(UUID).isRegistered()).isFalse();
 
-            ArrayList<String> uuids = new ArrayList<>(List.of(pendingAgent.getUUId()));
-            ArrayList<String> resourcesToAdd = new ArrayList<>(List.of("Linux"));
-            ArrayList<String> resourcesToRemove = new ArrayList<>(List.of("Gauge"));
+            List<String> uuids = new ArrayList<>(List.of(pendingAgent.getUUId()));
+            List<String> resourcesToAdd = new ArrayList<>(List.of("Linux"));
+            List<String> resourcesToRemove = new ArrayList<>(List.of("Gauge"));
 
             BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, resourcesToAdd, resourcesToRemove, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
@@ -600,7 +600,7 @@ public class AgentServiceIntegrationTest {
             AgentInstances instances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), pendingAgent);
             AgentService agentService = newAgentService(instances);
 
-            ArrayList<String> uuids = new ArrayList<>();
+            List<String> uuids = new ArrayList<>();
             uuids.add(pendingAgent.getUuid());
             uuids.add(registeredAgent.getUuid());
 

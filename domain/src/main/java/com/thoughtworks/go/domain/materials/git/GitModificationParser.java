@@ -25,7 +25,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GitModificationParser {
-    private LinkedList<Modification> modifications = new LinkedList<>();
     private static final String SPACES = "\\s+";
     private static final String COMMENT_INDENT = "\\s{4}";
     private static final String COMMENT_TEXT = "(.*)";
@@ -36,6 +35,8 @@ public class GitModificationParser {
     private static final Pattern AUTHOR_PATTERN = Pattern.compile("^Author:"+ SPACES + AUTHOR + "$");
     private static final Pattern DATE_PATTERN = Pattern.compile("^Date:" + SPACES + DATE + "$");
     private static final Pattern COMMENT_PATTERN = Pattern.compile("^" + COMMENT_INDENT + COMMENT_TEXT + "$");
+
+    private final LinkedList<Modification> modifications = new LinkedList<>();
 
     public List<Modification> parse(List<String> output) {
         for (String line : output) {

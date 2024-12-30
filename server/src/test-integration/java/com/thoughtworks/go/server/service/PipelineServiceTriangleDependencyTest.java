@@ -57,6 +57,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.helper.GoConfigMother.createPipelineConfigWithMaterialConfig;
@@ -121,7 +122,7 @@ public class PipelineServiceTriangleDependencyTest {
         pipelineConfig.addMaterialConfig(onDirOne);
         pipelineConfig.addMaterialConfig(onDirTwo);
 
-        HashMap<Material, String> materialToCommit = new HashMap<>();
+        Map<Material, String> materialToCommit = new HashMap<>();
         materialToCommit.put(new MaterialConfigConverter().toMaterial(onDirOne), "abc");
         materialToCommit.put(new MaterialConfigConverter().toMaterial(onDirTwo), "abc");
         MaterialRevisions revs = ModificationsMother.getMaterialRevisions(materialToCommit);

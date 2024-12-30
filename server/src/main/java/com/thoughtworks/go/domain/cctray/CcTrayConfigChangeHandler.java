@@ -48,7 +48,7 @@ public class CcTrayConfigChangeHandler {
     }
 
     public void call(PipelineConfig pipelineConfig) {
-        ArrayList<ProjectStatus> projectStatuses = new ArrayList<>();
+        List<ProjectStatus> projectStatuses = new ArrayList<>();
         final Permissions permissions = pipelinePermissionsAuthority.permissionsForPipeline(pipelineConfig.name());
         Users usersWithViewPermissionsOfThisPipeline = viewersOrNoOne(permissions);
         updateProjectStatusForPipeline(usersWithViewPermissionsOfThisPipeline, pipelineConfig, projectStatuses);

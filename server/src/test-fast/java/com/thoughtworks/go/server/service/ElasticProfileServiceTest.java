@@ -93,7 +93,7 @@ class ElasticProfileServiceTest {
         cruiseConfig.setElasticConfig(elasticConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 
-        HashMap<String, ElasticProfile> expectedMap = new HashMap<>();
+        Map<String, ElasticProfile> expectedMap = new HashMap<>();
         expectedMap.put("ecs", elasticProfile);
         Map<String, ElasticProfile> elasticProfiles = elasticProfileService.listAll();
         assertThat(elasticProfiles).hasSize(1);

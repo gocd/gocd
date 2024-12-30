@@ -113,7 +113,7 @@ class ElasticAgentPluginServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        ArrayList<PluginDescriptor> plugins = new ArrayList<>();
+        List<PluginDescriptor> plugins = new ArrayList<>();
         plugins.add(GoPluginDescriptor.builder().id("p1").isBundledPlugin(true).build());
         plugins.add(GoPluginDescriptor.builder().id("p2").isBundledPlugin(true).build());
         plugins.add(GoPluginDescriptor.builder().id("docker").isBundledPlugin(true).build());

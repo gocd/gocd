@@ -43,9 +43,9 @@ class ConsoleResultTest {
 
     @Test
     void shouldReplaceSecretInfoShouldNotFailForNull() {
-        ArrayList<CommandArgument> commands = new ArrayList<>();
+        List<CommandArgument> commands = new ArrayList<>();
         commands.add(new PasswordArgument("foo"));
-        ArrayList<SecretString> secretStrings = new ArrayList<>();
+        List<SecretString> secretStrings = new ArrayList<>();
         secretStrings.add(new PasswordArgument("foo"));
         ConsoleResult result = new ConsoleResult(10, new ArrayList<>(), new ArrayList<>(), commands, secretStrings);
         assertThat(result.replaceSecretInfo(null)).isNull();

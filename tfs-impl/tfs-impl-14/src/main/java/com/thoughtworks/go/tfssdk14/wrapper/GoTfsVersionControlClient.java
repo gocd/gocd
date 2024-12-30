@@ -24,6 +24,7 @@ import com.microsoft.tfs.core.clients.versioncontrol.specs.version.LatestVersion
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.microsoft.tfs.core.clients.versioncontrol.WorkspaceLocation.SERVER;
 
@@ -49,7 +50,7 @@ public class GoTfsVersionControlClient {
     }
 
     public GoTfsWorkspace[] queryWorkspaces(String workspaceName, String userName) {
-        ArrayList<GoTfsWorkspace> goTfsWorkspaces = new ArrayList<>();
+        List<GoTfsWorkspace> goTfsWorkspaces = new ArrayList<>();
         Workspace[] workspaces = client.queryWorkspaces(workspaceName, userName, null);
         for (Workspace workspace : workspaces) {
             goTfsWorkspaces.add(new GoTfsWorkspace(workspace));

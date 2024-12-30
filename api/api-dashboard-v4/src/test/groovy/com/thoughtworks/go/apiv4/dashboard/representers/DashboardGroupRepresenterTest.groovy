@@ -42,7 +42,7 @@ class DashboardGroupRepresenterTest {
 
   @Nested
   class PipelineGroups {
-    private LinkedHashMap<String, LinkedHashMap<String, String>> expectedLinks = [
+    private Map<String, LinkedHashMap<String, String>> expectedLinks = [
       doc : [
         href: 'https://api.go.cd/current/#pipeline-groups'
       ],
@@ -101,7 +101,7 @@ class DashboardGroupRepresenterTest {
 
   @Nested
   class Environments {
-    private LinkedHashMap<String, LinkedHashMap<String, String>> expectedLinks = [
+    private Map<String, LinkedHashMap<String, String>> expectedLinks = [
       doc : [
         href: apiDocsUrl('#environment-config')
       ],

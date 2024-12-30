@@ -41,7 +41,7 @@ public class ConfigErrors extends HashMap<String, List<String>> implements Seria
     }
 
     public List<String> getAll() {
-        ArrayList<String> allErrors = new ArrayList<>();
+        List<String> allErrors = new ArrayList<>();
         for (List<String> errorOnAnAttribute : values()) {
             allErrors.addAll(errorOnAnAttribute);
         }

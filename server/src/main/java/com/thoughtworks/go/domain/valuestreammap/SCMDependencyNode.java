@@ -46,7 +46,7 @@ public class SCMDependencyNode extends Node {
 
     @Override
     public List<Revision> revisions() {
-        ArrayList<Revision> revisions = new ArrayList<>(this.revisions);
+        List<Revision> revisions = new ArrayList<>(this.revisions);
         for (MaterialRevision revision : materialRevisions) {
             for (Modification modification : revision.getModifications()) {
                 revisions.add(new SCMRevision(modification));

@@ -398,7 +398,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
     }
 
     public List<PresentationElement> getUserAuthorizations() {
-        ArrayList<PresentationElement> list = new ArrayList<>();
+        List<PresentationElement> list = new ArrayList<>();
         Class<AdminUser> allowOnly = AdminUser.class;
         addPrivilegesForView(list, operationConfig, PrivilegeType.OPERATE, allowOnly, UserType.USER);
         addPrivilegesForView(list, viewConfig, PrivilegeType.VIEW, allowOnly, UserType.USER);
@@ -408,7 +408,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
     }
 
     public List<PresentationElement> getRoleAuthorizations() {
-        ArrayList<PresentationElement> list = new ArrayList<>();
+        List<PresentationElement> list = new ArrayList<>();
         Class<AdminRole> onlyOfType = AdminRole.class;
         addPrivilegesForView(list, operationConfig, PrivilegeType.OPERATE, onlyOfType, UserType.ROLE);
         addPrivilegesForView(list, viewConfig, PrivilegeType.VIEW, onlyOfType, UserType.ROLE);
@@ -422,8 +422,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         return String.format("Authorization [view: %s] [operate: %s] [admins: %s] [allowGroupAdmins: %s]", viewConfig, operationConfig, adminsConfig, allowGroupAdmins);
     }
 
-    private void addPrivilegesForView(ArrayList<PresentationElement> list, final AdminsConfig privilegesCollection, final PrivilegeType privilegeType, final Class<? extends Admin> allowOnly,
-                                      final UserType type) {
+    private void addPrivilegesForView(List<PresentationElement> list, final AdminsConfig privilegesCollection, final PrivilegeType privilegeType, final Class<? extends Admin> allowOnly, final UserType type) {
         for (Admin admin : privilegesCollection) {
             if (allowOnly.isAssignableFrom(admin.getClass())) {
                 addPresentationPrivilege(admin, list, privilegeType, type);
@@ -431,7 +430,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         }
     }
 
-    private void addPresentationPrivilege(Admin admin, ArrayList<PresentationElement> list, PrivilegeType privilegeType, final UserType type) {
+    private void addPresentationPrivilege(Admin admin, List<PresentationElement> list, PrivilegeType privilegeType, final UserType type) {
         PresentationElement el = null;
         for (PresentationElement presentationElement : list) {
             if (presentationElement.getName().equals(CaseInsensitiveString.str(admin.getName()))) {

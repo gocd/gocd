@@ -415,7 +415,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     private MaterialRevision filterUnsaved(MaterialRevision materialRevision) {
-        ArrayList<Modification> unsavedModifications = new ArrayList<>();
+        List<Modification> unsavedModifications = new ArrayList<>();
         for (Modification modification : materialRevision.getModifications()) {
             if (!modification.hasId()) {
                 unsavedModifications.add(modification);

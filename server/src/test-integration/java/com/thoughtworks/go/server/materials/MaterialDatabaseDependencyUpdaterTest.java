@@ -268,7 +268,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
     private void stubStageServiceGetHistory(Stages... stageses) {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         for (int i = 0; i < stageses.length; i++) {
-            ArrayList<Modification> mods = new ArrayList<>();
+            List<Modification> mods = new ArrayList<>();
             for (Stage stage : stageses[i]) {
                 StageIdentifier id = stage.getIdentifier();
                 mods.add(new Modification(stage.completedDate(), id.stageLocator(), id.getPipelineLabel(), stage.getPipelineId()));

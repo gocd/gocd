@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.ModificationsMother.aCheckIn;
 import static org.assertj.core.api.Assertions.*;
@@ -84,7 +85,7 @@ class UserTest {
     @Test
     void shouldPopulateEmptyListWhenMatcherDoesNotInitialized() {
         user = new User("UserName", new String[]{""}, "user@mail.com", true);
-        HashMap<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         user.populateModel(data);
         Object value = data.get("matchers");
         assertThat(value).isEqualTo(new Matcher(""));
@@ -93,7 +94,7 @@ class UserTest {
     @Test
     void shouldPopulateMatchers() {
         user = new User("UserName", new String[]{"Jez,Pavan"}, "user@mail.com", true);
-        HashMap<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         user.populateModel(data);
         Object value = data.get("matchers");
         assertThat(value).isEqualTo(new Matcher("Jez,Pavan"));

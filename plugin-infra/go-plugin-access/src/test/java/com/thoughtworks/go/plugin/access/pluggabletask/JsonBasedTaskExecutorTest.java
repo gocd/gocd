@@ -49,7 +49,7 @@ public class JsonBasedTaskExecutorTest {
     private GoPluginApiResponse response;
     private JsonBasedTaskExtensionHandler handler;
     private PluginRequestHelper pluginRequestHelper;
-    private HashMap<String, JsonBasedTaskExtensionHandler> handlerHashMap = new HashMap<>();
+    private Map<String, JsonBasedTaskExtensionHandler> handlerHashMap = new HashMap<>();
 
     @BeforeEach
     public void setup() {

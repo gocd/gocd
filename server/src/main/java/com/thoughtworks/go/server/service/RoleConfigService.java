@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
@@ -88,8 +89,8 @@ public class RoleConfigService {
         return goConfigService.getConfigForEditing().server().security().getRoles();
     }
 
-    public HashMap<Username, RolesConfig> getRolesForUser(List<Username> users) {
-        HashMap<Username, RolesConfig> userToRolesMap = new HashMap<>();
+    public Map<Username, RolesConfig> getRolesForUser(List<Username> users) {
+        Map<Username, RolesConfig> userToRolesMap = new HashMap<>();
 
         getRoles().stream().<Consumer<? super Username>>map(role -> user -> {
             if (role.hasMember(user.getUsername())) {

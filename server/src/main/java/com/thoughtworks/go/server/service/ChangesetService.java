@@ -58,7 +58,7 @@ public class ChangesetService {
     }
 
     public List<MaterialRevision> revisionsBetween(List<PipelineRevisionRange> pipelineRevisionRanges, Username username, HttpLocalizedOperationResult result) {
-        ArrayList<MaterialRevision> revisions = new ArrayList<>();
+        List<MaterialRevision> revisions = new ArrayList<>();
         for (PipelineRevisionRange pipelineRevisionRange : pipelineRevisionRanges) {
             DependencyMaterialRevision fromDmr = DependencyMaterialRevision.create(pipelineRevisionRange.getFromRevision(), null);
             DependencyMaterialRevision toDmr = DependencyMaterialRevision.create(pipelineRevisionRange.getToRevision(), null);

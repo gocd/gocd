@@ -23,10 +23,7 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @ConfigTag("scms")
 @ConfigCollection(value = SCM.class)
@@ -90,7 +87,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
     }
 
     private void validateNameUniqueness() {
-        HashMap<String, SCMs> map = new HashMap<>();
+        Map<String, SCMs> map = new HashMap<>();
 
         for (SCM scm : this) {
             String name = scm.getName().toLowerCase();
@@ -111,7 +108,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
     }
 
     private void validateFingerprintUniqueness() {
-        HashMap<String, SCMs> map = new HashMap<>();
+        Map<String, SCMs> map = new HashMap<>();
 
         for (SCM scm : this) {
             String fingerprint = scm.getFingerprint();

@@ -36,6 +36,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -287,8 +288,8 @@ public class SvnCommand extends SCMCommand implements Subversion {
         executeCommand(line);
     }
 
-    public HashMap<String, String> createUrlToRemoteUUIDMap(Set<SvnMaterial> svnMaterials) {
-        HashMap<String, String> urlToUUIDMap = new HashMap<>();
+    public Map<String, String> createUrlToRemoteUUIDMap(Set<SvnMaterial> svnMaterials) {
+        Map<String, String> urlToUUIDMap = new HashMap<>();
         for (SvnMaterial svnMaterial : svnMaterials) {
             CommandLine command = svnExecutable().withArgs("info", "--xml");
             addCredentials(command, new StringArgument(svnMaterial.getUserName()), new PasswordArgument(svnMaterial.passwordForCommandLine()));

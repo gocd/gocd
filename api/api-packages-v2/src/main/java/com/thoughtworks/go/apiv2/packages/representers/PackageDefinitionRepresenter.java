@@ -26,6 +26,7 @@ import com.thoughtworks.go.spark.Routes;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PackageDefinitionRepresenter {
     public static void toJSON(OutputWriter outputWriter, PackageDefinition packageDefinition) {
@@ -43,7 +44,7 @@ public class PackageDefinitionRepresenter {
                 ConfigurationPropertyRepresenter.toJSON(configWriter, packageDefinition.getConfiguration()));
         if (!packageDefinition.errors().isEmpty()) {
             outputWriter.addChild("errors", errorWriter -> {
-                HashMap<String, String> errorMapping = new HashMap<>();
+                Map<String, String> errorMapping = new HashMap<>();
                 new ErrorGetter(errorMapping).toJSON(errorWriter, packageDefinition);
             });
         }

@@ -134,7 +134,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
     }
 
     private Map<MaterialConfig, MaterialInfo> createMergedMap(Map<MaterialConfig, Boolean> materialConfigs, Map<String, Modification> modificationsMap, Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs, ServerHealthStates allLogs) {
-        HashMap<MaterialConfig, MaterialInfo> map = new HashMap<>();
+        Map<MaterialConfig, MaterialInfo> map = new HashMap<>();
         if (materialConfigs.isEmpty()) {
             return map;
         }

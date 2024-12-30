@@ -97,7 +97,7 @@ public class ScheduleHelper {
         updateMaterials(pipeline);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         final HashMap<String, String> environmentVariables = new HashMap<>();
-        HashMap<String, String> secureEnvironmentVariables = new HashMap<>();
+        Map<String, String> secureEnvironmentVariables = new HashMap<>();
         pipelineScheduler.manualProduceBuildCauseAndSave(pipeline, username, new ScheduleOptions(pegging, environmentVariables, secureEnvironmentVariables), result);
         if (result.canContinue()) {
             waitForAnyScheduled(30);

@@ -325,11 +325,11 @@ public class ElasticAgentExtensionV5Test {
         final String responseBody = "{\"view\":\"<div>This is a status report snippet.</div>\"}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        HashMap<String, String> clusterProfile1 = new HashMap<>();
+        Map<String, String> clusterProfile1 = new HashMap<>();
         clusterProfile1.put("key1", "value1");
         clusterProfile1.put("key2", "value2");
 
-        HashMap<String, String> clusterProfile2 = new HashMap<>();
+        Map<String, String> clusterProfile2 = new HashMap<>();
         clusterProfile2.put("key3", "value3");
 
         List<Map<String, String>> clusterProfiles = new ArrayList<>();

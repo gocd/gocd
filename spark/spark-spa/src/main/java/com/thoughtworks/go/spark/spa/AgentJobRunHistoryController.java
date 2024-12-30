@@ -59,8 +59,8 @@ public class AgentJobRunHistoryController implements SparkController {
         return new ModelAndView(object, null);
     }
 
-    private HashMap<String, String> meta(Request request) {
-        HashMap<String, String> meta = new HashMap<>();
+    private Map<String, String> meta(Request request) {
+        Map<String, String> meta = new HashMap<>();
         meta.put("uuid", request.params("uuid"));
         return meta;
     }

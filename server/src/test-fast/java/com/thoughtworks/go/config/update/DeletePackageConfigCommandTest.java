@@ -97,7 +97,7 @@ public class DeletePackageConfigCommandTest {
         MaterialConfigs materialConfigs = new MaterialConfigs(new PackageMaterialConfig(new CaseInsensitiveString("fooPackage"), packageUuid, packageDefinition));
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pipelinesUsingPackages = new HashMap<>();
         Pair<PipelineConfig, PipelineConfigs> pair = new Pair<>(PipelineConfigMother.pipelineConfig("some-pipeline", "stage", materialConfigs), null);
-        ArrayList<Pair<PipelineConfig, PipelineConfigs>> pairs = new ArrayList<>();
+        List<Pair<PipelineConfig, PipelineConfigs>> pairs = new ArrayList<>();
         pairs.add(pair);
         pipelinesUsingPackages.put(packageUuid, pairs);
         List<String> pipelines = new ArrayList<>();

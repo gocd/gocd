@@ -115,7 +115,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     private void verifyPipelineNameUniqueness() {
-        HashMap<CaseInsensitiveString, PipelineConfig> hashMap = new HashMap<>();
+        Map<CaseInsensitiveString, PipelineConfig> hashMap = new HashMap<>();
         for (PipelineConfig pipelineConfig : this) {
             pipelineConfig.validateNameUniqueness(hashMap);
         }

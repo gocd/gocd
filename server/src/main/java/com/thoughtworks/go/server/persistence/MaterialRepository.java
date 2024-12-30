@@ -632,7 +632,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         if (scmRevision == null) {
             return modificationsSince;
         }
-        ArrayList<Modification> modificationsUptil = new ArrayList<>();
+        List<Modification> modificationsUptil = new ArrayList<>();
         for (Modification modification : modificationsSince) {
             if (modification.getId() <= scmRevision.id) {
                 modificationsUptil.add(modification);
@@ -783,7 +783,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         DetachedCriteria criteria = DetachedCriteria.forClass(Modification.class);
         criteria.setProjection(Projections.projectionList().add(Projections.property("revision")));
         criteria.add(Restrictions.eq("materialInstance.id", materialInstance.getId()));
-        ArrayList<String> revisions = new ArrayList<>();
+        List<String> revisions = new ArrayList<>();
         for (Modification modification : newChanges) {
             revisions.add(modification.getRevision());
         }

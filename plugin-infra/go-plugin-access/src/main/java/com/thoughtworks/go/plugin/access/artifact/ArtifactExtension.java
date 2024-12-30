@@ -44,7 +44,7 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_
 
 @Component
 public class ArtifactExtension extends AbstractExtension {
-    private final HashMap<String, ArtifactMessageConverter> messageHandlerMap = new HashMap<>();
+    private final Map<String, ArtifactMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
     protected ArtifactExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {

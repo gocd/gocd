@@ -53,7 +53,7 @@ public class Plugin extends PersistentObject {
 
     public void setConfiguration(String configuration) {
         this.configuration = configuration;
-        this.configurationDataMap = JsonHelper.safeFromJson(this.configuration, HashMap.class);
+        this.configurationDataMap = JsonHelper.<Map<String, String>>safeFromJson(this.configuration, HashMap.class);
     }
 
     public Set<String> getAllConfigurationKeys() {

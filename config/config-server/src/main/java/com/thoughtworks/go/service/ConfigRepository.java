@@ -288,7 +288,7 @@ public class ConfigRepository {
         if (laterCommit == null || earlierCommit == null) {
             return null;
         }
-        String output = null;
+        String output;
         try (ByteArrayOutputStream out = new ByteArrayOutputStream(); DiffFormatter diffFormatter = new DiffFormatter(out)) {
             diffFormatter.setRepository(gitRepo);
             diffFormatter.format(earlierCommit.getId(), laterCommit.getId());
@@ -346,7 +346,7 @@ public class ConfigRepository {
     }
 
     String getMergedConfig(String branchName, RevCommit newCommit) throws GitAPIException, IOException {
-        MergeResult result = null;
+        MergeResult result;
         try {
             checkout(branchName);
             result = git.merge().include(newCommit).call();

@@ -277,12 +277,13 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         super.setConfigAttributes(attributes);
-        Map map = (Map) attributes;
+        Map<String, String> map = (Map<String, String>) attributes;
         if (map.containsKey(FOLDER)) {
-            String folder = (String) map.get(FOLDER);
+            String folder = map.get(FOLDER);
             if (isBlank(folder)) {
                 folder = null;
             }
@@ -291,7 +292,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         this.setAutoUpdate("true".equals(map.get(AUTO_UPDATE)));
         this.setInvertFilter("true".equals(map.get(INVERT_FILTER)));
         if (map.containsKey(FILTER)) {
-            String pattern = (String) map.get(FILTER);
+            String pattern = map.get(FILTER);
             if (!isBlank(pattern)) {
                 this.setFilter(Filter.fromDisplayString(pattern));
             } else {

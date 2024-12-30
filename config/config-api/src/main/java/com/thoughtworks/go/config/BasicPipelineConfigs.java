@@ -395,14 +395,15 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         return users;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
-        Map attributeMap = (Map) attributes;
+        Map<String, String> attributeMap = (Map<String, String>) attributes;
         if (attributeMap == null) {
             return;
         }
         if (attributeMap.containsKey(GROUP)) {
-            this.group = (String) attributeMap.get(GROUP);
+            this.group = attributeMap.get(GROUP);
         }
         if (attributeMap.containsKey(AUTHORIZATION)) {
             this.authorization = new Authorization();

@@ -758,11 +758,12 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         setConfigAttributes(attributes, null);
     }
 
+    @SuppressWarnings("unchecked")
     public void setConfigAttributes(Object attributes, TaskFactory taskFactory) {
         if (attributes == null) {
             return;
         }
-        Map attributeMap = (Map) attributes;
+        Map<String, Object> attributeMap = (Map<String, Object>) attributes;
         if (attributeMap.containsKey(NAME)) {
             setName((String) attributeMap.get(NAME));
         }
@@ -788,7 +789,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             setLockBehaviorIfNecessary((String) attributeMap.get(LOCK_BEHAVIOR));
         }
         if (attributeMap.containsKey(TRACKING_TOOL)) {
-            setIntegrationType(attributeMap);
+            setIntegrationType((Map<String, Object>) attributeMap.get(TRACKING_TOOL));
         }
 
         if (attributeMap.containsKey(CONFIGURATION_TYPE)) {
@@ -817,7 +818,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         this.name = name;
     }
 
-    private void setConfigurationType(Map attributeMap) {
+    private void setConfigurationType(Map<String, Object> attributeMap) {
         String configurationType = (String) attributeMap.get(CONFIGURATION_TYPE);
         if (configurationType.equals(CONFIGURATION_TYPE_STAGES)) {
             return;
@@ -829,8 +830,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         }
     }
 
-    private void setIntegrationType(Map attributeMap) {
-        trackingTool = TrackingTool.createTrackingTool((Map) attributeMap.get(TRACKING_TOOL));
+    private void setIntegrationType(Map<String, Object> attributeMap) {
+        trackingTool = TrackingTool.createTrackingTool(attributeMap);
     }
 
     public String getConfigurationType() {

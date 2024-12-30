@@ -222,6 +222,7 @@ public class Materials extends BaseCollection<Material> {
         return getExistingOrDefaultMaterial(new DependencyMaterial(new CaseInsensitiveString(""), new CaseInsensitiveString("")));
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Material> T getExistingOrDefaultMaterial(T defaultMaterial) {
         for (Material material : this) {
             if (material.getClass().isAssignableFrom(defaultMaterial.getClass())) {

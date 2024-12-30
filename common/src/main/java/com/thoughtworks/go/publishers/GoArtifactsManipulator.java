@@ -84,7 +84,7 @@ public class GoArtifactsManipulator {
                 File dataToUpload = new File(tmpDir, source.getName() + ".zip");
                 zipUtil.zip(source, dataToUpload, Deflater.BEST_SPEED);
 
-                long size = 0;
+                long size;
                 if (source.isDirectory()) {
                     size = FileUtils.sizeOfDirectory(source);
                 } else {
@@ -129,7 +129,7 @@ public class GoArtifactsManipulator {
             return computeChecksumForContentsOfDirectory(source, destPath);
         }
 
-        Properties properties = null;
+        Properties properties;
         try (FileInputStream inputStream = new FileInputStream(source)) {
             properties = computeChecksumForFile(source.getName(), md5Hex(inputStream), destPath);
         }

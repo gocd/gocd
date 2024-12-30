@@ -104,7 +104,7 @@ public class GoConfigDao {
     }
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {
-        ConfigSaveState configSaveState = null;
+        ConfigSaveState configSaveState;
         LOGGER.info("Config update request by {} is in queue - {}", SessionUtils.currentUsername().getUsername(), command);
         synchronized (GoConfigWriteLock.class) {
             try {

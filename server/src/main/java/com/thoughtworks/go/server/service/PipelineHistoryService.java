@@ -288,7 +288,7 @@ public class PipelineHistoryService {
         if (!securityService.hasViewPermissionForPipeline(new Username(new CaseInsensitiveString(userName)), pipelineName)) {
             return PipelineInstanceModels.createPipelineInstanceModels();
         }
-        PipelineInstanceModels pipelineInstanceModels = null;
+        PipelineInstanceModels pipelineInstanceModels;
         if (triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString(pipelineName))) {
 
             StageInstanceModels stageHistory = new StageInstanceModels();

@@ -72,6 +72,7 @@ public class RouteInformationProvider {
         return (Service) ReflectionUtils.invokeMethod(getInstanceMethod, null);
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> T getField(Object o, String fieldName) {
         Field field = ReflectionUtils.findField(o.getClass(), fieldName);
         ReflectionUtils.makeAccessible(field);

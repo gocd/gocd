@@ -108,12 +108,13 @@ public class ParamsConfig extends BaseCollection<ParamConfig> implements Validat
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public void setConfigAttributes(Object attributes) {
         if (attributes != null) {
             this.clear();
-            for (Map attributeMap : (List<Map>) attributes) {
-                String name = (String) attributeMap.get(ParamConfig.NAME);
-                String value = (String) attributeMap.get(ParamConfig.VALUE);
+            for (Map<String, String> attributeMap : (List<Map<String, String>>) attributes) {
+                String name = attributeMap.get(ParamConfig.NAME);
+                String value = attributeMap.get(ParamConfig.VALUE);
                 if (StringUtils.isBlank(name) && StringUtils.isBlank(value)) {
                     continue;
                 }

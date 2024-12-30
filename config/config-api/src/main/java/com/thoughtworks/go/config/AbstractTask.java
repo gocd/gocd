@@ -148,9 +148,10 @@ public abstract class AbstractTask implements Task  {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public final void setConfigAttributes(Object attributes, TaskFactory taskFactory) {
-        Map attributeMap = (Map) attributes;
+        Map<String, Object> attributeMap = (Map<String, Object>) attributes;
         if (attributes == null || attributeMap.isEmpty()) {
             return;
         }
@@ -165,7 +166,7 @@ public abstract class AbstractTask implements Task  {
             runIfConfigs.add(RunIfConfig.PASSED);
         }
         if ("1".equals(attributeMap.get(HAS_CANCEL_TASK))) {
-            onCancelConfig = OnCancelConfig.create((Map) attributeMap.get(ON_CANCEL_CONFIG), taskFactory);
+            onCancelConfig = OnCancelConfig.create(attributeMap.get(ON_CANCEL_CONFIG), taskFactory);
         } else if ("0".equals(attributeMap.get(HAS_CANCEL_TASK))) {
             onCancelConfig = OnCancelConfig.killAllChildProcess();
         }

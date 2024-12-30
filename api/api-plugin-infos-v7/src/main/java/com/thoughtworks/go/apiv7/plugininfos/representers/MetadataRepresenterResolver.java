@@ -23,9 +23,10 @@ import com.thoughtworks.go.plugin.domain.common.MetadataWithPartOfIdentity;
 import com.thoughtworks.go.plugin.domain.common.PackageMaterialMetadata;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class MetadataRepresenterResolver {
-    private static final HashMap<Class<? extends Metadata>, MetadataRepresenter> representerMap;
+    private static final Map<Class<? extends Metadata>, MetadataRepresenter> representerMap;
 
     static {
         representerMap = new HashMap<>();

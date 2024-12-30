@@ -18,7 +18,6 @@ package com.thoughtworks.go.plugin.api.material.packagerepository;
 import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,8 +28,8 @@ public class RepositoryConfiguration extends Configuration {
 
     @Override
     public List<? extends Property> list() {
-        List<PackageMaterialProperty> list = (List<PackageMaterialProperty>) super.list();
-        Collections.sort(list);
+        List<? extends Property> list = super.list();
+        list.sort(null);
         return list;
     }
 }

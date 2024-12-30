@@ -62,7 +62,7 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
         return result;
     }
 
-    void validatePluginProperties(PluginProfileCommand command, M newPluginProfile) {
+    void validatePluginProperties(PluginProfileCommand<?, ?> command, M newPluginProfile) {
         try {
             ValidationResult result = command.validateUsingExtension(newPluginProfile.getPluginId(), newPluginProfile.getConfigurationAsMap(true));
             addErrorsToConfiguration(result, newPluginProfile);
@@ -89,7 +89,7 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
         }
     }
 
-    protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, PluginProfileCommand command, boolean validatePluginProperties) {
+    protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, PluginProfileCommand<?, ?> command, boolean validatePluginProperties) {
         try {
             if (validatePluginProperties) {
                 validatePluginProperties(command, pluginProfile);

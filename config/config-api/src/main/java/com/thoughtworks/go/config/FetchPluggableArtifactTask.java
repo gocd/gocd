@@ -190,7 +190,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
             return;
         }
 
-        final Map<String, Object> userSpecifiedConfiguration = (Map<String, Object>) attributeMap.get(CONFIGURATION);
+        @SuppressWarnings("unchecked") final Map<String, Object> userSpecifiedConfiguration = (Map<String, Object>) attributeMap.get(CONFIGURATION);
         if (userSpecifiedConfiguration == null) {
             return;
         }
@@ -198,7 +198,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
         final String pluginId = (String) attributeMap.get("pluginId");
         if (StringUtils.isBlank(pluginId)) {
             for (String key : userSpecifiedConfiguration.keySet()) {
-                Map<String, String> configurationMetadata = (Map<String, String>) userSpecifiedConfiguration.get(key);
+                @SuppressWarnings("unchecked") Map<String, String> configurationMetadata = (Map<String, String>) userSpecifiedConfiguration.get(key);
                 if (configurationMetadata != null) {
                     boolean isSecure = Boolean.parseBoolean(configurationMetadata.get("isSecure"));
                     if (configuration.getProperty(key) == null) {

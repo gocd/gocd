@@ -21,5 +21,5 @@ import java.util.Map;
 import java.util.Set;
 
 public interface PostCommitHookImplementer {
-    Set<Material> prune(Set<Material> materials, Map params);
+    Set<Material> prune(Set<Material> materials, Map<String, String> params);
 }

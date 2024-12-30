@@ -47,7 +47,7 @@ public class DependencyFanInNode extends FanInNode {
         return stageIdentifierScmMaterial.get(currentRevision);
     }
 
-    enum RevisionAlteration {
+    public enum RevisionAlteration {
         NOT_APPLICABLE, SAME_AS_CURRENT_REVISION, ALTERED_TO_CORRECT_REVISION, ALL_OPTIONS_EXHAUSTED, NEED_MORE_REVISIONS
     }
 
@@ -90,10 +90,10 @@ public class DependencyFanInNode extends FanInNode {
     }
 
     public RevisionAlteration setRevisionTo(StageIdFaninScmMaterialPair revisionToSet, FanInGraphContext context) {
-        RevisionAlteration revisionAlteration = alterRevision(revisionToSet, context);
+        RevisionAlteration revisionAlteration = alterRevision(revisionToSet);
         while (revisionAlteration == NEED_MORE_REVISIONS) {
             fillNextRevisions(context);
-            revisionAlteration = alterRevision(revisionToSet, context);
+            revisionAlteration = alterRevision(revisionToSet);
         }
         return revisionAlteration;
     }
@@ -184,13 +184,13 @@ public class DependencyFanInNode extends FanInNode {
         for (FaninScmMaterial scmMaterial : scmMaterials) {
             scmMaterialsFingerprint.add(scmMaterial.fingerprint);
         }
-        final Collection commonMaterials = CollectionUtils.intersection(currentScmFingerprint, scmMaterialsFingerprint);
+        final Collection<?> commonMaterials = CollectionUtils.intersection(currentScmFingerprint, scmMaterialsFingerprint);
         if (commonMaterials.size() == scmMaterials.size() && commonMaterials.size() == currentScmMaterials.size()) {
             stageIdentifierScmMaterial.put(stageIdentifierScmPair.first(), scmMaterials);
             ++currentCount;
         } else {
-            Collection disjunctionWithConfig = CollectionUtils.disjunction(currentScmFingerprint, commonMaterials);
-            Collection disjunctionWithInstance = CollectionUtils.disjunction(scmMaterialsFingerprint, commonMaterials);
+            Collection<?> disjunctionWithConfig = CollectionUtils.disjunction(currentScmFingerprint, commonMaterials);
+            Collection<?> disjunctionWithInstance = CollectionUtils.disjunction(scmMaterialsFingerprint, commonMaterials);
 
             LOGGER.warn("[Fan-in] - Incompatible materials for {}. Config: {}. Instance: {}.", stageIdentifierScmPair.first().getStageLocator(), disjunctionWithConfig, disjunctionWithInstance);
 
@@ -235,7 +235,7 @@ public class DependencyFanInNode extends FanInNode {
         return currentCount < totalInstanceCount;
     }
 
-    private RevisionAlteration alterRevision(StageIdFaninScmMaterialPair revisionToSet, FanInGraphContext context) {
+    private RevisionAlteration alterRevision(StageIdFaninScmMaterialPair revisionToSet) {
         if (currentRevision == revisionToSet.stageIdentifier) {
             return RevisionAlteration.SAME_AS_CURRENT_REVISION;
         }

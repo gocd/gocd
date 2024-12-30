@@ -28,7 +28,7 @@ public class MessageHandlerForPluginSettingsRequestProcessor1_0Test {
     @Test
     public void shouldSerializePluginSettingsMapToJSON() {
         MessageHandlerForPluginSettingsRequestProcessor1_0 processor = new MessageHandlerForPluginSettingsRequestProcessor1_0();
-        Map pluginSettings = new HashMap<String, String>();
+        Map<String, String> pluginSettings = new HashMap<>();
 
         pluginSettings.put("k1", "v1");
         pluginSettings.put("k2", "v2");

@@ -114,7 +114,7 @@ public class FetchTaskBuilder implements TaskBuilder<AbstractFetchTask> {
 
             return new JobIdentifier(new StageIdentifier(currentPipeline.getName(), currentPipeline.getCounter(), currentPipeline.getLabel(), CaseInsensitiveString.str(task.getStage()), stageCounter), CaseInsensitiveString.str(task.getJob()));
         } else {
-            DependencyMaterialRevision revision = null;
+            DependencyMaterialRevision revision;
             if (pipelineNamePathFromAncestor.isAncestor()) {
                 BuildCause buildCause = currentPipeline.getBuildCause();
                 for (CaseInsensitiveString parentPipelineName : pipelineNamePathFromAncestor.pathToAncestor()) {

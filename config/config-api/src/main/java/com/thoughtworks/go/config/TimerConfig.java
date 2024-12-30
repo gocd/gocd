@@ -20,6 +20,7 @@ import org.quartz.CronExpression;
 
 import java.text.ParseException;
 import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -62,12 +63,12 @@ public class TimerConfig implements Validatable {
     }
 
     public static TimerConfig createTimer(Object attributes) {
-        Map timerConfigMap = (Map) attributes;
-        String timerSpec = (String) timerConfigMap.get(TIMER_SPEC);
+        @SuppressWarnings("unchecked") Map<String, String> timerConfigMap = (Map<String, String>) attributes;
+        String timerSpec = timerConfigMap.get(TIMER_SPEC);
         if (timerSpec.isEmpty()) {
             return null;
         }
-        String onlyOnChanges = (String) timerConfigMap.get(TIMER_ONLY_ON_CHANGES);
+        String onlyOnChanges = timerConfigMap.get(TIMER_ONLY_ON_CHANGES);
         return new TimerConfig(timerSpec, "1".equals(onlyOnChanges));
     }
 
@@ -110,11 +111,7 @@ public class TimerConfig implements Validatable {
 
         TimerConfig that = (TimerConfig) o;
 
-        if (timerSpec != null ? !timerSpec.equals(that.timerSpec) : that.timerSpec != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(timerSpec, that.timerSpec);
     }
 
     @Override

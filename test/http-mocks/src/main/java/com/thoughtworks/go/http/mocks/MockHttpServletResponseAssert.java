@@ -37,14 +37,15 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.error.ShouldBeEqual.shouldBeEqual;
 import static org.assertj.core.error.ShouldBeNullOrEmpty.shouldBeNullOrEmpty;
 
+@SuppressWarnings({"UnusedReturnValue", "ResultOfMethodCallIgnored"})
 public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseAssert<SELF>> extends AbstractObjectAssert<SELF, MockHttpServletResponse> {
 
     protected MockHttpServletResponseAssert(MockHttpServletResponse actual, Class<?> selfType) {
         super(actual, selfType);
     }
 
-    public static MockHttpServletResponseAssert assertThat(MockHttpServletResponse actual) {
-        return new MockHttpServletResponseAssert(actual, MockHttpServletResponseAssert.class);
+    public static MockHttpServletResponseAssert<?> assertThat(MockHttpServletResponse actual) {
+        return new MockHttpServletResponseAssert<>(actual, MockHttpServletResponseAssert.class);
     }
 
     public SELF hasContentType(String mimeType) {

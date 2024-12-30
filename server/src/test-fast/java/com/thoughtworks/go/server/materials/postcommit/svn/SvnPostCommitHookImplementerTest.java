@@ -76,7 +76,7 @@ class SvnPostCommitHookImplementerTest {
         params.put(SvnPostCommitHookImplementer.UUID, uuid);
 
         final SvnPostCommitHookImplementer spy = spy(implementer);
-        final HashMap<String, String> map = new HashMap<>();
+        final Map<String, String> map = new HashMap<>();
         doAnswer(invocation -> {
             map.put("url1", "12345");
             map.put("url2", "54321");
@@ -98,7 +98,7 @@ class SvnPostCommitHookImplementerTest {
         SvnMaterial svnMaterial2 = new SvnMaterial("http://admin@example.com/svn2", "admin", "discreetbluewhale", true);
         GitMaterial gitMaterial = new GitMaterial("http://admin@example.com/svn2");
         final Set<Material> allMaterials = Set.of(svnMaterial1, svnMaterial2, gitMaterial);
-        final Map<Object, Object> params = new HashMap<>();
+        final Map<String, String> params = new HashMap<>();
         final SvnPostCommitHookImplementer svnPostCommitHookImplementer = new SvnPostCommitHookImplementer();
         params.put(SvnPostCommitHookImplementer.REPO_URL_PARAM_KEY, "http://example.com/svn1");
         Set<Material> prunedList = svnPostCommitHookImplementer.prune(allMaterials, params);
@@ -123,9 +123,9 @@ class SvnPostCommitHookImplementerTest {
         final Set<Material> allMaterials = new HashSet<>();
         allMaterials.add(svnMaterial1);
         final SvnPostCommitHookImplementer spy = spy(implementer);
-        final Set<Material> prunedList = spy.prune(allMaterials, new HashMap());
+        final Set<Material> prunedList = spy.prune(allMaterials, new HashMap<>());
         assertThat(prunedList.size()).isEqualTo(0);
-        verify(spy, never()).isQualified(anyString(), any(SvnMaterial.class), any(HashMap.class));
+        verify(spy, never()).isQualified(anyString(), any(SvnMaterial.class), any());
     }
 
     @Test

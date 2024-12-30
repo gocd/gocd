@@ -47,7 +47,7 @@ public class GsonTransformer {
         }
     }
 
-    public JsonReader jsonReaderFrom(Map map) {
+    public JsonReader jsonReaderFrom(Map<?, ?> map) {
         try {
             return new JsonReader(GSON.toJsonTree(map).getAsJsonObject());
         } catch (Exception e) {

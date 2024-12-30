@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 public class ServerBackupQueue extends GoMessageQueue<StartServerBackupMessage> {
 
     @Autowired
-    public ServerBackupQueue(MessagingService messaging) {
+    public ServerBackupQueue(MessagingService<GoMessage> messaging) {
         super(messaging, "start-server-backup");
     }
 }

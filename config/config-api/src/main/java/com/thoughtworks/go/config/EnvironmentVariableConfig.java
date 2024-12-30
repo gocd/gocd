@@ -280,16 +280,17 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         return encryptedValue.getValue();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
-        Map attributeMap = (Map) attributes;
-        this.name = (String) attributeMap.get(EnvironmentVariableConfig.NAME);
-        String value = (String) attributeMap.get(EnvironmentVariableConfig.VALUE);
+        Map<String, String> attributeMap = (Map<String, String>) attributes;
+        this.name = attributeMap.get(EnvironmentVariableConfig.NAME);
+        String value = attributeMap.get(EnvironmentVariableConfig.VALUE);
         if (StringUtils.isBlank(name) && StringUtils.isBlank(value)) {
             throw new IllegalArgumentException(String.format("Need not null/empty name & value %s:%s", this.name, value));
         }
-        this.isSecure = BooleanUtils.toBoolean((String) attributeMap.get(EnvironmentVariableConfig.SECURE));
-        Boolean isChanged = BooleanUtils.toBoolean((String) attributeMap.get(EnvironmentVariableConfig.ISCHANGED));
+        this.isSecure = BooleanUtils.toBoolean(attributeMap.get(EnvironmentVariableConfig.SECURE));
+        boolean isChanged = BooleanUtils.toBoolean(attributeMap.get(EnvironmentVariableConfig.ISCHANGED));
         if (isSecure) {
             this.encryptedValue = isChanged ? new EncryptedVariableValueConfig(encrypt(value)) : new EncryptedVariableValueConfig(value);
         } else {

@@ -17,6 +17,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.SecretConfig;
+import com.thoughtworks.go.config.SecretConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
@@ -64,7 +65,7 @@ public class SecretConfigCreateCommandTest {
 
         SecretConfig newSecretConfig = new SecretConfig("foo", "file", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
 
-        RuleAwarePluginProfileCommand command = new SecretConfigCreateCommand(mock(GoConfigService.class), newSecretConfig, extension, null, new HttpLocalizedOperationResult());
+        RuleAwarePluginProfileCommand<SecretConfig, SecretConfigs> command = new SecretConfigCreateCommand(mock(GoConfigService.class), newSecretConfig, extension, null, new HttpLocalizedOperationResult());
 
         when(extension.validateSecretsConfig(eq("file"), anyMap())).thenReturn(validationResult);
 

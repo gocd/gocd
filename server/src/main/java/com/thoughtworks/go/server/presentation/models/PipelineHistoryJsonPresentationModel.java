@@ -39,10 +39,10 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
     private final PipelinePauseInfo pipelinePauseInfo;
     private final PipelineConfig pipelineConfig;
     private final Pagination pagination;
-    private TimeConverter timeConverter = new TimeConverter();
-    private boolean canForce;
+    private final TimeConverter timeConverter = new TimeConverter();
+    private final boolean canForce;
     private final boolean hasForceBuildCause;
-    private PipelineHistoryGroups pipelineHistoryGroups;
+    private final PipelineHistoryGroups pipelineHistoryGroups;
     private final boolean hasBuildCauseInBuffer;
     private final boolean canPause;
 
@@ -120,11 +120,11 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         return hasBuildCauseInBuffer || pipelineConfig.isFirstStageManualApproval();
     }
 
-    private List groupAsJson() {
-        List jsonList = new ArrayList();
+    private List<Map<String, Object>> groupAsJson() {
+        List<Map<String, Object>> jsonList = new ArrayList<>();
         for (PipelineInstanceGroupModel group : pipelineHistoryGroups) {
             Map<String, Object> jsonMap = new LinkedHashMap<>();
-            Map configJson = configAsJson(group.getStages());
+            Map<String, Object> configJson = configAsJson(group.getStages());
             jsonMap.put("config", configJson);
             jsonMap.put("history", historyAsJson(group.getPipelineInstances()));
             jsonList.add(jsonMap);
@@ -132,8 +132,8 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         return jsonList;
     }
 
-    private Map configAsJson(Iterable<StageConfigurationModel> stages) {
-        List jsonList = new ArrayList();
+    private Map<String, Object> configAsJson(Iterable<StageConfigurationModel> stages) {
+        List<Map<String, Object>> jsonList = new ArrayList<>();
         for (StageConfigurationModel stageInfo : stages) {
             Map<String, Object> jsonMap = new LinkedHashMap<>();
             jsonMap.put("name", stageInfo.getName());
@@ -145,8 +145,8 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         return jsonMap;
     }
 
-    private List historyAsJson(BaseCollection<PipelineInstanceModel> pipelineHistory) {
-        List json = new ArrayList();
+    private List<Map<String, Object>> historyAsJson(BaseCollection<PipelineInstanceModel> pipelineHistory) {
+        List<Map<String, Object>> json = new ArrayList<>();
         for (PipelineInstanceModel item : pipelineHistory) {
             Map<String, Object> jsonMap = new LinkedHashMap<>();
             jsonMap.put("pipelineId", item.getId());
@@ -165,7 +165,7 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         return json;
     }
 
-    private List materialRevisionsJson(PipelineInstanceModel item) {
+    private List<Object> materialRevisionsJson(PipelineInstanceModel item) {
         CommentRenderer commentRenderer = pipelineConfig.getCommentRenderer();
         MaterialRevisionsJsonBuilder jsonVisitor = new MaterialRevisionsJsonBuilder(commentRenderer);
         jsonVisitor.setIncludeModifiedFiles(false);
@@ -179,8 +179,8 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         return timeConverter.getConvertedTime(mostRecentModificationDate);
     }
 
-    private List stageHistoryAsJson(PipelineInstanceModel pipelineInstanceModel, StageInstanceModels stageHistory) {
-        List json = new ArrayList();
+    private List<Map<String, Object>> stageHistoryAsJson(PipelineInstanceModel pipelineInstanceModel, StageInstanceModels stageHistory) {
+        List<Map<String, Object>> json = new ArrayList<>();
         for (StageInstanceModel stageHistoryItem : stageHistory) {
             Map<String, Object> jsonMap = new LinkedHashMap<>();
             jsonMap.put("stageName", stageHistoryItem.getName());
@@ -202,7 +202,7 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         return json;
     }
 
-    private void handleApproval(StageInstanceModel stageHistoryItem, Map jsonMap) {
+    private void handleApproval(StageInstanceModel stageHistoryItem, Map<String, Object> jsonMap) {
         if (stageHistoryItem.needsApproval() && !pipelinePauseInfo.isPaused()) {
             jsonMap.put("needsApproval", String.valueOf(true));
         } else if (stageHistoryItem.getApprovedBy() != null) {

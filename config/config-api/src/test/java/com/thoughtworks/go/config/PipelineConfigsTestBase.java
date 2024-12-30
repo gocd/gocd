@@ -352,7 +352,7 @@ public abstract class PipelineConfigsTestBase {
         assertThat(group.getPipelines()).contains(pipeline2);
     }
 
-    private List privileges(final Authorization.PrivilegeState admin, final Authorization.PrivilegeState operate, final Authorization.PrivilegeState view) {
+    private List<Map<String, String>> privileges(final Authorization.PrivilegeState admin, final Authorization.PrivilegeState operate, final Authorization.PrivilegeState view) {
         return List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), admin.toString(),
             Authorization.PrivilegeType.OPERATE.toString(), operate.toString(),
             Authorization.PrivilegeType.VIEW.toString(), view.toString()));

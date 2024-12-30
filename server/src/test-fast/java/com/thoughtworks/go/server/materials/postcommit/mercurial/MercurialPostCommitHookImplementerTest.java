@@ -68,7 +68,7 @@ public class MercurialPostCommitHookImplementerTest {
         HgMaterial material = mock(HgMaterial.class);
         Set<Material> materials = Set.of(material);
 
-        Set<Material> actual = implementer.prune(materials, new HashMap());
+        Set<Material> actual = implementer.prune(materials, new HashMap<>());
 
         assertThat(actual.size()).isEqualTo(0);
         verify(material, times(0)).getUrlArgument();

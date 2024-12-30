@@ -62,7 +62,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     @ConfigAttribute(value = "elasticProfileId", optional = true, allowNull = true)
     private String elasticProfileId;
 
-    private ConfigErrors errors = new ConfigErrors();
+    private final ConfigErrors errors = new ConfigErrors();
     public static final String NAME = "name";
     public static final String TASKS = "tasks";
     public static final String RESOURCES = "resources";
@@ -242,7 +242,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         if (isBlank(runInstanceCount)) {
             throw new RuntimeException("This job config is a single instance type job.");
         }
-        return Integer.valueOf(runInstanceCount);
+        return Integer.parseInt(runInstanceCount);
     }
 
     public String getRunInstanceCount() {
@@ -278,11 +278,11 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     @Override
     public String toString() {
         return "JobConfig{" +
-                "jobName='" + jobName + '\'' +
-                ", resources=" + resourceConfigs +
-                ", runOnAllAgents=" + runOnAllAgents +
-                ", runInstanceCount=" + runInstanceCount +
-                '}';
+            "jobName='" + jobName + '\'' +
+            ", resources=" + resourceConfigs +
+            ", runOnAllAgents=" + runOnAllAgents +
+            ", runInstanceCount=" + runInstanceCount +
+            '}';
     }
 
     @TestOnly
@@ -361,7 +361,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         } else {
             if ((CaseInsensitiveString.str(jobName).length() > 255 || XmlUtils.doesNotMatchUsingXsdRegex(JOB_NAME_PATTERN_REGEX, CaseInsensitiveString.str(jobName)))) {
                 String message = String.format("Invalid job name '%s'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is %d characters.", jobName,
-                        NameTypeValidator.MAX_LENGTH);
+                    NameTypeValidator.MAX_LENGTH);
                 errors.add(NAME, message);
             }
             if (RunOnAllAgentsJobTypeConfig.hasMarker(CaseInsensitiveString.str(jobName))) {
@@ -420,7 +420,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         if (isRunOnAllAgents() && !isBlank(elasticProfileId)) {
             errors.add(RUN_TYPE, "Job cannot be set to 'run on all agents' when assigned to an elastic agent");
         }
-        if(tasks.size() == 0) {
+        if (tasks.isEmpty()) {
             errors.add(TASKS, String.format("Job '%s' must have at least one task.", jobName));
         }
     }
@@ -436,7 +436,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public void setConfigAttributes(Object attributes, TaskFactory taskFactory) {
-        Map attributesMap = (Map) attributes;
+        @SuppressWarnings("unchecked") Map<String, ?> attributesMap = (Map<String, ?>) attributes;
         if (attributesMap.containsKey(NAME)) {
             String nameString = (String) attributesMap.get(NAME);
             jobName = nameString == null ? null : new CaseInsensitiveString(nameString);
@@ -465,7 +465,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         setJobRunTypeAttribute(attributesMap);
     }
 
-    private void setTimeoutAttribute(Map attributesMap) {
+    private void setTimeoutAttribute(Map<String, ?> attributesMap) {
         if (attributesMap.containsKey("timeoutType")) {
             String timeoutType = (String) attributesMap.get("timeoutType");
             if (DEFAULT_TIMEOUT.equals(timeoutType)) {
@@ -485,7 +485,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         }
     }
 
-    private void setJobRunTypeAttribute(Map attributesMap) {
+    private void setJobRunTypeAttribute(Map<String, ?> attributesMap) {
         if (attributesMap.containsKey(RUN_TYPE)) {
             this.runOnAllAgents = false;
             this.runInstanceCount = null;

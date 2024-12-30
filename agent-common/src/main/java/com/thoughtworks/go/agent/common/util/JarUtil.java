@@ -102,7 +102,7 @@ public class JarUtil {
         }).toArray(URL[]::new);
     }
 
-    public static URLClassLoader getClassLoaderFromJar(File aJarFile, Predicate<JarEntry> extractFilter, File outputTmpDir, ClassLoader parentClassLoader, Class... allowedClasses) {
+    public static URLClassLoader getClassLoaderFromJar(File aJarFile, Predicate<JarEntry> extractFilter, File outputTmpDir, ClassLoader parentClassLoader, Class<?>... allowedClasses) {
         List<File> urls = new ArrayList<>();
         urls.add(aJarFile);
         urls.addAll(extractFilesInLibDirAndReturnFiles(aJarFile, extractFilter, outputTmpDir));

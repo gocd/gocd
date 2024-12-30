@@ -51,7 +51,7 @@ public class StageResultCacheTest {
     @Autowired private StageDao stageDao;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private StageStatusTopic stageStatusTopic;
-    @Autowired private MessagingService messagingService;
+    @Autowired private MessagingService<GoMessage> messagingService;
     @Autowired private StageResultCache stageResultCache;
 	@Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
@@ -64,7 +64,7 @@ public class StageResultCacheTest {
 
         dbHelper.onSetUp();
         configFileHelper.onSetUp();
-        configFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
+        GoConfigFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
@@ -123,10 +123,10 @@ public class StageResultCacheTest {
     }
 
 
-    private class StageResultTopicStub extends StageResultTopic {
+    private static class StageResultTopicStub extends StageResultTopic {
         private StageResultMessage message;
 
-        public StageResultTopicStub(MessagingService messaging) {
+        public StageResultTopicStub(MessagingService<GoMessage> messaging) {
             super(messaging);
         }
 

@@ -89,14 +89,14 @@ public class ScheduleHelper {
     }
 
     public ServerHealthState manuallySchedulePipelineWithRealMaterials(String pipeline, Username username) throws Exception {
-        final HashMap<String, String> revisions = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
         return manuallySchedulePipelineWithRealMaterials(pipeline, username, revisions);
     }
 
     public ServerHealthState manuallySchedulePipelineWithRealMaterials(String pipeline, Username username, Map<String, String> pegging) throws Exception {
         updateMaterials(pipeline);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         Map<String, String> secureEnvironmentVariables = new HashMap<>();
         pipelineScheduler.manualProduceBuildCauseAndSave(pipeline, username, new ScheduleOptions(pegging, environmentVariables, secureEnvironmentVariables), result);
         if (result.canContinue()) {

@@ -24,7 +24,7 @@ import java.util.Map;
 public interface AnalyticsMessageConverter {
     Capabilities getCapabilitiesFromResponseBody(String responseBody);
 
-    String getAnalyticsRequestBody(String type, String metricId, Map params);
+    String getAnalyticsRequestBody(String type, String metricId, Map<String, ?> params);
 
     AnalyticsData getAnalyticsFromResponseBody(String responseBody);
 

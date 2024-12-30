@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.update.CreatePipelineConfigsCommand;
 import com.thoughtworks.go.config.update.DeletePipelineConfigsCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigsCommand;
@@ -36,38 +35,41 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class PipelineConfigsServiceTest {
 
-    private PipelineConfigsService service;
+    @Mock
     private GoConfigService goConfigService;
-    private ConfigCache configCache;
-    private ConfigElementImplementationRegistry registry;
+    @Mock
     private SecurityService securityService;
+    @Mock
     private EntityHashingService entityHashingService;
+
+    @Mock
+    private GoConfigService.XmlPartialSaver<Object> groupSaver;
+
+    private PipelineConfigsService service;
     private Username validUser;
     private HttpLocalizedOperationResult result;
-    private CruiseConfig cruiseConfig;
 
     @BeforeEach
     public void setUp() {
-        goConfigService = mock(GoConfigService.class);
-        securityService = mock(SecurityService.class);
-        entityHashingService = mock(EntityHashingService.class);
-        configCache = new ConfigCache();
-        registry = ConfigElementImplementationRegistryMother.withNoPlugins();
+        ConfigCache configCache = new ConfigCache();
         validUser = new Username(new CaseInsensitiveString("validUser"));
-        service = new PipelineConfigsService(configCache, registry, goConfigService, securityService, entityHashingService);
+        service = new PipelineConfigsService(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), goConfigService, securityService, entityHashingService);
         result = new HttpLocalizedOperationResult();
 
-        cruiseConfig = new BasicCruiseConfig();
-        ReflectionUtil.setField(cruiseConfig, "md5", "md5");
+        ReflectionUtil.setField(new BasicCruiseConfig(), "md5", "md5");
     }
 
     @Test
@@ -120,9 +122,6 @@ public class PipelineConfigsServiceTest {
         final String groupName = "group_name";
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenReturn(true);
         String md5 = "md5";
-        when(goConfigService.configFileMd5()).thenReturn(md5);
-
-        GoConfigService.XmlPartialSaver groupSaver = mock(GoConfigService.XmlPartialSaver.class);
         when(goConfigService.groupSaver(groupName)).thenReturn(groupSaver);
         String updatedPartial = groupXml();
         when(groupSaver.saveXml(updatedPartial, md5)).thenReturn(GoConfigValidity.valid());
@@ -145,8 +144,6 @@ public class PipelineConfigsServiceTest {
         final String groupName = "group_name";
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenReturn(true);
         String md5 = "md5";
-        when(goConfigService.configFileMd5()).thenReturn(md5);
-        GoConfigService.XmlPartialSaver groupSaver = mock(GoConfigService.XmlPartialSaver.class);
         when(goConfigService.groupSaver(groupName)).thenReturn(groupSaver);
         String updatedPartial = "foobar";
         when(groupSaver.saveXml(updatedPartial, md5)).thenReturn(GoConfigValidity.invalid(errorMessage));
@@ -167,7 +164,6 @@ public class PipelineConfigsServiceTest {
     public void shouldReturnUnsuccessfulResultWhenTheGroupIsNotFound_onUpdateXml() throws Exception {
         String groupName = "non-existent-group_name";
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenThrow(new RecordNotFoundException(EntityType.PipelineGroup, groupName));
-        when(goConfigService.configFileMd5()).thenReturn("md5");
 
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, "", "md5", validUser, result);
         PipelineConfigs configs = actual.getConfigElement();
@@ -186,7 +182,6 @@ public class PipelineConfigsServiceTest {
         String groupName = "some-secret-group";
         Username invalidUser = new Username(new CaseInsensitiveString("invalidUser"));
         when(securityService.isUserAdminOfGroup(invalidUser.getUsername(), groupName)).thenReturn(false);
-        when(goConfigService.configFileMd5()).thenReturn("md5");
 
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, "", "md5", invalidUser, result);
         PipelineConfigs configElement = actual.getConfigElement();
@@ -204,9 +199,7 @@ public class PipelineConfigsServiceTest {
     public void shouldSetSuccessMessageOnSuccessfulUpdate() throws Exception {
         String groupName = "renamed_group_name";
         String md5 = "md5";
-        GoConfigService.XmlPartialSaver groupSaver = mock(GoConfigService.XmlPartialSaver.class);
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenReturn(true);
-        when(goConfigService.configFileMd5()).thenReturn(md5);
         when(goConfigService.groupSaver(groupName)).thenReturn(groupSaver);
         when(groupSaver.saveXml(groupXml(), md5)).thenReturn(GoConfigValidity.valid(ConfigSaveState.UPDATED));
 
@@ -220,9 +213,7 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldSetSuccessMessageOnSuccessfulMerge() throws Exception {
         String groupName = "renamed_group_name";
-        GoConfigService.XmlPartialSaver groupSaver = mock(GoConfigService.XmlPartialSaver.class);
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenReturn(true);
-        when(goConfigService.configFileMd5()).thenReturn("old-md5");
         when(goConfigService.groupSaver(groupName)).thenReturn(groupSaver);
         when(groupSaver.saveXml(groupXml(), "md5")).thenReturn(GoConfigValidity.valid(ConfigSaveState.MERGED));
 
@@ -236,9 +227,7 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldThrowUpWithDifferentMessageForMergeExceptions() throws Exception {
         String groupName = "renamed_group_name";
-        GoConfigService.XmlPartialSaver groupSaver = mock(GoConfigService.XmlPartialSaver.class);
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenReturn(true);
-        when(goConfigService.configFileMd5()).thenReturn("old-md5");
         when(goConfigService.groupSaver(groupName)).thenReturn(groupSaver);
         when(groupSaver.saveXml(null, "md5")).thenReturn(GoConfigValidity.mergeConflict("some error"));
 
@@ -258,9 +247,7 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldThrowUpWithDifferentMessageForPostMergeValidationExceptions() throws Exception {
         String groupName = "renamed_group_name";
-        GoConfigService.XmlPartialSaver groupSaver = mock(GoConfigService.XmlPartialSaver.class);
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenReturn(true);
-        when(goConfigService.configFileMd5()).thenReturn("old-md5");
         when(goConfigService.groupSaver(groupName)).thenReturn(groupSaver);
         when(groupSaver.saveXml(null, "md5")).thenReturn(GoConfigValidity.mergePostValidationError("some error"));
 
@@ -304,7 +291,7 @@ public class PipelineConfigsServiceTest {
         when(entityHashingService.hashForEntity(pipelineConfigs)).thenReturn("digest");
         service.updateGroup(validUser, pipelineConfigs, pipelineConfigs, result);
 
-        ArgumentCaptor<EntityConfigUpdateCommand> commandCaptor = ArgumentCaptor.forClass(EntityConfigUpdateCommand.class);
+        @SuppressWarnings("unchecked") ArgumentCaptor<EntityConfigUpdateCommand<?>> commandCaptor = ArgumentCaptor.forClass(EntityConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(commandCaptor.capture(), eq(validUser));
         UpdatePipelineConfigsCommand command = (UpdatePipelineConfigsCommand) commandCaptor.getValue();
 
@@ -364,7 +351,7 @@ public class PipelineConfigsServiceTest {
 
         service.deleteGroup(validUser, pipelineConfigs, result);
 
-        ArgumentCaptor<EntityConfigUpdateCommand> commandCaptor = ArgumentCaptor.forClass(EntityConfigUpdateCommand.class);
+        @SuppressWarnings("unchecked") ArgumentCaptor<EntityConfigUpdateCommand<?>> commandCaptor = ArgumentCaptor.forClass(EntityConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(commandCaptor.capture(), eq(validUser));
         DeletePipelineConfigsCommand command = (DeletePipelineConfigsCommand) commandCaptor.getValue();
 
@@ -405,7 +392,7 @@ public class PipelineConfigsServiceTest {
 
         service.createGroup(validUser, pipelineConfigs, result);
 
-        ArgumentCaptor<EntityConfigUpdateCommand> commandCaptor = ArgumentCaptor.forClass(EntityConfigUpdateCommand.class);
+        @SuppressWarnings("unchecked") ArgumentCaptor<EntityConfigUpdateCommand<?>> commandCaptor = ArgumentCaptor.forClass(EntityConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(commandCaptor.capture(), eq(validUser));
         CreatePipelineConfigsCommand command = (CreatePipelineConfigsCommand) commandCaptor.getValue();
 

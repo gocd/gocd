@@ -225,7 +225,7 @@ class BuildAssignmentServiceTest {
         JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().first());
 
         //need to get hold of original jobPlans in the tests
-        jobPlans = (ArrayList<JobPlan>) buildAssignmentService.jobPlans();
+        jobPlans = buildAssignmentService.jobPlans();
 
         jobPlans.add(jobPlan1);
         jobPlans.add(jobPlan2);
@@ -261,7 +261,7 @@ class BuildAssignmentServiceTest {
         JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().first());
 
         //need to get hold of original jobPlans in the tests
-        jobPlans = (ArrayList<JobPlan>) buildAssignmentService.jobPlans();
+        jobPlans = buildAssignmentService.jobPlans();
 
         jobPlans.add(jobPlan1);
         jobPlans.add(jobPlan2);

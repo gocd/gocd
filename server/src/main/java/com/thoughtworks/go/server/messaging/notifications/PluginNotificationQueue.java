@@ -15,15 +15,16 @@
  */
 package com.thoughtworks.go.server.messaging.notifications;
 
+import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
 import com.thoughtworks.go.server.messaging.MessagingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PluginNotificationQueue extends GoMessageQueue<PluginNotificationMessage> {
+public class PluginNotificationQueue extends GoMessageQueue<PluginNotificationMessage<?>> {
     @Autowired
-    public PluginNotificationQueue(MessagingService messaging) {
+    public PluginNotificationQueue(MessagingService<GoMessage> messaging) {
         super(messaging, "plugin-notification");
     }
 }

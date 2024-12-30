@@ -31,10 +31,10 @@ public class GitPostCommitHookImplementer implements PostCommitHookImplementer {
     private final UrlMatchers validators = new UrlMatchers();
 
     @Override
-    public Set<Material> prune(Set<Material> materials, Map params) {
+    public Set<Material> prune(Set<Material> materials, Map<String, String> params) {
         HashSet<Material> prunedCollection = new HashSet<>();
         if (params.containsKey(REPO_URL_PARAM_KEY)) {
-            String paramRepoUrl = (String) params.get(REPO_URL_PARAM_KEY);
+            String paramRepoUrl = params.get(REPO_URL_PARAM_KEY);
             if (StringUtils.isNotBlank(paramRepoUrl)) {
                 for (Material material : materials) {
                     if (material instanceof GitMaterial && isUrlEqual(paramRepoUrl, (GitMaterial) material)) {

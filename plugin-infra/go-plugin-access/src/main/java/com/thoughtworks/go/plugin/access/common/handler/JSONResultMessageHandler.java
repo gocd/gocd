@@ -88,6 +88,7 @@ public class JSONResultMessageHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Result toResult(String responseBody) {
         try {
             Result result = new Result();
@@ -135,10 +136,8 @@ public class JSONResultMessageHandler {
                     }
 
                     if (result.isSuccessful()) {
-                        //noinspection unchecked
                         result.withSuccessMessages((List<String>) messages);
                     } else {
-                        //noinspection unchecked
                         result.withErrorMessages((List<String>) messages);
                     }
                 }

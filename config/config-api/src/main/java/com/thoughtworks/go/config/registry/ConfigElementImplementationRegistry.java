@@ -38,11 +38,11 @@ public class ConfigElementImplementationRegistry implements ConfigElementRegistr
         this.registry = new ConcurrentHashMap<>();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> List<Class<? extends T>> implementersOf(Class<T> type) {
         List<Class<? extends T>> toReturn = new ArrayList<>();
         for (Class<?> impl : registry.get(type)) {
-            //noinspection unchecked
             toReturn.add((Class<? extends T>) impl);
         }
         return toReturn;

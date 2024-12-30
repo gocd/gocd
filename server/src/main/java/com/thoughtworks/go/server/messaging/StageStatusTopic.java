@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 public class StageStatusTopic extends GoMessageTopic<StageStatusMessage> {
 
     @Autowired
-    public StageStatusTopic(MessagingService messaging) {
+    public StageStatusTopic(MessagingService<GoMessage> messaging) {
         super(messaging, "stage-status");
     }
 }

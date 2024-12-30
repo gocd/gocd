@@ -63,11 +63,11 @@ public class MaterialService {
     private final MaterialRepository materialRepository;
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
-    private PackageRepositoryExtension packageRepositoryExtension;
-    private SCMExtension scmExtension;
-    private TransactionTemplate transactionTemplate;
-    private SecretParamResolver secretParamResolver;
-    private Map<Class, MaterialPoller> materialPollerMap = new HashMap<>();
+    private final PackageRepositoryExtension packageRepositoryExtension;
+    private final SCMExtension scmExtension;
+    private final TransactionTemplate transactionTemplate;
+    private final SecretParamResolver secretParamResolver;
+    private final Map<Class<? extends Material>, MaterialPoller<? extends Material>> materialPollerMap = new HashMap<>();
 
     @Autowired
     public MaterialService(MaterialRepository materialRepository,
@@ -141,8 +141,9 @@ public class MaterialService {
         getPollerImplementation(material).checkout(material, baseDir, revision, execCtx);
     }
 
-    protected MaterialPoller getPollerImplementation(Material material) {
-        MaterialPoller materialPoller = materialPollerMap.get(getMaterialClass(material));
+    protected MaterialPoller<Material> getPollerImplementation(Material material) {
+        Class<? extends Material> materialClass = getMaterialClass(material);
+         @SuppressWarnings("unchecked") MaterialPoller<Material> materialPoller = (MaterialPoller<Material>) materialPollerMap.get(materialClass);
         return materialPoller == null ? new NoOpPoller() : materialPoller;
     }
 

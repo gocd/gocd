@@ -94,11 +94,6 @@ class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    void shouldImplementAbstractFetchArtifact() {
-        assertThat(new FetchPluggableArtifactTask() instanceof AbstractFetchTask).isTrue();
-    }
-
-    @Test
     void validate_shouldErrorWhenReferencingConfigRepositoryPipelineFromFilePipeline() {
         uppestStream.setOrigin(new RepoConfigOrigin());
         downstream.setOrigin(new FileConfigOrigin());
@@ -667,7 +662,7 @@ class FetchPluggableArtifactTaskTest {
 
     @Test
     void shouldSetConfiguration_whenPluginIsProvided() {
-        final Map<Object, Object> configAttrs = new HashMap<>();
+        final Map<String, Object> configAttrs = new HashMap<>();
         configAttrs.put(FetchPluggableArtifactTask.ARTIFACT_ID, "installers");
         configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Map.of("NAME", "gocd.zip"));
         configAttrs.put("pluginId", "cd.go.artifact.s3");
@@ -683,7 +678,7 @@ class FetchPluggableArtifactTaskTest {
 
     @Test
     void shouldSetConfiguration_whenPluginIsNotProvided() throws CryptoException {
-        final Map<Object, Object> configAttrs = new HashMap<>();
+        final Map<String, Object> configAttrs = new HashMap<>();
         configAttrs.put(FetchPluggableArtifactTask.ARTIFACT_ID, "installers");
         configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION,
             Map.of("NAME", Map.of("value", new GoCipher().encrypt("gocd.zip"), "isSecure", "true"))
@@ -700,7 +695,7 @@ class FetchPluggableArtifactTaskTest {
 
     @Test
     void shouldNotSetConfigurationWhenArtifactIdIsNotProvided() {
-        final Map<Object, Object> configAttrs = new HashMap<>();
+        final Map<String, Object> configAttrs = new HashMap<>();
         configAttrs.put(FetchPluggableArtifactTask.ARTIFACT_ID, "");
         configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Map.of("NAME", "gocd.zip"));
 

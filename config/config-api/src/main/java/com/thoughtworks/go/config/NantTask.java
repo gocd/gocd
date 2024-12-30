@@ -77,7 +77,7 @@ public class NantTask extends BuildTask {
     }
 
     @Override
-    protected void setBuildTaskConfigAttributes(Map attributeMap) {
+    protected void setBuildTaskConfigAttributes(Map<String, ?> attributeMap) {
         nantPath = inferValueFromMap(attributeMap, NANT_PATH);
     }
 

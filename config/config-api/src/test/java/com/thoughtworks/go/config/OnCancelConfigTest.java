@@ -52,14 +52,14 @@ public class OnCancelConfigTest {
 
     @Test
     public void shouldSetPrimitiveAttributesForExecTask() {
-        Map hashMap = new HashMap();
+        Map<String, Object> hashMap = new HashMap<>();
         hashMap.put(OnCancelConfig.ON_CANCEL_OPTIONS, "exec");
-        Map valueMap = new HashMap();
+        Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(ExecTask.COMMAND, "ls");
         valueMap.put(ExecTask.ARGS, "blah");
         valueMap.put(ExecTask.WORKING_DIR, "pwd");
         hashMap.put(OnCancelConfig.EXEC_ON_CANCEL, valueMap);
-        hashMap.put(OnCancelConfig.ANT_ON_CANCEL, new HashMap());
+        hashMap.put(OnCancelConfig.ANT_ON_CANCEL, new HashMap<>());
 
         ExecTask execTask = new ExecTask();
         when(taskFactory.taskInstanceFor(execTask.getTaskType())).thenReturn(execTask);
@@ -70,14 +70,14 @@ public class OnCancelConfigTest {
 
     @Test
     public void shouldSetPrimitiveAttributesForAntTask() {
-        Map hashMap = new HashMap();
+        Map<String, Object> hashMap = new HashMap<>();
         hashMap.put(OnCancelConfig.ON_CANCEL_OPTIONS, "ant");
-        Map valueMap = new HashMap();
+        Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(BuildTask.BUILD_FILE, "build.xml");
         valueMap.put(BuildTask.TARGET, "blah");
         valueMap.put(BuildTask.WORKING_DIRECTORY, "pwd");
         hashMap.put(OnCancelConfig.ANT_ON_CANCEL, valueMap);
-        hashMap.put(OnCancelConfig.EXEC_ON_CANCEL, new HashMap());
+        hashMap.put(OnCancelConfig.EXEC_ON_CANCEL, new HashMap<>());
 
 
         when(taskFactory.taskInstanceFor(new AntTask().getTaskType())).thenReturn(new AntTask());
@@ -92,17 +92,17 @@ public class OnCancelConfigTest {
 
     @Test
     public void shouldSetPrimitiveAttributesForNantTask() {
-        Map hashMap = new HashMap();
+        Map<String, Object> hashMap = new HashMap<>();
         hashMap.put(OnCancelConfig.ON_CANCEL_OPTIONS, "nant");
-        Map valueMap = new HashMap();
+        Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(BuildTask.BUILD_FILE, "default.build");
         valueMap.put(BuildTask.TARGET, "compile");
         valueMap.put(BuildTask.WORKING_DIRECTORY, "pwd");
         valueMap.put(NantTask.NANT_PATH, "/usr/bin/nant");
         hashMap.put(OnCancelConfig.NANT_ON_CANCEL, valueMap);
-        hashMap.put(OnCancelConfig.EXEC_ON_CANCEL, new HashMap());
-        hashMap.put(OnCancelConfig.ANT_ON_CANCEL, new HashMap());
-        hashMap.put(OnCancelConfig.RAKE_ON_CANCEL, new HashMap());
+        hashMap.put(OnCancelConfig.EXEC_ON_CANCEL, new HashMap<>());
+        hashMap.put(OnCancelConfig.ANT_ON_CANCEL, new HashMap<>());
+        hashMap.put(OnCancelConfig.RAKE_ON_CANCEL, new HashMap<>());
 
         when(taskFactory.taskInstanceFor(new NantTask().getTaskType())).thenReturn(new NantTask());
         OnCancelConfig cancelConfig = OnCancelConfig.create(hashMap, taskFactory);
@@ -117,14 +117,14 @@ public class OnCancelConfigTest {
 
     @Test
     public void shouldSetPrimitiveAttributesForRakeTask() {
-        Map hashMap = new HashMap();
+        Map<String, Object> hashMap = new HashMap<>();
         hashMap.put(OnCancelConfig.ON_CANCEL_OPTIONS, "rake");
-        Map valueMap = new HashMap();
+        Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(BuildTask.BUILD_FILE, "rakefile");
         valueMap.put(BuildTask.TARGET, "build");
         valueMap.put(BuildTask.WORKING_DIRECTORY, "pwd");
         hashMap.put(OnCancelConfig.RAKE_ON_CANCEL, valueMap);
-        hashMap.put(OnCancelConfig.EXEC_ON_CANCEL, new HashMap());
+        hashMap.put(OnCancelConfig.EXEC_ON_CANCEL, new HashMap<>());
 
         when(taskFactory.taskInstanceFor(new RakeTask().getTaskType())).thenReturn(new RakeTask());
         OnCancelConfig cancelConfig = OnCancelConfig.create(hashMap, taskFactory);

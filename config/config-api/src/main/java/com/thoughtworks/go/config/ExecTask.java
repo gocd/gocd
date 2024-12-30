@@ -97,7 +97,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
     }
 
     @Override
-    protected void setTaskConfigAttributes(Map attributeMap) {
+    protected void setTaskConfigAttributes(Map<String, ?> attributeMap) {
         if (attributeMap.containsKey(COMMAND)) {
             command = (String) attributeMap.get(COMMAND);
         }

@@ -30,7 +30,7 @@ public class GoConfigClassWriter {
     private final ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
 
-    public GoConfigClassWriter(Class aClass, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
+    public GoConfigClassWriter(Class<?> aClass, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
         this.aClass = aClass;
         this.configCache = configCache;
         this.registry = registry;

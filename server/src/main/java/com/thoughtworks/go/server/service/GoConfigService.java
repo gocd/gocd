@@ -672,7 +672,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
     }
 
-    public XmlPartialSaver<?> groupSaver(String groupName) {
+    public XmlPartialSaver<Object> groupSaver(String groupName) {
         return new XmlPartialPipelineGroupSaver(groupName);
     }
 

@@ -31,7 +31,6 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,8 +56,7 @@ class StageSqlMapDaoTest {
     void setUp() {
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         sqlMapClientTemplate = mock(SqlMapClientTemplate.class);
-        stageSqlMapDao = new StageSqlMapDao(mock(JobInstanceSqlMapDao.class), new Cache(true, false, false), mock(TransactionTemplate.class), mock(SqlSessionFactory.class), goCache,
-                mock(TransactionSynchronizationManager.class), mock(SystemEnvironment.class), null);
+        stageSqlMapDao = new StageSqlMapDao(mock(JobInstanceSqlMapDao.class), new Cache(true, false, false), mock(TransactionTemplate.class), mock(SqlSessionFactory.class), goCache, mock(TransactionSynchronizationManager.class));
         stageSqlMapDao.setSqlMapClientTemplate(sqlMapClientTemplate);
         cloner = mock(Cloner.class);
         ReflectionUtil.setField(stageSqlMapDao, "cloner", cloner);
@@ -95,7 +93,7 @@ class StageSqlMapDaoTest {
     void shouldLoadStageHistoryEntryForAStageRunAfterTheLatestRunThatIsRetrievedForStageHistory() {
         String pipelineName = "some_pipeline_name";
         String stageName = "some_stage_name";
-        Supplier function = mock(Supplier.class);
+        @SuppressWarnings("unchecked") Supplier<Pagination> function = mock(Supplier.class);
         Pagination pagination = mock(Pagination.class);
         when(pagination.getCurrentPage()).thenReturn(3);
         when(pagination.getPageSize()).thenReturn(10);

@@ -50,10 +50,10 @@ public class JobAgentMetadata extends PersistentObject {
     }
 
     public ElasticProfile elasticProfile() {
-        Map map = GSON.fromJson(elasticAgentProfileMetadata, LinkedHashMap.class);
+        Map<String, Object> map = GSON.<Map<String, Object>>fromJson(elasticAgentProfileMetadata, LinkedHashMap.class);
         String clusterProfileId = (String) map.get("clusterProfileId");
         String id = (String) map.get("id");
-        Map<String, String> properties = (Map<String, String>) map.get("properties");
+        @SuppressWarnings("unchecked") Map<String, String> properties = (Map<String, String>) map.get("properties");
 
         Collection<ConfigurationProperty> configProperties = properties.entrySet().stream().map(entry -> new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue()))).collect(Collectors.toList());
 
@@ -61,7 +61,7 @@ public class JobAgentMetadata extends PersistentObject {
     }
 
     public ClusterProfile clusterProfile() {
-        Map map = GSON.fromJson(clusterProfileMetadata, LinkedHashMap.class);
+        Map<String, Object> map = GSON.<Map<String, Object>>fromJson(clusterProfileMetadata, LinkedHashMap.class);
 
         if (map == null || map.isEmpty()) {
             return null;
@@ -69,7 +69,7 @@ public class JobAgentMetadata extends PersistentObject {
 
         String pluginId = (String) map.get("pluginId");
         String id = (String) map.get("id");
-        Map<String, String> properties = (Map<String, String>) map.get("properties");
+        @SuppressWarnings("unchecked") Map<String, String> properties = (Map<String, String>) map.get("properties");
 
         Collection<ConfigurationProperty> configProperties = properties.entrySet().stream().map(entry -> new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue()))).collect(Collectors.toList());
         return new ClusterProfile(id, pluginId, configProperties);

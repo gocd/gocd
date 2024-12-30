@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 
 public class JsonViewTest {
 
-    private GoRequestContext requestContext = mock(GoRequestContext.class);
+    private final GoRequestContext requestContext = mock(GoRequestContext.class);
 
     @Test
     public void testShouldReturnOutputWithoutWhitespaceThatIsNotAllowedInHeaders() throws Exception {
@@ -50,7 +50,7 @@ public class JsonViewTest {
     @Test
     public void testShouldRenderEmptyMap() {
         JsonView view = new JsonView();
-        String json = view.renderJson(new LinkedHashMap());
+        String json = view.renderJson(new LinkedHashMap<>());
         assertThatJson("{}").isEqualTo(json);
     }
 
@@ -78,7 +78,7 @@ public class JsonViewTest {
 
     @Test
     public void testShouldRenderArray() {
-        List list = new ArrayList();
+        List<Object> list = new ArrayList<>();
         Map<String, Object> nestedMap = new LinkedHashMap<>();
         nestedMap.put("key1", "value1");
         list.add(nestedMap);
@@ -91,7 +91,7 @@ public class JsonViewTest {
 
     @Test
     public void testShouldRenderFakeMapsWithoutTheSurroundingMap() {
-        List list = new ArrayList();
+        List<Object> list = new ArrayList<>();
         Map<String, Object> nestedMap = new LinkedHashMap<>();
         nestedMap.put("key1", "value1");
         list.add(nestedMap);

@@ -59,7 +59,7 @@ public class PluginProfileCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        PluginProfileCommand command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
+        PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo")).isNull();
 
         assertThat(command.canContinue(cruiseConfig)).isFalse();
@@ -72,7 +72,7 @@ public class PluginProfileCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        PluginProfileCommand command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
+        PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
         assertThat(command.canContinue(cruiseConfig)).isTrue();
@@ -85,7 +85,7 @@ public class PluginProfileCommandTest {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig(null, "some-plugin", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
         cruiseConfig.server().security().securityAuthConfigs().add(securityAuthConfig);
 
-        PluginProfileCommand command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
+        PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
         assertThatThrownBy(() -> command.isValid(cruiseConfig))
                 .hasMessageContaining(EntityType.ElasticProfile.idCannotBeBlank());
     }
@@ -97,7 +97,7 @@ public class PluginProfileCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        PluginProfileCommand command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
+        PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
         assertThat(command.canContinue(cruiseConfig)).isTrue();

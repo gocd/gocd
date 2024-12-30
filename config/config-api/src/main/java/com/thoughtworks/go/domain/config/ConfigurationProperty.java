@@ -246,7 +246,7 @@ public class ConfigurationProperty implements Serializable, Validatable, SecretP
     }
 
     public void setConfigAttributes(Object attributes, SecureKeyInfoProvider secureKeyInfoProvider) {
-        Map attributesMap = (Map) attributes;
+        @SuppressWarnings("unchecked") Map<String, ?> attributesMap = (Map<String, ?>) attributes;
         if (attributesMap.containsKey(CONFIGURATION_KEY)) {
             configurationKey = new ConfigurationKey();
             configurationKey.setConfigAttributes(attributesMap.get(CONFIGURATION_KEY));

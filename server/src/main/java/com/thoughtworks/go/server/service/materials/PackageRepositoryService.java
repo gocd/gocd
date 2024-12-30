@@ -168,7 +168,7 @@ public class PackageRepositoryService {
         return goConfigService.getPackageRepositories();
     }
 
-    private void update(Username username, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command, PackageRepository repository) {
+    private void update(Username username, HttpLocalizedOperationResult result, EntityConfigUpdateCommand<?> command, PackageRepository repository) {
         try {
             goConfigService.updateConfig(command, username);
         } catch (Exception e) {

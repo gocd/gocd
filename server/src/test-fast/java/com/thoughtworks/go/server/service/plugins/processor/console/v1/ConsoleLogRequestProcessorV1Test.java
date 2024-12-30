@@ -50,10 +50,6 @@ public class ConsoleLogRequestProcessorV1Test {
     @Mock
     private GoPluginDescriptor pluginDescriptor;
 
-    @BeforeEach
-    void setUp() {
-    }
-
     @Test
     void shouldRouteMessageToConsoleService() throws IOException, IllegalArtifactLocationException {
         Map<String, String> requestMap = new HashMap<>();
@@ -86,7 +82,7 @@ public class ConsoleLogRequestProcessorV1Test {
 
         assertThat(response.responseCode()).isEqualTo(DefaultGoApiResponse.INTERNAL_ERROR);
 
-        final Map responseContents = new Gson().fromJson(response.responseBody(), Map.class);
-        assertThat((String) responseContents.get("message")).contains("Error:");
+        @SuppressWarnings("unchecked") final Map<String, String> responseContents = new Gson().fromJson(response.responseBody(), Map.class);
+        assertThat(responseContents.get("message")).contains("Error:");
     }
 }

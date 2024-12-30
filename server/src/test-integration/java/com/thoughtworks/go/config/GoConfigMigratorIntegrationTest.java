@@ -437,7 +437,7 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldSetServerId_toARandomUUID_ifServerTagDoesntExist() {
-        GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(true);
+        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("<cruise schemaVersion='" + 53 + "'>\n"
                 + "</cruise>", goConfigService.configFileMd5());
         assertThat(configValidity.isValid()).as("Has no error").isTrue();
@@ -450,7 +450,7 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldSetServerId_toARandomUUID_ifOneDoesntExist() {
-        GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(true);
+        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("""
                 <cruise schemaVersion='55'>
                 <server artifactsdir="logs" siteUrl="http://go-server-site-url:8153" secureSiteUrl="https://go-server-site-url" jobTimeout="60">
@@ -1529,7 +1529,7 @@ public class GoConfigMigratorIntegrationTest {
         return goFileConfigDataSource.forceLoad(configFile).config;
     }
 
-    private void assertConfiguration(Configuration configuration, List<List> expectedKeyValuePair) {
+    private void assertConfiguration(Configuration configuration, List<List<?>> expectedKeyValuePair) {
         int position = 0;
         for (ConfigurationProperty configurationProperty : configuration) {
             assertThat(configurationProperty.getConfigurationKey().getName()).isEqualTo(expectedKeyValuePair.get(position).get(0));

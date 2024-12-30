@@ -116,7 +116,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
 
         Map<String, String> data = new HashMap<>();
         data.put("k1", "v1");
-        when(scmExtension.getLatestRevision(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class))).thenReturn(new MaterialPollResult(data, new SCMRevision()));
+        when(scmExtension.getLatestRevision(any(String.class), any(SCMPropertyConfiguration.class), any(), any(String.class))).thenReturn(new MaterialPollResult(data, new SCMRevision()));
         mockSCMExtensionInPoller();
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
@@ -141,7 +141,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
 
         Map<String, String> newData = new HashMap<>(oldData);
         newData.put("k2", "v2");
-        when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class), any(SCMRevision.class))).thenReturn(new MaterialPollResult(newData, new SCMRevision()));
+        when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(), any(String.class), any(SCMRevision.class))).thenReturn(new MaterialPollResult(newData, new SCMRevision()));
         mockSCMExtensionInPoller();
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
@@ -155,6 +155,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         assertThat(actualInstance.getAdditionalDataMap()).isEqualTo(newData);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void addMetadata(PluggableSCMMaterial material, String field, boolean partOfIdentity) {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
         scmConfigurations.add(new SCMConfiguration(field).with(SCMConfiguration.PART_OF_IDENTITY, partOfIdentity));
@@ -162,7 +163,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
     }
 
     private void mockSCMExtensionInPoller() {
-        Map<Class, MaterialPoller> materialPollerMap = ReflectionUtil.getField(materialService, "materialPollerMap");
+        Map<Class<?>, MaterialPoller<?>> materialPollerMap = ReflectionUtil.getField(materialService, "materialPollerMap");
         materialPollerMap.put(PluggableSCMMaterial.class, new PluggableSCMMaterialPoller(materialRepository, scmExtension, transactionTemplate));
         ReflectionUtil.setField(materialService, "materialPollerMap", materialPollerMap);
     }

@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class AdminService {
     public Map<String, Object> configurationJsonForSourceXml() {
         Map<String, Object> json = new LinkedHashMap<>();
         Map<String, Object> configJson = new LinkedHashMap<>();
-        GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
+        GoConfigService.XmlPartialSaver<CruiseConfig> saver = goConfigService.fileSaver(false);
         configJson.put("location", goConfigService.fileLocation());
         configJson.put("content", saver.asXml());
         configJson.put("md5", saver.getMd5());
@@ -44,11 +45,11 @@ public class AdminService {
         return json;
     }
 
-    public GoConfigValidity updateConfig(Map attributes, HttpLocalizedOperationResult result) {
+    public GoConfigValidity updateConfig(Map<String, ?> attributes, HttpLocalizedOperationResult result) {
         GoConfigValidity validity;
         String configXml = (String) attributes.get("content");
         String configMd5 = (String) attributes.get("md5");
-        GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(false);
+        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = goConfigService.fileSaver(false);
         validity = fileSaver.saveXml(configXml, configMd5);
         if (!validity.isValid()) {
             result.badRequest("Save failed, see errors below");

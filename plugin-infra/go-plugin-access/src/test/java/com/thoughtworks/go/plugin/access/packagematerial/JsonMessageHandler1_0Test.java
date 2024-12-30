@@ -33,6 +33,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@SuppressWarnings("SameParameterValue")
 public class JsonMessageHandler1_0Test {
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private JsonMessageHandler1_0 messageHandler;
@@ -52,7 +53,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildRepositoryConfigurationFromResponseBody() throws Exception {
+    public void shouldBuildRepositoryConfigurationFromResponseBody() {
         String responseBody = "{" +
                 "\"key-one\":{}," +
                 "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
@@ -66,7 +67,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildPackageConfigurationFromResponseBody() throws Exception {
+    public void shouldBuildPackageConfigurationFromResponseBody() {
         String responseBody = "{" +
                 "\"key-one\":{}," +
                 "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
@@ -80,13 +81,13 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildRequestBodyForCheckRepositoryConfigurationValidRequest() throws Exception {
+    public void shouldBuildRequestBodyForCheckRepositoryConfigurationValidRequest() {
         String requestMessage = messageHandler.requestMessageForIsRepositoryConfigurationValid(repositoryConfiguration);
         assertThat(requestMessage).isEqualTo("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}");
     }
 
     @Test
-    public void shouldBuildValidationResultFromCheckRepositoryConfigurationValidResponse() throws Exception {
+    public void shouldBuildValidationResultFromCheckRepositoryConfigurationValidResponse() {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
         ValidationResult validationResult = messageHandler.responseMessageForIsRepositoryConfigurationValid(responseBody);
         assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
@@ -94,19 +95,19 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildSuccessValidationResultFromCheckRepositoryConfigurationValidResponse() throws Exception {
+    public void shouldBuildSuccessValidationResultFromCheckRepositoryConfigurationValidResponse() {
         assertThat(messageHandler.responseMessageForIsRepositoryConfigurationValid("").isSuccessful()).isTrue();
         assertThat(messageHandler.responseMessageForIsRepositoryConfigurationValid(null).isSuccessful()).isTrue();
     }
 
     @Test
-    public void shouldBuildRequestBodyForCheckPackageConfigurationValidRequest() throws Exception {
+    public void shouldBuildRequestBodyForCheckPackageConfigurationValidRequest() {
         String requestMessage = messageHandler.requestMessageForIsPackageConfigurationValid(packageConfiguration, repositoryConfiguration);
         assertThat(requestMessage).isEqualTo("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}");
     }
 
     @Test
-    public void shouldBuildValidationResultForCheckRepositoryConfigurationValidResponse() throws Exception {
+    public void shouldBuildValidationResultForCheckRepositoryConfigurationValidResponse() {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
         ValidationResult validationResult = messageHandler.responseMessageForIsPackageConfigurationValid(responseBody);
         assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
@@ -114,59 +115,59 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildRequestBodyForCheckRepositoryConnectionRequest() throws Exception {
+    public void shouldBuildRequestBodyForCheckRepositoryConnectionRequest() {
         String requestMessage = messageHandler.requestMessageForCheckConnectionToRepository(repositoryConfiguration);
         assertThat(requestMessage).isEqualTo("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}");
     }
 
     @Test
-    public void shouldBuildSuccessResultFromCheckRepositoryConnectionResponse() throws Exception {
+    public void shouldBuildSuccessResultFromCheckRepositoryConnectionResponse() {
         String responseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToRepository(responseBody);
         assertSuccessResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
-    public void shouldBuildFailureResultFromCheckRepositoryConnectionResponse() throws Exception {
+    public void shouldBuildFailureResultFromCheckRepositoryConnectionResponse() {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToRepository(responseBody);
         assertFailureResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
-    public void shouldHandleNullMessagesForCheckRepositoryConnectionResponse() throws Exception {
+    public void shouldHandleNullMessagesForCheckRepositoryConnectionResponse() {
         assertSuccessResult(messageHandler.responseMessageForCheckConnectionToRepository("{\"status\":\"success\"}"), new ArrayList<>());
         assertFailureResult(messageHandler.responseMessageForCheckConnectionToRepository("{\"status\":\"failure\"}"), new ArrayList<>());
     }
 
     @Test
-    public void shouldBuildRequestBodyForCheckPackageConnectionRequest() throws Exception {
+    public void shouldBuildRequestBodyForCheckPackageConnectionRequest() {
         String requestMessage = messageHandler.requestMessageForCheckConnectionToPackage(packageConfiguration, repositoryConfiguration);
         assertThat(requestMessage).isEqualTo("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}");
     }
 
     @Test
-    public void shouldBuildSuccessResultFromCheckPackageConnectionResponse() throws Exception {
+    public void shouldBuildSuccessResultFromCheckPackageConnectionResponse() {
         String responseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToPackage(responseBody);
         assertSuccessResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
-    public void shouldBuildFailureResultFromCheckPackageConnectionResponse() throws Exception {
+    public void shouldBuildFailureResultFromCheckPackageConnectionResponse() {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToPackage(responseBody);
         assertFailureResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
-    public void shouldHandleNullMessagesForCheckPackageConnectionResponse() throws Exception {
+    public void shouldHandleNullMessagesForCheckPackageConnectionResponse() {
         assertSuccessResult(messageHandler.responseMessageForCheckConnectionToPackage("{\"status\":\"success\"}"), new ArrayList<>());
         assertFailureResult(messageHandler.responseMessageForCheckConnectionToPackage("{\"status\":\"failure\"}"), new ArrayList<>());
     }
 
     @Test
-    public void shouldBuildRequestBodyForLatestRevisionRequest() throws Exception {
+    public void shouldBuildRequestBodyForLatestRevisionRequest() {
         String requestBody = messageHandler.requestMessageForLatestRevision(packageConfiguration, repositoryConfiguration);
         assertThat(requestBody).isEqualTo("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}");
     }
@@ -189,7 +190,7 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildRequestBodyForLatestRevisionSinceRequest() throws Exception {
         Date timestamp = new SimpleDateFormat(DATE_FORMAT).parse("2011-07-13T19:43:37.100Z");
-        Map data = new LinkedHashMap();
+        Map<String, String> data = new LinkedHashMap<>();
         data.put("dataKeyOne", "data-value-one");
         data.put("dataKeyTwo", "data-value-two");
         PackageRevision previouslyKnownRevision = new PackageRevision("abc.rpm", timestamp, "someuser", "comment", null, data);
@@ -209,7 +210,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildNullPackageRevisionFromLatestRevisionSinceWhenEmptyResponse() throws Exception {
+    public void shouldBuildNullPackageRevisionFromLatestRevisionSinceWhenEmptyResponse() {
         assertThat(messageHandler.responseMessageForLatestRevisionSince("")).isNull();
         assertThat(messageHandler.responseMessageForLatestRevisionSince(null)).isNull();
         assertThat(messageHandler.responseMessageForLatestRevisionSince("{}")).isNull();

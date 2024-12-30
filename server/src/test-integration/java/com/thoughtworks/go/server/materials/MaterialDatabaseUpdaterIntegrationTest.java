@@ -94,8 +94,8 @@ public class MaterialDatabaseUpdaterIntegrationTest {
     @Test
     public void shouldNotThrowUpWhenSameMaterialIsBeingUpdatedByMultipleThreads() throws Exception {
         final ScmMaterial material = new GitMaterial(testRepo.projectRepositoryUrl());
-        final List<Exception> threadOneExceptions = new ArrayList();
-        final List<Exception> threadTwoExceptions = new ArrayList();
+        final List<Exception> threadOneExceptions = new ArrayList<>();
+        final List<Exception> threadTwoExceptions = new ArrayList<>();
 
         Thread updateThread1 = new Thread(() -> {
             try {

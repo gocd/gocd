@@ -19,9 +19,10 @@ import com.thoughtworks.go.apiv7.plugininfos.representers.extensions.*;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class ExtensionRepresenterResolver {
-    private static final HashMap<String, ExtensionRepresenter> extensionRepresenter;
+    private static final Map<String, ExtensionRepresenter> extensionRepresenter;
 
     static {
         extensionRepresenter = new HashMap<>();

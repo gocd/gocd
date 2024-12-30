@@ -127,7 +127,7 @@ public class PipelineConfigService {
     private void update(Username currentUser,
                         PipelineConfig pipelineConfig,
                         LocalizedOperationResult result,
-                        EntityConfigUpdateCommand command) {
+                        EntityConfigUpdateCommand<?> command) {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {

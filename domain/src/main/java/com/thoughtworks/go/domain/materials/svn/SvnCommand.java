@@ -295,7 +295,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
             addCredentials(command, new StringArgument(svnMaterial.getUserName()), new PasswordArgument(svnMaterial.passwordForCommandLine()));
             final String queryUrl = svnMaterial.urlForCommandLine();
             command.withArg(queryUrl);
-            ConsoleResult consoleResult = null;
+            ConsoleResult consoleResult;
             try {
                 consoleResult = executeCommand(command);
                 urlToUUIDMap.putAll(svnLogXmlParser.parseInfoToGetUUID(consoleResult.outputAsString(), queryUrl, getBuilder()));

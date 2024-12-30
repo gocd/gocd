@@ -310,22 +310,23 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         setConfigAttributes(attributes, null);
     }
 
+    @SuppressWarnings("unchecked")
     public void setConfigAttributes(Object attributes, TaskFactory taskFactory) {
         if (attributes == null) {
             return;
         }
-        Map attributeMap = (Map) attributes;
+        Map<String, Object> attributeMap = (Map<String, Object>) attributes;
         if (attributeMap.containsKey(NAME)) {
             name = new CaseInsensitiveString((String) attributeMap.get(NAME));
         }
         if (attributeMap.containsKey(ARTIFACT_CLEANUP_PROHIBITED)) {
-            artifactCleanupProhibited = attributeMap.get(ARTIFACT_CLEANUP_PROHIBITED).equals("1") ? true : false;
+            artifactCleanupProhibited = attributeMap.get(ARTIFACT_CLEANUP_PROHIBITED).equals("1");
         }
         if (attributeMap.containsKey(FETCH_MATERIALS)) {
-            fetchMaterials = attributeMap.get(FETCH_MATERIALS).equals("1") ? true : false;
+            fetchMaterials = attributeMap.get(FETCH_MATERIALS).equals("1");
         }
         if (attributeMap.containsKey(CLEAN_WORKING_DIR)) {
-            cleanWorkingDir = attributeMap.get(CLEAN_WORKING_DIR).equals("1") ? true : false;
+            cleanWorkingDir = attributeMap.get(CLEAN_WORKING_DIR).equals("1");
         }
         if (attributeMap.containsKey(APPROVAL)) {
             approval.setConfigAttributes(attributeMap.get(APPROVAL));

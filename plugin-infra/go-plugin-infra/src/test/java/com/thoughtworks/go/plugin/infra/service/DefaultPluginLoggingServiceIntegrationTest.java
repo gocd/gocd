@@ -86,7 +86,7 @@ class DefaultPluginLoggingServiceIntegrationTest {
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void shouldGetCurrentLogDirectoryByLookingAtFileAppenderOfRootLogger() {
-        FileAppender fileAppender = new FileAppender();
+        FileAppender<?> fileAppender = new FileAppender<>();
         fileAppender.setFile("/var/log/go-server/go-server.log");
 
         DefaultPluginLoggingService service = spy(new DefaultPluginLoggingService(systemEnvironment));
@@ -199,7 +199,7 @@ class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     private void assertMessageInLog(File pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws IOException {
-        List linesInLog = FileUtils.readLines(pluginLogFile, Charset.defaultCharset());
+        List<String> linesInLog = FileUtils.readLines(pluginLogFile, Charset.defaultCharset());
         for (Object line : linesInLog) {
             if (((String) line).matches(String.format("^.*%s\\s+\\[%s\\] %s:.* - %s$", expectedLoggingLevel, Thread.currentThread().getName(), loggerName, expectedLogMessage))) {
                 return;

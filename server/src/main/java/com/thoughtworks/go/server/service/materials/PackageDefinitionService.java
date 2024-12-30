@@ -139,12 +139,12 @@ public class PackageDefinitionService {
         return repositoryConfiguration;
     }
 
-    private void update(Username username, PackageDefinition packageDeinition, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
+    private void update(Username username, PackageDefinition packageDefinition, HttpLocalizedOperationResult result, EntityConfigUpdateCommand<?> command) {
         try {
             goConfigService.updateConfig(command, username);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
-                result.unprocessableEntity(entityConfigValidationFailed(packageDeinition.getClass().getAnnotation(ConfigTag.class).value(), packageDeinition.getId(), e.getMessage()));
+                result.unprocessableEntity(entityConfigValidationFailed(packageDefinition.getClass().getAnnotation(ConfigTag.class).value(), packageDefinition.getId(), e.getMessage()));
             } else if (e instanceof RulesViolationException || e instanceof SecretResolutionFailureException) {
                 result.unprocessableEntity(saveFailedWithReason(e.getMessage()));
             } else {

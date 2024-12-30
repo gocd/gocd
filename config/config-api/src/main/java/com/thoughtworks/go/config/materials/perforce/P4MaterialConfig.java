@@ -162,24 +162,25 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
                 '}';
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;
         }
         super.setConfigAttributes(attributes);
-        Map map = (Map) attributes;
+        Map<String, String> map = (Map<String, String>) attributes;
         if (map.containsKey(SERVER_AND_PORT)) {
-            this.serverAndPort = (String) map.get(SERVER_AND_PORT);
+            this.serverAndPort = map.get(SERVER_AND_PORT);
         }
         if (map.containsKey(VIEW)) {
-            setView((String) map.get(VIEW));
+            setView(map.get(VIEW));
         }
         if (map.containsKey(USERNAME)) {
-            this.userName = (String) map.get(USERNAME);
+            this.userName = map.get(USERNAME);
         }
         if (map.containsKey(PASSWORD_CHANGED) && "1".equals(map.get(PASSWORD_CHANGED))) {
-            String passwordToSet = (String) map.get(PASSWORD);
+            String passwordToSet = map.get(PASSWORD);
             resetPassword(passwordToSet);
         }
         setUseTickets("true".equals(map.get(USE_TICKETS)));

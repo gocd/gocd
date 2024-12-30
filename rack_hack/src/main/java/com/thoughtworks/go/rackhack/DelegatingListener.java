@@ -32,10 +32,10 @@ public class DelegatingListener implements ServletContextListener {
     }
 
     private HttpServlet createServlet(String attribute) {
-        HttpServlet servlet = null;
+        HttpServlet servlet;
         try {
-            Class servletKlass = Class.forName(attribute);
-            Constructor cons = servletKlass.getConstructor();
+            Class<?> servletKlass = Class.forName(attribute);
+            Constructor<?> cons = servletKlass.getConstructor();
             servlet = (HttpServlet) cons.newInstance();
         } catch (Exception e) {
             throw new RuntimeException(e);

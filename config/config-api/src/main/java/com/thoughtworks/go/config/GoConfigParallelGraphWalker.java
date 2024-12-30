@@ -63,7 +63,7 @@ public class GoConfigParallelGraphWalker {
         }
     }
 
-    private List<Field> getAllFields(Class klass) {
+    private List<Field> getAllFields(Class<?> klass) {
         List<Field> declaredFields = new ArrayList<>(Arrays.asList(klass.getDeclaredFields()));
         Class<?> superKlass = klass.getSuperclass();
         if (superKlass != null) {
@@ -80,8 +80,8 @@ public class GoConfigParallelGraphWalker {
 
     private void walkCollection(Object raw, Object withErrors, Handler handler) {
         if (Collection.class.isAssignableFrom(raw.getClass())) {
-            Object[] rawCollection = ((Collection) raw).toArray();
-            Object[] withErrorsCollection = ((Collection) withErrors).toArray();
+            Object[] rawCollection = ((Collection<?>) raw).toArray();
+            Object[] withErrorsCollection = ((Collection<?>) withErrors).toArray();
             for (Object rawObject : rawCollection) {
                 Object matchingObject = findMatchingObject(withErrorsCollection, rawObject);
                 if (matchingObject != null) {

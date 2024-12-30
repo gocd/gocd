@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestTransactionSynchronizationManager extends TransactionSynchronizationManager {
-    private List<TransactionSynchronization> synchronizations;
+    private final List<TransactionSynchronization> synchronizations;
 
     public TestTransactionSynchronizationManager() {
         this.synchronizations = new ArrayList<>();

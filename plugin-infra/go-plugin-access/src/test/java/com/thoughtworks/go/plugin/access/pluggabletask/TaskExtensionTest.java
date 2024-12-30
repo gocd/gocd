@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
@@ -65,7 +66,7 @@ public class TaskExtensionTest {
     public void setup() {
         extension = new TaskExtension(pluginManager, extensionsRegistry);
         pluginId = "plugin-id";
-        when(pluginManager.resolveExtensionVersion(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(List.class))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any())).thenReturn("1.0");
 
         pluginSettingsConfiguration = new PluginSettingsConfiguration();
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
@@ -111,7 +112,7 @@ public class TaskExtensionTest {
 
         assertRequest(requestArgumentCaptor.getValue(), PLUGGABLE_TASK_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsView(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -138,7 +139,7 @@ public class TaskExtensionTest {
 
     @Test
     public void shouldExecuteTheTask() {
-        ActionWithReturn actionWithReturn = mock(ActionWithReturn.class);
+        @SuppressWarnings("unchecked") ActionWithReturn<Task, ExecutionResult> actionWithReturn = mock(ActionWithReturn.class);
         when(actionWithReturn.execute(any(JsonBasedPluggableTask.class), nullable(GoPluginDescriptor.class))).thenReturn(ExecutionResult.success("yay"));
 
         ExecutionResult executionResult = extension.execute(pluginId, actionWithReturn);
@@ -150,7 +151,7 @@ public class TaskExtensionTest {
 
     @Test
     public void shouldPerformTheActionOnTask() {
-        Action action = mock(Action.class);
+        @SuppressWarnings("unchecked") Action<Task> action = mock(Action.class);
         final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(descriptor);
 

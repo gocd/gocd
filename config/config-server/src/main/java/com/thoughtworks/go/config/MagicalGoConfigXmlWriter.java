@@ -346,11 +346,10 @@ public class MagicalGoConfigXmlWriter {
         }
 
         protected Collection<?> generateDefaultCollection() {
-            Class<? extends Collection> clazz = value.getClass();
             try {
-                return clazz.getDeclaredConstructor().newInstance();
+                return value.getClass().getDeclaredConstructor().newInstance();
             } catch (Exception e) {
-                throw bomb("Error creating default instance of " + clazz.getName(), e);
+                throw bomb("Error creating default instance of " + value.getClass().getName(), e);
             }
         }
     }

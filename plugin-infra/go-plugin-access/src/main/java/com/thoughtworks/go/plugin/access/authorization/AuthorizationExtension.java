@@ -46,7 +46,7 @@ import static java.lang.String.format;
 
 @Component
 public class AuthorizationExtension extends AbstractExtension {
-    private final HashMap<String, AuthorizationMessageConverter> messageHandlerMap = new HashMap<>();
+    private final Map<String, AuthorizationMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public AuthorizationExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {

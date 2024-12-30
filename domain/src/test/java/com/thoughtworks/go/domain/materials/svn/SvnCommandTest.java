@@ -54,7 +54,7 @@ public class SvnCommandTest {
     private String svnRepositoryUrl;
     private File checkoutFolder;
     private SvnCommand subversion;
-    private ProcessOutputStreamConsumer outputStreamConsumer;
+    private ProcessOutputStreamConsumer<?, ?> outputStreamConsumer;
     private final String svnInfoOutput = """
             <?xml version="1.0"?>
             <info>
@@ -141,9 +141,9 @@ public class SvnCommandTest {
     @Test
     void shouldFilterModifiedFilesByRepositoryURL() {
         subversion = new SvnCommand(null, testRepo.end2endRepositoryUrl() + "/unit-reports", "user", "pass", false);
-        List list = subversion.modificationsSince(new SubversionRevision(0));
+        List<Modification> list = subversion.modificationsSince(new SubversionRevision(0));
 
-        Modification modification = (Modification) list.get(0);
+        Modification modification = list.get(0);
         assertThat(modification.getModifiedFiles().size()).isEqualTo(3);
         for (ModifiedFile file : modification.getModifiedFiles()) {
             assertThat(file.getFileName().startsWith("/unit-reports")).isTrue();
@@ -154,9 +154,9 @@ public class SvnCommandTest {
     @Test
     void shouldNotFilterModifiedFilesWhileURLPointsToRoot() {
         subversion = new SvnCommand(null, testRepo.end2endRepositoryUrl(), "user", "pass", false);
-        List list = subversion.modificationsSince(new SubversionRevision(0));
+        List<Modification> list = subversion.modificationsSince(new SubversionRevision(0));
 
-        Modification modification = (Modification) list.get(list.size() - 1);
+        Modification modification = list.get(list.size() - 1);
         assertThat(modification.getModifiedFiles().size()).isEqualTo(7);
     }
 
@@ -177,11 +177,11 @@ public class SvnCommandTest {
 
     @Test
     void shouldGetModificationsFromSubversionSinceARevision() {
-        final List list = subversion.modificationsSince(new SubversionRevision("1"));
+        final List<Modification> list = subversion.modificationsSince(new SubversionRevision("1"));
         assertThat(list.size()).isEqualTo(3);
-        assertThat(((Modification) list.get(0)).getRevision()).isEqualTo("4");
-        assertThat(((Modification) list.get(1)).getRevision()).isEqualTo("3");
-        assertThat(((Modification) list.get(2)).getRevision()).isEqualTo("2");
+        assertThat(list.get(0).getRevision()).isEqualTo("4");
+        assertThat(list.get(1).getRevision()).isEqualTo("3");
+        assertThat(list.get(2).getRevision()).isEqualTo("2");
     }
 
     @Test
@@ -554,7 +554,7 @@ public class SvnCommandTest {
         svnMaterials.add(svnMaterial2);
 
         SvnCommand spy = spy(subversion);
-        doAnswer(new Answer() {
+        doAnswer(new Answer<>() {
             @Override
             public Object answer(InvocationOnMock invocation) {
                 final ConsoleResult consoleResult = mock(ConsoleResult.class);

@@ -137,7 +137,7 @@ public class GoConfigRepoConfigDataSource implements ChangedRepoConfigWatchListL
 
         String fingerprint = material.getFingerprint();
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
-            PartialConfigProvider plugin = null;
+            PartialConfigProvider plugin;
             ConfigRepoConfig repoConfig = configWatchList.getConfigRepoForMaterial(material);
             HealthStateScope scope = HealthStateScope.forPartialConfigRepo(repoConfig);
 

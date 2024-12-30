@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +40,7 @@ public class AdminServiceTest {
 
     @Test
     public void shouldGenerateConfigurationJson() {
-        GoConfigService.XmlPartialSaver fileSaver = mock(GoConfigService.XmlPartialSaver.class);
+        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = mock(GoConfigService.XmlPartialSaver.class);
         when(fileSaver.asXml()).thenReturn("xml content");
         when(fileSaver.getMd5()).thenReturn("md5 value");
         when(goConfigService.fileSaver(false)).thenReturn(fileSaver);
@@ -56,13 +57,13 @@ public class AdminServiceTest {
 
     @Test
     public void shouldUpdateConfig() {
-        Map<String, String>attributes = new HashMap<>();
+        Map<String, String> attributes = new HashMap<>();
         String content = "config_xml";
         attributes.put("content", content);
         String md5 = "config_md5";
         attributes.put("md5", md5);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        GoConfigService.XmlPartialSaver fileSaver = mock(GoConfigService.XmlPartialSaver.class);
+        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = mock(GoConfigService.XmlPartialSaver.class);
         when(fileSaver.saveXml(content, md5)).thenReturn(GoConfigValidity.valid());
         when(goConfigService.fileSaver(false)).thenReturn(fileSaver);
 
@@ -76,13 +77,13 @@ public class AdminServiceTest {
 
     @Test
     public void shouldReturnInvalidIfConfigIsNotSaved() {
-        Map<String, String>attributes = new HashMap<>();
+        Map<String, String> attributes = new HashMap<>();
         String content = "invalid_config_xml";
         attributes.put("content", content);
         String md5 = "config_md5";
         attributes.put("md5", md5);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        GoConfigService.XmlPartialSaver fileSaver = mock(GoConfigService.XmlPartialSaver.class);
+        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = mock(GoConfigService.XmlPartialSaver.class);
         GoConfigValidity validity = GoConfigValidity.invalid("Wrong config xml");
         when(fileSaver.saveXml(content, md5)).thenReturn(validity);
         when(goConfigService.fileSaver(false)).thenReturn(fileSaver);

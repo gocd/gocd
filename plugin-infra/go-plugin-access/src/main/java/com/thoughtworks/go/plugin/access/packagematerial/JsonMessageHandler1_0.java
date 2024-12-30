@@ -33,6 +33,7 @@ import java.util.*;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";

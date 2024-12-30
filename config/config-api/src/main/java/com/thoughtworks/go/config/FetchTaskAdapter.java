@@ -116,7 +116,7 @@ public class FetchTaskAdapter implements Task {
         oneOf(fetchPluggableArtifactTask::validateAttributes, fetchTask::validateAttributes, validationContext);
     }
 
-    protected void setFetchTaskAttributes(Map attributeMap) {
+    protected void setFetchTaskAttributes(Map<String, ?> attributeMap) {
         oneOf(fetchPluggableArtifactTask::setFetchTaskAttributes, fetchTask::setFetchTaskAttributes, attributeMap);
     }
 

@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class EntityConfigChangedListenerTest {
     @Test
     public void shouldCareAboutEntityOfSameTypeAsTheOneTheListenerIsParameterizedWith() {
-        EntityConfigChangedListener entityConfigChangedListenerForA = new EntityConfigChangedListener<A>() {
+        EntityConfigChangedListener<A> entityConfigChangedListenerForA = new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(A entity) {
 
@@ -33,7 +33,7 @@ public class EntityConfigChangedListenerTest {
 
     @Test
     public void shouldNotCareAboutEntityOfADifferentTypeFromTheOneTheListenerIsParameterizedWith() {
-        EntityConfigChangedListener entityConfigChangedListenerForA = new EntityConfigChangedListener<A>() {
+        EntityConfigChangedListener<A> entityConfigChangedListenerForA = new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(A entity) {
 

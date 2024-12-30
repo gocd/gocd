@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.PluginProfile;
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -45,13 +46,13 @@ class PluginProfilesServiceTest {
     @Mock
     private AddClusterProfileCommand command;
 
-    private PluginProfilesService service;
+    private PluginProfilesService<PluginProfile> service;
 
     @BeforeEach
     void setUp() {
-        service = new PluginProfilesService(goConfigService, hashingService) {
+        service = new PluginProfilesService<>(goConfigService, hashingService) {
             @Override
-            protected PluginProfiles getPluginProfiles() {
+            protected PluginProfiles<PluginProfile> getPluginProfiles() {
                 return null;
             }
         };

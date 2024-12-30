@@ -17,6 +17,6 @@ package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
-public interface QueueFactory {
-    PluginAwareMessageQueue create(GoPluginDescriptor pluginDescriptor);
+public interface QueueFactory<T extends PluginAwareMessage> {
+    PluginAwareMessageQueue<T> create(GoPluginDescriptor pluginDescriptor);
 }

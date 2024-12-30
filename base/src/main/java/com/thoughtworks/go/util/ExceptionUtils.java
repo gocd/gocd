@@ -81,6 +81,7 @@ public final class ExceptionUtils {
         return (message == null || message.isEmpty()) ? t.getClass().toString() : message;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T getCause(Throwable exception, Class<T> type) {
         Throwable cause;
         while ((cause = exception.getCause()) != null) {

@@ -86,8 +86,9 @@ public class PluginConfiguration implements Serializable, Validatable {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public void setConfigAttributes(Object attributes) {
-        Map attributesMap = (Map) attributes;
+        Map<String, Object> attributesMap = (Map<String, Object>) attributes;
         if (attributesMap.containsKey(ID)) {
             id = (String) attributesMap.get(ID);
         }

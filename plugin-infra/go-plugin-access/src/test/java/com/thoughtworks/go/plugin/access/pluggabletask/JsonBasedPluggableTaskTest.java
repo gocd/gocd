@@ -31,6 +31,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +50,7 @@ public class JsonBasedPluggableTaskTest {
         pluginManager = mock(PluginManager.class);
         pluginId = "plugin-id";
         final List<String> goSupportedVersions = List.of("1.0");
-        final HashMap<String, JsonBasedTaskExtensionHandler> handlerMap = new HashMap<>();
+        final Map<String, JsonBasedTaskExtensionHandler> handlerMap = new HashMap<>();
         handlerMap.put("1.0", new JsonBasedTaskExtensionHandler_V1());
 
         task = new JsonBasedPluggableTask(pluginId, new PluginRequestHelper(pluginManager, goSupportedVersions, PLUGGABLE_TASK_EXTENSION), handlerMap);

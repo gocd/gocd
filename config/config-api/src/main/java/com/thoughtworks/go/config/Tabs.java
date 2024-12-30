@@ -62,13 +62,14 @@ public class Tabs extends BaseCollection<Tab> implements Validatable, ParamsAttr
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         this.clear();
         if (attributes != null) {
-            for (Map attributeMap : (List<Map>) attributes) {
-                String tabName = (String) attributeMap.get(Tab.NAME);
-                String path = (String) attributeMap.get(Tab.PATH);
+            for (Map<String, String> attributeMap : (List<Map<String, String>>) attributes) {
+                String tabName = attributeMap.get(Tab.NAME);
+                String path = attributeMap.get(Tab.PATH);
                 if (StringUtils.isBlank(tabName) && StringUtils.isBlank(path)) {
                     continue;
                 }

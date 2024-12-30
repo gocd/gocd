@@ -107,7 +107,7 @@ abstract class P4CommandTestBase extends PerforceFixture {
 
     @Test
     void shouldBombForNonZeroReturnCode() {
-        ProcessOutputStreamConsumer outputStreamConsumer = mock(ProcessOutputStreamConsumer.class);
+        ProcessOutputStreamConsumer<?, ?> outputStreamConsumer = mock(ProcessOutputStreamConsumer.class);
         CommandLine line = mock(CommandLine.class);
         when(line.run(outputStreamConsumer, new MaterialFingerprintTag(null), "foo")).thenReturn(1);
         try {

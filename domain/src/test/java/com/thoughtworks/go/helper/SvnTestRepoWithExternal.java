@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
+import com.thoughtworks.go.util.command.InMemoryConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
 
@@ -30,7 +31,7 @@ import java.util.List;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 
 public class SvnTestRepoWithExternal extends SvnTestRepo {
-    private ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
+    private ProcessOutputStreamConsumer<InMemoryConsumer, InMemoryConsumer> outputStreamConsumer = ProcessOutputStreamConsumer.inMemoryConsumer();
     private File workingFolder;
     public static final String EXTERNAL_REPO_NAME = "end2end";
     private String externalRepoUrl;

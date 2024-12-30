@@ -216,14 +216,15 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;
         }
         super.setConfigAttributes(attributes);
-        Map map = (Map) attributes;
-        this.packageId = (String) map.get(PACKAGE_ID);
+        Map<String, String> map = (Map<String, String>) attributes;
+        this.packageId = map.get(PACKAGE_ID);
     }
 
     @Override

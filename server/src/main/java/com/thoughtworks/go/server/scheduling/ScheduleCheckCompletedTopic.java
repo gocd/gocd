@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.scheduling;
 
+import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageTopic;
 import com.thoughtworks.go.server.messaging.MessagingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ScheduleCheckCompletedTopic extends GoMessageTopic<ScheduleCheckCompletedMessage> {
     @Autowired
-    public ScheduleCheckCompletedTopic(MessagingService messaging) {
+    public ScheduleCheckCompletedTopic(MessagingService<GoMessage> messaging) {
         super(messaging, "schedule-check-completed");
     }
 }

@@ -471,6 +471,7 @@ class PipelineSqlMapDaoCachingTest {
         assertThat((Object) goCache.get(cacheKey)).isEqualTo(actual);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldInvalidateCacheOfPipelineInstancesTriggeredWithDependencyMaterial() {
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", "p", 1);
@@ -478,7 +479,6 @@ class PipelineSqlMapDaoCachingTest {
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));
         assertThat(actual).hasSize(0);
-        //noinspection unchecked
         assertThat((List<PipelineIdentifier>) goCache.get(cacheKey)).hasSize(0);
 
 
@@ -548,6 +548,7 @@ class PipelineSqlMapDaoCachingTest {
         assertThat((Object) goCache.get(cacheKey)).isEqualTo(actual);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldInvalidateCacheOfPipelineInstancesTriggeredWithMaterialRevision() {
         GitMaterialInstance materialInstance = new GitMaterialInstance("url", null, "branch", "submodule", "flyweight");
@@ -557,7 +558,6 @@ class PipelineSqlMapDaoCachingTest {
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
         assertThat(actual).hasSize(1);
-        //noinspection unchecked
         assertThat((List<PipelineIdentifier>) goCache.get(cacheKey)).hasSize(1);
 
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r1")));

@@ -81,6 +81,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         assertThat(config.list().get(2).getKey()).isEqualTo("PASSWORD");
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldConvertTaskConfigObjectToJson() {
         TaskConfig taskConfig = new TaskConfig();
@@ -96,14 +97,14 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         taskConfig.add(p2);
 
         String json = new JsonBasedTaskExtensionHandler_V1().convertTaskConfigToJson(taskConfig);
-        Map taskConfigMap = (Map) new GsonBuilder().create().fromJson(json, Object.class);
+        Map<String, Object> taskConfigMap = (Map<String, Object>) new GsonBuilder().create().fromJson(json, Object.class);
 
-        Map property1 = (Map) taskConfigMap.get("k1");
+        Map<String, Object> property1 = (Map<String, Object>) taskConfigMap.get("k1");
         assertThat(property1.get("value").toString()).isEqualTo("value1");
         assertThat(property1.get("secure")).isEqualTo(true);
         assertThat(property1.get("required")).isEqualTo(true);
 
-        Map property2 = (Map) taskConfigMap.get("k2");
+        Map<String, Object> property2 = (Map<String, Object>) taskConfigMap.get("k2");
         assertThat(property2.get("value").toString()).isEqualTo("value2");
         assertThat(property2.get("secure")).isEqualTo(false);
         assertThat(property2.get("required")).isEqualTo(true);
@@ -378,6 +379,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         assertThat(new JsonBasedTaskExtensionHandler_V1().version()).isEqualTo("1.0");
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldReturnRequestBodyForTaskExecution() {
         TaskExecutionContext context = mock(TaskExecutionContext.class);
@@ -390,11 +392,11 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         when(context.environment()).thenReturn(getEnvironmentVariables());
 
         String requestBody = new JsonBasedTaskExtensionHandler_V1().getTaskExecutionBody(config, context);
-        Map result = (Map) new GsonBuilder().create().fromJson(requestBody, Object.class);
-        Map taskExecutionContextFromRequest = (Map) result.get("context");
+        Map<String, Object> result = (Map<String, Object>) new GsonBuilder().create().fromJson(requestBody, Object.class);
+        Map<String, Object> taskExecutionContextFromRequest = (Map<String, Object>) result.get("context");
 
         assertThat(taskExecutionContextFromRequest.get("workingDirectory")).isEqualTo(workingDir);
-        Map environmentVariables = (Map) taskExecutionContextFromRequest.get("environmentVariables");
+        Map<String, Object> environmentVariables = (Map<String, Object>) taskExecutionContextFromRequest.get("environmentVariables");
         assertThat(environmentVariables.size()).isEqualTo(2);
         assertThat(environmentVariables.get("ENV1").toString()).isEqualTo("VAL1");
         assertThat(environmentVariables.get("ENV2").toString()).isEqualTo("VAL2");
@@ -402,8 +404,8 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         Map<String,Object> taskConfigMap = (Map<String,Object>) result.get("config");
 
         assertThat(taskConfigMap.size()).isEqualTo(2);
-        Map property1 = (Map) taskConfigMap.get("Property1");
-        Map property2 = (Map) taskConfigMap.get("Property2");
+        Map<String, Object> property1 = (Map<String, Object>) taskConfigMap.get("Property1");
+        Map<String, Object> property2 = (Map<String, Object>) taskConfigMap.get("Property2");
         assertThat(property1.get("value").toString()).isEqualTo("Value1");
         assertThat(property2.get("value").toString()).isEqualTo("Value2");
     }
@@ -412,7 +414,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         return new EnvironmentVariables() {
             @Override
             public Map<String, String> asMap() {
-                final HashMap<String, String> map = new HashMap<>();
+                final Map<String, String> map = new HashMap<>();
                 map.put("ENV1", "VAL1");
                 map.put("ENV2", "VAL2");
                 return map;

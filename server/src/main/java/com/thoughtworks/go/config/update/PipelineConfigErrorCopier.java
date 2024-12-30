@@ -27,7 +27,7 @@ public class PipelineConfigErrorCopier {
         to.errors().addAll(from.errors());
     }
 
-    private static void copyCollectionErrors(BaseCollection from, BaseCollection to) {
+    private static void copyCollectionErrors(BaseCollection<?> from, BaseCollection<?> to) {
         if (from == null || to == null) return;
         copy((Validatable) from, (Validatable) to);
         for (int i = 0; i < to.size(); i++) {

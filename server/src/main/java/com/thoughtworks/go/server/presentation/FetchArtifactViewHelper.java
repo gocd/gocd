@@ -52,15 +52,15 @@ public class FetchArtifactViewHelper {
         }
 
         public String pathFromAncestor() {
-            return pathFromNode.length() > 0 ? pipelineName + PathFromAncestor.DELIMITER + pathFromNode : CaseInsensitiveString.str(pipelineName);
+            return !pathFromNode.isEmpty() ? pipelineName + PathFromAncestor.DELIMITER + pathFromNode : CaseInsensitiveString.str(pipelineName);
         }
     }
 
-    private static final class FetchSuggestionHierarchy extends HashMap<CaseInsensitiveString, Map> {
+    public static final class FetchSuggestionHierarchy extends HashMap<CaseInsensitiveString, Map<CaseInsensitiveString, ?>> {
         private void addStagesToHierarchy(CaseInsensitiveString pipelineName, List<StageConfig> currentPipelineStages, CruiseConfig cruiseConfig) {
-            Map<CaseInsensitiveString, Map> stageMap = new HashMap<>();
+            Map<CaseInsensitiveString, Map<CaseInsensitiveString, ?>> stageMap = new HashMap<>();
             currentPipelineStages.forEach(stg -> {
-                Map<CaseInsensitiveString, Map> jobsToArtifacts = new HashMap<>();
+                Map<CaseInsensitiveString, Map<String, ?>> jobsToArtifacts = new HashMap<>();
                 stg.getJobs().forEach(job -> {
                     List<PluggableArtifactConfig> pluggableArtifactConfigs = job.artifactTypeConfigs().getPluggableArtifactConfigs();
                     Map<String, String> artifactToPlugins = new HashMap<>();

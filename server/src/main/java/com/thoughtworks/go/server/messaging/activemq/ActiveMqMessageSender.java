@@ -25,8 +25,8 @@ import javax.jms.Session;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class ActiveMqMessageSender implements MessageSender {
-    private Session session;
-    private MessageProducer producer;
+    private final Session session;
+    private final MessageProducer producer;
 
     public ActiveMqMessageSender(Session session, MessageProducer producer) {
         this.session = session;
@@ -46,15 +46,6 @@ public class ActiveMqMessageSender implements MessageSender {
     public void sendMessage(GoMessage goMessage, long timeToLive) {
         try {
             producer.send(session.createObjectMessage(goMessage), producer.getDeliveryMode(), producer.getPriority(), timeToLive);
-        } catch (JMSException e) {
-            throw bomb(e);
-        }
-    }
-
-    @Override
-    public void sendText(String message) {
-        try {
-            producer.send(session.createTextMessage(message));
         } catch (JMSException e) {
             throw bomb(e);
         }

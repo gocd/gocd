@@ -89,12 +89,12 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldExtendAbstractExtension() throws Exception {
+    public void shouldExtendAbstractExtension() {
         assertThat(extension).isInstanceOf(AbstractExtension.class);
     }
 
     @Test
-    public void shouldTalkToPluginToGetPluginSettingsConfiguration() throws Exception {
+    public void shouldTalkToPluginToGetPluginSettingsConfiguration() {
         extension.registerHandler("1.0", pluginSettingsJSONMessageHandler);
         extension.messageHandlerMap.put("1.0", jsonMessageHandler);
 
@@ -113,7 +113,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToGetPluginSettingsView() throws Exception {
+    public void shouldTalkToPluginToGetPluginSettingsView() {
         extension.registerHandler("1.0", pluginSettingsJSONMessageHandler);
         extension.messageHandlerMap.put("1.0", jsonMessageHandler);
 
@@ -128,11 +128,11 @@ public class PackageRepositoryExtensionTest {
 
         assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsView(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
-    public void shouldTalkToPluginToValidatePluginSettings() throws Exception {
+    public void shouldTalkToPluginToValidatePluginSettings() {
         extension.registerHandler("1.0", pluginSettingsJSONMessageHandler);
         extension.messageHandlerMap.put("1.0", jsonMessageHandler);
 
@@ -153,7 +153,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToGetRepositoryConfiguration() throws Exception {
+    public void shouldTalkToPluginToGetRepositoryConfiguration() {
         String expectedRequestBody = null;
 
         String expectedResponseBody = "{" +
@@ -174,7 +174,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToGetPackageConfiguration() throws Exception {
+    public void shouldTalkToPluginToGetPackageConfiguration() {
         String expectedRequestBody = null;
 
         String expectedResponseBody = "{" +
@@ -194,7 +194,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToCheckIfRepositoryConfigurationIsValid() throws Exception {
+    public void shouldTalkToPluginToCheckIfRepositoryConfigurationIsValid() {
         String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}";
 
         String expectedResponseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
@@ -210,7 +210,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToCheckIfPackageConfigurationIsValid() throws Exception {
+    public void shouldTalkToPluginToCheckIfPackageConfigurationIsValid() {
         String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
                 "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}";
 
@@ -255,7 +255,7 @@ public class PackageRepositoryExtensionTest {
                 "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}";
 
         Date timestamp = new SimpleDateFormat(DATE_FORMAT).parse("2011-07-13T19:43:37.100Z");
-        Map data = new LinkedHashMap();
+        Map<String, String> data = new LinkedHashMap<>();
         data.put("dataKeyOne", "data-value-one");
         data.put("dataKeyTwo", "data-value-two");
         PackageRevision previouslyKnownRevision = new PackageRevision("abc.rpm", timestamp, "someuser", "comment", null, data);
@@ -270,7 +270,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToCheckRepositoryConnectionSuccessful() throws Exception {
+    public void shouldTalkToPluginToCheckRepositoryConnectionSuccessful() {
         String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}";
 
         String expectedResponseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
@@ -285,7 +285,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToCheckRepositoryConnectionFailure() throws Exception {
+    public void shouldTalkToPluginToCheckRepositoryConnectionFailure() {
         String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}";
 
         String expectedResponseBody = "{\"status\":\"failed\",messages=[\"message-one\",\"message-two\"]}";
@@ -300,7 +300,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToCheckPackageConnectionSuccessful() throws Exception {
+    public void shouldTalkToPluginToCheckPackageConnectionSuccessful() {
         String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
                 "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}";
 
@@ -316,7 +316,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToCheckPackageConnectionFailure() throws Exception {
+    public void shouldTalkToPluginToCheckPackageConnectionFailure() {
         String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
                 "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}";
 
@@ -332,7 +332,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldHandleExceptionDuringPluginInteraction() throws Exception {
+    public void shouldHandleExceptionDuringPluginInteraction() {
         when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(PACKAGE_MATERIAL_EXTENSION), requestArgumentCaptor.capture())).thenThrow(new RuntimeException("exception-from-plugin"));
         try {

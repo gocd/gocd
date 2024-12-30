@@ -39,7 +39,7 @@ import static org.awaitility.Awaitility.await;
 })
 public class GoQueueTest {
     @Autowired
-    private MessagingService messageService;
+    private MessagingService<GoMessage> messageService;
     Set<String> receivedMessage = Collections.synchronizedSet(new HashSet<>());
 
     @Test

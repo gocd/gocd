@@ -93,6 +93,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Users findNotificationSubscribingUsers() {
         return transactionTemplate.execute(transactionStatus -> {

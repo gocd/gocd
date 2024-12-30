@@ -26,14 +26,14 @@ public class BaseCollectionTest {
     public void shouldReturnFirstOrLastItem() {
         Object item1 = new Object();
         Object item2 = new Object();
-        BaseCollection collection = new BaseCollection(item1, item2);
+        BaseCollection<Object> collection = new BaseCollection<>(item1, item2);
         assertThat(collection.first()).isEqualTo(item1);
         assertThat(collection.last()).isEqualTo(item2);
     }
 
     @Test
     public void shouldReturnNullForEmptyCollection() {
-        BaseCollection collection = new BaseCollection();
+        BaseCollection<Object> collection = new BaseCollection<>();
         assertThat(collection.first()).isNull();
         assertThat(collection.last()).isNull();
     }
@@ -43,7 +43,7 @@ public class BaseCollectionTest {
         Object oldItem = new Object();
         Object newItem = new Object();
 
-        BaseCollection collection = new BaseCollection(oldItem);
+        BaseCollection<Object> collection = new BaseCollection<>(oldItem);
 
         assertThat(collection.size()).isEqualTo(1);
         assertThat(collection.first()).isEqualTo(oldItem);
@@ -57,7 +57,7 @@ public class BaseCollectionTest {
     @Test
     public void shouldReplaceAtTheIndexOfOldItem() {
         Object newItem = new Object();
-        BaseCollection collection = new BaseCollection(new Object(), new Object());
+        BaseCollection<Object> collection = new BaseCollection<>(new Object(), new Object());
 
         collection.replace(1, newItem);
 
@@ -69,7 +69,7 @@ public class BaseCollectionTest {
         String oldItem = "foo";
         String newItem = "bar";
 
-        BaseCollection collection = new BaseCollection("foobar");
+        BaseCollection<Object> collection = new BaseCollection<>("foobar");
 
         assertThatThrownBy(() -> collection.replace(oldItem, newItem))
                 .isExactlyInstanceOf(IndexOutOfBoundsException.class)
@@ -79,7 +79,7 @@ public class BaseCollectionTest {
     @Test
     public void shouldThrowAnExceptionWhenIndexIsInvalid() {
         Object newItem = new Object();
-        BaseCollection collection = new BaseCollection(new Object(), new Object());
+        BaseCollection<Object> collection = new BaseCollection<>(new Object(), new Object());
 
         assertThatThrownBy(() -> collection.replace(-1, newItem))
                 .isExactlyInstanceOf(IndexOutOfBoundsException.class)
@@ -89,7 +89,7 @@ public class BaseCollectionTest {
     @Test
     public void shouldThrowAnExceptionWhenIndexIsGreaterThanSizeOfCollection() {
         Object newItem = new Object();
-        BaseCollection collection = new BaseCollection(new Object(), new Object());
+        BaseCollection<Object> collection = new BaseCollection<>(new Object(), new Object());
 
         assertThatThrownBy(() -> collection.replace(3, newItem))
                 .isExactlyInstanceOf(IndexOutOfBoundsException.class)

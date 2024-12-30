@@ -60,11 +60,10 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
 
     public void setConfigAttributes(Object attributes, SecureKeyInfoProvider secureKeyInfoProvider) {
         this.clear();
-        Map attributesMap = (Map) attributes;
-        for (Object o : attributesMap.values()) {
-            Map configurationAttributeMap = (Map) o;
+        @SuppressWarnings("unchecked") Map<String, ?> attributesMap = (Map<String, ?>) attributes;
+        for (Object configurationAttributes : attributesMap.values()) {
             ConfigurationProperty configurationProperty = new ConfigurationProperty();
-            configurationProperty.setConfigAttributes(configurationAttributeMap, secureKeyInfoProvider);
+            configurationProperty.setConfigAttributes(configurationAttributes, secureKeyInfoProvider);
             this.add(configurationProperty);
         }
     }

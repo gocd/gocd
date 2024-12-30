@@ -226,7 +226,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldSetServerId_toARandomUUID_ifServerTagDoesntExist() {
-        GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(true);
+        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("<cruise schemaVersion='" + 53 + "'>\n"
                 + "</cruise>", goConfigService.configFileMd5());
         assertThat(configValidity.isValid()).as("Has no error").isTrue();
@@ -239,7 +239,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldSetServerId_toARandomUUID_ifOneDoesntExist() {
-        GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(true);
+        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("""
                 <cruise schemaVersion='55'>
                 <server artifactsdir="logs" siteUrl="http://go-server-site-url:8153" secureSiteUrl="https://go-server-site-url" jobTimeout="60">
@@ -255,7 +255,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldLoadServerId_ifOneExists() {
-        GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(true);
+        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("""
                 <cruise schemaVersion='55'>
                 <server artifactsdir="logs" siteUrl="http://go-server-site-url:8153" secureSiteUrl="https://go-server-site-url" jobTimeout="60" serverId="foo">

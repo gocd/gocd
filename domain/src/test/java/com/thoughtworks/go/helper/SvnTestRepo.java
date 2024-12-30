@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.command.InMemoryConsumer;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
@@ -158,7 +159,7 @@ public class SvnTestRepo extends TestRepo {
     public void checkInOneFile(String fileName, SvnMaterial svnMaterial) throws Exception {
         final File baseDir = createRandomTempDirectory().toFile();
 
-        ProcessOutputStreamConsumer consumer = inMemoryConsumer();
+        ProcessOutputStreamConsumer<InMemoryConsumer, InMemoryConsumer> consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
 
         Revision revision = latestRevision(svnMaterial, baseDir, new TestSubprocessExecutionContext());
         svnMaterial.updateTo(consumer, baseDir, new RevisionContext(revision), new TestSubprocessExecutionContext());

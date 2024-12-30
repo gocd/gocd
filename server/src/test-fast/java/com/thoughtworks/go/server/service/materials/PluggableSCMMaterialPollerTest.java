@@ -40,6 +40,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -60,8 +61,10 @@ class PluggableSCMMaterialPollerTest {
     @Mock
     private TransactionTemplate transactionTemplate;
     private PluggableSCMMaterial material;
+    @Captor
     private ArgumentCaptor<SCMPropertyConfiguration> scmConfiguration;
-    private ArgumentCaptor<Map> materialData;
+    @Captor
+    private ArgumentCaptor<Map<String, String>> materialData;
     private PluggableSCMMaterialPoller poller;
     private String flyweightFolderPath;
 
@@ -80,9 +83,6 @@ class PluggableSCMMaterialPollerTest {
         when(materialRepository.findMaterialInstance(material)).thenReturn(materialInstance);
 
         poller = new PluggableSCMMaterialPoller(materialRepository, scmExtension, transactionTemplate);
-
-        scmConfiguration = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
-        materialData = ArgumentCaptor.forClass(Map.class);
 
         flyweightFolderPath = new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
     }
@@ -139,7 +139,7 @@ class PluggableSCMMaterialPollerTest {
         com.thoughtworks.go.domain.materials.ModifiedFile f1 = new com.thoughtworks.go.domain.materials.ModifiedFile("f1", null, com.thoughtworks.go.domain.materials.ModifiedAction.added);
         com.thoughtworks.go.domain.materials.ModifiedFile f2 = new com.thoughtworks.go.domain.materials.ModifiedFile("f2", null, com.thoughtworks.go.domain.materials.ModifiedAction.modified);
         com.thoughtworks.go.domain.materials.ModifiedFile f3 = new com.thoughtworks.go.domain.materials.ModifiedFile("f3", null, com.thoughtworks.go.domain.materials.ModifiedAction.deleted);
-        assertThat(new HashSet(modifications.get(0).getModifiedFiles())).isEqualTo(new HashSet(List.of(f1, f2, f3)));
+        assertThat(new HashSet<>(modifications.get(0).getModifiedFiles())).isEqualTo(new HashSet<>(List.of(f1, f2, f3)));
         assertConfiguration(scmConfiguration.getValue(), material.getScmConfig().getConfiguration());
         assertThat(materialData.getValue().size()).isEqualTo(1);
         assertThat(materialData.getValue().get("mk-1")).isEqualTo("mv-1");

@@ -37,26 +37,26 @@ public abstract class ClassAttributeCache<K, T> {
 
     abstract T loadValues(K key);
 
-    public static class FieldCache extends ClassAttributeCache<Class, List<Field>> {
+    public static class FieldCache extends ClassAttributeCache<Class<?>, List<Field>> {
         @Override
-        List<Field> loadValues(Class klass) {
+        List<Field> loadValues(Class<?> klass) {
             List<Field> fields = new ArrayList<>();
             populateValueInto(klass, fields);
             return fields;
         }
 
-        void populateValueInto(Class klass, List<Field> fields) {
+        void populateValueInto(Class<?> klass, List<Field> fields) {
             fields.addAll(Arrays.stream(klass.getDeclaredFields()).filter(field -> !field.isSynthetic()).toList());
-            Class superClass = klass.getSuperclass();
+            Class<?> superClass = klass.getSuperclass();
             if (superClass != Object.class) {
                 populateValueInto(superClass, fields);
             }
         }
     }
 
-    public static class AssignableCache extends ClassAttributeCache<Map.Entry<Class, Class>, Boolean> {
+    public static class AssignableCache extends ClassAttributeCache<Map.Entry<Class<?>, Class<?>>, Boolean> {
         @Override
-        Boolean loadValues(Map.Entry<Class, Class> entry) {
+        Boolean loadValues(Map.Entry<Class<?>, Class<?>> entry) {
             return entry.getKey().isAssignableFrom(entry.getValue());
         }
     }

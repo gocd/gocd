@@ -84,7 +84,7 @@ public class PluggableTask extends AbstractTask {
     }
 
     @Override
-    protected void setTaskConfigAttributes(Map attributes) {
+    protected void setTaskConfigAttributes(Map<String, ?> attributes) {
         TaskConfig taskConfig = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()).getConfig();
         for (Property property : taskConfig.list()) {
             String key = property.getKey();

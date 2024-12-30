@@ -33,6 +33,7 @@ import java.util.*;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
     public static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -60,6 +61,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                 if (isEmpty(key)) {
                     throw new RuntimeException("SCM configuration key cannot be empty");
                 }
+                //noinspection DataFlowIssue
                 if (!(configurations.get(key) instanceof Map)) {
                     throw new RuntimeException(format("SCM configuration properties for key '%s' should be represented as a Map", key));
                 }
@@ -263,7 +265,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     private Map getResponseMap(String responseBody) {
-        Map map = null;
+        Map map;
         try {
             map = parseResponseToMap(responseBody);
         } catch (Exception e) {
@@ -278,7 +280,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                 return null;
             }
 
-            Map scmData = null;
+            Map scmData;
             try {
                 scmData = (Map) map.get("scm-data");
             } catch (Exception e) {
@@ -296,7 +298,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                 throw new RuntimeException("SCM revision cannot be empty");
             }
 
-            Map revisionMap = null;
+            Map revisionMap;
             try {
                 revisionMap = (Map) map.get("revision");
             } catch (Exception e) {
@@ -317,7 +319,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                 return scmRevisions;
             }
 
-            List revisionMaps = null;
+            List revisionMaps;
             try {
                 revisionMaps = (List) map.get("revisions");
             } catch (Exception e) {
@@ -384,7 +386,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
         List<ModifiedFile> modifiedFiles = new ArrayList<>();
         if (map.containsKey("modifiedFiles") && map.get("modifiedFiles") != null) {
-            List modifiedFileMaps = null;
+            List modifiedFileMaps;
             try {
                 modifiedFileMaps = (List) map.get("modifiedFiles");
             } catch (Exception e) {
@@ -412,7 +414,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                         throw new RuntimeException("modified file 'fileName' is a required field");
                     }
 
-                    String actionStr = null;
+                    String actionStr;
                     ModifiedAction action;
                     try {
                         actionStr = (String) modifiedFileMap.get("action");

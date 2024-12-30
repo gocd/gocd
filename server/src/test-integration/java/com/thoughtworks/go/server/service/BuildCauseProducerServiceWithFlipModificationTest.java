@@ -128,8 +128,8 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
                 "functional");
         consume(buildCause());
 
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(new CaseInsensitiveString("pavan")), new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
         verifyBuildCauseHasModificationsWith(pipelineScheduleQueue.toBeScheduled(), false);
@@ -141,8 +141,8 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         consume(buildCause());
 
         svnRepository.checkInOneFile("abc");
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(new CaseInsensitiveString("pavan")), new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
         verifyBuildCauseHasModificationsWith(pipelineScheduleQueue.toBeScheduled(), true);
     }

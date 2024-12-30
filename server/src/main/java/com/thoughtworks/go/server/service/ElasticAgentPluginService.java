@@ -85,7 +85,7 @@ public class ElasticAgentPluginService {
     private ConsoleService consoleService;
     private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
     private final SecretParamResolver secretParamResolver;
-    private JobInstanceSqlMapDao jobInstanceSqlMapDao = null;
+    private JobInstanceSqlMapDao jobInstanceSqlMapDao;
     private JobStatusTopic jobStatusTopic;
 
     @Value("${go.elasticplugin.heartbeat.interval}")

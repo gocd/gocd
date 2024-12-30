@@ -67,7 +67,7 @@ public class ClusterProfilesService extends PluginProfilesService<ClusterProfile
     }
 
     @Override
-    void validatePluginProperties(PluginProfileCommand command, ClusterProfile clusterProfile) {
+    void validatePluginProperties(PluginProfileCommand<?, ?> command, ClusterProfile clusterProfile) {
         secretParamResolver.resolve(clusterProfile);
         try {
             ValidationResult result = command.validateUsingExtension(clusterProfile.getPluginId(), clusterProfile.getConfigurationAsMap(true, true));

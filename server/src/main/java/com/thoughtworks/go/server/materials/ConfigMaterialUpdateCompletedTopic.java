@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.materials;
 
+import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageTopic;
 import com.thoughtworks.go.server.messaging.MessagingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class ConfigMaterialUpdateCompletedTopic extends GoMessageTopic<MaterialUpdateCompletedMessage> {
 
     @Autowired
-    public ConfigMaterialUpdateCompletedTopic(MessagingService messaging) {
+    public ConfigMaterialUpdateCompletedTopic(MessagingService<GoMessage> messaging) {
         super(messaging, "config-material-update-completed");
     }
 }

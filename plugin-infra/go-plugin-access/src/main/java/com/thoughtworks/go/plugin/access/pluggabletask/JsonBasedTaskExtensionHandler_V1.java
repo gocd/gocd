@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionHandler {
     public static final String VERSION = "1.0";
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonBasedTaskExtensionHandler_V1.class);
@@ -218,7 +219,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         Map properties = new HashMap();
 
         for (Property property : taskConfig.list()) {
-            final HashMap propertyValue = new HashMap();
+            final Map propertyValue = new HashMap();
             propertyValue.put("value", property.getValue());
             propertyValue.put("secure", property.getOption(Property.SECURE));
             propertyValue.put("required", property.getOption(Property.REQUIRED));

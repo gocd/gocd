@@ -47,11 +47,12 @@ public class MaterialsRepresenter {
         PLUGIN(PluggableSCMMaterialConfig.class, new PluggableScmMaterialRepresenter());
 
         private final Class<? extends MaterialConfig> type;
-        private final MaterialRepresenter representer;
+        private final MaterialRepresenter<MaterialConfig> representer;
 
-        Materials(Class<? extends MaterialConfig> type, MaterialRepresenter representer) {
+        @SuppressWarnings("unchecked")
+        Materials(Class<? extends MaterialConfig> type, MaterialRepresenter<?> representer) {
             this.type = type;
-            this.representer = representer;
+            this.representer = (MaterialRepresenter<MaterialConfig>) representer;
         }
     }
 
@@ -60,7 +61,7 @@ public class MaterialsRepresenter {
                 materialConfigs.forEach(materialConfig -> outputListWriter.addChild(toJSON(materialConfig)));
     }
 
-    public static Consumer<OutputWriter> toJSON(MaterialConfig materialConfig) {
+    public static <T extends MaterialConfig> Consumer<OutputWriter> toJSON(T materialConfig) {
         return materialWriter -> {
             if (!materialConfig.errors().isEmpty()) {
                 materialWriter.addChild("errors", errorWriter -> {

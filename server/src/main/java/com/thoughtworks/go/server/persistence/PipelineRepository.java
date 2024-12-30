@@ -61,7 +61,7 @@ public class PipelineRepository extends HibernateDaoSupport {
     }
 
 public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, final List<PipelineTimelineEntry> tempEntriesForRollback) {
-        getHibernateTemplate().execute(new HibernateCallback() {
+        getHibernateTemplate().execute(new HibernateCallback<>() {
             private static final int PIPELINE_NAME = 0;
             private static final int ID = 1;
             private static final int COUNTER = 2;
@@ -93,6 +93,7 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
                 }
             }
 
+            @SuppressWarnings("unchecked")
             private List<Object[]> loadTimeline(SQLQuery query) {
                 long startedAt = System.currentTimeMillis();
                 List<Object[]> matches = (List<Object[]>) query.list();
@@ -137,7 +138,7 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
                 Integer counter = null;
                 double naturalOrder = 0.0;
 
-                PipelineTimelineEntry entry = null;
+                PipelineTimelineEntry entry;
 
                 for (int i = 0; i < matches.size(); i++) {
                     Object[] row = matches.get(i);
@@ -159,7 +160,7 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
 
                     int nextI = i + 1;
                     if (((nextI < matches.size() && id(matches.get(nextI)) != curId) ||//new pipeline instance starts in next record, so capture this one
-                            nextI == matches.size())) {//this is the last record, so capture it
+                        nextI == matches.size())) {//this is the last record, so capture it
                         entry = new PipelineTimelineEntry(name, curId, counter, revisions, naturalOrder);
                         newPipelines.add(entry);
                     }
@@ -270,11 +271,11 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
             if (goCache.isKeyInCache(key)) {
                 return goCache.get(key);
             }
-            List list = getHibernateTemplate().find("FROM PipelineSelections WHERE userId = ?", new Object[]{userId});
+            @SuppressWarnings("unchecked") List<PipelineSelections> list = (List<PipelineSelections>) getHibernateTemplate().find("FROM PipelineSelections WHERE userId = ?", new Object[]{userId});
             if (list.isEmpty()) {
                 pipelineSelections = null;
             } else {
-                pipelineSelections = (PipelineSelections) list.get(0);
+                pipelineSelections = list.get(0);
             }
 
             goCache.put(key, pipelineSelections);

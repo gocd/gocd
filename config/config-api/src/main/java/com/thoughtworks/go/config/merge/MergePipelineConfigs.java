@@ -542,9 +542,10 @@ public class MergePipelineConfigs implements PipelineConfigs {
         configErrors.add(fieldName, message);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
-        Map attributeMap = (Map) attributes;
+        Map<String, Object> attributeMap = (Map<String, Object>) attributes;
         if (attributeMap == null) {
             return;
         }

@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -143,8 +144,8 @@ public class BuildCauseProducerService {
     }
 
     ServerHealthState newProduceBuildCause(PipelineConfig pipelineConfig, BuildType buildType, OperationResult result, long trackingId) {
-        final HashMap<String, String> stringStringHashMap = new HashMap<>();
-        final HashMap<String, String> stringStringHashMap1 = new HashMap<>();
+        final Map<String, String> stringStringHashMap = new HashMap<>();
+        final Map<String, String> stringStringHashMap1 = new HashMap<>();
         return newProduceBuildCause(pipelineConfig, buildType, new ScheduleOptions(stringStringHashMap, stringStringHashMap1, new HashMap<>()), result, trackingId);
     }
 

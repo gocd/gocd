@@ -18,14 +18,13 @@ package com.thoughtworks.go.plugin.access.common.settings;
 import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 
-import java.util.Collections;
 import java.util.List;
 
 public class PluginSettingsConfiguration extends Configuration {
     @Override
     public List<? extends Property> list() {
-        List<PluginSettingsProperty> list = (List<PluginSettingsProperty>) super.list();
-        Collections.sort(list);
-        return list;
+        List<? extends Property> theList = super.list();
+        theList.sort(null);
+        return theList;
     }
 }

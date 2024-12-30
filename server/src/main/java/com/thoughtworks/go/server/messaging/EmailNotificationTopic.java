@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 public class EmailNotificationTopic extends GoMessageTopic<SendEmailMessage> {
 
     @Autowired
-    public EmailNotificationTopic(MessagingService messaging) {
+    public EmailNotificationTopic(MessagingService<GoMessage> messaging) {
         super(messaging, "email-notification");
     }
 }

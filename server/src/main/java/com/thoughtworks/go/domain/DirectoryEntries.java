@@ -46,7 +46,7 @@ public class DirectoryEntries extends ArrayList<DirectoryEntry> implements HtmlR
 
     @Override
     public List<Map<String, Object>> toJson() {
-        List<Map<String, Object>> jsonList = new ArrayList();
+        List<Map<String, Object>> jsonList = new ArrayList<>();
         for (DirectoryEntry entry : this) {
             jsonList.add(entry.toJson());
         }

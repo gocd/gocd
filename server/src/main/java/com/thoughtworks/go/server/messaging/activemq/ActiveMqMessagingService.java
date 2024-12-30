@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.messaging.activemq;
 
+import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.messaging.MessageSender;
 import com.thoughtworks.go.server.messaging.MessagingService;
@@ -38,16 +39,17 @@ import java.util.List;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 @Component
-public class ActiveMqMessagingService implements MessagingService {
+public class ActiveMqMessagingService implements MessagingService<GoMessage> {
 
     private static final String BROKER_NAME = "go-server";
     private static final String BROKER_URL = "vm://go-server";
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
-    private ActiveMQConnection connection;
-    public ActiveMQConnectionFactory factory;
-    private BrokerService broker;
+    private final ActiveMQConnection connection;
+    private final BrokerService broker;
     private final SystemEnvironment systemEnvironment;
-    private ServerHealthService serverHealthService;
+    private final ServerHealthService serverHealthService;
+
+    public ActiveMQConnectionFactory factory;
 
     @Autowired
     public ActiveMqMessagingService(DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment, ServerHealthService serverHealthService) throws Exception {
@@ -87,7 +89,7 @@ public class ActiveMqMessagingService implements MessagingService {
     }
 
     @Override
-    public JMSMessageListenerAdapter addListener(String topic, final GoMessageListener listener) {
+    public JMSMessageListenerAdapter<GoMessage> addListener(String topic, final GoMessageListener<GoMessage> listener) {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(session.createTopic(topic));
@@ -111,7 +113,7 @@ public class ActiveMqMessagingService implements MessagingService {
     }
 
     @Override
-    public JMSMessageListenerAdapter addQueueListener(String queueName, final GoMessageListener listener) {
+    public JMSMessageListenerAdapter<GoMessage> addQueueListener(String queueName, final GoMessageListener<GoMessage> listener) {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(session.createQueue(queueName));
@@ -144,7 +146,7 @@ public class ActiveMqMessagingService implements MessagingService {
         connection.close();
         try {
             broker.stop();
-        } catch (Exception e) {
+        } catch (Exception ignore) {
         }
     }
 }

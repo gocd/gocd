@@ -47,11 +47,12 @@ public class EnvironmentAgentsConfig extends BaseCollection<EnvironmentAgentConf
         return this.stream().map(EnvironmentAgentConfig::getUuid).collect(toList());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes != null) {
             this.clear();
-            ((List<Map<String, String>>)attributes).forEach(attributeMap -> this.add(new EnvironmentAgentConfig(attributeMap.get("uuid"))));
+            ((List<Map<String, String>>) attributes).forEach(attributeMap -> this.add(new EnvironmentAgentConfig(attributeMap.get("uuid"))));
         }
     }
 }

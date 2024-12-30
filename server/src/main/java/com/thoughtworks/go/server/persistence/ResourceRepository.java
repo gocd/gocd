@@ -50,6 +50,7 @@ public class ResourceRepository extends HibernateDaoSupport {
         return copyOfResource;
     }
 
+    @SuppressWarnings("unchecked")
     public Resources findByBuildId(long buildId) {
         return new Resources((List<Resource>) getHibernateTemplate().find(GET_RESOURCES_BY_BUILD_ID, buildId));
     }

@@ -38,7 +38,7 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS
 
 @Component
 public class AnalyticsExtension extends AbstractExtension {
-    private final HashMap<String, AnalyticsMessageConverter> messageHandlerMap = new HashMap<>();
+    private final Map<String, AnalyticsMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public AnalyticsExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {

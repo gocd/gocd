@@ -174,6 +174,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
         return cacheKeyGenerator.generate("lockedPipeline", pipelineName.toLowerCase());
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> lockedPipelines() {
         return transactionTemplate.execute(status -> {
             PropertyProjection pipelineName = Projections.property("pipelineName");

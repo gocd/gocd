@@ -18,13 +18,13 @@ package com.thoughtworks.go.mail;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.StreamConsumer;
 
-public class SysOutStreamConsumer extends ProcessOutputStreamConsumer {
+public class SysOutStreamConsumer extends ProcessOutputStreamConsumer<SysOutStreamConsumer.SysOut, SysOutStreamConsumer.SysOut> {
 
     public SysOutStreamConsumer() {
         super(new SysOut(), new SysOut());
     }
 
-    private static class SysOut implements StreamConsumer {
+    static class SysOut implements StreamConsumer {
         @Override
         public void consumeLine(String line) {
             System.out.println(line);

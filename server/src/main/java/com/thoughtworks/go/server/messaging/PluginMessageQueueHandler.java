@@ -29,14 +29,15 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public abstract class PluginMessageQueueHandler<T extends PluginAwareMessage> implements PluginChangeListener {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-    protected final MessagingService messaging;
+    protected final MessagingService<T> messaging;
     protected final GoPluginExtension extension;
-    protected final Map<String, PluginAwareMessageQueue> queues = new ConcurrentHashMap<>();
-    private QueueFactory queueFactory;
+    protected final Map<String, PluginAwareMessageQueue<T>> queues = new ConcurrentHashMap<>();
+    private final QueueFactory<T> queueFactory;
 
-    public PluginMessageQueueHandler(GoPluginExtension extension, MessagingService messaging, PluginManager pluginManager, QueueFactory queueFactory) {
+    @SuppressWarnings("unchecked")
+    public PluginMessageQueueHandler(GoPluginExtension extension, MessagingService<? extends GoMessage> messaging, PluginManager pluginManager, QueueFactory<T> queueFactory) {
+        this.messaging = (MessagingService<T>) messaging;
         this.extension = extension;
-        this.messaging = messaging;
         pluginManager.addPluginChangeListener(this);
         this.queueFactory = queueFactory;
     }
@@ -44,7 +45,7 @@ public abstract class PluginMessageQueueHandler<T extends PluginAwareMessage> im
     @Override
     public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
         if (extension.canHandlePlugin(pluginDescriptor.id())) {
-            PluginAwareMessageQueue queue = queueFactory.create(pluginDescriptor);
+            PluginAwareMessageQueue<T> queue = queueFactory.create(pluginDescriptor);
             this.queues.put(pluginDescriptor.id(), queue);
         }
     }
@@ -53,7 +54,7 @@ public abstract class PluginMessageQueueHandler<T extends PluginAwareMessage> im
     public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
         if (this.queues.containsKey(pluginDescriptor.id())) {
             try {
-                PluginAwareMessageQueue queue = queues.get(pluginDescriptor.id());
+                PluginAwareMessageQueue<T> queue = queues.get(pluginDescriptor.id());
                 queue.stop();
             } catch (Exception e) {
                 LOGGER.error("Unable to stop queue for {}, ERROR: {}", pluginDescriptor.id(), e.getMessage(), e);
@@ -68,7 +69,7 @@ public abstract class PluginMessageQueueHandler<T extends PluginAwareMessage> im
         String pluginId = message.pluginId();
         try {
             if (queues.containsKey(pluginId)) {
-                PluginAwareMessageQueue queue = queues.get(pluginId);
+                PluginAwareMessageQueue<T> queue = queues.get(pluginId);
                 LOGGER.debug("Posting message {} to queue {}", message, queue.queueName);
                 queue.post(message, timeToLive);
                 LOGGER.debug("Message {} posted to queue {}", message, queue.queueName);

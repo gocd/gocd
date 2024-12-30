@@ -260,8 +260,8 @@ public class BuildCauseProducerServiceIntegrationTest {
         svnRepository.checkInOneFile("a.java");
         materialDatabaseUpdater.updateMaterial(svnRepository.material());
 
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
         Map<CaseInsensitiveString, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
@@ -272,8 +272,8 @@ public class BuildCauseProducerServiceIntegrationTest {
 
     @Test
     public void shouldScheduleANewPipelineWhenManuallyTriggeredWithNoChanges() {
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()),
                 new ServerHealthStateOperationResult());
         assertThat(scheduleHelper.waitForAnyScheduled(5).keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
@@ -293,8 +293,8 @@ public class BuildCauseProducerServiceIntegrationTest {
     public void shouldStopManualSchedulingIfDiskSpaceIsLessThanMinimum() {
         diskSpaceSimulator.simulateDiskFull();
 
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()),
                 new ServerHealthStateOperationResult());
 

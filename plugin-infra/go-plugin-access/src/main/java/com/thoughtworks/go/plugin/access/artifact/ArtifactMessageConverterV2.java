@@ -54,7 +54,7 @@ public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
     }
 
     private Map getArtifactStore(ArtifactStore artifactStore) {
-        final HashMap<String, Object> artifactStoreAndPlans = new HashMap<>();
+        final Map<String, Object> artifactStoreAndPlans = new HashMap<>();
         artifactStoreAndPlans.put("id", artifactStore.getId());
         artifactStoreAndPlans.put("configuration", artifactStore.getConfigurationAsMap(true));
         return artifactStoreAndPlans;

@@ -18,10 +18,7 @@ package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.bazaarvoice.jolt.ContextualTransform;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @SuppressWarnings("unused") // Used by config repo migrations
 public class AddEmptyTaskJoltTransformer implements ContextualTransform {
@@ -29,23 +26,21 @@ public class AddEmptyTaskJoltTransformer implements ContextualTransform {
     @Override
     public Object transform(Object input, Map<String, Object> context) {
         List<?> pipelines = getFieldFromMap(input, "pipelines");
-        pipelines.forEach((Object pipeline) -> {
+        pipelines.forEach(pipeline -> {
             List<?> stages = getFieldFromMap(pipeline, "stages");
-            stages.forEach((Object stage) -> {
+            stages.forEach(stage -> {
                 List<?> jobs = getFieldFromMap(stage, "jobs");
-                jobs.forEach((Object job) -> {
-                    LinkedHashMap<String, Object> echoTask = new LinkedHashMap<>();
-                    echoTask.put("command", "echo");
-                    echoTask.put("run_if", "passed");
-                    echoTask.put("type", "exec");
-                    echoTask.put("arguments", Collections.emptyList());
+                jobs.forEach(job -> {
 
-                    List<LinkedHashMap> tasks = ((LinkedHashMap<String, List<LinkedHashMap>>) job).get("tasks");
-                    if (tasks == null) {
-                        ((LinkedHashMap<String, List<LinkedHashMap>>) job).put("tasks", List.of(echoTask));
-                    }
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> tasks = ((Map<String, List<Map<String, Object>>>) job).computeIfAbsent("tasks", k -> new ArrayList<>());
 
-                    if (tasks != null && tasks.isEmpty()) {
+                    if (tasks.isEmpty()) {
+                        Map<String, Object> echoTask = new LinkedHashMap<>();
+                        echoTask.put("command", "echo");
+                        echoTask.put("run_if", "passed");
+                        echoTask.put("type", "exec");
+                        echoTask.put("arguments", Collections.emptyList());
                         tasks.add(echoTask);
                     }
                 });
@@ -60,7 +55,9 @@ public class AddEmptyTaskJoltTransformer implements ContextualTransform {
             return Collections.emptyList();
         }
 
+        @SuppressWarnings("unchecked")
         List<?> result = ((LinkedHashMap<String, List<?>>) input).get(field);
+
         return result == null ? Collections.emptyList() : result;
     }
 }

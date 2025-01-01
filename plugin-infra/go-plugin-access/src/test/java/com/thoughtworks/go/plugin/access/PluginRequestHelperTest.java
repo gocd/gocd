@@ -142,7 +142,7 @@ public class PluginRequestHelperTest {
 
             @Override
             public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                final HashMap params = new HashMap();
+                final Map params = new HashMap();
                 params.put("p1", "v1");
                 params.put("p2", "v2");
                 return params;

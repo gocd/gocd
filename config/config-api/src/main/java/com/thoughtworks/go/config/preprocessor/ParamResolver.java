@@ -17,6 +17,7 @@ package com.thoughtworks.go.config.preprocessor;
 
 import com.thoughtworks.go.config.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -76,7 +77,7 @@ public class ParamResolver {
             try {
                 Object nonStringLeaf = leaf.get(resolvable);
                 if (nonStringLeaf != null) {
-                    Class type = leaf.getType();
+                    Class<?> type = leaf.getType();
                     Field field = getField(leaf, type);
                     field.setAccessible(true);
                     if (field.getType().equals(CaseInsensitiveString.class)) {
@@ -95,11 +96,11 @@ public class ParamResolver {
         }
     }
 
-    private Field getField(Field leaf, Class type) throws NoSuchFieldException {
+    private Field getField(Field leaf, Class<?> type) throws NoSuchFieldException {
         try {
             return type.getDeclaredField(configAttributeValue(leaf).fieldName());
         } catch (NoSuchFieldException e) {
-            Class superclass = type.getSuperclass();
+            Class<?> superclass = type.getSuperclass();
             if (superclass == null) {
                 throw e;
             }
@@ -210,7 +211,7 @@ public class ParamResolver {
         return declaredField.getAnnotation(ValidationErrorKey.class);
     }
 
-    private boolean hasAnnotation(AnnotatedElement configElement, Class annotation) {
+    private boolean hasAnnotation(AnnotatedElement configElement, Class<? extends Annotation> annotation) {
         return configElement.isAnnotationPresent(annotation);
     }
 }

@@ -34,7 +34,7 @@ import static java.lang.String.format;
 public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleOutputTransmitter.class);
 
-    private final CircularFifoQueue buffer = new CircularFifoQueue(10 * 1024); // maximum 10k lines
+    private final CircularFifoQueue<String> buffer = new CircularFifoQueue<>(10 * 1024); // maximum 10k lines
     private final ConsoleAppender consoleAppender;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
     private final ScheduledThreadPoolExecutor executor;
@@ -43,12 +43,11 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
         this(consoleAppender, new SystemEnvironment().getConsolePublishInterval(), new ScheduledThreadPoolExecutor(1));
     }
 
-    protected ConsoleOutputTransmitter(ConsoleAppender consoleAppender, Integer consolePublishInterval,
+    ConsoleOutputTransmitter(ConsoleAppender consoleAppender, Integer consolePublishInterval,
                                        ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
         this.consoleAppender = consoleAppender;
         this.executor = scheduledThreadPoolExecutor;
         executor.scheduleAtFixedRate(this, 0L, consolePublishInterval, TimeUnit.SECONDS);
-
     }
 
     @Override
@@ -81,7 +80,7 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
             return;
         }
 
-        List sent = new ArrayList();
+        List<String> sent = new ArrayList<>();
         try {
             synchronized (buffer) {
                 while (!buffer.isEmpty()) {

@@ -21,64 +21,75 @@ import com.thoughtworks.go.server.materials.postcommit.pluggablescm.PluggableSCM
 import com.thoughtworks.go.server.materials.postcommit.svn.SvnPostCommitHookImplementer;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Understands: All Materials that can use the post commit hook feature
  */
 @Component
 public class PostCommitHookMaterialTypeResolver {
-    private List<PostCommitHookMaterialType> allKnownMaterialTypes = new ArrayList<>();
-
-    public PostCommitHookMaterialTypeResolver() {
-        allKnownMaterialTypes.add(new UnknownPostCommitHookMaterialType());
-        allKnownMaterialTypes.add(new SvnPostCommitHookMaterialType());
-        allKnownMaterialTypes.add(new GitPostCommitHookMaterialType());
-        allKnownMaterialTypes.add(new MercurialPostCommitHookMaterialType());
-        allKnownMaterialTypes.add(new PluggableSCMPostCommitHookMaterialType());
-    }
+    private final Map<String, PostCommitHookMaterialType> allKnownMaterialTypes = Stream.of(
+        new UnknownPostCommitHookMaterialType(),
+        new SvnPostCommitHookMaterialType(),
+        new GitPostCommitHookMaterialType(),
+        new MercurialPostCommitHookMaterialType(),
+        new PluggableSCMPostCommitHookMaterialType()
+    ).collect(toMap(PostCommitHookMaterialType::type, v -> v));
 
     public PostCommitHookMaterialType toType(String type) {
-        for (PostCommitHookMaterialType materialType : allKnownMaterialTypes) {
-            if (materialType.isValid(type)) {
-                return materialType;
-            }
-        }
-        return new UnknownPostCommitHookMaterialType();
+        return allKnownMaterialTypes.getOrDefault(type.toLowerCase(), new UnknownPostCommitHookMaterialType());
     }
 
-    final class UnknownPostCommitHookMaterialType implements PostCommitHookMaterialType {
-        @Override public boolean isKnown() {
+    static final class UnknownPostCommitHookMaterialType implements PostCommitHookMaterialType {
+        @Override
+        public boolean isKnown() {
             return false;
         }
 
-        @Override public boolean isValid(String type) {
+        @Override
+        public boolean isValid(String type) {
             return false;
         }
 
-        @Override public PostCommitHookImplementer getImplementer() {
+        @Override
+        public PostCommitHookImplementer getImplementer() {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public String type() {
+            return "???";
+        }
     }
 
-    final class SvnPostCommitHookMaterialType implements PostCommitHookMaterialType {
-        private final String TYPE = "svn";
+    static final class SvnPostCommitHookMaterialType implements PostCommitHookMaterialType {
+        private static final String TYPE = "svn";
 
-        @Override public boolean isKnown() {
+        @Override
+        public boolean isKnown() {
             return true;
         }
 
-        @Override public boolean isValid(String type) {
+        @Override
+        public boolean isValid(String type) {
             return TYPE.equalsIgnoreCase(type);
         }
 
-        @Override public PostCommitHookImplementer getImplementer() {
+        @Override
+        public PostCommitHookImplementer getImplementer() {
             return new SvnPostCommitHookImplementer();
+        }
+
+        @Override
+        public String type() {
+            return TYPE;
         }
     }
 
-    final class GitPostCommitHookMaterialType implements PostCommitHookMaterialType {
+    static final class GitPostCommitHookMaterialType implements PostCommitHookMaterialType {
         private static final String TYPE = "git";
 
         @Override
@@ -95,9 +106,14 @@ public class PostCommitHookMaterialTypeResolver {
         public PostCommitHookImplementer getImplementer() {
             return new GitPostCommitHookImplementer();
         }
+
+        @Override
+        public String type() {
+            return TYPE;
+        }
     }
 
-    final class MercurialPostCommitHookMaterialType implements PostCommitHookMaterialType {
+    static final class MercurialPostCommitHookMaterialType implements PostCommitHookMaterialType {
         private static final String TYPE = "hg";
 
         @Override
@@ -114,9 +130,14 @@ public class PostCommitHookMaterialTypeResolver {
         public PostCommitHookImplementer getImplementer() {
             return new MercurialPostCommitHookImplementer();
         }
+
+        @Override
+        public String type() {
+            return TYPE;
+        }
     }
 
-    final class PluggableSCMPostCommitHookMaterialType implements PostCommitHookMaterialType {
+    static final class PluggableSCMPostCommitHookMaterialType implements PostCommitHookMaterialType {
         private static final String TYPE = "scm";
 
         @Override
@@ -132,6 +153,11 @@ public class PostCommitHookMaterialTypeResolver {
         @Override
         public PostCommitHookImplementer getImplementer() {
             return new PluggableSCMPostCommitHookImplementer();
+        }
+
+        @Override
+        public String type() {
+            return TYPE;
         }
     }
 }

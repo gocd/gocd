@@ -31,6 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessToken;
 import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessTokenForUser;
@@ -236,7 +237,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         now.plusHours(2);
         final Timestamp lastUsedTimeForToken2 = new Timestamp(now.getMillis());
 
-        final HashMap<Long, Timestamp> accessTokenIdToLastUsedTimestamp = new HashMap<>();
+        final Map<Long, Timestamp> accessTokenIdToLastUsedTimestamp = new HashMap<>();
         accessTokenIdToLastUsedTimestamp.put(token1.getId(), lastUsedTimeForToken1);
         accessTokenIdToLastUsedTimestamp.put(token2.getId(), lastUsedTimeForToken2);
 

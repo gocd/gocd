@@ -24,6 +24,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Method;
@@ -254,8 +255,7 @@ class EnvironmentVariableConfigTest {
             PipelineConfigs group = mock(BasicPipelineConfigs.class);
 
             when(secretConfig.getId()).thenReturn("secret_config_id");
-            //noinspection unchecked
-            when(secretConfig.canRefer(any(Class.class), any(String.class))).thenReturn(true);
+            when(secretConfig.canRefer(ArgumentMatchers.<Class<? extends Validatable>>any(), any())).thenReturn(true);
             when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
             when(validationContext.isWithinPipelines()).thenReturn(true);
             when(validationContext.getPipelineGroup()).thenReturn(group);

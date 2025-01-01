@@ -178,7 +178,7 @@ class AbstractMaterialConfigTest {
         @Override
         public void setConfigAttributes(Object attributes) {
             super.setConfigAttributes(attributes);
-            Map map = (Map) attributes;
+            Map<String, String> map = (Map<String, String>) attributes;
             if (map.containsKey("bar")) {
                 bar = (String) map.get("bar");
             }

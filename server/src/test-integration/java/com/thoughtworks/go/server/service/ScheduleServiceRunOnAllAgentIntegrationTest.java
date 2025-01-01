@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
@@ -156,8 +157,8 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     }
 
     private Pipeline manualSchedule(String pipelineName) {
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(pipelineName, new Username(new CaseInsensitiveString("some user name")),
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
         scheduleService.autoSchedulePipelinesFromRequestBuffer();

@@ -18,14 +18,13 @@ package com.thoughtworks.go.plugin.access.scm;
 import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 
-import java.util.Collections;
 import java.util.List;
 
 public class SCMPropertyConfiguration extends Configuration {
     @Override
     public List<? extends Property> list() {
-        List<SCMProperty> list = (List<SCMProperty>) super.list();
-        Collections.sort(list);
+        List<? extends Property> list = super.list();
+        list.sort(null);
         return list;
     }
 }

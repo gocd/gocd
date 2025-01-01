@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.scheduling;
 
+import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
 import com.thoughtworks.go.server.messaging.MessagingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Component;
 public class ScheduleCheckQueue extends GoMessageQueue<ScheduleCheckMessage> {
 
     @Autowired
-    public ScheduleCheckQueue(MessagingService messaging) {
+    public ScheduleCheckQueue(MessagingService<GoMessage> messaging) {
         super(messaging, "schedule-check");
     }
 

@@ -35,17 +35,18 @@ public class WebpackAssetsService implements ServletContextAware {
 
     private final SystemEnvironment systemEnvironment;
     private ServletContext servletContext;
-    private Map manifest;
+    private Map<String, Object> manifest;
 
     @Autowired
     public WebpackAssetsService(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> getAssetPaths(String assetName) throws IOException {
-        Map entrypoints = getManifest();
+        Map<String, Object> entrypoints = getManifest();
 
-        Map entrypointForAsset = (Map) entrypoints.get(assetName);
+        Map<String, Object> entrypointForAsset = (Map<String, Object>) entrypoints.get(assetName);
         if (entrypointForAsset == null) {
             throw new RuntimeException(String.format("Can't find entry point '%s' in webpack manifest", assetName));
         }
@@ -85,7 +86,7 @@ public class WebpackAssetsService implements ServletContextAware {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private Map getManifest() throws IOException {
+    private Map<String, Object> getManifest() throws IOException {
         if (systemEnvironment.useCompressedJs()) {
             if (this.manifest == null) {
                 this.manifest = loadManifest();
@@ -96,7 +97,8 @@ public class WebpackAssetsService implements ServletContextAware {
         }
     }
 
-    Map loadManifest() throws IOException {
+    @SuppressWarnings("unchecked")
+    Map<String, Object> loadManifest() throws IOException {
         File manifestFile = new File(servletContext.getRealPath(servletContext.getInitParameter("rails.root") + "/public/assets/webpack/manifest.json"));
 
         if (!manifestFile.exists()) {
@@ -104,13 +106,13 @@ public class WebpackAssetsService implements ServletContextAware {
         }
 
         Gson gson = new Gson();
-        Map manifest = gson.fromJson(FileUtils.readFileToString(manifestFile, UTF_8), Map.class);
+        Map<String, Object> manifest = gson.<Map<String, Object>>fromJson(FileUtils.readFileToString(manifestFile, UTF_8), Map.class);
 
-        if (manifest.containsKey("errors") && !((List) manifest.get("errors")).isEmpty()) {
+        if (manifest.containsKey("errors") && !((List<Object>) manifest.get("errors")).isEmpty()) {
             throw new RuntimeException("There were errors in manifest.json file");
         }
 
-        Map entrypoints = (Map) manifest.get("entrypoints");
+        Map<String, Object> entrypoints = (Map<String, Object>) manifest.get("entrypoints");
         if (entrypoints == null) {
             throw new RuntimeException("Could not find any entrypoints in the manifest.json file.");
         }

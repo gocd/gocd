@@ -50,7 +50,7 @@ public class Pair<A,B> {
             return false;
         }
 
-        Pair pair = (Pair) o;
+        Pair<?, ?> pair = (Pair<?, ?>) o;
 
         if (a != null ? !a.equals(pair.a) : pair.a != null) {
             return false;

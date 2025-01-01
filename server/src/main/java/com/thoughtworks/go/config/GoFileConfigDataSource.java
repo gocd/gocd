@@ -328,9 +328,7 @@ public class GoFileConfigDataSource {
         }
     }
 
-    //  This method should be removed once we have API's for all entities which should use writeEntityWithLock and full config save should use writeFullConfigWithLock
-    @TestOnly
-    public synchronized GoConfigSaveResult writeWithLock(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
+    synchronized GoConfigSaveResult writeWithLock(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
         try {
 
             // Need to convert to xml before we try to write it to the config file.

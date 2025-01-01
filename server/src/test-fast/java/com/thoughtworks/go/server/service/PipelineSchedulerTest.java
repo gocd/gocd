@@ -107,8 +107,8 @@ public class PipelineSchedulerTest {
     public void shouldAddErrorIfPipelineisNotFound() throws Exception {
         when(configService.hasPipelineNamed(new CaseInsensitiveString("invalid"))).thenReturn(false);
         OperationResult operationResult = mock(OperationResult.class);
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("invalid", Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), operationResult);
         verify(operationResult).notFound("Pipeline 'invalid' not found", "Pipeline 'invalid' not found", HealthStateType.general(
                 HealthStateScope.forPipeline("invalid")));
@@ -119,7 +119,7 @@ public class PipelineSchedulerTest {
         when(configService.hasPipelineNamed(new CaseInsensitiveString("blahPipeline"))).thenReturn(true);
         when(configService.hasVariableInScope("blahPipeline", "blahVariable")).thenReturn(false);
         OperationResult operationResult = mock(OperationResult.class);
-        final HashMap<String, String> revisions = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, Map.of("blahVariable", "blahValue"), new HashMap<>()), operationResult);
         verifyNoMoreInteractions(buildCauseProducerService);
         verify(operationResult).notFound("Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'", "Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'",
@@ -134,7 +134,7 @@ public class PipelineSchedulerTest {
         when(configService.hasVariableInScope("blahPipeline", "blahVariable")).thenReturn(true);
         OperationResult operationResult = mock(OperationResult.class);
         Map<String, String> variables = Map.of("blahVariable", "blahValue");
-        final HashMap<String, String> revisions = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, variables, new HashMap<>()), operationResult);
         verify(buildCauseProducerService).manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(new HashMap<>(), variables, new HashMap<>()),
                 operationResult);
@@ -145,7 +145,7 @@ public class PipelineSchedulerTest {
         when(configService.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
         when(configService.findMaterial(new CaseInsensitiveString("pipeline"), "invalid-material")).thenReturn(null);
         HttpOperationResult result = new HttpOperationResult();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Map.of("invalid-material", "blah-revision"), environmentVariables, new HashMap<>()), result);
         assertThat(result.httpCode()).isEqualTo(404);
         assertThat(result.message()).isEqualTo("material with fingerprint [invalid-material] not found in pipeline [pipeline]");
@@ -158,7 +158,7 @@ public class PipelineSchedulerTest {
         when(configService.findMaterial(new CaseInsensitiveString("pipeline"), "invalid-material")).thenReturn(materialConfig);
 
         HttpOperationResult result = new HttpOperationResult();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Map.of("invalid-material", ""), environmentVariables, new HashMap<>()), result);
         assertThat(result.httpCode()).isEqualTo(406);
         assertThat(result.message()).isEqualTo("material with fingerprint [invalid-material] has empty revision");

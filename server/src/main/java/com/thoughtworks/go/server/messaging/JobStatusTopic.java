@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JobStatusTopic extends GoMessageTopic<JobStatusMessage> {
     @Autowired
-    public JobStatusTopic(MessagingService messaging) {
+    public JobStatusTopic(MessagingService<GoMessage> messaging) {
         super(messaging, "job-status");
     }
 }

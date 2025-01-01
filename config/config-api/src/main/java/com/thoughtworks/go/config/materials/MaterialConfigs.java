@@ -329,6 +329,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         return getExistingOrDefaultMaterial(new PluggableSCMMaterialConfig());
     }
 
+    @SuppressWarnings("unchecked")
     <T extends MaterialConfig> T getExistingOrDefaultMaterial(T defaultMaterial) {
         for (MaterialConfig material : this) {
             if (material.getClass().isAssignableFrom(defaultMaterial.getClass())) {
@@ -342,30 +343,31 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         return first() == null ? "" : first().getType();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         clear();
         if (attributes == null) {
             return;
         }
-        Map attributeMap = (Map) attributes;
+        Map<String, Object> attributeMap = (Map<String, Object>) attributes;
         String materialType = (String) attributeMap.get(AbstractMaterialConfig.MATERIAL_TYPE);
         if (SvnMaterialConfig.TYPE.equals(materialType)) {
-            addMaterialConfig(getSvnMaterial(), (Map) attributeMap.get(SvnMaterialConfig.TYPE));
+            addMaterialConfig(getSvnMaterial(), attributeMap.get(SvnMaterialConfig.TYPE));
         } else if (HgMaterialConfig.TYPE.equals(materialType)) {
-            addMaterialConfig(getHgMaterial(), (Map) attributeMap.get(HgMaterialConfig.TYPE));
+            addMaterialConfig(getHgMaterial(), attributeMap.get(HgMaterialConfig.TYPE));
         } else if (GitMaterialConfig.TYPE.equals(materialType)) {
-            addMaterialConfig(getGitMaterial(), (Map) attributeMap.get(GitMaterialConfig.TYPE));
+            addMaterialConfig(getGitMaterial(), attributeMap.get(GitMaterialConfig.TYPE));
         } else if (P4MaterialConfig.TYPE.equals(materialType)) {
-            addMaterialConfig(getP4Material(), (Map) attributeMap.get(P4MaterialConfig.TYPE));
+            addMaterialConfig(getP4Material(), attributeMap.get(P4MaterialConfig.TYPE));
         } else if (DependencyMaterialConfig.TYPE.equals(materialType)) {
-            addMaterialConfig(getDependencyMaterial(), (Map) attributeMap.get(DependencyMaterialConfig.TYPE));
+            addMaterialConfig(getDependencyMaterial(), attributeMap.get(DependencyMaterialConfig.TYPE));
         } else if (TfsMaterialConfig.TYPE.equals(materialType)) {
-            addMaterialConfig(getTfsMaterial(), (Map) attributeMap.get(TfsMaterialConfig.TYPE));
+            addMaterialConfig(getTfsMaterial(), attributeMap.get(TfsMaterialConfig.TYPE));
         } else if (PackageMaterialConfig.TYPE.equals(materialType)) {
-            addMaterialConfig(getPackageMaterial(), (Map) attributeMap.get(PackageMaterialConfig.TYPE));
+            addMaterialConfig(getPackageMaterial(), attributeMap.get(PackageMaterialConfig.TYPE));
         } else if (PluggableSCMMaterialConfig.TYPE.equals(materialType)) {
-            addMaterialConfig(getSCMMaterial(), (Map) attributeMap.get(PluggableSCMMaterialConfig.TYPE));
+            addMaterialConfig(getSCMMaterial(), attributeMap.get(PluggableSCMMaterialConfig.TYPE));
         }
     }
 
@@ -390,7 +392,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
 
-    private void addMaterialConfig(MaterialConfig materialConfig, Map attributes) {
+    private void addMaterialConfig(MaterialConfig materialConfig, Object attributes) {
         materialConfig.setConfigAttributes(attributes);
         add(materialConfig);
     }

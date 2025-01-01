@@ -31,18 +31,18 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MaterialUpdateListenerFactory {
-    private MaterialUpdateCompletedTopic topic;
+    private final MaterialUpdateCompletedTopic topic;
     private final MaterialRepository materialRepository;
-    private MaterialUpdateQueue queue;
-    private ConfigMaterialUpdateQueue configQueue;
-    private DependencyMaterialUpdateQueue dependencyMaterialQueue;
-    private MaintenanceModeService maintenanceModeService;
-    private ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue;
-    private GoConfigService goConfigService;
-    private SystemEnvironment systemEnvironment;
+    private final MaterialUpdateQueue queue;
+    private final ConfigMaterialUpdateQueue configQueue;
+    private final DependencyMaterialUpdateQueue dependencyMaterialQueue;
+    private final MaintenanceModeService maintenanceModeService;
+    private final ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue;
+    private final GoConfigService goConfigService;
+    private final SystemEnvironment systemEnvironment;
     private final ServerHealthService serverHealthService;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
-    private TransactionTemplate transactionTemplate;
+    private final TransactionTemplate transactionTemplate;
     private final DependencyMaterialUpdater dependencyMaterialUpdater;
     private final ScmMaterialUpdater scmMaterialUpdater;
     private final PackageMaterialUpdater packageMaterialUpdater;

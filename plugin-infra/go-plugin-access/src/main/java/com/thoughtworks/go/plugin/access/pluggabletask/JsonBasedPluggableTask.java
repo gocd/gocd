@@ -23,15 +23,14 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class JsonBasedPluggableTask implements Task {
-    private PluginRequestHelper pluginRequestHelper;
-    private Map<String, JsonBasedTaskExtensionHandler> handlerMap;
-    private String pluginId;
+    private final PluginRequestHelper pluginRequestHelper;
+    private final Map<String, JsonBasedTaskExtensionHandler> handlerMap;
+    private final String pluginId;
 
-    public JsonBasedPluggableTask(String pluginId, PluginRequestHelper pluginRequestHelper, HashMap<String, JsonBasedTaskExtensionHandler> handlerMap) {
+    public JsonBasedPluggableTask(String pluginId, PluginRequestHelper pluginRequestHelper, Map<String, JsonBasedTaskExtensionHandler> handlerMap) {
         this.pluginId = pluginId;
         this.pluginRequestHelper = pluginRequestHelper;
         this.handlerMap = handlerMap;

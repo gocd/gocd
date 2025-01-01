@@ -131,7 +131,7 @@ public class JsonBasedTaskExecutorTest {
         return new EnvironmentVariables() {
             @Override
             public Map<String, String> asMap() {
-                final HashMap<String, String> map = new HashMap<>();
+                final Map<String, String> map = new HashMap<>();
                 map.put("ENV1", "VAL1");
                 map.put("ENV2", "VAL2");
                 return map;

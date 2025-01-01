@@ -130,21 +130,22 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;
         }
         super.setConfigAttributes(attributes);
-        Map map = (Map) attributes;
+        Map<String, String> map = (Map<String, String>) attributes;
         if (map.containsKey(URL)) {
-            this.url = new UrlArgument((String) map.get(URL));
+            this.url = new UrlArgument(map.get(URL));
         }
         if (map.containsKey(USERNAME)) {
-            this.userName = (String) map.get(USERNAME);
+            this.userName = map.get(USERNAME);
         }
         if (map.containsKey(PASSWORD_CHANGED) && "1".equals(map.get(PASSWORD_CHANGED))) {
-            String passwordToSet = (String) map.get(PASSWORD);
+            String passwordToSet = map.get(PASSWORD);
             resetPassword(passwordToSet);
         }
         this.checkExternals = "true".equals(map.get(CHECK_EXTERNALS));

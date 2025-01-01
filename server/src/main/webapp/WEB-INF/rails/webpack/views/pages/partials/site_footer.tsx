@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Thoughtworks, Inc.
+ * Copyright Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
     return <div class={styles.footer}>
       {SiteFooter.maintenanceModeOrLegacyBrowserBanner(vnode)}
       <div class={styles.left}>
-        <p class={styles.content}>Copyright &copy; {GoCDVersion.copyrightYear}&nbsp;
+        <p class={styles.content}>Copyright &copy;&nbsp;
           <Link href="https://www.thoughtworks.com/products" target="_blank">Thoughtworks, Inc.</Link>
           &nbsp;Licensed under&nbsp;
           <Link href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">

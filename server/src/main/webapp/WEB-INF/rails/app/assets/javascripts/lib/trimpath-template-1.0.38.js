@@ -1,6 +1,6 @@
 /*!
  * TrimPath Template. Release 1.0.38.
- * Copyright (C) 2004, 2005 Metaha.
+ * Copyright 2004, 2005 Metaha.
  * 
  * TrimPath Template is licensed under the GNU General Public License
  * and the Apache License, Version 2.0, as follows:

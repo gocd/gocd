@@ -121,7 +121,7 @@ If you run several agents container, you will need to overwrite the `VOLUME_DIR`
 # License
 
 ```plain
-Copyright ${copyrightYear} Thoughtworks, Inc.
+Copyright Thoughtworks, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

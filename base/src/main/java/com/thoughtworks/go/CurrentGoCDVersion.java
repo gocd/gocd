@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Thoughtworks, Inc.
+ * Copyright Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ public class CurrentGoCDVersion {
     private final String gitRevision;
     private final String formatted;
     private final String fullVersion;
-    private final String copyrightYear;
     private final String baseDocsUrl;
     private final String baseApiDocsUrl;
     private final String gocdDistVersion;
@@ -40,7 +39,6 @@ public class CurrentGoCDVersion {
             this.distVersion = properties.getProperty("distVersion", "unknown");
             this.gitRevision = properties.getProperty("gitRevision", "unknown");
             this.fullVersion = properties.getProperty("fullVersion", "unknown");
-            this.copyrightYear = properties.getProperty("copyrightYear", "unknown");
             this.formatted = String.format("%s (%s-%s)", goVersion, distVersion, gitRevision);
             this.gocdDistVersion = String.format("%s-%s", goVersion, distVersion);
             this.baseDocsUrl = "https://docs.gocd.org/" + this.goVersion;
@@ -48,10 +46,6 @@ public class CurrentGoCDVersion {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public String copyrightYear() {
-        return copyrightYear;
     }
 
     public String goVersion() {

@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2024 Thoughtworks, Inc.
+# Copyright Thoughtworks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,7 +52,6 @@ task generated_js: :environment do
       "gitSha" => com.thoughtworks.go.CurrentGoCDVersion.getInstance().gitRevision(),
       "fullVersion" => com.thoughtworks.go.CurrentGoCDVersion.getInstance().fullVersion(),
       "formattedVersion" => com.thoughtworks.go.CurrentGoCDVersion.getInstance().formatted(),
-      "copyrightYear" => com.thoughtworks.go.CurrentGoCDVersion.getInstance().copyrightYear(),
     }
     f.puts "export const GoCDVersion = " + JSON.pretty_generate(version_map)
 

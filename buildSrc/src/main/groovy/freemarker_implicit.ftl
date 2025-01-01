@@ -1,7 +1,6 @@
 [#ftl]
 [#-- @implicitly included --]
 [#-- @ftlvariable name="imageName" type="java.lang.String" --]
-[#-- @ftlvariable name="copyrightYear" type="java.lang.String" --]
 [#-- @ftlvariable name="project" type="org.gradle.api.Project" --]
 [#-- @ftlvariable name="additionalFiles" type="java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>" --]
 [#-- @ftlvariable name="gitRevision" type="java.lang.String" --]

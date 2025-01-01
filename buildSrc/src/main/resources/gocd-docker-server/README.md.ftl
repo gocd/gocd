@@ -145,7 +145,7 @@ docker inspect --format='{{(index (index .NetworkSettings.Ports "8153/tcp") 0).H
 # License
 
 ```plain
-Copyright ${copyrightYear} Thoughtworks, Inc.
+Copyright Thoughtworks, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

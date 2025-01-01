@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Thoughtworks, Inc.
+ * Copyright Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,6 @@ ext {
   distVersion = DIST_VERSION
   fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
   gitRevision = GIT_REVISION
-  copyrightYear = Calendar.getInstance().get(Calendar.YEAR)
 
   // Default target version. Can be overridden by sub-projects.
   targetJavaVersion = 17
@@ -170,7 +169,6 @@ subprojects {
   license {
     skipExistingHeaders = false
     strictCheck = true
-    ext.year = project.copyrightYear
     exclude '**/*.erb'
     exclude '**/*.ejs'
     exclude '**/*.keep'
@@ -764,7 +762,7 @@ task newSPA {
 
     String licenseHeader =
       """
-      * Copyright ${project.copyrightYear} Thoughtworks, Inc.
+      * Copyright Thoughtworks, Inc.
       *
       * Licensed under the Apache License, Version 2.0 (the "License");
       * you may not use this file except in compliance with the License.
@@ -780,7 +778,6 @@ task newSPA {
       """.stripIndent().trim()
 
     String javaOrJavaScriptLicenseHeader = "/*\n${licenseHeader.split('\n').collect { eachLine -> " ${eachLine}" }.join("\n")}\n */\n\n"
-
 
     file("${mountPoint}/${spaName}.tsx").withWriter { out ->
       def contents =
@@ -1014,7 +1011,7 @@ task newApi {
       def contents =
         """
           /*
-           * Copyright ${project.copyrightYear} Thoughtworks, Inc.
+           * Copyright Thoughtworks, Inc.
            *
            * Licensed under the Apache License, Version 2.0 (the "License");
            * you may not use this file except in compliance with the License.
@@ -1049,7 +1046,7 @@ task newApi {
       def contents =
         """
           /*
-           * Copyright ${project.copyrightYear} Thoughtworks, Inc.
+           * Copyright Thoughtworks, Inc.
            *
            * Licensed under the Apache License, Version 2.0 (the "License");
            * you may not use this file except in compliance with the License.
@@ -1160,7 +1157,7 @@ task newApi {
       def contents =
         """
           /*
-           * Copyright ${project.copyrightYear} Thoughtworks, Inc.
+           * Copyright Thoughtworks, Inc.
            *
            * Licensed under the Apache License, Version 2.0 (the "License");
            * you may not use this file except in compliance with the License.
@@ -1346,7 +1343,7 @@ private Object addProjectToSettingsGradle(String newProjectName, it) {
     def contents =
       """
           /*
-           * Copyright ${project.copyrightYear} Thoughtworks, Inc.
+           * Copyright Thoughtworks, Inc.
            *
            * Licensed under the Apache License, Version 2.0 (the "License");
            * you may not use this file except in compliance with the License.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Thoughtworks, Inc.
+ * Copyright Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,25 +26,25 @@ public class HgVersionTest {
     private static final String LINUX_HG_094 = """
             Mercurial Distributed SCM (version 0.9.4)
 
-            Copyright (C) 2005-2007 Matt Mackall <mpm@selenic.com> and others
+            Copyright 2005-2007 Matt Mackall <mpm@selenic.com> and others
             This is free software; see the source for copying conditions. There is NO
             warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.""";
     private static final String LINUX_HG_101 = """
             Mercurial Distributed SCM (version 1.0.1)
 
-            Copyright (C) 2005-2007 Matt Mackall <mpm@selenic.com> and others
+            Copyright 2005-2007 Matt Mackall <mpm@selenic.com> and others
             This is free software; see the source for copying conditions. There is NO
             warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.""";
     private static final String LINUX_HG_10 = """
             Mercurial Distributed SCM (version 1.0)
 
-            Copyright (C) 2005-2007 Matt Mackall <mpm@selenic.com> and others
+            Copyright 2005-2007 Matt Mackall <mpm@selenic.com> and others
             This is free software; see the source for copying conditions. There is NO
             warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.""";
     private static final String WINDOWS_HG_OFFICAL_102 = """
             Mercurial Distributed SCM (version 1.0.2+20080813)
 
-            Copyright (C) 2005-2008 Matt Mackall <mpm@selenic.com>; and others
+            Copyright 2005-2008 Matt Mackall <mpm@selenic.com>; and others
             This is free software; see the source for copying conditions. There is NO
             warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.""";
     private static final String WINDOWS_HG_TORTOISE = "Mercurial Distributed SCM (version 626cb86a6523+tortoisehg)";

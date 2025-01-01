@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Thoughtworks, Inc.
+ * Copyright Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ describe("SiteFooter", () => {
     };
     mount(attrs);
 
-    expect(helper.root).toContainHtml(`Copyright &copy; ${GoCDVersion.copyrightYear}`);
+    expect(helper.root).toContainHtml(`Copyright &copy;`);
     expect(helper.root).toContainElement(`a[href="/go/assets/dependency-license-report-${GoCDVersion.fullVersion}"]`);
     expect(helper.root).toContainText(`GoCD Version: ${GoCDVersion.formattedVersion}`);
     expect(helper.root).not.toContainText("maintenance");
@@ -46,7 +46,6 @@ describe("SiteFooter", () => {
 
   it("should render maintenance mode banner", () => {
     const attrs = {
-      copyrightYear: "2000",
       formattedVersion: "x.y.z-1234-sha",
       fullVersion: "x.y.z-1234",
       goVersion: "x.y.z",
@@ -66,7 +65,6 @@ describe("SiteFooter", () => {
 
   it("should render maintenance mode banner when GoCD Server is started in maintenance mode", () => {
     const attrs = {
-      copyrightYear: "2000",
       formattedVersion: "x.y.z-1234-sha",
       fullVersion: "x.y.z-1234",
       goVersion: "x.y.z",
@@ -86,7 +84,6 @@ describe("SiteFooter", () => {
 
   it("should render unsupported browser message", () => {
     const attrs = {
-      copyrightYear: "2000",
       formattedVersion: "x.y.z-1234-sha",
       fullVersion: "x.y.z-1234",
       goVersion: "x.y.z",

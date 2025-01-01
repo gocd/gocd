@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Thoughtworks, Inc.
+ * Copyright Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -228,7 +228,6 @@ class BuildDockerImageTask extends DefaultTask {
       gitRevision                    : project.gitRevision,
       additionalFiles                : additionalFiles,
       imageName                      : dockerImageName,
-      copyrightYear                  : project.copyrightYear,
       useFromArtifact                : !project.hasProperty('dockerGitPush'),
       dockerAliasToWrapperArchAsShell: Architecture.dockerAliasToWrapperArchAsShell(),
     ]

@@ -766,8 +766,6 @@ Graph_Renderer = function (container) {
 
   var minimapWidth;
   var minimapHeight;
-  var miniContentWidth = 200;
-  var miniContentHeight = 150;
   var ratio;
 
   function initMiniMap() {
@@ -785,7 +783,7 @@ Graph_Renderer = function (container) {
       toggleMiniMap();
     });
 
-    renderPanCanvas(levels);
+    renderPanCanvas();
   }
 
   function miniMapContainerSize() {
@@ -814,9 +812,10 @@ Graph_Renderer = function (container) {
   }
 
   function toggleMiniMap() {
-    if (($('#vsm-container')[0].scrollHeight - $('#vsm-container').height()) > 200) {
+    const vsm = $('#vsm-container');
+    if ((vsm.prop('scrollHeight') - vsm.height()) > 200) {
       $('.pan').show();
-    } else if ($('#vsm-container')[0].scrollWidth - $('#vsm-container').width() > 200) {
+    } else if ((vsm.prop('scrollWidth') - vsm.width()) > 200) {
       $('.pan').show();
     } else {
       $('.pan').hide();
@@ -867,9 +866,13 @@ Graph_Renderer = function (container) {
     function setKnobPosition() {
       var topPossible = $('.constrainer').height() - miniKnob.height();
       var leftPossible = $('.constrainer').width() - miniKnob.width();
-      var top = ($('#vsm-container')[0].scrollHeight - $('#vsm-container').height());
-      var left = ($('#vsm-container')[0].scrollWidth - $('#vsm-container').width());
-      miniKnob.css({'top': $('#vsm-container').scrollTop() * (topPossible / top), 'left': $('#vsm-container').scrollLeft() * (leftPossible / left)});
+      const vsm = $('#vsm-container');
+      var top = (vsm.prop('scrollHeight') - vsm.height());
+      var left = (vsm.prop('scrollWidth') - vsm.width());
+      miniKnob.css({
+        'top': vsm.scrollTop() * (topPossible / top),
+        'left': vsm.scrollLeft() * (leftPossible / left)
+      });
     }
 
     function scrollDocument(top, left) {

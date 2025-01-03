@@ -1775,12 +1775,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.10.3":
-  version: 22.10.3
-  resolution: "@types/node@npm:22.10.3"
+"@types/node@npm:^22.10.4":
+  version: 22.10.4
+  resolution: "@types/node@npm:22.10.4"
   dependencies:
     undici-types: "npm:~6.20.0"
-  checksum: 10/c63bd7800b82a53efd3fc0e115d045ae539eaa6367a7804fc17db84a311995a2228b8dce3e8eed089b4f91ae28224cfcf86086ff1ecf48a16c3b9efc03a725f8
+  checksum: 10/1a04364c2bf84bed63de7c1a091003638eeb2c0eeb7b6f78f2330ce217202b58418ccb4509fe837f4f41e328d474db289bf28b65d57cf45d1930dc0b06ab40ec
   languageName: node
   linkType: hard
 
@@ -5465,7 +5465,7 @@ __metadata:
     "@types/lodash": "npm:^4.17.13"
     "@types/mini-css-extract-plugin": "npm:^1.4.3"
     "@types/mithril": "npm:2.2.7"
-    "@types/node": "npm:^22.10.3"
+    "@types/node": "npm:^22.10.4"
     "@types/optimize-css-assets-webpack-plugin": "npm:^5.0.8"
     "@types/prismjs": "npm:^1.26.5"
     "@types/shell-quote": "npm:^1.7.5"

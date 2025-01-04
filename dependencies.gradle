@@ -90,7 +90,7 @@ final Map<String, String> libraries = [
   postgresql          : 'org.postgresql:postgresql:42.7.4',
   quartz              : 'org.quartz-scheduler:quartz:2.5.0',
   rack                : 'org.jruby.rack:jruby-rack:1.1.22',
-  resilience4jRetry   : 'io.github.resilience4j:resilience4j-retry:2.2.0',
+  resilience4jRetry   : 'io.github.resilience4j:resilience4j-retry:2.3.0',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',
   servletApi          : 'jakarta.servlet:jakarta.servlet-api:4.0.4', // Should be compatible with Jetty and Spring implementations
   slf4jBom            : 'org.slf4j:slf4j-bom:2.0.16',

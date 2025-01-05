@@ -62,6 +62,7 @@ GEM
       zeitwerk (~> 2.3)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
+    base64 (0.2.0)
     bigdecimal (3.1.9)
     bigdecimal (3.1.9-java)
     builder (3.3.0)
@@ -212,9 +213,11 @@ GEM
       concurrent-ruby (~> 1.0)
     tzinfo-data (1.2024.2)
       tzinfo (>= 1.0.0)
-    websocket-driver (0.7.6)
+    websocket-driver (0.7.7)
+      base64
       websocket-extensions (>= 0.1.0)
-    websocket-driver (0.7.6-java)
+    websocket-driver (0.7.7-java)
+      base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     xpath (3.2.0)

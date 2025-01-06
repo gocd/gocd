@@ -397,7 +397,6 @@ task integrationTest(type: Test) { thisTask ->
   mustRunAfter test
 
   forkEvery = System.properties.containsKey('idea.home.path') ? 0 : 1
-  minHeapSize = '1g'
   maxHeapSize = '2g'
 
   reports {

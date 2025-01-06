@@ -78,7 +78,7 @@ final Map<String, String> libraries = [
   junit5Bom           : 'org.junit:junit-bom:5.11.4',
   liquibase           : 'org.liquibase:liquibase-core:4.29.2',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.1.0',
-  logback             : 'ch.qos.logback:logback-classic:1.5.15',
+  logback             : 'ch.qos.logback:logback-classic:1.5.16',
   lombok              : 'org.projectlombok:lombok:1.18.36',
   mockitoBom          : 'org.mockito:mockito-bom:5.15.2',
   mybatis             : 'org.mybatis:mybatis:3.5.19',

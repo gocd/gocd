@@ -342,46 +342,6 @@ task rspec(type: ExecuteUnderRailsTask) {
   }
 }
 
-task parallelRspec(type: ExecuteUnderRailsTask) {
-  dependsOn yarnInstall
-  mustRunAfter generateJSRoutes, compileAssets, compileAssetsWebpackDev, compileAssetsRailsTest
-  outputs.cacheIf { true }
-  inputs.files project.railsRoot
-  inputs.files project.railsClasspath
-
-  description = "Run specs (pass '-Popts=...' to pass options)"
-
-  disableJRubyOptimization = true
-
-  environment += [
-    'REPORTS_DIR': "${project.layout.buildDirectory.get()}/rspec-results"
-  ]
-
-  jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.layout.buildDirectory.get()}/heap-dumps"]
-  args = ['-S', 'rspec', '--backtrace']
-  maxHeapSize = '2g'
-
-  if (project.hasProperty('opts')) {
-    args += Commandline.translateCommandline(project.property('opts')) as List<String>
-  }
-
-  doFirst {
-    project.mkdir("${project.layout.buildDirectory.get()}/heap-dumps")
-    project.file("${project.layout.buildDirectory.get()}/heap-dumps/foo.txt").setText("")
-  }
-
-  doFirst {
-    FileTree tree = fileTree(dir: "${project.railsRoot}/spec", includes: ['**/*_spec.rb'])
-    def files = partitionFiles(tree.files)
-
-    args += files.collect { project.railsRoot.toURI().relativize(it.toURI()).getPath() }
-
-    if (project.hasProperty('opts')) {
-      args += Commandline.translateCommandline(project.property('opts')) as List<String>
-    }
-  }
-}
-
 task railsExec(type: ExecuteUnderRailsTask) {
   outputs.upToDateWhen { false }
 

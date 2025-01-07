@@ -36,7 +36,7 @@ final Map<String, String> libraries = [
   awaitility          : 'org.awaitility:awaitility:4.2.2',
   bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.79',
   cloning             : 'io.github.kostaskougios:cloning:1.10.3',
-  commonsCodec        : 'commons-codec:commons-codec:1.17.1',
+  commonsCodec        : 'commons-codec:commons-codec:1.17.2',
   commonsCollections  : 'commons-collections:commons-collections:3.2.2',
   commonsCollections4 : 'org.apache.commons:commons-collections4:4.4',
   commonsConfiguration: 'org.apache.commons:commons-configuration2:2.11.0',

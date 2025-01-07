@@ -31,9 +31,8 @@ $(() => {
     const state = window.stageOverviewStateForVSM;
 
     if (state.model()) {
-      const ele = document.getElementById(`stage-overview-container-for-pipeline-${state.getPipelineName()}-${state.getPipelineCounter()}-stage-${state.getStageName()}-${state.getStageCounter()}`)!;
-      ele.innerHTML = "";
-
+      const stageOverviewContainer = document.getElementById(`stage-overview-container-for-pipeline-${state.getPipelineName()}-${state.getPipelineCounter()}-stage-${state.getStageName()}-${state.getStageCounter()}`)!;
+      m.mount(stageOverviewContainer, null);
       state.hide();
     }
   }

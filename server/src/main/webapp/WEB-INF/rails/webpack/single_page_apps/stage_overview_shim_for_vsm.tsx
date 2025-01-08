@@ -54,8 +54,11 @@ $(() => {
       status
     };
 
+    // Needs to match logic within Graph_Renderer.sanitizeVsmNodeId which creates the elements being searched for
+    const sanitizeVsmNodeId = (id: string) => id.replace(/\./g, '_id-');
+
     // @ts-ignore
-    const totalWidth = new Array(...document.querySelector(`#${CSS.escape(pipelineName)}`).classList).indexOf("current") !== -1 ? 237 : 192;
+    const totalWidth = new Array(...document.getElementById(sanitizeVsmNodeId(pipelineName)).classList).indexOf("current") !== -1 ? 237 : 192;
     const spaceBetweenStages = 4;
     const initialLeftPosition = -36;
 

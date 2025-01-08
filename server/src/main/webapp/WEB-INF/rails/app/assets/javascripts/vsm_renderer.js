@@ -209,6 +209,13 @@ Graph_Renderer = function (container) {
     container.scrollLeft(0);
   }
 
+  // Needs to match logic within stage_overview_shim_for_vsm.tsx which makes placement decisions based on nodes
+  function sanitizeVsmNodeId(id) {
+    // Pipeline names can have periods in them; for unknown reasons historically prior to the OSS epoch
+    // these have had periods replaced with '_id-'.
+    return id.replace(/\./g, '_id-');
+  }
+
   function renderEntities(levels) {
     $.each(levels, function (i, level) {
       $.each(level.nodes, function (j, node) {
@@ -224,7 +231,7 @@ Graph_Renderer = function (container) {
             pipeline_gui = renderMaterialCommits(node);
             var current_material_class = node.originalId === current_material ? 'current' : '';
             var material_conflicts = node.view_type == 'WARNING' ? 'conflicts' : '';
-            pipeline_gui += '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity material other-node ' + node.node_type.toLowerCase() + ' ' + current_material_class + ' ' + material_conflicts + '" style="';
+            pipeline_gui += '<div id="' + sanitizeVsmNodeId(node.id) + '" class="vsm-entity material other-node ' + node.node_type.toLowerCase() + ' ' + current_material_class + ' ' + material_conflicts + '" style="';
             pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 100) + 'px"';
             pipeline_gui += 'data-material-name="' + node.name + '" data-fingerprint="' + node.originalId + '" data-level=' + i;
             pipeline_gui += '>';
@@ -232,7 +239,7 @@ Graph_Renderer = function (container) {
 
           }
           else {
-            pipeline_gui = '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity other-node ' + node.node_type.toLowerCase() + '" style="';
+            pipeline_gui = '<div id="' + sanitizeVsmNodeId(node.id) + '" class="vsm-entity other-node ' + node.node_type.toLowerCase() + '" style="';
             pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 20) + 'px"';
             pipeline_gui += 'data-pipeline-name="' + node.id + '" data-level=' + i;
             pipeline_gui += '>';
@@ -240,7 +247,7 @@ Graph_Renderer = function (container) {
           isCurrent = false;
         } else {
           $(container).find('.highlight').css({ 'left': (((width * i) + (90 * i))) });
-          pipeline_gui = '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity ' + node.node_type.toLowerCase() + ' current" style="';
+          pipeline_gui = '<div id="' + sanitizeVsmNodeId(node.id) + '" class="vsm-entity ' + node.node_type.toLowerCase() + ' current" style="';
           pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 30) + 'px; left:' + (((width * i) + (90 * i))) + 'px';
           pipeline_gui += '">';
           isCurrent = true;
@@ -601,12 +608,12 @@ Graph_Renderer = function (container) {
         return line(d.pathData);
       })
       .attr('class', function (d) {
-        return 'dependency ' + d.source.replace(/\./g, '_id-') + ' ' + d.target.replace(/\./g, '_id-');
+        return 'dependency ' + sanitizeVsmNodeId(d.source) + ' ' + sanitizeVsmNodeId(d.target);
       })
       .append('title')
       .text(function (d) {
         if (!($('#' + d.source).hasClass('pipeline') || $('#' + d.source).hasClass('dummy'))) {
-          return $('#' + d.source.replace(/\./g, '_id-') + ' h3').attr('title') + ' -> ' + d.target;
+          return $('#' + sanitizeVsmNodeId(d.source) + ' h3').attr('title') + ' -> ' + d.target;
         }
         else {
           return d.source + ' -> ' + d.target;
@@ -619,7 +626,7 @@ Graph_Renderer = function (container) {
     var source, target, p1, p2, x1, x2, y1, y2;
     $.each(levels, function (i, level) {
       $.each(level.nodes, function (j, node) {
-        source = $(Util.idToSelector(node.id.replace(/\./g, '_id-')));
+        source = $(Util.idToSelector(sanitizeVsmNodeId(node.id)));
 
         p1 = source.position();
         x1 = p1.left + source.outerWidth();
@@ -629,7 +636,7 @@ Graph_Renderer = function (container) {
           y1 += 0;
         }
         $.each(node.dependents, function (k, dependent) {
-          target = $(Util.idToSelector(dependent.replace(/\./g, '_id-')));
+          target = $(Util.idToSelector(sanitizeVsmNodeId(dependent)));
           p2 = target.position();
           x2 = p2.left;
           y2 = p2.top + (source.outerHeight() / 2);
@@ -691,18 +698,18 @@ Graph_Renderer = function (container) {
   }
 
   function sortDependencyArrows(source, target) {
-    source = source.replace(/\./g, '_id-');
-    target = target.replace(/\./g, '_id-');
+    source = sanitizeVsmNodeId(source);
+    target = sanitizeVsmNodeId(target);
 
     $.each(dependencyArrows, function (i, arrow) {
       currentZIndex++;
-      if (arrow.source.replace(/\./g, '_id-') == source && arrow.target.replace(/\./g, '_id-') == target) {
+      if (sanitizeVsmNodeId(arrow.source) == source && sanitizeVsmNodeId(arrow.target) == target) {
         arrow.zIndex = currentZIndex;
       }
-      else if (arrow.source.replace(/\./g, '_id-') == source && target == 'dependency') {
+      else if (sanitizeVsmNodeId(arrow.source) == source && target == 'dependency') {
         arrow.zIndex = currentZIndex;
       }
-      else if (arrow.target.replace(/\./g, '_id-') == target && source == 'dependency') {
+      else if (sanitizeVsmNodeId(arrow.target) == target && source == 'dependency') {
         arrow.zIndex = currentZIndex;
       }
     });
@@ -712,7 +719,7 @@ Graph_Renderer = function (container) {
     var sortSelector = '';
 
     $.each(dependencyArrows, function (i, e) {
-      sortSelector += '.' + e.source.replace(/\./g, '_id-') + '.' + e.target.replace(/\./g, '_id-') + ', ';
+      sortSelector += '.' + sanitizeVsmNodeId(e.source) + '.' + sanitizeVsmNodeId(e.target) + ', ';
     });
 
     d3.selectAll('path.dependency').sort(function (a, b) {

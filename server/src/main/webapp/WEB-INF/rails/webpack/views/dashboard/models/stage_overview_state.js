@@ -37,7 +37,7 @@ const StageOverviewState = {
   },
 
   hide: () => {
-    if(StageOverviewState.model()) {
+    if (StageOverviewState.model()) {
       StageOverviewState.model().stopRepeater();
       StageOverviewState.model(undefined);
     }

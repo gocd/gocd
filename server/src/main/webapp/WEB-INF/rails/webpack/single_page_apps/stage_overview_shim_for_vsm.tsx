@@ -30,17 +30,16 @@ $(() => {
     // @ts-ignore
     const state = window.stageOverviewStateForVSM;
 
-    if (state.model()) {
-      const stageOverviewContainer = document.getElementById(`stage-overview-container-for-pipeline-${state.getPipelineName()}-${state.getPipelineCounter()}-stage-${state.getStageName()}-${state.getStageCounter()}`)!;
-      m.mount(stageOverviewContainer, null);
-      state.hide();
-    }
+    const stageOverviewContainer = document.getElementById(`stage-overview-container-for-pipeline-${state.getPipelineName()}-${state.getPipelineCounter()}-stage-${state.getStageName()}-${state.getStageCounter()}`)!;
+    m.mount(stageOverviewContainer, null);
+    state.hide();
   }
 
   document.getElementById("vsm-container")!.onclick = closeStageOverview;
 
   // @ts-ignore
   window.getStageOverviewFor = (pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number, status: string, currentStageIndex: string, totalNumberOfStages: string, canEdit: boolean, templateName: string) => {
+    window.event?.stopPropagation();
     closeStageOverview();
     const repeatInterval = 9999999;
 
@@ -49,6 +48,7 @@ $(() => {
     // @ts-ignore
     StageOverviewViewModel.initialize(pipelineName, pipelineCounter, stageName, stageCounter, status, repeatInterval).then((result) => window.stageOverviewStateForVSM.model(result));
 
+    // Has to match div ID in Graph_Renderer.renderPipelineInstance
     const stageOverviewContainer = document.getElementById(`stage-overview-container-for-pipeline-${pipelineName}-${pipelineCounter}-stage-${stageName}-${stageCounter}`)!;
     const stageInstanceFromDashboard = {
       status

@@ -664,15 +664,11 @@ dependencyCheck {
   failBuildOnCVSS = 1
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
 
-  nvd {
-    apiKey = System.getenv("NVD_API_KEY") ?: ""
-  }
+  nvd.apiKey = System.getenv("NVD_API_KEY") ?: ""
 
-  analyzers {
-    nodeAudit.yarnEnabled = false // Doesn't work correctly with Yarn 3+ https://github.com/jeremylong/DependencyCheck/issues/4894
-    assemblyEnabled = false // Avoid dotnet false positives
-    retirejs.filterNonVulnerable = true // Reduces effort/memory processing retirejs results
-  }
+  analyzers.nodeAudit.yarnEnabled = false // Doesn't work correctly with Yarn 3+ https://github.com/jeremylong/DependencyCheck/issues/4894
+  analyzers.assemblyEnabled = false // Avoid dotnet false positives
+  analyzers.retirejs.filterNonVulnerable = true // Reduces effort/memory processing retirejs results
 }
 
 dependencyCheckAggregate {

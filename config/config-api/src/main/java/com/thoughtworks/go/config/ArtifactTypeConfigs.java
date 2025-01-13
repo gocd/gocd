@@ -95,8 +95,8 @@ public class ArtifactTypeConfigs extends BaseCollection<ArtifactTypeConfig> impl
         if (attributes == null) {
             return;
         }
-        List<Map> attrList = (List<Map>) attributes;
-        for (Map attrMap : attrList) {
+        @SuppressWarnings("unchecked") List<Map<String, Object>> attrList = (List<Map<String, Object>>) attributes;
+        for (Map<String, Object> attrMap : attrList) {
             String type = (String) attrMap.get("artifactTypeValue");
             if (TestArtifactConfig.TEST_PLAN_DISPLAY_NAME.equals(type) || BuildArtifactConfig.ARTIFACT_PLAN_DISPLAY_NAME.equals(type)) {
                 String source = (String) attrMap.get(BuiltinArtifactConfig.SRC);
@@ -114,7 +114,7 @@ public class ArtifactTypeConfigs extends BaseCollection<ArtifactTypeConfig> impl
                 String artifactId = (String) attrMap.get(PluggableArtifactConfig.ID);
                 String storeId = (String) attrMap.get(PluggableArtifactConfig.STORE_ID);
                 String pluginId = (String) attrMap.get("pluginId");
-                Map<String, Object> userSpecifiedConfiguration = (Map<String, Object>) attrMap.get("configuration");
+                @SuppressWarnings("unchecked") Map<String, Object> userSpecifiedConfiguration = (Map<String, Object>) attrMap.get("configuration");
                 PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig(artifactId, storeId);
                 this.add(pluggableArtifactConfig);
                 if (userSpecifiedConfiguration == null) {
@@ -125,7 +125,7 @@ public class ArtifactTypeConfigs extends BaseCollection<ArtifactTypeConfig> impl
                     Configuration configuration = pluggableArtifactConfig.getConfiguration();
 
                     for (String key : userSpecifiedConfiguration.keySet()) {
-                        Map<String, String> configurationMetadata = (Map<String, String>) userSpecifiedConfiguration.get(key);
+                        @SuppressWarnings("unchecked") Map<String, String> configurationMetadata = (Map<String, String>) userSpecifiedConfiguration.get(key);
                         if (configurationMetadata != null) {
                             boolean isSecure = Boolean.parseBoolean(configurationMetadata.get("isSecure"));
                             if (configuration.getProperty(key) == null) {

@@ -131,11 +131,12 @@ public class Approval implements Validatable, ParamsAttributeAware {
         return type.equals(MANUAL) || type.equals(SUCCESS);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
-        Map attributeMap = (Map) attributes;
+        Map<String, String> attributeMap = (Map<String, String>) attributes;
         if (attributeMap.containsKey(TYPE)) {
-            type = (String) attributeMap.get(TYPE);
+            type = attributeMap.get(TYPE);
         }
 
         if (attributeMap.containsKey("allowOnlyOnSuccess")) {

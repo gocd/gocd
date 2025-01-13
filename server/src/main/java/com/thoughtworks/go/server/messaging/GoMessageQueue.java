@@ -18,12 +18,13 @@ package com.thoughtworks.go.server.messaging;
 import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
 
 public class GoMessageQueue<T extends GoMessage> implements GoMessageChannel<T> {
-    private MessagingService messaging;
+    private final MessagingService<T> messaging;
     protected String queueName;
     private MessageSender queueSender;
 
-    public GoMessageQueue(MessagingService messaging, String queueName) {
-        this.messaging = messaging;
+    @SuppressWarnings("unchecked")
+    public GoMessageQueue(MessagingService<GoMessage> messaging, String queueName) {
+        this.messaging = (MessagingService<T>) messaging;
         this.queueName = queueName;
     }
 
@@ -35,7 +36,7 @@ public class GoMessageQueue<T extends GoMessage> implements GoMessageChannel<T> 
     }
 
     @Override
-    public JMSMessageListenerAdapter addListener(GoMessageListener<T> listener) {
+    public JMSMessageListenerAdapter<T> addListener(GoMessageListener<T> listener) {
         return messaging.addQueueListener(queueName, listener);
     }
 

@@ -249,6 +249,7 @@ public class UniqueOnCancelValidatorTest {
         }
     }
 
+    @SafeVarargs
     private List<Class<? extends Task>> tasks(Class<? extends Task>... taskClasses) {
         List<Class<? extends Task>> tasks = new ArrayList<>();
         Collections.addAll(tasks, taskClasses);

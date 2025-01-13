@@ -31,6 +31,7 @@ import java.util.Map;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JsonMessageHandler3_0 implements JsonMessageHandler {
 
     private static final Gson GSON = new GsonBuilder().create();

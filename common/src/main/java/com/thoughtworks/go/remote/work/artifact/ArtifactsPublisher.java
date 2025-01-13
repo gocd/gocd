@@ -139,7 +139,7 @@ public class ArtifactsPublisher implements Serializable {
     }
 
     private Map<ArtifactPlan, ArtifactStore> artifactStoresToPlugin(List<ArtifactPlan> artifactPlans) {
-        final HashMap<ArtifactPlan, ArtifactStore> artifactPlanToArtifactStoreMap = new HashMap<>();
+        final Map<ArtifactPlan, ArtifactStore> artifactPlanToArtifactStoreMap = new HashMap<>();
         for (ArtifactPlan artifactPlan : artifactPlans) {
             final String storeId = (String) artifactPlan.getPluggableArtifactConfiguration().get("storeId");
             artifactPlanToArtifactStoreMap.put(artifactPlan, artifactStores.find(storeId));

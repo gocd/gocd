@@ -90,9 +90,9 @@ public class EnvironmentPipelinesConfig extends BaseCollection<EnvironmentPipeli
     @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes != null) {
-            List<Map> pipelineAttributes = (List) attributes;
+            @SuppressWarnings("unchecked") List<Map<String, Object>> pipelineAttributes = (List<Map<String, Object>>) attributes;
             this.clear();
-            for (Map attributeMap : pipelineAttributes) {
+            for (Map<String, Object> attributeMap : pipelineAttributes) {
                 this.add(new EnvironmentPipelineConfig(new CaseInsensitiveString((String) attributeMap.get("name"))));
             }
         }

@@ -273,7 +273,7 @@ public class BuildCauseProducerServiceTest {
         MaterialUpdateStatusNotifier notifier = new MaterialUpdateStatusNotifier(mock(MaterialUpdateCompletedTopic.class));
         buildCauseProducerService = spy(createBuildCauseProducerService(notifier));
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
-        final HashMap<String, String> stringStringHashMap = new HashMap<>();
+        final Map<String, String> stringStringHashMap = new HashMap<>();
         doReturn(ServerHealthState.success(healthStateType)).when(buildCauseProducerService).newProduceBuildCause(
                 eq(pipelineConfig), any(ManualBuild.class),
                 new ScheduleOptions(eq(EMPTY_REVISIONS), stringStringHashMap, new HashMap<>()), any(ServerHealthStateOperationResult.class), eq(12345L));
@@ -317,7 +317,7 @@ public class BuildCauseProducerServiceTest {
         when(materialConfigConverter.toMaterials(knownMaterialConfigs)).thenReturn(new Materials(dependencyMaterial, svnMaterial));
 
         ManualBuild buildType = new ManualBuild(Username.ANONYMOUS);
-        final HashMap<String, String> stringStringHashMap = new HashMap<>();
+        final Map<String, String> stringStringHashMap = new HashMap<>();
         buildCauseProducerService.newProduceBuildCause(pipelineConfig, buildType,
                 new ScheduleOptions(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/2/stage/1"),
                         stringStringHashMap, new HashMap<>()), new ServerHealthStateOperationResult(), 12345);
@@ -331,7 +331,7 @@ public class BuildCauseProducerServiceTest {
         when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
                 .thenThrow(new RuntimeException("Invalid specified revision"));
         ManualBuild buildType = new ManualBuild(Username.ANONYMOUS);
-        final HashMap<String, String> stringStringHashMap = new HashMap<>();
+        final Map<String, String> stringStringHashMap = new HashMap<>();
         buildCauseProducerService.newProduceBuildCause(pipelineConfig, buildType,
                 new ScheduleOptions(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"),
                         stringStringHashMap, new HashMap<>()), new ServerHealthStateOperationResult(), 12345);
@@ -344,7 +344,7 @@ public class BuildCauseProducerServiceTest {
         when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
                 .thenThrow(new NullPointerException());
         ManualBuild buildType = new ManualBuild(Username.ANONYMOUS);
-        final HashMap<String, String> stringStringHashMap = new HashMap<>();
+        final Map<String, String> stringStringHashMap = new HashMap<>();
         buildCauseProducerService.newProduceBuildCause(pipelineConfig, buildType,
                 new ScheduleOptions(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"), stringStringHashMap, new HashMap<>()),
                 new ServerHealthStateOperationResult(), 12345);

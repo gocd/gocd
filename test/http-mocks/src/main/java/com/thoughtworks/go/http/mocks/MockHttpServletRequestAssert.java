@@ -20,31 +20,16 @@ import org.assertj.core.api.AbstractObjectAssert;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.http.HttpSession;
-import java.util.Objects;
 
+@SuppressWarnings("UnusedReturnValue")
 public class MockHttpServletRequestAssert<SELF extends MockHttpServletRequestAssert<SELF>> extends AbstractObjectAssert<SELF, MockHttpServletRequest> {
 
     protected MockHttpServletRequestAssert(MockHttpServletRequest actual, Class<?> selfType) {
         super(actual, selfType);
     }
 
-    public static MockHttpServletRequestAssert assertThat(MockHttpServletRequest actual) {
-        return new MockHttpServletRequestAssert(actual, MockHttpServletRequestAssert.class);
-    }
-
-    public SELF doesNotHaveSessionAttribute(String attributeName) {
-        if (getSession().getAttribute(attributeName) != null) {
-            failWithMessage("Expected session not to contain attribute <%s>, but found <%s>: <%s>", attributeName, attributeName, getSession().getAttribute(attributeName));
-        }
-        return myself;
-    }
-
-    public SELF hasSessionAttribute(String name, Object expectedAttributeValue) {
-        final Object actualAttributeValue = getSession().getAttribute(name);
-        if (!Objects.deepEquals(expectedAttributeValue, actualAttributeValue)) {
-            failWithMessage("Expected session to contain attribute <%s>: <%s>, but found <%s>: <%s>", name, expectedAttributeValue, name, actualAttributeValue);
-        }
-        return myself;
+    public static MockHttpServletRequestAssert<?> assertThat(MockHttpServletRequest actual) {
+        return new MockHttpServletRequestAssert<>(actual, MockHttpServletRequestAssert.class);
     }
 
     public SELF hasSameSession(HttpSession originalSession) {

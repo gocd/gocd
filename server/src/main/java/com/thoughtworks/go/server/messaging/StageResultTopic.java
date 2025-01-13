@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 public class StageResultTopic extends GoMessageTopic<StageResultMessage> {
 
     @Autowired
-    public StageResultTopic(MessagingService messaging) {
+    public StageResultTopic(MessagingService<GoMessage> messaging) {
         super(messaging, "stage-result");
     }
 }

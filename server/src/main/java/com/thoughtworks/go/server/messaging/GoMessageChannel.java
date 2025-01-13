@@ -18,6 +18,6 @@ package com.thoughtworks.go.server.messaging;
 import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
 
 public interface GoMessageChannel<T extends GoMessage> {
-    JMSMessageListenerAdapter addListener(GoMessageListener<T> listener);
+    JMSMessageListenerAdapter<T> addListener(GoMessageListener<T> listener);
     void post(T message);
 }

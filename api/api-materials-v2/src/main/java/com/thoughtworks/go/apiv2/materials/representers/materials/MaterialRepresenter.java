@@ -21,5 +21,5 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import java.util.function.Consumer;
 
 public interface MaterialRepresenter<T extends MaterialConfig> {
-    Consumer<OutputWriter> toJSON(T gitMaterialConfig);
+    Consumer<OutputWriter> toJSON(T materialConfig);
 }

@@ -43,11 +43,12 @@ public class MaterialsRepresenter {
         TFS(TfsMaterialConfig.class, new TfsMaterialRepresenter());
 
         private final Class<? extends MaterialConfig> type;
-        private final MaterialRepresenter representer;
+        private final MaterialRepresenter<MaterialConfig> representer;
 
-        Materials(Class<? extends MaterialConfig> type, MaterialRepresenter representer) {
+        @SuppressWarnings("unchecked")
+        Materials(Class<? extends MaterialConfig> type, MaterialRepresenter<?> representer) {
             this.type = type;
-            this.representer = representer;
+            this.representer = (MaterialRepresenter<MaterialConfig>) representer;
         }
 
         public static boolean hasMaterial(Class<?> type) {

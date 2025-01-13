@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.messaging.scheduling;
 
+import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageTopic;
 import com.thoughtworks.go.server.messaging.MessagingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Component;
 public class IdleAgentTopic extends GoMessageTopic<IdleAgentMessage> {
 
     @Autowired
-    public IdleAgentTopic(MessagingService messaging) {
+    public IdleAgentTopic(MessagingService<GoMessage> messaging) {
         super(messaging, "idle_agent");
     }
 }

@@ -33,7 +33,7 @@ import java.util.Map;
 
 @Component
 public class BuilderFactory {
-    private final Map<Class, TaskBuilder> taskBuilderMap = new HashMap<>();
+    private final Map<Class<?>, TaskBuilder<?>> taskBuilderMap = new HashMap<>();
 
     @Autowired
     public BuilderFactory(AntTaskBuilder antTaskBuilder, ExecTaskBuilder execTaskBuilder, NantTaskBuilder nantTaskBuilder,
@@ -63,10 +63,11 @@ public class BuilderFactory {
         return getBuilderImplementation(task).createBuilder(this, task, pipeline, resolver);
     }
 
-    private TaskBuilder getBuilderImplementation(Task task) {
+    @SuppressWarnings("unchecked")
+    private <T extends Task> TaskBuilder<T> getBuilderImplementation(Task task) {
         if (!taskBuilderMap.containsKey(task.getClass()))
             throw new RuntimeException("Unexpected type of task: " + task.getClass());
 
-        return taskBuilderMap.get(task.getClass());
+        return (TaskBuilder<T>) taskBuilderMap.get(task.getClass());
     }
 }

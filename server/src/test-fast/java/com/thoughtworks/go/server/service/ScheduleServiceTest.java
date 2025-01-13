@@ -38,6 +38,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.JobResult.*;
 import static com.thoughtworks.go.domain.JobState.Building;
@@ -195,7 +196,7 @@ public class ScheduleServiceTest {
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenThrow(
                 new CannotScheduleException("foo", "stage-baz"));
-        final HashMap<CaseInsensitiveString, BuildCause> map = new HashMap<>();
+        final Map<CaseInsensitiveString, BuildCause> map = new HashMap<>();
         map.put(new CaseInsensitiveString("pipeline-quux"), BuildCause.createManualForced());
         when(pipelineScheduleQueue.toBeScheduled()).thenReturn(map);
 
@@ -216,7 +217,7 @@ public class ScheduleServiceTest {
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenReturn(PipelineMother.schedule(pipelineConfig,
                 BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterial(materialConfig), ModificationsMother.aCheckIn("123", "foo.c"))), new Username(new CaseInsensitiveString("loser")))));
-        final HashMap<CaseInsensitiveString, BuildCause> map = new HashMap<>();
+        final Map<CaseInsensitiveString, BuildCause> map = new HashMap<>();
         map.put(new CaseInsensitiveString("pipeline-quux"), BuildCause.createManualForced());
         when(pipelineScheduleQueue.toBeScheduled()).thenReturn(map);
 
@@ -232,7 +233,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldUnlockPipelineBasedOnLockSetting() throws Exception {
+    public void shouldUnlockPipelineBasedOnLockSetting() {
         assertUnlockPipeline("unlock when next stage is manual, this stage is passed and pipeline is unlockable", Completed, Passed, false, true, true, true);
         assertUnlockPipeline("don't unlock when next stage manual, this stage is passed and pipeline is not unlockable", Completed, Passed, false, true, false, false);
         assertUnlockPipeline("unlock when next stage is manual, this stage is failed and pipeline is unlockable", Completed, Failed, false, true, true, true);

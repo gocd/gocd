@@ -281,15 +281,16 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         this.variables = environmentVariables;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;
         }
 
-        Map attributeMap = (Map) attributes;
+        Map<String, String> attributeMap = (Map<String, String>) attributes;
         if (attributeMap.containsKey(NAME_FIELD)) {
-            name = new CaseInsensitiveString((String) attributeMap.get(NAME_FIELD));
+            name = new CaseInsensitiveString(attributeMap.get(NAME_FIELD));
         }
         if (attributeMap.containsKey(PIPELINES_FIELD)) {
             pipelines.setConfigAttributes(attributeMap.get(PIPELINES_FIELD));

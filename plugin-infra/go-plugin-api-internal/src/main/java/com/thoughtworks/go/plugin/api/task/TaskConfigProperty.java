@@ -20,7 +20,7 @@ import com.thoughtworks.go.plugin.api.config.Property;
 /**
  * Specialization of {@link Property} class, for task configuration.
  */
-public class TaskConfigProperty extends Property implements Comparable{
+public class TaskConfigProperty extends Property implements Comparable<TaskConfigProperty> {
     protected TaskConfigProperty(String key) {
         super(key);
         updateDefaults();
@@ -40,7 +40,7 @@ public class TaskConfigProperty extends Property implements Comparable{
     }
 
     @Override
-    public int compareTo(Object o) {
-        return this.getOption(DISPLAY_ORDER) - ((TaskConfigProperty) o).getOption(DISPLAY_ORDER);
+    public int compareTo(TaskConfigProperty o) {
+        return this.getOption(DISPLAY_ORDER) - o.getOption(DISPLAY_ORDER);
     }
 }

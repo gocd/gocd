@@ -44,6 +44,7 @@ import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.FileUtils.copyDirectory;
+import static org.awaitility.Awaitility.await;
 
 public class P4TestRepo extends TestRepo {
     protected File tempRepo;
@@ -129,7 +130,14 @@ public class P4TestRepo extends TestRepo {
 
     private void waitForP4dToStartup() {
         CommandLine command = createCommandLine("p4").withArgs("-p", serverAndPort(), "info").withEncoding(UTF_8);
-        command.waitForSuccess(60 * 1000);
+
+        await("waiting for p4d to start via " + command.toStringForDisplay())
+            .pollDelay(10, TimeUnit.MILLISECONDS)
+            .timeout(60, TimeUnit.SECONDS)
+            .until(
+                () -> command.runOrBomb(null),
+                result -> !result.failed()
+            );
     }
 
     public void stopP4d() {

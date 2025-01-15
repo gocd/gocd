@@ -19,7 +19,10 @@ import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.util.command.CommandLineException;
-import com.thoughtworks.go.util.command.ConsoleResult;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.await;
 
 public class P4Fixture {
     private P4TestRepo repo;
@@ -36,15 +39,12 @@ public class P4Fixture {
     private void stopP4d(P4Client p4) {
         try {
             p4.admin("stop");
-            ConsoleResult consoleResult = p4.checkConnection();
-            while (!consoleResult.failed()) {
-                try {
-                    // Wait for the server to shutdown
-                    Thread.sleep(100);
-                } catch (InterruptedException ignored) {
-                    Thread.currentThread().interrupt();
-                }
-            }
+
+            await("waiting for p4d to stop")
+                .pollDelay(10, TimeUnit.MILLISECONDS)
+                .timeout(10, TimeUnit.SECONDS)
+                .until(() -> p4.checkConnection().failed());
+
         } catch (CommandLineException expected) {
             // Stopping p4d on windows returns the following failure:
             if (expected.getResult().errorAsString().contains("WSAECONNRESET") || expected.getResult().errorAsString().contains("WSAECONNREFUSED")) {

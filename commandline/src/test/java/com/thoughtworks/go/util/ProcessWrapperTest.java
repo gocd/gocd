@@ -27,7 +27,6 @@ import java.util.List;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -80,18 +79,10 @@ class ProcessWrapperTest {
     }
 
     @Test
-    void shouldTryCommandWithTimeout() {
-        CommandLine line = CommandLine.createCommandLine("doesnotexist").withEncoding(UTF_8);
-        assertThatCode(() -> line.waitForSuccess(100))
-                .hasMessageContaining("Timeout after 0.1 seconds waiting for command 'doesnotexist'");
-    }
-
-
-    @Test
     void shouldCollectOutput() {
         String output = "SYSOUT: Hello World!";
         String error = "SYSERR: Some error happened!";
-        CommandLine line = CommandLine.createCommandLine("ruby").withEncoding(UTF_8).withArgs(script("echo"), output, error);
+        CommandLine line = CommandLine.createCommandLine("jshell").withEncoding(UTF_8).withArgs(script("echo.jsh"), "-R-Doutput=" + output, "-R-Derror=" + error);
         ConsoleResult result = run(line);
 
         assertThat(result.returnValue()).as("Errors: " + result.errorAsString()).isEqualTo(0);
@@ -99,34 +90,41 @@ class ProcessWrapperTest {
         assertThat(result.error().toString()).contains(error);
     }
 
-    private String script(final String name) {
-        return "../util/src/test/resources/executables/" + name + ".rb";
+    private String script(final String scriptFilename) {
+        return "../commandline/src/test/resources/executables/" + scriptFilename;
+    }
+
+    private static String jshellScriptFromInput(String echoMe) {
+        return "System.out.println(\"%s\")".formatted(echoMe);
     }
 
     @Test
     void shouldAcceptInputString() {
-        String input = "SYSIN: Hello World!";
-        CommandLine line = CommandLine.createCommandLine("ruby").withEncoding(UTF_8).withArgs(script("echo-input"));
-        ConsoleResult result = run(line, input);
-        assertThat(result.output()).contains(input);
-        assertThat(result.error().size()).isEqualTo(0);
+        String input = "Hello World!";
+        CommandLine line = CommandLine.createCommandLine("jshell").withEncoding(UTF_8);
+        ConsoleResult result = run(line, jshellScriptFromInput(input));
+        assertThat(result.returnValue()).isEqualTo(0);
+        assertThat(result.output()).anyMatch(out -> out.contains(input));
     }
 
     @Test
     void shouldBeAbleToCompleteInput() {
         String input1 = "SYSIN: Line 1!";
         String input2 = "SYSIN: Line 2!";
-        CommandLine line = CommandLine.createCommandLine("ruby").withEncoding(UTF_8).withArgs(script("echo-all-input"));
-        ConsoleResult result = run(line, input1, input2);
+        CommandLine line = CommandLine.createCommandLine("jshell").withEncoding(UTF_8);
+        ConsoleResult result = run(line,
+            jshellScriptFromInput(input1),
+            jshellScriptFromInput(input2)
+        );
         assertThat(result.returnValue()).isEqualTo(0);
-        assertThat(result.output()).contains("You said: " + input1);
-        assertThat(result.output()).contains("You said: " + input2);
-        assertThat(result.error().size()).isEqualTo(0);
+        assertThat(result.output())
+            .anyMatch(out -> out.contains(input1))
+            .anyMatch(out -> out.contains(input2));
     }
 
     @Test
     void shouldReportReturnValueIfProcessFails() {
-        CommandLine line = CommandLine.createCommandLine("ruby").withEncoding(UTF_8).withArgs(script("nonexistent-script"));
+        CommandLine line = CommandLine.createCommandLine("jshell").withEncoding(UTF_8).withArgs(script("nonexistent-script.jsh"));
         ConsoleResult result = run(line);
         assertThat(result.returnValue()).isEqualTo(1);
     }
@@ -134,8 +132,9 @@ class ProcessWrapperTest {
     @Test
     void shouldSetGoServerVariablesIfTheyExist() {
         System.setProperty("GO_DEPENDENCY_LABEL_PIPELINE_NAME", "999");
-        CommandLine line = CommandLine.createCommandLine("ruby").withEncoding(UTF_8).withArgs(script("dump-environment"));
+        CommandLine line = CommandLine.createCommandLine("jshell").withEncoding(UTF_8).withArgs(script("dump-environment.jsh"));
         ConsoleResult result = run(line);
+        assertThat(result.error()).isEmpty();
         assertThat(result.returnValue()).as("Errors: " + result.errorAsString()).isEqualTo(0);
         assertThat(result.output()).contains("GO_DEPENDENCY_LABEL_PIPELINE_NAME=999");
     }

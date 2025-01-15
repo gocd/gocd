@@ -40,4 +40,5 @@ dependencies {
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.jsonUnit
+  testImplementation project.deps.awaitility
 }

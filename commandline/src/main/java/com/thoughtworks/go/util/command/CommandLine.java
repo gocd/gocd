@@ -220,25 +220,6 @@ public class CommandLine {
         return process;
     }
 
-    public void waitForSuccess(int timeout) {
-        ConsoleResult lastResult = ConsoleResult.unknownResult();
-        long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() - start < timeout) {
-            try {
-                lastResult = runOrBomb(null);
-                if (!lastResult.failed()) {
-                    return;
-                }
-                Thread.sleep(100);
-            } catch (Exception e) {
-                lastResult.error().add(e.getMessage());
-            }
-        }
-        double seconds = timeout / 1000.0;
-        ExceptionUtils.bomb("Timeout after " + seconds + " seconds waiting for command '" + toStringForDisplay() + "'\n"
-            + "Last output was:\n" + lastResult.describe());
-    }
-
     public String getExecutable() {
         return executable;
     }

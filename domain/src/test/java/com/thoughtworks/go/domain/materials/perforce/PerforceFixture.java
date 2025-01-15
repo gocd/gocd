@@ -52,7 +52,9 @@ public abstract class PerforceFixture {
 
     @AfterEach
     public void stopP4Server() {
-        p4Fixture.stop(p4);
+        if (p4 != null) {
+            p4Fixture.stop(p4);
+        }
     }
 
     protected static String clientConfig(String clientName, File clientFolder) {

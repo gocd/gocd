@@ -1766,6 +1766,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/moment-duration-format@npm:^2.2.6":
+  version: 2.2.6
+  resolution: "@types/moment-duration-format@npm:2.2.6"
+  dependencies:
+    moment: "npm:>=2.14.0"
+  checksum: 10/497f2019c5aae19cd39768397da717864c1f3964a1ce5c5c5ababd47f3f6716801053e0d7d7a443c840c1c4fb3ac014a3e2ed34b9d3963f86656ba14ab823eaa
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*, @types/node@npm:>=10.0.0":
   version: 22.10.5
   resolution: "@types/node@npm:22.10.5"
@@ -5478,6 +5487,7 @@ __metadata:
     "@types/lodash": "npm:^4.17.14"
     "@types/mini-css-extract-plugin": "npm:^1.4.3"
     "@types/mithril": "npm:2.2.7"
+    "@types/moment-duration-format": "npm:^2.2.6"
     "@types/node": "npm:^22.10.6"
     "@types/optimize-css-assets-webpack-plugin": "npm:^5.0.8"
     "@types/prismjs": "npm:^1.26.5"
@@ -7542,7 +7552,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:^2.30.1":
+"moment@npm:>=2.14.0, moment@npm:^2.30.1":
   version: 2.30.1
   resolution: "moment@npm:2.30.1"
   checksum: 10/ae42d876d4ec831ef66110bdc302c0657c664991e45cf2afffc4b0f6cd6d251dde11375c982a5c0564ccc0fa593fc564576ddceb8c8845e87c15f58aa6baca69

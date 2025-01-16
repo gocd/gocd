@@ -18,6 +18,7 @@ package com.thoughtworks.go.spark.spa.spring;
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.SparkController;
@@ -57,11 +58,13 @@ public class SpaControllers implements SparkSpringController {
                           ElasticAgentPluginService elasticAgentPluginService,
                           JobInstanceService jobInstanceService,
                           PipelineService pipelineService,
-                          FeatureToggleService featureToggleService) {
+                          FeatureToggleService featureToggleService,
+                          PipelineDao pipelineDao) {
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
         LayoutTemplateProvider railsCompatibleTemplate = () -> RAILS_COMPATIBLE_PAGE_LAYOUT_PATH;
 
+        sparkControllers.add(new BuildDetailController(authenticationHelper, jobInstanceService, pipelineDao, securityService, templateEngineFactory.create(BuildDetailController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new NewPreferencesController(authenticationHelper, templateEngineFactory.create(NewPreferencesController.class, () -> COMPONENT_LAYOUT_PATH), goConfigService));
 		sparkControllers.add(new MaterialsController(authenticationHelper, templateEngineFactory.create(MaterialsController.class, () -> COMPONENT_LAYOUT_PATH)));
 		sparkControllers.add(new TemplateConfigController(authenticationHelper, templateEngineFactory.create(TemplateConfigController.class, () -> COMPONENT_LAYOUT_PATH)));
@@ -107,3 +110,4 @@ public class SpaControllers implements SparkSpringController {
         }
     }
 }
+

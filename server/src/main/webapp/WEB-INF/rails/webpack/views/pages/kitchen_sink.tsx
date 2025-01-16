@@ -145,12 +145,12 @@ export class KitchenSink extends MithrilComponent<null, any> {
 
     return (
       <div>
-        <HeaderPanel title="Kitchen Sink" sectionName={"Admin"} keyValuePair={{
-          "Pipeline": "Up42",
-          "Instance": <div>3 <Link>VSM</Link></div>,
-          "Stage": "Up42_StAgE",
-          "": <Icons.Settings iconOnly={true}/>
-        }}/>
+        <HeaderPanel title="Kitchen Sink" sectionName={"Admin"} bottomBorderColor={'passed'} keyValuePair={[
+          ["Pipeline", "Up42"],
+          ["Instance", <div>3 <Link>VSM</Link></div>],
+          ["Stage", "Up42_StAgE"],
+          ["", <Icons.Settings iconOnly={true}/>]
+        ]}/>
 
         <h3>Copy Widgets</h3>
         {

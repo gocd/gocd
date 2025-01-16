@@ -100,10 +100,10 @@ export class SparkRoutes {
 
   static pipelineMaterialSearchPath(pipelineName: string, fingerprint: string, searchText: string): string {
     const queryString = m.buildQueryString({
-                                             fingerprint,
-                                             pipeline_name: pipelineName,
-                                             search_text:   searchText
-                                           });
+      fingerprint,
+      pipeline_name: pipelineName,
+      search_text: searchText
+    });
     return `/go/api/internal/material_search?${queryString}`;
   }
 
@@ -339,6 +339,10 @@ export class SparkRoutes {
     }
   }
 
+  static apiJobInstancePath(pipelineName: string, pipelineCounter: CounterLike, stageName: string, stageCounter: CounterLike, jobName: string){
+    return `/go/api/jobs/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/${jobName}`;
+  }
+
   static apiAdminAccessTokensBasePath() {
     return `/go/api/admin/access_tokens`;
   }
@@ -436,7 +440,7 @@ export class SparkRoutes {
                                            withAdditionalInfo: boolean = false) {
     const values: Params = {
       pipeline_group_authorization: groupAuthorization,
-      template_authorization:       templateAuthorization,
+      template_authorization: templateAuthorization,
     };
     if (withAdditionalInfo) {
       values.with_additional_info = true;
@@ -632,6 +636,11 @@ export class SparkRoutes {
 
   static pipelineJobEditPath(stageParent: 'pipelines' | 'templates', pipelineName: string, stageName: string, jobName: string, tab: string): string {
     return this.pipelineEditPath(stageParent, pipelineName, `${stageName}/${jobName}/${tab}`);
+  }
+
+  static jobEditPath(stageParent: 'pipelines' | 'templates', pipelineName: string, stageName: string, jobName: string,
+                     tab: 'job_settings' | 'tasks' | 'environment_variables' | 'custom_tabs' = 'tasks'): string {
+    return `/go/admin/${stageParent}/${pipelineName}/edit#!${pipelineName}/${stageName}/${jobName}/${tab}`;
   }
 
   static getAllMaterials(): string {

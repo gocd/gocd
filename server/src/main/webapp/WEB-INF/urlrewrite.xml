@@ -26,6 +26,12 @@
 <urlrewrite>
 
   <rule>
+    <name>Build Detail SPA</name>
+    <from>^/build_detail/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)(/?)$</from>
+    <to last="true">/spark/build_detail/${escape:$1}/${escape:$2}/${escape:$3}/${escape:$4}/${escape:$5}</to>
+  </rule>
+
+  <rule>
     <name>Internal Secret Configs API</name>
     <from>^/api/admin/internal/secret_configs$</from>
     <to last="true">/spark/api/admin/internal/secret_configs</to>
@@ -1207,3 +1213,4 @@
     <to last="true">/spark/api/admin/config/server/site_urls</to>
   </rule>
 </urlrewrite>
+

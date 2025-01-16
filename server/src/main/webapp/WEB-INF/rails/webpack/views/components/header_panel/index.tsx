@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import classNames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {HeaderKeyValuePair} from "views/components/header_panel/header_key_value_pair";
 import {Help, TooltipSize} from "views/components/tooltip";
-import * as style from "./index.scss";
+import style from "./index.scss";
+
+const classnames = classNames.bind(style);
 
 interface HelpTextAttrs {
   help?: m.Children;
@@ -28,7 +31,8 @@ export interface Attrs extends HelpTextAttrs {
   title: m.Children;
   sectionName?: m.Children;
   buttons?: m.Children;
-  keyValuePair?: { [key: string]: m.Children };
+  keyValuePair?: [m.Children, m.Children];
+  bottomBorderColor?: 'passed' | 'failed' | 'building' | 'unknown';
 }
 
 export class HeaderPanel extends MithrilViewComponent<Attrs> {
@@ -47,15 +51,20 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
       ? undefined
       : <HelpTextWidget help={vnode.attrs.help}/>;
 
-    return (<header class={style.pageHeader}>
+    return (<header class={classnames(style.pageHeader, style[vnode.attrs.bottomBorderColor || 'unknown'])}>
       <div class={style.pageTitle}>
         {this.maybeSection(vnode)}
-        <h1 class={style.title} data-test-id="title">{vnode.attrs.title}</h1>
+        {this.maybeTitle(vnode)}
         {helpText}
-        <HeaderKeyValuePair data={vnode.attrs.keyValuePair}/>
+        {HeaderPanel.maybeKeyValuePairs(vnode)}
+        {vnode.children}
       </div>
       {buttons}
     </header>);
+  }
+
+  private static maybeKeyValuePairs(vnode: m.Vnode<Attrs>) {
+    return <HeaderKeyValuePair data={vnode.attrs.keyValuePair}/>;
   }
 
   private maybeSection(vnode: m.Vnode<Attrs>) {
@@ -64,6 +73,12 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
         <h1 class={style.sectionName} data-test-id="section-name">{vnode.attrs.sectionName}</h1>
         <HelpTextWidget help={vnode.attrs.help}/>
       </div>;
+    }
+  }
+
+  private maybeTitle(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.title) {
+      return (<h1 className={style.title} data-test-id="title">{vnode.attrs.title}</h1>);
     }
   }
 }

@@ -16,7 +16,7 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {AgentConfigState, Agents} from "models/agents/agents";
+import {AgentConfigState, Agents, Agent} from "models/agents/agents";
 
 export class AgentsCRUD {
   private static API_VERSION_HEADER = ApiVersion.latest;
@@ -25,6 +25,13 @@ export class AgentsCRUD {
     return ApiRequestBuilder.GET(SparkRoutes.agentsPath(), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => {
                               return Agents.fromJSON(JSON.parse(body));
+                            }));
+  }
+
+  static get(agentUUID: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.agentsPath(agentUUID), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => {
+                              return Agent.fromJSON(JSON.parse(body));
                             }));
   }
 

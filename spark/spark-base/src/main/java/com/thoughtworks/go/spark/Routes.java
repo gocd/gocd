@@ -937,4 +937,10 @@ public class Routes {
         public static final String GET_COOKIE = "/get_cookie";
         public static final String GET_WORK = "/get_work";
     }
+
+    public class BuildDetailSPA {
+        public static final String SPA_BASE = "/build_detail";
+        public static final String JOB_INSTANCE = "/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/:job_name";
+    }
 }
+

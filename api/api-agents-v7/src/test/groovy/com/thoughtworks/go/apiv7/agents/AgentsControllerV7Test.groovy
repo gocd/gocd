@@ -123,7 +123,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
               "hostname"          : "CCeDev01",
               "ip_address"        : "10.18.5.1",
               "sandbox"           : "/var/lib/foo",
-              "operating_system"  : "",
+              "operating_system"  : null,
               "free_space"        : 10240,
               "agent_config_state": "Enabled",
               "agent_state"       : "Idle",
@@ -216,7 +216,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
     }
 
     @Test
-    void 'should return agent json'() {
+    void 'should return agent json for agents currently in the config'() {
       def agentInstance = idle()
       agentInstance.getAgent().setEnvironments("env1,env2,unknown-env")
       when(agentService.findAgent("uuid2")).thenReturn(agentInstance)
@@ -244,7 +244,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         "hostname"          : "CCeDev01",
         "ip_address"        : "10.18.5.1",
         "sandbox"           : "/var/lib/foo",
-        "operating_system"  : "",
+        "operating_system"  : null,
         "free_space"        : 10240,
         "agent_config_state": "Enabled",
         "agent_state"       : "Idle",
@@ -288,6 +288,83 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
           ]
         ],
         "build_state"       : "Idle"
+      ])
+    }
+
+   @Test
+    void 'should return agent json for agents currently not in the config, but exist in the DB'() {
+      def agentInstance = idle()
+      agentInstance.getAgent().setEnvironments("env1,env2,unknown-env")
+      when(agentService.findAgent("uuid2")).thenReturn(new NullAgentInstance())
+      when(agentService.findAgentByUUID("uuid2")).thenReturn(agentInstance.agent)
+      def environments = List.of(environment("env1"), environment("env2"))
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(environments)
+
+      getWithApiHeader(controller.controllerPath("/uuid2"))
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "_links"            : [
+          "self": [
+            "href": "http://test.host/go/api/agents/uuid2"
+          ],
+          "doc" : [
+            "href": apiDocsUrl("#agents")
+          ],
+          "find": [
+            "href": "http://test.host/go/api/agents/:uuid"
+          ]
+        ],
+        "uuid"              : "uuid2",
+        "hostname"          : "CCeDev01",
+        "ip_address"        : "10.18.5.1",
+        "sandbox"           : null,
+        "operating_system"  : null,
+        "free_space"        : "unknown",
+        "agent_config_state": "Enabled",
+        "agent_state"       : "Missing",
+        "agent_version"     : "UNKNOWN",
+        "agent_bootstrapper_version" : "UNKNOWN",
+        "resources"         : [],
+        "environments"      : [
+          [
+            name  : "env1",
+            origin: [
+              type    : "gocd",
+              "_links": [
+                "self": [
+                  "href": "http://test.host/go/admin/config_xml"
+                ],
+                "doc" : [
+                  "href": apiDocsUrl("#get-configuration")
+                ]
+              ]
+            ]
+          ],
+          [
+            name  : "env2",
+            origin: [
+              type    : "gocd",
+              "_links": [
+                "self": [
+                  "href": "http://test.host/go/admin/config_xml"
+                ],
+                "doc" : [
+                  "href": apiDocsUrl("#get-configuration")
+                ]
+              ]
+            ]
+          ],
+          [
+            name  : "unknown-env",
+            origin: [
+              type: "unknown"
+            ]
+          ]
+        ],
+        "build_state"       : "Unknown"
       ])
     }
 
@@ -366,7 +443,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         "hostname"          : "agent02.example.com",
         "ip_address"        : "10.0.0.1",
         "sandbox"           : "/var/lib/bar",
-        "operating_system"  : "",
+        "operating_system"  : null,
         "free_space"        : 10,
         "agent_config_state": "Enabled",
         "agent_state"       : "Idle",
@@ -464,7 +541,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         "hostname"          : "agent02.example.com",
         "ip_address"        : "10.0.0.1",
         "sandbox"           : "/var/lib/bar",
-        "operating_system"  : "",
+        "operating_system"  : null,
         "free_space"        : 10,
         "agent_config_state": "Enabled",
         "agent_state"       : "Idle",
@@ -521,7 +598,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         "hostname"          : "agent02.example.com",
         "ip_address"        : "10.0.0.1",
         "sandbox"           : "/var/lib/bar",
-        "operating_system"  : "",
+        "operating_system"  : null,
         "free_space"        : 10,
         "agent_config_state": "Enabled",
         "agent_state"       : "Idle",
@@ -622,8 +699,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
           "uuid"              : "uuid",
           "hostname"          : "host",
           "ip_address"        : "IP",
-          "sandbox"           : "",
-          "operating_system"  : "",
+          "sandbox"           : null,
+          "operating_system"  : null,
           "free_space"        : "unknown",
           "agent_config_state": "Enabled",
           "agent_state"       : "Missing",
@@ -695,7 +772,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
           "hostname"          : "agent02.example.com",
           "ip_address"        : "10.0.0.1",
           "sandbox"           : "/var/lib/bar",
-          "operating_system"  : "",
+          "operating_system"  : null,
           "free_space"        : 10,
           "agent_config_state": "Enabled",
           "agent_state"       : "Idle",
@@ -752,7 +829,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
           "hostname"          : "agent02.example.com",
           "ip_address"        : "10.0.0.1",
           "sandbox"           : "/var/lib/bar",
-          "operating_system"  : "",
+          "operating_system"  : null,
           "free_space"        : 10,
           "agent_config_state": "Enabled",
           "agent_state"       : "Idle",
@@ -822,7 +899,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
           "hostname"          : "agent02.example.com",
           "ip_address"        : "10.0.0.1",
           "sandbox"           : "/var/lib/bar",
-          "operating_system"  : "",
+          "operating_system"  : null,
           "free_space"        : 10,
           "agent_config_state": "Enabled",
           "agent_state"       : "Idle",
@@ -923,7 +1000,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
           "hostname"          : "agent02.example.com",
           "ip_address"        : "10.0.0.1",
           "sandbox"           : "/var/lib/bar",
-          "operating_system"  : "",
+          "operating_system"  : null,
           "free_space"        : 10,
           "agent_config_state": "Enabled",
           "agent_state"       : "Idle",

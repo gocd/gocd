@@ -21,7 +21,7 @@ import s from "underscore.string";
 import Style from "./index.scss";
 
 interface Attrs {
-  data?: { [key: string]: m.Children };
+  data?: [m.Children, m.Children];
 }
 
 export class HeaderKeyValuePair extends MithrilViewComponent<Attrs> {
@@ -34,13 +34,13 @@ export class HeaderKeyValuePair extends MithrilViewComponent<Attrs> {
     </ul>;
   }
 
-  private static toView(value: string, key: string): m.Children {
-    const dataTestIdForKey   = s.slugify(`key-value-key-${key}`);
-    const dataTestIdForValue = s.slugify(`key-value-value-${key}`);
+  private static toView(tuple: [m.Children, m.Children]): m.Children {
+    const dataTestIdForKey = s.slugify(`key-value-key-${tuple[0]}`);
+    const dataTestIdForValue = s.slugify(`key-value-value-${tuple[1]}`);
 
     return <li data-test-id={"page-header-key-value-pair"} class={Style.keyValuePair}>
-      <label data-test-id={dataTestIdForKey} class={Style.key}>{key}</label>
-      <span data-test-id={dataTestIdForValue} class={Style.value}>{value}</span>
+      <label data-test-id={dataTestIdForKey} class={Style.key}>{tuple[0]}</label>
+      <span data-test-id={dataTestIdForValue} class={Style.value}>{tuple[1]}</span>
     </li>;
   }
 }

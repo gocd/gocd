@@ -37,6 +37,22 @@ $page-item-padding: 30px;
   padding-right: $page-item-padding;
   z-index: map_get($zindex, "page-header");
   box-shadow: 0 0 10px $box-shadow-color;
+
+  &.passed {
+    border-bottom: 3px solid $passed;
+  }
+
+  &.failed {
+    border-bottom: 3px solid $failed;
+  }
+
+  &.building {
+    border-bottom: 3px solid $building;
+  }
+
+  &.unknown {
+    border-bottom-color: inherit;
+  }
 }
 
 .section-wrapper {
@@ -74,18 +90,10 @@ $page-item-padding: 30px;
 .key-value-pairs {
   list-style: none;
   display: flex;
-  margin: 0;
+  margin: 0 0 0 10px;
   height: 100%;
   padding: 0;
   align-items: center;
-
-  &::before {
-    content: "|";
-    color: $line-color;
-    margin: 0 10px;
-    font-size: 30px;
-    height: 100%;
-  }
 
   .key-value-pair {
     height: 100%;

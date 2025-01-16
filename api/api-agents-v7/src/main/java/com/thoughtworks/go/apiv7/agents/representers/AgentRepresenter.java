@@ -22,12 +22,16 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
+import com.thoughtworks.go.util.StringUtil;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.thoughtworks.go.util.StringUtil.blankToNull;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public class AgentRepresenter {
     public static void toJSON(OutputWriter outputWriter, AgentInstance agentInstance, Collection<EnvironmentConfig> environments, SecurityService securityService, Username username) {
@@ -39,8 +43,8 @@ public class AgentRepresenter {
                 .add("uuid", agentInstance.getUuid())
                 .add("hostname", agentInstance.getHostname())
                 .add("ip_address", agentInstance.getIpAddress())
-                .add("sandbox", agentInstance.getLocation())
-                .add("operating_system", agentInstance.getOperatingSystem())
+                .add("sandbox", blankToNull(agentInstance.getLocation()))
+                .add("operating_system", blankToNull(agentInstance.getOperatingSystem()))
                 .add("agent_config_state", agentInstance.getAgentConfigStatus().toString())
                 .add("agent_state", agentInstance.getRuntimeStatus().agentState().toString())
                 .add("agent_version", agentInstance.getAgentVersion())

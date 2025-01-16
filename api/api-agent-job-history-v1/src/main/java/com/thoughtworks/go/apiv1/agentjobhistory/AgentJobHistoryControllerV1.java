@@ -19,6 +19,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.agentjobhistory.representers.AgentJobHistoryRepresenter;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -92,10 +93,11 @@ public class AgentJobHistoryControllerV1 extends ApiController implements SparkS
         Integer total = jobInstanceService.totalCompletedJobsCountOn(uuid);
         Pagination pagination = Pagination.pageStartingAt(offset, total, pageSize);
 
-        AgentInstance agent = agentService.findAgent(uuid);
-        if (agent.isNullAgent()) {
+        Agent agent = agentService.findAgentByUUID(uuid);
+        if (agent == null) {
             throw new RecordNotFoundException(EntityType.Agent, uuid);
         }
+
         JobInstancesModel jobInstances = jobInstanceService.completedJobsOnAgent(uuid, column, sortOrder, pagination);
         return writerForTopLevelObject(request, response, outputWriter -> AgentJobHistoryRepresenter.toJSON(outputWriter, uuid, jobInstances));
     }

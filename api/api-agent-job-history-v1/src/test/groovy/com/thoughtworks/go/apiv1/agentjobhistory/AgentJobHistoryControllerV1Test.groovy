@@ -73,7 +73,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
       def pagination = Pagination.pageStartingAt(offset, totalCompletedJobs, pageSize)
       def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
 
-      when(agentService.findAgent(uuid)).thenReturn(AgentInstanceMother.idleWith(uuid))
+      when(agentService.findAgentByUUID(uuid)).thenReturn(AgentInstanceMother.idleWith(uuid).agent)
       when(jobInstanceService.totalCompletedJobsCountOn(uuid)).thenReturn(totalCompletedJobs)
       when(jobInstanceService.completedJobsOnAgent(uuid, JobInstanceService.JobHistoryColumns.completed, sortOrder, pagination)).thenReturn(new JobInstancesModel(new JobInstances(jobInstance), pagination))
 
@@ -99,7 +99,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
-          when(agentService.findAgent("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent"))
+          when(agentService.findAgentByUUID("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent").agent)
           when(jobInstanceService.totalCompletedJobsCountOn(any())).thenReturn(42)
           when(jobInstanceService.completedJobsOnAgent(any(), any(), any(), any())).thenReturn(jobInstancesModel)
 
@@ -125,7 +125,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
-          when(agentService.findAgent("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent"))
+          when(agentService.findAgentByUUID("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent").agent)
           when(jobInstanceService.totalCompletedJobsCountOn(any())).thenReturn(42)
           when(jobInstanceService.completedJobsOnAgent(any(), any(), any(), any())).thenReturn(jobInstancesModel)
 
@@ -165,7 +165,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
-          when(agentService.findAgent("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent"))
+          when(agentService.findAgentByUUID("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent").agent)
           when(jobInstanceService.totalCompletedJobsCountOn(any())).thenReturn(42)
           when(jobInstanceService.completedJobsOnAgent(any(), any(), any(), any())).thenReturn(jobInstancesModel)
 
@@ -183,7 +183,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
-          when(agentService.findAgent("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent"))
+          when(agentService.findAgentByUUID("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent").agent)
           when(jobInstanceService.totalCompletedJobsCountOn(any())).thenReturn(42)
           when(jobInstanceService.completedJobsOnAgent(any(), any(), any(), any())).thenReturn(jobInstancesModel)
 
@@ -214,7 +214,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
-          when(agentService.findAgent("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent"))
+          when(agentService.findAgentByUUID("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent").agent)
           when(jobInstanceService.totalCompletedJobsCountOn(any())).thenReturn(42)
           when(jobInstanceService.completedJobsOnAgent(any(), any(), any(), any())).thenReturn(jobInstancesModel)
 
@@ -235,7 +235,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
-          when(agentService.findAgent("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent"))
+          when(agentService.findAgentByUUID("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent").agent)
           when(jobInstanceService.totalCompletedJobsCountOn(any())).thenReturn(42)
           when(jobInstanceService.completedJobsOnAgent(any(), any(), any(), any())).thenReturn(jobInstancesModel)
 
@@ -253,7 +253,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
-          when(agentService.findAgent("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent"))
+          when(agentService.findAgentByUUID("some-agent")).thenReturn(AgentInstanceMother.idleWith("some-agent").agent)
           when(jobInstanceService.totalCompletedJobsCountOn(any())).thenReturn(42)
           when(jobInstanceService.completedJobsOnAgent(any(), any(), any(), any())).thenReturn(jobInstancesModel)
 

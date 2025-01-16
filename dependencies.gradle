@@ -34,7 +34,7 @@ final Map<String, String> libraries = [
   assertJ             : 'org.assertj:assertj-core:3.27.2',
   assertJ_DB          : 'org.assertj:assertj-db:3.0.0',
   awaitility          : 'org.awaitility:awaitility:4.2.2',
-  bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.79',
+  bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.80',
   cloning             : 'io.github.kostaskougios:cloning:1.10.3',
   commonsCodec        : 'commons-codec:commons-codec:1.17.2',
   commonsCollections  : 'commons-collections:commons-collections:3.2.2',

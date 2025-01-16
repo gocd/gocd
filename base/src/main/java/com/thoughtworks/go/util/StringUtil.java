@@ -25,6 +25,14 @@ public final class StringUtil {
     private StringUtil() {
     }
 
+
+    public static String blankToNull(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return null;
+        }
+        return s;
+    }
+
     public static String matchPattern(String regEx, String s) {
         Pattern pattern = Pattern.compile(regEx);
         Matcher matcher = pattern.matcher(s);

@@ -34,6 +34,7 @@ import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
@@ -45,6 +46,7 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.Pair;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -133,9 +135,21 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
 
     public String show(Request request, Response response) throws IOException {
         String uuid = request.params("uuid");
-        final AgentInstance agentInstance = fetchEntityFromConfig(uuid);
+        AgentInstance agentInstance = doFetchEntityFromConfig(uuid);
 
-        return writerForTopLevelObject(request, response, outputWriter -> toJSON(outputWriter, agentInstance, environmentConfigService.getAgentEnvironments(uuid), securityService, currentUsername()));
+        if (agentInstance == null) {
+            Agent agentByUUID = agentService.findAgentByUUID(uuid);
+            if (agentByUUID != null) {
+                agentInstance = AgentInstance.createFromAgent(agentByUUID, new SystemEnvironment(), null);
+            }
+        }
+
+        if (agentInstance == null) {
+            throw new RecordNotFoundException(getEntityType(), uuid);
+        }
+
+        AgentInstance finalAgentInstance = agentInstance;
+        return writerForTopLevelObject(request, response, outputWriter -> toJSON(outputWriter, finalAgentInstance, environmentConfigService.getAgentEnvironments(uuid), securityService, currentUsername()));
     }
 
     public String update(Request request, Response response) {

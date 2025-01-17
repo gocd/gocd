@@ -59,7 +59,9 @@ public class DateUtils {
         try {
             return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss ZZZZZ").parse(date.trim());
         } catch (ParseException e) {
-            throw bomb(e);
+            LOGGER.error("{}", e);
+            DateTime dateTime = new DateTime(DateTimeZone.UTC);
+            return dateTime.toDate();
         }
     }
 

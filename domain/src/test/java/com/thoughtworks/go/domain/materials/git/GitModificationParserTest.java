@@ -18,6 +18,9 @@ package com.thoughtworks.go.domain.materials.git;
 import com.thoughtworks.go.util.DateUtils;
 import org.junit.jupiter.api.Test;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GitModificationParserTest {
@@ -28,6 +31,16 @@ public class GitModificationParserTest {
         parser.processLine("commit 4e55d27dc7aad26dadb02a33db0518cb5ec54888");
         parser.processLine("Author: Cruise Developer <cruise@cruise-sf3.(none)>");
         parser.processLine("Date:   2009-08-11 13:08:51 -0700");
+    }
+
+    private void simulateOneCommentWithUnparseableDate(String format) {
+        parser.processLine("commit 4e55d27dc7aad26dadb02a33db0518cb5ec54888");
+        parser.processLine("Author: Cruise Developer <cruise@cruise-sf3.(none)>");
+        if (format == "RFC822") {
+            parser.processLine("Date:   Sun Feb 7 06:29:14 2106 -12296855");
+        } else {
+            parser.processLine("Date:   2106-02-07 06:28:51 -111309508");
+        }
     }
 
     @Test
@@ -50,13 +63,27 @@ public class GitModificationParserTest {
     }
 
     @Test
-    public void shouldHaveComment() {
-        simulateOneComment();
-        parser.processLine("");
-        parser.processLine("    My Comment");
-        parser.processLine("");
-        assertThat(
-                parser.getModifications().get(0).getComment()).isEqualTo("My Comment");
+    public void shouldSupportUnparseableCommitDateISO8601() {
+        simulateOneCommentWithUnparseableDate("ISO8601");
+
+        Date expectedDate = parser.getModifications().get(0).getModifiedTime();
+        Date parsedDate = DateUtils.parseISO8601("2106-02-07 06:28:51 -111309508");
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        assertThat(formatter.format(expectedDate)).isEqualTo(formatter.format(parsedDate));
+    }
+
+    @Test
+    public void shouldSupportUnparseableCommitDateRFC822() {
+        simulateOneCommentWithUnparseableDate("RFC822");
+
+        Date expectedDate = parser.getModifications().get(0).getModifiedTime();
+        Date parsedDate = DateUtils.parseRFC822("Sub Feb 7 06:29:14 2106 -12296855");
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        assertThat(formatter.format(expectedDate)).isEqualTo(formatter.format(parsedDate));
     }
 
     @Test

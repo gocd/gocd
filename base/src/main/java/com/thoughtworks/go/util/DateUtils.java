@@ -16,8 +16,11 @@
 package com.thoughtworks.go.util;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,6 +34,7 @@ public class DateUtils {
     public static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     private static final DateTimeFormatter formatter = ISODateTimeFormat.dateTimeNoMillis();
     private static final DateTimeFormatter formatterUtc = formatter.withZoneUTC();
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateUtils.class);
 
     public static String formatISO8601(Date from) {
         return formatter.print(from.getTime());
@@ -55,7 +59,9 @@ public class DateUtils {
         try {
             return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss ZZZZZ").parse(date.trim());
         } catch (ParseException e) {
-            throw bomb(e);
+            LOGGER.error("{}", e);
+            DateTime dateTime = new DateTime(DateTimeZone.UTC);
+            return dateTime.toDate();
         }
     }
 
@@ -74,7 +80,9 @@ public class DateUtils {
         try {
             return dateFormatFor("yyyy-MM-dd'T'HH:mm:ss").parse(date);
         } catch (ParseException e) {
-            throw bomb(e);
+            LOGGER.error("{}", e);
+            DateTime dateTime = new DateTime(DateTimeZone.UTC);
+            return dateTime.toDate();
         }
     }
 

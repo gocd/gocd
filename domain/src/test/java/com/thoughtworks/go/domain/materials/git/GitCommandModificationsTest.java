@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -257,13 +258,41 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
 
         GitModificationParser parser = new GitModificationParser();
         List<Modification> mods = parser.parse(stringList);
-        assertEquals(3, mods.size());
+        assertEquals(5, mods.size());
 
-        Modification mod = mods.get(2);
-        assertEquals("46cceff864c830bbeab0a7aaa31707ae2302762f", mod.getRevision());
-        assertEquals(DateUtils.parseISO8601("2009-08-11 12:37:09 -0700"), mod.getModifiedTime());
-        assertEquals("Cruise Developer <cruise@cruise-sf3.(none)>", mod.getUserDisplayName());
-        final String expected = """
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        Modification mod_0 = mods.get(0);
+
+        Date expectedDateRFC822 = DateUtils.parseRFC822("Sun Feb 7 06:29:14 2106 -12296855");
+        Date modifiedDateRFC822 = mod_0.getModifiedTime();
+
+        assertEquals("411a8b7428839f38fab802ea4115f7a23498c7a8", mod_0.getRevision());
+        assertEquals(formatter.format(expectedDateRFC822), formatter.format(modifiedDateRFC822));
+        assertEquals("Roman Sorin <romansorin@cap-rx.com>", mod_0.getUserDisplayName());
+        final String expected_0 = """
+            Y2106 Problem (RFC822)
+            """;
+        assertEquals(expected_0, mod_0.getComment());
+
+        Modification mod_1 = mods.get(1);
+
+        Date expectedDateISO8601 = DateUtils.parseISO8601("2106-02-07 06:28:18 -11309508");
+        Date modifiedDateISO8601 = mod_1.getModifiedTime();
+
+        assertEquals("031bbce9ba12648c4f886ec003b44d51805c8d91", mod_1.getRevision());
+        assertEquals(formatter.format(expectedDateISO8601), formatter.format(modifiedDateISO8601));
+        assertEquals("Roman Sorin <romansorin@cap-rx.com>", mod_1.getUserDisplayName());
+        final String expected_1 = """
+            Y2106 Problem (ISO8601)
+            """;
+        assertEquals(expected_1, mod_1.getComment());
+
+        Modification mod_2 = mods.get(4);
+        assertEquals("46cceff864c830bbeab0a7aaa31707ae2302762f", mod_2.getRevision());
+        assertEquals(DateUtils.parseISO8601("2009-08-11 12:37:09 -0700"), mod_2.getModifiedTime());
+        assertEquals("Cruise Developer <cruise@cruise-sf3.(none)>", mod_2.getUserDisplayName());
+        final String expected_2 = """
             author:cruise <cceuser@CceDev01.(none)>
             node:ecfab84dd4953105e3301c5992528c2d381c1b8a
             date:2008-12-31 14:32:40 +0800
@@ -273,7 +302,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
             node:fd16efeb70fcdbe63338c49995ce9ff7659e6e77
             date:2008-12-31 14:17:06 +0800
             description:Adding rakefile""";
-        assertEquals(expected, mod.getComment());
+        assertEquals(expected_2, mod_2.getComment());
     }
 
     private File checkInNewRemoteFile() throws IOException {

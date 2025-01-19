@@ -29,29 +29,18 @@ import java.util.Set;
 /**
  * Provides a preconfigured {@link Cloner} instance for deep cloning objects.
  * <p>
- * <strong>NOTE</strong>: This was built to address {@link Cloner#deepClone(Object)} issues
- * introduced by JDK 15. Specifically, the specialized/optimized {@link List} and {@link Set}
- * implementations are problematic for {@link Cloner#deepClone(Object)} (ImmutableCollections.List12
- * and ImmutableCollections.Set12, to be exact) and require a custom clone implementation to work
- * properly.
- * <p>
- * Without these custom clone implementations, the cloned output of such {@link List}s and {@link Set}s
- * may break equality with their origiinals. See git commit `efdbe0c1cccbce8be9e262727dbaa8dd9cfc7130`
- * for more details.
+ * This predominantly exists to provide cloners for classes that are not natively supported by the {@link Cloner} library
+ * and might otherwise work incorrectly, or need to access internals of JDK types unnecessarily which is generally
+ * disallowed from Java 15+ and requires --add-opens to be used.
  */
 public class ClonerFactory {
 
     private static class Builder {
 
-        private static final List<?> LIST_1_2 = List.of("exactly one element"); // only certain outputs of List.of()
-        private static final Set<?> SET_1_2 = Set.of("exactly one element");  // only certain outputs of Set.of()
-
         // Lazy-init, thread-safe singleton
         private static final Cloner INSTANCE = create(new Cloner());
 
         private static Cloner create(final Cloner cloner) {
-            cloner.registerFastCloner(LIST_1_2.getClass(), (t, _1, _2) -> List.of(((List<?>) t).toArray()));
-            cloner.registerFastCloner(SET_1_2.getClass(), (t, _1, _2) -> Set.of(((Set<?>) t).toArray()));
             cloner.registerFastCloner(Date.class, (t, _1, _2) -> new Date(((Date)t).getTime()));
             cloner.registerFastCloner(java.sql.Date.class, (t, _1, _2) -> new java.sql.Date(((java.sql.Date)t).getTime()));
             cloner.registerFastCloner(Timestamp.class, ClonerFactory::cloneTimestamp);

@@ -30,7 +30,7 @@ import java.util.stream.Collectors
 
 plugins {
   id 'base'
-  id 'org.owasp.dependencycheck' version '12.0.0'
+  id 'org.owasp.dependencycheck' version '12.0.1'
   id 'com.github.hierynomus.license-base' version '0.16.1'
   id 'com.github.jk1.dependency-license-report' version '2.9'
 }
@@ -662,6 +662,7 @@ static List<String> getTestClassesForTask(List<String> testsToRun) {
 
 dependencyCheck {
   failBuildOnCVSS = 1
+  failBuildOnUnusedSuppressionRule = true
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
 
   nvd.apiKey = System.getenv("NVD_API_KEY") ?: ""

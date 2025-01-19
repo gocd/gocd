@@ -662,6 +662,7 @@ static List<String> getTestClassesForTask(List<String> testsToRun) {
 
 dependencyCheck {
   failBuildOnCVSS = 1
+  failBuildOnUnusedSuppressionRule = true
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
 
   nvd.apiKey = System.getenv("NVD_API_KEY") ?: ""

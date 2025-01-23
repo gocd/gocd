@@ -2,8 +2,9 @@ source 'https://rubygems.org'
 ruby '3.1.4'
 
 platforms :jruby do
-  gem 'rails', '~> 7.0.8'
+  gem 'rails', '~> 7.1.5'
   gem 'sprockets-rails'
+  gem 'rack', '~> 2.2.17' # For jruby-rack 1.2.3 compatibility
 
   # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
   gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]

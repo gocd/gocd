@@ -20,12 +20,12 @@ class StagesController < ApplicationController
   include StagesHelper
   include SparkUrlAware
 
-  STAGE_DETAIL_ACTIONS = [:overview, :pipeline, :materials, :jobs, :rerun_jobs, :stats, :stats_iframe, :stage_config]
+  STAGE_DETAIL_ACTIONS = [:overview, :materials, :jobs, :rerun_jobs, :stats, :stats_iframe, :stage_config]
   BASE_TIME = Time.parse("00:00:00")
   STAGE_DURATION_RANGE = 300
   layout "pipelines", :only => STAGE_DETAIL_ACTIONS
   before_action :load_stage_details, :only => STAGE_DETAIL_ACTIONS
-  before_action :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline, :stats, :stats_iframe]
+  before_action :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:stats, :stats_iframe]
   before_action :load_current_config_version, :only => STAGE_DETAIL_ACTIONS << :history
   before_action :load_pipeline_instance, :only => :redirect_to_first_stage
   before_action :feed_api_url

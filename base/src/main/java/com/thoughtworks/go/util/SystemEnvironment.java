@@ -182,7 +182,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static final GoSystemProperty<Integer> AGENT_STATUS_API_BIND_PORT = new GoIntSystemProperty("go.agent.status.api.bind.port", 8152);
 
     private static final GoSystemProperty<Integer> GO_SPA_TIMEOUT_IN_MILLIS = new GoIntSystemProperty("go.spa.timeout", (int) SECONDS.toMillis(60));
-    private static final GoSystemProperty<Integer> GO_SPA_REFRESH_INTERVAL_IN_MILLIS = new GoIntSystemProperty("go.spa.refresh.interval", (int) SECONDS.toMillis(10));
+    private static final GoSystemProperty<Integer> GO_SPA_REFRESH_INTERVAL_IN_MILLIS = new GoIntSystemProperty("go.spa.refresh.interval", (int) SECONDS.toMillis(5));
     private static final GoSystemProperty<Long> GO_PAC_CLONE_TIMEOUT_IN_MILLIS = new GoLongSystemProperty("go.pac.clone.timeout", SECONDS.toMillis(30));
 
     private static final GoSystemProperty<Boolean> ENABLE_ANALYTICS_ONLY_FOR_ADMINS = new GoBooleanSystemProperty("go.enable.analytics.only.for.admins", false);

@@ -52,7 +52,7 @@ public class GoDashboardActivityListenerTest {
 
 
     @Test
-    public void shouldRegisterSelfForConfigChangeHandlingOnInitialization() throws Exception {
+    public void shouldRegisterSelfForConfigChangeHandlingOnInitialization() {
         GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, pipelineLockService,
                 null, null, null, null, null);
 
@@ -99,6 +99,7 @@ public class GoDashboardActivityListenerTest {
         verify(handler).call(aConfig);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void onInitializationAndStartOfDaemons_shouldRegisterAListener_WhichCallsConfigChangeHandler_ForPipelineConfigChangeHandling() throws Exception {
         GoDashboardConfigChangeHandler handler = mock(GoDashboardConfigChangeHandler.class);
@@ -139,6 +140,7 @@ public class GoDashboardActivityListenerTest {
         verify(handler).call(aConfig);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void onInitializationAndStartOfDaemons_shouldRegisterAListener_WhichCallsTemplateConfigChangeHandler_ForTemplateConfigChangeHandling() throws Exception {
         GoDashboardTemplateConfigChangeHandler handler = mock(GoDashboardTemplateConfigChangeHandler.class);
@@ -158,6 +160,7 @@ public class GoDashboardActivityListenerTest {
         verify(handler).call(templateConfig);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void onInitializationAndStartOfDaemons_shouldRegisterAListener_WhichCallsConfigChangeHandler_ForPipelineGroupConfigChangeHandling() throws Exception {
         CruiseConfig aConfig = GoConfigMother.defaultCruiseConfig();
@@ -180,7 +183,7 @@ public class GoDashboardActivityListenerTest {
     }
 
     @Test
-    public void shouldRegisterSelfForPipelineStatusChangeHandlingOnInitialization() throws Exception {
+    public void shouldRegisterSelfForPipelineStatusChangeHandlingOnInitialization() {
         GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, pipelineLockService,
                 null, null, null, null, null);
 
@@ -207,7 +210,7 @@ public class GoDashboardActivityListenerTest {
     }
 
     @Test
-    public void shouldRegisterSelfForPipelineLockStatusChangeHandlingOnInitialization() throws Exception {
+    public void shouldRegisterSelfForPipelineLockStatusChangeHandlingOnInitialization() {
         GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, pipelineLockService,
                 null, null, null, null, null);
 

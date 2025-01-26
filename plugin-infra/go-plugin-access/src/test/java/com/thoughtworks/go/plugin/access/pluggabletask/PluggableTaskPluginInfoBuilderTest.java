@@ -70,14 +70,14 @@ public class PluggableTaskPluginInfoBuilderTest {
         when(descriptor.id()).thenReturn(pluginId);
 
         doAnswer(invocation -> {
-            final Action<Task> action = (Action<Task>) invocation.getArguments()[1];
+            @SuppressWarnings("unchecked") final Action<Task> action = (Action<Task>) invocation.getArguments()[1];
             action.execute(task, descriptor);
             return null;
-        }).when(extension).doOnTask(eq("plugin1"), any(Action.class));
+        }).when(extension).doOnTask(eq("plugin1"), any());
     }
 
     @Test
-    public void shouldBuildPluginInfo() throws Exception {
+    public void shouldBuildPluginInfo() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         PluggableTaskPluginInfo pluginInfo = new PluggableTaskPluginInfoBuilder(extension) .pluginInfoFor(descriptor);

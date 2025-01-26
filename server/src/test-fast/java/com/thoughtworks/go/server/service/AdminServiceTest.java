@@ -40,7 +40,7 @@ public class AdminServiceTest {
 
     @Test
     public void shouldGenerateConfigurationJson() {
-        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = mock(GoConfigService.XmlPartialSaver.class);
+        @SuppressWarnings("unchecked") GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = mock(GoConfigService.XmlPartialSaver.class);
         when(fileSaver.asXml()).thenReturn("xml content");
         when(fileSaver.getMd5()).thenReturn("md5 value");
         when(goConfigService.fileSaver(false)).thenReturn(fileSaver);
@@ -49,7 +49,7 @@ public class AdminServiceTest {
 
         final Map<String, Object> json = adminService.configurationJsonForSourceXml();
 
-        Map<String, String> config = (Map<String, String>) json.get("config");
+        @SuppressWarnings("unchecked") Map<String, String> config = (Map<String, String>) json.get("config");
         assertThat(config).containsEntry("location", fileLocation);
         assertThat(config).containsEntry("content", "xml content");
         assertThat(config).containsEntry("md5", "md5 value");
@@ -63,7 +63,7 @@ public class AdminServiceTest {
         String md5 = "config_md5";
         attributes.put("md5", md5);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = mock(GoConfigService.XmlPartialSaver.class);
+        @SuppressWarnings("unchecked") GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = mock(GoConfigService.XmlPartialSaver.class);
         when(fileSaver.saveXml(content, md5)).thenReturn(GoConfigValidity.valid());
         when(goConfigService.fileSaver(false)).thenReturn(fileSaver);
 
@@ -83,7 +83,7 @@ public class AdminServiceTest {
         String md5 = "config_md5";
         attributes.put("md5", md5);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = mock(GoConfigService.XmlPartialSaver.class);
+        @SuppressWarnings("unchecked") GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = mock(GoConfigService.XmlPartialSaver.class);
         GoConfigValidity validity = GoConfigValidity.invalid("Wrong config xml");
         when(fileSaver.saveXml(content, md5)).thenReturn(validity);
         when(goConfigService.fileSaver(false)).thenReturn(fileSaver);

@@ -28,6 +28,7 @@ public class BaseCollection<T> extends ArrayList<T> {
     public BaseCollection() {
     }
 
+    @SafeVarargs
     public BaseCollection(T... items) {
         this(Arrays.asList(items));
     }

@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Accessors(chain = true)
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @ToString
 public class PipelinePermission extends ArrayList<StagePermission> {
 
@@ -52,7 +52,7 @@ public class PipelinePermission extends ArrayList<StagePermission> {
     }
 
     public static PipelinePermission from(PipelineConfig pipeline, Users operators) {
-        if(pipeline == null) {
+        if (pipeline == null) {
             return EveryonePermission.INSTANCE;
         }
 

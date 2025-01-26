@@ -204,7 +204,7 @@ class PluggableSCMMaterialTest {
         Date date = new Date(1367472329111L);
         material.emailContent(content, new Modification(null, "comment", null, date, "rev123"));
 
-        assertThat(content.toString()).isEqualTo(String.format("SCM : scm-name\nrevision: rev123, completed on %s\ncomment", date.toString()));
+        assertThat(content.toString()).isEqualTo(String.format("SCM : scm-name\nrevision: rev123, completed on %s\ncomment", date));
     }
 
     @Test
@@ -398,7 +398,7 @@ class PluggableSCMMaterialTest {
     }
 
     @Test
-    void shouldReturnSomethingMoreSaneForToString() throws Exception {
+    void shouldReturnSomethingMoreSaneForToString() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
 
         SCMMetadataStore.getInstance().addMetadataFor(material.getPluginId(), new SCMConfigurations(), null);
@@ -426,7 +426,7 @@ class PluggableSCMMaterialTest {
     }
 
     @Test
-    void shouldTakeValueOfIsAutoUpdateFromSCMConfig() throws Exception {
+    void shouldTakeValueOfIsAutoUpdateFromSCMConfig() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
 
         material.getScmConfig().setAutoUpdate(true);
@@ -454,7 +454,7 @@ class PluggableSCMMaterialTest {
 
         assertThat(attributes.get("type")).isEqualTo("scm");
         assertThat(attributes.get("plugin-id")).isEqualTo("pluginid");
-        Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
+        @SuppressWarnings("unchecked") Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
         assertThat(configuration.get("k1")).isEqualTo("v1");
         assertThat(configuration.get("k2")).isEqualTo("v2");
     }
@@ -466,7 +466,7 @@ class PluggableSCMMaterialTest {
 
         assertThat(attributes.get("type")).isEqualTo("scm");
         assertThat(attributes.get("plugin-id")).isEqualTo("pluginid");
-        Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
+        @SuppressWarnings("unchecked") Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
         assertThat(configuration.get("k1")).isEqualTo("v1");
         assertThat(configuration.get("k2")).isNull();
     }
@@ -489,7 +489,7 @@ class PluggableSCMMaterialTest {
     }
 
     @Test
-    void shouldReturnTrueForPluggableScmMaterial_supportsDestinationFolder() throws Exception {
+    void shouldReturnTrueForPluggableScmMaterial_supportsDestinationFolder() {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         assertThat(material.supportsDestinationFolder()).isTrue();
     }
@@ -524,7 +524,7 @@ class PluggableSCMMaterialTest {
         }
 
         @Test
-        void shouldBeFalseIfScmCOnfigDoesNotHaveSecretParams() {
+        void shouldBeFalseIfScmConfigDoesNotHaveSecretParams() {
             PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
 
             assertThat(material.hasSecretParams()).isFalse();

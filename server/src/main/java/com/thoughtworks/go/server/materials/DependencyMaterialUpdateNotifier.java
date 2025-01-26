@@ -77,7 +77,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
         goConfigService.register(pipelineConfigChangedListener());
         materialUpdateService.registerMaterialUpdateCompleteListener(this);
 
-        updateMaterialsOnIntialization();
+        updateMaterialsOnInitialization();
     }
 
     @Override
@@ -146,7 +146,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
         }
     }
 
-    private void updateMaterialsOnIntialization() {
+    private void updateMaterialsOnInitialization() {
         for (Material material : this.dependencyMaterials.values()) {
             updateMaterial(material);
         }

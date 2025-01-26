@@ -37,8 +37,8 @@ public class TestTransactionTemplate extends TransactionTemplate {
             this.synchronizationManager = synchronizationManager;
         }
 
-        @Override public Object execute(TransactionCallback action) throws TransactionException {
-            Object o;
+        @Override public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+            T o;
             try {
                 o = action.doInTransaction(null);
                 synchronizationManager.executeAfterCompletion(TransactionSynchronization.STATUS_COMMITTED);

@@ -39,7 +39,6 @@ import com.thoughtworks.go.util.Clock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
@@ -81,11 +80,11 @@ public class GoDashboardCurrentStateLoaderTest {
                 pipelineLockService, pipelineUnlockApiService, schedulingCheckerService, permissionsAuthority, new TimeStampBasedCounter(mock(Clock.class)));
 
         goConfigMother = new GoConfigMother();
-        config = goConfigMother.defaultCruiseConfig();
+        config = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test
-    public void shouldMatchExistingPipelinesInConfigWithAllLoadedActivePipelines() throws Exception {
+    public void shouldMatchExistingPipelinesInConfigWithAllLoadedActivePipelines() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
         PipelineInstanceModel pimForP1 = pim(p1Config);
@@ -101,7 +100,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldIgnoreActivePipelineModelsNotInConfig() throws Exception {
+    public void shouldIgnoreActivePipelineModelsNotInConfig() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         PipelineConfig pipelineWhichIsNotInConfig = PipelineConfigMother.pipelineConfig("pipelineWhichIsNotInConfig");
 
@@ -115,7 +114,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldHaveASpecialModelForAPipelineWhichIsTriggeredButNotYetActive_DueToMaterialCheckTakingTime() throws Exception {
+    public void shouldHaveASpecialModelForAPipelineWhichIsTriggeredButNotYetActive_DueToMaterialCheckTakingTime() {
         goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
 
         when(pipelineSqlMapDao.loadHistoryForDashboard(CaseInsensitiveString.toStringList(config.getAllPipelineNames()))).thenReturn(createPipelineInstanceModels());
@@ -139,7 +138,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldFallBackToAnEmptyPipelineInstanceModelIfItCannotBeLoadedEvenFromHistory() throws Exception {
+    public void shouldFallBackToAnEmptyPipelineInstanceModelIfItCannotBeLoadedEvenFromHistory() {
         goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
 
         when(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString("pipeline1"))).thenReturn(false);
@@ -163,7 +162,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldAllowASinglePipelineInConfigToHaveMultipleInstances() throws Exception {
+    public void shouldAllowASinglePipelineInConfigToHaveMultipleInstances() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
 
         PipelineInstanceModel firstInstance = pim(p1Config);
@@ -179,7 +178,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldAddStagesWhichHaveNotYetRunIntoEachInstanceOfAPipeline_FromConfig() throws Exception {
+    public void shouldAddStagesWhichHaveNotYetRunIntoEachInstanceOfAPipeline_FromConfig() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stageP1_S1", "jobP1_S1_J1");
         goConfigMother.addStageToPipeline(config, "pipeline1", "stageP1_S2", "jobP1_S2_J1");
 
@@ -209,7 +208,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldAddPipelinePauseInfoAtPipelineLevel() throws Exception {
+    public void shouldAddPipelinePauseInfoAtPipelineLevel() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
 
@@ -229,7 +228,7 @@ public class GoDashboardCurrentStateLoaderTest {
 
     /* TODO: Even though the test is right, the correct place for lock info is pipeline level, not PIM level */
     @Test
-    public void shouldAddPipelineLockInformationAtPipelineInstanceLevel() throws Exception {
+    public void shouldAddPipelineLockInformationAtPipelineInstanceLevel() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         p1Config.lockExplicitly();
 
@@ -256,7 +255,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldUpdateAdministrabilityOfAPipelineBasedOnItsOrigin() throws Exception {
+    public void shouldUpdateAdministrabilityOfAPipelineBasedOnItsOrigin() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         p1Config.setOrigin(new FileConfigOrigin());
 
@@ -272,7 +271,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldAddPipelineSchedulabilityInformationAtPipelineLevel() throws Exception {
+    public void shouldAddPipelineSchedulabilityInformationAtPipelineLevel() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
 
@@ -287,7 +286,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldAssociateEveryPipelineWithItsPermissions() throws Exception {
+    public void shouldAssociateEveryPipelineWithItsPermissions() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
         PipelineInstanceModel pimForP1 = pim(p1Config);
@@ -306,7 +305,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldDefaultToAllowingNoOneToViewAPipelineIfItsPermissionsAreNotFound() throws Exception {
+    public void shouldDefaultToAllowingNoOneToViewAPipelineIfItsPermissionsAreNotFound() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         PipelineInstanceModel pimForP1 = pim(p1Config);
 
@@ -323,7 +322,7 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldGetAGoDashboardPipelineGivenASinglePipelineConfigAndItsGroupConfig() throws Exception {
+    public void shouldGetAGoDashboardPipelineGivenASinglePipelineConfigAndItsGroupConfig() {
         String pipelineNameStr = "pipeline1";
         CaseInsensitiveString pipelineName = new CaseInsensitiveString(pipelineNameStr);
         Permissions permissions = new Permissions(Everyone.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOnePermission.INSTANCE);
@@ -420,7 +419,7 @@ public class GoDashboardCurrentStateLoaderTest {
         PipelineConfig pipeline1 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         PipelineConfig pipeline2 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1", "job1");
         PipelineConfig pipeline3 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline3", "stage1", "job1");
-        when(pipelineSqlMapDao.loadHistoryForDashboard(ArgumentMatchers.any(List.class))).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
+        when(pipelineSqlMapDao.loadHistoryForDashboard(any())).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
         List<GoDashboardPipeline> goDashboardPipelines = loader.allPipelines(config);
         assertThat(goDashboardPipelines).hasSize(3);
 

@@ -27,9 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.List;
 import java.util.Set;
@@ -66,7 +64,7 @@ public class UserSqlMapDaoTest {
         bar.setId(2);
         final User baz = new User("baz");
         bar.setId(3);
-        when(transactionTemplate.execute(any(TransactionCallback.class))).thenReturn(List.of(foo, bar, baz));
+        when(transactionTemplate.execute(any())).thenReturn(List.of(foo, bar, baz));
 
         Set<String> userNames = dao.findUsernamesForIds(Set.of(foo.getId(), bar.getId()));
         assertThat(userNames.size()).isEqualTo(2);
@@ -74,10 +72,10 @@ public class UserSqlMapDaoTest {
     }
 
     @Test
-    public void shouldCacheTheEnabledUserCountIfItIsNotInTheCache() throws Exception {
+    public void shouldCacheTheEnabledUserCountIfItIsNotInTheCache() {
         UserSqlMapDao daoSpy = spy(dao);
         doReturn(mockHibernateTemplate).when(daoSpy).hibernateTemplate();
-        doReturn(10L).when(mockHibernateTemplate).execute(any(HibernateCallback.class));
+        doReturn(10L).when(mockHibernateTemplate).execute(any());
 
         long firstEnabledUserCount = daoSpy.enabledUserCount();
         long secondEnabledUserCount = daoSpy.enabledUserCount();
@@ -85,12 +83,12 @@ public class UserSqlMapDaoTest {
         assertThat(firstEnabledUserCount).isEqualTo(10L);
         assertThat(secondEnabledUserCount).isEqualTo(10L);
 
-        assertThat(goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isEqualTo(10L);
-        verify(mockHibernateTemplate, times(1)).execute(any(HibernateCallback.class));
+        assertThat(goCache.<Long>get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isEqualTo(10L);
+        verify(mockHibernateTemplate, times(1)).execute(any());
     }
 
     @Test
-    public void shouldUseTheCachedValueForEnabledUserCountIfItExists() throws Exception {
+    public void shouldUseTheCachedValueForEnabledUserCountIfItExists() {
         goCache.put(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY, 10L);
 
         long firstEnabledUserCount = dao.enabledUserCount();
@@ -99,22 +97,22 @@ public class UserSqlMapDaoTest {
         assertThat(firstEnabledUserCount).isEqualTo(10L);
         assertThat(secondEnabledUserCount).isEqualTo(10L);
 
-        assertThat(goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isEqualTo(10L);
-        verify(mockHibernateTemplate, times(0)).execute(any(HibernateCallback.class));
+        assertThat(goCache.<Long>get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isEqualTo(10L);
+        verify(mockHibernateTemplate, times(0)).execute(any());
     }
 
     @Test
-    public void shouldDoADoubleCheckOfCacheBeforeLoadingFromTheDB() throws Exception {
+    public void shouldDoADoubleCheckOfCacheBeforeLoadingFromTheDB() {
         GoCache cache = mock(GoCache.class);
         UserSqlMapDao userSqlMapDaoSpy = spy(new UserSqlMapDao(sessionFactory, transactionTemplate, cache, accessTokenDao, transactionSynchronizationManager));
 
         doReturn(mockHibernateTemplate).when(userSqlMapDaoSpy).hibernateTemplate();
-        doReturn(10L).when(mockHibernateTemplate).execute(any(HibernateCallback.class));
+        doReturn(10L).when(mockHibernateTemplate).execute(any());
 
         long firstEnabledUserCount = userSqlMapDaoSpy.enabledUserCount();
 
         assertThat(firstEnabledUserCount).isEqualTo(10L);
-        verify(mockHibernateTemplate, times(1)).execute(any(HibernateCallback.class));
+        verify(mockHibernateTemplate, times(1)).execute(any());
         verify(cache, times(2)).get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY);
         verify(cache, times(1)).put(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY, 10L);
     }

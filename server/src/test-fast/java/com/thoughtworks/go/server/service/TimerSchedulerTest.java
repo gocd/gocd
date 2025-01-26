@@ -154,7 +154,7 @@ public class TimerSchedulerTest {
         timerScheduler.initialize();
         List<ConfigChangedListener> listeners = captor.getAllValues();
         assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
-        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
+        @SuppressWarnings("unchecked") EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString(pipelineName));

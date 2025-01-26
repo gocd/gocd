@@ -142,7 +142,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         Map<String, Object> attributes = material.getAttributes(true);
 
         assertThat(attributes.get("type")).isEqualTo("perforce");
-        Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
+        @SuppressWarnings("unchecked") Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
         assertThat(configuration.get("url")).isEqualTo("host:1234");
         assertThat(configuration.get("username")).isEqualTo("username");
         assertThat(configuration.get("password")).isEqualTo("password");
@@ -158,7 +158,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         Map<String, Object> attributes = material.getAttributes(false);
 
         assertThat(attributes.get("type")).isEqualTo("perforce");
-        Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
+        @SuppressWarnings("unchecked") Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
         assertThat(configuration.get("url")).isEqualTo("host:1234");
         assertThat(configuration.get("username")).isEqualTo("username");
         assertThat(configuration.get("password")).isNull();

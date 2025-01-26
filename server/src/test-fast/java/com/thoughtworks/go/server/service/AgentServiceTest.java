@@ -89,7 +89,7 @@ class AgentServiceTest {
     private GoConfigService goConfigService;
     private SecurityService securityService;
 
-    private List<String> emptyStrList = Collections.emptyList();
+    private final List<String> emptyStrList = Collections.emptyList();
 
     @BeforeEach
     void setUp() {
@@ -305,7 +305,7 @@ class AgentServiceTest {
             void shouldNotAddEnvsWhichAreAssociatedWithTheAgentFromConfigRepo() {
                 String uuid = "uuid";
                 List<String> uuids = List.of(uuid);
-                List<Agent> agents = Arrays.asList(agent);
+                List<Agent> agents = Collections.singletonList(agent);
                 AgentInstance agentInstance = mock(AgentInstance.class);
 
                 when(agentDao.getAgentsByUUIDs(uuids)).thenReturn(agents);
@@ -324,7 +324,7 @@ class AgentServiceTest {
 
                 assertDoesNotThrow(() -> agentServiceSpy.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, List.of("env1", configEnvName), emptyStrList, TRUE, environmentConfigService));
                 verify(agentDao).getAgentsByUUIDs(uuids);
-                ArgumentCaptor<List<Agent>> argumentCaptor = ArgumentCaptor.forClass(List.class);
+                @SuppressWarnings("unchecked") ArgumentCaptor<List<Agent>> argumentCaptor = ArgumentCaptor.forClass(List.class);
                 verify(agentDao).bulkUpdateAgents(argumentCaptor.capture());
                 assertEquals("env1", argumentCaptor.getValue().get(0).getEnvironments());
                 verify(agentServiceSpy).updateIdsAndGenerateCookiesForPendingAgents(eq(agents), eq(TRUE));
@@ -949,7 +949,7 @@ class AgentServiceTest {
 
             assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, List.of(uuid, "uuid1")));
 
-            ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
+            @SuppressWarnings("unchecked") ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
             List<Agent> agents = List.of(agentConfigForUUID1, agent);
 
@@ -1014,7 +1014,7 @@ class AgentServiceTest {
 
             List<Agent> agents = List.of(agentConfigForUUID1, agent);
 
-            ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
+            @SuppressWarnings("unchecked") ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
             verify(agentDao).bulkUpdateAgents(argument.capture());
             assertEquals(agents.size(), argument.getValue().size());
@@ -1114,7 +1114,7 @@ class AgentServiceTest {
 
             assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, List.of(uuid, "uuid1"), Collections.emptyList()));
 
-            ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
+            @SuppressWarnings("unchecked") ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
             List<Agent> agents = List.of(agentConfigForUUID1, agent);
 
@@ -1179,7 +1179,7 @@ class AgentServiceTest {
 
             List<Agent> agents = List.of(agentConfigForUUID1, agent);
 
-            ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
+            @SuppressWarnings("unchecked") ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
             verify(agentDao).bulkUpdateAgents(argument.capture());
             assertEquals(agents.size(), argument.getValue().size());

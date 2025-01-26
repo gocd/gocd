@@ -141,6 +141,7 @@ public class UserServiceTest {
         assertThat(models).isEqualTo(List.of(model(foo), model(bar), model(quux)));
     }
 
+    @SafeVarargs
     public static <T> Condition<T> anyOfObject(T... objects) {
         return new Condition<>() {
             @Override

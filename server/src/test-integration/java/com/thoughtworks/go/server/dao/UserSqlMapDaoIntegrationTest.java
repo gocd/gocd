@@ -375,9 +375,9 @@ public class UserSqlMapDaoIntegrationTest {
         assertThat(getAllNotificationFilter()).isEmpty();
     }
 
+    @SuppressWarnings("unchecked")
     private List<NotificationFilter> getAllNotificationFilter() {
-        return sessionFactory.openSession().createCriteria(NotificationFilter.class)
-                .list();
+        return sessionFactory.openSession().createCriteria(NotificationFilter.class).list();
     }
 
     @Test

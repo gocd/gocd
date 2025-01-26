@@ -22,7 +22,11 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.jms.JMSException;
 import java.util.List;
@@ -30,20 +34,25 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class PluginMessageQueueHandlerTest {
     private static final String PLUGIN_ID = "plugin-1";
     private static final String QUEUE_NAME_PREFIX = "queue";
+    @Mock
     private GoPluginExtension extension;
-    private PluginMessageQueueHandler<FooMessage> handler;
+    @Mock
     private MessagingService<GoMessage> messaging;
+    @Mock
+    private JMSMessageListenerAdapter<GoMessage> listenerAdapter;
+    @Captor
+    private ArgumentCaptor<GoMessageListener<GoMessage>> argumentCaptor;
+
+    private PluginMessageQueueHandler<FooMessage> handler;
     private MyQueueFactory queueFactory;
 
 
     @BeforeEach
     public void setUp() throws Exception {
-        extension = mock(GoPluginExtension.class);
-        messaging = mock(MessagingService.class);
-
         queueFactory = new MyQueueFactory();
         handler = new PluginMessageQueueHandler<>(extension, messaging, mock(PluginManager.class), queueFactory) {};
     }
@@ -53,16 +62,15 @@ public class PluginMessageQueueHandlerTest {
         String pluginId = PLUGIN_ID;
         String queueName = QUEUE_NAME_PREFIX + pluginId;
         when(extension.canHandlePlugin(pluginId)).thenReturn(true);
-        when(messaging.addQueueListener(eq(queueName), any())).thenReturn(mock(JMSMessageListenerAdapter.class));
+        when(messaging.addQueueListener(eq(queueName), any())).thenReturn(listenerAdapter);
         handler.pluginLoaded(GoPluginDescriptor.builder().id(pluginId).build());
 
         assertThat(handler.queues.containsKey(pluginId)).isTrue();
         assertThat(handler.queues.get(pluginId).listeners.containsKey(pluginId)).isTrue();
         List<JMSMessageListenerAdapter<FooMessage>> listeners = handler.queues.get(pluginId).listeners.get(pluginId);
         assertThat(listeners.size()).isEqualTo(10);
-        ArgumentCaptor<GoMessageListener<GoMessage>> argumentCaptor = ArgumentCaptor.forClass(GoMessageListener.class);
         verify(messaging, times(10)).addQueueListener(eq(queueName), argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue() instanceof GoMessageListener).isTrue();
+        assertThat(argumentCaptor.getValue()).isNotNull();
     }
 
     @Test
@@ -70,7 +78,6 @@ public class PluginMessageQueueHandlerTest {
         String pluginId = PLUGIN_ID;
         String queueName = QUEUE_NAME_PREFIX + pluginId;
         when(extension.canHandlePlugin(pluginId)).thenReturn(true);
-        JMSMessageListenerAdapter<GoMessage> listenerAdapter = mock(JMSMessageListenerAdapter.class);
         when(messaging.addQueueListener(eq(queueName), any())).thenReturn(listenerAdapter);
         GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginId).build();
 
@@ -94,7 +101,7 @@ public class PluginMessageQueueHandlerTest {
 
         assertThat(handler.queues.containsKey(pluginId)).isFalse();
         verify(messaging, never()).removeQueue(queueName);
-        verify(messaging, never()).addQueueListener(any(String.class), any(GoMessageListener.class));
+        verify(messaging, never()).addQueueListener(any(String.class), any());
     }
 
     private class MyQueueFactory implements QueueFactory<FooMessage> {

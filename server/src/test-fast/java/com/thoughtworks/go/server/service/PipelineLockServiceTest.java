@@ -172,6 +172,7 @@ public class PipelineLockServiceTest {
         verify(pipelineStateDao).unlockPipeline(eq("twist"), any(AfterCompletionCallback.class));
     }
 
+    @SuppressWarnings("unchecked")
     private EntityConfigChangedListener<PipelineConfig> getPipelineConfigEntityConfigChangedListener() {
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         doNothing().when(goConfigService).register(captor.capture());

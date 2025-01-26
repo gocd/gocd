@@ -74,7 +74,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -305,11 +304,11 @@ public class MaterialRepositoryIntegrationTest {
         goCache.remove(repo.latestMaterialModificationsKey(repo.findMaterialInstance(material)));
         HibernateTemplate mockTemplate = mock(HibernateTemplate.class);
         repo.setHibernateTemplate(mockTemplate);
-        when(mockTemplate.execute(any(HibernateCallback.class))).thenReturn(mod.getModification(0));
+        when(mockTemplate.execute(any())).thenReturn(mod.getModification(0));
         Modification modification = repo.findLatestModification(repo.findMaterialInstance(material));
 
         assertThat(modification).isEqualTo(mod.getLatestModification());
-        verify(mockTemplate).execute(any(HibernateCallback.class));
+        verify(mockTemplate).execute(any());
     }
 
     @Test
@@ -981,9 +980,9 @@ public class MaterialRepositoryIntegrationTest {
         saveOneScmModification("4", material, "user4", "4.txt", "comment4");
         saveOneScmModification("5", material, "user5", "5.txt", "comment5");
 
-        Long totalCount = repo.getTotalModificationsFor(materialInstance);
+        repo.getTotalModificationsFor(materialInstance);
 
-        totalCount = goCache.get(repo.materialModificationCountKey(materialInstance));
+        goCache.get(repo.materialModificationCountKey(materialInstance));
 
         final Modification modOne = new Modification("user", "comment", "email@gmail.com", new Date(), "123");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -995,9 +994,7 @@ public class MaterialRepositoryIntegrationTest {
             }
         });
 
-        totalCount = goCache.get(repo.materialModificationCountKey(materialInstance));
-
-        assertThat(totalCount).isNull();
+        assertThat(goCache.<Long>get(repo.materialModificationCountKey(materialInstance))).isNull();
     }
 
     @Test
@@ -1617,8 +1614,8 @@ public class MaterialRepositoryIntegrationTest {
         });
     }
 
-    private MaterialInstance saveMaterialRev(final MaterialRevision rev) {
-        return transactionTemplate.execute(status -> repo.saveMaterialRevision(rev));
+    private void saveMaterialRev(final MaterialRevision rev) {
+        transactionTemplate.execute(status -> repo.saveMaterialRevision(rev));
     }
 
     private Pipeline createPipeline() {

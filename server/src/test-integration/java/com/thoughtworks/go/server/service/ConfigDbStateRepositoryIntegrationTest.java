@@ -76,7 +76,7 @@ public class ConfigDbStateRepositoryIntegrationTest {
 
         configDbStateRepository.flushConfigState();
 
-        List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
+        @SuppressWarnings("unchecked") List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
         assertThat(list.size()).isEqualTo(5);
 
         assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false));
@@ -101,7 +101,7 @@ public class ConfigDbStateRepositoryIntegrationTest {
 
         configDbStateRepository.flushConfigState();
 
-        List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
+        @SuppressWarnings("unchecked") List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
         assertThat(list.size()).isEqualTo(2);
 
         assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false));
@@ -123,7 +123,7 @@ public class ConfigDbStateRepositoryIntegrationTest {
 
         configDbStateRepository.flushConfigState();
 
-        List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
+        @SuppressWarnings("unchecked") List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
         assertThat(list.size()).isEqualTo(2);
 
         assertThat(list).contains(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false));

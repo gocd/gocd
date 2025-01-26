@@ -29,7 +29,7 @@ public class TrackingToolTest {
     private ConfigCache configCache = new ConfigCache();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         loader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         writer = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
     }

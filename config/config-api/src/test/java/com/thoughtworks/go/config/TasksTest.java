@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 public class TasksTest {
 
     @Test
-    public void shouldReturnEmptyTasks() throws Exception {
+    public void shouldReturnEmptyTasks() {
         AntTask antTask1 = new AntTask();
         FetchTask fetchArtifact = new FetchTask();
         Tasks tasks = new Tasks(antTask1, fetchArtifact);
@@ -40,7 +40,7 @@ public class TasksTest {
     }
 
     @Test
-    public void shouldSetConfigAttributesForBuiltinTask() throws Exception {
+    public void shouldSetConfigAttributesForBuiltinTask() {
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(Tasks.TASK_OPTIONS, "ant");
         attributes.put("ant", antTaskAttribs("build.xml", "test", "foo"));

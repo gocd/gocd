@@ -40,13 +40,13 @@ public class GoDashboardTemplateConfigChangeHandlerTest {
     private GoDashboardTemplateConfigChangeHandler handler;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         handler = new GoDashboardTemplateConfigChangeHandler(cacheUpdateService, goConfigService);
     }
 
     @Test
-    public void shouldRefreshAllPipelinesAssociatedWithATemplateInCacheWhenATemplateChanges() throws Exception {
+    public void shouldRefreshAllPipelinesAssociatedWithATemplateInCacheWhenATemplateChanges() {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template1"));
         CaseInsensitiveString pipeline1 = new CaseInsensitiveString("p1");

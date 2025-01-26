@@ -33,7 +33,7 @@ public class PipelineGroupModelTest {
     }
 
     @Test
-    public void shouldCopyAllInternalsOfPipelineModelWhenCreatingANewOneIfNeeded() throws Exception {
+    public void shouldCopyAllInternalsOfPipelineModelWhenCreatingANewOneIfNeeded() {
         PipelineGroupModel groupModel = new PipelineGroupModel("group");
 
         PipelineModel expectedModel = addInstanceTo(new PipelineModel("p1", true, true, PipelinePauseInfo.notPaused()));

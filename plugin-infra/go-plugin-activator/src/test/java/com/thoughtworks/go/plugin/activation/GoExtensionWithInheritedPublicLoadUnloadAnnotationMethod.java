@@ -63,7 +63,7 @@ public class GoExtensionWithInheritedPublicLoadUnloadAnnotationMethod extends Cl
     }
 
     @Override
-    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
         return null;
     }
 

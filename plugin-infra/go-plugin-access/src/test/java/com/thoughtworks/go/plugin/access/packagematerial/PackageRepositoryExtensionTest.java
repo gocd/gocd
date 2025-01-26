@@ -71,7 +71,7 @@ public class PackageRepositoryExtensionTest {
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = new PackageRepositoryExtension(pluginManager, extensionsRegistry);
 
         pluginSettingsConfiguration = new PluginSettingsConfiguration();

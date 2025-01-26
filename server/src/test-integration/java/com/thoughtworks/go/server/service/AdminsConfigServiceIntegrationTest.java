@@ -56,7 +56,7 @@ public class AdminsConfigServiceIntegrationTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.onTearDown();
         cachedGoConfig.clearListeners();

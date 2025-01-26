@@ -57,7 +57,7 @@ public class MaterialUpdateServiceIntegrationTest {
     @Autowired private MaintenanceModeService maintenanceModeService;
 
     @Test
-    public void shouldClearServerHealthLogsForMaterialThatNoLongerExistsInCruiseConfig() throws Exception {
+    public void shouldClearServerHealthLogsForMaterialThatNoLongerExistsInCruiseConfig() {
         HealthStateScope badScope = HealthStateScope.forMaterial(new SvnMaterial("non-existent-url!", "user", "pwd", false));
         serverHealthService.update(ServerHealthState.error("where's the material!", "fubar", HealthStateType.general(badScope)));
 
@@ -75,7 +75,7 @@ public class MaterialUpdateServiceIntegrationTest {
     }
 
     @Test
-    public void shouldClearServerHealthLogsForMaterialWhereAutoUpdateChanged() throws Exception {
+    public void shouldClearServerHealthLogsForMaterialWhereAutoUpdateChanged() {
         SvnMaterialConfig material = svn("non-existent-url!", "user", "pwd2", false);
         HealthStateScope scope = HealthStateScope.forMaterialConfig(material);
         serverHealthService.update(ServerHealthState.error("where's the material!", "fubar", HealthStateType.general(scope)));

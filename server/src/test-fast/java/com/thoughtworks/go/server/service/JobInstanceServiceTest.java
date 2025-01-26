@@ -86,7 +86,7 @@ public class JobInstanceServiceTest {
     private JobStatusCache jobStatusCache;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         job = JobInstanceMother.building("dev");
         transactionSynchronizationManager = new TestTransactionSynchronizationManager();
         transactionTemplate = new TestTransactionTemplate(transactionSynchronizationManager);

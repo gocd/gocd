@@ -64,7 +64,7 @@ public class GoDiskSpaceMonitorTest {
     private ConfigDbStateRepository configDbStateRepository;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         serverHealthService.removeAllLogs();
         emailSender = new TestingEmailSender();
         mockDiskSpaceChecker = mock(SystemDiskSpaceChecker.class);
@@ -78,7 +78,7 @@ public class GoDiskSpaceMonitorTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         serverHealthService.removeAllLogs();
         systemEnvironment.setDiskSpaceCacheRefresherInterval(diskSpaceCacheRefresherInterval);
     }

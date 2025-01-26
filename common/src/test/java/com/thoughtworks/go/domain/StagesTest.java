@@ -27,19 +27,19 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class StagesTest {
 
     @Test
-    public void shouldFindStageById() throws Exception {
+    public void shouldFindStageById() {
         Stage expected = new Stage();
         expected.setId(1);
         assertThat(new Stages(expected).byId(1)).isEqualTo(expected);
     }
 
     @Test
-    public void shouldThrowExceptionWhenIdNotFound() throws Exception {
+    public void shouldThrowExceptionWhenIdNotFound() {
         assertThatThrownBy(() -> new Stages().byId(100)).isExactlyInstanceOf(RuntimeException.class);
     }
 
     @Test
-    public void shouldReturnFalseWhenNoStageExist() throws Exception {
+    public void shouldReturnFalseWhenNoStageExist() {
         Stages stages = new Stages();
         assertThat(stages.isAnyStageActive()).isFalse();
     }
@@ -79,14 +79,14 @@ public class StagesTest {
     }
 
     @Test
-    public void shouldFindStageWhenStageNameIsOfDifferentCase() throws Exception {
+    public void shouldFindStageWhenStageNameIsOfDifferentCase() {
         Stages stages = new Stages(StageMother.custom("stageName"));
         assertThat(stages.hasStage("Stagename")).isEqualTo((true));
         assertThat(stages.hasStage("stageName")).isEqualTo((true));
     }
 
     @Test
-    public void shouldGetLatestStagesInRunOrder() throws Exception {
+    public void shouldGetLatestStagesInRunOrder() {
         Stage s1_1 = StageMother.createPassedStage("p", 1, "s1", 1, "b", new Date());
         s1_1.setOrderId(1);
         s1_1.setLatestRun(false);

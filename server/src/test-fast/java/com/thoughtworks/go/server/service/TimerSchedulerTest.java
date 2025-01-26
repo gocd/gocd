@@ -80,7 +80,7 @@ public class TimerSchedulerTest {
     }
 
     @Test
-    public void shouldUpdateServerHealthStatusWhenCronSpecCantBeParsed() throws Exception {
+    public void shouldUpdateServerHealthStatusWhenCronSpecCantBeParsed() {
         when(goConfigService.getAllPipelineConfigs()).thenReturn(List.of(pipelineConfigWithTimer("uat", "bad cron spec!!!")));
 
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
@@ -136,7 +136,7 @@ public class TimerSchedulerTest {
     }
 
     @Test
-    public void shouldRegisterAsACruiseConfigChangeListener() throws Exception {
+    public void shouldRegisterAsACruiseConfigChangeListener() {
         TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService);
 
         timerScheduler.initialize();

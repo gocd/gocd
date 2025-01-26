@@ -94,7 +94,7 @@ public class UniqueOnCancelValidatorTest {
     }
 
     @Test
-    public void shouldFailWithExceptionWhenThereIsMoreThanOneOnCancelTasksForABuiltInTask() throws Exception {
+    public void shouldFailWithExceptionWhenThereIsMoreThanOneOnCancelTasksForABuiltInTask() {
         ConfigElementImplementationRegistry registry = mock(ConfigElementImplementationRegistry.class);
         when(registry.implementersOf(Task.class)).thenReturn(tasks(ExecTask.class));
 
@@ -205,7 +205,7 @@ public class UniqueOnCancelValidatorTest {
     }
 
     @Test
-    public void shouldFailWithExceptionWhenThereIsMoreThanOneOnCancelTasksForAPluginInTask() throws Exception {
+    public void shouldFailWithExceptionWhenThereIsMoreThanOneOnCancelTasksForAPluginInTask() {
         ConfigElementImplementationRegistry registry = mock(ConfigElementImplementationRegistry.class);
         when(registry.implementersOf(Task.class)).thenReturn(tasks(ExecTask.class, PluggableTask.class));
 

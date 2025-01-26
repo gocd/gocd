@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TaskConfigPropertyTest {
     @Test
-    public void validateTaskPropertyDefaults() throws Exception {
+    public void validateTaskPropertyDefaults() {
         TaskConfigProperty taskConfigProperty = new TaskConfigProperty("Test-Property");
         assertThat(taskConfigProperty.getOptions().size()).isEqualTo(4);
         assertThat(taskConfigProperty.getOption(Property.REQUIRED)).isFalse();

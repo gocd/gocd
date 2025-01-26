@@ -33,7 +33,7 @@ public class ArtifactPluginInfoBuilderTest {
     private ArtifactExtension extension;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(ArtifactExtension.class);
     }
 

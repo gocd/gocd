@@ -33,14 +33,14 @@ public class TokenInterceptorTest {
     private HttpServletResponse response;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         manager = mock(TokenManager.class);
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(request);
         verifyNoMoreInteractions(response);
         verifyNoMoreInteractions(manager);

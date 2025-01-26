@@ -30,7 +30,7 @@ public class SiteUrlProviderTest {
     private ServerConfigService configService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         configService = mock(ServerConfigService.class);
         ServletHelper.init();
     }

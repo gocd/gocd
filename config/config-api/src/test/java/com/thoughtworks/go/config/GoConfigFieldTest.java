@@ -70,7 +70,7 @@ public class GoConfigFieldTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         systemEnvironment = new SystemEnvironment();
     }
 

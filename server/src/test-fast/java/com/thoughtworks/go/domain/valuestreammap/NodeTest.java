@@ -120,7 +120,7 @@ public class NodeTest {
     }
 
     @Test
-    public void shouldAddUniqueAndNotNullRevisionsToANode() throws Exception {
+    public void shouldAddUniqueAndNotNullRevisionsToANode() {
         Revision p11 = new PipelineRevision("p1", 1, "label1");
         Revision p12 = new PipelineRevision("p1", 2, "label2");
 

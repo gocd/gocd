@@ -392,7 +392,7 @@ public class ScheduleTestUtil {
         return new AddedPipeline(cfg, new DependencyMaterial(str(pipelineName), str(newStageName)));
     }
 
-    public AddedPipeline addStageToPipeline(CaseInsensitiveString pipelineName, String stageName) throws Exception {
+    public AddedPipeline addStageToPipeline(CaseInsensitiveString pipelineName, String stageName) {
         PipelineConfig config = configHelper.addStageToPipeline(pipelineName.toString(), stageName);
         return new AddedPipeline(config, new DependencyMaterial(pipelineName, new CaseInsensitiveString(stageName)));
     }

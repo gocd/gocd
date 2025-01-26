@@ -58,7 +58,7 @@ public class AnalyticsExtensionTest {
     private AnalyticsMetadataStore metadataStore;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ANALYTICS_EXTENSION, List.of("2.0"))).thenReturn("2.0");
         when(pluginManager.isPluginOfType(ANALYTICS_EXTENSION, PLUGIN_ID)).thenReturn(true);
 

@@ -50,7 +50,7 @@ public class AdminsConfigServiceTest {
     private EntityHashingService entityHashingService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         lenient().when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         adminsConfigService = new AdminsConfigService(goConfigService, entityHashingService);

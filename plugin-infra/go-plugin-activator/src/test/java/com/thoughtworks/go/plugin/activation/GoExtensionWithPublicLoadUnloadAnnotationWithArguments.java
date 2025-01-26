@@ -57,7 +57,7 @@ public class GoExtensionWithPublicLoadUnloadAnnotationWithArguments implements G
     }
 
     @Override
-    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
         return null;
     }
 

@@ -48,7 +48,7 @@ public class ConfigInfoProviderTest {
     private AuthorizationMetadataStore authorizationMetadataStore;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         authorizationMetadataStore = AuthorizationMetadataStore.instance();
     }
 

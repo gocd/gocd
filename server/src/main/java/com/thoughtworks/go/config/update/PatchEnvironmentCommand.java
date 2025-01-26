@@ -42,7 +42,7 @@ public class PatchEnvironmentCommand extends EnvironmentCommand {
     }
 
     @Override
-    public void update(CruiseConfig configForEdit) throws Exception {
+    public void update(CruiseConfig configForEdit) {
         EnvironmentConfig environmentConfig = configForEdit.getEnvironments().named(this.environmentConfig.name());
 
         for (String pipelineName : pipelinesToAdd) {

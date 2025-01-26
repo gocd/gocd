@@ -88,7 +88,7 @@ public class UpdateArtifactConfigCommandTest {
     @Nested
     class Update {
         @Test
-        void shouldUpdateArtifactConfig() throws Exception {
+        void shouldUpdateArtifactConfig() {
             ArtifactConfig artifactConfig = new ArtifactConfig();
             artifactConfig.setArtifactsDir(new ArtifactDirectory("artifactDir"));
             cruiseConfig.server().setArtifactConfig(artifactConfig);

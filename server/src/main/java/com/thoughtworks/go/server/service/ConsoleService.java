@@ -82,7 +82,7 @@ public class ConsoleService {
         return artifact.exists() ? artifact : chooser.temporaryConsoleFile(jobIdentifier);
     }
 
-    public void appendToConsoleLog(JobIdentifier jobIdentifier, String text) throws IllegalArtifactLocationException, IOException {
+    public void appendToConsoleLog(JobIdentifier jobIdentifier, String text) throws IllegalArtifactLocationException {
         updateConsoleLog(consoleLogFile(jobIdentifier), new ByteArrayInputStream(text.getBytes()));
     }
 

@@ -43,7 +43,7 @@ public class XpathUtilsTest {
             </root>""";
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         if (testFile != null && testFile.exists()) {
             testFile.delete();
         }

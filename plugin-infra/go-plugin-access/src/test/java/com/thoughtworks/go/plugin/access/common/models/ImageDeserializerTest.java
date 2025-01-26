@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ImageDeserializerTest {
 
     @Test
-    public void shouldDeserializeFromJSON() throws Exception {
+    public void shouldDeserializeFromJSON() {
         com.thoughtworks.go.plugin.domain.common.Image image = new ImageDeserializer().fromJSON("{\"content_type\":\"image/png\",\"data\":\"Zm9vYmEK\"}");
         assertThat(image.getContentType()).isEqualTo("image/png");
         assertThat(image.getData()).isEqualTo("Zm9vYmEK");

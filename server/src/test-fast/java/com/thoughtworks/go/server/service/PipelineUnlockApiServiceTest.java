@@ -38,7 +38,7 @@ public class PipelineUnlockApiServiceTest {
     private PipelineLockService pipelineLockService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         pipelineDao = mock(PipelineSqlMapDao.class);
         goConfigService = mock(GoConfigService.class);
         stageService = mock(StageService.class);

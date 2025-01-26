@@ -74,7 +74,7 @@ public class UpdatePackageConfigCommandTest {
     private GoConfigService goConfigService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
 
@@ -96,7 +96,7 @@ public class UpdatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldUpdateTheSpecifiedPackage() throws Exception {
+    public void shouldUpdateTheSpecifiedPackage() {
         UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         assertThat(cruiseConfig.getPackageRepositories().findPackageDefinitionWith(packageUuid)).isEqualTo(oldPackageDefinition);
         command.update(cruiseConfig);
@@ -137,7 +137,7 @@ public class UpdatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() throws Exception {
+    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() {
         UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
@@ -148,7 +148,7 @@ public class UpdatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserSubmitsStaleEtag() throws Exception {
+    public void shouldNotContinueIfTheUserSubmitsStaleEtag() {
         newPackageDefinition.setRepository(new PackageRepository(oldPackageDefinition.getRepository().getId(), "name", null, null));
         UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "stale-etag", this.entityHashingService, result, packageDefinitionService);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
@@ -162,7 +162,7 @@ public class UpdatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldValidateIfPackageNameIsNull() throws Exception {
+    public void shouldValidateIfPackageNameIsNull() {
         PackageRepository repository = cruiseConfig.getPackageRepositories().find("repoId");
         PackageDefinition pkg = new PackageDefinition("Id", null, new Configuration());
         pkg.setRepository(repository);
@@ -176,7 +176,7 @@ public class UpdatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldValidateIfPackageNameIsInvalid() throws Exception {
+    public void shouldValidateIfPackageNameIsInvalid() {
         PackageRepository repository = cruiseConfig.getPackageRepositories().find("repoId");
         PackageDefinition pkg = new PackageDefinition("Id", "!$#", new Configuration());
         pkg.setRepository(repository);
@@ -190,7 +190,7 @@ public class UpdatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldValidateDuplicatePropertiesInConfiguration() throws Exception {
+    public void shouldValidateDuplicatePropertiesInConfiguration() {
         PackageRepository repository = cruiseConfig.getPackageRepositories().find("repoId");
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"));
         Configuration configuration = new Configuration();
@@ -207,7 +207,7 @@ public class UpdatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldValidateDuplicatePackageName() throws Exception {
+    public void shouldValidateDuplicatePackageName() {
         PackageRepository repository = cruiseConfig.getPackageRepositories().find("repoId");
         PackageDefinition pkg = new PackageDefinition("Id", newPackageName, new Configuration());
         pkg.setRepository(repository);
@@ -221,7 +221,7 @@ public class UpdatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldValidateDuplicateIdentity() throws Exception {
+    public void shouldValidateDuplicateIdentity() {
         PackageRepository repository = cruiseConfig.getPackageRepositories().find("repoId");
         PackageDefinition pkg = new PackageDefinition("Id", "name", configuration);
         pkg.setRepository(repository);
@@ -274,7 +274,7 @@ public class UpdatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheRepositoryToWhichThePackageBelongsDoesNotExist() throws Exception {
+    public void shouldNotContinueIfTheRepositoryToWhichThePackageBelongsDoesNotExist() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         cruiseConfig.setPackageRepositories(new PackageRepositories());
         newPackageDefinition.setRepository(new PackageRepository("id", "name", null, null));

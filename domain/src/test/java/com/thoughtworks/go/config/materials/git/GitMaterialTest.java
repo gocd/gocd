@@ -188,7 +188,7 @@ public class GitMaterialTest {
         }
 
         @Test
-        void shouldRetrieveLatestModificationIfRevisionIsNotFound() throws IOException {
+        void shouldRetrieveLatestModificationIfRevisionIsNotFound() {
             List<Modification> modifications = git.modificationsSince(workingDir, GitTestRepo.NON_EXISTENT_REVISION, new TestSubprocessExecutionContext());
             assertThat(modifications).isEqualTo(git.latestModification(workingDir, new TestSubprocessExecutionContext()));
         }

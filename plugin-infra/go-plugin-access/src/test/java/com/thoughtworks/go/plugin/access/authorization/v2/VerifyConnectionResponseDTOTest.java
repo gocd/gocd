@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class VerifyConnectionResponseDTOTest {
 
     @Test
-    public void shouldDeserializeSuccessResponseFromJSON() throws Exception {
+    public void shouldDeserializeSuccessResponseFromJSON() {
         String json = """
                 {
                   "status": "success",
@@ -40,7 +40,7 @@ public class VerifyConnectionResponseDTOTest {
     }
 
     @Test
-    public void shouldDeserializeFailureResponseFromJSON() throws Exception {
+    public void shouldDeserializeFailureResponseFromJSON() {
         String json = """
                 {
                   "status": "failure",
@@ -55,7 +55,7 @@ public class VerifyConnectionResponseDTOTest {
     }
 
     @Test
-    public void shouldDeserializeValidationFailedResponseFromJSON() throws Exception {
+    public void shouldDeserializeValidationFailedResponseFromJSON() {
         String json = """
                 {
                   "status": "validation-failed",

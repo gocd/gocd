@@ -35,7 +35,7 @@ public class JobInstanceTest {
     public TimeProvider timeProvider;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         timeProvider = mock(TimeProvider.class);
     }
 

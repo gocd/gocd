@@ -81,7 +81,7 @@ public class AutoBuildIntegrationTest {
     }
 
     @Test
-    public void shouldCreateBuildCauseOnMaterialConfigChange() throws Exception {
+    public void shouldCreateBuildCauseOnMaterialConfigChange() {
         //down_pipe <- svn
         //         ^   /
         //         | /          => down_pipe <- up_pipe <- svn

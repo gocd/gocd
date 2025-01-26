@@ -53,13 +53,13 @@ public class CruiseConfigTest {
     }
 
     @Test
-    public void shouldReturnTrueIfUserIsAdmin() throws Exception {
+    public void shouldReturnTrueIfUserIsAdmin() {
         CruiseConfig config = ConfigMigrator.loadWithMigration(ConfigFileFixture.STAGE_AUTH_WITH_ADMIN_AND_AUTH).config;
         assertThat(config.isAdministrator("admin")).isTrue();
     }
 
     @Test
-    public void shouldReturnfalseIfUserIsNotAdmin() throws Exception {
+    public void shouldReturnfalseIfUserIsNotAdmin() {
         CruiseConfig config = ConfigMigrator.loadWithMigration(ConfigFileFixture.STAGE_AUTH_WITH_ADMIN_AND_AUTH).config;
         assertThat(config.isAdministrator("pavan")).isFalse();
     }

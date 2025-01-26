@@ -34,7 +34,7 @@ public class ApprovalTest {
     public static final String DEFAULT_GROUP = "defaultGroup";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
     }
 
     @Test

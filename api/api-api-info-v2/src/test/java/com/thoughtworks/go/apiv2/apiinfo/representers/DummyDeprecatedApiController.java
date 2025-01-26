@@ -29,7 +29,7 @@ public class DummyDeprecatedApiController implements SparkSpringController {
     public void setupRoutes() {
     }
 
-    public String doNothing(Request request, Response response) throws Exception {
+    public String doNothing(Request request, Response response) {
         return "";
     }
 

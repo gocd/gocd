@@ -28,18 +28,18 @@ public class TemplateExpansionPreprocessorTest {
     private TemplateExpansionPreprocessor preprocessor;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         preprocessor = new TemplateExpansionPreprocessor();
     }
 
     @Test
-    public void shouldNotThrowAnExceptionWhenAPipelineHasAtLeastOneStage() throws Exception {
+    public void shouldNotThrowAnExceptionWhenAPipelineHasAtLeastOneStage() {
         PipelineConfig pipelineConfig = pipelineConfigWithGivenStages("foo");
         preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
     }
 
     @Test
-    public void shouldNotExpandWhenTemplateAssociatedWithPipelineDoesNotExist() throws Exception {
+    public void shouldNotExpandWhenTemplateAssociatedWithPipelineDoesNotExist() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
         pipelineConfig.templatize(new CaseInsensitiveString("does_not_exist"));
         preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
@@ -47,7 +47,7 @@ public class TemplateExpansionPreprocessorTest {
     }
 
     @Test
-    public void shouldValidatePipelineToCheckItDoesNotAllowBothTemplateAndStages() throws Exception {
+    public void shouldValidatePipelineToCheckItDoesNotAllowBothTemplateAndStages() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
         pipelineConfig.templatize(new CaseInsensitiveString("template"));
         pipelineConfig.addStageWithoutValidityAssertion(new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs()));
@@ -58,7 +58,7 @@ public class TemplateExpansionPreprocessorTest {
     }
 
     @Test
-    public void shouldCloneStagesSoThatMutationDoesnotAffectTemplate() throws Exception {
+    public void shouldCloneStagesSoThatMutationDoesnotAffectTemplate() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipelineName"), new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig("http://google.com")));
         pipelineConfig.setTemplateName(new CaseInsensitiveString("templateName"));
         PipelineTemplateConfig template = new PipelineTemplateConfig();

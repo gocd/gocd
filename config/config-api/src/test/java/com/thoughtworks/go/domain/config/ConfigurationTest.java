@@ -86,7 +86,7 @@ class ConfigurationTest {
     }
 
     @Test
-    void shouldClearConfigurationsWhichAreEmptyAndNoErrors() throws Exception {
+    void shouldClearConfigurationsWhichAreEmptyAndNoErrors() {
         Configuration configuration = new Configuration();
         configuration.add(new ConfigurationProperty(new ConfigurationKey("name-one"), new ConfigurationValue()));
         configuration.add(new ConfigurationProperty(new ConfigurationKey("name-two"), new EncryptedConfigurationValue()));

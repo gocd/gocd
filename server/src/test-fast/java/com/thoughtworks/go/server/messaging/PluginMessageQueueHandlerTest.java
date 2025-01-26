@@ -52,7 +52,7 @@ public class PluginMessageQueueHandlerTest {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         queueFactory = new MyQueueFactory();
         handler = new PluginMessageQueueHandler<>(extension, messaging, mock(PluginManager.class), queueFactory) {};
     }

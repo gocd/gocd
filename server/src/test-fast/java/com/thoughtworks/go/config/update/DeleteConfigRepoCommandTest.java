@@ -45,7 +45,7 @@ public class DeleteConfigRepoCommandTest {
     private SecurityService securityService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         repoId = "repo-1";
@@ -55,7 +55,7 @@ public class DeleteConfigRepoCommandTest {
     }
 
     @Test
-    public void shouldDeleteTheSpecifiedConfigRepo() throws Exception {
+    public void shouldDeleteTheSpecifiedConfigRepo() {
         DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(repoId);
         assertNotNull(cruiseConfig.getConfigRepos().getConfigRepo(repoId));
         command.update(cruiseConfig);

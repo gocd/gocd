@@ -57,7 +57,7 @@ public class UpdateTemplateAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldReplaceOnlyTemplateAuthorizationWhileUpdatingTheTemplate() throws Exception {
+    public void shouldReplaceOnlyTemplateAuthorizationWhileUpdatingTheTemplate() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
         Authorization templateAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("foo"))));
@@ -76,7 +76,7 @@ public class UpdateTemplateAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldCopyOverErrorsOnAuthorizationFromThePreprocessedTemplateConfig() throws Exception {
+    public void shouldCopyOverErrorsOnAuthorizationFromThePreprocessedTemplateConfig() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
         Authorization templateAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString(""))));

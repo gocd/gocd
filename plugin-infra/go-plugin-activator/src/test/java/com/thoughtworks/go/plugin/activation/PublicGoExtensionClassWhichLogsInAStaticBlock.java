@@ -57,7 +57,7 @@ public class PublicGoExtensionClassWhichLogsInAStaticBlock implements GoPlugin {
     }
 
     @Override
-    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
         return null;
     }
 

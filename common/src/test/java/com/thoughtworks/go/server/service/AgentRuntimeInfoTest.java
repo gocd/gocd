@@ -34,13 +34,13 @@ public class AgentRuntimeInfoTest {
     private File pipelinesFolder;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         pipelinesFolder = new File("pipelines");
         pipelinesFolder.mkdirs();
     }
 
     @AfterEach
-    public void teardown() throws Exception {
+    public void teardown() {
         FileUtils.deleteQuietly(pipelinesFolder);
     }
 

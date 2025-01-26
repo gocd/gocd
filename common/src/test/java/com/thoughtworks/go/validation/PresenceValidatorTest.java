@@ -22,13 +22,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PresenceValidatorTest {
     @Test
-    public void shouldNotRenderErrorWhenStringIsNotBlank() throws Exception {
+    public void shouldNotRenderErrorWhenStringIsNotBlank() {
         ValidationBean validation = new PresenceValidator("String must be non-blank").validate("foo");
         assertThat(validation.isValid()).isTrue();
     }
 
     @Test
-    public void shouldRenderErrorWhenStringIsBlank() throws Exception {
+    public void shouldRenderErrorWhenStringIsBlank() {
         ValidationBean validation = new PresenceValidator("String must be non-blank").validate("");
         assertThat(validation.isValid()).isFalse();
 

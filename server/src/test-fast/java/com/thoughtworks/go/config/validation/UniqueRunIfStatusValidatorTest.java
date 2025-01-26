@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class UniqueRunIfStatusValidatorTest {
 
     @Test
-    public void shouldThrowExceptionWhenThereIsMoreThanOneOnCancelInEachTask() throws Exception {
+    public void shouldThrowExceptionWhenThereIsMoreThanOneOnCancelInEachTask() {
         try {
             final ByteArrayInputStream inputStream = new ByteArrayInputStream(ConfigFileFixture.CONTAINS_MULTI_SAME_STATUS_RUN_IF.getBytes());
             new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(IOUtils.toString(inputStream, UTF_8));

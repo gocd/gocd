@@ -36,7 +36,7 @@ public class PluggableSCMPostCommitHookImplementerTest {
     private PluggableSCMPostCommitHookImplementer implementer;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         implementer = new PluggableSCMPostCommitHookImplementer();
     }
 

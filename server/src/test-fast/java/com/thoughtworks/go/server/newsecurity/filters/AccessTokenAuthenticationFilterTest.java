@@ -62,7 +62,7 @@ public class AccessTokenAuthenticationFilterTest {
     private SecurityAuthConfig authConfig;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         clock = new TestingClock();
         securityService = mock(SecurityService.class);
         accessTokenService = mock(AccessTokenService.class);

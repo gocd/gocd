@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PipelineHistoryGroupTest {
 
     @Test
-    public void emptyGroupShouldNotMatchAnyItem() throws Exception {
+    public void emptyGroupShouldNotMatchAnyItem() {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
         PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModelMother.custom(
                 StageInstanceModelMother.custom("stage1", true), StageInstanceModelMother.custom("stage2", false));
@@ -35,7 +35,7 @@ public class PipelineHistoryGroupTest {
     }
 
     @Test
-    public void shouldMatchSpecifiedItem() throws Exception {
+    public void shouldMatchSpecifiedItem() {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
         group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
         PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModelMother.custom(
@@ -44,7 +44,7 @@ public class PipelineHistoryGroupTest {
     }
 
     @Test
-    public void shouldNotMatchSpecifiedItemIfNameNotMatched() throws Exception {
+    public void shouldNotMatchSpecifiedItemIfNameNotMatched() {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
         group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
         PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModelMother.custom(
@@ -53,7 +53,7 @@ public class PipelineHistoryGroupTest {
     }
 
     @Test
-    public void shouldNotMatchSpecifiedItemIfApprovalTypeNotMatched() throws Exception {
+    public void shouldNotMatchSpecifiedItemIfApprovalTypeNotMatched() {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
         group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
         PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModelMother.custom(
@@ -62,7 +62,7 @@ public class PipelineHistoryGroupTest {
     }
 
     @Test
-    public void shouldNotMatchSpecifiedItemIfSizeNotMatched() throws Exception {
+    public void shouldNotMatchSpecifiedItemIfSizeNotMatched() {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
         group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
         PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModelMother.custom(

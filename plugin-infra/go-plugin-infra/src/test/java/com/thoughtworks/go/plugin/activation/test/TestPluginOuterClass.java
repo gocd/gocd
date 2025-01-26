@@ -33,7 +33,7 @@ public class TestPluginOuterClass implements GoPlugin {
     }
 
     @Override
-    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
         throw new UnsupportedOperationException();
     }
 
@@ -50,7 +50,7 @@ public class TestPluginOuterClass implements GoPlugin {
         }
 
         @Override
-        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
             throw new UnsupportedOperationException();
         }
 
@@ -68,7 +68,7 @@ public class TestPluginOuterClass implements GoPlugin {
         }
 
         @Override
-        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
             throw new UnsupportedOperationException();
         }
 
@@ -87,7 +87,7 @@ public class TestPluginOuterClass implements GoPlugin {
                 }
 
                 @Override
-                public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+                public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
                     throw new UnsupportedOperationException();
                 }
 
@@ -110,7 +110,7 @@ public class TestPluginOuterClass implements GoPlugin {
                 }
 
                 @Override
-                public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+                public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
                     throw new UnsupportedOperationException();
                 }
 

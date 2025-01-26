@@ -40,7 +40,7 @@ public class UpdatePipelineConfigsCommand extends PipelineConfigsCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         preprocessedPipelineConfigs = findPipelineConfigs(preprocessedConfig, oldPipelineGroup.getGroup());
         preprocessedPipelineConfigs.setGroup(newPipelineGroup.getGroup());
         preprocessedPipelineConfigs.setAuthorization(newPipelineGroup.getAuthorization());

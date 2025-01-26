@@ -43,7 +43,7 @@ public class RunStagesPopulatorTest {
     }
 
     @Test
-    public void shouldPopulateStageDetailsForNodesInGraph() throws Exception {
+    public void shouldPopulateStageDetailsForNodesInGraph() {
         /*
         * git---> p1 ---> p3
         * |      v      ^
@@ -79,7 +79,7 @@ public class RunStagesPopulatorTest {
     }
 
     @Test
-    public void shouldPopulateOnlyLatestRunOfEachStageForEachPipelineNode() throws Exception {
+    public void shouldPopulateOnlyLatestRunOfEachStageForEachPipelineNode() {
         /*
             git --> p1 --> p2 --> p3
          */

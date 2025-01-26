@@ -58,7 +58,7 @@ public class SecurityFilterTest {
     }
 
     @Test
-    public void shouldCallBackOnTheVisitorIfTheUserIsAPipelineGroupAdmin() throws Exception {
+    public void shouldCallBackOnTheVisitorIfTheUserIsAPipelineGroupAdmin() {
         final PipelineConfigs group = new BasicPipelineConfigs("group1", new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("anyone")))), PipelineConfigMother.pipelineConfig("pipeline1"));
 
         when(securityService.hasViewPermissionForGroup("anyone", "group1")).thenReturn(true);

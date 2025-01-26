@@ -22,14 +22,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ElasticProfilesTest {
 
     @Test
-    public void shouldFindProfileById() throws Exception {
+    public void shouldFindProfileById() {
         assertThat(new ElasticProfiles().find("foo")).isNull();
         ElasticProfile profile = new ElasticProfile("foo", "prod-cluster");
         assertThat(new ElasticProfiles(profile).find("foo")).isEqualTo(profile);
     }
 
     @Test
-    public void shouldNotAllowMultipleProfilesWithSameId() throws Exception {
+    public void shouldNotAllowMultipleProfilesWithSameId() {
         ElasticProfile profile1 = new ElasticProfile("foo", "prod-cluster");
         ElasticProfile profile2 = new ElasticProfile("foo", "prod-cluster");
         ElasticProfiles profiles = new ElasticProfiles(profile1, profile2);

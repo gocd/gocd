@@ -48,7 +48,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     private SystemEnvironment systemEnvironment;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         configService = mock(GoConfigService.class);
         systemEnvironment = mock(SystemEnvironment.class);
         service = new GoConfigPipelinePermissionsAuthority(configService, systemEnvironment);
@@ -59,7 +59,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         pluginRoleUsersStore.clearAll();
     }
 

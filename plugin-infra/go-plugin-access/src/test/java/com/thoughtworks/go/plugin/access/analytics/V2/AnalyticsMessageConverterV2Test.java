@@ -31,7 +31,7 @@ public class AnalyticsMessageConverterV2Test {
     private static final Gson GSON = new Gson();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         converter = new AnalyticsMessageConverterV2();
     }
 
@@ -64,7 +64,7 @@ public class AnalyticsMessageConverterV2Test {
     }
 
     @Test
-    public void shouldBuildRequestBodyForAnalyticsRequest() throws Exception {
+    public void shouldBuildRequestBodyForAnalyticsRequest() {
         String analyticsRequestBody = converter.getAnalyticsRequestBody("pipeline", "pipeline_with_highest_wait_time", Map.of("pipeline_name", "test_pipeline"));
 
         String expectedRequestBody = "{" +

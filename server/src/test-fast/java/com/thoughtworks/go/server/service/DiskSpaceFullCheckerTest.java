@@ -40,7 +40,7 @@ public class DiskSpaceFullCheckerTest {
     private GoConfigService goConfigService;
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         new SystemEnvironment().clearProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT);
         verifyNoMoreInteractions(sender);
     }

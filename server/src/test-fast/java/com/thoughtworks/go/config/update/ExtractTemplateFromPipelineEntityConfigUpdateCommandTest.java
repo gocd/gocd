@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 class ExtractTemplateFromPipelineEntityConfigUpdateCommandTest {
 
     @Test
-    void shouldUpdateConfigWhenCurrentUserIsGroupAdmin() throws Exception {
+    void shouldUpdateConfigWhenCurrentUserIsGroupAdmin() {
         SecurityService securityService = mock(SecurityService.class);
         Username currentUser = new Username("bob");
         when(securityService.isUserGroupAdmin(currentUser)).thenReturn(true);
@@ -56,7 +56,7 @@ class ExtractTemplateFromPipelineEntityConfigUpdateCommandTest {
     }
 
     @Test
-    void shouldUpdateConfigWhenCurrentUserIsNotGroupAdmin() throws Exception {
+    void shouldUpdateConfigWhenCurrentUserIsNotGroupAdmin() {
         SecurityService securityService = mock(SecurityService.class);
         Username currentUser = new Username("bob");
         when(securityService.isUserGroupAdmin(currentUser)).thenReturn(false);

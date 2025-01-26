@@ -30,7 +30,7 @@ public class SCMMetadataLoaderTest {
     private PluginManager pluginManager;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pluginDescriptor = GoPluginDescriptor.builder().id("plugin-id").isBundledPlugin(true).build();
         pluginManager = mock(PluginManager.class);
         scmExtension = mock(SCMExtension.class);
@@ -84,14 +84,14 @@ public class SCMMetadataLoaderTest {
     }
 
     @Test
-    public void shouldRegisterAsPluginFrameworkStartListener() throws Exception {
+    public void shouldRegisterAsPluginFrameworkStartListener() {
         metadataLoader = new SCMMetadataLoader(scmExtension, pluginManager);
 
         verify(pluginManager).addPluginChangeListener(metadataLoader);
     }
 
     @Test
-    public void shouldFetchMetadataOnPluginLoadedCallback() throws Exception {
+    public void shouldFetchMetadataOnPluginLoadedCallback() {
         SCMMetadataLoader spy = spy(metadataLoader);
         doNothing().when(spy).fetchSCMMetaData(pluginDescriptor);
         when(scmExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(true);
@@ -102,7 +102,7 @@ public class SCMMetadataLoaderTest {
     }
 
     @Test
-    public void shouldNotTryToFetchMetadataOnPluginLoadedCallback() throws Exception {
+    public void shouldNotTryToFetchMetadataOnPluginLoadedCallback() {
         SCMMetadataLoader spy = spy(metadataLoader);
         when(scmExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(false);
 
@@ -112,7 +112,7 @@ public class SCMMetadataLoaderTest {
     }
 
     @Test
-    public void shouldRemoveMetadataOnPluginUnLoadedCallback() throws Exception {
+    public void shouldRemoveMetadataOnPluginUnLoadedCallback() {
         SCMMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), new SCMConfigurations(), createSCMView(null, null));
         when(scmExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(true);
 
@@ -123,7 +123,7 @@ public class SCMMetadataLoaderTest {
     }
 
     @Test
-    public void shouldNotTryRemoveMetadataOnPluginUnLoadedCallback() throws Exception {
+    public void shouldNotTryRemoveMetadataOnPluginUnLoadedCallback() {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
         SCMView scmView = createSCMView(null, null);
         SCMMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), scmConfigurations, scmView);

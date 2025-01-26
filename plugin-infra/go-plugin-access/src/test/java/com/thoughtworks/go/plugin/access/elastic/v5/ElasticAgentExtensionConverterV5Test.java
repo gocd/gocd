@@ -52,7 +52,7 @@ public class ElasticAgentExtensionConverterV5Test {
     private Map<String, String> clusterProfile;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         clusterProfile = Map.of("key", "value");
         jobIdentifier = new JobIdentifier("test-pipeline", 1, "Test Pipeline", "test-stage", "1", "test-job");
         jobIdentifier.setBuildId(100L);
@@ -71,7 +71,7 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldJSONizeCreateAgentRequestBody() throws Exception {
+    public void shouldJSONizeCreateAgentRequestBody() {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
@@ -96,7 +96,7 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldJSONizeShouldAssignWorkRequestBody() throws Exception {
+    public void shouldJSONizeShouldAssignWorkRequestBody() {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
         Map<String, String> clusterProfileProperties = new HashMap<>();
@@ -119,7 +119,7 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldJSONizeJobCompletionRequestBody() throws Exception {
+    public void shouldJSONizeJobCompletionRequestBody() {
         Map<String, String> elasticProfileConfiguration = new HashMap<>();
         elasticProfileConfiguration.put("property_name", "property_value");
         Map<String, String> clusterProfileConfiguration = new HashMap<>();
@@ -142,7 +142,7 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldJSONizeServerPingRequestBody() throws Exception {
+    public void shouldJSONizeServerPingRequestBody() {
         Map<String, String> clusterProfileConfiguration1 = new HashMap<>();
         clusterProfileConfiguration1.put("property_name", "property_value");
         Map<String, String> clusterProfileConfiguration2 = new HashMap<>();
@@ -166,7 +166,7 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenElasticAgentIdIsProvided() throws Exception {
+    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenElasticAgentIdIsProvided() {
         String elasticAgentId = "my-fancy-elastic-agent-id";
         String actual = new ElasticAgentExtensionConverterV5().getAgentStatusReportRequestBody(null, elasticAgentId, clusterProfile);
         String expected = format("{" +
@@ -180,7 +180,7 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenJobIdentifierIsProvided() throws Exception {
+    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenJobIdentifierIsProvided() {
         String actual = new ElasticAgentExtensionConverterV5().getAgentStatusReportRequestBody(jobIdentifier, null, clusterProfile);
         String expected = """
                 {  "job_identifier": {
@@ -198,7 +198,7 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldJSONizeClusterStatusReportRequestBody() throws Exception {
+    public void shouldJSONizeClusterStatusReportRequestBody() {
         String actual = new ElasticAgentExtensionConverterV5().getClusterStatusReportRequestBody(Map.of("key1", "value1"));
         String expected = "{" +
                 "   \"cluster_profile_properties\":{" +

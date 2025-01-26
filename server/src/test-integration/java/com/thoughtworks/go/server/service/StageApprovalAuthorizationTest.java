@@ -54,12 +54,12 @@ public class StageApprovalAuthorizationTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         CONFIG_HELPER.onTearDown();
     }
 
     @Test
-    public void shouldAuthorizeIfUserIsInApprovalList() throws Exception {
+    public void shouldAuthorizeIfUserIsInApprovalList() {
         CONFIG_HELPER.addSecurityWithAdminConfig();
         StageConfig stage = StageConfigMother.custom("ft", authConfigWithUserJez);
         PipelineConfig pipeline = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, stage);
@@ -68,7 +68,7 @@ public class StageApprovalAuthorizationTest {
     }
 
     @Test
-    public void shouldAuthorizeIfRoleIsInApprovalList() throws Exception {
+    public void shouldAuthorizeIfRoleIsInApprovalList() {
         CONFIG_HELPER.addSecurityWithAdminConfig();
         CONFIG_HELPER.addRole(new RoleConfig(new CaseInsensitiveString("adminRole"), new RoleUser(new CaseInsensitiveString("tester"))));
 
@@ -80,7 +80,7 @@ public class StageApprovalAuthorizationTest {
     }
 
     @Test
-    public void shouldUsePipelineGroupAuthorizationIfNoStageAuthorizationDefined() throws Exception {
+    public void shouldUsePipelineGroupAuthorizationIfNoStageAuthorizationDefined() {
         CONFIG_HELPER.addSecurityWithAdminConfig();
         CONFIG_HELPER.setOperatePermissionForGroup(DEFAULT_GROUP, "user1");
 
@@ -89,7 +89,7 @@ public class StageApprovalAuthorizationTest {
     }
 
     @Test
-    public void stageAuthorizationShouldOverrideGroupAuthorization() throws Exception {
+    public void stageAuthorizationShouldOverrideGroupAuthorization() {
         CONFIG_HELPER.addSecurityWithAdminConfig();
         CONFIG_HELPER.setOperatePermissionForGroup(DEFAULT_GROUP, "user1", "jez");
         CONFIG_HELPER.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "jez");
@@ -99,7 +99,7 @@ public class StageApprovalAuthorizationTest {
     }
 
     @Test
-    public void shouldUseStageAuthorizationForFirstStage() throws Exception {
+    public void shouldUseStageAuthorizationForFirstStage() {
         CONFIG_HELPER.addSecurityWithAdminConfig();
         CONFIG_HELPER.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "jez");
 
@@ -108,7 +108,7 @@ public class StageApprovalAuthorizationTest {
     }
 
     @Test
-    public void shouldNotAuthorizeIfUserIsNotDefinedInApprovalList() throws Exception {
+    public void shouldNotAuthorizeIfUserIsNotDefinedInApprovalList() {
         CONFIG_HELPER.addSecurityWithAdminConfig();
         StageConfig stage = StageConfigMother.custom("ft", authConfigWithUserJez);
         PipelineConfig pipeline = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, stage);
@@ -117,7 +117,7 @@ public class StageApprovalAuthorizationTest {
     }
 
     @Test
-    public void shouldAuthorizeIfSecurityIsTurnedOff() throws Exception {
+    public void shouldAuthorizeIfSecurityIsTurnedOff() {
         StageConfig stage = StageConfigMother.custom("ft", authConfigWithUserJez);
         PipelineConfig pipeline = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, stage);
 
@@ -125,7 +125,7 @@ public class StageApprovalAuthorizationTest {
     }
 
     @Test
-    public void shouldAuthorizeUserCruiseIfUserIsAuthorisedToOperateAutoStage() throws Exception {
+    public void shouldAuthorizeUserCruiseIfUserIsAuthorisedToOperateAutoStage() {
         CONFIG_HELPER.addSecurityWithAdminConfig();
         CONFIG_HELPER.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "cruise");
         StageConfig stage = StageConfigMother.custom("ft", new Approval(new AuthConfig(new AdminUser(new CaseInsensitiveString("cruise")))));

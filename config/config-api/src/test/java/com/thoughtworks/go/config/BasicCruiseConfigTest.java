@@ -68,7 +68,7 @@ import static org.mockito.Mockito.when;
 public class BasicCruiseConfigTest extends CruiseConfigTestBase {
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         pipelines = new BasicPipelineConfigs("existing_group", new Authorization());
         cruiseConfig = new BasicCruiseConfig(pipelines);
         goConfigMother = new GoConfigMother();
@@ -144,7 +144,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
 
 
     @Test
-    public void shouldGetPipelinesWithGroupName() throws Exception {
+    public void shouldGetPipelinesWithGroupName() {
         PipelineConfigs group1 = createGroup("group1", createPipelineConfig("pipeline1", "stage1"));
         PipelineConfigs group2 = createGroup("group2", createPipelineConfig("pipeline2", "stage2"));
         CruiseConfig config = createCruiseConfig();

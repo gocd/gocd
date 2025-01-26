@@ -64,7 +64,7 @@ public class IgnoredFilesTest {
     }
 
     @Test
-    public void shouldIncludeWhenTextIsNotDocumentInChildOfRootFolder() throws Exception {
+    public void shouldIncludeWhenTextIsNotDocumentInChildOfRootFolder() {
         IgnoredFiles ignore = new IgnoredFiles("*/*.doc");
 
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "a.doc")).isFalse();
@@ -73,7 +73,7 @@ public class IgnoredFilesTest {
 
 
     @Test
-    public void shouldIgnoreWhenTextIsDocumentInChildOfRootFolder() throws Exception {
+    public void shouldIgnoreWhenTextIsDocumentInChildOfRootFolder() {
         IgnoredFiles ignore = new IgnoredFiles("*/*.doc");
 
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "A" + separator + "a.doc")).isTrue();
@@ -81,7 +81,7 @@ public class IgnoredFilesTest {
     }
 
     @Test
-    public void shouldNormalizeRegex() throws Exception {
+    public void shouldNormalizeRegex() {
         IgnoredFiles ignore = new IgnoredFiles("*\\*.doc");
 
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "A" + separator + "a.doc")).isTrue();
@@ -90,7 +90,7 @@ public class IgnoredFilesTest {
 
 
     @Test
-    public void shouldIncludeWhenTextIsNotADocumentInAnyFolder() throws Exception {
+    public void shouldIncludeWhenTextIsNotADocumentInAnyFolder() {
         IgnoredFiles ignore = new IgnoredFiles("**/*.doc");
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "a.pdf")).isFalse();
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "B" + separator + "a.pdf")).isFalse();
@@ -98,7 +98,7 @@ public class IgnoredFilesTest {
     }
 
     @Test
-    public void shouldIgnoreWhenTextIsADocumentInAnyFolder() throws Exception {
+    public void shouldIgnoreWhenTextIsADocumentInAnyFolder() {
         IgnoredFiles ignore = new IgnoredFiles("**/*.doc");
 
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "a.doc")).isTrue();
@@ -107,7 +107,7 @@ public class IgnoredFilesTest {
     }
 
     @Test
-    public void shouldIgnoreWhenTextIsADocumentInAnyFolderWhenDirectoryWildcardNotInTheBegining() throws Exception {
+    public void shouldIgnoreWhenTextIsADocumentInAnyFolderWhenDirectoryWildcardNotInTheBegining() {
         IgnoredFiles ignore = new IgnoredFiles("foo*/**/*.doc");
 
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "foo-hi/bar/a.doc")).isTrue();
@@ -115,7 +115,7 @@ public class IgnoredFilesTest {
     }
 
     @Test
-    public void shouldIgnoreWhenTextIsADocumentInAnyFolderWhenDirectoryWildcardNotInTheBeginingAndTerminatesInWildcard() throws Exception {
+    public void shouldIgnoreWhenTextIsADocumentInAnyFolderWhenDirectoryWildcardNotInTheBeginingAndTerminatesInWildcard() {
         IgnoredFiles ignore = new IgnoredFiles("**/foo*/**/*");
 
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "foo-hi/bar/a.doc")).isTrue();
@@ -124,7 +124,7 @@ public class IgnoredFilesTest {
     }
 
     @Test
-    public void shouldIncludeIfTheTextIsNotADocumentInTheSpecifiedFolder() throws Exception {
+    public void shouldIncludeIfTheTextIsNotADocumentInTheSpecifiedFolder() {
         IgnoredFiles ignore = new IgnoredFiles("ROOTFOLDER/*.doc");
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "shouldNotBeIgnored.doc")).isFalse();
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "ANYFOLDER" + separator + "shouldNotBeIgnored.doc")).isFalse();
@@ -133,13 +133,13 @@ public class IgnoredFilesTest {
     }
 
     @Test
-    public void shouldIncludIgnoreIfTextIsADocumentInTheSpecifiedFolder() throws Exception {
+    public void shouldIncludIgnoreIfTextIsADocumentInTheSpecifiedFolder() {
         IgnoredFiles ignore = new IgnoredFiles("ROOTFOLDER/*.doc");
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "ROOTFOLDER" + separator + "a.doc")).isTrue();
     }
 
     @Test
-    public void shouldIncludeIfTextIsNotUnderAGivenFolder() throws Exception {
+    public void shouldIncludeIfTextIsNotUnderAGivenFolder() {
         IgnoredFiles ignore = new IgnoredFiles("**/DocumentFolder/*");
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "A" + separator + "shouldNotBeIgnored.doc")).isFalse();
         assertThat(ignore.shouldIgnore(hgMaterialConfig,
@@ -147,26 +147,26 @@ public class IgnoredFilesTest {
     }
 
     @Test
-    public void shouldIgnoreIfTextIsUnderAGivenFolder() throws Exception {
+    public void shouldIgnoreIfTextIsUnderAGivenFolder() {
         IgnoredFiles ignore = new IgnoredFiles("**/DocumentFolder/*");
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "A" + separator + "DocumentFolder" + separator + "d.doc")).isTrue();
     }
 
     @Test
-    public void shouldIncludeIfTextIsNotUnderAFolderMatchingTheGivenFolder() throws Exception {
+    public void shouldIncludeIfTextIsNotUnderAFolderMatchingTheGivenFolder() {
         IgnoredFiles ignore = new IgnoredFiles("**/*Test*/*");
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "A" + separator + "shouldNotBeIgnored.doc")).isFalse();
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "B/NotIgnored" + separator + "isIgnored")).isFalse();
     }
 
     @Test
-    public void shouldIgnoreIfTextIsUnderAFolderMatchingTheGivenFolder() throws Exception {
+    public void shouldIgnoreIfTextIsUnderAFolderMatchingTheGivenFolder() {
         IgnoredFiles ignore = new IgnoredFiles("**/*Test*/*");
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "B" + separator + "SomethingTestThis" + separator + "isIgnored")).isEqualTo(true);
     }
 
     @Test
-    public void shouldIgnoreEverythingUnderAFolderWithWildcards() throws Exception {
+    public void shouldIgnoreEverythingUnderAFolderWithWildcards() {
         IgnoredFiles ignore = new IgnoredFiles("Test/**/*.*");
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "Test" + separator + "foo.txt")).isTrue();
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "Test" + separator + "subdir" + separator + "foo.txt")).isTrue();
@@ -175,7 +175,7 @@ public class IgnoredFilesTest {
     }
 
     @Test
-    public void shouldIgnoreEverythingUnderAFolderWithWildcardsWithoutExtension() throws Exception {
+    public void shouldIgnoreEverythingUnderAFolderWithWildcardsWithoutExtension() {
         IgnoredFiles ignore = new IgnoredFiles("Test/**/*");
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "Test" + separator + "foo.txt")).isTrue();
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "Test" + separator + "subdir" + separator + "foo.txt")).isTrue();
@@ -184,7 +184,7 @@ public class IgnoredFilesTest {
     }
 
     @Test
-    public void shouldSkipDiot() throws Exception {
+    public void shouldSkipDiot() {
         IgnoredFiles ignore = new IgnoredFiles("helper/*.*");
 
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "helper" + separator + "configuration_reference.html")).isTrue();

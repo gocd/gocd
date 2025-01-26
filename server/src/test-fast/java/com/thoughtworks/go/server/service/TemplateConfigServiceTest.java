@@ -231,7 +231,7 @@ public class TemplateConfigServiceTest {
     }
 
     @Test
-    public void shouldPopulateErrorInResultOnFailure() throws Exception {
+    public void shouldPopulateErrorInResultOnFailure() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username user = new Username(new CaseInsensitiveString("user"));
         String templateName = "template-name";

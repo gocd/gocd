@@ -40,7 +40,7 @@ public class ParamResolverTest {
     private ClassAttributeCache.FieldCache fieldCache;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         fieldCache = new ClassAttributeCache.FieldCache();
     }
 

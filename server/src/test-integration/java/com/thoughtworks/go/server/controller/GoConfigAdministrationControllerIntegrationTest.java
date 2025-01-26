@@ -69,7 +69,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     }
 
     @AfterEach
-    public void teardown() throws Exception {
+    public void teardown() {
         configHelper.onTearDown();
     }
 

@@ -90,7 +90,7 @@ public class PluginServiceTest {
     private final String elasticAgentPluginId = "cd.go.elastic-agent.docker";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         currentUser = new Username("bob");
 
         lenient().when(authorizationExtension.extensionName()).thenReturn(AUTHORIZATION_EXTENSION);
@@ -101,7 +101,7 @@ public class PluginServiceTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         PluginSettingsMetadataStore.getInstance().clear();
     }
 

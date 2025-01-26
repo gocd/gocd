@@ -33,7 +33,7 @@ public class EmailNotificationListenerTest {
     public EmailNotificationListener emailNotificationListener;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         goConfigService = mock(GoConfigService.class);
         goMailSenderFactory = mock(EmailNotificationListener.GoMailSenderFactory.class);
         emailNotificationListener = new EmailNotificationListener(goConfigService, goMailSenderFactory);

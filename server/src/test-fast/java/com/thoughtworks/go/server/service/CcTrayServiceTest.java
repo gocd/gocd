@@ -48,12 +48,12 @@ public class CcTrayServiceTest {
     private CcTrayService ccTrayService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         ccTrayService = new CcTrayService(ccTrayCache, goConfigService);
     }
 
     @Test
-    public void shouldGenerateCcTrayXMLForAnyUserWhenSecurityIsDisabled() throws Exception {
+    public void shouldGenerateCcTrayXMLForAnyUserWhenSecurityIsDisabled() {
         when(goConfigService.isSecurityEnabled()).thenReturn(false);
         when(ccTrayCache.allEntriesInOrder()).thenReturn(List.of(statusFor("proj1", "user1"), statusFor("proj2", "user1")));
         loginAs("other_user");
@@ -65,7 +65,7 @@ public class CcTrayServiceTest {
     }
 
     @Test
-    public void shouldGenerateCcTrayXMLForCurrentUserWhenSecurityIsEnabled() throws Exception {
+    public void shouldGenerateCcTrayXMLForCurrentUserWhenSecurityIsEnabled() {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(ccTrayCache.allEntriesInOrder()).thenReturn(List.of(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
@@ -81,7 +81,7 @@ public class CcTrayServiceTest {
     }
 
     @Test
-    public void shouldGenerateEmptyCcTrayXMLWhenCurrentUserIsNotAuthorizedToViewAnyProjects() throws Exception {
+    public void shouldGenerateEmptyCcTrayXMLWhenCurrentUserIsNotAuthorizedToViewAnyProjects() {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(ccTrayCache.allEntriesInOrder()).thenReturn(List.of(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
@@ -92,7 +92,7 @@ public class CcTrayServiceTest {
     }
 
     @Test
-    public void shouldAllowSiteURLPrefixToBeChangedPerCall() throws Exception {
+    public void shouldAllowSiteURLPrefixToBeChangedPerCall() {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(ccTrayCache.allEntriesInOrder()).thenReturn(List.of(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
@@ -108,7 +108,7 @@ public class CcTrayServiceTest {
     }
 
     @Test
-    public void shouldNotAppendNewLinesForNullProjectStatusesInList() throws Exception {
+    public void shouldNotAppendNewLinesForNullProjectStatusesInList() {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(ccTrayCache.allEntriesInOrder()).thenReturn(List.of(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))));
 
@@ -124,7 +124,7 @@ public class CcTrayServiceTest {
     }
 
     @Test
-    public void shouldChangeEtagIfSitePrefixChanges() throws Exception {
+    public void shouldChangeEtagIfSitePrefixChanges() {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(ccTrayCache.allEntriesInOrder()).thenReturn(List.of(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))));
 
@@ -139,7 +139,7 @@ public class CcTrayServiceTest {
     }
 
     @Test
-    public void shouldChangeEtagIfProjectStatusChanges() throws Exception {
+    public void shouldChangeEtagIfProjectStatusChanges() {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(ccTrayCache.allEntriesInOrder())
                 .thenReturn(List.of(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))))
@@ -156,7 +156,7 @@ public class CcTrayServiceTest {
         assertThat(originalXML).isNotEqualTo(newXML);
     }
 
-    private ProjectStatus statusFor(String projectName, String... allowedUsers) throws Exception {
+    private ProjectStatus statusFor(String projectName, String... allowedUsers) {
         ProjectStatus status = new ProjectStatus(projectName, "activity1", "build-status-1", "build-label-1", DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url");
         status.updateViewers(viewers(allowedUsers));
         return status;

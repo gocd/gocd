@@ -195,7 +195,7 @@ public class RescheduleJobTest {
 
     @Test
     // #2882
-    public void rescheduleShouldNotDuplicateResourcesEtc() throws Exception {
+    public void rescheduleShouldNotDuplicateResourcesEtc() {
         JobInstance job = scheduledJob();
         JobPlan oldPlan = loadJobPlan(job);
 
@@ -210,7 +210,7 @@ public class RescheduleJobTest {
         return dbHelper.getBuildInstanceDao().loadPlan(job.getId());
     }
 
-    private JobInstance scheduledJob() throws SQLException {
+    private JobInstance scheduledJob() {
         JobInstance hungJob = stage.getJobInstances().get(0);
         return jobInstanceService.buildByIdWithTransitions(hungJob.getId());
     }

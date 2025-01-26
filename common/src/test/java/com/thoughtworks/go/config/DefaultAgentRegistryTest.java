@@ -30,7 +30,7 @@ public class DefaultAgentRegistryTest {
     private TokenService tokenService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         agentRegistry = new DefaultAgentRegistry();
         guidService = new GuidService();
         tokenService = new TokenService();
@@ -40,7 +40,7 @@ public class DefaultAgentRegistryTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         guidService.delete();
         tokenService.delete();
     }

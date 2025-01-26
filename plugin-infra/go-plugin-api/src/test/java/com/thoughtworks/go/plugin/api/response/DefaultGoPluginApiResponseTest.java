@@ -22,28 +22,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultGoPluginApiResponseTest {
 
     @Test
-    public void shouldReturnResponseForBadRequest() throws Exception {
+    public void shouldReturnResponseForBadRequest() {
         DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.badRequest("responseBody");
         assertThat(response.responseCode()).isEqualTo(400);
         assertThat(response.responseBody()).isEqualTo("responseBody");
     }
 
     @Test
-    public void shouldReturnResponseForIncompleteRequest() throws Exception {
+    public void shouldReturnResponseForIncompleteRequest() {
         DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.incompleteRequest("responseBody");
         assertThat(response.responseCode()).isEqualTo(412);
         assertThat(response.responseBody()).isEqualTo("responseBody");
     }
 
     @Test
-    public void shouldReturnResponseForErrorRequest() throws Exception {
+    public void shouldReturnResponseForErrorRequest() {
         DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.error("responseBody");
         assertThat(response.responseCode()).isEqualTo(500);
         assertThat(response.responseBody()).isEqualTo("responseBody");
     }
 
     @Test
-    public void shouldReturnResponseForSuccessRequest() throws Exception {
+    public void shouldReturnResponseForSuccessRequest() {
         DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.success("responseBody");
         assertThat(response.responseCode()).isEqualTo(200);
         assertThat(response.responseBody()).isEqualTo("responseBody");

@@ -93,12 +93,12 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         cachedGoPartials.clear();
     }
 
     @Test
-    public void shouldLoadACRPipelineWithParams() throws Exception {
+    public void shouldLoadACRPipelineWithParams() {
         ParamsConfig paramConfigs = new ParamsConfig(new ParamConfig("foo", "foo"));
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
 
@@ -107,7 +107,7 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
     }
 
     @Test
-    public void shouldLoadACRPipelineReferencingATemplateWithParams() throws Exception {
+    public void shouldLoadACRPipelineReferencingATemplateWithParams() {
         ParamsConfig paramConfigs = new ParamsConfig(new ParamConfig("param1", "foo"));
         CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
 

@@ -35,7 +35,7 @@ public class ConfigRepositoryGCWarningServiceTest {
     private ConfigRepositoryGCWarningService service;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         configRepository = mock(ConfigRepository.class);
         serverHealthService = new ServerHealthService();
         systemEnvironment = mock(SystemEnvironment.class);

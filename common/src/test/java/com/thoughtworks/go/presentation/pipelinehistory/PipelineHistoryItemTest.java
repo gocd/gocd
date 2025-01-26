@@ -23,25 +23,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PipelineHistoryItemTest {
 
     @Test
-    public void shouldReturnFalseForEmptyPipelineHistory() throws Exception {
+    public void shouldReturnFalseForEmptyPipelineHistory() {
         PipelineInstanceModel emptyOne = PipelineInstanceModel.createEmptyModel();
         assertThat(emptyOne.hasPreviousStageBeenScheduled("stage1")).isFalse();
     }
 
     @Test
-    public void shouldReturnTrueForFirstStage() throws Exception {
+    public void shouldReturnTrueForFirstStage() {
         assertThat(PipelineInstanceModelMother.custom("stage1").hasPreviousStageBeenScheduled("stage1")).isTrue();
         assertThat(PipelineInstanceModelMother.custom("stage1", "stage2").hasPreviousStageBeenScheduled("stage1")).isEqualTo(true);
     }
 
     @Test
-    public void shouldCheckIfPreviousStageInstanceExist() throws Exception {
+    public void shouldCheckIfPreviousStageInstanceExist() {
         PipelineInstanceModel twoStages = PipelineInstanceModelMother.custom("stage1", "stage2");
         assertThat(twoStages.hasPreviousStageBeenScheduled("stage2")).isTrue();
     }
 
     @Test
-    public void shouldReturnFalseIfPreviousStageHasNotBeenScheduled() throws Exception {
+    public void shouldReturnFalseIfPreviousStageHasNotBeenScheduled() {
         PipelineInstanceModel twoStages = PipelineInstanceModelMother.custom(new NullStageHistoryItem("stage1"),
                 new StageInstanceModel("stage2", "1", new JobHistory()));
         assertThat(twoStages.hasPreviousStageBeenScheduled("stage2")).isFalse();

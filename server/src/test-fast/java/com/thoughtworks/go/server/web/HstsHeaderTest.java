@@ -29,12 +29,12 @@ public class HstsHeaderTest {
     private SystemEnvironment systemEnvironment;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         systemEnvironment = new SystemEnvironment();
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         systemEnvironment.clearProperty("gocd.enable.hsts.header");
         systemEnvironment.clearProperty("gocd.hsts.header.max.age");
         systemEnvironment.clearProperty("gocd.hsts.header.include.subdomains");

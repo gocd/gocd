@@ -26,12 +26,12 @@ public class ParamStateMachineTest {
     private ParamHandler handler;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         handler = mock(ParamHandler.class);
     }
 
     @Test
-    public void shouldClearPatternWhenFound() throws Exception {
+    public void shouldClearPatternWhenFound() {
         ParamStateMachine stateMachine = new ParamStateMachine();
         stateMachine.process("#{pattern}", handler);
 
@@ -40,7 +40,7 @@ public class ParamStateMachineTest {
     }
 
     @Test
-    public void shouldClearPatternWhenParameterCannotBeResolved() throws Exception {
+    public void shouldClearPatternWhenParameterCannotBeResolved() {
         ParamStateMachine stateMachine = new ParamStateMachine();
         doThrow(new IllegalStateException()).when(handler).handlePatternFound(any(StringBuilder.class));
 

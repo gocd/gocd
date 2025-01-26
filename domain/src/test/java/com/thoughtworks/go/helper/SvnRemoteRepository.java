@@ -88,7 +88,7 @@ public class SvnRemoteRepository {
         FileUtils.writeStringToFile(confFile, passwd, UTF_8);
     }
 
-    public void stop() throws Exception {
+    public void stop() {
         if (processWrapper != null) {
             Process process = ReflectionUtil.getField(processWrapper, "process");
             process.descendants().forEach(ProcessHandle::destroy);

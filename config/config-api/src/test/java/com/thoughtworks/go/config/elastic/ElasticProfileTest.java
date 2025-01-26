@@ -49,7 +49,7 @@ public class ElasticProfileTest {
     private BasicCruiseConfig config;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pluginId = "cd.go.elastic-agent.docker-swarm";
         clusterProfileId = "prod-cluster";
         config = new BasicCruiseConfig();
@@ -58,12 +58,12 @@ public class ElasticProfileTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         store.clear();
     }
 
     @Test
-    public void shouldNotAllowNullId() throws Exception {
+    public void shouldNotAllowNullId() {
         ElasticProfile profile = new ElasticProfile();
 
         profile.validate(validationContext);
@@ -71,7 +71,7 @@ public class ElasticProfileTest {
     }
 
     @Test
-    public void shouldVerifyExistenceOfReferencedClusterProfile() throws Exception {
+    public void shouldVerifyExistenceOfReferencedClusterProfile() {
         ElasticProfile profile = new ElasticProfile("foo", "non-existing-cluster");
 
         profile.validate(validationContext);
@@ -79,7 +79,7 @@ public class ElasticProfileTest {
     }
 
     @Test
-    public void shouldValidateElasticPluginIdPattern() throws Exception {
+    public void shouldValidateElasticPluginIdPattern() {
         ElasticProfile profile = new ElasticProfile("!123", "prod-cluster");
         profile.validate(null);
         assertThat(profile.errors().size()).isEqualTo(1);
@@ -87,7 +87,7 @@ public class ElasticProfileTest {
     }
 
     @Test
-    public void shouldValidateConfigPropertyNameUniqueness() throws Exception {
+    public void shouldValidateConfigPropertyNameUniqueness() {
         ConfigurationProperty prop1 = ConfigurationPropertyMother.create("USERNAME");
         ConfigurationProperty prop2 = ConfigurationPropertyMother.create("USERNAME");
         ElasticProfile profile = new ElasticProfile("docker.unit-test", "prod-cluster", prop1, prop2);
@@ -114,7 +114,7 @@ public class ElasticProfileTest {
     }
 
     @Test
-    public void addConfigurations_shouldAddConfigurationsWithValue() throws Exception {
+    public void addConfigurations_shouldAddConfigurationsWithValue() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name"));
 
         ElasticProfile profile = new ElasticProfile("id", "prod-cluster");
@@ -125,7 +125,7 @@ public class ElasticProfileTest {
     }
 
     @Test
-    public void addConfigurations_shouldAddConfigurationsWithEncryptedValue() throws Exception {
+    public void addConfigurations_shouldAddConfigurationsWithEncryptedValue() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name"));
 
         ElasticProfile profile = new ElasticProfile("id", "prod-cluster");
@@ -136,7 +136,7 @@ public class ElasticProfileTest {
     }
 
     @Test
-    public void addConfiguration_shouldIgnoreEncryptionInAbsenceOfCorrespondingConfigurationInStore() throws Exception {
+    public void addConfiguration_shouldIgnoreEncryptionInAbsenceOfCorrespondingConfigurationInStore() {
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), new PluggableInstanceSettings(new ArrayList<>()), null, null, null, null);
 
         store.setPluginInfo(pluginInfo);

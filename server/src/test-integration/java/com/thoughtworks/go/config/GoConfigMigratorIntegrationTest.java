@@ -997,7 +997,7 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void shouldAddTokenGenerationKeyAttributeOnServerAsPartOf99To100Migration() throws Exception {
+    public void shouldAddTokenGenerationKeyAttributeOnServerAsPartOf99To100Migration() {
         try {
             String configXml = """
                     <cruise schemaVersion='99'><server artifactsdir="artifacts" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" webhookSecret="5f8b5eac-1148-4145-aa01-7b2934b6e1ab" commandRepositoryLocation="default" serverId="dev-id">

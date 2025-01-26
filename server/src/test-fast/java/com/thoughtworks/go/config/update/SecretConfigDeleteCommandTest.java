@@ -36,7 +36,7 @@ public class SecretConfigDeleteCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 

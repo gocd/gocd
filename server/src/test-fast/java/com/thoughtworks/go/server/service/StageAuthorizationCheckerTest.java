@@ -31,7 +31,7 @@ public class StageAuthorizationCheckerTest {
     private SecurityService securityService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         securityService = mock(SecurityService.class);
         pipelineName = "cruise";
         stageName = "dev";

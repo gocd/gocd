@@ -43,7 +43,7 @@ public class ExecTaskTest {
     }
 
     @Test
-    public void shouldNotSupportArgsAttributeWithArgSubElement() throws Exception {
+    public void shouldNotSupportArgsAttributeWithArgSubElement() {
         String jobXml = """
                 <job name='dev'>
                   <tasks>
@@ -74,7 +74,7 @@ public class ExecTaskTest {
     }
 
     @Test
-    public void shouldUseConfiguredWorkingDirectory() throws Exception {
+    public void shouldUseConfiguredWorkingDirectory() {
         File absoluteFile = new File("test").getAbsoluteFile();
         ExecTask task = new ExecTask("command", "arguments", absoluteFile.getAbsolutePath());
 

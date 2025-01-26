@@ -51,7 +51,7 @@ public class MaterialCheckerTest {
     private MaterialChecker materialChecker;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         materialRepository = mock(MaterialRepository.class);
         mockMaterial = mock(ScmMaterial.class);
         materialChecker = new MaterialChecker(materialRepository);

@@ -39,7 +39,7 @@ public class FeatureToggleServiceTest {
     private GoCache goCache;
 
     @Test
-    public void shouldListAllFeatureToggles() throws Exception {
+    public void shouldListAllFeatureToggles() {
         FeatureToggles existingToggles = new FeatureToggles(
                 new FeatureToggle("key1", "description1", true),
                 new FeatureToggle("key2", "description2", false)
@@ -54,7 +54,7 @@ public class FeatureToggleServiceTest {
     }
 
     @Test
-    public void shouldKnowWhetherAToggleIsOnOrOff() throws Exception {
+    public void shouldKnowWhetherAToggleIsOnOrOff() {
         FeatureToggles existingToggles = new FeatureToggles(
                 new FeatureToggle("key1", "description1", true),
                 new FeatureToggle("key2", "description2", false)
@@ -70,7 +70,7 @@ public class FeatureToggleServiceTest {
     }
 
     @Test
-    public void shouldSayThatNonExistentTogglesAreOff() throws Exception {
+    public void shouldSayThatNonExistentTogglesAreOff() {
         FeatureToggles existingToggles = new FeatureToggles(
                 new FeatureToggle("key1", "description1", true),
                 new FeatureToggle("key2", "description2", false)
@@ -85,7 +85,7 @@ public class FeatureToggleServiceTest {
     }
 
     @Test
-    public void honorTogglesDefinedInInUserTogglesEvenIfNotEnumeratedInAvailableToggles() throws Exception {
+    public void honorTogglesDefinedInInUserTogglesEvenIfNotEnumeratedInAvailableToggles() {
         FeatureToggles existingToggles = new FeatureToggles(
                 new FeatureToggle("key1", "description1", true),
                 new FeatureToggle("key2", "description2", false)
@@ -101,7 +101,7 @@ public class FeatureToggleServiceTest {
     }
 
     @Test
-    public void shouldOverrideAvailableToggleValuesWithValuesFromUsersToggles() throws Exception {
+    public void shouldOverrideAvailableToggleValuesWithValuesFromUsersToggles() {
         FeatureToggle availableToggle1 = new FeatureToggle("key1", "desc1", true);
         FeatureToggle availableToggle2 = new FeatureToggle("key2", "desc2", true);
         FeatureToggle availableToggle3 = new FeatureToggle("key3", "desc3", true);
@@ -121,7 +121,7 @@ public class FeatureToggleServiceTest {
     }
 
     @Test
-    public void shouldAllowChangingValueOfAValidFeatureToggle() throws Exception {
+    public void shouldAllowChangingValueOfAValidFeatureToggle() {
         FeatureToggle availableToggle1 = new FeatureToggle("key1", "desc1", true);
         when(repository.availableToggles()).thenReturn(new FeatureToggles(availableToggle1));
         when(repository.userToggles()).thenReturn(new FeatureToggles());
@@ -133,7 +133,7 @@ public class FeatureToggleServiceTest {
     }
 
     @Test
-    public void shouldNotAllowChangingValueOfAnInvalidFeatureToggle() throws Exception {
+    public void shouldNotAllowChangingValueOfAnInvalidFeatureToggle() {
         FeatureToggle availableToggle1 = new FeatureToggle("key1", "desc1", true);
         when(repository.availableToggles()).thenReturn(new FeatureToggles(availableToggle1));
         when(repository.userToggles()).thenReturn(new FeatureToggles());
@@ -149,7 +149,7 @@ public class FeatureToggleServiceTest {
     }
 
     @Test
-    public void shouldCacheFeatureToggleStatus() throws Exception {
+    public void shouldCacheFeatureToggleStatus() {
         when(repository.availableToggles()).thenReturn(new FeatureToggles(new FeatureToggle("key1", "desc1", true)));
         when(repository.userToggles()).thenReturn(new FeatureToggles());
 
@@ -163,7 +163,7 @@ public class FeatureToggleServiceTest {
     }
 
     @Test
-    public void shouldInvalidateCacheWhenAFeatureTogglesValueIsChanged() throws Exception {
+    public void shouldInvalidateCacheWhenAFeatureTogglesValueIsChanged() {
         when(repository.availableToggles()).thenReturn(new FeatureToggles(new FeatureToggle("key1", "desc1", true)));
         when(repository.userToggles()).thenReturn(new FeatureToggles());
 

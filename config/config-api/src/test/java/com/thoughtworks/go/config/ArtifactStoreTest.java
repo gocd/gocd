@@ -40,12 +40,12 @@ public class ArtifactStoreTest {
     private ArtifactMetadataStore store;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         store = ArtifactMetadataStore.instance();
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         store.clear();
     }
 

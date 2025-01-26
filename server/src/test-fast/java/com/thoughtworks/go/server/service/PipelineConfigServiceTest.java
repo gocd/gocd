@@ -50,7 +50,7 @@ public class PipelineConfigServiceTest {
     private ExternalArtifactsService externalArtifactsService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         PipelineConfigs configs = createGroup("group", "pipeline", "in_env");
         downstream(configs);
         cruiseConfig = new BasicCruiseConfig(configs);
@@ -153,7 +153,7 @@ public class PipelineConfigServiceTest {
     }
 
     @Test
-    public void shouldGetAllViewableMergePipelineConfigs() throws Exception {
+    public void shouldGetAllViewableMergePipelineConfigs() {
         CruiseConfig mergedCruiseConfig = GoConfigMother.deepClone(cruiseConfig);
         ReflectionUtil.setField(mergedCruiseConfig, "allPipelineConfigs", null);
         mergedCruiseConfig.addPipeline("group1", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
@@ -178,7 +178,7 @@ public class PipelineConfigServiceTest {
 
 
     @Test
-    public void shouldGetAllViewableGroups() throws Exception {
+    public void shouldGetAllViewableGroups() {
         CruiseConfig cruiseConfig = GoConfigMother.deepClone(this.cruiseConfig);
         ReflectionUtil.setField(cruiseConfig, "allPipelineConfigs", null);
         cruiseConfig.addPipeline("group1", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));

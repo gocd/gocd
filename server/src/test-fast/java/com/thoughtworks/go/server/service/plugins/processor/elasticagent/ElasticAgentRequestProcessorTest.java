@@ -46,7 +46,7 @@ public class ElasticAgentRequestProcessorTest {
     private ElasticAgentRequestProcessor processor;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         final Map<String, VersionableElasticAgentProcessor> processorMap = new HashMap<>();
         processorMap.put("1.0", processorForV1);

@@ -28,7 +28,7 @@ public abstract class PluginSettingsJsonMessageHandlerTestBase {
     protected PluginSettingsJsonMessageHandlerBase messageHandler;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         messageHandler = messageHandler();
     }
 
@@ -36,7 +36,7 @@ public abstract class PluginSettingsJsonMessageHandlerTestBase {
 
 
     @Test
-    public void shouldBuildPluginSettingsConfigurationFromResponseBody() throws Exception {
+    public void shouldBuildPluginSettingsConfigurationFromResponseBody() {
         String responseBody = "{" +
                 "\"key-one\":{}," +
                 "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
@@ -89,7 +89,7 @@ public abstract class PluginSettingsJsonMessageHandlerTestBase {
     }
 
     @Test
-    public void shouldBuildRequestBodyForCheckSCMConfigurationValidRequest() throws Exception {
+    public void shouldBuildRequestBodyForCheckSCMConfigurationValidRequest() {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         configuration.add(new PluginSettingsProperty("key-one", "value-one"));
         configuration.add(new PluginSettingsProperty("key-two", "value-two"));
@@ -100,7 +100,7 @@ public abstract class PluginSettingsJsonMessageHandlerTestBase {
     }
 
     @Test
-    public void shouldBuildValidationResultFromCheckSCMConfigurationValidResponse() throws Exception {
+    public void shouldBuildValidationResultFromCheckSCMConfigurationValidResponse() {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
         ValidationResult validationResult = messageHandler.responseMessageForPluginSettingsValidation(responseBody);
 

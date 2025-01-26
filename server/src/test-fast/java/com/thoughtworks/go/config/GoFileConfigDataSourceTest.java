@@ -79,7 +79,7 @@ public class GoFileConfigDataSourceTest {
     private PartialConfigHelper partials;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         dataSource = new GoFileConfigDataSource(goConfigMigration,
                 configRepository, systemEnvironment, timeProvider, xmlLoader, xmlWriter,
                 cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, goConfigFileWriter, partials);

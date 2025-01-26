@@ -118,7 +118,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         PipelineConfig config;
         Pipeline latest;
 
-        void setup(BuildCause buildCause) throws Exception {
+        void setup(BuildCause buildCause) {
             config = configHelper.addPipeline(MINGLE_PIPELINE_NAME, STAGE_NAME, repository, new Filter(new IgnoredFiles("**/*.doc")), "unit", "functional");
             latest = PipelineMother.schedule(this.config, buildCause);
             latest = pipelineDao.saveWithStages(latest);
@@ -153,7 +153,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         PipelineConfig config;
         Pipeline latest;
 
-        void setup(BuildCause buildCause) throws Exception {
+        void setup(BuildCause buildCause) {
             config = configHelper.addPipeline(GO_PIPELINE_NAME, STAGE_NAME, repository, "unit");
             latest = PipelineMother.schedule(this.config, buildCause);
             latest = pipelineDao.saveWithStages(latest);

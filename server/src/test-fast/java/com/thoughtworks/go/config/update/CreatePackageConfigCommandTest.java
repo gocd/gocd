@@ -63,7 +63,7 @@ public class CreatePackageConfigCommandTest {
     private GoConfigService goConfigService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
         result = new HttpLocalizedOperationResult();
 
@@ -83,7 +83,7 @@ public class CreatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldAddTheSpecifiedPackage() throws Exception {
+    public void shouldAddTheSpecifiedPackage() {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
         assertNull(cruiseConfig.getPackageRepositories().findPackageDefinitionWith(packageId));
         command.update(cruiseConfig);
@@ -91,7 +91,7 @@ public class CreatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() throws Exception {
+    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
@@ -145,7 +145,7 @@ public class CreatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldValidateDuplicatePackageName() throws Exception {
+    public void shouldValidateDuplicatePackageName() {
         PackageRepository repository = cruiseConfig.getPackageRepositories().find(repoId);
         PackageDefinition pkg = new PackageDefinition("Id", "prettyjson", new Configuration());
         pkg.setRepository(repository);
@@ -159,7 +159,7 @@ public class CreatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldValidateDuplicateIdentity() throws Exception {
+    public void shouldValidateDuplicateIdentity() {
         PackageRepository repository = cruiseConfig.getPackageRepositories().find(repoId);
         PackageDefinition pkg = new PackageDefinition("Id", "name", configuration);
         pkg.setRepository(repository);
@@ -173,7 +173,7 @@ public class CreatePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheRepositoryWithSpecifiedRepoIdDoesNotexist() throws Exception {
+    public void shouldNotContinueIfTheRepositoryWithSpecifiedRepoIdDoesNotexist() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         cruiseConfig.setPackageRepositories(new PackageRepositories());
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);

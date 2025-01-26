@@ -41,7 +41,7 @@ public class PluggableTaskBuilderCreatorTest {
     private UpstreamPipelineResolver resolver;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         pluggableTask = new PluggableTask(new PluginConfiguration("test-plugin-id", "13.4"), new Configuration());
         pluggableTaskBuilderCreator = new PluggableTaskBuilderCreator();
         execTaskBuilder = new ExecTaskBuilder();
@@ -55,7 +55,7 @@ public class PluggableTaskBuilderCreatorTest {
     }
 
     @Test
-    public void shouldCreatePluggableTaskBuilder() throws Exception {
+    public void shouldCreatePluggableTaskBuilder() {
         when(builderFactory.builderFor(pluggableTask.cancelTask(), pipeline, resolver)).thenReturn(null);
         Builder builder = pluggableTaskBuilderCreator.createBuilder(builderFactory, pluggableTask, new Pipeline(), resolver);
         assertThat(builder != null).isTrue();
@@ -63,7 +63,7 @@ public class PluggableTaskBuilderCreatorTest {
     }
 
     @Test
-    public void shouldReturnBuilderWithCancelBuilderIfOnCancelDefined() throws Exception {
+    public void shouldReturnBuilderWithCancelBuilderIfOnCancelDefined() {
         ExecTask cancelExecTask = new ExecTask();
         Builder builderForCancelTask = execTaskBuilder.createBuilder(builderFactory, cancelExecTask, pipeline, resolver);
         pluggableTask.setCancelTask(cancelExecTask);
@@ -74,7 +74,7 @@ public class PluggableTaskBuilderCreatorTest {
     }
 
     @Test
-    public void shouldCreateBuilderWithAReasonableDescription() throws Exception {
+    public void shouldCreateBuilderWithAReasonableDescription() {
         Builder builder = pluggableTaskBuilderCreator.createBuilder(builderFactory, pluggableTask, pipeline, resolver);
         assertThat(builder.getDescription()).isEqualTo("Plugin with ID: test-plugin-id");
     }

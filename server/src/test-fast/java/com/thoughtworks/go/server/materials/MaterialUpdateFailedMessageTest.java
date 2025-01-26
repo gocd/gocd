@@ -40,7 +40,7 @@ public class MaterialUpdateFailedMessageTest {
     }
 
     @Test
-    public void shouldNotRepeatMessageAndCauseIfTheContentAreTheSame() throws Exception {
+    public void shouldNotRepeatMessageAndCauseIfTheContentAreTheSame() {
         MaterialUpdateFailedMessage message = new MaterialUpdateFailedMessage(mock(HgMaterial.class), 4, new RuntimeException("some messAGE", new RuntimeException("some messAGE")));
         assertThat(message.getReason()).isEqualTo("some messAGE");
     }

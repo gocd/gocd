@@ -52,7 +52,7 @@ class EnvironmentConfigServiceTest {
     private AgentService agentService;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         mockGoConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
         agentService = mock(AgentService.class);

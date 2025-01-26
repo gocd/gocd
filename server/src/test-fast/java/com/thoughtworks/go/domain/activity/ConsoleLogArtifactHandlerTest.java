@@ -31,7 +31,7 @@ public class ConsoleLogArtifactHandlerTest {
     private JobInstance buildingJobInstance;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         consoleService = mock(ConsoleService.class);
         handler = new ConsoleLogArtifactHandler(consoleService);
         completedJobInstance = JobInstanceMother.completed("job");
@@ -39,28 +39,28 @@ public class ConsoleLogArtifactHandlerTest {
     }
 
     @Test
-    public void shouldMoveConsoleArtifactWhenJobThatIsRunOrRerunCompletes() throws Exception {
+    public void shouldMoveConsoleArtifactWhenJobThatIsRunOrRerunCompletes() {
         completedJobInstance.setOriginalJobId(null);
         handler.jobStatusChanged(completedJobInstance);
         verify(consoleService).moveConsoleArtifacts(completedJobInstance.getIdentifier());
     }
 
     @Test
-    public void shouldNotMoveConsoleArtifactWhenJobCompletedIsWasNotActuallyRunWhenAnotherJobInItsStageWasRerun() throws Exception {
+    public void shouldNotMoveConsoleArtifactWhenJobCompletedIsWasNotActuallyRunWhenAnotherJobInItsStageWasRerun() {
         completedJobInstance.setOriginalJobId(1L);
         handler.jobStatusChanged(completedJobInstance);
         verify(consoleService, never()).moveConsoleArtifacts(buildingJobInstance.getIdentifier());
     }
 
     @Test
-    public void shouldNotMoveConsoleArtifactWhenJobIsACopyIsNotYetCompleted() throws Exception {
+    public void shouldNotMoveConsoleArtifactWhenJobIsACopyIsNotYetCompleted() {
         completedJobInstance.setOriginalJobId(1L);
         handler.jobStatusChanged(buildingJobInstance);
         verify(consoleService, never()).moveConsoleArtifacts(buildingJobInstance.getIdentifier());
     }
 
     @Test
-    public void shouldNotMoveConsoleArtifactWhenJobIsNotYetCompleted() throws Exception {
+    public void shouldNotMoveConsoleArtifactWhenJobIsNotYetCompleted() {
         completedJobInstance.setOriginalJobId(null);
         handler.jobStatusChanged(buildingJobInstance);
         verify(consoleService, never()).moveConsoleArtifacts(buildingJobInstance.getIdentifier());

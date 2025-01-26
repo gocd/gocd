@@ -244,7 +244,7 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldNotMatchWhenMatcherIsNull() throws Exception {
+    public void shouldNotMatchWhenMatcherIsNull() {
         MaterialRevisions materialRevisions = new MaterialRevisions(
             svnMaterialRevision(aCheckIn("100", "README"))
         );
@@ -252,13 +252,13 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldReturnTrueIfOneUsernameMatchesInMutipleModifications() throws Exception {
+    public void shouldReturnTrueIfOneUsernameMatchesInMutipleModifications() {
         MaterialRevisions materialRevisions = multipleModifications();
         assertThat(materialRevisions.containsMyCheckin(new Matcher(MOD_USER_COMMITTER))).isTrue();
     }
 
     @Test
-    public void shouldReturnTrueIfUsernameMatchesInOneOfMaterialRevisions() throws Exception {
+    public void shouldReturnTrueIfUsernameMatchesInOneOfMaterialRevisions() {
         MaterialRevisions materialRevisions = new MaterialRevisions(
             svnMaterialRevision(aCheckIn("100", "test.txt")),
             svnMaterialRevision(oneModifiedFile("revision"))
@@ -267,13 +267,13 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenMatcherIsNotAlphaNumberic() throws Exception {
+    public void shouldReturnFalseWhenMatcherIsNotAlphaNumberic() {
         MaterialRevisions materialRevisions = multipleModifications();
         assertThat(materialRevisions.containsMyCheckin(new Matcher("committer.*"))).isFalse();
     }
 
     @Test
-    public void shouldNotMatchMaterialRevisionsWhenEmailMeIsDisabled() throws Exception {
+    public void shouldNotMatchMaterialRevisionsWhenEmailMeIsDisabled() {
         MaterialRevisions materialRevisions = multipleModifications();
         assertThat(materialRevisions.containsMyCheckin(new Matcher(MOD_USER_COMMITTER))).isTrue();
     }
@@ -304,7 +304,7 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldNotBeSameIfOneMaterialRevisionIsNew() throws Exception {
+    public void shouldNotBeSameIfOneMaterialRevisionIsNew() {
         MaterialRevisions first = new MaterialRevisions(
             svnMaterialRevision(oneModifiedFile("svn revision 2"), oneModifiedFile("svn revision 1")),
             hgMaterialRevision(oneModifiedFile("hg revision 1"))
@@ -317,7 +317,7 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldNotBeSameIfOneMaterialRevisionIsNewAndOldOneHadOnlyOneRevision() throws Exception {
+    public void shouldNotBeSameIfOneMaterialRevisionIsNewAndOldOneHadOnlyOneRevision() {
         MaterialRevisions first = new MaterialRevisions(
             svnMaterialRevision(oneModifiedFile("svn revision 2")),
             hgMaterialRevision(oneModifiedFile("hg revision 1"))
@@ -352,7 +352,7 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldUseFirstMaterialAsBuildCauseMessage() throws Exception {
+    public void shouldUseFirstMaterialAsBuildCauseMessage() {
         MaterialRevisions materialRevisions = madeChanges(new boolean[]{true, true},
             oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
             oneModifiedFile("user2", "hgRev", new Date()));
@@ -361,7 +361,7 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldUseFirstChangedMaterialAsBuildCauseMessage() throws Exception {
+    public void shouldUseFirstChangedMaterialAsBuildCauseMessage() {
         MaterialRevisions materialRevisions = madeChanges(new boolean[]{false, true},
             oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
             oneModifiedFile("user2", "hgRev", new Date()));
@@ -370,7 +370,7 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldUseFirstMaterialAsbuildCausedBy() throws Exception {
+    public void shouldUseFirstMaterialAsbuildCausedBy() {
         MaterialRevisions materialRevisions = madeChanges(new boolean[]{true, true},
             oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
             oneModifiedFile("user2", "hgRev", new Date()));
@@ -380,7 +380,7 @@ public class MaterialRevisionsTest {
 
 
     @Test
-    public void shouldUseFirstChangedMaterialAsbuildCausedBy() throws Exception {
+    public void shouldUseFirstChangedMaterialAsbuildCausedBy() {
         MaterialRevisions materialRevisions = madeChanges(new boolean[]{false, true},
             oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
             oneModifiedFile("user2", "hgRev", new Date()));
@@ -389,7 +389,7 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldUseFirstMaterialAsbuildDate() throws Exception {
+    public void shouldUseFirstMaterialAsbuildDate() {
         MaterialRevisions materialRevisions = madeChanges(new boolean[]{true, true},
             oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
             oneModifiedFile("user2", "hgRev", new Date()));
@@ -399,7 +399,7 @@ public class MaterialRevisionsTest {
 
 
     @Test
-    public void shouldUseFirstChangedMaterialAsDate() throws Exception {
+    public void shouldUseFirstChangedMaterialAsDate() {
         Date now = new Date();
         MaterialRevisions materialRevisions = madeChanges(new boolean[]{false, true},
             oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
@@ -409,7 +409,7 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldUseFirstMaterialAsLatestRevision() throws Exception {
+    public void shouldUseFirstMaterialAsLatestRevision() {
         MaterialRevisions materialRevisions = madeChanges(new boolean[]{true, true},
             oneModifiedFile("user1", "Rev.1", TWO_DAYS_AGO_CHECKIN),
             oneModifiedFile("user2", "Rev.2", new Date()));
@@ -418,7 +418,7 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldUseFirstChangedMaterialAsLatestRevision() throws Exception {
+    public void shouldUseFirstChangedMaterialAsLatestRevision() {
         Date now = new Date();
         MaterialRevisions materialRevisions = madeChanges(new boolean[]{false, true},
             oneModifiedFile("user1", "Rev.1", TWO_DAYS_AGO_CHECKIN),
@@ -428,7 +428,7 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldReturnFirstLatestRevisionIfNoChanged() throws Exception {
+    public void shouldReturnFirstLatestRevisionIfNoChanged() {
         MaterialRevisions materialRevisions = new MaterialRevisions(
             svnMaterialRevision(yesterdayMod, oneHourAgoMod),
             svnMaterialRevision(nowMod)

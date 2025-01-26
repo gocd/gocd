@@ -31,7 +31,7 @@ public class SecretsMetadataLoaderTest {
     private PluginManager pluginManager;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(SecretsExtension.class);
         infoBuilder = mock(SecretsPluginInfoBuilder.class);
         metadataStore = mock(SecretsMetadataStore.class);

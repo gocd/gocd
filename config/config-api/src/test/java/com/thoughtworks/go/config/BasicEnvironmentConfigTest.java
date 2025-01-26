@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
     }
 

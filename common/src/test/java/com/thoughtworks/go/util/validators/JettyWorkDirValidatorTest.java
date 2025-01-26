@@ -42,7 +42,7 @@ public class JettyWorkDirValidatorTest {
     public File homeDir;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         jettyWorkDirValidator = new JettyWorkDirValidator(systemEnvironment);
     }
 

@@ -54,7 +54,7 @@ public class PluginNotificationsQueueHandlerTest {
     private PluginNotificationsQueueHandler handler;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         handler = new PluginNotificationsQueueHandler(messagingService, notificationExtension, pluginManager, systemEnvironment, serverHealthService);
     }
 

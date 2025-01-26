@@ -50,7 +50,7 @@ public class ArtifactsDiskCleanerTest {
     private ServerHealthService serverHealthService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         sysEnv = mock(SystemEnvironment.class);
 
         serverConfig = new ServerConfig();

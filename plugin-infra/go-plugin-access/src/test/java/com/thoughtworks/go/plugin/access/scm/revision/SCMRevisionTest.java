@@ -27,14 +27,14 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class SCMRevisionTest {
     @Test
-    public void shouldAcceptDataKeyMadeUpOfAlphaNumericAndUnderScoreCharacters() throws Exception {
+    public void shouldAcceptDataKeyMadeUpOfAlphaNumericAndUnderScoreCharacters() {
         SCMRevision scmRevision = new SCMRevision("rev123", new Date(), "loser", null, new HashMap<>(), null);
         scmRevision.addData("HELLO_WORLD123", "value");
         assertThat(scmRevision.getDataFor("HELLO_WORLD123")).isEqualTo("value");
     }
 
     @Test
-    public void shouldThrowExceptionWhenDataKeyIsNullOrEmpty() throws Exception {
+    public void shouldThrowExceptionWhenDataKeyIsNullOrEmpty() {
         SCMRevision scmRevision = new SCMRevision("rev123", new Date(), "loser", null, null, null);
         try {
             scmRevision.addData(null, "value");
@@ -49,7 +49,7 @@ public class SCMRevisionTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfDataKeyContainsCharactersOtherThanAlphaNumericAndUnderScoreCharacters() throws Exception {
+    public void shouldThrowExceptionIfDataKeyContainsCharactersOtherThanAlphaNumericAndUnderScoreCharacters() {
         SCMRevision scmRevision = new SCMRevision("rev123", new Date(), "loser", null, null, null);
         try {
             scmRevision.addData("HEL-LO-WORLD", "value");
@@ -60,7 +60,7 @@ public class SCMRevisionTest {
     }
 
     @Test
-    public void shouldNotAllowDataWhenKeyIsInvalid() throws Exception {
+    public void shouldNotAllowDataWhenKeyIsInvalid() {
         assertForInvalidKey(null, "Key names cannot be null or empty.");
         assertForInvalidKey("", "Key names cannot be null or empty.");
         assertForInvalidKey("HEL-LO-WORLD", "Key 'HEL-LO-WORLD' is invalid. Key names should consists of only alphanumeric characters and/or underscores.");

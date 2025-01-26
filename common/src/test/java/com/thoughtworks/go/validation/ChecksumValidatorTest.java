@@ -33,7 +33,7 @@ public class ChecksumValidatorTest {
     private ChecksumValidationPublisher checksumValidationPublisher;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         checksums = mock(ArtifactMd5Checksums.class);
         checksumValidationPublisher = mock(ChecksumValidationPublisher.class);
     }
@@ -44,7 +44,7 @@ public class ChecksumValidatorTest {
     }
 
     @Test
-    public void shouldCallbackWhenMd5Match() throws IOException {
+    public void shouldCallbackWhenMd5Match() {
         when(checksums.md5For("path")).thenReturn(CachedDigestUtils.md5Hex("foo"));
 
         final ByteArrayInputStream stream = new ByteArrayInputStream("foo".getBytes());
@@ -54,7 +54,7 @@ public class ChecksumValidatorTest {
     }
 
     @Test
-    public void shouldCallbackWhenMd5Mismatch() throws IOException {
+    public void shouldCallbackWhenMd5Mismatch() {
         when(checksums.md5For("path")).thenReturn(CachedDigestUtils.md5Hex("something"));
 
         final ByteArrayInputStream stream = new ByteArrayInputStream("foo".getBytes());
@@ -64,7 +64,7 @@ public class ChecksumValidatorTest {
     }
 
     @Test
-    public void shouldCallbackWhenMd5IsNotFound() throws IOException {
+    public void shouldCallbackWhenMd5IsNotFound() {
         when(checksums.md5For("path")).thenReturn(null);
 
         final ByteArrayInputStream stream = new ByteArrayInputStream("foo".getBytes());
@@ -74,7 +74,7 @@ public class ChecksumValidatorTest {
     }
 
     @Test
-    public void shouldNotifyPublisherWhenArtifactChecksumFileIsMissing() throws IOException {
+    public void shouldNotifyPublisherWhenArtifactChecksumFileIsMissing() {
         new ChecksumValidator(null).validate(null,null,checksumValidationPublisher);
 
         verify(checksumValidationPublisher).md5ChecksumFileNotFound();

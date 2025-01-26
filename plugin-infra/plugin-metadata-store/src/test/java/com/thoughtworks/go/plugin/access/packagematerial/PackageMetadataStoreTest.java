@@ -23,17 +23,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PackageMetadataStoreTest {
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         RepositoryMetadataStoreHelper.clear();
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         RepositoryMetadataStoreHelper.clear();
     }
 
     @Test
-    public void shouldPopulateDataCorrectly() throws Exception {
+    public void shouldPopulateDataCorrectly() {
         PackageConfigurations packageConfigurations = new PackageConfigurations();
         PackageMetadataStore.getInstance().addMetadataFor("plugin-id", packageConfigurations);
 
@@ -41,7 +41,7 @@ public class PackageMetadataStoreTest {
     }
 
     @Test
-    public void shouldBeAbleToCheckIfPluginExists() throws Exception {
+    public void shouldBeAbleToCheckIfPluginExists() {
         PackageMetadataStore metadataStore = PackageMetadataStore.getInstance();
 
         PackageConfigurations packageConfigurations = new PackageConfigurations();

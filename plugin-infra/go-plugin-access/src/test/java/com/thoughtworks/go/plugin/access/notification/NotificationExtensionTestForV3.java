@@ -58,7 +58,7 @@ public class NotificationExtensionTestForV3 extends NotificationExtensionTestBas
     }
 
     @Test
-    public void shouldNotifyPluginSettingsChange() throws Exception {
+    public void shouldNotifyPluginSettingsChange() {
         String supportedVersion = "3.0";
         Map<String, String> settings = Map.of("foo", "bar");
         ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);

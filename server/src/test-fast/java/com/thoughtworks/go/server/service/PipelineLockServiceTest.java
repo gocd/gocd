@@ -51,7 +51,7 @@ public class PipelineLockServiceTest {
     private GoConfigService goConfigService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         pipelineStateDao = mock(PipelineStateDao.class);
         goConfigService = mock(GoConfigService.class);
         pipelineLockService = new PipelineLockService(goConfigService, pipelineStateDao);
@@ -59,7 +59,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldLockPipeline() throws Exception {
+    public void shouldLockPipeline() {
         when(goConfigService.isLockable("mingle")).thenReturn(true);
 
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
@@ -68,7 +68,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldNotLockPipelineWhenNotLockable() throws Exception {
+    public void shouldNotLockPipelineWhenNotLockable() {
         when(goConfigService.isLockable("mingle")).thenReturn(false);
 
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
@@ -77,7 +77,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldKnowIfPipelineIsLocked() throws Exception {
+    public void shouldKnowIfPipelineIsLocked() {
         String pipelineName = "mingle";
         PipelineState pipelineState = new PipelineState(pipelineName, new StageIdentifier(pipelineName, 1, "1", "stage", "1"));
         pipelineState.lock(1);
@@ -88,13 +88,13 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldUnlockPipelineIrrespectiveOfItBeingLockable() throws Exception {
+    public void shouldUnlockPipelineIrrespectiveOfItBeingLockable() {
         pipelineLockService.unlock("mingle");
         verify(pipelineStateDao).unlockPipeline(eq("mingle"), any(AfterCompletionCallback.class));
     }
 
     @Test
-    public void shouldAllowStageFromCurrentPipelineToBeScheduled() throws Exception {
+    public void shouldAllowStageFromCurrentPipelineToBeScheduled() {
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
 
         when(pipelineStateDao.pipelineStateFor("mingle")).thenReturn(new PipelineState(pipeline.getName(), pipeline.getStages().get(0).getIdentifier()));
@@ -105,7 +105,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldNotAllowStageFromLockedPipelineToBeScheduled() throws Exception {
+    public void shouldNotAllowStageFromLockedPipelineToBeScheduled() {
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
 
         PipelineState pipelineState = new PipelineState(pipeline.getName(), new StageIdentifier(pipeline.getName(), 9999, "1.2.9999", "stage", "1"));
@@ -118,7 +118,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldAllowStageFromAnotherPipelineIfThePipelineIsNotLockabler() throws Exception {
+    public void shouldAllowStageFromAnotherPipelineIfThePipelineIsNotLockabler() {
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
 
 
@@ -130,7 +130,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldAllowStageFromAnotherPipelineIfThePipelineIsLockable() throws Exception {
+    public void shouldAllowStageFromAnotherPipelineIfThePipelineIsLockable() {
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
 
         when(pipelineStateDao.pipelineStateFor(pipeline.getName())).thenReturn(null);
@@ -141,7 +141,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldUnlockAnyCurrentlyLockedPipelinesThatAreNoLongerLockable() throws Exception {
+    public void shouldUnlockAnyCurrentlyLockedPipelinesThatAreNoLongerLockable() {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
         when(pipelineStateDao.lockedPipelines()).thenReturn(List.of("mingle", "twist"));
@@ -157,7 +157,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldUnlockAnyCurrentlyLockedPipelinesThatNoLongerExist() throws Exception {
+    public void shouldUnlockAnyCurrentlyLockedPipelinesThatNoLongerExist() {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
         when(pipelineStateDao.lockedPipelines()).thenReturn(List.of("mingle", "twist"));
@@ -183,7 +183,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldUnlockCurrentlyLockedPipelineThatIsNoLongerLockableWhenPipelineConfigChanges() throws Exception {
+    public void shouldUnlockCurrentlyLockedPipelineThatIsNoLongerLockableWhenPipelineConfigChanges() {
         EntityConfigChangedListener<PipelineConfig> changedListener = getPipelineConfigEntityConfigChangedListener();
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
 
@@ -198,7 +198,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldNotUnlockCurrentlyLockedPipelineThatContinuesToBeLockableWhenPipelineConfigChanges() throws Exception {
+    public void shouldNotUnlockCurrentlyLockedPipelineThatContinuesToBeLockableWhenPipelineConfigChanges() {
         EntityConfigChangedListener<PipelineConfig> changedListener = getPipelineConfigEntityConfigChangedListener();
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
 
@@ -212,12 +212,12 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldRegisterItselfAsAConfigChangeListener() throws Exception {
+    public void shouldRegisterItselfAsAConfigChangeListener() {
         verify(goConfigService).register(pipelineLockService);
     }
 
     @Test
-    public void shouldNotifyListenersAfterPipelineIsLocked() throws Exception {
+    public void shouldNotifyListenersAfterPipelineIsLocked() {
         when(goConfigService.isLockable("pipeline1")).thenReturn(true);
         doAnswer(invocation -> {
             AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
@@ -235,7 +235,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldNotNotifyListenersIfLockFails() throws Exception {
+    public void shouldNotNotifyListenersIfLockFails() {
         when(goConfigService.isLockable("pipeline1")).thenReturn(true);
         doAnswer(invocation -> {
             AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
@@ -253,7 +253,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldNotifyListenersAfterPipelineIsUnlocked() throws Exception {
+    public void shouldNotifyListenersAfterPipelineIsUnlocked() {
         PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
         doAnswer(invocation -> {
             AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
@@ -268,7 +268,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldNotNotifyListenersIfUnlockFails() throws Exception {
+    public void shouldNotNotifyListenersIfUnlockFails() {
         PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
         doAnswer(invocation -> {
             AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
@@ -283,7 +283,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldNotifyListenersAfterPipelineIsUnlockedUponConfigChange() throws Exception {
+    public void shouldNotifyListenersAfterPipelineIsUnlockedUponConfigChange() {
         PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
@@ -303,7 +303,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test
-    public void shouldLogAndIgnoreAnyExceptionsWhileNotifyingListeners() throws Exception {
+    public void shouldLogAndIgnoreAnyExceptionsWhileNotifyingListeners() {
         PipelineLockStatusChangeListener listener1 = mock(PipelineLockStatusChangeListener.class);
         PipelineLockStatusChangeListener listener2 = mock(PipelineLockStatusChangeListener.class, "ListenerWhichFails");
         doThrow(new RuntimeException("Ouch.")).when(listener2).lockStatusChanged(org.mockito.ArgumentMatchers.any());

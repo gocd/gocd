@@ -25,25 +25,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StageInfoCollectionTest {
 
     @Test
-    public void shouldMatchForBothEmpty() throws Exception {
+    public void shouldMatchForBothEmpty() {
         assertThat(new StageConfigurationModels().match(new PipelineConfig())).isTrue();
     }
 
     @Test
-    public void shouldMatch() throws Exception {
+    public void shouldMatch() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("cruise", "ut", "ft");
         assertThat(new StageConfigurationModels(pipelineConfig).match(pipelineConfig)).isTrue();
     }
 
     @Test
-    public void shouldEqual() throws Exception {
+    public void shouldEqual() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("cruise", "ut", "ft");
         StageConfigurationModels twoAutoStages = new StageConfigurationModels(pipelineConfig);
         assertThat(twoAutoStages.equals(new StageConfigurationModels(pipelineConfig))).isTrue();
     }
 
     @Test
-    public void shouldEqualForDifferentImplementations() throws Exception {
+    public void shouldEqualForDifferentImplementations() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("cruise", "ut", "ft");
         StageConfigurationModels twoAutoStages = new StageConfigurationModels(pipelineConfig);
 

@@ -50,7 +50,7 @@ public class PipelineSelectionsServiceTest {
     private UserDao userDao;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVER_IMMUTABILITY, "N");
 
         goConfigDao = mock(GoConfigDao.class);
@@ -220,7 +220,7 @@ public class PipelineSelectionsServiceTest {
         return new IncludesFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), Collections.emptySet());
     }
 
-    private void expectLoad(final CruiseConfig result) throws Exception {
+    private void expectLoad(final CruiseConfig result) {
         when(goConfigDao.load()).thenReturn(result);
     }
 

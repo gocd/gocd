@@ -36,7 +36,7 @@ public class ElasticAgentExtensionConverterV4Test {
     private JobIdentifier jobIdentifier;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         jobIdentifier = new JobIdentifier("test-pipeline", 1, "Test Pipeline", "test-stage", "1", "test-job");
         jobIdentifier.setBuildId(100L);
     }
@@ -54,7 +54,7 @@ public class ElasticAgentExtensionConverterV4Test {
     }
 
     @Test
-    public void shouldJSONizeCreateAgentRequestBody() throws Exception {
+    public void shouldJSONizeCreateAgentRequestBody() {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
@@ -73,7 +73,7 @@ public class ElasticAgentExtensionConverterV4Test {
     }
 
     @Test
-    public void shouldJSONizeShouldAssignWorkRequestBody() throws Exception {
+    public void shouldJSONizeShouldAssignWorkRequestBody() {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
         String actual = new ElasticAgentExtensionConverterV4().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration, jobIdentifier);
@@ -93,7 +93,7 @@ public class ElasticAgentExtensionConverterV4Test {
     }
 
     @Test
-    public void shouldJSONizeJobCompletionRequestBody() throws Exception {
+    public void shouldJSONizeJobCompletionRequestBody() {
         String actual = new ElasticAgentExtensionConverterV4().getJobCompletionRequestBody("ea1", jobIdentifier);
 
         String expected = """
@@ -112,7 +112,7 @@ public class ElasticAgentExtensionConverterV4Test {
     }
 
     @Test
-    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenElasticAgentIdIsProvided() throws Exception {
+    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenElasticAgentIdIsProvided() {
         String elasticAgentId = "my-fancy-elastic-agent-id";
         String actual = new ElasticAgentExtensionConverterV4().getAgentStatusReportRequestBody(null, elasticAgentId);
         String expected = format("{" +
@@ -123,7 +123,7 @@ public class ElasticAgentExtensionConverterV4Test {
     }
 
     @Test
-    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenJobIdentifierIsProvided() throws Exception {
+    public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenJobIdentifierIsProvided() {
         String actual = new ElasticAgentExtensionConverterV4().getAgentStatusReportRequestBody(jobIdentifier, null);
         String expected = """
                 {  "job_identifier": {

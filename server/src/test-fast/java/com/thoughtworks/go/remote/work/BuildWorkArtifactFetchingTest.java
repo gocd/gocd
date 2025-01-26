@@ -66,7 +66,7 @@ public class BuildWorkArtifactFetchingTest {
     private EnvironmentVariableContext environmentVariableContext;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         PipelineConfigMother.createPipelineConfig(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", AGENT_UUID);
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub();

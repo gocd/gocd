@@ -67,7 +67,7 @@ public class DeletePackageConfigCommandTest {
     private GoConfigService goConfigService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         packageUuid = "random-uuid";
@@ -83,7 +83,7 @@ public class DeletePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldDeleteTheSpecifiedPackage() throws Exception {
+    public void shouldDeleteTheSpecifiedPackage() {
         DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, currentUser, result);
         assertThat(cruiseConfig.getPackageRepositories().first().getPackages().size()).isEqualTo(1);
         assertThat(cruiseConfig.getPackageRepositories().first().getPackages().find(packageUuid)).isEqualTo(packageDefinition);
@@ -93,7 +93,7 @@ public class DeletePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldNotDeletePackageIfItIsUsedAsAMaterialInPipeline() throws Exception {
+    public void shouldNotDeletePackageIfItIsUsedAsAMaterialInPipeline() {
         MaterialConfigs materialConfigs = new MaterialConfigs(new PackageMaterialConfig(new CaseInsensitiveString("fooPackage"), packageUuid, packageDefinition));
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pipelinesUsingPackages = new HashMap<>();
         Pair<PipelineConfig, PipelineConfigs> pair = new Pair<>(PipelineConfigMother.pipelineConfig("some-pipeline", "stage", materialConfigs), null);
@@ -114,7 +114,7 @@ public class DeletePackageConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() throws Exception {
+    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() {
         DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, currentUser, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig)).isFalse();

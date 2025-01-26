@@ -57,7 +57,7 @@ public class UserSearchServiceTest  {
     }
 
     @Test
-    public void shouldSearchUserUsingPlugins() throws Exception {
+    public void shouldSearchUserUsingPlugins() {
         final String searchTerm = "foo";
         List<String> pluginIds = List.of("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
 
@@ -83,14 +83,14 @@ public class UserSearchServiceTest  {
     }
 
     @Test
-    public void shouldReturnWarningMessageWhenSearchReturnsNoResults() throws Exception {
+    public void shouldReturnWarningMessageWhenSearchReturnsNoResults() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userSearchService.search("foo", result);
         assertThat(result.message()).isEqualTo("No results found.");
     }
 
     @Test
-    public void shouldNotInvokeSearchWhenUserSearchTextIsTooSmall() throws Exception {
+    public void shouldNotInvokeSearchWhenUserSearchTextIsTooSmall() {
         String smallSearchText = "f";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userSearchService.search(smallSearchText, result);
@@ -100,7 +100,7 @@ public class UserSearchServiceTest  {
     }
 
     @Test
-    public void shouldNotInvokeSearchWhenUserSearchTextIsTooSmallAfterTrimming() throws Exception {
+    public void shouldNotInvokeSearchWhenUserSearchTextIsTooSmallAfterTrimming() {
         String smallSearchText = "a ";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userSearchService.search(smallSearchText, result);

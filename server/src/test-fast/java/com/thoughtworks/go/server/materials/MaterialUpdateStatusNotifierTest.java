@@ -31,7 +31,7 @@ public class MaterialUpdateStatusNotifierTest {
     private MaterialUpdateStatusNotifier materialUpdateStatusNotifier;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         mockTopic = mock(MaterialUpdateCompletedTopic.class);
         materialUpdateStatusNotifier = new MaterialUpdateStatusNotifier(mockTopic);
     }

@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
 
 public class ArtifactTypeConfigsTest {
     @Test
-    public void shouldAddDuplicatedArtifactSoThatValidationKicksIn() throws Exception {
+    public void shouldAddDuplicatedArtifactSoThatValidationKicksIn() {
         final ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         assertThat(artifactTypeConfigs.size()).isEqualTo(0);
         artifactTypeConfigs.add(new BuildArtifactConfig("src", "dest"));

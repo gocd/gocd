@@ -49,7 +49,7 @@ public class ConfigurationPropertyBuilderTest {
     }
 
     @Test
-    public void shouldCreatePropertyInAbsenceOfPlainAndEncryptedTextInputForSecureProperty() throws Exception {
+    public void shouldCreatePropertyInAbsenceOfPlainAndEncryptedTextInputForSecureProperty() {
         Property key = new Property("key");
         key.with(Property.SECURE, true);
 

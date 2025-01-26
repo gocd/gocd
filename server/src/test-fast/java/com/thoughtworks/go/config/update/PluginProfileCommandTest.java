@@ -47,14 +47,14 @@ public class PluginProfileCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test
-    public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() throws Exception {
+    public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
 
@@ -67,7 +67,7 @@ public class PluginProfileCommandTest {
     }
 
     @Test
-    public void shouldContinueWithConfigSaveIfUserIsAuthorized() throws Exception {
+    public void shouldContinueWithConfigSaveIfUserIsAuthorized() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
@@ -91,7 +91,7 @@ public class PluginProfileCommandTest {
     }
 
     @Test
-    public void shouldContinueWithConfigSaveIfUserIsAdmin() throws Exception {
+    public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
 
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
@@ -110,7 +110,7 @@ public class PluginProfileCommandTest {
         }
 
         @Override
-        public void update(CruiseConfig preprocessedConfig) throws Exception {
+        public void update(CruiseConfig preprocessedConfig) {
 
         }
 

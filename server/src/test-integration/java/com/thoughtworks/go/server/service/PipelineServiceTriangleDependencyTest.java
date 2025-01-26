@@ -91,7 +91,7 @@ public class PipelineServiceTriangleDependencyTest {
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pipelineTimeline = mock(PipelineTimeline.class);
         pipelineDao = mock(PipelineSqlMapDao.class);
         materialRepository = mock(MaterialRepository.class);

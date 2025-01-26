@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 
 public class RoleConfigCreateCommandTest {
     @Test
-    public void currentUserShouldBeAnAdminToAddRole() throws Exception {
+    public void currentUserShouldBeAnAdminToAddRole() {
         GoConfigService goConfigService = mock(GoConfigService.class);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username viewUser = new Username("view");
@@ -47,7 +47,7 @@ public class RoleConfigCreateCommandTest {
     }
 
     @Test
-    public void update_shouldAddPluginRoleConfigToRoles() throws Exception {
+    public void update_shouldAddPluginRoleConfigToRoles() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
         RoleConfigCreateCommand command = new RoleConfigCreateCommand(null, role, null, null);
@@ -58,7 +58,7 @@ public class RoleConfigCreateCommandTest {
     }
 
     @Test
-    public void isValid_shouldSkipUpdatedRoleValidation() throws Exception {
+    public void isValid_shouldSkipUpdatedRoleValidation() {
         PluginRoleConfig pluginRoleConfig = new PluginRoleConfig(null, "ldap");
         RoleConfigCreateCommand command = new RoleConfigCreateCommand(null, pluginRoleConfig, null, null);
 

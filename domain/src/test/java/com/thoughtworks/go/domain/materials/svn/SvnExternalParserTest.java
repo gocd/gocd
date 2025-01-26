@@ -111,7 +111,7 @@ public class SvnExternalParserTest {
     }
 
     @Test
-    public void shouldSupportFileProtocal() throws Exception {
+    public void shouldSupportFileProtocal() {
         String svnExternals = "file:///tmp/repo/project/trunk - end2end file:///tmp/testSvnRepo-1246619674077/end2end";
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "file:///tmp/repo/project", "http://10.18.3.171:8080/svn");
@@ -119,7 +119,7 @@ public class SvnExternalParserTest {
     }
 
     @Test
-    public void shouldSupportUrlWithEncodedSpaces() throws Exception {
+    public void shouldSupportUrlWithEncodedSpaces() {
         String svnExternals = "file:///C:/Program%20Files/trunk - end2end file:///C:/Program%20Files/testSvnRepo-1246619674077/end2end";
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "file:///C:/Program%20Files", "http://10.18.3.171:8080/svn");

@@ -186,7 +186,7 @@ public class TfsMaterialTest {
     }
 
     @Test
-    void shouldCopyOverPasswordWhenConvertingToConfig() throws Exception {
+    void shouldCopyOverPasswordWhenConvertingToConfig() {
         TfsMaterial material = new TfsMaterial(new UrlArgument("http://url/"), "user", "domain", "password", "$project/path/");
 
         TfsMaterialConfig config = (TfsMaterialConfig) material.config();

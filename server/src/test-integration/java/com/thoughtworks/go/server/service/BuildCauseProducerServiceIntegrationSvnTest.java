@@ -151,7 +151,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         assertThat(external.getUrl()).isEqualTo(repo.externalRepositoryUrl());
     }
 
-    private void prepareAPipelineWithHistory() throws SQLException {
+    private void prepareAPipelineWithHistory() {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         materialRevisions.addRevision(svnMaterial, svnMaterial.latestModification(workingFolder, subprocessExecutionContext));
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "");

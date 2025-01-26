@@ -89,7 +89,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
     }
 
     @Test
-    public void shouldReturnEmptyWhenNoPipelinesArePresentInConfig() throws Exception {
+    public void shouldReturnEmptyWhenNoPipelinesArePresentInConfig() {
         goConfigService.forceNotifyListeners();
         assertThat(goConfigService.getAllPipelineConfigs()).isEmpty();
         List<GoDashboardPipeline> goDashboardPipelines = goDashboardCurrentStateLoader.allPipelines(goConfigService.currentCruiseConfig());
@@ -97,7 +97,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
     }
 
     @Test
-    public void shouldReturnSingleDashboardForSingleCompletedGreenPipelineInstance() throws Exception {
+    public void shouldReturnSingleDashboardForSingleCompletedGreenPipelineInstance() {
         PipelineConfig pipelineConfig = configHelper.addPipeline(PipelineConfigMother.createPipelineConfigWithStages("a-pipeline", "a-stage"));
         goConfigService.forceNotifyListeners();
 
@@ -116,7 +116,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
     }
 
     @Test
-    public void shouldShowMultiplePipelineInstancesFromSamePipelineWhenMultipleAreRunning() throws Exception {
+    public void shouldShowMultiplePipelineInstancesFromSamePipelineWhenMultipleAreRunning() {
         // 2 -> (s1, running)
         // 1 -> (s1, passed), (s2, running)
 
@@ -156,7 +156,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
     }
 
     @Test
-    public void shouldReturnNothingIfPipelineHasNeverRun() throws Exception {
+    public void shouldReturnNothingIfPipelineHasNeverRun() {
         PipelineConfig pipelineConfig = configHelper.addPipeline(PipelineConfigMother.createPipelineConfigWithStages("a-pipeline", "a-stage", "b-stage"));
         goConfigService.forceNotifyListeners();
 
@@ -171,7 +171,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
     }
 
     @Test
-    public void shouldShowDashboardWhenPreviousStageInstanceIsReRun() throws Exception {
+    public void shouldShowDashboardWhenPreviousStageInstanceIsReRun() {
         // 2 -> (s1, passed), (s2, passed)
         // 1 -> (s1, running), (s2, passed)
 
@@ -211,7 +211,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
     }
 
     @Test
-    public void shouldShowLatestPipelineRunWhenNoStagesAreRunning() throws Exception {
+    public void shouldShowLatestPipelineRunWhenNoStagesAreRunning() {
         // 2 -> (s1, passed), (s2, passed)
         // 1 -> (s1, passed), (s2, passed)
 

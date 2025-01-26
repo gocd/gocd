@@ -36,7 +36,7 @@ public class UpdateClusterProfileCommand extends ClusterProfileCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         ClusterProfile existingClusterProfile = findExistingProfile(preprocessedConfig);
         ClusterProfiles clusterProfiles = getPluginProfiles(preprocessedConfig);
 

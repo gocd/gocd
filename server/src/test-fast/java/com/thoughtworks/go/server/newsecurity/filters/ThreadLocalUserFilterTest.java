@@ -54,7 +54,7 @@ class ThreadLocalUserFilterTest {
             @Override
             protected void doFilterInternal(HttpServletRequest request,
                                             HttpServletResponse response,
-                                            FilterChain filterChain) throws ServletException, IOException {
+                                            FilterChain filterChain) {
                 currentUserInFilter[0] = SessionUtils.getCurrentUser();
             }
         }));

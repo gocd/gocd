@@ -39,7 +39,7 @@ public class SecurityAuthConfigTest {
     private AuthorizationMetadataStore store = AuthorizationMetadataStore.instance();
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         store.clear();
     }
 

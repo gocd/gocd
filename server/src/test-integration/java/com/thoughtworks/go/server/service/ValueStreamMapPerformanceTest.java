@@ -118,7 +118,7 @@ public class ValueStreamMapPerformanceTest {
 
     @Test
     @Timeout(value = 4, unit = MINUTES)
-    public void shouldTestVSMForMeshInUpstreamAndDownstream() throws Exception {
+    public void shouldTestVSMForMeshInUpstreamAndDownstream() {
         int numberOfNodesPerLevel = 5;
         int numberOfLevels = 5;
         int numberOfInstancesForUpstream = 1;
@@ -142,7 +142,7 @@ public class ValueStreamMapPerformanceTest {
         assertThat(presentationModel.getNodesAtEachLevel().size()).isEqualTo(14);
     }
 
-    private void doRun(int numberOfDownstreamPipelines, CruiseConfig cruiseConfig) throws InterruptedException {
+    private void doRun(int numberOfDownstreamPipelines, CruiseConfig cruiseConfig) {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         for (PipelineConfig pipelineConfig : cruiseConfig.allPipelines()) {
             ValueStreamMapPresentationModel map = valueStreamMapService.getValueStreamMap(pipelineConfig.name(), 1, Username.ANONYMOUS, result);

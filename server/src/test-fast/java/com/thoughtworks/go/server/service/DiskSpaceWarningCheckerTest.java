@@ -45,7 +45,7 @@ public class DiskSpaceWarningCheckerTest {
     private GoConfigService goConfigService;
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         new SystemEnvironment().clearProperty(SystemEnvironment.ARTIFACT_WARNING_SIZE_LIMIT);
     }
 
@@ -82,7 +82,7 @@ public class DiskSpaceWarningCheckerTest {
 
     // #2866
     @Test
-    public void shouldShowAbsolutePathOfArtifactDirInWarningMessage() throws IOException, URISyntaxException {
+    public void shouldShowAbsolutePathOfArtifactDirInWarningMessage() throws IOException {
         goConfigService = mockGoConfigServiceToHaveSiteUrl();
         TestingEmailSender sender = new TestingEmailSender();
 
@@ -97,7 +97,7 @@ public class DiskSpaceWarningCheckerTest {
     }
 
     @Test
-    public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() throws URISyntaxException {
+    public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() {
         String expectedHelpUrl = docsUrl("/installation/configuring_server_details.html");
 
         GoConfigService goConfigService = mockGoConfigServiceToHaveSiteUrl();

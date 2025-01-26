@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RepositoryConfigurationTest {
     @Test
-    public void shouldGetAllRepoConfigurationsSortedByDisplayOrder() throws Exception {
+    public void shouldGetAllRepoConfigurationsSortedByDisplayOrder() {
         Property c1 = new PackageMaterialProperty("k1").with(Property.DISPLAY_ORDER, 2);
         Property c2 = new PackageMaterialProperty("k2").with(Property.DISPLAY_ORDER, 0);
         Property c3 = new PackageMaterialProperty("k3").with(Property.DISPLAY_ORDER, 1);

@@ -40,7 +40,7 @@ public class HttpServiceStub extends HttpService {
     }
 
     @Override
-    public int upload(String url, long size, File artifactFile, Properties artifactChecksums) throws IOException {
+    public int upload(String url, long size, File artifactFile, Properties artifactChecksums) {
         uploadedFiles.put(url, artifactFile);
         return returnCode;
     }

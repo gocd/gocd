@@ -74,7 +74,7 @@ public class ServerSiteUrlConfigTest {
     }
 
     @Test
-    public void shouldReturnUrlForToString() throws Exception {
+    public void shouldReturnUrlForToString() {
         ServerSiteUrlConfig url = new SiteUrl("http://someurl.com");
         assertThat(url.toString()).isEqualTo("http://someurl.com");
     }

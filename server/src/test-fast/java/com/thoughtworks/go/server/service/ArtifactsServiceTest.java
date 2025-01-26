@@ -226,7 +226,7 @@ public class ArtifactsServiceTest {
     }
 
     @Test
-    void shouldProvideArtifactUrlForAJob() throws Exception {
+    void shouldProvideArtifactUrlForAJob() {
         assumeArtifactsRoot(fakeRoot);
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
         JobIdentifier oldId = new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox");

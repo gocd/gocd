@@ -174,13 +174,13 @@ public class AbstractMaterialTest {
     }
 
     @Test
-    public void shouldReturnFullNameIfTheLengthIsLessThanGivenThreshold() throws Exception {
+    public void shouldReturnFullNameIfTheLengthIsLessThanGivenThreshold() {
         AbstractMaterial material = new TestMaterial("foo_bar_baz_quuz_ban");
         assertThat(material.getTruncatedDisplayName()).isEqualTo("foo_bar_baz_quuz_ban");
     }
 
     @Test
-    public void shouldReturnTruncatedNameIfTheLengthIsGreaterThanGivenThreshold() throws Exception {
+    public void shouldReturnTruncatedNameIfTheLengthIsGreaterThanGivenThreshold() {
         AbstractMaterial material = new TestMaterial("foo_bar_baz_quuz_ban_pavan");
         assertThat(material.getTruncatedDisplayName()).isEqualTo("foo_bar_ba..._ban_pavan");
     }

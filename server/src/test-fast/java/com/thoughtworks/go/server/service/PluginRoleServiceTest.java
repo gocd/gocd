@@ -41,18 +41,18 @@ public class PluginRoleServiceTest {
     private SecurityConfig securityConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         securityConfig = new SecurityConfig();
         when(goConfigService.security()).thenReturn(securityConfig);
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         PluginRoleUsersStore.instance().clearAll();
     }
 
     @Test
-    public void shouldBeAbleToUpdatePluginRolesToUser() throws Exception {
+    public void shouldBeAbleToUpdatePluginRolesToUser() {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
@@ -64,7 +64,7 @@ public class PluginRoleServiceTest {
     }
 
     @Test
-    public void updatePluginRoleShouldIgnoreRolesWhichAreNotMappedToThePlugin() throws Exception {
+    public void updatePluginRoleShouldIgnoreRolesWhichAreNotMappedToThePlugin() {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));
         securityConfig.addRole(new PluginRoleConfig("spacetiger", "ldap"));
@@ -79,7 +79,7 @@ public class PluginRoleServiceTest {
     }
 
     @Test
-    public void updatePluginRolesShouldIgnoreNonExistentRoles() throws Exception {
+    public void updatePluginRolesShouldIgnoreNonExistentRoles() {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
@@ -92,7 +92,7 @@ public class PluginRoleServiceTest {
     }
 
     @Test
-    public void updatePluginRolesShouldNotChangeRoleConfig() throws Exception {
+    public void updatePluginRolesShouldNotChangeRoleConfig() {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("go_system_admin")));
@@ -106,7 +106,7 @@ public class PluginRoleServiceTest {
     }
 
     @Test
-    public void updatePluginRolesShouldHandleDeletionOfRoleForAUser() throws Exception {
+    public void updatePluginRolesShouldHandleDeletionOfRoleForAUser() {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));
         securityConfig.addRole(new PluginRoleConfig("spacetiger", "github"));
@@ -124,7 +124,7 @@ public class PluginRoleServiceTest {
     }
 
     @Test
-    public void updatePluginRolesShouldHandleAdditionOfRoleForUser() throws Exception {
+    public void updatePluginRolesShouldHandleAdditionOfRoleForUser() {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));
         securityConfig.addRole(new PluginRoleConfig("spacetiger", "github"));
@@ -143,7 +143,7 @@ public class PluginRoleServiceTest {
     }
 
     @Test
-    public void shouldInvalidateCacheForPluginRolesDeleted_OnConfigChange() throws Exception {
+    public void shouldInvalidateCacheForPluginRolesDeleted_OnConfigChange() {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));
         securityConfig.addRole(new PluginRoleConfig("spacetiger", "github"));
@@ -164,7 +164,7 @@ public class PluginRoleServiceTest {
     }
 
     @Test
-    public void onPluginUnloadShouldRemoveCorrespondingPluginRolesFromStore() throws Exception {
+    public void onPluginUnloadShouldRemoveCorrespondingPluginRolesFromStore() {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));
         GoPluginDescriptor goPluginDescriptor = mock(GoPluginDescriptor.class);
@@ -185,7 +185,7 @@ public class PluginRoleServiceTest {
     }
 
     @Test
-    public void invalidatePluginRolesShouldRemoveRolesCorrespondingToThePluginFromStore() throws Exception {
+    public void invalidatePluginRolesShouldRemoveRolesCorrespondingToThePluginFromStore() {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.authorization.ldap"));
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));

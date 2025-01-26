@@ -53,7 +53,7 @@ public class JarUtilTest {
     }
 
     @Test
-    public void shouldGetManifestKey() throws Exception {
+    public void shouldGetManifestKey() {
         String manifestKey = JarUtil.getManifestKey(new File(PATH_WITH_HASHES + "test-agent.jar"), "Go-Agent-Bootstrap-Class");
         assertThat(manifestKey).isEqualTo("com.thoughtworks.go.HelloWorldStreamWriter");
     }

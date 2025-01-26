@@ -57,7 +57,7 @@ public class CreateTemplateConfigCommandTest {
     }
 
     @Test
-    public void shouldAddNewTemplateToGivenConfig() throws Exception {
+    public void shouldAddNewTemplateToGivenConfig() {
         CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isFalse();
         createTemplateConfigCommand.update(cruiseConfig);
@@ -65,7 +65,7 @@ public class CreateTemplateConfigCommandTest {
     }
 
     @Test
-    public void shouldAddNewTemplateToConfigWithAuthorizationSetForGroupAdmin() throws Exception {
+    public void shouldAddNewTemplateToConfigWithAuthorizationSetForGroupAdmin() {
         when(securityService.isUserGroupAdmin(currentUser)).thenReturn(true);
         CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isFalse();
@@ -75,7 +75,7 @@ public class CreateTemplateConfigCommandTest {
     }
 
     @Test
-    public void shouldAddNewTemplateToConfigWithoutAuthorizationForSuperAdmin() throws Exception {
+    public void shouldAddNewTemplateToConfigWithoutAuthorizationForSuperAdmin() {
         when(securityService.isUserGroupAdmin(currentUser)).thenReturn(false);
         CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isFalse();

@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class NoOneTest {
     @Test
-    public void shouldSayItContainsNoUsersAlways() throws Exception {
+    public void shouldSayItContainsNoUsersAlways() {
         Users noUsers = NoOne.INSTANCE;
 
         assertThat(noUsers.contains("abc")).isFalse();

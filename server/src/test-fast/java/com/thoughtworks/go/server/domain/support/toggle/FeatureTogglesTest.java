@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class FeatureTogglesTest {
     @Test
-    public void shouldDoNothingWhenThereAreNoAvailableTogglesToMerge() throws Exception {
+    public void shouldDoNothingWhenThereAreNoAvailableTogglesToMerge() {
         FeatureToggles emptyAvailableToggles = new FeatureToggles();
         FeatureToggles nonEmptyOverridingToggles = new FeatureToggles(new FeatureToggle("key1", "desc1", true));
 
@@ -30,7 +30,7 @@ public class FeatureTogglesTest {
     }
 
     @Test
-    public void shouldDoNothingWhenNoOverrideTogglesAreProvided() throws Exception {
+    public void shouldDoNothingWhenNoOverrideTogglesAreProvided() {
         FeatureToggles nonEmptyAvailableToggles = new FeatureToggles(new FeatureToggle("key1", "desc1", true));
         FeatureToggles emptyOverridingToggles = new FeatureToggles();
 
@@ -39,7 +39,7 @@ public class FeatureTogglesTest {
     }
 
     @Test
-    public void shouldOverrideDescription_WithValueChangedFlagTrue_WhenValueHasBeenChanged() throws Exception {
+    public void shouldOverrideDescription_WithValueChangedFlagTrue_WhenValueHasBeenChanged() {
         FeatureToggles availableToggles = new FeatureToggles(new FeatureToggle("key1", "desc1", true));
         FeatureToggles overridingToggles = new FeatureToggles(new FeatureToggle("key1", "NEW_desc1_WITH_VALUE_CHANGED", false));
 
@@ -48,7 +48,7 @@ public class FeatureTogglesTest {
     }
 
     @Test
-    public void shouldOverrideDescription_WithValueChangedFlagFalse_WhenValueHasNotBeenChanged() throws Exception {
+    public void shouldOverrideDescription_WithValueChangedFlagFalse_WhenValueHasNotBeenChanged() {
         FeatureToggles availableToggles = new FeatureToggles(new FeatureToggle("key1", "desc1", true));
         FeatureToggles overridingToggles = new FeatureToggles(new FeatureToggle("key1", "NEW_desc1_WITH_VALUE_CHANGED", true));
 
@@ -57,7 +57,7 @@ public class FeatureTogglesTest {
     }
 
     @Test
-    public void shouldNotOverrideDescriptionIfOverriddenDescriptionIsNotPresent() throws Exception {
+    public void shouldNotOverrideDescriptionIfOverriddenDescriptionIsNotPresent() {
         FeatureToggles availableToggles = new FeatureToggles(new FeatureToggle("key1", "desc1", true));
         FeatureToggles overridingToggles = new FeatureToggles(new FeatureToggle("key1", null, false));
 
@@ -66,7 +66,7 @@ public class FeatureTogglesTest {
     }
 
     @Test
-    public void shouldChangeValueOfAnExistingToggle() throws Exception {
+    public void shouldChangeValueOfAnExistingToggle() {
         FeatureToggles existingToggles = new FeatureToggles(new FeatureToggle("key1", "desc1", true), new FeatureToggle("key2", "desc2", false));
 
         FeatureToggles newToggles = existingToggles.changeToggleValue("key2", true);
@@ -81,7 +81,7 @@ public class FeatureTogglesTest {
     }
 
     @Test
-    public void shouldAppendANewToggleWhenTryingToChangeValueOfANonExistentToggle() throws Exception {
+    public void shouldAppendANewToggleWhenTryingToChangeValueOfANonExistentToggle() {
         FeatureToggles existingToggles = new FeatureToggles(new FeatureToggle("key1", "desc1", true), new FeatureToggle("key2", "desc2", false));
 
         FeatureToggles newToggles = existingToggles.changeToggleValue("key_NOT_EXISTENT", true);

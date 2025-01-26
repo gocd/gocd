@@ -45,12 +45,12 @@ public class StageStatusPluginNotifierTest {
     private StageStatusPluginNotifier stageStatusPluginNotifier;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         stageStatusPluginNotifier = new StageStatusPluginNotifier(notificationPluginRegistry, pluginNotificationService);
     }
 
     @Test
-    public void shouldNotNotifyInterestedPluginsIfNoPluginIsInterested() throws Exception {
+    public void shouldNotNotifyInterestedPluginsIfNoPluginIsInterested() {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(false);
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
@@ -59,7 +59,7 @@ public class StageStatusPluginNotifierTest {
     }
 
     @Test
-    public void shouldNotNotifyInterestedPluginsIfStageStateIsNotScheduledOrCompleted() throws Exception {
+    public void shouldNotNotifyInterestedPluginsIfStageStateIsNotScheduledOrCompleted() {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         when(stage.isScheduled()).thenReturn(false);
         when(stage.isReRun()).thenReturn(false);
@@ -71,7 +71,7 @@ public class StageStatusPluginNotifierTest {
     }
 
     @Test
-    public void shouldNotifyInterestedPluginsIfStageStateIsScheduled() throws Exception {
+    public void shouldNotifyInterestedPluginsIfStageStateIsScheduled() {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         when(stage.isScheduled()).thenReturn(true);
         stageStatusPluginNotifier.stageStatusChanged(stage);
@@ -80,7 +80,7 @@ public class StageStatusPluginNotifierTest {
     }
 
     @Test
-    public void shouldNotifyInterestedPluginsIfStageStateIsReScheduled() throws Exception {
+    public void shouldNotifyInterestedPluginsIfStageStateIsReScheduled() {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         when(stage.isScheduled()).thenReturn(false);
         when(stage.isReRun()).thenReturn(true);
@@ -91,7 +91,7 @@ public class StageStatusPluginNotifierTest {
     }
 
     @Test
-    public void shouldNotifyInterestedPluginsIfStageStateIsCompleted() throws Exception {
+    public void shouldNotifyInterestedPluginsIfStageStateIsCompleted() {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         when(stage.isScheduled()).thenReturn(false);
         when(stage.isReRun()).thenReturn(false);

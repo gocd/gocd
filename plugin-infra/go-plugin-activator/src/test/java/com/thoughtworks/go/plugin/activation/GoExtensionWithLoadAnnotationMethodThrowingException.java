@@ -41,7 +41,7 @@ public class GoExtensionWithLoadAnnotationMethodThrowingException implements GoP
     }
 
     @Override
-    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
         return null;
     }
 

@@ -365,7 +365,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
             final String description = format("\nJob for pipeline '%s' failed due to errors while resolving secret params.", jobIdentifier.buildLocator());
             consoleService.appendToConsoleLog(jobIdentifier, description);
             consoleService.appendToConsoleLog(jobIdentifier, format("\nReason: %s\n", e.getMessage()));
-        } catch (IllegalArtifactLocationException | IOException e1) {
+        } catch (IllegalArtifactLocationException e1) {
             LOGGER.error(e1.getMessage(), e1);
         }
     }
@@ -374,7 +374,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         try {
             final String description = format("\nJob for pipeline '%s' failed due to errors: %s", jobIdentifier.buildLocator(), e.getMessage());
             consoleService.appendToConsoleLog(jobIdentifier, description);
-        } catch (IllegalArtifactLocationException | IOException e1) {
+        } catch (IllegalArtifactLocationException e1) {
             LOGGER.error(e1.getMessage(), e1);
         }
     }
@@ -382,7 +382,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private void logToJobConsole(JobIdentifier jobIdentifier, String errorMessage) {
         try {
             consoleService.appendToConsoleLog(jobIdentifier, errorMessage);
-        } catch (IllegalArtifactLocationException | IOException e) {
+        } catch (IllegalArtifactLocationException e) {
             LOGGER.error(format("Failed to add message(%s) to the job(%s) console", errorMessage, jobIdentifier), e);
         }
     }

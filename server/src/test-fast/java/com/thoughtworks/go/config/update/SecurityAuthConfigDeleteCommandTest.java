@@ -33,12 +33,12 @@ public class SecurityAuthConfigDeleteCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test
-    public void shouldDeleteAProfile() throws Exception {
+    public void shouldDeleteAProfile() {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("foo", "ldap");
         cruiseConfig.server().security().securityAuthConfigs().add(authConfig);
 
@@ -49,7 +49,7 @@ public class SecurityAuthConfigDeleteCommandTest {
     }
 
     @Test
-    public void shouldRaiseExceptionInCaseProfileDoesNotExist() throws Exception {
+    public void shouldRaiseExceptionInCaseProfileDoesNotExist() {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("foo", "ldap");
 
         assertThat(cruiseConfig.server().security().securityAuthConfigs()).isEmpty();
@@ -61,7 +61,7 @@ public class SecurityAuthConfigDeleteCommandTest {
     }
 
     @Test
-    public void shouldNotValidateIfProfileIsInUseByRole() throws Exception {
+    public void shouldNotValidateIfProfileIsInUseByRole() {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("foo", "ldap");
         cruiseConfig.server().security().addRole(new PluginRoleConfig("blackbird", "foo"));
 
@@ -72,7 +72,7 @@ public class SecurityAuthConfigDeleteCommandTest {
     }
 
     @Test
-    public void shouldValidateIfProfileIsNotInUseByPipeline() throws Exception {
+    public void shouldValidateIfProfileIsNotInUseByPipeline() {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("foo", "ldap");
 
         assertThat(cruiseConfig.server().security().securityAuthConfigs()).isEmpty();

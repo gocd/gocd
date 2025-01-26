@@ -32,7 +32,7 @@ public class CreateArtifactStoreConfigCommandTest {
     private ArtifactExtension extension;
 
     @Test
-    public void shouldAddArtifactStoreToConfig() throws Exception {
+    public void shouldAddArtifactStoreToConfig() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         ArtifactStore artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker");
         CreateArtifactStoreConfigCommand command = new CreateArtifactStoreConfigCommand(null, artifactStore, extension, null, null);

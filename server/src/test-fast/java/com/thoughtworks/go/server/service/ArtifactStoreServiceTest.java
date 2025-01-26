@@ -46,7 +46,7 @@ public class ArtifactStoreServiceTest {
     private ArtifactStoreService artifactStoreService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         artifactStoreService = new ArtifactStoreService(configService, entityHashingService, extension);
     }

@@ -67,7 +67,7 @@ public class JobControllerTest {
     private SecurityService securityService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         jobInstanceService = mock(JobInstanceService.class);
         jobInstanceDao = mock(JobInstanceDao.class);
         jobConfigService = mock(GoConfigService.class);

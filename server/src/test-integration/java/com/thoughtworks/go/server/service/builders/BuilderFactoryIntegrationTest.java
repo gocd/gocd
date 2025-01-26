@@ -62,7 +62,7 @@ public class BuilderFactoryIntegrationTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         configHelper.onTearDown();
     }
 

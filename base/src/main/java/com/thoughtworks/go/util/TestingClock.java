@@ -65,7 +65,7 @@ public class TestingClock implements Clock {
     }
 
     @Override
-    public void sleepForSeconds(long seconds) throws InterruptedException {
+    public void sleepForSeconds(long seconds) {
         sleepForMillis(seconds * 1000);
     }
 

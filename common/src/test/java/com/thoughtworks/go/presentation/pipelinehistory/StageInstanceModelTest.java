@@ -37,28 +37,28 @@ public class StageInstanceModelTest {
     }
 
     @Test
-    public void shouldBeAutoApproved() throws Exception {
+    public void shouldBeAutoApproved() {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();
         stageHistoryItem.setApprovalType(GoConstants.APPROVAL_SUCCESS);
         assertThat(stageHistoryItem.isAutoApproved()).isTrue();
     }
 
     @Test
-    public void shouldBeManualApproved() throws Exception {
+    public void shouldBeManualApproved() {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();
         stageHistoryItem.setApprovalType(GoConstants.APPROVAL_MANUAL);
         assertThat(stageHistoryItem.isAutoApproved()).isFalse();
     }
 
     @Test
-    public void shouldReturnNullIfJobHistoryIsBlank() throws Exception {
+    public void shouldReturnNullIfJobHistoryIsBlank() {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();
         stageHistoryItem.setBuildHistory(new JobHistory());
         assertThat(stageHistoryItem.getScheduledDate()).isNull();
     }
 
     @Test
-    public void shouldReturnDateIfJobHistoryIsNotBlank() throws Exception {
+    public void shouldReturnDateIfJobHistoryIsNotBlank() {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();
         JobHistory jobHistory = new JobHistory();
         Date date = new Date(1367472329111L);

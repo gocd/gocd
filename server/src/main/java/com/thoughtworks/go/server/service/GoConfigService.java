@@ -810,7 +810,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return cloner.deepClone(getConfigForEditing());
     }
 
-    public CruiseConfig preprocessedCruiseConfigForPipelineUpdate(PipelineConfigCommand command) throws Exception {
+    public CruiseConfig preprocessedCruiseConfigForPipelineUpdate(PipelineConfigCommand command) {
         CruiseConfig config = clonedConfigForEdit();
         command.update(config);
         config.setPartials(cachedGoPartials.lastValidPartials());
@@ -904,7 +904,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return cruiseConfig().getArtifactStores();
     }
 
-    public CruiseConfig validateCruiseConfig(CruiseConfig cruiseConfig) throws Exception {
+    public CruiseConfig validateCruiseConfig(CruiseConfig cruiseConfig) {
         return xmlLoader.validateCruiseConfig(cruiseConfig);
     }
 

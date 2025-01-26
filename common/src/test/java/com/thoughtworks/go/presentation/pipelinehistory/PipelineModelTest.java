@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PipelineModelTest {
 
     @Test
-    public void shouldUnderstandIfHasNewRevisions() throws Exception {
+    public void shouldUnderstandIfHasNewRevisions() {
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipelineName", -1, "1", BuildCause.createManualForced(), new StageInstanceModels());
         MaterialRevisions latest = ModificationsMother.createHgMaterialRevisions();
         instanceModel.setMaterialConfigs(new MaterialConfigs(latest.getMaterialRevision(0).getMaterial().config()));
@@ -45,7 +45,7 @@ public class PipelineModelTest {
     }
 
     @Test
-    public void shouldNotBeAbleToscheduleIfTheLatestPipelineIsPreparingToSchedule() throws Exception {
+    public void shouldNotBeAbleToscheduleIfTheLatestPipelineIsPreparingToSchedule() {
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPreparingToSchedule("pipelineName", new StageInstanceModels());
 
         PipelineModel pipelineModel = new PipelineModel(instanceModel.getName(), true, true, PipelinePauseInfo.notPaused());

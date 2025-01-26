@@ -72,7 +72,7 @@ public class FeatureToggleRepositoryTest {
     }
 
     @Test
-    public void shouldNotFailWhenSpecifiedAvailableTogglesFileIsNotFound() throws Exception {
+    public void shouldNotFailWhenSpecifiedAvailableTogglesFileIsNotFound() {
         setupAvailableToggleFileAs("a-non-existent-file");
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
@@ -103,7 +103,7 @@ public class FeatureToggleRepositoryTest {
     }
 
     @Test
-    public void shouldNotFailWhenSpecifiedUserTogglesFileIsNotFound() throws Exception {
+    public void shouldNotFailWhenSpecifiedUserTogglesFileIsNotFound() {
         setupUserToggleFileAs(new File("a-non-existent-file"));
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);

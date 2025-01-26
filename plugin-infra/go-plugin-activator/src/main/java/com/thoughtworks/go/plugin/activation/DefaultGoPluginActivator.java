@@ -50,7 +50,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     };
 
     @Override
-    public void start(BundleContext bundleContext) throws Exception {
+    public void start(BundleContext bundleContext) {
         Bundle bundle = bundleContext.getBundle();
         pluginRegistryService = bundleContext.getService(bundleContext.getServiceReference(PluginRegistryService.class));
 

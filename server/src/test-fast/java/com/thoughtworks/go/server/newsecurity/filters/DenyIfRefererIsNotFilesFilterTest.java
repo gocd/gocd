@@ -37,7 +37,7 @@ class DenyIfRefererIsNotFilesFilterTest {
     private FilterChain chain;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         response = new MockHttpServletResponse();
         chain = mock(FilterChain.class);
     }
@@ -54,7 +54,7 @@ class DenyIfRefererIsNotFilesFilterTest {
     }
 
     @Test
-    void shouldErrorOutWhenAppliedToFilesUrl() throws Exception {
+    void shouldErrorOutWhenAppliedToFilesUrl() {
         request = HttpRequestBuilder.GET("/files/file2")
                 .withHeader("Referer", "http://example.com/go/files/file1")
                 .build();

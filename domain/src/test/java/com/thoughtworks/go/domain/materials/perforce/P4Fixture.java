@@ -57,11 +57,11 @@ public class P4Fixture {
         }
     }
 
-    public P4Client createClient() throws Exception {
+    public P4Client createClient() {
         return repo.createClient();
     }
 
-    public P4Client createClient(String name, String view) throws Exception {
+    public P4Client createClient(String name, String view) {
         return repo.createClientWith(name, view);
     }
 

@@ -38,12 +38,12 @@ public class DeleteArtifactStoreConfigCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test
-    public void shouldDeleteAArtifactStore() throws Exception {
+    public void shouldDeleteAArtifactStore() {
         ArtifactStore artifactStore = new ArtifactStore("foo", "cd.go.docker");
         cruiseConfig.getArtifactStores().add(artifactStore);
 
@@ -53,7 +53,7 @@ public class DeleteArtifactStoreConfigCommandTest {
     }
 
     @Test
-    public void shouldRaiseExceptionInCaseArtifactStoreDoesNotExist() throws Exception {
+    public void shouldRaiseExceptionInCaseArtifactStoreDoesNotExist() {
         ArtifactStore artifactStore = new ArtifactStore("foo", "cd.go.docker");
         assertThat(cruiseConfig.getArtifactStores()).isEmpty();
 

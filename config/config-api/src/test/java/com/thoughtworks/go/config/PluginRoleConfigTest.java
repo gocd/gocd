@@ -65,12 +65,12 @@ public class PluginRoleConfigTest {
     }
 
     @Test
-    public void validate_presenceOfAuthConfigIdInSecurityConfig() throws Exception {
+    public void validate_presenceOfAuthConfigIdInSecurityConfig() {
         validatePresenceOfAuthConfigIdInSecurityConfig(PluginRoleConfig::validate);
     }
 
     @Test
-    public void validate_uniquenessOfRoleName() throws Exception {
+    public void validate_uniquenessOfRoleName() {
         validateUniquenessOfRoleName(PluginRoleConfig::validate);
     }
 
@@ -90,12 +90,12 @@ public class PluginRoleConfigTest {
     }
 
     @Test
-    public void validateTree_presenceOfAuthConfigIdInSecurityConfig() throws Exception {
+    public void validateTree_presenceOfAuthConfigIdInSecurityConfig() {
         validatePresenceOfAuthConfigIdInSecurityConfig((pluginRoleConfig, context) -> assertFalse(pluginRoleConfig.validateTree(context)));
     }
 
     @Test
-    public void validateTree_uniquenessOfRoleName() throws Exception {
+    public void validateTree_uniquenessOfRoleName() {
         validateUniquenessOfRoleName((pluginRoleConfig, context) -> assertFalse(pluginRoleConfig.validateTree(context)));
     }
 

@@ -24,7 +24,7 @@ import java.util.Map;
 public interface ServerInfoProvider {
     double priority();
 
-    Map<String, Object> asJson() throws IOException, Exception;
+    Map<String, Object> asJson();
 
     String name();
 }

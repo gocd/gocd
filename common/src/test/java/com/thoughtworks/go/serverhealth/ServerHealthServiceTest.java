@@ -52,7 +52,7 @@ public class ServerHealthServiceTest {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         serverHealthService = new ServerHealthService();
         globalId = HealthStateType.general(GLOBAL);
         pipelineId = HealthStateType.general(forPipeline(PIPELINE_NAME));

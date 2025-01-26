@@ -69,7 +69,7 @@ class GoCDFreeMarkerViewTest {
     private MaintenanceModeService maintenanceModeService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         lenient().when(featureToggleService.isToggleOn(anyString())).thenReturn(true);
         Toggles.initializeWith(featureToggleService);
         view = spy(new GoCDFreeMarkerView());

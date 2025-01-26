@@ -72,7 +72,7 @@ public class HttpLocalizedOperationResultTest {
     }
 
     @Test
-    public void shouldReturnAccepted() throws Exception {
+    public void shouldReturnAccepted() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         result.accepted("foo");
 
@@ -87,7 +87,7 @@ public class HttpLocalizedOperationResultTest {
     }
 
     @Test
-    public void shouldTellWhetherTheMessageIsPresentOrNot() throws Exception {
+    public void shouldTellWhetherTheMessageIsPresentOrNot() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         assertFalse(result.hasMessage());
         result.setMessage("foo");

@@ -32,7 +32,7 @@ public class TokenGenerationKeyImmutabilityValidatorTest {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         final SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.enforceServerImmutability()).thenReturn(true);
 

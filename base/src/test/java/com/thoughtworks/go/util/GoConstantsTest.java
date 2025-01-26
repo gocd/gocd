@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class GoConstantsTest {
     @Test
-    public void shouldMatchURLs() throws Exception {
+    public void shouldMatchURLs() {
         String url = "http://java.sun.com:80/docs/books/tutorial/essential/regex/test_harness.html";
         String baseUrl = StringUtil.matchPattern(GoConstants.BASE_URL_PATTERN, url);
         assertThat(baseUrl).isEqualTo("http://java.sun.com:80");

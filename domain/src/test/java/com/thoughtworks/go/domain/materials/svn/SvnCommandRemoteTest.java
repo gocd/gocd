@@ -57,7 +57,7 @@ public class SvnCommandRemoteTest {
     }
 
     @AfterEach
-    public void stopRepo() throws Exception {
+    public void stopRepo() {
         if (repository != null) repository.stop();
     }
 

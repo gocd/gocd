@@ -38,7 +38,7 @@ public class AuthorizationInterceptorTest {
     private MockHttpServletResponse response;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         securityService = mock(SecurityService.class);
         permissionInterceptor = new AuthorizationInterceptor(securityService);
         request = new MockHttpServletRequest();
@@ -47,7 +47,7 @@ public class AuthorizationInterceptorTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         ClearSingleton.clearSingletons();
     }
 

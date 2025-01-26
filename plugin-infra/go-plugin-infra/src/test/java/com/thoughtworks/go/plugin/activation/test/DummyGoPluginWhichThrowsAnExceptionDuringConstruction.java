@@ -35,7 +35,7 @@ public class DummyGoPluginWhichThrowsAnExceptionDuringConstruction implements Go
     }
 
     @Override
-    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
         throw new UnsupportedOperationException();
     }
 

@@ -71,7 +71,7 @@ public class ModificationIntegrationTest {
         final GitMaterial git = new GitMaterial("url", "branch");
         transactionTemplate.executeWithExceptionHandling(new TransactionCallback() {
             @Override
-            public Object doInTransaction(TransactionStatus status) throws Exception {
+            public Object doInTransaction(TransactionStatus status) {
                 MaterialInstance gitInstance = materialRepository.findOrCreateFrom(git);
                 materialRepository.saveModification(gitInstance, modification);
                 return null;

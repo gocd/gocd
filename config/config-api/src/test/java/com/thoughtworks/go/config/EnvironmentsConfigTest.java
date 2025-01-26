@@ -38,7 +38,7 @@ class EnvironmentsConfigTest {
     private BasicEnvironmentConfig basicEnvConfig;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         envsConfig = new EnvironmentsConfig();
 
         basicEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));

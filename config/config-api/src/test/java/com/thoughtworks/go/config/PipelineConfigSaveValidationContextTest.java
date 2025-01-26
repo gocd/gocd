@@ -48,7 +48,7 @@ class PipelineConfigSaveValidationContextTest {
     private PipelineConfigSaveValidationContext pipelineContext;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         pipelineConfig = mock(PipelineConfig.class);
         pipelineContext = PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig);
     }
@@ -81,7 +81,7 @@ class PipelineConfigSaveValidationContextTest {
     }
 
     @Test
-    void shouldGetAllMaterialsByFingerPrint() throws Exception {
+    void shouldGetAllMaterialsByFingerPrint() {
         CruiseConfig cruiseConfig = new GoConfigMother().cruiseConfigWithPipelineUsingTwoMaterials();
         MaterialConfig expectedMaterial = MaterialConfigsMother.multipleMaterialConfigs().get(1);
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
@@ -91,7 +91,7 @@ class PipelineConfigSaveValidationContextTest {
     }
 
     @Test
-    void shouldReturnNullIfMatchingMaterialConfigIsNotFound() throws Exception {
+    void shouldReturnNullIfMatchingMaterialConfigIsNotFound() {
         CruiseConfig cruiseConfig = new GoConfigMother().cruiseConfigWithPipelineUsingTwoMaterials();
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
         assertThat(context.getAllMaterialsByFingerPrint("does_not_exist")).isNull();
@@ -128,7 +128,7 @@ class PipelineConfigSaveValidationContextTest {
     }
 
     @Test
-    void shouldReturnNullWhenNoMatchingPipelineIsFound() throws Exception {
+    void shouldReturnNullWhenNoMatchingPipelineIsFound() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig(new CaseInsensitiveString("p2"), new MaterialConfigs()));
         assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("does_not_exist"))).isNull();
@@ -173,7 +173,7 @@ class PipelineConfigSaveValidationContextTest {
     }
 
     @Test
-    void shouldCheckForExistenceOfSCM() throws Exception {
+    void shouldCheckForExistenceOfSCM() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(new SCMs(SCMMother.create("scm-id")));
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
@@ -183,7 +183,7 @@ class PipelineConfigSaveValidationContextTest {
     }
 
     @Test
-    void shouldCheckForExistenceOfPackage() throws Exception {
+    void shouldCheckForExistenceOfPackage() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setPackageRepositories(new PackageRepositories(PackageRepositoryMother.create("repo-id")));
         cruiseConfig.getPackageRepositories().find("repo-id").setPackages(new Packages(PackageDefinitionMother.create("package-id")));

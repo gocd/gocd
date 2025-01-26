@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ServerHealthStatesTest {
 
     @Test
-    public void shouldReturnTheErrorCount() throws Exception {
+    public void shouldReturnTheErrorCount() {
         ServerHealthStates states = new ServerHealthStates(ServerHealthState.error("msg", "desc", HealthStateType.artifactsDirChanged()),
                 ServerHealthState.warning("another", "some", HealthStateType.databaseDiskFull()));
         assertThat(states.errorCount()).isEqualTo(1);
@@ -30,19 +30,19 @@ public class ServerHealthStatesTest {
     }
 
     @Test
-    public void shouldReturnFalseForRealSuccessIfThereIsAtleastOneError() throws Exception {
+    public void shouldReturnFalseForRealSuccessIfThereIsAtleastOneError() {
         ServerHealthStates states = new ServerHealthStates(ServerHealthState.error("msg", "desc", HealthStateType.artifactsDirChanged()));
         assertThat(states.isRealSuccess()).isFalse();
     }
 
     @Test
-    public void shouldReturnFalseForRealSuccessIfThereIsAtleastOneWarning() throws Exception {
+    public void shouldReturnFalseForRealSuccessIfThereIsAtleastOneWarning() {
         ServerHealthStates states = new ServerHealthStates(ServerHealthState.warning("another", "some", HealthStateType.databaseDiskFull()));
         assertThat(states.isRealSuccess()).isFalse();
     }
 
     @Test
-    public void shouldReturntrueForRealSuccess() throws Exception {
+    public void shouldReturntrueForRealSuccess() {
         assertThat(new ServerHealthStates(ServerHealthState.success(HealthStateType.databaseDiskFull())).isRealSuccess()).isTrue();
     }
 }

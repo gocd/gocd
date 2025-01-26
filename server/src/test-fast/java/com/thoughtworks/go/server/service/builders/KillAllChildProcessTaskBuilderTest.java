@@ -41,13 +41,13 @@ public class KillAllChildProcessTaskBuilderTest {
     private BuilderFactory builderFactory;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         builderFactory = mock(BuilderFactory.class);
     }
 
     @Test
     @Timeout(value = 11, unit = MINUTES)
-    public void shouldKillAllChildProcessOnBuild() throws Exception {
+    public void shouldKillAllChildProcessOnBuild() {
         ProcessWrapper processWrapper = platformSpecificSleepCommand().withArg(String.valueOf(10 * 60)).withEncoding(UTF_8).execute(ProcessOutputStreamConsumer.inMemoryConsumer(), new EnvironmentVariableContext(),
             null);//10 mins
 

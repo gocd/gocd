@@ -32,7 +32,7 @@ public class CreateOrUpdateDefaultJobTimeoutCommand implements EntityConfigUpdat
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         preprocessedConfig.server().setJobTimeout(defaultJobTimeout);
     }
 

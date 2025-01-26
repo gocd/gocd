@@ -30,7 +30,7 @@ public class PipelineActiveCheckerTest {
     private PipelineIdentifier pipelineIdentifier;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         service = mock(StageService.class);
         pipelineIdentifier = new PipelineIdentifier("cruise", 1, "label-1");
         checker = new PipelineActiveChecker(service, pipelineIdentifier);

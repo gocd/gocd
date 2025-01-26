@@ -59,7 +59,7 @@ class AddClusterProfileCommandTest {
     }
 
     @Test
-    void shouldAddClusterProfile() throws Exception {
+    void shouldAddClusterProfile() {
         assertThat(config.getElasticConfig().getClusterProfiles()).hasSize(0);
         command.update(config);
 
@@ -68,7 +68,7 @@ class AddClusterProfileCommandTest {
     }
 
     @Test
-    void shouldReturnWhetherAdditionOfNewClusterProfileIsValid() throws Exception {
+    void shouldReturnWhetherAdditionOfNewClusterProfileIsValid() {
         command.update(config);
         assertThat(command.isValid(config)).isTrue();
     }

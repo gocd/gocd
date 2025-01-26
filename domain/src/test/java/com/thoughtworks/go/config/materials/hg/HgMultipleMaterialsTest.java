@@ -45,7 +45,7 @@ public class HgMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldCloneMaterialToItsDestFolder() throws Exception {
+    public void shouldCloneMaterialToItsDestFolder() {
         HgMaterial material1 = repo.createMaterial("dest1");
 
         MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));
@@ -57,7 +57,7 @@ public class HgMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldIgnoreDestinationFolderWhenServerSide() throws Exception {
+    public void shouldIgnoreDestinationFolderWhenServerSide() {
         HgMaterial material1 = repo.createMaterial("dest1");
 
         MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));

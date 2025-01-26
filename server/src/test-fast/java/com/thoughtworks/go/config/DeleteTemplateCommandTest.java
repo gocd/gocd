@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DeleteTemplateCommandTest {
 
     @Test
-    public void shouldRemoveATemplateWithTheGivenName() throws Exception {
+    public void shouldRemoveATemplateWithTheGivenName() {
         DeleteTemplateCommand command = new DeleteTemplateCommand("template", "md5");
         CruiseConfig config = new BasicCruiseConfig();
         config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template")));

@@ -48,7 +48,7 @@ class AbstractUserEnabledCheckFilterTest {
     private SecurityService securityService;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         userService = mock(UserService.class);
         securityService = mock(SecurityService.class);
         filter = spy(new AbstractUserEnabledCheckFilter(userService, securityService) {
@@ -56,7 +56,7 @@ class AbstractUserEnabledCheckFilterTest {
             @Override
             void handleFailure(HttpServletRequest request,
                                HttpServletResponse response,
-                               String errorMessage) throws IOException {
+                               String errorMessage) {
 
             }
         });

@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SCMRevisionTest {
     @Test
-    public void shouldGetModificationDetails() throws Exception {
+    public void shouldGetModificationDetails() {
         Date dateTime = new Date();
         Modification modification = new Modification("user", "comment", "email", dateTime, "r1");
         SCMRevision scmRevision = new SCMRevision(modification);
@@ -35,7 +35,7 @@ public class SCMRevisionTest {
     }
 
     @Test
-    public void shouldRenderUsernameForDisplay() throws Exception {
+    public void shouldRenderUsernameForDisplay() {
         Modification modification = new Modification(null, "comment", "email", new Date(), "r1");
         SCMRevision scmRevision = new SCMRevision(modification);
         assertThat(scmRevision.getUser()).isEqualTo(modification.getUserDisplayName());

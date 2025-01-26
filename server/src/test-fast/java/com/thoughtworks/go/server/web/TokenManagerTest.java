@@ -34,20 +34,20 @@ public class TokenManagerTest {
     private HttpServletRequest request;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         manager = new TokenManager();
         session = mock(HttpSession.class);
         request = mock(HttpServletRequest.class);
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(session);
         verifyNoMoreInteractions(request);
     }
 
     @Test
-    public void shouldCreateAPostTokenIntheSessionIfNotAvailable() throws Exception {
+    public void shouldCreateAPostTokenIntheSessionIfNotAvailable() {
         when(session.getAttribute(TOKEN)).thenReturn(null);
 
         manager.create(session);
@@ -57,7 +57,7 @@ public class TokenManagerTest {
     }
 
     @Test
-    public void shouldNotCreateAPostTokenIfItsAvailable() throws Exception {
+    public void shouldNotCreateAPostTokenIfItsAvailable() {
         when(session.getAttribute(TOKEN)).thenReturn("token");
 
         manager.create(session);
@@ -66,7 +66,7 @@ public class TokenManagerTest {
     }
 
     @Test
-    public void shouldVerifyIfRequestTokenIsAvailable() throws Exception {
+    public void shouldVerifyIfRequestTokenIsAvailable() {
         when(request.getParameter(TOKEN)).thenReturn(null);
         when(request.getSession()).thenReturn(session);
         when(session.getAttribute(TOKEN)).thenReturn(null);
@@ -79,7 +79,7 @@ public class TokenManagerTest {
     }
 
     @Test
-    public void shouldVerifyIfSessionTokenIsAvailable() throws Exception {
+    public void shouldVerifyIfSessionTokenIsAvailable() {
         when(request.getParameter(TOKEN)).thenReturn("token");
         when(request.getSession()).thenReturn(session);
         when(session.getAttribute(TOKEN)).thenReturn(null);
@@ -92,7 +92,7 @@ public class TokenManagerTest {
     }
 
     @Test
-    public void shouldVerifyIfSessionTokenAndPostTokenAreDifferent() throws Exception {
+    public void shouldVerifyIfSessionTokenAndPostTokenAreDifferent() {
         when(request.getParameter(TOKEN)).thenReturn("random.token");
         when(request.getSession()).thenReturn(session);
         when(session.getAttribute(TOKEN)).thenReturn("token");
@@ -105,7 +105,7 @@ public class TokenManagerTest {
     }
 
     @Test
-    public void shouldVerifyIfSessionTokenAndPostTokenAreSame() throws Exception {
+    public void shouldVerifyIfSessionTokenAndPostTokenAreSame() {
         when(request.getParameter(TOKEN)).thenReturn("token");
         when(request.getSession()).thenReturn(session);
         when(session.getAttribute(TOKEN)).thenReturn("token");

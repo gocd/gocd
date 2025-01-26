@@ -29,7 +29,7 @@ public class PackagesTest {
     }
 
     @Test
-    public void shouldFindPackageGivenThePkgId() throws Exception {
+    public void shouldFindPackageGivenThePkgId() {
         PackageRepository repository = PackageRepositoryMother.create("repo-id2", "repo2", "plugin-id", "1.0", null);
         PackageDefinition p1 = PackageDefinitionMother.create("id1", "pkg1", null, repository);
         PackageDefinition p2 = PackageDefinitionMother.create("id2", "pkg2", null, repository);
@@ -38,7 +38,7 @@ public class PackagesTest {
     }
 
     @Test
-    public void shouldReturnNullIfNoMatchingPkgFound() throws Exception {
+    public void shouldReturnNullIfNoMatchingPkgFound() {
         Packages packages = new Packages();
         assertThat(packages.find("id2")).isNull();
     }

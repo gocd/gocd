@@ -44,12 +44,12 @@ public class SecretConfigCreateCommandTest {
     private SecretsExtension extension;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(SecretsExtension.class);
     }
 
     @Test
-    public void shouldAddSecretConfig() throws Exception {
+    public void shouldAddSecretConfig() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         SecretConfig secretConfig = new SecretConfig("CreateTest", "File");
         SecretConfigCreateCommand command = new SecretConfigCreateCommand(null, secretConfig, extension, null, null);
@@ -59,7 +59,7 @@ public class SecretConfigCreateCommandTest {
     }
 
     @Test
-    public void shouldInvokePluginValidations() throws Exception {
+    public void shouldInvokePluginValidations() {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("key", "error"));
 

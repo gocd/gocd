@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DESCipherProviderTest {
 
     @BeforeEach
-    public void setup() throws IOException {
+    public void setup() {
         new DESCipherProvider(new SystemEnvironment()).resetCipher();
     }
 

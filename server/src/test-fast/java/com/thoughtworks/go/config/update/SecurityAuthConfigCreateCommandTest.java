@@ -44,12 +44,12 @@ public class SecurityAuthConfigCreateCommandTest {
     private AuthorizationExtension extension;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(AuthorizationExtension.class);
     }
 
     @Test
-    public void shouldAddSecurityAuthConfig() throws Exception {
+    public void shouldAddSecurityAuthConfig() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         SecurityAuthConfig authConfig = new SecurityAuthConfig("foo", "ldap");
         SecurityAuthConfigCreateCommand command = new SecurityAuthConfigCreateCommand(null, authConfig, extension, null, null);
@@ -59,7 +59,7 @@ public class SecurityAuthConfigCreateCommandTest {
     }
 
     @Test
-    public void shouldInvokePluginValidationsBeforeSave() throws Exception {
+    public void shouldInvokePluginValidationsBeforeSave() {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("key", "error"));
         when(extension.validateAuthConfig(eq("aws"), anyMap())).thenReturn(validationResult);

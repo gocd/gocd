@@ -38,7 +38,7 @@ public class ChecksumValidationPublisherTest {
     }
 
     @Test
-    public void testMessagesPublished_WhenMD5PropertyFileIsNotFoundOnServer() throws Exception {
+    public void testMessagesPublished_WhenMD5PropertyFileIsNotFoundOnServer() {
         checksumValidationPublisher.md5ChecksumFileNotFound();
         checksumValidationPublisher.publish(HttpServletResponse.SC_OK, artifact, goPublisher);
         assertThat(goPublisher.getMessage()).doesNotContain(String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.", artifact));

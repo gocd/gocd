@@ -69,7 +69,7 @@ public class AgentInstanceTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         FileUtils.deleteQuietly(new File("config/agentkeystore"));
         new SystemEnvironment().setProperty("agent.connection.timeout", "300");
         new SystemEnvironment().clearProperty(SystemEnvironment.AGENT_SIZE_LIMIT);

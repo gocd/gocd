@@ -50,7 +50,7 @@ public class WorkAssignmentsTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verify(assignedWorkTopic).addListener(any(WorkAssignments.class));
     }
 

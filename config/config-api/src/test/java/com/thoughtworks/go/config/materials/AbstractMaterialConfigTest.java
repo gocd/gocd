@@ -93,7 +93,7 @@ class AbstractMaterialConfigTest {
     }
 
     @Test
-    void shouldNotUseNameFieldButInsteadUseTheNameMethodToCheckIfTheMaterialNameIsUsedInThePipelineLabel() throws Exception {
+    void shouldNotUseNameFieldButInsteadUseTheNameMethodToCheckIfTheMaterialNameIsUsedInThePipelineLabel() {
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
         when(pipelineConfig.getLabelTemplate()).thenReturn("${COUNT}-${hg}-${dep}-${pkg}-${scm}");
         MaterialConfig hg = mock(HgMaterialConfig.class);

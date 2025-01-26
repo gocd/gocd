@@ -59,14 +59,14 @@ class DeleteClusterProfileCommandTest {
     }
 
     @Test
-    void shouldSetPreprocessedEntityAsPartOfUpdate() throws Exception {
+    void shouldSetPreprocessedEntityAsPartOfUpdate() {
         assertNull(command.getPreprocessedEntityConfig());
         command.update(config);
         assertThat(command.getPreprocessedEntityConfig()).isEqualTo(clusterProfile);
     }
 
     @Test
-    void shouldDeleteClusterProfile() throws Exception {
+    void shouldDeleteClusterProfile() {
         assertThat(config.getElasticConfig().getClusterProfiles()).hasSize(1);
         command.update(config);
 
@@ -74,7 +74,7 @@ class DeleteClusterProfileCommandTest {
     }
 
     @Test
-    void shouldReturnWhetherRemovalOfExistingClusterProfileIsValid() throws Exception {
+    void shouldReturnWhetherRemovalOfExistingClusterProfileIsValid() {
         assertThat(command.isValid(config)).isTrue();
         command.update(config);
         assertThat(command.isValid(config)).isTrue();

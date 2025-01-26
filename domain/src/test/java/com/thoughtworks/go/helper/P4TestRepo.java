@@ -176,11 +176,11 @@ public class P4TestRepo extends TestRepo {
         return p4MaterialConfig;
     }
 
-    public P4Client createClient() throws Exception {
+    public P4Client createClient() {
         return createClientWith(clientName, null);
     }
 
-    public P4Client createClientWith(String clientName, String view) throws Exception {
+    public P4Client createClientWith(String clientName, String view) {
         String p4view = view == null ? "\n\t//depot/... //" + clientName + "/..." : "\n\t" + view;
         return P4Client.fromServerAndPort(null, serverAndPort(), user, password, clientName, useTickets, clientFolder, p4view, inMemoryConsumer(), true);
     }

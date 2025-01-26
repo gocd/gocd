@@ -42,14 +42,14 @@ public class RolesConfigBulkUpdateCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test
-    public void shouldUpdateExistingGoCDRoles() throws Exception {
+    public void shouldUpdateExistingGoCDRoles() {
         RoleConfig role1 = new RoleConfig("foo", new RoleUser("user1"));
         List<String> userToAdd = List.of("user2");
 
@@ -74,7 +74,7 @@ public class RolesConfigBulkUpdateCommandTest {
     }
 
     @Test
-    public void currentUserShouldBeAnAdminToAddRole() throws Exception {
+    public void currentUserShouldBeAnAdminToAddRole() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username viewUser = mock(Username.class);
 
@@ -89,7 +89,7 @@ public class RolesConfigBulkUpdateCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfExistingRoleIsDeleted() throws Exception {
+    public void shouldNotContinueIfExistingRoleIsDeleted() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 

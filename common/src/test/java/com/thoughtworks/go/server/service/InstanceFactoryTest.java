@@ -52,7 +52,7 @@ class InstanceFactoryTest {
     private Clock clock;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         instanceFactory = new InstanceFactory();
         this.clock = new TestingClock();
     }

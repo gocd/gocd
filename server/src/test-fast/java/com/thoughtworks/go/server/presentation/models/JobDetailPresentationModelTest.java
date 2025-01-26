@@ -42,7 +42,7 @@ public class JobDetailPresentationModelTest {
     private ArtifactsService artifactsService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         directoryReader = mock(DirectoryReader.class);
         artifactsService = mock(ArtifactsService.class);
     }

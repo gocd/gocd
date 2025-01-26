@@ -64,7 +64,7 @@ public class ElasticAgentExtensionV4Test {
     private ElasticAgentExtensionV4 extensionV4;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         final List<String> goSupportedVersions = List.of("4.0");
 

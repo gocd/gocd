@@ -340,7 +340,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
 
     @Test
-    public void shouldSchedulePipelineWithModifications() throws Exception {
+    public void shouldSchedulePipelineWithModifications() {
         Pipeline pipeline = schedulePipelineWithStages(
                 PipelineMother.withMaterials("mingle", "dev", BuildPlanMother.withBuildPlans("functional", "unit"))
         );
@@ -350,7 +350,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     //TODO FIXME sorted by Id is not good.
     // - Comment by Bobby: Sorted by Id is exactly what we want here. Please discuss.
     @Test
-    public void shouldLoadMostRecentPipeline() throws Exception {
+    public void shouldLoadMostRecentPipeline() {
         String stageName = "dev";
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", stageName);
         Pipeline mingle = schedulePipelineWithStages(mingleConfig);
@@ -361,7 +361,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadMostRecentPipelineWithSingleStage() throws Exception {
+    public void shouldLoadMostRecentPipelineWithSingleStage() {
         String stageName = "dev";
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", stageName);
         Pipeline mingle = schedulePipelineWithStages(mingleConfig);
@@ -375,7 +375,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadMostRecentPipelineWithMutipleSameStage() throws Exception {
+    public void shouldLoadMostRecentPipelineWithMutipleSameStage() {
         String stageName = "dev";
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", stageName);
         Pipeline mingle = schedulePipelineWithStages(mingleConfig);
@@ -396,7 +396,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadPipelineHistories() throws Exception {
+    public void shouldLoadPipelineHistories() {
         String dev = "dev";
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", dev);
         Pipeline mingle = schedulePipelineWithStages(mingleConfig);
@@ -426,7 +426,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadPipelineHistoryOnlyForSuppliedPipeline() throws Exception {
+    public void shouldLoadPipelineHistoryOnlyForSuppliedPipeline() {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         PipelineConfig otherConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("other", "dev");
 
@@ -586,7 +586,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadPipelineHistoriesWithMultipleSameStage() throws Exception {
+    public void shouldLoadPipelineHistoriesWithMultipleSameStage() {
         String stageName = "dev";
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", stageName);
         Pipeline mingle = schedulePipelineWithStages(mingleConfig);
@@ -617,7 +617,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnCorrectCount() throws Exception {
+    public void shouldReturnCorrectCount() {
         PipelineConfig mingle = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         assertThat(pipelineDao.count(CaseInsensitiveString.str(mingle.name()))).isEqualTo(0);
         dbHelper.pass(schedulePipelineWithStages(mingle));
@@ -1121,7 +1121,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnPageNumberOfThePageInWhichThePIMWouldBePresent() throws Exception {
+    public void shouldReturnPageNumberOfThePageInWhichThePIMWouldBePresent() {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
         Pipeline pipeline1 = schedulePipelineWithStages(mingleConfig);
         Pipeline pipeline2 = schedulePipelineWithStages(mingleConfig);
@@ -1137,7 +1137,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldPauseExistingPipeline() throws Exception {
+    public void shouldPauseExistingPipeline() {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
         schedulePipelineWithStages(mingleConfig);
 
@@ -1153,7 +1153,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldPauseExistingPipelineCaseInsensitive() throws Exception {
+    public void shouldPauseExistingPipelineCaseInsensitive() {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
         schedulePipelineWithStages(mingleConfig);
 
@@ -1169,7 +1169,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUnPauseAPausedPipeline() throws Exception {
+    public void shouldUnPauseAPausedPipeline() {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
         schedulePipelineWithStages(mingleConfig);
         pipelineDao.pause(mingleConfig.name().toString(), "cause", "by");
@@ -1182,7 +1182,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUnPauseAPausedPipelineCaseInsensitive() throws Exception {
+    public void shouldUnPauseAPausedPipelineCaseInsensitive() {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
         schedulePipelineWithStages(mingleConfig);
         pipelineDao.pause(mingleConfig.name().toString(), "cause", "by");
@@ -1210,7 +1210,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnCurrentPauseStateOfPipeline() throws Exception {
+    public void shouldReturnCurrentPauseStateOfPipeline() {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
         schedulePipelineWithStages(mingleConfig);
 
@@ -1220,7 +1220,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnCurrentPauseStateOfPipelineCaseInsensitive() throws Exception {
+    public void shouldReturnCurrentPauseStateOfPipelineCaseInsensitive() {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
         schedulePipelineWithStages(mingleConfig);
 

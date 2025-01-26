@@ -62,7 +62,7 @@ public class AutoBuildCauseTest {
     private CruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         cruiseConfig = new BasicCruiseConfig();
         lenient().when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
     }
@@ -76,7 +76,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldSetApproverToCruiseForTheProducedBuildCause() throws Exception {
+    public void shouldSetApproverToCruiseForTheProducedBuildCause() {
         SvnMaterial material = new SvnMaterial("http://foo.bar/baz", "user", "pass", false);
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(material, new Modification(new Date(), "1234", "MOCK_LABEL-12", null)));
 
@@ -86,7 +86,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldReturnNullIfUpstreamMaterialHasNotChanged_WithFaninOff() throws Exception {
+    public void shouldReturnNullIfUpstreamMaterialHasNotChanged_WithFaninOff() {
         PipelineConfigDependencyGraph dependencyGraph = dependencyGraphOfDepthOne(MaterialConfigsMother.hgMaterialConfig());
 
         MaterialRevisions revisions = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("2"));
@@ -104,7 +104,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldReturnNullIfUpstreamMaterialAndFirstOrderMaterialHaveNotChanged_WithFaninOff() throws Exception {
+    public void shouldReturnNullIfUpstreamMaterialAndFirstOrderMaterialHaveNotChanged_WithFaninOff() {
         PipelineConfigDependencyGraph dependencyGraph = dependencyGraphOfDepthOne(MaterialConfigsMother.hgMaterialConfig(), MaterialConfigsMother.svnMaterialConfig());
 
         MaterialRevisions revisions = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("2"));
@@ -127,7 +127,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldReturnCorrectRevisionsIfFirstOrderMaterialIsChanged() throws Exception {
+    public void shouldReturnCorrectRevisionsIfFirstOrderMaterialIsChanged() {
         PipelineConfigDependencyGraph dependencyGraph = dependencyGraphOfDepthOne(MaterialConfigsMother.hgMaterialConfig(), MaterialConfigsMother.svnMaterialConfig());
         String targetPipeline = dependencyGraph.getCurrent().name().toLower();
 
@@ -152,7 +152,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldReturnCorrectRevisionsIfUpstreamIgnoresAllTheModificationsAndFirstOrderMaterialNotChanged() throws Exception {
+    public void shouldReturnCorrectRevisionsIfUpstreamIgnoresAllTheModificationsAndFirstOrderMaterialNotChanged() {
         PipelineConfigDependencyGraph dependencyGraph = dependencyGraphOfDepthOne(MaterialConfigsMother.hgMaterialConfig(), MaterialConfigsMother.svnMaterialConfig());
         String targetPipeline = dependencyGraph.getCurrent().name().toLower();
         firstHgMaterial(dependencyGraph).setFilter(new Filter(new IgnoredFiles("**/*.xml")));
@@ -179,7 +179,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldReturnNullIfUpstreamMaterialHasChangedButNoFirstOrderMaterialHas_WithFaninOff() throws Exception {
+    public void shouldReturnNullIfUpstreamMaterialHasChangedButNoFirstOrderMaterialHas_WithFaninOff() {
         HgMaterialConfig hg = MaterialConfigsMother.hgMaterialConfig();
         PipelineConfig third = PipelineConfigMother.pipelineConfig("third", MaterialConfigsMother.dependencyMaterialConfig("second", "mingle"), new JobConfigs());
         PipelineConfig second = PipelineConfigMother.pipelineConfig("second", MaterialConfigsMother.dependencyMaterialConfig("first", "mingle"), new JobConfigs());
@@ -206,7 +206,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldReturnPeggedRevisionsForUpstreamMaterialWhenFirstOrderDependencyMaterialIsChanged() throws Exception {
+    public void shouldReturnPeggedRevisionsForUpstreamMaterialWhenFirstOrderDependencyMaterialIsChanged() {
         HgMaterialConfig hg = MaterialConfigsMother.hgMaterialConfig();
         PipelineConfig third = PipelineConfigMother.pipelineConfig("third", MaterialConfigsMother.dependencyMaterialConfig("second", "mingle"), new JobConfigs());
         PipelineConfig second = PipelineConfigMother.pipelineConfig("second", MaterialConfigsMother.dependencyMaterialConfig("first", "mingle"), new JobConfigs());
@@ -235,7 +235,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldUseTheMaterialRevisionsAfterGettingTheRightVersionsBasedOnDependency() throws Exception {
+    public void shouldUseTheMaterialRevisionsAfterGettingTheRightVersionsBasedOnDependency() {
         PipelineConfigDependencyGraph dependencyGraph = dependencyGraphOfDepthOne(MaterialConfigsMother.hgMaterialConfig());
         String targetPipeline = dependencyGraph.getCurrent().name().toLower();
 
@@ -256,7 +256,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldUpdateRecomputedMaterialRevisionsChangedStatus() throws Exception {
+    public void shouldUpdateRecomputedMaterialRevisionsChangedStatus() {
         PipelineConfigDependencyGraph dependencyGraph = dependencyGraphOfDepthOne(MaterialConfigsMother.hgMaterialConfig(), MaterialConfigsMother.svnMaterialConfig());
         String targetPipeline = dependencyGraph.getCurrent().name().toLower();
         MaterialRevisions revisions = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("2"), oneModifiedFile("1"));
@@ -292,7 +292,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldNotFallbackToFanInOffTriangleDependencyBehaviourOnNoCompatibleUpstreamRevisionsException() throws Exception {
+    public void shouldNotFallbackToFanInOffTriangleDependencyBehaviourOnNoCompatibleUpstreamRevisionsException() {
         PipelineConfigDependencyGraph dependencyGraph = dependencyGraphOfDepthOne(MaterialConfigsMother.hgMaterialConfig());
         String targetPipeline = dependencyGraph.getCurrent().name().toLower();
         MaterialRevisions revisions = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("2"));
@@ -314,7 +314,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldTurnOffFanInFallbackBehaviourWhenSystemEnvironmentVariableIsOff() throws Exception {
+    public void shouldTurnOffFanInFallbackBehaviourWhenSystemEnvironmentVariableIsOff() {
         PipelineConfigDependencyGraph dependencyGraph = dependencyGraphOfDepthOne(MaterialConfigsMother.hgMaterialConfig());
         String targetPipeline = dependencyGraph.getCurrent().name().toLower();
         MaterialRevisions revisions = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("2"));

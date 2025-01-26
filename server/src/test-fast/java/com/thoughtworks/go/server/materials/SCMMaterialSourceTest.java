@@ -55,7 +55,7 @@ public class SCMMaterialSourceTest {
     private final Material gitMaterial = MaterialsMother.gitMaterial("http://my.repo");
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         goConfigService = mock(GoConfigService.class);
         systemEnvironment = new SystemEnvironment();
         serverHealthService = mock(ServerHealthService.class);
@@ -66,7 +66,7 @@ public class SCMMaterialSourceTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         systemEnvironment.reset(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT_IN_MINUTES);
     }
 

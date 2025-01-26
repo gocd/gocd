@@ -35,7 +35,7 @@ class AlwaysCreateSessionFilterTest {
     private AlwaysCreateSessionFilter alwaysCreateSessionFilter;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         response = new MockHttpServletResponse();
         request = new MockHttpServletRequest();
         alwaysCreateSessionFilter = new AlwaysCreateSessionFilter();

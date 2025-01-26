@@ -123,7 +123,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
     }
 
     @Test
-    public void shouldHaveModificationChangedAsFalseWhenForceBuildWithoutModification() throws Exception {
+    public void shouldHaveModificationChangedAsFalseWhenForceBuildWithoutModification() {
         mingleConfig = configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME, svnMaterialConfig, "unit",
                 "functional");
         consume(buildCause());
@@ -234,7 +234,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         }
     }
 
-    private void preparePipelineWithMaterial() throws Exception {
+    private void preparePipelineWithMaterial() {
         SvnMaterial svnMaterial = new SvnMaterial(repository);
 
         MaterialConfigs materialConfigs = new MaterialConfigs();

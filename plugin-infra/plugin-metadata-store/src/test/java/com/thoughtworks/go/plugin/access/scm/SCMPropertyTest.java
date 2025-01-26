@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SCMPropertyTest {
     @Test
-    public void validateSCMPropertyDefaults() throws Exception {
+    public void validateSCMPropertyDefaults() {
         SCMProperty scmProperty = new SCMProperty("Test-Property");
 
         assertThat(scmProperty.getOptions().size()).isEqualTo(5);

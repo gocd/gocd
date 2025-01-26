@@ -42,7 +42,7 @@ public class StageManualTriggerCheckerTest {
     private int pipelineCounter;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         schedulingCheckerService = mock(SchedulingCheckerService.class);
         pipelineService = mock(PipelineService.class);
         pipeline = mock(Pipeline.class);

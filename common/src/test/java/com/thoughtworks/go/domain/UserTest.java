@@ -152,7 +152,7 @@ class UserTest {
     }
 
     @Test
-    void shouldInvalidateMatcherMoreThan255Of() throws Exception {
+    void shouldInvalidateMatcherMoreThan255Of() {
         user = new User("UserName", new String[]{onlyChars(200), onlyChars(55)}, "user@mail.com", true);
         try {
             user.validateMatcher();
@@ -168,7 +168,7 @@ class UserTest {
     }
 
     @Test
-    void shouldEquals() throws Exception {
+    void shouldEquals() {
         User user1 = new User("UserName", new String[]{"A", "b"}, "user@mail.com", true);
         User user2 = new User("UserName", new String[]{}, "user@mail.com", true);
         user2.setMatcher("A, b");

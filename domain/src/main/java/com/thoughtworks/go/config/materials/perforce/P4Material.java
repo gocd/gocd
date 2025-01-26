@@ -208,11 +208,11 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return format("URL: %s, View: %s, Username: %s", serverAndPort, view.getValue(), userName);
     }
 
-    P4Client p4(File baseDir, ConsoleOutputStreamConsumer consumer) throws Exception {
+    P4Client p4(File baseDir, ConsoleOutputStreamConsumer consumer) {
         return p4(baseDir, consumer, true);
     }
 
-    P4Client p4(File workDir, ConsoleOutputStreamConsumer consumer, boolean failOnError) throws Exception {
+    P4Client p4(File workDir, ConsoleOutputStreamConsumer consumer, boolean failOnError) {
         String clientName = clientName(workDir);
         return P4Client.fromServerAndPort(getFingerprint(), serverAndPort, userName, passwordForCommandLine(), clientName, this.useTickets, workDir, p4view(clientName), consumer, failOnError);
     }

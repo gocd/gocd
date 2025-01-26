@@ -108,7 +108,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldOnlyAllowAdminsToGetPipelineConfig() throws IOException {
+    public void shouldOnlyAllowAdminsToGetPipelineConfig() {
         setupSecurity();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -129,7 +129,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturn404WhenUserIsNotAnAdminAndTriesToLoadANonExistentPipeline() throws IOException {
+    public void shouldReturn404WhenUserIsNotAnAdminAndTriesToLoadANonExistentPipeline() {
         setupSecurity();
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigForEdit<PipelineConfig> configForEdit = goConfigService.loadForEdit("non-existent-pipeline", new Username(new CaseInsensitiveString("loser")), result);

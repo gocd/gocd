@@ -75,7 +75,7 @@ public class GoDashboardCurrentStateLoaderTest {
     private GoDashboardCurrentStateLoader loader;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         loader = new GoDashboardCurrentStateLoader(pipelineSqlMapDao, triggerMonitor, pipelinePauseService,
                 pipelineLockService, pipelineUnlockApiService, schedulingCheckerService, permissionsAuthority, new TimeStampBasedCounter(mock(Clock.class)));
 

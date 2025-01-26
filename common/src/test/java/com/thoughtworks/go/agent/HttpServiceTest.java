@@ -48,7 +48,7 @@ public class HttpServiceTest {
     private GoAgentServerHttpClient httpClient;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         httpClientFactory = mock(HttpService.HttpClientFactory.class);
         httpClient = mock(GoAgentServerHttpClient.class);
         when(httpClientFactory.httpClient()).thenReturn(httpClient);

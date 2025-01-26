@@ -42,7 +42,7 @@ public class RoleConfigServiceTest {
     private BasicCruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         configService = mock(GoConfigService.class);
         extension = mock(AuthorizationExtension.class);
         configurationValidator = mock(RoleConfigurationValidator.class);
@@ -55,7 +55,7 @@ public class RoleConfigServiceTest {
     }
 
     @Test
-    public void create_shouldAddARoleToConfig() throws Exception {
+    public void create_shouldAddARoleToConfig() {
         PluginRoleConfig role = new PluginRoleConfig();
         Username admin = new Username("admin");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -66,7 +66,7 @@ public class RoleConfigServiceTest {
     }
 
     @Test
-    public void create_shouldValidatePluginRoleMetadata() throws Exception {
+    public void create_shouldValidatePluginRoleMetadata() {
         PluginRoleConfig role = new PluginRoleConfig("operate", "ldap");
 
         cruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig("ldap", "plugin_id"));
@@ -77,7 +77,7 @@ public class RoleConfigServiceTest {
     }
 
     @Test
-    public void create_shouldIgnorePluginRoleMetadataValidationInAbsenceOfPlugin() throws Exception {
+    public void create_shouldIgnorePluginRoleMetadataValidationInAbsenceOfPlugin() {
         PluginRoleConfig role = new PluginRoleConfig("operate", "ldap");
 
         roleConfigService.create(null, role, null);
@@ -86,7 +86,7 @@ public class RoleConfigServiceTest {
     }
 
     @Test
-    public void create_shouldIgnoreValidationForGoCDRole() throws Exception {
+    public void create_shouldIgnoreValidationForGoCDRole() {
         RoleConfig role = new RoleConfig(new CaseInsensitiveString("operate"));
 
         roleConfigService.create(null, role, null);
@@ -95,7 +95,7 @@ public class RoleConfigServiceTest {
     }
 
     @Test
-    public void update_shouldUpdateAnExistingPluginRole() throws Exception {
+    public void update_shouldUpdateAnExistingPluginRole() {
         PluginRoleConfig role = new PluginRoleConfig();
         Username admin = new Username("admin");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -106,7 +106,7 @@ public class RoleConfigServiceTest {
     }
 
     @Test
-    public void update_shouldValidatePluginRoleMetadata() throws Exception {
+    public void update_shouldValidatePluginRoleMetadata() {
         PluginRoleConfig role = new PluginRoleConfig("operate", "ldap");
 
         cruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig("ldap", "plugin_id"));
@@ -117,7 +117,7 @@ public class RoleConfigServiceTest {
     }
 
     @Test
-    public void update_shouldIgnorePluginRoleMetadataValidationInAbsenceOfPlugin() throws Exception {
+    public void update_shouldIgnorePluginRoleMetadataValidationInAbsenceOfPlugin() {
         PluginRoleConfig role = new PluginRoleConfig("operate", "ldap");
 
         roleConfigService.update(null, "md5", role, null);
@@ -126,7 +126,7 @@ public class RoleConfigServiceTest {
     }
 
     @Test
-    public void update_shouldIgnoreValidationForGoCDRole() throws Exception {
+    public void update_shouldIgnoreValidationForGoCDRole() {
         RoleConfig role = new RoleConfig(new CaseInsensitiveString("operate"));
 
         roleConfigService.update(null, "md5", role, null);
@@ -183,7 +183,7 @@ public class RoleConfigServiceTest {
     }
 
     @Test
-    public void delete_shouldDeleteARole() throws Exception {
+    public void delete_shouldDeleteARole() {
         PluginRoleConfig role = new PluginRoleConfig("operate", "ldap");
         Username admin = new Username("admin");
 

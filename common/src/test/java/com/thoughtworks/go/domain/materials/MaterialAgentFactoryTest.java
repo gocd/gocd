@@ -47,7 +47,7 @@ public class MaterialAgentFactoryTest {
     private SCMExtension scmExtension;
 
     @Test
-    public void shouldCreateMaterialAgent_withAgentsUuidAsSubprocessExecutionContextNamespace() throws IOException {
+    public void shouldCreateMaterialAgent_withAgentsUuidAsSubprocessExecutionContextNamespace() {
         String agentUuid = "uuid-01783738";
         MaterialAgentFactory factory = new MaterialAgentFactory(new InMemoryStreamConsumer(), tempWorkingDirectory,
                 new AgentIdentifier("host", "1.1.1.1", agentUuid), scmExtension);

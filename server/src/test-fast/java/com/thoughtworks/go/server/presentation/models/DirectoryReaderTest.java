@@ -40,7 +40,7 @@ public class DirectoryReaderTest {
     private String folderRoot;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         jobIdentifier = new JobIdentifier("pipelineName", -1, "LATEST", "stageName", "LATEST", "buildName", 123L);
         folderRoot = "/" + testFolder.getName();
     }

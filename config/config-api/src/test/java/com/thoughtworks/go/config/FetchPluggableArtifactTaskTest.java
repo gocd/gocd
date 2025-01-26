@@ -152,7 +152,7 @@ class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    void validate_shouldNotTryAndValidateWhenWithinTemplate() throws Exception {
+    void validate_shouldNotTryAndValidateWhenWithinTemplate() {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("dummy"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
 
         task.validate(ConfigSaveValidationContext.forChain(config, new TemplatesConfig(), downstream.getStage(new CaseInsensitiveString("stage"))));
@@ -215,7 +215,7 @@ class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    void validate_shouldValidateBlankStageAndJobWhenWithinTemplate() throws Exception {
+    void validate_shouldValidateBlankStageAndJobWhenWithinTemplate() {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("dummy"), new CaseInsensitiveString(""), new CaseInsensitiveString(""), "s3");
 
         task.validate(ConfigSaveValidationContext.forChain(config, new TemplatesConfig(), downstream.getStage(new CaseInsensitiveString("stage"))));

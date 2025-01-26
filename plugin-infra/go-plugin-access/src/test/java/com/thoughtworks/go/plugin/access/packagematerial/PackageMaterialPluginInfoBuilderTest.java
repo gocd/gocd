@@ -37,7 +37,7 @@ public class PackageMaterialPluginInfoBuilderTest {
     private PackageRepositoryExtension extension;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(PackageRepositoryExtension.class);
 
         com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageSettings = new com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration();

@@ -47,7 +47,7 @@ public class GoCacheTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         Cache cache = new Cache(new CacheConfiguration(getClass().getName(), 100).memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU));
         cacheManager.addCache(cache);
         this.goCache = new GoCache(cache, mock(TransactionSynchronizationManager.class));

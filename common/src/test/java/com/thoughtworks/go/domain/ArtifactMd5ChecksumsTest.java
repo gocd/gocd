@@ -41,7 +41,7 @@ public class ArtifactMd5ChecksumsTest {
     }
 
     @Test
-    public void shouldReturnTrueIfTheChecksumFileContainsAGivenPath() throws IOException {
+    public void shouldReturnTrueIfTheChecksumFileContainsAGivenPath() {
         Properties properties = new Properties();
         properties.setProperty("first/path", "md5");
         ArtifactMd5Checksums artifactMd5Checksums = new ArtifactMd5Checksums(properties);
@@ -49,7 +49,7 @@ public class ArtifactMd5ChecksumsTest {
     }
 
     @Test
-    public void shouldReturnNullIfTheChecksumFileDoesNotContainsAGivenPath() throws IOException {
+    public void shouldReturnNullIfTheChecksumFileDoesNotContainsAGivenPath() {
         Properties properties = new Properties();
         properties.setProperty("first/path", "md5");
         ArtifactMd5Checksums artifactMd5Checksums = new ArtifactMd5Checksums(properties);
@@ -64,7 +64,7 @@ public class ArtifactMd5ChecksumsTest {
     }
 
     @Test
-    public void shouldThrowAnExceptionIfTheLoadingFails() throws IOException {
+    public void shouldThrowAnExceptionIfTheLoadingFails() {
         try {
             file.delete();
             new ArtifactMd5Checksums(file);

@@ -49,7 +49,7 @@ public class PipelinePauseServiceTest {
     private static final Username INVALID_USER = new Username(new CaseInsensitiveString("someone-who-not-operate"));
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pipelineDao = mock(PipelineSqlMapDao.class);
         goConfigDao = mock(GoConfigDao.class);
         goConfigService = new GoConfigService(goConfigDao, (GoConfigMigration) null, null, null, null, null, null, null);
@@ -73,7 +73,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPausePipeline() throws Exception {
+    public void shouldPausePipeline() {
         setUpValidPipelineWithAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -86,7 +86,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPausePipelineWithCaptialName() throws Exception {
+    public void shouldPausePipelineWithCaptialName() {
         setUpValidPipelineWithAuth();
         when(pipelineDao.pauseState(PIPELINE_WITH_CAPITAL_NAME)).thenReturn(new PipelinePauseInfo(false, "", VALID_USER.getUsername().toString()));
 
@@ -100,7 +100,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldUnPausePipeline() throws Exception {
+    public void shouldUnPausePipeline() {
 
         setUpValidPipelineWithAuth();
 
@@ -116,7 +116,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPopulateHttpResult404WhenPipelineIsNotFoundForPause() throws Exception {
+    public void shouldPopulateHttpResult404WhenPipelineIsNotFoundForPause() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(goConfigDao.load()).thenReturn(new BasicCruiseConfig());
 
@@ -128,7 +128,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPopulateHttpResult404WhenPipelineIsNotFoundForUnpause() throws Exception {
+    public void shouldPopulateHttpResult404WhenPipelineIsNotFoundForUnpause() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(goConfigDao.load()).thenReturn(new BasicCruiseConfig());
 
@@ -140,7 +140,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPopulateHttpResult500WhenPipelinePauseResultsInAnError() throws Exception {
+    public void shouldPopulateHttpResult500WhenPipelinePauseResultsInAnError() {
 
         setUpValidPipelineWithAuth();
 
@@ -157,7 +157,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPopulateHttpResult500WhenPipelineUnPauseResultsInAnError() throws Exception {
+    public void shouldPopulateHttpResult500WhenPipelineUnPauseResultsInAnError() {
 
         setUpValidPipelineWithAuth();
 
@@ -176,7 +176,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPopulateHttpResult403WhenPipelineIsNotAuthorizedForPausing() throws Exception {
+    public void shouldPopulateHttpResult403WhenPipelineIsNotAuthorizedForPausing() {
         setUpValidPipelineWithInvalidAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -189,7 +189,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPopulateHttpResult403WhenPipelineIsNotAuthorizedForUnPausing() throws Exception {
+    public void shouldPopulateHttpResult403WhenPipelineIsNotAuthorizedForUnPausing() {
         setUpValidPipelineWithInvalidAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -202,7 +202,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPausePipelineEvenWhenPauseCauseIsNull() throws Exception {
+    public void shouldPausePipelineEvenWhenPauseCauseIsNull() {
         setUpValidPipelineWithAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -215,7 +215,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldNotifyListenersAfterPipelineIsPaused() throws Exception {
+    public void shouldNotifyListenersAfterPipelineIsPaused() {
         setUpValidPipelineWithAuth();
 
         PipelinePauseChangeListener listener1 = mock(PipelinePauseChangeListener.class);
@@ -230,7 +230,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldNotifyListenersAfterPipelineIsUnpaused() throws Exception {
+    public void shouldNotifyListenersAfterPipelineIsUnpaused() {
         setUpValidPipelineWithAuth();
 
         PipelinePauseChangeListener listener1 = mock(PipelinePauseChangeListener.class);
@@ -246,7 +246,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldLogAndIgnoreAnyExceptionsWhileNotifyingListeners() throws Exception {
+    public void shouldLogAndIgnoreAnyExceptionsWhileNotifyingListeners() {
         setUpValidPipelineWithAuth();
 
         PipelinePauseChangeListener listener1 = mock(PipelinePauseChangeListener.class);
@@ -278,7 +278,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldNotPausePipelineWhenPipelineIsAlreadyPaused() throws Exception {
+    public void shouldNotPausePipelineWhenPipelineIsAlreadyPaused() {
         setUpValidPipelineWithAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -290,7 +290,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldNotUnpausePipelineWhenPipelineIsAlreadyUnaused() throws Exception {
+    public void shouldNotUnpausePipelineWhenPipelineIsAlreadyUnaused() {
         setUpValidPipelineWithAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -302,7 +302,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPopulatePausePipelineSuccessResult() throws Exception {
+    public void shouldPopulatePausePipelineSuccessResult() {
         setUpValidPipelineWithAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -315,7 +315,7 @@ public class PipelinePauseServiceTest {
     }
 
     @Test
-    public void shouldPopulateUnpausePipelineSuccessResult() throws Exception {
+    public void shouldPopulateUnpausePipelineSuccessResult() {
         setUpValidPipelineWithAuth();
 
         when(pipelineDao.pauseState(VALID_PIPELINE)).thenReturn(new PipelinePauseInfo(true, "", VALID_USER.getUsername().toString()));

@@ -60,7 +60,7 @@ public class ElasticAgentExtensionV5Test {
     private ElasticAgentExtensionV5 extensionV5;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         final List<String> goSupportedVersions = List.of("3.0", "4.0", "5.0");
 

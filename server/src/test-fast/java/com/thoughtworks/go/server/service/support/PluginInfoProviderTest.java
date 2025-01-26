@@ -46,7 +46,7 @@ public class PluginInfoProviderTest {
     private PluginManager pluginManager;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pluginInfoProvider = new PluginInfoProvider(pluginInfoFinder, pluginManager);
     }
 

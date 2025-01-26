@@ -34,7 +34,7 @@ public class PipelineIdentifierTest {
     }
 
     @Test
-    public void shouldReturnURN() throws Exception {
+    public void shouldReturnURN() {
         PipelineIdentifier identifier = new PipelineIdentifier("cruise", 1, "label-1");
         assertThat(identifier.asURN()).isEqualTo("urn:x-go.studios.thoughtworks.com:job-id:cruise:1");
     }

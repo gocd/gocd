@@ -301,7 +301,7 @@ public class ValueStreamMapServiceIntegrationTest {
     }
 
     @Test
-    public void shouldPopulateInstanceDetailsForUpstreamAndDownstreamPipelines() throws Exception {
+    public void shouldPopulateInstanceDetailsForUpstreamAndDownstreamPipelines() {
         /*
         g1 --> p1 --> p --> p2 --> p4
                      / \
@@ -353,7 +353,7 @@ public class ValueStreamMapServiceIntegrationTest {
     }
 
     @Test
-    public void shouldEmptyRevisionsOfPipelineWhenUserDoesNotHaveViewPermissionForThePipeline() throws Exception {
+    public void shouldEmptyRevisionsOfPipelineWhenUserDoesNotHaveViewPermissionForThePipeline() {
         /*
         g1 --> p1 --> p --> p2 --> p4
                      / \
@@ -409,7 +409,7 @@ public class ValueStreamMapServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnEmptyRevisionsOfPipelineWhenViewUserDoesNotHaveViewPermissionForSomeUpstreamPipelines() throws Exception {
+    public void shouldReturnEmptyRevisionsOfPipelineWhenViewUserDoesNotHaveViewPermissionForSomeUpstreamPipelines() {
         /*
         g1 --> p1 --> p --> p2 --> p4
                      / \

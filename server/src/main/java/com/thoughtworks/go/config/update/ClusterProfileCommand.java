@@ -51,7 +51,7 @@ public abstract class ClusterProfileCommand extends PluginProfileCommand<Cluster
     }
 
     @Override
-    public abstract void update(CruiseConfig preprocessedConfig) throws Exception;
+    public abstract void update(CruiseConfig preprocessedConfig);
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {

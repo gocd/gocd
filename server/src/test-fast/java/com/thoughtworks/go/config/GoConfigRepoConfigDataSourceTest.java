@@ -147,7 +147,7 @@ public class GoConfigRepoConfigDataSourceTest {
 
 
     @Test
-    public void shouldProvideParseContextWhenCallingPlugin() throws Exception {
+    public void shouldProvideParseContextWhenCallingPlugin() {
         ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(material, "myplugin", "id");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig));
@@ -161,7 +161,7 @@ public class GoConfigRepoConfigDataSourceTest {
     }
 
     @Test
-    public void shouldProvideConfigurationInParseContextWhenCallingPlugin() throws Exception {
+    public void shouldProvideConfigurationInParseContextWhenCallingPlugin() {
         ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(material, "myplugin", "id");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig));
@@ -197,7 +197,7 @@ public class GoConfigRepoConfigDataSourceTest {
     }
 
     @Test
-    public void shouldNotCallPluginLoadOnCheckout_WhenMaterialNotInWatchList() throws Exception {
+    public void shouldNotCallPluginLoadOnCheckout_WhenMaterialNotInWatchList() {
         ScmMaterialConfig material = git("http://my.git");
 
         repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));

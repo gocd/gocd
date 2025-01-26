@@ -52,7 +52,7 @@ public class ConsoleOutViewTest {
     }
 
     @Test
-    public void getsContentType() throws Exception {
+    public void getsContentType() {
         ConsoleOutView view = new ConsoleOutView(null, randomCharset());
         assertThat(view.getContentType()).isEqualTo("text/plain; charset=" + randomCharset());
     }

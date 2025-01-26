@@ -34,13 +34,13 @@ public class GoDashboardPipelineLockStatusChangeHandlerTest {
     private GoDashboardPipelineLockStatusChangeHandler handler;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         handler = new GoDashboardPipelineLockStatusChangeHandler(cacheUpdateService);
     }
 
     @Test
-    public void shouldHandlePipelineLockStatusChangeByRefreshingPipelineInCache() throws Exception {
+    public void shouldHandlePipelineLockStatusChangeByRefreshingPipelineInCache() {
         handler.call(PipelineLockStatusChangeListener.Event.lock("pipeline1"));
 
         verify(cacheUpdateService).updateCacheForPipeline(new CaseInsensitiveString("pipeline1"));

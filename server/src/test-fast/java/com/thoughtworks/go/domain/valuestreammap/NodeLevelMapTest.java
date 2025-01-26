@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class NodeLevelMapTest {
 
     @Test
-    public void shouldGetNodeLevelsList() throws Exception {
+    public void shouldGetNodeLevelsList() {
         NodeLevelMap nodeLevelMap = new NodeLevelMap();
         Node svn = new SCMDependencyNode("svn-fingerprint", "svn", "svn");
         svn.setLevel(-1);

@@ -33,7 +33,7 @@ public class PackageMaterialMetadataLoaderTest {
     private PluginManager pluginManager;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pluginDescriptor = GoPluginDescriptor.builder().id("plugin-id").isBundledPlugin(true).build();
         pluginManager = mock(PluginManager.class);
         packageRepositoryExtension = mock(PackageRepositoryExtension.class);
@@ -83,13 +83,13 @@ public class PackageMaterialMetadataLoaderTest {
     }
 
     @Test
-    public void shouldRegisterAsPluginFrameworkStartListener() throws Exception {
+    public void shouldRegisterAsPluginFrameworkStartListener() {
         metadataLoader = new PackageMaterialMetadataLoader(pluginManager, packageRepositoryExtension);
         verify(pluginManager).addPluginChangeListener(metadataLoader);
     }
 
     @Test
-    public void shouldFetchMetadataOnPluginLoadedCallback() throws Exception {
+    public void shouldFetchMetadataOnPluginLoadedCallback() {
         PackageMaterialMetadataLoader spy = spy(metadataLoader);
         doNothing().when(spy).fetchRepositoryAndPackageMetaData(pluginDescriptor);
         when(packageRepositoryExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(true);
@@ -98,7 +98,7 @@ public class PackageMaterialMetadataLoaderTest {
     }
 
     @Test
-    public void shouldNotTryToFetchMetadataOnPluginLoadedCallback() throws Exception {
+    public void shouldNotTryToFetchMetadataOnPluginLoadedCallback() {
         PackageMaterialMetadataLoader spy = spy(metadataLoader);
         when(packageRepositoryExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(false);
         spy.pluginLoaded(pluginDescriptor);
@@ -106,7 +106,7 @@ public class PackageMaterialMetadataLoaderTest {
     }
 
     @Test
-    public void shouldRemoveMetadataOnPluginUnLoadedCallback() throws Exception {
+    public void shouldRemoveMetadataOnPluginUnLoadedCallback() {
         RepositoryMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), new PackageConfigurations());
         PackageMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), new PackageConfigurations());
         when(packageRepositoryExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(true);

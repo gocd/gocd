@@ -56,7 +56,7 @@ public class MaterialDatabaseUpdaterTest {
     private MaterialDatabaseUpdater materialDatabaseUpdater;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         materialDatabaseUpdater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, goConfigService);
     }

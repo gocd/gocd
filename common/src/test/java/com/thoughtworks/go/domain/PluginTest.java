@@ -27,7 +27,7 @@ public class PluginTest {
     private Plugin plugin;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         plugin = new Plugin("plugin-id", new GsonBuilder().create().toJson(Map.of("k1", "v1", "k2", "v2")));
     }
 

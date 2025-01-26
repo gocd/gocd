@@ -83,7 +83,7 @@ public class GoConfigServiceTest {
     private InstanceFactory instanceFactory;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVER_IMMUTABILITY, "N");
 
         configRepo = mock(ConfigRepository.class);

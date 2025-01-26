@@ -32,7 +32,7 @@ public class CapabilitiesConverterV4Test {
     private CapabilitiesConverterV4 capabilitiesConverter;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         capabilitiesConverter = new CapabilitiesConverterV4();
     }
 

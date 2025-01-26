@@ -63,7 +63,7 @@ public class ConfigRepositoryTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         configRepoRawGit.close();
         configRepo.getGitRepo().close();
     }

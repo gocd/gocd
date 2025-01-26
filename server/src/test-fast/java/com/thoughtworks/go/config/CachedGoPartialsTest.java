@@ -41,7 +41,7 @@ public class CachedGoPartialsTest {
     private ConfigRepoConfig configRepo2;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         serverHealthService = new ServerHealthService();
         partials = new CachedGoPartials(serverHealthService);
         configRepo1 = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin", "id1");

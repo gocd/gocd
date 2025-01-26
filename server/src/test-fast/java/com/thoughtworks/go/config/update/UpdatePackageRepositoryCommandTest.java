@@ -69,7 +69,7 @@ public class UpdatePackageRepositoryCommandTest {
     private GoConfigService goConfigService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         repoId = "npmOrg";
@@ -80,7 +80,7 @@ public class UpdatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldUpdatePackageRepository() throws Exception {
+    public void shouldUpdatePackageRepository() {
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
         assertThat(cruiseConfig.getPackageRepositories().size()).isEqualTo(1);
@@ -94,7 +94,7 @@ public class UpdatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldCopyPackagesFromOldRepositoryToTheUpdatedRepository() throws Exception {
+    public void shouldCopyPackagesFromOldRepositoryToTheUpdatedRepository() {
         PackageDefinition nodePackage = new PackageDefinition("foo", "bar", new Configuration());
         oldPackageRepo.setPackages(new Packages(nodePackage));
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
@@ -145,7 +145,7 @@ public class UpdatePackageRepositoryCommandTest {
         assertThat(materialConfig2.getPackageDefinition().getRepository()).isEqualTo(updatePackageRepo);
     }
     @Test
-    public void shouldNotUpdatePackageRepositoryIfTheSpecifiedPluginTypeIsInvalid() throws Exception {
+    public void shouldNotUpdatePackageRepositoryIfTheSpecifiedPluginTypeIsInvalid() {
         when(packageRepositoryService.validatePluginId(newPackageRepo)).thenReturn(false);
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
         command.update(cruiseConfig);
@@ -153,7 +153,7 @@ public class UpdatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldNotUpdatePackageRepositoryWhenRepositoryWithSpecifiedNameAlreadyExists() throws Exception {
+    public void shouldNotUpdatePackageRepositoryWhenRepositoryWithSpecifiedNameAlreadyExists() {
         cruiseConfig.getPackageRepositories().add(newPackageRepo);
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
@@ -162,7 +162,7 @@ public class UpdatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldNotUpdatePackageRepositoryWhenRepositoryHasDuplicateConfigurationProperties() throws Exception {
+    public void shouldNotUpdatePackageRepositoryWhenRepositoryHasDuplicateConfigurationProperties() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("foo"), new ConfigurationValue("bar"));
         Configuration configuration = new Configuration(property, property);
         newPackageRepo.setConfiguration(configuration);
@@ -175,7 +175,7 @@ public class UpdatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldNotUpdatePackageRepositoryWhenRepositoryHasInvalidName() throws Exception {
+    public void shouldNotUpdatePackageRepositoryWhenRepositoryHasInvalidName() {
         newPackageRepo.setName("~!@#$%^&*(");
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
         command.update(cruiseConfig);
@@ -185,7 +185,7 @@ public class UpdatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackageRepositories() throws Exception {
+    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackageRepositories() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
@@ -197,7 +197,7 @@ public class UpdatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserSubmittedStaleEtag() throws Exception {
+    public void shouldNotContinueIfTheUserSubmittedStaleEtag() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.getPackageRepository(repoId)).thenReturn(oldPackageRepo);
         when(entityHashingService.hashForEntity(oldPackageRepo)).thenReturn("foobar");

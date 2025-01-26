@@ -31,7 +31,7 @@ public class StageHistoryTest {
     private static final Date DATE = new Date(2000000000);
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         stageHistory = new StageInstanceModels();
         stageHistory.add(new StageInstanceModel(STAGE_UT, "1", new JobHistory()));
         stageHistory.add(new StageInstanceModel(STAGE_FT, "1", new JobHistory()));
@@ -39,7 +39,7 @@ public class StageHistoryTest {
     }
 
     @Test
-    public void hasStageTest() throws Exception {
+    public void hasStageTest() {
         assertThat(stageHistory.hasStage(STAGE_FT)).isTrue();
         assertThat(stageHistory.hasStage("notExisting")).isFalse();
         assertThat(stageHistory.hasStage(null)).isFalse();
@@ -47,7 +47,7 @@ public class StageHistoryTest {
     }
 
     @Test
-    public void nextStageTest() throws Exception {
+    public void nextStageTest() {
         assertThat(stageHistory.nextStageName(STAGE_UT)).isEqualTo(STAGE_FT);
         assertThat(stageHistory.nextStageName(STAGE_FT)).isEqualTo(STAGE_RELEASE);
         assertThat(stageHistory.nextStageName(STAGE_RELEASE)).isNull();

@@ -96,7 +96,7 @@ public class StageServiceTest {
     private GoCache goCache;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         stageDao = mock(StageDao.class);
         pipelineDao = mock(PipelineDao.class);
         jobInstanceService = mock(JobInstanceService.class);
@@ -112,7 +112,7 @@ public class StageServiceTest {
     }
 
     @AfterEach
-    public void teardown() throws Exception {
+    public void teardown() {
         configFileHelper.onTearDown();
         SessionUtils.unsetCurrentUser();
     }
@@ -237,7 +237,7 @@ public class StageServiceTest {
     }
 
     @Test
-    public void shouldUpdateJobInstanceAndStageOnCancellingJob() throws SQLException {
+    public void shouldUpdateJobInstanceAndStageOnCancellingJob() {
 
         JobInstance job = new JobInstance("job");
         job.setIdentifier(new JobIdentifier("pipeline", 10, "label", STAGE_NAME, "5", "job"));
@@ -453,7 +453,7 @@ public class StageServiceTest {
     }
 
     @Test
-    public void shouldSendStageStatusMessageAfterStageIsCancelled() throws SQLException {
+    public void shouldSendStageStatusMessageAfterStageIsCancelled() {
         StageStatusTopic topic = mock(StageStatusTopic.class);
         final Stage cancelledStage = StageMother.cancelledStage("stage", "job");
         cancelledStage.setIdentifier(new StageIdentifier("pipeline/1/stage/1"));
@@ -473,7 +473,7 @@ public class StageServiceTest {
     }
 
     @Test
-    public void shouldNotSendStageStatusMessageAfterStageIsCancelledAndAnyOfTheJobIsAssigned() throws SQLException {
+    public void shouldNotSendStageStatusMessageAfterStageIsCancelledAndAnyOfTheJobIsAssigned() {
         StageStatusTopic topic = mock(StageStatusTopic.class);
         final Stage cancelledStage = StageMother.cancelledStage("stage", "job");
         cancelledStage.setIdentifier(new StageIdentifier("pipeline/1/stage/1"));
@@ -494,7 +494,7 @@ public class StageServiceTest {
     }
 
     @Test
-    public void shouldFindLatestStageFromCache() throws SQLException {
+    public void shouldFindLatestStageFromCache() {
         Stage expectedStage = StageMother.custom("pipeline", "stage", null);
         StageStatusCache cache = new StageStatusCache(stageDao);
         cache.stageStatusChanged(expectedStage);

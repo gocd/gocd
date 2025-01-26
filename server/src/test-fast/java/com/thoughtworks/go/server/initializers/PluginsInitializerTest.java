@@ -48,7 +48,7 @@ public class PluginsInitializerTest {
     private ElasticAgentInformationMigrator elasticAgentInformationMigrator;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH)).thenReturn(goPluginsDir.toFile().getAbsolutePath());
         pluginManager = mock(PluginManager.class);
@@ -95,7 +95,7 @@ public class PluginsInitializerTest {
     }
 
     @Test
-    public void shouldUnzipPluginsZipToPluginsPath() throws IOException {
+    public void shouldUnzipPluginsZipToPluginsPath() {
         pluginsInitializer.initialize();
         assertThat(FileUtils.listFiles(goPluginsDir.toFile(), null, true).size()).isEqualTo(2);
     }

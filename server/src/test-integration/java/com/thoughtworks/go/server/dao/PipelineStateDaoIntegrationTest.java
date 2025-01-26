@@ -88,7 +88,7 @@ public class PipelineStateDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFindLockedPipelinesCaseInsensitively() throws Exception {
+    public void shouldFindLockedPipelinesCaseInsensitively() {
         Pipeline minglePipeline = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "stage1", "stage2"));
         pipelineStateDao.lockPipeline(minglePipeline);
         PipelineState lockedPipelineState = pipelineStateDao.pipelineStateFor("mingle");
@@ -102,7 +102,7 @@ public class PipelineStateDaoIntegrationTest {
     }
 
     @Test
-    public void shouldBombWhenLockingPipelineThatHasAlreadyBeenLocked() throws Exception {
+    public void shouldBombWhenLockingPipelineThatHasAlreadyBeenLocked() {
         String pipelineName = UUID.randomUUID().toString();
         Pipeline minglePipeline1 = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "defaultStage"));
         Pipeline minglePipeline2 = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "defaultStage"));
@@ -120,7 +120,7 @@ public class PipelineStateDaoIntegrationTest {
     }
 
     @Test
-    public void shouldNotBombWhenLockingTheSamePipelineInstanceThatHasAlreadyBeenLocked() throws Exception {
+    public void shouldNotBombWhenLockingTheSamePipelineInstanceThatHasAlreadyBeenLocked() {
         String pipelineName = "pipeline";
         Pipeline minglePipeline1 = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "defaultStage"));
 
@@ -136,7 +136,7 @@ public class PipelineStateDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUnlockPipelineInstance() throws Exception {
+    public void shouldUnlockPipelineInstance() {
         String pipelineName = UUID.randomUUID().toString();
         Pipeline minglePipeline = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "defaultStage"));
         TestAfterCompletionCallback afterLockCallback = new TestAfterCompletionCallback();
@@ -156,7 +156,7 @@ public class PipelineStateDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnListOfAllLockedPipelines() throws Exception {
+    public void shouldReturnListOfAllLockedPipelines() {
         Pipeline minglePipeline = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "defaultStage"));
         Pipeline twistPipeline = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "defaultStage"));
         pipelineStateDao.lockPipeline(minglePipeline);
@@ -196,7 +196,7 @@ public class PipelineStateDaoIntegrationTest {
         assertThat(errors[0]).isEqualTo(9);
     }
 
-    private Pipeline schedulePipelineWithStages(PipelineConfig pipelineConfig) throws Exception {
+    private Pipeline schedulePipelineWithStages(PipelineConfig pipelineConfig) {
         BuildCause buildCause = BuildCause.createWithModifications(modifyOneFile(pipelineConfig), "");
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
         assertNotInserted(pipeline.getId());

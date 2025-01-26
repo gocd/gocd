@@ -231,7 +231,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldCreateNewUsers() throws Exception {
+    void shouldCreateNewUsers() {
         UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
 
         doNothing().when(userDao).saveOrUpdate(foo.getUser());

@@ -36,12 +36,12 @@ public class GoDashboardConfigChangeHandlerTest {
     private GoDashboardConfigChangeHandler handler;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         handler = new GoDashboardConfigChangeHandler(cacheUpdateService);
     }
 
     @Test
-    public void shouldReplaceAllEntriesInCacheWithNewEntriesWhenTheWholeConfigHasChanged() throws Exception {
+    public void shouldReplaceAllEntriesInCacheWithNewEntriesWhenTheWholeConfigHasChanged() {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2");
 
         handler.call(config);
@@ -50,7 +50,7 @@ public class GoDashboardConfigChangeHandlerTest {
     }
 
     @Test
-    public void shouldReplaceOnlyTheExistingPipelineEntryInCacheWithANewEntryWhenOnlyPipelineConfigHasChanged() throws Exception {
+    public void shouldReplaceOnlyTheExistingPipelineEntryInCacheWithANewEntryWhenOnlyPipelineConfigHasChanged() {
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
         PipelineConfig pipelineConfig = new GoConfigMother().addPipeline(config, "pipeline1", "stage1", "job1");
 

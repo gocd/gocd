@@ -44,7 +44,7 @@ public class JsonMessageHandler1_0_Test {
     private JsonMessageHandler1_0 messageHandler;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         messageHandler = new JsonMessageHandler1_0();
     }
 

@@ -121,7 +121,7 @@ public class GoFileConfigDataSourceIntegrationTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         cachedGoPartials.clear();
         dataSource.reloadIfModified();
         configHelper.onTearDown();

@@ -46,7 +46,7 @@ public class RolesConfigBulkUpdateCommand implements EntityConfigUpdateCommand<R
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         RolesConfig rolesInConfig = preprocessedConfig.server().security().getRoles();
         for (GoCDRolesBulkUpdateRequest.Operation operation : goCDRolesBulkUpdateRequest.getOperations()) {
             RoleConfig existingRole = rolesInConfig.findByNameAndType(new CaseInsensitiveString(operation.getRoleName()), RoleConfig.class);

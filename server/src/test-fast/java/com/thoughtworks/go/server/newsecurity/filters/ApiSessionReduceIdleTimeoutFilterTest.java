@@ -33,7 +33,7 @@ public class ApiSessionReduceIdleTimeoutFilterTest {
     private FilterChain filterChain;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         filterChain = mock(FilterChain.class);
     }
 

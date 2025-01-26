@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StageInfoAdapterTest {
 
     @Test
-    public void shouldReturnCorrectAutoApprovedStatus() throws Exception {
+    public void shouldReturnCorrectAutoApprovedStatus() {
         StageConfig stage = StageConfigMother.custom("dev", new JobConfigs());
         assertThat(stage.requiresApproval()).isFalse();
         assertThat(new StageInfoAdapter(stage).isAutoApproved()).isTrue();

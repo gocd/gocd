@@ -42,13 +42,13 @@ public class UnrunStagesPopulatorTest {
     private UnrunStagesPopulator unrunStagesPopulator;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         goConfigService = mock(GoConfigService.class);
         unrunStagesPopulator = new UnrunStagesPopulator(goConfigService);
     }
 
     @Test
-    public void shouldPopulateRemainingStagesFromConfigurationForCurrentPipeline() throws Exception {
+    public void shouldPopulateRemainingStagesFromConfigurationForCurrentPipeline() {
         ValueStreamMap valueStreamMap = new ValueStreamMap(new CaseInsensitiveString("p"), new PipelineRevision("p", 10, "10"));
         Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s1", 1, "b", new Date()));
         stages.add(StageMother.scheduledStage("p", 10, "s3", 1, "b"));
@@ -67,7 +67,7 @@ public class UnrunStagesPopulatorTest {
     }
 
     @Test
-    public void shouldNotAddRemainingStagesWhenTheyAreReordered() throws Exception {
+    public void shouldNotAddRemainingStagesWhenTheyAreReordered() {
         ValueStreamMap valueStreamMap = new ValueStreamMap(new CaseInsensitiveString("p"), new PipelineRevision("p", 10, "10"));
         Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s2", 1, "b", new Date()));
         stages.add(StageMother.scheduledStage("p", 10, "s1", 1, "b"));
@@ -88,7 +88,7 @@ public class UnrunStagesPopulatorTest {
     }
 
     @Test
-    public void shouldAddRemainingStagesToAllDownstreamPipelines() throws Exception {
+    public void shouldAddRemainingStagesToAllDownstreamPipelines() {
 
         /*
             p --> p1 --> p2
@@ -125,7 +125,7 @@ public class UnrunStagesPopulatorTest {
     }
 
     @Test
-    public void shouldPopulateConfiguredStagesWhenThereAreNoRevisionsForDownstream() throws Exception {
+    public void shouldPopulateConfiguredStagesWhenThereAreNoRevisionsForDownstream() {
         /*
             p --> p1 --> p2
              \
@@ -154,7 +154,7 @@ public class UnrunStagesPopulatorTest {
 	}
 
 	@Test
-	public void shouldPopulateUnrunStagesAndConfiguredStagesFromMaterial() throws Exception {
+	public void shouldPopulateUnrunStagesAndConfiguredStagesFromMaterial() {
 		/*
 			git --> p1 --> p2
 			 \

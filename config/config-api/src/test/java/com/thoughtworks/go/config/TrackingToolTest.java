@@ -73,7 +73,7 @@ public class TrackingToolTest {
     }
 
     @Test
-    public void shouldRenderStringWithSpecifiedRegexAndLink() throws Exception {
+    public void shouldRenderStringWithSpecifiedRegexAndLink() {
         TrackingTool config = new TrackingTool("http://mingle05/projects/cce/cards/${ID}", "#(\\d+)");
 
         String result = config.render("#111: checkin message");
@@ -81,7 +81,7 @@ public class TrackingToolTest {
     }
 
     @Test
-    public void shouldReturnOriginalStringIfRegexDoesNotMatch() throws Exception {
+    public void shouldReturnOriginalStringIfRegexDoesNotMatch() {
         String toRender = "evo-abc: checkin message";
 
         TrackingTool config = new TrackingTool("http://mingle05/projects/cce/cards/${ID}", "#(\\d+)");

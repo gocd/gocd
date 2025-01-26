@@ -66,7 +66,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSaveUsersIntoDatabase() throws Exception {
+    public void shouldSaveUsersIntoDatabase() {
         User user = anUser();
         userDao.saveOrUpdate(user);
 
@@ -151,7 +151,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnOnlyEnabledUsers() throws Exception {
+    public void shouldReturnOnlyEnabledUsers() {
         userDao.saveOrUpdate(user("first"));
         userDao.saveOrUpdate(user("second"));
 
@@ -166,7 +166,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateUserWhenUserExist() throws Exception {
+    public void shouldUpdateUserWhenUserExist() {
         User user = anUser();
         userDao.saveOrUpdate(user);
         user = userDao.findUser(user.getName());
@@ -191,7 +191,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFindUserWhenExist() throws Exception {
+    public void shouldFindUserWhenExist() {
         User user = anUser();
         userDao.saveOrUpdate(user);
 
@@ -204,7 +204,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFindAllUsers() throws Exception {
+    public void shouldFindAllUsers() {
         User user = new User("user", new String[]{"*.*,user"}, "user@mail.com", true);
         User loser = new User("loser", new String[]{"loser", "user"}, "loser@mail.com", true);
         User boozer = new User("boozer", new String[]{"boozer"}, "boozer@mail.com", true);

@@ -22,31 +22,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JobIdentifierTest {
     @Test
-    public void shouldReturnBuildLocator() throws Exception {
+    public void shouldReturnBuildLocator() {
         JobIdentifier id = new JobIdentifier("cruise", 1, "label-", "dev", "1", "linux-firefox-1", 100L);
         assertThat(id.buildLocator()).isEqualTo("cruise/1/dev/1/linux-firefox-1");
     }
 
     @Test
-    public void shouldReturnPropertyLocatorUsingLabel() throws Exception {
+    public void shouldReturnPropertyLocatorUsingLabel() {
         JobIdentifier id = new JobIdentifier("cruise", -1, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
         assertThat(id.propertyLocator("test-duration")).isEqualTo("cruise/1.0.1234/dev/1/linux-firefox-1/test-duration");
     }
 
     @Test
-    public void shouldReturnPropertyLocatorUsingPipelineCounter() throws Exception {
+    public void shouldReturnPropertyLocatorUsingPipelineCounter() {
         JobIdentifier id = new JobIdentifier("cruise", 1234, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
         assertThat(id.propertyLocator("test-duration")).isEqualTo("cruise/1234/dev/1/linux-firefox-1/test-duration");
     }
 
     @Test
-    public void shouldReturnArtifactLocatorUsingLabel() throws Exception {
+    public void shouldReturnArtifactLocatorUsingLabel() {
         JobIdentifier id = new JobIdentifier("cruise", -2, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
         assertThat(id.artifactLocator("consoleoutput/log.xml")).isEqualTo("cruise/1.0.1234/dev/1/linux-firefox-1/consoleoutput/log.xml");
     }
 
     @Test
-    public void shouldReturnArtifactLocatorUsingPipelineCounter() throws Exception {
+    public void shouldReturnArtifactLocatorUsingPipelineCounter() {
         JobIdentifier id = new JobIdentifier("cruise", 1234, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
         assertThat(id.artifactLocator("consoleoutput/log.xml")).isEqualTo("cruise/1234/dev/1/linux-firefox-1/consoleoutput/log.xml");
     }
@@ -58,7 +58,7 @@ public class JobIdentifierTest {
     }
 
     @Test
-    public void shouldReturnURN() throws Exception {
+    public void shouldReturnURN() {
         JobIdentifier id = new JobIdentifier("cruise", 1, "label-", "dev", "1", "linux-firefox-1", 100L);
         assertThat(id.asURN()).isEqualTo("urn:x-go.studios.thoughtworks.com:job-id:cruise:1:dev:1:linux-firefox-1");
     }

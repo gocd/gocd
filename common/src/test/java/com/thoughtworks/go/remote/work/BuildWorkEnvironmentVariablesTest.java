@@ -137,7 +137,7 @@ public class BuildWorkEnvironmentVariablesTest {
         }
 
         @AfterEach
-        public void teardown() throws Exception {
+        public void teardown() {
             p4Fixture.stop(p4Client);
         }
 

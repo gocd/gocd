@@ -64,7 +64,7 @@ public class AnalyticsPluginAssetsServiceTest {
     private AnalyticsMetadataStore metadataStore;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         assetsService = new AnalyticsPluginAssetsService(extension, analyticsMetadataLoader, systemEnvironment);
         assetsService.setServletContext(servletContext);
         metadataStore = AnalyticsMetadataStore.instance();

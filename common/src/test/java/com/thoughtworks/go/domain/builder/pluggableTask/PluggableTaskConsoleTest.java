@@ -43,7 +43,7 @@ public class PluggableTaskConsoleTest {
     private List<String> values = List.of("Twitter", "Facebook", "Mega Upload");
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         console = new PluggableTaskConsole(safeOutputStreamConsumer, StandardCharsets.UTF_8);
     }
 

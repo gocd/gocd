@@ -45,13 +45,13 @@ public class UpdateArtifactStoreConfigCommandTest {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         currentUser = new Username("bob");
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test
-    public void shouldRaiseErrorWhenUpdatingNonExistentArtifactStore() throws Exception {
+    public void shouldRaiseErrorWhenUpdatingNonExistentArtifactStore() {
         cruiseConfig.getArtifactStores().clear();
         final ArtifactStore artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker");
 
@@ -61,7 +61,7 @@ public class UpdateArtifactStoreConfigCommandTest {
     }
 
     @Test
-    public void shouldUpdateExistingArtifactStore() throws Exception {
+    public void shouldUpdateExistingArtifactStore() {
         final ArtifactStore oldArtifactStore = new ArtifactStore("docker", "cd.go.artifact.docker");
         final ArtifactStore newArtifactStore = new ArtifactStore("docker", "cd.go.artifact.s3");
 

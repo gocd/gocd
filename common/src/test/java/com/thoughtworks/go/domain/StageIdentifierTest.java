@@ -69,7 +69,7 @@ public class StageIdentifierTest {
 
 
     @Test
-    public void shouldReturnURN() throws Exception {
+    public void shouldReturnURN() {
         StageIdentifier id = new StageIdentifier("cruise", 1, "dev", "1");
         assertThat(id.asURN()).isEqualTo("urn:x-go.studios.thoughtworks.com:stage-id:cruise:1:dev:1");
     }

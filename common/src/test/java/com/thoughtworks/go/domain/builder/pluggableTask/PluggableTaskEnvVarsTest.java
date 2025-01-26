@@ -35,7 +35,7 @@ public class PluggableTaskEnvVarsTest {
     private List<String> values = List.of("Twitter", "Facebook", "Mega Upload");
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         context = new EnvironmentVariableContext();
         for (int i = 0; i < keys.size(); i++) {
             context.setProperty(keys.get(i), values.get(i), i % 2 != 0);
@@ -44,7 +44,7 @@ public class PluggableTaskEnvVarsTest {
     }
 
     @Test
-    public void shouldReturnEnvVarsMap() throws Exception {
+    public void shouldReturnEnvVarsMap() {
         Map<String, String> envMap = envVars.asMap();
         assertThat(envMap.keySet().containsAll(keys)).isTrue();
         assertThat(envMap.values().containsAll(values)).isTrue();
@@ -54,7 +54,7 @@ public class PluggableTaskEnvVarsTest {
     }
 
     @Test
-    public void testSecureEnvSpecifier() throws Exception {
+    public void testSecureEnvSpecifier() {
         Console.SecureEnvVarSpecifier secureEnvVarSpecifier = envVars.secureEnvSpecifier();
         for (int i = 0; i < keys.size(); i++) {
             assertThat(secureEnvVarSpecifier.isSecure(keys.get(i))).isEqualTo(i % 2 != 0);
@@ -62,7 +62,7 @@ public class PluggableTaskEnvVarsTest {
     }
 
     @Test
-    public void shouldPrintToConsole() throws Exception {
+    public void shouldPrintToConsole() {
         Console console = mock(Console.class);
         envVars.writeTo(console);
         verify(console).printEnvironment(envVars.asMap(), envVars.secureEnvSpecifier());

@@ -46,7 +46,7 @@ public class RailsAssetsServiceTest {
     private SystemEnvironment systemEnvironment;
 
     @BeforeEach
-    public void setup() throws IOException {
+    public void setup() {
         context = mock(ServletContext.class);
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
@@ -75,7 +75,7 @@ public class RailsAssetsServiceTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfManifestFileIsNotFoundInAssetsDir() throws IOException {
+    public void shouldThrowExceptionIfManifestFileIsNotFoundInAssetsDir() {
         when(context.getInitParameter("rails.root")).thenReturn("");
         when(context.getRealPath(any(String.class))).thenReturn(assetsDir.getAbsolutePath());
         try {
@@ -87,7 +87,7 @@ public class RailsAssetsServiceTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfAssetsDirDoesNotExist() throws IOException {
+    public void shouldThrowExceptionIfAssetsDirDoesNotExist() {
         when(context.getInitParameter("rails.root")).thenReturn("");
         when(context.getRealPath(any(String.class))).thenReturn("DoesNotExist");
         try {

@@ -47,7 +47,7 @@ public class AddEnvironmentCommandTest {
     private GoConfigService goConfigService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         environmentName = new CaseInsensitiveString("Dev");
@@ -57,7 +57,7 @@ public class AddEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldAddTheSpecifiedEnvironment() throws Exception {
+    public void shouldAddTheSpecifiedEnvironment() {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         assertFalse(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
         command.update(cruiseConfig);
@@ -65,7 +65,7 @@ public class AddEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldValidateInvalidPipelineName() throws Exception {
+    public void shouldValidateInvalidPipelineName() {
         environmentConfig.addPipeline(new CaseInsensitiveString("Invalid-pipeline-name"));
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         command.update(cruiseConfig);
@@ -77,7 +77,7 @@ public class AddEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldValidateDuplicateEnvironmentVariables() throws Exception {
+    public void shouldValidateDuplicateEnvironmentVariables() {
         environmentConfig.addEnvironmentVariable("foo", "bar");
         environmentConfig.addEnvironmentVariable("foo", "baz");
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
@@ -90,7 +90,7 @@ public class AddEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfEnvironmentWithSameNameAlreadyExists() throws Exception {
+    public void shouldNotContinueIfEnvironmentWithSameNameAlreadyExists() {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         when(goConfigService.hasEnvironmentNamed(environmentName)).thenReturn(true);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();

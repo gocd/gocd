@@ -97,32 +97,32 @@ public class ConfigRepoServiceIntegrationTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         configHelper.onTearDown();
     }
 
     @Test
-    public void shouldFindConfigRepoWithSpecifiedId() throws Exception {
+    public void shouldFindConfigRepoWithSpecifiedId() {
         configHelper.enableSecurity();
         goConfigService.getConfigForEditing().getConfigRepos().add(configRepo);
         assertThat(configRepoService.getConfigRepo(repoId)).isEqualTo(configRepo);
     }
 
     @Test
-    public void shouldReturnNullWhenConfigRepoWithSpecifiedIdIsNotPresent() throws Exception {
+    public void shouldReturnNullWhenConfigRepoWithSpecifiedIdIsNotPresent() {
         configHelper.enableSecurity();
         assertNull(configRepoService.getConfigRepo(repoId));
     }
 
     @Test
-    public void shouldFindAllConfigRepos() throws Exception {
+    public void shouldFindAllConfigRepos() {
         configHelper.enableSecurity();
         goConfigService.getConfigForEditing().getConfigRepos().add(configRepo);
         assertThat(configRepoService.getConfigRepos()).isEqualTo(new ConfigReposConfig(configRepo));
     }
 
     @Test
-    public void shouldDeleteSpecifiedConfigRepository() throws Exception {
+    public void shouldDeleteSpecifiedConfigRepository() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.enableSecurity();
         goConfigDao.updateConfig(cruiseConfig -> {
@@ -139,7 +139,7 @@ public class ConfigRepoServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCreateSpecifiedConfigRepository() throws Exception {
+    public void shouldCreateSpecifiedConfigRepository() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.enableSecurity();
         configRepoService = new ConfigRepoService(goConfigService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
@@ -155,7 +155,7 @@ public class ConfigRepoServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateSpecifiedConfigRepository() throws Exception {
+    public void shouldUpdateSpecifiedConfigRepository() {
         configRepoService = new ConfigRepoService(goConfigService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
 
         when(configRepoExtension.canHandlePlugin(any())).thenReturn(true);

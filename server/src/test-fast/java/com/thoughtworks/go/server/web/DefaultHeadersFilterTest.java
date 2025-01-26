@@ -45,13 +45,13 @@ public class DefaultHeadersFilterTest {
     private SystemEnvironment systemEnvironment;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         filter = new DefaultHeadersFilter();
         systemEnvironment = new SystemEnvironment();
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         systemEnvironment.clearProperty(ENABLE_HSTS_HEADER);
     }
 

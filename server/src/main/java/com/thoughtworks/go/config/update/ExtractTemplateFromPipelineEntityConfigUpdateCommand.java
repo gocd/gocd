@@ -45,7 +45,7 @@ public class ExtractTemplateFromPipelineEntityConfigUpdateCommand implements Ent
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         // set authorization on new template
         if (securityService.isUserGroupAdmin(currentUser)) {
             newTemplate.setAuthorization(new Authorization(new AdminsConfig(new AdminUser(currentUser.getUsername()))));

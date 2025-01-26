@@ -118,13 +118,13 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldPassCheckingWhenUserHasPermissionForRerun() throws Exception {
+    public void shouldPassCheckingWhenUserHasPermissionForRerun() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         assertTrue(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, new ServerHealthStateOperationResult()));
     }
 
     @Test
-    public void shouldPassCheckingWhenUserHasPermissionForManualTrigger() throws Exception {
+    public void shouldPassCheckingWhenUserHasPermissionForManualTrigger() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
 
         configFileHelper.addAuthorizedUserForStage(pipeline.getName(), pipelineFixture.devStage, APPROVED_USER);
@@ -134,7 +134,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFailCheckingWhenPipelineNotYetScheduledButInScheduleQueue() throws Exception {
+    public void shouldFailCheckingWhenPipelineNotYetScheduledButInScheduleQueue() {
         String pipelineName = "blahPipeline";
         PipelineConfig pipelineConfig = configFileHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
         pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createManualForced());
@@ -172,7 +172,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldPassCheckingWhenPipelineNotYetScheduledButInScheduleQueueBecauseOfAutoBuild() throws Exception {
+    public void shouldPassCheckingWhenPipelineNotYetScheduledButInScheduleQueueBecauseOfAutoBuild() {
         String pipelineName = "blahPipeline";
         configFileHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
         configFileHelper.addAuthorizedUserForStage(pipelineName, "stage", APPROVED_USER);
@@ -182,7 +182,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFailCheckingWhenPipelineNotYetScheduledButInTriggerMonitor() throws Exception {
+    public void shouldFailCheckingWhenPipelineNotYetScheduledButInTriggerMonitor() {
         String pipelineName = "blahPipeline";
         PipelineConfig pipelineConfig = configFileHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
         triggerMonitor.markPipelineAsAlreadyTriggered(pipelineConfig.name());
@@ -194,7 +194,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotPassCheckingWhenUserHasNoPermissionForRerun() throws Exception {
+    public void shouldNotPassCheckingWhenUserHasNoPermissionForRerun() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, "gli", result)).isFalse();
@@ -202,7 +202,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotPassCheckingWhenUserHasNoPermissionForManualTrigger() throws Exception {
+    public void shouldNotPassCheckingWhenUserHasNoPermissionForManualTrigger() {
         pipelineFixture.createdPipelineWithAllStagesPassed();
         pipelineFixture.configStageAsManualApprovalWithApprovedUsers(pipelineFixture.devStage, APPROVED_USER);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
@@ -211,7 +211,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotPassCheckingWhenAnyStageIsActiveInPipelineForRerun() throws Exception {
+    public void shouldNotPassCheckingWhenAnyStageIsActiveInPipelineForRerun() {
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageScheduled();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, result);
@@ -221,7 +221,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotScheduleLockedPipelineIfAnyStageIsActiveInAnyPipeline() throws Exception {
+    public void shouldNotScheduleLockedPipelineIfAnyStageIsActiveInAnyPipeline() {
         configFileHelper.lockPipeline(pipelineFixture.pipelineName);
         Pipeline pipeline = pipelineFixture.schedulePipeline();
         firstStagePassedAndSecondStageBuilding(pipeline);
@@ -256,7 +256,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotScheduleLockedPipelineFromTimerIfAnyStageIsActiveInAnyPipeline() throws Exception {
+    public void shouldNotScheduleLockedPipelineFromTimerIfAnyStageIsActiveInAnyPipeline() {
         configFileHelper.lockPipeline(pipelineFixture.pipelineName);
         Pipeline pipeline = pipelineFixture.schedulePipeline();
         firstStagePassedAndSecondStageBuilding(pipeline);
@@ -268,7 +268,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotScheduleStageInLockedPipelineIfAnyStageIsActiveInAnyPipeline() throws Exception {
+    public void shouldNotScheduleStageInLockedPipelineIfAnyStageIsActiveInAnyPipeline() {
         Pipeline completed = pipelineFixture.createdPipelineWithAllStagesPassed();
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         configFileHelper.lockPipeline(pipeline.getName());
@@ -284,7 +284,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldScheduleANewstageInALockedPipeline() throws Exception {
+    public void shouldScheduleANewstageInALockedPipeline() {
         configFileHelper.lockPipeline(pipelineFixture.pipelineName);
         Pipeline pipeline = pipelineFixture.schedulePipeline();
         firstStagePassedAndSecondStageNotStarted(pipeline);
@@ -294,7 +294,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotPassCheckingWhenAnyStageIsActiveInPipelineForManualTrigger() throws Exception {
+    public void shouldNotPassCheckingWhenAnyStageIsActiveInPipelineForManualTrigger() {
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageScheduled();
         PipelineConfig pipelineConfig = pipelineFixture.pipelineConfig();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
@@ -304,7 +304,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotPassCheckingWhenTargetStageIsActiveInAnyPipelineForRerun() throws Exception {
+    public void shouldNotPassCheckingWhenTargetStageIsActiveInAnyPipelineForRerun() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         pipelineFixture.createPipelineWithFirstStageScheduled();
         configFileHelper.addAuthorizedUserForStage(pipeline.getName(), pipelineFixture.devStage, APPROVED_USER);
@@ -317,7 +317,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotPassCheckingWhenTargetStageIsActiveInAnyPipelineForManualTrigger() throws Exception {
+    public void shouldNotPassCheckingWhenTargetStageIsActiveInAnyPipelineForManualTrigger() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         pipelineFixture.createPipelineWithFirstStageScheduled();
 
@@ -329,7 +329,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotPassCheckingIfPipelineIsPausedForRerun() throws Exception {
+    public void shouldNotPassCheckingIfPipelineIsPausedForRerun() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         Username userName = new Username(new CaseInsensitiveString("A humble developer"));
 
@@ -342,7 +342,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotPassCheckingIfPipelineIsPausedForManualTrigger() throws Exception {
+    public void shouldNotPassCheckingIfPipelineIsPausedForManualTrigger() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         Username userName = new Username(new CaseInsensitiveString("A humble developer"));
 
@@ -355,7 +355,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotPassCheckingIfDiskSpaceIsFullForManualTrigger() throws Exception {
+    public void shouldNotPassCheckingIfDiskSpaceIsFullForManualTrigger() {
         String limit = diskSpaceSimulator.simulateDiskFull();
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
@@ -365,7 +365,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotPassCheckingIfDiskSpaceIsFullForRerun() throws Exception {
+    public void shouldNotPassCheckingIfDiskSpaceIsFullForRerun() {
         String limit = diskSpaceSimulator.simulateDiskFull();
 
         String pipelineName = pipelineFixture.pipelineName;
@@ -379,7 +379,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldStopStageRerunIfDiskSpaceIsLessThanMinimum() throws Exception {
+    public void shouldStopStageRerunIfDiskSpaceIsLessThanMinimum() {
         String limit = diskSpaceSimulator.simulateDiskFull();
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
@@ -388,7 +388,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSkipSecurityCheckingForCruiseUserWhenTimerTriggersPipeline() throws Exception {
+    public void shouldSkipSecurityCheckingForCruiseUserWhenTimerTriggersPipeline() {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         schedulingChecker.canTriggerPipelineWithTimer(goConfigService.getAllPipelineConfigs().get(0), result);
         assertThat(result.canContinue()).isTrue();

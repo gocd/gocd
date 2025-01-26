@@ -30,7 +30,7 @@ public class CreateOrUpdateConfigServerSiteUrlsCommand implements EntityConfigUp
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         preprocessedConfig.server().getSiteUrls().setSiteUrl(this.newSiteUrls.getSiteUrl());
         preprocessedConfig.server().getSiteUrls().setSecureSiteUrl(this.newSiteUrls.getSecureSiteUrl());
     }

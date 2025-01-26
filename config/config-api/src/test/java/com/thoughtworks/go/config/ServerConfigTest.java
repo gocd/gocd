@@ -70,7 +70,7 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void shouldIgnoreErrorsFieldOnEquals() throws Exception {
+    public void shouldIgnoreErrorsFieldOnEquals() {
         ServerConfig one = new ServerConfig(new SecurityConfig(), new MailHost(new GoCipher()), new SiteUrl("siteURL"), new SecureSiteUrl("secureURL"));
         one.addError("siteUrl", "I dont like this url");
         assertThat(one).isEqualTo(new ServerConfig(new SecurityConfig(), new MailHost(new GoCipher()), new SiteUrl("siteURL"), new SecureSiteUrl("secureURL")));

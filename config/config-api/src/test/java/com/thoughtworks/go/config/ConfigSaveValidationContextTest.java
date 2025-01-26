@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ConfigSaveValidationContextTest {
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
     }
 
     @Test
@@ -117,7 +117,7 @@ public class ConfigSaveValidationContextTest {
     }
 
     @Test
-    void shouldCheckForExistenceOfSCMS() throws Exception {
+    void shouldCheckForExistenceOfSCMS() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(new SCMs(SCMMother.create("scm-id")));
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
@@ -126,7 +126,7 @@ public class ConfigSaveValidationContextTest {
     }
 
     @Test
-    void shouldCheckForExistenceOfPackage() throws Exception {
+    void shouldCheckForExistenceOfPackage() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setPackageRepositories(new PackageRepositories(PackageRepositoryMother.create("repo-id")));
         cruiseConfig.getPackageRepositories().find("repo-id").setPackages(new Packages(PackageDefinitionMother.create("package-id")));

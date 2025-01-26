@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MaterialInstanceTest {
     @Test
-    public void shouldGenerateUniqueFingerprintOnCreation() throws Exception {
+    public void shouldGenerateUniqueFingerprintOnCreation() {
         MaterialInstance one = new HgMaterial("url", null).createMaterialInstance();
         MaterialInstance two = new HgMaterial("otherurl", null).createMaterialInstance();
         assertThat(one.getFingerprint()).isNotNull();

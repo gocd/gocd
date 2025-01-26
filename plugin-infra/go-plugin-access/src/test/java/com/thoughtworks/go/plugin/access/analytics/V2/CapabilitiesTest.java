@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CapabilitiesTest {
 
     @Test
-    public void shouldDeserializeFromJSON() throws Exception {
+    public void shouldDeserializeFromJSON() {
         String json = """
                 {
                 "supported_analytics": [
@@ -42,7 +42,7 @@ public class CapabilitiesTest {
     }
 
     @Test
-    public void shouldConvertToDomainCapabilities() throws Exception {
+    public void shouldConvertToDomainCapabilities() {
         String json = """
                 {
                 "supported_analytics": [

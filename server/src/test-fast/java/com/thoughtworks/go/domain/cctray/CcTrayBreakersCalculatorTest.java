@@ -41,7 +41,7 @@ public class CcTrayBreakersCalculatorTest {
     private MaterialRepository materialRepo;
 
     @Test
-    public void shouldCaptureUniqueModificationAuthorNamesAsBreakers_inCaseOfFailure() throws Exception {
+    public void shouldCaptureUniqueModificationAuthorNamesAsBreakers_inCaseOfFailure() {
         Modification user1Commit = ModificationsMother.checkinWithComment("123", "comment 1", "user1", "user1@domain1.com", new Date(), "foo.c");
         Modification user2Commit = ModificationsMother.checkinWithComment("124", "comment 2", "user2", "user2@domain2.com", new Date(), "bar.c");
         Modification otherCommitOfUser1 = ModificationsMother.checkinWithComment("125", "comment 3", "user1", "user1@different-email.com", new Date(), "baz.c");
@@ -59,7 +59,7 @@ public class CcTrayBreakersCalculatorTest {
     }
 
     @Test
-    public void shouldCaptureAuthorNamesOfChangedRevisionsOnlyAsBreakers() throws Exception {
+    public void shouldCaptureAuthorNamesOfChangedRevisionsOnlyAsBreakers() {
         Modification user1Commit = ModificationsMother.checkinWithComment("123", "comment 1", "user1", "user1@domain1.com", new Date(), "foo.c");
         Modification user2Commit = ModificationsMother.checkinWithComment("124", "comment 2", "user2", "user2@domain2.com", new Date(), "bar.c");
         MaterialRevision changedRevision = new MaterialRevision(MaterialsMother.gitMaterial("foo.com"), user1Commit, user2Commit);
@@ -80,7 +80,7 @@ public class CcTrayBreakersCalculatorTest {
     }
 
     @Test
-    public void shouldCaptureAuthorNamesOfUnchangedRevisionsIfThereAreNoChangedRevisions() throws Exception {
+    public void shouldCaptureAuthorNamesOfUnchangedRevisionsIfThereAreNoChangedRevisions() {
         Modification user1Commit = ModificationsMother.checkinWithComment("123", "comment 1", "user1", "user1@domain1.com", new Date(), "foo.c");
         Modification user2Commit = ModificationsMother.checkinWithComment("124", "comment 2", "user2", "user2@domain2.com", new Date(), "bar.c");
         MaterialRevision firstUnchangedRevision = new MaterialRevision(MaterialsMother.gitMaterial("foo.com"), user1Commit, user2Commit);
@@ -100,7 +100,7 @@ public class CcTrayBreakersCalculatorTest {
     }
 
     @Test
-    public void shouldNotCaptureAuthorNamesForDependencyMaterial() throws Exception {
+    public void shouldNotCaptureAuthorNamesForDependencyMaterial() {
         Modification user1Commit = ModificationsMother.checkinWithComment("123", "comment 1", "user1", "user1@domain1.com", new Date(), "foo.c");
 
         MaterialRevision changedRevision = new MaterialRevision(MaterialsMother.gitMaterial("foo.com"), user1Commit);
@@ -121,7 +121,7 @@ public class CcTrayBreakersCalculatorTest {
     }
 
     @Test
-    public void shouldNotHaveAnyBreakersIfStageHasNotFailed() throws Exception {
+    public void shouldNotHaveAnyBreakersIfStageHasNotFailed() {
         Modification user1Commit = ModificationsMother.checkinWithComment("123", "comment 1", "user1", "user1@domain1.com", new Date(), "foo.c");
         MaterialRevision revision = new MaterialRevision(MaterialsMother.gitMaterial("foo.com"), user1Commit);
         revision.markAsChanged();

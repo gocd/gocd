@@ -15,11 +15,9 @@
  */
 package com.thoughtworks.go.rackhack;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 public class DummyServlet extends HttpServlet {
     public static final String URI_ATTRIBUTE = "foo";

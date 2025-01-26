@@ -50,7 +50,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.MaterialsMother.packageMaterial;

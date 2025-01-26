@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service.support;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**

@@ -25,7 +25,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.IOException;
 
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;

@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.server.service.ArtifactsDiskSpaceFullCheckerTest.mockGoConfigServiceToHaveSiteUrl;

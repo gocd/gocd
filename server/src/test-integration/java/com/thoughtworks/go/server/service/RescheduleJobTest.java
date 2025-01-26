@@ -37,7 +37,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.nio.file.Path;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 

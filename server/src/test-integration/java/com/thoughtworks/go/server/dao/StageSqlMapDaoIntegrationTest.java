@@ -54,7 +54,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;

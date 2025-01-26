@@ -79,7 +79,7 @@ public class AbstractReAuthenticationFilterTest {
             @Override
             protected void onAuthenticationFailure(HttpServletRequest request,
                                                    HttpServletResponse response,
-                                                   String errorMessage) throws IOException {
+                                                   String errorMessage) {
 
             }
         });
@@ -190,7 +190,7 @@ public class AbstractReAuthenticationFilterTest {
         void shouldReAuthenticateAnonymousTokenWhenItHasExpired() throws IOException, ServletException {
             request = HttpRequestBuilder.GET("/").build();
             SessionUtilsHelper.loginAsAnonymous(request);
-            AuthenticationToken<AnonymousCredential> authenticationToken = (AuthenticationToken<AnonymousCredential>) SessionUtils.getAuthenticationToken(request);
+            @SuppressWarnings("unchecked") AuthenticationToken<AnonymousCredential> authenticationToken = (AuthenticationToken<AnonymousCredential>) SessionUtils.getAuthenticationToken(request);
 
             clock.addSeconds(3601);
             when(systemEnvironment.getReAuthenticationTimeInterval()).thenReturn(3600 * 1000L);

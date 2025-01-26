@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
-import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -68,7 +67,7 @@ public class MaterialUpdateListenerFactoryTest {
                 dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue, goConfigService);
         factory.init();
 
-        verify(queue, times(NUMBER_OF_CONSUMERS)).addListener(any(GoMessageListener.class));
+        verify(queue, times(NUMBER_OF_CONSUMERS)).addListener(any());
     }
 
     @Test
@@ -82,7 +81,7 @@ public class MaterialUpdateListenerFactoryTest {
                 dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue, goConfigService);
         factory.init();
 
-        verify(configQueue, times(NUMBER_OF_CONFIG_CONSUMERS)).addListener(any(GoMessageListener.class));
+        verify(configQueue, times(NUMBER_OF_CONFIG_CONSUMERS)).addListener(any());
     }
 
     @Test
@@ -98,6 +97,6 @@ public class MaterialUpdateListenerFactoryTest {
                 dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue, goConfigService);
         factory.init();
 
-        verify(dependencyMaterialQueue, times(noOfDependencyMaterialCheckListeners)).addListener(any(GoMessageListener.class));
+        verify(dependencyMaterialQueue, times(noOfDependencyMaterialCheckListeners)).addListener(any());
     }
 }

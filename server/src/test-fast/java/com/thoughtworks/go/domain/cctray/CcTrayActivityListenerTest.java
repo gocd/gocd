@@ -46,7 +46,7 @@ public class CcTrayActivityListenerTest {
     }
 
     @Test
-    public void shouldRegisterSelfForConfigChangeHandlingOnInitialization() throws Exception {
+    public void shouldRegisterSelfForConfigChangeHandlingOnInitialization() {
         CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, null, null, null);
 
         listener.initialize();
@@ -55,7 +55,7 @@ public class CcTrayActivityListenerTest {
     }
 
     @Test
-    public void onIntializationAndStartOfDaemon_ShouldRegisterAListener_WhichInvokesJobChangeHandler_WhenJobStatusChanges() throws Exception {
+    public void onInitializationAndStartOfDaemon_ShouldRegisterAListener_WhichInvokesJobChangeHandler_WhenJobStatusChanges() throws Exception {
         JobInstance aJob = JobInstanceMother.cancelled("job1");
         CcTrayJobStatusChangeHandler handler = mock(CcTrayJobStatusChangeHandler.class);
         CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, handler, null, null);
@@ -69,7 +69,7 @@ public class CcTrayActivityListenerTest {
     }
 
     @Test
-    public void onIntializationAndStartOfDaemon_ShouldRegisterAListener_WhichInvokesStageChangeHandler_WhenStageStatusChanges() throws Exception {
+    public void onInitializationAndStartOfDaemon_ShouldRegisterAListener_WhichInvokesStageChangeHandler_WhenStageStatusChanges() throws Exception {
         Stage aStage = StageMother.custom("stage1");
         CcTrayStageStatusChangeHandler handler = mock(CcTrayStageStatusChangeHandler.class);
         CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, null, handler, null);
@@ -83,7 +83,7 @@ public class CcTrayActivityListenerTest {
     }
 
     @Test
-    public void onIntializationAndStartOfDaemon_ShouldRegisterAListener_WhichInvokesConfigChangeHandler_WhenConfigChanges() throws Exception {
+    public void onInitializationAndStartOfDaemon_ShouldRegisterAListener_WhichInvokesConfigChangeHandler_WhenConfigChanges() throws Exception {
         CruiseConfig aConfig = GoConfigMother.defaultCruiseConfig();
         CcTrayConfigChangeHandler handler = mock(CcTrayConfigChangeHandler.class);
         CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, null, null, handler);
@@ -97,7 +97,7 @@ public class CcTrayActivityListenerTest {
     }
 
     @Test
-    public void postIntializationAndStartOfDaemon_WhenPipelineConfigChanges_ShouldInvokeConfigChangeHandler() throws InterruptedException {
+    public void postInitializationAndStartOfDaemon_WhenPipelineConfigChanges_ShouldInvokeConfigChangeHandler() throws InterruptedException {
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
         CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
 
@@ -112,7 +112,7 @@ public class CcTrayActivityListenerTest {
 
         List<ConfigChangedListener> listeners = captor.getAllValues();
         assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
-        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
+        @SuppressWarnings("unchecked") EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
         pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
         waitForProcessingToHappen();

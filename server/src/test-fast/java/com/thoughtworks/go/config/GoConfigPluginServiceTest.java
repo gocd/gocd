@@ -51,17 +51,16 @@ public class GoConfigPluginServiceTest {
                 mock(CachedGoConfig.class), mock(AgentService.class));
         parseResult = new CRParseResult(environments,pipelines,errors);
 
-        when(extension.parseDirectory(any(String.class), any(String.class), any(Collection.class)))
-        .thenReturn(parseResult);
+        when(extension.parseDirectory(any(String.class), any(String.class), any())).thenReturn(parseResult);
     }
 
     @Test
-    public void shouldAskExtensionForPluginImplementationWhenPluginIdSpecified() throws Exception {
+    public void shouldAskExtensionForPluginImplementationWhenPluginIdSpecified() {
         PartialConfigProvider plugin = service.partialConfigProviderFor("plugin-id");
         assertThat(plugin instanceof ConfigRepoPlugin).isTrue();
-        CRParseResult loaded = ((ConfigRepoPlugin) plugin).parseDirectory(new File("dir"), mock(Collection.class));
-        assertSame(environments, parseResult.getEnvironments());
-        assertSame(pipelines, parseResult.getPipelines());
-        assertSame(errors, parseResult.getErrors());
+        CRParseResult loaded = ((ConfigRepoPlugin) plugin).parseDirectory(new File("dir"), mock());
+        assertSame(environments, loaded.getEnvironments());
+        assertSame(pipelines, loaded.getPipelines());
+        assertSame(errors, loaded.getErrors());
     }
 }

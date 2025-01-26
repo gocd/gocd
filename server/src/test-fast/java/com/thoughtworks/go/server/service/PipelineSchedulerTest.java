@@ -104,7 +104,7 @@ public class PipelineSchedulerTest {
     }
 
     @Test
-    public void shouldAddErrorIfPipelineisNotFound() throws Exception {
+    public void shouldAddErrorIfPipelineIsNotFound() {
         when(configService.hasPipelineNamed(new CaseInsensitiveString("invalid"))).thenReturn(false);
         OperationResult operationResult = mock(OperationResult.class);
         final Map<String, String> revisions = new HashMap<>();
@@ -141,7 +141,7 @@ public class PipelineSchedulerTest {
     }
 
     @Test
-    public void shouldUpdateOperationResultTo404WhenAnInvalidMaterialIsSpecified() throws Exception {
+    public void shouldUpdateOperationResultTo404WhenAnInvalidMaterialIsSpecified() {
         when(configService.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
         when(configService.findMaterial(new CaseInsensitiveString("pipeline"), "invalid-material")).thenReturn(null);
         HttpOperationResult result = new HttpOperationResult();
@@ -152,7 +152,7 @@ public class PipelineSchedulerTest {
     }
 
     @Test
-    public void shouldNotAcceptEmptyRevision() throws Exception {
+    public void shouldNotAcceptEmptyRevision() {
         when(configService.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
         MaterialConfig materialConfig = mock(MaterialConfig.class);
         when(configService.findMaterial(new CaseInsensitiveString("pipeline"), "invalid-material")).thenReturn(materialConfig);
@@ -177,7 +177,7 @@ public class PipelineSchedulerTest {
         List<ConfigChangedListener> listeners = captor.getAllValues();
         assertThat(listeners.contains(scheduler)).isTrue();
         assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
-        EntityConfigChangedListener<PipelineConfig> entityConfigChangedListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
+        @SuppressWarnings("unchecked") EntityConfigChangedListener<PipelineConfig> entityConfigChangedListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
 
         when(newPipeline.name()).thenReturn(new CaseInsensitiveString(pipelineName));
@@ -195,7 +195,7 @@ public class PipelineSchedulerTest {
         List<ConfigChangedListener> listeners = captor.getAllValues();
         assertThat(listeners.contains(scheduler)).isTrue();
         assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
-        EntityConfigChangedListener<PipelineConfig> entityConfigChangedListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
+        @SuppressWarnings("unchecked") EntityConfigChangedListener<PipelineConfig> entityConfigChangedListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
         PipelineConfig newPipeline = mock(PipelineConfig.class);
         String pipelineName = "deleted-pipeline";
@@ -224,7 +224,7 @@ public class PipelineSchedulerTest {
         listeners.get(0).onConfigChange(cruiseConfig);
         assertThat(listeners.contains(scheduler)).isTrue();
         assertThat(listeners.get(2) instanceof EntityConfigChangedListener).isTrue();
-        EntityConfigChangedListener<ConfigRepoConfig> entityConfigChangedListener = (EntityConfigChangedListener<ConfigRepoConfig>) listeners.get(2);
+        @SuppressWarnings("unchecked") EntityConfigChangedListener<ConfigRepoConfig> entityConfigChangedListener = (EntityConfigChangedListener<ConfigRepoConfig>) listeners.get(2);
 
         //both should get scheduled
         scheduler.checkPipelines();

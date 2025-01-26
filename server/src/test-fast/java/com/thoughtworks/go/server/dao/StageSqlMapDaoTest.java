@@ -50,7 +50,6 @@ class StageSqlMapDaoTest {
     private StageSqlMapDao stageSqlMapDao;
     private GoCache goCache;
     private SqlMapClientTemplate sqlMapClientTemplate;
-    private Cloner cloner;
 
     @BeforeEach
     void setUp() {
@@ -58,9 +57,8 @@ class StageSqlMapDaoTest {
         sqlMapClientTemplate = mock(SqlMapClientTemplate.class);
         stageSqlMapDao = new StageSqlMapDao(mock(JobInstanceSqlMapDao.class), new Cache(true, false, false), mock(TransactionTemplate.class), mock(SqlSessionFactory.class), goCache, mock(TransactionSynchronizationManager.class));
         stageSqlMapDao.setSqlMapClientTemplate(sqlMapClientTemplate);
-        cloner = mock(Cloner.class);
-        ReflectionUtil.setField(stageSqlMapDao, "cloner", cloner);
-        doAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]).when(cloner).deepClone(any());
+        ReflectionUtil.setField(stageSqlMapDao, "cloner", mock(Cloner.class));
+        doAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]).when(mock(Cloner.class)).deepClone(any());
     }
 
     @Test
@@ -99,7 +97,7 @@ class StageSqlMapDaoTest {
         when(pagination.getPageSize()).thenReturn(10);
         when(function.get()).thenReturn(pagination);
         StageSqlMapDao spy = spy(stageSqlMapDao);
-        List<StageHistoryEntry> expectedStageHistoryEntriesList = mock(ArrayList.class);
+        @SuppressWarnings("unchecked") List<StageHistoryEntry> expectedStageHistoryEntriesList = mock(ArrayList.class);
         StageHistoryEntry topOfThisPage = mock(StageHistoryEntry.class);
         when(expectedStageHistoryEntriesList.get(0)).thenReturn(topOfThisPage);
         StageHistoryEntry bottomOfLastPage = mock(StageHistoryEntry.class);

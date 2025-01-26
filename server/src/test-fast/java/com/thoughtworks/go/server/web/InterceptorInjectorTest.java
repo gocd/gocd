@@ -33,18 +33,15 @@ public class InterceptorInjectorTest {
 
     private static final class HandlerInterceptorSub implements HandlerInterceptor {
         @Override
-        public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
-                                    Exception ex) throws Exception {
+        public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         }
 
         @Override
-        public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-                               ModelAndView modelAndView) throws Exception {
+        public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) {
         }
 
         @Override
-        public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-                throws Exception {
+        public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
             return false;
         }
     }
@@ -87,7 +84,7 @@ public class InterceptorInjectorTest {
         SimpleUrlHandlerMapping handler = new SimpleUrlHandlerMapping();
 
         ProceedingJoinPoint proceedingJoinPoint = mock(ProceedingJoinPoint.class);
-        when(proceedingJoinPoint.proceed()).thenReturn(new HandlerExecutionChain(handler, null));
+        when(proceedingJoinPoint.proceed()).thenReturn(new HandlerExecutionChain(handler, (HandlerInterceptor[]) null));
         InterceptorInjector injector = new InterceptorInjector();
 
         HandlerExecutionChain handlers =
@@ -102,7 +99,7 @@ public class InterceptorInjectorTest {
         HandlerInterceptor[] interceptorsOfFramework = new HandlerInterceptor[] {interceptorOfFramework};
 
         ProceedingJoinPoint proceedingJoinPoint = mock(ProceedingJoinPoint.class);
-        when(proceedingJoinPoint.proceed()).thenReturn(new HandlerExecutionChain(null, null));
+        when(proceedingJoinPoint.proceed()).thenReturn(new HandlerExecutionChain(null, (HandlerInterceptor[]) null));
         InterceptorInjector injector = new InterceptorInjector();
         injector.setInterceptors(interceptorsOfFramework);
 

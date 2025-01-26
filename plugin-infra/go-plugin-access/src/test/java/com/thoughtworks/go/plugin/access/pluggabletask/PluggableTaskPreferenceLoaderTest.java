@@ -44,14 +44,14 @@ public class PluggableTaskPreferenceLoaderTest {
     }
 
     @Test
-    public void shouldRegisterPluginListenerWithPluginManager() throws Exception {
+    public void shouldRegisterPluginListenerWithPluginManager() {
         PluginManager pluginManager = mock(PluginManager.class);
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
         verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader);
     }
 
     @Test
-    public void shouldSetConfigForTheTaskCorrespondingToGivenPluginId() throws Exception {
+    public void shouldSetConfigForTheTaskCorrespondingToGivenPluginId() {
         final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
         String pluginId = "test-plugin-id";
         when(descriptor.id()).thenReturn(pluginId);
@@ -65,10 +65,10 @@ public class PluggableTaskPreferenceLoaderTest {
         when(taskExtension.canHandlePlugin(pluginId)).thenReturn(true);
 
         doAnswer(invocationOnMock -> {
-            final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
+            @SuppressWarnings("unchecked") final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
             action.execute(task, descriptor);
             return null;
-        }).when(taskExtension).doOnTask(eq(pluginId), any(Action.class));
+        }).when(taskExtension).doOnTask(eq(pluginId), any());
 
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
         pluggableTaskPreferenceLoader.pluginLoaded(descriptor);
@@ -78,7 +78,7 @@ public class PluggableTaskPreferenceLoaderTest {
     }
 
     @Test
-    public void shouldRemoveConfigForTheTaskCorrespondingToGivenPluginId() throws Exception {
+    public void shouldRemoveConfigForTheTaskCorrespondingToGivenPluginId() {
         final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
         String pluginId = "test-plugin-id";
         when(descriptor.id()).thenReturn(pluginId);
@@ -111,10 +111,10 @@ public class PluggableTaskPreferenceLoaderTest {
         when(taskExtension.canHandlePlugin(pluginId)).thenReturn(false);
 
         doAnswer(invocationOnMock -> {
-            final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
+            @SuppressWarnings("unchecked") final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
             action.execute(task, descriptor);
             return null;
-        }).when(taskExtension).doOnTask(eq(pluginId), any(Action.class));
+        }).when(taskExtension).doOnTask(eq(pluginId), any());
 
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
         pluggableTaskPreferenceLoader.pluginLoaded(descriptor);

@@ -53,7 +53,7 @@ public class ConfigInfoProviderTest {
     }
 
     @Test
-    public void shouldProvideSecurityInformationWhenNoAuthorizationPluginIsConfigured() throws Exception {
+    public void shouldProvideSecurityInformationWhenNoAuthorizationPluginIsConfigured() {
         final GoConfigService goConfigService = goConfigService();
         final AuthorizationPluginInfo passwordFile = pluginInfo("cd.go.authentication.passwordfile", "Password File Authentication Plugin for GoCD");
         final AuthorizationPluginInfo ldap = pluginInfo("cd.go.authentication.ldap", "LDAP Authentication Plugin for GoCD");
@@ -63,14 +63,14 @@ public class ConfigInfoProviderTest {
 
         final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore, agentService()).asJson();
 
-        final Map<String, Object> security = (Map<String, Object>) map.get("Security");
+        @SuppressWarnings("unchecked") final Map<String, Object> security = (Map<String, Object>) map.get("Security");
         assertNotNull(security);
         assertThat(security).containsEntry("Enabled", false);
         assertThat(security).containsEntry("Plugins", new ArrayList<>());
     }
 
     @Test
-    public void shouldProvideSecurityInformationWhenAuthorizationPluginsConfigured() throws Exception {
+    public void shouldProvideSecurityInformationWhenAuthorizationPluginsConfigured() {
         final GoConfigService goConfigService = goConfigService();
         final AuthorizationPluginInfo passwordFile = pluginInfo("cd.go.authentication.passwordfile", "Password File Authentication Plugin for GoCD");
         final AuthorizationPluginInfo ldap = pluginInfo("cd.go.authentication.ldap", "LDAP Authentication Plugin for GoCD");
@@ -81,11 +81,11 @@ public class ConfigInfoProviderTest {
 
         final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore, agentService()).asJson();
 
-        final Map<String, Object> security = (Map<String, Object>) map.get("Security");
+        @SuppressWarnings("unchecked") final Map<String, Object> security = (Map<String, Object>) map.get("Security");
         assertNotNull(security);
         assertThat(security).containsEntry("Enabled", true);
 
-        final List<Map<String, Boolean>> plugins = (List<Map<String, Boolean>>) security.get("Plugins");
+        @SuppressWarnings("unchecked") final List<Map<String, Boolean>> plugins = (List<Map<String, Boolean>>) security.get("Plugins");
         assertThat(plugins).contains(
                 Map.of("Password File Authentication Plugin for GoCD", true),
                 Map.of("LDAP Authentication Plugin for GoCD", false)

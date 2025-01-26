@@ -25,7 +25,6 @@ import com.thoughtworks.go.server.messaging.StartServerBackupMessage;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.ThrowingFn;
 import com.thoughtworks.go.util.TimeProvider;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -76,7 +75,7 @@ public class BackupServiceTest {
     @BeforeEach
     public void setUp() throws Exception {
         lenient().when(systemEnvironment.getConfigDir()).thenReturn(configDir.getAbsolutePath());
-        lenient().when(configRepo.doLocked(any(ThrowingFn.class))).thenCallRealMethod();
+        lenient().when(configRepo.doLocked(any())).thenCallRealMethod();
     }
 
     @Test

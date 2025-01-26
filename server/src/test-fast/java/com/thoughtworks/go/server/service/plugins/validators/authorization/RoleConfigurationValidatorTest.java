@@ -42,11 +42,11 @@ public class RoleConfigurationValidatorTest {
     public void setUp() throws Exception {
         extension = mock(AuthorizationExtension.class);
         validator = new RoleConfigurationValidator(extension);
-        when(extension.validateRoleConfiguration(any(String.class), any(Map.class))).thenReturn(new ValidationResult());
+        when(extension.validateRoleConfiguration(any(String.class), any())).thenReturn(new ValidationResult());
     }
 
     @Test
-    public void shouldValidateRoleConfigurationWithPlugin() throws Exception {
+    public void shouldValidateRoleConfigurationWithPlugin() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("view"));
         PluginRoleConfig roleConfig = new PluginRoleConfig("admin", "auth_id", property);
 
@@ -56,7 +56,7 @@ public class RoleConfigurationValidatorTest {
     }
 
     @Test
-    public void shouldMapValidationErrorsToRoleConfiguration() throws Exception {
+    public void shouldMapValidationErrorsToRoleConfiguration() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("view"));
         PluginRoleConfig roleConfig = new PluginRoleConfig("admin", "auth_id", property);
         ValidationResult result = new ValidationResult();
@@ -71,7 +71,7 @@ public class RoleConfigurationValidatorTest {
     }
 
     @Test
-    public void shouldAddConfigurationAndMapErrorsInAbsenceOfConfiguration() throws Exception {
+    public void shouldAddConfigurationAndMapErrorsInAbsenceOfConfiguration() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("view"));
         PluginRoleConfig roleConfig = new PluginRoleConfig("admin", "auth_id", property);
         ValidationResult result = new ValidationResult();
@@ -87,7 +87,7 @@ public class RoleConfigurationValidatorTest {
     }
 
     @Test
-    public void shouldAddErrorsInAbsenceOfPlugin() throws Exception {
+    public void shouldAddErrorsInAbsenceOfPlugin() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("view"));
         PluginRoleConfig roleConfig = new PluginRoleConfig("admin", "auth_id", property);
 

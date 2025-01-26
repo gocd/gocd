@@ -55,12 +55,12 @@ public class TfsMaterialTest {
 
     private TfsMaterial tfsMaterialFirstCollectionFirstProject;
     private TfsMaterial tfsMaterialFirstCollectionSecondProject;
-    private final String DOMAIN = "domain";
-    private final String USERNAME = "username";
-    private final String PASSWORD = "password";
-    private final String TFS_FIRST_COLLECTION_URL = "http://some.tfs.repo.local";
-    private final String TFS_FIRST_PROJECT = "$/first_project";
-    private final String TFS_SECOND_PROJECT = "$/second_project";
+    private static final String DOMAIN = "domain";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String TFS_FIRST_COLLECTION_URL = "http://some.tfs.repo.local";
+    private static final String TFS_FIRST_PROJECT = "$/first_project";
+    private static final String TFS_SECOND_PROJECT = "$/second_project";
 
     @BeforeEach
     void setUp() {
@@ -201,7 +201,7 @@ public class TfsMaterialTest {
         Map<String, Object> attributes = material.getAttributes(true);
 
         assertThat(attributes.get("type")).isEqualTo("tfs");
-        Map<String, Object> configuration = (Map<String, Object>) attributes.get("tfs-configuration");
+        @SuppressWarnings("unchecked") Map<String, Object> configuration = (Map<String, Object>) attributes.get("tfs-configuration");
         assertThat(configuration.get("url")).isEqualTo("http://username:password@tfsrepo.com");
         assertThat(configuration.get("domain")).isEqualTo("domain");
         assertThat(configuration.get("username")).isEqualTo("username");
@@ -215,7 +215,7 @@ public class TfsMaterialTest {
         Map<String, Object> attributes = material.getAttributes(false);
 
         assertThat(attributes.get("type")).isEqualTo("tfs");
-        Map<String, Object> configuration = (Map<String, Object>) attributes.get("tfs-configuration");
+        @SuppressWarnings("unchecked") Map<String, Object> configuration = (Map<String, Object>) attributes.get("tfs-configuration");
         assertThat(configuration.get("url")).isEqualTo("http://username:******@tfsrepo.com");
         assertThat(configuration.get("domain")).isEqualTo("domain");
         assertThat(configuration.get("username")).isEqualTo("username");

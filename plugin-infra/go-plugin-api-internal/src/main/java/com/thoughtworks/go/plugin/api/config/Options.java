@@ -51,8 +51,9 @@ public class Options {
      * @return matched option
      * @throws RuntimeException when matching option not found
      */
+    @SuppressWarnings("unchecked")
     public <T> Option<T> findOption(Option<T> option) {
-        for (@SuppressWarnings("unchecked") Option<T> candidateOption : options) {
+        for (Option<T> candidateOption : options) {
             if (candidateOption.hasSameNameAs(option)) {
                 return candidateOption;
             }

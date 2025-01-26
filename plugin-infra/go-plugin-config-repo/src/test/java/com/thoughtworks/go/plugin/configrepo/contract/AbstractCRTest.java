@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class AbstractCRTest<T extends CRBase> {
 
-    private boolean printExamples = false;
+    private final boolean printExamples = false;
     protected Gson gson;
 
     @BeforeEach
@@ -82,8 +82,7 @@ public abstract class AbstractCRTest<T extends CRBase> {
     @Test
     public void shouldHaveEqualsImplementedForTests() {
         //just try equality of each example with other
-        for (Object o : getExamples().entrySet()) {
-            Map.Entry<String, T> right = (Map.Entry<String, T>) o;
+        for (Map.Entry<String, T> right : getExamples().entrySet()) {
             for (Map.Entry<String, T> left : getExamples().entrySet()) {
                 if (left.getValue() == right.getValue()) {
                     assertThat(left.getValue().equals(right.getValue()))
@@ -139,7 +138,7 @@ public abstract class AbstractCRTest<T extends CRBase> {
             jsonObject.add("extraProperty", new JsonPrimitive("This is not part of message type"));
             String json = gson.toJson(jsonObject);
 
-            T deserializedValue = (T) gson.fromJson(json, value.getClass());
+            @SuppressWarnings("unchecked") T deserializedValue = (T) gson.fromJson(json, value.getClass());
             assertThat(deserializedValue)
                 .describedAs(String.format("Example %s - Deserialized value should equal to value before serialization", example.getKey()))
                 .isEqualTo(value);
@@ -153,7 +152,7 @@ public abstract class AbstractCRTest<T extends CRBase> {
             T value = example.getValue();
             String json = gson.toJson(value);
 
-            T deserializedValue = (T) gson.fromJson(json, value.getClass());
+            @SuppressWarnings("unchecked") T deserializedValue = (T) gson.fromJson(json, value.getClass());
             assertThat(deserializedValue)
                 .describedAs(String.format("Example %s - Deserialized value should equal to value before serialization", example.getKey()))
                 .isEqualTo(value);
@@ -170,7 +169,7 @@ public abstract class AbstractCRTest<T extends CRBase> {
             break;
         }
 
-        T deserializedValue = (T) gson.fromJson(json, typeOfT);
+        @SuppressWarnings("unchecked") T deserializedValue = (T) gson.fromJson(json, typeOfT);
 
         ErrorCollection errorCollection = new ErrorCollection();
         deserializedValue.getErrors(errorCollection, "GetErrorsWhenDeserializedFromEmptyBlockTest");

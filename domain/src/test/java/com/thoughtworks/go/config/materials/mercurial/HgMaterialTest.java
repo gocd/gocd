@@ -410,7 +410,7 @@ public class HgMaterialTest {
         Map<String, Object> attributes = material.getAttributes(true);
 
         assertThat(attributes.get("type")).isEqualTo("mercurial");
-        Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
+        @SuppressWarnings("unchecked") Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
         assertThat(configuration.get("url")).isEqualTo("http://username:password@hgrepo.com");
     }
 
@@ -420,7 +420,7 @@ public class HgMaterialTest {
         Map<String, Object> attributes = material.getAttributes(false);
 
         assertThat(attributes.get("type")).isEqualTo("mercurial");
-        Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
+        @SuppressWarnings("unchecked") Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
         assertThat(configuration.get("url")).isEqualTo("http://username:******@hgrepo.com");
     }
 

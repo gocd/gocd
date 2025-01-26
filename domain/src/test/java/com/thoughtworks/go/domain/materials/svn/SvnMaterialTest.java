@@ -56,11 +56,11 @@ public class SvnMaterialTest {
 
     private SvnMaterial svnMaterial;
     private static final String URL = "svn://something";
-    private SubversionRevision revision = new SubversionRevision("1");
-    private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
+    private final SubversionRevision revision = new SubversionRevision("1");
+    private final InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         subversion = mock(Subversion.class);
 
         when(subversion.getUrl()).thenReturn(new UrlArgument(URL));
@@ -100,7 +100,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldLogRepoInfoToConsoleOutWithOutFolder() throws Exception {
+    void shouldLogRepoInfoToConsoleOutWithOutFolder() {
         final File workingCopy = new File("xyz");
 
         updateMaterial(svnMaterial, revision, workingCopy);
@@ -358,7 +358,7 @@ public class SvnMaterialTest {
         Map<String, Object> attributes = material.getAttributes(true);
 
         assertThat(attributes.get("type")).isEqualTo("svn");
-        Map<String, Object> configuration = (Map<String, Object>) attributes.get("svn-configuration");
+        @SuppressWarnings("unchecked") Map<String, Object> configuration = (Map<String, Object>) attributes.get("svn-configuration");
         assertThat(configuration.get("url")).isEqualTo("http://username:password@svnrepo.com");
         assertThat(configuration.get("username")).isEqualTo("user");
         assertThat(configuration.get("password")).isEqualTo("password");
@@ -371,7 +371,7 @@ public class SvnMaterialTest {
         Map<String, Object> attributes = material.getAttributes(false);
 
         assertThat(attributes.get("type")).isEqualTo("svn");
-        Map<String, Object> configuration = (Map<String, Object>) attributes.get("svn-configuration");
+        @SuppressWarnings("unchecked") Map<String, Object> configuration = (Map<String, Object>) attributes.get("svn-configuration");
         assertThat(configuration.get("url")).isEqualTo("http://username:******@svnrepo.com");
         assertThat(configuration.get("username")).isEqualTo("user");
         assertThat(configuration.get("password")).isNull();

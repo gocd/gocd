@@ -256,7 +256,7 @@ public class ChangesetServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFailWhenUserDoesNotHaveAccess() throws IOException {
+    public void shouldFailWhenUserDoesNotHaveAccess() {
         configHelper.enableSecurity();
         configHelper.addAdmins("admin");
         CruiseConfig config = this.configHelper.getCachedGoConfig().loadForEditing();
@@ -575,7 +575,7 @@ public class ChangesetServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFilterOutMaterialRevisionsThatTheUserIsNotAuthorizedToView() throws Exception {
+    public void shouldFilterOutMaterialRevisionsThatTheUserIsNotAuthorizedToView() {
         configHelper.enableSecurity();
         configHelper.addAdmins("Yogi");
 
@@ -619,7 +619,7 @@ public class ChangesetServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotFilterOutMaterialRevisionsAtThePointInTheDependencyEvenIfTrackingToolDoesNotMatchWithParent() throws Exception {
+    public void shouldNotFilterOutMaterialRevisionsAtThePointInTheDependencyEvenIfTrackingToolDoesNotMatchWithParent() {
         Username user = new Username(new CaseInsensitiveString("user"));
 
         SvnMaterial svn = MaterialsMother.svnMaterial("http://svn");
@@ -656,6 +656,7 @@ public class ChangesetServiceIntegrationTest {
         assertThat(result.isSuccessful()).isTrue();
     }
 
+    @SuppressWarnings("unused")
     @Test
     public void shouldReturn_SCMMods_AcrossParentStageFailures() {
         PipelineConfig upstreamPipeline = configHelper.addPipeline("upstream", "stage", git.config(), "job");
@@ -892,6 +893,7 @@ public class ChangesetServiceIntegrationTest {
         return null;
     }
 
+    @SafeVarargs
     private List<MaterialRevision> groupByMaterial(List<MaterialRevision>... toBeGrouped) {
         MaterialRevisions grouped = new MaterialRevisions();
         for (List<MaterialRevision> materialRevisions : toBeGrouped) {

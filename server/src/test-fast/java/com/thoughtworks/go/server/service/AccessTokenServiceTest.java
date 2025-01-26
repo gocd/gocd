@@ -159,7 +159,7 @@ class AccessTokenServiceTest {
 
             accessTokenService.onTimer();
 
-            final ArgumentCaptor<Map<Long, Timestamp>> argumentCaptor = ArgumentCaptor.forClass(Map.class);
+            @SuppressWarnings("unchecked") final ArgumentCaptor<Map<Long, Timestamp>> argumentCaptor = ArgumentCaptor.forClass(Map.class);
             verify(accessTokenDao).updateLastUsedTime(argumentCaptor.capture());
 
             final Map<Long, Timestamp> argument = argumentCaptor.getValue();
@@ -189,7 +189,7 @@ class AccessTokenServiceTest {
             accessTokenService.updateLastUsedCacheWith(accessToken);
             accessTokenService.onTimer();
 
-            final ArgumentCaptor<Map<Long, Timestamp>> argumentCaptor = ArgumentCaptor.forClass(Map.class);
+            @SuppressWarnings("unchecked") final ArgumentCaptor<Map<Long, Timestamp>> argumentCaptor = ArgumentCaptor.forClass(Map.class);
             verify(accessTokenDao).updateLastUsedTime(argumentCaptor.capture());
 
             final Map<Long, Timestamp> argument = argumentCaptor.getValue();

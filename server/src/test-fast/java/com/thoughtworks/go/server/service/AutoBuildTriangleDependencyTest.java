@@ -41,7 +41,7 @@ public class AutoBuildTriangleDependencyTest {
     private MaterialChecker materialChecker;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = mock(BasicCruiseConfig.class);
         pipelineService = mock(PipelineService.class);
@@ -51,7 +51,7 @@ public class AutoBuildTriangleDependencyTest {
     }
 
     @Test
-    public void should_useTriangleDependencyResolution_whenFainInIsOptedOut() throws Exception {
+    public void should_useTriangleDependencyResolution_whenFainInIsOptedOut() {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(false);
         String pipelineName = "downstream";

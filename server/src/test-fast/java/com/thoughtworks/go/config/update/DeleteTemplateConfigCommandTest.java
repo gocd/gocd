@@ -58,7 +58,7 @@ public class DeleteTemplateConfigCommandTest {
     }
 
     @Test
-    public void shouldDeleteTemplateFromTheGivenConfig() throws Exception {
+    public void shouldDeleteTemplateFromTheGivenConfig() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isTrue();

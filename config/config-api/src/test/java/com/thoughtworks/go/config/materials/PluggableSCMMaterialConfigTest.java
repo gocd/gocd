@@ -50,7 +50,7 @@ public class PluggableSCMMaterialConfigTest {
     public Path temporaryFolder;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig("scm-id");
         SCMMetadataStore.getInstance().clear();
     }
@@ -110,7 +110,7 @@ public class PluggableSCMMaterialConfigTest {
     }
 
     @Test
-    public void shouldAddErrorIDestinationIsNotValid() throws Exception {
+    public void shouldAddErrorIDestinationIsNotValid() {
         ConfigSaveValidationContext configSaveValidationContext = mock(ConfigSaveValidationContext.class);
         SCM scmConfig = mock(SCM.class);
         when(configSaveValidationContext.findScmById(anyString())).thenReturn(scmConfig);

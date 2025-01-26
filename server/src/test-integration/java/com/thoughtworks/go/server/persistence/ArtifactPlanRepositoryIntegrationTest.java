@@ -172,7 +172,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteArtifactPlans() throws Exception {
+    public void shouldDeleteArtifactPlans() {
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
         artifactPlan.setBuildId(jobInstance.getId());

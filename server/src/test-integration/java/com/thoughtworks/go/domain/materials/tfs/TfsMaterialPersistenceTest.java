@@ -82,7 +82,7 @@ public class TfsMaterialPersistenceTest {
     }
 
     @Test
-    public void shouldSaveMaterialInstance() throws Exception {
+    public void shouldSaveMaterialInstance() {
         TfsMaterial tfsCfg = new TfsMaterial(new UrlArgument("url"), "loser", "CORPORATE", "foo_bar_baz", "/dev/null");
         MaterialInstance materialInstance = materialRepository.findOrCreateFrom(tfsCfg);
         assertThat(materialRepository.findMaterialInstance(tfsCfg)).isEqualTo(materialInstance);

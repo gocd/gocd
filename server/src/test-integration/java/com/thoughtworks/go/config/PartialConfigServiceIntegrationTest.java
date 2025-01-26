@@ -90,7 +90,7 @@ public class PartialConfigServiceIntegrationTest {
     }
 
     @AfterEach
-    public void teardown() throws Exception {
+    public void teardown() {
         for (PartialConfig partial : cachedGoPartials.lastValidPartials()) {
             assertThat(ErrorCollector.getAllErrors(partial).isEmpty()).isTrue();
         }

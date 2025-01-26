@@ -61,7 +61,7 @@ public class PipelineStagesFeedServiceIntegrationTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         configHelper.onTearDown();
     }
 

@@ -61,7 +61,7 @@ public class GoDashboardServiceTest {
     private CruiseConfig config;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         configMother = new GoConfigMother();
         config = GoConfigMother.defaultCruiseConfig();

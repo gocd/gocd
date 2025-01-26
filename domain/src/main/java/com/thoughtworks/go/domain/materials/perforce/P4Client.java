@@ -43,12 +43,12 @@ public class P4Client extends SCMCommand {
     private boolean loggedIn;
 
     public static P4Client fromServerAndPort(String materialFingerprint, String serverAndPort, String userName, String password,
-                                             String clientName, boolean useTickets, File workingdir, String p4view, ConsoleOutputStreamConsumer consumer, boolean failOnError) throws Exception {
+                                             String clientName, boolean useTickets, File workingdir, String p4view, ConsoleOutputStreamConsumer consumer, boolean failOnError) {
         return new P4Client(materialFingerprint, serverAndPort, userName, password, clientName, useTickets, workingdir, p4view, consumer, failOnError);
     }
 
     private P4Client(String materialFingerprint, String serverAndPort, String userName, String password, String p4ClientName, boolean useTickets, File workingDirectory, String p4view, ConsoleOutputStreamConsumer consumer,
-                     boolean failOnError) throws Exception {
+                     boolean failOnError) {
         super(materialFingerprint);
         this.p4Port = serverAndPort;
         this.p4user = userName;

@@ -87,7 +87,7 @@ public class PipelineLabelCorrectorIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbAndKeepTheOneMatchingPipelineNameCaseInConfig() throws SQLException {
+    public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbAndKeepTheOneMatchingPipelineNameCaseInConfig() {
         String pipelineName = "Pipeline-Name";
         configHelper.addPipeline(pipelineName, "stage-name");
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
@@ -104,7 +104,7 @@ public class PipelineLabelCorrectorIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveAllEntriesForPipelineCounterFromDbIfThePipelineDoesnotBelongToConfigAnymoreAndThereWereNoPipelineRunsForThatPipelineButDuplicatesWereFound() throws SQLException {
+    public void shouldRemoveAllEntriesForPipelineCounterFromDbIfThePipelineDoesnotBelongToConfigAnymoreAndThereWereNoPipelineRunsForThatPipelineButDuplicatesWereFound() {
         // Such a scenario could be created in pre 18.4 world when the pipeline was recreated with different cases via the API or the UI which causes the pipeline to be paused by default. Pipeline pause information is stored in the same table.
         String pipelineName = "Pipeline-Name";
         configHelper.addPipeline(pipelineName, "stage-name");
@@ -122,7 +122,7 @@ public class PipelineLabelCorrectorIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbIfThePipelineDoesnotBelongToConfigAnymoreAndLeaveOutTheOneThatMatchesTheCaseOfLatestPipelineRun() throws SQLException {
+    public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbIfThePipelineDoesnotBelongToConfigAnymoreAndLeaveOutTheOneThatMatchesTheCaseOfLatestPipelineRun() {
         // Such a scenario could be created in pre 18.4 world when the pipeline was recreated with different cases, and has had a few runs after which it was deleted
         String pipelineName = "Pipeline-Name";
         SvnMaterial svn = scheduleUtil.wf(new SvnMaterial("svn", "username", "password", false), "folder1");
@@ -152,7 +152,7 @@ public class PipelineLabelCorrectorIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbIfTheConfigRepoPipelineHasNotBeenLoadedUpYetLeavingBehindTheOneWhichMatchesTheCaseOfTheLastRunPipeline() throws SQLException {
+    public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbIfTheConfigRepoPipelineHasNotBeenLoadedUpYetLeavingBehindTheOneWhichMatchesTheCaseOfTheLastRunPipeline() {
         // Such a scenario could be created in pre 18.4 world when the pipeline defined in a config-repo was created/renamed with different cases, and has had a few runs. After this the server is upgraded to a version >= 18.4
         String pipelineName = "Pipeline-Name";
         ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin", "id2");

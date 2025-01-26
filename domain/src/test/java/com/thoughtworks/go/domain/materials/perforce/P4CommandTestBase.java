@@ -50,7 +50,7 @@ abstract class P4CommandTestBase extends PerforceFixture {
     }
 
     @Test
-    void shouldCheckConnectionAndReturnErrorIfIncorrectViewMentioned() throws Exception {
+    void shouldCheckConnectionAndReturnErrorIfIncorrectViewMentioned() {
         p4 = p4Fixture.createClient("client", "//depot/FolderThatDoesNotExist... //client/...");
 
         assertThatCode(() -> p4.checkConnection())

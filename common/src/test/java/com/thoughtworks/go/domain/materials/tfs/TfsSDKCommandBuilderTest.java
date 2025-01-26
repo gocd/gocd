@@ -36,12 +36,12 @@ public class TfsSDKCommandBuilderTest {
     private String className;
 
     @BeforeEach
-    public void setup() throws IOException, URISyntaxException {
+    public void setup() {
         // we intentionally don't use mockito to mock this
         // see https://bugs.openjdk.java.net/browse/JDK-8202758
         mockSdkLoader = new ClassLoader() {
             @Override
-            public Class<?> loadClass(String name) throws ClassNotFoundException {
+            public Class<?> loadClass(String name) {
                 invoked = true;
                 className = name;
                 throw new RuntimeException();
@@ -51,7 +51,7 @@ public class TfsSDKCommandBuilderTest {
     }
 
     @Test
-    public void shouldLoadTheCorrectImplementationOfSDKCommandViaTheNestedClassLoader() throws Exception {
+    public void shouldLoadTheCorrectImplementationOfSDKCommandViaTheNestedClassLoader() {
         try {
             builder.buildTFSSDKCommand(null,new UrlArgument("url"), DOMAIN, USERNAME, PASSWORD, computedWorkspaceName, "$/project");
             fail("should have failed to load class as we are not wiring any dependencies");

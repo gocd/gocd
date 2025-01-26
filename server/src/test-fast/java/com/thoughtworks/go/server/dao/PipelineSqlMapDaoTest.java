@@ -54,7 +54,7 @@ class PipelineSqlMapDaoTest {
     private TimeProvider timeProvider;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         goCache = mock(GoCache.class);
         sqlMapClientTemplate = mock(SqlMapClientTemplate.class);
         materialRepository = mock(MaterialRepository.class);
@@ -65,7 +65,7 @@ class PipelineSqlMapDaoTest {
     }
 
     @Test
-    void shouldLoadPipelineHistoryFromCacheWhenQueriedViaNameAndCounter() throws Exception {
+    void shouldLoadPipelineHistoryFromCacheWhenQueriedViaNameAndCounter() {
         String pipelineName = "wholetthedogsout";
         int pipelineCounter = 42;
         PipelineInstanceModel expected = mock(PipelineInstanceModel.class);
@@ -80,7 +80,7 @@ class PipelineSqlMapDaoTest {
     }
 
     @Test
-    void shouldPrimePipelineHistoryToCacheWhenQueriedViaNameAndCounter() throws Exception {
+    void shouldPrimePipelineHistoryToCacheWhenQueriedViaNameAndCounter() {
         String pipelineName = "wholetthedogsout";
         int pipelineCounter = 42;
         Map<String, Object> map = arguments("pipelineName", pipelineName).and("pipelineCounter", pipelineCounter).asMap();
@@ -101,7 +101,7 @@ class PipelineSqlMapDaoTest {
     }
 
     @Test
-    void shouldUpdateCommentAndRemoveItFromPipelineHistoryCache() throws Exception {
+    void shouldUpdateCommentAndRemoveItFromPipelineHistoryCache() {
         String pipelineName = "wholetthedogsout";
         int pipelineCounter = 42;
         String comment = "This song is from the 90s.";
@@ -134,7 +134,7 @@ class PipelineSqlMapDaoTest {
     }
 
     @Test
-    void loadHistoryByIds_shouldLoadHistoryByIdWhenOnlyASingleIdIsNeedeSoThatItUsesTheExistingCacheForEnvironmentsPage() throws Exception {
+    void loadHistoryByIds_shouldLoadHistoryByIdWhenOnlyASingleIdIsNeedeSoThatItUsesTheExistingCacheForEnvironmentsPage() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
         when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(List.of(2L));
         pipelineSqlMapDao.setSqlMapClientTemplate(mockTemplate);
@@ -144,7 +144,7 @@ class PipelineSqlMapDaoTest {
     }
 
     @Test
-    void shouldGetAnEmptyListOfPIMsWhenActivePipelinesListDoesNotHavePIMsForRequestedPipeline() throws Exception {
+    void shouldGetAnEmptyListOfPIMsWhenActivePipelinesListDoesNotHavePIMsForRequestedPipeline() {
         String pipelineName = "pipeline-with-no-active-instances";
 
         when(configFileDao.load()).thenReturn(GoConfigMother.configWithPipelines(pipelineName));
@@ -156,7 +156,7 @@ class PipelineSqlMapDaoTest {
     }
 
     @Test
-    void shouldGetAnListOfPIMsForPipelineWhenActivePipelinesListHasPIMsForRequestedPipeline() throws Exception {
+    void shouldGetAnListOfPIMsForPipelineWhenActivePipelinesListHasPIMsForRequestedPipeline() {
         String p1 = "pipeline-with-active-instances";
         String p2 = "pipeline-with-no-active-instances";
 

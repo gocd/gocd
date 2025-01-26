@@ -31,7 +31,7 @@ public class SecretsPluginInfoBuilderTest {
     private SecretsExtension extension;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(SecretsExtension.class);
     }
 

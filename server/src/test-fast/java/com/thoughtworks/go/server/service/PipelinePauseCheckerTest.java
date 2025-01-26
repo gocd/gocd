@@ -30,7 +30,7 @@ public class PipelinePauseCheckerTest {
     public PipelinePauseService pipelinePauseService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pipelinePauseService = mock(PipelinePauseService.class);
         pipelineName = "cruise";
         checker = new PipelinePauseChecker(pipelineName, pipelinePauseService);

@@ -51,7 +51,7 @@ public class SvnMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldNotThrowNPEIfTheWorkingDirectoryIsEmpty() throws Exception {
+    public void shouldNotThrowNPEIfTheWorkingDirectoryIsEmpty() {
         SvnMaterial svnMaterial1 = repo.createMaterial("multiple-materials/trunk/part1", "part1");
         SvnMaterial svnMaterial2 = repo.createMaterial("multiple-materials/trunk/part2", "part2");
         Materials materials = new Materials(svnMaterial1, svnMaterial2);
@@ -65,7 +65,7 @@ public class SvnMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldClearOutAllDirectoriesIfMaterialsChange() throws Exception {
+    public void shouldClearOutAllDirectoriesIfMaterialsChange() {
 
         SvnMaterial part1 = repo.createMaterial("multiple-materials/trunk/part1", "part1");
         SvnMaterial part2 = repo.createMaterial("multiple-materials/trunk/part2", "part2");
@@ -89,7 +89,7 @@ public class SvnMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldClearOutAllDirectoriesIfMaterialIsDeleted() throws Exception {
+    public void shouldClearOutAllDirectoriesIfMaterialIsDeleted() {
 
         SvnMaterial part1 = repo.createMaterial("multiple-materials/trunk/part1", "part1");
         SvnMaterial part2 = repo.createMaterial("multiple-materials/trunk/part2", "part2");
@@ -186,7 +186,7 @@ public class SvnMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldDetectLatestModifications() throws Exception {
+    public void shouldDetectLatestModifications() {
 
         SvnMaterial svnMaterial1 = repo.createMaterial("multiple-materials/trunk/part1", "part1");
         SvnMaterial svnMaterial2 = repo.createMaterial("multiple-materials/trunk/part2", "part2");
@@ -202,7 +202,7 @@ public class SvnMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldUpdateMaterialToItsDestFolder() throws Exception {
+    public void shouldUpdateMaterialToItsDestFolder() {
         SvnMaterial material1 = repo.createMaterial("multiple-materials/trunk/part1", "part1");
 
         MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));
@@ -212,7 +212,7 @@ public class SvnMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldIgnoreDestinationFolderWhenServerSide() throws Exception {
+    public void shouldIgnoreDestinationFolderWhenServerSide() {
         SvnMaterial material1 = repo.createMaterial("multiple-materials/trunk/part1", "part1");
 
         MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));

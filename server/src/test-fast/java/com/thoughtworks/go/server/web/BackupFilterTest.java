@@ -49,7 +49,7 @@ public class BackupFilterTest {
     private PrintWriter writer;
 
     @BeforeEach
-    public void setUp() throws ServletException, IOException {
+    public void setUp() throws IOException {
         ServletHelper.init();
 
         res = mock(HttpServletResponse.class);

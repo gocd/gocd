@@ -54,12 +54,12 @@ public class CcTrayStageStatusChangeHandlerTest {
     private CcTrayStageStatusChangeHandler handler;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         handler = new CcTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
     }
 
     @Test
-    public void shouldGenerateStatusesForStageAndAllJobsWithinIt() throws Exception {
+    public void shouldGenerateStatusesForStageAndAllJobsWithinIt() {
         JobInstance firstJob = JobInstanceMother.building("job1");
         JobInstance secondJob = JobInstanceMother.completed("job2");
         Stage stage = StageMother.custom("stage1", firstJob, secondJob);
@@ -76,7 +76,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldCalculateBreakersForStage() throws Exception {
+    public void shouldCalculateBreakersForStage() {
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
         when(breakersCalculator.calculateFor(stage)).thenReturn(Set.of("breaker1", "breaker2"));
 
@@ -86,7 +86,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldCreateJobStatusesWithBreakers_OnlyIfTheyHaveFailed() throws Exception {
+    public void shouldCreateJobStatusesWithBreakers_OnlyIfTheyHaveFailed() {
         JobInstance job1_building = JobInstanceMother.building("job1");
         JobInstance job2_failed = JobInstanceMother.failed("job2");
         Stage stage = StageMother.custom("stage1", job1_building, job2_failed);
@@ -99,7 +99,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldCreateStatusesWithStageActivityAndWebUrl() throws Exception {
+    public void shouldCreateStatusesWithStageActivityAndWebUrl() {
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
@@ -109,7 +109,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldLeaveBuildDetailsOfStageSameAsTheDefault_WhenStageIsNotCompleted_AndThereIsNoExistingStageInCache() throws Exception {
+    public void shouldLeaveBuildDetailsOfStageSameAsTheDefault_WhenStageIsNotCompleted_AndThereIsNoExistingStageInCache() {
         String projectName = "pipeline :: stage1";
         ProjectStatus.NullProjectStatus defaultStatus = new ProjectStatus.NullProjectStatus(projectName);
 
@@ -124,7 +124,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldLeaveBuildDetailsOfStageSameAsTheOneInCache_WhenStageIsNotCompleted_AndThereIsAnExistingStageInCache() throws Exception {
+    public void shouldLeaveBuildDetailsOfStageSameAsTheOneInCache_WhenStageIsNotCompleted_AndThereIsAnExistingStageInCache() {
         String projectName = "pipeline :: stage1";
         ProjectStatus existingStageStatus = new ProjectStatus(projectName, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("stage1"));
         when(cache.get(projectName)).thenReturn(existingStageStatus);
@@ -140,7 +140,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldUpdateBuildDetailsOfStageWhenStageIsCompleted() throws Exception {
+    public void shouldUpdateBuildDetailsOfStageWhenStageIsCompleted() {
         Stage completedStage = StageMother.createPassedStage("pipeline", 1, "stage1", 1, "job1", new Date());
         completedStage.setCompletedByTransitionId(1L);
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(completedStage);
@@ -153,7 +153,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() throws Exception {
+    public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() {
         Users viewers = viewers(Set.of(new PluginRoleConfig("admin", "ldap")),"viewer1", "viewer2");
 
         String projectName = "pipeline :: stage1";
@@ -169,7 +169,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldNotUpdateCacheWhenStageWhichHasChangedIsANullStage() throws Exception {
+    public void shouldNotUpdateCacheWhenStageWhichHasChangedIsANullStage() {
         handler.call(new NullStage("some-name"));
 
         verifyNoInteractions(cache);
@@ -178,7 +178,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldUpdateCacheWhenStageWhichHasChangedIsNotANullStage() throws Exception {
+    public void shouldUpdateCacheWhenStageWhichHasChangedIsNotANullStage() {
         Stage completedStage = StageMother.createPassedStage("pipeline", 1, "stage1", 1, "job1", new Date());
         ProjectStatus jobStatus = new ProjectStatus("job1_name", "activity1", "lastBuildStatus1", "lastBuildLabel1", new Date(), "webUrl1");
         when(jobStatusChangeHandler.statusFor(completedStage.getJobInstances().first(), new HashSet<>())).thenReturn(jobStatus);

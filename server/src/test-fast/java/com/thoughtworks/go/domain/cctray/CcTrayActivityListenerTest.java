@@ -41,7 +41,7 @@ public class CcTrayActivityListenerTest {
     private GoConfigService goConfigService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         goConfigService = mock(GoConfigService.class);
     }
 

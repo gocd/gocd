@@ -1280,7 +1280,7 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertParametersWhenPassed() throws Exception {
+    void shouldConvertParametersWhenPassed() {
         CRPipeline crPipeline = buildPipeline();
         crPipeline.addParameter(new CRParameter("param", "value"));
         PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context, new SCMs());
@@ -1289,7 +1289,7 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertTemplateNameWhenGiven() throws Exception {
+    void shouldConvertTemplateNameWhenGiven() {
         CRPipeline crPipeline = buildPipeline();
         crPipeline.setTemplate("template");
 
@@ -1300,7 +1300,7 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertParamConfigWhenPassed() throws Exception {
+    void shouldConvertParamConfigWhenPassed() {
         PipelineConfig pipeline = new PipelineConfig();
         pipeline.setName("p1");
         pipeline.addParam(new ParamConfig("param", "value"));

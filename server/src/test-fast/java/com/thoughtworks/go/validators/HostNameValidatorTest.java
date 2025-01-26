@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 
 public class HostNameValidatorTest {
     @Test
-    public void shouldMarkANullHostnameAsInvalid() throws Exception {
+    public void shouldMarkANullHostnameAsInvalid() {
         LocalizedOperationResult result = mock(LocalizedOperationResult.class);
 
         new HostNameValidator().validate(null, result);
@@ -31,25 +31,25 @@ public class HostNameValidatorTest {
     }
 
     @Test
-    public void shouldMarkAValidIPv4IPAsInvalid() throws Exception {
+    public void shouldMarkAValidIPv4IPAsInvalid() {
         assertValid("123.107.28.255");
         assertValid("somehostname.local");
         assertValid("somehostname.com");
     }
 
     @Test
-    public void shouldMarkAValidIPv6IPAsInvalid() throws Exception {
+    public void shouldMarkAValidIPv6IPAsInvalid() {
         assertValid("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
     }
 
     @Test
-    public void shouldMarkAnIPv6IPWhichIsNotInHexAsInvalid() throws Exception {
+    public void shouldMarkAnIPv6IPWhichIsNotInHexAsInvalid() {
         assertInvalid("2001:0Gb8:85a3:0000:0000:8a2e:0370:7334");
         assertInvalid("2001:0xb8:85a3:0000:0000:8a2e:0370:7334");
     }
 
     @Test
-    public void marksInvalidIPv4AddressesAsValidThoughItProbablyShouldNot() throws Exception {
+    public void marksInvalidIPv4AddressesAsValidThoughItProbablyShouldNot() {
         assertValid("345.980.123.98");
         assertValid("999.980.123.98");
         assertValid("123.107");

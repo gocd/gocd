@@ -42,7 +42,7 @@ class SecretConfigServiceTest {
     private CruiseConfig cruiseConfig;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         secretsExtension = mock(SecretsExtension.class);
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = mock(CruiseConfig.class);

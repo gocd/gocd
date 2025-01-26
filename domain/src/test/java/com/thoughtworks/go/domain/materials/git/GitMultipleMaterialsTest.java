@@ -44,7 +44,7 @@ public class GitMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldCloneMaterialToItsDestFolder() throws Exception {
+    public void shouldCloneMaterialToItsDestFolder() {
         GitMaterial material1 = repo.createMaterial("dest1");
 
         MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));
@@ -56,7 +56,7 @@ public class GitMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldIgnoreDestinationFolderWhenCloningMaterialWhenServerSide() throws Exception {
+    public void shouldIgnoreDestinationFolderWhenCloningMaterialWhenServerSide() {
         GitMaterial material1 = repo.createMaterial("dest1");
 
         MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));

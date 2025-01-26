@@ -36,7 +36,7 @@ public class RolesConfigTest {
     }
 
     @Test
-    public void shouldSupportRoleWithNoUsers() throws Exception {
+    public void shouldSupportRoleWithNoUsers() {
         addRole(role("test_role"));
     }
 
@@ -50,7 +50,7 @@ public class RolesConfigTest {
     }
 
     @Test
-    public void shouldNotSupportMultipleRolesWithTheSameName() throws Exception {
+    public void shouldNotSupportMultipleRolesWithTheSameName() {
         addRole(role("test_role"));
         try {
             addRole(role("test_role"));
@@ -61,7 +61,7 @@ public class RolesConfigTest {
     }
 
     @Test
-    public void shouldNotSupportRoleWithTheMultipleUsersThatAreTheSame() throws Exception {
+    public void shouldNotSupportRoleWithTheMultipleUsersThatAreTheSame() {
         Role role = role("test_role", user("chris"), user("chris"), user("bob"), user("john"));
         assertThat(role.getUsers()).hasSize(3);
     }

@@ -24,7 +24,7 @@ public class FilePathTypeValidatorTest {
     private FilePathTypeValidator filePathTypeValidator;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         filePathTypeValidator = new FilePathTypeValidator();
     }
 

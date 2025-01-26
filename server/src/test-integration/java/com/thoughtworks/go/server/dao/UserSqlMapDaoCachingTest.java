@@ -81,7 +81,7 @@ public class UserSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldRemoveEnabledUserCountFromCacheWhenAUserIsSaved() throws Exception {
+    public void shouldRemoveEnabledUserCountFromCacheWhenAUserIsSaved() {
         makeSureThatCacheIsInitialized();
 
         userDao.saveOrUpdate(new User("some-random-user"));
@@ -90,7 +90,7 @@ public class UserSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldRemoveEnabledUserCountFromCacheWhenAUserIsDisabled() throws Exception {
+    public void shouldRemoveEnabledUserCountFromCacheWhenAUserIsDisabled() {
         userDao.saveOrUpdate(new User("some-random-user"));
         makeSureThatCacheIsInitialized();
 
@@ -100,7 +100,7 @@ public class UserSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldRemoveEnabledUserCountFromCacheWhenAUserIsEnabled() throws Exception {
+    public void shouldRemoveEnabledUserCountFromCacheWhenAUserIsEnabled() {
         userDao.saveOrUpdate(new User("some-random-user"));
         makeSureThatCacheIsInitialized();
 
@@ -110,7 +110,7 @@ public class UserSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldNOTRemoveEnabledUserCountFromCacheWhenFindUserHappens() throws Exception {
+    public void shouldNOTRemoveEnabledUserCountFromCacheWhenFindUserHappens() {
         makeSureThatCacheIsInitialized();
 
         userDao.findUser("some-random-user");
@@ -119,7 +119,7 @@ public class UserSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldNOTRemoveEnabledUserCountFromCacheWhenAllUsersAreLoaded() throws Exception {
+    public void shouldNOTRemoveEnabledUserCountFromCacheWhenAllUsersAreLoaded() {
         makeSureThatCacheIsInitialized();
 
         userDao.allUsers();
@@ -128,7 +128,7 @@ public class UserSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldNOTRemoveEnabledUserCountFromCacheWhenEnabledUsersAreLoaded() throws Exception {
+    public void shouldNOTRemoveEnabledUserCountFromCacheWhenEnabledUsersAreLoaded() {
         makeSureThatCacheIsInitialized();
 
         userDao.enabledUsers();
@@ -137,7 +137,7 @@ public class UserSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldNOTRemoveEnabledUserCountFromCacheWhenFindUsernamesForIds() throws Exception {
+    public void shouldNOTRemoveEnabledUserCountFromCacheWhenFindUsernamesForIds() {
         userDao.saveOrUpdate(new User("some-random-user"));
         User user = userDao.findUser("some-random-user");
 
@@ -152,7 +152,7 @@ public class UserSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldNOTRemoveEnabledUserCountFromCacheWhenUserIsLoaded() throws Exception {
+    public void shouldNOTRemoveEnabledUserCountFromCacheWhenUserIsLoaded() {
         userDao.saveOrUpdate(new User("some-random-user"));
         User user = userDao.findUser("some-random-user");
 

@@ -91,7 +91,7 @@ public class FanInPerformanceTest {
 
     @Test
     @Timeout(value = 4, unit = MINUTES)
-    public void shouldTestFanInForMesh() throws Exception {
+    public void shouldTestFanInForMesh() {
         int numberOfNodesPerLevel = 10;
         int numberOfLevels = 10;
         int numberOfInstancesForUpstream = 1;

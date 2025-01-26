@@ -34,7 +34,7 @@ public class NewGoConfigMother {
         return config;
     }
 
-    public PipelineConfig addPipeline(String pipelineName, String stageName, String... buildNames) throws Exception {
+    public PipelineConfig addPipeline(String pipelineName, String stageName, String... buildNames) {
         return mother.addPipeline(config, pipelineName, stageName, buildNames);
     }
 

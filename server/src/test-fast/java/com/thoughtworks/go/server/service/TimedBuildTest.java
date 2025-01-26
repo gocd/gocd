@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TimedBuildTest {
 
     @Test
-    public void shouldReturnEmptyBuildCauseIfThereIsNoModification_whenTriggeringOnlyForMaterialChange() throws Exception {
+    public void shouldReturnEmptyBuildCauseIfThereIsNoModification_whenTriggeringOnlyForMaterialChange() {
         MaterialRevisions someRevisions = new MaterialRevisions(new MaterialRevision(MaterialsMother.gitMaterial("git://url"), ModificationsMother.aCheckIn("1", "file1.txt")));
 
         BuildType timedBuild = new TimedBuild();
@@ -41,7 +41,7 @@ public class TimedBuildTest {
     }
 
     @Test
-    public void shouldReturnAForcedBuildCauseIfThereIsNoModification_whenTriggeringIrrespectiveOfMaterialChange() throws Exception {
+    public void shouldReturnAForcedBuildCauseIfThereIsNoModification_whenTriggeringIrrespectiveOfMaterialChange() {
         MaterialRevisions someRevisions = new MaterialRevisions(new MaterialRevision(MaterialsMother.gitMaterial("git://url"), ModificationsMother.aCheckIn("1", "file1.txt")));
 
         BuildType timedBuild = new TimedBuild();

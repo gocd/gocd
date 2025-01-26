@@ -29,17 +29,17 @@ public class CcTrayCacheTest {
     private CcTrayCache cache;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         cache = new CcTrayCache();
     }
 
     @Test
-    public void shouldNotBeAbleToFindAnItemWhichDoesNotExistInCache() throws Exception {
+    public void shouldNotBeAbleToFindAnItemWhichDoesNotExistInCache() {
         assertNull(cache.get("something-which-does-not-exist"));
     }
 
     @Test
-    public void shouldBeAbleToPutAnItemIntoCache() throws Exception {
+    public void shouldBeAbleToPutAnItemIntoCache() {
         ProjectStatus status = new ProjectStatus("item1", "Sleeping", "last-build-status", "last-build-label", new Date(), "web-url");
 
         cache.put(status);
@@ -48,7 +48,7 @@ public class CcTrayCacheTest {
     }
 
     @Test
-    public void shouldBeAbleToPutMultipleItemsIntoCache() throws Exception {
+    public void shouldBeAbleToPutMultipleItemsIntoCache() {
         ProjectStatus status1 = new ProjectStatus("item1", "Sleeping", "last-build-status", "last-build-label", new Date(), "web-url");
         ProjectStatus status2 = new ProjectStatus("item2", "Sleeping", "last-build-status", "last-build-label", new Date(), "web-url");
         ProjectStatus status3 = new ProjectStatus("item3", "Sleeping", "last-build-status", "last-build-label", new Date(), "web-url");
@@ -61,7 +61,7 @@ public class CcTrayCacheTest {
     }
 
     @Test
-    public void shouldBeAbleToReplaceAnItemInCache() throws Exception {
+    public void shouldBeAbleToReplaceAnItemInCache() {
         ProjectStatus firstStatus = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
         ProjectStatus nextStatus = new ProjectStatus("item1", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
 
@@ -72,7 +72,7 @@ public class CcTrayCacheTest {
     }
 
     @Test
-    public void shouldBeAbleToReplaceMultipleItemsInCache() throws Exception {
+    public void shouldBeAbleToReplaceMultipleItemsInCache() {
         ProjectStatus firstStatusOfItem1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
         ProjectStatus nextStatusOfItem1 = new ProjectStatus("item1", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
 
@@ -93,7 +93,7 @@ public class CcTrayCacheTest {
     }
 
     @Test
-    public void shouldBeAbleToClearExistingCacheAndReplaceAllItemsInIt() throws Exception {
+    public void shouldBeAbleToClearExistingCacheAndReplaceAllItemsInIt() {
         ProjectStatus status1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
         ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
         ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
@@ -114,7 +114,7 @@ public class CcTrayCacheTest {
     }
 
     @Test
-    public void shouldProvideAnOrderedListOfAllItemsInCache() throws Exception {
+    public void shouldProvideAnOrderedListOfAllItemsInCache() {
         ProjectStatus status1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
         ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
         ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
@@ -128,7 +128,7 @@ public class CcTrayCacheTest {
     }
 
     @Test
-    public void shouldContainChangedEntryInOrderedListAfterAPut() throws Exception {
+    public void shouldContainChangedEntryInOrderedListAfterAPut() {
         ProjectStatus status1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
         ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
         ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
@@ -149,7 +149,7 @@ public class CcTrayCacheTest {
     }
 
     @Test
-    public void shouldContainChangedEntriesInOrderedListAfterAPutAll() throws Exception {
+    public void shouldContainChangedEntriesInOrderedListAfterAPutAll() {
         ProjectStatus status1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
         ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
         ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");

@@ -49,7 +49,7 @@ public class SecurityAuthConfigServiceTest {
     private SecurityAuthConfigService securityAuthConfigService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(AuthorizationExtension.class);
         hashingService = mock(EntityHashingService.class);
         goConfigService = mock(GoConfigService.class);

@@ -39,24 +39,24 @@ class ScmMaterialTest {
     private DummyMaterial material;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         material = new DummyMaterial();
     }
 
     @Test
-    void shouldSmudgePasswordForDescription() throws Exception {
+    void shouldSmudgePasswordForDescription() {
         material.setUrl("http://user:password@localhost:8000/foo");
         assertThat(material.getDescription()).isEqualTo("http://user:******@localhost:8000/foo");
     }
 
     @Test
-    void displayNameShouldReturnUrlWhenNameNotSet() throws Exception {
+    void displayNameShouldReturnUrlWhenNameNotSet() {
         material.setUrl("http://user:password@localhost:8000/foo");
         assertThat(material.getDisplayName()).isEqualTo("http://user:******@localhost:8000/foo");
     }
 
     @Test
-    void displayNameShouldReturnNameWhenSet() throws Exception {
+    void displayNameShouldReturnNameWhenSet() {
         material.setName(new CaseInsensitiveString("blah-name"));
         assertThat(material.getDisplayName()).isEqualTo("blah-name");
     }
@@ -151,7 +151,7 @@ class ScmMaterialTest {
     }
 
     @Test
-    void shouldReturnTrueForAnScmMaterial_supportsDestinationFolder() throws Exception {
+    void shouldReturnTrueForAnScmMaterial_supportsDestinationFolder() {
         assertThat(material.supportsDestinationFolder()).isTrue();
     }
 

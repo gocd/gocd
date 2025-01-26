@@ -31,7 +31,7 @@ public class OnCancelConfigTest {
     private TaskFactory taskFactory;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         taskFactory = mock(TaskFactory.class);
     }
 

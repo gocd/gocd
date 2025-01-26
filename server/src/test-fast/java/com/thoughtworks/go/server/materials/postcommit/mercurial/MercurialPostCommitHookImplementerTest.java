@@ -34,7 +34,7 @@ public class MercurialPostCommitHookImplementerTest {
     private MercurialPostCommitHookImplementer implementer;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         implementer = new MercurialPostCommitHookImplementer();
     }
 

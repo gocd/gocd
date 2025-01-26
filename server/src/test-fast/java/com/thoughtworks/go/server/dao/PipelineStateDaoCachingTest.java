@@ -56,7 +56,7 @@ public class PipelineStateDaoCachingTest {
     private Session session;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         goCache.clear();

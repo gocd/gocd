@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SearchCriteriaTest {
 
     @Test
-    public void shouldReturnTrueIfTheSearchTermMatches() throws Exception {
+    public void shouldReturnTrueIfTheSearchTermMatches() {
         SearchCriteria criteria = new SearchCriteria("win");
         assertThat(criteria.matches("windows")).isTrue();
         assertThat(criteria.matches("win")).isTrue();
@@ -33,7 +33,7 @@ public class SearchCriteriaTest {
     }
 
     @Test
-    public void shouldPerformExactMatch() throws Exception {
+    public void shouldPerformExactMatch() {
         SearchCriteria criteria = new SearchCriteria("\"win\"");
         assertThat(criteria.matches("windows")).isFalse();
         assertThat(criteria.matches("win")).isTrue();

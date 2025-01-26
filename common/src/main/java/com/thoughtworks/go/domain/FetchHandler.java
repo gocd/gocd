@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 public interface FetchHandler extends Serializable {
-    String url(String remoteHost, String workingUrl) throws IOException;
+    String url(String remoteHost, String workingUrl);
 
     void handle(InputStream stream) throws IOException;
 

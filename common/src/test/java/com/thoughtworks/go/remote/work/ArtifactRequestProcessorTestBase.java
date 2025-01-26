@@ -40,7 +40,7 @@ public abstract class ArtifactRequestProcessorTestBase {
     private ArtifactRequestProcessor artifactRequestProcessorForFetch;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         request = mock(GoApiRequest.class);
         descriptor = mock(GoPluginDescriptor.class);
         goPublisher = mock(DefaultGoPublisher.class);

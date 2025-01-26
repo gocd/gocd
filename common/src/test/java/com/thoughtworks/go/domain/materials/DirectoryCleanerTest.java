@@ -172,7 +172,7 @@ public class DirectoryCleanerTest {
     }
 
     @Test
-    public void shouldReportDeletingFiles() throws IOException {
+    public void shouldReportDeletingFiles() {
         File allowedFolder = new File(baseFolder, "subfolder/allowed");
         allowedFolder.mkdirs();
 

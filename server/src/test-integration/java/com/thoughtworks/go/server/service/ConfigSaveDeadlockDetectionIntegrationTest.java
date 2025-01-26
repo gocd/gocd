@@ -88,7 +88,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         configHelper.onTearDown();
     }
 
@@ -107,7 +107,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
     @Test
     @Timeout(value = 3, unit = TimeUnit.MINUTES)
-    public void shouldNotDeadlockWhenAllPossibleWaysOfUpdatingTheConfigAreBeingUsedAtTheSameTime() throws Exception {
+    public void shouldNotDeadlockWhenAllPossibleWaysOfUpdatingTheConfigAreBeingUsedAtTheSameTime() {
         int EXISTING_ENV_COUNT = goConfigService.cruiseConfig().getEnvironments().size();
         final List<Thread> group1 = new ArrayList<>();
         final List<Thread> group2 = new ArrayList<>();
@@ -149,19 +149,15 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         configHelper.setConfigRepos(configRepos);
         for (int i = 0; i < count; i++) {
             Thread timerThread = null;
-            try {
-                timerThread = createThread(() -> {
-                    try {
-                        writeConfigToFile(new File(goConfigDao.fileLocation()));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        fail("Failed with error: " + e.getMessage());
-                    }
-                    cachedGoConfig.forceReload();
-                }, "timer-thread");
-            } catch (InterruptedException e) {
-                fail(e.getMessage());
-            }
+            timerThread = createThread(() -> {
+                try {
+                    writeConfigToFile(new File(goConfigDao.fileLocation()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    fail("Failed with error: " + e.getMessage());
+                }
+                cachedGoConfig.forceReload();
+            }, "timer-thread");
 
             try {
                 group1.get(i).start();
@@ -217,11 +213,11 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         FileUtils.writeStringToFile(configFile, updatedConfig, UTF_8);
     }
 
-    private Thread configRepoSaveThread(final ConfigRepoConfig configRepoConfig, final int counter) throws InterruptedException {
+    private Thread configRepoSaveThread(final ConfigRepoConfig configRepoConfig, final int counter) {
         return createThread(() -> partialConfigService.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withPipeline("remote-pipeline" + counter, new RepoConfigOrigin(configRepoConfig, "1"))), "config-repo-save-thread" + counter);
     }
 
-    private Thread fullConfigSaveThread(final int counter) throws InterruptedException {
+    private Thread fullConfigSaveThread(final int counter) {
         return createThread(() -> {
             try {
                 CruiseConfig cruiseConfig = cachedGoConfig.loadForEditing();
@@ -236,7 +232,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
     }
 
-    private Thread configRepoDeleteThread(final ConfigRepoConfig configRepoToBeDeleted, final int counter) throws InterruptedException {
+    private Thread configRepoDeleteThread(final ConfigRepoConfig configRepoToBeDeleted, final int counter) {
         return createThread(() -> goConfigService.updateConfig(cruiseConfig -> {
             ConfigRepoConfig repoConfig = cruiseConfig.getConfigRepos().stream().filter(item -> configRepoToBeDeleted.getRepo().equals(item.getRepo())).findFirst().orElse(null);
             cruiseConfig.getConfigRepos().remove(repoConfig);
@@ -244,7 +240,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         }), "config-repo-delete-thread" + counter);
     }
 
-    private Thread pipelineSaveThread(int counter) throws InterruptedException {
+    private Thread pipelineSaveThread(int counter) {
         return createThread(() -> {
             PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -253,7 +249,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         }, "pipeline-config-save-thread" + counter);
     }
 
-    private Thread configSaveThread(final int counter) throws InterruptedException {
+    private Thread configSaveThread(final int counter) {
         return createThread(() -> goConfigService.updateConfig(cruiseConfig -> {
             PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
             cruiseConfig.addPipeline("default", pipelineConfig);
@@ -261,7 +257,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         }), "config-save-thread" + counter);
     }
 
-    private Thread createThread(Runnable runnable, String name) throws InterruptedException {
+    private Thread createThread(Runnable runnable, String name) {
         Thread thread = new Thread(runnable, name);
         thread.setUncaughtExceptionHandler((t, e) -> {
             e.printStackTrace();

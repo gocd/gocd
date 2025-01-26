@@ -65,14 +65,14 @@ class UpdateClusterProfileCommandTest {
     }
 
     @Test
-    void shouldUpdateClusterProfile() throws Exception {
+    void shouldUpdateClusterProfile() {
         assertThat(config.getElasticConfig().getClusterProfiles().get(0)).isEqualTo(clusterProfile);
         command.update(config);
         assertThat(config.getElasticConfig().getClusterProfiles().get(0)).isEqualTo(clusterProfile);
     }
 
     @Test
-    void shouldReturnWhetherRemovalOfExistingClusterProfileIsValid() throws Exception {
+    void shouldReturnWhetherRemovalOfExistingClusterProfileIsValid() {
         assertThat(command.isValid(config)).isTrue();
         command.update(config);
         assertThat(command.isValid(config)).isTrue();

@@ -29,7 +29,7 @@ public class ElasticAgentProcessorConverterV1Test {
     private ElasticAgentProcessorConverterV1 elasticAgentProcessorConverterV1;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         elasticAgentProcessorConverterV1 = new ElasticAgentProcessorConverterV1();
     }
 

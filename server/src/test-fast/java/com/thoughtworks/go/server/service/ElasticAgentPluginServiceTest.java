@@ -112,7 +112,7 @@ class ElasticAgentPluginServiceTest {
     private JobInstanceSqlMapDao jobInstanceSqlMapDao;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         List<PluginDescriptor> plugins = new ArrayList<>();
         plugins.add(GoPluginDescriptor.builder().id("p1").isBundledPlugin(true).build());
         plugins.add(GoPluginDescriptor.builder().id("p2").isBundledPlugin(true).build());
@@ -207,7 +207,7 @@ class ElasticAgentPluginServiceTest {
     }
 
     @Test
-    void shouldPostCreateAgentMessageWithTimeToLiveLesserThanJobStarvationThreshold() throws Exception {
+    void shouldPostCreateAgentMessageWithTimeToLiveLesserThanJobStarvationThreshold() {
         JobPlan plan1 = plan(1, "docker");
         JobPlan plan2 = plan(2, "docker");
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(20000L);
@@ -529,7 +529,7 @@ class ElasticAgentPluginServiceTest {
     class RescheduleTheJobs {
         // See the issue #6328 for more details
         @Test
-        void shouldRescheduleTheJobNotHavingClusterProfile() throws IOException, IllegalArtifactLocationException {
+        void shouldRescheduleTheJobNotHavingClusterProfile() throws IllegalArtifactLocationException {
             JobPlan jobPlan = planWithoutClusterProfile(1);
             jobPlan.setClusterProfile(null);
 
@@ -639,7 +639,7 @@ class ElasticAgentPluginServiceTest {
         }
 
         @Test
-        void shouldFailIfSecretResolutionFails_createAgentsFor() throws IOException, IllegalArtifactLocationException {
+        void shouldFailIfSecretResolutionFails_createAgentsFor() throws IllegalArtifactLocationException {
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key]}}");
             JobPlan plan1 = plan(1, "docker");
             JobPlan plan2 = plan(2, "docker");

@@ -55,7 +55,7 @@ class ConsoleActivityMonitorTest {
     private ConsoleService consoleService;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         timeProvider = mock(TimeProvider.class);
         systemEnvironment = mock(SystemEnvironment.class);
         serverHealthService = mock(ServerHealthService.class);
@@ -301,7 +301,7 @@ class ConsoleActivityMonitorTest {
     }
 
     @Test
-    void shouldAppendToConsoleLog_JobKilledDueToInactivityMessage() throws IOException, IllegalArtifactLocationException {
+    void shouldAppendToConsoleLog_JobKilledDueToInactivityMessage() throws IllegalArtifactLocationException {
         JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
         activeJobListener.jobStatusChanged(buildingInstance(unresponsiveJob));
 
@@ -435,7 +435,7 @@ class ConsoleActivityMonitorTest {
         }
 
         @Test
-        void shouldAppendToConsoleLog_JobKilledAsItWasntAssignedAnAgentMessage() throws IOException, IllegalArtifactLocationException {
+        void shouldAppendToConsoleLog_JobKilledAsItWasntAssignedAnAgentMessage() throws IllegalArtifactLocationException {
             JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
             scheduledJobListener.jobStatusChanged(scheduledInstance(unresponsiveJob));
 

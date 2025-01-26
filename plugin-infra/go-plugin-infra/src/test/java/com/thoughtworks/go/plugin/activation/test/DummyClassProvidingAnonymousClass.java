@@ -32,7 +32,7 @@ public class DummyClassProvidingAnonymousClass {
                 }
 
                 @Override
-                public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+                public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
                     return null;
                 }
 
@@ -51,7 +51,7 @@ public class DummyClassProvidingAnonymousClass {
             }
 
             @Override
-            public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+            public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
                 return null;
             }
 

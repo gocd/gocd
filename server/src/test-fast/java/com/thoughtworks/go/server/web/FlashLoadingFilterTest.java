@@ -114,7 +114,7 @@ public class FlashLoadingFilterTest {
     }
 
     @Test
-    public void shouldClearThreadContextInCaseOfExceptionAsWell() throws IOException, ServletException {
+    public void shouldClearThreadContextInCaseOfExceptionAsWell() {
         MockHttpServletRequest req = new MockHttpServletRequest();
         MockHttpServletResponse res = new MockHttpServletResponse();
 
@@ -143,7 +143,7 @@ public class FlashLoadingFilterTest {
     }
 
     @Test
-    public void shouldFailForNonHttpReqeusts() throws IOException, ServletException {
+    public void shouldFailForNonHttpReqeusts() {
         try {
             filter.doFilter(mock(ServletRequest.class), mock(ServletResponse.class), new MockFilterChain());
             fail("should not process non HTTP requests");

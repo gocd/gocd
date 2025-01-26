@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 
 public class PluginManagerReferenceTest {
     @Test
-    public void testGetPluginManager() throws Exception {
+    public void testGetPluginManager() {
         PluginManagerReference reference = PluginManagerReference.reference();
         try {
             reference.getPluginManager();

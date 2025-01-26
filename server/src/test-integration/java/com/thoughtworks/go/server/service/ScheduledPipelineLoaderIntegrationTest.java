@@ -173,7 +173,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
     }
 
     @Test
-    public void shouldUpdatePackageMaterialConfigurationOfMaterialsOnPipeline() throws Exception {
+    public void shouldUpdatePackageMaterialConfigurationOfMaterialsOnPipeline() {
         String jobName = "job-one";
         PipelineConfig pipelineConfig = setupPipelineWithPackageMaterial("pipeline_with_pluggable_scm_mat", "stage", jobName);
         final Pipeline previousSuccessfulBuildWithOlderPackageConfig = simulateSuccessfulPipelineRun(pipelineConfig);

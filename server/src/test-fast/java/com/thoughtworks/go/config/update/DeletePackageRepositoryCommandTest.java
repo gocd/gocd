@@ -53,7 +53,7 @@ public class DeletePackageRepositoryCommandTest {
     private GoConfigService goConfigService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         packageRepository = new PackageRepository();
@@ -64,7 +64,7 @@ public class DeletePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldDeletePackageRepository() throws Exception {
+    public void shouldDeletePackageRepository() {
         assertThat(cruiseConfig.getPackageRepositories().size()).isEqualTo(1);
         assertThat(cruiseConfig.getPackageRepositories().find(repoId)).isEqualTo(packageRepository);
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
@@ -74,7 +74,7 @@ public class DeletePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldNotDeletePackageRepositoryIfItIsUsedAsAMaterialInPipeline() throws Exception {
+    public void shouldNotDeletePackageRepositoryIfItIsUsedAsAMaterialInPipeline() {
         PackageDefinition pkg = new PackageDefinition();
         pkg.setId("pkg");
         packageRepository.addPackage(pkg);
@@ -91,7 +91,7 @@ public class DeletePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserIsNotAdmin() throws Exception {
+    public void shouldNotContinueIfTheUserIsNotAdmin() {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(EntityType.PackageRepository.forbiddenToDelete(packageRepository.getId(), currentUser.getUsername()), forbidden());
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);

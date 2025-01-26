@@ -50,7 +50,7 @@ public class ServerInfoRequestProcessorTest {
     private String pluginId = "plugin_id";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         serverConfig = new ServerConfig();
         serverConfig.ensureServerIdExists();
         serverConfig.setSecureSiteUrl("https://example.com/go");

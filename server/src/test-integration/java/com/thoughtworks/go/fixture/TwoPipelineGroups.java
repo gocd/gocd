@@ -50,7 +50,7 @@ public class TwoPipelineGroups implements PreCondition {
     }
 
     @Override
-    public void onTearDown() throws Exception {
+    public void onTearDown() {
         if (isSetup) {
             configHelper.onTearDown();
             svnTestRepo.tearDown();

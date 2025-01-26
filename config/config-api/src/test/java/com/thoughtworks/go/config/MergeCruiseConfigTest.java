@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MergeCruiseConfigTest extends CruiseConfigTestBase {
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         pipelines = new BasicPipelineConfigs("existing_group", new Authorization());
         cruiseConfig = new BasicCruiseConfig(new BasicCruiseConfig(pipelines), createPartial());
         goConfigMother = new GoConfigMother();

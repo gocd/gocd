@@ -42,7 +42,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldRenderStringWithoutSpecifiedRegexAndLinkIfHasGroupsAndNoneMaterialize() throws Exception {
+    public void shouldRenderStringWithoutSpecifiedRegexAndLinkIfHasGroupsAndNoneMaterialize() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "evo-(\\d+)|evo-";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -52,7 +52,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldRenderStringWithSpecifiedRegexAndLinkIfHasGroupsAndOtherThanFirstMaterializes() throws Exception {
+    public void shouldRenderStringWithSpecifiedRegexAndLinkIfHasGroupsAndOtherThanFirstMaterializes() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "evo-(\\d+)|evo-(ab)";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -62,7 +62,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldRenderStringWithSpecifiedRegexAndLink() throws Exception {
+    public void shouldRenderStringWithSpecifiedRegexAndLink() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "(evo-\\d+)";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -73,7 +73,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldRenderStringWithSpecifiedRegexAndLink1() throws Exception {
+    public void shouldRenderStringWithSpecifiedRegexAndLink1() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "(?:Task |#|Bug )(\\d+)";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -87,7 +87,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldRenderStringWithRegexThatHasSubSelect() throws Exception {
+    public void shouldRenderStringWithRegexThatHasSubSelect() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "evo-(\\d+)";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -98,7 +98,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldReturnMatchedStringIfRegexDoesNotHaveGroup() throws Exception {
+    public void shouldReturnMatchedStringIfRegexDoesNotHaveGroup() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "\\d+";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -109,7 +109,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldReturnMatchedStringFromFirstGroupIfMultipleGroupsAreDefined() throws Exception {
+    public void shouldReturnMatchedStringFromFirstGroupIfMultipleGroupsAreDefined() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "(\\d+)-(evo\\d+)";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -120,7 +120,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldReturnOriginalStringIfRegexDoesNotMatch() throws Exception {
+    public void shouldReturnOriginalStringIfRegexDoesNotMatch() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "evo-(\\d+)";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -131,7 +131,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldReturnOriginalStringIfRegexIsIllegal() throws Exception {
+    public void shouldReturnOriginalStringIfRegexIsIllegal() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "++";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -142,7 +142,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldRenderUsingFixedUrlIfLinkDoesNotContainVariable() throws Exception {
+    public void shouldRenderUsingFixedUrlIfLinkDoesNotContainVariable() {
         String link = "http://mingle05/projects/cce/cards/wall-E";
         String regex = "(evo-\\d+)";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -153,7 +153,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldUseLinkFromConfigurationRegardlessOfItsValidity() throws Exception {
+    public void shouldUseLinkFromConfigurationRegardlessOfItsValidity() {
         String link = "aaa${ID}";
         String regex = "\\d+";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -164,7 +164,7 @@ public class DefaultCommentRendererTest {
 
     @Test
     // #2324
-    public void shouldRenderAllPossibleMatches() throws Exception {
+    public void shouldRenderAllPossibleMatches() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "#(\\d+)";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -178,7 +178,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldReplaceBasedOnRegexInsteadOfPureStringReplacement() throws Exception {
+    public void shouldReplaceBasedOnRegexInsteadOfPureStringReplacement() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "evo-(\\d+)";
         trackingTool = new DefaultCommentRenderer(link, regex);
@@ -190,7 +190,7 @@ public class DefaultCommentRendererTest {
     }
 
     @Test
-    public void shouldSupportUTF8() throws Exception {
+    public void shouldSupportUTF8() {
         String link = "http://mingle05/projects/cce/cards/${ID}";
         String regex = "#(\\d+)";
         trackingTool = new DefaultCommentRenderer(link, regex);

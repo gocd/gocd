@@ -39,12 +39,12 @@ public class ElasticAgentProfileCreateCommandTest {
     private ElasticAgentExtension extension;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(ElasticAgentExtension.class);
     }
 
     @Test
-    public void shouldAddElasticProfile() throws Exception {
+    public void shouldAddElasticProfile() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster");
         ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(elasticProfile, extension, null);
@@ -54,7 +54,7 @@ public class ElasticAgentProfileCreateCommandTest {
     }
 
     @Test
-    public void shouldInvokePluginValidationsBeforeSave() throws Exception {
+    public void shouldInvokePluginValidationsBeforeSave() {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("key", "error"));
         when(extension.validate(eq("aws"), anyMap())).thenReturn(validationResult);

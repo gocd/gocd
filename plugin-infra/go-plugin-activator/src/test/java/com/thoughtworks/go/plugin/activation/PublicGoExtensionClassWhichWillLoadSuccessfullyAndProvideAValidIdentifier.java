@@ -33,7 +33,7 @@ public class PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIden
     }
 
     @Override
-    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
         return new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE, "{}");
     }
 

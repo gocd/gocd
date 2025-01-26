@@ -56,7 +56,7 @@ public class SchedulingCheckerServiceUnitTest {
     private ArgumentCaptor<List<SchedulingChecker>> argumentCaptor;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         schedulingChecker = spy(new SchedulingCheckerService(goConfigService, mock(StageService.class),
                 mock(SecurityService.class), mock(PipelineLockService.class), mock(TriggerMonitor.class), mock(PipelineScheduleQueue.class), mock(PipelinePauseService.class), mock(PipelineService.class), new OutOfDiskSpaceChecker(mock(GoDiskSpaceMonitor.class))));
 

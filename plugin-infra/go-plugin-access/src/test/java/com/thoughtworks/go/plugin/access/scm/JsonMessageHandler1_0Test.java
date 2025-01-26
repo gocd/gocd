@@ -43,7 +43,7 @@ public class JsonMessageHandler1_0Test {
     private Map<String, String> materialData;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         messageHandler = new JsonMessageHandler1_0();
         scmPropertyConfiguration = new SCMPropertyConfiguration();
         scmPropertyConfiguration.add(new SCMProperty("key-one", "value-one"));

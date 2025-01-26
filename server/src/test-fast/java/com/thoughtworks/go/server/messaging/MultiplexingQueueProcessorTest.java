@@ -32,7 +32,7 @@ public class MultiplexingQueueProcessorTest {
     private MultiplexingQueueProcessor queueProcessor;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         queueProcessor = new MultiplexingQueueProcessor("queue1");
     }
 
@@ -63,7 +63,7 @@ public class MultiplexingQueueProcessorTest {
     }
 
     @Test
-    public void shouldNotAllowTheQueueProcessorToBeStartedMultipleTimes() throws Exception {
+    public void shouldNotAllowTheQueueProcessorToBeStartedMultipleTimes() {
         queueProcessor.start();
 
         try {

@@ -40,7 +40,7 @@ public class RoleConfigUpdateCommandTest {
     private EntityHashingService entityHashingService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
@@ -48,7 +48,7 @@ public class RoleConfigUpdateCommandTest {
     }
 
     @Test
-    public void shouldUpdateExistingRole() throws Exception {
+    public void shouldUpdateExistingRole() {
         PluginRoleConfig oldRole = new PluginRoleConfig("foo", "ldap");
         PluginRoleConfig updatedRole = new PluginRoleConfig("foo", "github");
 
@@ -59,7 +59,7 @@ public class RoleConfigUpdateCommandTest {
     }
 
     @Test
-    public void currentUserShouldBeAnAdminToAddRole() throws Exception {
+    public void currentUserShouldBeAnAdminToAddRole() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username viewUser = new Username("view");
 
@@ -89,7 +89,7 @@ public class RoleConfigUpdateCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfExistingRoleIsDeleted() throws Exception {
+    public void shouldNotContinueIfExistingRoleIsDeleted() {
         PluginRoleConfig updatedRole = new PluginRoleConfig("foo", "github");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 

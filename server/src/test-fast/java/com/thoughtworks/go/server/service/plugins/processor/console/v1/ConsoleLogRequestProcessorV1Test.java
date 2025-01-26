@@ -51,7 +51,7 @@ public class ConsoleLogRequestProcessorV1Test {
     private GoPluginDescriptor pluginDescriptor;
 
     @Test
-    void shouldRouteMessageToConsoleService() throws IOException, IllegalArtifactLocationException {
+    void shouldRouteMessageToConsoleService() throws IllegalArtifactLocationException {
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("pipelineName", "p1");
         requestMap.put("pipelineCounter", "1");

@@ -85,7 +85,7 @@ class PipelineInstanceModelTest {
     }
 
     @Test
-    void shouldUnderstandPipelineStatusMessage() throws Exception {
+    void shouldUnderstandPipelineStatusMessage() {
         MaterialRevisions revisions = ModificationsMother.modifyOneFile(MaterialsMother.hgMaterials("url"), "revision");
 
         StageInstanceModels stages = new StageInstanceModels();
@@ -179,7 +179,7 @@ class PipelineInstanceModelTest {
     }
 
     @Test
-    void shouldKnowIfLatestRevisionIsReal() throws Exception {
+    void shouldKnowIfLatestRevisionIsReal() {
         assertThat(setUpModificationForHgMaterial().hasModificationsFor(MaterialConfigsMother.hgMaterialConfig())).isTrue();
     }
 

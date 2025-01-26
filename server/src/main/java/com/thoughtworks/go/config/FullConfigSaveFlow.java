@@ -93,7 +93,7 @@ public abstract class FullConfigSaveFlow {
         return config;
     }
 
-    protected CruiseConfig preprocessAndValidate(CruiseConfig configForEdit) throws Exception {
+    protected CruiseConfig preprocessAndValidate(CruiseConfig configForEdit) {
         return loader.preprocessAndValidate(configForEdit);
     }
 

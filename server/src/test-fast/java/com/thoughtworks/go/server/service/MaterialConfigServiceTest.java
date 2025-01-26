@@ -55,7 +55,7 @@ class MaterialConfigServiceTest {
     private MaterialConfigService materialConfigService;
 
     @BeforeEach
-    void setup() throws Exception {
+    void setup() {
 
         user = "looser";
         when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(true);

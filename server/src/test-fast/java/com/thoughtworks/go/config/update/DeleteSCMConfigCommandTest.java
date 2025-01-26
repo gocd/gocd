@@ -62,7 +62,7 @@ public class DeleteSCMConfigCommandTest {
 
 
     @Test
-    public void shouldDeleteTemplateFromTheGivenConfig() throws Exception {
+    public void shouldDeleteTemplateFromTheGivenConfig() {
         cruiseConfig.getSCMs().add(scmConfig);
         DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(scmConfig, pluggableScmService, result, currentUser, goConfigService);
         assertThat(cruiseConfig.getSCMs().contains(scmConfig)).isTrue();
@@ -81,7 +81,7 @@ public class DeleteSCMConfigCommandTest {
     }
 
     @Test
-    public void shouldThrowAnExceptionIfSCMIsNotFound() throws Exception {
+    public void shouldThrowAnExceptionIfSCMIsNotFound() {
         SCM scm = new SCM("non-existent-id", new PluginConfiguration("non-existent-plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
         assertThatThrownBy(() -> command.update(cruiseConfig))

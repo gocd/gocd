@@ -75,7 +75,7 @@ public abstract class FullConfigSaveFlowTestBase {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         ArtifactMetadataStore.instance().clear();
         configHelper.onTearDown();
     }

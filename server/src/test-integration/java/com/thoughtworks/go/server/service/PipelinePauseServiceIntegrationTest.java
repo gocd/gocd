@@ -57,7 +57,7 @@ public class PipelinePauseServiceIntegrationTest {
     }
 
     @Test
-    public void shouldTruncatePauseMessageIfGreaterThanAllowedLength() throws Exception {
+    public void shouldTruncatePauseMessageIfGreaterThanAllowedLength() {
         String name = "pipeline-name";
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(name);
         configHelper.writeConfigFile(cruiseConfig);
@@ -74,7 +74,7 @@ public class PipelinePauseServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUnpauseAPausedPipeline() throws Exception {
+    public void shouldUnpauseAPausedPipeline() {
         String name = "pipeline-name";
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(name);
         configHelper.writeConfigFile(cruiseConfig);

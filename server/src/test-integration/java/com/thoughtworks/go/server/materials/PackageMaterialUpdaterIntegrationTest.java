@@ -74,7 +74,7 @@ public class PackageMaterialUpdaterIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateMaterialInstanceWhenPluginIsUpgraded() throws Exception {
+    public void shouldUpdateMaterialInstanceWhenPluginIsUpgraded() {
         final PackageMaterial material = MaterialsMother.packageMaterial();
         final MaterialInstance materialInstance = material.createMaterialInstance();
         materialRepository.saveOrUpdate(materialInstance);

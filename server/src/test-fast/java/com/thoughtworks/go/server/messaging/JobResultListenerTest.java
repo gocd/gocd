@@ -40,7 +40,7 @@ public class JobResultListenerTest {
     }
 
     @Test
-    public void shouldUpdateAgentStatusWhenAJobIsCancelled() throws Exception {
+    public void shouldUpdateAgentStatusWhenAJobIsCancelled() {
         agentInstance = AgentInstanceMother.building("cruise/1/dev/1/linux-firefox");
         when(agentService.findAgent(AGENT_UUID)).thenReturn(agentInstance);
         listener.onMessage(new JobResultMessage(jobIdentifier, JobResult.Cancelled, AGENT_UUID));
@@ -48,7 +48,7 @@ public class JobResultListenerTest {
     }
 
     @Test
-    public void shouldNotUpdateAgentStatusWhenAJobIsCancelledInCaseOfAgentBuildingAnother() throws Exception {
+    public void shouldNotUpdateAgentStatusWhenAJobIsCancelledInCaseOfAgentBuildingAnother() {
         agentInstance = AgentInstanceMother.building("cruise/1/dev/1/linux-firefox-2");
         when(agentService.findAgent(AGENT_UUID)).thenReturn(agentInstance);
         listener.onMessage(new JobResultMessage(jobIdentifier, JobResult.Cancelled, AGENT_UUID));

@@ -39,7 +39,7 @@ public interface GoPlugin {
      * @param requestMessage An instance of GoPluginApiRequest
      * @return an instance of GoPluginApiResponse
      */
-    GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException;
+    GoPluginApiResponse handle(GoPluginApiRequest requestMessage);
 
     /**
      * Provides an instance of GoPluginIdentifier, providing details about supported extension point and its versions

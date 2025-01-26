@@ -33,13 +33,13 @@ public class AuthorityGranterTest {
     private SecurityService securityService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         securityService = mock(SecurityService.class);
         authorityGranter = new AuthorityGranter(securityService);
     }
 
     @Test
-    public void shouldGrantTemplateSupervisorRoleToTemplateAdmins() throws Exception {
+    public void shouldGrantTemplateSupervisorRoleToTemplateAdmins() {
         String templateAdmin = "template-admin";
         when(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(templateAdmin)))).thenReturn(true);
         Set<GrantedAuthority> authorities = authorityGranter.authorities(templateAdmin);

@@ -31,7 +31,7 @@ public class HttpOperationResultTest {
     }
 
     @Test
-    public void shouldReturn202IfEverythingWorks() throws Exception {
+    public void shouldReturn202IfEverythingWorks() {
         httpOperationResult.accepted("Request to schedule pipeline 'baboon' accepted","blah blah", HealthStateType.general(HealthStateScope.forPipeline("baboon")));
         assertThat(httpOperationResult.httpCode()).isEqualTo(202);
         assertThat(httpOperationResult.canContinue()).isTrue();
@@ -39,7 +39,7 @@ public class HttpOperationResultTest {
     }
 
     @Test
-    public void shouldReturn409IfPipelineCannotBeScheduled() throws Exception {
+    public void shouldReturn409IfPipelineCannotBeScheduled() {
         httpOperationResult.conflict("Pipeline is already scheduled", "", null);
         assertThat(httpOperationResult.httpCode()).isEqualTo(409);
         assertThat(httpOperationResult.canContinue()).isFalse();
@@ -47,7 +47,7 @@ public class HttpOperationResultTest {
     }
 
     @Test
-    public void shouldReturn404ForPipelineThatDoesntExist() throws Exception {
+    public void shouldReturn404ForPipelineThatDoesntExist() {
         httpOperationResult.notFound("pipeline baboon doesn't exist", "", null);
         assertThat(httpOperationResult.httpCode()).isEqualTo(404);
         assertThat(httpOperationResult.canContinue()).isFalse();
@@ -120,7 +120,7 @@ public class HttpOperationResultTest {
     }
 
     @Test
-    public void shouldReturn500WhenInternalServerErrorOccurs() throws Exception {
+    public void shouldReturn500WhenInternalServerErrorOccurs() {
         httpOperationResult.internalServerError("error occurred during deletion of agent. Could not delete.", null);
         assertThat(httpOperationResult.httpCode()).isEqualTo(500);
         assertThat(httpOperationResult.canContinue()).isFalse();

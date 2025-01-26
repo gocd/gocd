@@ -71,7 +71,7 @@ public class MultipleMaterialsWithFilterTest {
     private static GoConfigFileHelper configHelper;
 
     @BeforeAll
-    public static void fixtureSetUp() throws Exception {
+    public static void fixtureSetUp() {
         configHelper = new GoConfigFileHelper();
     }
 

@@ -41,7 +41,7 @@ public class JsonMessageHandler1_0Test {
     private com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         messageHandler = new JsonMessageHandler1_0();
         repositoryConfiguration = new RepositoryConfiguration();
         repositoryConfiguration.add(new PackageMaterialProperty("key-one", "value-one"));

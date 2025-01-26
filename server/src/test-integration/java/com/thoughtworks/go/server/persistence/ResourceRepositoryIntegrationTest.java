@@ -132,7 +132,7 @@ public class ResourceRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteResource() throws Exception {
+    public void shouldDeleteResource() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         Resource savedResource = new Resource("something");

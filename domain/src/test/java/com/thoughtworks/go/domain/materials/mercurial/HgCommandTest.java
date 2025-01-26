@@ -112,7 +112,7 @@ public class HgCommandTest {
     }
 
     @Test
-    public void shouldGetModifications() throws Exception {
+    public void shouldGetModifications() {
         List<Modification> actual = hgCommand.modificationsSince(new StringRevision(REVISION_0));
         assertThat(actual.size()).isEqualTo(2);
         assertThat(actual.get(0).getRevision()).isEqualTo(REVISION_2);

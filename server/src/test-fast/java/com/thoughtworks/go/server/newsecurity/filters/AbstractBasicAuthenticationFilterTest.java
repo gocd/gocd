@@ -65,7 +65,7 @@ class AbstractBasicAuthenticationFilterTest {
             @Override
             protected void onAuthenticationFailure(HttpServletRequest request,
                                                    HttpServletResponse response,
-                                                   String errorMessage) throws IOException {
+                                                   String errorMessage) {
 
             }
         });

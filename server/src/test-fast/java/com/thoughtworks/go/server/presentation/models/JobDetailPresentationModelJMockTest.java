@@ -54,7 +54,7 @@ public class JobDetailPresentationModelJMockTest {
     }
 
     @Test
-    public void shouldReturnBuildMessageFromPipeline() throws Exception {
+    public void shouldReturnBuildMessageFromPipeline() {
         String message = jobDetailPresenter.getBuildCauseMessage();
         assertThat(message).isEqualTo("Unknown");
     }

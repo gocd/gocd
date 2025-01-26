@@ -140,7 +140,7 @@ public class ApplicationInitializerTest {
     ApplicationInitializer initializer = new ApplicationInitializer();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         ApplicationContext context = mock(ApplicationContext.class);
         when(contextRefreshedEvent.getApplicationContext()).thenReturn(context);
         when(context.getParent()).thenReturn(null);

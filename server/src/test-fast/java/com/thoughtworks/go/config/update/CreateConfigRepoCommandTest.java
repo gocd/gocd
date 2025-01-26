@@ -50,7 +50,7 @@ public class CreateConfigRepoCommandTest {
     private ConfigRepoExtension configRepoExtension;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
         result = new HttpLocalizedOperationResult();
 

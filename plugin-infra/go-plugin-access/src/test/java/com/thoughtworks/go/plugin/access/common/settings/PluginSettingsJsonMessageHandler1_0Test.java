@@ -26,7 +26,7 @@ public class PluginSettingsJsonMessageHandler1_0Test extends PluginSettingsJsonM
     }
 
     @Test
-    public void shouldNotSupportSettingsNotification() throws Exception {
+    public void shouldNotSupportSettingsNotification() {
         assertFalse(messageHandler.supportsPluginSettingsNotification());
     }
 }

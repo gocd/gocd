@@ -42,7 +42,7 @@ public class PipelineLockCheckerTest  {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pipelineLockService = mock(PipelineLockService.class);
         operationResult = mock(OperationResult.class);
     }

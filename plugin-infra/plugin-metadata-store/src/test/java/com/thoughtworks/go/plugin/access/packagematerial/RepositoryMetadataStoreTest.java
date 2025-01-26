@@ -24,17 +24,17 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class RepositoryMetadataStoreTest {
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         RepositoryMetadataStoreHelper.clear();
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         RepositoryMetadataStoreHelper.clear();
     }
 
     @Test
-    public void shouldPopulateDataCorrectly() throws Exception {
+    public void shouldPopulateDataCorrectly() {
         PackageConfigurations repositoryConfigurationPut = new PackageConfigurations();
         RepositoryMetadataStore.getInstance().addMetadataFor("plugin-id", repositoryConfigurationPut);
 
@@ -52,7 +52,7 @@ public class RepositoryMetadataStoreTest {
     }
 
     @Test
-    public void shouldAnswerIfKeyHasGivenOption() throws Exception {
+    public void shouldAnswerIfKeyHasGivenOption() {
         PackageConfigurations repositoryConfigurationPut = new PackageConfigurations();
         repositoryConfigurationPut.add(new PackageConfiguration("key-one").with(PackageConfiguration.SECURE, true).with(PackageConfiguration.REQUIRED, true));
         repositoryConfigurationPut.add(new PackageConfiguration("key-two"));
@@ -69,7 +69,7 @@ public class RepositoryMetadataStoreTest {
     }
 
     @Test
-    public void shouldGetAllPluginIds() throws Exception {
+    public void shouldGetAllPluginIds() {
         RepositoryMetadataStore metadataStore = RepositoryMetadataStore.getInstance();
         metadataStore.addMetadataFor("plugin1", new PackageConfigurations());
         metadataStore.addMetadataFor("plugin2", new PackageConfigurations());
@@ -81,7 +81,7 @@ public class RepositoryMetadataStoreTest {
     }
 
     @Test
-    public void shouldBeAbleToCheckIfPluginExists() throws Exception {
+    public void shouldBeAbleToCheckIfPluginExists() {
         RepositoryMetadataStore metadataStore = RepositoryMetadataStore.getInstance();
 
         PackageConfigurations repositoryConfigurationPut = new PackageConfigurations();

@@ -47,7 +47,7 @@ public class ElasticAgentExtensionTest {
     protected ElasticAgentExtension extension;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pluginManager = mock(PluginManager.class);
         extensionsRegistry = mock(ExtensionsRegistry.class);
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);

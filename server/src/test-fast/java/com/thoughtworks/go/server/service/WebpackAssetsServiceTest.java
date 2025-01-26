@@ -48,7 +48,7 @@ public class WebpackAssetsServiceTest {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         manifestFile = new File(assetsDir, "public/assets/webpack/manifest.json");
         manifestFile.getParentFile().mkdirs();
         webpackAssetsService = spy(new WebpackAssetsService(systemEnvironment));

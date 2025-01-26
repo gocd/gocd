@@ -49,7 +49,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         when(pluginDescriptor.id()).thenReturn("cd.go.example.plugin");
 
@@ -57,7 +57,7 @@ public class ElasticAgentRequestProcessorV1Test {
     }
 
     @Test
-    public void shouldProcessListAgentRequest() throws Exception {
+    public void shouldProcessListAgentRequest() {
         LinkedMultiValueMap<String, ElasticAgentMetadata> allAgents = new LinkedMultiValueMap<>();
         ElasticAgentMetadata agent = new ElasticAgentMetadata("foo", "bar", "cd.go.example.plugin", AgentRuntimeStatus.Building, AgentConfigStatus.Disabled);
         allAgents.put("cd.go.example.plugin", List.of(agent));

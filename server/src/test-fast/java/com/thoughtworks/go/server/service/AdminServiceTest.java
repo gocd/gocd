@@ -32,7 +32,7 @@ public class AdminServiceTest {
     private AdminService adminService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         goConfigService = mock(GoConfigService.class);
 
         adminService = new AdminService(goConfigService);

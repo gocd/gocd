@@ -45,12 +45,12 @@ public class JsonMessageHandler4_0_Test {
     public static final String DATE_PATTERN_FOR_V3 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         messageHandler = new JsonMessageHandler4_0();
     }
 
     @Test
-    public void shouldBuildNotificationsInterestedInFromResponseBody() throws Exception {
+    public void shouldBuildNotificationsInterestedInFromResponseBody() {
         String responseBody = "{notifications=[\"pipeline-status\",\"stage-status\"]}";
         List<String> notificationsInterestedIn = messageHandler.responseMessageForNotificationsInterestedIn(responseBody);
 
@@ -64,7 +64,7 @@ public class JsonMessageHandler4_0_Test {
     }
 
     @Test
-    public void shouldBuildSuccessResultFromNotify() throws Exception {
+    public void shouldBuildSuccessResultFromNotify() {
         String responseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForNotify(responseBody);
 
@@ -72,7 +72,7 @@ public class JsonMessageHandler4_0_Test {
     }
 
     @Test
-    public void shouldBuildFailureResultFromNotify() throws Exception {
+    public void shouldBuildFailureResultFromNotify() {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForNotify(responseBody);
 
@@ -80,7 +80,7 @@ public class JsonMessageHandler4_0_Test {
     }
 
     @Test
-    public void shouldHandleNullMessagesForNotify() throws Exception {
+    public void shouldHandleNullMessagesForNotify() {
         assertSuccessResult(messageHandler.responseMessageForNotify("{\"status\":\"success\"}"), new ArrayList<>());
         assertFailureResult(messageHandler.responseMessageForNotify("{\"status\":\"failure\"}"), new ArrayList<>());
     }
@@ -286,7 +286,7 @@ public class JsonMessageHandler4_0_Test {
     }
 
     @Test
-    public void shouldConstructAgentNotificationRequestMessage() throws Exception {
+    public void shouldConstructAgentNotificationRequestMessage() {
         Date transition_time = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN_FOR_V3);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));

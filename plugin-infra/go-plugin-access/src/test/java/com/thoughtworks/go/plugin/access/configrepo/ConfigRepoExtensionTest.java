@@ -64,7 +64,7 @@ public class ConfigRepoExtensionTest {
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = new ConfigRepoExtension(pluginManager, extensionsRegistry);
         extension.getMessageHandlerMap().put("3.0", jsonMessageHandler3);
 

@@ -33,14 +33,14 @@ public class BuildPlansTest {
     }
 
     @Test
-    public void shouldNotBombIfABuildPlanWithSameNameIsSetAgain() throws Exception {
+    public void shouldNotBombIfABuildPlanWithSameNameIsSetAgain() {
         JobConfigs jobConfigs = new JobConfigs();
         jobConfigs.add(jobConfig("Test"));
         jobConfigs.set(0, jobConfig("Test"));
     }
 
     @Test
-    public void shouldBombIfABuildPlanWithSameNameIsAdded() throws Exception {
+    public void shouldBombIfABuildPlanWithSameNameIsAdded() {
         JobConfigs jobConfigs = new JobConfigs();
         jobConfigs.add(jobConfig("Test"));
         try {
@@ -51,7 +51,7 @@ public class BuildPlansTest {
     }
 
     @Test
-    public void shouldBombIfABuildPlanWithSameNameWithDifferentCaseIsAdded() throws Exception {
+    public void shouldBombIfABuildPlanWithSameNameWithDifferentCaseIsAdded() {
         JobConfigs jobConfigs = new JobConfigs();
         jobConfigs.add(jobConfig("Test"));
         try {

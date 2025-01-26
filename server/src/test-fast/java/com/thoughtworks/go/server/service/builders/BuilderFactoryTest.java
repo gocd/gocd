@@ -76,7 +76,7 @@ public class BuilderFactoryTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pipelineResolver = mock(UpstreamPipelineResolver.class);
         builderFactory = new BuilderFactory(antTaskBuilder, execTaskBuilder, nantTaskBuilder, rakeTaskBuilder, pluggableTaskBuilderCreator, killAllChildProcessTaskBuilder, fetchTaskBuilder, nullTaskBuilder);
     }

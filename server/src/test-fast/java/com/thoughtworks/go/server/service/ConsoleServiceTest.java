@@ -37,7 +37,7 @@ public class ConsoleServiceTest {
     private ConsoleService service;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         chooser = mock(ArtifactDirectoryChooser.class);
         service = new ConsoleService(chooser);
     }

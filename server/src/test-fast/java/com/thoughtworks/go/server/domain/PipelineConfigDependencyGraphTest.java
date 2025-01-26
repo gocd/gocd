@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PipelineConfigDependencyGraphTest {
 
     @Test
-    public void shouldFindPipelineConfigQueueEntryWithCorrespondingPath() throws Exception {
+    public void shouldFindPipelineConfigQueueEntryWithCorrespondingPath() {
         HgMaterialConfig hgConfig = MaterialConfigsMother.hgMaterialConfig();
         PipelineConfig current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", hgConfig, new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first")),
                 new DependencyMaterialConfig(new CaseInsensitiveString("up2"), new CaseInsensitiveString("first")));
@@ -67,7 +67,7 @@ public class PipelineConfigDependencyGraphTest {
     }
 
     @Test
-    public void shouldFindPipelineConfigQueueEntryWithCorrespondingPathForHigherDepth() throws Exception {
+    public void shouldFindPipelineConfigQueueEntryWithCorrespondingPathForHigherDepth() {
         PipelineConfig current = GoConfigMother.createPipelineConfigWithMaterialConfig("current");
         PipelineConfig up1 = GoConfigMother.createPipelineConfigWithMaterialConfig("up1");
         PipelineConfig upper = GoConfigMother.createPipelineConfigWithMaterialConfig("upper");
@@ -93,7 +93,7 @@ public class PipelineConfigDependencyGraphTest {
     }
 
     @Test
-    public void shouldReturnTheListOfFirstOrderMaterialsIgnoringDestFoldersForScmMaterials() throws Exception {
+    public void shouldReturnTheListOfFirstOrderMaterialsIgnoringDestFoldersForScmMaterials() {
         HgMaterialConfig common1 = MaterialConfigsMother.hgMaterialConfig("hg-url", "one-folder");
         HgMaterialConfig common2 = MaterialConfigsMother.hgMaterialConfig("hg-url", "another-folder");
         SvnMaterialConfig firstOrderSVNMaterial = MaterialConfigsMother.svnMaterialConfig();
@@ -132,7 +132,7 @@ public class PipelineConfigDependencyGraphTest {
     }
 
     @Test
-    public void shouldReturnTheSetOfFingerprintsOfAllMaterials() throws Exception {
+    public void shouldReturnTheSetOfFingerprintsOfAllMaterials() {
         HgMaterialConfig common = MaterialConfigsMother.hgMaterialConfig();
         SvnMaterialConfig firstOrderSVNMaterial = MaterialConfigsMother.svnMaterialConfig();
         GitMaterialConfig firstOrderGitMaterial = MaterialConfigsMother.gitMaterialConfig("url", "submodule", "branch", false);
@@ -158,7 +158,7 @@ public class PipelineConfigDependencyGraphTest {
     }
 
     @Test
-    public void shouldReturnIfSharedRevisionsAreIgnoredByAllDaddys() throws Exception {
+    public void shouldReturnIfSharedRevisionsAreIgnoredByAllDaddys() {
         SvnMaterialConfig firstOrderSVNMaterial = MaterialConfigsMother.svnMaterialConfig();
         GitMaterialConfig firstOrderGitMaterial = MaterialConfigsMother.gitMaterialConfig("url");
         P4MaterialConfig firstOrderP4Material = MaterialConfigsMother.p4MaterialConfig();

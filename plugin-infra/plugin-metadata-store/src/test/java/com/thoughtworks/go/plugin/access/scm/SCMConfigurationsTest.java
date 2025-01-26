@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SCMConfigurationsTest {
     @Test
-    public void shouldGetAllSCMsSortedByDisplayOrder() throws Exception {
+    public void shouldGetAllSCMsSortedByDisplayOrder() {
         SCMConfiguration c1 = new SCMConfiguration("k1").with(SCMConfiguration.DISPLAY_ORDER, 2);
         SCMConfiguration c2 = new SCMConfiguration("k2").with(SCMConfiguration.DISPLAY_ORDER, 0);
         SCMConfiguration c3 = new SCMConfiguration("k3").with(SCMConfiguration.DISPLAY_ORDER, 1);
@@ -41,7 +41,7 @@ public class SCMConfigurationsTest {
     }
 
     @Test
-    public void shouldConstructSCMConfiguration() throws Exception {
+    public void shouldConstructSCMConfiguration() {
         SCMPropertyConfiguration scmPropertyConfiguration = new SCMPropertyConfiguration();
         scmPropertyConfiguration.add(new SCMProperty("k1", "v1").with(Property.SECURE, Boolean.TRUE));
 

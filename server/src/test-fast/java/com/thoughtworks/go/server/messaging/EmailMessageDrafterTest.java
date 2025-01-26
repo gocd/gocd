@@ -27,13 +27,13 @@ public class EmailMessageDrafterTest {
     private String artifactRoot = "artifactFolder";
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         new SystemEnvironment().clearProperty(SystemEnvironment.ARTIFACT_WARNING_SIZE_LIMIT);
         new SystemEnvironment().clearProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT);
     }
 
     @Test
-    public void shouldDraftLowArtifactDiskSpaceEmail() throws Exception {
+    public void shouldDraftLowArtifactDiskSpaceEmail() {
         String size = "1234";
         int noDiskSpaceSize = 100;
         new SystemEnvironment().setProperty(SystemEnvironment.ARTIFACT_WARNING_SIZE_LIMIT, size);
@@ -47,7 +47,7 @@ public class EmailMessageDrafterTest {
     }
 
     @Test
-    public void shouldDraftNoArtifactDiskSpaceEmail() throws Exception {
+    public void shouldDraftNoArtifactDiskSpaceEmail() {
         String size = "2345";
         new SystemEnvironment().setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, size);
         String email = "admin@mail.com";

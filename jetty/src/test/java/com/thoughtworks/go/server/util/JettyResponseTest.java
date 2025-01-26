@@ -28,7 +28,7 @@ public class JettyResponseTest {
     private Response response;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         response = mock(Response.class);
         jettyResponse = new JettyResponse(response);
     }

@@ -25,7 +25,7 @@ public class XsdErrorTranslatorTest {
     private XsdErrorTranslator translator;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         translator = new XsdErrorTranslator();
     }
 

@@ -183,7 +183,7 @@ public class ZipUtil {
     }
 
     public interface ZipEntryHandler {
-        void handleEntry(ZipEntry entry, InputStream stream) throws IOException;
+        void handleEntry(ZipEntry entry, InputStream stream);
     }
 
 }

@@ -33,7 +33,7 @@ public class PathBasedArtifactsLocatorTest {
     }
 
     @Test
-    public void shouldFindCachedArtifact() throws Exception {
+    public void shouldFindCachedArtifact() {
         PathBasedArtifactsLocator locator = new PathBasedArtifactsLocator(new File("root"));
         File directory = locator.findCachedArtifact(new StageIdentifier("P1", 1, "S1", "1"));
         assertThat(directory).isEqualTo(new File("root/cache/artifacts/pipelines/P1/1/S1/1"));

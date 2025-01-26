@@ -173,7 +173,7 @@ public class PipelineScheduleServiceTest {
     }
 
     @Test
-    public void shouldScheduleJobForAllAgentsWhenToBeRunOnAllAgents() throws Exception {
+    public void shouldScheduleJobForAllAgentsWhenToBeRunOnAllAgents() {
         configHelper.addEnvironments("dev");
         Agent agentConfigWithUuid1 = new Agent("uuid1", "localhost", "127.0.0.1", "cookie1");
         agentConfigWithUuid1.setEnvironments("dev");
@@ -209,7 +209,7 @@ public class PipelineScheduleServiceTest {
     }
 
 	@Test
-	public void shouldScheduleMultipleJobsWhenToBeRunMultipleInstance() throws Exception {
+	public void shouldScheduleMultipleJobsWhenToBeRunMultipleInstance() {
 		configHelper.setRunMultipleInstance(CaseInsensitiveString.str(evolveConfig.name()), STAGE_NAME, "unit", 2);
 
 		TestingMaterial stubMaterial = new TestingMaterial();
@@ -394,7 +394,7 @@ public class PipelineScheduleServiceTest {
     }
 
     @Test
-    public void shouldConsumeAllBuildCausesInServerHealth() throws Exception {
+    public void shouldConsumeAllBuildCausesInServerHealth() {
         pipelineScheduleQueue.schedule(new CaseInsensitiveString("mingle"), BuildCause.createManualForced(modifyOneFile(mingleConfig), Username.ANONYMOUS));
         pipelineScheduleQueue.schedule(new CaseInsensitiveString("evolve"), BuildCause.createManualForced(modifyOneFile(evolveConfig), Username.ANONYMOUS));
 

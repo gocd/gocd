@@ -51,7 +51,7 @@ public class AgentsUpdateValidatorTest {
     private TriState triState;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         result = new HttpLocalizedOperationResult();
         agentInstances = mock(AgentInstances.class);
 

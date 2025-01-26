@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 public class TaskPreferenceTest {
     @Test
-    public void shouldTestEquals() throws Exception {
+    public void shouldTestEquals() {
         Task task1 = mock(Task.class);
         TaskConfig config1 = new TaskConfig();
         TaskView taskView1 = mock(TaskView.class);

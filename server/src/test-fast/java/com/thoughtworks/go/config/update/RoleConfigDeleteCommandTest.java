@@ -41,14 +41,14 @@ public class RoleConfigDeleteCommandTest {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         extension = mock(AuthorizationExtension.class);
         goConfigService = mock(GoConfigService.class);
     }
 
     @Test
-    public void currentUserShouldBeAnAdminToAddRole() throws Exception {
+    public void currentUserShouldBeAnAdminToAddRole() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username viewUser = new Username("view");
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
@@ -66,7 +66,7 @@ public class RoleConfigDeleteCommandTest {
     }
 
     @Test
-    public void canContinue_shouldCheckIfRoleExists() throws Exception {
+    public void canContinue_shouldCheckIfRoleExists() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username viewUser = mock(Username.class);
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
@@ -83,7 +83,7 @@ public class RoleConfigDeleteCommandTest {
     }
 
     @Test
-    public void shouldDeleteARole() throws Exception {
+    public void shouldDeleteARole() {
         PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
         cruiseConfig.server().security().getRoles().add(role);
 
@@ -94,7 +94,7 @@ public class RoleConfigDeleteCommandTest {
     }
 
     @Test
-    public void shouldRaiseExceptionInCaseRoleDoesNotExist() throws Exception {
+    public void shouldRaiseExceptionInCaseRoleDoesNotExist() {
         PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
 
         assertThat(cruiseConfig.server().security().getRoles()).isEmpty();
@@ -106,7 +106,7 @@ public class RoleConfigDeleteCommandTest {
     }
 
     @Test
-    public void shouldDeleteAllOccurrencesOfRoleSilentlyIfRoleIsInUse() throws Exception {
+    public void shouldDeleteAllOccurrencesOfRoleSilentlyIfRoleIsInUse() {
         PluginRoleConfig readOnly = new PluginRoleConfig("guest", "guest");
         cruiseConfig.server().security().addRole(readOnly);
 
@@ -149,7 +149,7 @@ public class RoleConfigDeleteCommandTest {
     }
 
     @Test
-    public void shouldValidateIfProfileIsNotInUseByPipeline() throws Exception {
+    public void shouldValidateIfProfileIsNotInUseByPipeline() {
         PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
 
         assertThat(cruiseConfig.server().security().getRoles()).isEmpty();

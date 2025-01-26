@@ -40,7 +40,7 @@ public class DownloadActionTest {
     private StubGoPublisher publisher;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         clock = new TestingClock();
         fetchHandler = mock(FetchHandler.class);
         publisher = new StubGoPublisher();
@@ -79,7 +79,7 @@ public class DownloadActionTest {
     }
 
     @Test
-    public void shouldFailAfterFourthTryWhenDownloadFails() throws Exception {
+    public void shouldFailAfterFourthTryWhenDownloadFails() {
         try (LogFixture logging = logFixtureFor(DownloadAction.class, Level.DEBUG)) {
             FailSometimesHttpService httpService = new FailSometimesHttpService(99);
             try {

@@ -65,7 +65,7 @@ public class AbstractExtensionTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pluginId = "plugin_id";
         extensionName = "testExtension";
         PluginRequestHelper pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, extensionName);

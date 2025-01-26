@@ -39,7 +39,7 @@ public class RoleConfigurationValidatorTest {
     private RoleConfigurationValidator validator;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(AuthorizationExtension.class);
         validator = new RoleConfigurationValidator(extension);
         when(extension.validateRoleConfiguration(any(String.class), any())).thenReturn(new ValidationResult());

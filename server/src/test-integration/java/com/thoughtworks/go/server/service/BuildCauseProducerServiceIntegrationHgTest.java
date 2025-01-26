@@ -123,7 +123,7 @@ public class BuildCauseProducerServiceIntegrationHgTest {
 
     }
 
-    private void prepareAPipelineWithHistory() throws SQLException {
+    private void prepareAPipelineWithHistory() {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         List<Modification> modifications = this.hgMaterial.latestModification(workingFolder, subprocessExecutionContext);
         materialRevisions.addRevision(this.hgMaterial, modifications);

@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AuthenticationResponseDTOTest {
 
     @Test
-    public void shouldAbleToDeserializeJSON() throws Exception {
+    public void shouldAbleToDeserializeJSON() {
 
         String json = """
                 {

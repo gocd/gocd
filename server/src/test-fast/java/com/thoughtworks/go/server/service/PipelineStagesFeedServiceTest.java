@@ -35,7 +35,7 @@ public class PipelineStagesFeedServiceTest {
     private SecurityService securityService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         user = new Username(new CaseInsensitiveString("barrow"));
         expected = new FeedEntries();
         stageService = mock(StageService.class);

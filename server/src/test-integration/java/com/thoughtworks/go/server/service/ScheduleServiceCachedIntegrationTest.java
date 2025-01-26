@@ -104,7 +104,7 @@ public class ScheduleServiceCachedIntegrationTest {
 
     @Test
     // #2296
-    public void shouldUseLatestStageStateInsteadOfCachedWhenScheduling() throws Exception {
+    public void shouldUseLatestStageStateInsteadOfCachedWhenScheduling() {
         assertThat(stageService.isStageActive(preCondition.pipelineName, preCondition.devStage)).isFalse();
 
         Pipeline pipeline0 = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
@@ -151,7 +151,7 @@ public class ScheduleServiceCachedIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateResultOfStageWhenJobCompletesOnTransactionCommitOnly() throws Exception {
+    public void shouldUpdateResultOfStageWhenJobCompletesOnTransactionCommitOnly() {
         StageService stageService = mock(StageService.class);
         StageDao stageDao = mock(StageDao.class);
         SchedulingPerformanceLogger schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);

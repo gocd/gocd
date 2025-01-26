@@ -40,7 +40,7 @@ public class FileModelAndViewTest {
     }
 
     @Test
-    public void shouldReturnFileViewWhenSha1IsEmpty() throws Exception {
+    public void shouldReturnFileViewWhenSha1IsEmpty() {
         FileModelAndView.createFileView(existFile, null);
         assertThat(response.getStatus()).isEqualTo(200);
     }
@@ -53,26 +53,26 @@ public class FileModelAndViewTest {
     }
 
     @Test
-    public void shouldReturnModelWithZipFlagTurnedOnIfZipIsNeeded() throws Exception {
+    public void shouldReturnModelWithZipFlagTurnedOnIfZipIsNeeded() {
         ZippedArtifact zippedArtifact = new ZippedArtifact(existFile.getParentFile(), existFile.getName());
         ModelAndView modelAndView = FileModelAndView.createFileView(zippedArtifact, "");
         assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP)).isTrue();
     }
 
     @Test
-    public void shouldReturnModelWithZipFlagTurnedOffIfZipIsNotNeeded() throws Exception {
+    public void shouldReturnModelWithZipFlagTurnedOffIfZipIsNotNeeded() {
         ModelAndView modelAndView = FileModelAndView.createFileView(existFile, "");
         assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP)).isFalse();
     }
 
     @Test
-    public void shouldReturnAnErrorMessageForConsoleLogNotFound() throws Exception {
+    public void shouldReturnAnErrorMessageForConsoleLogNotFound() {
         assertThat(((ResponseCodeView) FileModelAndView.fileNotFound("cruise-output/console.log").getView()).getContent()).isEqualTo("Console log for this job is unavailable as it may have been purged by Go or "
                 + "deleted externally.");
     }
 
     @Test
-    public void shouldReturnAnErrorMessageForNormalFileNotFound() throws Exception {
+    public void shouldReturnAnErrorMessageForNormalFileNotFound() {
         assertThat(((ResponseCodeView) FileModelAndView.fileNotFound("bring/sally/up/bring/sally/down").getView()).getContent()).isEqualTo("Artifact 'bring/sally/up/bring/sally/down' is unavailable as "
                 + "it may have been purged by Go or deleted externally.");
     }

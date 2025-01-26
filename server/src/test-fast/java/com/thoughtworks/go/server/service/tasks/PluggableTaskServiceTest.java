@@ -45,7 +45,7 @@ public class PluggableTaskServiceTest {
     private String pluginId = "abc.def";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         taskExtension = mock(TaskExtension.class);
         pluggableTaskService = new PluggableTaskService(taskExtension);
         final TaskPreference preference = mock(TaskPreference.class);

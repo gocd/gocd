@@ -45,7 +45,7 @@ public class SecurityAuthConfigCommandTest {
     private AuthorizationExtension extension;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
         extension = mock(AuthorizationExtension.class);
@@ -53,7 +53,7 @@ public class SecurityAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() throws Exception {
+    public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
 
@@ -66,7 +66,7 @@ public class SecurityAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldContinueWithConfigSaveIfUserIsAuthorized() throws Exception {
+    public void shouldContinueWithConfigSaveIfUserIsAuthorized() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
@@ -79,7 +79,7 @@ public class SecurityAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueWithConfigSaveIfUserIsGroupAdmin() throws Exception {
+    public void shouldNotContinueWithConfigSaveIfUserIsGroupAdmin() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         when(goConfigService.isGroupAdministrator(currentUser)).thenReturn(true);
@@ -116,7 +116,7 @@ public class SecurityAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldContinueWithConfigSaveIfUserIsAdmin() throws Exception {
+    public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
@@ -128,7 +128,7 @@ public class SecurityAuthConfigCommandTest {
     }
 
     @Test
-    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() throws Exception {
+    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("blackbird", "ldap");
 
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
@@ -149,7 +149,7 @@ public class SecurityAuthConfigCommandTest {
         }
 
         @Override
-        public void update(CruiseConfig preprocessedConfig) throws Exception {
+        public void update(CruiseConfig preprocessedConfig) {
 
         }
 

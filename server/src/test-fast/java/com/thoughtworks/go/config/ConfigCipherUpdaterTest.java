@@ -82,7 +82,7 @@ public class ConfigCipherUpdaterTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         new SystemEnvironment().clearProperty(SystemEnvironment.CONFIG_DIR_PROPERTY);
     }
 

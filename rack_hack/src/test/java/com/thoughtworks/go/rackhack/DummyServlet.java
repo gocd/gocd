@@ -25,7 +25,7 @@ public class DummyServlet extends HttpServlet {
     public static final String URI_ATTRIBUTE = "foo";
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void service(HttpServletRequest req, HttpServletResponse resp) {
         req.setAttribute(URI_ATTRIBUTE, req.getRequestURI());
     }
 }

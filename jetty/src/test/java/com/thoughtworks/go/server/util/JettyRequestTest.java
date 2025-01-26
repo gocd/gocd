@@ -39,7 +39,7 @@ public class JettyRequestTest {
     private ArgumentCaptor<HttpURI> capturedUri;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         jettyRequest = new JettyRequest(request);
     }
 

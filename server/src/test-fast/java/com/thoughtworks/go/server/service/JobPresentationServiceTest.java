@@ -38,7 +38,7 @@ public class JobPresentationServiceTest {
     private AgentService agentService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         jobDurationStrategy = mock(JobDurationStrategy.class);
         agentService = mock(AgentService.class);
     }

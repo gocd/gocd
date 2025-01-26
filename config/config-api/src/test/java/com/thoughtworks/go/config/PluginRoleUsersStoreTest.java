@@ -26,12 +26,12 @@ public class PluginRoleUsersStoreTest {
     private PluginRoleUsersStore pluginRoleUsersStore;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pluginRoleUsersStore = PluginRoleUsersStore.instance();
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         pluginRoleUsersStore.clearAll();
     }
 

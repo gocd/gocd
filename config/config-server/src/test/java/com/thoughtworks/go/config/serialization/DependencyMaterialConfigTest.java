@@ -47,7 +47,7 @@ class DependencyMaterialConfigTest {
     private PipelineConfig pipelineConfig;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         writer = new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
         loader = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
         config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2", "pipeline3", "go");
@@ -134,7 +134,7 @@ class DependencyMaterialConfigTest {
     }
 
     @Test
-    void shouldNOTBeValidIfThePipelineExistsButTheStageDoesNot() throws Exception {
+    void shouldNOTBeValidIfThePipelineExistsButTheStageDoesNot() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage-not-existing does not exist!"));
         dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(config, pipelineConfig));
         ConfigErrors configErrors = dependencyMaterialConfig.errors();
@@ -143,7 +143,7 @@ class DependencyMaterialConfigTest {
     }
 
     @Test
-    void shouldNOTBeValidIfTheReferencedPipelineDoesNotExist() throws Exception {
+    void shouldNOTBeValidIfTheReferencedPipelineDoesNotExist() {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2", "pipeline3", "go");
 
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-not-exist"), new CaseInsensitiveString("stage"));

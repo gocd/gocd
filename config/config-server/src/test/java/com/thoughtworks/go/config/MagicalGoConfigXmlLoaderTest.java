@@ -1093,7 +1093,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     //This is bug #2337
     @Test
-    void shouldNotThrowErrorIfMultipleMaterialsHaveSimilarNamesBug2337() throws Exception {
+    void shouldNotThrowErrorIfMultipleMaterialsHaveSimilarNamesBug2337() {
         String materials =
                 """
                           <materials>
@@ -1106,7 +1106,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     //This is bug #2337
     @Test
-    void shouldNotThrowErrorIfMultipleMaterialsHaveSimilarNamesInDifferentOrder() throws Exception {
+    void shouldNotThrowErrorIfMultipleMaterialsHaveSimilarNamesInDifferentOrder() {
         String materials =
                 """
                           <materials>

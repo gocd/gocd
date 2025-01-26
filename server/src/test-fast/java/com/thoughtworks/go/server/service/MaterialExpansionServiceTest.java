@@ -73,7 +73,7 @@ public class MaterialExpansionServiceTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         materialExpansionService = new MaterialExpansionService(goCache, materialConfigConverter, secretParamResolver);
     }
 

@@ -64,7 +64,7 @@ public class AgentPluginsInitializerIntegrationTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         cleanupAgentPluginsFile();
     }
 

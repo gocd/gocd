@@ -56,7 +56,7 @@ class ElasticProfileServiceTest {
     private ElasticAgentProfileConfigurationValidator validator;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         pluginId = "cd.go.elastic.ecs";
         clusterProfileId = "prod-cluster";
         elasticAgentExtension = mock(ElasticAgentExtension.class);

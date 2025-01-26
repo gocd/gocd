@@ -46,7 +46,7 @@ public class PipelineScheduleQueueTest {
     private InstanceFactory instanceFactory;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pipelineScheduleQueue = new PipelineScheduleQueue(pipelineService, transactionTemplate, instanceFactory);
     }
 

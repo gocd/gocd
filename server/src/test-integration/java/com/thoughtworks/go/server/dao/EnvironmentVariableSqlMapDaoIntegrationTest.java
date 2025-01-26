@@ -80,7 +80,7 @@ public class EnvironmentVariableSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteEnvironmentVariable() throws Exception {
+    public void shouldDeleteEnvironmentVariable() {
         EnvironmentVariables variables = new EnvironmentVariables();
         String plainText = "plainText";
         String key = "key";

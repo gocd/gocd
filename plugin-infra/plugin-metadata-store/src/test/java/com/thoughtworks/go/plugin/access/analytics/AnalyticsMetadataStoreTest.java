@@ -29,12 +29,12 @@ public class AnalyticsMetadataStoreTest {
     private AnalyticsMetadataStore store = AnalyticsMetadataStore.instance();
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         store.clear();
     }
 
     @Test
-    public void shouldHandleUpdateAssetsPath() throws Exception {
+    public void shouldHandleUpdateAssetsPath() {
         PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(pluginDescriptor, null, null, null);
 

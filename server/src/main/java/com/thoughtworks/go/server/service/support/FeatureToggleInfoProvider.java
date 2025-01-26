@@ -37,7 +37,7 @@ public class FeatureToggleInfoProvider implements ServerInfoProvider {
     }
 
     @Override
-    public Map<String, Object> asJson() throws Exception {
+    public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("Available Toggles", featureToggleService.allToggles().all());
         return json;

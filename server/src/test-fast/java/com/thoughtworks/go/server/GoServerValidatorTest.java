@@ -30,7 +30,7 @@ public class GoServerValidatorTest {
     private static final int PORT_TO_TRY = 8991;
 
     @Test
-    public void shouldValidatorServerBeforeStart() throws IOException, InterruptedException {
+    public void shouldValidatorServerBeforeStart() throws IOException {
         try {
             startServerOnPort(PORT_TO_TRY);
             serverPortValidator = new ServerPortValidator(PORT_TO_TRY);
@@ -43,7 +43,7 @@ public class GoServerValidatorTest {
     }
 
     @Test
-    public void shouldNotFailIfPortIsAvailable() throws IOException, InterruptedException {
+    public void shouldNotFailIfPortIsAvailable() {
         serverPortValidator = new ServerPortValidator(PORT_TO_TRY);
         Validation validation = serverPortValidator.validate(new Validation());
         assertThat(validation.isSuccessful()).isTrue();

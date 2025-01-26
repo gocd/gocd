@@ -82,7 +82,7 @@ public class ValueStreamMapServiceTest {
     private HttpLocalizedOperationResult result;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         user = new Username(new CaseInsensitiveString("poovan"));
 
         setupExistenceOfPipelines("p1", "p2", "p3", "MYPIPELINE");
@@ -379,7 +379,7 @@ public class ValueStreamMapServiceTest {
     }
 
     @Test
-    public void shouldMoveNodeAndIntroduceDummyNodesWhenCurrentLevelIsDeeperThanExistingNodeLevel() throws Exception {
+    public void shouldMoveNodeAndIntroduceDummyNodesWhenCurrentLevelIsDeeperThanExistingNodeLevel() {
         /*
          * +-------------+
          * |             v
@@ -768,7 +768,7 @@ public class ValueStreamMapServiceTest {
     }
 
     @Test
-    public void shouldPopulateLabelForCurrentPipeline() throws Exception {
+    public void shouldPopulateLabelForCurrentPipeline() {
         /*
                 git --> p1
          */
@@ -789,7 +789,7 @@ public class ValueStreamMapServiceTest {
     }
 
     @Test
-    public void shouldPopulateErrorWhenUserDoesNotHaveViewPermissionForCurrentPipeline() throws Exception {
+    public void shouldPopulateErrorWhenUserDoesNotHaveViewPermissionForCurrentPipeline() {
         /*
                 git --> p1
          */
@@ -808,7 +808,7 @@ public class ValueStreamMapServiceTest {
     }
 
     @Test
-    public void shouldPopulateErrorWhenUpstreamPipelineDoesNotExistInCurrentConfig() throws Exception {
+    public void shouldPopulateErrorWhenUpstreamPipelineDoesNotExistInCurrentConfig() {
         /*
          * g --> p1 --> p3
          */
@@ -856,7 +856,7 @@ public class ValueStreamMapServiceTest {
     }
 
     @Test
-    public void shouldPopulateEditPermissionsForPipelineDependencyNode() throws Exception {
+    public void shouldPopulateEditPermissionsForPipelineDependencyNode() {
         /*
          * g --> p1 --> p2
          */
@@ -888,7 +888,7 @@ public class ValueStreamMapServiceTest {
     }
 
     @Test
-    public void shouldNotModifyResultObjectWhenUserDoesNotHaveEditPermissionsForPipelineDependencyNode() throws Exception {
+    public void shouldNotModifyResultObjectWhenUserDoesNotHaveEditPermissionsForPipelineDependencyNode() {
         /*
          * g --> p1 --> p2
          */
@@ -926,7 +926,7 @@ public class ValueStreamMapServiceTest {
     }
 
     @Test
-    public void shouldPopulateErrorCorrectly_VSMForMaterial() throws Exception {
+    public void shouldPopulateErrorCorrectly_VSMForMaterial() {
 		/*
 				git --> p1
 		 */

@@ -73,7 +73,7 @@ public class PluginNotificationServiceTest {
     private PluginNotificationService pluginNotificationService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pluginNotificationService = new PluginNotificationService(notificationPluginRegistry, pluginNotificationsQueueHandler, goConfigService, pipelineDao, stageDao, systemEnvironment);
     }
 

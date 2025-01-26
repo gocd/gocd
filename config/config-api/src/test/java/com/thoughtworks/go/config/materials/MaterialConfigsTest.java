@@ -47,7 +47,7 @@ public class MaterialConfigsTest {
     private GoConfigMother goConfigMother;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         goConfigMother = new GoConfigMother();
     }
 

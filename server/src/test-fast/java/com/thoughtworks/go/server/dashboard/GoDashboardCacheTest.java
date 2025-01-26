@@ -30,7 +30,7 @@ public class GoDashboardCacheTest {
     private GoDashboardCache cache;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         cache = new GoDashboardCache(mock(TimeStampBasedCounter.class));
     }
 

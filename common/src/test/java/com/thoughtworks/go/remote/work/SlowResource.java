@@ -21,7 +21,7 @@ public class SlowResource implements ConsoleAppender {
     public int invokedCount = 0;
 
     @Override
-    public void append(String content) throws IOException {
+    public void append(String content) {
         try {
             Thread.sleep(1000);
             invokedCount += 1;

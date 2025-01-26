@@ -96,7 +96,7 @@ public class GoConfigMaterialsTest {
     }
 
     @Test
-    public void uniqueMaterialForAutoPipelinesShouldNotReturnPackageMaterialsWithAutoUpdateFalse() throws Exception {
+    public void uniqueMaterialForAutoPipelinesShouldNotReturnPackageMaterialsWithAutoUpdateFalse() {
         PipelineConfig pipeline1 = pipelineWithManyMaterials(false);
         pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));

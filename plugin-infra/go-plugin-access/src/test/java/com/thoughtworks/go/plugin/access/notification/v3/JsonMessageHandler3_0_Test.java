@@ -45,7 +45,7 @@ public class JsonMessageHandler3_0_Test {
     public static final String DATE_PATTERN_FOR_V3 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         messageHandler = new JsonMessageHandler3_0();
     }
 

@@ -58,12 +58,12 @@ public class ClusterProfilesServiceIntegrationTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         configHelper.onTearDown();
     }
 
     @Test
-    public void shouldCreateANewClusterProfile() throws Exception {
+    public void shouldCreateANewClusterProfile() {
         String clusterId = "cluster1";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ClusterProfile clusterProfile = new ClusterProfile(clusterId, "pluginid");
@@ -78,7 +78,7 @@ public class ClusterProfilesServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAllowCreationANewClusterProfileWithSameName() throws Exception {
+    public void shouldNotAllowCreationANewClusterProfileWithSameName() {
         String clusterId = "cluster1";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ClusterProfile clusterProfile = new ClusterProfile(clusterId, "pluginid");

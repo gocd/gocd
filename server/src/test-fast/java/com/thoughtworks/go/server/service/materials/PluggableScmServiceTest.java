@@ -66,7 +66,7 @@ public class PluggableScmServiceTest {
     private SCMConfigurations scmConfigurations;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         pluggableScmService = new PluggableScmService(scmExtension, goConfigService, entityHashingService, secretParamResolver);
 

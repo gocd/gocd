@@ -108,7 +108,7 @@ public class BuildCauseProducerServiceTest {
     private BuildCauseProducerService buildCauseProducerService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         triggerMonitor = new TriggerMonitor();
         healthStateType = HealthStateType.general(HealthStateScope.forPipeline(CaseInsensitiveString.str(pipelineConfig.name())));
         lenient().when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(pipelineConfig);
@@ -124,13 +124,13 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void onErrorShouldUpdateServerHealthWhenUpdateServerHealthStatusByDefault() throws Exception {
+    public void onErrorShouldUpdateServerHealthWhenUpdateServerHealthStatusByDefault() {
         buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig.name(), new ScheduleOptions(), errorResult());
         verify(mockServerHealthService).update(SERVER_ERROR);
     }
 
     @Test
-    public void shouldAllowRetriggeringIfThePreviousTriggerFailed() throws Exception {
+    public void shouldAllowRetriggeringIfThePreviousTriggerFailed() {
         GitMaterialConfig materialConfig = MaterialConfigsMother.gitMaterialConfig();
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(materialConfig));
         Material material = new MaterialConfigConverter().toMaterial(materialConfig);
@@ -145,7 +145,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void shouldCheckForModificationsWhenManuallyScheduling() throws Exception {
+    public void shouldCheckForModificationsWhenManuallyScheduling() {
         HgMaterialConfig hgMaterialConfig = hg("url", null);
         HgMaterial hgMaterial = new HgMaterial("url", null);
         SvnMaterial svnMaterial = new SvnMaterial("url", null, null, false);
@@ -167,7 +167,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void shouldNotCheckForModificationsIfAlreadyChecking() throws Exception {
+    public void shouldNotCheckForModificationsIfAlreadyChecking() {
         Username user = Username.ANONYMOUS;
         final HttpOperationResult result = new HttpOperationResult();
 
@@ -188,8 +188,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void shouldAllowTriggeringOfPipelineWhenThereIsAnErrorAfterPipelineIsMarkedAsTriggeredAndBeforeTheMaterialUpdateIsScheduled()
-            throws Exception {
+    public void shouldAllowTriggeringOfPipelineWhenThereIsAnErrorAfterPipelineIsMarkedAsTriggeredAndBeforeTheMaterialUpdateIsScheduled() {
         try {
             when(operationResult.canContinue()).thenThrow(new RuntimeException("force a failure"));
             buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), operationResult);
@@ -200,7 +199,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void shouldAllowTriggeringOfPipelineAfterMaterialUpdate() throws Exception {
+    public void shouldAllowTriggeringOfPipelineAfterMaterialUpdate() {
         HgMaterial hgMaterial = new HgMaterial("url", null);
         HgMaterialConfig hgMaterialConfig = hg("url", null);
 
@@ -217,7 +216,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void manualTriggerShouldNotTriggerThePipelineIfMaterialUpdateFailed() throws Exception {
+    public void manualTriggerShouldNotTriggerThePipelineIfMaterialUpdateFailed() {
         HgMaterialConfig hgMaterialConfig = hg("url", null);
         HgMaterial hgMaterial = new HgMaterial("url", null);
 
@@ -249,7 +248,7 @@ public class BuildCauseProducerServiceTest {
 
 
     @Test
-    public void shouldNotCheckForModificationsUnableToTriggerManualPipeline() throws Exception {
+    public void shouldNotCheckForModificationsUnableToTriggerManualPipeline() {
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), errorResult());
         verify(mockMaterialUpdateService, never()).updateMaterial(any(Material.class));
         verify(mockMaterialUpdateStatusNotifier, never()).registerListenerFor(eq(pipelineConfig),
@@ -257,7 +256,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void shouldScheduleAfterAllMaterialsAreUpdated() throws Exception {
+    public void shouldScheduleAfterAllMaterialsAreUpdated() {
         HgMaterial hgMaterial = new HgMaterial("url", null);
         HgMaterialConfig hgMaterialConfig = hg("url", null);
         SvnMaterial svnMaterial = new SvnMaterial("url", null, null, false);
@@ -289,7 +288,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void shouldUpdateResultAsAcceptedOnSuccess() throws Exception {
+    public void shouldUpdateResultAsAcceptedOnSuccess() {
         when(operationResult.canContinue()).thenReturn(true);
         buildCauseProducerService.manualSchedulePipeline(Username.BLANK, pipelineConfig.name(), new ScheduleOptions(), operationResult);
         verify(operationResult).accepted(eq("Request to schedule pipeline pipeline accepted"), any(String.class),
@@ -297,7 +296,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void shouldBeAbleToPassInSpecificRevisionForMaterialsAndScheduleABuild() throws Exception {
+    public void shouldBeAbleToPassInSpecificRevisionForMaterialsAndScheduleABuild() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("stage"));
         SvnMaterial svnMaterial = new SvnMaterial("url", null, null, false);
         pipelineConfig.addMaterialConfig(dependencyMaterial.config());
@@ -326,7 +325,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void shouldHandleCaseWhereSpecifiedRevisionDoesNotExist() throws Exception {
+    public void shouldHandleCaseWhereSpecifiedRevisionDoesNotExist() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("stage"));
         when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
                 .thenThrow(new RuntimeException("Invalid specified revision"));
@@ -339,7 +338,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     @Test
-    public void shouldHandleCaseWhenExceptionWithoutMessageIsRaised() throws Exception {
+    public void shouldHandleCaseWhenExceptionWithoutMessageIsRaised() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("stage"));
         when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
                 .thenThrow(new NullPointerException());

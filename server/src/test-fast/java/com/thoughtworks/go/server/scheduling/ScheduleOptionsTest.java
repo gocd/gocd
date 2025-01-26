@@ -31,7 +31,7 @@ public class ScheduleOptionsTest {
     private GoCipher goCipher;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         goCipher = new GoCipher();
     }
 
@@ -46,7 +46,7 @@ public class ScheduleOptionsTest {
     }
 
     @Test
-    public void shouldReturnSecureEnvironmentVariablesConfig() throws CryptoException {
+    public void shouldReturnSecureEnvironmentVariablesConfig() {
         String plainText = "secure_value";
         Map<String, String> secureVariables = new HashMap<>();
         secureVariables.put("secure_name", plainText);

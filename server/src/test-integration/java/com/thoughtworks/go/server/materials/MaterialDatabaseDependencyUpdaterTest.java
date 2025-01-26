@@ -106,7 +106,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
     }
 
     @Test
-    public void shouldUpdateServerHealthIfCheckFails() throws Exception {
+    public void shouldUpdateServerHealthIfCheckFails() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
         RuntimeException runtimeException = new RuntimeException("Description of error");

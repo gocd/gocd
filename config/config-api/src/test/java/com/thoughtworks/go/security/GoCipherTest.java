@@ -42,7 +42,7 @@ public class GoCipherTest {
     private SystemEnvironment systemEnvironment;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         systemEnvironment = spy(new SystemEnvironment());
         aesCipherFile = systemEnvironment.getAESCipherFile();
         desCipherFile = systemEnvironment.getDESCipherFile();

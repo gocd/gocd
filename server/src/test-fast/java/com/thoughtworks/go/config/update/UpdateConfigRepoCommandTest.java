@@ -54,7 +54,7 @@ public class UpdateConfigRepoCommandTest {
     private ConfigRepoExtension configRepoExtension;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         oldConfigRepoId = "old-repo";
         newConfigRepoId = "new-repo";
@@ -66,7 +66,7 @@ public class UpdateConfigRepoCommandTest {
     }
 
     @Test
-    public void shouldUpdateTheSpecifiedConfigRepo() throws Exception {
+    public void shouldUpdateTheSpecifiedConfigRepo() {
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(entityHashingService, oldConfigRepoId, newConfigRepo, digest, result, configRepoExtension);
 
         assertNull(cruiseConfig.getConfigRepos().getConfigRepo(newConfigRepoId));
@@ -75,7 +75,7 @@ public class UpdateConfigRepoCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfDigestIsStale() throws Exception {
+    public void shouldNotContinueIfDigestIsStale() {
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(entityHashingService, oldConfigRepoId, newConfigRepo, digest, result, configRepoExtension);
         when(entityHashingService.hashForEntity(oldConfigRepo)).thenReturn("some-hash");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();

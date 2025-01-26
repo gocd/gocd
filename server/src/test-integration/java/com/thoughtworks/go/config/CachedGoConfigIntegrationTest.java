@@ -155,7 +155,7 @@ public class CachedGoConfigIntegrationTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         cachedGoPartials.clear();
         for (PartialConfig partial : cachedGoPartials.lastValidPartials()) {
             assertThat(ErrorCollector.getAllErrors(partial).isEmpty()).isTrue();

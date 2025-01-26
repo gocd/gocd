@@ -204,7 +204,7 @@ public class ScheduleServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUnlockPipelineWhenLastStageCompletes() throws Exception {
+    public void shouldUnlockPipelineWhenLastStageCompletes() {
         String pipelineName = "cruise";
         String firstStageName = JOB_NAME;
         String secondStageName = "twist";
@@ -227,7 +227,7 @@ public class ScheduleServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUnlockPipelineAsAPartOfTriggeringRelevantStages() throws Exception {
+    public void shouldUnlockPipelineAsAPartOfTriggeringRelevantStages() {
         String pipelineName = "cruise";
         String firstStageName = JOB_NAME;
         String secondStageName = "twist";

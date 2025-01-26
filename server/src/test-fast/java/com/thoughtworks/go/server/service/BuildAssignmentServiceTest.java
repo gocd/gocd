@@ -107,7 +107,7 @@ class BuildAssignmentServiceTest {
     private AgentInstance regularAgentInstance;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         transactionTemplate = dummy();
         buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService,
                 environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory,
@@ -516,7 +516,7 @@ class BuildAssignmentServiceTest {
     }
 
     @Test
-    void shouldFailTheJobWhenRulesViolationErrorOccursForElasticConfiguration() throws IOException, IllegalArtifactLocationException {
+    void shouldFailTheJobWhenRulesViolationErrorOccursForElasticConfiguration() throws IllegalArtifactLocationException {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
         JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
         jobPlans.add(jobPlan);
@@ -544,7 +544,7 @@ class BuildAssignmentServiceTest {
     }
 
     @Test
-    void shouldFailTheJobWhenSecretResolutionErrorOccursForElasticConfiguration() throws IOException, IllegalArtifactLocationException {
+    void shouldFailTheJobWhenSecretResolutionErrorOccursForElasticConfiguration() throws IllegalArtifactLocationException {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
         JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
         jobPlans.add(jobPlan);

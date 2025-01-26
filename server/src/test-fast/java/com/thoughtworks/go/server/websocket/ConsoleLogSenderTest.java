@@ -50,7 +50,7 @@ public class ConsoleLogSenderTest {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         consoleService = mock(ConsoleService.class);
         jobInstanceDao = mock(JobInstanceDao.class);
         socket = mock(SocketEndpoint.class);
@@ -161,7 +161,7 @@ public class ConsoleLogSenderTest {
     }
 
     @Test
-    public void shouldNotGzipContentsLessThan512Bytes() throws Exception {
+    public void shouldNotGzipContentsLessThan512Bytes() {
         byte[] bytes = RandomStringUtils.insecure().nextAlphanumeric(511).getBytes(UTF_8);
         byte[] gzipped = consoleLogSender.maybeGzipIfLargeEnough(bytes);
         assertThat(bytes).isEqualTo(gzipped);
@@ -203,7 +203,7 @@ public class ConsoleLogSenderTest {
         }
 
         @Override
-        public long stream(Consumer<String> action) throws IOException {
+        public long stream(Consumer<String> action) {
             // this is necessary for showing no logs has been missed out even after job completion
             if(mockedLines.length <= count) {
                 return mockedLines.length;
@@ -218,7 +218,7 @@ public class ConsoleLogSenderTest {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
         }
     }
 }

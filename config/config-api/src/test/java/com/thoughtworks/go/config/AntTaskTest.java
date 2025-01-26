@@ -24,7 +24,7 @@ public class AntTaskTest {
     private AntTask antTask;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         antTask = new AntTask();
     }
 

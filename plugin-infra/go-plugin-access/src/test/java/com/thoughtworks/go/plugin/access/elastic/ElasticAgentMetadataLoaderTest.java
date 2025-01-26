@@ -30,7 +30,7 @@ public class ElasticAgentMetadataLoaderTest {
     private PluginManager pluginManager;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(ElasticAgentExtension.class);
         infoBuilder = mock(ElasticAgentPluginInfoBuilder.class);
         metadataStore = mock(ElasticAgentMetadataStore.class);
@@ -38,14 +38,14 @@ public class ElasticAgentMetadataLoaderTest {
     }
 
     @Test
-    public void shouldBeAPluginChangeListener() throws Exception {
+    public void shouldBeAPluginChangeListener() {
         ElasticAgentMetadataLoader loader = new ElasticAgentMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
 
         verify(pluginManager).addPluginChangeListener(eq(loader));
     }
 
     @Test
-    public void onPluginLoaded_shouldAddPluginInfoToMetadataStore() throws Exception {
+    public void onPluginLoaded_shouldAddPluginInfoToMetadataStore() {
         GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         ElasticAgentMetadataLoader metadataLoader = new ElasticAgentMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(descriptor, null, null, null, null, null);
@@ -59,7 +59,7 @@ public class ElasticAgentMetadataLoaderTest {
     }
 
     @Test
-    public void onPluginLoaded_shouldIgnoreNonAuthorizationPlugins() throws Exception {
+    public void onPluginLoaded_shouldIgnoreNonAuthorizationPlugins() {
         GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         ElasticAgentMetadataLoader metadataLoader = new ElasticAgentMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
 
@@ -72,7 +72,7 @@ public class ElasticAgentMetadataLoaderTest {
     }
 
     @Test
-    public void onPluginUnloded_shouldRemoveTheCorrespondingPluginInfoFromStore() throws Exception {
+    public void onPluginUnloded_shouldRemoveTheCorrespondingPluginInfoFromStore() {
         GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         ElasticAgentMetadataLoader metadataLoader = new ElasticAgentMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(descriptor, null, null, null, null, null);

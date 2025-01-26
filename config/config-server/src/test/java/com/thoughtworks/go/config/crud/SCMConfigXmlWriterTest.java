@@ -40,7 +40,7 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
     private CruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.initializeServer();
     }

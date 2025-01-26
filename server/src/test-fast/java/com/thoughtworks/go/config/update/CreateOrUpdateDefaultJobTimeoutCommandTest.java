@@ -27,7 +27,7 @@ public class CreateOrUpdateDefaultJobTimeoutCommandTest {
     private BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
 
     @Test
-    void shouldUpdateTheDefaultJobTimeout() throws Exception {
+    void shouldUpdateTheDefaultJobTimeout() {
         String defaultJobTimeout = "10";
         CreateOrUpdateDefaultJobTimeoutCommand command = new CreateOrUpdateDefaultJobTimeoutCommand(defaultJobTimeout);
 
@@ -39,7 +39,7 @@ public class CreateOrUpdateDefaultJobTimeoutCommandTest {
     }
 
     @Test
-    void shouldReturnTrueWhenTheDefaultJobTimeoutIsValid() throws Exception {
+    void shouldReturnTrueWhenTheDefaultJobTimeoutIsValid() {
         String defaultJobTimeout = "10";
         CreateOrUpdateDefaultJobTimeoutCommand command = new CreateOrUpdateDefaultJobTimeoutCommand(defaultJobTimeout);
 
@@ -49,7 +49,7 @@ public class CreateOrUpdateDefaultJobTimeoutCommandTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenTheDefaultJobTimeoutIsNotValid() throws Exception {
+    void shouldThrowExceptionWhenTheDefaultJobTimeoutIsNotValid() {
         String defaultJobTimeout = "foo";
         CreateOrUpdateDefaultJobTimeoutCommand command = new CreateOrUpdateDefaultJobTimeoutCommand(defaultJobTimeout);
 

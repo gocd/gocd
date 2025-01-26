@@ -35,13 +35,13 @@ public class GoDashboardPipelinePauseStatusChangeHandlerTest {
     private GoDashboardPipelinePauseStatusChangeHandler handler;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         handler = new GoDashboardPipelinePauseStatusChangeHandler(cacheUpdateService);
     }
 
     @Test
-    public void shouldHandlePipelinePauseStatusChangeByRefreshingPipelineInCache() throws Exception {
+    public void shouldHandlePipelinePauseStatusChangeByRefreshingPipelineInCache() {
         handler.call(PipelinePauseChangeListener.Event.pause("pipeline1", Username.valueOf("user1")));
 
         verify(cacheUpdateService).updateCacheForPipeline(new CaseInsensitiveString("pipeline1"));

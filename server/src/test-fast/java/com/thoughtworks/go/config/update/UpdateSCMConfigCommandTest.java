@@ -63,7 +63,7 @@ public class UpdateSCMConfigCommandTest {
     private EntityHashingService entityHashingService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         result = new HttpLocalizedOperationResult();
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
@@ -75,7 +75,7 @@ public class UpdateSCMConfigCommandTest {
     }
 
     @Test
-    public void shouldUpdateAnExistingSCMWithNewValues() throws Exception {
+    public void shouldUpdateAnExistingSCMWithNewValues() {
         SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         updatedScm.setName("material");
         UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
@@ -110,7 +110,7 @@ public class UpdateSCMConfigCommandTest {
     }
 
     @Test
-    public void shouldThrowAnExceptionIfSCMIsNotFound() throws Exception {
+    public void shouldThrowAnExceptionIfSCMIsNotFound() {
         SCM updatedScm = new SCM("non-existent-id", new PluginConfiguration("non-existent-plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
         assertThatThrownBy(() -> command.update(cruiseConfig))

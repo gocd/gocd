@@ -43,7 +43,7 @@ public class DependencyMaterialUpdateNotifierTest {
     private final Material dependencyMaterial = MaterialsMother.dependencyMaterial();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         goConfigService = mock(GoConfigService.class);
         materialConfigConverter = mock(MaterialConfigConverter.class);
         materialUpdateService = mock(MaterialUpdateService.class);

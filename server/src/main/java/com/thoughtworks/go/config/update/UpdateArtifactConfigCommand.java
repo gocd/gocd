@@ -32,7 +32,7 @@ public class UpdateArtifactConfigCommand implements EntityConfigUpdateCommand<Ar
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         ArtifactDirectory artifactsDir = artifactConfig.getArtifactsDir();
         PurgeSettings purgeSettings = artifactConfig.getPurgeSettings();
 

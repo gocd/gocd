@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 
 public class GoDashboardPipelineTest {
     @Test
-    public void shouldKnowWhetherAUserCanViewIt() throws Exception {
+    public void shouldKnowWhetherAUserCanViewIt() {
         Permissions permissions = new Permissions(
                 new AllowedUsers(Set.of("viewer1", "viewer2"), Collections.emptySet()),
                 Everyone.INSTANCE,
@@ -56,7 +56,7 @@ public class GoDashboardPipelineTest {
     }
 
     @Test
-    public void shouldKnowWhetherAUserCanOperateIt() throws Exception {
+    public void shouldKnowWhetherAUserCanOperateIt() {
         Permissions permissions = new Permissions(
                 NoOne.INSTANCE,
                 new AllowedUsers(Set.of("operator1"), Collections.emptySet()),
@@ -71,7 +71,7 @@ public class GoDashboardPipelineTest {
     }
 
     @Test
-    public void shouldKnowWhetherAUserCanAdministerIt() throws Exception {
+    public void shouldKnowWhetherAUserCanAdministerIt() {
         Permissions permissions = new Permissions(
                 NoOne.INSTANCE,
                 NoOne.INSTANCE,
@@ -86,7 +86,7 @@ public class GoDashboardPipelineTest {
     }
 
     @Test
-    public void shouldKnowWhetherAUserIsPipelineLevelOperator() throws Exception {
+    public void shouldKnowWhetherAUserIsPipelineLevelOperator() {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
         Permissions permissions = new Permissions(
                 NoOne.INSTANCE,
@@ -102,7 +102,7 @@ public class GoDashboardPipelineTest {
     }
 
     @Test
-    public void shouldSetTheLastUpdateTime() throws Exception {
+    public void shouldSetTheLastUpdateTime() {
         TimeStampBasedCounter provider = mock(TimeStampBasedCounter.class);
         when(provider.getNext()).thenReturn(1000L);
         GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()), null, "group1", provider, PipelineConfigMother.pipelineConfig("pipeline1"));

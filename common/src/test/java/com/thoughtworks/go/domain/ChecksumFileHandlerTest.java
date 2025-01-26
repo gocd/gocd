@@ -42,7 +42,7 @@ public class ChecksumFileHandlerTest {
     }
 
     @Test
-    public void shouldGenerateChecksumFileUrl() throws IOException {
+    public void shouldGenerateChecksumFileUrl() {
         String url = checksumFileHandler.url("http://foo/go", "cruise/1/stage/1/job");
         assertThat(url).isEqualTo("http://foo/go/remoting/files/cruise/1/stage/1/job/cruise-output/md5.checksum");
     }

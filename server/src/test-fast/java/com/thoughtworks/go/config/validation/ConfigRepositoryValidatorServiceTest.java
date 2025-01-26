@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 
 public class ConfigRepositoryValidatorServiceTest {
     @Test
-    public void shouldShutDownServerIfConfigRepositoryIsCorrupted() throws Exception {
+    public void shouldShutDownServerIfConfigRepositoryIsCorrupted() {
         ConfigRepository configRepository = mock(ConfigRepository.class);
         when(configRepository.isRepositoryCorrupted()).thenReturn(true);
         ConfigRepositoryValidatorService configRepositoryValidatorServiceSpy = spy(new ConfigRepositoryValidatorService(configRepository));
@@ -32,7 +32,7 @@ public class ConfigRepositoryValidatorServiceTest {
     }
 
     @Test
-    public void shouldNotShutDownServerIfConfigRepositoryIsSane() throws Exception {
+    public void shouldNotShutDownServerIfConfigRepositoryIsSane() {
         ConfigRepository configRepository = mock(ConfigRepository.class);
         when(configRepository.isRepositoryCorrupted()).thenReturn(false);
         ConfigRepositoryValidatorService configRepositoryValidatorServiceSpy = spy(new ConfigRepositoryValidatorService(configRepository));

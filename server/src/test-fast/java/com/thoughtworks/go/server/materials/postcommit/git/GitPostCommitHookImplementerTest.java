@@ -34,7 +34,7 @@ public class GitPostCommitHookImplementerTest {
     private GitPostCommitHookImplementer implementer;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         implementer = new GitPostCommitHookImplementer();
     }
 

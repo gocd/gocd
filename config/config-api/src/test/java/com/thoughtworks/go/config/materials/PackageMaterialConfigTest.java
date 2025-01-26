@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 
 public class PackageMaterialConfigTest {
     @Test
-    public void shouldAddErrorIfMaterialDoesNotHaveAPackageId() throws Exception {
+    public void shouldAddErrorIfMaterialDoesNotHaveAPackageId() {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig();
         packageMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
 
@@ -40,7 +40,7 @@ public class PackageMaterialConfigTest {
     }
 
     @Test
-    public void shouldAddErrorIfPackageDoesNotExistsForGivenPackageId() throws Exception {
+    public void shouldAddErrorIfPackageDoesNotExistsForGivenPackageId() {
         PipelineConfigSaveValidationContext configSaveValidationContext = mock(PipelineConfigSaveValidationContext.class);
         when(configSaveValidationContext.findPackageById(anyString())).thenReturn(mock(PackageRepository.class));
         PackageRepository packageRepository = mock(PackageRepository.class);
@@ -55,7 +55,7 @@ public class PackageMaterialConfigTest {
     }
 
     @Test
-    public void shouldAddErrorIfPackagePluginDoesNotExistsForGivenPackageId() throws Exception {
+    public void shouldAddErrorIfPackagePluginDoesNotExistsForGivenPackageId() {
         PipelineConfigSaveValidationContext configSaveValidationContext = mock(PipelineConfigSaveValidationContext.class);
         when(configSaveValidationContext.findPackageById(anyString())).thenReturn(mock(PackageRepository.class));
         PackageRepository packageRepository = mock(PackageRepository.class);
@@ -70,7 +70,7 @@ public class PackageMaterialConfigTest {
     }
 
     @Test
-    public void shouldAddErrorIfMaterialNameUniquenessValidationFails() throws Exception {
+    public void shouldAddErrorIfMaterialNameUniquenessValidationFails() {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig("package-id");
 
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
@@ -88,7 +88,7 @@ public class PackageMaterialConfigTest {
     }
 
     @Test
-    public void shouldPassMaterialUniquenessIfIfNoDuplicateMaterialFound() throws Exception {
+    public void shouldPassMaterialUniquenessIfIfNoDuplicateMaterialFound() {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig("package-id");
 
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
@@ -102,7 +102,7 @@ public class PackageMaterialConfigTest {
     }
 
     @Test
-    public void shouldNotAddErrorDuringUniquenessValidationIfMaterialNameIsEmpty() throws Exception {
+    public void shouldNotAddErrorDuringUniquenessValidationIfMaterialNameIsEmpty() {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig("");
 
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
@@ -114,7 +114,7 @@ public class PackageMaterialConfigTest {
     }
 
     @Test
-    public void shouldSetConfigAttributesForThePackageMaterial() throws Exception {
+    public void shouldSetConfigAttributesForThePackageMaterial() {
         Map<String, String> attributes = new HashMap<>();
         attributes.put(PackageMaterialConfig.PACKAGE_ID, "packageId");
 
@@ -124,7 +124,7 @@ public class PackageMaterialConfigTest {
     }
 
     @Test
-    public void shouldSetPackageIdToNullIfConfigAttributesForThePackageMaterialDoesNotContainPackageId() throws Exception {
+    public void shouldSetPackageIdToNullIfConfigAttributesForThePackageMaterialDoesNotContainPackageId() {
         Map<String, String> attributes = new HashMap<>();
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig("id");
         packageMaterialConfig.setConfigAttributes(attributes);
@@ -150,7 +150,7 @@ public class PackageMaterialConfigTest {
     }
 
     @Test
-    public void shouldCheckEquals() throws Exception {
+    public void shouldCheckEquals() {
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository);
 
@@ -177,7 +177,7 @@ public class PackageMaterialConfigTest {
     }
 
     @Test
-    public void shouldDelegateToPackageDefinitionForAutoUpdate() throws Exception {
+    public void shouldDelegateToPackageDefinitionForAutoUpdate() {
         PackageDefinition packageDefinition = mock(PackageDefinition.class);
         when(packageDefinition.isAutoUpdate()).thenReturn(false);
         PackageMaterialConfig materialConfig = new PackageMaterialConfig(new CaseInsensitiveString("name"), "package-id", packageDefinition);

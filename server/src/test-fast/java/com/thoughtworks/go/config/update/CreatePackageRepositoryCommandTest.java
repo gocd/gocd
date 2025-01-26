@@ -53,7 +53,7 @@ public class CreatePackageRepositoryCommandTest {
     private GoConfigService goConfigService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         repoId = "npmOrg";
@@ -63,7 +63,7 @@ public class CreatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldCreatePackageRepository() throws Exception {
+    public void shouldCreatePackageRepository() {
         PackageRepository repository = new PackageRepository("id", "name", new PluginConfiguration(), new Configuration());
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, repository, currentUser, result);
 
@@ -75,14 +75,14 @@ public class CreatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldNotCreatePackageRepositoryIfTheSpecifiedPluginTypeIsInvalid() throws Exception {
+    public void shouldNotCreatePackageRepositoryIfTheSpecifiedPluginTypeIsInvalid() {
         when(packageRepositoryService.validatePluginId(packageRepository)).thenReturn(false);
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
         assertFalse(command.isValid(cruiseConfig));
     }
 
     @Test
-    public void shouldNotCreatePackageRepositoryWhenRepositoryWithSpecifiedNameAlreadyExists() throws Exception {
+    public void shouldNotCreatePackageRepositoryWhenRepositoryWithSpecifiedNameAlreadyExists() {
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
@@ -90,7 +90,7 @@ public class CreatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldNotCreatePackageRepositoryWhenRepositoryHasDuplicateConfigurationProperties() throws Exception {
+    public void shouldNotCreatePackageRepositoryWhenRepositoryHasDuplicateConfigurationProperties() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("foo"), new ConfigurationValue("bar"));
         Configuration configuration = new Configuration(property, property);
         packageRepository.setConfiguration(configuration);
@@ -100,7 +100,7 @@ public class CreatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldNotCreatePackageRepositoryWhenRepositoryHasInvalidName() throws Exception {
+    public void shouldNotCreatePackageRepositoryWhenRepositoryHasInvalidName() {
         packageRepository.setName("~!@#$%^&*(");
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
 
@@ -109,7 +109,7 @@ public class CreatePackageRepositoryCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackageRepositories() throws Exception {
+    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackageRepositories() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
 

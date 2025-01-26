@@ -89,7 +89,7 @@ public class PipelineServiceTest {
     private MaterialConfigConverter materialConfigConverter;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pipelineTimeline = mock(PipelineTimeline.class);
         pipelineDao = mock(PipelineSqlMapDao.class);
         materialRepository = mock(MaterialRepository.class);

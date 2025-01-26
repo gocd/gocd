@@ -70,7 +70,7 @@ public class StageTest {
     }
 
     @Test
-    public void shouldUpdateCompletedByTransitionIdAndStageState() throws Exception {
+    public void shouldUpdateCompletedByTransitionIdAndStageState() {
         assertThat(stage.getCompletedByTransitionId()).isNull();
         DateTime fiveMinsForNow = new DateTime().plusMinutes(5);
         complete(firstJob, fiveMinsForNow);
@@ -82,7 +82,7 @@ public class StageTest {
     }
 
     @Test
-    public void shouldAnswerIsScheduledTrueWhenAllJobsAreInScheduleState() throws Exception {
+    public void shouldAnswerIsScheduledTrueWhenAllJobsAreInScheduleState() {
         stage.setCounter(1);
         firstJob.setState(JobState.Scheduled);
         secondJob.setState(JobState.Scheduled);
@@ -106,7 +106,7 @@ public class StageTest {
     }
 
     @Test
-    public void shouldAnswerIsReRunTrueWhenAllJobsAreInScheduleState() throws Exception {
+    public void shouldAnswerIsReRunTrueWhenAllJobsAreInScheduleState() {
         stage.setCounter(2);
         stage.setRerunOfCounter(null);
         firstJob.setState(JobState.Scheduled);
@@ -258,7 +258,7 @@ public class StageTest {
     }
 
     @Test
-    public void shouldReturnCreatedDateWhenNoTranstions() throws Exception {
+    public void shouldReturnCreatedDateWhenNoTranstions() {
         stage = new Stage("dev", new JobInstances(), "anonymous", null, "manual", new TimeProvider());
         assertEquals(new Date(stage.getCreatedTime().getTime()), stage.latestTransitionDate());
     }

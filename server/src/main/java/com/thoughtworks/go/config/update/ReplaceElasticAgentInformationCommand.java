@@ -44,7 +44,7 @@ public class ReplaceElasticAgentInformationCommand implements UpdateConfigComman
     }
 
     @Override
-    public CruiseConfig update(CruiseConfig preprocessedConfig) throws Exception {
+    public CruiseConfig update(CruiseConfig preprocessedConfig) {
         String pluginId = pluginDescriptor.id();
 
         List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId);

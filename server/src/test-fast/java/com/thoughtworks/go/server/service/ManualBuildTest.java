@@ -41,13 +41,13 @@ public class ManualBuildTest {
     }
 
     @Test
-    public void shouldPopulateProducedBuildCauseApproverForOnModificationBuildCause() throws Exception {
+    public void shouldPopulateProducedBuildCauseApproverForOnModificationBuildCause() {
         BuildCause buildCause = manualBuild.onModifications(materialRevisions, false, null);
         assertThat(buildCause.getApprover()).isEqualTo("cruise-user");
     }
 
     @Test
-    public void shouldPopulateProducedBuildCauseApproverForEmptyModificationBuildCause() throws Exception {
+    public void shouldPopulateProducedBuildCauseApproverForEmptyModificationBuildCause() {
         BuildCause buildCause = manualBuild.onEmptyModifications(null, materialRevisions);
         assertThat(buildCause.getApprover()).isEqualTo("cruise-user");
     }

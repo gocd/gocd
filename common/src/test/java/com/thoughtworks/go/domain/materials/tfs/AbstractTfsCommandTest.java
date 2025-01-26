@@ -55,7 +55,7 @@ public class AbstractTfsCommandTest {
                                              final String workspace, final String projectPath) {
         return spy(new AbstractTfsCommand(materialFingerprint, urlArgument, domain, user, password,
                 workspace, projectPath) {
-            @Override protected void unMap(File workDir) throws IOException {
+            @Override protected void unMap(File workDir) {
             }
 
             @Override protected List<Modification> history(String beforeRevision, long revsToLoad) {
@@ -83,13 +83,13 @@ public class AbstractTfsCommandTest {
     }
 
     @Test
-    public void testLatestModification() throws Exception {
+    public void testLatestModification() {
         tfsCommand.latestModification(workDir);
         verify(tfsCommand, times(1)).history(null, 1);
     }
 
     @Test
-    public void testModificationsSince() throws Exception {
+    public void testModificationsSince() {
         List<Modification> modifications = new ArrayList<>();
         modifications.add(new Modification(user, "comment latest", "email", new Date(), "10"));
         modifications.add(new Modification(user, "comment latest", "email", new Date(), "9"));
@@ -103,12 +103,12 @@ public class AbstractTfsCommandTest {
     }
 
     @Test
-    public void testCheckConnection() throws Exception {
+    public void testCheckConnection() {
         tfsCommand.checkConnection();
     }
 
     @Test
-    public void shouldNotFailToCheckConnectionForUrlWithURLEncodedSpaceInIt() throws Exception {
+    public void shouldNotFailToCheckConnectionForUrlWithURLEncodedSpaceInIt() {
         tfsCommand = tfsCommandFor(null, new UrlArgument("abc%20def"), domain, user, password, workspace, projectPath);
         tfsCommand.checkConnection();
     }

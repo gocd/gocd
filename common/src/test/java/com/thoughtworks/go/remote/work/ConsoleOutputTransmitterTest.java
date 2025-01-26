@@ -36,7 +36,7 @@ public class ConsoleOutputTransmitterTest {
     private ConsoleOutputTransmitter transmitter;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         new SystemEnvironment().setProperty(SystemEnvironment.INTERVAL, "60"); // so the thread does not wake up
         transmitter = new ConsoleOutputTransmitter(consoleAppender, 0, mock(ScheduledThreadPoolExecutor.class));
     }

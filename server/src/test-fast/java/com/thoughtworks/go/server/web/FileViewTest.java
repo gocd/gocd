@@ -115,7 +115,7 @@ public class FileViewTest {
     }
 
     @Test
-    public void testDefaultContentTypeShouldBeTextPlain() throws Exception {
+    public void testDefaultContentTypeShouldBeTextPlain() {
         assertEquals("application/octet-stream", view.getContentType());
     }
 

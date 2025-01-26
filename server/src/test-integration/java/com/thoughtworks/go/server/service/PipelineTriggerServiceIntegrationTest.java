@@ -155,7 +155,7 @@ public class PipelineTriggerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldScheduleAPipelineWithTheProvidedMaterialRevisions() throws IOException {
+    public void shouldScheduleAPipelineWithTheProvidedMaterialRevisions() {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(pipelineName);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
@@ -181,7 +181,7 @@ public class PipelineTriggerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotPerformMDUIfScheduleOptionsIsSetToDisallowMDU() throws IOException {
+    public void shouldNotPerformMDUIfScheduleOptionsIsSetToDisallowMDU() {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
@@ -205,7 +205,7 @@ public class PipelineTriggerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotScheduleAPipelineIfTheProvidedMaterialRevisionIsNotKnownAndScheduleOptionSuggestsNoMDU() throws IOException {
+    public void shouldNotScheduleAPipelineIfTheProvidedMaterialRevisionIsNotKnownAndScheduleOptionSuggestsNoMDU() {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
@@ -224,7 +224,7 @@ public class PipelineTriggerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldScheduleAPipelineWithTheProvidedEnvironmentVariables() throws IOException {
+    public void shouldScheduleAPipelineWithTheProvidedEnvironmentVariables() {
         pipelineConfig.addEnvironmentVariable("ENV_VAR1", "VAL1");
         pipelineConfig.addEnvironmentVariable("ENV_VAR2", "VAL2");
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", "SECURE_VAL", true));
@@ -369,7 +369,7 @@ public class PipelineTriggerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnErrorWhenSchedulingAPipelineWithUnconfiguredEnvironmentVariables() throws IOException {
+    public void shouldReturnErrorWhenSchedulingAPipelineWithUnconfiguredEnvironmentVariables() {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
@@ -385,7 +385,7 @@ public class PipelineTriggerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnErrorWhenAnUnauthorizedUserTriesToScheduleAPipeline() throws IOException {
+    public void shouldReturnErrorWhenAnUnauthorizedUserTriesToScheduleAPipeline() {
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();

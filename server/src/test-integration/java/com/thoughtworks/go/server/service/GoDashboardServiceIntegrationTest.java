@@ -109,7 +109,7 @@ public class GoDashboardServiceIntegrationTest {
     }
 
     @Test
-    public void shouldShowTheLatestStatusOfPipelineInstanceIfAFullConfigSaveIsPerformed() throws Exception {
+    public void shouldShowTheLatestStatusOfPipelineInstanceIfAFullConfigSaveIsPerformed() {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1", "g_2");
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(g1));
@@ -141,7 +141,7 @@ public class GoDashboardServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotReturnDeletedPipelineAsPartOfDashboard() throws Exception {
+    public void shouldNotReturnDeletedPipelineAsPartOfDashboard() {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1", "g_2");
         ScheduleTestUtil.AddedPipeline addedPipeline = u.saveConfigWith(UUID.randomUUID().toString(), u.m(g1));

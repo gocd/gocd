@@ -41,7 +41,7 @@ class PackageRepositoriesTest {
     }
 
     @Test
-    void shouldFindRepositoryGivenTheRepoId() throws Exception {
+    void shouldFindRepositoryGivenTheRepoId() {
         PackageRepository packageRepository1 = PackageRepositoryMother.create("repo-id1", "repo1", "plugin-id", "1.0", null);
         PackageRepository packageRepository2 = PackageRepositoryMother.create("repo-id2", "repo2", "plugin-id", "1.0", null);
 
@@ -50,13 +50,13 @@ class PackageRepositoriesTest {
     }
 
     @Test
-    void shouldReturnNullIfNoMatchingRepoFound() throws Exception {
+    void shouldReturnNullIfNoMatchingRepoFound() {
         PackageRepositories packageRepositories = new PackageRepositories();
         assertThat(packageRepositories.find("not-found")).isNull();
     }
 
     @Test
-    void shouldGetPackageRepositoryForGivenPackageId() throws Exception {
+    void shouldGetPackageRepositoryForGivenPackageId() {
         PackageRepository repo1 = PackageRepositoryMother.create("repo-id1", "repo1", "plugin-id", "1.0", null);
         PackageDefinition packageDefinitionOne = PackageDefinitionMother.create("pid1", repo1);
         PackageDefinition packageDefinitionTwo = PackageDefinitionMother.create("pid2", repo1);
@@ -75,13 +75,13 @@ class PackageRepositoriesTest {
     }
 
     @Test
-    void shouldReturnNullWhenRepositoryForGivenPackageNotFound() throws Exception {
+    void shouldReturnNullWhenRepositoryForGivenPackageNotFound() {
         PackageRepositories packageRepositories = new PackageRepositories();
         assertThat(packageRepositories.findPackageRepositoryHaving("invalid")).isNull();
     }
 
     @Test
-    void shouldThrowExceptionWhenRepositoryForGivenPackageNotFound() throws Exception {
+    void shouldThrowExceptionWhenRepositoryForGivenPackageNotFound() {
         PackageRepositories packageRepositories = new PackageRepositories();
 
         try {
@@ -93,7 +93,7 @@ class PackageRepositoriesTest {
     }
 
     @Test
-    void shouldFindPackageRepositoryById() throws Exception {
+    void shouldFindPackageRepositoryById() {
         PackageRepositories packageRepositories = new PackageRepositories();
         packageRepositories.add(PackageRepositoryMother.create("repo1"));
         PackageRepository repo2 = PackageRepositoryMother.create("repo2");
@@ -104,7 +104,7 @@ class PackageRepositoriesTest {
     }
 
     @Test
-    void shouldReturnNullExceptionWhenRepoIdIsNotFound() throws Exception {
+    void shouldReturnNullExceptionWhenRepoIdIsNotFound() {
         PackageRepositories packageRepositories = new PackageRepositories();
         try {
             packageRepositories.removePackageRepository("repo1");
@@ -169,7 +169,7 @@ class PackageRepositoriesTest {
     }
 
     @Test
-    void shouldGetPackageDefinitionForGivenPackageId() throws Exception {
+    void shouldGetPackageDefinitionForGivenPackageId() {
         PackageRepository repo1 = PackageRepositoryMother.create("repo-id1", "repo1", "plugin-id", "1.0", null);
         PackageDefinition packageDefinitionOne = PackageDefinitionMother.create("pid1", repo1);
         PackageDefinition packageDefinitionTwo = PackageDefinitionMother.create("pid2", repo1);
@@ -187,12 +187,12 @@ class PackageRepositoriesTest {
     }
 
     @BeforeEach
-    void setup() throws Exception {
+    void setup() {
         RepositoryMetadataStoreHelper.clear();
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         RepositoryMetadataStoreHelper.clear();
     }
 }

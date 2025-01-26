@@ -128,7 +128,7 @@ class DefaultPluginManagerTest {
     }
 
     @Test
-    void shouldSubmitPluginApiRequestToGivenPlugin() throws Exception {
+    void shouldSubmitPluginApiRequestToGivenPlugin() {
         String extensionType = "sample-extension";
         GoPluginApiRequest request = mock(GoPluginApiRequest.class);
         GoPluginApiResponse expectedResponse = mock(GoPluginApiResponse.class);

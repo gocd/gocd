@@ -79,14 +79,14 @@ class ReplaceElasticAgentInformationCommandTest {
     }
 
     @Test
-    void shouldMakeCallToElasticAgentExtensionToMigrateElasticAgentRelatedConfig() throws Exception {
+    void shouldMakeCallToElasticAgentExtensionToMigrateElasticAgentRelatedConfig() {
         replaceElasticAgentInformationCommand.update(basicCruiseConfig);
 
         verify(elasticAgentExtension).migrateConfig(pluginId, new ElasticAgentInformation(Collections.emptyMap(), clusterProfiles, elasticProfiles));
     }
 
     @Test
-    void shouldMakeCallToElasticAgentExtensionToMigrateElasticAgentRelatedConfig_WhenNoPluginSettingsAreConfigured() throws Exception {
+    void shouldMakeCallToElasticAgentExtensionToMigrateElasticAgentRelatedConfig_WhenNoPluginSettingsAreConfigured() {
         replaceElasticAgentInformationCommand = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, pluginDescriptor, new HashMap<>());
 
         replaceElasticAgentInformationCommand.update(basicCruiseConfig);
@@ -95,7 +95,7 @@ class ReplaceElasticAgentInformationCommandTest {
     }
 
     @Test
-    void shouldUpdateGoCDConfigWithPluginReturnedMigratedConfig() throws Exception {
+    void shouldUpdateGoCDConfigWithPluginReturnedMigratedConfig() {
         ElasticConfig elasticConfig = new ElasticConfig();
 
         assertThat(elasticConfig.getProfiles()).hasSize(0);

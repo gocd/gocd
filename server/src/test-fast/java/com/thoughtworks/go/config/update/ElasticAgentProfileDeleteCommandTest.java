@@ -34,12 +34,12 @@ public class ElasticAgentProfileDeleteCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test
-    public void shouldDeleteAProfile() throws Exception {
+    public void shouldDeleteAProfile() {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster");
         cruiseConfig.getElasticConfig().getProfiles().add(elasticProfile);
 
@@ -50,7 +50,7 @@ public class ElasticAgentProfileDeleteCommandTest {
     }
 
     @Test
-    public void shouldRaiseExceptionInCaseProfileDoesNotExist() throws Exception {
+    public void shouldRaiseExceptionInCaseProfileDoesNotExist() {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster");
 
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();
@@ -62,7 +62,7 @@ public class ElasticAgentProfileDeleteCommandTest {
     }
 
     @Test
-    public void shouldNotValidateIfProfileIsInUseByPipeline() throws Exception {
+    public void shouldNotValidateIfProfileIsInUseByPipeline() {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster");
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithJobConfigs("build-linux");
@@ -78,7 +78,7 @@ public class ElasticAgentProfileDeleteCommandTest {
     }
 
     @Test
-    public void shouldValidateIfProfileIsNotInUseByPipeline() throws Exception {
+    public void shouldValidateIfProfileIsNotInUseByPipeline() {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster");
 
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();

@@ -121,7 +121,7 @@ class GoPluginBundleDescriptorBuilderTest {
     }
 
     private void copyPluginToThePluginDirectory(File pluginDir,
-                                                String destinationFilenameOfPlugin) throws IOException, URISyntaxException {
+                                                String destinationFilenameOfPlugin) throws IOException {
         URL resource = getClass().getClassLoader().getResource("defaultFiles/" + destinationFilenameOfPlugin);
         FileUtils.copyURLToFile(resource, new File(pluginDir, destinationFilenameOfPlugin));
     }

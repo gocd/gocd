@@ -231,7 +231,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
     }
 
     @Test
-    public void shouldOfferAllTasksToVisitors() throws Exception {
+    public void shouldOfferAllTasksToVisitors() {
         CruiseConfig config = createCruiseConfig();
         Task task1 = new ExecTask("ls", "-a", "");
         Task task2 = new AntTask();
@@ -272,7 +272,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
     }
 
     @Test
-    public void shouldReturnFalseForEmptyCruiseConfig() throws Exception {
+    public void shouldReturnFalseForEmptyCruiseConfig() {
         CruiseConfig config = createCruiseConfig();
         assertThat(config.hasMultiplePipelineGroups()).isFalse();
     }

@@ -36,21 +36,21 @@ public class ElasticAgentProfileUpdateCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test
-    public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
+    public void shouldRaiseErrorWhenUpdatingNonExistentProfile() {
         cruiseConfig.getElasticConfig().getProfiles().clear();
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(new ElasticProfile("foo", "prod-cluster"), null, new HttpLocalizedOperationResult(), null, null);
         assertThatThrownBy(() -> command.update(cruiseConfig)).isInstanceOf(RecordNotFoundException.class);
     }
 
     @Test
-    public void shouldUpdateExistingProfile() throws Exception {
+    public void shouldUpdateExistingProfile() {
         ElasticProfile oldProfile = new ElasticProfile("foo", "prod-cluster");
         ElasticProfile newProfile = new ElasticProfile("foo", "prod-cluster");
 

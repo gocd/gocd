@@ -77,7 +77,7 @@ public class JobAssignmentIntegrationTest {
     }
 
     @Test
-    public void shouldAssignJobToRemoteAgent() throws UnknownHostException {
+    public void shouldAssignJobToRemoteAgent() {
         AgentInstance local = setupLocalAgent();
         AgentInstance remote = setupRemoteAgent();
         fixture.createPipelineWithFirstStageScheduled();
@@ -93,7 +93,7 @@ public class JobAssignmentIntegrationTest {
     }
 
     @Test
-    public void shouldNotAssignJobToRemoteAgentIfReachedLimit() throws UnknownHostException {
+    public void shouldNotAssignJobToRemoteAgentIfReachedLimit() {
         AgentInstance local = setupLocalAgent();
         AgentInstance remote = setupRemoteAgent();
         AgentInstance remote2 = setupRemoteAgent();
@@ -108,7 +108,7 @@ public class JobAssignmentIntegrationTest {
     }
 
     @Test
-    public void shouldAssignJobToLocalAgentEvenReachedLimit() throws UnknownHostException {
+    public void shouldAssignJobToLocalAgentEvenReachedLimit() {
         AgentInstance local = setupLocalAgent();
         AgentInstance remote = setupRemoteAgent();
         fixture.createPipelineWithFirstStageScheduled();
@@ -128,7 +128,7 @@ public class JobAssignmentIntegrationTest {
         return instance;
     }
 
-    private AgentInstance setupLocalAgent() throws UnknownHostException {
+    private AgentInstance setupLocalAgent() {
         Agent agent = AgentMother.localAgent();
         agentService.saveOrUpdate(agent);
         return AgentInstance.createFromAgent(agent, systemEnvironment, agentStatusChangeListener());

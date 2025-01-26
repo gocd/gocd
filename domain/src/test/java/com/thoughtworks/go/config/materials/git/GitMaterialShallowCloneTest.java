@@ -63,7 +63,7 @@ class GitMaterialShallowCloneTest {
     }
 
     @Test
-    void shouldGetLatestModificationWithShallowClone() throws IOException {
+    void shouldGetLatestModificationWithShallowClone() {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         List<Modification> mods = material.latestModification(workingDir, context());
         assertThat(mods.size()).isEqualTo(1);

@@ -39,7 +39,7 @@ public class MaterialUpdateListenerTest {
     private MaintenanceModeService maintenanceModeService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         topic = mock(MaterialUpdateCompletedTopic.class);
         updater = mock(MaterialDatabaseUpdater.class);
         diskSpaceMonitor = mock(GoDiskSpaceMonitor.class);

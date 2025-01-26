@@ -207,7 +207,7 @@ class ConfigRepoMigratorTest {
     @Nested
     class MigrateV9ToV10 {
         @Test
-        void shouldReplaceWhitelistWithIncludes() throws IOException {
+        void shouldReplaceWhitelistWithIncludes() {
             ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
 
             String oldJSON = documentMother.v9WithWhitelist();
@@ -221,7 +221,7 @@ class ConfigRepoMigratorTest {
     @Nested
     class MigrateV10ToV11 {
         @Test
-        void shouldAddDefaultEchoTask() throws IOException {
+        void shouldAddDefaultEchoTask() {
             ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
 
             String oldJSON = documentMother.v10WithoutTasks();

@@ -386,7 +386,7 @@ public class FaninDependencyResolutionTest {
     }
 
     @Test
-    public void shouldComputeRevisionCorrectlyWhenUpstreamPipelineHasModifications_ForDifferentStages() throws Exception {
+    public void shouldComputeRevisionCorrectlyWhenUpstreamPipelineHasModifications_ForDifferentStages() {
         /*
              /-->P1------\    p2(s1) --> p4
            git           P3
@@ -820,7 +820,7 @@ u.mr(git2, true, "git2_3"),
     }
 
     @Test
-    public void shouldResolveDiamondDependencyWithChildrenDependingOnDifferentStageDependency() throws Exception {
+    public void shouldResolveDiamondDependencyWithChildrenDependingOnDifferentStageDependency() {
         /*
                +---> P3 ---+
                |           v

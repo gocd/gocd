@@ -31,7 +31,7 @@ public class AuthorizationMetadataLoaderTest {
     private PluginManager pluginManager;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(AuthorizationExtension.class);
         infoBuilder = mock(AuthorizationPluginInfoBuilder.class);
         metadataStore = mock(AuthorizationMetadataStore.class);
@@ -39,14 +39,14 @@ public class AuthorizationMetadataLoaderTest {
     }
 
     @Test
-    public void shouldBeAPluginChangeListener() throws Exception {
+    public void shouldBeAPluginChangeListener() {
         AuthorizationMetadataLoader authorizationMetadataLoader = new AuthorizationMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
 
         verify(pluginManager).addPluginChangeListener(eq(authorizationMetadataLoader));
     }
 
     @Test
-    public void onPluginLoaded_shouldAddPluginInfoToMetadataStore() throws Exception {
+    public void onPluginLoaded_shouldAddPluginInfoToMetadataStore() {
         GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         AuthorizationMetadataLoader metadataLoader = new AuthorizationMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(descriptor, null, null, null, null);
@@ -60,7 +60,7 @@ public class AuthorizationMetadataLoaderTest {
     }
 
     @Test
-    public void onPluginLoaded_shouldIgnoreNonAuthorizationPlugins() throws Exception {
+    public void onPluginLoaded_shouldIgnoreNonAuthorizationPlugins() {
         GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         AuthorizationMetadataLoader metadataLoader = new AuthorizationMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
 
@@ -73,7 +73,7 @@ public class AuthorizationMetadataLoaderTest {
     }
 
     @Test
-    public void onPluginUnloded_shouldRemoveTheCorrespondingPluginInfoFromStore() throws Exception {
+    public void onPluginUnloded_shouldRemoveTheCorrespondingPluginInfoFromStore() {
         GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         AuthorizationMetadataLoader metadataLoader = new AuthorizationMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(descriptor, null, null, null, null);

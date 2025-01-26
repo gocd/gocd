@@ -55,7 +55,7 @@ public class PipelineTimelineTest {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         now = new DateTime();
         pipelineRepository = mock(PipelineRepository.class);
         materials = List.of("first", "second", "third", "fourth");

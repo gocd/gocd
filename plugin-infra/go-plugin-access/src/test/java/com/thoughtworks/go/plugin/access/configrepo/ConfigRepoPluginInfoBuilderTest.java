@@ -38,7 +38,7 @@ public class ConfigRepoPluginInfoBuilderTest {
     private ConfigRepoExtension extension;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(ConfigRepoExtension.class);
 
         PluginSettingsConfiguration value = new PluginSettingsConfiguration();
@@ -48,7 +48,7 @@ public class ConfigRepoPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfo() throws Exception {
+    public void shouldBuildPluginInfo() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         when(extension.getPluginSettingsView("plugin1")).thenReturn("some-html");
         when(extension.getCapabilities("plugin1")).thenReturn(new Capabilities(true, true, true, true));
@@ -67,7 +67,7 @@ public class ConfigRepoPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByPlugin() throws Exception {
+    public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByPlugin() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         doThrow(new RuntimeException("foo")).when(extension).getPluginSettingsConfiguration("plugin1");
 

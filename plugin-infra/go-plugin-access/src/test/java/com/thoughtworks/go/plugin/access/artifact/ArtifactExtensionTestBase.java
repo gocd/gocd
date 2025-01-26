@@ -53,7 +53,7 @@ public abstract class ArtifactExtensionTestBase {
     abstract String versionToTestAgainst();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pluginManager = mock(PluginManager.class);
         extensionsRegistry = mock(ExtensionsRegistry.class);
         artifactExtension = new ArtifactExtension(pluginManager, extensionsRegistry);

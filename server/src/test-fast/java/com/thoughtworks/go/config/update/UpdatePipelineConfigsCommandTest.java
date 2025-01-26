@@ -64,7 +64,7 @@ public class UpdatePipelineConfigsCommandTest {
     }
 
     @Test
-    public void shouldReplaceOnlyPipelineConfigsAuthorizationWhileUpdatingTheTemplate() throws Exception {
+    public void shouldReplaceOnlyPipelineConfigsAuthorizationWhileUpdatingTheTemplate() {
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("foo"))));
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
 
@@ -88,7 +88,7 @@ public class UpdatePipelineConfigsCommandTest {
     }
 
     @Test
-    public void commandShouldCopyOverErrors_whenRoleIsInvalid() throws Exception {
+    public void commandShouldCopyOverErrors_whenRoleIsInvalid() {
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("invalidRole"))));
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
 

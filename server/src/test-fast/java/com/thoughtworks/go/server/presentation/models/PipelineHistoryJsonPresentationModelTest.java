@@ -52,7 +52,7 @@ public class PipelineHistoryJsonPresentationModelTest {
     private PipelinePauseInfo pipelinePauseInfo;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pipelineConfig = PipelineConfigMother.pipelineConfig("mingle", StageConfigMother.custom("dev", "defaultJob"),
             StageConfigMother.manualStage("ft"));
         pipelinePauseInfo = PipelinePauseInfo.notPaused();
@@ -79,7 +79,7 @@ public class PipelineHistoryJsonPresentationModelTest {
     }
 
     @AfterEach
-    public void teardown() throws Exception {
+    public void teardown() {
         pipelinePauseInfo.setPaused(false);
     }
 

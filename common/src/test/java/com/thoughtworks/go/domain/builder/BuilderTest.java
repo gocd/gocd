@@ -35,7 +35,7 @@ class BuilderTest {
     private EnvironmentVariableContext environmentVariableContext;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         environmentVariableContext = new EnvironmentVariableContext();
     }
 

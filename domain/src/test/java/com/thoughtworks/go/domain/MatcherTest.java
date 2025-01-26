@@ -76,7 +76,7 @@ class MatcherTest {
     }
 
     @Test
-    void shouldMatchWordBoundaries() throws Exception {
+    void shouldMatchWordBoundaries() {
         assertThat(new Matcher("!!").matches("!!")).isTrue();
         assertThat(new Matcher("ja").matches(" ja")).isTrue();
         assertThat(new Matcher("ja").matches("ja ")).isTrue();
@@ -87,14 +87,14 @@ class MatcherTest {
     }
 
     @Test
-    void shouldNotMatchWordContainsMatcher() throws Exception {
+    void shouldNotMatchWordContainsMatcher() {
         assertThat(new Matcher("ja").matches("javascript")).isFalse();
         assertThat(new Matcher("ja").matches("kaja")).isFalse();
         assertThat(new Matcher("go-cd-dev@googlegroups.com").matches("go-cd-dev")).isFalse();
     }
 
     @Test
-    void shouldEscapeRegexes() throws Exception {
+    void shouldEscapeRegexes() {
         assertThat(new Matcher("[").matches("[")).isTrue();
         assertThat(new Matcher("]").matches("]]")).isTrue();
         assertThat(new Matcher("\\").matches("\\\\")).isTrue();
@@ -110,7 +110,7 @@ class MatcherTest {
     }
 
     @Test
-    void shouldNotMatchAnyThing() throws Exception {
+    void shouldNotMatchAnyThing() {
         assertThat(new Matcher("").matches("ja")).isFalse();
     }
 
@@ -120,7 +120,7 @@ class MatcherTest {
     }
 
     @Test
-    void shouldMatchInMultiLineText() throws Exception {
+    void shouldMatchInMultiLineText() {
         assertThat(new Matcher("abc").matches("abc def\nghi jkl")).isTrue();
         assertThat(new Matcher("ghi").matches("abc def\nghi jkl")).isTrue();
     }

@@ -32,7 +32,7 @@ import static org.mockito.Mockito.mock;
 
 class DefaultPluginLoggingServiceTest {
     @Test
-    void shouldTrimDownLogFileNameToAReasonableSizeIfThePluginIdIsTooBig() throws Exception {
+    void shouldTrimDownLogFileNameToAReasonableSizeIfThePluginIdIsTooBig() {
         assertPluginLogFile("abcd", "plugin-abcd.log");
 
         String pluginIdWithLengthOf189 = repeat("a", 189);

@@ -155,7 +155,7 @@ class TfsSDKCommandTest {
     }
 
     @Test
-    void shouldThrowUpWhenUrlIsInvalid() throws Exception {
+    void shouldThrowUpWhenUrlIsInvalid() {
         TfsSDKCommand tfsCommandForInvalidCollection = new TfsSDKCommand(null, new StringArgument("invalid_url"), DOMAIN, USERNAME, PASSWORD, TFS_WORKSPACE, TFS_PROJECT);
         try {
             tfsCommandForInvalidCollection.init();

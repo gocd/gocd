@@ -30,7 +30,7 @@ public class ConsoleLogSocketCreatorTest {
     private ConsoleLogSocketCreator creator;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         restfulService = mock(RestfulService.class);
 
         request = mock(JettyServerUpgradeRequest.class);
@@ -38,7 +38,7 @@ public class ConsoleLogSocketCreatorTest {
     }
 
     @Test
-    public void createWebSocketParsesJobIdentifierFromURI() throws Exception {
+    public void createWebSocketParsesJobIdentifierFromURI() {
         when(request.getRequestPath()).thenReturn("/console-websocket/pipe/pipeLabel/stage/stageCount/job");
         creator.createWebSocket(request, mock(JettyServerUpgradeResponse.class));
 

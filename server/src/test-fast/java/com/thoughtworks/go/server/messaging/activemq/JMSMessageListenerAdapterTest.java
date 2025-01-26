@@ -74,7 +74,7 @@ public class JMSMessageListenerAdapterTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         // We must reset the consumer to ensure it returns null and the threads exit or they will go-on forever
         // creating a memory leak on the mock invocations
         reset(consumer);

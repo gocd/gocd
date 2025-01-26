@@ -30,14 +30,14 @@ public class RunMultipleInstanceJobTypeConfigTest {
 	}
 
 	@Test
-	public void shouldTellIsInstanceOfCorrectly() throws Exception {
+	public void shouldTellIsInstanceOfCorrectly() {
 		assertThat(jobConfig.isInstanceOf("job-runInstance-1", false)).isTrue();
 		assertThat(jobConfig.isInstanceOf("Job-runInstance-1", true)).isTrue();
 		assertThat(jobConfig.isInstanceOf("Job-runInstance-1", false)).isFalse();
 	}
 
 	@Test
-	public void shouldTranslatedJobNameCorrectly() throws Exception {
+	public void shouldTranslatedJobNameCorrectly() {
 		assertThat(jobConfig.translatedName("crap-runInstance-1")).isEqualTo("job-runInstance-1");
 		assertThat(jobConfig.translatedName("crap")).isEqualTo("job");
 	}

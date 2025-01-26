@@ -30,7 +30,7 @@ public class CreateOrUpdateConfigServerSiteUrlsCommandTest {
     private BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
 
     @Test
-    void shouldAddBackupConfig() throws Exception {
+    void shouldAddBackupConfig() {
         SiteUrls siteUrls = new SiteUrls(new SiteUrl("http://foo"), new SecureSiteUrl("https://bar"));
         CreateOrUpdateConfigServerSiteUrlsCommand command = new CreateOrUpdateConfigServerSiteUrlsCommand(siteUrls);
         command.update(cruiseConfig);

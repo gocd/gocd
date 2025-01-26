@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class NullTaskTest {
     @Test
-    public void shouldNotAllowSettingOfConfigAttributes() throws Exception {
+    public void shouldNotAllowSettingOfConfigAttributes() {
         Task task = new NullTask();
         try {
             task.setConfigAttributes(new HashMap<>());
@@ -35,7 +35,7 @@ public class NullTaskTest {
     }
 
     @Test
-    public void validateShouldReturnNoErrors() throws Exception {
+    public void validateShouldReturnNoErrors() {
         Task task = new NullTask();
         task.validate(null);
         assertThat(task.errors().isEmpty()).isTrue();

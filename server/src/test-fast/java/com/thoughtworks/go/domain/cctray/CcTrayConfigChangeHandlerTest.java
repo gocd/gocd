@@ -54,14 +54,14 @@ public class CcTrayConfigChangeHandlerTest {
     private PluginRoleUsersStore pluginRoleUsersStore;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         goConfigMother = new GoConfigMother();
         handler = new CcTrayConfigChangeHandler(cache, stageStatusLoader, pipelinePermissionsAuthority);
         pluginRoleUsersStore = PluginRoleUsersStore.instance();
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         pluginRoleUsersStore.clearAll();
     }
 

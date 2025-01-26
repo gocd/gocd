@@ -62,7 +62,7 @@ public class JobConfigsTest {
     }
 
     @Test
-    public void shouldValidateTree() throws Exception {
+    public void shouldValidateTree() {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
         JobConfigs jobs = pipelineConfig.get(0).getJobs();
         jobs.add(new JobConfig("quux"));

@@ -116,7 +116,7 @@ public class ScheduleServiceStageTriggerTest {
     }
 
     @Test
-    public void shouldTriggerNextStageByHistoricalOrder() throws Exception {
+    public void shouldTriggerNextStageByHistoricalOrder() {
         // having a pipeline with two stages both are completed
         Pipeline pipeline = preCondition.createdPipelineWithAllStagesPassed();
         // now we reorder the two stages via config from dev -> ft to ft -> dev
@@ -141,7 +141,7 @@ public class ScheduleServiceStageTriggerTest {
     }
 
     @Test
-    public void shouldNotTriggerNextStageFromConfigIfItIsScheduled() throws Exception {
+    public void shouldNotTriggerNextStageFromConfigIfItIsScheduled() {
         // having a pipeline with two stages both are completed
         Pipeline pipeline = preCondition.createdPipelineWithAllStagesPassed();
         Stage oldDevStage = pipeline.getStages().byName(preCondition.devStage);
@@ -163,7 +163,7 @@ public class ScheduleServiceStageTriggerTest {
     }
 
     @Test
-    public void shouldNotRerunCurrentStageInNewerPipeline() throws Exception {
+    public void shouldNotRerunCurrentStageInNewerPipeline() {
         Pipeline olderPipeline = preCondition.createdPipelineWithAllStagesPassed();
         Pipeline newerPipeline = preCondition.createdPipelineWithAllStagesPassed();
         Stage oldFtStage = newerPipeline.getStages().byName(preCondition.ftStage);
@@ -340,7 +340,7 @@ public class ScheduleServiceStageTriggerTest {
         assertThat(exception.getMessage()).isEqualTo("Cannot schedule ft as the previous stage dev has Failed!");
     }
 
-    private void reOrderTwoStages() throws Exception {
+    private void reOrderTwoStages() {
         configHelper.removeStage(preCondition.pipelineName, preCondition.devStage);
         configHelper.addStageToPipeline(preCondition.pipelineName, preCondition.devStage);
     }

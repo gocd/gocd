@@ -28,25 +28,25 @@ public class ConfigurationValueTest {
     }
 
     @Test
-    public void shouldHandleBooleanValueAsAString() throws Exception {
+    public void shouldHandleBooleanValueAsAString() {
         final ConfigurationValue configurationValue = new ConfigurationValue(true);
         assertThat(configurationValue.getValue()).isEqualTo("true");
     }
 
     @Test
-    public void shouldHandleIntegerValueAsAString() throws Exception {
+    public void shouldHandleIntegerValueAsAString() {
         final ConfigurationValue configurationValue = new ConfigurationValue(1);
         assertThat(configurationValue.getValue()).isEqualTo("1");
     }
 
     @Test
-    public void shouldHandleLongValueAsAString() throws Exception {
+    public void shouldHandleLongValueAsAString() {
         final ConfigurationValue configurationValue = new ConfigurationValue(5L);
         assertThat(configurationValue.getValue()).isEqualTo("5");
     }
 
     @Test
-    public void shouldHandleDoubleValueAsAString() throws Exception {
+    public void shouldHandleDoubleValueAsAString() {
         final ConfigurationValue configurationValue = new ConfigurationValue(3.1428571429D);
         assertThat(configurationValue.getValue()).isEqualTo("3.1428571429");
     }

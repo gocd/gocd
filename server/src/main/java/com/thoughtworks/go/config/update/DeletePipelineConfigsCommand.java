@@ -31,7 +31,7 @@ public class DeletePipelineConfigsCommand extends PipelineConfigsCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig preprocessedConfig) {
         preprocessedPipelineConfigs = group;
         preprocessedConfig.deletePipelineGroup(group.getGroup());
     }

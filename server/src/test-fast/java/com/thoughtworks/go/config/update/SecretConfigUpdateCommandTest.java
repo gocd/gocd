@@ -37,14 +37,14 @@ public class SecretConfigUpdateCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test
-    public void shouldRaiseErrorWhenUpdatingNonExistentSecretConfig() throws Exception {
+    public void shouldRaiseErrorWhenUpdatingNonExistentSecretConfig() {
         cruiseConfig.getSecretConfigs().clear();
 
         SecretConfig secretConfig = new SecretConfig("foo", "docker");
@@ -54,7 +54,7 @@ public class SecretConfigUpdateCommandTest {
     }
 
     @Test
-    public void shouldUpdateExistingSecretConfig() throws Exception {
+    public void shouldUpdateExistingSecretConfig() {
         SecretConfig oldConfig = new SecretConfig("foo", "docker");
         SecretConfig newConfig = new SecretConfig("foo", "aws");
 

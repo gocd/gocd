@@ -34,7 +34,7 @@ public class StageActiveCheckerTest {
     private OperationResult result;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         service = mock(StageService.class);
         pipelineName = "cruise";
         stageName = "dev";
@@ -50,7 +50,7 @@ public class StageActiveCheckerTest {
     }
 
     @Test
-    public void shouldBeAConflictOperationResultWhenStageAlreadyScheduled() throws Exception {
+    public void shouldBeAConflictOperationResultWhenStageAlreadyScheduled() {
         when(service.isStageActive(pipelineName, stageName)).thenReturn(true);
         checker.check(result);
         verify(result).conflict(eq("Failed to trigger pipeline [cruise]"), eq("Stage [dev] in pipeline [cruise] is still in progress"), any(HealthStateType.class));

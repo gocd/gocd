@@ -31,7 +31,7 @@ public class StageLockCheckerTest {
     private HttpOperationResult result;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         lockService = mock(PipelineLockService.class);
         pipeline = new PipelineIdentifier("mingle", 10, "2.0.10");
         checker = new StageLockChecker(pipeline, lockService);

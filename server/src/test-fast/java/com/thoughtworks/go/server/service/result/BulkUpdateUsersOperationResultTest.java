@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BulkUpdateUsersOperationResultTest {
     @Test
-    public void isSuccessfulIfThereAreNoEnabledOrNonExistentUsers() throws Exception {
+    public void isSuccessfulIfThereAreNoEnabledOrNonExistentUsers() {
         assertThat(new BulkUpdateUsersOperationResult().isEmpty()).isTrue();
     }
 }

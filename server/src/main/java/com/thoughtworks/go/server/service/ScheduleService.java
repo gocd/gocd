@@ -508,7 +508,7 @@ public class ScheduleService {
 
             transactionTemplate.executeWithExceptionHandling(new com.thoughtworks.go.server.transaction.TransactionCallbackWithoutResult() {
                 @Override
-                public void doInTransactionWithoutResult(TransactionStatus status) throws Exception {
+                public void doInTransactionWithoutResult(TransactionStatus status) {
                     automaticallyTriggerRelevantStagesFollowingCompletionOf(stage);
                 }
             });

@@ -34,14 +34,14 @@ public class DigestObjectPoolsTest {
     private DigestObjectPools pools;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         pools = new DigestObjectPools();
         pools.clearThreadLocals();
 
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         pools.clearThreadLocals();
     }
 
@@ -53,7 +53,7 @@ public class DigestObjectPoolsTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionWhenTheAlgorithmIsUnknown() throws IOException {
+    public void shouldThrowIllegalArgumentExceptionWhenTheAlgorithmIsUnknown() {
         DigestObjectPools.DigestOperation operation = mock(DigestObjectPools.DigestOperation.class);
         try {
             pools.computeDigest("upside_down_fred_rubble_bubble_cake", operation);

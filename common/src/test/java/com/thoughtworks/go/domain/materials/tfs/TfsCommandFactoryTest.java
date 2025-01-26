@@ -43,7 +43,7 @@ public class TfsCommandFactoryTest {
     }
 
     @Test
-    public void shouldReturnSdkCommand() throws Exception {
+    public void shouldReturnSdkCommand() {
         TfsCommand expectedTfsCommand = mock(TfsCommand.class);
         TfsCommandFactory spyCommandFactory = spy(tfsCommandFactory);
         TfsSDKCommandBuilder commandBuilder = mock(TfsSDKCommandBuilder.class);

@@ -52,7 +52,7 @@ public class FileHandler implements FetchHandler {
     }
 
     @Override
-    public String url(String remoteHost, String workingUrl) throws IOException {
+    public String url(String remoteHost, String workingUrl) {
         boolean fileExist = artifact.exists();
         LOG.debug("Requesting the file [{}], exist? [{}]", artifact.getAbsolutePath(), fileExist);
         if (fileExist && artifact.isFile()) {

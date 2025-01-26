@@ -59,7 +59,7 @@ public class RoleConfigCommandTest {
     private AuthorizationExtension extension;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
         extension = mock(AuthorizationExtension.class);
@@ -67,7 +67,7 @@ public class RoleConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() throws Exception {
+    public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
         PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
 
@@ -80,7 +80,7 @@ public class RoleConfigCommandTest {
     }
 
     @Test
-    public void shouldContinueWithConfigSaveIfUserIsAuthorized() throws Exception {
+    public void shouldContinueWithConfigSaveIfUserIsAuthorized() {
         PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
@@ -93,7 +93,7 @@ public class RoleConfigCommandTest {
     }
 
     @Test
-    public void shouldNotContinueWithConfigSaveIfUserIsGroupAdmin() throws Exception {
+    public void shouldNotContinueWithConfigSaveIfUserIsGroupAdmin() {
         PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         when(goConfigService.isGroupAdministrator(currentUser)).thenReturn(true);
@@ -107,7 +107,7 @@ public class RoleConfigCommandTest {
     }
 
     @Test
-    public void isValid_shouldValidateTheUpdatedRoleConfig() throws Exception {
+    public void isValid_shouldValidateTheUpdatedRoleConfig() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         PluginRoleConfig pluginRoleConfig = new PluginRoleConfig(null, "ldap");
         cruiseConfig.server().security().addRole(pluginRoleConfig);
@@ -122,7 +122,7 @@ public class RoleConfigCommandTest {
     }
 
     @Test
-    public void isValid_shouldValidationRolesWithNonUniqueNamesAcrossPluginType() throws Exception {
+    public void isValid_shouldValidationRolesWithNonUniqueNamesAcrossPluginType() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         PluginRoleConfig pluginRoleConfig = new PluginRoleConfig("test", "ldap");
         cruiseConfig.server().security().addRole(pluginRoleConfig);
@@ -149,7 +149,7 @@ public class RoleConfigCommandTest {
     }
 
     @Test
-    public void shouldContinueWithConfigSaveIfUserIsAdmin() throws Exception {
+    public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
@@ -161,7 +161,7 @@ public class RoleConfigCommandTest {
     }
 
     @Test
-    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() throws Exception {
+    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() {
         PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
 
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
@@ -247,7 +247,7 @@ public class RoleConfigCommandTest {
         }
 
         @Override
-        public void update(CruiseConfig preprocessedConfig) throws Exception {
+        public void update(CruiseConfig preprocessedConfig) {
 
         }
     }

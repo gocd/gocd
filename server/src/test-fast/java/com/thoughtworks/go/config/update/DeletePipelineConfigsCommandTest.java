@@ -52,7 +52,7 @@ public class DeletePipelineConfigsCommandTest {
     }
 
     @Test
-    public void commandShouldDeletePipelineGroupWhenEmpty() throws Exception {
+    public void commandShouldDeletePipelineGroupWhenEmpty() {
         DeletePipelineConfigsCommand command = new DeletePipelineConfigsCommand(pipelineConfigs, new HttpLocalizedOperationResult(), user, securityService);
         command.update(cruiseConfig);
 
@@ -60,7 +60,7 @@ public class DeletePipelineConfigsCommandTest {
     }
 
     @Test
-    public void commandShouldNotContinue_whenDeletingNonEmptyPipelineGroup() throws Exception {
+    public void commandShouldNotContinue_whenDeletingNonEmptyPipelineGroup() {
         pipelineConfigs.add(new PipelineConfig());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         DeletePipelineConfigsCommand command = new DeletePipelineConfigsCommand(pipelineConfigs, result, user, securityService);

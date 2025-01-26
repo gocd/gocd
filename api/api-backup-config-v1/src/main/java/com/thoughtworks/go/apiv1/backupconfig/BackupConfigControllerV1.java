@@ -102,7 +102,7 @@ public class BackupConfigControllerV1 extends ApiController implements SparkSpri
         return show(req, res);
     }
 
-    public String deleteBackupConfig(Request req, Response res) throws IOException {
+    public String deleteBackupConfig(Request req, Response res) {
         // to throw a NFE, if none is available
         fetchEntityFromConfig();
 

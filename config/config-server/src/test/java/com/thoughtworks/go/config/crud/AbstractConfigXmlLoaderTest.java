@@ -27,13 +27,13 @@ public abstract class AbstractConfigXmlLoaderTest {
     ConfigCache configCache = new ConfigCache();
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         SCMMetadataStore.getInstance().clear();
         xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         SCMMetadataStore.getInstance().clear();
     }
 }

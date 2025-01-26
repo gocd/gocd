@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LevelAssignmentTest {
 
     @Test
-    public void shouldAssignLevelsForUpstreamNodesOfCurrentPipeline() throws Exception {
+    public void shouldAssignLevelsForUpstreamNodesOfCurrentPipeline() {
 
         /*
         ---> p1 ---
@@ -64,7 +64,7 @@ public class LevelAssignmentTest {
     }
 
     @Test
-    public void shouldAssignLevelsForDownstreamNodesOfCurrentPipeline() throws Exception {
+    public void shouldAssignLevelsForDownstreamNodesOfCurrentPipeline() {
 
     	/*
                 ---> p1 ----
@@ -106,7 +106,7 @@ public class LevelAssignmentTest {
     }
 
 	@Test
-	public void shouldAssignLevelsForDownstreamNodesOfCurrentMaterial() throws Exception {
+	public void shouldAssignLevelsForDownstreamNodesOfCurrentMaterial() {
 
 		/*
 				---> p1 ----

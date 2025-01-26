@@ -130,7 +130,7 @@ public class SecurityServiceTest {
     }
 
     @Test
-    public void shouldSayThatAUserIsAuthorizedToEditTemplateWhenTheUserIsAnAdminOfThisTemplate() throws Exception {
+    public void shouldSayThatAUserIsAuthorizedToEditTemplateWhenTheUserIsAnAdminOfThisTemplate() {
         CruiseConfig config = new BasicCruiseConfig();
         CaseInsensitiveString templateName = new CaseInsensitiveString("template");
         CaseInsensitiveString templateAdminName = new CaseInsensitiveString("templateAdmin");
@@ -147,7 +147,7 @@ public class SecurityServiceTest {
     }
 
     @Test
-    public void shouldSayThatAUserIsAuthorizedToEditTemplateWhenTheUserIsASuperAdmin() throws Exception {
+    public void shouldSayThatAUserIsAuthorizedToEditTemplateWhenTheUserIsASuperAdmin() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         String adminName = "theSuperAdmin";
         CaseInsensitiveString templateName = new CaseInsensitiveString("template");
@@ -162,7 +162,7 @@ public class SecurityServiceTest {
     }
 
     @Test
-    public void shouldSayThatAUserIsAuthorizedToViewAndEditTemplatesWhenTheUserHasPermissionsForAtLeastOneTemplate() throws Exception {
+    public void shouldSayThatAUserIsAuthorizedToViewAndEditTemplatesWhenTheUserHasPermissionsForAtLeastOneTemplate() {
         CruiseConfig config = new BasicCruiseConfig();
         String theSuperAdmin = "theSuperAdmin";
         String templateName = "template";

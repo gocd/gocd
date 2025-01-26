@@ -121,7 +121,7 @@ public class JobInstanceServiceIntegrationTest {
     }
 
     @Test
-    public void shouldOnlyLoad25JobsFromLatestStage() throws Exception {
+    public void shouldOnlyLoad25JobsFromLatestStage() {
         StageConfig devStage = pipelineFixture.devStage();
 
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
@@ -159,7 +159,7 @@ public class JobInstanceServiceIntegrationTest {
     }
 
     @Test
-    public void shouldContainIdentifierAfterSaved() throws Exception {
+    public void shouldContainIdentifierAfterSaved() {
         final Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
 
         JobConfig jobConfig = pipelineFixture.devStage().allBuildPlans().first();
@@ -180,7 +180,7 @@ public class JobInstanceServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFindCurrentJobsOrderedByName() throws Exception {
+    public void shouldFindCurrentJobsOrderedByName() {
         StageConfig stageConfig = StageConfigMother.custom("dev", "build", "alpha");
         Stage stage = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5-test", new TimeProvider());
 
@@ -197,7 +197,7 @@ public class JobInstanceServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFindAllCopiesOfJobsRunOnAllAgents() throws Exception {
+    public void shouldFindAllCopiesOfJobsRunOnAllAgents() {
         StageConfig stageConfig = StageConfigMother.custom("dev", "build");
         JobConfig jobConfig = stageConfig.jobConfigByInstanceName("build", true);
         jobConfig.setRunOnAllAgents(true);
@@ -220,7 +220,7 @@ public class JobInstanceServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFindAllCopiesOfJobsRunMultipleInstance() throws Exception {
+    public void shouldFindAllCopiesOfJobsRunMultipleInstance() {
         StageConfig stageConfig = StageConfigMother.custom("dev", "build");
         JobConfig jobConfig = stageConfig.jobConfigByInstanceName("build", true);
         jobConfig.setRunInstanceCount(2);
@@ -241,7 +241,7 @@ public class JobInstanceServiceIntegrationTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfThereAreNoJobsToBeScheduled() throws Exception {
+    public void shouldThrowExceptionIfThereAreNoJobsToBeScheduled() {
         StageConfig stageConfig = StageConfigMother.custom("dev", "build");
         JobConfig jobConfig = stageConfig.jobConfigByInstanceName("build", true);
         jobConfig.setRunOnAllAgents(true);
@@ -341,7 +341,7 @@ public class JobInstanceServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLoadAllBuildingJobs() throws SQLException {
+    public void shouldLoadAllBuildingJobs() {
         PipelineConfig goConfig = PipelineMother.withSingleStageWithMaterials("go", "dev", withBuildPlans("unit"));
         Stage goDev = dbHelper.schedulePipeline(goConfig, new TimeProvider()).getStages().get(0);
         dbHelper.buildingBuildInstance(goDev);
@@ -358,7 +358,7 @@ public class JobInstanceServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFailRequestedJobAndNotifyStageChange() throws SQLException {
+    public void shouldFailRequestedJobAndNotifyStageChange() {
         PipelineConfig goConfig = PipelineMother.withSingleStageWithMaterials("go", "dev", withBuildPlans("unit"));
         Stage goDev = dbHelper.schedulePipeline(goConfig, new TimeProvider()).getStages().get(0);
         dbHelper.buildingBuildInstance(goDev);

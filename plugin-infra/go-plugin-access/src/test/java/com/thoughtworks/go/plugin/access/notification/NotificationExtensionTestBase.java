@@ -59,7 +59,7 @@ public abstract class NotificationExtensionTestBase {
     protected ExtensionsRegistry extensionsRegistry;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         notificationExtension = new NotificationExtension(pluginManager, extensionsRegistry);
         notificationExtension.getPluginSettingsMessageHandlerMap().put(apiVersion(), pluginSettingsJSONMessageHandler());
         notificationExtension.getMessageHandlerMap().put(apiVersion(), jsonMessageHandler());
@@ -96,7 +96,7 @@ public abstract class NotificationExtensionTestBase {
     }
 
     @Test
-    public void shouldTalkToPluginToGetPluginSettingsView() throws Exception {
+    public void shouldTalkToPluginToGetPluginSettingsView() {
         String deserializedResponse = "";
         when(pluginSettingsJSONMessageHandler().responseMessageForPluginSettingsView(RESPONSE_BODY)).thenReturn(deserializedResponse);
 
@@ -108,7 +108,7 @@ public abstract class NotificationExtensionTestBase {
     }
 
     @Test
-    public void shouldTalkToPluginToValidatePluginSettings() throws Exception {
+    public void shouldTalkToPluginToValidatePluginSettings() {
         String requestBody = "expected-request";
         when(pluginSettingsJSONMessageHandler().requestMessageForPluginSettingsValidation(pluginSettingsConfiguration)).thenReturn(requestBody);
         ValidationResult deserializedResponse = new ValidationResult();
@@ -122,7 +122,7 @@ public abstract class NotificationExtensionTestBase {
     }
 
     @Test
-    public void shouldTalkToPluginToGetNotificationsInterestedIn() throws Exception {
+    public void shouldTalkToPluginToGetNotificationsInterestedIn() {
         List<String> response = List.of("pipeline-status", "stage-status");
         when(jsonMessageHandler().responseMessageForNotificationsInterestedIn(RESPONSE_BODY)).thenReturn(response);
 
@@ -134,7 +134,7 @@ public abstract class NotificationExtensionTestBase {
     }
 
     @Test
-    public void shouldTalkToPluginToNotify() throws Exception {
+    public void shouldTalkToPluginToNotify() {
         Result response = new Result();
         String notificationName = "notification-name";
         String jsonResponse = "json-response";

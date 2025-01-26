@@ -89,7 +89,7 @@ public class RolesConfigTest {
     }
 
     @Test
-    public void shouldBeAbleToFetchPluginRolesForAAuthConfig() throws Exception {
+    public void shouldBeAbleToFetchPluginRolesForAAuthConfig() {
         PluginRoleConfig admin = new PluginRoleConfig("admin", "corporate_ldap");
         PluginRoleConfig view = new PluginRoleConfig("view", "corporate_ldap");
         PluginRoleConfig operator = new PluginRoleConfig("operator", "internal_ldap");
@@ -129,7 +129,7 @@ public class RolesConfigTest {
     }
 
     @Test
-    public void isUniqueRoleName_shouldBeTrueIfRolesAreUnique() throws Exception {
+    public void isUniqueRoleName_shouldBeTrueIfRolesAreUnique() {
         RolesConfig rolesConfig = new RolesConfig(new RoleConfig(new CaseInsensitiveString("admin")),
                 new RoleConfig(new CaseInsensitiveString("view")));
 
@@ -138,7 +138,7 @@ public class RolesConfigTest {
     }
 
     @Test
-    public void isUniqueRoleName_shouldBeFalseWithMultipleRolesWithSameName() throws Exception {
+    public void isUniqueRoleName_shouldBeFalseWithMultipleRolesWithSameName() {
         RolesConfig rolesConfig = new RolesConfig(new RoleConfig(new CaseInsensitiveString("admin")),
                 new RoleConfig(new CaseInsensitiveString("view")),
                 new RoleConfig(new CaseInsensitiveString("view")));

@@ -50,7 +50,7 @@ public class ArtifactStoreConfigCommandTest {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         currentUser = new Username("bob");
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }

@@ -34,13 +34,13 @@ public class GoDashboardStageStatusChangeHandlerTest {
     private GoDashboardStageStatusChangeHandler handler;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         handler = new GoDashboardStageStatusChangeHandler(cacheUpdateService);
     }
 
     @Test
-    public void shouldRefreshPipelineInCacheWhenStageStatusChanges() throws Exception {
+    public void shouldRefreshPipelineInCacheWhenStageStatusChanges() {
         handler.call(StageMother.scheduledStage("pipeline1", 1, "stage1", 2, "job1"));
 
         verify(cacheUpdateService).updateCacheForPipeline(new CaseInsensitiveString("pipeline1"));

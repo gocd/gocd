@@ -56,7 +56,7 @@ public class MaterialExpansionServiceCachingTest {
     private static MaterialExpansionService materialExpansionService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         materialExpansionService = new MaterialExpansionService(goCache, materialConfigConverter, secretParamResolver);
     }
 

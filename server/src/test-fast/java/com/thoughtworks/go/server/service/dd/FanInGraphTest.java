@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class FanInGraphTest {
     @Test
-    public void shouldConstructAFaninGraph() throws Exception {
+    public void shouldConstructAFaninGraph() {
         GitMaterialConfig git = git("giturl", "dest");
         HgMaterialConfig hg = hg("hgurl", "dest");
         PipelineConfig p1 = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(git));

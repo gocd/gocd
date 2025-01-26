@@ -58,7 +58,7 @@ class CreateSessionFilterChainTest {
     }
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         response = new MockHttpServletResponse();
         request = new MockHttpServletRequest();
         apiSessionReduceIdleTimeoutFilter = spy(new ApiSessionReduceIdleTimeoutFilter(new SystemEnvironment()));

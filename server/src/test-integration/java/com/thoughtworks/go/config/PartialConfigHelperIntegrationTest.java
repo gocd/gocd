@@ -47,7 +47,7 @@ public class PartialConfigHelperIntegrationTest {
     PartialConfigHelper helper;
 
     @Test
-    public void shouldAnswerWhetherPartialConfigsAreEquivalent() throws Exception {
+    public void shouldAnswerWhetherPartialConfigsAreEquivalent() {
         assertTrue(helper.isEquivalent(git("1"), git("1")));
 
         assertFalse(helper.isEquivalent(git("1"), git("2")));

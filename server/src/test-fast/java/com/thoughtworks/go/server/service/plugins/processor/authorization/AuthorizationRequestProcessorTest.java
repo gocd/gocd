@@ -51,7 +51,7 @@ public class AuthorizationRequestProcessorTest {
     private SecurityAuthConfigs securityAuthConfigsSpy;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         when(pluginDescriptor.id()).thenReturn("cd.go.authorization.github");
         lenient().when(goConfigService.security()).thenReturn(securityConfig);
         securityAuthConfigsSpy = spy(new SecurityAuthConfigs());
@@ -59,7 +59,7 @@ public class AuthorizationRequestProcessorTest {
     }
 
     @Test
-    public void shouldProcessInvalidateCacheRequest() throws Exception {
+    public void shouldProcessInvalidateCacheRequest() {
         PluginRoleService pluginRoleService = mock(PluginRoleService.class);
 
         GoApiRequest request = new DefaultGoApiRequest(INVALIDATE_CACHE_REQUEST.requestName(), "1.0", null);

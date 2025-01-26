@@ -429,7 +429,7 @@ public abstract class GoConfigDaoTestBase {
         }
 
         @Override
-        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+        public CruiseConfig update(CruiseConfig cruiseConfig) {
             wasUpdated = true;
             return cruiseConfig;
         }

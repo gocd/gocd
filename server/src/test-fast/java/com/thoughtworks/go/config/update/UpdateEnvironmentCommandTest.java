@@ -55,7 +55,7 @@ public class UpdateEnvironmentCommandTest {
     private EntityHashingService entityHashingService;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         oldEnvironmentName = new CaseInsensitiveString("Dev");
@@ -69,7 +69,7 @@ public class UpdateEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldUpdateTheSpecifiedEnvironment() throws Exception {
+    public void shouldUpdateTheSpecifiedEnvironment() {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, digest, entityHashingService, result);
 
         assertFalse(cruiseConfig.getEnvironments().hasEnvironmentNamed(newEnvironmentName));
@@ -78,7 +78,7 @@ public class UpdateEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldValidateInvalidPipelines() throws Exception {
+    public void shouldValidateInvalidPipelines() {
         newEnvironmentConfig.addPipeline(new CaseInsensitiveString("Invalid-pipeline-name"));
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, digest, entityHashingService, result);
         command.update(cruiseConfig);
@@ -90,7 +90,7 @@ public class UpdateEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldValidateDuplicateEnvironmentVariables() throws Exception {
+    public void shouldValidateDuplicateEnvironmentVariables() {
         newEnvironmentConfig.addEnvironmentVariable("foo", "bar");
         newEnvironmentConfig.addEnvironmentVariable("foo", "baz");
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, digest, entityHashingService, result);
@@ -107,7 +107,7 @@ public class UpdateEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserSubmittedStaleEtag() throws Exception {
+    public void shouldNotContinueIfTheUserSubmittedStaleEtag() {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, digest, entityHashingService, result);
         when(entityHashingService.hashForEntity(oldEnvironmentConfig)).thenReturn("foo");
         assertThat(command.canContinue(cruiseConfig)).isFalse();

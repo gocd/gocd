@@ -45,7 +45,7 @@ public class ElasticAgentPluginRegistryTest {
     private ElasticAgentPluginRegistry elasticAgentPluginRegistry;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         elasticAgentPluginRegistry = new ElasticAgentPluginRegistry(pluginManager, elasticAgentExtension);
 
         when(elasticAgentExtension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);

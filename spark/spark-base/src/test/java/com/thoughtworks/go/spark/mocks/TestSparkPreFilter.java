@@ -30,7 +30,7 @@ public class TestSparkPreFilter extends SparkFilter {
     }
 
     @Override
-    protected SparkApplication[] getApplications(FilterConfig filterConfig) throws ServletException {
+    protected SparkApplication[] getApplications(FilterConfig filterConfig) {
         return new SparkApplication[]{application};
     }
 }

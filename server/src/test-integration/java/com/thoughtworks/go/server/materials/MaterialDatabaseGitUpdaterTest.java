@@ -42,7 +42,7 @@ public class MaterialDatabaseGitUpdaterTest extends TestBaseForDatabaseUpdater {
     }
 
     @Test
-    public void shouldRemoveFlyweightWhenConfiguredBranchDoesNotExist() throws Exception {
+    public void shouldRemoveFlyweightWhenConfiguredBranchDoesNotExist() {
         material = new GitMaterial(testRepo.projectRepositoryUrl(), "bad-bad-branch");
 
         // Ensure we start clean

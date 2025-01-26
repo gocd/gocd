@@ -59,7 +59,7 @@ public class PipelineGroupsTest {
     }
 
     @Test
-    public void shouldRemovePipelineFromTheGroup() throws Exception {
+    public void shouldRemovePipelineFromTheGroup() {
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline1", "stage1");
         PipelineConfigs defaultGroup = createGroup("defaultGroup", pipelineConfig);
         PipelineGroups pipelineGroups = new PipelineGroups(defaultGroup);
@@ -179,7 +179,7 @@ public class PipelineGroupsTest {
     }
 
     @Test
-    public void shouldGetPackageUsageInPipelines() throws Exception {
+    public void shouldGetPackageUsageInPipelines() {
         PackageMaterialConfig packageOne = new PackageMaterialConfig("package-id-one");
         PackageMaterialConfig packageTwo = new PackageMaterialConfig("package-id-two");
         final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(packageOne, packageTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
@@ -199,7 +199,7 @@ public class PipelineGroupsTest {
     }
 
     @Test
-    public void shouldComputePackageUsageInPipelinesOnlyOnce() throws Exception {
+    public void shouldComputePackageUsageInPipelinesOnlyOnce() {
         PackageMaterialConfig packageOne = new PackageMaterialConfig("package-id-one");
         PackageMaterialConfig packageTwo = new PackageMaterialConfig("package-id-two");
         final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(packageOne, packageTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
@@ -214,7 +214,7 @@ public class PipelineGroupsTest {
     }
 
     @Test
-    public void shouldGetPluggableSCMMaterialUsageInPipelines() throws Exception {
+    public void shouldGetPluggableSCMMaterialUsageInPipelines() {
         PluggableSCMMaterialConfig pluggableSCMMaterialOne = new PluggableSCMMaterialConfig("scm-id-one");
         PluggableSCMMaterialConfig pluggableSCMMaterialTwo = new PluggableSCMMaterialConfig("scm-id-two");
         final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(pluggableSCMMaterialOne, pluggableSCMMaterialTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
@@ -279,7 +279,7 @@ public class PipelineGroupsTest {
     }
 
     @Test
-    public void shouldFindGroupByPipelineName() throws Exception {
+    public void shouldFindGroupByPipelineName() {
         PipelineConfig p1Config = createPipelineConfig("pipeline1", "stage1");
         PipelineConfig p2Config = createPipelineConfig("pipeline2", "stage1");
         PipelineConfig p3Config = createPipelineConfig("pipeline3", "stage1");

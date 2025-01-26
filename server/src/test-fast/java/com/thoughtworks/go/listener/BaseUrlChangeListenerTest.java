@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 public class BaseUrlChangeListenerTest {
 
     @Test
-    public void shouldFlushCacheWhenBaseUrlConfigChangesAndUpdateTheSiteURLAndSecureSiteURLToTheNewValues() throws IOException {
+    public void shouldFlushCacheWhenBaseUrlConfigChangesAndUpdateTheSiteURLAndSecureSiteURLToTheNewValues() {
         GoCache cache = mock(GoCache.class);
         BaseUrlChangeListener listener = new BaseUrlChangeListener(new SiteUrl(""),
                 new SecureSiteUrl(""), cache);

@@ -45,12 +45,12 @@ public class CcTrayStageStatusLoaderTest {
     private CcTrayStageStatusLoader loader;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         loader = new CcTrayStageStatusLoader(stageDao, stageChangeHandler);
     }
 
     @Test
-    public void shouldNotHaveAnyStatusesIfAStageCannotBeFoundInDB() throws Exception {
+    public void shouldNotHaveAnyStatusesIfAStageCannotBeFoundInDB() {
         setupStagesInDB(new StageIdentity("pipeline1", "stage1", 12L), new StageIdentity("pipeline2", "stage2", 14L));
 
         List<ProjectStatus> actualStatuses = loader.getStatusesForStageAndJobsOf(pipelineConfigFor("pipeline1"), stageConfigFor("non-existent-stage"));
@@ -59,7 +59,7 @@ public class CcTrayStageStatusLoaderTest {
     }
 
     @Test
-    public void shouldConvertToStatusesIfAStageIsFoundInDB() throws Exception {
+    public void shouldConvertToStatusesIfAStageIsFoundInDB() {
         List<ProjectStatus> expectedStatuses = List.of(new ProjectStatus("pipeline1 :: stage1", "Sleeping", "some-status", "some-label", new Date(), "some-url"));
         List<Stage> stages = setupStagesInDB(new StageIdentity("pipeline1", "stage1", 12L), new StageIdentity("pipeline2", "stage2", 14L));
         when(stageChangeHandler.statusesOfStageAndItsJobsFor(stages.get(0))).thenReturn(expectedStatuses);
@@ -70,7 +70,7 @@ public class CcTrayStageStatusLoaderTest {
     }
 
     @Test
-    public void shouldCacheResultOfLatestStageInstancesOnce() throws Exception {
+    public void shouldCacheResultOfLatestStageInstancesOnce() {
         setupStagesInDB(new StageIdentity("pipeline1", "stage1", 12L), new StageIdentity("pipeline2", "stage2", 14L));
 
         loader.getStatusesForStageAndJobsOf(pipelineConfigFor("pipeline1"), stageConfigFor("stage1"));

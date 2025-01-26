@@ -54,7 +54,7 @@ public class StageResultTest {
     }
 
     @Test
-    public void shouldMakeSureThatAnyChangeToThisEnumIsReflectedInQueriesInStagesXML() throws Exception {
+    public void shouldMakeSureThatAnyChangeToThisEnumIsReflectedInQueriesInStagesXML() {
         assertThat(StageResult.values().length).isEqualTo(4);
         List<StageResult> actualStageResults = List.of(StageResult.values());
 

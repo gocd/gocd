@@ -86,7 +86,7 @@ public class ServerHealthStateTest {
     }
 
     @Test
-    public void shouldExpireAfterTheExpiryTime() throws Exception {
+    public void shouldExpireAfterTheExpiryTime() {
         testingClock.setTime(new Date());
         ServerHealthState expireInFiveMins = ServerHealthState.warning("message", "desc", HealthStateType.databaseDiskFull(), Timeout.FIVE_MINUTES);
         ServerHealthState expireNever = ServerHealthState.warning("message", "desc", HealthStateType.databaseDiskFull());

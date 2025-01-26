@@ -73,7 +73,7 @@ public class BackupServiceTest {
     private ArtifactsDirHolder artifactsDirHolder;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         lenient().when(systemEnvironment.getConfigDir()).thenReturn(configDir.getAbsolutePath());
         lenient().when(configRepo.doLocked(any())).thenCallRealMethod();
     }

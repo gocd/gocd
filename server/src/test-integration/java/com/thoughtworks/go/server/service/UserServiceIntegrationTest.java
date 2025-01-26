@@ -180,7 +180,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveNotificationFilterForUser() throws ValidationException {
+    public void shouldRemoveNotificationFilterForUser() {
         User user = new User("jez", new String[]{"jez"}, "user@mail.com", true);
         addUser(user);
         user = userDao.findUser(user.getName());
@@ -194,7 +194,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAddDuplicateNotificationFilter() throws ValidationException {
+    public void shouldNotAddDuplicateNotificationFilter() {
         User user = new User("jez", new String[]{"jez"}, "user@mail.com", true);
         NotificationFilter filter = new NotificationFilter("pipeline1", "stage", StageEvent.Fixed, false);
         addUserWithNotificationFilter(user, filter);
@@ -240,7 +240,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLoadAuthorizedUser() throws Exception {
+    public void shouldLoadAuthorizedUser() {
         givingJezViewPermissionToMingle();
 
         User tom = new User("tom", new String[]{"tom"}, "tom@mail.com", true);
@@ -351,7 +351,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnErrorMessageWhenTheLastAdminIsBeingDisabled() throws Exception {
+    public void shouldReturnErrorMessageWhenTheLastAdminIsBeingDisabled() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         configFileHelper.enableSecurity();
@@ -731,7 +731,7 @@ public class UserServiceIntegrationTest {
         return models;
     }
 
-    private void givingJezViewPermissionToMingle() throws Exception {
+    private void givingJezViewPermissionToMingle() {
         configFileHelper.enableSecurity();
         configFileHelper.addPipeline("mingle", "dev");
         configFileHelper.setViewPermissionForGroup("defaultGroup", "jez");

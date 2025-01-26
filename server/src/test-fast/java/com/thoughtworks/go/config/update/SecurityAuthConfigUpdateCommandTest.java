@@ -37,21 +37,21 @@ public class SecurityAuthConfigUpdateCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test
-    public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
+    public void shouldRaiseErrorWhenUpdatingNonExistentProfile() {
         cruiseConfig.server().security().securityAuthConfigs().clear();
         SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(null, new SecurityAuthConfig("foo", "ldap"), null, null, new HttpLocalizedOperationResult(), null, null);
         assertThatThrownBy(() -> command.update(cruiseConfig)).isInstanceOf(RecordNotFoundException.class);
     }
 
     @Test
-    public void shouldUpdateExistingProfile() throws Exception {
+    public void shouldUpdateExistingProfile() {
         SecurityAuthConfig oldAuthConfig = new SecurityAuthConfig("foo", "ldap");
         SecurityAuthConfig newAuthConfig = new SecurityAuthConfig("foo", "github");
 

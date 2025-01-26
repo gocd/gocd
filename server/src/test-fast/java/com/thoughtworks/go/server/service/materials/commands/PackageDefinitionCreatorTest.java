@@ -52,7 +52,7 @@ public class PackageDefinitionCreatorTest {
     }
 
     @Test
-    public void testCreateNewPackageDefinition() throws Exception {
+    public void testCreateNewPackageDefinition() {
         Map<String, Object> params = PackageDefinitionMother.paramsForPackageMaterialCreation(repoId, pkgName);
 
         PackageDefinitionCreator packageDefinitionCreator = new PackageDefinitionCreator(packageDefinitionService, params);
@@ -66,7 +66,7 @@ public class PackageDefinitionCreatorTest {
     }
 
     @Test
-    public void testGetPackageDefinition() throws Exception {
+    public void testGetPackageDefinition() {
         Map<String, Object> params = PackageDefinitionMother.paramsForPackageMaterialAssociation(repoId, pkgId);
         PackageDefinitionCreator packageDefinitionCreator = new PackageDefinitionCreator(packageDefinitionService, params);
         PackageDefinition fetchedPackageDefinition = packageDefinitionCreator.getPackageDefinition(cruiseConfig);

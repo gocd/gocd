@@ -42,7 +42,7 @@ public class AgentStatusChangeNotifierTest {
     private AgentStatusChangeNotifier agentStatusChangeNotifier;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         agentStatusChangeNotifier = new AgentStatusChangeNotifier(notificationPluginRegistry, pluginNotificationService);
     }
 

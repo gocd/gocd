@@ -15,6 +15,6 @@
  */
 package com.thoughtworks.go.server.messaging;
 
-public interface ListenerFactory{
-    GoMessageListener create();
+public interface ListenerFactory<T extends GoMessage> {
+    GoMessageListener<T> create();
 }

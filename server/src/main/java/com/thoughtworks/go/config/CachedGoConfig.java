@@ -159,17 +159,17 @@ public class CachedGoConfig {
         saveValidConfigToCacheAndNotifyEntityConfigChangeListeners(entityConfigSaveResult);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> void saveValidConfigToCacheAndNotifyEntityConfigChangeListeners(EntityConfigSaveResult<T> saveResult) {
         saveValidConfigToCache(saveResult.getConfigHolder());
         LOGGER.info("About to notify {} config listeners", saveResult.getEntityConfig().getClass().getName());
 
         for (ConfigChangedListener listener : listeners) {
-            if (listener instanceof EntityConfigChangedListener<?> && ((EntityConfigChangedListener) listener).shouldCareAbout(saveResult.getEntityConfig())) {
+            if (listener instanceof EntityConfigChangedListener<?> entityConfigChangedListener && entityConfigChangedListener.shouldCareAbout(saveResult.getEntityConfig())) {
                 try {
                     long startTime = System.currentTimeMillis();
-                    EntityConfigChangedListener<T> entityConfigChangedListener = (EntityConfigChangedListener<T>) listener;
-                    entityConfigChangedListener.onEntityConfigChange(saveResult.getEntityConfig());
-                    LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), (System.currentTimeMillis() - startTime));
+                    ((EntityConfigChangedListener<T>) entityConfigChangedListener).onEntityConfigChange(saveResult.getEntityConfig());
+                    LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), System.currentTimeMillis() - startTime);
                 } catch (Exception e) {
                     LOGGER.error("failed to fire config changed event for listener: {}", listener, e);
                 }

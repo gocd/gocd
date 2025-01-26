@@ -37,16 +37,19 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PackageMaterialUpdaterTest {
-    @Mock MaterialRepository materialRepository;
-    @Mock ScmMaterialUpdater scmMaterialUpdater;
-    @Mock private TransactionTemplate transactionTemplate;
+    @Mock
+    MaterialRepository materialRepository;
+    @Mock
+    ScmMaterialUpdater scmMaterialUpdater;
+    @Mock
+    private TransactionTemplate transactionTemplate;
     private PackageMaterialUpdater materialUpdater;
 
     @BeforeEach
     public void setup() {
-        transactionTemplate = new TransactionTemplate(null){
+        transactionTemplate = new TransactionTemplate(null) {
             @Override
-            public Object execute(TransactionCallback action) {
+            public <T> T execute(TransactionCallback<T> action) {
                 return action.doInTransaction(null);
             }
 
@@ -64,7 +67,7 @@ public class PackageMaterialUpdaterTest {
     }
 
     @Test
-    public void shouldUpdateToNewMaterialInstanceWhenConfigHas_Changed() throws Exception {
+    public void shouldUpdateToNewMaterialInstanceWhenConfigHas_Changed() {
         PackageMaterial material = MaterialsMother.packageMaterial();
         MaterialInstance materialInstance = material.createMaterialInstance();
         materialInstance.setId(1);
@@ -84,7 +87,7 @@ public class PackageMaterialUpdaterTest {
     }
 
     @Test
-    public void shouldNotUpdateMaterialInstanceWhenConfigHas_NOT_Changed() throws Exception {
+    public void shouldNotUpdateMaterialInstanceWhenConfigHas_NOT_Changed() {
         PackageMaterial material = MaterialsMother.packageMaterial();
         MaterialInstance materialInstance = material.createMaterialInstance();
 
@@ -98,7 +101,7 @@ public class PackageMaterialUpdaterTest {
     }
 
     @Test
-    public void shouldDelegateToSCMUpdaterToAddNewMaterial() throws Exception {
+    public void shouldDelegateToSCMUpdaterToAddNewMaterial() {
         PackageMaterial material = MaterialsMother.packageMaterial();
         File file = new File("random");
 

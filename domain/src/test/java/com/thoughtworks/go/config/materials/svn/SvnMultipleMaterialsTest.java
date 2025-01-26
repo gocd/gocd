@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.TempDirUtils;
+import com.thoughtworks.go.util.command.InMemoryConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +35,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SvnMultipleMaterialsTest {
@@ -246,7 +246,7 @@ public class SvnMultipleMaterialsTest {
     }
 
     private void updateMaterials(Materials materials, Revision revision) {
-        ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
+        ProcessOutputStreamConsumer<InMemoryConsumer, InMemoryConsumer> outputStreamConsumer = ProcessOutputStreamConsumer.inMemoryConsumer();
         TestSubprocessExecutionContext execCtx = new TestSubprocessExecutionContext();
         materials.cleanUp(pipelineDir, outputStreamConsumer);
         for (Material material : materials) {

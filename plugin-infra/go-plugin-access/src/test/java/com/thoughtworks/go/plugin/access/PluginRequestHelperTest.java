@@ -33,7 +33,7 @@ public class PluginRequestHelperTest {
     private PluginManager pluginManager;
     private PluginRequestHelper helper;
     private boolean[] isSuccessInvoked;
-    private String pluginId = "pid";
+    private final String pluginId = "pid";
     private GoPluginApiResponse response;
     private final String requestName = "req";
     private final String extensionName = "some-extension";
@@ -142,10 +142,7 @@ public class PluginRequestHelperTest {
 
             @Override
             public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                final HashMap params = new HashMap();
-                params.put("p1", "v1");
-                params.put("p2", "v2");
-                return params;
+                return Map.of("p1", "v1", "p2", "v2");
             }
 
             @Override
@@ -196,7 +193,7 @@ public class PluginRequestHelperTest {
 
             @Override
             public Map<String, String> requestHeaders(String resolvedExtensionVersion) {
-                final Map<String, String> headers = new HashMap();
+                final Map<String, String> headers = new HashMap<>();
                 headers.put("HEADER-1", "HEADER-VALUE-1");
                 headers.put("HEADER-2", "HEADER-VALUE-2");
                 return headers;
@@ -222,7 +219,7 @@ public class PluginRequestHelperTest {
 
     @Test
     void shouldInvokeOnFailureCallbackWhenResponseCodeOtherThan200() {
-        PluginInteractionCallback pluginInteractionCallback = mock(PluginInteractionCallback.class);
+        PluginInteractionCallback<?> pluginInteractionCallback = mock(PluginInteractionCallback.class);
 
         when(response.responseCode()).thenReturn(400);
         when(response.responseBody()).thenReturn("Error response");

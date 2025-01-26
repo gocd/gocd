@@ -50,24 +50,23 @@ public class FileLocationProvider implements ServerInfoProvider {
 
         List<Logger> loggers = LOGGER_CONTEXT.getLoggerList();
 
-        Appender[] appenders = getAppenders(loggers);
+        Appender<ILoggingEvent>[] appenders = getAppenders(loggers);
 
         for (int i = 0; i < appenders.length; i++) {
-            Appender appender = appenders[i];
-            if (!isFileAppender(appender)) {
-                continue;
+            Appender<ILoggingEvent> appender = appenders[i];
+            if (appender instanceof @SuppressWarnings("rawtypes") FileAppender fileAppender) {
+                File logFile = new File(fileAppender.rawFileProperty());
+                json.put("loc.log.root." + i, new File(logFile.getAbsolutePath()).getParent());
+                json.put("loc.log.basename." + i, logFile.getName());
             }
-            FileAppender fileAppender = (FileAppender) appender;
-            File logFile = new File(fileAppender.rawFileProperty());
-            json.put("loc.log.root." + i, new File(logFile.getAbsolutePath()).getParent());
-            json.put("loc.log.basename." + i, logFile.getName());
         }
 
         return json;
     }
 
-    private Appender[] getAppenders(List<Logger> loggers) {
-        LinkedHashSet<Appender<ILoggingEvent>> appenders = new LinkedHashSet<>();
+    @SuppressWarnings("unchecked")
+    private Appender<ILoggingEvent>[] getAppenders(List<Logger> loggers) {
+        Set<Appender<ILoggingEvent>> appenders = new LinkedHashSet<>();
 
         for (Logger logger : loggers) {
             Iterator<Appender<ILoggingEvent>> appenderIterator = logger.iteratorForAppenders();
@@ -76,7 +75,7 @@ public class FileLocationProvider implements ServerInfoProvider {
                 appenders.add(appender);
             }
         }
-        return appenders.toArray(new Appender[0]);
+        return (Appender<ILoggingEvent>[]) appenders.toArray(new Appender[0]);
     }
 
     @Override
@@ -84,7 +83,4 @@ public class FileLocationProvider implements ServerInfoProvider {
         return "Config file locations";
     }
 
-    private boolean isFileAppender(Appender appender) {
-        return appender instanceof FileAppender;
-    }
 }

@@ -99,7 +99,7 @@ public class GitPostCommitHookImplementerTest {
         when(material1.getUrlArgument()).thenReturn(new UrlArgument("https://machine.local.git"));
         Set<Material> materials = Set.of(material1);
 
-        Set<Material> actual = implementer.prune(materials, new HashMap());
+        Set<Material> actual = implementer.prune(materials, new HashMap<>());
 
         assertThat(actual.size()).isEqualTo(0);
 

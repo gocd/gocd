@@ -36,7 +36,7 @@ public class KillAllChildProcessTaskTest {
     public void shouldNotAllowSettingOfConfigAttributes() {
         KillAllChildProcessTask processTask = new KillAllChildProcessTask();
         try {
-            processTask.setConfigAttributes(new HashMap());
+            processTask.setConfigAttributes(new HashMap<>());
             fail("should have failed, as configuration of kill-all task is not allowed");
         } catch (UnsupportedOperationException e) {
             assertThat(e.getMessage()).isEqualTo("Not a configurable task");

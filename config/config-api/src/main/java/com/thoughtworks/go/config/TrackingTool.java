@@ -63,15 +63,16 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
         return new DefaultCommentRenderer(link, regex).render(text);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) return;
-        Map attributeMap = (Map) attributes;
+        Map<String, String> attributeMap = (Map<String, String>) attributes;
         if (attributeMap.containsKey(LINK)) {
-            link = (String) attributeMap.get(LINK);
+            link = attributeMap.get(LINK);
         }
         if (attributeMap.containsKey(REGEX)) {
-            regex = (String) attributeMap.get(REGEX);
+            regex = attributeMap.get(REGEX);
         }
     }
 
@@ -106,7 +107,7 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
         configErrors.add(fieldName, message);
     }
 
-    public static TrackingTool createTrackingTool(Map attributes) {
+    public static TrackingTool createTrackingTool(Object attributes) {
         TrackingTool trackingTool = new TrackingTool();
         trackingTool.setConfigAttributes(attributes);
         if (trackingTool.isDefined()) {

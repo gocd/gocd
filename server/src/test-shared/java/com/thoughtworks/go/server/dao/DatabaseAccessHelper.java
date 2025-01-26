@@ -67,7 +67,7 @@ import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SuppressWarnings("TestOnlyProblems") // Workaround for IntelliJ thinking this place is production rather than test code
+// Workaround for IntelliJ thinking this place is production rather than test code
 @Component
 public class DatabaseAccessHelper extends HibernateDaoSupport {
     public static final String AGENT_UUID = "123456789-123";

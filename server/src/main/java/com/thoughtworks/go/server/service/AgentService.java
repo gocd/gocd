@@ -71,7 +71,6 @@ import static org.apache.commons.collections4.ListUtils.union;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
-@SuppressWarnings("deprecation")
 public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private final SystemEnvironment systemEnvironment;
     private final UuidGenerator uuidGenerator;

@@ -19,4 +19,5 @@ public interface PostCommitHookMaterialType {
     boolean isKnown();
     boolean isValid(String type);
     PostCommitHookImplementer getImplementer();
+    String type();
 }

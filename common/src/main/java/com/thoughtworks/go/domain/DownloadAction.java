@@ -42,7 +42,7 @@ public class DownloadAction {
         int retryCount = 0;
         while (true) {
             retryCount++;
-            String message = "";
+            String message;
             try {
                 int rc = download(httpService, url, handler);
                 if (handler.handleResult(rc, goPublisher)) {

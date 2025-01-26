@@ -51,10 +51,9 @@ class FreeMarkerEngine extends TemplateEngine {
                 model = Collections.emptyMap();
             }
             if (model instanceof Map) {
-                Map<String, Object> context = initialContextProvider.getContext((Map) model, controller, modelAndView.getViewName());
+                @SuppressWarnings("unchecked") Map<String, Object> context = initialContextProvider.getContext((Map<String, Object>) model, controller, modelAndView.getViewName());
                 StringWriter writer = new StringWriter();
-                Object meta = context.get("meta");
-                context.put("meta", GSON.toJson(meta));
+                context.compute("meta", (k, meta) -> GSON.toJson(meta));
                 template.process(context, writer);
                 return writer.toString();
             } else {

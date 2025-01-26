@@ -35,7 +35,6 @@ public class JsonView extends AbstractView {
         this.requestContext = requestContext;
     }
 
-    //TODO: ChrisS - this should just be a normal HashMap
     public static JsonFakeMap asMap(Object json) {
         return new JsonFakeMap(json);
     }
@@ -54,7 +53,7 @@ public class JsonView extends AbstractView {
         writer.close();
     }
 
-    public static Map getSimpleAjaxResult(String messageKey, String message) {
+    public static Map<String, Object> getSimpleAjaxResult(String messageKey, String message) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put(messageKey, message);
         return result;
@@ -64,7 +63,7 @@ public class JsonView extends AbstractView {
         return JsonRenderer.render(json, requestContext);
     }
 
-    public String renderJson(List json) {
+    public String renderJson(List<?> json) {
         return JsonRenderer.render(json, requestContext);
     }
 }

@@ -87,7 +87,7 @@ public class DefaultGoPluginApiRequestTest {
     public void shouldAbleToSetRequestHeaders() {
         final DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("extension", "1.0", "request-name");
 
-        final Map<String, String> headers = new HashMap();
+        final Map<String, String> headers = new HashMap<>();
         headers.put("HEADER-1", "HEADER-VALUE-1");
         headers.put("HEADER-2", "HEADER-VALUE-2");
 

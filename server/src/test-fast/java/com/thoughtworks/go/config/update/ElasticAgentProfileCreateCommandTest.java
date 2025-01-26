@@ -59,7 +59,7 @@ public class ElasticAgentProfileCreateCommandTest {
         validationResult.addError(new ValidationError("key", "error"));
         when(extension.validate(eq("aws"), anyMap())).thenReturn(validationResult);
         ElasticProfile newProfile = new ElasticProfile("foo", "prod-cluster", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
-        EntityConfigUpdateCommand command = new ElasticAgentProfileCreateCommand(newProfile, null, new HttpLocalizedOperationResult());
+        EntityConfigUpdateCommand<?> command = new ElasticAgentProfileCreateCommand(newProfile, null, new HttpLocalizedOperationResult());
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
 
         assertThatThrownBy(() -> command.isValid(cruiseConfig))

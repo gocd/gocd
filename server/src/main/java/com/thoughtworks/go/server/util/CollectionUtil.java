@@ -31,6 +31,7 @@ public class CollectionUtil {
         return resultMap;
     }
 
+    @SuppressWarnings("unchecked")
     public static <K, V> CollectionValueMap<K, V> collectionValMap(Map<K, ? extends Collection<V>> map, CollectionCreator<V> collectionCreator) {
         return new CollectionValueMap<>((Map<K, Collection<V>>) map, collectionCreator);
     }

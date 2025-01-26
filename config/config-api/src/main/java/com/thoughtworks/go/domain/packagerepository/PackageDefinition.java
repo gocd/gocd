@@ -264,13 +264,14 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;
         }
-        Map map = (Map) attributes;
-        name = (String) map.get("name");
+        Map<String, String> map = (Map<String, String>) attributes;
+        name = map.get("name");
         if (map.containsKey(Configuration.CONFIGURATION) && packageRepository != null) {
             configuration.setConfigAttributes(map.get(Configuration.CONFIGURATION), getSecureKeyInfoProvider());
         }

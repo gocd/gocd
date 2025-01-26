@@ -42,9 +42,9 @@ import static org.awaitility.Awaitility.await;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-public class ActiveMqTest implements GoMessageListener {
+public class ActiveMqTest implements GoMessageListener<GoTextMessage> {
     private GoMessage receivedMessage;
-    public MessagingService messaging;
+    public ActiveMqMessagingService messaging;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -119,7 +119,7 @@ public class ActiveMqTest implements GoMessageListener {
     }
 
     @Override
-    public void onMessage(GoMessage message) {
+    public void onMessage(GoTextMessage message) {
         receivedMessage = message;
     }
 

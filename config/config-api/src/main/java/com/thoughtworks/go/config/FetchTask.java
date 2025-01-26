@@ -128,15 +128,15 @@ public class FetchTask extends AbstractFetchTask {
     }
 
     @Override
-    protected void setFetchTaskAttributes(Map attributeMap) {
+    protected void setFetchTaskAttributes(Map<String, ?> attributeMap) {
         if (attributeMap.containsKey(SRC)) {
             boolean isFile = "1".equals(attributeMap.get(IS_SOURCE_A_FILE));
             String fileOrDir = (String) attributeMap.get(SRC);
             if (isFile) {
-                this.srcfile = fileOrDir.equals("") ? null : fileOrDir;
+                this.srcfile = fileOrDir.isEmpty() ? null : fileOrDir;
                 this.srcdir = null;
             } else {
-                this.srcdir = fileOrDir.equals("") ? null : fileOrDir;
+                this.srcdir = fileOrDir.isEmpty() ? null : fileOrDir;
                 this.srcfile = null;
             }
         }

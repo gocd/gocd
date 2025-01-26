@@ -78,7 +78,7 @@ public class ConfigurationKey implements Serializable, Validatable {
     }
 
     public void setConfigAttributes(Object attributes) {
-        Map attributesMap = (Map) attributes;
+        @SuppressWarnings("unchecked") Map<String, ?> attributesMap = (Map<String, ?>) attributes;
         if (attributesMap.containsKey(NAME)) {
             name = (String) attributesMap.get(NAME);
         }

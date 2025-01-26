@@ -51,7 +51,7 @@ public class FolderDirectoryEntry extends DirectoryEntry {
 
     @Override
     public Map<String, Object> toJson() {
-        Map json = super.toJson();
+        Map<String, Object> json = super.toJson();
         json.put("files", subDirectory.toJson());
         return json;
     }
@@ -67,9 +67,7 @@ public class FolderDirectoryEntry extends DirectoryEntry {
 
         FolderDirectoryEntry that = (FolderDirectoryEntry) o;
 
-        if (!subDirectory.equals(that.subDirectory)) return false;
-
-        return true;
+        return subDirectory.equals(that.subDirectory);
     }
 
     @Override

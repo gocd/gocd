@@ -34,7 +34,7 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-@SuppressWarnings("TestOnlyProblems") // Workaround for IntelliJ thinking this place is production rather than test code
+// Workaround for IntelliJ thinking this place is production rather than test code
 public class ClearSingleton implements BeforeEachCallback, AfterEachCallback {
 
     @Override

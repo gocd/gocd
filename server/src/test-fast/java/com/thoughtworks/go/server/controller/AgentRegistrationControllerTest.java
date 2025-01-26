@@ -296,7 +296,7 @@ public class AgentRegistrationControllerTest {
         when(agentService.findAgent("uuid-from-agent")).thenReturn(AgentInstanceMother.idle());
         when(agentService.isRegistered("uuid-from-agent")).thenReturn(false);
 
-        final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
+        final ResponseEntity<String> responseEntity = controller.getToken("uuid-from-agent");
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isEqualTo("JCmJaW6YbEA4fIUqf8L9lRV81ua10wV+wRYOFdaBLcM=");
@@ -309,7 +309,7 @@ public class AgentRegistrationControllerTest {
         when(agentService.findAgent("uuid-from-agent")).thenReturn(AgentInstanceMother.pendingInstance());
         when(agentService.isRegistered("uuid-from-agent")).thenReturn(false);
 
-        final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
+        final ResponseEntity<String> responseEntity = controller.getToken("uuid-from-agent");
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(CONFLICT);
         assertThat(responseEntity.getBody()).isEqualTo("A token has already been issued for this agent.");
@@ -322,7 +322,7 @@ public class AgentRegistrationControllerTest {
         when(agentService.findAgent("uuid-from-agent")).thenReturn(AgentInstanceMother.idle());
         when(agentService.isRegistered("uuid-from-agent")).thenReturn(true);
 
-        final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
+        final ResponseEntity<String> responseEntity = controller.getToken("uuid-from-agent");
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(CONFLICT);
         assertThat(responseEntity.getBody()).isEqualTo("A token has already been issued for this agent.");
@@ -330,7 +330,7 @@ public class AgentRegistrationControllerTest {
 
     @Test
     public void shouldRejectGenerateTokenRequestIfUUIDIsEmpty() {
-        final ResponseEntity responseEntity = controller.getToken("               ");
+        final ResponseEntity<String> responseEntity = controller.getToken("               ");
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(CONFLICT);
         assertThat(responseEntity.getBody()).isEqualTo("UUID cannot be blank.");
@@ -343,7 +343,7 @@ public class AgentRegistrationControllerTest {
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.createAgentUsername("blahAgent-uuid", request.getRemoteAddr(), "blahAgent-host")).thenReturn(new Username("some-agent-login-name"));
 
-        ResponseEntity responseEntity = controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", "an-invalid-token", request);
+        ResponseEntity<String> responseEntity = controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", "an-invalid-token", request);
 
         assertThat(responseEntity.getBody()).isEqualTo("Not a valid token.");
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);

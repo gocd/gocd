@@ -60,6 +60,7 @@ public class GoConfigClassLoader<T> {
         this.configReferenceElements = configReferenceElements;
     }
 
+    @SuppressWarnings("unchecked")
     public T parse() {
         bombUnless(atElement(),
             () -> "Unable to parse element <" + e.getName() + "> for class " + aClass.getSimpleName());
@@ -77,7 +78,6 @@ public class GoConfigClassLoader<T> {
             field.parse();
         }
         if (isConfigCollection()) {
-            //noinspection unchecked
             parseCollection((Collection<Object>) o);
         }
         //check whether there are public PostConstruct methods and call them
@@ -158,11 +158,11 @@ public class GoConfigClassLoader<T> {
         return ConfigElementInstantiator.instantiateConfigElement(this.goCipher, typeToGenerate(e));
     }
 
+    @SuppressWarnings("unchecked")
     private Class<T> typeToGenerate(Element e) {
         if (isImplicitCollection(aClass)) {
             return aClass;
         }
-        //noinspection unchecked
         Class<T> type = (Class<T>) findConcreteType(e, aClass);
         bombIfNull(type, () -> format("Unable to determine type to generate. Type: %s Element: %s", aClass.getName(), configUtil.elementOutput(e)));
         return type;

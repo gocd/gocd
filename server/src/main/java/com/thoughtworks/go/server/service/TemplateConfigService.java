@@ -116,7 +116,7 @@ public class TemplateConfigService {
         }
     }
 
-    private void update(Username currentUser, LocalizedOperationResult result, EntityConfigUpdateCommand command, PipelineTemplateConfig templateConfig) {
+    private void update(Username currentUser, LocalizedOperationResult result, EntityConfigUpdateCommand<?> command, PipelineTemplateConfig templateConfig) {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {

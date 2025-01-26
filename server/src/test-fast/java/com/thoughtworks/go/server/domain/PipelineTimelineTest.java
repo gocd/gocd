@@ -260,6 +260,7 @@ public class PipelineTimelineTest {
         assertThat(timeline.instanceFor(new CaseInsensitiveString("pipeline"), 1)).isEqualTo(second);
     }
 
+    @SuppressWarnings("unchecked")
     private void stubPipelineRepository(final PipelineTimeline timeline, boolean restub, final PipelineTimelineEntry... entries) {
         repositoryEntries = entries;
         if (restub) {
@@ -267,7 +268,6 @@ public class PipelineTimelineTest {
                 for (PipelineTimelineEntry entry : repositoryEntries) {
                     timeline.add(entry);
                 }
-                //noinspection unchecked
                 ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(List.of(repositoryEntries));
                 return List.of(repositoryEntries);
             }).when(pipelineRepository).updatePipelineTimeline(eq(timeline), anyList());

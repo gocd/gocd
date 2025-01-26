@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PackageRepositoryTest extends PackageMaterialTestBase {
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         RepositoryMetadataStoreHelper.clear();
     }
 
@@ -74,7 +74,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     }
 
     @Test
-    void shouldOnlyDisplayFieldsWhichAreNonSecureAndPartOfIdentityInGetConfigForDisplayWhenPluginExists() throws Exception {
+    void shouldOnlyDisplayFieldsWhichAreNonSecureAndPartOfIdentityInGetConfigForDisplayWhenPluginExists() {
         PackageConfigurations repositoryConfiguration = new PackageConfigurations();
         repositoryConfiguration.addConfiguration(new PackageConfiguration("key1").with(PART_OF_IDENTITY, true).with(SECURE, false));
         repositoryConfiguration.addConfiguration(new PackageConfiguration("key2").with(PART_OF_IDENTITY, false).with(SECURE, false));
@@ -90,7 +90,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     }
 
     @Test
-    void shouldConvertKeysToLowercaseInGetConfigForDisplay() throws Exception {
+    void shouldConvertKeysToLowercaseInGetConfigForDisplay() {
         RepositoryMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
         PackageMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
 
@@ -101,7 +101,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     }
 
     @Test
-    void shouldNotDisplayEmptyValuesInGetConfigForDisplay() throws Exception {
+    void shouldNotDisplayEmptyValuesInGetConfigForDisplay() {
         RepositoryMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
         PackageMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
 
@@ -214,7 +214,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
         String oldEncryptedValue = "oldEncryptedValue";
         ConfigurationHolder password = new ConfigurationHolder("password", "pass", oldEncryptedValue, true, "1");
         ConfigurationHolder secureKeyNotChanged = new ConfigurationHolder("secureKeyNotChanged", "pass", oldEncryptedValue, true, "0");
-        Map attributes = createPackageRepositoryConfiguration(name, pluginId, repoId, url, username, password, secureKeyNotChanged);
+        Map<String, Object> attributes = createPackageRepositoryConfiguration(name, pluginId, repoId, url, username, password, secureKeyNotChanged);
 
         PackageRepository packageRepository = new PackageRepository();
         Packages packages = new Packages();
@@ -265,7 +265,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     }
 
     @Test
-    void shouldFindPackageById() throws Exception {
+    void shouldFindPackageById() {
         PackageRepository repository = PackageRepositoryMother.create("repo-id2", "repo2", "plugin-id", "1.0", null);
         PackageDefinition p1 = PackageDefinitionMother.create("id1", "pkg1", null, repository);
         PackageDefinition p2 = PackageDefinitionMother.create("id2", "pkg2", null, repository);
@@ -275,7 +275,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     }
 
     @Test
-    void shouldClearConfigurationsWhichAreEmptyAndNoErrors() throws Exception {
+    void shouldClearConfigurationsWhichAreEmptyAndNoErrors() {
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.getConfiguration().add(new ConfigurationProperty(new ConfigurationKey("name-one"), new ConfigurationValue()));
         packageRepository.getConfiguration().add(new ConfigurationProperty(new ConfigurationKey("name-two"), new EncryptedConfigurationValue()));
@@ -293,7 +293,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     }
 
     @Test
-    void shouldValidateName() throws Exception {
+    void shouldValidateName() {
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setName("some name");
         packageRepository.validate(new ConfigSaveValidationContext(null));
@@ -302,7 +302,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     }
 
     @Test
-    void shouldRemoveGivenPackageFromTheRepository() throws Exception {
+    void shouldRemoveGivenPackageFromTheRepository() {
         PackageDefinition packageDefinitionOne = new PackageDefinition("pid1", "pname1", null);
         PackageDefinition packageDefinitionTwo = new PackageDefinition("pid2", "pname2", null);
         PackageRepository packageRepository = new PackageRepository();
@@ -315,7 +315,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     }
 
     @Test
-    void shouldThrowErrorWhenGivenPackageNotFoundDuringRemove() throws Exception {
+    void shouldThrowErrorWhenGivenPackageNotFoundDuringRemove() {
         PackageRepository packageRepository = new PackageRepository();
         try {
             packageRepository.removePackage("invalid");
@@ -325,13 +325,13 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     }
 
     @Test
-    void shouldFindPackageDefinitionBasedOnParams() throws Exception {
+    void shouldFindPackageDefinitionBasedOnParams() {
         PackageRepository packageRepository = PackageRepositoryMother.create("repo-id1", "packageRepository", "plugin-id", "1.0", null);
         PackageDefinition packageDefinitionOne = PackageDefinitionMother.create("pid1", packageRepository);
         PackageDefinition packageDefinitionTwo = PackageDefinitionMother.create("pid2", packageRepository);
         packageRepository.getPackages().addAll(List.of(packageDefinitionOne, packageDefinitionTwo));
 
-        Map attributes = new HashMap();
+        Map<String, Object> attributes = new HashMap<>();
         attributes.put("packageId", "pid1");
 
         PackageDefinition actualPackageDefinition = packageRepository.findOrCreatePackageDefinition(attributes);
@@ -339,10 +339,10 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     }
 
     @Test
-    void shouldCreatePackageBasedOnParams() throws Exception {
+    void shouldCreatePackageBasedOnParams() {
         PackageRepository packageRepository = PackageRepositoryMother.create("repo-id1", "packageRepository", "plugin-id", "1.0", null);
-        Map packageDefAttr = createPackageDefinitionConfiguration("package_name", "pluginId", new ConfigurationHolder("key1", "value1"), new ConfigurationHolder("key2", "value2"));
-        Map map = new HashMap();
+        Map<String, Object> packageDefAttr = createPackageDefinitionConfiguration("package_name", "pluginId", new ConfigurationHolder("key1", "value1"), new ConfigurationHolder("key2", "value2"));
+        Map<String, Object> map = new HashMap<>();
         map.put("package_definition", packageDefAttr);
         PackageDefinition actualPackageDefinition = packageRepository.findOrCreatePackageDefinition(map);
         assertThat(actualPackageDefinition).isEqualTo(PackageDefinitionMother.create(null, "package_name",
@@ -445,12 +445,12 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
         return packageRepository;
     }
 
-    private Map createPackageRepositoryConfiguration(String name, String pluginId, String repoId, ConfigurationHolder... configurations) {
-        Map attributes = new HashMap();
+    private Map<String, Object> createPackageRepositoryConfiguration(String name, String pluginId, String repoId, ConfigurationHolder... configurations) {
+        Map<String, Object> attributes = new HashMap<>();
         attributes.put(PackageRepository.NAME, name);
         attributes.put(PackageRepository.REPO_ID, repoId);
 
-        Map pluginConfiguration = new HashMap();
+        Map<String, Object> pluginConfiguration = new HashMap<>();
         pluginConfiguration.put(PluginConfiguration.ID, pluginId);
         attributes.put(PackageRepository.PLUGIN_CONFIGURATION, pluginConfiguration);
 

@@ -118,7 +118,7 @@ class GitMaterialShallowCloneTest {
     @Test
     void attributesShouldIncludeShallowFlag() {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
-        Map gitConfig = (Map) (material.getAttributes(false).get("git-configuration"));
+        @SuppressWarnings("unchecked") Map<String, ?> gitConfig = (Map<String, ?>) material.getAttributes(false).get("git-configuration");
         assertThat(gitConfig.get("shallow-clone")).isEqualTo(true);
     }
 

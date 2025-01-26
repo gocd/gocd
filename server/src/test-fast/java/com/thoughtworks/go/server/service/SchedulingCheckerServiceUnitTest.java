@@ -285,7 +285,7 @@ public class SchedulingCheckerServiceUnitTest {
         }
     }
 
-    private void assertFor(List<SchedulingChecker> checkerList, Class typeOfScheduleChecker) {
+    private void assertFor(List<SchedulingChecker> checkerList, Class<?> typeOfScheduleChecker) {
         List<SchedulingChecker> containerForAllCheckers = new ArrayList<>();
         flatten(checkerList, containerForAllCheckers);
         for (Object o : containerForAllCheckers) {

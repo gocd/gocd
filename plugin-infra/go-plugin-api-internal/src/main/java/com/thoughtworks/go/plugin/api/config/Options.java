@@ -22,7 +22,8 @@ import java.util.List;
  * Container for {@link Option}
  */
 public class Options {
-    private List<Option> options = new ArrayList<>();
+    @SuppressWarnings("rawtypes")
+    private final List<Option> options = new ArrayList<>();
 
     /**
      * Adds given option to container
@@ -51,7 +52,7 @@ public class Options {
      * @throws RuntimeException when matching option not found
      */
     public <T> Option<T> findOption(Option<T> option) {
-        for (Option candidateOption : options) {
+        for (@SuppressWarnings("unchecked") Option<T> candidateOption : options) {
             if (candidateOption.hasSameNameAs(option)) {
                 return candidateOption;
             }
@@ -60,7 +61,7 @@ public class Options {
     }
 
     public <T> boolean hasOption(Option<T> option) {
-        for (Option candidateOption : options) {
+        for (Option<?> candidateOption : options) {
             if (candidateOption.hasSameNameAs(option)) {
                 return true;
             }

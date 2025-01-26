@@ -17,6 +17,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
@@ -63,7 +64,7 @@ public class SecurityAuthConfigCreateCommandTest {
         validationResult.addError(new ValidationError("key", "error"));
         when(extension.validateAuthConfig(eq("aws"), anyMap())).thenReturn(validationResult);
         SecurityAuthConfig newProfile = new SecurityAuthConfig("foo", "aws", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
-        PluginProfileCommand command = new SecurityAuthConfigCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
+        PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> command = new SecurityAuthConfigCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
 
         assertThatThrownBy(() -> command.isValid(cruiseConfig))

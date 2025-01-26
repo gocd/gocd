@@ -126,10 +126,10 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         };
     }
 
-    protected Integer getPageSize(Request request) {
-        Integer offset;
+    protected int getPageSize(Request request) {
+        int offset;
         try {
-            offset = Integer.valueOf(request.queryParamOrDefault("page_size", DEFAULT_PAGE_SIZE));
+            offset = Integer.parseInt(request.queryParamOrDefault("page_size", DEFAULT_PAGE_SIZE));
             if (offset < 10 || offset > 100) {
                 throw new BadRequestException(BAD_PAGE_SIZE_MSG);
             }

@@ -91,14 +91,14 @@ public class CurrentUserController extends ApiController implements SparkSpringC
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        Map map = readRequestBodyAsJSON(req);
+        Map<String, Object> map = readRequestBodyAsJSON(req);
         String checkinAliases = null;
 
         if (map.containsKey("checkin_aliases")) {
             Object newAliases = map.get("checkin_aliases");
 
-            if (newAliases instanceof Collection) {
-                checkinAliases = StringUtils.join((Collection) newAliases, ", ");
+            if (newAliases instanceof Collection<?> aliasCollection) {
+                checkinAliases = StringUtils.join(aliasCollection, ", ");
             } else if (newAliases instanceof String) {
                 checkinAliases = (String) newAliases;
             }

@@ -35,7 +35,7 @@ public class PluginMessageQueueHandlerTest {
     private static final String QUEUE_NAME_PREFIX = "queue";
     private GoPluginExtension extension;
     private PluginMessageQueueHandler<FooMessage> handler;
-    private MessagingService messaging;
+    private MessagingService<GoMessage> messaging;
     private MyQueueFactory queueFactory;
 
 
@@ -45,8 +45,7 @@ public class PluginMessageQueueHandlerTest {
         messaging = mock(MessagingService.class);
 
         queueFactory = new MyQueueFactory();
-        handler = new PluginMessageQueueHandler<>(extension, messaging, mock(PluginManager.class), queueFactory) {
-        };
+        handler = new PluginMessageQueueHandler<>(extension, messaging, mock(PluginManager.class), queueFactory) {};
     }
 
     @Test
@@ -54,14 +53,14 @@ public class PluginMessageQueueHandlerTest {
         String pluginId = PLUGIN_ID;
         String queueName = QUEUE_NAME_PREFIX + pluginId;
         when(extension.canHandlePlugin(pluginId)).thenReturn(true);
-        when(messaging.addQueueListener(eq(queueName), any(GoMessageListener.class))).thenReturn(mock(JMSMessageListenerAdapter.class));
+        when(messaging.addQueueListener(eq(queueName), any())).thenReturn(mock(JMSMessageListenerAdapter.class));
         handler.pluginLoaded(GoPluginDescriptor.builder().id(pluginId).build());
 
         assertThat(handler.queues.containsKey(pluginId)).isTrue();
         assertThat(handler.queues.get(pluginId).listeners.containsKey(pluginId)).isTrue();
-        List<JMSMessageListenerAdapter> listeners = handler.queues.get(pluginId).listeners.get(pluginId);
+        List<JMSMessageListenerAdapter<FooMessage>> listeners = handler.queues.get(pluginId).listeners.get(pluginId);
         assertThat(listeners.size()).isEqualTo(10);
-        ArgumentCaptor<GoMessageListener> argumentCaptor = ArgumentCaptor.forClass(GoMessageListener.class);
+        ArgumentCaptor<GoMessageListener<GoMessage>> argumentCaptor = ArgumentCaptor.forClass(GoMessageListener.class);
         verify(messaging, times(10)).addQueueListener(eq(queueName), argumentCaptor.capture());
         assertThat(argumentCaptor.getValue() instanceof GoMessageListener).isTrue();
     }
@@ -71,8 +70,8 @@ public class PluginMessageQueueHandlerTest {
         String pluginId = PLUGIN_ID;
         String queueName = QUEUE_NAME_PREFIX + pluginId;
         when(extension.canHandlePlugin(pluginId)).thenReturn(true);
-        JMSMessageListenerAdapter listenerAdapter = mock(JMSMessageListenerAdapter.class);
-        when(messaging.addQueueListener(eq(queueName), any(GoMessageListener.class))).thenReturn(listenerAdapter);
+        JMSMessageListenerAdapter<GoMessage> listenerAdapter = mock(JMSMessageListenerAdapter.class);
+        when(messaging.addQueueListener(eq(queueName), any())).thenReturn(listenerAdapter);
         GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginId).build();
 
         handler.pluginLoaded(pluginDescriptor);
@@ -98,21 +97,22 @@ public class PluginMessageQueueHandlerTest {
         verify(messaging, never()).addQueueListener(any(String.class), any(GoMessageListener.class));
     }
 
-    private class MyQueueFactory implements QueueFactory {
+    private class MyQueueFactory implements QueueFactory<FooMessage> {
         @Override
-        public PluginAwareMessageQueue create(GoPluginDescriptor pluginDescriptor) {
-            return new PluginAwareMessageQueue(messaging, PLUGIN_ID, QUEUE_NAME_PREFIX + pluginDescriptor.id(), 10, new MyListenerFactory());
+        public PluginAwareMessageQueue<FooMessage> create(GoPluginDescriptor pluginDescriptor) {
+            return new PluginAwareMessageQueue<>(messaging, PLUGIN_ID, QUEUE_NAME_PREFIX + pluginDescriptor.id(), 10, new MyListenerFactory());
         }
     }
 
-    private class MyListenerFactory implements ListenerFactory {
+    private static class MyListenerFactory implements ListenerFactory<FooMessage> {
+        @SuppressWarnings("unchecked")
         @Override
-        public GoMessageListener create() {
+        public GoMessageListener<FooMessage> create() {
             return mock(GoMessageListener.class);
         }
     }
 
-    private class FooMessage implements PluginAwareMessage {
+    private static class FooMessage implements PluginAwareMessage {
         @Override
         public String pluginId() {
             return PLUGIN_ID;

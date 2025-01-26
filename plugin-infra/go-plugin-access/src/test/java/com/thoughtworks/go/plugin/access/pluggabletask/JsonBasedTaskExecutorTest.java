@@ -37,7 +37,6 @@ import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class JsonBasedTaskExecutorTest {
@@ -49,7 +48,7 @@ public class JsonBasedTaskExecutorTest {
     private GoPluginApiResponse response;
     private JsonBasedTaskExtensionHandler handler;
     private PluginRequestHelper pluginRequestHelper;
-    private Map<String, JsonBasedTaskExtensionHandler> handlerHashMap = new HashMap<>();
+    private final Map<String, JsonBasedTaskExtensionHandler> handlerHashMap = new HashMap<>();
 
     @BeforeEach
     public void setup() {
@@ -94,6 +93,7 @@ public class JsonBasedTaskExecutorTest {
         assertThat(result.getMessagesForDisplay()).isEqualTo("error1");
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldConstructExecutionRequestWithRequiredDetails() {
         String workingDir = "working-dir";
@@ -115,12 +115,12 @@ public class JsonBasedTaskExecutorTest {
         handlerHashMap.put("1.0", handler);
         new JsonBasedTaskExecutor(pluginId, pluginRequestHelper, handlerHashMap).execute(config(), context);
 
-        assertTrue(executionRequest.length == 1);
-        Map result = (Map) new GsonBuilder().create().fromJson(executionRequest[0].requestBody(), Object.class);
-        Map context = (Map) result.get("context");
+        assertThat(executionRequest).hasSize(1);
+        Map<String, Object> result = (Map<String, Object>) new GsonBuilder().create().fromJson(executionRequest[0].requestBody(), Object.class);
+        Map<String, Object> context = (Map<String, Object>) result.get("context");
 
         assertThat(context.get("workingDirectory")).isEqualTo(workingDir);
-        Map environmentVariables = (Map) context.get("environmentVariables");
+        Map<String, Object> environmentVariables = (Map<String, Object>) context.get("environmentVariables");
         assertThat(environmentVariables.size()).isEqualTo(2);
         assertThat(environmentVariables.get("ENV1").toString()).isEqualTo("VAL1");
         assertThat(environmentVariables.get("ENV2").toString()).isEqualTo("VAL2");
@@ -131,7 +131,7 @@ public class JsonBasedTaskExecutorTest {
         return new EnvironmentVariables() {
             @Override
             public Map<String, String> asMap() {
-                final HashMap<String, String> map = new HashMap<>();
+                final Map<String, String> map = new HashMap<>();
                 map.put("ENV1", "VAL1");
                 map.put("ENV2", "VAL2");
                 return map;

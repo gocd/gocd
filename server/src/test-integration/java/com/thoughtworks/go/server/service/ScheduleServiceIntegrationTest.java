@@ -609,9 +609,9 @@ public class ScheduleServiceIntegrationTest {
     }
 
     private Pipeline manualSchedule(String pipelineName) {
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
-        final HashMap<String, String> secureEnvironmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> secureEnvironmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(pipelineName, new Username(new CaseInsensitiveString("some user name")), new ScheduleOptions(revisions, environmentVariables, secureEnvironmentVariables), new ServerHealthStateOperationResult());
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         return pipelineService.mostRecentFullPipelineByName(pipelineName);

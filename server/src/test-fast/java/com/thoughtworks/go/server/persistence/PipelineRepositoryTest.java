@@ -49,11 +49,9 @@ import static org.mockito.Mockito.*;
 
 public class PipelineRepositoryTest {
 
-    private SessionFactory sessionFactory;
     private GoCache goCache;
     private HibernateTemplate hibernateTemplate;
     private PipelineRepository pipelineRepository;
-    private Database databaseStrategy;
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private TransactionTemplate transactionTemplate;
     private Session session;
@@ -63,10 +61,10 @@ public class PipelineRepositoryTest {
     public void setup() {
         session = mock(Session.class);
         sqlQuery = mock(SQLQuery.class);
-        sessionFactory = mock(SessionFactory.class);
+        SessionFactory sessionFactory = mock(SessionFactory.class);
         hibernateTemplate = mock(HibernateTemplate.class);
         goCache = mock(GoCache.class);
-        databaseStrategy = mock(Database.class);
+        Database databaseStrategy = mock(Database.class);
         when(databaseStrategy.getQueryExtensions()).thenReturn(mock(QueryExtensions.class));
         pipelineRepository = new PipelineRepository(sessionFactory, goCache, databaseStrategy);
         pipelineRepository.setHibernateTemplate(hibernateTemplate);
@@ -80,7 +78,7 @@ public class PipelineRepositoryTest {
         PipelineSelections pipelineSelections = makePipelineSelections();
         long userId = 1L;
 
-        when(hibernateTemplate.find(queryString, new Object[]{userId})).thenReturn((List) Arrays.asList(pipelineSelections));
+        doReturn(List.of(pipelineSelections)).when(hibernateTemplate).find(queryString, new Object[]{userId});
         //return false for first 2 calls and return true for next call
         when(goCache.isKeyInCache(pipelineRepository.pipelineSelectionForUserIdKey(userId))).thenReturn(false).thenReturn(false).thenReturn(true);
 

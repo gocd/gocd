@@ -120,6 +120,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void registerAllServicesImplementedBy(BundleContext bundleContext, List<Map<Class<?>, List<Object>>> toRegister) {
         for (Map<Class<?>, List<Object>> classListHashMap : toRegister) {
             for (Map.Entry<Class<?>, List<Object>> entry : classListHashMap.entrySet()) {
@@ -139,7 +140,6 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
                         serviceProperties.put(Constants.BUNDLE_SYMBOLICNAME, bundleSymbolicName);
                         serviceProperties.put(Constants.BUNDLE_CATEGORY, extensionType);
                         serviceProperties.put("PLUGIN_ID", pluginID);
-                        //noinspection unchecked
                         bundleContext.registerService((Class<Object>) serviceInterface, serviceImplementation, serviceProperties);
                     }
                 }

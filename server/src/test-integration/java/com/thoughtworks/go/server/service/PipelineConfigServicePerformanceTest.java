@@ -177,7 +177,7 @@ public class PipelineConfigServicePerformanceTest {
         }
         for (Thread t : threads) {
             int i = threads.indexOf(t);
-            //noinspection ConstantValue,PointlessBooleanExpression
+            // noinspection PointlessBooleanExpression
             if (false && i == (numberOfRequests - 1)) {
                 takeHeapDump(i);
             }

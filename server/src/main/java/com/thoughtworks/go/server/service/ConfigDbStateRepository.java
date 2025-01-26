@@ -48,7 +48,7 @@ public class ConfigDbStateRepository extends HibernateDaoSupport {
     }
 
     private Object flushArtifactCleanupProhibitions() {
-        List<StageArtifactCleanupProhibited> existingEntries = (List<StageArtifactCleanupProhibited>) getHibernateTemplate().find("from StageArtifactCleanupProhibited");
+        @SuppressWarnings("unchecked") List<StageArtifactCleanupProhibited> existingEntries = (List<StageArtifactCleanupProhibited>) getHibernateTemplate().find("from StageArtifactCleanupProhibited");
         Map<Map.Entry<String, String>, StageArtifactCleanupProhibited> persistentStateMap = new HashMap<>();
         for (StageArtifactCleanupProhibited persistentState : existingEntries) {
             persistentState.setProhibited(false);

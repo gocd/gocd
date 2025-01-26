@@ -409,7 +409,7 @@ public class AgentDaoTest {
     }
 
     private DatabaseEntityChangeListener<Agent> registerMockListener() {
-        DatabaseEntityChangeListener<Agent> mockListener = mock(DatabaseEntityChangeListener.class);
+        @SuppressWarnings("unchecked") DatabaseEntityChangeListener<Agent> mockListener = mock(DatabaseEntityChangeListener.class);
         agentDao.registerDatabaseAgentEntityChangeListener(mockListener);
         return mockListener;
     }

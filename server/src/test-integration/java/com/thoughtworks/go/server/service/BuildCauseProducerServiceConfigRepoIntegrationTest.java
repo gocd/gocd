@@ -215,8 +215,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
 
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
@@ -256,8 +256,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         assertThat(goConfigRepoConfigDataSource.latestParseHasFailedForMaterial(material.config())).isTrue();
 
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
@@ -339,8 +339,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         RepoConfigOrigin configOrigin = (RepoConfigOrigin) goConfigService.pipelineConfigNamed(new CaseInsensitiveString(PIPELINE_NAME)).getOrigin();
         assertThat(configOrigin.getRevision()).isEqualTo(firstRevisions.latestRevision());
 
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
@@ -362,8 +362,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         List<Modification> mod = configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
 
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
@@ -388,8 +388,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
                         <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="38">
                         </cruise>""");
 
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
         waitForMaterialNotInProgress();
@@ -418,8 +418,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         List<Modification> mod = configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
 
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
         cachedGoConfig.throwExceptionIfExists();
@@ -450,8 +450,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         waitForMaterialNotInProgress();
         cachedGoConfig.throwExceptionIfExists();
 
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
         cachedGoConfig.throwExceptionIfExists();
@@ -506,8 +506,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         waitForMaterialNotInProgress();
         cachedGoConfig.throwExceptionIfExists();
 
-        final HashMap<String, String> revisions = new HashMap<>();
-        final HashMap<String, String> environmentVariables = new HashMap<>();
+        final Map<String, String> revisions = new HashMap<>();
+        final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
         cachedGoConfig.throwExceptionIfExists();

@@ -116,11 +116,12 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return obj;
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T getFirstOfType(Class<T> klass) {
-        //noinspection unchecked
         return (T) objectOfType.computeIfAbsent(klass, this::_getFirstOfType);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T _getFirstOfType(Class<T> klass) {
         if (parentContext != null) {
             T obj = parentContext.getFirstOfType(klass);
@@ -132,14 +133,12 @@ public class ConfigSaveValidationContext implements ValidationContext {
         if (immediateParent == null) {
             return null;
         } else if (immediateParent.getClass().equals(klass)) {
-            //noinspection unchecked
             return (T) immediateParent;
         } else {
             // added because of higher hierarchy of configuration types.
             // now there are interfaces with more than one implementation
             // so when asking for CruiseConfig there are 2 matching classes - BasicCruiseConfig and MergeCruiseConfig
             if (klass.isAssignableFrom(immediateParent.getClass())) {
-                //noinspection unchecked
                 return (T) immediateParent;
             }
         }

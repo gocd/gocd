@@ -323,13 +323,13 @@ public class ParamResolverTest {
                 RunIfConfig.class, "status",
         };
         for (int i = 0; i < specs.length; i += 2) {
-            Class clz = (Class) specs[i];
+            Class<?> clz = (Class<?>) specs[i];
             String field = (String) specs[i + 1];
             assertSkipsResolution(clz, field);
         }
     }
 
-    private void assertSkipsResolution(Class clz, String fieldName) throws NoSuchFieldException {
+    private void assertSkipsResolution(Class<?> clz, String fieldName) throws NoSuchFieldException {
         assertThat(clz.getDeclaredField(fieldName).getAnnotation(SkipParameterResolution.class))
             .describedAs(String.format("Field %s on class %s does not skip param resolution", clz.getName(), fieldName))
             .isNotNull();

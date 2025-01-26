@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.SystemEnvironment.NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS;
@@ -45,9 +46,9 @@ public class PluginNotificationService {
     private final PluginNotificationsQueueHandler pluginNotificationsQueueHandler;
     private final GoConfigService goConfigService;
     private final PipelineDao pipelineSqlMapDao;
-    private StageDao stageDao;
-    private SystemEnvironment systemEnvironment;
-    private final HashMap<String, NotificationDataCreator> map = new HashMap<>();
+    private final StageDao stageDao;
+    private final SystemEnvironment systemEnvironment;
+    private final Map<String, NotificationDataCreator<?, ?>> notificationCreators = new HashMap<>();
 
     @Autowired
     public PluginNotificationService(NotificationPluginRegistry notificationPluginRegistry,
@@ -60,8 +61,8 @@ public class PluginNotificationService {
         this.pipelineSqlMapDao = pipelineSqlMapDao;
         this.stageDao = stageDao;
         this.systemEnvironment = systemEnvironment;
-        map.put(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, new StageNotificationDataCreator());
-        map.put(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, new AgentNotificationDataCreator());
+        notificationCreators.put(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, new StageNotificationDataCreator());
+        notificationCreators.put(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, new AgentNotificationDataCreator());
     }
 
     public void notifyAgentStatus(AgentInstance agentInstance) {
@@ -72,16 +73,16 @@ public class PluginNotificationService {
         notify(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, stage);
     }
 
-    private <T> void notify(String requestName, T instance) {
+    private void notify(String requestName, Object instance) {
         Set<String> interestedPlugins = notificationPluginRegistry.getPluginsInterestedIn(requestName);
         Long timeToLive = systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS);
         for (String pluginId : interestedPlugins) {
-            PluginNotificationMessage message = new PluginNotificationMessage<>(pluginId, requestName, map.get(requestName).notificationDataFor(instance));
+            @SuppressWarnings("unchecked") PluginNotificationMessage<?> message = new PluginNotificationMessage<>(pluginId, requestName, ((NotificationDataCreator<Object, ?>) notificationCreators.get(requestName)).notificationDataFor(instance));
             pluginNotificationsQueueHandler.post(message, timeToLive);
         }
     }
 
-    private class AgentNotificationDataCreator implements NotificationDataCreator<AgentInstance, AgentNotificationData> {
+    private static class AgentNotificationDataCreator implements NotificationDataCreator<AgentInstance, AgentNotificationData> {
         @Override
         public AgentNotificationData notificationDataFor(AgentInstance agentInstance) {
             return new AgentNotificationData(agentInstance.getUuid(),

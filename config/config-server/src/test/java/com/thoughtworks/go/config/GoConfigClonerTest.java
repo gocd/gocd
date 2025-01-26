@@ -91,7 +91,7 @@ public class GoConfigClonerTest {
         config.encryptSecureProperties(config);
 
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat((Object) ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "externalArtifactConfigs")).isEqualTo(new ArrayList());
+        assertThat((Object) ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "externalArtifactConfigs")).isEqualTo(new ArrayList<>());
         assertThat((Object) ReflectionUtil.getField(cloned.getAllPipelineConfigs().get(0), "externalArtifactConfigs")).isNull();
     }
 
@@ -104,7 +104,7 @@ public class GoConfigClonerTest {
         config.encryptSecureProperties(config);
 
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat((Object) ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks")).isEqualTo(new ArrayList());
+        assertThat((Object) ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks")).isEqualTo(new ArrayList<>());
         assertThat((Object) ReflectionUtil.getField(cloned.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks")).isNull();
     }
 

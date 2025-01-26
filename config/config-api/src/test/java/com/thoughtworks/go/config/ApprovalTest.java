@@ -51,12 +51,12 @@ public class ApprovalTest {
         Approval approval = new Approval();
         approval.setConfigAttributes(Map.of(Approval.TYPE, Approval.SUCCESS));
         assertThat(approval.getType()).isEqualTo(Approval.SUCCESS);
-        approval.setConfigAttributes(new HashMap());
+        approval.setConfigAttributes(new HashMap<>());
         assertThat(approval.getType()).isEqualTo(Approval.SUCCESS);
 
         approval.setConfigAttributes(Map.of(Approval.TYPE, Approval.MANUAL));
         assertThat(approval.getType()).isEqualTo(Approval.MANUAL);
-        approval.setConfigAttributes(new HashMap());
+        approval.setConfigAttributes(new HashMap<>());
         assertThat(approval.getType()).isEqualTo(Approval.MANUAL);
     }
 
@@ -143,12 +143,12 @@ public class ApprovalTest {
         approval.getAuthConfig().add(new AdminUser(new CaseInsensitiveString("sachin")));
         approval.getAuthConfig().add(new AdminRole(new CaseInsensitiveString("admin")));
 
-        List names = new ArrayList();
+        List<Map<String, String>> names = new ArrayList<>();
         names.add(nameMap("awesome_shilpa"));
         names.add(nameMap("youth"));
         names.add(nameMap(""));
 
-        List roles = new ArrayList();
+        List<Map<String, String>> roles = new ArrayList<>();
         roles.add(nameMap("role1"));
         roles.add(nameMap("role2"));
         roles.add(nameMap(""));
@@ -205,7 +205,7 @@ public class ApprovalTest {
     }
 
     @Test
-    void validate_shouldNotAllowRoleInApprovalListButNotInOperationList() throws Exception {
+    void validate_shouldNotAllowRoleInApprovalListButNotInOperationList() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -224,7 +224,7 @@ public class ApprovalTest {
     }
 
     @Test
-    void validate_shouldAllowUserWhoseRoleHasOperatePermission() throws Exception {
+    void validate_shouldAllowUserWhoseRoleHasOperatePermission() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -241,7 +241,7 @@ public class ApprovalTest {
     }
 
     @Test
-    void validate_shouldAllowUserWhoIsDefinedInGroup() throws Exception {
+    void validate_shouldAllowUserWhoIsDefinedInGroup() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -258,7 +258,7 @@ public class ApprovalTest {
     }
 
     @Test
-    void validate_shouldAllowUserWhenSecurityIsNotDefinedInGroup() throws Exception {
+    void validate_shouldAllowUserWhenSecurityIsNotDefinedInGroup() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -275,7 +275,7 @@ public class ApprovalTest {
     }
 
     @Test
-    void validate_shouldAllowAdminToOperateOnAStage() throws Exception {
+    void validate_shouldAllowAdminToOperateOnAStage() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -292,7 +292,7 @@ public class ApprovalTest {
     }
 
     @Test
-    void shouldShowBugWhichAllowsAUserWithoutOperatePermissionToOperateAStage() throws Exception {
+    void shouldShowBugWhichAllowsAUserWithoutOperatePermissionToOperateAStage() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"),
                         new RoleUser(new CaseInsensitiveString("first")),
@@ -315,7 +315,7 @@ public class ApprovalTest {
     }
 
     @Test
-    void validate_shouldNotTryAndValidateWhenWithinTemplate() throws Exception {
+    void validate_shouldNotTryAndValidateWhenWithinTemplate() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -387,22 +387,18 @@ public class ApprovalTest {
         group.getAuthorization().getOperationConfig().add(new AdminRole(new CaseInsensitiveString(role)));
     }
 
-    private PipelineConfigs addRoleAsAdminToDefaultGroup(CruiseConfig cruiseConfig, String role) {
+    private void addRoleAsAdminToDefaultGroup(CruiseConfig cruiseConfig, String role) {
         PipelineConfigs group = cruiseConfig.findGroup(DEFAULT_GROUP);
         group.getAuthorization().getAdminsConfig().add(new AdminRole(new CaseInsensitiveString(role)));
-        return group;
     }
 
-    private PipelineConfigs addUserAsOperatorToDefaultGroup(CruiseConfig cruiseConfig, String user) {
+    private void addUserAsOperatorToDefaultGroup(CruiseConfig cruiseConfig, String user) {
         PipelineConfigs group = cruiseConfig.findGroup(DEFAULT_GROUP);
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString(user)));
-        return group;
     }
 
-    private Map nameMap(final String name) {
-        Map nameMap = new HashMap();
-        nameMap.put("name", name);
-        return nameMap;
+    private Map<String, String> nameMap(final String name) {
+        return Map.of("name", name);
     }
 
     private void assertNoErrors(Admin userOrRole) {

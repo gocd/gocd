@@ -115,17 +115,17 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
         return getVariable(variableName) != null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         this.clear();
         if (attributes != null) {
-            for (Map attributeMap : (List<Map>) attributes) {
+            for (Map<String, Object> attributeMap : (List<Map<String, Object>>) attributes) {
                 EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(new GoCipher());
                 try {
                     environmentVariableConfig.setConfigAttributes(attributeMap);
                     this.add(environmentVariableConfig);
-                } catch (IllegalArgumentException e) {
-                    continue;
+                } catch (IllegalArgumentException ignore) {
                 }
             }
         }

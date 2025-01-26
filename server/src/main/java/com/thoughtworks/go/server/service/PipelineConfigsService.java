@@ -111,7 +111,7 @@ public class PipelineConfigsService {
         return pipelineGroups;
     }
 
-    private void update(Username currentUser, PipelineConfigs pipelineConfigs, LocalizedOperationResult result, EntityConfigUpdateCommand command) {
+    private void update(Username currentUser, PipelineConfigs pipelineConfigs, LocalizedOperationResult result, EntityConfigUpdateCommand<?> command) {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {

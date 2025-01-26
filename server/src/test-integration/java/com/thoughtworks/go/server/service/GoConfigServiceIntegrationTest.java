@@ -112,7 +112,7 @@ public class GoConfigServiceIntegrationTest {
         setupSecurity();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigForEdit configForEdit = goConfigService.loadForEdit("my-pipeline", new Username(new CaseInsensitiveString("loser")), result);
+        ConfigForEdit<PipelineConfig> configForEdit = goConfigService.loadForEdit("my-pipeline", new Username(new CaseInsensitiveString("loser")), result);
         assertThat(configForEdit).isNull();
         assertThat(result.httpCode()).isEqualTo(403);
         assertThat(result.message()).isEqualTo("Unauthorized to edit 'my-pipeline' pipeline.");
@@ -132,7 +132,7 @@ public class GoConfigServiceIntegrationTest {
     public void shouldReturn404WhenUserIsNotAnAdminAndTriesToLoadANonExistentPipeline() throws IOException {
         setupSecurity();
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigForEdit configForEdit = goConfigService.loadForEdit("non-existent-pipeline", new Username(new CaseInsensitiveString("loser")), result);
+        ConfigForEdit<PipelineConfig> configForEdit = goConfigService.loadForEdit("non-existent-pipeline", new Username(new CaseInsensitiveString("loser")), result);
         assertThat(configForEdit).isNull();
         assertThat(result.httpCode()).isEqualTo(404);
         assertThat(result.message()).isEqualTo(EntityType.Pipeline.notFoundMessage("non-existent-pipeline"));
@@ -386,7 +386,7 @@ public class GoConfigServiceIntegrationTest {
         configHelper.getXml(user1SeeingConfig, os);
 
         // User 1 saves edited config
-        GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
+        GoConfigService.XmlPartialSaver<CruiseConfig> saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(os.toString(), user1SeeingMd5);
 
         assertThat(validity.isValid()).isFalse();
@@ -415,7 +415,7 @@ public class GoConfigServiceIntegrationTest {
         xml = xml.replace("user1_pipeline", "user1 pipeline");
 
         // User 1 saves edited config
-        GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
+        GoConfigService.XmlPartialSaver<CruiseConfig> saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(xml, user1SeeingMd5);
 
         assertThat(validity.isValid()).isFalse();
@@ -445,7 +445,7 @@ public class GoConfigServiceIntegrationTest {
 
         // User 1 saves edited config
         String xml = os.toString();
-        GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
+        GoConfigService.XmlPartialSaver<CruiseConfig> saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(xml, user1SeeingMd5);
 
         assertThat(validity.isValid()).isFalse();
@@ -470,7 +470,7 @@ public class GoConfigServiceIntegrationTest {
         xml = xml.replace("user1_pipeline", "user1 pipeline");
 
         // User 1 saves edited config
-        GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
+        GoConfigService.XmlPartialSaver<CruiseConfig> saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(xml, user1SeeingMd5);
 
         assertThat(validity.isValid()).isFalse();
@@ -500,7 +500,7 @@ public class GoConfigServiceIntegrationTest {
         configHelper.getXml(user1SeeingConfig, os);
 
         // User 1 saves edited config
-        GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
+        GoConfigService.XmlPartialSaver<CruiseConfig> saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(os.toString(), user1SeeingMd5);
 
         assertThat(validity.isValid()).isTrue();
@@ -522,7 +522,7 @@ public class GoConfigServiceIntegrationTest {
         configHelper.getXml(user2SeeingConfig, os);
 
         // User 1 saves edited config
-        GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
+        GoConfigService.XmlPartialSaver<CruiseConfig> saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(os.toString(), user2SeeingMd5);
 
         assertThat(validity.isValid()).isTrue();

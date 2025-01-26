@@ -54,7 +54,7 @@ public class MaterialRevisionsJsonBuilderTest {
 
     private String buildJson() {
         materialRevisions.accept(builder);
-        List json = builder.json();
+        List<Object> json = builder.json();
         return new Gson().toJson(json);
     }
 

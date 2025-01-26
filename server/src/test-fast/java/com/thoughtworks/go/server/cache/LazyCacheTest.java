@@ -33,7 +33,7 @@ public class LazyCacheTest {
         Ehcache ehcache = mock(Ehcache.class);
         when(ehcache.get("foo")).thenReturn(new Element("foo", valueInCache));
 
-        Supplier supplier = mock(Supplier.class);
+        Supplier<?> supplier = mock(Supplier.class);
         assertThat(new LazyCache(ehcache, null).get("foo", supplier)).isSameAs(valueInCache);
         verifyNoInteractions(supplier);
     }
@@ -45,7 +45,7 @@ public class LazyCacheTest {
 
         Object lazilyComputedValue = new Object();
 
-        Supplier supplier = mock(Supplier.class);
+        @SuppressWarnings("unchecked") Supplier<Object> supplier = mock(Supplier.class);
         when(supplier.get()).thenReturn(lazilyComputedValue);
         assertThat(new LazyCache(ehcache, null).get("foo", supplier)).isSameAs(lazilyComputedValue);
         verify(supplier, times(1)).get();

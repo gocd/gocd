@@ -1249,7 +1249,7 @@ public class MaterialRepositoryIntegrationTest {
             return null;
         });
 
-        assertThat(repo.getTotalModificationsFor(materialInstance)).isEqualTo((long)count);
+        assertThat(repo.getTotalModificationsFor(materialInstance)).isEqualTo(count);
 
         final List<Modification> secondSetOfModifications = getModifications(count + 1);
         transactionTemplate.execute(status -> {

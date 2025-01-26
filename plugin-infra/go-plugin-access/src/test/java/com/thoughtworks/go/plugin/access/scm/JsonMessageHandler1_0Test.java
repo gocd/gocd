@@ -34,6 +34,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@SuppressWarnings("SameParameterValue")
 public class JsonMessageHandler1_0Test {
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
@@ -52,7 +53,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildSCMConfigurationFromResponseBody() throws Exception {
+    public void shouldBuildSCMConfigurationFromResponseBody() {
         String responseBody = "{" +
                 "\"key-one\":{}," +
                 "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
@@ -76,14 +77,14 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildRequestBodyForCheckSCMConfigurationValidRequest() throws Exception {
+    public void shouldBuildRequestBodyForCheckSCMConfigurationValidRequest() {
         String requestMessage = messageHandler.requestMessageForIsSCMConfigurationValid(scmPropertyConfiguration);
 
         assertThat(requestMessage).isEqualTo("{\"scm-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}");
     }
 
     @Test
-    public void shouldBuildValidationResultFromCheckSCMConfigurationValidResponse() throws Exception {
+    public void shouldBuildValidationResultFromCheckSCMConfigurationValidResponse() {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
         ValidationResult validationResult = messageHandler.responseMessageForIsSCMConfigurationValid(responseBody);
 
@@ -92,20 +93,20 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildSuccessValidationResultFromCheckSCMConfigurationValidResponse() throws Exception {
+    public void shouldBuildSuccessValidationResultFromCheckSCMConfigurationValidResponse() {
         assertThat(messageHandler.responseMessageForIsSCMConfigurationValid("").isSuccessful()).isTrue();
         assertThat(messageHandler.responseMessageForIsSCMConfigurationValid(null).isSuccessful()).isTrue();
     }
 
     @Test
-    public void shouldBuildRequestBodyForCheckSCMConnectionRequest() throws Exception {
+    public void shouldBuildRequestBodyForCheckSCMConnectionRequest() {
         String requestMessage = messageHandler.requestMessageForCheckConnectionToSCM(scmPropertyConfiguration);
 
         assertThat(requestMessage).isEqualTo("{\"scm-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}");
     }
 
     @Test
-    public void shouldBuildSuccessResultFromCheckSCMConnectionResponse() throws Exception {
+    public void shouldBuildSuccessResultFromCheckSCMConnectionResponse() {
         String responseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToSCM(responseBody);
 
@@ -113,7 +114,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildFailureResultFromCheckSCMConnectionResponse() throws Exception {
+    public void shouldBuildFailureResultFromCheckSCMConnectionResponse() {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToSCM(responseBody);
 
@@ -121,13 +122,13 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldHandleNullMessagesForCheckSCMConnectionResponse() throws Exception {
+    public void shouldHandleNullMessagesForCheckSCMConnectionResponse() {
         assertSuccessResult(messageHandler.responseMessageForCheckConnectionToSCM("{\"status\":\"success\"}"), new ArrayList<>());
         assertFailureResult(messageHandler.responseMessageForCheckConnectionToSCM("{\"status\":\"failure\"}"), new ArrayList<>());
     }
 
     @Test
-    public void shouldBuildRequestBodyForLatestRevisionRequest() throws Exception {
+    public void shouldBuildRequestBodyForLatestRevisionRequest() {
         String requestBody = messageHandler.requestMessageForLatestRevision(scmPropertyConfiguration, materialData, "flyweight");
 
         assertThat(requestBody).isEqualTo("{\"scm-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"scm-data\":{\"key-one\":\"value-one\"},\"flyweight-folder\":\"flyweight\"}");
@@ -145,7 +146,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildSCMDataFromLatestRevisionResponse() throws Exception {
+    public void shouldBuildSCMDataFromLatestRevisionResponse() {
         String responseBodyWithSCMData = "{\"revision\":{\"revision\":\"r1\",\"timestamp\":\"2011-07-14T19:43:37.100Z\"},\"scm-data\":{\"key-one\":\"value-one\"}}";
         MaterialPollResult pollResult = messageHandler.responseMessageForLatestRevision(responseBodyWithSCMData);
 
@@ -158,7 +159,7 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildRequestBodyForLatestRevisionsSinceRequest() throws Exception {
         Date timestamp = new SimpleDateFormat(DATE_FORMAT).parse("2011-07-13T19:43:37.100Z");
-        Map data = new LinkedHashMap();
+        Map<String, String> data = new LinkedHashMap<>();
         data.put("dataKeyOne", "data-value-one");
         data.put("dataKeyTwo", "data-value-two");
         SCMRevision previouslyKnownRevision = new SCMRevision("abc.rpm", timestamp, "someuser", "comment", data, null);
@@ -186,7 +187,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildSCMDataFromLatestRevisionsSinceResponse() throws Exception {
+    public void shouldBuildSCMDataFromLatestRevisionsSinceResponse() {
         String responseBodyWithSCMData = "{\"revisions\":[],\"scm-data\":{\"key-one\":\"value-one\"}}";
         MaterialPollResult pollResult = messageHandler.responseMessageForLatestRevisionsSince(responseBodyWithSCMData);
 
@@ -197,7 +198,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildNullSCMRevisionFromLatestRevisionsSinceWhenEmptyResponse() throws Exception {
+    public void shouldBuildNullSCMRevisionFromLatestRevisionsSinceWhenEmptyResponse() {
         MaterialPollResult pollResult = messageHandler.responseMessageForLatestRevisionsSince("");
         assertThat(pollResult.getRevisions()).isNull();
         assertThat(pollResult.getMaterialData()).isNull();
@@ -209,7 +210,7 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildRequestBodyForCheckoutRequest() throws Exception {
         Date timestamp = new SimpleDateFormat(DATE_FORMAT).parse("2011-07-13T19:43:37.100Z");
-        Map data = new LinkedHashMap();
+        Map<String, String> data = new LinkedHashMap<>();
         data.put("dataKeyOne", "data-value-one");
         data.put("dataKeyTwo", "data-value-two");
         SCMRevision revision = new SCMRevision("abc.rpm", timestamp, "someuser", "comment", data, null);
@@ -221,7 +222,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildResultFromCheckoutResponse() throws Exception {
+    public void shouldBuildResultFromCheckoutResponse() {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckout(responseBody);
 
@@ -365,7 +366,7 @@ public class JsonMessageHandler1_0Test {
 
     private String errorMessageForSCMRevisions(String message) {
         try {
-            Map revisionsMap = (Map) new GsonBuilder().create().fromJson(message, Object.class);
+            @SuppressWarnings("unchecked") Map<String, Object> revisionsMap = (Map<String, Object>) new GsonBuilder().create().fromJson(message, Object.class);
             messageHandler.toSCMRevisions(revisionsMap);
             fail("should have thrown exception");
         } catch (Exception e) {
@@ -376,7 +377,7 @@ public class JsonMessageHandler1_0Test {
 
     private String errorMessageForSCMRevision(String message) {
         try {
-            Map revisionMap = (Map) new GsonBuilder().create().fromJson(message, Object.class);
+            @SuppressWarnings("unchecked") Map<String, Object> revisionMap = (Map<String, Object>) new GsonBuilder().create().fromJson(message, Object.class);
             messageHandler.toSCMRevision(revisionMap);
             fail("should have thrown exception");
         } catch (Exception e) {
@@ -387,7 +388,7 @@ public class JsonMessageHandler1_0Test {
 
     private String errorMessageForEachRevision(String message) {
         try {
-            Map revisionMap = (Map) new GsonBuilder().create().fromJson(message, Object.class);
+            @SuppressWarnings("unchecked") Map<String, Object> revisionMap = (Map<String, Object>) new GsonBuilder().create().fromJson(message, Object.class);
             messageHandler.getScmRevisionFromMap(revisionMap);
             fail("should have thrown exception");
         } catch (Exception e) {
@@ -398,7 +399,7 @@ public class JsonMessageHandler1_0Test {
 
     private String errorMessageForSCMData(String message) {
         try {
-            Map dataMap = (Map) new GsonBuilder().create().fromJson(message, Object.class);
+            @SuppressWarnings("unchecked") Map<String, Object> dataMap = (Map<String, Object>) new GsonBuilder().create().fromJson(message, Object.class);
             messageHandler.toMaterialDataMap(dataMap);
             fail("should have thrown exception");
         } catch (Exception e) {

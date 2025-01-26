@@ -126,7 +126,7 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void shouldSupportPipelineCounter() throws Exception {
+    public void shouldSupportPipelineCounter() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
@@ -136,7 +136,7 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void shouldReturnErrorMessageWhenFailedToFindJob() throws Exception {
+    public void shouldReturnErrorMessageWhenFailedToFindJob() {
         try {
             controller.jobDetail(fixture.pipelineName, "1", fixture.devStage, "1", "invalid-job");
         } catch (Exception e) {
@@ -146,7 +146,7 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void shouldFindJobByPipelineCounterEvenMultiplePipelinesHaveSameLabel() throws Exception {
+    public void shouldFindJobByPipelineCounterEvenMultiplePipelinesHaveSameLabel() {
         fixture.configLabelTemplateUsingMaterialRevision();
         Pipeline oldPipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage stage = oldPipeline.getFirstStage();
@@ -158,7 +158,7 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void shouldCreateJobPresentationModelWithRightStage() throws Exception {
+    public void shouldCreateJobPresentationModelWithRightStage() {
         controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
                 goConfigService, pipelineService, restfulService, artifactService, stageService, jobAgentMetadataDao, securityService);
         fixture.configLabelTemplateUsingMaterialRevision();
@@ -173,7 +173,7 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void jobDetailModel_shouldHaveTheElasticProfilePluginIdWhenAgentIsNotAssigned() throws Exception {
+    public void jobDetailModel_shouldHaveTheElasticProfilePluginIdWhenAgentIsNotAssigned() {
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
@@ -181,8 +181,8 @@ public class JobControllerIntegrationTest {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin_id").about(about).build();
         ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, new Capabilities(false, true)));
 
-        ElasticProfile profile = new ElasticProfile("profile_id", "cluster_profile_id", Collections.EMPTY_LIST);
-        ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.EMPTY_LIST);
+        ElasticProfile profile = new ElasticProfile("profile_id", "cluster_profile_id", Collections.emptyList());
+        ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.emptyList());
 
         fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), profile, clusterProfile));
 
@@ -193,7 +193,7 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void jobDetailModel_shouldHaveTheElasticPluginIdAndElasticAgentIdWhenAgentIsAssigned() throws Exception {
+    public void jobDetailModel_shouldHaveTheElasticPluginIdAndElasticAgentIdWhenAgentIsAssigned() {
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
@@ -202,8 +202,8 @@ public class JobControllerIntegrationTest {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin_id").about(about).build();
         ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, new Capabilities(false, true)));
 
-        ElasticProfile profile = new ElasticProfile("profile_id", "cluster_profile_id", Collections.EMPTY_LIST);
-        ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.EMPTY_LIST);
+        ElasticProfile profile = new ElasticProfile("profile_id", "cluster_profile_id", Collections.emptyList());
+        ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.emptyList());
 
         fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), profile, clusterProfile));
 
@@ -220,7 +220,7 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void jobDetailModel_shouldNotHaveTheElasticProfilePluginIdAndElasticAgentIdWhenAgentIsNotElasticAgent() throws Exception {
+    public void jobDetailModel_shouldNotHaveTheElasticProfilePluginIdAndElasticAgentIdWhenAgentIsNotElasticAgent() {
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
@@ -236,7 +236,7 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void jobDetailModel_shouldNotHaveElasticPluginIdAndElasticAgentIdForACompletedJob() throws Exception {
+    public void jobDetailModel_shouldNotHaveElasticPluginIdAndElasticAgentIdForACompletedJob() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();

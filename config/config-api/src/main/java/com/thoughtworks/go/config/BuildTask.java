@@ -76,14 +76,14 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
     }
 
     @Override
-    protected final void setTaskConfigAttributes(Map attributeMap) {
+    protected final void setTaskConfigAttributes(Map<String, ?> attributeMap) {
         buildFile = inferValueFromMap(attributeMap, BUILD_FILE);
         target = inferValueFromMap(attributeMap, TARGET);
         workingDirectory = inferValueFromMap(attributeMap, WORKING_DIRECTORY);
         setBuildTaskConfigAttributes(attributeMap);
     }
 
-    protected String inferValueFromMap(Map attributeMap, String key) {
+    protected String inferValueFromMap(Map<String, ?> attributeMap, String key) {
         String value = null;
         if (attributeMap.containsKey(key) && !StringUtils.isBlank((String) attributeMap.get(key))) {
             value = (String) attributeMap.get(key);
@@ -91,7 +91,7 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
         return value;
     }
 
-    protected void setBuildTaskConfigAttributes(Map attributeMap) {
+    protected void setBuildTaskConfigAttributes(Map<String, ?> attributeMap) {
     }
 
     @Override

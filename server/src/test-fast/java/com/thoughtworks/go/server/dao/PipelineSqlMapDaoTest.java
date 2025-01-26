@@ -30,6 +30,7 @@ import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.assertj.core.api.Assertions;
+import org.bouncycastle.math.raw.Mod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -119,17 +120,17 @@ class PipelineSqlMapDaoTest {
     @Test
     void shouldGetLatestRevisionFromOrderedLists() {
         PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, new SystemEnvironment(), mock(GoConfigDao.class), mock(Database.class), timeProvider);
-        List list1 = new ArrayList();
-        List list2 = new ArrayList();
-        assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isNull();
+        List<Modification> list1 = new ArrayList<>();
+        List<Modification> list2 = new ArrayList<>();
+        assertThat(PipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isNull();
         Modification modification1 = new Modification(MOD_USER, MOD_COMMENT, EMAIL_ADDRESS,
                 YESTERDAY_CHECKIN, ModificationsMother.nextRevision());
         list1.add(modification1);
-        assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isEqualTo(ModificationsMother.currentRevision());
+        assertThat(PipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isEqualTo(ModificationsMother.currentRevision());
         Modification modification2 = new Modification(MOD_USER_COMMITTER, MOD_COMMENT_2, EMAIL_ADDRESS,
                 TODAY_CHECKIN, ModificationsMother.nextRevision());
         list2.add(modification2);
-        assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isEqualTo(ModificationsMother.currentRevision());
+        assertThat(PipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isEqualTo(ModificationsMother.currentRevision());
     }
 
     @Test

@@ -163,28 +163,29 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;
         }
         super.setConfigAttributes(attributes);
-        Map map = (Map) attributes;
+        Map<String, String> map = (Map<String, String>) attributes;
         if (map.containsKey(URL)) {
-            this.url = new UrlArgument((String) map.get(URL));
+            this.url = new UrlArgument(map.get(URL));
         }
         if (map.containsKey(USERNAME)) {
-            this.userName = (String) map.get(USERNAME);
+            this.userName = map.get(USERNAME);
         }
         if (map.containsKey(DOMAIN)) {
-            this.domain = (String) map.get(DOMAIN);
+            this.domain = map.get(DOMAIN);
         }
         if (map.containsKey(PASSWORD_CHANGED) && "1".equals(map.get(PASSWORD_CHANGED))) {
-            String passwordToSet = (String) map.get(PASSWORD);
+            String passwordToSet = map.get(PASSWORD);
             resetPassword(passwordToSet);
         }
         if (map.containsKey(PROJECT_PATH)) {
-            this.projectPath = (String) map.get(PROJECT_PATH);
+            this.projectPath = map.get(PROJECT_PATH);
         }
 
     }

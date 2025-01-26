@@ -31,7 +31,7 @@ public class AnalyticsMessageConverterV2 implements AnalyticsMessageConverter {
     private static final Gson GSON = new Gson();
 
     @Override
-    public String getAnalyticsRequestBody(String type, String metricId, Map params) {
+    public String getAnalyticsRequestBody(String type, String metricId, Map<String, ?> params) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("type", type);
         requestMap.put("id", metricId);

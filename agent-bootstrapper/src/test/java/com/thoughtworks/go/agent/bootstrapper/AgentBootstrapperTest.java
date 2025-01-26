@@ -31,6 +31,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -52,6 +53,7 @@ public class AgentBootstrapperTest {
     }
 
     @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void shouldNotDieWhenCreationOfLauncherRaisesException() throws InterruptedException {
         final Semaphore waitForLauncherCreation = new Semaphore(1);
         waitForLauncherCreation.acquire();
@@ -107,7 +109,7 @@ public class AgentBootstrapperTest {
 
 
     @Test
-    @Timeout(10)
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void shouldNotRelaunchAgentLauncherWhenItReturnsAnIrrecoverableCode() {
         final boolean[] destroyCalled = new boolean[1];
         final AgentBootstrapper bootstrapper = new AgentBootstrapper(){
@@ -139,6 +141,7 @@ public class AgentBootstrapperTest {
     }
 
     @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void shouldNotDieWhenInvocationOfLauncherRaisesException_butCreationOfLauncherWentThrough() throws InterruptedException {
         final Semaphore waitForLauncherInvocation = new Semaphore(1);
         waitForLauncherInvocation.acquire();
@@ -186,9 +189,10 @@ public class AgentBootstrapperTest {
     }
 
     @Test
+    @Timeout(value = 1, unit = TimeUnit.SECONDS)
     public void shouldRetainStateAcrossLauncherInvocations() throws Exception {
 
-        final Map expectedContext = new HashMap();
+        final Map<String, String> expectedContext = new HashMap<>();
         AgentBootstrapper agentBootstrapper = new AgentBootstrapper() {
             @Override
             AgentLauncherCreator getLauncherCreator() {
@@ -201,22 +205,19 @@ public class AgentBootstrapperTest {
                             @Override
                             public int launch(AgentLaunchDescriptor descriptor) {
 
-                                Map descriptorContext = descriptor.context();
+                                Map<String, String> descriptorContext = descriptor.context();
                                 incrementCount(descriptorContext);
-                                incrementCount(expectedContext);
-                                Integer expectedCount = (Integer) expectedContext.get(COUNT);
-                                assertThat(descriptorContext.get(COUNT)).isEqualTo(expectedCount);
+                                int expectedCount = incrementCount(expectedContext);
+                                assertThat(descriptorContext.get(COUNT)).asInt().isEqualTo(expectedCount);
                                 if (expectedCount > 3) {
                                     ((AgentBootstrapper) descriptor.getBootstrapper()).stopLooping();
                                 }
                                 return 0;
                             }
 
-                            private void incrementCount(Map map) {
-                                Integer currentInvocationCount = map.containsKey(COUNT) ? (Integer) map.get(COUNT) : 0;
-                                map.put(COUNT, currentInvocationCount + 1);
+                            private int incrementCount(Map<String, String> map) {
+                                return Integer.parseInt(map.compute(COUNT, (k, v) -> v == null ? "1" : Integer.toString(Integer.parseInt(v) + 1)));
                             }
-
                         };
                     }
 

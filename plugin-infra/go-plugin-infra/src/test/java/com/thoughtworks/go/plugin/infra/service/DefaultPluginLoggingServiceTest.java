@@ -57,6 +57,6 @@ class DefaultPluginLoggingServiceTest {
 
         String loggingDirectory = loggingService.getCurrentLogDirectory();
         assertThat(appenders.size()).isEqualTo(1);
-        assertThat(new File(((FileAppender) appenders.get(0)).rawFileProperty())).isEqualTo(new File(loggingDirectory, expectedPluginLogFileName));
+        assertThat(new File(((FileAppender<?>) appenders.get(0)).rawFileProperty())).isEqualTo(new File(loggingDirectory, expectedPluginLogFileName));
     }
 }

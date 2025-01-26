@@ -240,7 +240,7 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         if (attributes == null) {
             return;
         }
-        Map attributesMap = (Map) attributes;
+        @SuppressWarnings("unchecked") Map<String, ?> attributesMap = (Map<String, ?>) attributes;
         if (attributesMap.containsKey(MATERIAL_NAME)) {
             name = new CaseInsensitiveString((String) attributesMap.get(MATERIAL_NAME));
             if (CaseInsensitiveString.isBlank(name)) {

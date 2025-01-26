@@ -92,7 +92,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void taskTypeShouldBeSanitizedToHaveNoSpecialCharacters() throws Exception {
+    public void taskTypeShouldBeSanitizedToHaveNoSpecialCharacters() {
         assertThat(new PluggableTask(new PluginConfiguration("abc.def", "1"), new Configuration()).getTaskType()).isEqualTo("pluggable_task_abc_def");
         assertThat(new PluggableTask(new PluginConfiguration("abc_def", "1"), new Configuration()).getTaskType()).isEqualTo("pluggable_task_abc_def");
         assertThat(new PluggableTask(new PluginConfiguration("abcdef", "1"), new Configuration()).getTaskType()).isEqualTo("pluggable_task_abcdef");
@@ -103,7 +103,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void shouldPopulatePropertiesForDisplay() throws Exception {
+    public void shouldPopulatePropertiesForDisplay() {
         Configuration configuration = new Configuration(
                 ConfigurationPropertyMother.create("KEY1", false, "value1"),
                 ConfigurationPropertyMother.create("Key2", false, "value2"),
@@ -127,7 +127,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void shouldPopulatePropertiesForDisplayRetainingOrderAndDisplayNameIfConfigured() throws Exception {
+    public void shouldPopulatePropertiesForDisplayRetainingOrderAndDisplayNameIfConfigured() {
         Task taskDetails = mock(Task.class);
         TaskConfig taskConfig = new TaskConfig();
         addProperty(taskConfig, "KEY2", "Key 2", 1);
@@ -156,7 +156,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void shouldGetOnlyConfiguredPropertiesIfACertainPropertyDefinedByPluginIsNotConfiguredByUser() throws Exception {
+    public void shouldGetOnlyConfiguredPropertiesIfACertainPropertyDefinedByPluginIsNotConfiguredByUser() {
         Task taskDetails = mock(Task.class);
         TaskConfig taskConfig = new TaskConfig();
         addProperty(taskConfig, "KEY2", "Key 2", 1);
@@ -189,7 +189,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void shouldPopulateItselfFromConfigAttributesMap() throws Exception {
+    public void shouldPopulateItselfFromConfigAttributesMap() {
         TaskPreference taskPreference = mock(TaskPreference.class);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("Key2"));
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
@@ -212,7 +212,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void shouldHandleSecureConfigurations() throws Exception {
+    public void shouldHandleSecureConfigurations() {
         TaskPreference taskPreference = mock(TaskPreference.class);
         Configuration configuration = new Configuration();
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
@@ -233,7 +233,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void shouldNotOverwriteValuesIfTheyAreNotAvailableInConfigAttributesMap() throws Exception {
+    public void shouldNotOverwriteValuesIfTheyAreNotAvailableInConfigAttributesMap() {
         TaskPreference taskPreference = mock(TaskPreference.class);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("Key2"));
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
@@ -256,7 +256,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void shouldIgnoreKeysPresentInConfigAttributesMapButNotPresentInConfigStore() throws Exception {
+    public void shouldIgnoreKeysPresentInConfigAttributesMapButNotPresentInConfigStore() {
         TaskPreference taskPreference = mock(TaskPreference.class);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
@@ -277,7 +277,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void shouldAddPropertyComingFromAttributesMapIfPresentInConfigStoreEvenIfItISNotPresentInCurrentConfiguration() throws Exception {
+    public void shouldAddPropertyComingFromAttributesMapIfPresentInConfigStoreEvenIfItISNotPresentInCurrentConfiguration() {
         TaskPreference taskPreference = mock(TaskPreference.class);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
@@ -425,7 +425,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void postConstructShouldHandleSecureConfigurationForConfigurationProperties() throws Exception {
+    public void postConstructShouldHandleSecureConfigurationForConfigurationProperties() {
         TaskPreference taskPreference = mock(TaskPreference.class);
         ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1");
         Configuration configuration = new Configuration(configurationProperty);
@@ -444,7 +444,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void postConstructShouldDoNothingForPluggableTaskWithoutCorrespondingPlugin() throws Exception {
+    public void postConstructShouldDoNothingForPluggableTaskWithoutCorrespondingPlugin() {
         ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1");
         Configuration configuration = new Configuration(configurationProperty);
 
@@ -457,7 +457,7 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void postConstructShouldDoNothingForAInvalidConfigurationProperty() throws Exception {
+    public void postConstructShouldDoNothingForAInvalidConfigurationProperty() {
         TaskPreference taskPreference = mock(TaskPreference.class);
         ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1");
         Configuration configuration = new Configuration(configurationProperty);

@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -68,7 +69,7 @@ public class GoConfigMigratorTest {
         String configXml = "cruise_config_xml_contents";
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         ArgumentCaptor<FullConfigUpdateCommand> commandArgumentCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
-        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        @SuppressWarnings("unchecked") ArgumentCaptor<List<PartialConfig>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         GoConfigHolder goConfigHolder = mock(GoConfigHolder.class);
 
@@ -91,7 +92,7 @@ public class GoConfigMigratorTest {
         String versionedConfig = "versioned_cruise_config";
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         ArgumentCaptor<FullConfigUpdateCommand> commandArgumentCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
-        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        @SuppressWarnings("unchecked") ArgumentCaptor<List<PartialConfig>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
         when(systemEnvironment.getCruiseConfigFile()).thenReturn("");

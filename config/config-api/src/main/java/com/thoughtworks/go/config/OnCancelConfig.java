@@ -95,14 +95,15 @@ public class OnCancelConfig implements Validatable {
         return task != null;
     }
 
+    @SuppressWarnings("unchecked")
     private void setConfigAttributes(Object attributes, TaskFactory taskFactory) {
-        Map attributeMap = (Map) attributes;
-        Task task = taskFactory.taskInstanceFor((String) attributeMap.get(ON_CANCEL_OPTIONS));
+        Map<String, String> attributeMap = (Map<String, String>) attributes;
+        Task task = taskFactory.taskInstanceFor(attributeMap.get(ON_CANCEL_OPTIONS));
         task.setConfigAttributes(attributeMap.get(task.getTaskType() + "OnCancel"));
         this.task = task;
     }
 
-    public static OnCancelConfig create(Map attributeMap, TaskFactory taskFactory) {
+    public static OnCancelConfig create(Object attributeMap, TaskFactory taskFactory) {
         OnCancelConfig config = new OnCancelConfig(false);
         config.setConfigAttributes(attributeMap, taskFactory);
         return config;

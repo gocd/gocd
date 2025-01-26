@@ -32,17 +32,18 @@ import javax.jms.ObjectMessage;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 
-public class JMSMessageListenerAdapter implements Runnable {
+public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(JMSMessageListenerAdapter.class);
 
     private final MessageConsumer consumer;
-    private final GoMessageListener listener;
+    private final GoMessageListener<T> listener;
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
-    private SystemEnvironment systemEnvironment;
-    private ServerHealthService serverHealthService;
+    private final SystemEnvironment systemEnvironment;
+    private final ServerHealthService serverHealthService;
+
     public Thread thread;
 
-    private JMSMessageListenerAdapter(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector,
+    private JMSMessageListenerAdapter(MessageConsumer consumer, GoMessageListener<T> listener, DaemonThreadStatsCollector daemonThreadStatsCollector,
                                       SystemEnvironment systemEnvironment, ServerHealthService serverHealthService) {
         this.consumer = consumer;
         this.listener = listener;
@@ -78,9 +79,10 @@ public class JMSMessageListenerAdapter implements Runnable {
                 return true;
             }
 
-            ObjectMessage omessage = (ObjectMessage) message;
+            ObjectMessage om = (ObjectMessage) message;
             daemonThreadStatsCollector.captureStats(thread.getId());
-            listener.onMessage((GoMessage) omessage.getObject());
+            @SuppressWarnings("unchecked") T object = (T) om.getObject();
+            listener.onMessage(object);
         } catch (JMSException e) {
             slowDownAndWarnAboutPossibleProblems(e);
         } catch (Exception e) {
@@ -105,9 +107,8 @@ public class JMSMessageListenerAdapter implements Runnable {
         }
     }
 
-    public static JMSMessageListenerAdapter startListening(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment, ServerHealthService serverHealthService)
-            throws JMSException {
-        return new JMSMessageListenerAdapter(consumer, listener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
+    public static <T extends GoMessage> JMSMessageListenerAdapter<T> startListening(MessageConsumer consumer, GoMessageListener<T> listener, DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment, ServerHealthService serverHealthService) {
+        return new JMSMessageListenerAdapter<>(consumer, listener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
     }
 
 }

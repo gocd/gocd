@@ -33,7 +33,7 @@ public class ProjectStatus {
 
     private String name;
     private String activity;
-    private String lastBuildStatus = "Success";
+    private String lastBuildStatus;
     private String lastBuildLabel;
     private final Set<String> breakers;
     private Date lastBuildTime;

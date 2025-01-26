@@ -104,7 +104,7 @@ public class PluginsInitializerTest {
     public void shouldNotReplacePluginsIfTheSameVersionWasAlreadyExploded() throws IOException {
         File versionFile = Files.writeString(goPluginsDir.resolve("version.txt"), "13.3.0(17222-4c7fabcb9c9e9c)", UTF_8).toFile();
         pluginsInitializer.initialize();
-        Collection collection = FileUtils.listFiles(goPluginsDir.toFile(), null, true);
+        Collection<File> collection = FileUtils.listFiles(goPluginsDir.toFile(), null, true);
         assertThat(collection.size()).isEqualTo(1);
         assertThat(collection.contains(versionFile)).isTrue();
     }
@@ -113,7 +113,7 @@ public class PluginsInitializerTest {
     public void shouldReplacePluginsIfTheDifferentVersionOfPluginsAvailable() throws IOException {
         Files.writeString(goPluginsDir.resolve("version.txt"), "13.2.0(17222-4c7fabcb9c9e9c)", UTF_8).toFile();
         pluginsInitializer.initialize();
-        Collection collection = FileUtils.listFiles(goPluginsDir.toFile(), null, true);
+        Collection<File> collection = FileUtils.listFiles(goPluginsDir.toFile(), null, true);
         assertThat(collection.size()).isEqualTo(2);
     }
 
@@ -122,7 +122,7 @@ public class PluginsInitializerTest {
         File oldPlugin = Files.createFile(goPluginsDir.resolve("old-plugin.jar")).toFile();
         Files.writeString(goPluginsDir.resolve("version.txt"), "13.2.0(17222-4c7fabcb9c9e9c)", UTF_8).toFile();
         pluginsInitializer.initialize();
-        Collection collection = FileUtils.listFiles(goPluginsDir.toFile(), null, true);
+        Collection<File> collection = FileUtils.listFiles(goPluginsDir.toFile(), null, true);
         assertThat(collection.size()).isEqualTo(2);
         assertThat(collection.contains(oldPlugin)).isFalse();
     }

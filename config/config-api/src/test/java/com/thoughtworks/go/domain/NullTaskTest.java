@@ -27,7 +27,7 @@ public class NullTaskTest {
     public void shouldNotAllowSettingOfConfigAttributes() throws Exception {
         Task task = new NullTask();
         try {
-            task.setConfigAttributes(new HashMap());
+            task.setConfigAttributes(new HashMap<>());
             fail("should have failed, as configuration of kill-all task is not allowed");
         } catch (UnsupportedOperationException e) {
             assertThat(e.getMessage()).isEqualTo("Not a configurable task");

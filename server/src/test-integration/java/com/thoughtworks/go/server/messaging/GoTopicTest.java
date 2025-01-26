@@ -36,7 +36,7 @@ import static org.awaitility.Awaitility.await;
         "classpath:/spring-all-servlet.xml",
 })
 public class GoTopicTest {
-    @Autowired private MessagingService messageService;
+    @Autowired private MessagingService<GoMessage> messageService;
 
     @Test
     public void shouldNotifyAllListeners() {

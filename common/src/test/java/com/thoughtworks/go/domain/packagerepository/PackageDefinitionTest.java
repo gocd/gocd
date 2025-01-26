@@ -223,7 +223,7 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
     void shouldSetConfigAttributes() throws Exception {
         PackageDefinition definition = new PackageDefinition();
         String pluginId = "plugin";
-        Map config = createPackageDefinitionConfiguration("package-name", pluginId, new ConfigurationHolder("key1", "value1"), new ConfigurationHolder("key2", "value2", "encrypted-value", true, "1"),
+        Map<String, Object> config = createPackageDefinitionConfiguration("package-name", pluginId, new ConfigurationHolder("key1", "value1"), new ConfigurationHolder("key2", "value2", "encrypted-value", true, "1"),
                 new ConfigurationHolder("key3", "test", "encrypted-value", true, "0"));
         PackageConfigurations metadata = new PackageConfigurations();
         metadata.addConfiguration(new PackageConfiguration("key1"));

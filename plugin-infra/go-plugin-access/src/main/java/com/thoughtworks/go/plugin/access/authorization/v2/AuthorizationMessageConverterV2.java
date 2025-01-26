@@ -160,9 +160,9 @@ public class AuthorizationMessageConverterV2 implements AuthorizationMessageConv
 
     @Override
     public String getProcessRoleConfigsResponseBody(List<PluginRoleConfig> roles) {
-        List<Map> list = new ArrayList<>();
+        List<Map<String, Object>> list = new ArrayList<>();
         for (PluginRoleConfig role : roles) {
-            LinkedHashMap<String, Object> e = new LinkedHashMap<>();
+            Map<String, Object> e = new LinkedHashMap<>();
             e.put("name", role.getName().toString());
             e.put("configuration", role.getConfigurationAsMap(true));
             list.add(e);

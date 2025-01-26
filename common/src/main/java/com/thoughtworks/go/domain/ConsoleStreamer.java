@@ -28,17 +28,17 @@ import java.util.stream.Stream;
  * Encapsulates a stream of lines from a console log file while keeping track of the number of lines processed
  * as well as the starting line to read.
  */
-public class ConsoleStreamer implements ConsoleConsumer {
-    private Path path;
-    private Stream stream;
-    private Iterator iterator;
+public class ConsoleStreamer implements ConsoleConsumer, AutoCloseable {
+    private final Path path;
+    private Stream<String> stream;
+    private Iterator<String> iterator;
 
-    private long start;
+    private final long start;
     private long count = 0L;
 
     public ConsoleStreamer(Path path, long start) {
         this.path = path;
-        this.start = (start < 0L) ? 0L : start;
+        this.start = Math.max(start, 0L);
     }
 
     /**
@@ -58,7 +58,7 @@ public class ConsoleStreamer implements ConsoleConsumer {
         if (null == iterator) iterator = stream.iterator();
 
         while (iterator.hasNext()) {
-            action.accept((String) iterator.next());
+            action.accept(iterator.next());
             ++linesStreamed;
             ++count;
         }
@@ -68,7 +68,7 @@ public class ConsoleStreamer implements ConsoleConsumer {
 
     @Override
     public void close() {
-        if (null != stream) {
+        if (stream != null) {
             stream.close();
         }
 

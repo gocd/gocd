@@ -35,7 +35,7 @@ public class PluginNotificationMessageListenerTest {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         PluginNotificationMessageListener listener = new PluginNotificationMessageListener(notificationExtension, serverHealthService);
 
-        PluginNotificationMessage message = new PluginNotificationMessage("pid", "request-name", "data");
+        PluginNotificationMessage<?> message = new PluginNotificationMessage<>("pid", "request-name", "data");
         when(notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData())).thenReturn(new Result());
         listener.onMessage(message);
 
@@ -49,7 +49,7 @@ public class PluginNotificationMessageListenerTest {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         PluginNotificationMessageListener listener = new PluginNotificationMessageListener(notificationExtension, serverHealthService);
 
-        PluginNotificationMessage message = new PluginNotificationMessage("pid", "request-name", "data");
+        PluginNotificationMessage<?> message = new PluginNotificationMessage<>("pid", "request-name", "data");
         Result result = new Result();
         result.withErrorMessages(List.of(new String[]{"error message 1", "error message 2"}));
         when(notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData())).thenReturn(result);
@@ -70,7 +70,7 @@ public class PluginNotificationMessageListenerTest {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         PluginNotificationMessageListener listener = new PluginNotificationMessageListener(notificationExtension, serverHealthService);
 
-        PluginNotificationMessage message = new PluginNotificationMessage("pid", "request-name", "data");
+        PluginNotificationMessage<?> message = new PluginNotificationMessage<>("pid", "request-name", "data");
         when(notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData())).thenThrow(new RuntimeException("error!"));
         ArgumentCaptor<ServerHealthState> argumentCaptor = ArgumentCaptor.forClass(ServerHealthState.class);
         listener.onMessage(message);

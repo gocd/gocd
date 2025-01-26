@@ -102,7 +102,7 @@ public class GoConfigGraphWalker {
         }
     }
 
-    private List<Field> getAllFields(Class klass) {//TODO: if not com.thoughtworks.go don't bother
+    private List<Field> getAllFields(Class<?> klass) {//TODO: if not com.thoughtworks.go don't bother
         return new ArrayList<>(fieldCache.valuesFor(klass));
     }
 
@@ -113,11 +113,11 @@ public class GoConfigGraphWalker {
     }
 
     private void walkCollection(Object current, ConfigSaveValidationContext ctx, Handler handler) {
-        // We can only expect java to honor the contract of datastructure interfaces(read: List),
+        // We can only expect java to honor the contract of data structure interfaces(read: List),
         // and not depend on how they choose to implement it, so we short-circuit at a level that we know will continue to work(bad, but safe)
         // TODO: do java.util.Map when needed, not handled yet, but its a simple EntrySet walk
         if (canAssignToCollectionCache.valuesFor(new AbstractMap.SimpleEntry<>(Collection.class, current.getClass()))) {
-            Collection collection = (Collection) current;
+            Collection<?> collection = (Collection<?>) current;
             for (Object collectionItem : collection) {
                 walkSubtree(collectionItem, ctx, handler);
             }

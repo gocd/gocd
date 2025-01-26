@@ -41,7 +41,7 @@ public class AnnotatedExceptionResolver extends SimpleMappingExceptionResolver {
             throw bomb(ex);
         }
 
-        Class handlerType = controller.getClass();
+        Class<? extends Object> handlerType = controller.getClass();
         class CallBack implements ReflectionUtils.MethodCallback {
             private ModelAndView mov;
 

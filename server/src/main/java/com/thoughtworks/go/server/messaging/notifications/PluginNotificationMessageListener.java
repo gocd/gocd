@@ -26,10 +26,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PluginNotificationMessageListener implements GoMessageListener<PluginNotificationMessage> {
-    private NotificationExtension notificationExtension;
-    private ServerHealthService serverHealthService;
+public class PluginNotificationMessageListener implements GoMessageListener<PluginNotificationMessage<?>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginNotificationMessageListener.class);
+    private final NotificationExtension notificationExtension;
+    private final ServerHealthService serverHealthService;
 
     public PluginNotificationMessageListener(NotificationExtension notificationExtension, ServerHealthService serverHealthService) {
         this.notificationExtension = notificationExtension;
@@ -37,7 +37,7 @@ public class PluginNotificationMessageListener implements GoMessageListener<Plug
     }
 
     @Override
-    public void onMessage(PluginNotificationMessage message) {
+    public void onMessage(PluginNotificationMessage<?> message) {
         HealthStateScope scope = HealthStateScope.aboutPlugin(message.pluginId());
         try {
             LOGGER.debug("Sending {} notification message {} for plugin {}", message.getRequestName(), message, message.pluginId());

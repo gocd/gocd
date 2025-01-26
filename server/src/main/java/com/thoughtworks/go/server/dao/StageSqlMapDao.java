@@ -29,7 +29,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.domain.StageStatusListener;
@@ -40,7 +39,6 @@ import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.DynamicReadWriteLock;
 import com.thoughtworks.go.util.IBatisUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.TestOnly;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
@@ -78,9 +76,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                           TransactionTemplate transactionTemplate,
                           SqlSessionFactory sqlSessionFactory,
                           GoCache goCache,
-                          TransactionSynchronizationManager transactionSynchronizationManager,
-                          SystemEnvironment systemEnvironment,
-                          Database database) {
+                          TransactionSynchronizationManager transactionSynchronizationManager) {
         super(goCache, sqlSessionFactory);
         this.buildInstanceDao = buildInstanceDao;
         this.cache = cache;
@@ -197,10 +193,10 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     @Override
     public Stage findStageWithIdentifier(StageIdentifier identifier) {
-        String cachekey = cacheKeyForStageIdentifier(identifier);
+        String cacheKey = cacheKeyForStageIdentifier(identifier);
         String cacheKeyForIdentifiers = cacheKeyForListOfStageIdentifiers(identifier);
         synchronized (cacheKeyForIdentifiers) {
-            Stage stage = (Stage) goCache.get(cacheKeyForIdentifiers, cachekey);
+            Stage stage = (Stage) goCache.get(cacheKeyForIdentifiers, cacheKey);
             if (stage == null) {
                 IBatisUtil.IBatisArgument argument = IBatisUtil.arguments("pipelineName", identifier.getPipelineName())
                     .and("pipelineCounter", identifier.getPipelineCounter())
@@ -209,12 +205,12 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                 if (identifier.getPipelineLabel() != null) {
                     argument = argument.and("pipelineLabel", identifier.getPipelineLabel());
                 }
-                Map arguments = argument.asMap();
+                Map<String, Object> arguments = argument.asMap();
                 stage = getSqlMapClientTemplate().queryForObject("findStageWithJobsByIdentifier", arguments);
                 if (stage == null) {
                     return new NullStage(identifier.getStageName());
                 }
-                goCache.put(cacheKeyForIdentifiers, cachekey, stage);
+                goCache.put(cacheKeyForIdentifiers, cacheKey, stage);
             }
             return cloner.deepClone(stage);
         }
@@ -339,9 +335,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
         Stage stage = stageByIdWithBuildsWithNoAssociations(mostRecentId);
 
-        List<JobInstance> jobInstances = new ArrayList<>();
-        jobInstances.addAll(stage.getJobInstances());
-        return jobInstances;
+        return new ArrayList<>(stage.getJobInstances());
     }
 
 
@@ -396,11 +390,9 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         Integer total = goCache.get(key);
         if (total == null) {
             synchronized (key) {
-                if (total == null) {
-                    Map<String, Object> toGet = arguments("pipelineName", pipelineName).and("stageName", stageName).asMap();
-                    total = getSqlMapClientTemplate().queryForObject("getTotalStageCountForChart", toGet);
-                    goCache.put(key, total);
-                }
+                Map<String, Object> toGet = arguments("pipelineName", pipelineName).and("stageName", stageName).asMap();
+                total = getSqlMapClientTemplate().queryForObject("getTotalStageCountForChart", toGet);
+                goCache.put(key, total);
             }
         }
         return total;
@@ -559,16 +551,12 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return cacheKeyGenerator.generate("stageOffsetMap", stage.getIdentifier().getPipelineName(), stage.getIdentifier().getStageName()).intern();
     }
 
-    private List<StageFeedEntry> findForFeed(String baseQuery, FeedModifier modifier, long transitionId, int pageSize) {
-        Map parameters = new HashMap();
-        parameters.put("value", transitionId);
-        parameters.put("pageLimit", pageSize);
-        return getSqlMapClientTemplate().queryForList(baseQuery + modifier.suffix(), parameters);
-    }
-
     @Override
     public List<StageFeedEntry> findAllCompletedStages(FeedModifier modifier, long id, int pageSize) {
-        return findForFeed("allCompletedStages", modifier, id, pageSize);
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("value", id);
+        parameters.put("pageLimit", pageSize);
+        return getSqlMapClientTemplate().queryForList("allCompletedStages" + modifier.suffix(), parameters);
     }
 
     @Override
@@ -597,7 +585,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                                                          long transitionId,
                                                          long pageSize) {
         //IMPORTANT: wire cache clearing on job-state-change for me, the day FeedEntry gets jobs - Sachin & JJ
-        Map parameters = new HashMap();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("value", transitionId);
         parameters.put("pageLimit", pageSize);
         parameters.put("pipelineName", pipelineName);

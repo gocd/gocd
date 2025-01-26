@@ -138,14 +138,13 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         }
     }
 
-    public void notifyMaterialsForUpdate(Username username, Object params, HttpLocalizedOperationResult result) {
+    public void notifyMaterialsForUpdate(Username username, Map<String, String> attributes, HttpLocalizedOperationResult result) {
         if (!goConfigService.isUserAdmin(username)) {
             result.forbidden("Unauthorized to access this API.", HealthStateType.forbidden());
             return;
         }
-        final Map attributes = (Map) params;
         if (attributes.containsKey(MaterialUpdateService.TYPE)) {
-            PostCommitHookMaterialType materialType = postCommitHookMaterialType.toType((String) attributes.get(MaterialUpdateService.TYPE));
+            PostCommitHookMaterialType materialType = postCommitHookMaterialType.toType(attributes.get(MaterialUpdateService.TYPE));
             if (!materialType.isKnown()) {
                 result.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
                 return;

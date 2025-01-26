@@ -44,6 +44,7 @@ public class ArtifactPlanRepository extends HibernateDaoSupport {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public List<ArtifactPlan> findByBuildId(long buildId) {
         return (List<ArtifactPlan>) getHibernateTemplate().find(GET_ARTIFACT_PLANS_BY_BUILD_ID, buildId);
     }

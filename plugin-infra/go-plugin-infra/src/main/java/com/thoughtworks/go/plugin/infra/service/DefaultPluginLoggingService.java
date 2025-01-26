@@ -221,7 +221,7 @@ public class DefaultPluginLoggingService implements LoggingService {
 
     String getCurrentLogDirectory() {
         try {
-            FileAppender fileAppender = getGoServerLogFileAppender();
+            FileAppender<ILoggingEvent> fileAppender = getGoServerLogFileAppender();
             String fileName = fileAppender.rawFileProperty();
             return new File(fileName).getAbsoluteFile().getParent();
         } catch (Exception e) {
@@ -229,8 +229,8 @@ public class DefaultPluginLoggingService implements LoggingService {
         }
     }
 
-    FileAppender getGoServerLogFileAppender() {
-        return (FileAppender) rootLogger().getAppender("FileAppender");
+    FileAppender<ILoggingEvent> getGoServerLogFileAppender() {
+        return (FileAppender<ILoggingEvent>) rootLogger().getAppender("FileAppender");
     }
 
 }

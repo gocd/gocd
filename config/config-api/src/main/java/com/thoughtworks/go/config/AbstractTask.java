@@ -125,17 +125,17 @@ public abstract class AbstractTask implements Task  {
         if (field.isSubtag() && field.getValue() instanceof Arguments) {
             closeConfigTag(builder, field);
 
-            if (field.getValue() instanceof Arguments && ((Arguments) field.getValue()).size() != 0) {
+            if (field.getValue() instanceof Arguments && !((Arguments) field.getValue()).isEmpty()) {
                 for (Argument arg : (Arguments) field.getValue()) {
                     builder.append(String.format("<arg>%s</arg>", arg.getValue())).append("\n");
                 }
-                builder.append("</" + configTag.value() + ">");
+                builder.append("</").append(configTag.value()).append(">");
             }
         }
     }
 
     private void closeConfigTag(StringBuilder builder, GoConfigFieldWriter field) {
-        if (((Arguments) field.getValue()).size() != 0) {
+        if (!((Arguments) field.getValue()).isEmpty()) {
             builder.append(">").append("\n");
         } else {
             builder.append("/>");
@@ -148,9 +148,10 @@ public abstract class AbstractTask implements Task  {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public final void setConfigAttributes(Object attributes, TaskFactory taskFactory) {
-        Map attributeMap = (Map) attributes;
+        Map<String, Object> attributeMap = (Map<String, Object>) attributes;
         if (attributes == null || attributeMap.isEmpty()) {
             return;
         }
@@ -165,7 +166,7 @@ public abstract class AbstractTask implements Task  {
             runIfConfigs.add(RunIfConfig.PASSED);
         }
         if ("1".equals(attributeMap.get(HAS_CANCEL_TASK))) {
-            onCancelConfig = OnCancelConfig.create((Map) attributeMap.get(ON_CANCEL_CONFIG), taskFactory);
+            onCancelConfig = OnCancelConfig.create(attributeMap.get(ON_CANCEL_CONFIG), taskFactory);
         } else if ("0".equals(attributeMap.get(HAS_CANCEL_TASK))) {
             onCancelConfig = OnCancelConfig.killAllChildProcess();
         }
@@ -188,7 +189,7 @@ public abstract class AbstractTask implements Task  {
         return onCancelConfig.validateTree(validationContext) && errors.isEmpty();
     }
 
-    protected abstract void setTaskConfigAttributes(Map attributes);
+    protected abstract void setTaskConfigAttributes(Map<String, ?> attributes);
 
     @Override
     public final void validate(ValidationContext validationContext) {

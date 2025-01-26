@@ -77,7 +77,7 @@ public class EncryptedConfigurationValue implements Serializable, Validatable {
     }
 
     public void setConfigAttributes(Object attributes) {
-        Map attributesMap = (Map) attributes;
+        @SuppressWarnings("unchecked") Map<String, ?> attributesMap = (Map<String, ?>) attributes;
         if (attributesMap.containsKey(VALUE)) {
             value = (String) attributesMap.get(VALUE);
         }

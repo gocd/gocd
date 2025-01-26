@@ -24,6 +24,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Method;
@@ -50,7 +51,7 @@ class EnvironmentVariableConfigTest {
         String encryptedText = "encrypted";
         when(goCipher.encrypt("password")).thenReturn(encryptedText);
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher);
-        Map attrs = getAttributeMap("password", "true", "true");
+        Map<String, String> attrs = getAttributeMap("password", "true", "true");
 
         environmentVariableConfig.setConfigAttributes(attrs);
 
@@ -62,7 +63,7 @@ class EnvironmentVariableConfigTest {
     @Test
     void shouldAssignNameAndValueForAVanillaEnvironmentVariable() {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig((GoCipher) null);
-        Map attrs = new HashMap();
+        Map<String, String> attrs = new HashMap<>();
         attrs.put(EnvironmentVariableConfig.NAME, "foo");
         attrs.put(EnvironmentVariableConfig.VALUE, "password");
 
@@ -76,7 +77,7 @@ class EnvironmentVariableConfigTest {
     @Test
     void shouldThrowUpWhenTheAttributeMapHasBothNameAndValueAreEmpty() {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig((GoCipher) null);
-        Map attrs = new HashMap();
+        Map<String, String> attrs = new HashMap<>();
         attrs.put(EnvironmentVariableConfig.VALUE, "");
 
         assertThatCode(() -> environmentVariableConfig.setConfigAttributes(attrs))
@@ -91,7 +92,7 @@ class EnvironmentVariableConfigTest {
         when(mockGoCipher.encrypt(plainText)).thenReturn(cipherText);
         when(mockGoCipher.decrypt(cipherText)).thenReturn(plainText);
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
-        Map attrs = getAttributeMap(plainText, "true", "true");
+        Map<String, String> attrs = getAttributeMap(plainText, "true", "true");
 
         environmentVariableConfig.setConfigAttributes(attrs);
 
@@ -105,7 +106,7 @@ class EnvironmentVariableConfigTest {
         GoCipher mockGoCipher = mock(GoCipher.class);
         String plainText = "password";
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
-        Map attrs = getAttributeMap(plainText, "false", "1");
+        Map<String, String> attrs = getAttributeMap(plainText, "false", "1");
 
         environmentVariableConfig.setConfigAttributes(attrs);
 
@@ -141,7 +142,7 @@ class EnvironmentVariableConfigTest {
         when(mockGoCipher.encrypt(plainText)).thenReturn(cipherText);
         when(mockGoCipher.decrypt(cipherText)).thenReturn(plainText);
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
-        Map firstSubmit = getAttributeMap(plainText, "true", "true");
+        Map<String, String> firstSubmit = getAttributeMap(plainText, "true", "true");
         environmentVariableConfig.setConfigAttributes(firstSubmit);
 
         assertThat(environmentVariableConfig.getEncryptedValue()).isEqualTo(cipherText);
@@ -156,10 +157,10 @@ class EnvironmentVariableConfigTest {
         when(mockGoCipher.decrypt(cipherText)).thenReturn(plainText);
         when(mockGoCipher.encrypt(cipherText)).thenReturn("SHOULD NOT DO THIS");
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
-        Map firstSubmit = getAttributeMap(plainText, "true", "true");
+        Map<String, String> firstSubmit = getAttributeMap(plainText, "true", "true");
         environmentVariableConfig.setConfigAttributes(firstSubmit);
 
-        Map secondSubmit = getAttributeMap(cipherText, "true", "false");
+        Map<String, String> secondSubmit = getAttributeMap(cipherText, "true", "false");
         environmentVariableConfig.setConfigAttributes(secondSubmit);
 
         assertThat(environmentVariableConfig.getEncryptedValue()).isEqualTo(cipherText);
@@ -254,8 +255,7 @@ class EnvironmentVariableConfigTest {
             PipelineConfigs group = mock(BasicPipelineConfigs.class);
 
             when(secretConfig.getId()).thenReturn("secret_config_id");
-            //noinspection unchecked
-            when(secretConfig.canRefer(any(Class.class), any(String.class))).thenReturn(true);
+            when(secretConfig.canRefer(ArgumentMatchers.<Class<? extends Validatable>>any(), any())).thenReturn(true);
             when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
             when(validationContext.isWithinPipelines()).thenReturn(true);
             when(validationContext.getPipelineGroup()).thenReturn(group);

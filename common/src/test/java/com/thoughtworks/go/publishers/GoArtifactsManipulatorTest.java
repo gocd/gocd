@@ -70,7 +70,7 @@ public class GoArtifactsManipulatorTest {
     public void shouldBombWithErrorWhenStatusCodeReturnedIsRequestEntityTooLarge() throws IOException {
         when(httpService.upload(any(String.class), eq(tempFile.length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 
-        CircularFifoQueue buffer = ReflectionUtil.getField(ReflectionUtil.getField(goPublisher, "consoleOutputTransmitter"), "buffer");
+        CircularFifoQueue<?> buffer = ReflectionUtil.getField(ReflectionUtil.getField(goPublisher, "consoleOutputTransmitter"), "buffer");
         synchronized (buffer) {
             try {
                 goArtifactsManipulatorStub.publish(goPublisher, "some_dest", tempFile, jobIdentifier);

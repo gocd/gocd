@@ -126,7 +126,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
     }
 
     private List<String> getContainedFileNames(File folder) {
-        List<String> fileNames = new ArrayList();
+        List<String> fileNames = new ArrayList<>();
         File[] files = folder.listFiles();
         for (File file : files) {
             fileNames.add(file.getName());

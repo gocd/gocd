@@ -41,7 +41,7 @@ public class TasksTest {
 
     @Test
     public void shouldSetConfigAttributesForBuiltinTask() throws Exception {
-        Map attributes = new HashMap();
+        Map<String, Object> attributes = new HashMap<>();
         attributes.put(Tasks.TASK_OPTIONS, "ant");
         attributes.put("ant", antTaskAttribs("build.xml", "test", "foo"));
         TaskFactory taskFactory = mock(TaskFactory.class);

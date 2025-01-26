@@ -29,14 +29,14 @@ public class CreateAgentQueueHandler extends PluginMessageQueueHandler<CreateAge
     final static String QUEUE_NAME_PREFIX = CreateAgentQueueHandler.class.getSimpleName() + ".";
 
     @Autowired
-    public CreateAgentQueueHandler(final MessagingService messaging, final ElasticAgentPluginRegistry elasticAgentPluginRegistry, ElasticAgentExtension elasticAgentExtension, PluginManager pluginManager, final SystemEnvironment systemEnvironment) {
-        super(elasticAgentExtension, messaging, pluginManager, new QueueFactory() {
+    public CreateAgentQueueHandler(final MessagingService<GoMessage> messaging, final ElasticAgentPluginRegistry elasticAgentPluginRegistry, ElasticAgentExtension elasticAgentExtension, PluginManager pluginManager, final SystemEnvironment systemEnvironment) {
+        super(elasticAgentExtension, messaging, pluginManager, new QueueFactory<CreateAgentMessage>() {
             @Override
-            public PluginAwareMessageQueue create(GoPluginDescriptor pluginDescriptor) {
-                return new PluginAwareMessageQueue(messaging, pluginDescriptor.id(), QUEUE_NAME_PREFIX + pluginDescriptor.id(), systemEnvironment.get(SystemEnvironment.GO_ELASTIC_PLUGIN_CREATE_AGENT_THREADS), listener());
+            public PluginAwareMessageQueue<CreateAgentMessage> create(GoPluginDescriptor pluginDescriptor) {
+                return new PluginAwareMessageQueue<>(messaging, pluginDescriptor.id(), QUEUE_NAME_PREFIX + pluginDescriptor.id(), systemEnvironment.get(SystemEnvironment.GO_ELASTIC_PLUGIN_CREATE_AGENT_THREADS), listener());
             }
 
-            public ListenerFactory listener() {
+            public ListenerFactory<CreateAgentMessage> listener() {
                 return () -> new CreateAgentListener(elasticAgentPluginRegistry);
             }
         });

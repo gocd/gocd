@@ -178,12 +178,12 @@ class AbstractMaterialConfigTest {
         @Override
         public void setConfigAttributes(Object attributes) {
             super.setConfigAttributes(attributes);
-            Map map = (Map) attributes;
+            @SuppressWarnings("unchecked") Map<String, String> map = (Map<String, String>) attributes;
             if (map.containsKey("bar")) {
-                bar = (String) map.get("bar");
+                bar = map.get("bar");
             }
             if (map.containsKey("quux")) {
-                quux = (String) map.get("quux");
+                quux = map.get("quux");
             }
         }
 

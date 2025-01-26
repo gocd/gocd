@@ -53,8 +53,8 @@ public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
         return NULLS_GSON.toJson(messageObject);
     }
 
-    private Map getArtifactStore(ArtifactStore artifactStore) {
-        final HashMap<String, Object> artifactStoreAndPlans = new HashMap<>();
+    private Map<String, Object> getArtifactStore(ArtifactStore artifactStore) {
+        final Map<String, Object> artifactStoreAndPlans = new HashMap<>();
         artifactStoreAndPlans.put("id", artifactStore.getId());
         artifactStoreAndPlans.put("configuration", artifactStore.getConfigurationAsMap(true));
         return artifactStoreAndPlans;

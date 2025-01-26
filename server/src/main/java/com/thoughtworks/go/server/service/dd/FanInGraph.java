@@ -356,7 +356,7 @@ public class FanInGraph {
             }
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     private StageIdFaninScmMaterialPair getSmallestScmRevision(Collection<StageIdFaninScmMaterialPair> scmWithDiffVersions) {

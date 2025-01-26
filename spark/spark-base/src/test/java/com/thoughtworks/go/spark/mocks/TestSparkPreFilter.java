@@ -19,7 +19,6 @@ import spark.servlet.SparkApplication;
 import spark.servlet.SparkFilter;
 
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 
 public class TestSparkPreFilter extends SparkFilter {
 

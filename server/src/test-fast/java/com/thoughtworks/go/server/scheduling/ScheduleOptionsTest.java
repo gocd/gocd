@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.scheduling;
 
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

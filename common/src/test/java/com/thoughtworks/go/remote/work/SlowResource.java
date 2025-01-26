@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.remote.work;
 
-import java.io.IOException;
-
 public class SlowResource implements ConsoleAppender {
     public int invokedCount = 0;
 

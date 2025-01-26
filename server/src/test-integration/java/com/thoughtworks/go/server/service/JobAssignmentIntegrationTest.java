@@ -38,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.net.UnknownHostException;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;

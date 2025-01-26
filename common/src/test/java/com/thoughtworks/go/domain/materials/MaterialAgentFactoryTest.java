@@ -33,7 +33,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
-import java.io.IOException;
 
 import static com.thoughtworks.go.domain.materials.MaterialAgent.NO_OP;
 import static org.assertj.core.api.Assertions.assertThat;

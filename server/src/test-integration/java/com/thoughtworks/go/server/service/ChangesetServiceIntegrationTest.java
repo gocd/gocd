@@ -46,7 +46,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;

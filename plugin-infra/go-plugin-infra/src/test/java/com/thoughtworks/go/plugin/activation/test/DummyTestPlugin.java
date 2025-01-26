@@ -33,8 +33,8 @@ public class DummyTestPlugin implements GoPlugin {
     }
 
     @Override
-    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
-        throw new UnsupportedOperationException();
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+        throw new UnhandledRequestTypeException("Dummy");
     }
 
     @Override

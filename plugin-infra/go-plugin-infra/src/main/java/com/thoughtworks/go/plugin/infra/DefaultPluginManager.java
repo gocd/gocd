@@ -130,7 +130,13 @@ public class DefaultPluginManager implements PluginManager {
     public GoPluginApiResponse submitTo(final String pluginId, String extensionType, final GoPluginApiRequest apiRequest) {
         return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, extensionType, (plugin, pluginDescriptor) -> {
             ensureInitializerInvoked(pluginDescriptor, plugin, extensionType);
-            return plugin.handle(apiRequest);
+            try {
+                return plugin.handle(apiRequest);
+            } catch (UnhandledRequestTypeException e) {
+                LOGGER.error(e.getMessage());
+                LOGGER.debug(e.getMessage(), e);
+                throw new RuntimeException(e);
+            }
         });
     }
 

@@ -57,7 +57,6 @@ import static org.mockito.Mockito.mock;
  * Understands how to edit the cruise config file for testing
  */
 @SuppressWarnings({"UnusedReturnValue"})
-// Workaround for IntelliJ thinking this place is production rather than test code
 public class GoConfigFileHelper {
 
     private static final GoConfigCloner CLONER = new GoConfigCloner();

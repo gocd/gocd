@@ -18,5 +18,5 @@ compileJava {
   // build to be compatible with JDK 8 so that the error message can be read if starting GoCD with a version
   // lower than its minimum supported version
   options.release.set(8)
-  options.compilerArgs << "-Xlint:-optioms"
+  options.compilerArgs << "-Xlint:-options"
 }

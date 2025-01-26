@@ -97,7 +97,7 @@ class StageSqlMapDaoTest {
         when(pagination.getPageSize()).thenReturn(10);
         when(function.get()).thenReturn(pagination);
         StageSqlMapDao spy = spy(stageSqlMapDao);
-        @SuppressWarnings("unchecked") List<StageHistoryEntry> expectedStageHistoryEntriesList = mock(List.class);
+        @SuppressWarnings("unchecked") ArrayList<StageHistoryEntry> expectedStageHistoryEntriesList = mock(ArrayList.class);
         StageHistoryEntry topOfThisPage = mock(StageHistoryEntry.class);
         when(expectedStageHistoryEntriesList.get(0)).thenReturn(topOfThisPage);
         StageHistoryEntry bottomOfLastPage = mock(StageHistoryEntry.class);

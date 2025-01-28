@@ -24,7 +24,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// Workaround for IntelliJ thinking this place is production rather than test code
 public class VSMTestHelper {
 
     public static void assertThatLevelHasNodes(List<Node> nodesAtLevel, int numberOfDummyNodes, CaseInsensitiveString... nodeIds) {

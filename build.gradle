@@ -694,33 +694,35 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
     data.directory = layout.buildDirectory.dir("dependency-check-data").get()
   }
 
-  tasks.register('downloadDependencyCheckCache', Download) {
-    src 'https://nexus.gocd.io/repository/cache/dependency-check-data.zip'
-    dest layout.buildDirectory.file('dependency-check-data.zip')
-    onlyIfModified true
-  }
+  if (!project.hasProperty('bootstrapDependencyCheckCache')) {
+    tasks.register('downloadDependencyCheckCache', Download) {
+      src 'https://nexus.gocd.io/repository/cache/dependency-check-data.zip'
+      dest layout.buildDirectory.file('dependency-check-data.zip')
+      onlyIfModified true
+    }
 
-  tasks.register('unzipDependencyCheckCache', Copy) {
-    dependsOn downloadDependencyCheckCache
-    from zipTree(downloadDependencyCheckCache.dest)
-    into layout.buildDirectory.dir("dependency-check-data")
-    def copyDetails = []
-    eachFile { copyDetails << it }
-    doLast {
-      copyDetails.each { FileCopyDetails details ->
-        def target = new File(destinationDir, details.path)
-        if (target.exists()) { target.setLastModified(details.lastModified) }
+    tasks.register('unzipDependencyCheckCache', Copy) {
+      dependsOn downloadDependencyCheckCache
+      from zipTree(downloadDependencyCheckCache.dest)
+      into layout.buildDirectory.dir("dependency-check-data")
+      def copyDetails = []
+      eachFile { copyDetails << it }
+      doLast {
+        copyDetails.each { FileCopyDetails details ->
+          def target = new File(destinationDir, details.path)
+          if (target.exists()) {
+            target.setLastModified(details.lastModified)
+          }
+        }
       }
     }
+
+    dependencyCheckUpdate.dependsOn unzipDependencyCheckCache
+    dependencyCheckAnalyze.dependsOn unzipDependencyCheckCache
+    dependencyCheckAggregate.dependsOn unzipDependencyCheckCache
   }
 
-  dependencyCheckUpdate.dependsOn unzipDependencyCheckCache
-  dependencyCheckAnalyze.dependsOn unzipDependencyCheckCache
-  dependencyCheckAggregate.dependsOn unzipDependencyCheckCache
-
   tasks.register('uploadDependencyCheckCache', Zip) {
-    mustRunAfter dependencyCheckUpdate, dependencyCheckAnalyze, dependencyCheckAggregate
-
     from layout.buildDirectory.file("dependency-check-data")
     archiveFileName = "dependency-check-data-updated.zip"
     destinationDirectory = layout.buildDirectory
@@ -741,6 +743,10 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
       }
     }
   }
+
+  dependencyCheckUpdate.finalizedBy uploadDependencyCheckCache
+  dependencyCheckAnalyze.finalizedBy uploadDependencyCheckCache
+  dependencyCheckAggregate.finalizedBy uploadDependencyCheckCache
 }
 
 task newSPA {

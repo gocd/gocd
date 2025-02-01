@@ -226,7 +226,8 @@ GEM
 
 PLATFORMS
   java
-  universal-java
+  universal-java-17
+  universal-java-21
   x86_64-linux
 
 DEPENDENCIES
@@ -245,4 +246,4 @@ RUBY VERSION
    ruby 3.1.4p0 (jruby 9.4.0.0)
 
 BUNDLED WITH
-   2.3.26
+   2.6.3

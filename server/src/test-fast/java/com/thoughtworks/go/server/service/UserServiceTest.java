@@ -307,7 +307,7 @@ public class UserServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         when(userDao.enabledUsers()).thenReturn(List.of(new User("Jake")));
-        userService.enable(List.of("Jake"), result);
+        userService.enable(List.of("Jake"));
 
         assertThat(result.isSuccessful()).isTrue();
     }
@@ -672,7 +672,7 @@ public class UserServiceTest {
 
         verify(userDao, never()).disableUsers(usernames);
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.message()).contains("There must be atleast one admin user enabled!");
+        assertThat(result.message()).contains("There must be at least one admin user enabled!");
     }
 
     @Test

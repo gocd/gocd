@@ -61,7 +61,14 @@ public class UserService {
     private final SecurityService securityService;
     private final GoConfigService goConfigService;
     private final TransactionTemplate transactionTemplate;
-    private SystemEnvironment systemEnvironment;
+    private final SystemEnvironment systemEnvironment;
+
+    private final DelegatingValidationContext validationContext = new DelegatingValidationContext(null) {
+        @Override
+        public CruiseConfig getCruiseConfig() {
+            return goConfigService.getCurrentConfig();
+        }
+    };
 
     private final Object disableUserMutex = new Object();
     private final Object enableUserMutex = new Object();
@@ -82,7 +89,7 @@ public class UserService {
     public void disable(final List<String> usersToBeDisabled, LocalizedOperationResult result) {
         synchronized (disableUserMutex) {
             if (willDisableAllAdmins(usersToBeDisabled)) {
-                result.badRequest("There must be atleast one admin user enabled!");
+                result.badRequest("There must be at least one admin user enabled!");
                 return;
             }
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -164,10 +171,8 @@ public class UserService {
         return user;
     }
 
-    public void enable(List<String> usernames, LocalizedOperationResult result) {
+    public void enable(List<String> usernames) {
         synchronized (enableUserMutex) {
-            Set<String> potentialEnabledUsers = new HashSet<>(toUserNames(userDao.enabledUsers()));
-            potentialEnabledUsers.addAll(usernames);
             userDao.enableUsers(usernames);
         }
     }
@@ -293,7 +298,7 @@ public class UserService {
             boolean isValid = performUserUpdateValidation(userNames, result);
             if (isValid) {
                 if (shouldEnable) {
-                    enable(userNames, result);
+                    enable(userNames);
                 } else {
                     disable(userNames, result);
                 }
@@ -566,9 +571,7 @@ public class UserService {
     }
 
     public Collection<User> allUsers() {
-        Set<User> result = new HashSet<>();
-        result.addAll(userDao.allUsers());
-        return result;
+        return new HashSet<>(userDao.allUsers());
     }
 
     public void create(List<UserSearchModel> userSearchModels, HttpLocalizedOperationResult result) {
@@ -647,11 +650,4 @@ public class UserService {
         }
         return hasEmailChanged || hasDisplayNameChanged;
     }
-
-    private DelegatingValidationContext validationContext = new DelegatingValidationContext(null) {
-        @Override
-        public CruiseConfig getCruiseConfig() {
-            return goConfigService.getCurrentConfig();
-        }
-    };
 }

@@ -440,12 +440,6 @@ public class UserService {
         }
     }
 
-    public void withEnableUserMutex(Runnable runnable) {
-        synchronized (enableUserMutex) {
-            runnable.run();
-        }
-    }
-
     private void assertUnknownUsersAreAllowedToLogin(Username username, SecurityAuthConfig authConfig) {
         if (authConfig.isOnlyKnownUserAllowedToLogin()) {
             throw new OnlyKnownUsersAllowedException(username.getUsername().toString(), "Please ask the administrator to add you to GoCD.");

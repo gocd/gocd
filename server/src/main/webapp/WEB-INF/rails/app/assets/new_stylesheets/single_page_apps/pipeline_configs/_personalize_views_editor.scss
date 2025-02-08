@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 @use "sass:color";
+@use "sass:map";
 
 $personalize-modal-err-tooltip-bg: rgba($tooltip-background-color, 0.75);
 $view-top-bg: $section-bg;
@@ -81,7 +82,7 @@ $icon-color: #647984;
   right: 0;
   padding: 20px;
   padding-right: 40px;
-  background: map-get($foundation-palette, alert);
+  background: map.get($foundation-palette, alert);
   color: #fff;
   font-weight: 600;
   z-index: 100;

@@ -198,7 +198,7 @@ $paragraph-margin-bottom: 1rem;
 $paragraph-text-rendering: optimizeLegibility;
 $enable-code-inline: true;
 $anchor-color: #1585cf; // custom
-$anchor-color-hover: scale-color($anchor-color, $lightness: -14%);
+$anchor-color-hover: color.scale($anchor-color, $lightness: -14%);
 $anchor-text-decoration: none;
 $anchor-text-decoration-hover: none;
 $hr-width: $global-width;
@@ -325,7 +325,7 @@ $button-padding: 0.5em 1em; // custom
 $button-margin: 0 0 $global-margin 0;
 $button-fill: solid;
 $button-background: $primary-color;
-$button-background-hover: scale-color($button-background, $lightness: -15%);
+$button-background-hover: color.scale($button-background, $lightness: -15%);
 $button-color: $white;
 $button-color-alt: $black;
 $button-radius: $global-radius;
@@ -806,9 +806,9 @@ $slider-radius: $global-radius;
 // ----------
 
 $switch-background: $medium-gray;
-$switch-background-focus: scale-color($switch-background, $lightness: -10%);
+$switch-background-focus: color.scale($switch-background, $lightness: -10%);
 $switch-background-active: $primary-color;
-$switch-background-active-focus: scale-color($switch-background-active, $lightness: -15%);
+$switch-background-active-focus: color.scale($switch-background-active, $lightness: -15%);
 $switch-height: 2rem;
 $switch-height-tiny: 1.5rem;
 $switch-height-small: 1.75rem;

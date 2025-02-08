@@ -34,7 +34,7 @@ public interface Clock {
 
     void sleepForSeconds(long seconds) throws InterruptedException;
 
-    void sleepForMillis(long download_sleep_millis) throws InterruptedException;
+    void sleepForMillis(long millis) throws InterruptedException;
 
     DateTime timeoutTime(Timeout timeout);
 

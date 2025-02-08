@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
 @import "../../global/common";
 
 @mixin ie-edge-fix-for-admin-dropdown {
@@ -23,7 +24,7 @@
 
     &::before {
       top: 40px;
-      z-index: map_get($zindex, "menu");
+      z-index: map.get($zindex, "menu");
       transition: all 0.1s ease-in-out;
     }
   }
@@ -147,7 +148,7 @@
     display: none;
     line-height: normal;
     box-shadow: 0 3px 10px $box-shadow-color;
-    z-index: map_get($zindex, submenu);
+    z-index: map.get($zindex, submenu);
   }
 }
 

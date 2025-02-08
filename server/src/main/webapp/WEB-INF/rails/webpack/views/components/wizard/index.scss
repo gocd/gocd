@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
 @import "../../global/common";
 
 $navbar-height: 40px;
@@ -24,7 +25,7 @@ $wizard-footer-height: 56px;
 .overlay {
   border: none;
   position: fixed;
-  z-index: map_get($zindex, "wizard-overlay");
+  z-index: map.get($zindex, "wizard-overlay");
   top: calc(#{$navbar-height} + #{$page-header-height});
   left: 0;
   right: 0;

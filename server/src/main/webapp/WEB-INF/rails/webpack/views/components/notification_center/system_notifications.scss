@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
 @import "../../global/common";
 
 $notification-bg: #fff;
@@ -57,7 +58,7 @@ $icon-background: #e0dede;
   box-sizing: border-box;
   font-size: 13px;
   box-shadow: 3px 3px 5px 0 $box-shadow-color;
-  z-index: map_get($zindex, "menu");
+  z-index: map.get($zindex, "menu");
 
   @media (max-width: $screen-md-min) {
     width: 100%;

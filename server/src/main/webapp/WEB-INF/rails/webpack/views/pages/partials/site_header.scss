@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
 @import "../../global/common";
 
 .site-header {
@@ -21,7 +22,7 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: map-get($zindex, site-header);
+  z-index: map.get($zindex, site-header);
 
   @media (min-width: $screen-md) {
     display: flex;
@@ -201,12 +202,12 @@ $bar-spacing: 7px;
   &:hover {
     .user_subnav {
       display: block;
-      z-index: map_get($zindex, submenu);
+      z-index: map.get($zindex, submenu);
     }
 
     &::before {
       top: 40px;
-      z-index: map-get($zindex, menu);
+      z-index: map.get($zindex, menu);
       transition: all 0.1s ease-in-out;
     }
   }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
 @import "../../global/common";
 
 $border-color: #ccc;
@@ -37,7 +38,7 @@ $dark-gray: #2f4f4f;
 
 .stage-overview-container {
   position: absolute;
-  z-index: map_get($zindex, stage-overview);
+  z-index: map.get($zindex, stage-overview);
   border: 1px solid $border-color;
   border-radius: 3px;
   font-size: 12px;
@@ -587,7 +588,7 @@ $dark-gray: #2f4f4f;
   padding: 10px;
   border-radius: 6px;
   position: absolute;
-  z-index: map_get($zindex, tooltip);
+  z-index: map.get($zindex, tooltip);
   background: rgb(243, 243, 243, 95%);
   border: 1px solid $tooltip-border-color;
 

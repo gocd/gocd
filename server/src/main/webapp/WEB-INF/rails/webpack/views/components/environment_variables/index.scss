@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
 @import "../../global/common";
 
 .environment-variable-wrapper {
@@ -64,7 +65,7 @@
   border-radius: $global-border-radius;
   padding: 10px;
   box-shadow: 0 2px 4px $box-shadow-color;
-  z-index: map_get($zindex, submenu);
+  z-index: map.get($zindex, submenu);
 
   &::before {
     content: "";

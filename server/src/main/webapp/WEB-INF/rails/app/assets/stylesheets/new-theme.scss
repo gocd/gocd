@@ -947,6 +947,7 @@ div.stage_bar {
     background-image: none;
     background-color: $building;
     position: relative;
+    color: $icon-txt;
 
     &::after {
       content: "";
@@ -958,8 +959,6 @@ div.stage_bar {
       background-size: 40px 16px;
       right: 0;
     }
-
-    color: $icon-txt;
 
     @include icon-after($cancelled-icon, $margin: 0, $line-height: 1.1em);
   }
@@ -1805,6 +1804,8 @@ ul.entity_title {
   @include normalize;
 
   // force some reasonable defaults see `body` in `global.scss`
-  font-size: 14px;
-  line-height: 1.5;
+  & {
+    font-size: 14px;
+    line-height: 1.5;
+  }
 }

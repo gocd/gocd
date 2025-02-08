@@ -318,7 +318,7 @@ public class UserServiceIntegrationTest {
 
         createDisabledUser("user_two");
 
-        userService.enable(List.of("user_one"), new HttpLocalizedOperationResult());
+        userService.enable(List.of("user_one"));
 
         assertThat(result.isSuccessful()).isTrue();
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
@@ -366,7 +366,7 @@ public class UserServiceIntegrationTest {
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
-        assertThat(result.message()).isEqualTo("There must be atleast one admin user enabled!");
+        assertThat(result.message()).isEqualTo("There must be at least one admin user enabled!");
     }
 
     @Test

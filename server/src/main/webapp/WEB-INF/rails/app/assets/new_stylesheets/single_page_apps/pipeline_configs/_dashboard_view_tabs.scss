@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
+
 $icon-hover-color: #1c435c;
 $dashboard-tab-bg: #fff;
 $dashboard-tab-name: #1c435c;
@@ -443,7 +445,7 @@ button {
 .icon_alert {
   margin-right: 10px;
   font-size: 150%;
-  color: map-get($foundation-palette, alert);
+  color: map.get($foundation-palette, alert);
 
   @include icon-before($type: exclamation-circle);
 }

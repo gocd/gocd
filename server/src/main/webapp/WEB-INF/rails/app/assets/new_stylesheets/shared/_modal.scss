@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
+
 .reveal {
   padding: 0;
 
@@ -71,7 +73,7 @@
       }
 
       &.green-check {
-        background-color: map-get($foundation-palette, success);
+        background-color: map.get($foundation-palette, success);
         transition: all 0.5s ease-in-out;
 
         @include icon-before($type: check, $margin: 0 5px 0 0);

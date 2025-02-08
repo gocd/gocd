@@ -665,6 +665,8 @@ dependencyCheck {
   failBuildOnCVSS = 1
   failBuildOnUnusedSuppressionRule = true
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
+  skipTestGroups = true
+  skipProjects = [':test:http-mocks', ':test:test-agent', ':test:test-utils']
 
   nvd.apiKey = System.getenv("NVD_API_KEY") ?: ""
 

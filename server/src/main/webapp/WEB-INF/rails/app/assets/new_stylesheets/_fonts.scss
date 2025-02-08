@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "font-awesome-sprockets";
 @use "sass:map";
+@import "font-awesome-sprockets";
+
 
 // Capitalization here needs to match the font file names in vendor/assets/fonts/opensans
 // stylelint-disable value-keyword-case

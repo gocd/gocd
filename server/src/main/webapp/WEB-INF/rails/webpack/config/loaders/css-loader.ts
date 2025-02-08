@@ -54,6 +54,13 @@ export function getMiniCssExtractLoader(configOptions: ConfigOptions): webpack.R
         options: {
           sourceMap: true,
           implementation: require('sass-embedded'),
+          sassOptions: { // Also see rails/config/application.rb for similar config for Sprockets
+            quietDeps: true, // Mainly noise from FontAwesome and/or Bourbon left
+            silenceDeprecations: [
+              'import', // Can't do much about this until FontAwesome updates
+              'legacy-js-api', // Need to move away from Webpack 4
+            ],
+          }
         }
       }
     ]

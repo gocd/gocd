@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
 @import "../../global/common";
 @import "../forms/forms";
 @import "../forms/autocomplete";
@@ -37,7 +38,7 @@
   padding: 10px;
   box-shadow: 0 2px 4px $box-shadow-color;
   text-transform: none;
-  z-index: map_get($zindex, tooltip);
+  z-index: map.get($zindex, tooltip);
   width: 250px;
 
   &::before {

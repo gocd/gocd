@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
 @import "../../global/common";
 
 $spinner-wrapper-height: 200px;
@@ -116,7 +117,7 @@ input[type="radio"][disabled] + label[for] {
   padding: 10px;
   box-shadow: 0 2px 4px $box-shadow-color;
   text-transform: none;
-  z-index: map_get($zindex, tooltip);
+  z-index: map.get($zindex, tooltip);
   width: $warning-wrapper-width;
 
   &::before {

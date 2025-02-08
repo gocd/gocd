@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 @use "sass:color";
+@use "sass:map";
 @import "../../global/common";
 
 $border-color: #ddd;
@@ -109,7 +110,7 @@ $border-color: #ddd;
   border-radius: $global-border-radius;
   padding: 10px 20px 0;
   box-shadow: 0 2px 4px $box-shadow-color;
-  z-index: map_get($zindex, submenu);
+  z-index: map.get($zindex, submenu);
 
   &::before {
     content: "";

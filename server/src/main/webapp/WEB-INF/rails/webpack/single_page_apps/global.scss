@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
 @import "normalize-scss/sass/normalize/import-now";
 @import "../views/global/common";
 
@@ -161,15 +162,15 @@ $opensans-variants: (
 );
 // stylelint-enable value-keyword-case
 
-@each $variant-name in map-keys($opensans-variants) {
-  $variant: map-get($opensans-variants, $variant-name);
+@each $variant-name in map.keys($opensans-variants) {
+  $variant: map.get($opensans-variants, $variant-name);
 
   @include font-face(
     $font-family: "Open Sans",
     $file-path: "~opensans/OpenSans-#{$variant-name}-webfont",
     $file-formats: ("woff")) {
-    font-style: map-get($variant, "font-style");
-    font-weight: map-get($variant, "font-weight");
+    font-style: map.get($variant, "font-style");
+    font-weight: map.get($variant, "font-weight");
   }
 }
 

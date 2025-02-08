@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
 @import "../../global/common";
 
 $header-font-size: 17px;
@@ -35,7 +36,7 @@ $page-item-padding: 30px;
   height: $page-header-height;
   padding-left: $page-item-padding;
   padding-right: $page-item-padding;
-  z-index: map_get($zindex, "page-header");
+  z-index: map.get($zindex, "page-header");
   box-shadow: 0 0 10px $box-shadow-color;
 }
 

@@ -19,6 +19,7 @@
  * If you add imports here they will end up creation a lot of duplicated CSS, especially from
  * fontawesome due to size and the number of places this is imported.
  */
+@use "sass:map";
 
 <%
   variables = {}
@@ -41,7 +42,7 @@ $fa-font-icons: (
 
 @mixin icon-glyph($icon) {
   @if map-has-key($fa-font-icons, $icon) {
-    content: unicode(map-get($fa-font-icons, $icon));
+    content: unicode(map.get($fa-font-icons, $icon));
   } @else {
     @error "Could not find icon #{$icon}";
   }

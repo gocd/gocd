@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@use "sass:map";
 @import "../../global/common";
 
 $overlay-bg: rgba(0, 0, 0, 80%);
@@ -27,7 +28,7 @@ $spinner-wrapper-height: 200px;
 .overlay {
   border: none;
   position: absolute;
-  z-index: map_get($zindex, "modal-overlay");
+  z-index: map.get($zindex, "modal-overlay");
   transition: $transition;
 
   @media (max-width: $screen-md-min) {
@@ -140,14 +141,14 @@ $spinner-wrapper-height: 200px;
   background: $overlay-bg;
   position: fixed;
   inset: 0;
-  z-index: map_get($zindex, "modal-overlay-bg");
+  z-index: map.get($zindex, "modal-overlay-bg");
 }
 
 .modal-body-overlay {
   $modal-header-height: 51px;
   $modal-footer-height: 55px;
 
-  z-index: map_get($zindex, "modal-overlay-bg");
+  z-index: map.get($zindex, "modal-overlay-bg");
   background: $modal-overlay-bg;
   position: fixed;
   width: 100%;

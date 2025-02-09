@@ -68,7 +68,7 @@ module Go
     config.action_dispatch.default_headers = {}
 
     # Also see css-loader.ts for similar config for Webpack
-    if config.sass
+    if defined? config.sass
       config.sass.quiet_deps = true # Mainly noise from FontAwesome, Foundation Sites and/or Bourbon left
       config.sass.silence_deprecations = [
         'import', # Can't do much about this until FontAwesome updates

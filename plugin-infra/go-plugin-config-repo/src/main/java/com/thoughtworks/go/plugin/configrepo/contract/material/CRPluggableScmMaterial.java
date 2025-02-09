@@ -43,6 +43,9 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
     @SerializedName("filter")
     @Expose
     private CRFilter filter;
+    @SerializedName("auto_update")
+    @Expose
+    private boolean autoUpdate = true;
 
     @SerializedName("plugin_configuration")
     @Expose

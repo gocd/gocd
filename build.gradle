@@ -148,6 +148,7 @@ allprojects {
 
   repositories {
     mavenCentral()
+    mavenLocal()
     maven { url = 'https://repo.terracotta.org/maven2/' } // Needed for later ehcache repos
   }
 }

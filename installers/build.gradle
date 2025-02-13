@@ -76,3 +76,7 @@ apply from: 'generic.gradle'
 apply from: 'osx.gradle'
 apply from: 'linux.gradle'
 apply from: 'windows.gradle'
+
+tasks.register("downloadAllJres") {
+  dependsOn ':installers:downloadWindowsJre', ':installers:downloadMacJreX64', ':installers:downloadMacJreArm64'
+}

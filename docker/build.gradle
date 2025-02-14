@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 /*
  * Copyright Thoughtworks, Inc.
  *
@@ -22,7 +24,29 @@ subprojects {
   apply plugin: 'base'
 }
 
+def configureDockerRegistryMirror = tasks.register('configureDockerRegistryMirror') {
+  doFirst {
+    if (!project.hasProperty('skipDockerBuild') && System.env.DOCKERHUB_MIRROR_USERNAME && System.env.DOCKERHUB_MIRROR_PASSWORD) {
+      logger.lifecycle("Configuring dockerhub mirror credentials, assuming docker.gocd.io is configured...")
+      def dockerConfig = file("${System.properties['user.home']}/.docker/config.json")
+      dockerConfig.mkdirs()
+
+      // See https://github.com/moby/moby/issues/30880#issuecomment-798807332 for why normal docker login to docker.gocd.io as registry mirror doesn't work
+      // Docker uses the wrong credentials when trying to use a registry mirror, so we set the docker.gocd.io creds for Docker Hub
+      dockerConfig.text = JsonOutput.toJson([
+        auths: [
+          "https://index.docker.io/v1/": [
+            auth: "${System.env.DOCKERHUB_MIRROR_USERNAME}:${System.env.DOCKERHUB_MIRROR_PASSWORD}".bytes.encodeBase64().toString()
+          ]
+        ]
+      ])
+    }
+  }
+}
+
 tasks.register('initializeBuildx') {
+  dependsOn configureDockerRegistryMirror
+
   def injected = project.objects.newInstance(InjectedExecOps)
   doFirst {
     if (!project.hasProperty('skipDockerBuild')) {
@@ -30,12 +54,19 @@ tasks.register('initializeBuildx') {
       def builderName = 'gocd-builder'
       logger.lifecycle("Initializing docker buildx builder [$builderName]...")
 
+      def buildkitConfig = file("${rootProject.layout.buildDirectory.get()}/buildkitd.toml")
+      buildkitConfig.text = System.env.DOCKERHUB_MIRROR_USERNAME && System.env.DOCKERHUB_MIRROR_PASSWORD
+        ? """\
+          [registry."docker.io"]
+            mirrors = ["docker.gocd.io"]""".stripIndent()
+        : ""
+
       injected.execOps.exec { commandLine = ['docker', 'buildx', 'version'] }
       injected.execOps.exec {
         commandLine = ['docker', 'buildx', 'rm', '--force', '--keep-state', builderName]
         ignoreExitValue = true
       }
-      injected.execOps.exec { commandLine = ['docker', 'buildx', 'create', '--use', '--name', builderName, '--driver-opt', 'image=moby/buildkit:buildx-stable-1-rootless'] }
+      injected.execOps.exec { commandLine = ['docker', 'buildx', 'create', '--use', '--name', builderName, '--config', buildkitConfig.path, '--driver-opt', 'image=moby/buildkit:buildx-stable-1-rootless'] }
       injected.execOps.exec { commandLine = ['docker', 'buildx', 'inspect', '--bootstrap', builderName] }
     }
   }

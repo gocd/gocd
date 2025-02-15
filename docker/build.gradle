@@ -24,9 +24,13 @@ subprojects {
   apply plugin: 'base'
 }
 
+static def useRegistryMirror() {
+  System.env.DOCKERHUB_MIRROR_USERNAME && System.env.DOCKERHUB_MIRROR_PASSWORD
+}
+
 def configureDockerRegistryMirror = tasks.register('configureDockerRegistryMirror') {
   doFirst {
-    if (!project.hasProperty('skipDockerBuild') && System.env.DOCKERHUB_MIRROR_USERNAME && System.env.DOCKERHUB_MIRROR_PASSWORD) {
+    if (!project.hasProperty('skipDockerBuild') && useRegistryMirror()) {
       logger.lifecycle("Configuring dockerhub mirror credentials, assuming docker.gocd.io is configured...")
       def dockerConfig = file("${System.properties['user.home']}/.docker/config.json")
       dockerConfig.parentFile.mkdirs()
@@ -54,12 +58,7 @@ tasks.register('initializeBuildx') {
       def builderName = 'gocd-builder'
       logger.lifecycle("Initializing docker buildx builder [$builderName]...")
 
-      def buildkitConfig = file("${rootProject.layout.buildDirectory.get()}/buildkitd.toml")
-      buildkitConfig.text = System.env.DOCKERHUB_MIRROR_USERNAME && System.env.DOCKERHUB_MIRROR_PASSWORD
-        ? """\
-          [registry."docker.io"]
-            mirrors = ["docker.gocd.io"]""".stripIndent()
-        : ""
+      def buildkitConfig = layout.projectDirectory.file(useRegistryMirror() ? 'buildkitd-mirror.toml' : 'buildkitd-empty.toml').asFile
 
       injected.execOps.exec { commandLine = ['docker', 'buildx', 'version'] }
       injected.execOps.exec {

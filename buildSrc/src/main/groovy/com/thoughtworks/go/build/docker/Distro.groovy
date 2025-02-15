@@ -187,8 +187,8 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [ // See https://endoflife.date/debian
-        new DistroVersion(version: '11', releaseName: 'bullseye-slim', eolDate: parseDate('2026-08-31')),
-        new DistroVersion(version: '12', releaseName: 'bookworm-slim', eolDate: parseDate('2028-06-10')),
+        new DistroVersion(version: '11', releaseName: '11-slim', eolDate: parseDate('2026-08-31')),
+        new DistroVersion(version: '12', releaseName: '12-slim', eolDate: parseDate('2028-06-10')),
       ]
     }
   },
@@ -218,9 +218,9 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [ // See https://endoflife.date/ubuntu "Maintenance & Security Support"
-        new DistroVersion(version: '20.04', releaseName: 'focal', eolDate: parseDate('2025-04-02')),
-        new DistroVersion(version: '22.04', releaseName: 'jammy', eolDate: parseDate('2027-04-01')),
-        new DistroVersion(version: '24.04', releaseName: 'noble', eolDate: parseDate('2029-04-25')),
+        new DistroVersion(version: '20.04', releaseName: '20.04', eolDate: parseDate('2025-04-02')),
+        new DistroVersion(version: '22.04', releaseName: '22.04', eolDate: parseDate('2027-04-01')),
+        new DistroVersion(version: '24.04', releaseName: '24.04', eolDate: parseDate('2029-04-25')),
       ]
     }
   },

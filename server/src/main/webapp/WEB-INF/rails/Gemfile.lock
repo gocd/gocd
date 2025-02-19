@@ -129,9 +129,9 @@ GEM
       net-protocol
     nio4r (2.7.4)
     nio4r (2.7.4-java)
-    nokogiri (1.18.2-java)
+    nokogiri (1.18.3-java)
       racc (~> 1.4)
-    nokogiri (1.18.2-x86_64-linux-gnu)
+    nokogiri (1.18.3-x86_64-linux-gnu)
       racc (~> 1.4)
     public_suffix (6.0.1)
     racc (1.8.1)

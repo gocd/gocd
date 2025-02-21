@@ -33,7 +33,7 @@ final Map<String, String> libraries = [
   aspectj             : 'org.aspectj:aspectjweaver:1.9.22.1',
   assertJ             : 'org.assertj:assertj-core:3.27.3',
   assertJ_DB          : 'org.assertj:assertj-db:3.0.0',
-  awaitility          : 'org.awaitility:awaitility:4.2.2',
+  awaitility          : 'org.awaitility:awaitility:4.3.0',
   bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.80',
   cloning             : 'io.github.kostaskougios:cloning:1.12.0',
   commonsCodec        : 'commons-codec:commons-codec:1.18.0',

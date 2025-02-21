@@ -27,6 +27,9 @@ dependencies {
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation project.deps.junit5Api
+  testRuntimeOnly project.deps.junit5Engine
+  testRuntimeOnly project.deps.junit5PlatformLauncher
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

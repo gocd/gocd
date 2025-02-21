@@ -27,5 +27,6 @@ dependencies {
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
+  testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.mockitoCore
 }

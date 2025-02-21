@@ -36,6 +36,7 @@ dependencies {
   testImplementation project.deps.assertJ
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
+  testRuntimeOnly project.deps.junit5PlatformLauncher
 }
 
 test.dependsOn ':docker:configureDockerRegistryMirror'

@@ -62,6 +62,7 @@ dependencies {
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
+  testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.junit5Params
   testImplementation project.deps.springTestJunit5
   testImplementation project.deps.assertJ

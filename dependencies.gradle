@@ -203,6 +203,7 @@ final Map<String, String> related = [
   junit5Api               : "org.junit.jupiter:junit-jupiter-api",
   junit5Engine            : "org.junit.jupiter:junit-jupiter-engine",
   junit5Params            : "org.junit.jupiter:junit-jupiter-params",
+  junit5PlatformLauncher  : "org.junit.platform:junit-platform-launcher",
   mockitoCore             : "org.mockito:mockito-core",
   mockitoJunit5           : "org.mockito:mockito-junit-jupiter",
   slf4jApi                : "org.slf4j:slf4j-api",

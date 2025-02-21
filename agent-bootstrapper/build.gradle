@@ -28,6 +28,7 @@ dependencies {
   extractedAtTopLevel project(path: ':jar-class-loader')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
+  testRuntimeOnly project.deps.junit5PlatformLauncher
 }
 
 jar {

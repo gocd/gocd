@@ -28,5 +28,6 @@ dependencies {
   testImplementation project(path: ':spark:spark-base', configuration: 'testOutput')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
+  testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.logback
 }

@@ -161,7 +161,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           ],
           "_links"   : [
             "doc" : [
-              "href": "https://api.go.cd/current/#environment-config"
+              "href": "https://api.gocd.org/current/#environment-config"
             ],
             "self": [
               "href": "http://test.host/go/api/admin/environments"

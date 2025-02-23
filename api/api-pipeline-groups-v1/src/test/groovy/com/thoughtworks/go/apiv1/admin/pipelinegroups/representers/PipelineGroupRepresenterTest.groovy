@@ -82,7 +82,7 @@ class PipelineGroupRepresenterTest {
           href: 'http://test.host/go/api/admin/pipeline_groups/group'
         ],
         doc: [
-          href: 'https://api.go.cd/current/#pipeline-group-config'
+          href: 'https://api.gocd.org/current/#pipeline-group-config'
         ],
         find: [
           href: 'http://test.host/go/api/admin/pipeline_groups/:group_name'

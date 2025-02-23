@@ -143,7 +143,7 @@ public class Routes {
 
     public static class Dashboard {
         public static final String SELF = "/api/dashboard";
-        public static final String DOC = "https://api.go.cd/current/#dashboard";
+        public static final String DOC = "https://api.gocd.org/current/#dashboard";
     }
 
     public static class MaterialConfig {
@@ -182,12 +182,12 @@ public class Routes {
     }
 
     public static class PipelineGroup {
-        public static final String DOC = "https://api.go.cd/current/#pipeline-groups";
+        public static final String DOC = "https://api.gocd.org/current/#pipeline-groups";
         public static final String SELF = "/api/config/pipeline_groups";
     }
 
     public static class PipelineGroupsAdmin {
-        public static final String DOC = "https://api.go.cd/current/#pipeline-group-config";
+        public static final String DOC = "https://api.gocd.org/current/#pipeline-group-config";
         public static final String BASE = "/api/admin/pipeline_groups";
 
         public static final String NAME_PATH = "/:group_name";
@@ -231,7 +231,7 @@ public class Routes {
     }
 
     public static class Environments {
-        public static final String DOC = "https://api.go.cd/current/#environment-config";
+        public static final String DOC = "https://api.gocd.org/current/#environment-config";
         public static final String BASE = "/api/admin/environments";
         public static final String NAME = "/:name";
 
@@ -246,8 +246,8 @@ public class Routes {
 
     public static class Pipeline {
         public static final String BASE = "/api/pipelines";
-        public static final String DOC = "https://api.go.cd/current/#pipelines";
-        public static final String DOC_TRIGGER_OPTIONS = "https://api.go.cd/current/#pipeline-trigger-options";
+        public static final String DOC = "https://api.gocd.org/current/#pipelines";
+        public static final String DOC_TRIGGER_OPTIONS = "https://api.gocd.org/current/#pipeline-trigger-options";
 
         public static final String PAUSE_PATH = "/:pipeline_name/pause";
         public static final String UNPAUSE_PATH = "/:pipeline_name/unpause";

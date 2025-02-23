@@ -33,7 +33,7 @@ class EnvironmentRepresenterTest {
     def environmentConfig = [
       "_links"               : [
         "doc" : [
-          "href": "https://api.go.cd/current/#environment-config"
+          "href": "https://api.gocd.org/current/#environment-config"
         ],
         "find": [
           "href": "http://test.host/go/api/admin/environments/:name"
@@ -84,7 +84,7 @@ class EnvironmentRepresenterTest {
         [
           "_links": [
             "doc" : [
-              "href": "https://api.go.cd/current/#pipelines"
+              "href": "https://api.gocd.org/current/#pipelines"
             ],
             "find": [
               "href": "/api/admin/pipelines/:pipeline_name"
@@ -98,7 +98,7 @@ class EnvironmentRepresenterTest {
         [
           "_links": [
             "doc" : [
-              "href": "https://api.go.cd/current/#pipelines"
+              "href": "https://api.gocd.org/current/#pipelines"
             ],
             "find": [
               "href": "/api/admin/pipelines/:pipeline_name"
@@ -137,7 +137,7 @@ class EnvironmentRepresenterTest {
     def response = [
       "_links"               : [
         "doc" : [
-          "href": "https://api.go.cd/current/#environment-config"
+          "href": "https://api.gocd.org/current/#environment-config"
         ],
         "find": [
           "href": "http://test.host/go/api/admin/environments/:name"
@@ -158,7 +158,7 @@ class EnvironmentRepresenterTest {
         [
           "_links": [
             "doc" : [
-              "href": "https://api.go.cd/current/#pipelines"
+              "href": "https://api.gocd.org/current/#pipelines"
             ],
             "find": [
               "href": "/api/admin/pipelines/:pipeline_name"
@@ -172,7 +172,7 @@ class EnvironmentRepresenterTest {
         [
           "_links": [
             "doc" : [
-              "href": "https://api.go.cd/current/#pipelines"
+              "href": "https://api.gocd.org/current/#pipelines"
             ],
             "find": [
               "href": "/api/admin/pipelines/:pipeline_name"

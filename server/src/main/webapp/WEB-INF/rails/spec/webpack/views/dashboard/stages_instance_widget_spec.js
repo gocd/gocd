@@ -31,7 +31,7 @@ describe("Dashboard Stages Instance Widget", () => {
         "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
       },
       "doc":  {
-        "href": "https://api.go.cd/current/#get-pipeline-instance"
+        "href": "https://api.gocd.org/current/#get-pipeline-instance"
       }
     },
     "label":        "1",
@@ -46,7 +46,7 @@ describe("Dashboard Stages Instance Widget", () => {
               "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
             },
             "doc":  {
-              "href": "https://api.go.cd/current/#get-stage-instance"
+              "href": "https://api.gocd.org/current/#get-stage-instance"
             }
           },
           "name":         "up42_stage",
@@ -63,7 +63,7 @@ describe("Dashboard Stages Instance Widget", () => {
               "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage2/1"
             },
             "doc":  {
-              "href": "https://api.go.cd/current/#get-stage-instance"
+              "href": "https://api.gocd.org/current/#get-stage-instance"
             }
           },
           "name":         "up42_stage2",
@@ -81,7 +81,7 @@ describe("Dashboard Stages Instance Widget", () => {
               "href": "http://localhost:8153/go/api/stages/up42/1/cancelled_stage/1"
             },
             "doc":  {
-              "href": "https://api.go.cd/current/#get-stage-instance"
+              "href": "https://api.gocd.org/current/#get-stage-instance"
             }
           },
           "name":         "cancelled_stage",

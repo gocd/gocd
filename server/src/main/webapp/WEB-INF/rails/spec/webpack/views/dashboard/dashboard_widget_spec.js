@@ -353,7 +353,7 @@ describe("Dashboard Widget", () => {
                 "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
               },
               "doc":  {
-                "href": "https://api.go.cd/current/#pipeline-groups"
+                "href": "https://api.gocd.org/current/#pipeline-groups"
               }
             },
             "name":           "first",
@@ -383,7 +383,7 @@ describe("Dashboard Widget", () => {
                 "href": "http://localhost:8153/go/api/pipelines/up42/history"
               },
               "doc":  {
-                "href": "https://api.go.cd/current/#pipelines"
+                "href": "https://api.gocd.org/current/#pipelines"
               }
             },
             "name":                   "up42",
@@ -407,7 +407,7 @@ describe("Dashboard Widget", () => {
                       "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
                     },
                     "doc":  {
-                      "href": "https://api.go.cd/current/#get-pipeline-instance"
+                      "href": "https://api.gocd.org/current/#get-pipeline-instance"
                     }
                   },
                   "label":        "1",
@@ -422,7 +422,7 @@ describe("Dashboard Widget", () => {
                             "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
                           },
                           "doc":  {
-                            "href": "https://api.go.cd/current/#get-stage-instance"
+                            "href": "https://api.gocd.org/current/#get-stage-instance"
                           }
                         },
                         "name":         "up42_stage",
@@ -443,7 +443,7 @@ describe("Dashboard Widget", () => {
                 "href": "http://localhost:8153/go/api/pipelines/up43/history"
               },
               "doc":  {
-                "href": "https://api.go.cd/current/#pipelines"
+                "href": "https://api.gocd.org/current/#pipelines"
               }
             },
             "name":                   "up43",
@@ -468,7 +468,7 @@ describe("Dashboard Widget", () => {
                       "href": "http://localhost:8153/go/api/pipelines/up43/instance/1"
                     },
                     "doc":  {
-                      "href": "https://api.go.cd/current/#get-pipeline-instance"
+                      "href": "https://api.gocd.org/current/#get-pipeline-instance"
                     }
                   },
                   "label":        "1",
@@ -483,7 +483,7 @@ describe("Dashboard Widget", () => {
                             "href": "http://localhost:8153/go/api/stages/up43/1/up43_stage/1"
                           },
                           "doc":  {
-                            "href": "https://api.go.cd/current/#get-stage-instance"
+                            "href": "https://api.gocd.org/current/#get-stage-instance"
                           }
                         },
                         "name":         "up43_stage",

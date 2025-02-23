@@ -60,7 +60,7 @@ class PipelineRepresenterTest {
     assertThatJson(json).isEqualTo([
       _links                : [
         self: [href: 'http://test.host/go/api/pipelines/pipeline_name/history'],
-        doc : [href: 'https://api.go.cd/current/#pipelines']
+        doc : [href: 'https://api.gocd.org/current/#pipelines']
       ],
       _embedded             : [
         instances: [

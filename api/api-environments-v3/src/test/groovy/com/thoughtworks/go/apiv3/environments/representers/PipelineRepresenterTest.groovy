@@ -35,7 +35,7 @@ class PipelineRepresenterTest {
     assertThatJson(json).isEqualTo([
       "_links": [
         "doc" : [
-          "href": "https://api.go.cd/current/#pipelines"
+          "href": "https://api.gocd.org/current/#pipelines"
         ],
         "find": [
           "href": "/api/admin/pipelines/:pipeline_name"

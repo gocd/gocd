@@ -44,7 +44,7 @@ class DashboardGroupRepresenterTest {
   class PipelineGroups {
     private Map<String, LinkedHashMap<String, String>> expectedLinks = [
       doc : [
-        href: 'https://api.go.cd/current/#pipeline-groups'
+        href: 'https://api.gocd.org/current/#pipeline-groups'
       ],
       self: [
         href: 'http://test.host/go/api/config/pipeline_groups'

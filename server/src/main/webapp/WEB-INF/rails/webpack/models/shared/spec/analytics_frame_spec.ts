@@ -28,7 +28,7 @@ describe("AnalyticsFrame", () => {
 
   describe("load", () => {
     it("should call before and after function", () => {
-      const TEST_URL = "http://test.go.cd/foo",
+      const TEST_URL = "http://test.gocd.org/foo",
             frame    = new Frame("some-uid");
       jasmine.Ajax.stubRequest(TEST_URL).andReturn({});
 
@@ -62,7 +62,7 @@ describe("AnalyticsFrame", () => {
     });
 
     it("should set data and view on successful load", () => {
-      const TEST_URL        = "http://test.go.cd/foo",
+      const TEST_URL        = "http://test.gocd.org/foo",
             frame           = new Frame("some-uid"),
             beforeFn        = jasmine.createSpy("beforeFn"),
             afterFn         = jasmine.createSpy("afterFn"),
@@ -81,7 +81,7 @@ describe("AnalyticsFrame", () => {
       expect(frame.errors()).toBeNull();
     });
     it("should set errors on failure", () => {
-      const TEST_URL = "http://test.go.cd/foo",
+      const TEST_URL = "http://test.gocd.org/foo",
             frame    = new Frame("some-uid"),
             beforeFn = jasmine.createSpy("beforeFn"),
             afterFn  = jasmine.createSpy("afterFn");
@@ -102,7 +102,7 @@ describe("AnalyticsFrame", () => {
 
   describe("fetch", () => {
     it("should call handler with data on success", () => {
-      const TEST_URL        = "http://test.go.cd/foo",
+      const TEST_URL        = "http://test.gocd.org/foo",
             frame           = new Frame("some-uid"),
             handlerFn       = jasmine.createSpy("handler"),
             successResponse = {data: {key: "data-from-server"}, view_path: "/go/some-path-to-analytics-plugin"};
@@ -118,7 +118,7 @@ describe("AnalyticsFrame", () => {
       expect(handlerFn).toHaveBeenCalledWith({key: "data-from-server"}, null);
     });
     it("should call handler with error on failure", () => {
-      const TEST_URL  = "http://test.go.cd/foo",
+      const TEST_URL  = "http://test.gocd.org/foo",
             frame     = new Frame("some-uid"),
             handlerFn = jasmine.createSpy("handler");
       jasmine.Ajax.stubRequest(TEST_URL, undefined, "GET").andReturn({
@@ -136,35 +136,35 @@ describe("AnalyticsFrame", () => {
 
   describe("withParam", () => {
     it("should return url with param when param name and value are not null", () => {
-      const TEST_URL = "http://test.go.cd/foo";
+      const TEST_URL = "http://test.gocd.org/foo";
       const frame    = new Frame("some-uid");
 
       expect(frame.withParam(TEST_URL, "test", "bar")).toBe(`${TEST_URL}?test=bar`);
     });
 
     it("should return url as it is when param name is empty string", () => {
-      const TEST_URL = "http://test.go.cd/foo";
+      const TEST_URL = "http://test.gocd.org/foo";
       const frame    = new Frame("some-uid");
 
       expect(frame.withParam(TEST_URL, "", "bar")).toBe(TEST_URL);
     });
 
     it("should return url as it is when param name and value are empty string", () => {
-      const TEST_URL = "http://test.go.cd/foo";
+      const TEST_URL = "http://test.gocd.org/foo";
       const frame    = new Frame("some-uid");
 
       expect(frame.withParam(TEST_URL, "", "")).toBe(TEST_URL);
     });
 
     it("should return url with param name when param value is empty string", () => {
-      const TEST_URL = "http://test.go.cd/foo";
+      const TEST_URL = "http://test.gocd.org/foo";
       const frame    = new Frame("some-uid");
 
       expect(frame.withParam(TEST_URL, "some-param", "")).toBe(`${TEST_URL}?some-param`);
     });
 
     it("should append params if one already exist", () => {
-      const TEST_URL = "http://test.go.cd/foo?foo=bar";
+      const TEST_URL = "http://test.gocd.org/foo?foo=bar";
       const frame    = new Frame("some-uid");
 
       expect(frame.withParam(TEST_URL, "test", "foo")).toBe(`${TEST_URL}&test=foo`);

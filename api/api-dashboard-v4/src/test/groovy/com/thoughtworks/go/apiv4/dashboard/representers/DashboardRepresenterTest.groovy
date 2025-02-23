@@ -59,7 +59,7 @@ class DashboardRepresenterTest {
 
     assertThatJson(actualJson._links).isEqualTo([
       self: [href: "http://test.host/go/api/dashboard"],
-      doc : [href: "https://api.go.cd/current/#dashboard"]
+      doc : [href: "https://api.gocd.org/current/#dashboard"]
     ])
 
     assertThatJson(actualJson._embedded.pipeline_groups).isEqualTo([

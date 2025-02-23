@@ -105,7 +105,7 @@ class TriggerWithOptionsViewRepresenterTest {
   }
 
   private def linksJSON = [
-    "doc"     : ["href": "https://api.go.cd/current/#pipeline-trigger-options"],
+    "doc"     : ["href": "https://api.gocd.org/current/#pipeline-trigger-options"],
     "self"    : ["href": "http://test.host/go/api/pipelines/my-pipeline/trigger_options"],
     "schedule": ["href": "http://test.host/go/api/pipelines/my-pipeline/schedule"]
   ]

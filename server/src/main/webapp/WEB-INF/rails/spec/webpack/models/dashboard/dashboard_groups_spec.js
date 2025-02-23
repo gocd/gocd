@@ -99,7 +99,7 @@ describe("DashboardGroups", () => {
           "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
         },
         "doc":  {
-          "href": "https://api.go.cd/current/#pipeline-groups"
+          "href": "https://api.gocd.org/current/#pipeline-groups"
         }
       },
       "name":           "first",
@@ -115,7 +115,7 @@ describe("DashboardGroups", () => {
           "href": "http://localhost:8153/go/api/config/environments/first/show"
         },
         "doc":  {
-          "href": "https://api.go.cd/current/#environments"
+          "href": "https://api.gocd.org/current/#environments"
         }
       },
       "name":           "first",

@@ -19,13 +19,15 @@ import m from "mithril";
 import {TemplateConfigPage} from "views/pages/template_config";
 
 interface TemplateMeta {
-  templateName: string;
+  templateName?: string;
 }
 
 class RedirectToGeneralTab extends TemplateConfigPage<any> {
   oninit(vnode: m.Vnode<any, any>) {
     const templateName = this.getMeta().templateName;
-    m.route.set(templateName + "/general");
+    if (templateName) {
+      m.route.set(templateName + "/general");
+    }
   }
 
   protected getMeta(): TemplateMeta {

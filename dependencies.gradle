@@ -70,7 +70,7 @@ final Map<String, String> libraries = [
   jetBrainsAnnotations: 'org.jetbrains:annotations:26.0.2',
   jetty               : 'org.eclipse.jetty:jetty-server:10.0.24',
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:6.10.0.202406032230-r',
-  jodaTime            : 'joda-time:joda-time:2.13.1', // joda-time version has to be compatible with the jruby version
+  jodaTime            : 'joda-time:joda-time:2.13.1',
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',
   jruby               : 'org.jruby:jruby-complete:9.4.12.0',
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:4.1.0',
@@ -89,7 +89,7 @@ final Map<String, String> libraries = [
   oshi                : 'com.github.oshi:oshi-core-java11:6.7.0',
   postgresql          : 'org.postgresql:postgresql:42.7.5',
   quartz              : 'org.quartz-scheduler:quartz:2.5.0',
-  rack                : 'com.github.gocd-contrib:jruby-rack:1.2.3.5',
+  rack                : 'com.github.gocd-contrib:jruby-rack:1.2.3.6',
   resilience4jRetry   : 'io.github.resilience4j:resilience4j-retry:2.3.0',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',
   servletApi          : 'jakarta.servlet:jakarta.servlet-api:4.0.4', // Should be compatible with Jetty and Spring implementations

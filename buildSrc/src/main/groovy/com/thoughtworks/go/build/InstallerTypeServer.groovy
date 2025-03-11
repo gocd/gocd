@@ -45,7 +45,7 @@ class InstallerTypeServer implements InstallerType {
   @Override
   List<String> getJvmModuleOpensArgs() {
     [
-      '--add-opens=java.base/java.lang=ALL-UNNAMED', // Required for Hibernate 3.6/Javassist proxying (at minimum, may be used for other things)
+      '--add-opens=java.base/java.lang=ALL-UNNAMED', // Required for Hibernate 3.6/Javassist proxyinh, ConsoleResult exception smudging, GoConfigGraphWalker (at minimum, may be used for other things)
       '--add-opens=java.base/java.util=ALL-UNNAMED', // Required at least for cloning GoConfig subclasses of java.util classes :(
     ]
   }

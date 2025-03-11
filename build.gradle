@@ -314,6 +314,9 @@ subprojects {
         module("dom4j:dom4j") {
           replacedBy("org.dom4j:dom4j", "Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
         }
+        module("javassist:javassist") {
+          replacedBy("org.javassist:javassist", "Upgrade the legacy javassist in old Hibernate 3.6")
+        }
         module("net.sf.ehcache:ehcache") {
           replacedBy("net.sf.ehcache.internal:ehcache-core", "Use the much slimmer core artifact which is fine for our use case")
         }

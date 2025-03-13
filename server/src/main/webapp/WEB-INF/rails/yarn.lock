@@ -1694,6 +1694,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/hammerjs@npm:^2.0.45":
+  version: 2.0.46
+  resolution: "@types/hammerjs@npm:2.0.46"
+  checksum: 10/1b6502d668f45ca49fb488c01f7938d3aa75e989d70c64801c8feded7d659ca1a118f745c1b604d220efe344c93231767d5cc68c05e00e069c14539b6143cfd9
+  languageName: node
+  linkType: hard
+
 "@types/html-minifier-terser@npm:^5.0.0":
   version: 5.1.2
   resolution: "@types/html-minifier-terser@npm:5.1.2"
@@ -3328,14 +3335,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chartjs-plugin-zoom@npm:~2.0.1":
-  version: 2.0.1
-  resolution: "chartjs-plugin-zoom@npm:2.0.1"
+"chartjs-plugin-zoom@npm:~2.2.0":
+  version: 2.2.0
+  resolution: "chartjs-plugin-zoom@npm:2.2.0"
   dependencies:
+    "@types/hammerjs": "npm:^2.0.45"
     hammerjs: "npm:^2.0.8"
   peerDependencies:
     chart.js: ">=3.2.0"
-  checksum: 10/ac823f9a0fff148c3763f1436f85e25bb34a6a928200901a8805e4f1a8bf9c81cf7ad0d64125f3909679ef656d0ff4134c01cf40809111d2d332f938dd836581
+  checksum: 10/4a549b1b21ed5433f9ba67038d6176ed545b2881521e12d6b8024cd2ab08fb008c36fe388ab2ac7ee2ac334bf44a8d785703570388fa0e0b4c22c18602536f9c
   languageName: node
   linkType: hard
 
@@ -5580,7 +5588,7 @@ __metadata:
     bourbon: "npm:~7.1.0"
     cache-loader: "npm:^4.1.0"
     chart.js: "npm:^3.9.1"
-    chartjs-plugin-zoom: "npm:~2.0.1"
+    chartjs-plugin-zoom: "npm:~2.2.0"
     classnames: "npm:^2.5.1"
     clean-webpack-plugin: "npm:^4.0.0"
     core-js: "npm:^3.41.0"

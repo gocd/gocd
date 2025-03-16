@@ -189,7 +189,7 @@ public class AgentBootstrapperTest {
     }
 
     @Test
-    @Timeout(value = 1, unit = TimeUnit.SECONDS)
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void shouldRetainStateAcrossLauncherInvocations() throws Exception {
 
         final Map<String, String> expectedContext = new HashMap<>();

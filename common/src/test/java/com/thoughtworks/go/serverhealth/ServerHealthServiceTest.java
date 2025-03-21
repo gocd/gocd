@@ -16,7 +16,6 @@
 package com.thoughtworks.go.serverhealth;
 
 
-import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -229,7 +228,7 @@ public class ServerHealthServiceTest {
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterial(hgMaterial))));
         Set<String> pipelines = (serverHealthService.logsSorted().get(0)).getPipelineNames(config);
-        assertEquals(Sets.newHashSet("pipeline", "pipeline2"), pipelines);
+        assertEquals(Set.of("pipeline", "pipeline2"), pipelines);
     }
 
     @Test
@@ -242,7 +241,7 @@ public class ServerHealthServiceTest {
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterialUpdate(hgMaterial))));
         Set<String> pipelines = (serverHealthService.logsSorted().get(0)).getPipelineNames(config);
-        assertEquals(Sets.newHashSet("pipeline", "pipeline2"), pipelines);
+        assertEquals(Set.of("pipeline", "pipeline2"), pipelines);
     }
 
     @Test
@@ -255,6 +254,6 @@ public class ServerHealthServiceTest {
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forFanin("pipeline2"))));
         Set<String> pipelines = (serverHealthService.logsSorted().get(0)).getPipelineNames(config);
-        assertEquals(Sets.newHashSet("pipeline2"), pipelines);
+        assertEquals(Set.of("pipeline2"), pipelines);
     }
 }

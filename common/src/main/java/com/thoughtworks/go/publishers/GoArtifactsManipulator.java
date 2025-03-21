@@ -27,6 +27,7 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +46,6 @@ import java.util.Properties;
 import java.util.zip.Deflater;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
-import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
@@ -119,9 +119,7 @@ public class GoArtifactsManipulator {
                 FileUtils.deleteQuietly(tmpDir);
             }
         }
-        if (lastException != null) {
-            throw new RuntimeException(lastException);
-        }
+        throw new RuntimeException(lastException);
     }
 
     private Properties artifactChecksums(File source, String destPath) throws IOException {
@@ -131,7 +129,7 @@ public class GoArtifactsManipulator {
 
         Properties properties;
         try (FileInputStream inputStream = new FileInputStream(source)) {
-            properties = computeChecksumForFile(source.getName(), md5Hex(inputStream), destPath);
+            properties = computeChecksumForFile(source.getName(), DigestUtils.md5Hex(inputStream), destPath);
         }
         return properties;
     }
@@ -142,7 +140,7 @@ public class GoArtifactsManipulator {
         for (File file : fileStructure) {
             String filePath = removeStart(file.getAbsolutePath(), directory.getParentFile().getAbsolutePath());
             try (FileInputStream inputStream = new FileInputStream(file)) {
-                checksumProperties.setProperty(getEffectiveFileName(destPath, FilenameUtils.separatorsToUnix(filePath)), md5Hex(inputStream));
+                checksumProperties.setProperty(getEffectiveFileName(destPath, FilenameUtils.separatorsToUnix(filePath)), DigestUtils.md5Hex(inputStream));
             }
         }
         return checksumProperties;

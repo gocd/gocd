@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.CachedDigestUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +56,7 @@ public class FileHandlerTest {
 
     @Test
     public void shouldCheckTheMD5OfTheFile() throws IOException {
-        when(checksums.md5For("src/file/path")).thenReturn(CachedDigestUtils.md5Hex(new ByteArrayInputStream("Hello world".getBytes())));
+        when(checksums.md5For("src/file/path")).thenReturn(DigestUtils.md5Hex(new ByteArrayInputStream("Hello world".getBytes())));
         fileHandler.useArtifactMd5Checksums(checksums);
 
         fileHandler.handle(new ByteArrayInputStream("Hello world".getBytes()));

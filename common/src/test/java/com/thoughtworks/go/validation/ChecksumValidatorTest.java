@@ -17,12 +17,13 @@ package com.thoughtworks.go.validation;
 
 import com.thoughtworks.go.agent.ChecksumValidationPublisher;
 import com.thoughtworks.go.domain.ArtifactMd5Checksums;
-import com.thoughtworks.go.util.CachedDigestUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
@@ -43,31 +44,31 @@ public class ChecksumValidatorTest {
     }
 
     @Test
-    public void shouldCallbackWhenMd5Match() {
-        when(checksums.md5For("path")).thenReturn(CachedDigestUtils.md5Hex("foo"));
+    public void shouldCallbackWhenMd5Match() throws IOException {
+        when(checksums.md5For("path")).thenReturn(DigestUtils.md5Hex("foo"));
 
         final ByteArrayInputStream stream = new ByteArrayInputStream("foo".getBytes());
-        new ChecksumValidator(checksums).validate("path", CachedDigestUtils.md5Hex(stream), checksumValidationPublisher);
+        new ChecksumValidator(checksums).validate("path", DigestUtils.md5Hex(stream), checksumValidationPublisher);
 
         verify(checksumValidationPublisher).md5Match("path");
     }
 
     @Test
-    public void shouldCallbackWhenMd5Mismatch() {
-        when(checksums.md5For("path")).thenReturn(CachedDigestUtils.md5Hex("something"));
+    public void shouldCallbackWhenMd5Mismatch() throws IOException {
+        when(checksums.md5For("path")).thenReturn(DigestUtils.md5Hex("something"));
 
         final ByteArrayInputStream stream = new ByteArrayInputStream("foo".getBytes());
-        new ChecksumValidator(checksums).validate("path", CachedDigestUtils.md5Hex(stream), checksumValidationPublisher);
+        new ChecksumValidator(checksums).validate("path", DigestUtils.md5Hex(stream), checksumValidationPublisher);
 
         verify(checksumValidationPublisher).md5Mismatch("path");
     }
 
     @Test
-    public void shouldCallbackWhenMd5IsNotFound() {
+    public void shouldCallbackWhenMd5IsNotFound() throws IOException {
         when(checksums.md5For("path")).thenReturn(null);
 
         final ByteArrayInputStream stream = new ByteArrayInputStream("foo".getBytes());
-        new ChecksumValidator(checksums).validate("path", CachedDigestUtils.md5Hex(stream), checksumValidationPublisher);
+        new ChecksumValidator(checksums).validate("path", DigestUtils.md5Hex(stream), checksumValidationPublisher);
 
         verify(checksumValidationPublisher).md5NotFoundFor("path");
     }

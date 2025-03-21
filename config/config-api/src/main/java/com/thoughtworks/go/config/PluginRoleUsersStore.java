@@ -15,16 +15,14 @@
  */
 package com.thoughtworks.go.config;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.*;
 
-import static com.google.common.collect.Multimaps.synchronizedSetMultimap;
-
 public class PluginRoleUsersStore {
-    private final SetMultimap<PluginRoleConfig, RoleUser> roleToUsersMappings = synchronizedSetMultimap(HashMultimap.create());
+    private final MultiValuedMap<PluginRoleConfig, RoleUser> roleToUsersMappings = new HashSetValuedHashMap<>(); // FIXME syncxhronize access
 
     private PluginRoleUsersStore() {
 
@@ -51,7 +49,7 @@ public class PluginRoleUsersStore {
     }
 
     public void remove(PluginRoleConfig pluginRole) {
-        roleToUsersMappings.removeAll(pluginRole);
+        roleToUsersMappings.remove(pluginRole);
     }
 
     public void remove(Collection<PluginRoleConfig> pluginRoles) {

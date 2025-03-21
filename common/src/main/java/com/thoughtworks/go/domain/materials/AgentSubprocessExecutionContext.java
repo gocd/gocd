@@ -17,7 +17,7 @@ package com.thoughtworks.go.domain.materials;
 
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.util.CachedDigestUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class AgentSubprocessExecutionContext implements SubprocessExecutionConte
 
     @Override
     public String getProcessNamespace(String fingerprint) {
-        return CachedDigestUtils.sha256Hex(fingerprint + agentIdentifier.getUuid() + workingDirectory);
+        return DigestUtils.sha256Hex(fingerprint + agentIdentifier.getUuid() + workingDirectory);
     }
 
     @Override

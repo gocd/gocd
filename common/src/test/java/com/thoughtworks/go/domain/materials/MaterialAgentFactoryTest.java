@@ -23,9 +23,9 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialAgent;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -57,7 +57,7 @@ public class MaterialAgentFactoryTest {
         assertThat(agent).isInstanceOf(AbstractMaterialAgent.class);
 
         SubprocessExecutionContext execCtx = ReflectionUtil.getField(agent, "execCtx");
-        assertThat(execCtx.getProcessNamespace("fingerprint")).isEqualTo(CachedDigestUtils.sha256Hex(String.format("%s%s%s", "fingerprint", agentUuid, gitMaterial.workingdir(tempWorkingDirectory))));
+        assertThat(execCtx.getProcessNamespace("fingerprint")).isEqualTo(DigestUtils.sha256Hex(String.format("%s%s%s", "fingerprint", agentUuid, gitMaterial.workingdir(tempWorkingDirectory))));
     }
 
     @Test

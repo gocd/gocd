@@ -35,7 +35,6 @@ dependencies {
   api project.deps.springWeb
   implementation project.deps.slf4jApi
   implementation project.deps.felix
-  implementation project.deps.guava
   implementation project.deps.jodaTime
   compileOnly project.deps.bouncyCastle
   annotationProcessor project.deps.lombok

@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.validation.ChecksumValidator;
 import com.thoughtworks.go.work.GoPublisher;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,6 @@ import java.net.HttpURLConnection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
 import static java.lang.String.format;
 
 public class DirHandler implements FetchHandler {
@@ -56,9 +56,9 @@ public class DirHandler implements FetchHandler {
             LOG.info("[Agent Fetch Artifact] Downloading from '{}' to '{}'. Will read from Socket stream to compute MD5 and write to file", srcFile, destOnAgent.getAbsolutePath());
 
             long before = System.currentTimeMillis();
-            new ZipUtil((entry, stream1) -> {
+            new ZipUtil((entry, entryStream) -> {
                 LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Handling the entry: '{}'", srcFile, destOnAgent.getAbsolutePath(), entry.getName());
-                new ChecksumValidator(artifactMd5Checksums).validate(getSrcFilePath(entry), md5Hex(stream1), checksumValidationPublisher);
+                new ChecksumValidator(artifactMd5Checksums).validate(getSrcFilePath(entry), DigestUtils.md5Hex(entryStream), checksumValidationPublisher);
             }).unzip(zipInputStream, destOnAgent);
             LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Took: {}ms", srcFile, destOnAgent.getAbsolutePath(), System.currentTimeMillis() - before);
         }

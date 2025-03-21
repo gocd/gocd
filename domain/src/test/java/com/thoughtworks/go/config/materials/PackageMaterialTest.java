@@ -34,9 +34,9 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -82,7 +82,7 @@ class PackageMaterialTest {
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", "pluginid", "version",
                 new Configuration(ConfigurationPropertyMother.create("k1", false, "v1"), ConfigurationPropertyMother.create("secure-key", true, "secure-value")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        assertThat(material.getFingerprint()).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=pluginid<|>k2=v2<|>k1=v1<|>secure-key=secure-value"));
+        assertThat(material.getFingerprint()).isEqualTo(DigestUtils.sha256Hex("plugin-id=pluginid<|>k2=v2<|>k1=v1<|>secure-key=secure-value"));
     }
 
     @Test

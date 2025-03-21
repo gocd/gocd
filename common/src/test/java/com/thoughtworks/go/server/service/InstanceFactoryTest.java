@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
@@ -30,10 +29,7 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobResult.Unknown;
@@ -320,7 +316,7 @@ class InstanceFactoryTest {
     @Test
     void shouldAddElasticProfileOnJobPlan() {
         ElasticProfile elasticProfile = new ElasticProfile("id", "prod-cluster");
-        DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile));
+        DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), Map.of("id", elasticProfile));
 
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactTypeConfigs);
@@ -335,7 +331,7 @@ class InstanceFactoryTest {
     void shouldAddElasticProfileAndClusterProfileOnJobPlan() {
         ElasticProfile elasticProfile = new ElasticProfile("id", "clusterId");
         ClusterProfile clusterProfile = new ClusterProfile("clusterId", "pluginId");
-        DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile), ImmutableMap.of("clusterId", clusterProfile));
+        DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), Map.of("id", elasticProfile), Map.of("clusterId", clusterProfile));
 
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactTypeConfigs);

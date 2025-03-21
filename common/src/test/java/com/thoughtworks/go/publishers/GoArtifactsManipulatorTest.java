@@ -22,10 +22,10 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub;
 import com.thoughtworks.go.remote.work.GoArtifactsManipulatorStub;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,7 +98,7 @@ public class GoArtifactsManipulatorTest {
     @Test
     public void shouldUploadArtifactChecksumAlongWithArtifact() throws IOException {
         String data = "Some text whose checksum can be asserted";
-        final String md5 = CachedDigestUtils.md5Hex(data);
+        final String md5 = DigestUtils.md5Hex(data);
         FileUtils.writeStringToFile(tempFile, data, UTF_8);
         Properties properties = new Properties();
         properties.setProperty("dest/path/file.txt", md5);
@@ -111,7 +111,7 @@ public class GoArtifactsManipulatorTest {
     @Test
     public void shouldUploadArtifactChecksumWithRightPathWhenArtifactDestinationPathIsEmpty() throws IOException {
         String data = "Some text whose checksum can be asserted";
-        final String md5 = CachedDigestUtils.md5Hex(data);
+        final String md5 = DigestUtils.md5Hex(data);
         FileUtils.writeStringToFile(tempFile, data, UTF_8);
         Properties properties = new Properties();
         properties.setProperty("file.txt", md5);
@@ -139,8 +139,8 @@ public class GoArtifactsManipulatorTest {
 
     private Properties expectedProperties(String data, String secondData) {
         Properties properties = new Properties();
-        properties.setProperty("dest/artifact_folder/file.txt", CachedDigestUtils.md5Hex(data));
-        properties.setProperty("dest/artifact_folder/bond/james_bond/another_file", CachedDigestUtils.md5Hex(secondData));
+        properties.setProperty("dest/artifact_folder/file.txt", DigestUtils.md5Hex(data));
+        properties.setProperty("dest/artifact_folder/bond/james_bond/another_file", DigestUtils.md5Hex(secondData));
         return properties;
     }
 

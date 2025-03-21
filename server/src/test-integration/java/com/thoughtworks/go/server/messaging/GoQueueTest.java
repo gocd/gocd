@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.messaging;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +53,7 @@ public class GoQueueTest {
             queue.addListener(new StubGoMessageListener(i));
         }
 
-        Set<String> expectMessages = Sets.newConcurrentHashSet();
+        Set<String> expectMessages = ConcurrentHashMap.newKeySet();
         for (int i = 0; i < numberOfMessages; i++) {
             String text = "Message-" + i;
             queue.post(new GoTextMessage(text));

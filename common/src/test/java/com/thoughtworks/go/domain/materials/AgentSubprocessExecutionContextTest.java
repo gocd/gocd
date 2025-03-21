@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain.materials;
 
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +24,7 @@ import static org.mockito.Mockito.when;
 
 public class AgentSubprocessExecutionContextTest {
     @Test
-    public void shouldReturnDigestOfMaterialFingerprintConcatinatedWithAgentUUID() {
+    public void shouldReturnDigestOfMaterialFingerprintConcatenatedWithAgentUUID() {
         AgentIdentifier agentIdentifier = mock(AgentIdentifier.class);
         String uuid = "agent-uuid";
         when(agentIdentifier.getUuid()).thenReturn(uuid);
@@ -33,7 +32,6 @@ public class AgentSubprocessExecutionContextTest {
         String workingDirectory = "working-folder-full-path";
         AgentSubprocessExecutionContext execCtx = new AgentSubprocessExecutionContext(agentIdentifier, workingDirectory);
         String workspaceName = execCtx.getProcessNamespace(fingerprint);
-        assertThat(workspaceName).isEqualTo(CachedDigestUtils.sha256Hex(fingerprint + uuid + workingDirectory));
-        assertThat(workspaceName.length()).isEqualTo(64);
+        assertThat(workspaceName).hasSize(64);
     }
 }

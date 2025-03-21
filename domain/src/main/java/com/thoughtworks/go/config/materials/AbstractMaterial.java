@@ -20,8 +20,8 @@ import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -119,7 +119,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         }
         String fingerprint = StringUtils.join(list, FINGERPRINT_DELIMITER);
         // CAREFUL! the hash algorithm has to be same as the one used in 47_create_new_materials.sql
-        return CachedDigestUtils.sha256Hex(fingerprint);
+        return DigestUtils.sha256Hex(fingerprint);
     }
 
     @Override

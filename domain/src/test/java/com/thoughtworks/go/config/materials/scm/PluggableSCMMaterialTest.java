@@ -38,9 +38,9 @@ import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMView;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -103,7 +103,7 @@ class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
 
-        assertThat(material.getFingerprint()).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=pluginid<|>k1=v1<|>secure-key=secure-value"));
+        assertThat(material.getFingerprint()).isEqualTo(DigestUtils.sha256Hex("plugin-id=pluginid<|>k1=v1<|>secure-key=secure-value"));
     }
 
     @Test

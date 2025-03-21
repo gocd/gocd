@@ -27,7 +27,7 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.CachedDigestUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -140,7 +140,7 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
 
             String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
 
-            assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=pluginid<|>k2=v2<|>k1=v1"));
+            assertThat(fingerprint).isEqualTo(DigestUtils.sha256Hex("plugin-id=pluginid<|>k2=v2<|>k1=v1"));
         }
 
         @Test
@@ -163,7 +163,7 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
 
             String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
 
-            assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=plugin-id<|>pk2=pv2<|>rk1=rv1"));
+            assertThat(fingerprint).isEqualTo(DigestUtils.sha256Hex("plugin-id=plugin-id<|>pk2=pv2<|>rk1=rv1"));
         }
 
         @Test
@@ -177,7 +177,7 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
 
             String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
 
-            assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=plugin-id<|>pk1=pv1<|>pk2=pv2<|>rk1=rv1<|>rk2=rv2"));
+            assertThat(fingerprint).isEqualTo(DigestUtils.sha256Hex("plugin-id=plugin-id<|>pk1=pv1<|>pk2=pv2<|>rk1=rv1<|>rk2=rv2"));
         }
 
         @Test

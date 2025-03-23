@@ -17,6 +17,7 @@ package com.thoughtworks.go.spark.spa.spring;
 
 import com.thoughtworks.go.spark.SparkController;
 import freemarker.core.XHTMLOutputFormat;
+import freemarker.log.Logger;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
 import org.springframework.beans.factory.InitializingBean;
@@ -57,6 +58,7 @@ public class FreemarkerTemplateEngineFactory implements ServletContextAware, Ini
 
     @Override
     public void afterPropertiesSet() {
+        System.setProperty(Logger.SYSTEM_PROPERTY_NAME_LOGGER_LIBRARY, "SLF4J");
         Configuration configuration = new Configuration(Configuration.VERSION_2_3_34);
         configuration.setDefaultEncoding("utf-8");
         configuration.setLogTemplateExceptions(true);

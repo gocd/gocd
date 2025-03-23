@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.newsecurity.helpers;
 
-import com.google.common.collect.Sets;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -32,7 +32,7 @@ public class AuthorityVerifier {
     }
 
     public boolean hasAnyAuthorityMatching(Set<GrantedAuthority> userAuthorities) {
-        return !Sets.intersection(grantedAuthorities, userAuthorities).isEmpty();
+        return !SetUtils.intersection(grantedAuthorities, userAuthorities).isEmpty();
     }
 
 }

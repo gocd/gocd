@@ -21,7 +21,6 @@ plugins {
 dependencies {
   api project(path: ':config:config-server', configuration: 'runtimeElements')
   api project(path: ':spark:spark-base', configuration: 'runtimeElements')
-  implementation project.deps.guava
   testImplementation localGroovy()
   testImplementation project(path: ':common', configuration: 'testOutput')
   testImplementation project(path: ':domain', configuration: 'testOutput')

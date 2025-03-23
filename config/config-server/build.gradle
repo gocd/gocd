@@ -25,7 +25,7 @@ dependencies {
     exclude(module: 'jzlib')
   }
   implementation project.deps.slf4jApi
-  implementation project.deps.guava
+  implementation project.deps.caffeine
   implementation project.deps.jdom
   if (project.deps.jdom) {
     // Required for use of org.jdom2.xpath.XPathFactory where jaxen is the default impl

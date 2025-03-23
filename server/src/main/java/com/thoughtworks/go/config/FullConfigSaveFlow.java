@@ -22,8 +22,8 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.TimeProvider;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jdom2.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public abstract class FullConfigSaveFlow {
     public abstract GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials, String currentUser) throws Exception;
 
     protected void postValidationUpdates(CruiseConfig configForEdit, String xmlString) throws NoSuchFieldException, IllegalAccessException {
-        String md5 = CachedDigestUtils.md5Hex(xmlString);
+        String md5 = DigestUtils.md5Hex(xmlString);
 
         configForEdit.setOrigins(new FileConfigOrigin());
 

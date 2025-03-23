@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import com.google.common.base.Throwables;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -268,8 +267,9 @@ public class GoConfigFileHelper {
         FileUtils.deleteQuietly(configFile);
         try {
             saveFullConfig(originalXml, true);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            Throwables.throwIfUnchecked(e);
             throw new RuntimeException(e);
         }
     }

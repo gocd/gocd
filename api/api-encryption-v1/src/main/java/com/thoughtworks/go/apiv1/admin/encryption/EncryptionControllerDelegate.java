@@ -16,9 +16,7 @@
 package com.thoughtworks.go.apiv1.admin.encryption;
 
 
-import com.google.common.base.Ticker;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
@@ -32,16 +30,19 @@ import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.Routes;
-import org.isomorphism.util.FixedIntervalRefillStrategy;
-import org.isomorphism.util.TokenBucket;
-import org.isomorphism.util.TokenBuckets;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.BucketConfiguration;
+import io.github.bucket4j.TimeMeter;
+import io.github.bucket4j.caffeine.CaffeineProxyManager;
+import io.github.bucket4j.distributed.BucketProxy;
+import io.github.bucket4j.distributed.proxy.ClientSideConfig;
+import io.github.bucket4j.distributed.proxy.ProxyManager;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 import static spark.Spark.*;
 
@@ -50,19 +51,17 @@ public class EncryptionControllerDelegate extends ApiController {
     private final GoCipher cipher;
     private final long requestsPerMinute;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final Cache<Username, TokenBucket> rateLimiters;
-    private final Ticker ticker;
+    private final ProxyManager<Username> rateLimiters;
 
-
-    public EncryptionControllerDelegate(ApiAuthenticationHelper apiAuthenticationHelper, GoCipher cipher, long requestsPerMinute, Ticker ticker) {
+    public EncryptionControllerDelegate(ApiAuthenticationHelper apiAuthenticationHelper, GoCipher cipher, long requestsPerMinute, TimeMeter timeMeter) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.cipher = cipher;
         this.requestsPerMinute = requestsPerMinute;
-        this.rateLimiters = CacheBuilder.newBuilder()
-            .expireAfterAccess(1, TimeUnit.MINUTES)
-            .build();
-        this.ticker = ticker;
+        this.rateLimiters = new CaffeineProxyManager<>(
+            Caffeine.newBuilder(),
+            Duration.ofMinutes(1),
+            ClientSideConfig.getDefault().withClientClock(timeMeter));
     }
 
     @Override
@@ -101,18 +100,26 @@ public class EncryptionControllerDelegate extends ApiController {
         return writerForTopLevelObject(request, response, writer -> EncryptedValueRepresenter.toJSON(writer, encrypt));
     }
 
-    private void checkRateLimitAvailable(Request request, Response response) throws ExecutionException {
-        TokenBucket tokenBucket = rateLimiters.get(currentUsername(), () -> TokenBuckets.builder()
-            .withCapacity(requestsPerMinute)
-            .withInitialTokens(requestsPerMinute)
-            .withRefillStrategy(new FixedIntervalRefillStrategy(ticker, requestsPerMinute, 1, TimeUnit.MINUTES))
-            .build());
+    private void checkRateLimitAvailable(Request request, Response response) {
+        BucketProxy tokenBucket = rateLimiters.getProxy(currentUsername(), this::newTokenBucket);
 
         response.header("X-RateLimit-Limit", String.valueOf(requestsPerMinute));
-        response.header("X-RateLimit-Remaining", String.valueOf(tokenBucket.getNumTokens()));
+        response.header("X-RateLimit-Remaining", String.valueOf(tokenBucket.getAvailableTokens()));
 
-        if (!tokenBucket.tryConsume()) {
+        if (!tokenBucket.tryConsume(1)) {
             throw HaltApiResponses.haltBecauseRateLimitExceeded();
         }
+    }
+
+    private BucketConfiguration newTokenBucket() {
+        return BucketConfiguration
+            .builder()
+            .addLimit(Bandwidth
+                .builder()
+                .capacity(requestsPerMinute)
+                .refillIntervally(requestsPerMinute, Duration.ofMinutes(1))
+                .initialTokens(requestsPerMinute)
+                .build())
+            .build();
     }
 }

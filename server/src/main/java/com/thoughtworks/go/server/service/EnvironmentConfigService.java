@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.common.collect.Sets;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
@@ -39,6 +38,7 @@ import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.ClonerFactory;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -253,8 +253,8 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         Set<String> originalEnvNames = getAgentEnvironmentNames(uuid);
         HashSet<String> newEnvNames = new HashSet<>(agent.getEnvironmentsAsList());
 
-        Set<String> envsToRemove = Sets.difference(originalEnvNames, newEnvNames);
-        Set<String> envToAdd = Sets.difference(newEnvNames, originalEnvNames);
+        Set<String> envsToRemove = SetUtils.difference(originalEnvNames, newEnvNames);
+        Set<String> envToAdd = SetUtils.difference(newEnvNames, originalEnvNames);
 
         removeAgentFromCurrentlyAssociatedEnvironments(uuid, new ArrayList<>(envsToRemove));
         addAgentToNewlyAssociatedEnvironments(uuid, new ArrayList<>(envToAdd));

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.spark.spa.spring;
 
-import com.google.common.base.CaseFormat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -30,6 +29,7 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
+import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -101,7 +101,7 @@ public class InitialContextProvider {
     }
 
     private String humanizedControllerName(Class<? extends SparkController> controller) {
-        return CaseFormat.UPPER_CAMEL.converterTo(CaseFormat.LOWER_UNDERSCORE).convert(controller.getSimpleName().replaceAll("(Delegate|Controller)", ""));
+        return StringUtil.camelCaseToSnakeCase(controller.getSimpleName().replaceAll("(Delegate|Controller)", ""));
     }
 
     private boolean showAnalyticsDashboard() {

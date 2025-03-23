@@ -18,10 +18,8 @@ package com.thoughtworks.go.util;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.util.Random;
-
-import static com.thoughtworks.go.util.CachedDigestUtils.*;
+import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
+import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CachedDigestUtilsTest {
@@ -51,26 +49,5 @@ public class CachedDigestUtilsTest {
         String fingerprint = "";
         String digest = sha256Hex(fingerprint);
         assertEquals(DigestUtils.sha256Hex(fingerprint), digest);
-    }
-
-    @Test
-    public void shouldComputeForAGivenStringUsingMD5() {
-        String fingerprint = "Some String";
-        String digest = md5Hex(fingerprint);
-        assertEquals(DigestUtils.md5Hex(fingerprint), digest);
-    }
-
-    @Test
-    public void shouldComputeForAnEmptyStringUsingMD5() {
-        String fingerprint = "";
-        String digest = md5Hex(fingerprint);
-        assertEquals(DigestUtils.md5Hex(fingerprint), digest);
-    }
-
-    @Test
-    public void shouldComputeForAGivenStreamUsingMD5() {
-        byte[] testData = new byte[1024 * 1024];
-        new Random().nextBytes(testData);
-        assertEquals(DigestUtils.md5Hex(testData), md5Hex(new ByteArrayInputStream(testData)));
     }
 }

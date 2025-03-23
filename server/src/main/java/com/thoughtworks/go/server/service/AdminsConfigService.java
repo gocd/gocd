@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
@@ -26,12 +25,14 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -109,14 +110,14 @@ public class AdminsConfigService {
     private BulkUpdateAdminsResult validateUsersAndRolesForBulkUpdate(List<String> usersToRemove, List<String> rolesToRemove,
                                                                       Set<Admin> existingAdmins) {
         Set<CaseInsensitiveString> existingAdminNames = existingAdmins.stream().map(Admin::getName).collect(Collectors.toSet());
-        Sets.SetView<CaseInsensitiveString> invalidUsersToRemove = Sets.difference(caseInsensitive(usersToRemove), existingAdminNames);
-        Sets.SetView<CaseInsensitiveString> invalidRolesToRemove = Sets.difference(caseInsensitive(rolesToRemove), existingAdminNames);
+        Collection<CaseInsensitiveString> invalidUsersToRemove = SetUtils.difference(caseInsensitive(usersToRemove), existingAdminNames);
+        Collection<CaseInsensitiveString> invalidRolesToRemove = SetUtils.difference(caseInsensitive(rolesToRemove), existingAdminNames);
         BulkUpdateAdminsResult result = new BulkUpdateAdminsResult();
-        if (invalidUsersToRemove.size() > 0) {
+        if (!invalidUsersToRemove.isEmpty()) {
             result.setNonExistentUsers(invalidUsersToRemove);
             result.unprocessableEntity("Update failed because some users or roles do not exist under super admins.");
         }
-        if (invalidRolesToRemove.size() > 0) {
+        if (!invalidRolesToRemove.isEmpty()) {
             result.setNonExistentRoles(invalidRolesToRemove);
             result.unprocessableEntity("Update failed because some users or roles do not exist under super admins.");
         }

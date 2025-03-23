@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.api.spring;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.RerouteLatestApis;
 import com.thoughtworks.go.spark.spring.RouteEntry;
 import com.thoughtworks.go.spark.spring.RouteInformationProvider;
+import org.apache.commons.collections4.MultiMapUtils;
+import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +68,7 @@ public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationCont
     @Override
     public void registerLatest() {
         List<RouteEntry> routes = routeInformationProvider.getRoutes();
-        Multimap<String, ApiVersion> pathToVersionsMap = LinkedHashMultimap.create();
+        MultiValuedMap<String, ApiVersion> pathToVersionsMap = MultiMapUtils.newListValuedHashMap();
 
         routeToggles = resolveRouteToggles();
 

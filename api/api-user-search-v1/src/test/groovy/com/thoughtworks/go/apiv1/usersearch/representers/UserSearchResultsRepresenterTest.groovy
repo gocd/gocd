@@ -33,7 +33,7 @@ class UserSearchResultsRepresenterTest {
 
     Map<String, Object> expectedJson = [
       _links   : [
-        self: [href: 'http://test.host/go/api/user_search?q=Bob+Builder'],
+        self: [href: 'http://test.host/go/api/user_search?q=Bob%20Builder'],
         find: [href: 'http://test.host/go/api/user_search?q=:search_term'],
         doc : [href: apiDocsUrl('#user-search')],
       ],

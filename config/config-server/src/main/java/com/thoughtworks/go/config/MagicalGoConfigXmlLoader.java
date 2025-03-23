@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.XmlUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jdom2.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.config.parser.GoConfigClassLoader.classParser;
-import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
 
 public class MagicalGoConfigXmlLoader {
     public static final List<GoConfigPreprocessor> PREPROCESSORS = List.of(
@@ -101,12 +101,11 @@ public class MagicalGoConfigXmlLoader {
     }
 
     public CruiseConfig deserializeConfig(String content) throws Exception {
-        String md5 = md5Hex(content);
         Element element = parseInputStream(new ByteArrayInputStream(content.getBytes()));
         LOGGER.debug("[Config Save] Updating config cache with new XML");
 
         CruiseConfig configForEdit = classParser(element, BasicCruiseConfig.class, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
-        setMd5(configForEdit, md5);
+        setMd5(configForEdit, DigestUtils.md5Hex(content));
         configForEdit.setOrigins(new FileConfigOrigin());
         return configForEdit;
     }

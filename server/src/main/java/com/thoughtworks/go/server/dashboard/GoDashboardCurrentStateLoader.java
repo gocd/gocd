@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.dashboard;
 
-import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -36,6 +35,7 @@ import com.thoughtworks.go.server.service.PipelineLockService;
 import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.PipelineUnlockApiService;
 import com.thoughtworks.go.server.service.SchedulingCheckerService;
+import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,8 +85,8 @@ public class GoDashboardCurrentStateLoader {
 
         HashSet<CaseInsensitiveString> currentPipelineNames = new HashSet<>(allPipelineNames);
 
-        Collection<CaseInsensitiveString> pipelinesToRemove = Sets.difference(lastKnownPipelineNames, currentPipelineNames);
-        Collection<CaseInsensitiveString> pipelinesToAdd = Sets.difference(currentPipelineNames, lastKnownPipelineNames);
+        Collection<CaseInsensitiveString> pipelinesToRemove = SetUtils.difference(lastKnownPipelineNames, currentPipelineNames);
+        Collection<CaseInsensitiveString> pipelinesToAdd = SetUtils.difference(currentPipelineNames, lastKnownPipelineNames);
 
         if (!pipelinesToAdd.isEmpty()) {
             historyForDashboard.addAll(loadHistoryForPipelines(new ArrayList<>(CaseInsensitiveString.toStringList(pipelinesToAdd))));

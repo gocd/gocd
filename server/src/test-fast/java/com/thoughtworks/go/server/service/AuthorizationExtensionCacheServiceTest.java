@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.common.base.Ticker;
+import com.github.benmanes.caffeine.cache.Ticker;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
@@ -167,7 +167,7 @@ class AuthorizationExtensionCacheServiceTest {
         verify(authorizationExtension, times(2)).isValidUser(pluginId, username, authConfig);
     }
 
-    class FakeTicker extends Ticker {
+    static class FakeTicker implements Ticker {
         private final AtomicLong nanos = new AtomicLong();
 
         void advance(long time, TimeUnit timeUnit) {

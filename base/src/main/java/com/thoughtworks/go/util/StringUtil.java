@@ -51,12 +51,19 @@ public final class StringUtil {
     }
 
     public static String humanize(String s) {
-        String[] strings = StringUtils.splitByCharacterTypeCamelCase(s);
-        for (int i = 0; i < strings.length; i++) {
-            String string = strings[i];
-            strings[i] = string.toLowerCase();
+        String[] words = StringUtils.splitByCharacterTypeCamelCase(s);
+        for (int i = 0; i < words.length; i++) {
+            words[i] = words[i].toLowerCase();
         }
-        return StringUtils.join(strings, " ");
+        return StringUtils.join(words, " ");
+    }
+
+    public static String camelCaseToSnakeCase(String s) {
+        String[] words = StringUtils.splitByCharacterTypeCamelCase(s);
+        for (int i = 0; i < words.length; i++) {
+            words[i] = words[i].toLowerCase();
+        }
+        return StringUtils.join(words, "_");
     }
 
     public static String joinForDisplay(final Collection<?> objects) {

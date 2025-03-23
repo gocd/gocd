@@ -38,8 +38,8 @@ class SecretsMessageConverterV1Test {
                                 "FilePath": "/var/lib/secret.config"
                               },
                               "keys": [
-                                "username",
-                                "password"
+                                "password",
+                                "username"
                               ]
                             }""");
         }

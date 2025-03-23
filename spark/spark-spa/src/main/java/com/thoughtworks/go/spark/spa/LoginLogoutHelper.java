@@ -15,18 +15,16 @@
  */
 package com.thoughtworks.go.spark.spa;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.net.UrlEscapers;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.GoConfigService;
+import org.springframework.web.util.UriUtils;
 import spark.Request;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -70,21 +68,29 @@ public class LoginLogoutHelper {
                 .distinct()
                 .toList();
 
-        ImmutableMap.Builder<String, Object> metaBuilder = ImmutableMap.<String, Object>builder()
-                .put("hasWebBasedPlugins", !webBasedAuthenticationPlugins.isEmpty())
-                .put("hasPasswordPlugins", !passwordBasedAuthenticationPlugins.isEmpty())
-                .put("webBasedPlugins", webBasedAuthenticationPlugins.stream().map(authorizationPluginInfo -> ImmutableMap.builder()
-                        .put("pluginName", authorizationPluginInfo.getDescriptor().about().name())
-                        .put("imageUrl", authorizationPluginInfo.getImage().toDataURI())
-                        .put("redirectUrl", "/go/plugin/" + UrlEscapers.urlPathSegmentEscaper().escape(authorizationPluginInfo.getDescriptor().id()) + "/login")
-                        .build()).collect(Collectors.toList()));
-
+        Map<String, Object> metaBuilder = new HashMap<>(4);
+        metaBuilder.put("hasWebBasedPlugins", !webBasedAuthenticationPlugins.isEmpty());
+        metaBuilder.put("hasPasswordPlugins", !passwordBasedAuthenticationPlugins.isEmpty());
+        metaBuilder.put("webBasedPlugins", webBasedAuthenticationPlugins.stream().map(authorizationPluginInfo -> Map.of(
+                "pluginName", authorizationPluginInfo.getDescriptor().about().name(),
+                "imageUrl", authorizationPluginInfo.getImage().toDataURI(),
+                "redirectUrl", "/go/plugin/" + getEncodePathSegment(authorizationPluginInfo.getDescriptor().id()) + "/login"
+            )).collect(Collectors.toList())
+        );
 
         if (isNotBlank(SessionUtils.getAuthenticationError(request.raw()))) {
             metaBuilder.put("loginError", SessionUtils.getAuthenticationError(request.raw()));
         }
 
-        return metaBuilder.build();
+        return Collections.unmodifiableMap(metaBuilder);
+    }
+
+    private static String getEncodePathSegment(String value) {
+        try {
+            return UriUtils.encodePathSegment(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

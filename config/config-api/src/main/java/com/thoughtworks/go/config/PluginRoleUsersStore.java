@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.config;
 
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class PluginRoleUsersStore {
-    private final MultiValuedMap<PluginRoleConfig, RoleUser> roleToUsersMappings = new HashSetValuedHashMap<>(); // FIXME syncxhronize access
+    private final ConcurrentMap<PluginRoleConfig, Set<RoleUser>> roleToUsersMappings = new ConcurrentHashMap<>();
 
     private PluginRoleUsersStore() {
 
@@ -33,11 +33,13 @@ public class PluginRoleUsersStore {
     }
 
     public void assignRole(String user, PluginRoleConfig pluginRoleConfig) {
-        roleToUsersMappings.put(pluginRoleConfig, new RoleUser(user));
+        roleToUsersMappings
+            .computeIfAbsent(pluginRoleConfig, k -> Collections.newSetFromMap(new ConcurrentHashMap<>()))
+            .add(new RoleUser(user));
     }
 
     public List<RoleUser> usersInRole(PluginRoleConfig pluginRoleConfig) {
-        return new ArrayList<>(roleToUsersMappings.get(pluginRoleConfig));
+        return pluginRoleConfig == null ? Collections.emptyList() : new ArrayList<>(roleToUsersMappings.getOrDefault(pluginRoleConfig, Collections.emptySet()));
     }
 
     public void removePluginRolesNotIn(List<PluginRoleConfig> pluginRoles) {
@@ -60,10 +62,9 @@ public class PluginRoleUsersStore {
 
     public void revokeAllRolesFor(String username) {
         final RoleUser roleUser = new RoleUser(username);
-        synchronized (roleToUsersMappings) {
-            Set<PluginRoleConfig> pluginRoles = new HashSet<>(roleToUsersMappings.keySet());
-            for (PluginRoleConfig pluginRole : pluginRoles) {
-                roleToUsersMappings.get(pluginRole).remove(roleUser);
+        for (Map.Entry<PluginRoleConfig, Set<RoleUser>> entry : roleToUsersMappings.entrySet()) {
+            if (entry.getValue().remove(roleUser)) {
+                roleToUsersMappings.computeIfPresent(entry.getKey(), (c, users) -> users.isEmpty() ? null : users);
             }
         }
     }

@@ -160,10 +160,10 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
         sslContextFactory.setCertAlias("1");
         sslContextFactory.setKeyStoreType("PKCS12");
-        sslContextFactory.setKeyStoreResource(Resource.newClassPathResource("testdata/server-localhost.p12"));
+        sslContextFactory.setKeyStoreResource(Resource.newClassPathResource("testdata/server-localhost-ec.p12"));
         sslContextFactory.setKeyStorePassword(resourceToString("/testdata/keystore.pass"));
         sslContextFactory.setTrustStoreType("PKCS12");
-        sslContextFactory.setTrustStoreResource(Resource.newClassPathResource("testdata/root-ca.p12"));
+        sslContextFactory.setTrustStoreResource(Resource.newClassPathResource("testdata/root-ca-ec.p12"));
         sslContextFactory.setTrustStorePassword(resourceToString("/testdata/keystore.pass"));
         return sslContextFactory;
     }

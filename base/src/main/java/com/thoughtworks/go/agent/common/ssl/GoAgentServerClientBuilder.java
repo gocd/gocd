@@ -26,7 +26,10 @@ import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
+import org.bouncycastle.operator.InputDecryptorProvider;
+import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 
 import java.io.File;
 import java.io.FileReader;
@@ -78,7 +81,7 @@ public abstract class GoAgentServerClientBuilder<T> {
         return trustStore;
     }
 
-    KeyStore agentKeystore() throws IOException, GeneralSecurityException {
+    KeyStore agentKeystore() throws Exception {
         if (this.agentSslCertificate != null && this.agentSslCertificate.exists() && this.agentSslPrivateKey != null && this.agentSslPrivateKey.exists()) {
             return keyStoreFromPem();
         } else {
@@ -86,7 +89,7 @@ public abstract class GoAgentServerClientBuilder<T> {
         }
     }
 
-    private KeyStore keyStoreFromPem() throws IOException, GeneralSecurityException {
+    private KeyStore keyStoreFromPem() throws Exception {
         KeyStore keyStore = KeyStore.getInstance("JKS");
         keyStore.load(null);
         if (agentSslCertificate != null && agentSslPrivateKey != null) {
@@ -100,7 +103,7 @@ public abstract class GoAgentServerClientBuilder<T> {
         static final Provider INSTANCE = new BouncyCastleProvider();
     }
 
-    private PrivateKey getPrivateKey() throws IOException {
+    private PrivateKey getPrivateKey() throws Exception {
         PrivateKey privateKey;
         try (PEMParser reader = new PEMParser(new FileReader(this.agentSslPrivateKey, StandardCharsets.UTF_8))) {
             Object pemObject = reader.readObject();
@@ -115,6 +118,11 @@ public abstract class GoAgentServerClientBuilder<T> {
             } else if (pemObject instanceof PEMKeyPair) {
                 KeyPair keyPair = converter.getKeyPair((PEMKeyPair) pemObject);
                 privateKey = keyPair.getPrivate();
+            } else if (pemObject instanceof PKCS8EncryptedPrivateKeyInfo) {
+                InputDecryptorProvider decProv = new JceOpenSSLPKCS8DecryptorProviderBuilder()
+                    .setProvider(BouncyCastleProviderHolder.INSTANCE)
+                    .build(passphrase());
+                privateKey = converter.getPrivateKey(((PKCS8EncryptedPrivateKeyInfo) pemObject).decryptPrivateKeyInfo(decProv));
             } else if (pemObject instanceof PrivateKeyInfo privateKeyInfo) {
                 privateKey = converter.getPrivateKey(privateKeyInfo);
             } else {

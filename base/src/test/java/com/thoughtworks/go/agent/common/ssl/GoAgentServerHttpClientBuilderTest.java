@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -72,20 +73,20 @@ class GoAgentServerHttpClientBuilderTest {
         @ParameterizedTest
         @EnumSource(value = SslVerificationMode.class, names = {"NO_VERIFY_HOST", "FULL"})
         public void shouldConnectToAnSslServerWithSelfSignedCertWhenInsecureModeIsNoVerifyHost(SslVerificationMode mode) throws Exception {
-            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca.crt"), mode, null, null, null);
+            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca-ec.crt"), mode, null, null, null);
             assertSuccessfulHttpsRequestFor(builder);
         }
 
         @ParameterizedTest
         @EnumSource(value = SslVerificationMode.class, names = {"NONE", "NO_VERIFY_HOST"})
         public void shouldConnectToAnSslServerWithMismatchedHostNameIfNotVerifyingHostname(SslVerificationMode mode) throws Exception {
-            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca.crt"), mode, null, null, null);
+            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca-ec.crt"), mode, null, null, null);
             assertSuccessfulHttpsRequestFor(builder, generatorFor("https://127.0.0.1:" + server.getSecurePort() + "/go/"));
         }
 
         @Test
         public void shouldRaiseExceptionWhenSelfSignedCertDoesNotMatchTheHostName() throws Exception {
-            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca.crt"), SslVerificationMode.FULL, null, null, null);
+            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca-ec.crt"), SslVerificationMode.FULL, null, null, null);
             assertThatThrownBy(() -> requestFor(builder, generatorFor("https://127.0.0.1:" + server.getSecurePort() + "/go/")))
                     .isInstanceOf(IOException.class)
                     .hasMessage("Certificate for <127.0.0.1> doesn't match any of the subject alternative names: [localhost]");
@@ -95,25 +96,27 @@ class GoAgentServerHttpClientBuilderTest {
 
     @Nested
     class AgentCertMtlsVerification {
-        @Test
-        public void shouldBeAbleToConnectWithAgentCertConfiguresEvenIfOptionalOnServer() throws Exception {
-            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca.crt"), SslVerificationMode.FULL, resourceToTempFile("/testdata/agent-client-cert.crt"), resourceToTempFile("/testdata/agent-client-cert.key"), resourceToTempFile("/testdata/agent-client-cert-key.pass"));
+        @ParameterizedTest
+        @CsvSource({"ec, pk1", "ec, pk8", "rsa, pk1", "rsa, pk8"})
+        public void shouldBeAbleToConnectWithAgentCertConfiguresEvenIfOptionalOnServer(String keyType, String keyFormat) throws Exception {
+            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca-ec.crt"), SslVerificationMode.FULL, resourceToTempFile(String.format("/testdata/agent-client-cert-%s.crt", keyType)), resourceToTempFile(String.format("/testdata/agent-client-cert-%s-key.%s", keyType, keyFormat)), resourceToTempFile("/testdata/agent-client-cert.pass"));
             // Connect via the normal TLS port where MTLS is optional
             assertSuccessfulHttpsRequestFor(builder);
         }
 
-        @Test
-        public void shouldRaiseExceptionWhenNoAgentCertPresentedOnMtlsPort() throws Exception {
-            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca.crt"), SslVerificationMode.FULL, null, null, null);
-            assertThatThrownBy(() -> requestFor(builder, mtlsUrlGenerator()))
-                    .isInstanceOf(SSLHandshakeException.class)
-                    .hasMessage("Received fatal alert: bad_certificate");
+        @ParameterizedTest
+        @CsvSource({"ec, pk1", "ec, pk8", "rsa, pk1", "rsa, pk8"})
+        public void shouldBeAbleToConnectWithAgentCertOnMtlsPort(String keyType, String keyFormat) throws Exception {
+            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca-ec.crt"), SslVerificationMode.FULL, resourceToTempFile(String.format("/testdata/agent-client-cert-%s.crt", keyType)), resourceToTempFile(String.format("/testdata/agent-client-cert-%s-key.%s", keyType, keyFormat)), resourceToTempFile("/testdata/agent-client-cert.pass"));
+            assertSuccessfulHttpsRequestFor(builder, mtlsUrlGenerator());
         }
 
         @Test
-        public void shouldBeAbleToConnectWithAgentCertOnMtlsPort() throws Exception {
-            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca.crt"), SslVerificationMode.FULL, resourceToTempFile("/testdata/agent-client-cert.crt"), resourceToTempFile("/testdata/agent-client-cert.key"), resourceToTempFile("/testdata/agent-client-cert-key.pass"));
-            assertSuccessfulHttpsRequestFor(builder, mtlsUrlGenerator());
+        public void shouldRaiseExceptionWhenNoAgentCertPresentedOnMtlsPort() throws Exception {
+            GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca-ec.crt"), SslVerificationMode.FULL, null, null, null);
+            assertThatThrownBy(() -> requestFor(builder, mtlsUrlGenerator()))
+                    .isInstanceOf(SSLHandshakeException.class)
+                    .hasMessage("Received fatal alert: bad_certificate");
         }
 
         private ServerUrlGenerator mtlsUrlGenerator() {

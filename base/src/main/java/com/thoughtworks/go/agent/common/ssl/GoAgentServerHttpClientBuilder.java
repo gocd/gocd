@@ -28,8 +28,6 @@ import org.apache.http.ssl.SSLContextBuilder;
 
 import javax.net.ssl.HostnameVerifier;
 import java.io.File;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 
 public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<CloseableHttpClient> {
@@ -43,7 +41,7 @@ public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<C
     }
 
     @Override
-    public CloseableHttpClient build() throws GeneralSecurityException, IOException {
+    public CloseableHttpClient build() throws Exception {
         HttpClientBuilder builder = HttpClients.custom();
         builder.useSystemProperties();
         builder

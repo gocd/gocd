@@ -21,6 +21,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -45,7 +47,7 @@ class GoAgentServerClientBuilderTest {
 
         @Test
         void agentTrustStoreShouldParseCertFromPem() throws Exception {
-            GoAgentServerClientBuilder<Object> builder = builderWith(resourceToTempFile("/testdata/root-ca.crt"), SslVerificationMode.NONE, null, null, null);
+            GoAgentServerClientBuilder<Object> builder = builderWith(resourceToTempFile("/testdata/root-ca-ec.crt"), SslVerificationMode.NONE, null, null, null);
             KeyStore store = builder.agentTruststore();
             assertThat(store.aliases())
                     .extracting(Collections::list, InstanceOfAssertFactories.list(String.class))
@@ -57,7 +59,7 @@ class GoAgentServerClientBuilderTest {
 
         @Test
         void agentTrustStoreShouldParseMultipleCertsFromPem() throws Exception {
-            GoAgentServerClientBuilder<Object> builder = builderWith(resourceToTempFile("/testdata/server-localhost-chain.crt"), SslVerificationMode.NONE, null, null, null);
+            GoAgentServerClientBuilder<Object> builder = builderWith(resourceToTempFile("/testdata/server-localhost-ec-chain.crt"), SslVerificationMode.NONE, null, null, null);
             KeyStore store = builder.agentTruststore();
             assertThat(store.aliases())
                     .extracting(Collections::list, InstanceOfAssertFactories.list(String.class))
@@ -71,52 +73,54 @@ class GoAgentServerClientBuilderTest {
         void agentKeystoreShouldBeEmptyWithNoCertsOrKey() throws Exception {
             assertThat(builderWith(null, SslVerificationMode.NONE, null, null, null).agentKeystore())
                     .isNull();
-            assertThat(builderWith(null, SslVerificationMode.NONE, resourceToTempFile("/testdata/agent-client-cert.crt"), null, null).agentKeystore())
+            assertThat(builderWith(null, SslVerificationMode.NONE, resourceToTempFile("/testdata/agent-client-cert-ec.crt"), null, null).agentKeystore())
                     .isNull();
-            assertThat(builderWith(null, SslVerificationMode.NONE, null, resourceToTempFile("/testdata/agent-client-cert.key"), null).agentKeystore())
+            assertThat(builderWith(null, SslVerificationMode.NONE, null, resourceToTempFile("/testdata/agent-client-cert-ec-key.pk1"), null).agentKeystore())
                     .isNull();
         }
 
         @Test
-        void agentKeystoreRequiresPrivateKeyPassphraseWhenEncrypted() throws Exception {
-            GoAgentServerClientBuilder<Object> builder = builderWith(null, SslVerificationMode.NONE, resourceToTempFile("/testdata/agent-client-cert.crt"), resourceToTempFile("/testdata/agent-client-cert.key"), null);
+        void agentKeystoreRequiresPrivateKeyInPem() throws Exception {
+            GoAgentServerClientBuilder<Object> builder = builderWith(null, SslVerificationMode.NONE, resourceToTempFile("/testdata/agent-client-cert-ec.crt"), resourceToTempFile("/testdata/agent-client-cert-ec.crt"), null);
+            assertThatThrownBy(builder::agentKeystore)
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Unable to parse key of type");
+        }
+
+        @ParameterizedTest
+        @CsvSource({"ec, pk1", "ec, pk8", "rsa, pk1", "rsa, pk8"})
+        void agentKeystoreRequiresPrivateKeyPassphraseWhenEncrypted(String keyType, String keyFormat) throws Exception {
+            GoAgentServerClientBuilder<Object> builder = builderWith(null, SslVerificationMode.NONE, resourceToTempFile(String.format("/testdata/agent-client-cert-%s.crt", keyType)), resourceToTempFile(String.format("/testdata/agent-client-cert-%s-key.%s", keyType, keyFormat)), null);
             assertThatThrownBy(builder::agentKeystore)
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("SSL private key passphrase not specified!");
         }
 
-        @Test
-        void agentKeystoreRequiresPrivateKeyInPem() throws Exception {
-            GoAgentServerClientBuilder<Object> builder = builderWith(null, SslVerificationMode.NONE, resourceToTempFile("/testdata/agent-client-cert.crt"), resourceToTempFile("/testdata/agent-client-cert.crt"), null);
-            assertThatThrownBy(builder::agentKeystore)
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessageContaining("Unable to parse key of type");
-        }
-
-        @Test
-        void agentKeystoreShouldParseWhenCertEncryptedKeyAndPassphraseSupplied() throws Exception {
-            Path agentSslPrivateKeyPassphraseFile = resourceToTempPath("/testdata/agent-client-cert-key.pass");
-            KeyStore store = builderWith(null, SslVerificationMode.NONE, resourceToTempFile("/testdata/agent-client-cert.crt"), resourceToTempFile("/testdata/agent-client-cert.key"), agentSslPrivateKeyPassphraseFile.toFile()).agentKeystore();
+        @ParameterizedTest
+        @CsvSource({"ec, pk1", "ec, pk8", "rsa, pk1", "rsa, pk8"})
+        void agentKeystoreShouldParseWhenCertEncryptedKeyAndPassphraseSupplied(String keyType, String keyFormat) throws Exception {
+            Path agentSslPrivateKeyPassphraseFile = resourceToTempPath("/testdata/agent-client-cert.pass");
+            KeyStore store = builderWith(null, SslVerificationMode.NONE, resourceToTempFile(String.format("/testdata/agent-client-cert-%s.crt", keyType)), resourceToTempFile(String.format("/testdata/agent-client-cert-%s-key.%s", keyType, keyFormat)), agentSslPrivateKeyPassphraseFile.toFile()).agentKeystore();
             assertThat(store.aliases())
                     .extracting(Collections::list, InstanceOfAssertFactories.list(String.class))
                     .containsExactly("1");
             assertThat(store.getCertificate("1"))
                     .isInstanceOf(X509Certificate.class)
-                    .satisfies(cert -> assertThat(((X509Certificate) cert).getSubjectX500Principal().getName()).isEqualTo("CN=agent-client-cert"));
+                    .satisfies(cert -> assertThat(((X509Certificate) cert).getSubjectX500Principal().getName()).isEqualTo(String.format("CN=agent-client-cert-%s", keyType)));
         }
 
-        @Test
-        void agentKeystoreShouldParseWhenCertAndKeySupplied() throws Exception {
-            KeyStore store = builderWith(null, SslVerificationMode.NONE, resourceToTempFile("/testdata/agent-client-cert-nopass.crt"), resourceToTempFile("/testdata/agent-client-cert-nopass.key"), null).agentKeystore();
+        @ParameterizedTest
+        @CsvSource({"ec, pk1", "ec, pk8", "rsa, pk1", "rsa, pk8"})
+        void agentKeystoreShouldParseWhenCertAndKeySupplied(String keyType, String keyFormat) throws Exception {
+            KeyStore store = builderWith(null, SslVerificationMode.NONE, resourceToTempFile(String.format("/testdata/agent-client-cert-%s-nopass.crt", keyType)), resourceToTempFile(String.format("/testdata/agent-client-cert-%s-nopass-key.%s", keyType, keyFormat)), null).agentKeystore();
             assertThat(store.aliases())
                     .extracting(Collections::list, InstanceOfAssertFactories.list(String.class))
                     .containsExactly("1");
             assertThat(store.getCertificate("1"))
                     .isInstanceOf(X509Certificate.class)
-                    .satisfies(cert -> assertThat(((X509Certificate) cert).getSubjectX500Principal().getName()).isEqualTo("CN=agent-client-cert-nopass"));
+                    .satisfies(cert -> assertThat(((X509Certificate) cert).getSubjectX500Principal().getName()).isEqualTo(String.format("CN=agent-client-cert-%s-nopass", keyType)));
         }
     }
-
 
     private static GoAgentServerClientBuilder<Object> builderWith(final File rootCertificate, final SslVerificationMode sslVerificationMode, final File agentSslCertificate, final File agentSslPrivateKey, final File agentSslPrivateKeyPassphraseFile) {
         return new GoAgentServerClientBuilder<>(new SystemEnvironment(), rootCertificate, sslVerificationMode, agentSslCertificate, agentSslPrivateKey, agentSslPrivateKeyPassphraseFile) {

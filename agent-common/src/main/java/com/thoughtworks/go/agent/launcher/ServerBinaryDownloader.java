@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -99,7 +98,7 @@ public class ServerBinaryDownloader implements Downloader {
         return downloaded;
     }
 
-    void fetchUpdateCheckHeaders(DownloadableFile downloadableFile) throws IOException, GeneralSecurityException {
+    void fetchUpdateCheckHeaders(DownloadableFile downloadableFile) throws Exception {
         String url = downloadableFile.validatedUrl(urlGenerator);
         final HttpRequestBase request = new HttpHead(url);
         request.setConfig(RequestConfig.custom().setConnectTimeout(HTTP_TIMEOUT_IN_MILLISECONDS).build());
@@ -114,7 +113,7 @@ public class ServerBinaryDownloader implements Downloader {
         }
     }
 
-    protected synchronized boolean download(final DownloadableFile downloadableFile) throws IOException, GeneralSecurityException {
+    protected synchronized boolean download(final DownloadableFile downloadableFile) throws Exception {
         File toDownload = downloadableFile.getLocalFile();
         LOG.info("Downloading {}", toDownload);
         String url = downloadableFile.url(urlGenerator);

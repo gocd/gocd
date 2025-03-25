@@ -19,7 +19,6 @@ import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.server.newsecurity.filters.helpers.ServerUnavailabilityResponse;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +79,7 @@ public class ModeAwareFilter implements Filter {
     String generateHTMLResponse() throws IOException {
         String path = "server_in_maintenance_mode.html";
         try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path)) {
-            return IOUtils.toString(resourceAsStream, UTF_8)
+            return new String(resourceAsStream.readAllBytes(), UTF_8)
                     .replaceAll("%updatedBy%", maintenanceModeService.updatedBy())
                     .replaceAll("%updatedOn%", maintenanceModeService.updatedOn())
                     .replaceAll("%docsBaseUrl%", CurrentGoCDVersion.getInstance().baseDocsUrl());

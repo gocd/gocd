@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.agent.testhelper;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.assertj.core.util.Hexadecimals;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
@@ -31,6 +29,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.EnumSet;
@@ -66,14 +66,15 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
 
         public void copyTo(OutputStream outputStream) throws IOException {
             try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
-                IOUtils.copy(input, outputStream);
+                input.transferTo(outputStream);
             }
         }
 
         // Because the resource can be a jar resource, which extracts to dir instead of a simple copy.
         public void copyTo(File output) throws IOException {
             try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
-                FileUtils.copyToFile(input, output);
+                output.mkdirs();
+                Files.copy(input, output.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
         }
     }

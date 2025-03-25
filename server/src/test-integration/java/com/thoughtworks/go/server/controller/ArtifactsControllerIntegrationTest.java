@@ -23,7 +23,7 @@ import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -126,12 +126,7 @@ public class ArtifactsControllerIntegrationTest {
     @AfterEach
     public void teardown() throws Exception {
         for (File f : FileUtils.listFiles(artifactsRoot, null, true)) {
-            String message = String.format("deleting %s, path: %s", f.getName(), f.getPath());
-            System.out.println(message);
-
             if (!f.delete()) {
-                String deleteOnExitMessage = String.format("Couldn't delete %s, so marking deleteOnExit() path: %s", f.getName(), f.getPath());
-                System.out.println(deleteOnExitMessage);
                 f.deleteOnExit();
             }
         }
@@ -140,8 +135,6 @@ public class ArtifactsControllerIntegrationTest {
             try {
                 deleteDirectory(artifactsRoot);
             } catch (IOException e) {
-                String deleteOnExitMessage = String.format("Couldn't delete %s, so marking deleteOnExit() path: %s", artifactsRoot.getName(), artifactsRoot.getPath());
-                System.out.println(deleteOnExitMessage);
                 artifactsRoot.deleteOnExit();
             }
         }
@@ -628,7 +621,8 @@ public class ArtifactsControllerIntegrationTest {
 
     private ModelAndView postZipFolderFromTmp(File root, String folder) throws Exception {
         File source = file(root, "/tmp" + folder);
-        File zippedFile = zipUtil.zip(source, TestFileUtil.createUniqueTempFile(source.getName()),
+        String prefix = source.getName();
+        File zippedFile = zipUtil.zip(source, TempFiles.createUniqueFile(prefix),
                 Deflater.NO_COMPRESSION);
         zippedFile.deleteOnExit();
         return postFile("", "zipfile", new FileInputStream(zippedFile));

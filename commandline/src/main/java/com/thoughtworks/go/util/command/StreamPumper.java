@@ -34,11 +34,10 @@ import java.util.concurrent.TimeUnit;
 
 public class StreamPumper implements Runnable {
 
-    private Reader in;
-
-    private boolean completed;
+    private final Reader in;
     private final StreamConsumer streamConsumer;
     private final String prefix;
+    private boolean completed;
     private long lastHeard;
     private final Clock clock;
 

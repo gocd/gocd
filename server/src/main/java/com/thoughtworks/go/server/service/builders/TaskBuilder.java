@@ -19,7 +19,18 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
+import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
 
 public interface TaskBuilder<T extends Task> {
     Builder createBuilder(BuilderFactory builderFactory, T task, Pipeline pipeline, UpstreamPipelineResolver resolver);
+
+    static String join(File defaultWorkingDir, String actualFileToUse) {
+        if (actualFileToUse == null) {
+            return FilenameUtils.separatorsToUnix(defaultWorkingDir.getPath());
+        }
+        return FileUtil.applyBaseDirIfRelativeAndNormalize(defaultWorkingDir, new File(actualFileToUse));
+    }
 }

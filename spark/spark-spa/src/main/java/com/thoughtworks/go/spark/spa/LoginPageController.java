@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.spark.spa;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
@@ -64,12 +63,10 @@ public class LoginPageController implements SparkController {
             return null;
         }
 
-        Map<String, Object> meta = loginLogoutHelper.buildMeta(request);
-
-        Map<String, Object> object = ImmutableMap.<String, Object>builder()
-                .put("viewTitle", "Login")
-                .put("meta", meta)
-                .build();
+        Map<String, Object> object = Map.of(
+                "viewTitle", "Login",
+                "meta", loginLogoutHelper.buildMeta(request)
+        );
 
         return new ModelAndView(object, null);
     }

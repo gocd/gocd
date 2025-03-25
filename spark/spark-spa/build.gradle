@@ -22,7 +22,6 @@ dependencies {
   implementation project(path: ':spark:spark-base', configuration: 'runtimeElements')
 
   implementation project.deps.freemarker
-  implementation project.deps.guava
 
   testImplementation localGroovy()
   testImplementation project(path: ':spark:spark-base', configuration: 'testOutput')

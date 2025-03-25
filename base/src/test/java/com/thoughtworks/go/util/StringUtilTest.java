@@ -32,8 +32,17 @@ public class StringUtilTest {
     @Test
     public void shouldHumanize() {
         assertThat(humanize("camelCase")).isEqualTo("camel case");
+        assertThat(humanize("CamelCase")).isEqualTo("camel case");
         assertThat(humanize("camel")).isEqualTo("camel");
         assertThat(humanize("camelCaseForALongString")).isEqualTo("camel case for a long string");
+    }
+
+    @Test
+    public void shouldConvertToSnakeCase() {
+        assertThat(camelCaseToSnakeCase("camelCase")).isEqualTo("camel_case");
+        assertThat(camelCaseToSnakeCase("PascalCase")).isEqualTo("pascal_case");
+        assertThat(camelCaseToSnakeCase("camel")).isEqualTo("camel");
+        assertThat(camelCaseToSnakeCase("camelCaseForALongString")).isEqualTo("camel_case_for_a_long_string");
     }
 
     @Test

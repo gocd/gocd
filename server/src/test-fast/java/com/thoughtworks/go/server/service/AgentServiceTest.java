@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import ch.qos.logback.classic.Level;
-import com.google.common.collect.Ordering;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
@@ -1064,8 +1063,6 @@ class AgentServiceTest {
 
             map.keySet().forEach(key -> {
                 Collection<String> envs = map.get(key);
-                assertThat(envs.size()).isEqualTo(7);
-                assertThat(Ordering.natural().isOrdered(envs)).isTrue();
                 assertThat(envs.toArray()).isEqualTo(splitEnvs);
             });
         }

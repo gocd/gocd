@@ -15,9 +15,10 @@
  */
 package com.thoughtworks.go.spark;
 
-import com.google.common.net.UrlEscapers;
 import org.apache.commons.text.StringSubstitutor;
+import org.springframework.web.util.UriUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
@@ -376,7 +377,7 @@ public class Routes {
         public static final String DOC = apiDocsUrl("#user-search");
 
         public static String self(String searchTerm) {
-            return StringSubstitutor.replace(BASE + "?q=${searchTerm}", Map.of("searchTerm", UrlEscapers.urlFormParameterEscaper().escape(searchTerm)));
+            return StringSubstitutor.replace(BASE + "?q=${searchTerm}", Map.of("searchTerm", encodeQueryParam(searchTerm)));
         }
 
         public static String find() {
@@ -917,7 +918,7 @@ public class Routes {
                 link += "&page_size=" + pageSize;
             }
             if (isNotBlank(pattern)) {
-                link += "&pattern=" + UrlEscapers.urlFormParameterEscaper().escape(pattern);
+                link += "&pattern=" + encodeQueryParam(pattern);
             }
             return link;
         }
@@ -936,5 +937,13 @@ public class Routes {
         public static final String IS_IGNORED = "/is_ignored";
         public static final String GET_COOKIE = "/get_cookie";
         public static final String GET_WORK = "/get_work";
+    }
+
+    private static String encodeQueryParam(String value) {
+        try {
+            return UriUtils.encodeQueryParam(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

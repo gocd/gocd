@@ -269,7 +269,6 @@ dependencies {
   implementation project.deps.urlrewrite
 
   implementation project.deps.freemarker
-  implementation project.deps.guava
   implementation project.deps.jakartaMail
   runtimeOnly project.deps.angusMailSmtp
 
@@ -748,6 +747,9 @@ task verifyWar(type: VerifyJarTask) {
         "aopalliance-1.0.jar",
         "aspectjweaver-${project.versions.aspectj}.jar",
         "base-${project.version}.jar",
+        "bucket4j_jdk17-core-${project.versions.bucket4j}.jar",
+        "bucket4j-caffeine-${project.versions.bucket4jCaffeine}.jar",
+        "caffeine-${project.versions.caffeine}.jar",
         "cloning-${project.versions.cloning}.jar",
         "commandline-${project.version}.jar",
         "common-${project.version}.jar",
@@ -771,7 +773,6 @@ task verifyWar(type: VerifyJarTask) {
         "dom4j-${project.versions.dom4j}.jar",
         "domain-${project.version}.jar",
         "ehcache-core-${project.versions.ehcache}.jar",
-        "failureaccess-1.0.3.jar",
         "freemarker-${project.versions.freemarker}.jar",
         "go-plugin-access-${project.version}.jar",
         "go-plugin-activator-${project.version}.jar",
@@ -781,7 +782,6 @@ task verifyWar(type: VerifyJarTask) {
         "go-plugin-domain-${project.version}.jar",
         "go-plugin-infra-${project.version}.jar",
         "gson-${project.versions.gson}.jar",
-        "guava-${project.versions.guava}.jar",
         "h2-${project.versions.h2}.jar",
         "hawtbuf-1.11.jar",
         "hibernate-commons-annotations-3.2.0.Final.jar",
@@ -847,7 +847,6 @@ task verifyWar(type: VerifyJarTask) {
         "spring-web-${project.versions.spring}.jar",
         "spring-webmvc-${project.versions.spring}.jar",
         "statistics-1.0.6.jar", 
-        "token-bucket-${project.versions.tokenBucket}.jar",
         "txw2-${project.versions.jaxb}.jar",
         "urlrewritefilter-${project.versions.urlrewrite}.jar",
         "util-${project.version}.jar",

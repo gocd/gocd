@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.common.base.Ticker;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Ticker;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
@@ -39,9 +39,9 @@ public class AuthorizationExtensionCacheService {
 
     public AuthorizationExtensionCacheService(AuthorizationExtension authorizationExtension, Ticker ticker) {
         this.authorizationExtension = authorizationExtension;
-        isValidUserCache = CacheBuilder.newBuilder()
+        isValidUserCache = Caffeine.newBuilder()
                 .ticker(ticker).expireAfterWrite(SystemEnvironment.getGoServerAuthorizationExtensionCallsCacheTimeoutInSeconds(), TimeUnit.SECONDS).build();
-        getUserRolesCache = CacheBuilder.newBuilder()
+        getUserRolesCache = Caffeine.newBuilder()
                 .ticker(ticker).expireAfterWrite(SystemEnvironment.getGoServerAuthorizationExtensionCallsCacheTimeoutInSeconds(), TimeUnit.SECONDS).build();
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
     }

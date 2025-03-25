@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server.security.userdetail;
 
-import com.google.common.collect.Sets;
 import com.thoughtworks.go.server.domain.Username;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Set;
@@ -28,7 +28,7 @@ public class GoUserPrincipal {
     private final Username username;
 
     public GoUserPrincipal(String username, String displayName, GrantedAuthority... authorities) {
-        this(username, displayName, Sets.newHashSet(authorities));
+        this(username, displayName, SetUtils.hashSet(authorities));
     }
 
     public GoUserPrincipal(String username, String displayName, Set<GrantedAuthority> authorities) {

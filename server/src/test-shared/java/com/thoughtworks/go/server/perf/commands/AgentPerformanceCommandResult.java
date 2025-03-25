@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.perf.commands;
 
-import com.google.common.base.Strings;
-
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -79,6 +77,6 @@ public class AgentPerformanceCommandResult {
 
     public Stream<String> fields() {
         return Stream.of(getName(), getAgentUuids(), getStatus(), getFailureMessage(), String.valueOf(getTimeTakenInMillis()))
-                .map(Strings::nullToEmpty);
+                .map( val -> val == null ? "" : val);
     }
 }

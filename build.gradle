@@ -323,29 +323,23 @@ subprojects {
         module("commons-logging:commons-logging") {
           replacedBy(project.deps.slf4jJcl, "Replace commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html")
         }
+        module("com.bucket4j:bucket4j-core") {
+          replacedBy("com.bucket4j:bucket4j_jdk17-core", "Replace bucket4j-core with Java 17+ variant")
+        }
       }
       components {
         // workaround for dom4j Gradle metadata optional dependency issues to avoid it pulling in
         // optional dependencies when it should not (https://github.com/dom4j/dom4j/issues/99)
         withModule('org.dom4j:dom4j', { details -> details.allVariants { withDependencies { clear() } } })
-        // workaround for Guava metadata declaring dependencies that are not needed at runtime
-        // see https://github.com/google/guava/pull/6606
-        withModule('com.google.guava:guava', { details ->
+        // workaround for Caffeine metadata declaring dependencies that are not needed at runtime
+        withModule('com.github.ben-manes.caffeine:caffeine', { details ->
           details.allVariants {
-            withDependencies {
-              removeAll {
-                it.name in [ "listenablefuture", "jspecify", "error_prone_annotations", "j2objc-annotations" ]
-              }
-            }
+            withDependencies { removeAll {it.name in [ "jspecify", "error_prone_annotations" ] } }
           }
         })
         withModule('com.google.code.gson:gson', { details ->
           details.allVariants {
-            withDependencies {
-              removeAll {
-                it.name in [ "error_prone_annotations" ]
-              }
-            }
+            withDependencies { removeAll { it.name in [ "error_prone_annotations" ] } }
           }
         })
       }

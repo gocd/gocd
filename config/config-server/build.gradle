@@ -25,12 +25,15 @@ dependencies {
     exclude(module: 'jzlib')
   }
   implementation project.deps.slf4jApi
+  implementation project.deps.caffeine
   implementation project.deps.jdom
   if (project.deps.jdom) {
     // Required for use of org.jdom2.xpath.XPathFactory where jaxen is the default impl
     implementation project.deps.jaxen
   }
   compileOnly project.deps.jetBrainsAnnotations
+  annotationProcessor project.deps.lombok
+  compileOnly project.deps.lombok
 
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')

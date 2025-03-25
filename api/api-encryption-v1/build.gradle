@@ -20,7 +20,9 @@ plugins {
 
 dependencies {
   implementation project(path: ':api:api-base', configuration: 'runtimeElements')
-  implementation project.deps.tokenBucket
+  implementation project.deps.bucket4j
+  implementation project.deps.bucket4jCaffeine
+  implementation project.deps.caffeine
 
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')
   testImplementation project.deps.junit5Api

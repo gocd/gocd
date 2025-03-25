@@ -144,7 +144,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         }, new GoConfigHolder(goConfigService.currentCruiseConfig(), goConfigService.getConfigForEditing()));
         assertThat(result.getConfigSaveState()).isEqualTo(ConfigSaveState.UPDATED);
         FileInputStream inputStream = new FileInputStream(dataSource.fileLocation());
-        String newMd5 = CachedDigestUtils.md5Hex(inputStream);
+        String newMd5 = DigestUtils.md5Hex(inputStream);
         assertThat(newMd5).isEqualTo(result.getConfigHolder().config.getMd5());
     }
 

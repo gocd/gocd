@@ -28,7 +28,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 import com.thoughtworks.go.plugin.access.packagematerial.*;
 import com.thoughtworks.go.plugin.api.config.Property;
-import com.thoughtworks.go.util.CachedDigestUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -193,7 +193,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
         handlePackageRepositoryProperties(list);
         String fingerprint = StringUtils.join(list, fingerprintDelimiter);
         // CAREFUL! the hash algorithm has to be same as the one used in 47_create_new_materials.sql
-        return CachedDigestUtils.sha256Hex(fingerprint);
+        return DigestUtils.sha256Hex(fingerprint);
     }
 
     private void handlePackageDefinitionProperties(List<String> list) {

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.spark.spa;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
@@ -55,12 +54,10 @@ public class NewPreferencesController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<String, Object> meta = ImmutableMap.<String, Object>builder()
-                .put("smtp_configured", goConfigService.isSmtpEnabled())
-                .build();
         Map<String, Object> object = Map.of(
             "viewTitle", "Preferences",
-            "meta", meta
+            "meta", Map.<String, Object>of("smtp_configured", goConfigService.isSmtpEnabled()
+            )
         );
         return new ModelAndView(object, null);
     }

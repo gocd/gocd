@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.domain;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.util.NamedProcessTag;
@@ -25,7 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PostBackupScript {
     private static final Logger LOG = LoggerFactory.getLogger(PostBackupScript.class);
@@ -62,16 +64,16 @@ public class PostBackupScript {
     }
 
     CommandLine commandLine() {
-        ImmutableMap.Builder<String, String> envBuilder = new ImmutableMap.Builder<>();
+        Map<String, String> envBuilder = new HashMap<>();
 
         envBuilder.put("GOCD_BACKUP_TIMESTAMP", ISO8601Utils.format(backupTime));
 
         if (backup == null) {
             envBuilder.put("GOCD_BACKUP_STATUS", "failure");
         } else {
-            envBuilder.put("GOCD_BACKUP_STATUS", "success")
-                    .put("GOCD_BACKUP_BASE_DIR", backupBaseDir)
-                    .put("GOCD_BACKUP_PATH", backup.getPath());
+            envBuilder.put("GOCD_BACKUP_STATUS", "success");
+            envBuilder.put("GOCD_BACKUP_BASE_DIR", backupBaseDir);
+            envBuilder.put("GOCD_BACKUP_PATH", backup.getPath());
         }
 
         switch (initiatedBy) {
@@ -85,7 +87,7 @@ public class PostBackupScript {
 
         return CommandLine.createCommandLine(postBackupScript)
                 .withEncoding(StandardCharsets.UTF_8)
-                .withEnv(envBuilder.build());
+                .withEnv(Collections.unmodifiableMap(envBuilder));
 
     }
 }

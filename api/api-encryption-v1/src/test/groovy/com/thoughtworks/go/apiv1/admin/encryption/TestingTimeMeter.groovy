@@ -15,42 +15,46 @@
  */
 package com.thoughtworks.go.apiv1.admin.encryption
 
-import com.google.common.base.Ticker
+import io.github.bucket4j.TimeMeter
 
 import java.util.concurrent.TimeUnit
 
-class TestingTicker extends Ticker {
+class TestingTimeMeter implements TimeMeter {
 
   long time
   boolean useSystemClock
 
-  TestingTicker(long time) {
+  TestingTimeMeter(long time) {
     this.time = time
   }
 
-  TestingTicker() {
+  TestingTimeMeter() {
     this(System.nanoTime())
     freeze()
   }
 
+  @Override
+  boolean isWallClockBased() {
+    false
+  }
 
   @Override
-  long read() {
+  long currentTimeNanos() {
     useSystemClock ? System.nanoTime() : this.time
   }
 
-  Ticker useSystemClock() {
+  TimeMeter useSystemClock() {
     this.useSystemClock = true
     return this
   }
 
 
-  Ticker freeze() {
+  TimeMeter freeze() {
     this.useSystemClock = false
     return this
   }
 
-  Ticker forward(long duration, TimeUnit unit) {
+  TimeMeter forward(long duration, TimeUnit unit) {
     time += unit.toNanos(duration)
     return this
   }

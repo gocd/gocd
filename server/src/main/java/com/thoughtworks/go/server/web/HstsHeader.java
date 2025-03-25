@@ -16,18 +16,15 @@
 package com.thoughtworks.go.server.web;
 
 
-import com.google.common.net.HttpHeaders;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.util.Optional;
 
 public class HstsHeader {
 
-    public static final String name = HttpHeaders.STRICT_TRANSPORT_SECURITY;
-
-    private long maxAge;
-    private boolean includeSubdomains;
-    private boolean preload;
+    private final long maxAge;
+    private final boolean includeSubdomains;
+    private final boolean preload;
 
     private HstsHeader(long maxAge, boolean includeSubdomains, boolean preload) {
         this.maxAge = maxAge;
@@ -36,7 +33,7 @@ public class HstsHeader {
     }
 
     public String headerName() {
-        return name;
+        return "Strict-Transport-Security";
     }
 
     public String headerValue() {

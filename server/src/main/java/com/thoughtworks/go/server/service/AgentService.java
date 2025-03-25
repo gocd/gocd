@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.common.collect.Streams;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.update.AgentUpdateValidator;
@@ -50,8 +49,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
@@ -122,7 +121,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public Map<AgentInstance, Collection<String>> getAgentInstanceToSortedEnvMap() {
-        return Streams.stream(agentInstances.getAllAgents()).collect(toMap(Function.identity(), AgentService::getSortedEnvironmentList));
+        return StreamSupport.stream(agentInstances.getAllAgents().spliterator(), false).collect(toMap(Function.identity(), AgentService::getSortedEnvironmentList));
     }
 
     public AgentInstances findRegisteredAgents() {
@@ -319,7 +318,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public Agent findAgentByUUID(String uuid) {
-        if (isNullOrEmpty(uuid)) {
+        if (uuid == null || uuid.isEmpty()) {
             return null;
         }
 

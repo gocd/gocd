@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.apiv1.admin.encryption.spring;
 
-import com.google.common.base.Ticker;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.admin.encryption.EncryptionControllerDelegate;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
+import io.github.bucket4j.TimeMeter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +31,7 @@ public class EncryptionController implements SparkSpringController {
 
     @Autowired
     public EncryptionController(ApiAuthenticationHelper apiAuthenticationHelper) {
-        delegate = new EncryptionControllerDelegate(apiAuthenticationHelper, new GoCipher(), DEFAULT_REQUESTS_PER_MINUTE, Ticker.systemTicker());
+        delegate = new EncryptionControllerDelegate(apiAuthenticationHelper, new GoCipher(), DEFAULT_REQUESTS_PER_MINUTE, TimeMeter.SYSTEM_NANOTIME);
     }
 
     @Override

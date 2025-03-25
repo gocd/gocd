@@ -24,9 +24,9 @@ import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jetbrains.annotations.TestOnly;
@@ -213,13 +213,11 @@ public class GoFileConfigDataSource {
         }
 
         private String getConfigFileMd5(File configFile) {
-            String newMd5;
             try (FileInputStream inputStream = new FileInputStream(configFile)) {
-                newMd5 = CachedDigestUtils.md5Hex(inputStream);
+                return DigestUtils.md5Hex(inputStream);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            return newMd5;
         }
 
         private void rememberLatestFileAttributes(ReloadTestResult result) {
@@ -482,7 +480,7 @@ public class GoFileConfigDataSource {
             try {
                 LOGGER.info("[Configuration Changed] Saving updated configuration.");
                 String configAsXml = configAsXml(modifiedConfig, true);
-                String md5 = CachedDigestUtils.md5Hex(configAsXml);
+                String md5 = DigestUtils.md5Hex(configAsXml);
                 MagicalGoConfigXmlLoader.setMd5(modifiedConfig, md5);
                 MagicalGoConfigXmlLoader.setMd5(preprocessedConfig, md5);
                 writeToConfigXmlFile(configAsXml);

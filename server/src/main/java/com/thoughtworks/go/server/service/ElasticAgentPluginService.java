@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -46,6 +45,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.Timeout;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
@@ -198,7 +198,7 @@ public class ElasticAgentPluginService {
         }
 
         List<JobPlan> jobsThatRequireAgent = new ArrayList<>();
-        jobsThatRequireAgent.addAll(Sets.difference(new HashSet<>(newPlan), new HashSet<>(old)));
+        jobsThatRequireAgent.addAll(SetUtils.difference(new HashSet<>(newPlan), new HashSet<>(old)));
         jobsThatRequireAgent.addAll(starvingJobs);
 
         List<JobPlan> plansThatRequireElasticAgent = jobsThatRequireAgent.stream().filter(isElasticAgent()).toList();

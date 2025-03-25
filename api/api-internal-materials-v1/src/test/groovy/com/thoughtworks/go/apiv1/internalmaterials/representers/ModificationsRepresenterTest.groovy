@@ -151,7 +151,7 @@ class ModificationsRepresenterTest {
       def expectedJson = [
         _links       : [
           previous: [
-            href: "http://test.host/go/api/internal/materials/fingerprint/modifications?before=6&pattern=some+pattern"
+            href: "http://test.host/go/api/internal/materials/fingerprint/modifications?before=6&pattern=some%20pattern"
           ]
         ],
         modifications: modsJson

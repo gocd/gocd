@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.server.perf;
 
-import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.server.perf.commands.*;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import org.apache.commons.collections4.SetUtils;
 import org.assertj.core.util.Streams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,7 +143,7 @@ public class AgentPerformanceVerifier {
     }
 
     private void bombIfMissingAgentKnownEnvAssociationInEnvCache(Agent agentInCache, Set<String> agentEnvsInEnvCache, HashSet<String> agentEnvsInDB) {
-        Set<String> difference = Sets.difference(agentEnvsInDB, agentEnvsInEnvCache);
+        Set<String> difference = SetUtils.difference(agentEnvsInDB, agentEnvsInEnvCache);
         HashSet<String> knownEnvNames = new HashSet<>(environmentConfigService.getEnvironmentNames());
 
         boolean containsOnlyUnknownEnvs = (difference.isEmpty() || !knownEnvNames.containsAll(difference));

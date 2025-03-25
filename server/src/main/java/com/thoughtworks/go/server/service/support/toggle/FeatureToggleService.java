@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.server.service.support.toggle;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
+import org.apache.commons.collections4.MultiMapUtils;
+import org.apache.commons.collections4.MultiValuedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +31,9 @@ import java.util.Collection;
 public class FeatureToggleService {
     private static final String KNOWN_TOGGLES = "FeatureToggleService_KNOWN_TOGGLES";
     private static final String USER_DEF_TOGGLES = "FeatureToggleService_USER_DEF_TOGGLES";
-    private FeatureToggleRepository repository;
-    private GoCache goCache;
-    private final Multimap<String, FeatureToggleListener> listeners = HashMultimap.create();
+    private final FeatureToggleRepository repository;
+    private final GoCache goCache;
+    private final MultiValuedMap<String, FeatureToggleListener> listeners = MultiMapUtils.newSetValuedHashMap();
     private static final Object CACHE_ACCESS_MUTEX = new Object();
 
     @Autowired

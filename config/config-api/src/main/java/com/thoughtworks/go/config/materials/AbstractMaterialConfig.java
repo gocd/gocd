@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.util.CachedDigestUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -114,7 +114,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
         }
         String fingerprint = StringUtils.join(list, FINGERPRINT_DELIMITER);
         // CAREFUL! the hash algorithm has to be same as the one used in 47_create_new_materials.sql
-        return CachedDigestUtils.sha256Hex(fingerprint);
+        return DigestUtils.sha256Hex(fingerprint);
     }
 
     @Override

@@ -27,7 +27,6 @@ dependencies {
   implementation project.deps.jacksonCore
   implementation project.deps.jacksonDatabind
   implementation project.deps.springWeb
-  implementation project.deps.guava
 
   api(project.deps.spark) {
     transitive = false

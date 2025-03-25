@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.access.secrets.v1;
 
+import net.javacrumbs.jsonunit.core.Option;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +33,7 @@ class SecretsMessageConverterV1Test {
             final String requestBody = new SecretsMessageConverterV1().lookupSecretsRequestBody(Set.of("username", "password"), Map.of("FilePath", "/var/lib/secret.config"));
 
             assertThatJson(requestBody)
+                    .withOptions(Option.IGNORING_ARRAY_ORDER)
                     .isEqualTo("""
                             {
                               "configuration": {

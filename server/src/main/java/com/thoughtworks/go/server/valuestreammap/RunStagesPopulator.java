@@ -37,14 +37,14 @@ public class RunStagesPopulator {
         for (Node node : graph.allNodes()) {
             for (Revision revision : node.revisions()) {
                 if (revision instanceof PipelineRevision pipelineRevision) {
-                    Stages latestStages = latestRunStagesForRevsion(pipelineRevision);
+                    Stages latestStages = latestRunStagesForRevision(pipelineRevision);
                     pipelineRevision.addStages(latestStages);
                 }
             }
         }
     }
 
-    private Stages latestRunStagesForRevsion(PipelineRevision pipelineRevision) {
+    private Stages latestRunStagesForRevision(PipelineRevision pipelineRevision) {
         Stages allStages = stageDao.findAllStagesFor(pipelineRevision.getPipelineName(), pipelineRevision.getCounter());
         return allStages.latestStagesInRunOrder();
     }

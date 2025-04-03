@@ -29,7 +29,6 @@ public class TempDirUtils {
     private TempDirUtils() {
     }
 
-
     public static Path createTempDirectoryIn(Path tempDir, String folderName) throws IOException {
         return isBlank(folderName) ? Files.createTempDirectory(tempDir, DIR_PREFIX) : Files.createDirectories(tempDir.resolve(folderName));
     }
@@ -48,6 +47,4 @@ public class TempDirUtils {
         }
         return file;
     }
-
-
 }

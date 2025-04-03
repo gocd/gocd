@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.web;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.server.newsecurity.filters.helpers.ServerUnavailabilityResponse;
 import com.thoughtworks.go.server.service.BackupService;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +86,7 @@ public class BackupFilter extends OncePerRequestFilter {
     private String generateHTMLResponse() throws IOException {
         String path = "backup_in_progress.html";
         try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path)) {
-            String content = IOUtils.toString(resourceAsStream, UTF_8);
+            String content = new String(resourceAsStream.readAllBytes(), UTF_8);
             return replaceStringLiterals(content);
         }
     }

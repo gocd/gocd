@@ -41,7 +41,6 @@ import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom2.input.JDOMParseException;
 import org.junit.jupiter.api.BeforeEach;
@@ -672,7 +671,7 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, buffer, false);
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
-        CruiseConfig config = xmlLoader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
+        CruiseConfig config = xmlLoader.loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
         assertThat(config.getGroups().size()).isEqualTo(2);
         assertThat(config.getGroups().first().getGroup()).isEqualTo("studios");
     }
@@ -684,7 +683,7 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, output, false);
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(output.toByteArray());
-        CruiseConfig config = xmlLoader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
+        CruiseConfig config = xmlLoader.loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
         JobConfig job = config.jobConfigByName("pipeline1", "mingle", "cardlist", true);
 
         assertThat(job.tasks().size()).isEqualTo(2);

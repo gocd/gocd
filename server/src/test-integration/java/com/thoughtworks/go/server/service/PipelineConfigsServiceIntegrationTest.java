@@ -28,7 +28,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,7 +68,7 @@ public class PipelineConfigsServiceIntegrationTest {
     @BeforeEach
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper();
-        xml = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResource("/data/config_with_pluggable_artifacts_store.xml"), UTF_8));
+        xml = goConfigMigration.upgradeIfNecessary(new String(getClass().getResourceAsStream("/data/config_with_pluggable_artifacts_store.xml").readAllBytes(), UTF_8));
         setupMetadataForPlugin();
 
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -199,7 +198,7 @@ public class PipelineConfigsServiceIntegrationTest {
     }
 
     private String groupSnippetWithSecurePropertiesBeforeEncryption() throws IOException {
-        return IOUtils.toString(getClass().getResource("/data/pipeline_group_snippet_with_pluggable_artifacts.xml"), UTF_8);
+        return new String(getClass().getResourceAsStream("/data/pipeline_group_snippet_with_pluggable_artifacts.xml").readAllBytes(), UTF_8);
     }
 
 }

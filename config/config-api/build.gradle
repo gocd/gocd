@@ -27,6 +27,7 @@ dependencies {
 
   implementation project.deps.commonsCodec
   implementation project.deps.commonsCollections4
+  implementation project.deps.commonsIO
   implementation project.deps.commonsText
   implementation(project.deps.quartz) {
     transitive = false

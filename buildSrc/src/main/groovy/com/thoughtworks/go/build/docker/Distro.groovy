@@ -141,6 +141,7 @@ enum Distro implements DistroBehavior {
         "echo 'fastestmirror=1' >> /etc/dnf/dnf.conf",
         "echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf",
         "microdnf upgrade -y",
+        "microdnf install -y shadow-utils",
       ]
     }
 
@@ -156,6 +157,7 @@ enum Distro implements DistroBehavior {
     List<DistroVersion> getSupportedVersions() {
       return [ // See https://endoflife.date/almalinux
         new DistroVersion(version: '9', releaseName: '9-minimal', eolDate: parseDate('2032-05-31')),
+        new DistroVersion(version: '10', releaseName: '10-kitten-minimal', eolDate: parseDate('2035-05-31')),
       ]
     }
   },

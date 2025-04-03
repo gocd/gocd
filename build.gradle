@@ -360,8 +360,8 @@ subprojects {
       if (details.requested.group in ['javax.servlet', 'org.eclipse.jetty.toolchain'] && details.requested.name in ['javax.servlet-api', 'jetty-servlet-api']) {
         details.useTarget project.deps.servletApi
       }
-      // Javax Transaction API has migrated to jakarta Transaction API
-      if (details.requested.group == 'javax.transaction' && details.requested.name == 'jta') {
+      // Various Transaction API copies have migrated to canonical Jakarta Transaction API namespace
+      if (details.requested.group == 'org.jboss.spec.javax.transaction' && details.requested.name == 'jboss-transaction-api_1.2_spec') {
         details.useTarget project.deps.jakartaTransaction
       }
 

@@ -46,7 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -425,7 +425,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     public void saveOrUpdate(MaterialInstance materialInstance) {
         String cacheKey = materialKey(materialInstance.getFingerprint());
         synchronized (cacheKey) {
-            getHibernateTemplate().saveOrUpdate(materialInstance);
+            currentSession().saveOrUpdate(materialInstance);
             goCache.remove(cacheKey);
             goCache.put(cacheKey, materialInstance);
         }
@@ -446,7 +446,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     public void saveModification(MaterialInstance materialInstance, Modification modification) {
         modification.setMaterialInstance(materialInstance);
         try {
-            getHibernateTemplate().saveOrUpdate(modification);
+            currentSession().saveOrUpdate(modification);
             removeLatestCachedModification(materialInstance);
             removeCachedModificationCountFor(materialInstance);
             removeCachedModificationsFor(materialInstance);
@@ -598,7 +598,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private void save(final PipelineMaterialRevision pipelineMaterialRevision, final String pipelineName) {
-        getHibernateTemplate().save(pipelineMaterialRevision);
+        currentSession().save(pipelineMaterialRevision);
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCommit() {
@@ -762,7 +762,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         try {
             checkAndRemoveDuplicates(materialInstance, newChanges, list);
             for (Modification modification : list) {
-                getHibernateTemplate().saveOrUpdate(modification);
+                currentSession().saveOrUpdate(modification);
             }
         } catch (Exception e) {
             String message = "Cannot save modification: ";

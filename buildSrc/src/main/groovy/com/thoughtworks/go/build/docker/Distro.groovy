@@ -218,7 +218,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [ // See https://endoflife.date/ubuntu "Maintenance & Security Support"
-        new DistroVersion(version: '20.04', releaseName: '20.04', eolDate: parseDate('2025-04-02')),
+        new DistroVersion(version: '20.04', releaseName: '20.04', eolDate: parseDate('2025-05-31')),
         new DistroVersion(version: '22.04', releaseName: '22.04', eolDate: parseDate('2027-04-01')),
         new DistroVersion(version: '24.04', releaseName: '24.04', eolDate: parseDate('2029-04-25')),
       ]

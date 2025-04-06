@@ -111,7 +111,7 @@ class BuildDockerImageTask extends DefaultTask {
         executeInGitRepo("docker", "buildx", "build",
           "--quiet",
           "--load",
-          "--platform", "linux/${distro.dockerVerifyArchitecture.dockerAlias}",
+          "--platform", "${distro.dockerVerifyArchitecture.dockerFull}",
           ".",
           "--tag", imageNameWithTag
         )
@@ -194,8 +194,8 @@ class BuildDockerImageTask extends DefaultTask {
   }
 
   @Internal
-  Set<GString> getSupportedPlatforms() {
-    distro.supportedArchitectures.collect {"linux/${it.dockerAlias}" }
+  Set<String> getSupportedPlatforms() {
+    distro.supportedArchitectures.collect {it.dockerFull }
   }
 
   @Input

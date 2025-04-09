@@ -83,7 +83,7 @@ GEM
       xpath (~> 3.2)
     concurrent-ruby (1.3.5)
     crass (1.0.6)
-    dartsass-sprockets (3.2.0)
+    dartsass-sprockets (3.2.1)
       railties (>= 4.0.0)
       sassc-embedded (~> 1.80.1)
       sprockets (> 3.0)

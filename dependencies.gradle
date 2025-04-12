@@ -30,7 +30,7 @@ final Map<String, String> libraries = [
   angusMailSmtp       : 'org.eclipse.angus:smtp:2.0.3',
   apacheAnt           : 'org.apache.ant:ant:1.10.15',
   apacheHttpComponents: 'org.apache.httpcomponents:httpclient:4.5.14',
-  aspectj             : 'org.aspectj:aspectjweaver:1.9.23',
+  aspectj             : 'org.aspectj:aspectjweaver:1.9.24',
   assertJ             : 'org.assertj:assertj-core:3.27.3',
   assertJ_DB          : 'org.assertj:assertj-db:3.0.0',
   awaitility          : 'org.awaitility:awaitility:4.3.0',

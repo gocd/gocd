@@ -67,6 +67,7 @@ public class GoCache {
 
     @PreDestroy
     public void destroy() {
+        clear();
         Optional.ofNullable(ehCache.getCacheManager())
             .ifPresent(cm -> cm.removeCache(ehCache.getName()));
     }

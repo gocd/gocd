@@ -20,33 +20,35 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import javax.annotation.PreDestroy;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class LazyCache {
-    private final Ehcache ehcache;
+    private final Ehcache ehCache;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
 
-    public LazyCache(Ehcache ehcache, TransactionSynchronizationManager transactionSynchronizationManager) {
-        this.ehcache = ehcache;
+    public LazyCache(Ehcache ehCache, TransactionSynchronizationManager transactionSynchronizationManager) {
+        this.ehCache = ehCache;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
     }
 
     @SuppressWarnings("unchecked")
     public <T> T get(String key, Supplier<T> compute) {
-        Element element = ehcache.get(key);
+        Element element = ehCache.get(key);
 
         if (element != null) {
             return (T) element.getObjectValue();
         }
 
         synchronized (key.intern()) {
-            element = ehcache.get(key);
+            element = ehCache.get(key);
             if (element != null) {
                 return (T) element.getObjectValue();
             }
 
             T object = compute.get();
-            ehcache.put(new Element(key, object));
+            ehCache.put(new Element(key, object));
             return object;
         }
     }
@@ -55,8 +57,15 @@ public class LazyCache {
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCommit() {
-                ehcache.flush();
+                ehCache.flush();
             }
         });
+    }
+
+    @PreDestroy
+    public void destroy() {
+        ehCache.removeAll();
+        Optional.ofNullable(ehCache.getCacheManager())
+            .ifPresent(cm -> cm.removeCache(ehCache.getName()));
     }
 }

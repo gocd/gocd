@@ -47,6 +47,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import javax.annotation.PreDestroy;
 import java.util.*;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
@@ -654,5 +655,11 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     String cacheKeyForFindDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, String suffix, long cursor, Integer pageSize) {
         return cacheKeyGenerator.generate("findDetailedJobHistoryViaCursor", pipelineName.toLowerCase(), stageName.toLowerCase(), jobConfigName.toLowerCase(), suffix, cursor, pageSize);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        cache.flushAll(new Date());
+        latestCompletedCache.destroy();
     }
 }

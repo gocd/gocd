@@ -59,7 +59,6 @@ public class PipelineStateDaoCachingTest {
     public void setup() {
         transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
-        goCache.clear();
         mockTemplate = mock(SqlMapClientTemplate.class);
         SessionFactory mockSessionFactory = mock(SessionFactory.class);
         transactionTemplate = mock(TransactionTemplate.class);

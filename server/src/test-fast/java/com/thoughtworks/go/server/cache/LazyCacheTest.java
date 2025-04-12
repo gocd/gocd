@@ -30,27 +30,27 @@ public class LazyCacheTest {
     public void shouldGetValueFromCacheIfPresent() {
         Object valueInCache = new Object();
 
-        Ehcache ehcache = mock(Ehcache.class);
-        when(ehcache.get("foo")).thenReturn(new Element("foo", valueInCache));
+        Ehcache ehCache = mock(Ehcache.class);
+        when(ehCache.get("foo")).thenReturn(new Element("foo", valueInCache));
 
         Supplier<?> supplier = mock(Supplier.class);
-        assertThat(new LazyCache(ehcache, null).get("foo", supplier)).isSameAs(valueInCache);
+        assertThat(new LazyCache(ehCache, null).get("foo", supplier)).isSameAs(valueInCache);
         verifyNoInteractions(supplier);
     }
 
     @Test
     public void shouldComputeValueFromSupplierIfNotPresentInCache() {
-        Ehcache ehcache = mock(Ehcache.class);
-        when(ehcache.get("foo")).thenReturn(null);
+        Ehcache ehCache = mock(Ehcache.class);
+        when(ehCache.get("foo")).thenReturn(null);
 
         Object lazilyComputedValue = new Object();
 
         @SuppressWarnings("unchecked") Supplier<Object> supplier = mock(Supplier.class);
         when(supplier.get()).thenReturn(lazilyComputedValue);
-        assertThat(new LazyCache(ehcache, null).get("foo", supplier)).isSameAs(lazilyComputedValue);
+        assertThat(new LazyCache(ehCache, null).get("foo", supplier)).isSameAs(lazilyComputedValue);
         verify(supplier, times(1)).get();
 
-        verify(ehcache, times(2)).get("foo");
-        verify(ehcache, times(1)).put(new Element("foo", lazilyComputedValue));
+        verify(ehCache, times(2)).get("foo");
+        verify(ehCache, times(1)).put(new Element("foo", lazilyComputedValue));
     }
 }

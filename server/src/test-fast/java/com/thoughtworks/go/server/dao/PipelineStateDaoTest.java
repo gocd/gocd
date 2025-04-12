@@ -49,7 +49,6 @@ class PipelineStateDaoTest {
     @BeforeEach
     void setup() {
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
-        goCache.clear();
         mockSessionFactory = mock(SessionFactory.class);
         transactionTemplate = mock(TransactionTemplate.class);
         pipelineStateDao = new PipelineStateDao(goCache, transactionTemplate, null,

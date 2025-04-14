@@ -32,11 +32,10 @@ import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import java.math.BigInteger;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -186,11 +185,7 @@ public class PipelineRepositoryTest {
         pipelineRepository.setHibernateTemplate(new HibernateTemplate() {
             @Override
             public <T> T execute(HibernateCallback<T> action) throws DataAccessException {
-                try {
-                    return action.doInHibernate(session);
-                } catch (SQLException e) {
-                    throw new RuntimeException();
-                }
+                return action.doInHibernate(session);
             }
         });
         when(session.createSQLQuery(nullable(String.class))).thenReturn(sqlQuery);

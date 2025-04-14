@@ -28,7 +28,7 @@ import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.jetbrains.annotations.TestOnly;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -116,7 +116,7 @@ public class AgentDao extends HibernateDaoSupport {
                         throw new UnregisteredAgentException(format("Agent [%s] is not registered.", uuid), uuid);
                     }
                     agent.setCookie(cookie);
-                    getHibernateTemplate().saveOrUpdate(agent);
+                    currentSession().saveOrUpdate(agent);
 
                     final Agent updatedAgent = agent;
                     registerAfterCommitCallback(() -> clearCacheAndNotifyAgentEntityChangeListeners(key, updatedAgent));

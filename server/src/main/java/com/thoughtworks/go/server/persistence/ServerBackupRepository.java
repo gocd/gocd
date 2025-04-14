@@ -24,7 +24,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,7 +53,7 @@ public class ServerBackupRepository extends HibernateDaoSupport {
     }
 
     public ServerBackup save(ServerBackup serverBackup) {
-        getHibernateTemplate().save(serverBackup);
+        currentSession().save(serverBackup);
         return serverBackup;
     }
 
@@ -83,6 +83,6 @@ public class ServerBackupRepository extends HibernateDaoSupport {
     }
 
     public void update(ServerBackup serverBackup) {
-        getHibernateTemplate().update(serverBackup);
+        currentSession().update(serverBackup);
     }
 }

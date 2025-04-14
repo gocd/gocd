@@ -72,9 +72,12 @@
 
     <!-- ========================= HIBERNATE ========================= -->
 
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
-        <property name="dataSource" ref="goDataSource"/>
-        <property name="useTransactionAwareDataSource" value="true"/>
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource">
+          <bean class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+            <property name="targetDataSource" ref="goDataSource"/>
+          </bean>
+        </property>
         <property name="mappingLocations">
             <list>
                 <value>classpath:/hibernate-mappings/*</value>
@@ -88,7 +91,7 @@
         </property>
     </bean>
 
-    <bean id="goTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <bean id="goTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 

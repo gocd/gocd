@@ -22,7 +22,7 @@ import com.thoughtworks.go.domain.StageArtifactCleanupProhibited;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 
 import java.util.AbstractMap;
@@ -63,7 +63,7 @@ public class ConfigDbStateRepository extends HibernateDaoSupport {
                     stageArtifactCleanupProhibited = new StageArtifactCleanupProhibited(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stageConfig.name()));
                 }
                 stageArtifactCleanupProhibited.setProhibited(stageConfig.isArtifactCleanupProhibited());
-                getHibernateTemplate().saveOrUpdate(stageArtifactCleanupProhibited);
+                currentSession().saveOrUpdate(stageArtifactCleanupProhibited);
             }
         }
         return null;

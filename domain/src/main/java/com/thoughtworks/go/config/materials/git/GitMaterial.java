@@ -36,6 +36,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -43,7 +44,6 @@ import static com.thoughtworks.go.config.materials.git.RefSpecHelper.localBranch
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
 import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
-import static com.thoughtworks.go.util.FileUtil.deleteDirectoryNoisily;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isAllBlank;
@@ -355,7 +355,11 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, refSpecOrBranch, false, secrets());
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
             LOG.debug("Invalid git working copy or repository changed. Delete folder: {}", workingFolder);
-            deleteDirectoryNoisily(workingFolder);
+            try {
+                FileUtils.deleteDirectory(workingFolder);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to delete directory: " + workingFolder.getAbsolutePath(), e);
+            }
         }
         createParentFolderIfNotExist(workingFolder);
         if (!workingFolder.exists()) {

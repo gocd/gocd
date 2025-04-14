@@ -19,7 +19,6 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.util.ServletHelper;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpInput;
@@ -96,7 +95,7 @@ public class BackupFilterTest {
         when(backupService.backupRunningSinceISO8601()).thenReturn(BACKUP_STARTED_AT);
         when(backupService.backupStartedBy()).thenReturn(BACKUP_STARTED_BY);
 
-        String content = IOUtils.toString(BackupFilter.class.getClassLoader().getResource("backup_in_progress.html"), UTF_8);
+        String content = new String(BackupFilter.class.getClassLoader().getResourceAsStream("backup_in_progress.html").readAllBytes(), UTF_8);
         content = backupFilter.replaceStringLiterals(content);
         Request request = request(HttpMethod.GET, "", "/go/agents");
 

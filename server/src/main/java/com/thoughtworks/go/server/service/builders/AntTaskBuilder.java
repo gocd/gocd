@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import com.thoughtworks.go.util.FileUtil;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -29,7 +28,7 @@ import java.io.File;
 public class AntTaskBuilder implements TaskBuilder<AntTask> {
     @Override
     public Builder createBuilder(BuilderFactory builderFactory, AntTask task, Pipeline pipeline, UpstreamPipelineResolver resolver) {
-        String newWorkingDir = FileUtil.join(pipeline.defaultWorkingFolder(), task.workingDirectory());
+        String newWorkingDir = TaskBuilder.join(pipeline.defaultWorkingFolder(), task.workingDirectory());
         String argument = task.arguments();
 
         Builder cancelBuilder = builderFactory.builderFor(task.cancelTask(), pipeline, resolver);

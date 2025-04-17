@@ -144,9 +144,9 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
           eachLine = 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperJarApp'
         }
 
-        if (eachLine == '#encoding=UTF-8') {
+        if (eachLine == '@encoding=UTF-8') {
           def newLines = [
-            '#encoding=UTF-8',
+            '@encoding=UTF-8',
             'wrapper.working.dir=..',
             'wrapper.console_input=DISABLED',
             'wrapper.console.flush=TRUE'

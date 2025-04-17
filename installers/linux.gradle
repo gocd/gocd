@@ -210,8 +210,8 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 //            if (eachLine == '# wrapper.debug=TRUE') {
 //              eachLine = 'wrapper.debug=TRUE'
 //            }
-//            if (eachLine == '##include.debug') {
-//              eachLine = '#include.debug'
+//            if (eachLine == '#@include.debug') {
+//              eachLine = '@include.debug'
 //            }
 //            if (eachLine == '#wrapper.license.debug=TRUE') {
 //              eachLine = 'wrapper.license.debug=TRUE'
@@ -221,9 +221,9 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
               eachLine = 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperJarApp'
             }
 
-            if (eachLine == '#encoding=UTF-8') {
+            if (eachLine == '@encoding=UTF-8') {
               def newLines = [
-                '#encoding=UTF-8',
+                '@encoding=UTF-8',
                 "wrapper.working.dir=/var/lib/${installerType.baseName}",
                 'wrapper.console_input=DISABLED',
                 'wrapper.console.flush=TRUE'

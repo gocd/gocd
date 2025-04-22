@@ -18,6 +18,7 @@ missing_licenses = {
 
 }
 
+require 'active_support'
 require 'active_support/core_ext/hash/deep_merge'
 
 task :default do

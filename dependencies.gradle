@@ -102,7 +102,7 @@ final Map<String, String> libraries = [
   springTestJunit5    : 'com.github.sbrannen:spring-test-junit5:1.5.0',
   systemStubs         : 'uk.org.webcompere:system-stubs-jupiter:2.1.8',
   testcontainersBom   : 'org.testcontainers:testcontainers-bom:1.20.6',
-  tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:3.0.0',
+  tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:4.0.1',
   urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',
   xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.10.0',
   ztExec              : 'org.zeroturnaround:zt-exec:1.12',

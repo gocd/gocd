@@ -40,7 +40,9 @@ RUN curl --fail --location --silent --show-error "https://download.gocd.org/bina
     mv -v /go-agent-${goVersion}/wrapper/libwrapper-linux-$WRAPPERARCH* /go-agent/wrapper/ && \
     mv -v /go-agent-${goVersion}/wrapper/wrapper.jar /go-agent/wrapper/ && \
     chown -R ${r"${UID}"}:0 /go-agent && chmod -R g=u /go-agent
-
+<#if distro.getMultiStageInputImage()?has_content >
+FROM ${distro.getMultiStageInputImage()} AS multistageinput
+</#if>
 FROM ${distro.getBaseImageLocation(distroVersion)}
 ARG TARGETARCH
 
@@ -63,7 +65,9 @@ ENV ${key}="${value}"
 
 ARG UID=1000
 ARG GID=1000
-
+<#if distro.getMultiStageInputImage()?has_content >
+COPY --from=multistageinput ${distro.getMultiStageInputCopyToTmp()} ${distro.getMultiStageInputCopyToTmp()}
+</#if>
 RUN \
 <#if additionalFiles?size != 0>
 # add mode and permissions for files we added above

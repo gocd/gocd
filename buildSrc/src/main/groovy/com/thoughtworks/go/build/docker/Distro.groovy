@@ -61,7 +61,7 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    String getMultiStageInputCopyToTmp() {
+    String getMultiStageInputDirectory() {
       "/usr/glibc-compat"
     }
 
@@ -72,16 +72,17 @@ enum Distro implements DistroBehavior {
       // https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc since he original project at https://github.com/sgerrand/alpine-pkg-glibc is unmaintained.
       //
       // Logic needs to match
-      // - package contents from https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc/blame/master/APKBUILD
+      // - package contents from https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc/blob/master/APKBUILD
       // - pre-generated locales from pre-generated locales at https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc/blob/master/Dockerfile
       //
       // Note that this means the JRE used also must be glibc-linked.
       [
         '# install glibc for the Tanuki Wrapper, and use by glibc-linked Adoptium JREs',
-        '  LIB=$([ "$(arch)" = "aarch64" ] && echo ld-linux-aarch64.so.1 || echo ld-linux-x86-64.so.2)',
-        '  ln -s /usr/glibc-compat/${LIB} /lib/${LIB}',
-        '  mkdir -p /lib64 && ln -s /usr/glibc-compat/lib64/${LIB} /lib64/${LIB}',
-        '  ln -s /usr/glibc-compat/etc/ld.so.cache /etc/ld.so.cache',
+        "  GLIBC_DIR=${getMultiStageInputDirectory()}",
+        '  GLIBC_LIB=$([ "$(arch)" = "aarch64" ] && echo ld-linux-aarch64.so.1 || echo ld-linux-x86-64.so.2)',
+        '  ln -s ${GLIBC_DIR}/${GLIBC_LIB} /lib/${GLIBC_LIB}',
+        '  mkdir -p /lib64 && ln -s ${GLIBC_DIR}/lib/${GLIBC_LIB} /lib64/${GLIBC_LIB}',
+        '  ln -s ${GLIBC_DIR}/etc/ld.so.cache /etc/ld.so.cache',
         '  echo "export LANG=C.UTF-8" > /etc/profile.d/locale.sh',
         '# end installing glibc',
       ] + super.getInstallJavaCommands(project)
@@ -264,8 +265,8 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    String getMultiStageInputCopyToTmp() {
-      alpine.getMultiStageInputCopyToTmp()
+    String getMultiStageInputDirectory() {
+      alpine.getMultiStageInputDirectory()
     }
 
     @Override

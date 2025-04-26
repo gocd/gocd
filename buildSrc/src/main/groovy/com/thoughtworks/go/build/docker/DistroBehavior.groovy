@@ -54,6 +54,14 @@ trait DistroBehavior {
     ]
   }
 
+  String getMultiStageInputImage() {
+    null
+  }
+
+  String getMultiStageInputCopyToTmp() {
+    null
+  }
+
   List<String> getInstallPrerequisitesCommands(DistroVersion v) {
     throw new RuntimeException("Subclasses must implement!")
   }
@@ -74,7 +82,7 @@ trait DistroBehavior {
   }
 
   Set<Architecture> getSupportedArchitectures() {
-    [Architecture.x64]
+    [Architecture.x64, Architecture.aarch64]
   }
 
   Architecture getDockerVerifyArchitecture() {

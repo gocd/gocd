@@ -58,7 +58,7 @@ trait DistroBehavior {
     null
   }
 
-  String getMultiStageInputCopyToTmp() {
+  String getMultiStageInputDirectory() {
     null
   }
 

@@ -66,7 +66,7 @@ ENV ${key}="${value}"
 ARG UID=1000
 ARG GID=1000
 <#if distro.getMultiStageInputImage()?has_content >
-COPY --from=multistageinput ${distro.getMultiStageInputCopyToTmp()} ${distro.getMultiStageInputCopyToTmp()}
+COPY --from=multistageinput ${distro.getMultiStageInputDirectory()} ${distro.getMultiStageInputDirectory()}
 </#if>
 RUN \
 <#if additionalFiles?size != 0>

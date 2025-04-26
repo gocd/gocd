@@ -17,18 +17,20 @@
 package com.thoughtworks.go.build
 
 enum Architecture {
-  all('all', 'noarch', null),
-  x64('x64', 'amd64', 'x86-64'),
-  aarch64('aarch64', 'arm64', 'arm-64'),
-  dockerDynamic('$(uname -m | sed -e s/86_//g)', '${TARGETARCH}', null)
+  all('all', 'noarch', 'noarch', null),
+  x64('x64', 'amd64', 'linux/amd64/v2', 'x86-64'),
+  aarch64('aarch64', 'arm64', 'linux/arm64/v8', 'arm-64'),
+  dockerDynamic('$(uname -m | sed -e s/86_//g)', '${TARGETARCH}', '${TARGETARCH}', null)
 
   final String canonicalName
   final String dockerAlias
+  final String dockerFull
   final String tanukiWrapperAlias
 
-  Architecture(String canonicalName, String dockerAlias, String tanukiWrapperAlias) {
+  Architecture(String canonicalName, String dockerAlias, String dockerFull, String tanukiWrapperAlias) {
     this.canonicalName = canonicalName
     this.dockerAlias = dockerAlias
+    this.dockerFull = dockerFull
     this.tanukiWrapperAlias = tanukiWrapperAlias
   }
 

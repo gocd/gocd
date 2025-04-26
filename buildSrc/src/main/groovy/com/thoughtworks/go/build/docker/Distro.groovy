@@ -84,6 +84,7 @@ enum Distro implements DistroBehavior {
         '  mkdir -p /lib64 && ln -s ${GLIBC_DIR}/lib/${GLIBC_LIB} /lib64/${GLIBC_LIB}',
         '  ln -s ${GLIBC_DIR}/etc/ld.so.cache /etc/ld.so.cache',
         '  echo "export LANG=C.UTF-8" > /etc/profile.d/locale.sh',
+        '  ${GLIBC_DIR}/sbin/ldconfig',
         '# end installing glibc',
       ] + super.getInstallJavaCommands(project)
     }

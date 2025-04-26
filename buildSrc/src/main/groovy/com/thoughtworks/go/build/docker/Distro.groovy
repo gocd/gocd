@@ -67,11 +67,9 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<String> getInstallJavaCommands(Project project) {
-      // Tanuki Wrapper current currently requires glibc, which is not available in Alpine (which is a musl libc distro).
-      // See https://github.com/gocd/gocd/issues/11355 for a discussion of this problem.
-      // To workaround this, use glibc built within https://hub.docker.com/r/frolvlad/alpine-glibc from source at
-      // https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc since he original project at https://github.com/sgerrand/alpine-pkg-glibc
-      // is unmaintained.
+      // Tanuki Wrapper currently requires glibc, which is not available in Alpine (which is a musl libc distro). See https://github.com/gocd/gocd/issues/11355 
+      // for a discussion of this problem. To workaround this, use glibc built within https://hub.docker.com/r/frolvlad/alpine-glibc from source at
+      // https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc since he original project at https://github.com/sgerrand/alpine-pkg-glibc is unmaintained.
       //
       // Note that this means the JRE used also must be glibc-linked.
       [

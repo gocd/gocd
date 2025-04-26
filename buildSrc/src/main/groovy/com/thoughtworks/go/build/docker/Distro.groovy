@@ -67,18 +67,22 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<String> getInstallJavaCommands(Project project) {
-      // Tanuki Wrapper currently requires glibc, which is not available in Alpine (which is a musl libc distro). See https://github.com/gocd/gocd/issues/11355 
+      // Tanuki Wrapper currently requires glibc, which is not available in Alpine (which is a musl libc distro). See https://github.com/gocd/gocd/issues/11355
       // for a discussion of this problem. To workaround this, use glibc built within https://hub.docker.com/r/frolvlad/alpine-glibc from source at
       // https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc since he original project at https://github.com/sgerrand/alpine-pkg-glibc is unmaintained.
+      //
+      // Logic needs to match
+      // - package contents from https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc/blame/master/APKBUILD
+      // - pre-generated locales from pre-generated locales at https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc/blob/master/Dockerfile
       //
       // Note that this means the JRE used also must be glibc-linked.
       [
         '# install glibc for the Tanuki Wrapper, and use by glibc-linked Adoptium JREs',
-        '  mkdir -p /lib64',
+        '  LIB=$([ "$(arch)" = "aarch64" ] && echo ld-linux-aarch64.so.1 || echo ld-linux-x86-64.so.2)',
+        '  ln -s /usr/glibc-compat/${LIB} /lib/${LIB}',
+        '  mkdir -p /lib64 && ln -s /usr/glibc-compat/lib64/${LIB} /lib64/${LIB}',
         '  ln -s /usr/glibc-compat/etc/ld.so.cache /etc/ld.so.cache',
-        '  ln -s /usr/glibc-compat/lib/ld-linux-$(arch).so.1 /lib/ld-linux-$(arch).so.1',
-        '  ln -s /usr/glibc-compat/lib64/ld-linux-$(arch).so.1 /lib64/ld-linux-$(arch).so.1',
-        '  echo "export LANG=C.UTF-8" > /etc/profile.d/locale.sh', // See pre-generated locales at https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc/blob/master/Dockerfile
+        '  echo "export LANG=C.UTF-8" > /etc/profile.d/locale.sh',
         '# end installing glibc',
       ] + super.getInstallJavaCommands(project)
     }

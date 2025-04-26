@@ -80,7 +80,7 @@ enum Distro implements DistroBehavior {
         '# install glibc for the Tanuki Wrapper, and use by glibc-linked Adoptium JREs',
         "  GLIBC_DIR=${getMultiStageInputDirectory()}",
         '  GLIBC_LIB=$([ "$(arch)" = "aarch64" ] && echo ld-linux-aarch64.so.1 || echo ld-linux-x86-64.so.2)',
-        '  ln -s ${GLIBC_DIR}/${GLIBC_LIB} /lib/${GLIBC_LIB}',
+        '  ln -s ${GLIBC_DIR}/lib/${GLIBC_LIB} /lib/${GLIBC_LIB}',
         '  mkdir -p /lib64 && ln -s ${GLIBC_DIR}/lib/${GLIBC_LIB} /lib64/${GLIBC_LIB}',
         '  ln -s ${GLIBC_DIR}/etc/ld.so.cache /etc/ld.so.cache',
         '  echo "export LANG=C.UTF-8" > /etc/profile.d/locale.sh',

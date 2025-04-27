@@ -33,6 +33,9 @@ dependencies {
   }
   api project.deps.cloning
   api project.deps.springWeb
+  if (project.deps.springWeb) {
+    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+  }
   implementation project.deps.slf4jApi
   implementation project.deps.felix
   implementation project.deps.jodaTime

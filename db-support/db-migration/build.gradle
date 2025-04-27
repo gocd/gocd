@@ -26,6 +26,9 @@ dependencies {
   implementation project.deps.commonsLang3
   implementation project.deps.gson
   implementation project.deps.springContext
+  if (project.deps.commonsDbcp || project.deps.springContext) {
+    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+  }
   implementation project.deps.jakartaAnnotation
 
   implementation(project.deps.liquibase) {

@@ -21,6 +21,10 @@ dependencies {
   implementation project.deps.gson
   implementation project.deps.spring
   implementation project.deps.springTest
+  if (project.deps.apacheHttpComponents || project.deps.spring) {
+    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+  }
+
   implementation project.deps.assertJ
   implementation project.deps.jsonUnit
 }

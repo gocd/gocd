@@ -16,6 +16,9 @@
 
 dependencies {
   implementation project.deps.commonsDbcp
+  if (project.deps.commonsDbcp) {
+    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+  }
   api project.deps.commonsLang3
   api project.deps.ztExec
   api(project.deps.apacheAnt) {

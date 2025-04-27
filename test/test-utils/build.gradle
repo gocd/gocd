@@ -26,6 +26,10 @@ dependencies {
   implementation project(path: ':base', configuration: 'runtimeElements')
   api project(path: ':util', configuration: 'runtimeElements')
   api project.deps.springTest
+  if (project.deps.springTest) {
+    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+  }
+
   api project.deps.logback
   implementation project.deps.jetty
   implementation project.deps.jettyJmx

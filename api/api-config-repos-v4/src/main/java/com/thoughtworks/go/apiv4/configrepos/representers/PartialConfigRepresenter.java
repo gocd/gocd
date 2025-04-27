@@ -16,20 +16,28 @@
 package com.thoughtworks.go.apiv4.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.config.EnvironmentsConfig;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class PartialConfigRepresenter {
     private PartialConfigRepresenter() {
     }
 
     public static void toJSON(OutputWriter json, PartialConfig config) {
-        EnvironmentsConfig envs = config.getEnvironments();
+        Collection<EnvironmentConfig> uniqueEnvs = config.getEnvironments()
+            .stream()
+            .collect(Collectors.toMap(EnvironmentConfig::name, Function.identity(), (a, b) -> a, LinkedHashMap::new))
+            .values();
         PipelineGroups groups = config.getGroups();
 
-        if (!envs.isEmpty()) {
-            json.addChildList("environments", (w) -> envs.forEach(
+        if (!uniqueEnvs.isEmpty()) {
+            json.addChildList("environments", (w) -> uniqueEnvs.forEach(
                     (env) -> w.addChild((ew -> EnvironmentConfigRepresenter.toJSON(ew, env)))
             ));
         }

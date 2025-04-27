@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.security;
 
-import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.extension.*;
@@ -24,6 +23,7 @@ import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+@SuppressWarnings("deprecation")
 public class ResetCipher implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
     private final SystemEnvironment systemEnvironment;
     private final AESCipherProvider aesCipherProvider;
@@ -41,12 +41,12 @@ public class ResetCipher implements BeforeEachCallback, AfterEachCallback, Param
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        removeCachedKey();
+        removeCipher();
     }
 
     @Override
     public void afterEach(ExtensionContext context) {
-        removeCachedKey();
+        removeCipher();
     }
 
     @Override
@@ -59,9 +59,9 @@ public class ResetCipher implements BeforeEachCallback, AfterEachCallback, Param
         return this;
     }
 
-    private void removeCachedKey() {
-        aesCipherProvider.removeCachedKey();
-        desCipherProvider.removeCachedKey();
+    private void removeCipher() {
+        aesCipherProvider.removeCipher();
+        desCipherProvider.removeCipher();
     }
 
     public void setupAESCipherFile() throws IOException {
@@ -69,7 +69,7 @@ public class ResetCipher implements BeforeEachCallback, AfterEachCallback, Param
     }
 
     public void setupAESCipherFile(String cipher) throws IOException {
-        ReflectionUtil.setField(aesCipherProvider, "cachedKey", null);
+        AESCipherProvider.removeCachedKey();
         FileUtils.writeStringToFile(systemEnvironment.getAESCipherFile(), cipher, UTF_8);
     }
 
@@ -78,7 +78,7 @@ public class ResetCipher implements BeforeEachCallback, AfterEachCallback, Param
     }
 
     public void setupDESCipherFile(String cipher) throws IOException {
-        ReflectionUtil.setField(desCipherProvider, "cachedKey", null);
+        DESCipherProvider.removeCachedKey();
         FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), cipher, UTF_8);
     }
 }

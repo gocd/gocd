@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.security;
 
-import org.apache.commons.codec.DecoderException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("deprecation")
 public class DESEncrypterTest {
 
     private DESEncrypter desEncrypter;
@@ -65,15 +65,10 @@ public class DESEncrypterTest {
     }
 
     @Test
-    public void shouldReEncryptUsingNewKey() throws DecoderException, CryptoException {
-        String originalCipherText = "mvcX9yrQsM4iPgm1tDxN1A==";
-        String newCipherText = DESEncrypter.reEncryptUsingNewKey(decodeHex("269298bc31c44620"), decodeHex("02644c13cb892962"), originalCipherText);
-
-        assertThat(originalCipherText).isNotEqualTo(newCipherText);
-
-        DESCipherProvider newCipher = mock(DESCipherProvider.class);
-        when(newCipher.getKey()).thenReturn(decodeHex("02644c13cb892962"));
-        DESEncrypter newEncrypter = new DESEncrypter(newCipher);
-        assertThat(newEncrypter.decrypt(newCipherText)).isEqualTo("user-password!");
+    public void shouldErrorOutWhenNoCipherKeyIsAvailable() {
+        desEncrypter = new DESEncrypter(mock(DESCipherProvider.class));
+        assertThatCode(() -> desEncrypter.decrypt("anything"))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("No DES key found; cannot decrypt and generating new DES keys is no longer supported");
     }
 }

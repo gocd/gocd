@@ -87,7 +87,7 @@ class SerializationTest {
                     Serialization.instance().toJson(acp));
             assertEquals(format("Refusing to serialize a %s instance and leak security details!", AESCipherProvider.class.getName()), e.getMessage());
         } finally {
-            acp.removeCachedKey();
+            acp.removeCipher();
         }
     }
 
@@ -120,7 +120,7 @@ class SerializationTest {
                     Serialization.instance().toJson(dcp));
             assertEquals(format("Refusing to serialize a %s instance and leak security details!", DESCipherProvider.class.getName()), e.getMessage());
         } finally {
-            dcp.removeCachedKey();
+            dcp.removeCipher();
         }
     }
 

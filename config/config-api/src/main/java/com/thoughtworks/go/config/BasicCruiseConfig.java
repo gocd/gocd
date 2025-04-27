@@ -221,8 +221,6 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments);
 
-        List<PartialConfig> getMergedPartials();
-
         boolean isLocal();
     }
 
@@ -251,11 +249,6 @@ public class BasicCruiseConfig implements CruiseConfig {
             for (SCM scm : scms) {
                 scm.setOrigins(origin);
             }
-        }
-
-        @Override
-        public List<PartialConfig> getMergedPartials() {
-            return new ArrayList<>();
         }
 
         @Override
@@ -430,11 +423,6 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public void setOrigins(ConfigOrigin origins) {
             throw bomb("Cannot set origins on merged config");
-        }
-
-        @Override
-        public List<PartialConfig> getMergedPartials() {
-            return this.parts;
         }
 
         @Override
@@ -986,13 +974,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public void updateGroup(PipelineConfigs pipelineConfigs, String groupName) {
-        PipelineConfigs old = groups.findGroup(groupName);
-        int index = groups.indexOf(old);
-        groups.set(index, pipelineConfigs);
-    }
-
-    @Override
     public boolean isMailHostConfigured() {
         return !(new MailHost(new GoCipher()).equals(mailHost()) || mailHost() == null);
     }
@@ -1278,18 +1259,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public PipelineConfig findPipelineUsingThisPipelineAsADependency(String pipelineName) {
-        List<PipelineConfig> configs = getAllPipelineConfigs();
-        for (PipelineConfig config : configs) {
-            DependencyMaterialConfig materialConfig = config.materialConfigs().findDependencyMaterial(new CaseInsensitiveString(pipelineName));
-            if (materialConfig != null) {
-                return config;
-            }
-        }
-        return null;
-    }
-
-    @Override
     public Map<CaseInsensitiveString, List<PipelineConfig>> generatePipelineVsDownstreamMap() {
         List<PipelineConfig> pipelineConfigs = getAllPipelineConfigs();
         Map<CaseInsensitiveString, List<PipelineConfig>> result = new HashMap<>();
@@ -1500,11 +1469,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public List<PipelineConfig> getAllLocalPipelineConfigs() {
-        return strategy.getAllLocalPipelineConfigs(false);
-    }
-
-    @Override
     public void setPartials(List<PartialConfig> partials) {
         this.partials = partials;
     }
@@ -1512,11 +1476,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<PartialConfig> getPartials() {
         return partials;
-    }
-
-    @Override
-    public List<PartialConfig> getMergedPartials() {
-        return strategy.getMergedPartials();
     }
 
     @Override

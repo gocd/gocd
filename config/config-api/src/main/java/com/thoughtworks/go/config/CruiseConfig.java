@@ -157,8 +157,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     PipelineConfigs findGroup(String groupName);
 
-    void updateGroup(PipelineConfigs pipelineConfigs, String groupName);
-
     boolean isMailHostConfigured();
 
     List<PipelineConfig> getAllPipelineConfigs();
@@ -219,8 +217,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig);
 
-    PipelineConfig findPipelineUsingThisPipelineAsADependency(String pipelineName);
-
     Map<CaseInsensitiveString, List<PipelineConfig>> generatePipelineVsDownstreamMap();
 
     List<PipelineConfig> pipelinesForFetchArtifacts(String pipelineName);
@@ -261,8 +257,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     List<PipelineConfig> pipelinesAssociatedWithPackageRepository(PackageRepository packageRepository);
 
-    List<PipelineConfig> getAllLocalPipelineConfigs();
-
     void setPartials(List<PartialConfig> partials);
 
     List<PartialConfig> getPartials();
@@ -270,12 +264,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments);
 
     boolean isLocal();
-
-    /**
-     * Gets remote config parts currently active in this configuration.
-     * Note: It does NOT guarantee that these partials are valid.
-     */
-    List<PartialConfig> getMergedPartials();
 
     ElasticConfig getElasticConfig();
 

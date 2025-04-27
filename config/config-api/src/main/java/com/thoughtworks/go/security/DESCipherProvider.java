@@ -17,20 +17,15 @@ package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.bouncycastle.crypto.KeyGenerationParameters;
-import org.bouncycastle.crypto.generators.DESKeyGenerator;
-import org.bouncycastle.crypto.params.DESParameters;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.Serializable;
-import java.security.SecureRandom;
-import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.decodeHex;
-import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
 @Deprecated
 public class DESCipherProvider implements Serializable {
@@ -58,12 +53,10 @@ public class DESCipherProvider implements Serializable {
                     try {
                         if (cipherFile.exists()) {
                             cachedKey = decodeHex(FileUtils.readFileToString(cipherFile, UTF_8).trim());
-                            return;
+                        } else {
+                            cachedKey = new byte[]{}; // Cache an empty key
+                            LOGGER.info("DES cipher not found. Ignoring... we do not support generating new DES keys.");
                         }
-                        byte[] newKey = generateKey();
-                        FileUtils.writeStringToFile(cipherFile, encodeHexString(newKey), UTF_8);
-                        LOGGER.info("DES cipher not found. Creating a new cipher file");
-                        cachedKey = newKey;
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -72,22 +65,14 @@ public class DESCipherProvider implements Serializable {
         }
     }
 
-    private byte[] generateKey() {
-        SecureRandom random = new SecureRandom();
-        random.setSeed(UUID.randomUUID().toString().getBytes());
-        KeyGenerationParameters generationParameters = new KeyGenerationParameters(random, DESParameters.DES_KEY_LENGTH * 8);
-        DESKeyGenerator generator = new DESKeyGenerator();
-        generator.init(generationParameters);
-        return generator.generateKey();
-    }
-
-    public void resetCipher() {
-        removeCachedKey();
-        primeKeyCache();
-    }
-
-    public void removeCachedKey() {
+    @TestOnly
+    static void removeCachedKey() {
         cachedKey = null;
+    }
+
+    @TestOnly
+    public void removeCipher() {
         FileUtils.deleteQuietly(cipherFile);
+        DESCipherProvider.removeCachedKey();
     }
 }

@@ -36,12 +36,10 @@ dependencies {
   implementation project.deps.slf4jApi
   implementation project.deps.felix
   implementation project.deps.jodaTime
-  compileOnly project.deps.bouncyCastle
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
   compileOnly project.deps.jetBrainsAnnotations
 
-  testRuntimeOnly project.deps.bouncyCastle
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

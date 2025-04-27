@@ -17,6 +17,7 @@ package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,8 +75,14 @@ public class AESCipherProvider implements Serializable {
         return keygen.generateKey().getEncoded();
     }
 
-    public void removeCachedKey() {
+    @TestOnly
+    static void removeCachedKey() {
         cachedKey = null;
+    }
+
+    @TestOnly
+    public void removeCipher() {
         FileUtils.deleteQuietly(cipherFile);
+        removeCachedKey();
     }
 }

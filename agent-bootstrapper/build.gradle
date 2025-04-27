@@ -19,7 +19,12 @@ import com.thoughtworks.go.build.VerifyJarTask
 description = 'GoCD Agent Bootstrapper'
 
 dependencies {
-  implementation project(path: ':agent-common', configuration: 'runtimeElements')
+  implementation(project(path: ':agent-common', configuration: 'runtimeElements')) {
+    // Not needed within the bootstrapper
+    exclude(group: 'org.apache.httpcomponents')
+    exclude(group: 'joda-time')
+    exclude(module: 'jcl-over-slf4j')
+  }
 
   testRuntimeOnly project.deps.bouncyCastle
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
@@ -67,11 +72,7 @@ task verifyJar(type: VerifyJarTask) {
       "base-${project.version}.jar",
       "commons-io-${project.versions.commonsIO}.jar",
       "commons-lang3-${project.versions.commonsLang3}.jar",
-      "httpclient-${project.versions.apacheHttpComponents}.jar",
-      "httpcore-4.4.16.jar",
-      "jcl-over-slf4j-${project.versions.slf4jBom}.jar",
       "jcommander-${project.versions.jcommander}.jar",
-      "joda-time-${project.versions.jodaTime}.jar",
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",
       "slf4j-api-${project.versions.slf4jBom}.jar",

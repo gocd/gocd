@@ -86,7 +86,7 @@ public class TaskTypeAdapterTest {
     public void shouldInstantiateATaskForTypeFetch() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "fetch");
-        jsonObject.addProperty(TypeAdapter.ARTIFACT_ORIGIN, "gocd");
+        jsonObject.addProperty(TaskTypeAdapter.ARTIFACT_ORIGIN, "gocd");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
         verify(jsonDeserializationContext).deserialize(jsonObject, CRFetchArtifactTask.class);
@@ -96,7 +96,7 @@ public class TaskTypeAdapterTest {
     public void shouldInstantiateATaskForTypeFetchPluggableArtifact() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "fetch");
-        jsonObject.addProperty(TypeAdapter.ARTIFACT_ORIGIN, "external");
+        jsonObject.addProperty(TaskTypeAdapter.ARTIFACT_ORIGIN, "external");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
         verify(jsonDeserializationContext).deserialize(jsonObject, CRFetchPluggableArtifactTask.class);
@@ -106,7 +106,7 @@ public class TaskTypeAdapterTest {
     public void shouldThrowExceptionForFetchIfOriginIsInvalid() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "fetch");
-        jsonObject.addProperty(TypeAdapter.ARTIFACT_ORIGIN, "fsg");
+        jsonObject.addProperty(TaskTypeAdapter.ARTIFACT_ORIGIN, "fsg");
 
         assertThatThrownBy(() -> taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext))
                 .isInstanceOf(JsonParseException.class)

@@ -17,7 +17,6 @@ package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigFileList {
@@ -37,18 +36,11 @@ public class ConfigFileList {
         this.files = files;
     }
 
-    public static ConfigFileList withError(String location, String err) {
-        ErrorCollection errs = new ErrorCollection();
-        errs.addError(location, err);
-        return new ConfigFileList(new ArrayList<>(), errs);
-    }
-
     public static ConfigFileList from(List<String> files) {
         ErrorCollection errs = new ErrorCollection();
        if (files == null) {
            errs.addError("Plugin response message",
                    "The plugin returned a response that indicates that it doesn't correctly implement this endpoint");
-
        }
       return new ConfigFileList(files, errs);
     }

@@ -15,12 +15,14 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo.v3;
 
+import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
+import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class JsonMessageHandler3_0Test {
@@ -32,14 +34,58 @@ public class JsonMessageHandler3_0Test {
     }
 
     @Test
-    public void shouldNotHaveErrorsWhenValidJSON() {
+    public void shouldNotHaveErrorsForConfigFilesWhenValidJSON() {
         assertFalse(handler.responseMessageForConfigFiles("{\"files\": []}").hasErrors());
     }
 
     @Test
-    public void shouldReturnErrorWhenInvalidResponseJSON() {
-        assertTrue(handler.responseMessageForConfigFiles("{\"files\": null}").hasErrors());
-        assertTrue(handler.responseMessageForConfigFiles("{\"blah\": [\"file\"]}").hasErrors());
-        assertTrue(handler.responseMessageForConfigFiles("{}").hasErrors());
+    public void shouldReturnErrorForConfigFilesWhenInvalidResponseJSON() {
+        assertThat(handler.responseMessageForConfigFiles("{\"files\": null}"))
+            .satisfies(JsonMessageHandler3_0Test::doesntCorrectlyImplement);
+        assertThat(handler.responseMessageForConfigFiles("{\"blah\": [\"file\"]}"))
+            .satisfies(JsonMessageHandler3_0Test::doesntCorrectlyImplement);
+        assertThat(handler.responseMessageForConfigFiles("{}"))
+            .satisfies(JsonMessageHandler3_0Test::doesntCorrectlyImplement);
+    }
+
+    @Test
+    public void shouldNotHaveErrorsForParseDirectoryWhenValidJSON() {
+        assertFalse(handler.responseMessageForParseDirectory("{\"target_version\": 11}").hasErrors());
+    }
+
+    @Test
+    public void shouldReturnErrorForParseDirectoryWhenInvalidResponseJSON() {
+        assertThat(handler.responseMessageForParseDirectory("{}"))
+            .satisfies(result -> doesntCorrectlyImplement(result,
+                """
+                Plugin response message;
+                1. missing 'target_version' field
+                """));
+
+        assertThat(handler.responseMessageForParseDirectory("""
+            {
+              "target_version": 11,
+              "pipelines": { "bad": "json" },
+            }"""))
+            .satisfies(result -> doesntCorrectlyImplement(result,
+                """
+                Plugin response message;
+                1. Unexpected error when handling plugin response
+                com.google.gson.JsonSyntaxException"""));
+    }
+
+    private static void doesntCorrectlyImplement(ConfigFileList result) {
+        assertThat(result.hasErrors()).isTrue();
+        assertThat(result.getErrors().getErrorCount()).isEqualTo(1);
+        assertThat(result.getErrors().getErrorsAsText()).contains("""
+            Plugin response message;
+            1. The plugin returned a response that indicates that it doesn't correctly implement this endpoint
+            """);
+    }
+
+    private static void doesntCorrectlyImplement(CRParseResult result, String expectedMessage) {
+        assertThat(result.hasErrors()).isTrue();
+        assertThat(result.getErrors().getErrorCount()).isEqualTo(1);
+        assertThat(result.getErrors().getErrorsAsText()).contains(expectedMessage);
     }
 }

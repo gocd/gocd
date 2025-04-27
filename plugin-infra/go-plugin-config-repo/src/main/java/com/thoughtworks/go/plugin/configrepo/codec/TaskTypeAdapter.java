@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.tasks.*;
 import java.lang.reflect.Type;
 
 public class TaskTypeAdapter extends TypeAdapter implements JsonDeserializer<CRTask>, JsonSerializer<CRTask> {
+    static final String ARTIFACT_ORIGIN = "artifact_origin";
     private static final String TYPE = "type";
 
     @Override
@@ -32,16 +33,21 @@ public class TaskTypeAdapter extends TypeAdapter implements JsonDeserializer<CRT
 
     @Override
     protected Class<?> classForName(String typeName, String origin) {
-        if (typeName.equals(CRExecTask.TYPE_NAME))
+        if (typeName.equals(CRExecTask.TYPE_NAME)) {
             return CRExecTask.class;
-        if (typeName.equals(CRBuildFramework.rake.toString()))
+        }
+        if (typeName.equals(CRBuildFramework.rake.toString())) {
             return CRBuildTask.class;
-        if (typeName.equals(CRBuildFramework.ant.toString()))
+        }
+        if (typeName.equals(CRBuildFramework.ant.toString())) {
             return CRBuildTask.class;
-        if (typeName.equals(CRBuildFramework.nant.toString()))
+        }
+        if (typeName.equals(CRBuildFramework.nant.toString())) {
             return CRNantTask.class;
-        if (typeName.equals(CRPluggableTask.TYPE_NAME))
+        }
+        if (typeName.equals(CRPluggableTask.TYPE_NAME)) {
             return CRPluggableTask.class;
+        }
 
         if (typeName.equals(CRAbstractFetchTask.TYPE_NAME)) {
             return CRAbstractFetchTask.ArtifactOrigin.getArtifactOrigin(origin).getArtifactTaskClass();

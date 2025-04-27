@@ -18,22 +18,24 @@ package com.thoughtworks.go.plugin.configrepo.codec;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+
+import java.util.Objects;
 
 public abstract class TypeAdapter {
-    public static final String ARTIFACT_ORIGIN = "artifact_origin";
-
-    public TypeAdapter() {
-    }
-
-    public <T> T determineJsonElementForDistinguishingImplementers(JsonElement json, JsonDeserializationContext context, String field, String origin) {
+        public <T> T determineJsonElementForDistinguishingImplementers(JsonElement json, JsonDeserializationContext context, String typePropertyName, String originPropertyName) {
         JsonObject jsonObject = json.getAsJsonObject();
-        JsonPrimitive prim = (JsonPrimitive) jsonObject.get(field);
-        JsonPrimitive originField = (JsonPrimitive) jsonObject.get(origin);
-        String typeName = prim.getAsString();
+        JsonElement typeField = Objects.requireNonNull(jsonObject.get(typePropertyName), () -> String.format("JSON element from plugin did not contain [%s] property for determining its type. Check your syntax, or the plugin logic.", typePropertyName));
+        JsonElement originField = jsonObject.get(originPropertyName);
+
+        // Check prim is not null
+        String typeName = typeField.getAsString();
 
         Class<?> klass = classForName(typeName, originField == null ? "gocd" : originField.getAsString());
         return context.deserialize(jsonObject, klass);
+    }
+
+    public <T> T determineJsonElementForDistinguishingImplementers(JsonElement json, JsonDeserializationContext context, String typePropertyName) {
+        return determineJsonElementForDistinguishingImplementers(json, context, typePropertyName, null);
     }
 
     protected abstract Class<?> classForName(String typeName, String origin);

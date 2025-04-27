@@ -84,7 +84,7 @@ public class StageNotificationServiceIntegrationTest {
 
         dbHelper.onSetUp();
         configFileHelper.onSetUp();
-        configFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
+        GoConfigFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);

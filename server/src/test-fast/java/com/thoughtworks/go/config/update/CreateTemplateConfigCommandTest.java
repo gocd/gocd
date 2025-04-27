@@ -52,7 +52,7 @@ public class CreateTemplateConfigCommandTest {
     public void setup() {
         result = new HttpLocalizedOperationResult();
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
     }
 

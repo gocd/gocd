@@ -54,7 +54,7 @@ public class CreateSCMConfigCommandTest {
     @BeforeEach
     public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         scm = new SCM("id", new PluginConfiguration("non-existent-plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key"),new ConfigurationValue("value"))));
     }
 

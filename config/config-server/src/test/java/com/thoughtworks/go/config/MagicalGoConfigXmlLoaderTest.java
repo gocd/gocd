@@ -1974,7 +1974,7 @@ public class MagicalGoConfigXmlLoaderTest {
                   <environment name='uat'>
                      <environmentvariables>
                        <variable name='cdata'><value><![CDATA[%s]]></value></variable>
-                     </environmentvariables>   
+                     </environmentvariables>
                   </environment>
                 </environments>""").formatted(multiLinedata), CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
@@ -2349,7 +2349,7 @@ public class MagicalGoConfigXmlLoaderTest {
         svnMaterialConfig = (SvnMaterialConfig) configForEdit.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).materialConfigs().get(0);
         assertThat(svnMaterialConfig.getEncryptedPassword()).isEqualTo(encryptedPassword);
         assertThat(svnMaterialConfig.getPassword()).isEqualTo("abc");
-        assertThat((String) ReflectionUtil.getField(svnMaterialConfig, "password")).isNull();
+        assertThat(ReflectionUtil.<String>getField(svnMaterialConfig, "password")).isNull();
     }
 
     @Test

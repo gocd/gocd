@@ -42,7 +42,7 @@ public class SimpleJsonView implements View {
     }
 
     @Override
-    public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         // In IE, there's a problem with caching. We want to cache if we can.
         // This will force the browser to clear the cache only for this page.
         // If any other pages need to clear the cache, we might want to move this

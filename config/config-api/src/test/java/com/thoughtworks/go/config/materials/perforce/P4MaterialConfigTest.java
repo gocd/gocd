@@ -108,7 +108,7 @@ class P4MaterialConfigTest {
         map.put(P4MaterialConfig.PASSWORD_CHANGED, "1");
 
         materialConfig.setConfigAttributes(map);
-        assertThat((String) ReflectionUtil.getField(materialConfig, "password")).isNull();
+        assertThat(ReflectionUtil.<String>getField(materialConfig, "password")).isNull();
         assertThat(materialConfig.getPassword()).isEqualTo("secret");
         assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
@@ -117,7 +117,7 @@ class P4MaterialConfigTest {
         map.put(P4MaterialConfig.PASSWORD_CHANGED, "0");
         materialConfig.setConfigAttributes(map);
 
-        assertThat((String) ReflectionUtil.getField(materialConfig, "password")).isNull();
+        assertThat(ReflectionUtil.<String>getField(materialConfig, "password")).isNull();
         assertThat(materialConfig.getPassword()).isEqualTo("secret");
         assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 

@@ -67,7 +67,7 @@ public class CreatePackageConfigCommandTest {
         currentUser = new Username(new CaseInsensitiveString("user"));
         result = new HttpLocalizedOperationResult();
 
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         packageId = "prettyjson";
         packageUuid = "random-uuid";
         configuration = new Configuration(new ConfigurationProperty(new ConfigurationKey("PACKAGE_ID"), new ConfigurationValue(packageId)));

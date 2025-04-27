@@ -173,7 +173,7 @@ public class RescheduleJobTest {
             Resource oldResource = oldJobPlan.getResources().get(i);
             assertThat(newResource.getId()).isNotEqualTo(oldResource.getId());
             assertThat(newResource.getName()).isEqualTo(oldResource.getName());
-            assertThat((Object) ReflectionUtil.getField(newResource, "buildId")).isEqualTo(newJobPlan.getJobId());
+            assertThat(ReflectionUtil.<Object>getField(newResource, "buildId")).isEqualTo(newJobPlan.getJobId());
         }
 
         assertThat(newJobPlan.getArtifactPlans().size()).isEqualTo(2);
@@ -185,7 +185,7 @@ public class RescheduleJobTest {
             assertThat(newArtifactPlan.getSrc()).isEqualTo(oldArtifactPlan.getSrc());
             assertThat(newArtifactPlan.getDest()).isEqualTo(oldArtifactPlan.getDest());
             assertThat(newArtifactPlan.getArtifactPlanType()).isEqualTo(oldArtifactPlan.getArtifactPlanType());
-            assertThat((Object) ReflectionUtil.getField(newArtifactPlan, "buildId")).isEqualTo(newJobPlan.getJobId());
+            assertThat(ReflectionUtil.<Object>getField(newArtifactPlan, "buildId")).isEqualTo(newJobPlan.getJobId());
         }
 
         JobInstance newJobInstance = dbHelper.getBuildInstanceDao().buildById(newJobPlan.getJobId());

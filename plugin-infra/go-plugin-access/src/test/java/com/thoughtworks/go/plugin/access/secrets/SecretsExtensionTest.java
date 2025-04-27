@@ -67,7 +67,7 @@ public class SecretsExtensionTest {
             final VersionedSecretsExtension extension = this.extension.getVersionedSecretsExtension(PLUGIN_ID);
 
             assertThat(extension).as(message).isNotNull();
-            assertThat((String) ReflectionUtil.getField(extension, "VERSION")).isEqualTo(supportedVersion);
+            assertThat(ReflectionUtil.<String>getField(extension, "VERSION")).isEqualTo(supportedVersion);
         }
     }
 

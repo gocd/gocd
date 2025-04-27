@@ -43,6 +43,7 @@ public class RandomPort {
         return allocated;
     }
 
+    @SuppressWarnings("try")
     private boolean isAvailable(int port) {
         try (Socket ignored = new Socket("127.0.0.1", port)) {
             return false;

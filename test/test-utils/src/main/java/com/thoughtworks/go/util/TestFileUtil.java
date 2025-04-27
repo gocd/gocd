@@ -30,10 +30,6 @@ public class TestFileUtil {
         return tempFiles.mkdir(folderName);
     }
 
-    public static File createUniqueTempFile(String prefix) {
-        return TempFiles.createUniqueFile(prefix);
-    }
-
     public static File createTempFile(String fileName) throws IOException {
         return tempFiles.createFile(fileName);
     }

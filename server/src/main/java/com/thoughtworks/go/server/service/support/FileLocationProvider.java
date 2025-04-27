@@ -43,7 +43,7 @@ public class FileLocationProvider implements ServerInfoProvider {
         return 3.0;
     }
 
-    @Override
+    @Override @SuppressWarnings("rawtypes")
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("loc.config.dir", systemEnvironment.configDir().getAbsolutePath());
@@ -54,7 +54,7 @@ public class FileLocationProvider implements ServerInfoProvider {
 
         for (int i = 0; i < appenders.length; i++) {
             Appender<ILoggingEvent> appender = appenders[i];
-            if (appender instanceof @SuppressWarnings("rawtypes") FileAppender fileAppender) {
+            if (appender instanceof FileAppender fileAppender) {
                 File logFile = new File(fileAppender.rawFileProperty());
                 json.put("loc.log.root." + i, new File(logFile.getAbsolutePath()).getParent());
                 json.put("loc.log.basename." + i, logFile.getName());
@@ -64,7 +64,7 @@ public class FileLocationProvider implements ServerInfoProvider {
         return json;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private Appender<ILoggingEvent>[] getAppenders(List<Logger> loggers) {
         Set<Appender<ILoggingEvent>> appenders = new LinkedHashSet<>();
 

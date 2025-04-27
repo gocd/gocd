@@ -265,7 +265,7 @@ public class JobInstanceSqlMapDaoCachingTest {
 
         jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
 
-        List<JobState> jobStatesForWhichCacheNeedsToBeMaintained = new ArrayList<>(List.of(JobState.Assigned, JobState.Building, JobState.Completed, JobState.Discontinued, JobState.Paused, JobState.Scheduled, JobState.Preparing, JobState.Assigned.Unknown));
+        List<JobState> jobStatesForWhichCacheNeedsToBeMaintained = new ArrayList<>(List.of(JobState.Assigned, JobState.Building, JobState.Completed, JobState.Discontinued, JobState.Paused, JobState.Scheduled, JobState.Preparing, JobState.Unknown));
 
         JobStatusListener listener = jobInstanceDao;
         for (JobState jobState : jobStatesForWhichCacheNeedsToBeMaintained) {

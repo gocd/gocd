@@ -26,7 +26,7 @@ public abstract class PluginProfiles<T extends PluginProfile> extends BaseCollec
     public PluginProfiles() {
     }
 
-    @SafeVarargs
+    @SafeVarargs @SuppressWarnings("varargs")
     public PluginProfiles(T... profiles) {
         super(Arrays.asList(profiles));
     }

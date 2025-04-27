@@ -25,6 +25,7 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
@@ -76,7 +77,7 @@ public class ConfigRepositoryTest {
         assertThat(configRepo.getRevision("md5-v2").getContent()).isEqualTo("v1 v2");
     }
 
-    @Test
+    @Test @SuppressWarnings("try")
     public void shouldBeAbleToCheckInWithGlobalGpgSigningEnabled() throws Exception {
         try (UndoableUserGitConfig ignored = new UndoableUserGitConfig(c -> c.setBoolean(ConfigConstants.CONFIG_COMMIT_SECTION, null, ConfigConstants.CONFIG_KEY_GPGSIGN, true))) {
             configRepo = new ConfigRepository(systemEnvironment);
@@ -97,7 +98,7 @@ public class ConfigRepositoryTest {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() throws ConfigInvalidException, IOException {
             StoredConfig config = SystemReader.getInstance().getUserConfig();
             config.fromText(originalConfig);
         }

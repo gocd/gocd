@@ -57,7 +57,7 @@ public class LogFixture implements Closeable {
 
     @SuppressWarnings("unused") // Used by slf4j_logger_spec.rb
     public static LogFixture logFixtureForLogger(String name) {
-        return new LogFixture((Logger) LoggerFactory.getLogger(name), Level.ALL);
+        return new LogFixture((Logger) LoggerFactory.getLogger(name), Level.TRACE);
     }
 
     @Override

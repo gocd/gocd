@@ -300,7 +300,7 @@ public class HgMaterialTest {
         final ConsoleResult consoleResult = mock(ConsoleResult.class);
         when(consoleResult.outputAsString()).thenReturn("http://user@domain:9999/path");
         when(hgCommand.workingRepositoryUrl()).thenReturn(consoleResult);
-        assertThat((Boolean) ReflectionUtil.invoke(material, "isRepositoryChanged", hgCommand)).isFalse();
+        assertThat(ReflectionUtil.<Boolean>invoke(material, "isRepositoryChanged", hgCommand)).isFalse();
     }
 
     @Test
@@ -310,7 +310,7 @@ public class HgMaterialTest {
         final ConsoleResult consoleResult = mock(ConsoleResult.class);
         when(consoleResult.outputAsString()).thenReturn("http://user:pwd@domain:9999/path");
         when(hgCommand.workingRepositoryUrl()).thenReturn(consoleResult);
-        assertThat((Boolean) ReflectionUtil.invoke(material, "isRepositoryChanged", hgCommand)).isTrue();
+        assertThat(ReflectionUtil.<Boolean>invoke(material, "isRepositoryChanged", hgCommand)).isTrue();
     }
 
     @Test

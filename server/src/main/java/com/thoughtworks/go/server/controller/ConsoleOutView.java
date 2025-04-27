@@ -27,7 +27,7 @@ import java.nio.file.NoSuchFileException;
 import java.util.Map;
 
 public class ConsoleOutView implements View {
-    private ConsoleConsumer consumer;
+    private final ConsoleConsumer consumer;
     private final Charset charset;
 
     public ConsoleOutView(ConsoleConsumer consumer, Charset charset) {
@@ -41,7 +41,7 @@ public class ConsoleOutView implements View {
     }
 
     @Override
-    public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(getContentType());
         response.setCharacterEncoding(charset.name());
         try (final PrintWriter writer = response.getWriter()) {

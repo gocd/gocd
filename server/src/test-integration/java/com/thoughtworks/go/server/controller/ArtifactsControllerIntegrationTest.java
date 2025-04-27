@@ -23,7 +23,7 @@ import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -45,7 +45,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.zip.Deflater;
 
@@ -444,7 +443,7 @@ public class ArtifactsControllerIntegrationTest {
         ResponseOutput output = new ResponseOutput();
         when(response.getWriter()).thenReturn(output.getWriter());
         ConsoleOutView consoleOutView = (ConsoleOutView) view.getView();
-        consoleOutView.render(mock(Map.class), mock(HttpServletRequest.class), response);
+        consoleOutView.render(mock(), mock(HttpServletRequest.class), response);
 
         assertEquals("Build succeeded.\n", output.getOutput());
     }
@@ -465,7 +464,7 @@ public class ArtifactsControllerIntegrationTest {
         ResponseOutput output = new ResponseOutput();
         when(response.getWriter()).thenReturn(output.getWriter());
         ConsoleOutView consoleOutView = (ConsoleOutView) view.getView();
-        consoleOutView.render(mock(Map.class), mock(HttpServletRequest.class), response);
+        consoleOutView.render(mock(), mock(HttpServletRequest.class), response);
 
         assertEquals("Chris sucks.\nBuild succeeded.\n", output.getOutput());
     }
@@ -628,7 +627,7 @@ public class ArtifactsControllerIntegrationTest {
 
     private ModelAndView postZipFolderFromTmp(File root, String folder) throws Exception {
         File source = file(root, "/tmp" + folder);
-        File zippedFile = zipUtil.zip(source, TestFileUtil.createUniqueTempFile(source.getName()),
+        File zippedFile = zipUtil.zip(source, TempFiles.createUniqueFile(source.getName()),
                 Deflater.NO_COMPRESSION);
         zippedFile.deleteOnExit();
         return postFile("", "zipfile", new FileInputStream(zippedFile));

@@ -55,7 +55,7 @@ public class DeleteSCMConfigCommandTest {
     @BeforeEach
     public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         scmConfig = new SCM("id", "name");
         result = new HttpLocalizedOperationResult();
     }

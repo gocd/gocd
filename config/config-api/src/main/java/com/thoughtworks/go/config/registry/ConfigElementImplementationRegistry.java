@@ -48,7 +48,7 @@ public class ConfigElementImplementationRegistry implements ConfigElementRegistr
         return toReturn;
     }
 
-    @SafeVarargs
+    @SafeVarargs @SuppressWarnings("varargs")
     public final <T> void registerImplementer(Class<T> configInterface, Class<? extends T>... implementation) {
         List<Class<?>> set;
         if (registry.containsKey(configInterface)) {

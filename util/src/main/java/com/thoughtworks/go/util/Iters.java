@@ -27,7 +27,7 @@ public class Iters {
     private Iters() {
     }
 
-    @SafeVarargs
+    @SafeVarargs @SuppressWarnings("varargs")
     public static Set<String> cat(Set<String>... sets) {
         return stream(sets).flatMap(Collection::stream).collect(toSet());
     }

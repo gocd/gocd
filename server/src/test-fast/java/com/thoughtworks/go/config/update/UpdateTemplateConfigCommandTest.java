@@ -56,7 +56,7 @@ class UpdateTemplateConfigCommandTest {
     @BeforeEach
     void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         result = new HttpLocalizedOperationResult();
         pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         authorization = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("user"))));

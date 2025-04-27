@@ -149,7 +149,7 @@ public class ApplicationInitializerTest {
 
     @Test
     public void shouldCallInitializeOfPluginZipInitializerOnlyAfterInitializeOfPluginInitializer() {
-        assertThat((Object) ReflectionUtil.getField(new Toggles(), "service")).isEqualTo(featureToggleService);
+        assertThat(ReflectionUtil.<Object>getField(new Toggles(), "service")).isEqualTo(featureToggleService);
         verifyOrder(pluginsInitializer, pluginsZip);
     }
 

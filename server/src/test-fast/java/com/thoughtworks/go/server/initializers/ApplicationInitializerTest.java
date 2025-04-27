@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.initializers;
 
 import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.ConfigCipherUpdater;
 import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
@@ -121,8 +120,6 @@ public class ApplicationInitializerTest {
     @Mock
     private ServerVersionInfoManager serverVersionInfoManager;
     @Mock
-    private ConfigCipherUpdater configCipherUpdater;
-    @Mock
     private EntityHashingService entityHashingService;
     @Mock
     private RevokeStaleAccessTokenService revokeStaleAccessTokenService;
@@ -164,8 +161,7 @@ public class ApplicationInitializerTest {
 
     @Test
     public void shouldRunConfigCipherUpdaterBeforeInitializationOfOtherConfigRelatedServicesAndDataStores() throws Exception {
-        InOrder inOrder = inOrder(configCipherUpdater, configElementImplementationRegistrar, configRepository, goFileConfigDataSource, cachedGoConfig, goConfigService);
-        inOrder.verify(configCipherUpdater).migrate();
+        InOrder inOrder = inOrder(configElementImplementationRegistrar, configRepository, goFileConfigDataSource, cachedGoConfig, goConfigService);
         inOrder.verify(configElementImplementationRegistrar).initialize();
         inOrder.verify(configRepository).initialize();
         inOrder.verify(cachedGoConfig).upgradeConfig();

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.initializers;
 
 import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.ConfigCipherUpdater;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.migration.AgentXmlToDBMigration;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
@@ -73,7 +72,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private ArtifactsService artifactsService;
     @Autowired private ConsoleService consoleService;
     @Autowired private ConfigElementImplementationRegistrar configElementImplementationRegistrar;
-    @Autowired private ConfigCipherUpdater configCipherUpdater;
     @Autowired private RailsAssetsService railsAssetsService;
     @Autowired private FeatureToggleService featureToggleService;
     @Autowired private CcTrayActivityListener ccTrayActivityListener;
@@ -104,7 +102,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             pluginsZip.create();
             //config
 
-            configCipherUpdater.migrate(); // Should be done before configs get loaded
             configElementImplementationRegistrar.initialize();
             configRepository.initialize();
 

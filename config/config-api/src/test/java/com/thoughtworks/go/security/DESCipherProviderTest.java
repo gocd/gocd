@@ -16,31 +16,36 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.crypto.spec.DESKeySpec;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings("deprecation")
+@ExtendWith(ResetCipher.class)
 public class DESCipherProviderTest {
 
-    @BeforeEach
-    public void setup() {
-        new DESCipherProvider(new SystemEnvironment()).resetCipher();
-    }
+    private final SystemEnvironment env = new SystemEnvironment();
 
-    @AfterEach
-    public void tearDown() {
-        new DESCipherProvider(new SystemEnvironment()).resetCipher();
+    @Test
+    public void shouldCacheEmptyKeyIfNotFound() {
+        byte[] key = new DESCipherProvider(env).getKey();
+        assertThat(key).isEmpty();
+        byte[] key2 = new DESCipherProvider(env).getKey();
+        assertThat(key2).isEmpty();
+        assertThat(key2).isSameAs(key);
     }
 
     @Test
-    public void shouldGenerateAValidAndSafeDESKey() throws Exception {
-        DESCipherProvider desCipherProvider = new DESCipherProvider(new SystemEnvironment());
-        byte[] key = desCipherProvider.getKey();
+    public void shouldBeAbleToLoadExistingCipher(ResetCipher resetCipher) throws Exception {
+        resetCipher.setupDESCipherFile();
+        byte[] key = new DESCipherProvider(env).getKey();
+        assertThat(key).hasSize(8);
         assertThat(DESKeySpec.isWeak(key, 0)).isFalse();
+
+        assertThat(new DESCipherProvider(env).getKey()).isSameAs(key);
     }
 
 }

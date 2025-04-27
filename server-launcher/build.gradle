@@ -70,7 +70,6 @@ dependencies {
     transitive = false
   }
   packagingInLibDir project.deps.servletApi
-  packagingInLibDir project.deps.bouncyCastle
   packagingInLibDir project.deps.commonsIO
   packagingInLibDir project.deps.commonsLang3
   packagingInLibDir project.deps.jodaTime
@@ -209,7 +208,6 @@ task verifyFatJar(type: VerifyJarTask) {
       "tfs-impl-14.jar",
     ],
     "lib"         : [
-      "bcprov-jdk18on-${project.versions.bouncyCastle}.jar",
       "commons-io-${project.versions.commonsIO}.jar",
       "commons-lang3-${project.versions.commonsLang3}.jar",
       "go-plugin-activator.jar",

@@ -15,18 +15,16 @@
  */
 package com.thoughtworks.go.security;
 
-import org.bouncycastle.crypto.engines.DESEngine;
-import org.bouncycastle.crypto.modes.CBCBlockCipher;
-import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
-import org.bouncycastle.crypto.params.KeyParameter;
-
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.Serializable;
 import java.util.Base64;
 
 @Deprecated
 public class DESEncrypter implements Encrypter, Serializable {
     private static final Base64.Decoder DECODER = Base64.getDecoder();
-    private static final Base64.Encoder ENCODER = Base64.getEncoder();
 
     private final DESCipherProvider cipherProvider;
 
@@ -50,14 +48,16 @@ public class DESEncrypter implements Encrypter, Serializable {
     }
 
     private static String decrypt(byte[] key, String cipherText) throws CryptoException {
+        if (key == null || key.length == 0) {
+            throw new IllegalStateException("No DES key found; cannot decrypt and generating new DES keys is no longer supported");
+        }
         try {
-            PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new DESEngine()));
-            cipher.init(false, new KeyParameter(key));
+            SecretKey secretKey = new SecretKeySpec(key, "DES");
+            Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(new byte[8])); // IV was not used in this legacy implementation.
             byte[] cipherTextBytes = DECODER.decode(cipherText);
 
-            byte[] plainTextBytes = new byte[cipher.getOutputSize(cipherTextBytes.length)];
-            int outputLength = cipher.processBytes(cipherTextBytes, 0, cipherTextBytes.length, plainTextBytes, 0);
-            cipher.doFinal(plainTextBytes, outputLength);
+            byte[] plainTextBytes = cipher.doFinal(cipherTextBytes);
             int paddingStarts = plainTextBytes.length - 1;
             for (; paddingStarts >= 0; paddingStarts--) {
                 if (plainTextBytes[paddingStarts] != 0) {
@@ -69,25 +69,4 @@ public class DESEncrypter implements Encrypter, Serializable {
             throw new CryptoException(e);
         }
     }
-
-    public static String reEncryptUsingNewKey(byte[] oldCipher, byte[] newCipher, String encryptedValue) throws CryptoException {
-        String plainText = decrypt(oldCipher, encryptedValue);
-        return encrypt(newCipher, plainText);
-    }
-
-    private static String encrypt(byte[] key, String plainText) throws CryptoException {
-        try {
-            PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new DESEngine()));
-            KeyParameter keyParameter = new KeyParameter(key);
-            cipher.init(true, keyParameter);
-            byte[] plainTextBytes = plainText.getBytes();
-            byte[] cipherTextBytes = new byte[cipher.getOutputSize(plainTextBytes.length)];
-            int outputLength = cipher.processBytes(plainTextBytes, 0, plainTextBytes.length, cipherTextBytes, 0);
-            cipher.doFinal(cipherTextBytes, outputLength);
-            return ENCODER.encodeToString(cipherTextBytes).trim();
-        } catch (Exception e) {
-            throw new CryptoException(e);
-        }
-    }
-
 }

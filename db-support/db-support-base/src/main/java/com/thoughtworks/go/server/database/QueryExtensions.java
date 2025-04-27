@@ -28,11 +28,11 @@ public abstract class QueryExtensions {
                 + "         AND counter >= " + fromCounter
                 + "         AND counter <= " + toCounter
                 + "  UNION ALL "
-                + "  SELECT mod.pipelineId "
+                + "  SELECT mods.pipelineId "
                 + "     FROM link "
                 + "         INNER JOIN pipelineMaterialRevisions pmr ON link.id = pmr.pipelineId "
-                + "         INNER JOIN modifications mod ON pmr.toRevisionId >= mod.id and pmr.actualFromRevisionId <= mod.id AND pmr.materialId = mod.materialId "
-                + "     WHERE mod.pipelineId IS NOT NULL"
+                + "         INNER JOIN modifications mods ON pmr.toRevisionId >= mods.id and pmr.actualFromRevisionId <= mods.id AND pmr.materialId = mods.materialId "
+                + "     WHERE mods.pipelineId IS NOT NULL"
                 + ")"
                 + "SELECT DISTINCT id FROM link WHERE id IS NOT NULL";
 
@@ -44,12 +44,12 @@ public abstract class QueryExtensions {
                 + "     FROM pipelines "
                 + "     WHERE id in (" + joinWithQuotesForSql(pipelineIds.toArray()) + ") "
                 + "  UNION ALL "
-                + "  SELECT mod.pipelineId as id, p.name as name, link.lookedUpId as lookedUpId "
+                + "  SELECT mods.pipelineId as id, p.name as name, link.lookedUpId as lookedUpId "
                 + "     FROM link "
                 + "         INNER JOIN pipelineMaterialRevisions pmr ON link.id = pmr.pipelineId "
-                + "         INNER JOIN modifications mod ON pmr.toRevisionId >= mod.id and pmr.actualFromRevisionId <= mod.id AND pmr.materialId = mod.materialId "
-                + "         INNER JOIN pipelines p ON mod.pipelineId = p.id "
-                + "     WHERE mod.pipelineId IS NOT NULL"
+                + "         INNER JOIN modifications mods ON pmr.toRevisionId >= mods.id and pmr.actualFromRevisionId <= mods.id AND pmr.materialId = mods.materialId "
+                + "         INNER JOIN pipelines p ON mods.pipelineId = p.id "
+                + "     WHERE mods.pipelineId IS NOT NULL"
                 + ")"
                 + "SELECT id, name, lookedUpId FROM link";
     }

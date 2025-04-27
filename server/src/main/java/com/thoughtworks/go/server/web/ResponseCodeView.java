@@ -39,7 +39,7 @@ public class ResponseCodeView implements View {
     }
 
     @Override
-    public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(getContentType());
         response.setStatus(responseCode);
         response.getWriter().write(message);

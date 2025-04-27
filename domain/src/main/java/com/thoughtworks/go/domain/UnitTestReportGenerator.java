@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.XpathUtils;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -85,7 +85,7 @@ public class UnitTestReportGenerator {
     }
 
     private File mergeAllTestResultToSingleFile(File[] allTestFiles) throws IOException {
-        File mergedResource = TestFileUtil.createUniqueTempFile("mergedFile.xml");
+        File mergedResource = TempFiles.createUniqueFile("mergedFile.xml");
         try (FileOutputStream mergedResourcesStream = new FileOutputStream(mergedResource)) {
             merge(allTestFiles, mergedResourcesStream);
         }

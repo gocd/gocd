@@ -106,8 +106,8 @@ public class TempFilesTest {
     public void shouldCreateUniqueFilesEveryTime() {
         TestingClock clock = new TestingClock();
         files.setClock(clock);
-        File file1 = files.createUniqueFile("foo");
-        File file2 = files.createUniqueFile("foo");
+        File file1 = TempFiles.createUniqueFile("foo");
+        File file2 = TempFiles.createUniqueFile("foo");
         assertThat(file1).isNotEqualTo(file2);
     }
 
@@ -115,7 +115,7 @@ public class TempFilesTest {
     public void shouldCreateUniqueFilesParentDirectoryIfDoesNotExist() {
         String newTmpDir = original.getProperty("java.io.tmpdir") + "/" + UUID.randomUUID();
         System.setProperty("java.io.tmpdir", newTmpDir);
-        File file = files.createUniqueFile("foo");
+        File file = TempFiles.createUniqueFile("foo");
         assertThat(file.getParentFile().exists()).isEqualTo(true);
     }
 

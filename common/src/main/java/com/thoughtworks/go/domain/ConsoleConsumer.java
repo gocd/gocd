@@ -25,4 +25,6 @@ public interface ConsoleConsumer extends AutoCloseable {
     long stream(Consumer<String> action) throws IOException;
 
     long totalLinesConsumed();
+
+    void close();
 }

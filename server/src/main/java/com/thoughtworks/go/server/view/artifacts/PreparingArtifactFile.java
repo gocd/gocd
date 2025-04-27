@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class PreparingArtifactFile extends AbstractView {
     @Override
-    protected void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setStatus(HttpServletResponse.SC_ACCEPTED);
         response.getWriter().close();
     }

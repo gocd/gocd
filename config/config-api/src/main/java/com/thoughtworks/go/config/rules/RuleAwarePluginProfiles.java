@@ -28,7 +28,7 @@ public abstract class RuleAwarePluginProfiles<T extends RuleAwarePluginProfile> 
     public RuleAwarePluginProfiles() {
     }
 
-    @SafeVarargs
+    @SafeVarargs @SuppressWarnings("varargs")
     public RuleAwarePluginProfiles(T... profiles) {
         super(Arrays.asList(profiles));
     }

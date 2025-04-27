@@ -72,10 +72,10 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
 
     @Autowired private DatabaseAccessHelper dbHelper;
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private SvnTestRepo svnRepository;
+
     public SvnMaterial svnMaterial;
-    private static SvnTestRepo svnRepository;
-    private Pipeline latestPipeline;
     private File workingFolder;
     private PipelineConfig mingleConfig;
 
@@ -155,7 +155,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         materialRevisions.addRevision(svnMaterial, svnMaterial.latestModification(workingFolder, subprocessExecutionContext));
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "");
 
-        latestPipeline = PipelineMother.schedule(mingleConfig, buildCause);
+        Pipeline latestPipeline = PipelineMother.schedule(mingleConfig, buildCause);
         latestPipeline = dbHelper.savePipelineWithStagesAndMaterials(latestPipeline);
         dbHelper.passStage(latestPipeline.getStages().first());
     }

@@ -55,7 +55,7 @@ public class UpdateConfigRepoCommandTest {
 
     @BeforeEach
     public void setup() {
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         oldConfigRepoId = "old-repo";
         newConfigRepoId = "new-repo";
         oldConfigRepo = ConfigRepoConfig.createConfigRepoConfig(git("foo.git", "master"), "json-plugin", oldConfigRepoId);

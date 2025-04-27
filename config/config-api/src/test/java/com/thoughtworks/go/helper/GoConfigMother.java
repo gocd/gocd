@@ -71,10 +71,9 @@ public class GoConfigMother {
         group.getAuthorization().getAdminsConfig().add(new AdminUser(new CaseInsensitiveString(user)));
     }
 
-    public GoConfigMother addAdminRoleForPipelineGroup(CruiseConfig config, String roleName, String groupName) {
+    public void addAdminRoleForPipelineGroup(CruiseConfig config, String roleName, String groupName) {
         PipelineConfigs group = config.getGroups().findGroup(groupName);
         group.getAuthorization().getAdminsConfig().add(new AdminRole(new CaseInsensitiveString(roleName)));
-        return this;
     }
 
     public void addRoleAsSuperAdmin(CruiseConfig cruiseConfig, String rolename) {
@@ -126,10 +125,9 @@ public class GoConfigMother {
         return addPipelineWithGroupAndTimer(cruiseConfig, groupName, pipelineName, materialConfigs, stageName, null, buildNames);
     }
 
-    public EnvironmentConfig addEnvironmentConfig(CruiseConfig config, String envName, String... pipelineNames) {
+    public void addEnvironmentConfig(CruiseConfig config, String envName, String... pipelineNames) {
         BasicEnvironmentConfig env = EnvironmentConfigMother.environment(envName, pipelineNames);
         config.addEnvironment(env);
-        return env;
     }
 
     /*

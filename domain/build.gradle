@@ -17,7 +17,6 @@
 description = 'GoCD Domain Module'
 
 dependencies {
-  implementation project(path: ':base', configuration: 'runtimeElements')
   implementation project(path: ':util', configuration: 'runtimeElements')
   api project(path: ':db', configuration: 'runtimeElements')
   implementation project(path: ':config:config-api', configuration: 'runtimeElements')

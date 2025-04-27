@@ -55,7 +55,7 @@ public class DeletePackageRepositoryCommandTest {
     @BeforeEach
     public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         packageRepository = new PackageRepository();
         repoId = "npm";
         packageRepository.setId(repoId);

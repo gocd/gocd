@@ -163,15 +163,15 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     private void assertPasswordIsCorrect(Material material) {
         if (material instanceof PasswordAwareMaterial) {
             assertThat(((PasswordAwareMaterial) material).getPassword()).isEqualTo("pass");
-            assertThat((String) ReflectionUtil.getField(material, "password")).isEqualTo("pass");
+            assertThat(ReflectionUtil.<String>getField(material, "password")).isEqualTo("pass");
         }
     }
 
     private void assertPasswordIsCorrect(MaterialConfig materialConfig) {
         if (materialConfig instanceof PasswordAwareMaterial) {
             assertThat(((PasswordAwareMaterial) materialConfig).getPassword()).isEqualTo("pass");
-            assertThat((String) ReflectionUtil.getField(materialConfig, "password")).isNull();
-            assertThat((String) ReflectionUtil.getField(materialConfig, "encryptedPassword")).isNotNull();
+            assertThat(ReflectionUtil.<String>getField(materialConfig, "password")).isNull();
+            assertThat(ReflectionUtil.<String>getField(materialConfig, "encryptedPassword")).isNotNull();
         }
     }
 

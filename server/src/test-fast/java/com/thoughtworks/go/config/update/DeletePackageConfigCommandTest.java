@@ -69,7 +69,7 @@ public class DeletePackageConfigCommandTest {
     @BeforeEach
     public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         packageUuid = "random-uuid";
         configuration = new Configuration(new ConfigurationProperty(new ConfigurationKey("PACKAGE_ID"), new ConfigurationValue("prettyjson")));
         packageDefinition = new PackageDefinition(packageUuid, "prettyjson", configuration);

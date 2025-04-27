@@ -237,7 +237,7 @@ public class TemplateConfigServiceTest {
         String templateName = "template-name";
         PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString(templateName), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         String errorMessage = "invalid template";
-        doThrow(new GoConfigInvalidException(new GoConfigMother().defaultCruiseConfig(), errorMessage)).when(goConfigService).updateConfig(any(CreateTemplateConfigCommand.class), any(Username.class));
+        doThrow(new GoConfigInvalidException(GoConfigMother.defaultCruiseConfig(), errorMessage)).when(goConfigService).updateConfig(any(CreateTemplateConfigCommand.class), any(Username.class));
 
         service.createTemplateConfig(user, pipelineTemplateConfig, result);
 

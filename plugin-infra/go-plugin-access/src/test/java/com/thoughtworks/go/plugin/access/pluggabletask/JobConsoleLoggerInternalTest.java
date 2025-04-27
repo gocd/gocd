@@ -28,9 +28,9 @@ public class JobConsoleLoggerInternalTest {
     public void shouldSetAndUnsetContext() {
         final TaskExecutionContext context = mock(TaskExecutionContext.class);
         JobConsoleLoggerInternal.setContext(context);
-        assertThat((Object) ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isEqualTo(context);
+        assertThat(ReflectionUtil.<TaskExecutionContext>getStaticField(JobConsoleLogger.class, "context")).isEqualTo(context);
 
         JobConsoleLoggerInternal.unsetContext();
-        assertThat((Object) ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
+        assertThat(ReflectionUtil.<TaskExecutionContext>getStaticField(JobConsoleLogger.class, "context")).isNull();
     }
 }

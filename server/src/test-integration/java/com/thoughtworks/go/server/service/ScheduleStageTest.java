@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
+import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
@@ -108,7 +109,7 @@ public class ScheduleStageTest {
 
         EnvironmentVariablesConfig jobVariables = new EnvironmentVariablesConfig();
         jobVariables.add("jobEnv", "jobBaz");
-        configHelper.addEnvironmentVariableToJob(fixture.pipelineName, fixture.devStage, fixture.JOB_FOR_DEV_STAGE, jobVariables);
+        configHelper.addEnvironmentVariableToJob(fixture.pipelineName, fixture.devStage, PipelineWithTwoStages.JOB_FOR_DEV_STAGE, jobVariables);
 
         Stage stage = scheduleService.rerunStage(pipeline.getName(), pipeline.getCounter(), fixture.devStage);
 
@@ -120,7 +121,7 @@ public class ScheduleStageTest {
         expectedVariableOrder.add("jobEnv", "jobBaz");
 
         JobInstances jobInstances = stage.getJobInstances();
-        assertThat(jobInstances.getByName(fixture.JOB_FOR_DEV_STAGE).getPlan().getVariables()).isEqualTo(expectedVariableOrder);
+        assertThat(jobInstances.getByName(PipelineWithTwoStages.JOB_FOR_DEV_STAGE).getPlan().getVariables()).isEqualTo(expectedVariableOrder);
     }
 
     @Test
@@ -142,9 +143,9 @@ public class ScheduleStageTest {
 
         EnvironmentVariablesConfig jobVariables = new EnvironmentVariablesConfig();
         jobVariables.add("jobEnv", "jobBaz");
-        configHelper.addEnvironmentVariableToJob(fixture.pipelineName, fixture.devStage, fixture.JOB_FOR_DEV_STAGE, jobVariables);
+        configHelper.addEnvironmentVariableToJob(fixture.pipelineName, fixture.devStage, PipelineWithTwoStages.JOB_FOR_DEV_STAGE, jobVariables);
 
-        Stage stage = scheduleService.rerunJobs(oldStage, List.of(fixture.JOB_FOR_DEV_STAGE), new HttpOperationResult());
+        Stage stage = scheduleService.rerunJobs(oldStage, List.of(PipelineWithTwoStages.JOB_FOR_DEV_STAGE), new HttpOperationResult());
 
         EnvironmentVariables expectedVariableOrder = new EnvironmentVariables();
         expectedVariableOrder.add("pipelineEnv", "pipelineFoo");
@@ -152,7 +153,7 @@ public class ScheduleStageTest {
         expectedVariableOrder.add("jobEnv", "jobBaz");
 
         JobInstances jobInstances = stage.getJobInstances();
-        assertThat(jobInstances.getByName(fixture.JOB_FOR_DEV_STAGE).getPlan().getVariables()).isEqualTo(expectedVariableOrder);
+        assertThat(jobInstances.getByName(PipelineWithTwoStages.JOB_FOR_DEV_STAGE).getPlan().getVariables()).isEqualTo(expectedVariableOrder);
     }
 
     @Test

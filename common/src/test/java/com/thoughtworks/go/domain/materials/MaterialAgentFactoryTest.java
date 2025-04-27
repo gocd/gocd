@@ -78,8 +78,8 @@ public class MaterialAgentFactoryTest {
         MaterialAgent agent = factory.createAgent(revision);
 
         assertThat(agent instanceof PluggableSCMMaterialAgent).isTrue();
-        assertThat((Object) ReflectionUtil.getField(agent, "scmExtension")).isEqualTo(scmExtension);
-        assertThat((Object) ReflectionUtil.getField(agent, "revision")).isEqualTo(revision);
-        assertThat((Object) ReflectionUtil.getField(agent, "workingDirectory")).isEqualTo(workingDirectory);
+        assertThat(ReflectionUtil.<Object>getField(agent, "scmExtension")).isEqualTo(scmExtension);
+        assertThat(ReflectionUtil.<Object>getField(agent, "revision")).isEqualTo(revision);
+        assertThat(ReflectionUtil.<Object>getField(agent, "workingDirectory")).isEqualTo(workingDirectory);
     }
 }

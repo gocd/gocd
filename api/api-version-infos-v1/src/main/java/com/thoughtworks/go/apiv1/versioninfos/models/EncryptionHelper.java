@@ -16,10 +16,6 @@
 package com.thoughtworks.go.apiv1.versioninfos.models;
 
 
-import org.bouncycastle.util.io.pem.PemReader;
-
-import java.io.IOException;
-import java.io.StringReader;
 import java.security.*;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
@@ -27,13 +23,15 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 public class EncryptionHelper {
-    private static PublicKey getRSAPublicKeyFrom(String content) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        PemReader reader = new PemReader(new StringReader(content));
-        EncodedKeySpec spec = new X509EncodedKeySpec(reader.readPemObject().getContent());
+    private static PublicKey getRSAPublicKeyFrom(String pemContent) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String rawPublicKey = pemContent.replaceAll("-----BEGIN PUBLIC KEY-----", "")
+            .replaceAll("-----END PUBLIC KEY-----", "")
+            .replaceAll("\\s+", ""); // remove line breaks and spaces
+        EncodedKeySpec spec = new X509EncodedKeySpec(Base64.getDecoder().decode(rawPublicKey));
         return KeyFactory.getInstance("RSA").generatePublic(spec);
     }
 
-    public static boolean verifyRSASignature(String subordinatePublicKeyContent, String signatureContent, String masterPublicKeyContent) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException, SignatureException {
+    public static boolean verifyRSASignature(String subordinatePublicKeyContent, String signatureContent, String masterPublicKeyContent) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
         PublicKey masterPublicKey = getRSAPublicKeyFrom(masterPublicKeyContent);
         signatureContent = signatureContent.replace("\n", "");
         Signature signature = Signature.getInstance("SHA512withRSA");

@@ -46,8 +46,8 @@ public class GoConfigClonerTest {
         config.findGroup("defaultGroup").remove(0);
 
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat((Object) ReflectionUtil.getField(config, "allPipelineConfigs")).isNotNull();
-        assertThat((Object) ReflectionUtil.getField(cloned, "allPipelineConfigs")).isNull();
+        assertThat(ReflectionUtil.<Object>getField(config, "allPipelineConfigs")).isNotNull();
+        assertThat(ReflectionUtil.<Object>getField(cloned, "allPipelineConfigs")).isNull();
         assertThat(cloned.getAllPipelineConfigs().size()).isEqualTo(1);
     }
 
@@ -63,8 +63,8 @@ public class GoConfigClonerTest {
         config.findGroup("g1").remove(0);
         config.getTemplates().removeTemplateNamed(template.name());
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat((Object) ReflectionUtil.getField(config, "allTemplatesWithAssociatedPipelines")).isNotNull();
-        assertThat((Object) ReflectionUtil.getField(cloned, "allTemplatesWithAssociatedPipelines")).isNull();
+        assertThat(ReflectionUtil.<Object>getField(config, "allTemplatesWithAssociatedPipelines")).isNotNull();
+        assertThat(ReflectionUtil.<Object>getField(cloned, "allTemplatesWithAssociatedPipelines")).isNull();
         assertThat(cloned.templatesWithAssociatedPipelines().size()).isEqualTo(0);
     }
 
@@ -77,8 +77,8 @@ public class GoConfigClonerTest {
         config.findGroup("defaultGroup").remove(0);
 
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat((Object) ReflectionUtil.getField(config, "pipelineNameToConfigMap")).isNotNull();
-        assertThat((Object) ReflectionUtil.getField(cloned, "pipelineNameToConfigMap")).isNull();
+        assertThat(ReflectionUtil.<Object>getField(config, "pipelineNameToConfigMap")).isNotNull();
+        assertThat(ReflectionUtil.<Object>getField(cloned, "pipelineNameToConfigMap")).isNull();
         assertThat(cloned.pipelineConfigsAsMap().size()).isEqualTo(1);
     }
 
@@ -91,8 +91,8 @@ public class GoConfigClonerTest {
         config.encryptSecureProperties(config);
 
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat((Object) ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "externalArtifactConfigs")).isEqualTo(new ArrayList<>());
-        assertThat((Object) ReflectionUtil.getField(cloned.getAllPipelineConfigs().get(0), "externalArtifactConfigs")).isNull();
+        assertThat(ReflectionUtil.<Object>getField(config.getAllPipelineConfigs().get(0), "externalArtifactConfigs")).isEqualTo(new ArrayList<>());
+        assertThat(ReflectionUtil.<Object>getField(cloned.getAllPipelineConfigs().get(0), "externalArtifactConfigs")).isNull();
     }
 
     @Test
@@ -104,8 +104,8 @@ public class GoConfigClonerTest {
         config.encryptSecureProperties(config);
 
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
-        assertThat((Object) ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks")).isEqualTo(new ArrayList<>());
-        assertThat((Object) ReflectionUtil.getField(cloned.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks")).isNull();
+        assertThat(ReflectionUtil.<Object>getField(config.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks")).isEqualTo(new ArrayList<>());
+        assertThat(ReflectionUtil.<Object>getField(cloned.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks")).isNull();
     }
 
     @Test

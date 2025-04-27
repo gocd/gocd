@@ -205,11 +205,11 @@ public class UserSqlMapDaoCachingTest {
     }
 
     private void assertThatEnabledUserCacheHasBeenCleared() {
-        assertThat((Object) goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isNull();
+        assertThat(goCache.<Object>get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isNull();
     }
 
     private void assertThatEnabledUserCacheExists() {
-        assertThat((Object) goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isNotNull();
+        assertThat(goCache.<Object>get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY)).isNotNull();
     }
 
     private void makeSureThatCacheIsInitialized() {

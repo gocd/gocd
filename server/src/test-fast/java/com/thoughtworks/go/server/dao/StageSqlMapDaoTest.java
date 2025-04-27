@@ -81,10 +81,10 @@ class StageSqlMapDaoTest {
         String cacheKey = stageSqlMapDao.cacheKeyForLatestStageInstances();
 
         List<StageIdentity> latestStageInstances = stageSqlMapDao.findLatestStageInstances();
-        assertThat((Object) goCache.get(cacheKey)).isEqualTo(latestStageInstances);
+        assertThat(goCache.<Object>get(cacheKey)).isEqualTo(latestStageInstances);
 
         stageSqlMapDao.stageStatusChanged(StageMother.custom("stage"));
-        assertThat((Object) goCache.get(cacheKey)).isNull();
+        assertThat(goCache.<Object>get(cacheKey)).isNull();
     }
 
     @Test

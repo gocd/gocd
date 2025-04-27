@@ -41,7 +41,7 @@ class TransactionCacheAssertionUtil {
             }
         });
 
-        assertThat((Object) goCache.get("loser")).isEqualTo("boozer");
+        assertThat(goCache.<Object>get("loser")).isEqualTo("boozer");
         assertThat(cachedValueBeforeAndAfter[0]).isEqualTo("boozer");
         return cachedValueBeforeAndAfter[1];
     }

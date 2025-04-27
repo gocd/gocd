@@ -93,7 +93,7 @@ public class TransactionCacheInterceptorTest {
             hibernateDaoSupport.getHibernateTemplate().update(materialInstance);
             hibernateDaoSupport.getHibernateTemplate().flush();
         });
-        assertThat((Object) ReflectionUtil.getField(hibernateDaoSupport.getHibernateTemplate().load(MaterialInstance.class, materialInstance.getId()), "url")).isEqualTo("loser-name");
+        assertThat(ReflectionUtil.<Object>getField(hibernateDaoSupport.getHibernateTemplate().load(MaterialInstance.class, materialInstance.getId()), "url")).isEqualTo("loser-name");
     }
 
     @Test

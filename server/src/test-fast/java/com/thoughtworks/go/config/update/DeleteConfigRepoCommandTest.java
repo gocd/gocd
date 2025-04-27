@@ -47,7 +47,7 @@ public class DeleteConfigRepoCommandTest {
     @BeforeEach
     public void setup() {
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         repoId = "repo-1";
         configRepo = ConfigRepoConfig.createConfigRepoConfig(git("http://foo.git", "master"), "plugin-id", repoId);
         result = new HttpLocalizedOperationResult();

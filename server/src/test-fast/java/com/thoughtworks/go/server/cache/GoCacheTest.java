@@ -67,7 +67,7 @@ public class GoCacheTest {
     public void shouldAllowAddingUnpersistedNullObjects() {
         NullUser user = new NullUser();
         goCache.put("loser_user", user);
-        assertThat((Object) goCache.get("loser_user")).isEqualTo(user);
+        assertThat(goCache.<Object>get("loser_user")).isEqualTo(user);
         try (LogFixture logFixture = logFixtureFor(GoCache.class, Level.DEBUG)) {
             String result;
             synchronized (logFixture) {
@@ -167,7 +167,7 @@ public class GoCacheTest {
         goCache.remove("foo");
         assertThat(goCache.get("foo", "bar")).isNull();
         assertThat(goCache.get("foo", "baz")).isNull();
-        assertThat((Object) goCache.get("foo")).isNull();
+        assertThat(goCache.<Object>get("foo")).isNull();
     }
 
     @Test
@@ -187,9 +187,9 @@ public class GoCacheTest {
         goCache.put("bar", "2");
         goCache.put("baz", "3");
         goCache.removeAll(List.of("foo", "bar"));
-        assertThat((Object) goCache.get("foo")).isNull();
-        assertThat((Object) goCache.get("bar")).isNull();
-        assertThat((Object) goCache.get("baz")).isEqualTo("3");
+        assertThat(goCache.<Object>get("foo")).isNull();
+        assertThat(goCache.<Object>get("bar")).isNull();
+        assertThat(goCache.<Object>get("baz")).isEqualTo("3");
     }
 
     @Test
@@ -197,14 +197,14 @@ public class GoCacheTest {
         goCache.configuration().setMaxEntriesLocalHeap(2);
         String parentKey = "parent";
         goCache.put(parentKey, "child1", "value");
-        assertThat((Object) goCache.get(parentKey)).isNotNull();
-        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNotNull();
+        assertThat(goCache.<Object>get(parentKey)).isNotNull();
+        assertThat(goCache.<Object>get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNotNull();
         Thread.sleep(1);//so that the timestamps on the cache entries are different
         goCache.put(parentKey, "child2", "value");
 
-        assertThat((Object) goCache.get(parentKey)).isNotNull();
-        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNull();
-        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2")).isNotNull();
+        assertThat(goCache.<Object>get(parentKey)).isNotNull();
+        assertThat(goCache.<Object>get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNull();
+        assertThat(goCache.<Object>get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2")).isNotNull();
         GoCache.KeyList list = goCache.get(parentKey);
         assertThat(list.size()).isEqualTo(1);
         assertThat(list.contains("child2")).isTrue();
@@ -216,14 +216,14 @@ public class GoCacheTest {
         goCache.configuration().setTimeToLiveSeconds(1);
         String parentKey = "parent";
         goCache.put(parentKey, "child1", "value");
-        assertThat((Object) goCache.get(parentKey)).isNotNull();
-        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNotNull();
+        assertThat(goCache.<Object>get(parentKey)).isNotNull();
+        assertThat(goCache.<Object>get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNotNull();
         waitForCacheElementsToExpire();
 
         goCache.put(parentKey, "child2", "value");
-        assertThat((Object) goCache.get(parentKey)).isNotNull();
-        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNull();
-        assertThat((Object) goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2")).isNotNull();
+        assertThat(goCache.<Object>get(parentKey)).isNotNull();
+        assertThat(goCache.<Object>get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1")).isNull();
+        assertThat(goCache.<Object>get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2")).isNotNull();
         GoCache.KeyList list = goCache.get(parentKey);
         assertThat(list.size()).isEqualTo(1);
         assertThat(list.contains("child2")).isTrue();
@@ -234,7 +234,7 @@ public class GoCacheTest {
         goCache.configuration().setMaxEntriesLocalHeap(2);
         String parentKey = "parent";
         goCache.put(parentKey, new GoCache.KeyList());
-        assertThat((Object) goCache.get(parentKey)).isNotNull();
+        assertThat(goCache.<Object>get(parentKey)).isNotNull();
         goCache.put(parentKey, "child1", "value");
         Thread.sleep(1); //so that the timestamps on the cache entries are different
         goCache.get(parentKey, "child1");  //so that the parent is least recently used
@@ -242,7 +242,7 @@ public class GoCacheTest {
         goCache.put("unrelatedkey", "value");
         waitForCacheElementsToExpire();
         assertThat(goCache.getKeys().size()).isEqualTo(1);
-        assertThat((Object) goCache.get("unrelatedkey")).isEqualTo("value");
+        assertThat(goCache.<Object>get("unrelatedkey")).isEqualTo("value");
     }
 
     @Test
@@ -253,7 +253,7 @@ public class GoCacheTest {
         goCache.put(key, value);
         Thread.sleep(1);//so that the timestamps on the cache entries are different
         goCache.put("another_entry", "value");
-        assertThat((Object) goCache.get(key)).isNull();
+        assertThat(goCache.<Object>get(key)).isNull();
     }
 
 

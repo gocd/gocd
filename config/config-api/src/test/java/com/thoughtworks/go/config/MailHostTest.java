@@ -35,7 +35,7 @@ public class MailHostTest {
 
         MailHost mailHost = new MailHost("hostname", 42, "username", "password", null, true, true, "from", "mail@admin.com", mockGoCipher);
 
-        assertThat((String) ReflectionUtil.getField(mailHost, "password")).isEqualTo("password");
+        assertThat(ReflectionUtil.<String>getField(mailHost, "password")).isEqualTo("password");
         assertThat(mailHost.getEncryptedPassword()).isEqualTo("encrypted");
     }
 

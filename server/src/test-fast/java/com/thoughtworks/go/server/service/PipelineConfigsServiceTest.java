@@ -295,13 +295,13 @@ public class PipelineConfigsServiceTest {
         verify(goConfigService).updateConfig(commandCaptor.capture(), eq(validUser));
         UpdatePipelineConfigsCommand command = (UpdatePipelineConfigsCommand) commandCaptor.getValue();
 
-        assertThat((Object) ReflectionUtil.getField(command, "oldPipelineGroup")).isEqualTo(pipelineConfigs);
-        assertThat((Object) ReflectionUtil.getField(command, "newPipelineGroup")).isEqualTo(pipelineConfigs);
-        assertThat((Object) ReflectionUtil.getField(command, "digest")).isEqualTo("digest");
-        assertThat((Object) ReflectionUtil.getField(command, "result")).isEqualTo(result);
-        assertThat((Object) ReflectionUtil.getField(command, "currentUser")).isEqualTo(validUser);
-        assertThat((Object) ReflectionUtil.getField(command, "entityHashingService")).isEqualTo(entityHashingService);
-        assertThat((Object) ReflectionUtil.getField(command, "securityService")).isEqualTo(securityService);
+        assertThat(ReflectionUtil.<Object>getField(command, "oldPipelineGroup")).isEqualTo(pipelineConfigs);
+        assertThat(ReflectionUtil.<Object>getField(command, "newPipelineGroup")).isEqualTo(pipelineConfigs);
+        assertThat(ReflectionUtil.<Object>getField(command, "digest")).isEqualTo("digest");
+        assertThat(ReflectionUtil.<Object>getField(command, "result")).isEqualTo(result);
+        assertThat(ReflectionUtil.<Object>getField(command, "currentUser")).isEqualTo(validUser);
+        assertThat(ReflectionUtil.<Object>getField(command, "entityHashingService")).isEqualTo(entityHashingService);
+        assertThat(ReflectionUtil.<Object>getField(command, "securityService")).isEqualTo(securityService);
     }
 
     @Test
@@ -355,10 +355,10 @@ public class PipelineConfigsServiceTest {
         verify(goConfigService).updateConfig(commandCaptor.capture(), eq(validUser));
         DeletePipelineConfigsCommand command = (DeletePipelineConfigsCommand) commandCaptor.getValue();
 
-        assertThat((Object) ReflectionUtil.getField(command, "group")).isEqualTo(pipelineConfigs);
-        assertThat((Object) ReflectionUtil.getField(command, "result")).isEqualTo(result);
-        assertThat((Object) ReflectionUtil.getField(command, "currentUser")).isEqualTo(validUser);
-        assertThat((Object) ReflectionUtil.getField(command, "securityService")).isEqualTo(securityService);
+        assertThat(ReflectionUtil.<Object>getField(command, "group")).isEqualTo(pipelineConfigs);
+        assertThat(ReflectionUtil.<Object>getField(command, "result")).isEqualTo(result);
+        assertThat(ReflectionUtil.<Object>getField(command, "currentUser")).isEqualTo(validUser);
+        assertThat(ReflectionUtil.<Object>getField(command, "securityService")).isEqualTo(securityService);
     }
 
     @Test
@@ -396,10 +396,10 @@ public class PipelineConfigsServiceTest {
         verify(goConfigService).updateConfig(commandCaptor.capture(), eq(validUser));
         CreatePipelineConfigsCommand command = (CreatePipelineConfigsCommand) commandCaptor.getValue();
 
-        assertThat((Object) ReflectionUtil.getField(command, "pipelineConfigs")).isEqualTo(pipelineConfigs);
-        assertThat((Object) ReflectionUtil.getField(command, "result")).isEqualTo(result);
-        assertThat((Object) ReflectionUtil.getField(command, "currentUser")).isEqualTo(validUser);
-        assertThat((Object) ReflectionUtil.getField(command, "securityService")).isEqualTo(securityService);
+        assertThat(ReflectionUtil.<Object>getField(command, "pipelineConfigs")).isEqualTo(pipelineConfigs);
+        assertThat(ReflectionUtil.<Object>getField(command, "result")).isEqualTo(result);
+        assertThat(ReflectionUtil.<Object>getField(command, "currentUser")).isEqualTo(validUser);
+        assertThat(ReflectionUtil.<Object>getField(command, "securityService")).isEqualTo(securityService);
     }
 
     @Test

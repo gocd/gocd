@@ -647,7 +647,7 @@ public class AgentServiceIntegrationTest {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
             Date date = new Date(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli());
             AgentInstance instance = idle(date, "CCeDev01");
-            ((AgentRuntimeInfo) ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
+            ReflectionUtil.<AgentRuntimeInfo>getField(instance, "agentRuntimeInfo").setOperatingSystem("Minix");
 
             AgentService agentService = new AgentService(new SystemEnvironment(), agentDao, new UuidGenerator(),
                     serverHealthService, agentStatusChangeNotifier());
@@ -667,7 +667,7 @@ public class AgentServiceIntegrationTest {
 
             Date date = new Date(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli());
             AgentInstance idleAgentInstance = idle(date, "CCeDev01");
-            ((AgentRuntimeInfo) ReflectionUtil.getField(idleAgentInstance, "agentRuntimeInfo")).setOperatingSystem("Minix");
+            ReflectionUtil.<AgentRuntimeInfo>getField(idleAgentInstance, "agentRuntimeInfo").setOperatingSystem("Minix");
 
             EmailSender mailSender = mock(EmailSender.class);
             AgentService agentService = new AgentService(new SystemEnvironment(), agentDao, new UuidGenerator(), serverHealthService, agentStatusChangeNotifier());

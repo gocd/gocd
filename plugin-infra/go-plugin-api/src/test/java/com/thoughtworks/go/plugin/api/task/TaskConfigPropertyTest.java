@@ -37,10 +37,10 @@ public class TaskConfigPropertyTest {
     @Test
     public void shouldAssignDefaults() {
         final TaskConfigProperty property = new TaskConfigProperty("key");
-        assertThat(property.getOption(property.REQUIRED)).isFalse();
-        assertThat(property.getOption(property.SECURE)).isFalse();
-        assertThat(property.getOption(property.DISPLAY_NAME)).isEqualTo("key");
-        assertThat(property.getOption(property.DISPLAY_ORDER)).isEqualTo(0);
+        assertThat(property.getOption(Property.REQUIRED)).isFalse();
+        assertThat(property.getOption(Property.SECURE)).isFalse();
+        assertThat(property.getOption(Property.DISPLAY_NAME)).isEqualTo("key");
+        assertThat(property.getOption(Property.DISPLAY_ORDER)).isEqualTo(0);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class TaskConfigPropertyTest {
         assertThat(p1.compareTo(p2)).isEqualTo(1);
     }
 
-    private TaskConfigProperty getTaskConfigProperty(String key, int order) {
+    private TaskConfigProperty getTaskConfigProperty(@SuppressWarnings("SameParameterValue") String key, int order) {
         TaskConfigProperty property = new TaskConfigProperty(key);
         property.with(Property.DISPLAY_ORDER, order);
         return property;

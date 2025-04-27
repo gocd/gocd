@@ -631,7 +631,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnTrueifMd5Matches() {
+    public void shouldReturnTrueIfMd5Matches() {
         String staleMd5 = "md5";
         when(goConfigDao.md5OfConfigFile()).thenReturn("md5");
         assertThat(goConfigService.doesMd5Match(staleMd5)).isTrue();
@@ -640,8 +640,7 @@ public class GoConfigServiceTest {
     @Test
     public void shouldThrowExceptionIfGroupDoesNotExist_WhenUserIsAdmin() {
         CaseInsensitiveString adminName = new CaseInsensitiveString("admin");
-        GoConfigMother mother = new GoConfigMother();
-        mother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         cruiseConfig.server().security().adminsConfig().add(new AdminUser(adminName));
         String groupName = String.format("group_%s", UUID.randomUUID());
         try {
@@ -656,8 +655,7 @@ public class GoConfigServiceTest {
     public void shouldThrowExceptionIfGroupDoesNotExist_WhenUserIsNonAdmin() {
         CaseInsensitiveString adminName = new CaseInsensitiveString("admin");
         String groupName = String.format("group_%s", UUID.randomUUID());
-        GoConfigMother mother = new GoConfigMother();
-        mother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         cruiseConfig.server().security().adminsConfig().add(new AdminUser(adminName));
         try {
             goConfigService.isUserAdminOfGroup(new CaseInsensitiveString("foo"), groupName);
@@ -672,7 +670,7 @@ public class GoConfigServiceTest {
         CaseInsensitiveString adminName = new CaseInsensitiveString("admin");
         String groupName = String.format("group_%s", UUID.randomUUID());
         GoConfigMother mother = new GoConfigMother();
-        mother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         cruiseConfig.server().security().adminsConfig().add(new AdminUser(adminName));
         mother.addPipelineWithGroup(cruiseConfig, groupName, "pipeline", "stage");
         mother.addAdminUserForPipelineGroup(cruiseConfig, "user", groupName);

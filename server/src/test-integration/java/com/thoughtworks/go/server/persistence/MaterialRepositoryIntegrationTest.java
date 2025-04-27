@@ -1106,14 +1106,14 @@ public class MaterialRepositoryIntegrationTest {
         List<Modification> modifications = repo.modificationFor(stageIdentifier);
         assertThat(modifications.size()).isEqualTo(1);
         assertThat(modifications.get(0).getRevision()).isEqualTo("P1/2/S1/1");
-        assertThat((Object) goCache.get(repo.cacheKeyForModificationsForStageLocator(stageIdentifier))).isEqualTo(modifications);
+        assertThat(goCache.<Object>get(repo.cacheKeyForModificationsForStageLocator(stageIdentifier))).isEqualTo(modifications);
 
         StageIdentifier p2_s1_stageId = new StageIdentifier("P2", 1, "S1", "1");
         List<Modification> mod_p2_s1 = repo.modificationFor(p2_s1_stageId);
-        assertThat((Object) goCache.get(repo.cacheKeyForModificationsForStageLocator(p2_s1_stageId))).isEqualTo(mod_p2_s1);
+        assertThat(goCache.<Object>get(repo.cacheKeyForModificationsForStageLocator(p2_s1_stageId))).isEqualTo(mod_p2_s1);
         StageIdentifier p2_s1_3 = new StageIdentifier("P2", 1, "S1", "3");
         assertThat(repo.modificationFor(p2_s1_3)).isEmpty();
-        assertThat((Object) goCache.get(repo.cacheKeyForModificationsForStageLocator(p2_s1_3))).isNull();
+        assertThat(goCache.<Object>get(repo.cacheKeyForModificationsForStageLocator(p2_s1_3))).isNull();
     }
 
     @Test

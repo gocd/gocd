@@ -127,7 +127,7 @@ public class PluggableTaskBuilderTest {
         verify(task).executor();
         verify(taskExecutor).execute(executorTaskConfig, taskExecutionContext);
 
-        assertThat((TaskExecutionContext) ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNotNull();
+        assertThat(ReflectionUtil.<TaskExecutionContext>getStaticField(JobConsoleLogger.class, "context")).isNotNull();
     }
 
     @Test
@@ -272,7 +272,7 @@ public class PluggableTaskBuilderTest {
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any())).thenReturn(ExecutionResult.success("yay"));
 
         builder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8);
-        assertThat((TaskExecutionContext) ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
+        assertThat(ReflectionUtil.<TaskExecutionContext>getStaticField(JobConsoleLogger.class, "context")).isNull();
     }
 
     @Test
@@ -284,7 +284,7 @@ public class PluggableTaskBuilderTest {
 
         assertThatThrownBy(() -> builder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8))
             .hasMessage("oh no");
-        assertThat((TaskExecutionContext) ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
+        assertThat(ReflectionUtil.<TaskExecutionContext>getStaticField(JobConsoleLogger.class, "context")).isNull();
     }
 
     @Test
@@ -296,6 +296,6 @@ public class PluggableTaskBuilderTest {
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any())).thenThrow(new RuntimeException("something"));
         assertThatThrownBy(() -> builder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8))
             .hasMessage("something");
-        assertThat((TaskExecutionContext) ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
+        assertThat(ReflectionUtil.<TaskExecutionContext>getStaticField(JobConsoleLogger.class, "context")).isNull();
     }
 }

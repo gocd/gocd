@@ -77,7 +77,7 @@ class HgMaterialConfigTest {
         map.put(HgMaterialConfig.PASSWORD_CHANGED, "1");
 
         hgMaterialConfig.setConfigAttributes(map);
-        assertThat((String) ReflectionUtil.getField(hgMaterialConfig, "password")).isNull();
+        assertThat(ReflectionUtil.<String>getField(hgMaterialConfig, "password")).isNull();
         assertThat(hgMaterialConfig.getPassword()).isEqualTo("secret");
         assertThat(hgMaterialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
@@ -86,7 +86,7 @@ class HgMaterialConfigTest {
         map.put(HgMaterialConfig.PASSWORD_CHANGED, "0");
         hgMaterialConfig.setConfigAttributes(map);
 
-        assertThat((String) ReflectionUtil.getField(hgMaterialConfig, "password")).isNull();
+        assertThat(ReflectionUtil.<String>getField(hgMaterialConfig, "password")).isNull();
         assertThat(hgMaterialConfig.getPassword()).isEqualTo("secret");
         assertThat(hgMaterialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 

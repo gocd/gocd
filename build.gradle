@@ -424,8 +424,7 @@ subprojects {
   tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
     options.compilerArgs += '-Werror'
-    options.compilerArgs += '-Xlint:unchecked'
-    options.compilerArgs += '-Xlint:-deprecation'
+    options.compilerArgs += '-Xlint:all,-serial,-deprecation,-processing,-this-escape,-classfile,-overloads'
     options.release.set(project.targetJavaVersion as Integer)
 
     javaCompiler = javaToolchains.compilerFor {

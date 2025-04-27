@@ -85,7 +85,7 @@ public class PipelineStateDaoCachingTest {
 
         PipelineState pipelineState = pipelineStateDao.pipelineStateFor(pipelineName);
 
-        assertThat((Object) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName))).isEqualTo(pipelineState);
+        assertThat(goCache.<Object>get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName))).isEqualTo(pipelineState);
         PipelineState secondAttempt = pipelineStateDao.pipelineStateFor(pipelineName);
 
         assertSame(pipelineState, secondAttempt);
@@ -99,7 +99,7 @@ public class PipelineStateDaoCachingTest {
         PipelineState actual = pipelineStateDao.pipelineStateFor(pipelineName);
 
         assertNull(actual);
-        assertThat((Object) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName))).isEqualTo(NOT_LOCKED);
+        assertThat(goCache.<Object>get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName))).isEqualTo(NOT_LOCKED);
 
         verify(transactionTemplate, times(1)).execute(any());
     }
@@ -120,7 +120,7 @@ public class PipelineStateDaoCachingTest {
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName()), pipelineState);
         pipelineStateDao.lockPipeline(pipeline);
 
-        assertThat((Object) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName()))).isNull();
+        assertThat(goCache.<Object>get(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName()))).isNull();
 
         ArgumentCaptor<PipelineState> pipelineStateArgumentCaptor = ArgumentCaptor.forClass(PipelineState.class);
         verify(session).saveOrUpdate(pipelineStateArgumentCaptor.capture());
@@ -153,7 +153,7 @@ public class PipelineStateDaoCachingTest {
         when(session.load(PipelineState.class, pipeline.getId())).thenReturn(pipelineState);
         pipelineStateDao.unlockPipeline(pipeline.getName());
 
-        assertThat((Object) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName()))).isNull();
+        assertThat(goCache.<Object>get(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName()))).isNull();
 
         ArgumentCaptor<PipelineState> pipelineStateArgumentCaptor = ArgumentCaptor.forClass(PipelineState.class);
         verify(session).saveOrUpdate(pipelineStateArgumentCaptor.capture());

@@ -260,7 +260,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
 
     @Test
     public void shouldFindDownstreamPipelines() {
-        CruiseConfig config = goConfigMother.defaultCruiseConfig();
+        CruiseConfig config = GoConfigMother.defaultCruiseConfig();
         goConfigMother.addPipeline(config, "pipeline-1", "stage-1", "job-1");
         PipelineConfig pipeline2 = goConfigMother.addPipeline(config, "pipeline-2", "stage-2", "job-2");
         PipelineConfig pipeline3 = goConfigMother.addPipeline(config, "pipeline-3", "stage-3", "job-3");

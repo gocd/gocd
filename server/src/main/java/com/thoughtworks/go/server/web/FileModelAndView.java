@@ -39,7 +39,7 @@ public class FileModelAndView {
         if (!hasChanged) {
             return new ModelAndView(new AbstractView() {
                 @Override
-                protected void renderMergedOutputModel(Map model, HttpServletRequest request,
+                protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
                                                        HttpServletResponse response) throws Exception {
                     response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
                     response.getWriter().close();

@@ -105,7 +105,7 @@ public class FileView implements View, ServletContextAware {
     }
 
     @Override
-    public void render(Map map, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+    public void render(Map<String, ?> map, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
         File file = (File) map.get("targetFile");
         boolean needToZip = map.containsKey(NEED_TO_ZIP);
         handleFileWithLogging(httpServletResponse, file, needToZip);

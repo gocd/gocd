@@ -36,11 +36,12 @@ public class GoConfigFileWriter {
         this.systemEnvironment = systemEnvironment;
     }
 
+    @SuppressWarnings("try")
     public synchronized void writeToConfigXmlFile(String content) {
         try (
                 RandomAccessFile randomAccessFile = new RandomAccessFile(systemEnvironment.getCruiseConfigFile(), "rw");
                 FileChannel channel = randomAccessFile.getChannel();
-                FileLock lock = channel.lock();
+                FileLock ignored = channel.lock();
         ) {
             randomAccessFile.seek(0);
             randomAccessFile.setLength(0);

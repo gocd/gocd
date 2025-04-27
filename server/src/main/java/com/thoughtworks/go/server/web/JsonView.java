@@ -40,7 +40,7 @@ public class JsonView extends AbstractView {
     }
 
     @Override
-    protected void renderMergedOutputModel(Map map, HttpServletRequest httpServletRequest,
+    protected void renderMergedOutputModel(Map<String, Object> map, HttpServletRequest httpServletRequest,
                                            HttpServletResponse httpServletResponse) throws Exception {
         if (requestContext == null) {
             //TODO requestContext may already exist in request; need to check it

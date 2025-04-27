@@ -323,14 +323,14 @@ public class BuildAssignmentServiceIntegrationTest {
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
         String md5 = entityHashingService.hashForEntity(originalPipelineConfig, fixture.groupName);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
-        devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(fixture.JOB_FOR_DEV_STAGE)));
+        devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(PipelineWithTwoStages.JOB_FOR_DEV_STAGE)));
         pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, fixture.groupName, md5, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
-        JobInstance deletedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);
+        JobInstance deletedJob = pipeline.getFirstStage().getJobInstances().getByName(PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
         assertThat(deletedJob.getState()).isEqualTo(JobState.Completed);
         assertThat(deletedJob.getResult()).isEqualTo(JobResult.Cancelled);
-        JobInstance retainedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.DEV_STAGE_SECOND_JOB);
+        JobInstance retainedJob = pipeline.getFirstStage().getJobInstances().getByName(PipelineWithTwoStages.DEV_STAGE_SECOND_JOB);
         assertThat(retainedJob.getState()).isEqualTo(JobState.Scheduled);
         assertThat(retainedJob.getResult()).isEqualTo(JobResult.Unknown);
 
@@ -354,8 +354,8 @@ public class BuildAssignmentServiceIntegrationTest {
         pipelineConfigService.deletePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
-        JobInstance job1 = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);
-        JobInstance job2 = pipeline.getFirstStage().getJobInstances().getByName(fixture.DEV_STAGE_SECOND_JOB);
+        JobInstance job1 = pipeline.getFirstStage().getJobInstances().getByName(PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        JobInstance job2 = pipeline.getFirstStage().getJobInstances().getByName(PipelineWithTwoStages.DEV_STAGE_SECOND_JOB);
 
         assertThat(job1.getState()).isEqualTo(JobState.Completed);
         assertThat(job1.getResult()).isEqualTo(JobResult.Cancelled);

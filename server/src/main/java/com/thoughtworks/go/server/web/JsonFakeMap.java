@@ -39,7 +39,7 @@ public class JsonFakeMap extends LinkedHashMap<String, Object> {
     }
 
     @Override
-    public void putAll(Map map) {
+    public void putAll(Map<? extends String, ?> map) {
         throw bomb("This is a fake map with a single list element");
     }
 

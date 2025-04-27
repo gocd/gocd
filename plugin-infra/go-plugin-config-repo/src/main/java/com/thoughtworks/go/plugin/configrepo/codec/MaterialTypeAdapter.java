@@ -21,37 +21,28 @@ import com.thoughtworks.go.plugin.configrepo.contract.material.*;
 import java.lang.reflect.Type;
 
 public class MaterialTypeAdapter extends TypeAdapter implements JsonDeserializer<CRMaterial>, JsonSerializer<CRMaterial>  {
-
     private static final String TYPE = "type";
 
     @Override
     public CRMaterial deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-        return determineJsonElementForDistinguishingImplementers(json, context, TYPE, ARTIFACT_ORIGIN);
+        return determineJsonElementForDistinguishingImplementers(json, context, TYPE);
     }
 
     @Override
     protected Class<?> classForName(String typeName, String origin) {
-        if(typeName.equals(CRDependencyMaterial.TYPE_NAME))
-            return CRDependencyMaterial.class;
-        if(typeName.equals(CRPackageMaterial.TYPE_NAME))
-            return CRPackageMaterial.class;
-        if(typeName.equals(CRPluggableScmMaterial.TYPE_NAME))
-            return CRPluggableScmMaterial.class;
-        if(typeName.equals(CRGitMaterial.TYPE_NAME))
-            return CRGitMaterial.class;
-        if(typeName.equals(CRHgMaterial.TYPE_NAME))
-            return CRHgMaterial.class;
-        if(typeName.equals(CRSvnMaterial.TYPE_NAME))
-            return CRSvnMaterial.class;
-        if(typeName.equals(CRP4Material.TYPE_NAME))
-            return CRP4Material.class;
-        if(typeName.equals(CRTfsMaterial.TYPE_NAME))
-            return CRTfsMaterial.class;
-        if(typeName.equals(CRConfigMaterial.TYPE_NAME))
-            return CRConfigMaterial.class;
-        else
-            throw new JsonParseException(
-                    String.format("Invalid or unknown material type '%s'",typeName));
+        return switch (typeName) {
+            case CRDependencyMaterial.TYPE_NAME -> CRDependencyMaterial.class;
+            case CRPackageMaterial.TYPE_NAME -> CRPackageMaterial.class;
+            case CRPluggableScmMaterial.TYPE_NAME -> CRPluggableScmMaterial.class;
+            case CRGitMaterial.TYPE_NAME -> CRGitMaterial.class;
+            case CRHgMaterial.TYPE_NAME -> CRHgMaterial.class;
+            case CRSvnMaterial.TYPE_NAME -> CRSvnMaterial.class;
+            case CRP4Material.TYPE_NAME -> CRP4Material.class;
+            case CRTfsMaterial.TYPE_NAME -> CRTfsMaterial.class;
+            case CRConfigMaterial.TYPE_NAME -> CRConfigMaterial.class;
+            default -> throw new JsonParseException(
+                String.format("Invalid or unknown material type '%s'", typeName));
+        };
     }
 
     @Override

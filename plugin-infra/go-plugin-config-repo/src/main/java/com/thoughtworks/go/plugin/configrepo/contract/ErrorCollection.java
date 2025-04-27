@@ -69,13 +69,12 @@ public class ErrorCollection {
     public String getErrorsAsText() {
         StringBuilder errorsBuilder = new StringBuilder();
         for (Map.Entry<String, List<String>> entry : this.errors.entrySet()) {
-            errorsBuilder.append('\n');
             errorsBuilder.append(entry.getKey()).append(';');
 
             for (int i = 1; i <= entry.getValue().size(); i++) {
                 errorsBuilder.append('\n').append(i).append(". ").append(entry.getValue().get(i - 1));
             }
-            errorsBuilder.append("\n");
+            errorsBuilder.append('\n');
         }
         return errorsBuilder.toString();
     }

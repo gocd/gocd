@@ -257,13 +257,13 @@ dependencies {
   api project.deps.springWeb
   api project.deps.springWebmvc
   api project.deps.springContextSupport
-  api(project.deps.springSecurityWeb) {
-    exclude(group: 'org.springframework')
-  }
+  api project.deps.springSecurityWeb
   implementation(project.deps.springSecurity)
   if (project.deps.springWeb) {
-    // used by CommonsMultipartResolver
-    implementation project.deps.commonsFileUpload
+    implementation project.deps.commonsFileUpload // used by CommonsMultipartResolver
+  }
+  if (project.deps.commonsDbcp || project.deps.oscache || project.deps.springWeb) {
+    implementation project.deps.slf4jJcl // Allow commons-logging replacement
   }
   implementation project.deps.aspectj
   implementation project.deps.urlrewrite

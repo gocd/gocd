@@ -17,17 +17,23 @@
 description = 'GoCD Base'
 
 dependencies {
+  // Make BouncyCastle essentially an optional dependency. If you use GoAgentServerClientBuilder, you'll need it.
   compileOnly project.deps.bouncyCastle
   compileOnly project.deps.bouncyCastlePkix
 
-  api project.deps.commonsIO
-  api project.deps.commonsLang3
+  api project.deps.slf4jApi
+  api project.deps.jodaTime
+
+  implementation project.deps.commonsIO
+  implementation project.deps.commonsLang3
+
   api(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
-    exclude(module: 'commons-logging')
   }
-  api project.deps.jodaTime
-  api project.deps.slf4jJcl
+  if (project.deps.apacheHttpComponents) {
+    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+  }
+
   compileOnly project.deps.logback
   testImplementation project.deps.logback
 

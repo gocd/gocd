@@ -27,6 +27,9 @@ dependencies {
   implementation project.deps.jacksonCore
   implementation project.deps.jacksonDatabind
   implementation project.deps.springWeb
+  if (project.deps.springWeb) {
+    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+  }
 
   api(project.deps.spark) {
     transitive = false

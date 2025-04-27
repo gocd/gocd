@@ -60,8 +60,6 @@ public class DesToAesMigratorTest {
         resetCipher.setupAESCipherFile();
         resetCipher.setupDESCipherFile();
 
-        DesToAesMigrator migrator = new DesToAesMigrator(systemEnvironment);
-        String cipherText = migrator.desToAES("mvcX9yrQsM4iPgm1tDxN1A==");
-        assertThat(cipherText).startsWith("AES:");
+        assertThat(DesToAesMigrator.desToAES("mvcX9yrQsM4iPgm1tDxN1A==")).startsWith("AES:");
     }
 }

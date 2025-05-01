@@ -139,7 +139,7 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.8-x86_64-linux-gnu)
       racc (~> 1.4)
-    public_suffix (6.0.1)
+    public_suffix (6.0.2)
     racc (1.8.1)
     racc (1.8.1-java)
     rack (2.2.13)

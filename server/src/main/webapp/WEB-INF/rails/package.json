@@ -50,10 +50,10 @@
     "what-input": "^5.2.12"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/eslint-parser": "^7.27.0",
-    "@babel/preset-env": "^7.26.9",
-    "@babel/preset-react": "^7.26.3",
+    "@babel/core": "^7.27.1",
+    "@babel/eslint-parser": "^7.27.1",
+    "@babel/preset-env": "^7.27.1",
+    "@babel/preset-react": "^7.27.1",
     "@types/awesomplete": "^1.1.16",
     "@types/fs-extra": "^11.0.4",
     "@types/html-webpack-plugin": "^3.2.9",

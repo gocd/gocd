@@ -10,6 +10,7 @@ This is the main repository for [GoCD](https://gocd.org) - a continuous delivery
 
 - To quickly build your first pipeline while learning key GoCD concepts, visit our [Test Drive GoCD](https://www.gocd.org/test-drive-gocd.html).
 - To download GoCD, visit the [downloads page](https://www.gocd.org/download/).
+- For more detailed user help, [read our docs](https://docs.gocd.org).
 
 ## Security
 

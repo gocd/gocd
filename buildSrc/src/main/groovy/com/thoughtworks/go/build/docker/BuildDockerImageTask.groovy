@@ -138,7 +138,7 @@ class BuildDockerImageTask extends DefaultTask {
       executeInGitRepo("git", "add", ".")
 
       if (execOperations.exec { workingDir = getGitRepoDirectory(); commandLine = ["git", "diff-index", "--quiet", "HEAD"]; ignoreExitValue = true}.exitValue != 0) {
-        executeInGitRepo("git", "commit", "-m", "Bump to version ${project.fullVersion}", "--author", "GoCD CI User <godev+gocd-ci-user@thoughtworks.com>")
+        executeInGitRepo("git", "commit", "-m", "Bump to version ${project.fullVersion}", "--author", "GoCD CI User <12554687+gocd-ci-user@users.noreply.github.com>")
         executeInGitRepo("git", "tag", "v${project.goVersion}")
         executeInGitRepo("git", "push")
         executeInGitRepo("git", "push", "--tags")

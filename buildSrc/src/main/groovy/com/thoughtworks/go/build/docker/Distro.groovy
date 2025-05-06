@@ -150,7 +150,7 @@ enum Distro implements DistroBehavior {
       [
         "microdnf install -y git-core openssh-clients bash unzip curl-minimal procps-ng coreutils-single glibc-langpack-en tar",
         "microdnf clean all",
-        "rm -rf var/cache/dnf",
+        "rm -rf /var/cache/dnf",
       ]
     }
     @Override

@@ -51,9 +51,7 @@ The GoCD team make a concerted effort to keep dependencies up-to-date wherever p
 still have some EOL dependencies with known vulnerabilities that GoCD is not vulnerable to, but which may create noise in scanner reports.
 
 While this is a moving target the GoCD team maintain documented suppressions with commentary via:
-- [OWASP Dependency Check](https://owasp.org/www-project-dependency-check/) - Java, JavaScript & Ruby/JRuby dependencies
-  - [current suppressions](https://github.com/gocd/gocd/blob/master/build-platform/dependency-check-suppress.xml)
-  - [build.gocd.org report off master](https://build.gocd.org/go/files/Security-Checks/latest/Security-Checks/latest/dependency-check/dependency-check-report.html) (use _Guest_ login)
-- [Trivy](https://trivy.dev/) - built container images (OS and packaged dependencies), especially server
-  - [current suppressions](https://github.com/gocd/gocd/blob/master/build-platform/.trivyignore.yaml)
-  - [build.gocd.org Security-Checks-Containers pipeline](https://build.gocd.org/) (use _Guest_ login)
+- [OWASP Dependency Check suppression commentary](https://github.com/gocd/gocd/blob/master/build-platform/dependency-check-suppress.xml) - Java, JavaScript & Ruby/JRuby dependencies use [ODC](https://owasp.org/www-project-dependency-check/)
+  - build.gocd.org [report](https://build.gocd.org/go/files/Security-Checks/latest/Security-Checks/latest/dependency-check/dependency-check-report.html) (use _Guest_ login)
+- [Trivy suppression commentary](https://github.com/gocd/gocd/blob/master/build-platform/.trivyignore.yaml) - built container images (OS and packaged dependencies), especially server use [Trivy](https://trivy.dev/) 
+  - build.gocd.org [Security-Checks-Containers](https://build.gocd.org/) pipeline run (use _Guest_ login)

@@ -91,7 +91,7 @@ final Map<String, String> libraries = [
   oshi                : 'com.github.oshi:oshi-core-java11:6.8.1',
   postgresql          : 'org.postgresql:postgresql:42.7.5',
   quartz              : 'org.quartz-scheduler:quartz:2.5.0',
-  rack                : 'com.github.gocd-contrib:jruby-rack:1.2.3.9',
+  rack                : 'com.github.gocd-contrib:jruby-rack:1.2.3.10',
   resilience4jRetry   : 'io.github.resilience4j:resilience4j-retry:2.3.0',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',
   servletApi          : 'jakarta.servlet:jakarta.servlet-api:4.0.4', // Should be compatible with Jetty and Spring implementations

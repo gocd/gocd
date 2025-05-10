@@ -75,7 +75,7 @@ final Map<String, String> libraries = [
   jodaTime            : 'joda-time:joda-time:2.14.0',
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',
   jruby               : 'org.jruby:jruby-complete:9.4.12.1',
-  jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:4.1.0',
+  jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:4.1.1',
   jsoup               : 'org.jsoup:jsoup:1.20.1',
   junit5Bom           : 'org.junit:junit-bom:5.12.2',
   liquibase           : 'org.liquibase:liquibase-core:4.29.2',

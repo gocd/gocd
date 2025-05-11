@@ -112,7 +112,7 @@
     "stats-webpack-plugin": "^0.7.0",
     "style-loader": "^2.0.0",
     "stylelint": "^15.11.0",
-    "stylelint-config-standard-scss": "^11.1.0",
+    "stylelint-config-standard-scss": "^15.0.0",
     "stylelint-webpack-plugin": "^2.5.0",
     "thread-loader": "^3.0.4",
     "ts-loader": "^8.4.0",

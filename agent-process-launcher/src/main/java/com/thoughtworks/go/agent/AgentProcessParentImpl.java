@@ -121,7 +121,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             String[] startupArgs = startupArgsString.split(" ");
             for (String startupArg : startupArgs) {
                 String decodedStartupArg = startupArg.trim().replace("%20", " ");
-                if (!isEmpty(decodedStartupArg)) {
+                if (!isEmpty(decodedStartupArg) && !commandSnippets.contains(decodedStartupArg)) {
                     commandSnippets.add(decodedStartupArg);
                 }
             }

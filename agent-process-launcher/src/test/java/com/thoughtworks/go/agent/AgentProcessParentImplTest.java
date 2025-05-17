@@ -107,6 +107,47 @@ public class AgentProcessParentImplTest {
     }
 
     @Test
+    public void shouldStartSubprocessWithCommandLineWithRemovedDuplicateAGENT_STARTUP_ARGS() throws InterruptedException {
+        final List<String> cmd = new ArrayList<>();
+        String expectedAgentMd5 = TEST_AGENT.getMd5();
+        String expectedAgentPluginsMd5 = TEST_AGENT_PLUGINS.getMd5();
+        String expectedTfsMd5 = TEST_TFS_IMPL.getMd5();
+        AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
+        Map<String, String> env = new HashMap<>();
+        env.put(
+            AGENT_STARTUP_ARGS,
+            "-Dgo.console.stdout=true " +
+                "-javaagent:/jmx_prometheus_javaagent-1.2.0.jar=18153:/jmx-exporter.yaml " +
+                "-Dagent.get.work.interval=1000 " +
+                "-Xmx4096m " +
+                "-Dgo.console.stdout=true " +
+                "-javaagent:/jmx_prometheus_javaagent-1.2.0.jar=18153:/jmx-exporter.yaml"
+        );
+        int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), env, context());
+        assertThat(returnCode).isEqualTo(42);
+        assertThat(cmd).containsExactly(
+            (getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java"),
+            "-Dgo.console.stdout=true",
+            "-javaagent:/jmx_prometheus_javaagent-1.2.0.jar=18153:/jmx-exporter.yaml",
+            "-Dagent.get.work.interval=1000",
+            "-Xmx4096m",
+            "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
+            "-Dagent.binary.md5=" + expectedAgentMd5,
+            "-Dagent.launcher.md5=bar",
+            "-Dagent.tfs.md5=" + expectedTfsMd5,
+            "-Dagent.bootstrapper.version=UNKNOWN",
+            "-jar",
+            "agent.jar",
+            "-serverUrl",
+            "http://localhost:" + server.getPort() + "/go/",
+            "-sslVerificationMode",
+            "NONE",
+            "-rootCertFile",
+            new File("/path/to/cert.pem").getAbsolutePath()
+        );
+    }
+
+    @Test
     public void shouldAddBootstrapperVersionAsPropertyIfFoundInContext() throws InterruptedException {
         final List<String> cmd = new ArrayList<>();
         String expectedAgentMd5 = TEST_AGENT.getMd5();

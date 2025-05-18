@@ -165,7 +165,9 @@ if [ "$1" = "${AGENT_WORK_DIR}/bin/go-agent" ]; then
 
   # Allow configuration of the forked agent process when started by the bootstrapper
   echo "set.default.GOCD_AGENT_JVM_OPTS=" >> /go-agent/wrapper-config/wrapper-properties.conf
-  echo "set.AGENT_STARTUP_ARGS=%AGENT_STARTUP_ARGS% -Dgo.console.stdout=true %GOCD_AGENT_JVM_OPTS%" >> /go-agent/wrapper-config/wrapper-properties.conf
+  echo "# Workaround for circular reference issue noted at https://wrapper.tanukisoftware.com/doc/english/props-envvars.html#definition" >> /go-agent/wrapper-config/wrapper-properties.conf
+  echo "set.default.AGENT_STARTUP_ARGS_INTERNAL=%AGENT_STARTUP_ARGS% -Dgo.console.stdout=true %GOCD_AGENT_JVM_OPTS%" >> /go-agent/wrapper-config/wrapper-properties.conf
+  echo "set.AGENT_STARTUP_ARGS=%AGENT_STARTUP_ARGS_INTERNAL%" >> /go-agent/wrapper-config/wrapper-properties.conf
 fi
 
 try exec /usr/local/sbin/tini -g -- "$@"

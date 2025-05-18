@@ -66,7 +66,9 @@
         fi
 
         if [ ! -z "${MIGRATED_AGENT_STARTUP_ARGS}" ]; then
-          /bin/echo -E "set.AGENT_STARTUP_ARGS=%AGENT_STARTUP_ARGS% ${MIGRATED_AGENT_STARTUP_ARGS}" >> ${MIGRATION_FILE}
+          /bin/echo -E "# Workaround for circular reference issue noted at https://wrapper.tanukisoftware.com/doc/english/props-envvars.html#definition" >> ${MIGRATION_FILE}
+          /bin/echo -E "set.default.AGENT_STARTUP_ARGS_INTERNAL=%AGENT_STARTUP_ARGS% ${MIGRATED_AGENT_STARTUP_ARGS}" >> ${MIGRATION_FILE}
+          /bin/echo -E "set.AGENT_STARTUP_ARGS=%AGENT_STARTUP_ARGS_INTERNAL%" >> ${MIGRATION_FILE}
         fi
 
         index=100

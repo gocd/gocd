@@ -66,14 +66,15 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    GoCD is not affected by these two related CVEs as we do not use disallowedFieldPatterns on DataBinders as required to trigger the issue
+    GoCD is not affected by these related CVEs as we do not use disallowedFieldPatterns on DataBinders as required to trigger the issue
     as documented in https://spring.io/blog/2022/04/13/spring-framework-data-binding-rules-vulnerability-cve-2022-22968 nor case insensitive
-    authorizations in the related issue at https://spring.io/security/cve-2024-38827  
+    authorizations in the related issue at https://spring.io/security/cve-2024-38827 or https://spring.io/security/cve-2025-22233
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
     <cve>CVE-2022-22968</cve>
     <cve>CVE-2024-38820</cve>
     <cve>CVE-2024-38827</cve>
+    <cve>CVE-2025-22233</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[

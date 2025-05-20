@@ -111,6 +111,7 @@ GEM
       concurrent-ruby (~> 1.0)
     js-routes (1.4.14)
       railties (>= 4)
+    logger (1.7.0)
     loofah (2.24.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -203,8 +204,9 @@ GEM
       rake (>= 13)
     sassc-embedded (1.80.4)
       sass-embedded (~> 1.80)
-    sprockets (4.2.1)
+    sprockets (4.2.2)
       concurrent-ruby (~> 1.0)
+      logger
       rack (>= 2.2.4, < 4)
     sprockets-rails (3.5.2)
       actionpack (>= 6.1)

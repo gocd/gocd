@@ -39,6 +39,11 @@ dependencies {
     api project.deps.commonsCollections
     api project.deps.jetBrainsAnnotations
     api project.deps.objenesis
+    api(project.deps.jakartaAnnotation) {
+      version {
+        strictly project.versions.jakartaAnnotation
+      }
+    }
   }
 
   api enforcedPlatform(project.deps.junit5Bom)

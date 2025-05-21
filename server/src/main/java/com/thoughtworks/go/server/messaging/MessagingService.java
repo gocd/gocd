@@ -16,8 +16,7 @@
 package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
-
-import javax.jms.JMSException;
+import jakarta.jms.JMSException;
 
 public interface MessagingService<T extends GoMessage> {
     MessageSender createSender(String topic);

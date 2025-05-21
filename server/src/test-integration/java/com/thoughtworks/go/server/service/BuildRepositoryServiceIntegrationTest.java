@@ -184,7 +184,6 @@ public class BuildRepositoryServiceIntegrationTest {
     }
 
     @Test
-    @Deprecated
     public void shouldNotScheduleDuplicatedStage() throws Exception {
         Pipeline oldPipeline = dbHelper.newPipelineWithFirstStagePassed(mingle);
         Pipeline latestPipeline = dbHelper.newPipelineWithAllStagesPassed(mingle);

@@ -24,15 +24,14 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
+import jakarta.jms.JMSException;
+import jakarta.jms.MessageConsumer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
-
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
 
 import static com.thoughtworks.go.serverhealth.HealthStateLevel.ERROR;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;

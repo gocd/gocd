@@ -17,10 +17,9 @@ package com.thoughtworks.go.server.messaging.activemq;
 
 import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.MessageSender;
-
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
+import jakarta.jms.JMSException;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Session;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 

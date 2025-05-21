@@ -22,6 +22,7 @@ import com.thoughtworks.go.server.messaging.MessagingService;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
+import jakarta.jms.*;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -33,7 +34,6 @@ import org.apache.activemq.util.BrokerSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.jms.*;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;

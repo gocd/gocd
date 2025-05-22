@@ -191,7 +191,7 @@
   </suppress>
 
   <suppress>
-   <notes><![CDATA[
+    <notes><![CDATA[
     GoCD is not affected by https://nvd.nist.gov/vuln/detail/CVE-2023-36479 since it does not use CgiServlet or CGI at all.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-servlets@.*$</packageUrl>

@@ -209,15 +209,6 @@
 
   <suppress>
     <notes><![CDATA[
-    GoCD does not use the XML ManifestParser or AmazonS3 commands from JGit so is not vulnerable to the issue described within
-    https://nvd.nist.gov/vuln/detail/CVE-2025-4949 which JGit 6.x is still vulnerable to.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jgit/org\.eclipse\.jgit@6.*$</packageUrl>
-    <vulnerabilityName>CVE-2025-4949</vulnerabilityName>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     GoCD does not seem to be vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to use `.merge()`, `.sanitize()`, `.copy()`, `$resource` service, set `xlink:href`,
     no use of `<select>` elements, no use of `usemap` attribute, not a Firefox add-on, don't care about Internet Explorer,

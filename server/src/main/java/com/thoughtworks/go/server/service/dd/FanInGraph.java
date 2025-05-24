@@ -49,7 +49,7 @@ public class FanInGraph {
     private final PipelineDao pipelineDao;
     private final CruiseConfig cruiseConfig;
     private final MaterialRepository materialRepository;
-    private MaterialConfigConverter materialConfigConverter;
+    private final MaterialConfigConverter materialConfigConverter;
 
     private final Map<String, FanInNode> nodes = new HashMap<>();
     private final Map<String, MaterialConfig> fingerprintScmMaterialMap = new HashMap<>();
@@ -59,7 +59,6 @@ public class FanInGraph {
     private final DependencyFanInNode root;
     private final CaseInsensitiveString pipelineName;
     private final SystemEnvironment systemEnvironment;
-    private FanInEventListener fanInEventListener;
 
     public FanInGraph(CruiseConfig cruiseConfig, CaseInsensitiveString root, MaterialRepository materialRepository, PipelineDao pipelineDao, SystemEnvironment systemEnvironment,
                       MaterialConfigConverter materialConfigConverter) {
@@ -126,11 +125,6 @@ public class FanInGraph {
         return node;
     }
 
-    @Deprecated
-    public void setFanInEventListener(FanInEventListener fanInEventListener) {
-        this.fanInEventListener = fanInEventListener;
-    }
-
     @TestOnly
     List<ScmMaterialConfig> getScmMaterials() {
         List<ScmMaterialConfig> scmMaterials = new ArrayList<>();
@@ -173,10 +167,6 @@ public class FanInGraph {
 
         initChildren(depChildren, pipelineName, context);
 
-        if (fanInEventListener != null) {
-            fanInEventListener.iterationComplete(0, depChildren);
-        }
-
         iterateAndMakeAllUniqueScmRevisionsForChildrenSame(depChildren, pipelineName, context);
 
         List<MaterialRevision> finalRevisionsForScmChildren = createFinalRevisionsForScmChildren(root.latestPipelineTimelineEntry(context), scmChildren, depChildren);
@@ -184,36 +174,6 @@ public class FanInGraph {
         List<MaterialRevision> finalRevisionsForDepChildren = createFinalRevisionsForDepChildren(depChildren);
 
         return new MaterialRevisions(CollectionUtils.union(getMaterialsFromCurrentPipeline(finalRevisionsForScmChildren, actualRevisions), finalRevisionsForDepChildren));
-    }
-
-    //This whole method is repeated for reporting and it does not use actual revisions for determining final revisions
-    //Used in rails view
-    //Do not delete
-    //Ramraj ge salute
-    //Srikant & Sachin
-    @Deprecated
-    public Collection<MaterialRevision> computeRevisionsForReporting(CaseInsensitiveString pipelineName, PipelineTimeline pipelineTimeline) {
-        Pair<List<RootFanInNode>, List<DependencyFanInNode>> scmAndDepMaterialsChildren = getScmAndDepMaterialsChildren();
-        List<RootFanInNode> scmChildren = scmAndDepMaterialsChildren.first();
-        List<DependencyFanInNode> depChildren = scmAndDepMaterialsChildren.last();
-
-        if (depChildren.isEmpty()) {
-            //No fanin required all are SCMs
-            return null;
-        }
-
-        FanInGraphContext context = buildContext(pipelineTimeline);
-        root.initialize(context);
-
-        initChildren(depChildren, pipelineName, context);
-
-        iterateAndMakeAllUniqueScmRevisionsForChildrenSame(depChildren, pipelineName, context);
-
-        List<MaterialRevision> finalRevisionsForScmChildren = createFinalRevisionsForScmChildren(root.latestPipelineTimelineEntry(context), scmChildren, depChildren);
-
-        List<MaterialRevision> finalRevisionsForDepChildren = createFinalRevisionsForDepChildren(depChildren);
-
-        return CollectionUtils.union(finalRevisionsForScmChildren, finalRevisionsForDepChildren);
     }
 
     private List<MaterialRevision> createFinalRevisionsForDepChildren(List<DependencyFanInNode> depChildren) {
@@ -288,7 +248,6 @@ public class FanInGraph {
 
     private void iterateAndMakeAllUniqueScmRevisionsForChildrenSame(List<DependencyFanInNode> depChildren, CaseInsensitiveString pipelineName, FanInGraphContext context) {
         StageIdFaninScmMaterialPair revisionToSet = getRevisionToSet();
-        int i = 1;
         while (revisionToSet != null) {
             for (DependencyFanInNode child : depChildren) {
                 final DependencyFanInNode.RevisionAlteration revisionAlteration = child.setRevisionTo(revisionToSet, context);
@@ -296,12 +255,6 @@ public class FanInGraph {
                     throw NoCompatibleUpstreamRevisionsException.failedToFindCompatibleRevision(pipelineName, child.materialConfig);
                 }
             }
-
-            if (fanInEventListener != null) {
-                fanInEventListener.iterationComplete(i, depChildren);
-            }
-
-            i++;
             revisionToSet = getRevisionToSet();
         }
     }

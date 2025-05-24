@@ -27,7 +27,6 @@ import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang3.StringUtils;
@@ -45,11 +44,13 @@ public class InitialContextProvider {
     private static final Gson GSON = new GsonBuilder().
             registerTypeAdapter(SiteUrls.class, (JsonSerializer<SiteUrls>) (src, t, c) -> {
                 final JsonObject json = new JsonObject();
-                if (StringUtils.isNotBlank(src.getSiteUrl().getUrl())) {
-                    json.addProperty("site_url", src.getSecureSiteUrl().getUrl());
+                String url = src.getSiteUrl().getUrl();
+                if (url != null && !url.isBlank()) {
+                    json.addProperty("site_url", src.getSiteUrl().getUrl());
                 }
-                if (StringUtils.isNotBlank(src.getSecureSiteUrl().getUrl())) {
-                    json.addProperty("secure_site_url", src.getSecureSiteUrl().getUrl());
+                String secureUrl = src.getSecureSiteUrl().getUrl();
+                if (secureUrl != null && !secureUrl.isBlank()) {
+                    json.addProperty("secure_site_url", secureUrl);
                 }
                 return json;
             }).
@@ -58,19 +59,17 @@ public class InitialContextProvider {
     private final RailsAssetsService railsAssetsService;
     private final WebpackAssetsService webpackAssetsService;
     private final SecurityService securityService;
-    private final VersionInfoService versionInfoService;
     private final DefaultPluginInfoFinder pluginInfoFinder;
     private final MaintenanceModeService maintenanceModeService;
     private final ServerConfigService serverConfigService;
 
     @Autowired
     public InitialContextProvider(RailsAssetsService railsAssetsService, WebpackAssetsService webpackAssetsService,
-                                  SecurityService securityService, VersionInfoService versionInfoService, DefaultPluginInfoFinder pluginInfoFinder,
+                                  SecurityService securityService, DefaultPluginInfoFinder pluginInfoFinder,
                                   MaintenanceModeService maintenanceModeService, ServerConfigService serverConfigService) {
         this.railsAssetsService = railsAssetsService;
         this.webpackAssetsService = webpackAssetsService;
         this.securityService = securityService;
-        this.versionInfoService = versionInfoService;
         this.pluginInfoFinder = pluginInfoFinder;
         this.maintenanceModeService = maintenanceModeService;
         this.serverConfigService = serverConfigService;
@@ -78,18 +77,15 @@ public class InitialContextProvider {
 
     public Map<String, Object> getContext(Map<String, Object> modelMap, Class<? extends SparkController> controller, String viewName) {
         Map<String, Object> context = new HashMap<>(modelMap);
-        context.put("currentGoCDVersion", CurrentGoCDVersion.getInstance().getGocdDistVersion());
         context.put("railsAssetsService", railsAssetsService);
         context.put("webpackAssetsService", webpackAssetsService);
         context.put("securityService", securityService);
         context.put("maintenanceModeService", maintenanceModeService);
         context.put("currentUser", SessionUtils.currentUsername());
+        context.put("currentVersion", CurrentGoCDVersion.getInstance());
+        context.put("currentGoCDVersion", CurrentGoCDVersion.getInstance().getGocdDistVersion());
         context.put("controllerName", humanizedControllerName(controller));
         context.put("viewName", viewName);
-        context.put("currentVersion", CurrentGoCDVersion.getInstance());
-        context.put("toggles", Toggles.class);
-        context.put("goUpdate", versionInfoService.getGoUpdate());
-        context.put("goUpdateCheckEnabled", versionInfoService.isGOUpdateCheckEnabled());
         context.put("serverTimezoneUTCOffset", TimeZone.getDefault().getOffset(new Date().getTime()));
         context.put("spaRefreshInterval", SystemEnvironment.goSpaRefreshInterval());
         context.put("spaTimeout", SystemEnvironment.goSpaTimeout());

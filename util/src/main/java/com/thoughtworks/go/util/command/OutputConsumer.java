@@ -16,7 +16,7 @@
 package com.thoughtworks.go.util.command;
 
 public class OutputConsumer implements StreamConsumer {
-    private ConsoleOutputStreamConsumer consoleOutputStreamConsumer;
+    private final ConsoleOutputStreamConsumer consoleOutputStreamConsumer;
 
     public OutputConsumer(ConsoleOutputStreamConsumer consoleOutputStreamConsumer) {
         this.consoleOutputStreamConsumer = consoleOutputStreamConsumer;

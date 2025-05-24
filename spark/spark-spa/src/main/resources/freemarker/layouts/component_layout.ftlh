@@ -67,7 +67,6 @@
               var json = JSON.parse(xhr.responseText)
               if (oldManifestValue == null) {
                 oldManifestValue = json.hash;
-                return;
               } else if (oldManifestValue != json.hash) {
                 window.location.reload(true)
               }

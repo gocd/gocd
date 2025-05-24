@@ -78,7 +78,7 @@ public abstract class BaseCommandBuilder extends Builder {
             }
         } catch (CommandLineException ex) {
             LOG.warn("exec error");
-            LOG.warn("Could not execute command: " + commandLine.toStringForDisplay());
+            LOG.warn("Could not execute command: {}", commandLine.toStringForDisplay());
             throw ex;
         }
     }

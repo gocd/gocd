@@ -224,6 +224,8 @@ dependencies {
 
   implementation project.deps.commonsCodec
   implementation project.deps.commonsDbcp
+  implementation project.deps.commonsLang3
+
   api(project.deps.hibernate) {
     exclude(module: 'ehcache-core')
   }

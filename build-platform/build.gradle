@@ -34,9 +34,11 @@ dependencies {
 
   constraints {
     api project.deps.commonsCodec
-    api project.deps.commonsIO
-    api project.deps.commonsPool
     api project.deps.commonsCollections
+    api project.deps.commonsIO
+    api project.deps.commonsLang3
+    api project.deps.commonsPool
+    api project.deps.commonsText
     api project.deps.jetBrainsAnnotations
     api project.deps.objenesis
     api(project.deps.jakartaAnnotation) {

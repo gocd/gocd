@@ -28,6 +28,7 @@ dependencies {
   implementation project.deps.commonsCodec
   implementation project.deps.commonsCollections4
   implementation project.deps.commonsText
+  implementation project.deps.commonsLang3
   implementation(project.deps.quartz) {
     transitive = false
   }

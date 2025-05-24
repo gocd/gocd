@@ -21,7 +21,6 @@
 package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.util.*;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,7 +167,7 @@ public class CommandLine {
     public String describe() {
         String description = "--- Command ---\n" + this
             + "\n--- Environment ---\n" + env + "\n"
-            + "--- INPUT ----\n" + StringUtils.join(inputs, ",") + "\n";
+            + "--- INPUT ----\n" + String.join(",", inputs) + "\n";
         for (CommandArgument argument : arguments) {
             description = argument.replaceSecretInfo(description);
         }
@@ -347,7 +346,7 @@ public class CommandLine {
             throw new CommandLineException(this, result);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Output: \n" + StringUtils.join(result.outputForDisplay(), "\n"));
+            LOG.debug("Output: \n{}", String.join("\n", result.outputForDisplay()));
         }
         return result;
     }
@@ -380,13 +379,6 @@ public class CommandLine {
         return args.toArray(new String[0]);
     }
 
-    protected File getWorkingDir() {
-        return workingDir;
-    }
-
-    /**
-     * Sets execution directory
-     */
     public void setWorkingDir(File workingDir) {
         checkWorkingDir(workingDir);
         this.workingDir = workingDir;

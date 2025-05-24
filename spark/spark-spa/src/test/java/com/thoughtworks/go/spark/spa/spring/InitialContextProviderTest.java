@@ -63,7 +63,7 @@ class InitialContextProviderTest {
         serverConfigService = mock(ServerConfigService.class);
         Toggles.initializeWith(featureToggleService);
         initialContextProvider = new InitialContextProvider(railsAssetsService, webpackAssetsService, securityService,
-                versionInfoService, pluginInfoFinder, maintenanceModeService, serverConfigService);
+            pluginInfoFinder, maintenanceModeService, serverConfigService);
         SessionUtils.setCurrentUser(new GoUserPrincipal("bob", "Bob"));
     }
 

@@ -42,7 +42,7 @@ class FreemarkerTemplateEngineFactoryTest {
   @BeforeEach
   void setUp() {
     Toggles.initializeWith(mock(FeatureToggleService.class))
-    initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(VersionInfoService), mock(DefaultPluginInfoFinder), mock(MaintenanceModeService), mock(ServerConfigService))
+    initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(DefaultPluginInfoFinder), mock(MaintenanceModeService), mock(ServerConfigService))
     engine = new FreemarkerTemplateEngineFactory(initialContextProvider, new DefaultResourceLoader(getClass().getClassLoader()), "classpath:freemarker")
     engine.afterPropertiesSet()
     SessionUtils.setCurrentUser(new GoUserPrincipal("bob", "Bob"))

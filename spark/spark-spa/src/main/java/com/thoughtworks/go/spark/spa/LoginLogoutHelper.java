@@ -27,8 +27,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 public class LoginLogoutHelper {
     private final GoConfigService goConfigService;
     private final AuthorizationMetadataStore authorizationMetadataStore;
@@ -78,8 +76,9 @@ public class LoginLogoutHelper {
             )).collect(Collectors.toList())
         );
 
-        if (isNotBlank(SessionUtils.getAuthenticationError(request.raw()))) {
-            metaBuilder.put("loginError", SessionUtils.getAuthenticationError(request.raw()));
+        String authenticationError = SessionUtils.getAuthenticationError(request.raw());
+        if (authenticationError != null && !authenticationError.isBlank()) {
+            metaBuilder.put("loginError", authenticationError);
         }
 
         return Collections.unmodifiableMap(metaBuilder);

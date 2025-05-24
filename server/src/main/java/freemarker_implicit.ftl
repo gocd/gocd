@@ -26,8 +26,6 @@
 [#-- @ftlvariable name="concatenatedCruiseIconFilePath" type="java.lang.String" --]
 
 [#-- @ftlvariable name="pathResolver" type="com.thoughtworks.go.server.service.RailsAssetsService" --]
-[#-- @ftlvariable name="goUpdate" type="java.lang.String" --]
-[#-- @ftlvariable name="goUpdateCheckEnabled" type="boolean" --]
 
 [#-- @ftlvariable name="showAnalyticsDashboard" type="boolean" --]
 [#-- @ftlvariable name="webpackAssetsService" type="com.thoughtworks.go.server.service.WebpackAssetsService" --]

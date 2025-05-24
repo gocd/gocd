@@ -23,6 +23,7 @@ dependencies {
   api project(path: ':common', configuration: 'runtimeElements')
   api project(path: ':server', configuration: 'runtimeElements')
 
+  implementation project.deps.commonsLang3
   implementation platform(project.deps.jacksonBom)
   implementation project.deps.jacksonCore
   implementation project.deps.jacksonDatabind

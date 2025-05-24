@@ -16,7 +16,6 @@
 package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.util.ExceptionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -73,19 +72,19 @@ public class ConsoleResult {
     }
 
     public String outputAsString() {
-        return StringUtils.join(output(), "\n");
+        return String.join("\n", output());
     }
 
     public String outputForDisplayAsString() {
-        return StringUtils.join(outputForDisplay(), "\n");
+        return String.join("\n", outputForDisplay());
     }
 
     public String errorAsString() {
-        return StringUtils.join(error(), "\n");
+        return String.join("\n", error());
     }
 
     public String errorForDisplayAsString() {
-        return StringUtils.join(forDisplay(error), "\n");
+        return String.join("\n", forDisplay(error));
     }
 
     private List<String> forDisplay(List<String> from) {

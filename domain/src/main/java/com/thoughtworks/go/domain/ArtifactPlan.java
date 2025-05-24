@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.FileUtil.subtractPath;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 
 public class ArtifactPlan extends PersistentObject {
@@ -218,6 +217,11 @@ public class ArtifactPlan extends PersistentObject {
         return dest + trimmedPath;
     }
 
+    private static String subtractPath(File rootPath, File file) {
+        String fullPath = FilenameUtils.separatorsToUnix(file.getParentFile().getPath());
+        String basePath = FilenameUtils.separatorsToUnix(rootPath.getPath());
+        return removeStart(removeStart(fullPath, basePath), "/");
+    }
 
     public static List<ArtifactPlan> toArtifactPlans(ArtifactTypeConfigs artifactConfigs) {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();

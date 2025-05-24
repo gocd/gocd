@@ -25,8 +25,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 public class H2BackupProcessor implements BackupProcessor {
 
     @Override
@@ -39,6 +37,6 @@ public class H2BackupProcessor implements BackupProcessor {
 
     @Override
     public boolean accepts(String url) {
-        return isBlank(url) || url.startsWith("jdbc:h2:");
+        return url == null || url.isBlank() || url.startsWith("jdbc:h2:");
     }
 }

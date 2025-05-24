@@ -29,11 +29,10 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import spark.utils.StringUtils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -101,7 +100,15 @@ public class InitialContextProvider {
     }
 
     private String humanizedControllerName(Class<? extends SparkController> controller) {
-        return StringUtil.camelCaseToSnakeCase(controller.getSimpleName().replaceAll("(Delegate|Controller)", ""));
+        return camelCaseToSnakeCase(controller.getSimpleName().replaceAll("(Delegate|Controller)", ""));
+    }
+
+    static String camelCaseToSnakeCase(String s) {
+        String[] words = StringUtils.splitByCharacterTypeCamelCase(s);
+        for (int i = 0; i < words.length; i++) {
+            words[i] = words[i].toLowerCase();
+        }
+        return String.join("_", words);
     }
 
     private boolean showAnalyticsDashboard() {

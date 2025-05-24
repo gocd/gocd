@@ -16,7 +16,6 @@
 package com.thoughtworks.go.util;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 
@@ -24,12 +23,12 @@ public class FilenameUtil {
     public static boolean isNormalizedDirectoryPathInsideNormalizedParentDirectory(String parent, String subdirectory) {
         final String normalizedParentPath = FilenameUtils.normalize(parent + File.separator);
         final String normalizedSubDirPath = FilenameUtils.normalize(subdirectory + File.separator);
-        return StringUtils.isNotBlank(normalizedParentPath) && StringUtils.isNotBlank(normalizedSubDirPath) && normalizedSubDirPath.startsWith(normalizedParentPath);
+        return !normalizedParentPath.isBlank() && !normalizedSubDirPath.isBlank() && normalizedSubDirPath.startsWith(normalizedParentPath);
     }
     public static boolean isNormalizedPathOutsideWorkingDir(String path) {
         final String normalize = FilenameUtils.normalize(path);
         final String prefix = FilenameUtils.getPrefix(normalize);
-        return (normalize != null && StringUtils.isBlank(prefix));
+        return normalize != null && (prefix == null || prefix.isBlank());
     }
 }
 

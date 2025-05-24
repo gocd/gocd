@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -45,12 +46,14 @@ public class GoPluginBundleDescriptorBuilder {
                 .build());
 
         try {
-            if (bundleOrPluginJarFile.isBundleJar()) {
-                return GoPluginBundleDescriptorParser.parseXML(bundleOrPluginJarFile.getBundleXml(), bundleOrPluginJarFile);
+            InputStream bundleXml = bundleOrPluginJarFile.getBundleXml();
+            if (bundleXml.available() > 0) {
+                return GoPluginBundleDescriptorParser.parseXML(bundleXml, bundleOrPluginJarFile);
             }
 
-            if (bundleOrPluginJarFile.isPluginJar()) {
-                return GoPluginDescriptorParser.parseXML(bundleOrPluginJarFile.getPluginXml(), bundleOrPluginJarFile);
+            InputStream pluginXml = bundleOrPluginJarFile.getPluginXml();
+            if (pluginXml.available() > 0) {
+                return GoPluginDescriptorParser.parseXML(pluginXml, bundleOrPluginJarFile);
             }
 
             goPluginBundleDescriptor.markAsInvalid(List.of(format("Plugin with ID (%s) is not valid. The plugin does not seem to contain plugin.xml or gocd-bundle.xml", defaultId)), new RuntimeException("The plugin does not seem to contain plugin.xml or gocd-bundle.xml"));

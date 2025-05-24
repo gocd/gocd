@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.domain.analytics;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.nio.file.Paths;
@@ -42,7 +41,7 @@ public class AnalyticsData {
     }
 
     public String getFullViewPath() {
-        if (StringUtils.isBlank(assetRoot)) {
+        if (assetRoot == null || assetRoot.isBlank()) {
             return viewPath;
         }
 

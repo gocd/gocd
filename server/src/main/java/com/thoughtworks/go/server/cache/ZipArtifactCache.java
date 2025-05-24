@@ -27,8 +27,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.zip.Deflater;
 
-import static com.thoughtworks.go.util.StringUtil.removeTrailingSlash;
-
 @Component
 public class ZipArtifactCache extends ArtifactCache<ArtifactFolder> {
     private final ZipUtil zipUtil;
@@ -37,6 +35,13 @@ public class ZipArtifactCache extends ArtifactCache<ArtifactFolder> {
     public ZipArtifactCache(ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil) {
         super(artifactsDirHolder);
         this.zipUtil = zipUtil;
+    }
+
+    private static String removeTrailingSlash(String s) {
+        if (s.endsWith("/")) {
+            return s.substring(0, s.length() - 1);
+        }
+        return s;
     }
 
     @Override

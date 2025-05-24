@@ -25,8 +25,6 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskView;
-import com.thoughtworks.go.util.StringUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +79,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                         }
                     }
                     if (propertyValue.containsKey("display-order")) {
-                        if (!(propertyValue.get("display-order") instanceof String && StringUtil.isInteger((String) propertyValue.get("display-order")))) {
+                        if (!(propertyValue.get("display-order") instanceof String && isInteger((String) propertyValue.get("display-order")))) {
                             exceptions.add(String.format("Key: '%s' - 'display-order' should be a String containing a numerical value", entry.getKey()));
                         } else {
                             property.with(Property.DISPLAY_ORDER, Integer.parseInt((String) propertyValue.get("display-order")));
@@ -105,7 +103,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                 taskConfig.add(property);
             }
             if (!exceptions.isEmpty()) {
-                throw new RuntimeException(StringUtils.join(exceptions, ", "));
+                throw new RuntimeException(org.apache.commons.lang3.StringUtils.join(exceptions, ", "));
             }
             return taskConfig;
         } catch (Exception e) {
@@ -132,7 +130,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                 }
             }
             if (!exceptions.isEmpty()) {
-                throw new RuntimeException(StringUtils.join(exceptions, ", "));
+                throw new RuntimeException(org.apache.commons.lang3.StringUtils.join(exceptions, ", "));
             }
             return validationResult;
         } catch (Exception e) {
@@ -157,7 +155,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                 }
             }
             if (!exceptions.isEmpty()) {
-                throw new RuntimeException(StringUtils.join(exceptions, ", "));
+                throw new RuntimeException(org.apache.commons.lang3.StringUtils.join(exceptions, ", "));
             }
             return new TaskView() {
                 @Override
@@ -189,7 +187,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                 exceptions.add("If the 'message' key is present in the Json for Execution Result, it must contain a not-null message of type String");
             }
             if (!exceptions.isEmpty()) {
-                throw new RuntimeException(StringUtils.join(exceptions, ", "));
+                throw new RuntimeException(org.apache.commons.lang3.StringUtils.join(exceptions, ", "));
             }
             if ((Boolean) result.get("success")) {
                 executionResult.withSuccessMessages((String) result.get("message"));
@@ -202,6 +200,16 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
             throw new RuntimeException(String.format("Error occurred while converting the Json to Execution Result. Error: %s.", e.getMessage()));
         }
     }
+
+    private static boolean isInteger(String s) {
+        try {
+            Integer.parseInt(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
 
     @Override
     public String getTaskExecutionBody(TaskConfig config, TaskExecutionContext taskExecutionContext) {

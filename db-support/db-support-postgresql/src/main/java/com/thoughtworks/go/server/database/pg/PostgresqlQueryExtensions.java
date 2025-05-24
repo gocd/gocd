@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.database.pg;
 
 import com.thoughtworks.go.server.database.QueryExtensions;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 public class PostgresqlQueryExtensions extends QueryExtensions {
     @Override
     public String retrievePipelineTimeline() {
@@ -34,6 +32,6 @@ public class PostgresqlQueryExtensions extends QueryExtensions {
 
     @Override
     public boolean accepts(String url) {
-        return isNotBlank(url) && url.startsWith("jdbc:postgresql:");
+        return url != null && url.startsWith("jdbc:postgresql:");
     }
 }

@@ -17,7 +17,6 @@
 description = 'Metadata store for GoCD Plugins'
 
 dependencies {
-  implementation project.deps.commonsLang3
   implementation project(path: ':plugin-infra:go-plugin-api', configuration: 'runtimeElements')
   implementation project(path: ':plugin-infra:go-plugin-domain', configuration: 'runtimeElements')
   compileOnly project.deps.jetBrainsAnnotations

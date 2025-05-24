@@ -25,7 +25,6 @@ import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.LogFixture;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -322,7 +321,7 @@ public class AgentProcessParentImplTest {
             };
             int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<>(), context());
             assertThat(returnCode).isEqualTo(-373);
-            assertThat(logFixture.contains(Level.ERROR, "Exception while executing command: " + StringUtils.join(cmd, " ") + " - java.lang.RuntimeException: something failed!")).isEqualTo(true);
+            assertThat(logFixture.contains(Level.ERROR, "Exception while executing command: " + String.join(" ", cmd) + " - java.lang.RuntimeException: something failed!")).isEqualTo(true);
         }
     }
 

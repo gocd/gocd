@@ -15,12 +15,8 @@
  */
 package com.thoughtworks.go.server.messaging;
 
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
-
-import java.util.Set;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 
@@ -104,33 +100,5 @@ public class EmailMessageDrafter {
     public static SendEmailMessage backupFailedMessage(String exceptionMessage, String adminEmail) {
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         return new SendEmailMessage("Server Backup Failed",String.format("Backup of the Go server at '%s' has failed. The reason is: %s", ipAddress, exceptionMessage),adminEmail);
-    }
-
-    public static SendEmailMessage agentLostContact(AgentInstance agentInstance, Set<String> environments, final String adminEmail) {
-        String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
-        return new SendEmailMessage(String.format("[Lost Contact] Go agent host: %s", agentInstance.getHostname()),
-                String.format("""
-                                The email has been sent out automatically by the Go server at (%s) to Go administrators.
-
-                                The Go server has lost contact with agent:
-
-                                Agent name: %s
-                                Free Space: %s
-                                Sandbox: %s
-                                IP Address: %s
-                                OS: %s
-                                Resources: %s
-                                Environments: %s
-
-                                Lost contact at: %s""",
-                        ipAddress,
-                        agentInstance.getHostname(),
-                        agentInstance.freeDiskSpace(),
-                        agentInstance.getLocation(),
-                        agentInstance.getIpAddress(),
-                        agentInstance.getOperatingSystem(),
-                        agentInstance.getResourceConfigs(),
-                        StringUtil.joinForDisplay(environments),
-                        agentInstance.getLastHeardTime()), adminEmail);
     }
 }

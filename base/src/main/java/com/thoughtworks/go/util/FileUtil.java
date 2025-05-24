@@ -17,7 +17,6 @@ package com.thoughtworks.go.util;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +52,7 @@ public class FileUtil {
             return actualFileToUse;
         }
 
-        if (StringUtils.isBlank(baseDir.getPath())) {
+        if (baseDir.getPath().isBlank()) {
             return actualFileToUse;
         }
 
@@ -113,12 +112,6 @@ public class FileUtil {
                 file1.createNewFile();
             }
         }
-    }
-
-    public static String subtractPath(File rootPath, File file) {
-        String fullPath = FilenameUtils.separatorsToUnix(file.getParentFile().getPath());
-        String basePath = FilenameUtils.separatorsToUnix(rootPath.getPath());
-        return StringUtils.removeStart(StringUtils.removeStart(fullPath, basePath), "/");
     }
 
     public static File createTempFolder() {

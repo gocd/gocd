@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain.builder;
 
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ExecScript;
@@ -52,10 +51,14 @@ public abstract class AbstractCommandBuilderScriptRunnerTest {
             "dir1", // Regular dir without spaces
             "dir 2", // Regular dir with space
             "\"dir3\""); // Regular dir without spaces pre-quoted
-        for (Path dir : paths.stream().map(p -> tempWorkDir.resolve(StringUtil.unQuote(p))).toList()) {
+        for (Path dir : paths.stream().map(p -> tempWorkDir.resolve(unQuote(p))).toList()) {
             Files.createDirectory(dir);
         }
         return paths;
+    }
+
+    private static String unQuote(String string) {
+        return string == null ? null : string.replaceAll("^\"|\"$", "");
     }
 
     protected void assertThatExecutableOutputIncludesArgs(String executableLocation, String... executableArgs) {

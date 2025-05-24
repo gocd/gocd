@@ -21,17 +21,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 public class TempDirUtils {
     private static final String DIR_PREFIX = "testDir";
 
     private TempDirUtils() {
     }
 
-
     public static Path createTempDirectoryIn(Path tempDir, String folderName) throws IOException {
-        return isBlank(folderName) ? Files.createTempDirectory(tempDir, DIR_PREFIX) : Files.createDirectories(tempDir.resolve(folderName));
+        return folderName == null || folderName.isBlank() ? Files.createTempDirectory(tempDir, DIR_PREFIX) : Files.createDirectories(tempDir.resolve(folderName));
     }
 
     public static Path createRandomDirectoryIn(Path tempDir) throws IOException {

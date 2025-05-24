@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.server.web;
 
-import com.thoughtworks.go.util.StringUtil;
 import org.springframework.web.servlet.support.RequestContext;
 
 import javax.servlet.http.HttpServletRequest;
-
-import static com.thoughtworks.go.util.GoConstants.BASE_URL_PATTERN;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GoRequestContext extends RequestContext {
+    private static final Pattern BASE_URL_PATTERN = Pattern.compile("^(.+://.+?)/");
     private final HttpServletRequest httpServletRequest;
 
     public GoRequestContext(HttpServletRequest httpServletRequest) {
@@ -31,7 +31,14 @@ public class GoRequestContext extends RequestContext {
     }
 
     public String getFullRequestPath() {
-        String fullUrl = httpServletRequest.getRequestURL().toString();
-        return StringUtil.matchPattern(BASE_URL_PATTERN, fullUrl) + httpServletRequest.getContextPath();
+        return baseUrl(httpServletRequest.getRequestURL().toString()) + httpServletRequest.getContextPath();
+    }
+
+    private static String baseUrl(String s) {
+        Matcher matcher = BASE_URL_PATTERN.matcher(s);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
     }
 }

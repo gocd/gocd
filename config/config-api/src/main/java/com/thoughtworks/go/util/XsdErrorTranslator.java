@@ -94,6 +94,14 @@ public class XsdErrorTranslator extends DefaultHandler {
         errorMapping.add(new MappingEntry(pattern, replacement, transforms));
     }
 
+    public static String humanize(String s) {
+        String[] words = StringUtils.splitByCharacterTypeCamelCase(s);
+        for (int i = 0; i < words.length; i++) {
+            words[i] = words[i].toLowerCase();
+        }
+        return String.join(" ", words);
+    }
+
     private static class MappingEntry {
         public final Pattern pattern;
         public final String replacement;
@@ -125,7 +133,7 @@ public class XsdErrorTranslator extends DefaultHandler {
             for (int i = 0, transformsLength = transforms.length; i < transformsLength; i++) {
                 int transform = transforms[i];
                 if ((transform & HUMANIZE) != 0) {
-                    args[i] = StringUtil.humanize(args[i]);
+                    args[i] = humanize(args[i]);
                 }
                 if ((transform & CAPITALIZE) != 0) {
                     args[i] = StringUtils.capitalize(args[i]);

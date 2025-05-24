@@ -20,7 +20,6 @@ import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
 import com.thoughtworks.go.agent.testhelper.GoTestResource;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.UUID;
 
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.TEST_AGENT_LAUNCHER;
@@ -126,6 +126,6 @@ public class AgentBootstrapperFunctionalTest {
     }
 
     private void createRandomFile(File agentJar) throws IOException {
-        FileUtils.writeStringToFile(agentJar, RandomStringUtils.insecure().next((int) (Math.random() * 100)), UTF_8);
+        FileUtils.writeStringToFile(agentJar, UUID.randomUUID().toString(), UTF_8);
     }
 }

@@ -71,7 +71,6 @@ task verifyJar(type: VerifyJarTask) {
       "agent-common-${project.version}.jar",
       "base-${project.version}.jar",
       "commons-io-${project.versions.commonsIO}.jar",
-      "commons-lang3-${project.versions.commonsLang3}.jar",
       "jcommander-${project.versions.jcommander}.jar",
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",

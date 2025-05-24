@@ -21,7 +21,10 @@ import org.jdom2.JDOMException;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -42,10 +45,6 @@ public class XmlUtils {
 
     public static Document buildXmlDocument(InputStream inputStream) throws IOException, JDOMException {
         return new SafeSaxBuilder().build(inputStream);
-    }
-
-    public static Document buildXmlDocument(File file) throws IOException, JDOMException {
-        return new SafeSaxBuilder().build(file);
     }
 
     public static Document buildXmlDocument(String xmlContent) throws IOException, JDOMException {

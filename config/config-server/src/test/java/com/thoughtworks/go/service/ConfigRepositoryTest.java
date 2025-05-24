@@ -441,6 +441,14 @@ public class ConfigRepositoryTest {
         assertThat(configRepo.commitCountOnMaster()).isEqualTo(2L);
     }
 
+    @Test
+    public void shouldStripTillLastOccurrenceOfGivenString() {
+        assertThat(ConfigRepository.stripTillLastOccurrenceOf("HelloWorld@@\\nfoobar\\nquux@@keep_this", "@@")).isEqualTo("keep_this");
+        assertThat(ConfigRepository.stripTillLastOccurrenceOf("HelloWorld", "@@")).isEqualTo("HelloWorld");
+        assertThat(ConfigRepository.stripTillLastOccurrenceOf(null, "@@")).isNull();
+        assertThat(ConfigRepository.stripTillLastOccurrenceOf("", "@@")).isEqualTo("");
+    }
+
     private GoConfigRevision goConfigRevision(String fileContent, String md5) {
         return new GoConfigRevision(fileContent, md5, "user-1", "13.2", new TimeProvider());
     }

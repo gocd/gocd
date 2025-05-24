@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.lang3.StringUtils;
-
 // an object that represents a ruby like truthy
 public abstract class TriState {
     public static TriState UNSET = new TriState() {
@@ -69,7 +67,7 @@ public abstract class TriState {
     }
 
     public static TriState from(String booleanLike) {
-        if (StringUtils.isBlank(booleanLike)) {
+        if (booleanLike == null || booleanLike.isBlank()) {
             return UNSET;
         }
         if (booleanLike.equalsIgnoreCase("false")) {

@@ -17,12 +17,11 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
-import org.apache.commons.lang3.StringUtils;
 
 public class TrimStringAdapter extends XmlAdapter<String, String> {
     @Override
     public String unmarshal(String v) {
-        return StringUtils.trim(v);
+        return v == null ? null : v.trim();
     }
 
     /**
@@ -30,6 +29,6 @@ public class TrimStringAdapter extends XmlAdapter<String, String> {
      */
     @Override
     public String marshal(String v) {
-        return StringUtils.trim(v);
+        return unmarshal(v);
     }
 }

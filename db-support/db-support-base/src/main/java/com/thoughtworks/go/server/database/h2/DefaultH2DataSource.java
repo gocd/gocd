@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.database.h2;
 
 import com.thoughtworks.go.server.database.DbProperties;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 
@@ -39,8 +38,8 @@ public class DefaultH2DataSource {
                 ;
 
         basicDataSource.setUrl(defaultH2Url);
-        basicDataSource.setUsername(StringUtils.defaultIfBlank(properties.user(), "sa"));
-        basicDataSource.setPassword(StringUtils.stripToEmpty(properties.password()));
+        basicDataSource.setUsername(properties.user().isBlank() ? "sa" : properties.user());
+        basicDataSource.setPassword(properties.password().strip());
         basicDataSource.setMaxIdle(properties.maxIdle());
         basicDataSource.setMaxTotal(properties.maxTotal());
         return basicDataSource;

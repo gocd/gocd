@@ -15,10 +15,8 @@
  */
 package com.thoughtworks.go.util.command;
 
-import org.apache.commons.lang3.StringUtils;
-
 public class ExecScript implements Script, StreamConsumer {
-    private String errorStr;
+    private final String errorStr;
     private int exitCode;
     private boolean foundError = false;
 
@@ -33,37 +31,23 @@ public class ExecScript implements Script, StreamConsumer {
      */
     @Override
     public synchronized void consumeLine(final String line) {
-
         // check if the output contains the error string
-        if (StringUtils.isNotEmpty(errorStr)) {
-            // YES: set error flag
-            if (StringUtils.equalsIgnoreCase(line.trim(), errorStr)) {
-                foundError = true;
-            }
+        if (errorStr != null && !errorStr.isEmpty() && errorStr.equalsIgnoreCase(line.trim())) {
+            foundError = true;
         }
-    } // consumeLine
+    }
 
-    /**
-     * @return returns the exitcode of the command
-     */
     @Override
     public int getExitCode() {
         return exitCode;
     } // getExitCode
 
-    /**
-     * @param exitCode the exit code value to set.
-     */
     @Override
     public void setExitCode(int exitCode) {
         this.exitCode = exitCode;
     } // setExitCode
 
-    /**
-     * @return true if error occurred, else false
-     */
     public boolean foundError() {
         return this.foundError;
-    } // wasError
-
-} // ExecScript
+    }
+}

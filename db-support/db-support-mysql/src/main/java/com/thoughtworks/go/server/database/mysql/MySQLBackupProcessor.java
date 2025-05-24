@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 @Slf4j
 public class MySQLBackupProcessor implements BackupProcessor {
 
@@ -57,14 +55,14 @@ public class MySQLBackupProcessor implements BackupProcessor {
 
     @Override
     public boolean accepts(String url) {
-        return isNotBlank(url) && url.startsWith("jdbc:mysql:");
+        return url != null && url.startsWith("jdbc:mysql:");
     }
 
     private ProcessExecutor createProcessExecutor(File targetDir, DbProperties dbProperties) {
         ConnectionUrl connectionUrlInstance = ConnectionUrl.getConnectionUrlInstance(dbProperties.url(), dbProperties.connectionProperties());
 
         Map<String, String> env = new LinkedHashMap<>();
-        if (isNotBlank(dbProperties.password())) {
+        if (!dbProperties.password().isBlank()) {
             env.put("MYSQL_PWD", dbProperties.password());
         }
         // override with any user specified environment
@@ -80,12 +78,12 @@ public class MySQLBackupProcessor implements BackupProcessor {
             argv.add("--host=" + mainHost.getHost());
             argv.add("--port=" + mainHost.getPort());
         }
-        if (isNotBlank(dbProperties.user())) {
+        if (!dbProperties.user().isBlank()) {
             argv.add("--user=" + dbProperties.user());
         }
 
         // append any user specified args for mysqldump
-        if (isNotBlank(dbProperties.extraBackupCommandArgs())) {
+        if (!dbProperties.extraBackupCommandArgs().isBlank()) {
             Collections.addAll(argv, Commandline.translateCommandline(dbProperties.extraBackupCommandArgs()));
         }
 

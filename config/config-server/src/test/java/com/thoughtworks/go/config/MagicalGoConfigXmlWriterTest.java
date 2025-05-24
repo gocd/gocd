@@ -42,7 +42,6 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jdom2.input.JDOMParseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -1058,7 +1057,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldValidateLeadingAndTrailingSpacesOnExecCommandInReasonableTime() throws Exception {
         // See https://github.com/gocd/gocd/issues/3551
         // This is only reproducible on longish strings, so don't try shortening the exec task length...
-        String longPath = StringUtils.repeat("f", 100);
+        String longPath = "f".repeat(100);
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
         config.initializeServer();
         config.findJob("pipeline1", "stage", "job").addTask(new ExecTask(longPath + " ", "arg1", (String) null));

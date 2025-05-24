@@ -16,14 +16,13 @@
 package com.thoughtworks.go.util;
 
 import org.apache.commons.io.input.UnixLineEndingInputStream;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -82,11 +81,7 @@ public class CommandUtils {
     }
 
     public static String shellJoin(String... args) {
-        List<String> strings = new ArrayList<>();
-        for (String arg : args) {
-            strings.add(quoteArgument(arg));
-        }
-        return StringUtils.join(strings, " ");
+        return Arrays.stream(args).map(CommandUtils::quoteArgument).collect(Collectors.joining(" "));
     }
 
 }

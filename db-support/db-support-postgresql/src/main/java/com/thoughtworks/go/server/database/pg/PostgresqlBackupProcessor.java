@@ -30,8 +30,6 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.util.*;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 @Slf4j
 public class PostgresqlBackupProcessor implements BackupProcessor {
 
@@ -54,7 +52,7 @@ public class PostgresqlBackupProcessor implements BackupProcessor {
 
     @Override
     public boolean accepts(String url) {
-        return isNotBlank(url) && url.startsWith("jdbc:postgresql:");
+        return url != null && url.startsWith("jdbc:postgresql:");
     }
 
     ProcessExecutor createProcessExecutor(File targetDir, DbProperties dbProperties) {
@@ -62,7 +60,7 @@ public class PostgresqlBackupProcessor implements BackupProcessor {
         Properties pgProperties = Driver.parseURL(dbProperties.url(), connectionProperties);
 
         Map<String, String> env = new LinkedHashMap<>();
-        if (isNotBlank(dbProperties.password())) {
+        if (!dbProperties.password().isBlank()) {
             env.put("PGPASSWORD", dbProperties.password());
         }
 
@@ -76,12 +74,12 @@ public class PostgresqlBackupProcessor implements BackupProcessor {
         argv.add("--host=" + pgProperties.getProperty("PGHOST"));
         argv.add("--port=" + pgProperties.getProperty("PGPORT"));
         argv.add("--dbname=" + dbName);
-        if (isNotBlank(dbProperties.user())) {
+        if (!dbProperties.user().isBlank()) {
             argv.add("--username=" + dbProperties.user());
         }
         argv.add("--no-password");
         // append any user specified args for pg_dump
-        if (isNotBlank(dbProperties.extraBackupCommandArgs())) {
+        if (!dbProperties.extraBackupCommandArgs().isBlank()) {
             Collections.addAll(argv, Commandline.translateCommandline(dbProperties.extraBackupCommandArgs()));
         }
         argv.add("--file=" + new File(targetDir, "db." + dbName));

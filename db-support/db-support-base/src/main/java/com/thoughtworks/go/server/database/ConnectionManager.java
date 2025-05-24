@@ -29,8 +29,6 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 @Slf4j
 public class ConnectionManager {
     @Getter(lazy = true)
@@ -63,7 +61,7 @@ public class ConnectionManager {
         final DbProperties dbProperties = getDbProperties();
         BasicDataSource basicDataSource = new BasicDataSource();
 
-        if (isBlank(dbProperties.url())) {
+        if (dbProperties.url().isBlank()) {
             return DefaultH2DataSource.defaultH2DataSource(basicDataSource, dbProperties);
         }
 
@@ -106,9 +104,10 @@ public class ConnectionManager {
         Properties propertiesFromConfigFile = new Properties();
         propertiesFromConfigFile.putAll(systemProperties);
 
-        if (dbConfigFileExists(systemProperties, configDir)) {
-            log.info("Loading database config from file {}", dbConfigFile(propertiesFromConfigFile, configDir));
-            try (FileInputStream is = new FileInputStream(dbConfigFile(propertiesFromConfigFile, configDir))) {
+        File configFile = dbConfigFile(propertiesFromConfigFile, configDir);
+        if (configFile != null && configFile.exists()) {
+            log.info("Loading database config from file {}", configFile);
+            try (FileInputStream is = new FileInputStream(configFile)) {
                 propertiesFromConfigFile.load(is);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -119,17 +118,8 @@ public class ConnectionManager {
         return new DbProperties().initializeFrom(propertiesFromConfigFile, decrypter);
     }
 
-    private static boolean dbConfigFileExists(Properties properties, File configDir) {
-        File file = dbConfigFile(properties, configDir);
-        if (file != null) {
-            return file.exists();
-        } else {
-            return false;
-        }
-    }
-
     private static File dbConfigFile(Properties properties, File configDir) {
-        if (isBlank(dbConfigFilePath(properties))) {
+        if (dbConfigFilePath(properties).isBlank()) {
             return null;
         }
         return new File(configDir, dbConfigFilePath(properties));

@@ -33,8 +33,8 @@ import java.util.List;
 
 public class GoArtifactsManipulatorStub extends GoArtifactsManipulator {
     private final List<String> consoleOuts;
-    private List<FetchHandler> savedTo = new ArrayList<>();
-    private List<UploadEntry> uploads = new ArrayList<>();
+    private final List<FetchHandler> savedTo = new ArrayList<>();
+    private final List<UploadEntry> uploads = new ArrayList<>();
 
     public GoArtifactsManipulatorStub() {
         super(new HttpServiceStub(), new URLService(), new ZipUtil());
@@ -79,13 +79,5 @@ public class GoArtifactsManipulatorStub extends GoArtifactsManipulator {
     public List<FetchHandler> artifact() {
         return savedTo;
     }
-
-
-    public void printConsoleOut() {
-        for (String consoleOut : consoleOuts) {
-            System.out.println(consoleOut);
-        }
-    }
-
 }
 

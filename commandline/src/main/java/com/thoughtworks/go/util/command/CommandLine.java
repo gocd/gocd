@@ -96,7 +96,7 @@ public class CommandLine {
     }
 
     public static String[] translateCommandLine(String toProcess) throws CommandLineException {
-        if (toProcess == null || toProcess.length() == 0) {
+        if (toProcess == null || toProcess.isEmpty()) {
             return new String[0];
         }
 

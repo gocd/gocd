@@ -25,8 +25,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.apache.commons.lang3.StringUtils.repeat;
-
 @Slf4j
 public class DbDeploySchemaVerifier {
 
@@ -60,7 +58,7 @@ public class DbDeploySchemaVerifier {
     }
 
     private void throwFormattedError(String msg) {
-        List<String> messages = List.of(repeat("*", "", 72), msg, repeat("*", "", 72));
+        List<String> messages = List.of("*".repeat(72), msg, "*".repeat(72));
 
         for (String message : messages) {
             System.err.println(message);

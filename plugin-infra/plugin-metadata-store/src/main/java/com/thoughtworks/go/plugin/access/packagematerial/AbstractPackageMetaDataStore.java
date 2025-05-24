@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
 public abstract class AbstractPackageMetaDataStore extends PluginPreferenceStore<PackageConfigurations> {
 
     public void addMetadataFor(String pluginId, PackageConfigurations configuration) {
@@ -31,21 +29,21 @@ public abstract class AbstractPackageMetaDataStore extends PluginPreferenceStore
     }
 
     public PackageConfigurations getMetadata(String pluginId) {
-        if (isEmpty(pluginId)) {
+        if (pluginId == null || pluginId.isEmpty()) {
             return null;
         }
         return preferenceFor(pluginId);
     }
 
     public void removeMetadata(String pluginId) {
-        if (!isEmpty(pluginId)) {
+        if (pluginId != null && !pluginId.isEmpty()) {
             removePreferenceFor(pluginId);
         }
     }
 
     @Override
     public boolean hasOption(String pluginId, String key, Option<Boolean> option) {
-        if (!isEmpty(pluginId) && hasPreferenceFor(pluginId)) {
+        if (pluginId != null && !pluginId.isEmpty() && hasPreferenceFor(pluginId)) {
             PackageConfigurations configurations = preferenceFor(pluginId);
             PackageConfiguration configurationForGivenKey = configurations.get(key);
             if (configurationForGivenKey != null) {

@@ -34,8 +34,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.lang3.StringUtils.repeat;
-
 @Slf4j
 public class DatabaseMigrator {
 
@@ -44,9 +42,9 @@ public class DatabaseMigrator {
             log.info("Upgrading database, this might take a while depending on the size of the database.");
 
             List<String> messages = List.of(
-                    repeat("*", "", 72),
-                    "WARNING: Shutting down your server at this point will lead to a database corruption. Please wait until the database upgrade completes.",
-                    repeat("*", "", 72)
+                "*".repeat(72),
+                "WARNING: Shutting down your server at this point will lead to a database corruption. Please wait until the database upgrade completes.",
+                "*".repeat(72)
             );
             for (String message : messages) {
                 System.err.println(message);

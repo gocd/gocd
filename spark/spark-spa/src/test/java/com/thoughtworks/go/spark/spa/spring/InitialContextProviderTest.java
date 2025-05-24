@@ -96,6 +96,14 @@ class InitialContextProviderTest {
         assertThat(contect.get("showAnalyticsDashboard")).isEqualTo(false);
     }
 
+    @Test
+    public void shouldConvertToSnakeCase() {
+        assertThat(InitialContextProvider.camelCaseToSnakeCase("camelCase")).isEqualTo("camel_case");
+        assertThat(InitialContextProvider.camelCaseToSnakeCase("PascalCase")).isEqualTo("pascal_case");
+        assertThat(InitialContextProvider.camelCaseToSnakeCase("camel")).isEqualTo("camel");
+        assertThat(InitialContextProvider.camelCaseToSnakeCase("camelCaseForALongString")).isEqualTo("camel_case_for_a_long_string");
+    }
+
     private AnalyticsPluginInfo analyticsPluginInfo() {
         AnalyticsPluginInfo analyticsPluginInfo = mock(AnalyticsPluginInfo.class);
         Capabilities capabilities = mock(Capabilities.class);

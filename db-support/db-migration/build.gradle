@@ -23,7 +23,6 @@ dependencies {
   compileOnly project.deps.lombok
 
   implementation project.deps.commonsDbcp
-  implementation project.deps.commonsLang3
   implementation project.deps.gson
   implementation project.deps.springContext
   if (project.deps.commonsDbcp || project.deps.springContext) {

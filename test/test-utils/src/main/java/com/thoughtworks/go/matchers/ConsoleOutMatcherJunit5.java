@@ -16,7 +16,6 @@
 package com.thoughtworks.go.matchers;
 
 import com.thoughtworks.go.util.GoConstants;
-import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.AbstractAssert;
 
 import java.util.regex.Pattern;
@@ -35,8 +34,8 @@ public class ConsoleOutMatcherJunit5 extends AbstractAssert<ConsoleOutMatcherJun
     }
 
     public ConsoleOutMatcherJunit5 contains(final String str) {
-        if (!StringUtils.contains(actual, str)) {
-            failWithMessage("Expected console to contain [<%s>] but was <%s>.", str, actual);
+        if (actual != null && !actual.contains(str)) {
+            failWithMessage("Expected console to contain <%s> but was <%s>.", str, actual);
         }
         return this;
     }
@@ -55,8 +54,8 @@ public class ConsoleOutMatcherJunit5 extends AbstractAssert<ConsoleOutMatcherJun
 
     public ConsoleOutMatcherJunit5 printedBuildFailed() {
         final String buildFailed = "build failed";
-        if (!StringUtils.contains(actual.toLowerCase(), buildFailed)) {
-            failWithMessage("Expected console to contain [<%s>] but was <%s>.", buildFailed, actual);
+        if (actual != null && !actual.toLowerCase().contains(buildFailed)) {
+            failWithMessage("Expected console to contain <%s> but was <%s>.", buildFailed, actual);
         }
         return this;
     }
@@ -89,25 +88,24 @@ public class ConsoleOutMatcherJunit5 extends AbstractAssert<ConsoleOutMatcherJun
     public ConsoleOutMatcherJunit5 matchUsingRegex(final String stringContainingRegex) {
         final boolean condition = Pattern.compile(stringContainingRegex, Pattern.DOTALL).matcher(actual).find();
         if (!condition) {
-            failWithMessage("Expected console to contain [<%s>] but was <%s>.", stringContainingRegex, actual);
+            failWithMessage("Expected console to contain <%s> but was <%s>.", stringContainingRegex, actual);
         }
         return this;
     }
 
     public ConsoleOutMatcherJunit5 doesNotContain(String str) {
-        if (StringUtils.contains(actual, str)) {
-            failWithMessage("Expected console to not contain [<%s>] but was <%s>.", str, actual);
+        if (actual != null && actual.contains(str)) {
+            failWithMessage("Expected console to not contain <%s> but was <%s>.", str, actual);
         }
         return this;
     }
-
 
     private String buildJobStatusString(String status) {
         return format("[%s] Current job status: %s", GoConstants.PRODUCT_NAME, status);
     }
 
     private String buildTaskInfoString(String command, String args) {
-        if (StringUtils.isEmpty(args)) {
+        if (args == null || args.isEmpty()) {
             return format("[%s] Task: %s", GoConstants.PRODUCT_NAME, command);
         }
         return format("[%s] Task: %s %s", GoConstants.PRODUCT_NAME, command, args);

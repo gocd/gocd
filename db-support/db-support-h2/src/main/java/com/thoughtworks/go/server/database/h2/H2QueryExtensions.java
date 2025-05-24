@@ -18,11 +18,9 @@ package com.thoughtworks.go.server.database.h2;
 
 import com.thoughtworks.go.server.database.QueryExtensions;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 public class H2QueryExtensions extends QueryExtensions {
     @Override
     public boolean accepts(String url) {
-        return isBlank(url) || url.startsWith("jdbc:h2:");
+        return url == null || url.isBlank() || url.startsWith("jdbc:h2:");
     }
 }

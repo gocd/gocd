@@ -32,9 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.join;
-
 public class AgentProcessParentImpl implements AgentProcessParent {
 
     /* 40-50 for launcher error codes*/
@@ -64,7 +61,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
 
             command = agentInvocationCommand(agentDownloader.getMd5(), launcherMd5, pluginZipDownloader.getMd5(), tfsImplDownloader.getMd5(),
                     env, context, agentDownloader.getExtraProperties());
-            LOG.info("Launching Agent with command: {}", join(command, " "));
+            LOG.info("Launching Agent with command: {}", String.join(" ", command));
 
             Process agent = invoke(command);
 
@@ -97,7 +94,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
                 stdOutThd.stopAndJoin();
             }
         } catch (Exception e) {
-            LOG.error("Exception while executing command: {} - {}", join(command, " "), e.toString());
+            LOG.error("Exception while executing command: {} - {}", String.join(" ", command), e.toString());
             exitValue = EXCEPTION_OCCURRED;
         }
         return exitValue;
@@ -114,14 +111,14 @@ public class AgentProcessParentImpl implements AgentProcessParent {
                                             Map<String, String> extraProperties) {
         AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
 
-        String startupArgsString = env.get(AGENT_STARTUP_ARGS);
+        String startupArgsString = env.getOrDefault(AGENT_STARTUP_ARGS, "");
         List<String> commandSnippets = new ArrayList<>();
         commandSnippets.add(javaCmd());
-        if (!isEmpty(startupArgsString)) {
+        if (!startupArgsString.isEmpty()) {
             String[] startupArgs = startupArgsString.split(" ");
             for (String startupArg : startupArgs) {
                 String decodedStartupArg = startupArg.trim().replace("%20", " ");
-                if (!isEmpty(decodedStartupArg)) {
+                if (!decodedStartupArg.isEmpty()) {
                     commandSnippets.add(decodedStartupArg);
                 }
             }

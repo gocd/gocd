@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
-import static com.thoughtworks.go.util.StringUtil.joinForDisplay;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -81,7 +80,7 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
 
     @Override
     public String toString() {
-        return joinForDisplay(resourceNames());
+        return String.join(" | ", resourceNames()).trim();
     }
 
     @Override

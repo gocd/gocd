@@ -18,17 +18,16 @@ package com.thoughtworks.go.server.database;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
-
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Getter
@@ -38,19 +37,20 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class DbProperties {
     private static final String DB_EXTRA_BACKUP_ENV_PREFIX = "db.extraBackupEnv.";
     private static final String DB_CONNECTION_PROPERTIES_PREFIX = "db.connectionProperties.";
-    private String user;
-    private String url;
-    private String driver;
+
+    @NonNull private String user;
+    @NonNull private String url;
+    @NonNull private String driver;
     private int maxIdle;
     private int maxTotal;
-    private String password;
-    private String extraBackupCommandArgs;
+    @NonNull private String password;
+    @NonNull private String extraBackupCommandArgs;
     private Map<String, String> extraBackupEnv;
     private Properties connectionProperties;
 
     public DbProperties initializeFrom(Properties properties, Function<String, String> decrypter) {
-        this.url = properties.getProperty("db.url");
-        this.user = properties.getProperty("db.user");
+        this.url = properties.getProperty("db.url", "");
+        this.user = properties.getProperty("db.user", "");
         this.driver = properties.getProperty("db.driver");
         this.maxIdle = Integer.parseInt(properties.getProperty("db.maxIdle", "32"));
         this.maxTotal = Integer.parseInt(properties.getProperty("db.maxActive", "32"));
@@ -74,14 +74,14 @@ public class DbProperties {
     }
 
     private boolean isPostgres(String url) {
-        return isNotBlank(url) && url.startsWith("jdbc:postgresql:");
+        return url != null && url.startsWith("jdbc:postgresql:");
     }
 
     private String findPassword(Properties properties, Function<String, String> decrypter) {
-        String password = properties.getProperty("db.password");
-        String encryptedPassword = properties.getProperty("db.encryptedPassword");
+        String password = properties.getProperty("db.password", "");
+        String encryptedPassword = properties.getProperty("db.encryptedPassword", "");
 
-        if (isNotBlank(encryptedPassword)) {
+        if (!encryptedPassword.isBlank()) {
             return decrypter.apply(encryptedPassword);
         } else {
             return password;
@@ -89,6 +89,6 @@ public class DbProperties {
     }
 
     public String connectionPropertiesAsString() {
-        return StringUtils.join(this.connectionProperties.entrySet(), ';');
+        return connectionProperties.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(";"));
     }
 }

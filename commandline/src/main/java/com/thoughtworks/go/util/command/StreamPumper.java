@@ -24,7 +24,6 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -69,7 +68,7 @@ public class StreamPumper implements Runnable {
     private void consumeLine(String line) {
         lastHeard = System.currentTimeMillis();
         if (streamConsumer != null) {
-            if (StringUtils.isBlank(prefix)) {
+            if (prefix == null || prefix.isBlank()) {
                 streamConsumer.consumeLine(line);
             } else {
                 streamConsumer.consumeLine(prefix + line);

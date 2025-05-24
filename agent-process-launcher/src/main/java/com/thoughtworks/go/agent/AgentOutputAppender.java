@@ -32,8 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 class AgentOutputAppender {
     enum Outstream {
         STDOUT(ConsoleTarget.SystemOut),
@@ -98,7 +96,7 @@ class AgentOutputAppender {
         );
 
         for (String logDir : logDirs) {
-            if (isNotBlank(logDir)) {
+            if (logDir != null && !logDir.isBlank()) {
                 return logDir;
             }
         }

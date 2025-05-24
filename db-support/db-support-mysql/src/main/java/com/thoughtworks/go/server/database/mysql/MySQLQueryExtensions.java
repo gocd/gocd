@@ -18,11 +18,9 @@ package com.thoughtworks.go.server.database.mysql;
 
 import com.thoughtworks.go.server.database.QueryExtensions;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 public class MySQLQueryExtensions extends QueryExtensions {
     @Override
     public boolean accepts(String url) {
-        return isNotBlank(url) && url.startsWith("jdbc:mysql:");
+        return url != null && url.startsWith("jdbc:mysql:");
     }
 }

@@ -19,7 +19,6 @@ import com.thoughtworks.go.GoConfigRevisions;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
 import com.thoughtworks.go.domain.GoConfigRevision;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ThrowingFn;
 import com.thoughtworks.go.util.VoidThrowingFn;
@@ -36,6 +35,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -261,10 +261,10 @@ public class ConfigRepository {
         return doLocked(() -> {
             RevCommit laterCommit = null;
             RevCommit earlierCommit = null;
-            if (!StringUtils.isBlank(laterMD5)) {
+            if (!org.apache.commons.lang3.StringUtils.isBlank(laterMD5)) {
                 laterCommit = getRevCommitForMd5(laterMD5);
             }
-            if (!StringUtils.isBlank(earlierMD5))
+            if (!org.apache.commons.lang3.StringUtils.isBlank(earlierMD5))
                 earlierCommit = getRevCommitForMd5(earlierMD5);
             return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
         });
@@ -293,11 +293,21 @@ public class ConfigRepository {
             diffFormatter.setRepository(gitRepo);
             diffFormatter.format(earlierCommit.getId(), laterCommit.getId());
             output = out.toString();
-            output = StringUtil.stripTillLastOccurrenceOf(output, "+++ b/cruise-config.xml");
+            output = stripTillLastOccurrenceOf(output, "+++ b/cruise-config.xml");
         } catch (IOException e) {
             throw new RuntimeException("Error occurred during diff computation. Message: " + e.getMessage());
         }
         return output;
+    }
+
+    static String stripTillLastOccurrenceOf(String input, @NotNull String pattern) {
+        if (input != null && !input.isBlank() && !pattern.isBlank()) {
+            int index = input.lastIndexOf(pattern);
+            if (index > 0) {
+                input = input.substring(index + pattern.length());
+            }
+        }
+        return input;
     }
 
     public String getConfigMergedWithLatestRevision(GoConfigRevision configRevision, String oldMD5) throws Exception {

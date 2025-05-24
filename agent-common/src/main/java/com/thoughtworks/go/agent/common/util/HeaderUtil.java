@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.agent.common.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,14 +28,14 @@ public class HeaderUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeaderUtil.class);
 
     public static Map<String, String> parseExtraProperties(Header extraPropertiesHeader) {
-        if (extraPropertiesHeader == null || StringUtils.isBlank(extraPropertiesHeader.getValue())) {
+        if (extraPropertiesHeader == null || extraPropertiesHeader.getValue() == null || extraPropertiesHeader.getValue().isBlank()) {
             return new HashMap<>();
         }
 
         try {
             final String headerValue = new String(Base64.getDecoder().decode(extraPropertiesHeader.getValue()), UTF_8);
 
-            if (StringUtils.isBlank(headerValue)) {
+            if (headerValue.isBlank()) {
                 return new HashMap<>();
             }
 

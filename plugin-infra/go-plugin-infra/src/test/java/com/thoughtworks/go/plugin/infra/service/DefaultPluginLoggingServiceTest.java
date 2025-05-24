@@ -26,7 +26,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -35,13 +34,13 @@ class DefaultPluginLoggingServiceTest {
     void shouldTrimDownLogFileNameToAReasonableSizeIfThePluginIdIsTooBig() {
         assertPluginLogFile("abcd", "plugin-abcd.log");
 
-        String pluginIdWithLengthOf189 = repeat("a", 189);
+        String pluginIdWithLengthOf189 = "a".repeat(189);
         assertPluginLogFile(pluginIdWithLengthOf189, "plugin-" + pluginIdWithLengthOf189 + ".log");
 
-        String pluginIdWithLengthOf190 = repeat("a", 190);
+        String pluginIdWithLengthOf190 = "a".repeat(190);
         assertPluginLogFile(pluginIdWithLengthOf190, "plugin-" + pluginIdWithLengthOf189 + ".log");
 
-        String pluginIdWithLengthOf200 = repeat("a", 200);
+        String pluginIdWithLengthOf200 = "a".repeat(200);
         assertPluginLogFile(pluginIdWithLengthOf200, "plugin-" + pluginIdWithLengthOf189 + ".log");
     }
 

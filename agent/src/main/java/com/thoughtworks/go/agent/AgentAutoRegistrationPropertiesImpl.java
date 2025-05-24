@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Properties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistrationProperties {
     private static final Logger LOG = LoggerFactory.getLogger(AgentAutoRegistrationPropertiesImpl.class);
@@ -59,7 +58,7 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
 
     @Override
     public boolean isElastic() {
-        return exist() && !isBlank(agentAutoRegisterElasticPluginId());
+        return exist() && !agentAutoRegisterElasticPluginId().isBlank();
     }
 
     @Override

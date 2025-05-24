@@ -15,12 +15,8 @@
  */
 package com.thoughtworks.go.util.comparator;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class AlphaAsciiCollectionComparator<T> implements Comparator<Collection<? extends Comparable<T>>> {
     private final AlphaAsciiComparator comparator;
@@ -37,6 +33,6 @@ public class AlphaAsciiCollectionComparator<T> implements Comparator<Collection<
     private String string(Collection<? extends Comparable<T>> other) {
         List<Comparable<?>> others = new ArrayList<>(other);
         others.sort(null);
-        return StringUtils.join(others.toArray());
+        return others.stream().map(obj -> Objects.toString(obj, "")).collect(Collectors.joining());
     }
 }

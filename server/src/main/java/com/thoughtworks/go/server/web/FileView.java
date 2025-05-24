@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.util.ZipUtil;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +69,7 @@ public class FileView implements View, ServletContextAware {
             new ZipUtil().zip(file, out, Deflater.NO_COMPRESSION);
         } else {
             try (FileInputStream input = new FileInputStream(file)) {
-                IOUtils.copy(input, out, 32 * 1024);
+                input.transferTo(out);
             }
         }
         out.flush();

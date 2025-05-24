@@ -28,6 +28,7 @@ import java.util.List;
  * Adapter class that sets the thread context classloader to appropriate value
  * before delegation to the actual implementation workhorse.
  */
+@SuppressWarnings("unused") // Used via reflection to deal with classloader hijinx
 public class TfsSDKCommandTCLAdapter implements TfsCommand {
     private final TfsSDKCommand sdkCommandDelegate;
 
@@ -35,7 +36,8 @@ public class TfsSDKCommandTCLAdapter implements TfsCommand {
         sdkCommandDelegate = new TfsSDKCommand(materialFingerprint, url, domain, userName, password, workspace, projectPath);
     }
 
-    @Override public void checkout(File workingDir, Revision revision) {
+    @Override
+    public void checkout(File workingDir, Revision revision) {
         ClassLoader tccl = changeClassLoader();
         try {
             sdkCommandDelegate.init();
@@ -58,7 +60,8 @@ public class TfsSDKCommandTCLAdapter implements TfsCommand {
         }
     }
 
-    @Override public List<Modification> latestModification(File workDir) {
+    @Override
+    public List<Modification> latestModification(File workDir) {
         ClassLoader tccl = changeClassLoader();
         try {
             sdkCommandDelegate.init();
@@ -69,7 +72,8 @@ public class TfsSDKCommandTCLAdapter implements TfsCommand {
         }
     }
 
-    @Override public List<Modification> modificationsSince(File workDir, Revision revision) {
+    @Override
+    public List<Modification> modificationsSince(File workDir, Revision revision) {
         ClassLoader tccl = changeClassLoader();
         try {
             sdkCommandDelegate.init();

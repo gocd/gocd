@@ -26,7 +26,7 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
-import com.thoughtworks.go.plugin.access.packagematerial.AbstractMetaDataStore;
+import com.thoughtworks.go.plugin.access.packagematerial.AbstractPackageMetaDataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
@@ -220,7 +220,7 @@ public class PackageRepository implements Serializable, Validatable, SecretParam
 
     public String getConfigForDisplay() {
         String pluginId = pluginConfiguration.getId();
-        AbstractMetaDataStore metadataStore = RepositoryMetadataStore.getInstance();
+        AbstractPackageMetaDataStore metadataStore = RepositoryMetadataStore.getInstance();
         List<ConfigurationProperty> propertiesToBeUsedForDisplay = ConfigurationDisplayUtil.getConfigurationPropertiesToBeUsedForDisplay(metadataStore, pluginId, configuration);
 
         String prefix = metadataStore.hasPlugin(pluginId) ? "" : "WARNING! Plugin missing for ";

@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,7 @@ public interface PluginInfoBuilder<T extends PluginInfo> {
         return pluginConfigurations;
     }
 
+    @Nullable
     default PluggableInstanceSettings getPluginSettingsAndView(GoPluginDescriptor descriptor, AbstractExtension extension) {
         PluggableInstanceSettings pluggableInstanceSettings = null;
         try {

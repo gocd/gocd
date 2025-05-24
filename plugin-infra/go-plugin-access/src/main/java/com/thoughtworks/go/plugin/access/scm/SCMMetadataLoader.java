@@ -26,13 +26,12 @@ import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;
 
-@Deprecated
 @Component
 public class SCMMetadataLoader implements PluginChangeListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMMetadataLoader.class);
 
-    SCMExtension scmExtension;
-    private SCMMetadataStore scmMetadataStore = SCMMetadataStore.getInstance();
+    private final SCMExtension scmExtension;
+    private final SCMMetadataStore scmMetadataStore = SCMMetadataStore.getInstance();
 
     @Autowired
     public SCMMetadataLoader(SCMExtension scmExtension, PluginManager pluginManager) {

@@ -55,8 +55,6 @@ dependencies {
   packagingInDefaultFilesDir project(path: ':server', configuration: 'warConfig')
   packagingInDefaultFilesDir project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
 
-  packagingInLibDir project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
-
   packagingInLibDir project.deps.jetty
   packagingInLibDir project.deps.jettyJmx
   packagingInLibDir project.deps.jettyServlets
@@ -71,8 +69,6 @@ dependencies {
   }
   packagingInLibDir project.deps.servletApi
   packagingInLibDir project.deps.commonsIO
-  packagingInLibDir project.deps.commonsLang3
-  packagingInLibDir project.deps.jodaTime
 
   // Not needed for compilation, but we want to centralize all logging using logback
   packagingInLibDir project.deps.slf4jApi
@@ -99,48 +95,32 @@ task mainJar(type: Jar) {
     into('/')
   }
 
+  from(project.configurations.packagingInMainJarServerJar.collect { it.isDirectory() ? it : zipTree(it) }) {
+    include "**/GoLauncher*.class"
+    include "**/GoServer*.class"
+
+    into('/')
+  }
+
   from(project.configurations.packagingInMainJarCommonJar.collect { it.isDirectory() ? it : zipTree(it) }) {
     include "**/SubprocessLogger*.class"
     include "**/CurrentProcess*.class"
     include "**/validators/*.class"
-    include "**/Environment*.class"
-    include "**/CommandLineException.class"
-
-    exclude "**/domain/*.class"
     exclude "**/validation/*.class"
     exclude "**/remote/*.class"
     exclude "**/remote/work/*.class"
+
     into('/')
   }
 
   from(project.configurations.packagingInMainJarBaseJar.collect { it.isDirectory() ? it : zipTree(it) }) {
-    include "**/gocd-version.properties"
-    include "**/CurrentGoCDVersion*.class"
-
     include "**/LogHelper.class"
-    include "**/AssertJava.class"
-    include "**/JavaVersion.class"
     include "**/LogConfigurator*.class"
-    include "**/OperatingSystem.class"
     include "**/SystemEnvironment*.class"
     include "**/ConfigDirProvider.class"
     include "**/validators/*.class"
     include "**/SystemUtil.class"
-    include "**/Os.class"
-    include "**/ExceptionUtils.class"
-    include "**/StreamConsumer.class"
-    include "**/InMemoryConsumer.class"
-    include "**/InMemoryStreamConsumer.class"
-    include "**/ConsoleOutputStreamConsumer.class"
-    include "**/StringUtil.class"
 
-    into('/')
-  }
-
-  from(project.configurations.packagingInMainJarServerJar.collect { it.isDirectory() ? it : zipTree(it) }) {
-    include "**/GoServer*.class"
-    include "**/BaseUrlProvider*.class"
-    include "**/GoLauncher*.class"
     into('/')
   }
 
@@ -181,7 +161,6 @@ task fatJar(type: Jar) {
 
   from(configurations.packagingInLibDir) {
     into 'lib/'
-    rename "tfs-impl-(.*)-${project.version}.jar", 'tfs-impl-$1.jar'
     rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
   }
 
@@ -209,7 +188,6 @@ task verifyFatJar(type: VerifyJarTask) {
     ],
     "lib"         : [
       "commons-io-${project.versions.commonsIO}.jar",
-      "commons-lang3-${project.versions.commonsLang3}.jar",
       "go-plugin-activator.jar",
       "jakarta.servlet-api-${project.versions.servletApi}.jar",
       "jcl-over-slf4j-${project.versions.slf4jBom}.jar",
@@ -224,13 +202,11 @@ task verifyFatJar(type: VerifyJarTask) {
       "jetty-util-${project.versions.jetty}.jar",
       "jetty-webapp-${project.versions.jetty}.jar",
       "jetty-xml-${project.versions.jetty}.jar",
-      "joda-time-${project.versions.jodaTime}.jar",
       "jul-to-slf4j-${project.versions.slf4jBom}.jar",
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",
       "server-launcher-${project.version}-main.jar",
       "slf4j-api-${project.versions.slf4jBom}.jar",
-      "tfs-impl-14.jar",
       "websocket-core-common-${project.versions.jetty}.jar",
       "websocket-core-server-${project.versions.jetty}.jar",
       "websocket-jetty-api-${project.versions.jetty}.jar",

@@ -21,11 +21,10 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Deprecated
 @Component
 public class PluggableTaskPreferenceLoader implements PluginChangeListener {
 
-    private TaskExtension taskExtension;
+    private final TaskExtension taskExtension;
 
     @Autowired
     public PluggableTaskPreferenceLoader(PluginManager pluginManager, TaskExtension taskExtension) {

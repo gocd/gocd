@@ -21,7 +21,6 @@ import org.jetbrains.annotations.TestOnly;
 
 import java.util.Set;
 
-@Deprecated
 public class PluggableTaskConfigStore extends PluginPreferenceStore<TaskPreference> {
     private static final PluggableTaskConfigStore PLUGGABLE_TASK_CONFIG_STORE = new PluggableTaskConfigStore();
 

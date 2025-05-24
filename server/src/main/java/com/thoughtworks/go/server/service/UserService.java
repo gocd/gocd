@@ -19,8 +19,8 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
-import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.UserModel;
@@ -465,21 +465,6 @@ public class UserService {
 
     public User findUserByName(String username) {
         return userDao.findUser(username);
-    }
-
-    //Delete when remove notification filter api v1
-    @Deprecated
-    public void oldAddNotificationFilter(final long userId, final NotificationFilter filter) {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                User user = userDao.load(userId);
-                user.addNotificationFilter(filter);
-                synchronized (enableUserMutex) {
-                    userDao.saveOrUpdate(user);
-                }
-            }
-        });
     }
 
     public void addNotificationFilter(final long userId, final NotificationFilter filter) {

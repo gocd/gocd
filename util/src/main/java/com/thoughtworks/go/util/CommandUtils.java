@@ -15,14 +15,10 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.UnixLineEndingInputStream;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +47,7 @@ public class CommandUtils {
     }
 
     private static String captureOutput(Process process) throws IOException, InterruptedException {
-        StringWriter result = new StringWriter();
+        PrintStream result = new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8);
         result.append("output:\n");
         dump(result, process.getInputStream());
         result.append("error:\n");
@@ -60,9 +56,9 @@ public class CommandUtils {
         return result.toString();
     }
 
-    private static void dump(StringWriter result, InputStream inputStream) throws IOException {
+    private static void dump(PrintStream result, InputStream inputStream) throws IOException {
         try (UnixLineEndingInputStream unixLineEndingInputStream = new UnixLineEndingInputStream(inputStream, true)) {
-            IOUtils.copy(unixLineEndingInputStream, result, StandardCharsets.UTF_8);
+            unixLineEndingInputStream.transferTo(result);
         }
     }
 

@@ -26,19 +26,14 @@ import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.zip.ZipInputStream;
 
-import static com.thoughtworks.go.util.SystemEnvironment.ARTIFACT_COPY_BUFFER_SIZE;
 import static java.lang.String.format;
 
 @Service
@@ -50,7 +45,6 @@ public class ArtifactsService implements ArtifactUrlReader {
     private final JobResolverService jobResolverService;
     private final StageDao stageDao;
     private final ArtifactDirectoryChooser chooser;
-    private final int bufferSize = new SystemEnvironment().get(ARTIFACT_COPY_BUFFER_SIZE);
 
     @Autowired
     public ArtifactsService(JobResolverService jobResolverService, StageDao stageDao,
@@ -80,10 +74,10 @@ public class ArtifactsService implements ArtifactUrlReader {
         try {
             LOGGER.trace("Saving file [{}]", destPath);
             if (shouldUnzip) {
-                zipUtil.unzip(new ZipInputStream(IOUtils.buffer(stream, bufferSize)), dest);
+                zipUtil.unzip(new ZipInputStream(new BufferedInputStream(stream)), dest);
             } else {
                 try (FileOutputStream out = FileUtils.openOutputStream(dest, true)) {
-                    IOUtils.copy(stream, out, bufferSize);
+                    stream.transferTo(out);
                 }
             }
             LOGGER.trace("File [{}] saved.", destPath);
@@ -108,7 +102,7 @@ public class ArtifactsService implements ArtifactUrlReader {
         try {
             LOGGER.trace("Appending file [{}]", destPath);
             try (FileOutputStream out = FileUtils.openOutputStream(dest, true)) {
-                IOUtils.copy(stream, out, bufferSize);
+                stream.transferTo(out);
             }
             LOGGER.trace("File [{}] appended.", destPath);
             return true;

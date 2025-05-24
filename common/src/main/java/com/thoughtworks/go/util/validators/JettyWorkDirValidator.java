@@ -17,7 +17,6 @@ package com.thoughtworks.go.util.validators;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +25,7 @@ import static java.text.MessageFormat.format;
 
 public class JettyWorkDirValidator implements Validator {
 
-    private SystemEnvironment systemEnvironment;
+    private final SystemEnvironment systemEnvironment;
 
     public JettyWorkDirValidator() {
         this(new SystemEnvironment());
@@ -38,7 +37,7 @@ public class JettyWorkDirValidator implements Validator {
 
     @Override
     public Validation validate(Validation val) {
-        if (StringUtils.isBlank(systemEnvironment.getPropertyImpl("jetty.home"))) {
+        if (systemEnvironment.getPropertyImpl("jetty.home", "").isBlank()) {
             systemEnvironment.setProperty("jetty.home", systemEnvironment.getPropertyImpl("user.dir"));
         }
         systemEnvironment.setProperty("jetty.base", systemEnvironment.getPropertyImpl("jetty.home"));

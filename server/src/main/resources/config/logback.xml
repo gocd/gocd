@@ -86,6 +86,7 @@
   <!-- Lower default log levels of certain loggers to improve debuggability if something goes wrong -->
   <logger name="org.jruby.rack.JRubyRack" level="INFO"/>
   <logger name="liquibase.changelog.visitor.UpdateVisitor" level="DEBUG"/>
+  <logger name="com.microsoft.tfs.jni.loader.NativeLoader" level="DEBUG"/>
 
   <!-- make sure this is the last line in the config -->
   <include optional="true" file="${cruise.config.dir:-config}/logback-include.xml"/>

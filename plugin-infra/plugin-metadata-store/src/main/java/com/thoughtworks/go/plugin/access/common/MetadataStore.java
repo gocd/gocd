@@ -43,7 +43,6 @@ public abstract class MetadataStore<T extends PluginInfo> {
         pluginInfos.remove(pluginId);
     }
 
-    @Deprecated
     public Collection<T> allPluginInfos() {
         return pluginInfos.values();
     }

@@ -47,10 +47,6 @@ public class CurrentProcess implements Serializable {
         });
     }
 
-    public long currentPid() {
-        return ProcessHandle.current().pid();
-    }
-
     public List<ProcessHandle> immediateChildren() {
         return ProcessHandle.current().children().collect(Collectors.toList());
     }

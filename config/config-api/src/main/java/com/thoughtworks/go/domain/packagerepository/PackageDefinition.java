@@ -180,7 +180,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
     }
 
     public String getConfigForDisplay() {
-        AbstractMetaDataStore metadataStore = PackageMetadataStore.getInstance();
+        AbstractPackageMetaDataStore metadataStore = PackageMetadataStore.getInstance();
         List<ConfigurationProperty> propertiesToBeUsedForDisplay = ConfigurationDisplayUtil.getConfigurationPropertiesToBeUsedForDisplay(metadataStore, pluginId(), configuration);
 
         return format("%s - Package: %s", getRepository().getConfigForDisplay(), configuration.forDisplay(propertiesToBeUsedForDisplay));

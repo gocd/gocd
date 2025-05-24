@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -27,12 +24,11 @@ import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
 public class ZipBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZipBuilder.class);
     private final int level;
-    private ZipUtil zipUtil;
-    private OutputStream destinationStream;
-    private boolean excludeRootDir;
-    private Map<String, File> toAdd = new HashMap<>();
+    private final ZipUtil zipUtil;
+    private final OutputStream destinationStream;
+    private final boolean excludeRootDir;
+    private final Map<String, File> toAdd = new HashMap<>();
 
     public ZipBuilder(ZipUtil zipUtil, int level, OutputStream destinationStream, boolean excludeRootDir) {
         this.zipUtil = zipUtil;
@@ -47,9 +43,7 @@ public class ZipBuilder {
     }
 
     public void done() throws IOException {
-        ZipOutputStream zip = null;
-        try {
-            zip = new ZipOutputStream(new BufferedOutputStream(destinationStream));
+        try (ZipOutputStream zip = new ZipOutputStream(new BufferedOutputStream(destinationStream))) {
             zip.setLevel(level);
             for (Map.Entry<String, File> zipDirToSourceFileEntry : toAdd.entrySet()) {
                 File sourceFileToZip = zipDirToSourceFileEntry.getValue();
@@ -57,14 +51,6 @@ public class ZipBuilder {
                 zipUtil.addToZip(new ZipPath(destinationFolder), sourceFileToZip, zip, excludeRootDir);
             }
             zip.flush();
-        } finally {
-            if (zip != null) {
-                try {
-                    zip.close();
-                } catch (IOException e) {
-                    LOGGER.error("Failed to close the stream", e);
-                }
-            }
         }
     }
 }

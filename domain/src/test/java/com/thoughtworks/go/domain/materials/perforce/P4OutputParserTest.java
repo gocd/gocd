@@ -21,18 +21,17 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.command.ConsoleResult;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.charset.Charset;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,9 +104,10 @@ class P4OutputParserTest {
      */
     @Test
     void shouldParseChangesWithLotsOfFilesWithoutError() throws IOException, P4OutputParseException {
-        final StringWriter writer = new StringWriter();
-        IOUtils.copy(new ClassPathResource("/BIG_P4_OUTPUT.txt").getInputStream(), writer, Charset.defaultCharset());
-        String output = writer.toString();
+        String output ;
+        try (InputStream resource = Objects.requireNonNull(getClass().getResourceAsStream("/BIG_P4_OUTPUT.txt"))) {
+            output = new String(resource.readAllBytes(), StandardCharsets.UTF_8);
+        }
         Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         assertThat(modification.getModifiedFiles().size()).isEqualTo(1304);
         assertThat(modification.getModifiedFiles().get(0).getFileName()).isEqualTo("Internal Projects/ABC/Customers3/ABC/RIP/SomeProject/data/main/config/lib/java/AdvJDBCColumnHandler.jar");

@@ -19,9 +19,6 @@ import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.server.GoServer;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
 
 
 public final class GoLauncher {
@@ -38,27 +35,12 @@ public final class GoLauncher {
         logConfigurator.initialize();
 
         try {
-            cleanupTempFiles();
             new GoServer().go();
         } catch (Exception e) {
             System.err.println("ERROR: Failed to start GoCD server. Please check the logs.");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             System.exit(1);
         }
     }
-
-
-    private static void cleanupTempFiles() {
-        FileUtils.deleteQuietly(new File("agent-bootstrapper.jar"));
-        FileUtils.deleteQuietly(new File("agent.jar"));
-        FileUtils.deleteQuietly(new File("agent-launcher.jar"));
-        FileUtils.deleteQuietly(new File("config.properties"));
-        FileUtils.deleteQuietly(new File("historical_jars"));
-        FileUtils.deleteQuietly(new File(new SystemEnvironment().getConfigDir(), "agentkeystore"));
-        FileUtils.deleteQuietly(new File(new SystemEnvironment().getConfigDir(), "gadget_truststore.jks"));
-        FileUtils.deleteQuietly(new File(new SystemEnvironment().getConfigDir(), "config.properties"));
-        FileUtils.deleteQuietly(new File(new SystemEnvironment().getConfigDir(), "go-config-before-migration-91.xml"));
-        FileUtils.deleteQuietly(new File(new SystemEnvironment().getConfigDir(), "go-config-before-migration-92.xml"));
-    }
-
 }

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.util.validators;
 
 import com.thoughtworks.go.util.ConfigDirProvider;
-import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -79,7 +78,7 @@ public class FileValidator implements Validator {
             // Make sure the dir exists
             file.getParentFile().mkdirs();
             try (FileOutputStream output = new FileOutputStream(file)) {
-                IOUtils.copy(input, output);
+                input.transferTo(output);
             }
         } catch (Exception e) {
             return handleExceptionDuringFileHandling(validation, e);

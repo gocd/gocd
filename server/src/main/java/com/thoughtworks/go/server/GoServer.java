@@ -25,6 +25,7 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GoServer {
     private static final Logger LOG = LoggerFactory.getLogger(GoServer.class);
@@ -76,7 +77,7 @@ public class GoServer {
     private void logMessageIfUsingAddons() {
         File addonsPath = new File(systemEnvironment.get(SystemEnvironment.ADDONS_PATH));
         if (addonsPath.exists() && addonsPath.canRead()) {
-            if (addonsPath.list().length > 0) {
+            if (Objects.requireNonNull(addonsPath.list()).length > 0) {
                 LOG.info("Looks like you are using GoCD addons: '{}'. Support for GoCD addons was removed in GoCD 20.6.0." +
                         "You no longer need a separate addon, the functionality supported by the addons is now part of GoCD core.", (Object) addonsPath.list());
             }

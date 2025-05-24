@@ -24,12 +24,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static com.thoughtworks.go.util.SystemEnvironment.ARTIFACT_COPY_BUFFER_SIZE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ZipUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ZipUtil.class);
-    private static final int BUFFER_SIZE = new SystemEnvironment().get(ARTIFACT_COPY_BUFFER_SIZE);
     private ZipEntryHandler zipEntryHandler = null;
 
     public ZipUtil() {
@@ -90,15 +88,11 @@ public class ZipUtil {
         if (srcFile.isDirectory()) {
             addFolderToZip(path, srcFile, zip, excludeRootDir);
         } else {
-            byte[] buff = new byte[4096];
             try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(srcFile))) {
                 ZipEntry zipEntry = path.with(srcFile).asZipEntry();
                 zipEntry.setTime(srcFile.lastModified());
                 zip.putNextEntry(zipEntry);
-                int len;
-                while ((len = inputStream.read(buff)) > 0) {
-                    zip.write(buff, 0, len);
-                }
+                inputStream.transferTo(zip);
             }
         }
     }
@@ -110,7 +104,7 @@ public class ZipUtil {
     }
 
     public void unzip(ZipInputStream zipInputStream, File destDir) throws IOException {
-        try(ZipInputStream zis = zipInputStream) {
+        try (ZipInputStream zis = zipInputStream) {
             destDir.mkdirs();
             ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
@@ -136,20 +130,10 @@ public class ZipUtil {
         try {
             outputFile.getParentFile().mkdirs();
             try (FileOutputStream os = new FileOutputStream(outputFile)) {
-                IOUtils.copy(entryInputStream, os, BUFFER_SIZE);
+                entryInputStream.transferTo(os);
                 if (zipEntryHandler != null) {
-                    FileInputStream stream = null;
-                    try {
-                        stream = new FileInputStream(outputFile);
+                    try (FileInputStream stream = new FileInputStream(outputFile)) {
                         zipEntryHandler.handleEntry(entry, stream);
-                    } finally {
-                        if (stream != null) {
-                            try {
-                                stream.close();
-                            } catch (IOException e) {
-                                LOGGER.warn("Failed to close the file-handle to file '{}' which was created as artifact download.", outputFile.getAbsolutePath(), e);
-                            }
-                        }
                     }
                 }
             }

@@ -47,9 +47,9 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 
 @Service
 public class TemplateConfigService {
+    private final Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
-    private final Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
     private final EntityHashingService entityHashingService;
     private final PluggableTaskService pluggableTaskService;
     private final ExternalArtifactsService externalArtifactsService;

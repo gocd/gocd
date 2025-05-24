@@ -21,7 +21,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +114,7 @@ class TfsSDKCommandBuilder {
                     newFile.getParentFile().mkdirs();
                     LOGGER.info("[TFS SDK] Extract {} -> {}", entry.getName(), newFile);
                     try (OutputStream fos = new FileOutputStream(newFile)) {
-                        IOUtils.copy(jarStream, fos);
+                        jarStream.transferTo(fos);
                     }
                 }
             }

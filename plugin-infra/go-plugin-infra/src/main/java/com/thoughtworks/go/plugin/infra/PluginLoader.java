@@ -102,7 +102,7 @@ public class PluginLoader {
                 final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginDescriptor, pluginOSGiFramework.getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
                 if (result.isAFailure()) {
                     pluginBundleDescriptor.markAsInvalid(Collections.singletonList(result.getMessage()), null);
-                    LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.getMessage()));
+                    LOGGER.error("Skipped notifying all {} because of error: {}", PluginChangeListener.class.getSimpleName(), result.getMessage());
                     return;
                 }
             }

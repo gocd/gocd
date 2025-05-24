@@ -27,16 +27,14 @@ import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;
 
-@Deprecated
 @Component
 public class PackageMaterialMetadataLoader implements PluginChangeListener {
 
-    private RepositoryMetadataStore repositoryMetadataStore = RepositoryMetadataStore.getInstance();
-    private PackageMetadataStore packageMetadataStore = PackageMetadataStore.getInstance();
-
     private static final Logger LOGGER = LoggerFactory.getLogger(PackageMaterialMetadataLoader.class);
 
-    PackageRepositoryExtension packageRepositoryExtension;
+    private final RepositoryMetadataStore repositoryMetadataStore = RepositoryMetadataStore.getInstance();
+    private final PackageMetadataStore packageMetadataStore = PackageMetadataStore.getInstance();
+    private final PackageRepositoryExtension packageRepositoryExtension;
 
     @Autowired
     public PackageMaterialMetadataLoader(PluginManager pluginManager, PackageRepositoryExtension packageRepositoryExtension) {

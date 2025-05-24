@@ -411,7 +411,7 @@ class DirectoryStructureWalker extends DirectoryWalker<Void> {
         }
         zipStream.putNextEntry(new ZipEntry(fromRoot(file)));
         try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
-            IOUtils.copy(in, zipStream);
+            in.transferTo(zipStream);
         }
     }
 

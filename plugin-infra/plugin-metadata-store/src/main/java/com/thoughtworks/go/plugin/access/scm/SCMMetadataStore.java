@@ -48,13 +48,6 @@ public class SCMMetadataStore extends PluginPreferenceStore<SCMPreference> {
         return preferenceFor(pluginId).getScmConfigurations();
     }
 
-    public SCMView getViewMetadata(String pluginId) {
-        if (isEmpty(pluginId) || !hasPreferenceFor(pluginId)) {
-            return null;
-        }
-        return preferenceFor(pluginId).getScmView();
-    }
-
     public String displayValue(String pluginId) {
         if (isEmpty(pluginId) || !hasPreferenceFor(pluginId)) {
             return null;
@@ -64,17 +57,6 @@ public class SCMMetadataStore extends PluginPreferenceStore<SCMPreference> {
             return null;
         }
         return scmView.displayValue();
-    }
-
-    public String template(String pluginId) {
-        if (isEmpty(pluginId) || !hasPreferenceFor(pluginId)) {
-            return null;
-        }
-        SCMView scmView = preferenceFor(pluginId).getScmView();
-        if (scmView == null) {
-            return null;
-        }
-        return scmView.template();
     }
 
     public void removeMetadata(String pluginId) {

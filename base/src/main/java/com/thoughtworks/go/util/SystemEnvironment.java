@@ -16,7 +16,6 @@
 package com.thoughtworks.go.util;
 
 import ch.qos.logback.classic.Level;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,6 @@ import java.util.Properties;
 
 import static java.lang.Double.parseDouble;
 import static java.util.concurrent.TimeUnit.*;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
@@ -124,7 +122,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<String> AGENT_PLUGINS_PATH = new CachedProperty<>(new GoStringSystemProperty("agent.plugins.path", PLUGINS_PATH));
     public static final GoSystemProperty<Long> GO_SERVER_CONNECTION_IDLE_TIMEOUT_IN_MILLIS = new GoLongSystemProperty("idle.timeout", SECONDS.toMillis(30));
     public static final GoSystemProperty<Integer> RESPONSE_BUFFER_SIZE = new GoIntSystemProperty("response.buffer.size", 32 * 1024);
-    public static final GoSystemProperty<Integer> ARTIFACT_COPY_BUFFER_SIZE = new GoIntSystemProperty("artifact.copy.buffer.size", 8 * 1024);
     public static final GoSystemProperty<Integer> API_REQUEST_IDLE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("api.request.idle.timeout.seconds", (int) MINUTES.toSeconds(5));
     public static final GoSystemProperty<Integer> AGENT_REQUEST_IDLE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("agent.request.idle.timeout.seconds", 30);
     public static final GoSystemProperty<Integer> GO_SERVER_SESSION_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("go.server.session.timeout.seconds", (int) DAYS.toSeconds(14));
@@ -298,7 +295,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     private String trimMegaFromSize(String sizeInMega) {
-        return StringUtils.removeEndIgnoreCase(sizeInMega, "M");
+        return sizeInMega.replaceFirst("[mM]$", "");
     }
 
     @Override
@@ -313,7 +310,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return new File(getConfigDir(), get(JETTY_XML_FILE_NAME));
     }
 
-    private String getPropertyImpl(String property, String defaultValue) {
+    public String getPropertyImpl(String property, String defaultValue) {
         return System.getProperty(property, defaultValue);
     }
 
@@ -759,7 +756,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
         @Override
         protected String[] convertValue(String propertyValueFromSystem, String[] defaultValue) {
-            return isBlank(propertyValueFromSystem) ? defaultValue : propertyValueFromSystem.trim().split("(\\s*)?,(\\s*)?");
+            return propertyValueFromSystem == null || propertyValueFromSystem.isBlank() ? defaultValue : propertyValueFromSystem.trim().split("(\\s*)?,(\\s*)?");
         }
     }
 

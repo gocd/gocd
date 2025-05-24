@@ -16,7 +16,6 @@
 package com.thoughtworks.go.agent.testhelper;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.assertj.core.util.Hexadecimals;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
@@ -66,7 +65,7 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
 
         public void copyTo(OutputStream outputStream) throws IOException {
             try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
-                IOUtils.copy(input, outputStream);
+                input.transferTo(outputStream);
             }
         }
 

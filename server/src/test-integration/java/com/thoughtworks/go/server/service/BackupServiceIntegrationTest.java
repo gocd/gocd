@@ -38,7 +38,6 @@ import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.joda.time.DateTime;
@@ -552,7 +551,7 @@ public class BackupServiceIntegrationTest {
             while (zipIn.available() > 0) {
                 ZipEntry nextEntry = zipIn.getNextEntry();
                 if (nextEntry.getName().equals(filename)) {
-                    IOUtils.copy(zipIn, out);
+                    zipIn.transferTo(out);
                 }
             }
         } finally {

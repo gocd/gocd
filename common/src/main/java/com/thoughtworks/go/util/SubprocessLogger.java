@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
  * Understands handling subprocesses
  */
 public class SubprocessLogger implements Runnable {
-    private CurrentProcess currentProcess;
     private static final Logger LOGGER = LoggerFactory.getLogger(SubprocessLogger.class);
+    private final CurrentProcess currentProcess;
     private Thread exitHook;
     private String warnMessage = "Logged all subprocesses.";
 

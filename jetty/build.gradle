@@ -18,9 +18,6 @@ description = 'GoCD Jetty Bootstrapper'
 
 dependencies {
   implementation project(path: ':app-server', configuration: 'runtimeElements')
-  implementation project(path: ':config:config-server', configuration: 'runtimeElements')
-  implementation project(path: ':common', configuration: 'runtimeElements')
-  implementation project(path: ':rack_hack', configuration: 'runtimeElements')
   implementation project.deps.slf4jApi
 
   compileOnly project.deps.jetty

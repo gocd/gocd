@@ -24,8 +24,7 @@ import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-
-public abstract class AbstractMetaDataStore extends  PluginPreferenceStore<PackageConfigurations> {
+public abstract class AbstractPackageMetaDataStore extends PluginPreferenceStore<PackageConfigurations> {
 
     public void addMetadataFor(String pluginId, PackageConfigurations configuration) {
         setPreferenceFor(pluginId, configuration);

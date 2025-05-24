@@ -86,7 +86,6 @@ class SystemEnvironmentTest {
         assertThat(systemEnvironment.getConfigDir()).isEqualTo("config");
     }
 
-
     @Test
     void shouldCacheDatabaseDiskFullOnFirstAccess() {
         System.setProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT, "100");

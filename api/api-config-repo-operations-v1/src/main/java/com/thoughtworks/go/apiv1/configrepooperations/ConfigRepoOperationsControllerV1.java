@@ -36,7 +36,6 @@ import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -45,7 +44,6 @@ import spark.utils.StringUtils;
 
 import javax.servlet.http.Part;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -109,10 +107,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
                 if (!"files[]".equals(ul.getName())) {
                     continue;
                 }
-
-                StringWriter w = new StringWriter();
-                IOUtils.copy(ul.getInputStream(), w, StandardCharsets.UTF_8);
-                contents.put(ul.getSubmittedFileName(), w.toString());
+                contents.put(ul.getSubmittedFileName(), new String(ul.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
             }
 
             if (contents.isEmpty()) {

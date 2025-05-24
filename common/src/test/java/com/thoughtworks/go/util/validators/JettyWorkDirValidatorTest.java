@@ -92,7 +92,7 @@ public class JettyWorkDirValidatorTest {
         File oldWorkDir = new File(homeDir, "work");
         oldWorkDir.mkdir();
         new File(oldWorkDir, "junk.txt").createNewFile();
-        when(systemEnvironment.getPropertyImpl("jetty.home", "x)).thenReturn(homeDir.getAbsolutePath());
+        when(systemEnvironment.getPropertyImpl("jetty.home", "")).thenReturn(homeDir.getAbsolutePath());
         Validation val = new Validation();
         jettyWorkDirValidator.validate(val);
         assertThat(val.isSuccessful()).isTrue();

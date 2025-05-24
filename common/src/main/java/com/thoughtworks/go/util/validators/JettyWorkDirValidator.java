@@ -40,10 +40,11 @@ public class JettyWorkDirValidator implements Validator {
         if (systemEnvironment.getPropertyImpl("jetty.home", "").isBlank()) {
             systemEnvironment.setProperty("jetty.home", systemEnvironment.getPropertyImpl("user.dir"));
         }
-        systemEnvironment.setProperty("jetty.base", systemEnvironment.getPropertyImpl("jetty.home"));
+        String jettyHome = systemEnvironment.getPropertyImpl("jetty.home", "");
+        systemEnvironment.setProperty("jetty.base", jettyHome);
 
-        File home = new File(systemEnvironment.getPropertyImpl("jetty.home"));
-        File work = new File(systemEnvironment.getPropertyImpl("jetty.home"), "work");
+        File home = new File(jettyHome);
+        File work = new File(jettyHome, "work");
         if (home.exists()) {
             if (work.exists()) {
                 try {

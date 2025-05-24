@@ -18,7 +18,6 @@ package com.thoughtworks.go.agent.common.ssl;
 import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
@@ -138,8 +137,7 @@ public abstract class GoAgentServerClientBuilder<T> {
 
     private char[] passphrase() throws IOException {
         if (agentSslPrivateKeyPassphraseFile != null && agentSslPrivateKeyPassphraseFile.exists()) {
-            String passphrase = FileUtils.readFileToString(agentSslPrivateKeyPassphraseFile, StandardCharsets.UTF_8);
-            return StringUtils.trimToEmpty(passphrase).toCharArray();
+            return FileUtils.readFileToString(agentSslPrivateKeyPassphraseFile, StandardCharsets.UTF_8).trim().toCharArray();
         }
         throw new RuntimeException("SSL private key passphrase not specified!");
     }

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.util.command;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +46,6 @@ public class InMemoryConsumer implements StreamConsumer {
 
     @Override
     public String toString() {
-        return StringUtils.join(asList(), "\n");
+        return String.join("\n", lines);
     }
 }

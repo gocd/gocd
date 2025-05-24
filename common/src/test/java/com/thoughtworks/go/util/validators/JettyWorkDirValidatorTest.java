@@ -98,6 +98,6 @@ public class JettyWorkDirValidatorTest {
         assertThat(val.isSuccessful()).isTrue();
         File recreatedWorkDir = new File(homeDir, "work");
         assertThat(recreatedWorkDir.exists()).isTrue();
-        assertThat(recreatedWorkDir.listFiles().length).isEqualTo(0);
+        assertThat(recreatedWorkDir.listFiles()).hasSize(0);
     }
 }

@@ -55,7 +55,7 @@ public final class StringUtil {
         for (int i = 0; i < words.length; i++) {
             words[i] = words[i].toLowerCase();
         }
-        return StringUtils.join(words, " ");
+        return String.join(" ", words);
     }
 
     public static String camelCaseToSnakeCase(String s) {
@@ -63,7 +63,7 @@ public final class StringUtil {
         for (int i = 0; i < words.length; i++) {
             words[i] = words[i].toLowerCase();
         }
-        return StringUtils.join(words, "_");
+        return String.join("_", words);
     }
 
     public static String joinForDisplay(final Collection<?> objects) {

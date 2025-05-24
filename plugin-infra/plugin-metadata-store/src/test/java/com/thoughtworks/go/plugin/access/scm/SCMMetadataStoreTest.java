@@ -39,14 +39,10 @@ public class SCMMetadataStoreTest {
         SCMMetadataStore.getInstance().addMetadataFor("plugin-id", scmConfigurations, scmView);
 
         assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata("plugin-id")).isEqualTo(scmConfigurations);
-        assertThat(SCMMetadataStore.getInstance().getViewMetadata("plugin-id")).isEqualTo(scmView);
         assertThat(SCMMetadataStore.getInstance().displayValue("plugin-id")).isEqualTo("display-value");
-        assertThat(SCMMetadataStore.getInstance().template("plugin-id")).isEqualTo("template");
 
         assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata("some-plugin-which-does-not-exist")).isNull();
-        assertThat(SCMMetadataStore.getInstance().getViewMetadata("some-plugin-which-does-not-exist")).isNull();
         assertThat(SCMMetadataStore.getInstance().displayValue("some-plugin-which-does-not-exist")).isNull();
-        assertThat(SCMMetadataStore.getInstance().template("some-plugin-which-does-not-exist")).isNull();
     }
 
     @Test

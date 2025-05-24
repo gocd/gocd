@@ -55,9 +55,6 @@ public class SCMMetadataLoaderTest {
         assertThat(scmConfiguration.getKey()).isEqualTo("k1");
         assertThat(scmConfiguration.getOption(SCMProperty.REQUIRED)).isTrue();
         assertThat(scmConfiguration.getOption(SCMProperty.PART_OF_IDENTITY)).isFalse();
-        SCMView viewMetadata = SCMMetadataStore.getInstance().getViewMetadata(pluginDescriptor.id());
-        assertThat(viewMetadata.displayValue()).isEqualTo("display-value");
-        assertThat(viewMetadata.template()).isEqualTo("template");
     }
 
     @Test
@@ -119,7 +116,6 @@ public class SCMMetadataLoaderTest {
         metadataLoader.pluginUnLoaded(pluginDescriptor);
 
         assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id())).isNull();
-        assertThat(SCMMetadataStore.getInstance().getViewMetadata(pluginDescriptor.id())).isNull();
     }
 
     @Test
@@ -132,7 +128,6 @@ public class SCMMetadataLoaderTest {
         metadataLoader.pluginUnLoaded(pluginDescriptor);
 
         assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id())).isEqualTo(scmConfigurations);
-        assertThat(SCMMetadataStore.getInstance().getViewMetadata(pluginDescriptor.id())).isEqualTo(scmView);
     }
 
     private SCMView createSCMView(final String displayValue, final String template) {

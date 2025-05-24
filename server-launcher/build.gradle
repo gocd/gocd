@@ -106,9 +106,6 @@ task mainJar(type: Jar) {
     include "**/SubprocessLogger*.class"
     include "**/CurrentProcess*.class"
     include "**/validators/*.class"
-    exclude "**/validation/*.class"
-    exclude "**/remote/*.class"
-    exclude "**/remote/work/*.class"
 
     into('/')
   }

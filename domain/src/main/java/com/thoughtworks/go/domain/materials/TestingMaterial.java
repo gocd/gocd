@@ -20,9 +20,10 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.joda.time.DateTime;
 
 import java.io.File;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,7 +52,7 @@ public class TestingMaterial extends ScmMaterial {
         List<Modification> modifications = new ArrayList<>();
 
         Date today = new Date();
-        Date yesterday = new DateTime().minusDays(1).toDate();
+        Date yesterday = new Date(Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli());
 
         Modification modification1 = new Modification("lgao", "Fixing the not checked in files", "foo@bar.com", yesterday, "99");
         modification1.createModifiedFile("build.xml", "\\build", ModifiedAction.added);

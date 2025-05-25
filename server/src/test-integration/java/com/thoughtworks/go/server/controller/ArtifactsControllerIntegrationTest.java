@@ -125,12 +125,7 @@ public class ArtifactsControllerIntegrationTest {
     @AfterEach
     public void teardown() throws Exception {
         for (File f : FileUtils.listFiles(artifactsRoot, null, true)) {
-            String message = String.format("deleting %s, path: %s", f.getName(), f.getPath());
-            System.out.println(message);
-
             if (!f.delete()) {
-                String deleteOnExitMessage = String.format("Couldn't delete %s, so marking deleteOnExit() path: %s", f.getName(), f.getPath());
-                System.out.println(deleteOnExitMessage);
                 f.deleteOnExit();
             }
         }
@@ -139,8 +134,6 @@ public class ArtifactsControllerIntegrationTest {
             try {
                 deleteDirectory(artifactsRoot);
             } catch (IOException e) {
-                String deleteOnExitMessage = String.format("Couldn't delete %s, so marking deleteOnExit() path: %s", artifactsRoot.getName(), artifactsRoot.getPath());
-                System.out.println(deleteOnExitMessage);
                 artifactsRoot.deleteOnExit();
             }
         }

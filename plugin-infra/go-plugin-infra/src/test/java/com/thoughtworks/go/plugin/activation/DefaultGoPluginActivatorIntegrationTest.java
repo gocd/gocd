@@ -31,7 +31,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import lib.test.DummyTestPluginInLibDirectory;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.felix.framework.util.FelixConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -384,10 +383,9 @@ class DefaultGoPluginActivatorIntegrationTest {
         for (Class<?> aClass : classesToBeAdded) {
             bundleBeingBuilt.add(aClass, InnerClassStrategy.NONE);
         }
-        ZipInputStream src = new ZipInputStream(bundleBeingBuilt.build());
-        File bundleExplodedDir = explodeBundleIntoDirectory(src, destinationDir);
-        IOUtils.closeQuietly(src);
-        return bundleExplodedDir;
+        try (ZipInputStream src = new ZipInputStream(bundleBeingBuilt.build())) {
+            return explodeBundleIntoDirectory(src, destinationDir);
+        }
     }
 
     private File explodeBundleIntoDirectory(ZipInputStream src, String destinationDir) throws IOException {

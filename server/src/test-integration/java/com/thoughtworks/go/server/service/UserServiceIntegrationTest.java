@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.helper.ConfigFileFixture;

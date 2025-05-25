@@ -24,16 +24,6 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 public class TestFileUtil {
-    private static final TempFiles tempFiles = new TempFiles();
-
-    public static File createTempFolder(String folderName) {
-        return tempFiles.mkdir(folderName);
-    }
-
-    public static File createTempFile(String fileName) throws IOException {
-        return tempFiles.createFile(fileName);
-    }
-
     public static File createTestFile(File testFolder, String path) throws Exception {
         File subfile = new File(testFolder, path);
         subfile.createNewFile();

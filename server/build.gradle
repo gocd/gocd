@@ -226,6 +226,7 @@ dependencies {
   implementation project.deps.commonsCollections4
   implementation project.deps.commonsDbcp
   implementation project.deps.commonsLang3
+  implementation project.deps.jodaTime
 
   api(project.deps.hibernate) {
     exclude(module: 'ehcache-core')

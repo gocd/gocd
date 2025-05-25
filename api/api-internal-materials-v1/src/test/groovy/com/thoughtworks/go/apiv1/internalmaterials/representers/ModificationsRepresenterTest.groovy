@@ -20,13 +20,14 @@ import com.thoughtworks.go.domain.PipelineRunIdInfo
 import com.thoughtworks.go.domain.materials.Modification
 import com.thoughtworks.go.domain.materials.Modifications
 import com.thoughtworks.go.helper.ModificationsMother
-import org.joda.time.DateTime
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static java.time.Instant.now
+import static java.time.temporal.ChronoUnit.HOURS
 import static java.util.Collections.emptyList
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
@@ -81,7 +82,7 @@ class ModificationsRepresenterTest {
     void setUp() {
       for (int i = 6; i >= 2; i--) {
 
-        def mod = new Modification("user", "comment: " + i, "email", new DateTime().minusHours(i).toDate(), "revision: " + i)
+        def mod = new Modification("user", "comment: " + i, "email", new Date(now().minus(1, HOURS).toEpochMilli()), "revision: " + i)
         mod.id = i
         mods.add(mod)
         modsJson.add(toObject({ ModificationRepresenter.toJSON(it, mod) }))

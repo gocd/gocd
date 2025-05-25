@@ -38,7 +38,6 @@ dependencies {
   }
   implementation project.deps.slf4jApi
   implementation project.deps.felix
-  implementation project.deps.jodaTime
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
   compileOnly project.deps.jetBrainsAnnotations

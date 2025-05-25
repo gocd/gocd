@@ -19,12 +19,14 @@ import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
-import org.joda.time.DateTime;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -67,7 +69,7 @@ public class BackupsController implements SparkController {
 
     private Map<String, String> meta() {
         Map<String, String> meta = new HashMap<>();
-        Optional<DateTime> dateTime = backupService.lastBackupTime().map(DateTime::new);
+        Optional<ZonedDateTime> dateTime = backupService.lastBackupTime().map(d -> ZonedDateTime.ofInstant(Instant.ofEpochMilli(d.getTime()), ZoneId.systemDefault()));
         meta.put("lastBackupTime", dateTime.map(Object::toString).orElse(null));
         meta.put("lastBackupUser", backupService.lastBackupUser().orElse(null));
         meta.put("availableDiskSpace", backupService.availableDiskSpace());

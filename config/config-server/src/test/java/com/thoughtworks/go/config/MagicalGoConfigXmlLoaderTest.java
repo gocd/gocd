@@ -76,7 +76,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,9 +89,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.config.PipelineConfig.*;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -2776,11 +2775,13 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldRegisterAllGoConfigValidators() {
-        List<String> list = (List<String>) CollectionUtils.collect(MagicalGoConfigXmlLoader.VALIDATORS, o -> o.getClass().getCanonicalName());
+        Stream<String> names = MagicalGoConfigXmlLoader.VALIDATORS.stream().map(o -> o.getClass().getCanonicalName());
 
-        assertThat(list).contains(ArtifactDirValidator.class.getCanonicalName());
-        assertThat(list).contains(ServerIdImmutabilityValidator.class.getCanonicalName());
-        assertThat(list).contains(TokenGenerationKeyImmutabilityValidator.class.getCanonicalName());
+        assertThat(names).containsExactly(
+            ArtifactDirValidator.class.getCanonicalName(),
+            ServerIdImmutabilityValidator.class.getCanonicalName(),
+            TokenGenerationKeyImmutabilityValidator.class.getCanonicalName())
+        ;
     }
 
     @Test
@@ -3297,11 +3298,11 @@ public class MagicalGoConfigXmlLoaderTest {
         final Configuration configuration = task.getConfiguration();
         assertThat(configuration.listOfConfigKeys().size()).isEqualTo(3);
         assertThat(configuration.listOfConfigKeys()).isEqualTo(List.of("url", "username", "password"));
-        Collection<String> values = CollectionUtils.collect(configuration.listOfConfigKeys(), o -> {
+        Stream<String> values = configuration.listOfConfigKeys().stream().map(o -> {
             ConfigurationProperty property = configuration.getProperty(o);
             return property.getConfigurationValue().getValue();
         });
-        assertThat(new ArrayList<>(values)).isEqualTo(List.of("https://fake-go-server", "godev", "password"));
+        assertThat(values).containsExactly("https://fake-go-server", "godev", "password");
     }
 
     @Test

@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import java.util.Set;
 
 import static java.lang.String.format;
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * Understands a reference to an existing agent that is associated to an Environment
@@ -42,7 +41,7 @@ public class EnvironmentAgentConfig implements Validatable {
     }
 
     public boolean validateUuidPresent(CaseInsensitiveString name, Set<String> uuids) {
-        if (isEmpty(uuids) || !uuids.contains(uuid)) {
+        if (uuids == null || !uuids.contains(uuid)) {
             this.addError(UUID, format("Environment '%s' has an invalid agent uuid '%s'", name, uuid));
         }
         return errors().isEmpty();

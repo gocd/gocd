@@ -20,7 +20,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
-import org.apache.commons.collections4.ListUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +52,6 @@ class AuthenticationResponseDTO {
     }
 
     public AuthenticationResponse toDomainModel() {
-        return new AuthenticationResponse(this.user != null ? this.user.toDomainModel() : null, ListUtils.defaultIfNull(this.roles, Collections.emptyList()));
+        return new AuthenticationResponse(this.user != null ? this.user.toDomainModel() : null, this.roles == null ? Collections.emptyList() : this.roles);
     }
 }

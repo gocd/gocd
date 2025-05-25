@@ -40,6 +40,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.ALL_OPTIONS_EXHAUSTED;
 
@@ -266,7 +268,10 @@ public class FanInGraph {
     }
 
     private void assertAllDirectDependenciesArePresentInInput(MaterialRevisions actualRevisions, CaseInsensitiveString pipelineName) {
-        Collection<String> actualRevFingerprints = CollectionUtils.collect(actualRevisions.iterator(), actualRevision -> actualRevision.getMaterial().getFingerprint());
+        Set<String> actualRevFingerprints = StreamSupport
+            .stream(actualRevisions.spliterator(), false)
+            .map(r -> r.getMaterial().getFingerprint())
+            .collect(Collectors.toSet());
 
         for (FanInNode child : root.children) {
             //The dependency material that is not in 'passed' state will not be found in actual revisions

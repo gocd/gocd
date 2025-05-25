@@ -26,7 +26,6 @@ import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
@@ -191,7 +190,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public List<AgentInstance> filter(List<String> uuids) {
-        if (CollectionUtils.isEmpty(uuids)) {
+        if (uuids == null || uuids.isEmpty()) {
             return emptyList();
         }
 
@@ -221,9 +220,9 @@ public class AgentInstances implements Iterable<AgentInstance> {
                 .filter(agentInstance -> agentInstance.isElastic()
                         && agentInstance.elasticAgentMetadata().elasticAgentId().equals(elasticAgentId)
                         && agentInstance.elasticAgentMetadata().elasticPluginId().equals(elasticPluginId))
-                .collect(toList());
+                .toList();
 
-        if (CollectionUtils.isEmpty(matchingElasticInstances)) {
+        if (matchingElasticInstances.isEmpty()) {
             return null;
         }
 
@@ -236,7 +235,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public List<Agent> filterPendingAgents(List<String> uuids) {
-        return (CollectionUtils.isEmpty(uuids) ? new ArrayList<String>() : uuids)
+        return (uuids == null || uuids.isEmpty() ? new ArrayList<String>() : uuids)
                 .stream()
                 .map(this::findAgent)
                 .filter(this::isPendingAndNotNullInstance)
@@ -245,7 +244,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public List<String> filterBy(List<String> uuids, FilterBy filter) {
-        return (CollectionUtils.isEmpty(uuids) ? new ArrayList<String>() : uuids)
+        return (uuids == null || uuids.isEmpty() ? new ArrayList<String>() : uuids)
                 .stream()
                 .map(this::findAgent)
                 .filter(agentInstance -> agentInstance.matches(filter))

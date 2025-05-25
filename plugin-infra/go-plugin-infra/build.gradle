@@ -21,7 +21,6 @@ dependencies {
   implementation project(path: ':util', configuration: 'runtimeElements')
   implementation project(path: ':plugin-infra:go-plugin-api', configuration: 'runtimeElements')
   implementation project(path: ':plugin-infra:go-plugin-activator', configuration: 'runtimeElements')
-  implementation project.deps.commonsCollections4
   compileOnly project.deps.logback
   api project.deps.jaxbApi
   api project.deps.jaxbRuntime

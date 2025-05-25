@@ -32,7 +32,7 @@ dependencies {
   implementation project(path: ':config:config-api', configuration: 'runtimeElements')
   implementation project.deps.jolt
   implementation project.deps.joltJsonUtils
-  api project.deps.commonsCollections4
+  implementation project.deps.commonsCollections4
   implementation project.deps.commonsCodec
   implementation project.deps.gson
   implementation project.deps.springContext

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -89,7 +88,7 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
     public static SecretParams union(SecretParams... params) {
         final SecretParams newMergedList = new SecretParams();
         for (SecretParams param : params) {
-            if (!CollectionUtils.isEmpty(param)) {
+            if (!param.isEmpty()) {
                 newMergedList.addAll(param);
             }
         }

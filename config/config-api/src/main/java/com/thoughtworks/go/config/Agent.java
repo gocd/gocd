@@ -24,14 +24,11 @@ import com.thoughtworks.go.util.ClonerFactory;
 import java.util.*;
 
 import static com.thoughtworks.go.config.JobConfig.RESOURCES;
-import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static com.thoughtworks.go.util.CommaSeparatedString.*;
 import static com.thoughtworks.go.util.SystemUtil.isLocalhost;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.StringUtils.*;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * <code>Agent</code> is the entity object model class used by Hibernate to represent a record in <code>Agents</code> table.
@@ -91,7 +88,7 @@ public class Agent extends PersistentObject {
         this.hostname = hostname;
         this.ipaddress = ipaddress;
         this.uuid = uuid;
-        this.resources = resources == null ? null : join(resources, ",");
+        this.resources = resources == null ? null : String.join(",", resources);
     }
 
     public Agent(String uuid, String hostname, String ipaddress, String cookie) {
@@ -109,7 +106,7 @@ public class Agent extends PersistentObject {
 
     public void validate() {
         validateIpAddress();
-        if (isBlank(uuid)) {
+        if (uuid == null || uuid.isBlank()) {
             addError(UUID, "UUID cannot be empty");
         }
         validateResources();
@@ -139,7 +136,7 @@ public class Agent extends PersistentObject {
             return;
         }
 
-        if (isBlank(ipAddress)) {
+        if (ipAddress.isBlank()) {
             addError(IP_ADDRESS, "IpAddress cannot be empty if it is present.");
             return;
         }
@@ -175,20 +172,20 @@ public class Agent extends PersistentObject {
     }
 
     public void removeResources(List<String> resourcesToRemove) {
-        if (!isEmpty(resourcesToRemove)) {
+        if (resourcesToRemove != null && !resourcesToRemove.isEmpty()) {
             String resourcesAfterAdd = remove(this.resources, resourcesToRemove);
             setCommaSeparatedResourceNames(resourcesAfterAdd);
         }
     }
 
     public void addResource(String resource) {
-        if (isNotBlank(resource)) {
+        if (resource != null && !resource.isBlank()) {
             addResources(List.of(resource));
         }
     }
 
     public void addResources(List<String> resourcesToAdd) {
-        if (!isEmpty(resourcesToAdd)) {
+        if (resourcesToAdd != null && !resourcesToAdd.isEmpty()) {
             String resourcesAfterAdd = append(this.resources, resourcesToAdd);
             setCommaSeparatedResourceNames(resourcesAfterAdd);
         }
@@ -204,7 +201,7 @@ public class Agent extends PersistentObject {
     }
 
     private void setCommaSeparatedResourceNames(String resourceNames) {
-        if (isBlank(resourceNames)) {
+        if (resourceNames == null || resourceNames.isBlank()) {
             this.resources = null;
             return;
         }
@@ -243,7 +240,7 @@ public class Agent extends PersistentObject {
     }
 
     public boolean isElastic() {
-        return isNotBlank(elasticAgentId) && isNotBlank(elasticPluginId);
+        return elasticAgentId != null && !elasticAgentId.isBlank() && elasticPluginId != null && !elasticPluginId.isBlank();
     }
 
     @Override
@@ -333,7 +330,7 @@ public class Agent extends PersistentObject {
     }
 
     public List<String> getEnvironmentsAsList() {
-        return (isBlank(this.environments) ? new ArrayList<>() : commaSeparatedStrToList(environments));
+        return this.environments == null || this.environments.isBlank() ? new ArrayList<>() : commaSeparatedStrToList(environments);
     }
 
     public void setEnvironments(String envs) {
@@ -349,7 +346,7 @@ public class Agent extends PersistentObject {
     }
 
     public void addEnvironment(String env) {
-        this.addEnvironments(isBlank(env) ? null : List.of(env));
+        this.addEnvironments(env == null || env.isBlank() ? null : List.of(env));
     }
 
     public String getResources() {
@@ -357,7 +354,7 @@ public class Agent extends PersistentObject {
     }
 
     public List<String> getResourcesAsList() {
-        return (isBlank(this.resources) ? new ArrayList<>() : commaSeparatedStrToList(this.resources));
+        return this.resources == null || this.resources.isBlank() ? new ArrayList<>() : commaSeparatedStrToList(this.resources);
     }
 
     public String getCookie() {

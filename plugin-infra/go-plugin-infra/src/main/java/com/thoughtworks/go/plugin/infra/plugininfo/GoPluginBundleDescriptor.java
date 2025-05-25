@@ -21,7 +21,6 @@ import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.apache.commons.collections4.IterableUtils;
 import org.osgi.framework.Bundle;
 
 import java.io.File;
@@ -77,7 +76,7 @@ public class GoPluginBundleDescriptor {
     }
 
     public boolean isInvalid() {
-        return IterableUtils.matchesAny(pluginDescriptors, GoPluginDescriptor::isInvalid);
+        return pluginDescriptors.stream().anyMatch(GoPluginDescriptor::isInvalid);
     }
 
     public File bundleLocation() {

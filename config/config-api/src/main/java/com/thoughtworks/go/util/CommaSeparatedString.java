@@ -26,11 +26,10 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 public class CommaSeparatedString {
     public static String append(String origCommaSeparatedStr, List<String> entriesToAdd) {
-        if (isEmpty(entriesToAdd)) {
+        if (entriesToAdd == null || entriesToAdd.isEmpty()) {
             return origCommaSeparatedStr;
         }
 
@@ -50,7 +49,7 @@ public class CommaSeparatedString {
     }
 
     public static String remove(String commaSeparatedStr, List<String> entriesToRemove) {
-        if (isEmpty(entriesToRemove)) {
+        if (entriesToRemove == null || entriesToRemove.isEmpty()) {
             return commaSeparatedStr;
         }
 

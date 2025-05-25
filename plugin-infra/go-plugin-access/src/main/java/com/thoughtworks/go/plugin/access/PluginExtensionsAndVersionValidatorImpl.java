@@ -54,7 +54,7 @@ public class PluginExtensionsAndVersionValidatorImpl implements PluginExtensions
 
         final Set<String> difference = SetUtils.difference(extensionsInfoFromPlugin.keySet(), gocdSupportedExtensions).toSet();
 
-        if (difference.size() > 0) {
+        if (!difference.isEmpty()) {
             validationResult.addError(format(UNSUPPORTED_EXTENSION_ERROR_MESSAGE, difference, gocdSupportedExtensions));
             return validationResult;
         }

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.infra.monitor;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,11 +65,10 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
     @Override
     public void removePluginJarChangeListener(final PluginJarChangeListener listener) {
-        WeakReference<PluginJarChangeListener> referenceOfListenerToBeRemoved = IterableUtils.find(pluginJarChangeListeners, listenerWeakReference -> {
-            PluginJarChangeListener registeredListener = listenerWeakReference.get();
+        pluginJarChangeListeners.removeIf(listenerRef -> {
+            PluginJarChangeListener registeredListener = listenerRef.get();
             return registeredListener != null && registeredListener == listener;
         });
-        pluginJarChangeListeners.remove(referenceOfListenerToBeRemoved);
         removeClearedWeakReferences();
     }
 

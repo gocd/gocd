@@ -17,7 +17,6 @@ package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.apache.commons.collections4.IterableUtils;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +108,7 @@ public class PluginLoader {
         }
 
         if (!pluginBundleDescriptor.isInvalid()) {
-            IterableUtils.forEach(pluginBundleDescriptor.descriptors(), descriptor -> IterableUtils.forEach(pluginChangeListeners, listener -> listener.pluginLoaded(descriptor)));
+            pluginBundleDescriptor.descriptors().forEach(descriptor -> pluginChangeListeners.forEach(listener -> listener.pluginLoaded(descriptor)));
         }
     }
 

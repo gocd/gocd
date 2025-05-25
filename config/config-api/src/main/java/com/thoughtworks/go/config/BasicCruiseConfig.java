@@ -39,7 +39,6 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
@@ -164,8 +163,7 @@ public class BasicCruiseConfig implements CruiseConfig {
                     notToBeMerged.add(partialConfig);
             }
         }
-        partList = ListUtils.removeAll(partList, notToBeMerged);
-        return partList;
+        return partList.stream().filter(c -> !notToBeMerged.contains(c)).toList();
     }
 
     private void resetAllPipelineConfigsCache() {

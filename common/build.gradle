@@ -22,10 +22,10 @@ dependencies {
   api project(path: ':util', configuration: 'runtimeElements')
   api project(path: ':domain', configuration: 'runtimeElements')
   api project(path: ':plugin-infra:go-plugin-access', configuration: 'runtimeElements')
-  api project.deps.apacheHttpMime
-  api project.deps.commonsCollections4
-  api project.deps.commonsText
-  api project.deps.commonsLang3
+  implementation project.deps.apacheHttpMime
+  implementation project.deps.commonsCollections4
+  implementation project.deps.commonsText
+  implementation project.deps.commonsLang3
   implementation project.deps.jodaTime
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok

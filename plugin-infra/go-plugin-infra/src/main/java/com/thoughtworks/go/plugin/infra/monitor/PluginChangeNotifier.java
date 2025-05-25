@@ -19,13 +19,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.apache.commons.collections4.CollectionUtils.subtract;
-
 public class PluginChangeNotifier {
-    public void notify(PluginJarChangeListener listener, Collection<BundleOrPluginFileDetails> knowPluginFiles, Collection<BundleOrPluginFileDetails> currentPluginFiles) {
-        List<BundleOrPluginFileDetails> oldPlugins = new ArrayList<>(knowPluginFiles);
+    public void notify(PluginJarChangeListener listener, Collection<BundleOrPluginFileDetails> knownPluginFiles, Collection<BundleOrPluginFileDetails> currentPluginFiles) {
+        List<BundleOrPluginFileDetails> oldPlugins = new ArrayList<>(knownPluginFiles);
 
-        subtract(oldPlugins, currentPluginFiles).forEach(listener::pluginJarRemoved);
+        oldPlugins.stream().filter(f -> !currentPluginFiles.contains(f)).forEach(listener::pluginJarRemoved);
 
         currentPluginFiles.forEach(newPlugin -> {
             int index = oldPlugins.indexOf(newPlugin);

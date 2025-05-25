@@ -37,15 +37,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertInstances;
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertStageDetails;
 import static com.thoughtworks.go.domain.valuestreammap.VSMViewType.NO_PERMISSION;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED;
-import static org.apache.commons.collections4.CollectionUtils.collect;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -65,7 +64,7 @@ public class ValueStreamMapServiceIntegrationTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
     private HttpLocalizedOperationResult result;
     private Username username;
@@ -481,7 +480,7 @@ public class ValueStreamMapServiceIntegrationTest {
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p3"), 1, username, result);
         Node nodeForGit = graph.getNodesAtEachLevel().get(0).get(0);
         assertThat(nodeForGit.revisions().size()).isEqualTo(2);
-        Collection<String> revisionStrings = collect(nodeForGit.revisions(), Revision::getRevisionString);
+        Stream<String> revisionStrings = nodeForGit.revisions().stream().map(Revision::getRevisionString);
         assertThat(revisionStrings).contains("g1-1", "g1-2");
     }
 

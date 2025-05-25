@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 public class ConfigurationPropertyRepresenter {
     public static void toJSON(OutputListWriter propertiesWriter, List<ConfigurationProperty> configurationProperties) {
         configurationProperties.forEach(configurationProperty -> {
@@ -38,10 +36,10 @@ public class ConfigurationPropertyRepresenter {
 
     public static void toJSON(OutputWriter writer, ConfigurationProperty configurationProperty) {
         writer.add("key", configurationProperty.getKey().getName());
-        if (!configurationProperty.isSecure() && !isBlank(configurationProperty.getConfigValue())) {
-            writer.add("value", configurationProperty.getConfigurationValue().getValue());
+        if (!configurationProperty.isSecure() && configurationProperty.getConfigValue() != null && !configurationProperty.getConfigValue().isBlank()) {
+            writer.add("value", configurationProperty.getConfigValue());
         }
-        if (configurationProperty.isSecure() && !isBlank(configurationProperty.getEncryptedValue())) {
+        if (configurationProperty.isSecure() && configurationProperty.getEncryptedValue() != null && !configurationProperty.getEncryptedValue().isBlank()) {
             writer.add("encrypted_value", configurationProperty.getEncryptedValue());
         }
         if (configurationProperty.hasErrors()) {
@@ -112,7 +110,7 @@ public class ConfigurationPropertyRepresenter {
 
             final ConfigurationProperty property = new ConfigurationProperty().deserialize(key, value, encryptedValue);
 
-            if (isBlank(encryptedValue) && null != isSecure) {
+            if (isSecure != null && (encryptedValue == null || encryptedValue.isBlank())) {
                 property.handleSecureValueConfiguration(isSecure); // handle encryptions
             }
 

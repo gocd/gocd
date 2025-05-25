@@ -20,14 +20,13 @@ import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.RerouteLatestApis;
 import com.thoughtworks.go.spark.spring.RouteEntry;
 import com.thoughtworks.go.spark.spring.RouteInformationProvider;
-import org.apache.commons.collections4.MultiMapUtils;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import spark.*;
 
 import java.util.ArrayList;
@@ -62,13 +61,13 @@ public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationCont
 
     // ignore feed API paths
     private boolean ignoreFeedApis(String path) {
-        return StringUtils.startsWithIgnoreCase(path, "/api/feed/");
+        return path.toLowerCase().startsWith("/api/feed/");
     }
 
     @Override
     public void registerLatest() {
         List<RouteEntry> routes = routeInformationProvider.getRoutes();
-        MultiValuedMap<String, ApiVersion> pathToVersionsMap = MultiMapUtils.newListValuedHashMap();
+        MultiValueMap<String, ApiVersion> pathToVersionsMap = new LinkedMultiValueMap<>();
 
         routeToggles = resolveRouteToggles();
 
@@ -78,7 +77,7 @@ public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationCont
             }
 
             ApiVersion version = ApiVersion.parse(entry.getAcceptedType());
-            pathToVersionsMap.put(entry.getPath(), version);
+            pathToVersionsMap.add(entry.getPath(), version);
         });
 
         routes.forEach(routeEntry -> {
@@ -89,7 +88,7 @@ public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationCont
             // get the api versions for this path
             Collection<ApiVersion> apiVersions = pathToVersionsMap.get(routeEntry.getPath());
             // get the max version supported by this path
-            ApiVersion maxVersion = apiVersions.stream().max(Comparator.naturalOrder()).orElseThrow(() -> new IllegalArgumentException("Unable to lookup apiversion for " + routeEntry.getPath()));
+            ApiVersion maxVersion = apiVersions.stream().max(Comparator.naturalOrder()).orElseThrow(() -> new IllegalArgumentException("Unable to lookup api version for " + routeEntry.getPath()));
 
             // if this route corresponds to the latest version, then also register that route with latest version.
             if (maxVersion.mimeType().equals(routeEntry.getAcceptedType())) {

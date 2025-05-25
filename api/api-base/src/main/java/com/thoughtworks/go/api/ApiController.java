@@ -36,7 +36,6 @@ import java.util.Set;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseConfirmHeaderMissing;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseJsonContentTypeExpected;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class ApiController implements ControllerMethods, SparkController {
     protected static final String DEFAULT_PAGE_SIZE = "10";
@@ -94,7 +93,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
 
     protected boolean isJsonContentType(Request request) {
         String mime = request.headers("Content-Type");
-        if (isBlank(mime)) {
+        if (mime == null || mime.isBlank()) {
             return false;
         }
         try {
@@ -151,7 +150,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         long cursor = 0;
         try {
             String value = request.queryParams(key);
-            if (isBlank(value)) {
+            if (value == null || value.isBlank()) {
                 return cursor;
             }
             cursor = Long.parseLong(value);

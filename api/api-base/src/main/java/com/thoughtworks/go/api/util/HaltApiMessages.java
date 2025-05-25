@@ -17,8 +17,6 @@ package com.thoughtworks.go.api.util;
 
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import static java.lang.String.format;
 
@@ -106,8 +104,8 @@ public abstract class HaltApiMessages {
 
     public static String queryParamIsUnknownMessage(String paramName, String value, String... goodValues) {
         String message = "Value `" + value + "` is not allowed for query parameter named `" + paramName + "`.";
-        if (!ArrayUtils.isEmpty(goodValues)) {
-            message += " Valid values are " + StringUtils.join(goodValues, ", ") + ".";
+        if (goodValues != null && goodValues.length > 0) {
+            message += " Valid values are " + String.join(", ", goodValues) + ".";
         }
         return message;
     }

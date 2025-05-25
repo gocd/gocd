@@ -112,9 +112,9 @@ public class FeatureToggleRepositoryTest {
 
     @Test
     public void shouldNotFailWhenContentOfUserTogglesFileIsInvalid() throws Exception {
-        File toggleFile = TestFileUtil.createTempFile("available.toggle.test");
-        Files.writeString(toggleFile.toPath(), "SOME-INVALID-CONTENT", UTF_8);
-        setupUserToggleFileAs(toggleFile);
+        Path toggleFile = Files.createTempFile("available.toggle", ".test");
+        Files.writeString(toggleFile, "SOME-INVALID-CONTENT", UTF_8);
+        setupUserToggleFileAs(toggleFile.toFile());
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
 

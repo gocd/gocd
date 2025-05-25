@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -619,8 +618,7 @@ public class ArtifactsControllerIntegrationTest {
 
     private ModelAndView postZipFolderFromTmp(File root, String folder) throws Exception {
         File source = file(root, "/tmp" + folder);
-        File zippedFile = zipUtil.zip(source, TempFiles.createUniqueFile(source.getName()),
-                Deflater.NO_COMPRESSION);
+        File zippedFile = zipUtil.zip(source, Files.createTempFile(source.getName(), null).toFile(), Deflater.NO_COMPRESSION);
         zippedFile.deleteOnExit();
         return postFile("", "zipfile", new FileInputStream(zippedFile));
     }

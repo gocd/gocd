@@ -25,13 +25,12 @@ import java.util.UUID;
 
 public class TempFiles {
 
-    private List<File> createdFiles = new ArrayList<>();
+    private final List<File> createdFiles = new ArrayList<>();
     private Clock clock;
-
-    private Runnable cleanupHook = this::cleanUp;
 
     public TempFiles() {
         this.clock = new SystemTimeClock();
+        Runnable cleanupHook = this::cleanUp;
         Runtime.getRuntime().addShutdownHook(new Thread(cleanupHook));
     }
 

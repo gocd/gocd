@@ -22,15 +22,15 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.Timeout;
-import org.joda.time.DateTime;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
+import static java.time.temporal.ChronoUnit.HOURS;
 
 public class StageMother {
 
@@ -52,7 +52,7 @@ public class StageMother {
     public static Stage completedStageInstanceWithTwoPlans(String stageName) {
         StageConfig scheduledStageConfig = StageConfigMother.twoBuildPlansWithResourcesAndMaterials(stageName);
         Stage completed = scheduleInstance(scheduledStageConfig);
-        passBuildInstancesOfStage(completed, new Date());
+        passBuildInstancesOfStage(completed, Instant.now());
         return completed;
     }
 
@@ -75,23 +75,23 @@ public class StageMother {
 
 
     public static Stage passedStageInstance(String stageName, String planName, final String pipelineName) {
-        return passedStageInstance(pipelineName, stageName, planName, new Date());
+        return passedStageInstance(pipelineName, stageName, planName, null);
     }
 
-    public static Stage passedStageInstance(String pipelineName, String stageName, String buildName, Date completionDate) {
+    public static Stage passedStageInstance(String pipelineName, String stageName, String buildName, Instant completionDate) {
         Stage stage = scheduledStage(pipelineName, 1, stageName, 1, buildName);
         passBuildInstancesOfStage(stage, completionDate);
         stage.calculateResult();
         return stage;
     }
 
-    public static Stage passedStageInstance(String pipelineName, String stageName, int stageCounter, String buildName, Date completionDate) {
+    public static Stage passedStageInstance(String pipelineName, String stageName, int stageCounter, String buildName, Instant completionDate) {
         Stage stage = passedStageInstance(pipelineName, stageName, buildName, completionDate);
         stage.setCounter(stageCounter);
         return stage;
     }
 
-    public static Stage createPassedStage(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String buildName, Date completionDate) {
+    public static Stage createPassedStage(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String buildName, Instant completionDate) {
         Stage stage = scheduledStage(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
         passBuildInstancesOfStage(stage, completionDate);
         stage.calculateResult();
@@ -99,32 +99,23 @@ public class StageMother {
     }
 
     @SuppressWarnings("unused") // Used by stages_controller_spec.rb
-    public static Stage createPassedStageWithFakeDuration(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName, final DateTime scheduleTime,
-                                                          DateTime completedTime) {
+    public static Stage createPassedStageWithFakeDuration(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName, final Instant scheduleTime,
+                                                          Instant completedTime) {
         return createStageWithFakeDuration(pipelineName, pipelineCounter, stageName, stageCounter, jobName, scheduleTime, completedTime, JobResult.Passed);
     }
 
     @SuppressWarnings("unused") // Used by stages_controller_spec.rb
-    public static Stage createFailedStageWithFakeDuration(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName, final DateTime scheduleTime,
-                                                          DateTime completedTime) {
+    public static Stage createFailedStageWithFakeDuration(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName, final Instant scheduleTime,
+                                                          Instant completedTime) {
         return createStageWithFakeDuration(pipelineName, pipelineCounter, stageName, stageCounter, jobName, scheduleTime, completedTime, JobResult.Failed);
     }
 
-    private static Stage createStageWithFakeDuration(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName, final DateTime scheduleTime, DateTime completedTime,
+    private static Stage createStageWithFakeDuration(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName, final Instant scheduleTime, Instant completedTime,
                                                      JobResult jobResult) {
         TimeProvider timeProvider = new TimeProvider() {
-            @Override public Date currentTime() {
-                return scheduleTime.toDate();
-            }
-
             @Override
-            public DateTime currentDateTime() {
-                throw new UnsupportedOperationException("Not implemented");
-            }
-
-            @Override
-            public DateTime timeoutTime(Timeout timeout) {
-                throw new UnsupportedOperationException("Not implemented");
+            public long currentTimeMillis() {
+                return scheduleTime.toEpochMilli();
             }
         };
 
@@ -132,12 +123,12 @@ public class StageMother {
         JobInstances jobInstances = new JobInstances(firstJob);
         Stage stage = StageMother.custom(pipelineName, stageName, jobInstances);
 
-        firstJob.assign("AGENT-1", completedTime.toDate());
-        firstJob.completing(jobResult, completedTime.toDate());
-        firstJob.completed(completedTime.toDate());
+        firstJob.assign("AGENT-1", Date.from(completedTime));
+        firstJob.completing(jobResult, Date.from(completedTime));
+        firstJob.completed(Date.from(completedTime));
         stage.calculateResult();
-        stage.setCreatedTime(new Timestamp(timeProvider.currentTime().getTime()));
-        stage.setLastTransitionedTime(new Timestamp(completedTime.toDate().getTime()));
+        stage.setCreatedTime(new Timestamp(timeProvider.currentTimeMillis()));
+        stage.setLastTransitionedTime(new Timestamp(completedTime.toEpochMilli()));
         stage.setIdentifier(new StageIdentifier(pipelineName, pipelineCounter, "LABEL-" + pipelineCounter, stageName, String.valueOf(stageCounter)));
 
         return stage;
@@ -171,27 +162,27 @@ public class StageMother {
     }
 
     public static Stage completedFailedStageInstance(String pipelineName, String stageName, String planName) {
-        return completedFailedStageInstance(pipelineName, stageName, planName, new Date());
+        return completedFailedStageInstance(pipelineName, stageName, planName, null);
     }
 
-    public static Stage completedFailedStageInstance(String pipelineName, String stageName, String planName, Date date) {
+    public static Stage completedFailedStageInstance(String pipelineName, String stageName, String planName, Instant completionDate) {
         Stage completed = scheduledStage(pipelineName, 1, stageName, 1, planName);
-        completeBuildInstancesOfStage(completed, JobResult.Failed, date);
+        completeBuildInstancesOfStage(completed, JobResult.Failed, completionDate == null ? Instant.now() : completionDate);
         completed.calculateResult();
         return completed;
     }
 
-    private static void passBuildInstancesOfStage(Stage stage, Date completionDate) {
-        completeBuildInstancesOfStage(stage, JobResult.Passed, completionDate);
+    private static void passBuildInstancesOfStage(Stage stage, Instant completionDate) {
+        completeBuildInstancesOfStage(stage, JobResult.Passed, completionDate == null ? Instant.now() : completionDate);
     }
 
-    private static void completeBuildInstancesOfStage(Stage stage, JobResult result, Date completionDate) {
+    private static void completeBuildInstancesOfStage(Stage stage, JobResult result, Instant completionDate) {
         for (JobInstance job : stage.getJobInstances()) {
-            job.assign("uuid", new DateTime(completionDate.getTime()).minusHours(1).toDate());
-            job.completing(result, completionDate);
-            job.completed(completionDate);
+            job.assign("uuid", Date.from(completionDate.minus(1, HOURS)));
+            job.completing(result, Date.from(completionDate));
+            job.completed(Date.from(completionDate));
         }
-        stage.setLastTransitionedTime(new Timestamp(completionDate.getTime()));
+        stage.setLastTransitionedTime(new Timestamp(completionDate.toEpochMilli()));
     }
 
     private static Stage scheduleInstance(StageConfig stageConfig) {

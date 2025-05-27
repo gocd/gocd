@@ -53,11 +53,7 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.StageSummaryModels;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TimeProvider;
-import org.joda.time.DateTime;
+import com.thoughtworks.go.util.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,6 +66,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -441,7 +438,7 @@ public class StageServiceIntegrationTest {
         String pipelineName = "Cruise";
         configFileHelper.addPipeline(pipelineName, STAGE_NAME);
         Stage saveStage = dbHelper.saveTestPipeline(pipelineName, STAGE_NAME).getStages().first();
-        JobInstance job1 = completed("unit", Passed, new Date(), new DateTime().minusMinutes(1).toDate());
+        JobInstance job1 = completed("unit", Passed, new Date(), Dates.from(ZonedDateTime.now().minusMinutes(1)));
         job1.setAgentUuid(UUID);
 
         jobInstanceDao.save(saveStage.getId(), job1);

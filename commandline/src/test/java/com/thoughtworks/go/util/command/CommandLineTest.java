@@ -19,7 +19,6 @@ import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ProcessWrapper;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -295,7 +294,7 @@ public class CommandLineTest {
 
         File shellScript = Files.createFile(temporaryFolder.resolve("hello-world.sh")).toFile();
 
-        FileUtils.writeStringToFile(shellScript, "echo ${PWD}", UTF_8);
+        Files.writeString(shellScript.toPath(), "echo ${PWD}", UTF_8);
         assertThat(shellScript.setExecutable(true)).isTrue();
 
         CommandLine line = CommandLine.createCommandLine("../hello-world.sh").withWorkingDir(subFolder).withEncoding(UTF_8);
@@ -309,7 +308,7 @@ public class CommandLineTest {
     private File createScriptInSubFolder(String name, String content) throws IOException {
         File shellScript = new File(subFolder, name);
 
-        FileUtils.writeStringToFile(shellScript, content, UTF_8);
+        Files.writeString(shellScript.toPath(), content, UTF_8);
         return shellScript;
     }
 

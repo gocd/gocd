@@ -15,18 +15,17 @@
  */
 package com.thoughtworks.go.util;
 
-import org.joda.time.DateTime;
-
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 public interface Clock {
-    Date currentTime();
+    Instant currentTime();
 
-    DateTime currentDateTime();
+    Date currentUtilDate();
 
-    Timestamp currentTimestamp();
+    Timestamp currentSqlTimestamp();
 
     LocalDateTime currentLocalDateTime();
 
@@ -36,7 +35,7 @@ public interface Clock {
 
     void sleepForMillis(long millis) throws InterruptedException;
 
-    DateTime timeoutTime(Timeout timeout);
+    Instant timeoutTime(Timeout timeout);
 
-    DateTime timeoutTime(long milliSeconds);
+    Instant timeoutTime(long milliSeconds);
 }

@@ -19,10 +19,6 @@ com.thoughtworks.go.config.CaseInsensitiveString.class_eval do
     self.toString().to_s.send(method, *args)
   end
 
-  def as_json(options = nil)
-    to_s
-  end
-
   def to_s
     self.toString() || ""
   end

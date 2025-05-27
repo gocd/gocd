@@ -17,7 +17,7 @@ package com.thoughtworks.go.domain.activity;
 
 import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
@@ -115,7 +115,7 @@ public class ProjectStatus {
     @Override
     public String toString() {
         return String.format("ProjectStatus[%s, %s, %s, %s, %s, %s, %s]", name, activity, lastBuildStatus, lastBuildLabel,
-                DateUtils.formatISO8601(lastBuildTime) + "(" + lastBuildTime.getTime() + ")", webUrl, breakers);
+                Dates.formatIso8601CompactOffset(lastBuildTime) + "(" + lastBuildTime.getTime() + ")", webUrl, breakers);
     }
 
     public String getLastBuildLabel() {
@@ -140,7 +140,7 @@ public class ProjectStatus {
         element.setAttribute("activity", activity);
         element.setAttribute("lastBuildStatus", lastBuildStatus);
         element.setAttribute("lastBuildLabel", lastBuildLabel);
-        element.setAttribute("lastBuildTime", DateUtils.formatIso8601ForCCTray(lastBuildTime));
+        element.setAttribute("lastBuildTime", Dates.formatIso8601ForCCTray(lastBuildTime));
         element.setAttribute("webUrl", fullContextPath + "/" + webUrl);
 
         if (!breakers.isEmpty()) {

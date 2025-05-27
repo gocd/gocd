@@ -22,7 +22,7 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.junit5.FileSource;
 import com.thoughtworks.go.server.domain.xml.XmlWriterContext;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import org.dom4j.dom.DOMElement;
 import org.junit.jupiter.params.ParameterizedTest;
 
@@ -51,7 +51,7 @@ public class ScmMaterialXmlRepresenterTest {
     }
 
     private List<Modification> modifications() {
-        Date date = DateUtils.parseISO8601("2019-12-31T15:31:49+05:30");
+        Date date = Dates.parseIso8601StrictOffset("2019-12-31T15:31:49+05:30");
         return List.of(
                 modification(date, "Bob", "Adding build.xml", "3", "build.xml", ModifiedAction.added),
                 modification(date, "Sam", "Fixing the not checked in files", "2", "tools/bin/go.jruby", ModifiedAction.added),

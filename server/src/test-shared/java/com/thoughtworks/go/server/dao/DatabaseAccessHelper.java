@@ -38,6 +38,7 @@ import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.ibatis.cache.Cache;
@@ -49,7 +50,6 @@ import org.dbunit.dataset.DefaultDataSet;
 import org.dbunit.dataset.DefaultTable;
 import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.SessionFactory;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
@@ -60,6 +60,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.JobResult.Failed;
@@ -334,7 +335,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
             JobInstanceMother.setBuildingState(job);
             job.setAgentUuid(AGENT_UUID);
             job.completing(jobResult);
-            job.completed(new DateTime().plusMinutes(5).toDate());
+            job.completed(Dates.from(ZonedDateTime.now().plusMinutes(5)));
             jobInstanceDao.updateAssignedInfo(job);
         }
         StageResult stageResult = switch (jobResult) {

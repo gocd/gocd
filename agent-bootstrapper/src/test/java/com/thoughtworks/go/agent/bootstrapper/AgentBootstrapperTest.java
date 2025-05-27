@@ -20,14 +20,15 @@ import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -47,9 +48,9 @@ public class AgentBootstrapperTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws IOException {
         System.clearProperty(AgentBootstrapper.WAIT_TIME_BEFORE_RELAUNCH_IN_MS);
-        FileUtils.deleteQuietly(new File(Downloader.AGENT_LAUNCHER));
+        Files.deleteIfExists(new File(Downloader.AGENT_LAUNCHER).toPath());
     }
 
     @Test

@@ -18,15 +18,16 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
+import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -87,8 +88,8 @@ public class MaintenanceModeServiceTest {
 
     @Test
     void shouldReturnUpdatedOnTimeWhenServerIsInMaintenanceMode() {
-        DateTime dateTime = new DateTime(2019, 6, 18, 14, 30, 15, DateTimeZone.UTC);
-        maintenanceModeService.update(new ServerMaintenanceMode(true, "admin", dateTime.toDate()));
+        ZonedDateTime dateTime = ZonedDateTime.of(2019, 6, 18, 14, 30, 15, 0, UTC);
+        maintenanceModeService.update(new ServerMaintenanceMode(true, "admin", Dates.from(dateTime)));
         assertThat(maintenanceModeService.updatedOn()).isEqualTo("2019-06-18T14:30:15Z");
     }
 

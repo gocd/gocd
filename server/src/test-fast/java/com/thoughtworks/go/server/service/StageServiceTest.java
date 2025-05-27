@@ -61,6 +61,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -155,11 +157,11 @@ public class StageServiceTest {
     public void shouldBeAbleToGetAJobsDuration() {
 
         TestingClock clock = new TestingClock();
-        JobInstance theJob = JobInstanceMother.building("job", clock.currentTime());
+        JobInstance theJob = JobInstanceMother.building("job", clock.currentUtilDate());
         theJob.setClock(clock);
         clock.addSeconds(9);
-        theJob.completing(JobResult.Passed, clock.currentTime());
-        theJob.completed(clock.currentTime());
+        theJob.completing(JobResult.Passed, clock.currentUtilDate());
+        theJob.completed(clock.currentUtilDate());
 
         StageIdentifier stageId = new StageIdentifier(theJob.getPipelineName(), 1, "1.0.1", "1");
         Stages stages = new Stages(StageMother.custom(theJob.getStageName(), theJob));
@@ -169,14 +171,14 @@ public class StageServiceTest {
         StageService service = new StageService(stageDao, null, null, null, alwaysAllow(), null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
             goCache);
         when(stageDao.getAllRunsOfStageForPipelineInstance(stageId.getPipelineName(), stageId.getPipelineCounter(), stageId.getStageName())).thenReturn(stages);
-        when(stageDao.getExpectedDurationMillis(theJob.getPipelineName(), theJob.getStageName(), theJob)).thenReturn(10 * 1000L);
+        when(stageDao.getExpectedDuration(theJob.getPipelineName(), theJob.getStageName(), theJob)).thenReturn(Duration.ofSeconds(10));
 
         StageSummaryModel stageForView = service.findStageSummaryByIdentifier(stageId, ALWAYS_ALLOW_USER, new HttpLocalizedOperationResult());
 
         JobInstanceModel job = stageForView.passedJobs().get(0);
         assertThat(job.getElapsedTime()).isEqualTo(theJob.getElapsedTime());
         assertThat(job.getPercentComplete()).isEqualTo(90);
-        verify(stageDao).getExpectedDurationMillis(theJob.getPipelineName(), theJob.getStageName(), theJob);
+        verify(stageDao).getExpectedDuration(theJob.getPipelineName(), theJob.getStageName(), theJob);
     }
 
     @Test
@@ -323,7 +325,7 @@ public class StageServiceTest {
             assertThat(feedEntries).hasSize(1).contains(expected);
             assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
 
-            Stage stage = StageMother.createPassedStage("cruise", 1, "stage", 1, "job", updateDate);
+            Stage stage = StageMother.createPassedStage("cruise", 1, "stage", 1, "job", updateDate.toInstant());
             stage.setIdentifier(new StageIdentifier("cruise", 1, "stage", String.valueOf(1)));
             service.updateResult(stage);//Should remove from the cache
 
@@ -744,7 +746,7 @@ public class StageServiceTest {
             int pipelineCounter = 1;
             String stageName = "unit-tests";
             String stageCounter = "1";
-            Pipeline pipeline = completedFailedStageInstance(pipelineName, stageName, "junit", new Date());
+            Pipeline pipeline = completedFailedStageInstance(pipelineName, stageName, "junit", Instant.now());
             when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
             when(pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter)).thenReturn(pipeline);

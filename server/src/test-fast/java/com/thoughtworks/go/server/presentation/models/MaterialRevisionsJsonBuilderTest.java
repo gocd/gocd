@@ -25,7 +25,7 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +62,7 @@ public class MaterialRevisionsJsonBuilderTest {
     public void shouldShowEachMaterialInJson() {
         MaterialRevision materialRevision = materialRevisions.getMaterialRevision(0);
         String expectedRevision = materialRevision.getRevision().getRevision();
-        String expectedDate = DateUtils.formatISO8601(materialRevision.getDateOfLatestModification());
+        String expectedDate = Dates.formatIso8601CompactOffset(materialRevision.getDateOfLatestModification());
 
         String jsonRevisions = buildJson();
         assertThatJson(jsonRevisions)
@@ -100,7 +100,7 @@ public class MaterialRevisionsJsonBuilderTest {
             .and(
                 a -> a.node("user").isEqualTo(ModificationsMother.MOD_USER),
                 a -> a.node("comment").isEqualTo(ModificationsMother.MOD_COMMENT),
-                a -> a.node("date").isEqualTo(DateUtils.formatISO8601(ModificationsMother.TWO_DAYS_AGO_CHECKIN)),
+                a -> a.node("date").isEqualTo(Dates.formatIso8601CompactOffset(ModificationsMother.TWO_DAYS_AGO_CHECKIN)),
                 a -> a.node("modifiedFiles").isArray().hasSize(1)
                     .first()
                     .and(

@@ -38,7 +38,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.apache.commons.collections4.IterableUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -253,8 +252,8 @@ public class PipelineTriggerServiceIntegrationTest {
         assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString()).isEqualTo("s3");
         assertThat(buildCause.getBuildCauseMessage()).isEqualTo("Forced by admin1");
         assertThat(buildCause.getVariables().size()).isEqualTo(2);
-        EnvironmentVariable plainTextVariable = IterableUtils.find(buildCause.getVariables(), variable -> variable.getName().equals("ENV_VAR1"));
-        EnvironmentVariable secureVariable = IterableUtils.find(buildCause.getVariables(), variable -> variable.getName().equals("SECURE_VAR1"));
+        EnvironmentVariable plainTextVariable = buildCause.getVariables().stream().filter(variable -> variable.getName().equals("ENV_VAR1")).findAny().orElseThrow();
+        EnvironmentVariable secureVariable = buildCause.getVariables().stream().filter( variable -> variable.getName().equals("SECURE_VAR1")).findAny().orElseThrow();
         assertThat(plainTextVariable.getValue()).isEqualTo("overridden_value");
         assertThat(secureVariable.getValue()).isEqualTo("overridden_secure_value");
         assertThat(secureVariable.isSecure()).isTrue();
@@ -285,7 +284,7 @@ public class PipelineTriggerServiceIntegrationTest {
 
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
         assertNotNull(buildCause);
-        EnvironmentVariable secureVariable = IterableUtils.find(buildCause.getVariables(), variable -> variable.getName().equals("SECURE_VAR1"));
+        EnvironmentVariable secureVariable = buildCause.getVariables().stream().filter( variable -> variable.getName().equals("SECURE_VAR1")).findAny().orElseThrow();
         assertThat(secureVariable.getValue()).isEqualTo("overridden_value");
         assertThat(secureVariable.isSecure()).isTrue();
     }
@@ -310,7 +309,7 @@ public class PipelineTriggerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnErrorIfThePipelineBeingScheduledDoesnotExist() {
+    public void shouldReturnErrorIfThePipelineBeingScheduledDoesNotExist() {
         String pipelineName = "does-not-exist";
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
 
@@ -334,7 +333,7 @@ public class PipelineTriggerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnErrorIfThePipelineBeingScheduledDoesnotExistAndHasMaterialsSetInRequest() {
+    public void shouldReturnErrorIfThePipelineBeingScheduledDoesNotExistAndHasMaterialsSetInRequest() {
         String pipelineName = "does-not-exist";
         assertThat(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString(pipelineName))).isFalse();
 

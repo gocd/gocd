@@ -84,7 +84,7 @@ public class GoConfigRevision {
         this.username = username;
         this.goVersion = goVersion;
         this.goEdition = "OpenSource";
-        this.time = provider.currentTime();
+        this.time = provider.currentUtilDate();
         this.schemaVersion = GoConstants.CONFIG_SCHEMA_VERSION;
     }
 

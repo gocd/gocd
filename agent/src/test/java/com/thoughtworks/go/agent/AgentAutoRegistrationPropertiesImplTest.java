@@ -16,7 +16,6 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -71,7 +70,7 @@ public class AgentAutoRegistrationPropertiesImplTest {
             AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_RESOURCES + "=bar"
         );
 
-        FileUtils.writeStringToFile(configFile, String.join(lineEnding, lines), UTF_8);
+        Files.writeString(configFile.toPath(), String.join(lineEnding, lines), UTF_8);
 
         AgentAutoRegistrationProperties reader = new AgentAutoRegistrationPropertiesImpl(configFile);
         assertThat(reader.agentAutoRegisterKey()).isEqualTo("foo");
@@ -106,7 +105,7 @@ public class AgentAutoRegistrationPropertiesImplTest {
                 agent.auto.register.environments = production,blue
 
                 """;
-        FileUtils.writeStringToFile(configFile, originalContents, UTF_8);
+        Files.writeString(configFile.toPath(), originalContents, UTF_8);
 
         AgentAutoRegistrationProperties properties = new AgentAutoRegistrationPropertiesImpl(configFile);
         properties.scrubRegistrationProperties();
@@ -132,6 +131,6 @@ public class AgentAutoRegistrationPropertiesImplTest {
                 # agent.auto.register.environments = production,blue
 
                 """;
-        assertThat(FileUtils.readFileToString(configFile, UTF_8)).isEqualTo(newContents);
+        assertThat(Files.readString(configFile.toPath(), UTF_8)).isEqualTo(newContents);
     }
 }

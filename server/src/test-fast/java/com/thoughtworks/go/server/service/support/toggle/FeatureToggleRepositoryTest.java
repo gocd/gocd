@@ -21,7 +21,6 @@ import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.TestFileUtil;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +55,7 @@ public class FeatureToggleRepositoryTest {
 
     @AfterEach
     public void tearDown() throws Exception {
-        FileUtils.writeStringToFile(availableTogglesFile(), "", UTF_8);
+        Files.writeString(availableTogglesFile().toPath(), "", UTF_8);
     }
 
     @Test
@@ -83,7 +82,7 @@ public class FeatureToggleRepositoryTest {
     @Test
     public void shouldNotFailWhenContentOfAvailableTogglesFileIsInvalid() throws Exception {
         setupAvailableToggleFileAs(TEST_AVAILABLE_TOGGLES_PATH);
-        FileUtils.writeStringToFile(availableTogglesFile(), "SOME-INVALID-CONTENT", UTF_8);
+        Files.writeString(availableTogglesFile().toPath(), "SOME-INVALID-CONTENT", UTF_8);
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
 
@@ -114,7 +113,7 @@ public class FeatureToggleRepositoryTest {
     @Test
     public void shouldNotFailWhenContentOfUserTogglesFileIsInvalid() throws Exception {
         File toggleFile = TestFileUtil.createTempFile("available.toggle.test");
-        FileUtils.writeStringToFile(toggleFile, "SOME-INVALID-CONTENT", UTF_8);
+        Files.writeString(toggleFile.toPath(), "SOME-INVALID-CONTENT", UTF_8);
         setupUserToggleFileAs(toggleFile);
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
@@ -179,26 +178,27 @@ public class FeatureToggleRepositoryTest {
         repository.changeValueOfToggle("key1", false);
 
         assertThat(repository.userToggles()).isEqualTo(new FeatureToggles(new FeatureToggle("key1", "desc1", false).withValueHasBeenChangedFlag(false)));
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).contains("key1");
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).contains("desc1");
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).doesNotContain(fieldForHasBeenChangedFlag);
+        String content = Files.readString(userTogglesFile.toPath(), UTF_8);
+        assertThat(content).contains("key1");
+        assertThat(content).contains("desc1");
+        assertThat(content).doesNotContain(fieldForHasBeenChangedFlag);
 
         /* The first time the file is written, it is written by hand in this test. Force it to write again,
          * so that the actual JSON write logic is used.
          */
         repository.changeValueOfToggle("key1", true);
-
+        content = Files.readString(userTogglesFile.toPath(), UTF_8);
         assertThat(repository.userToggles()).isEqualTo(new FeatureToggles(new FeatureToggle("key1", "desc1", true).withValueHasBeenChangedFlag(false)));
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).contains("key1");
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).contains("desc1");
-        assertThat(FileUtils.readFileToString(userTogglesFile, UTF_8)).doesNotContain(fieldForHasBeenChangedFlag);
+        assertThat(content).contains("key1");
+        assertThat(content).contains("desc1");
+        assertThat(content).doesNotContain(fieldForHasBeenChangedFlag);
     }
 
     @Test
     public void ensureThatTheRealTogglesFileIsValid() throws Exception {
         String realAvailableTogglesFilePath = new SystemEnvironment().get(SystemEnvironment.AVAILABLE_FEATURE_TOGGLES_FILE_PATH);
         File realAvailableTogglesFile = new File(getClass().getResource(realAvailableTogglesFilePath).toURI());
-        String currentContentOfRealAvailableTogglesFile = FileUtils.readFileToString(realAvailableTogglesFile, UTF_8);
+        String currentContentOfRealAvailableTogglesFile = Files.readString(realAvailableTogglesFile.toPath(), UTF_8);
 
         try {
             new Gson().fromJson(currentContentOfRealAvailableTogglesFile, FeatureToggleRepository.FeatureToggleFileContentRepresentation.class);
@@ -220,13 +220,13 @@ public class FeatureToggleRepositoryTest {
 
     private void setupAvailableToggles(FeatureToggle... toggles) throws Exception {
         setupAvailableToggleFileAs(TEST_AVAILABLE_TOGGLES_PATH);
-        FileUtils.writeStringToFile(availableTogglesFile(), convertTogglesToJson(toggles), UTF_8);
+        Files.writeString(availableTogglesFile().toPath(), convertTogglesToJson(toggles), UTF_8);
     }
 
     private File setupUserToggles(FeatureToggle... toggles) throws Exception {
         File toggleFile = Files.createFile(temporaryFolder.resolve("user.toggle.test")).toFile();
         setupUserToggleFileAs(toggleFile);
-        FileUtils.writeStringToFile(toggleFile, convertTogglesToJson(toggles), UTF_8);
+        Files.writeString(toggleFile.toPath(), convertTogglesToJson(toggles), UTF_8);
         return toggleFile;
     }
 

@@ -16,7 +16,7 @@
 
 module StageModelMother
   def stage(counter)
-    StageMother.createPassedStage("cruise", 1, "dev", counter, "rspec", org.joda.time.DateTime.new().plus_minutes(10).toDate())
+    StageMother.createPassedStage("cruise", 1, "dev", counter, "rspec", ZonedDateTime.now.plus_minutes(10).to_instant)
   end
 
   def stage_with_three_runs
@@ -31,7 +31,7 @@ module StageModelMother
   def historical_stages(count)
     history = []
     count.times do |i|
-      stage = StageMother.createPassedStage("cruise", i+1, "dev", 1, "rspec", org.joda.time.DateTime.new().plus_minutes(10).toDate())
+      stage = StageMother.createPassedStage("cruise", i+1, "dev", 1, "rspec", ZonedDateTime.now.plus_minutes(10).to_instant)
       stage.setConfigVersion("md5-test")
       history << StageHistoryEntry.new(stage, i, nil)
     end

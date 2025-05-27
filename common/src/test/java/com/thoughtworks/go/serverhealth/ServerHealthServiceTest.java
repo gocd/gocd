@@ -27,11 +27,12 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.Timeout;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Set;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.*;
@@ -66,7 +67,7 @@ public class ServerHealthServiceTest {
 
     @Test
     public void shouldRemoveExpiredLogMessages() {
-        testingClock.setTime(new DateTime(2002,10,10,10,10,10,10));
+        testingClock.setTime(LocalDateTime.of(2002,10,10,10,10,10,10).toInstant(ZoneOffset.UTC));
         ServerHealthState expiresInNinetySecs = warning("hg-message1", "description", HealthStateType.databaseDiskFull(), Timeout.NINETY_SECONDS);
         ServerHealthState expiresInThreeMinutes = warning("hg-message2", "description", HealthStateType.artifactsDirChanged(), Timeout.THREE_MINUTES);
         ServerHealthState expiresNever = warning("hg-message3", "description", HealthStateType.artifactsDiskFull(), Timeout.NEVER);

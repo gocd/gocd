@@ -61,13 +61,13 @@ import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.SerializationTester;
 import com.thoughtworks.go.util.TestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,6 +80,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -1469,10 +1470,10 @@ public class MaterialRepositoryIntegrationTest {
         GitMaterial material = MaterialsMother.gitMaterial("http://example.com/gocd");
         MaterialRevisions materialRevisions = new MaterialRevisions();
         List<Modification> mods = new ArrayList<>();
-        mods.add(new Modification("user 1", "hello world", EMAIL_ADDRESS, new DateTime().minusHours(1).toDate(), "Revisions-matches"));
-        mods.add(new Modification("user 2", "this will match as well - yellow", EMAIL_ADDRESS, new DateTime().minusHours(2).toDate(), "Revision-also-matches"));
-        mods.add(new Modification("user 3", "this should match as well", EMAIL_ADDRESS, new DateTime().minusHours(3).toDate(), "Revision-hello"));
-        mods.add(new Modification("user 4", "some comment", EMAIL_ADDRESS, new DateTime().minusHours(4).toDate(), "revisions-which-will-not-match"));
+        mods.add(new Modification("user 1", "hello world", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(1)), "Revisions-matches"));
+        mods.add(new Modification("user 2", "this will match as well - yellow", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(2)), "Revision-also-matches"));
+        mods.add(new Modification("user 3", "this should match as well", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(3)), "Revision-hello"));
+        mods.add(new Modification("user 4", "some comment", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(4)), "revisions-which-will-not-match"));
 
         materialRevisions.addRevision(material, mods);
 
@@ -1492,10 +1493,10 @@ public class MaterialRepositoryIntegrationTest {
         GitMaterial material = MaterialsMother.gitMaterial("http://example.com/gocd");
         MaterialRevisions materialRevisions = new MaterialRevisions();
         List<Modification> mods = new ArrayList<>();
-        mods.add(new Modification("user 1", "hello world", EMAIL_ADDRESS, new DateTime().minusHours(1).toDate(), "Revisions-matches"));
-        mods.add(new Modification("user 2", "this will match as well - yellow", EMAIL_ADDRESS, new DateTime().minusHours(2).toDate(), "Revision-also-matches"));
-        mods.add(new Modification("user 3", "this should match as well", EMAIL_ADDRESS, new DateTime().minusHours(3).toDate(), "Revision-hello"));
-        mods.add(new Modification("user 4", "some comment", EMAIL_ADDRESS, new DateTime().minusHours(4).toDate(), "revisions-which-will-not-match"));
+        mods.add(new Modification("user 1", "hello world", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(1)), "Revisions-matches"));
+        mods.add(new Modification("user 2", "this will match as well - yellow", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(2)), "Revision-also-matches"));
+        mods.add(new Modification("user 3", "this should match as well", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(3)), "Revision-hello"));
+        mods.add(new Modification("user 4", "some comment", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(4)), "revisions-which-will-not-match"));
 
         materialRevisions.addRevision(material, mods);
 
@@ -1516,10 +1517,10 @@ public class MaterialRepositoryIntegrationTest {
         GitMaterial material = MaterialsMother.gitMaterial("http://example.com/gocd");
         MaterialRevisions materialRevisions = new MaterialRevisions();
         List<Modification> mods = new ArrayList<>();
-        mods.add(new Modification("user 1", "this will match", EMAIL_ADDRESS, new DateTime().minusHours(1).toDate(), "Revisions-matches"));
-        mods.add(new Modification("user 2", "this wont", EMAIL_ADDRESS, new DateTime().minusHours(2).toDate(), "Revision-not-matches"));
-        mods.add(new Modification("user 3", "this also wont", EMAIL_ADDRESS, new DateTime().minusHours(3).toDate(), "Revision-hello"));
-        mods.add(new Modification("user 4", "this should match as well", EMAIL_ADDRESS, new DateTime().minusHours(4).toDate(), "revisions-which-will-match"));
+        mods.add(new Modification("user 1", "this will match", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(1)), "Revisions-matches"));
+        mods.add(new Modification("user 2", "this wont", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(2)), "Revision-not-matches"));
+        mods.add(new Modification("user 3", "this also wont", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(3)), "Revision-hello"));
+        mods.add(new Modification("user 4", "this should match as well", EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(4)), "revisions-which-will-match"));
 
         materialRevisions.addRevision(material, mods);
 
@@ -1570,7 +1571,7 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         List<Modification> mods = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            Modification mod = new Modification(MOD_USER, "Dummy comment: " + i, EMAIL_ADDRESS, new DateTime().minusHours(i).toDate(), "Rev: " + i);
+            Modification mod = new Modification(MOD_USER, "Dummy comment: " + i, EMAIL_ADDRESS, Dates.from(ZonedDateTime.now().minusHours(i)), "Rev: " + i);
             mods.add(mod);
         }
 

@@ -36,7 +36,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -235,7 +235,7 @@ public class GoFileConfigDataSourceTest {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
         when(systemEnvironment.getCruiseConfigFile()).thenReturn("");
-        when(goConfigFileReader.fileLocation()).thenReturn(new File(""));
+        when(goConfigFileReader.location()).thenReturn(Path.of(""));
         when(goConfigFileReader.configXml()).thenReturn("config_xml");
         when(xmlLoader.deserializeConfig("config_xml")).thenReturn(cruiseConfig);
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
@@ -262,7 +262,7 @@ public class GoFileConfigDataSourceTest {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
         when(systemEnvironment.getCruiseConfigFile()).thenReturn("");
-        when(goConfigFileReader.fileLocation()).thenReturn(new File(""));
+        when(goConfigFileReader.location()).thenReturn(Path.of(""));
         when(goConfigFileReader.configXml()).thenReturn("config_xml");
         when(xmlLoader.deserializeConfig("config_xml")).thenReturn(cruiseConfig);
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);

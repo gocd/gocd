@@ -368,7 +368,7 @@ class BuildWorkTest {
         String artifactFile = "example.txt";
         File basedir = new File("pipelines/pipeline1");
 
-        FileUtils.write(new File(basedir, artifactFile), "foo", UTF_8);
+        Files.writeString(new File(basedir, artifactFile).toPath(), "foo", UTF_8);
 
         buildWork = getWork(willUploadToDest(artifactFile, destFolder), PIPELINE_NAME);
         com.thoughtworks.go.remote.work.HttpServiceStub httpService = new com.thoughtworks.go.remote.work.HttpServiceStub(HttpServletResponse.SC_OK);

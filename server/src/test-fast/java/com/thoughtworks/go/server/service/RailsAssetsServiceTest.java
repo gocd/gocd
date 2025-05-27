@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -26,6 +25,7 @@ import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +65,7 @@ public class RailsAssetsServiceTest {
 
     @Test
     public void shouldGetAssetPathFromManifestJson() throws IOException {
-        FileUtils.writeStringToFile(new File(assetsDir, ".sprockets-manifest-digest.json"), json, UTF_8);
+        Files.writeString(new File(assetsDir, ".sprockets-manifest-digest.json").toPath(), json, UTF_8);
         when(context.getInitParameter("rails.root")).thenReturn("");
         when(context.getRealPath(any(String.class))).thenReturn(assetsDir.getAbsolutePath());
         railsAssetsService.initialize();

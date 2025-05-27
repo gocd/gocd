@@ -16,26 +16,29 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.Timeout;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeUtils;
-import org.joda.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 
 public class StageTest {
-    DateTime time1 = new DateTime(2008, 2, 22, 12, 22, 23, 0);
-    DateTime time2 = new DateTime(2008, 2, 22, 12, 22, 24, 0);
-    DateTime time3 = new DateTime(2008, 2, 22, 12, 22, 25, 0);
-    DateTime time4 = new DateTime(2008, 2, 22, 12, 22, 26, 0);
+    private final Instant time1 = ZonedDateTime.of(2008, 2, 22, 12, 22, 23, 0, ZoneId.systemDefault()).toInstant();
+    private final Instant time2 = ZonedDateTime.of(2008, 2, 22, 12, 22, 24, 0, ZoneId.systemDefault()).toInstant();
+    private final Instant time3 = ZonedDateTime.of(2008, 2, 22, 12, 22, 25, 0, ZoneId.systemDefault()).toInstant();
+    private final Instant time4 = ZonedDateTime.of(2008, 2, 22, 12, 22, 26, 0, ZoneId.systemDefault()).toInstant();;
 
     private JobInstances jobInstances;
     private Stage stage;
@@ -49,18 +52,8 @@ public class StageTest {
     public void setUp() {
         timeProvider = new TimeProvider() {
             @Override
-            public Date currentTime() {
+            public Date currentUtilDate() {
                 return JOB_SCHEDULE_DATE;
-            }
-
-            @Override
-            public DateTime currentDateTime() {
-                throw new UnsupportedOperationException("Not implemented");
-            }
-
-            @Override
-            public DateTime timeoutTime(Timeout timeout) {
-                throw new UnsupportedOperationException("Not implemented");
             }
         };
         firstJob = new JobInstance("first-job", timeProvider);
@@ -72,7 +65,7 @@ public class StageTest {
     @Test
     public void shouldUpdateCompletedByTransitionIdAndStageState() {
         assertThat(stage.getCompletedByTransitionId()).isNull();
-        DateTime fiveMinsForNow = new DateTime().plusMinutes(5);
+        Instant fiveMinsForNow = Instant.now().plus(5, MINUTES);
         complete(firstJob, fiveMinsForNow);
         complete(secondJob, fiveMinsForNow);
         secondJob.getTransition(JobState.Completed);
@@ -154,9 +147,9 @@ public class StageTest {
         assertThat(stage.isReRun()).isFalse();
     }
 
-    private void complete(JobInstance job, DateTime fiveMinsForNow) {
-        job.completing(JobResult.Passed, fiveMinsForNow.toDate());
-        job.completed(fiveMinsForNow.plusSeconds(10).toDate());
+    private void complete(JobInstance job, Instant completingAt) {
+        job.completing(JobResult.Passed, Date.from(completingAt));
+        job.completed(Date.from(completingAt.plusSeconds(10)));
         assignIdsToAllTransitions(job);
     }
 
@@ -169,30 +162,30 @@ public class StageTest {
     @Test
     public void shouldReturnMostRecentCompletedTransitionAsCompletedDateIfLatestTransitionIdIsNot() {
 
-        firstJob.assign("AGENT-1", time1.toDate());
-        firstJob.completing(JobResult.Passed, time2.toDate());
-        firstJob.completed(time2.toDate());
+        firstJob.assign("AGENT-1", Date.from(time1));
+        firstJob.completing(JobResult.Passed, Date.from(time2));
+        firstJob.completed(Date.from(time2));
 
-        secondJob.assign("AGENT-2", time3.toDate());
-        secondJob.completing(JobResult.Passed, time4.toDate());
-        secondJob.completed(time4.toDate());
+        secondJob.assign("AGENT-2", Date.from(time3));
+        secondJob.completing(JobResult.Passed, Date.from(time4));
+        secondJob.completed(Date.from(time4));
         secondJob.getTransitions().byState(JobState.Completed).setId(1);
 
         stage.calculateResult();
 
-        assertThat(stage.completedDate()).isEqualTo(time4.toDate());
+        assertThat(stage.completedDate()).isEqualTo(Date.from(time4));
     }
 
     @Test
     public void shouldReturnNullAsCompletedDateIfNeverCompleted() {
-        firstJob.assign("AGENT-1", time1.toDate());
-        secondJob.assign("AGENT-2", time3.toDate());
+        firstJob.assign("AGENT-1", Date.from(time1));
+        secondJob.assign("AGENT-2", Date.from(time3));
 
         assertNull(stage.completedDate(), "Completed date should be null");
     }
 
     @Test
-    public void stageStateShouldBeUnkownIfNoJobs() {
+    public void stageStateShouldBeUnknownIfNoJobs() {
         Stage newStage = new Stage();
         assertThat(newStage.stageState()).isEqualTo(StageState.Unknown);
     }
@@ -200,21 +193,11 @@ public class StageTest {
     @Test
     public void shouldCalculateTotalTimeFromFirstScheduledJobToLastCompletedJob() {
 
-        final DateTime time0 = new DateTime(2008, 2, 22, 10, 21, 23, 0);
+        final Instant time0 = ZonedDateTime.of(2008, 2, 22, 10, 21, 23, 0, ZoneId.systemDefault()).toInstant();
         timeProvider = new TimeProvider() {
             @Override
-            public Date currentTime() {
-                return time0.toDate();
-            }
-
-            @Override
-            public DateTime currentDateTime() {
-                throw new UnsupportedOperationException("Not implemented");
-            }
-
-            @Override
-            public DateTime timeoutTime(Timeout timeout) {
-                throw new UnsupportedOperationException("Not implemented");
+            public Date currentUtilDate() {
+                return Date.from(time0);
             }
         };
 
@@ -224,19 +207,19 @@ public class StageTest {
         jobInstances = new JobInstances(firstJob, secondJob);
         stage = StageMother.custom("test", jobInstances);
 
-        firstJob.assign("AGENT-1", time1.toDate());
-        firstJob.completing(JobResult.Passed, time2.toDate());
-        firstJob.completed(time2.toDate());
+        firstJob.assign("AGENT-1", Date.from(time1));
+        firstJob.completing(JobResult.Passed, Date.from(time2));
+        firstJob.completed(Date.from(time2));
 
-        secondJob.assign("AGENT-2", time3.toDate());
-        secondJob.completing(JobResult.Passed, time4.toDate());
-        secondJob.completed(time4.toDate());
+        secondJob.assign("AGENT-2", Date.from(time3));
+        secondJob.completing(JobResult.Passed, Date.from(time4));
+        secondJob.completed(Date.from(time4));
 
         stage.calculateResult();
-        stage.setCreatedTime(new Timestamp(time0.toDate().getTime()));
-        stage.setLastTransitionedTime(new Timestamp(time4.toDate().getTime()));
+        stage.setCreatedTime(new Timestamp(time0.toEpochMilli()));
+        stage.setLastTransitionedTime(new Timestamp(time4.toEpochMilli()));
 
-        RunDuration.ActualDuration expectedDuration = new RunDuration.ActualDuration(new Duration(time0, time4));
+        RunDuration.ActualDuration expectedDuration = new RunDuration.ActualDuration(Duration.between(time0, time4));
         RunDuration.ActualDuration duration = (RunDuration.ActualDuration) stage.getDuration();
         assertThat(duration).isEqualTo(expectedDuration);
         assertThat(duration.getTotalSeconds()).isEqualTo(7263L);
@@ -244,8 +227,8 @@ public class StageTest {
 
     @Test
     public void shouldReturnZeroDurationForIncompleteStage() {
-        firstJob.assign("AGENT-1", time1.toDate());
-        firstJob.changeState(JobState.Building, time2.toDate());
+        firstJob.assign("AGENT-1", Date.from(time1));
+        firstJob.changeState(JobState.Building, Date.from(time2));
 
         assertThat(stage.getDuration()).isEqualTo(RunDuration.IN_PROGRESS_DURATION);
     }
@@ -258,7 +241,7 @@ public class StageTest {
     }
 
     @Test
-    public void shouldReturnCreatedDateWhenNoTranstions() {
+    public void shouldReturnCreatedDateWhenNoTransitions() {
         stage = new Stage("dev", new JobInstances(), "anonymous", null, "manual", new TimeProvider());
         assertEquals(new Date(stage.getCreatedTime().getTime()), stage.latestTransitionDate());
     }
@@ -276,21 +259,11 @@ public class StageTest {
     public void shouldSetTheCurrentTimeAsCreationTimeForRerunOfJobs() {
         Stage stage = new Stage("foo-stage", new JobInstances(), "admin", null,"manual", false, false, "git-sha", new TimeProvider());
         Timestamp createdTimeOfRun1 = stage.getCreatedTime();
-        long minuteAfter = DateTimeUtils.currentTimeMillis() + 60000;
-        freezeTime(minuteAfter);
-        stage.prepareForRerunOf(new DefaultSchedulingContext("admin"), "git-sha");
-        resetTime();
+        Clock clock = new TestingClock(Instant.now().plus(1, MINUTES));
+        stage.prepareForRerunOf(new DefaultSchedulingContext("admin"), "git-sha", clock);
         Timestamp createdTimeOfRun2 = stage.getCreatedTime();
 
         assertNotEquals(createdTimeOfRun1, createdTimeOfRun2);
-        assertEquals(createdTimeOfRun2, new Timestamp(minuteAfter));
-    }
-
-    private void freezeTime(Long millis) {
-        DateTimeUtils.setCurrentMillisFixed(millis);
-    }
-
-    private void resetTime() {
-        DateTimeUtils.setCurrentMillisSystem();
+        assertEquals(createdTimeOfRun2, clock.currentSqlTimestamp());
     }
 }

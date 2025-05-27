@@ -27,7 +27,6 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
@@ -40,6 +39,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -242,6 +243,10 @@ public class GoFileConfigDataSource {
         return new File(systemEnvironment.getCruiseConfigFile());
     }
 
+    public Path location() {
+        return Path.of(systemEnvironment.getCruiseConfigFile());
+    }
+
     public GoConfigHolder load() throws Exception {
         File configFile = fileLocation();
 
@@ -412,10 +417,10 @@ public class GoFileConfigDataSource {
     }
 
     synchronized GoConfigHolder forceLoad() throws Exception {
-        File configFile = goConfigFileReader.fileLocation();
+        Path configFile = goConfigFileReader.location();
 
         CruiseConfig cruiseConfig = this.magicalGoConfigXmlLoader.deserializeConfig(goConfigFileReader.configXml());
-        LOGGER.debug("Reloading config file: {}", configFile.getAbsolutePath());
+        LOGGER.debug("Reloading config file: {}", configFile.toAbsolutePath());
 
         GoConfigHolder goConfigHolder;
         try {
@@ -436,19 +441,19 @@ public class GoFileConfigDataSource {
     }
 
     @TestOnly
-    synchronized GoConfigHolder forceLoad(File configFile) throws Exception {
-        LOGGER.debug("Reloading config file: {}", configFile.getAbsolutePath());
+    synchronized GoConfigHolder forceLoad(Path configFile) throws Exception {
+        LOGGER.debug("Reloading config file: {}", configFile.toAbsolutePath());
         GoConfigHolder holder;
         try {
             try {
                 List<PartialConfig> lastKnownPartials = cloner.deepClone(cachedGoPartials.lastKnownPartials());
-                holder = internalLoad(FileUtils.readFileToString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastKnownPartials);
+                holder = internalLoad(Files.readString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastKnownPartials);
             } catch (GoConfigInvalidException e) {
                 if (cannotUpdateConfigWithLastValidPartials()) {
                     throw e;
                 } else {
                     List<PartialConfig> lastValidPartials = cloner.deepClone(cachedGoPartials.lastValidPartials());
-                    holder = internalLoad(FileUtils.readFileToString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastValidPartials);
+                    holder = internalLoad(Files.readString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastValidPartials);
                 }
             }
             return holder;
@@ -458,11 +463,11 @@ public class GoFileConfigDataSource {
         }
     }
 
-    private static void logConfigLoadException(File configFile, Exception e) throws Exception {
-        LOGGER.error("Unable to load config file: {} {}", configFile.getAbsolutePath(), e.getMessage(), e);
-        if (LOGGER.isDebugEnabled() && configFile.exists()) {
-            LOGGER.debug("--- {} ---", configFile.getAbsolutePath());
-            LOGGER.debug(FileUtils.readFileToString(configFile, StandardCharsets.UTF_8));
+    private static void logConfigLoadException(Path configFile, Exception e) throws Exception {
+        LOGGER.error("Unable to load config file: {} {}", configFile.toAbsolutePath(), e.getMessage(), e);
+        if (LOGGER.isDebugEnabled() && Files.exists(configFile)) {
+            LOGGER.debug("--- {} ---", configFile.toAbsolutePath());
+            LOGGER.debug(Files.readString(configFile, StandardCharsets.UTF_8));
             LOGGER.debug("------");
         }
     }

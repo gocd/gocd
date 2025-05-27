@@ -19,6 +19,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,13 +42,13 @@ public class DefaultAgentRegistryTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws IOException {
         guidService.delete();
         tokenService.delete();
     }
 
     @Test
-    public void shouldCreateGuidIfOneNotAlreadySet() {
+    public void shouldCreateGuidIfOneNotAlreadySet() throws IOException {
         guidService.delete();
         String guid = agentRegistry.uuid();
         assertNotNull(guid);
@@ -60,7 +62,7 @@ public class DefaultAgentRegistryTest {
     }
 
     @Test
-    public void shouldCheckGuidPresent() {
+    public void shouldCheckGuidPresent() throws IOException {
         assertTrue(agentRegistry.guidPresent());
 
         guidService.delete();
@@ -73,7 +75,7 @@ public class DefaultAgentRegistryTest {
     }
 
     @Test
-    public void shouldCheckTokenPresent() {
+    public void shouldCheckTokenPresent() throws IOException {
         assertTrue(agentRegistry.tokenPresent());
 
         tokenService.delete();
@@ -91,7 +93,7 @@ public class DefaultAgentRegistryTest {
     }
 
     @Test
-    public void shouldDeleteTokenFromDisk() {
+    public void shouldDeleteTokenFromDisk() throws IOException {
         assertThat(agentRegistry.token()).isEqualTo(TOKEN);
         assertTrue(agentRegistry.tokenPresent());
 

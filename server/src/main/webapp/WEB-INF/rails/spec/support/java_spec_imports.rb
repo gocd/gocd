@@ -16,6 +16,9 @@
 
 module JavaSpecImports
   java_import java.util.ArrayList unless defined? ArrayList
+  java_import java.time.Instant unless defined? Instant
+  java_import java.time.ZonedDateTime unless defined? ZonedDateTime
+  java_import java.time.ZoneOffset unless defined? ZoneOffset
   java_import com.thoughtworks.go.helper.GoConfigMother unless defined? GoConfigMother
   java_import com.thoughtworks.go.helper.JobInstanceMother unless defined? JobInstanceMother
   java_import com.thoughtworks.go.helper.MaterialsMother unless defined? MaterialsMother
@@ -70,7 +73,6 @@ module JavaSpecImports
   java_import com.thoughtworks.go.server.ui.StageSummaryModel unless defined? StageSummaryModel
   java_import com.thoughtworks.go.server.ui.StageSummaryModels unless defined? StageSummaryModels
   java_import com.thoughtworks.go.server.util.Pagination unless defined? Pagination
-  java_import org.joda.time.Duration unless defined? Duration
   java_import com.thoughtworks.go.domain.GoConfigRevision unless defined? GoConfigRevision
   java_import com.thoughtworks.go.util.TimeProvider unless defined? TimeProvider
   java_import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor unless defined? GoPluginDescriptor

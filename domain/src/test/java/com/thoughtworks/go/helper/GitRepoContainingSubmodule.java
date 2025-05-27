@@ -25,10 +25,10 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.command.CommandLine;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -175,6 +175,6 @@ public class GitRepoContainingSubmodule extends TestRepo {
 
     private void changeFile(File parentDir, String fileName, String newFileContent) throws IOException {
         File fileToChange = new File(parentDir, fileName);
-        FileUtils.writeStringToFile(fileToChange, newFileContent, UTF_8);
+        Files.writeString(fileToChange.toPath(), newFileContent, UTF_8);
     }
 }

@@ -17,33 +17,28 @@ package com.thoughtworks.go.server.domain;
 
 import com.thoughtworks.go.domain.JobInstance;
 
+import java.time.Duration;
+
 /**
  * Understands how to calculate the expected duration of a job
  */
 public interface JobDurationStrategy {
 
-    JobDurationStrategy ALWAYS_ZERO = new ConstantJobDuration(0);
+    JobDurationStrategy ALWAYS_ZERO = new ConstantJobDuration(Duration.ZERO);
 
     class ConstantJobDuration implements JobDurationStrategy {
-        private final int durationInMillis;
+        private final Duration duration;
 
-        public ConstantJobDuration(int durationInMillis) {
-            this.durationInMillis = durationInMillis;
+        public ConstantJobDuration(Duration duration) {
+            this.duration = duration;
         }
 
         @Override
-        public long getExpectedDurationMillis(String pipelineName, String stageName, JobInstance job) {
-            return durationInMillis;
+        public Duration getExpectedDuration(String pipelineName, String stageName, JobInstance job) {
+            return duration;
         }
     }
 
-
-    /**
-     * TODO: We want to use org.joda.time.Duration here but we have a class loading issue that means we can't
-     * We should nove to a richer object when we can fix that issue
-     *
-     * @return duration in millis
-     */
-    long getExpectedDurationMillis(String pipelineName, String stageName, JobInstance job);
+    Duration getExpectedDuration(String pipelineName, String stageName, JobInstance job);
 
 }

@@ -38,14 +38,15 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.hibernate.Query;
-import org.joda.time.DateTime;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
+import static java.time.temporal.ChronoUnit.HOURS;
 
 public class ScheduleTestUtil {
 
@@ -54,20 +55,18 @@ public class ScheduleTestUtil {
     private final MaterialRepository materialRepository;
     private final DatabaseAccessHelper dbHelper;
     private final GoConfigFileHelper configHelper;
-    private final Date date;
-    private final Map<CaseInsensitiveString, Pipeline> triggeredPipelines;
+    private final Instant date;
 
     public ScheduleTestUtil(TransactionTemplate transactionTemplate, MaterialRepository materialRepository, DatabaseAccessHelper dbHelper, GoConfigFileHelper configHelper) {
         this.transactionTemplate = transactionTemplate;
         this.materialRepository = materialRepository;
         this.dbHelper = dbHelper;
         this.configHelper = configHelper;
-        date = new Date();
-        triggeredPipelines = new HashMap<>();
+        date = Instant.now();
     }
 
     public Date d(int extraHours) {
-        return new DateTime(date.getTime()).plusHours(extraHours).toDate();
+        return Date.from(date.plus(extraHours, HOURS));
     }
 
     private Material mw(Material material) {
@@ -102,7 +101,7 @@ public class ScheduleTestUtil {
     }
 
     public String runAndPass(final AddedPipeline pipeline, String... revisions) {
-        return runAndPassWithGivenMDUTimestampAndRevisionStrings(pipeline, date, revisions);
+        return runAndPassWithGivenMDUTimestampAndRevisionStrings(pipeline, Date.from(date), revisions);
     }
 
     public String runAndPassWithGivenMDUTimestampAndRevisionStrings(final AddedPipeline pipeline, final Date mduAt, final String... revisions) {
@@ -121,7 +120,7 @@ public class ScheduleTestUtil {
         return fail(pipeline, instance);
     }
 
-    public String rerunStageAndCancel(Pipeline pipeline, StageConfig stageConfig){
+    public String rerunStageAndCancel(Pipeline pipeline, StageConfig stageConfig) {
         Stage stage = dbHelper.scheduleStage(pipeline, stageConfig);
         dbHelper.cancelStage(stage);
         return stage.getIdentifier().getStageLocator();
@@ -130,7 +129,8 @@ public class ScheduleTestUtil {
     private String pass(final AddedPipeline pipeline, final Date mduAt, final Pipeline instance) {
         dbHelper.pass(instance);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 for (Stage stage : instance.getStages()) {
                     final String dmrRevStr = new StageIdentifier(new PipelineIdentifier(instance.getName(), instance.getCounter(), instance.getName() + instance.getCounter()), stage.getName(), "1").getStageLocator();
                     Modification modification = new Modification(mduAt, dmrRevStr, instance.getLabel(), instance.getId());
@@ -145,7 +145,7 @@ public class ScheduleTestUtil {
         dbHelper.failStage(instance.getFirstStage());
         //should not add dmr to database because it failed.
         return new StageIdentifier(new PipelineIdentifier(instance.getName(), instance.getCounter(), instance.getName() + instance.getCounter()), CaseInsensitiveString.str(
-                pipeline.material.getStageName()), "1").getStageLocator();
+            pipeline.material.getStageName()), "1").getStageLocator();
     }
 
     public MaterialRevisions mrs(MaterialRevision... revs) {
@@ -190,10 +190,12 @@ public class ScheduleTestUtil {
         private RevisionsForMaterial(List<String> revs) {
             this.revs = revs;
         }
-        @Override public String toString() {
+
+        @Override
+        public String toString() {
             return "RevisionsForMaterial{" +
-                    "revs=" + revs +
-                    '}';
+                "revs=" + revs +
+                '}';
         }
 
     }
@@ -207,8 +209,6 @@ public class ScheduleTestUtil {
     }
 
     private Pipeline scheduleWith(AddedPipeline pipeline, RevisionsForMaterial... revisions) {
-        Pipeline oldInstance = triggeredPipelines.get(pipeline.config.name());
-
         Map<Material, List<Modification>> modMap = new HashMap<>();
         Map<Modification, Modification> identityMap = new HashMap<>();
 
@@ -231,19 +231,9 @@ public class ScheduleTestUtil {
             MaterialInstance configuredMaterialInstance = materialRepository.findOrCreateFrom(material);
             if (!configuredMaterialInstance.equals(modificationsMaterialInstance)) {
                 throw new RuntimeException(
-                        "Please fix the revision order to match material configuration order. Revision given for: " + modificationsMaterialInstance + " against configured material: " + configuredMaterialInstance);
+                    "Please fix the revision order to match material configuration order. Revision given for: " + modificationsMaterialInstance + " against configured material: " + configuredMaterialInstance);
             }
-            if (oldInstance == null) {
-                buildCause.addRevision(new MaterialRevision(material, modifications));
-            } else {
-                MaterialRevision oldRev = oldInstance.getBuildCause().getMaterialRevisions().findRevisionFor(material);
-                List<Modification> modificationsSince = materialRepository.findModificationsSince(material, oldRev);
-                List<Modification> newRange = new ArrayList<>();
-                for (Modification newMod : modificationsSince) {
-                    newRange.add(0, newMod);
-                }
-                buildCause.addRevision(new MaterialRevision(material, newRange));
-            }
+            buildCause.addRevision(new MaterialRevision(material, modifications));
         }
 
         return dbHelper.schedulePipelineWithAllStages(pipeline.config, BuildCause.createWithModifications(buildCause, "loser"));
@@ -271,7 +261,7 @@ public class ScheduleTestUtil {
     }
 
     public String runAndFail(final AddedPipeline pipeline, String... revisions) {
-        return runAndFail(pipeline, date, revisions);
+        return runAndFail(pipeline, Date.from(date), revisions);
     }
 
     private Modification modForRev(final String revision) {
@@ -411,7 +401,7 @@ public class ScheduleTestUtil {
     }
 
     public void checkinInOrder(final Material material, final String... revisions) {
-        checkinInOrder(material, date, revisions);
+        checkinInOrder(material, Date.from(date), revisions);
     }
 
     public void checkinInOrder(final Material material, final Date dateOfCheckin, final String... revisions) {
@@ -419,7 +409,7 @@ public class ScheduleTestUtil {
             for (int i = 0; i < revisions.length; i++) {
                 String revision = revisions[i];
                 materialRepository.saveMaterialRevision(new MaterialRevision(material,
-                        new Modification("loser number " + i, "commit " + i, "e" + i + "@mail", new DateTime(dateOfCheckin.getTime()).plusHours(i).toDate(), revision)));
+                    new Modification("loser number " + i, "commit " + i, "e" + i + "@mail", Date.from(dateOfCheckin.toInstant().plus(i, HOURS)), revision)));
             }
             return null;
         });
@@ -431,7 +421,7 @@ public class ScheduleTestUtil {
 
     public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction) {
         transactionTemplate.execute(status -> {
-            Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
+            Modification modification = new Modification("user", "comment", "a@b.com", Date.from(date), revision);
             for (File file : files) {
                 modification.createModifiedFile(file.getName(), file.getParent(), modifiedAction);
             }
@@ -440,9 +430,9 @@ public class ScheduleTestUtil {
         });
     }
 
-    public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction,final Date date) {
+    public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction, final Instant date) {
         transactionTemplate.execute(status -> {
-            Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
+            Modification modification = new Modification("user", "comment", "a@b.com", Date.from(date), revision);
             for (File file : files) {
                 modification.createModifiedFile(file.getName(), file.getParent(), modifiedAction);
             }

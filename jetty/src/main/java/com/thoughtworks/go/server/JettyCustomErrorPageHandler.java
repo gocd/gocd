@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server;
 
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 
@@ -34,7 +33,7 @@ public class JettyCustomErrorPageHandler extends ErrorPageErrorHandler {
 
     public JettyCustomErrorPageHandler() throws IOException {
         try (InputStream in = Objects.requireNonNull(getClass().getResourceAsStream("/error.html"))) {
-            fileContents = IOUtils.toString(in, StandardCharsets.UTF_8);
+            fileContents = new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 

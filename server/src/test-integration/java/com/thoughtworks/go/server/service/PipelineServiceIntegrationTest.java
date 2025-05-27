@@ -36,7 +36,6 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +45,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
@@ -134,10 +133,10 @@ public class PipelineServiceIntegrationTest {
         Material hg1 = new HgMaterial("url1", "Dest1");
         String[] hgRevs = new String[]{"hg1_2"};
 
-        Date latestModification = new Date();
-        Date older = DateUtils.addDays(latestModification, -1);
-        u.checkinFiles(hg1, "hg1_1", List.of(file1, file2, file3, file4), ModifiedAction.added, older);
-        u.checkinFiles(hg1, "hg1_2", List.of(file1, file2, file3, file4), ModifiedAction.modified, latestModification);
+        ZonedDateTime latestModification = ZonedDateTime.now();
+        ZonedDateTime older = latestModification.minusDays(1);
+        u.checkinFiles(hg1, "hg1_1", List.of(file1, file2, file3, file4), ModifiedAction.added, older.toInstant());
+        u.checkinFiles(hg1, "hg1_2", List.of(file1, file2, file3, file4), ModifiedAction.modified, latestModification.toInstant());
 
 
         ScheduleTestUtil.AddedPipeline pair01 = u.saveConfigWith("pair01", "stageName", u.m(hg1));
@@ -147,7 +146,7 @@ public class PipelineServiceIntegrationTest {
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName("pair01");
         MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
         assertThat(materialRevisions.getMaterials().size()).isEqualTo(1);
-        assertThat(materialRevisions.getDateOfLatestModification().getTime()).isEqualTo(latestModification.getTime());
+        assertThat(materialRevisions.getDateOfLatestModification().getTime()).isEqualTo(latestModification.toInstant().toEpochMilli());
     }
 
     @Test
@@ -160,9 +159,9 @@ public class PipelineServiceIntegrationTest {
         Material hg2 = new HgMaterial("url2", "Dest2");
         String[] hgRevs = new String[]{"h1", "h2"};
 
-        Date latestModification = new Date();
-        u.checkinFiles(hg2, "h2", List.of(file1, file2, file3, file4), ModifiedAction.added, org.apache.commons.lang3.time.DateUtils.addDays(latestModification, -1));
-        u.checkinFiles(hg1, "h1", List.of(file1, file2, file3, file4), ModifiedAction.added, latestModification);
+        ZonedDateTime latestModification = ZonedDateTime.now();
+        u.checkinFiles(hg2, "h2", List.of(file1, file2, file3, file4), ModifiedAction.added, latestModification.minusDays(1).toInstant());
+        u.checkinFiles(hg1, "h1", List.of(file1, file2, file3, file4), ModifiedAction.added, latestModification.toInstant());
 
         ScheduleTestUtil.AddedPipeline pair01 = u.saveConfigWith("pair01", "stageName", u.m(hg1), u.m(hg2));
         u.runAndPass(pair01, hgRevs);

@@ -26,6 +26,7 @@ import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,8 +46,8 @@ public class LockfileTest {
     }
 
     @AfterEach
-    public void tearDown() {
-        FileUtils.deleteQuietly(LOCK_FILE);
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(LOCK_FILE.toPath());
     }
 
     @Test

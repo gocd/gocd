@@ -26,8 +26,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,7 +75,7 @@ public class AgentRegistrationControllerTest {
         goConfigService = mock(GoConfigService.class);
         ephemeralAutoRegisterKeyService = mock(EphemeralAutoRegisterKeyService.class);
         pluginZipFile = Files.createFile(temporaryFolder.resolve("plugins.zip")).toFile();
-        FileUtils.writeStringToFile(pluginZipFile, "content", UTF_8);
+        Files.writeString(pluginZipFile.toPath(), "content", UTF_8);
         when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
         when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn("");
         pluginsZip = mock(PluginsZip.class);
@@ -206,7 +204,7 @@ public class AgentRegistrationControllerTest {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
         try (InputStream is = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar").invoke()) {
-            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+            assertTrue(Arrays.equals(is.readAllBytes(), response.getContentAsByteArray()));
         }
     }
 
@@ -244,7 +242,7 @@ public class AgentRegistrationControllerTest {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
         try (InputStream is = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar").invoke()) {
-            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+            assertTrue(Arrays.equals(is.readAllBytes(), response.getContentAsByteArray()));
         }
     }
 
@@ -285,7 +283,7 @@ public class AgentRegistrationControllerTest {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
         try (InputStream is = JarDetector.tfsJar(systemEnvironment).getJarURL().openStream()) {
-            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+            assertTrue(Arrays.equals(is.readAllBytes(), response.getContentAsByteArray()));
         }
     }
 

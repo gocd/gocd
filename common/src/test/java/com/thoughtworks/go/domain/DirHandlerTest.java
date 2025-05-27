@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -171,10 +171,12 @@ public class DirHandlerTest {
     }
 
     private File createZip(String subDirectoryName) throws IOException {
-        File first = artifactDest.resolve("first").toFile();
-        FileUtils.writeStringToFile(first, "First File", UTF_8);
-        File second = artifactDest.resolve(subDirectoryName + "/second").toFile();
-        FileUtils.writeStringToFile(second, "Second File", UTF_8);
+        Path first = artifactDest.resolve("first");
+        Files.createDirectories(first.getParent());
+        Files.writeString(first, "First File", UTF_8);
+        Path second = artifactDest.resolve(subDirectoryName + "/second");
+        Files.createDirectories(second.getParent());
+        Files.writeString(second, "Second File", UTF_8);
         new ZipUtil().zip(artifactDest.toFile(), zip, 0);
         return zip;
     }
@@ -182,9 +184,9 @@ public class DirHandlerTest {
     private void assertArtifactWasSaved(String subDirectoryName) throws IOException {
         File firstFile = new File(agentDest, "fetch_dest/first");
         assertThat(firstFile.exists()).isTrue();
-        assertThat(FileUtils.readFileToString(firstFile, UTF_8)).isEqualTo("First File");
+        assertThat(Files.readString(firstFile.toPath(), UTF_8)).isEqualTo("First File");
         File secondFile = new File(agentDest, "fetch_dest/" + subDirectoryName + "/second");
         assertThat(secondFile.exists()).isTrue();
-        assertThat(FileUtils.readFileToString(secondFile, UTF_8)).isEqualTo("Second File");
+        assertThat(Files.readString(secondFile.toPath(), UTF_8)).isEqualTo("Second File");
     }
 }

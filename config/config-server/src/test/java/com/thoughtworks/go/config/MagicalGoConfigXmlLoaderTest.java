@@ -76,7 +76,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -85,9 +84,10 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -1014,7 +1014,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     private String loadWithMigration(String file) throws Exception {
-        String config = FileUtils.readFileToString(new File(file), UTF_8);
+        String config = Files.readString(Path.of(file), UTF_8);
         return goConfigMigration.upgradeIfNecessary(config);
     }
 

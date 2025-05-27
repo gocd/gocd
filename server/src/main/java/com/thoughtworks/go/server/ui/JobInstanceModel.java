@@ -18,8 +18,9 @@ package com.thoughtworks.go.server.ui;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
-import org.joda.time.Duration;
+import org.joda.time.format.PeriodFormat;
 
+import java.time.Duration;
 import java.util.Comparator;
 
 public class JobInstanceModel {
@@ -82,26 +83,27 @@ public class JobInstanceModel {
 
     public int getPercentComplete() {
         Duration eta = eta();
-        if (eta.getMillis() == 0) {
+        if (eta.toMillis() == 0) {
             return 0;
         }
-        if (eta.isShorterThan(getElapsedTime())) {
+        Duration elapsedTime = getElapsedTime();
+        if (eta.compareTo(elapsedTime) < 0) {
             return 100;
         }
-        return (int) ((getElapsedTime().getMillis() * 100) / eta.getMillis());
-    }
-
-    public boolean isInprogress() {
-        int complete = getPercentComplete();
-        return complete > 0 && complete < 100;
+        return (int) ((elapsedTime.toMillis() * 100) / eta.toMillis());
     }
 
     private Duration eta() {
-        return new Duration(jobDurationStrategy.getExpectedDurationMillis(getIdentifier().getPipelineName(), getIdentifier().getStageName(), instance));
+        return jobDurationStrategy.getExpectedDuration(getIdentifier().getPipelineName(), getIdentifier().getStageName(), instance);
     }
 
     public Duration getElapsedTime() {
         return instance.getElapsedTime();
+    }
+
+    public String getElapsedTimeForDisplay() {
+        long seconds = getElapsedTime().toSeconds();
+        return seconds == 0 ? "" : PeriodFormat.getDefault().print(org.joda.time.Duration.standardSeconds(seconds).toPeriod());
     }
 
     public boolean isCompleted() {

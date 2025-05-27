@@ -21,15 +21,16 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.VersionInfoDao;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
-import static com.thoughtworks.go.util.DateUtils.isToday;
+import static com.thoughtworks.go.util.Dates.isToday;
 
 @Component
 public class ServerVersionInfoManager {
@@ -44,7 +45,7 @@ public class ServerVersionInfoManager {
     private final SystemEnvironment systemEnvironment;
 
     private VersionInfo serverVersionInfo;
-    private DateTime versionInfoUpdatingFrom;
+    private Instant versionInfoUpdatingFrom;
 
     @Autowired
     public ServerVersionInfoManager(ServerVersionInfoBuilder builder, VersionInfoDao versionInfoDao, Clock clock, GoCache goCache, SystemEnvironment systemEnvironment) {
@@ -69,7 +70,7 @@ public class ServerVersionInfoManager {
         synchronized (VERSION_INFO_MUTEX) {
             if (isDevelopmentServer() || isVersionInfoUpdatedToday() || isUpdateInProgress()) return null;
 
-            versionInfoUpdatingFrom = clock.currentDateTime();
+            versionInfoUpdatingFrom = clock.currentTime();
             LOGGER.info("[Go Update Check] Starting update check at: {}", new Date());
 
             return this.serverVersionInfo;
@@ -79,7 +80,7 @@ public class ServerVersionInfoManager {
     public VersionInfo updateLatestVersion(String latestVersion) {
         synchronized (VERSION_INFO_MUTEX) {
             serverVersionInfo.setLatestVersion(new GoVersion(latestVersion));
-            serverVersionInfo.setLatestVersionUpdatedAt(clock.currentTime());
+            serverVersionInfo.setLatestVersionUpdatedAt(clock.currentUtilDate());
             versionInfoDao.saveOrUpdate(serverVersionInfo);
 
             versionInfoUpdatingFrom = null;
@@ -113,7 +114,7 @@ public class ServerVersionInfoManager {
     private boolean isUpdateInProgress() {
         if (versionInfoUpdatingFrom == null) return false;
 
-        DateTime halfHourAgo = new DateTime(System.currentTimeMillis() - 30 * 60 * 1000);
+        Instant halfHourAgo = clock.currentTime().minus(30, ChronoUnit.MINUTES);
         return versionInfoUpdatingFrom.isAfter(halfHourAgo);
     }
 

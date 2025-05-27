@@ -19,29 +19,29 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ConfigMigrator {
-    public static GoConfigMigration migrate(final File configFile) {
-        ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
+    public static GoConfigMigration migrate(final Path configFile) {
         String content = "";
         try {
-            content = FileUtils.readFileToString(configFile, UTF_8);
-        } catch (IOException e1) {
+            content = Files.readString(configFile, UTF_8);
+        } catch (IOException ignore) {
         }
 
         GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider());
         //TODO: LYH & GL GoConfigMigration should be able to handle stream instead of binding to file
         String upgradedContent = upgrader.upgradeIfNecessary(content);
         try {
-            FileUtils.writeStringToFile(configFile, upgradedContent, UTF_8);
+            Files.writeString(configFile, upgradedContent, UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -49,11 +49,11 @@ public class ConfigMigrator {
     }
 
     public static String migrate(String configXml) throws IOException {
-        File tempFile = TestFileUtil.createTempFile("cruise-config.xml");
-        FileUtils.writeStringToFile(tempFile, configXml, UTF_8);
+        Path tempFile = TestFileUtil.createTempFile("cruise-config.xml").toPath();
+        Files.writeString(tempFile, configXml, UTF_8);
         migrate(tempFile);
-        String newConfigXml = FileUtils.readFileToString(tempFile, UTF_8);
-        tempFile.delete();
+        String newConfigXml = Files.readString(tempFile, UTF_8);
+        Files.delete(tempFile);
         return newConfigXml;
     }
 
@@ -74,19 +74,20 @@ public class ConfigMigrator {
 
     public static GoConfigHolder loadWithMigration(InputStream input) throws Exception {
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-
         return loadWithMigration(input, registry);
     }
 
     public static GoConfigHolder loadWithMigration(InputStream input, final ConfigElementImplementationRegistry registry) throws Exception {
-        File tempFile = TestFileUtil.createTempFile("cruise-config.xml");
+        Path tempFile = TestFileUtil.createTempFile("cruise-config.xml").toPath();
         try {
             MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
-            FileUtils.copyInputStreamToFile(input, tempFile);
+            try (FileOutputStream out = new FileOutputStream(tempFile.toFile())) {
+                input.transferTo(out);
+            }
             migrate(tempFile);
-            return xmlLoader.loadConfigHolder(FileUtils.readFileToString(tempFile, UTF_8));
+            return xmlLoader.loadConfigHolder(Files.readString(tempFile, UTF_8));
         } finally {
-            FileUtils.deleteQuietly(tempFile);
+            Files.deleteIfExists(tempFile);
         }
     }
 

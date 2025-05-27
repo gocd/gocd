@@ -31,12 +31,13 @@ import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.joda.time.DateTimeUtils;
+import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.Instant;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
@@ -45,14 +46,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class SCMMaterialSourceTest {
+    private final Material svnMaterial = MaterialsMother.svnMaterial();
+    private final Material gitMaterial = MaterialsMother.gitMaterial("http://my.repo");
     private SCMMaterialSource source;
     private GoConfigService goConfigService;
     private ServerHealthService serverHealthService;
     private SystemEnvironment systemEnvironment;
     private MaterialConfigConverter materialConfigConverter;
     private MaterialUpdateService materialUpdateService;
-    private final Material svnMaterial = MaterialsMother.svnMaterial();
-    private final Material gitMaterial = MaterialsMother.gitMaterial("http://my.repo");
+    private TimeProvider timeProvider;
 
     @BeforeEach
     public void setUp() {
@@ -61,8 +63,9 @@ public class SCMMaterialSourceTest {
         serverHealthService = mock(ServerHealthService.class);
         materialConfigConverter = mock(MaterialConfigConverter.class);
         materialUpdateService = mock(MaterialUpdateService.class);
+        timeProvider = mock(TimeProvider.class);
 
-        source = new SCMMaterialSource(goConfigService, systemEnvironment, materialConfigConverter, materialUpdateService);
+        source = new SCMMaterialSource(goConfigService, systemEnvironment, materialConfigConverter, materialUpdateService, timeProvider);
     }
 
     @AfterEach
@@ -85,17 +88,17 @@ public class SCMMaterialSourceTest {
 
     @Test
     public void shouldListMaterialsWhichHaveElapsedUpdateInterval_schedulableMaterials() {
-        long minuteBack = DateTimeUtils.currentTimeMillis() - 60000;
+        long minuteBack = Instant.now().minusSeconds(60).toEpochMilli();
         Set<MaterialConfig> schedulableMaterialConfigs = Set.of(svnMaterial.config(), gitMaterial.config());
 
         systemEnvironment.setProperty(SystemEnvironment.MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, "60000");
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(Set.of(svnMaterial, gitMaterial));
 
-        freezeTime(minuteBack);
+        when(timeProvider.currentTimeMillis()).thenReturn(minuteBack);
         source.onMaterialUpdate(gitMaterial);
 
-        resetTime();
+        when(timeProvider.currentTimeMillis()).thenReturn(Instant.now().toEpochMilli());
         source.onMaterialUpdate(svnMaterial);
 
         Set<Material> materials = source.materialsForUpdate();
@@ -124,7 +127,7 @@ public class SCMMaterialSourceTest {
                 .thenReturn(emptySet())
                 .thenReturn(Set.of(gitMaterial));
 
-        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
+        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService, timeProvider);
         source.initialize();
 
         EntityConfigChangedListener<PipelineConfig> entityConfigChangedListener = captor.getAllValues().get(1);
@@ -151,7 +154,7 @@ public class SCMMaterialSourceTest {
                 .thenReturn(Set.of(gitMaterial));
 
 
-        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
+        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService, timeProvider);
         source.initialize();
 
         EntityConfigChangedListener<PackageDefinition> entityConfigChangedListener = captor.getAllValues().get(1);
@@ -177,7 +180,7 @@ public class SCMMaterialSourceTest {
                 .thenReturn(emptySet())
                 .thenReturn(Set.of(gitMaterial));
 
-        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
+        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService, timeProvider);
         source.initialize();
 
         EntityConfigChangedListener<PackageRepository> entityConfigChangedListener = captor.getAllValues().get(1);
@@ -203,7 +206,7 @@ public class SCMMaterialSourceTest {
                 .thenReturn(emptySet())
                 .thenReturn(Set.of(gitMaterial));
 
-        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
+        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService, timeProvider);
         source.initialize();
 
         EntityConfigChangedListener<SCM> entityConfigChangedListener = captor.getAllValues().get(1);
@@ -292,13 +295,5 @@ public class SCMMaterialSourceTest {
         assertThat(materials.size()).isEqualTo(2);
         assertTrue(materials.contains(svnMaterial));
         assertTrue(materials.contains(gitMaterial));
-    }
-
-    private void freezeTime(Long millis) {
-        DateTimeUtils.setCurrentMillisFixed(millis);
-    }
-
-    private void resetTime() {
-        DateTimeUtils.setCurrentMillisSystem();
     }
 }

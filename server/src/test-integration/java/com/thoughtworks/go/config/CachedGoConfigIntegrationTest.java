@@ -54,14 +54,10 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TempDirUtils;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,6 +71,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -923,7 +920,7 @@ public class CachedGoConfigIntegrationTest {
         CruiseConfig updatedConfig = GoConfigMother.deepClone(goConfigService.getConfigForEditing());
         updatedConfig.server().setJobTimeout("10");
         String updatedXml = goFileConfigDataSource.configAsXml(updatedConfig, false);
-        FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), updatedXml, UTF_8);
+        Files.writeString(Path.of(goConfigDao.fileLocation()), updatedXml, UTF_8);
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(updatedXml, goConfigDao.md5OfConfigFile());
         assertThat(validity.isValid()).isTrue();
         assertThat(cachedGoPartials.lastValidPartials().isEmpty()).isTrue();
@@ -995,7 +992,7 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-        String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
+        String configXmlFromConfigFolder = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
 
         assertThat(state).isEqualTo(ConfigSaveState.UPDATED);
         assertThat(cachedGoConfig.loadForEditing()).isEqualTo(config);
@@ -1035,7 +1032,7 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-        String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
+        String configXmlFromConfigFolder = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
 
         assertThat(state).isEqualTo(ConfigSaveState.UPDATED);
         assertThat(cachedGoConfig.loadForEditing()).isEqualTo(config);
@@ -1063,7 +1060,7 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-        String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
+        String configXmlFromConfigFolder = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
 
         assertThat(state).isEqualTo(ConfigSaveState.UPDATED);
         assertThat(cachedGoConfig.loadForEditing()).isEqualTo(config);
@@ -1093,7 +1090,7 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-        String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
+        String configXmlFromConfigFolder = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
 
         assertThat(state).isEqualTo(ConfigSaveState.UPDATED);
         assertThat(cachedGoConfig.loadForEditing()).isEqualTo(config);
@@ -1119,7 +1116,7 @@ public class CachedGoConfigIntegrationTest {
             fail("Expected the test to fail");
         } catch (Exception e) {
             String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-            String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
+            String configXmlFromConfigFolder = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
             assertThat(cachedGoConfig.loadForEditing()).isEqualTo(originalConfig);
             assertThat(gitShaAfterSave).isEqualTo(gitShaBeforeSave);
             assertThat(cachedGoConfig.loadForEditing().getMd5()).isEqualTo(configRepository.getCurrentRevision().getMd5());
@@ -1147,7 +1144,7 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(editedConfig, goConfigService.configFileMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-        String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
+        String configXmlFromConfigFolder = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
 
         assertThat(state).isEqualTo(ConfigSaveState.UPDATED);
         assertThat(cachedGoConfig.loadForEditing()).isEqualTo(editedConfig);
@@ -1169,8 +1166,8 @@ public class CachedGoConfigIntegrationTest {
         ArtifactStore artifactStore = new ArtifactStore("dockerhub", "cd.go.artifact.docker.registry");
         artifactStoreService.create(Username.ANONYMOUS, artifactStore, new HttpLocalizedOperationResult());
         File configFile = new File(new SystemEnvironment().getCruiseConfigFile());
-        String config = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResource("/data/pluggable_artifacts_with_params.xml"), UTF_8));
-        FileUtils.writeStringToFile(configFile, config, UTF_8);
+        String config = goConfigMigration.upgradeIfNecessary(TestFileUtil.resourceToString("/data/pluggable_artifacts_with_params.xml"));
+        Files.writeString(configFile.toPath(), config, UTF_8);
 
         cachedGoConfig.forceReload();
 
@@ -1190,8 +1187,8 @@ public class CachedGoConfigIntegrationTest {
         ArtifactStore artifactStore = new ArtifactStore("dockerhub", "cd.go.artifact.docker.registry");
         artifactStoreService.create(Username.ANONYMOUS, artifactStore, new HttpLocalizedOperationResult());
         File configFile = new File(new SystemEnvironment().getCruiseConfigFile());
-        String config = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResource("/data/pluggable_artifacts_with_params.xml"), UTF_8));
-        FileUtils.writeStringToFile(configFile, config, UTF_8);
+        String config = goConfigMigration.upgradeIfNecessary(TestFileUtil.resourceToString("/data/pluggable_artifacts_with_params.xml"));
+        Files.writeString(configFile.toPath(), config, UTF_8);
 
         cachedGoConfig.forceReload();
 
@@ -1267,7 +1264,7 @@ public class CachedGoConfigIntegrationTest {
     }
 
 
-    private class ConfigChangeListenerStub implements ConfigChangedListener {
+    private static class ConfigChangeListenerStub implements ConfigChangedListener {
         private int invocationCount = 0;
 
         @Override

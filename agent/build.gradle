@@ -156,7 +156,6 @@ task verifyJar(type: VerifyJarTask) {
       "jdom2-${project.versions.jdom}.jar",
       "jna-jpms-5.17.0.jar",
       "jna-platform-jpms-5.17.0.jar",
-      "joda-time-${project.versions.jodaTime}.jar",
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",
       "objenesis-${project.versions.objenesis}.jar",

@@ -53,7 +53,7 @@ public class RemoteRegistrationRequesterTest {
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDown() throws IOException {
         tokenService.delete();
     }
 

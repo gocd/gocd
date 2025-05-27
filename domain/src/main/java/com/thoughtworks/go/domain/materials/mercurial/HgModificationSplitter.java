@@ -19,7 +19,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.XmlUtils;
 import com.thoughtworks.go.util.command.ConsoleResult;
@@ -63,7 +63,7 @@ public class HgModificationSplitter {
     }
 
     private Modification parseChangeset(Element changeset) {
-        Date modifiedTime = DateUtils.parseRFC822(changeset.getChildText("date"));
+        Date modifiedTime = Dates.parseRFC822(changeset.getChildText("date"));
         String author = StringEscapeUtils.unescapeXml(changeset.getChildText("author"));
         String comment = StringEscapeUtils.unescapeXml(changeset.getChildText("desc"));
         String revision = changeset.getChildText("node");

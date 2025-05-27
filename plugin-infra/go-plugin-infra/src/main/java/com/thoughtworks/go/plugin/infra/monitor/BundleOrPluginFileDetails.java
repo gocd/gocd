@@ -18,7 +18,6 @@ package com.thoughtworks.go.plugin.infra.monitor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -78,7 +77,7 @@ public class BundleOrPluginFileDetails {
             ZipEntry entry = jarFile.getEntry(jarFileEntry);
             if (entry != null) {
                 try (InputStream inputStream = jarFile.getInputStream(entry)) {
-                    return IOUtils.toByteArray(inputStream);
+                    return inputStream.readAllBytes();
                 }
             }
         } catch (IOException e) {

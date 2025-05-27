@@ -24,10 +24,9 @@ import com.thoughtworks.go.server.messaging.ServerBackupQueue;
 import com.thoughtworks.go.server.messaging.StartServerBackupMessage;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
 import com.thoughtworks.go.service.ConfigRepository;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +37,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 
@@ -142,15 +142,15 @@ public class BackupServiceTest {
     public void shouldScheduleBackupAsynchronously() {
         Username username = mock(Username.class);
         CaseInsensitiveString user = new CaseInsensitiveString("admin");
-        DateTime backupTime = new DateTime(2019, 2, 19, 0, 0, DateTimeZone.UTC);
+        LocalDateTime backupTime = LocalDateTime.of(2019, 2, 19, 0, 0, 0, 0);
         ArgumentCaptor<StartServerBackupMessage> captor = ArgumentCaptor.forClass(StartServerBackupMessage.class);
         String expectedBackupPath = new File("backup_path/backup_20190219-000000").getAbsolutePath();
-        ServerBackup expectedBackup = new ServerBackup(expectedBackupPath, backupTime.toDate(), user.toString(), "Backup scheduled");
-        ServerBackup backupWithId = new ServerBackup(expectedBackupPath, backupTime.toDate(), user.toString(), BackupStatus.IN_PROGRESS, "Backup scheduled", 99L);
+        ServerBackup expectedBackup = new ServerBackup(expectedBackupPath, Dates.from(backupTime), user.toString(), "Backup scheduled");
+        ServerBackup backupWithId = new ServerBackup(expectedBackupPath, Dates.from(backupTime), user.toString(), BackupStatus.IN_PROGRESS, "Backup scheduled", 99L);
 
         when(username.getUsername()).thenReturn(user);
         when(artifactsDirHolder.getBackupsDir().getAbsolutePath()).thenReturn("backup_path");
-        when(timeProvider.currentDateTime()).thenReturn(backupTime);
+        when(timeProvider.currentLocalDateTime()).thenReturn(backupTime);
         when(serverBackupRepository.save(expectedBackup)).thenReturn(backupWithId);
 
         BackupService backupService = new BackupService(artifactsDirHolder, null, timeProvider, serverBackupRepository, systemEnvironment, null, databaseStrategy, backupQueue);

@@ -22,10 +22,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
-import java.time.Instant;
 
 import static java.time.Clock.fixed;
-import static java.time.LocalDateTime.now;
+import static java.time.Instant.now;
 import static java.time.ZoneId.systemDefault;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -51,8 +50,8 @@ public class ExponentialBackOffTest {
 
         @Test
         void shouldBackOffIfCurrentTimeIsBefore_LastFailureTime_Plus_RetryInterval() {
-            Clock tenSecondsFromNow = fixed(Instant.now().plusSeconds(10), systemDefault());
-            when(systemTimeClock.currentLocalDateTime())
+            Clock tenSecondsFromNow = fixed(now().plusSeconds(10), systemDefault());
+            when(systemTimeClock.currentTime())
                     .thenReturn(now())
                     .thenReturn(now(tenSecondsFromNow));
 
@@ -65,8 +64,8 @@ public class ExponentialBackOffTest {
 
         @Test
         void shouldNotBackOffIfCurrentTimeIsAfter_LastFailureTime_Plus_RetryInterval() {
-            Clock fiveSecondsAgo = fixed(Instant.now().minusSeconds(5), systemDefault());
-            when(systemTimeClock.currentLocalDateTime())
+            Clock fiveSecondsAgo = fixed(now().minusSeconds(5), systemDefault());
+            when(systemTimeClock.currentTime())
                     .thenReturn(now())
                     .thenReturn(now(fiveSecondsAgo));
 
@@ -79,9 +78,9 @@ public class ExponentialBackOffTest {
 
         @Test
         void backOffShouldLimitToMaxRetryInterval() {
-            Clock oneHourFromNow = fixed(Instant.now().plusSeconds(61 * 60 * 1000), systemDefault());
-            Clock oneHourTwoMinutesFromNow = fixed(Instant.now().plusSeconds(62 * 60 * 1000), systemDefault());
-            when(systemTimeClock.currentLocalDateTime())
+            Clock oneHourFromNow = fixed(now().plusSeconds(61 * 60 * 1000), systemDefault());
+            Clock oneHourTwoMinutesFromNow = fixed(now().plusSeconds(62 * 60 * 1000), systemDefault());
+            when(systemTimeClock.currentTime())
                     .thenReturn(now())
                     .thenReturn(now(oneHourFromNow))
                     .thenReturn(now(oneHourTwoMinutesFromNow));

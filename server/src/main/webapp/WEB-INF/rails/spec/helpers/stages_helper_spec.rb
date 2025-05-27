@@ -22,9 +22,9 @@ describe StagesHelper do
 
   before do
     @stage = StageMother.scheduledStage("cruise", 10, "dev", 5, "unit")
-    @stage_summary = StageSummaryModel.new(@stage, Stages.new(), JobDurationStrategy::ConstantJobDuration.new(10), @stage.getIdentifier())
+    @stage_summary = StageSummaryModel.new(@stage, Stages.new(), JobDurationStrategy::ConstantJobDuration.new(java.time.Duration.ofMillis(10)), @stage.getIdentifier())
     @new_stage = Stage.new()
-    @new_stage_summary = StageSummaryModel.new(@new_stage, Stages.new(), JobDurationStrategy::ConstantJobDuration.new(10), StageIdentifier.new())
+    @new_stage_summary = StageSummaryModel.new(@new_stage, Stages.new(), JobDurationStrategy::ConstantJobDuration.new(java.time.Duration.ofMillis(10)), StageIdentifier.new())
   end
 
   it "should generate pipeline url when stage identifier is given" do

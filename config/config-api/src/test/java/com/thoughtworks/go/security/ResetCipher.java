@@ -16,15 +16,17 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.extension.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @SuppressWarnings("deprecation")
 public class ResetCipher implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
+    public static final String AES_CIPHER_HEX = "fdf500c4ec6e51172477145db6be63c5";
+    public static final String DES_CIPHER_HEX = "269298bc31c44620";
     private final SystemEnvironment systemEnvironment;
     private final AESCipherProvider aesCipherProvider;
     private final DESCipherProvider desCipherProvider;
@@ -40,12 +42,12 @@ public class ResetCipher implements BeforeEachCallback, AfterEachCallback, Param
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) {
+    public void beforeEach(ExtensionContext context) throws IOException {
         removeCipher();
     }
 
     @Override
-    public void afterEach(ExtensionContext context) {
+    public void afterEach(ExtensionContext context) throws IOException {
         removeCipher();
     }
 
@@ -59,26 +61,26 @@ public class ResetCipher implements BeforeEachCallback, AfterEachCallback, Param
         return this;
     }
 
-    private void removeCipher() {
+    private void removeCipher() throws IOException {
         aesCipherProvider.removeCipher();
         desCipherProvider.removeCipher();
     }
 
     public void setupAESCipherFile() throws IOException {
-        setupAESCipherFile("fdf500c4ec6e51172477145db6be63c5");
+        setupAESCipherFile(AES_CIPHER_HEX);
     }
 
     public void setupAESCipherFile(String cipher) throws IOException {
         AESCipherProvider.removeCachedKey();
-        FileUtils.writeStringToFile(systemEnvironment.getAESCipherFile(), cipher, UTF_8);
+        Files.writeString(systemEnvironment.getAESCipherFile().toPath(), cipher, UTF_8);
     }
 
     public void setupDESCipherFile() throws IOException {
-        setupDESCipherFile("269298bc31c44620");
+        setupDESCipherFile(DES_CIPHER_HEX);
     }
 
     public void setupDESCipherFile(String cipher) throws IOException {
         DESCipherProvider.removeCachedKey();
-        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), cipher, UTF_8);
+        Files.writeString(systemEnvironment.getDESCipherFile().toPath(), cipher, UTF_8);
     }
 }

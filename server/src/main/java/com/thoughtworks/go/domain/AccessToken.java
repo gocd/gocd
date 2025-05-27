@@ -92,7 +92,7 @@ public class AccessToken extends PersistentObject implements Validatable {
                 .setDisplayValue(finalTokenValue)
                 .setDescription(description)
                 .setAuthConfigId(authConfigId)
-                .setCreatedAt(clock.currentTimestamp())
+                .setCreatedAt(clock.currentSqlTimestamp())
                 .setSaltId(saltId)
                 .setSaltValue(saltValue)
                 .setValue(hashedToken)

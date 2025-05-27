@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util;
+package com.thoughtworks.go.server.presentation.models;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.*;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
+import org.joda.time.Days;
+import org.joda.time.Hours;
+import org.joda.time.Minutes;
+import org.joda.time.Seconds;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Set;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
-import static com.thoughtworks.go.util.DateUtils.formatISO8601;
-
-@Component
 public class TimeConverter {
     static final int HOUR_IN_SECONDS = 60 * 60;
 
@@ -70,11 +64,9 @@ public class TimeConverter {
     public static final ConvertedTime LESS_THAN_A_MINUTE_AGO = new ConvertedTime("label.less.1.minute",
             "less than a minute ago");
 
-    public final DateTimeFormatter dateFormatterWithTimeZone = DateTimeFormat.forPattern("dd MMM, yyyy 'at' HH:mm:ss [Z]");
-    public final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd MMM, yyyy 'at' HH:mm:ss");
+    public static final DateTimeFormatter dateFormatterWithTimeZone = DateTimeFormatter.ofPattern("dd MMM, yyyy 'at' HH:mm:ss [Z]");
 
-    private static final LinkedHashMap<Seconds, ConvertableTime> RULES =
-            new LinkedHashMap<>();
+    private static final Map<Seconds, ConvertableTime> RULES = new LinkedHashMap<>();
 
     static {
         RULES.put(Seconds.seconds(29), new TimeConverter.LessThanAMinute());
@@ -114,12 +106,8 @@ public class TimeConverter {
         return dateFrom == null ? ConvertedTime.NOT_AVAILABLE : getConvertedTime(dateFrom, new Date());
     }
 
-    public ConvertedTime getConvertedTime(String defaultMessage) {
-        return new ConvertedTime(defaultMessage);
-    }
-
-    public static String getHumanReadableDate(DateTime date) {
-        String dateString = getDateFormatterWithTimeZone().format(date.toDate());
+    public static String getHumanReadableDate(Date date) {
+        String dateString = getDateFormatterWithTimeZone().format(date);
         int colonPlace = dateString.length() - 2;
         return dateString.substring(0, colonPlace) + ":" + dateString.substring(colonPlace);
     }
@@ -128,36 +116,24 @@ public class TimeConverter {
         return new SimpleDateFormat("d MMM yyyy HH:mm 'GMT' Z", Locale.ENGLISH);
     }
 
-    public String getHumanReadableString(Date date) {
-        return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : dateFormatter.print(new DateTime(date));
-
-    }
-
     public String getHumanReadableStringWithTimeZone(Date date) {
-        return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : dateFormatterWithTimeZone.print(new DateTime(date));
+        return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : dateFormatterWithTimeZone.format(date.toInstant().atZone(ZoneId.systemDefault()));
     }
 
     public ConvertedTime getConvertedTime(Date dateLogFileGenerated, Date dateCheckTheDuration) {
         if (dateCheckTheDuration.getTime() < dateLogFileGenerated.getTime()) {
-            String dateString = getHumanReadableDate(new DateTime(dateLogFileGenerated));
+            String dateString = getHumanReadableDate(dateLogFileGenerated);
             return new ConvertedTime(dateString);
         } else {
             return getConvertedTime((dateCheckTheDuration.getTime() - dateLogFileGenerated.getTime()) / 1000);
         }
     }
 
-    public String nullSafeDate(Date date) {
-        return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : formatISO8601(date);
-    }
-
-
-    public static class ConvertedTime implements MessageSourceResolvable {
-        public static final ConvertedTime NO_HISTORICAL_DATA =
-                new TimeConverter.ConvertedTime("label.no.historical.data", "No historical data.");
+    public static class ConvertedTime {
         public static final ConvertedTime NOT_AVAILABLE = new TimeConverter.ConvertedTime("N/A");
+        private final String message;
         private String code;
         private long arguments;
-        private String message;
 
         public ConvertedTime(String code, long time, String message) {
             this.message = message;
@@ -174,12 +150,6 @@ public class TimeConverter {
             this.message = message;
         }
 
-        @Override
-        public String[] getCodes() {
-            return new String[]{code};
-        }
-
-        @Override
         public Object[] getArguments() {
             return new Long[]{arguments};
         }
@@ -188,12 +158,10 @@ public class TimeConverter {
          * Create a new ConvertedTime instance based on this with new time value.
          */
         public ConvertedTime argument(long time) {
-            String newMessage = StringUtils.replace(message, "$time", String
-                    .valueOf(time));
+            String newMessage = StringUtils.replace(message, "$time", String.valueOf(time));
             return new ConvertedTime(code, time, newMessage);
         }
 
-        @Override
         public String getDefaultMessage() {
             return message;
         }
@@ -213,9 +181,9 @@ public class TimeConverter {
             }
 
             boolean eq = true;
-            eq &= ObjectUtils.nullSafeEquals(code, other.code);
-            eq &= ObjectUtils.nullSafeEquals(arguments, other.arguments);
-            eq &= ObjectUtils.nullSafeEquals(message, other.message);
+            eq &= Objects.equals(code, other.code);
+            eq &= Objects.equals(arguments, other.arguments);
+            eq &= Objects.equals(message, other.message);
 
             return eq;
         }
@@ -224,15 +192,6 @@ public class TimeConverter {
         public String toString() {
             return getDefaultMessage();
         }
-    }
-
-    public static ConvertedTime convert(Date date) {
-        return new TimeConverter().getConvertedTime(date);
-    }
-
-    public static ConvertedTime convertHandleNull(Date date) {
-        if (date == null) { return TimeConverter.ConvertedTime.NO_HISTORICAL_DATA; }
-        return TimeConverter.convert(date);
     }
 
     interface ConvertableTime {

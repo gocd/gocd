@@ -16,10 +16,10 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -31,10 +31,10 @@ public class GoConfigFileReader {
     }
 
     public String configXml() throws IOException {
-        return FileUtils.readFileToString(fileLocation(), UTF_8);
+        return Files.readString(location(), UTF_8);
     }
 
-    public File fileLocation() {
-        return new File(systemEnvironment.getCruiseConfigFile());
+    public Path location() {
+        return Path.of(systemEnvironment.getCruiseConfigFile());
     }
 }

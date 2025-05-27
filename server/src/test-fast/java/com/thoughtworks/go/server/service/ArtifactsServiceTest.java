@@ -40,11 +40,13 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.server.service.ArtifactsService.LOG_XML_NAME;
@@ -76,7 +78,7 @@ public class ArtifactsServiceTest {
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDown() throws IOException {
         for (File resource : resourcesToBeCleanedOnTeardown) {
             FileUtils.deleteQuietly(resource);
         }
@@ -97,16 +99,17 @@ public class ArtifactsServiceTest {
     }
 
     @Test
-    void shouldNotSaveArtifactWhenItsAZipContainingDirectoryTraversalPath() throws URISyntaxException, IOException {
+    void shouldNotSaveArtifactWhenItsAZipContainingDirectoryTraversalPath() throws IOException {
         final File logsDir = new File("logs");
 
-        final ByteArrayInputStream stream = new ByteArrayInputStream(FileUtils.readFileToByteArray(new File(getClass().getResource("/archive_traversal_attack.zip").toURI())));
-        String buildInstanceId = "1";
-        final File destFile = new File(logsDir, buildInstanceId + File.separator + LOG_XML_NAME);
-        assumeArtifactsRoot(logsDir);
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, new ZipUtil());
-        boolean saved = artifactsService.saveFile(destFile, stream, true, 1);
-        assertThat(saved).isFalse();
+        try (InputStream stream = Objects.requireNonNull(getClass().getResourceAsStream("/archive_traversal_attack.zip"))) {
+            String buildInstanceId = "1";
+            final File destFile = new File(logsDir, buildInstanceId + File.separator + LOG_XML_NAME);
+            assumeArtifactsRoot(logsDir);
+            ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, new ZipUtil());
+            boolean saved = artifactsService.saveFile(destFile, stream, true, 1);
+            assertThat(saved).isFalse();
+        }
     }
 
     @Test
@@ -254,23 +257,23 @@ public class ArtifactsServiceTest {
         File jobDir = new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job");
         jobDir.mkdirs();
         File aFile = new File(jobDir, "foo");
-        FileUtils.writeStringToFile(aFile, "hello world", UTF_8);
+        Files.writeString(aFile.toPath(), "hello world", UTF_8);
         File aDirectory = new File(jobDir, "bar");
         aDirectory.mkdir();
         File anotherFile = new File(aDirectory, "baz");
-        FileUtils.writeStringToFile(anotherFile, "quux", UTF_8);
+        Files.writeString(anotherFile.toPath(), "quux", UTF_8);
 
         File cruiseOutputDir = new File(jobDir, "cruise-output");
         cruiseOutputDir.mkdir();
         File consoleLog = new File(cruiseOutputDir, "console.log");
-        FileUtils.writeStringToFile(consoleLog, "Build Logs", UTF_8);
+        Files.writeString(consoleLog.toPath(), "Build Logs", UTF_8);
         File checksumFile = new File(cruiseOutputDir, "md5.checksum");
-        FileUtils.writeStringToFile(checksumFile, "foo:25463254625346", UTF_8);
+        Files.writeString(checksumFile.toPath(), "foo:25463254625346", UTF_8);
 
 
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
         artifactsService.initialize();
-        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", Instant.now());
         artifactsService.purgeArtifactsForStage(stage);
 
         assertThat(jobDir).exists();
@@ -292,20 +295,20 @@ public class ArtifactsServiceTest {
         File jobDir = new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job");
         jobDir.mkdirs();
         File aFile = new File(jobDir, "foo");
-        FileUtils.writeStringToFile(aFile, "hello world", UTF_8);
+        Files.writeString(aFile.toPath(), "hello world", UTF_8);
         File aDirectory = new File(jobDir, "bar");
         aDirectory.mkdir();
         File anotherFile = new File(aDirectory, "baz");
-        FileUtils.writeStringToFile(anotherFile, "quux", UTF_8);
+        Files.writeString(anotherFile.toPath(), "quux", UTF_8);
 
         File pluggableArtifactMetadataDir = new File(jobDir, "pluggable-artifact-metadata");
         pluggableArtifactMetadataDir.mkdir();
         File metadataJson = new File(pluggableArtifactMetadataDir, "cd.go.artifact.docker.json");
-        FileUtils.writeStringToFile(metadataJson, "{\"image\": \"alpine:foo\", \"digest\": \"sha\"}", UTF_8);
+        Files.writeString(metadataJson.toPath(), "{\"image\": \"alpine:foo\", \"digest\": \"sha\"}", UTF_8);
 
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
         artifactsService.initialize();
-        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", Instant.now());
         artifactsService.purgeArtifactsForStage(stage);
 
         assertThat(jobDir).exists();
@@ -326,7 +329,7 @@ public class ArtifactsServiceTest {
 
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
         artifactsService.initialize();
-        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job1", new Date());
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job1", Instant.now());
         File job1Dir = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/20/job1");
         File job2Dir = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/20/job2");
         File job1DirFromADifferentStageRun = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/25/job2");
@@ -351,14 +354,14 @@ public class ArtifactsServiceTest {
         File jobDir = new File(path);
         jobDir.mkdirs();
         File aFile = new File(jobDir, "foo");
-        FileUtils.writeStringToFile(aFile, "hello world", UTF_8);
+        Files.writeString(aFile.toPath(), "hello world", UTF_8);
         return jobDir;
     }
 
     @Test
     void shouldLogAndIgnoreExceptionsWhenDeletingStageArtifacts() throws IllegalArtifactLocationException {
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
-        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", Instant.now());
 
         ArtifactDirectoryChooser chooser = mock(ArtifactDirectoryChooser.class);
         ReflectionUtil.setField(artifactsService, "chooser", chooser);

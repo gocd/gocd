@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.KeyGenerator;
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -54,11 +55,12 @@ public class AESCipherProvider implements Serializable {
                 if (cachedKey == null) {
                     try {
                         if (cipherFile.exists()) {
-                            cachedKey = decodeHex(FileUtils.readFileToString(cipherFile, UTF_8).trim());
+                            cachedKey = decodeHex(Files.readString(cipherFile.toPath(), UTF_8).trim());
                             return;
                         }
                         byte[] newKey = generateKey();
-                        FileUtils.writeStringToFile(cipherFile, encodeHexString(newKey), UTF_8);
+                        cipherFile.getParentFile().mkdirs();
+                        Files.writeString(cipherFile.toPath(), encodeHexString(newKey), UTF_8);
                         LOGGER.info("AES cipher not found. Creating a new cipher file");
                         cachedKey = newKey;
                     } catch (Exception e) {

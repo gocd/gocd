@@ -23,7 +23,6 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,11 +33,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -109,7 +110,7 @@ public class AnalyticsPluginAssetsServiceTest {
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(dirtyPath.toFile().exists());
 
-        addAnalyticsPluginInfoToStore(PLUGIN_ID);
+        addAnalyticsPluginInfoToStore();
         when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
         when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
@@ -132,7 +133,7 @@ public class AnalyticsPluginAssetsServiceTest {
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(dirtyPath.toFile().exists());
 
-        addAnalyticsPluginInfoToStore(PLUGIN_ID);
+        addAnalyticsPluginInfoToStore();
         when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
         when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
@@ -149,7 +150,7 @@ public class AnalyticsPluginAssetsServiceTest {
     public void onPluginMetadataLoad_shouldCopyPluginEndpointJsWhenCachingPluginStaticAssets() throws Exception {
         Path pluginDirPath = Paths.get(railsRoot.getAbsolutePath(), "public", "assets", "plugins", PLUGIN_ID);
 
-        addAnalyticsPluginInfoToStore(PLUGIN_ID);
+        addAnalyticsPluginInfoToStore();
         when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
         when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
@@ -162,13 +163,15 @@ public class AnalyticsPluginAssetsServiceTest {
 
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(actualPath.toFile().exists());
-        byte[] expected = IOUtils.toByteArray(getClass().getResource("/plugin-endpoint.js"));
-        assertArrayEquals(expected, Files.readAllBytes(actualPath), "Content of plugin-endpoint.js should be preserved");
+
+        try (InputStream inputStream = requireNonNull(getClass().getResourceAsStream("/plugin-endpoint.js"))) {
+            assertArrayEquals(inputStream.readAllBytes(), Files.readAllBytes(actualPath), "Content of plugin-endpoint.js should be preserved");
+        }
     }
 
     @Test
     public void onPluginMetadataLoad_shouldCopyExternalAnalyticsPluginAssetsWhenCachingPluginStaticAssets(@TempDir File externalAssetsDir) throws Exception {
-        addAnalyticsPluginInfoToStore(PLUGIN_ID);
+        addAnalyticsPluginInfoToStore();
         when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
         when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
@@ -226,7 +229,7 @@ public class AnalyticsPluginAssetsServiceTest {
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(dirtyPath.toFile().exists());
 
-        addAnalyticsPluginInfoToStore(PLUGIN_ID);
+        addAnalyticsPluginInfoToStore();
         when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
         when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
@@ -238,11 +241,13 @@ public class AnalyticsPluginAssetsServiceTest {
     }
 
     private String testDataZipArchive() throws IOException {
-        return new String(Base64.getEncoder().encode(IOUtils.toByteArray(getClass().getResource("/plugin_cache_test.zip"))));
+        try (InputStream pluginCacheStream = requireNonNull(getClass().getResourceAsStream("/plugin_cache_test.zip"))) {
+            return new String(Base64.getEncoder().encode(pluginCacheStream.readAllBytes()));
+        }
     }
 
-    private void addAnalyticsPluginInfoToStore(String pluginId) {
-        GoPluginDescriptor goPluginDescriptor = GoPluginDescriptor.builder().id(pluginId).build();
+    private void addAnalyticsPluginInfoToStore() {
+        GoPluginDescriptor goPluginDescriptor = GoPluginDescriptor.builder().id(PLUGIN_ID).build();
         AnalyticsPluginInfo analyticsPluginInfo = new AnalyticsPluginInfo(goPluginDescriptor, null, null, null);
 
         metadataStore.setPluginInfo(analyticsPluginInfo);

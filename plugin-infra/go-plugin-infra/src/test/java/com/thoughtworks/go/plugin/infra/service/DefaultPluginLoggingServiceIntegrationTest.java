@@ -19,7 +19,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.core.FileAppender;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +29,8 @@ import org.junit.jupiter.api.condition.OS;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,9 +57,9 @@ class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDown() throws IOException {
         for (Integer pluginIndex : plugins.keySet()) {
-            FileUtils.deleteQuietly(pluginLog(pluginIndex));
+            Files.deleteIfExists(pluginLog(pluginIndex));
         }
     }
 
@@ -101,7 +102,7 @@ class DefaultPluginLoggingServiceIntegrationTest {
     void shouldNotLogDebugMessagesByDefaultSinceTheDefaultLoggingLevelIsInfo() throws IOException {
         pluginLoggingService.debug(pluginID(1), "LoggingClass", "message");
 
-        assertThat(FileUtils.readFileToString(pluginLog(1), Charset.defaultCharset())).isEqualTo("");
+        assertThat(Files.readString(pluginLog(1), Charset.defaultCharset())).isEqualTo("");
     }
 
     @Test
@@ -117,7 +118,7 @@ class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     @Test
-    void shouldLogThrowableDetailsAlongwithMessage() throws IOException {
+    void shouldLogThrowableDetailsAlongWithMessage() throws IOException {
         Throwable throwable = new RuntimeException("oops");
         throwable.setStackTrace(new StackTraceElement[]{new StackTraceElement("class", "method", "field", 20)});
 
@@ -198,8 +199,8 @@ class DefaultPluginLoggingServiceIntegrationTest {
         });
     }
 
-    private void assertMessageInLog(File pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws IOException {
-        List<String> linesInLog = FileUtils.readLines(pluginLogFile, Charset.defaultCharset());
+    private void assertMessageInLog(Path pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws IOException {
+        List<String> linesInLog = Files.readAllLines(pluginLogFile, Charset.defaultCharset());
         for (Object line : linesInLog) {
             if (((String) line).matches(String.format("^.*%s\\s+\\[%s\\] %s:.* - %s$", expectedLoggingLevel, Thread.currentThread().getName(), loggerName, expectedLogMessage))) {
                 return;
@@ -208,8 +209,8 @@ class DefaultPluginLoggingServiceIntegrationTest {
         fail(String.format("None of the lines matched level:%s message:'%s'. Lines were: %s", expectedLoggingLevel, expectedLogMessage, linesInLog));
     }
 
-    private void assertMessageInLog(File pluginLogFile, String loggingLevel, String loggerName, String message, String stackTracePattern) throws IOException {
-        String fileContent = FileUtils.readFileToString(pluginLogFile, Charset.defaultCharset());
+    private void assertMessageInLog(Path pluginLogFile, String loggingLevel, String loggerName, String message, String stackTracePattern) throws IOException {
+        String fileContent = Files.readString(pluginLogFile, Charset.defaultCharset());
         if (fileContent.matches(String.format("^.*%s\\s\\[%s\\]\\s%s:.*\\s-\\s%s[\\s\\S]*%s", loggingLevel, Thread.currentThread().getName(), loggerName, message, stackTracePattern))) {
             return;
         }
@@ -217,8 +218,8 @@ class DefaultPluginLoggingServiceIntegrationTest {
 
     }
 
-    private void assertNumberOfMessagesInLog(File pluginLogFile, int size) throws IOException {
-        assertThat(FileUtils.readLines(pluginLogFile, Charset.defaultCharset()).size()).isEqualTo(size);
+    private void assertNumberOfMessagesInLog(Path pluginLogFile, int size) throws IOException {
+        assertThat(Files.readAllLines(pluginLogFile, Charset.defaultCharset()).size()).isEqualTo(size);
     }
 
     private String pluginID(int pluginIndex) {
@@ -233,9 +234,9 @@ class DefaultPluginLoggingServiceIntegrationTest {
         return pluginId;
     }
 
-    private File pluginLog(int pluginIndex) {
+    private Path pluginLog(int pluginIndex) {
         File pluginLogFile = pluginLoggingService.pluginLogFile(pluginID(pluginIndex));
         pluginLogFile.deleteOnExit();
-        return pluginLogFile;
+        return pluginLogFile.toPath();
     }
 }

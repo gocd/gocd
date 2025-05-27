@@ -19,7 +19,6 @@ import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.util.Clock;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +28,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,7 +154,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         accessTokenSqlMapDao.saveOrUpdate(token1);
         accessTokenSqlMapDao.saveOrUpdate(token2);
 
-        accessTokenSqlMapDao.saveOrUpdate(token1.revoke("admin", "user is making too many requests", clock.currentTimestamp()));
+        accessTokenSqlMapDao.saveOrUpdate(token1.revoke("admin", "user is making too many requests", clock.currentSqlTimestamp()));
         accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(List.of(user2), "admin");
 
         assertThat(accessTokenSqlMapDao.findAllTokens(AccessTokenFilter.all))
@@ -172,7 +173,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         accessTokenSqlMapDao.saveOrUpdate(token1);
         accessTokenSqlMapDao.saveOrUpdate(token2);
 
-        accessTokenSqlMapDao.saveOrUpdate(token1.revoke("admin", "user is making too many requests", clock.currentTimestamp()));
+        accessTokenSqlMapDao.saveOrUpdate(token1.revoke("admin", "user is making too many requests", clock.currentSqlTimestamp()));
         accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(List.of(user2), "admin");
 
         assertThat(accessTokenSqlMapDao.findAllTokens(AccessTokenFilter.revoked))
@@ -191,7 +192,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         accessTokenSqlMapDao.saveOrUpdate(token1);
         accessTokenSqlMapDao.saveOrUpdate(token2);
 
-        accessTokenSqlMapDao.saveOrUpdate(token2.revoke("admin", "user is making too many requests", clock.currentTimestamp()));
+        accessTokenSqlMapDao.saveOrUpdate(token2.revoke("admin", "user is making too many requests", clock.currentSqlTimestamp()));
 
         assertThat(accessTokenSqlMapDao.findAllTokens(AccessTokenFilter.active))
                 .hasSize(1)
@@ -205,7 +206,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         AccessToken token = randomAccessTokenForUser(user);
 
         accessTokenSqlMapDao.saveOrUpdate(token);
-        accessTokenSqlMapDao.saveOrUpdate(token.revoke("admin", "user is making too many requests", clock.currentTimestamp()));
+        accessTokenSqlMapDao.saveOrUpdate(token.revoke("admin", "user is making too many requests", clock.currentSqlTimestamp()));
 
         assertThat(accessTokenSqlMapDao.loadForAdminUser(token.getId())).isEqualTo(token);
     }
@@ -217,7 +218,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         AccessToken token = randomAccessTokenForUser(user);
 
         accessTokenSqlMapDao.saveOrUpdate(token);
-        accessTokenSqlMapDao.saveOrUpdate(token.revokeBecauseOfUserDelete("admin", clock.currentTimestamp()));
+        accessTokenSqlMapDao.saveOrUpdate(token.revokeBecauseOfUserDelete("admin", clock.currentSqlTimestamp()));
 
         assertThat(accessTokenSqlMapDao.loadForAdminUser(token.getId())).isEqualTo(token);
         assertThat(accessTokenSqlMapDao.loadNotDeletedTokenForUser(token.getId(), user)).isNull();
@@ -232,10 +233,9 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         assertThat(token1.getLastUsed()).isNull();
         assertThat(token2.getLastUsed()).isNull();
 
-        final DateTime now = DateTime.now();
-        final Timestamp lastUsedTimeForToken1 = new Timestamp(now.getMillis());
-        now.plusHours(2);
-        final Timestamp lastUsedTimeForToken2 = new Timestamp(now.getMillis());
+        final Instant now = Instant.now();
+        final Timestamp lastUsedTimeForToken1 = new Timestamp(now.toEpochMilli());
+        final Timestamp lastUsedTimeForToken2 = new Timestamp(now.plus(2, ChronoUnit.HOURS).toEpochMilli());
 
         final Map<Long, Timestamp> accessTokenIdToLastUsedTimestamp = new HashMap<>();
         accessTokenIdToLastUsedTimestamp.put(token1.getId(), lastUsedTimeForToken1);

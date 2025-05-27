@@ -34,9 +34,9 @@ import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.JobInstancesModel;
 import com.thoughtworks.go.server.ui.SortOrder;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +49,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -434,7 +435,7 @@ public class JobInstanceServiceIntegrationTest {
         jobInstanceDao.save(stageC_Id, cancelledJob);
 
         JobInstance simpleJob = failed("simpleJob");
-        simpleJob.getTransition(JobState.Completed).setStateChangeTime(new DateTime().plusYears(2).toDate());
+        simpleJob.getTransition(JobState.Completed).setStateChangeTime(Dates.from(ZonedDateTime.now().plusYears(2)));
         simpleJob.setAgentUuid(agentUuid);
         jobInstanceDao.save(stageC_Id, simpleJob);
 

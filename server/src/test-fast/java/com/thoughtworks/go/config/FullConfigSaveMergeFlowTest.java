@@ -173,7 +173,7 @@ public class FullConfigSaveMergeFlowTest {
         ArgumentCaptor<GoConfigRevision> revisionArgumentCaptor = ArgumentCaptor.forClass(GoConfigRevision.class);
 
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
-        when(timeProvider.currentTime()).thenReturn(currentTime);
+        when(timeProvider.currentUtilDate()).thenReturn(currentTime);
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
         doNothing().when(configRepository).checkin(revisionArgumentCaptor.capture());

@@ -37,7 +37,6 @@ import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -53,6 +52,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -263,7 +263,7 @@ public class GitMaterialTest {
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
             File shouldNotBeRemoved = new File(new File(workingDir, ".git"), "shouldNotBeRemoved");
-            FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi", UTF_8);
+            Files.writeString(shouldNotBeRemoved.toPath(), "gundi", UTF_8);
             assertThat(shouldNotBeRemoved).exists();
 
             git = new GitMaterial(repositoryUrl);
@@ -276,7 +276,7 @@ public class GitMaterialTest {
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
             File shouldNotBeRemoved = new File(new File(workingDir, ".git"), "shouldNotBeRemoved");
-            FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi", UTF_8);
+            Files.writeString(shouldNotBeRemoved.toPath(), "gundi", UTF_8);
             assertThat(shouldNotBeRemoved).exists();
 
             git = new GitMaterial(repositoryUrl.replace("file://", ""));
@@ -290,7 +290,7 @@ public class GitMaterialTest {
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
             File shouldNotBeRemoved = new File(new File(workingDir, ".git"), "shouldNotBeRemoved");
-            FileUtils.writeStringToFile(shouldNotBeRemoved, "Text file", UTF_8);
+            Files.writeString(shouldNotBeRemoved.toPath(), "Text file", UTF_8);
 
             git = new GitMaterial(repositoryUrl, " ");
             git.latestModification(workingDir, new TestSubprocessExecutionContext());

@@ -50,6 +50,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -227,9 +228,9 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     @Override
-    public long getExpectedDurationMillis(String pipelineName, String stageName, JobInstance job) {
-        Long duration = getDurationOfLastSuccessfulOnAgent(pipelineName, stageName, job);
-        return duration == null ? 0L : duration * 1000L;
+    public Duration getExpectedDuration(String pipelineName, String stageName, JobInstance job) {
+        Long durationSecs = getDurationOfLastSuccessfulOnAgent(pipelineName, stageName, job);
+        return durationSecs == null ? Duration.ZERO : Duration.ofSeconds(durationSecs);
     }
 
 

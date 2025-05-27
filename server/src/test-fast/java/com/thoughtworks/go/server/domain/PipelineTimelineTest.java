@@ -22,13 +22,13 @@ import com.thoughtworks.go.listener.TimelineUpdateListener;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class PipelineTimelineTest {
-    private DateTime now;
+    private final ZonedDateTime now = ZonedDateTime.now();
     private List<String> materials;
     private PipelineTimelineEntry first;
     private PipelineTimelineEntry second;
@@ -56,7 +56,6 @@ public class PipelineTimelineTest {
 
     @BeforeEach
     public void setUp() {
-        now = new DateTime();
         pipelineRepository = mock(PipelineRepository.class);
         materials = List.of("first", "second", "third", "fourth");
         first = PipelineTimelineEntryMother.modification(1, materials, List.of(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "111", "pipeline");

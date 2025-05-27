@@ -30,7 +30,6 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -125,7 +125,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
     }
 
     private Map<String, Object> getMetadataFromFile(String artifactId) throws IOException {
-        final String fileToString = FileUtils.readFileToString(metadataFileDest, StandardCharsets.UTF_8);
+        final String fileToString = Files.readString(metadataFileDest.toPath(), StandardCharsets.UTF_8);
         LOGGER.debug(format("Reading metadata from file %s.", metadataFileDest.getAbsolutePath()));
         final Map<String, Map<String, Object>> allArtifactsPerPlugin = GSON.fromJson(fileToString, new TypeToken<Map<String, Map<String, Object>>>() {}.getType());
         return allArtifactsPerPlugin.get(artifactId);

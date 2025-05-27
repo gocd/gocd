@@ -133,7 +133,7 @@ public class AccessTokenService {
         }
 
         ACCESS_TOKEN_LOGGER.debug("[Access Token] Revoking access token with id: '{}' for user '{}' with revoked cause '{}'.", fetchedAccessToken.getId(), username, revokeCause);
-        fetchedAccessToken.revoke(username, revokeCause, timeProvider.currentTimestamp());
+        fetchedAccessToken.revoke(username, revokeCause, timeProvider.currentSqlTimestamp());
         accessTokenDao.saveOrUpdate(fetchedAccessToken);
 
         ACCESS_TOKEN_LOGGER.debug("[Access Token] Done revoking access token with id: '{}' for user '{}' with revoked cause '{}'.", fetchedAccessToken.getId(), username, revokeCause);
@@ -155,7 +155,7 @@ public class AccessTokenService {
         }
 
         synchronized (accessTokenIdToLastUsedTimestampCache) {
-            accessTokenIdToLastUsedTimestampCache.put(accessToken.getId(), timeProvider.currentTimestamp());
+            accessTokenIdToLastUsedTimestampCache.put(accessToken.getId(), timeProvider.currentSqlTimestamp());
         }
     }
 

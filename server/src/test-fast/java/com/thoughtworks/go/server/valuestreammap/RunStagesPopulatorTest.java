@@ -25,8 +25,8 @@ import com.thoughtworks.go.server.dao.StageDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
@@ -98,7 +98,7 @@ public class RunStagesPopulatorTest {
         Stages stagesForP2_1 = stages("s1_p2");
         Stages stagesForP3_1 = stages("s1_p3");
         stagesForP1_1.first().setLatestRun(false);
-        Stage latestStage = StageMother.createPassedStage(p1.toString(), 1, "s1_p1", 2, "sample", new Date());
+        Stage latestStage = StageMother.createPassedStage(p1.toString(), 1, "s1_p1", 2, "sample", Instant.now());
         stagesForP1_1.add(latestStage);
 
         when(stageDao.findAllStagesFor(p1.toString(), 1)).thenReturn(stagesForP1_1);

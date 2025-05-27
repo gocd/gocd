@@ -58,7 +58,7 @@ public class TemplateExpansionPreprocessorTest {
     }
 
     @Test
-    public void shouldCloneStagesSoThatMutationDoesnotAffectTemplate() {
+    public void shouldCloneStagesSoThatMutationDoesNotAffectTemplate() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipelineName"), new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig("http://google.com")));
         pipelineConfig.setTemplateName(new CaseInsensitiveString("templateName"));
         PipelineTemplateConfig template = new PipelineTemplateConfig();

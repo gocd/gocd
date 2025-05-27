@@ -20,16 +20,16 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.apiv1.webhook.controller.validation.GitHub;
 import com.thoughtworks.go.apiv1.webhook.controller.validation.HostedBitbucket;
-import org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public interface PostHelper {
     String SECRET = "webhook-secret";
@@ -42,13 +42,12 @@ public interface PostHelper {
     Map<String, Object> header(String event, String auth);
 
     static Map<String, Object> load(String resource) {
-        final String json;
-        try {
-            json = FileUtils.readFileToString(new File(PostHelper.class.getResource(resource).getFile()), StandardCharsets.UTF_8);
+        try (InputStream is = Objects.requireNonNull(PostHelper.class.getResourceAsStream(resource))) {
+            return GSON.fromJson(new String(is.readAllBytes(), UTF_8), new TypeToken<>() {}.getType());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return GSON.fromJson(json, new TypeToken<>() {}.getType());
+
     }
 
     interface Mixin {

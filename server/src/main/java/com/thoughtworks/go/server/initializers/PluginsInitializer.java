@@ -28,6 +28,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Objects;
 import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.SystemEnvironment.DEFAULT_PLUGINS_ZIP;
@@ -36,10 +38,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Component
 public class PluginsInitializer implements Initializer {
+    private static final Logger LOG = LoggerFactory.getLogger(PluginsInitializer.class);
     private final PluginManager pluginManager;
     private final SystemEnvironment systemEnvironment;
-    private static final Logger LOG = LoggerFactory.getLogger(PluginsInitializer.class);
-    private ZipUtil zipUtil;
+    private final ZipUtil zipUtil;
 
     @Autowired
     public PluginsInitializer(PluginManager pluginManager, SystemEnvironment systemEnvironment, ZipUtil zipUtil, PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator, ElasticAgentInformationMigrator elasticAgentInformationMigrator) {
@@ -72,13 +74,13 @@ public class PluginsInitializer implements Initializer {
     }
 
     ZipInputStream getPluginsZipStream() {
-        return new ZipInputStream(this.getClass().getResourceAsStream(systemEnvironment.get(DEFAULT_PLUGINS_ZIP)));
+        return new ZipInputStream(Objects.requireNonNull(this.getClass().getResourceAsStream(systemEnvironment.get(DEFAULT_PLUGINS_ZIP))));
     }
 
     private boolean shouldReplaceBundledPlugins(File bundledPluginsDirectory) throws IOException {
         File versionFile = new File(bundledPluginsDirectory, "version.txt");
         if (!versionFile.exists()) return true;
-        String currentlyInstalledVersion = FileUtils.readFileToString(versionFile, UTF_8);
+        String currentlyInstalledVersion = Files.readString(versionFile.toPath(), UTF_8);
         String versionNumberInZip = zipUtil.getFileContentInsideZip(getPluginsZipStream(), "version.txt");
         return !currentlyInstalledVersion.equals(versionNumberInZip);
     }

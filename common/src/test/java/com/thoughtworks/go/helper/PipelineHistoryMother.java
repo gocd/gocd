@@ -30,6 +30,7 @@ import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -43,22 +44,22 @@ public class PipelineHistoryMother {
     public static final String REVISION = "svn.100";
     public static final String APPROVED_BY = "lgao";
 
-    public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Date modificationDate) {
+    public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Instant modificationDate) {
         return pipelineHistory(pipelineConfig, modificationDate, modificationDate);
     }
 
-    public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Date scheduleDate, Date modificationDate) {
+    public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Instant scheduleDate, Instant modificationDate) {
         return pipelineHistory(pipelineConfig, scheduleDate, modificationDate, REVISION);
     }
 
-    public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Date scheduleDate, Date modificationDate, String revision) {
+    public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Instant scheduleDate, Instant modificationDate, String revision) {
         return pipelineHistory(pipelineConfig, scheduleDate, modificationDate, revision, "user", "Comment", "email", "file", "dir", "1");
     }
 
-    public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Date scheduleDate, Date modificationDate, String revision, String committer, String commitMessage,
+    public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Instant scheduleDate, Instant modificationDate, String revision, String committer, String commitMessage,
                                                          String committerEmail, String committedFileName, String dirModified, String label) {
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels();
-        Modification modification = new Modification(committer, commitMessage, committerEmail, modificationDate, revision);
+        Modification modification = new Modification(committer, commitMessage, committerEmail, Date.from(modificationDate), revision);
         modification.createModifiedFile(committedFileName, dirModified, ModifiedAction.added);
         MaterialRevisions revisions = new MaterialRevisions();
         Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().first());
@@ -73,7 +74,7 @@ public class PipelineHistoryMother {
         return history;
     }
 
-    public static PipelineInstanceModel pipelineInstanceModel(String pipelineName, Integer pipelineCounter, Date scheduled) {
+    public static PipelineInstanceModel pipelineInstanceModel(String pipelineName, Integer pipelineCounter, Instant scheduled) {
         MaterialRevisions revisions = createSvnMaterialWithMultipleRevisions(-1, multipleModificationList().toArray(new Modification[0]));
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
         List<String> stages = List.of("unit-tests", "integration-tests", "functional-tests");
@@ -85,9 +86,9 @@ public class PipelineHistoryMother {
         return createPipeline(pipelineName, pipelineCounter, null, buildCause, stageInstanceModels);
     }
 
-    public static PipelineInstanceModels pipelineHistoryWithErrorMessage(PipelineConfig pipelineConfig, Date modificationDate) {
+    public static PipelineInstanceModels pipelineHistoryWithErrorMessage(PipelineConfig pipelineConfig, Instant modificationDate) {
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels();
-        Modification modification = new Modification("user", "Comment", "email", modificationDate, REVISION);
+        Modification modification = new Modification("user", "Comment", "email", Date.from(modificationDate), REVISION);
         modification.createModifiedFile("file", "dir", ModifiedAction.added);
         MaterialRevisions revisions = new MaterialRevisions();
         Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().first());
@@ -102,7 +103,7 @@ public class PipelineHistoryMother {
         return history;
     }
 
-    public static StageInstanceModels stageHistoryWithErrorMessage(PipelineConfig pipelineConfig, Date modificationDate) {
+    public static StageInstanceModels stageHistoryWithErrorMessage(PipelineConfig pipelineConfig, Instant modificationDate) {
         StageInstanceModels history = new StageInstanceModels();
         StageConfig devConfig = pipelineConfig.get(0);
         StageInstanceModel devModel = new StageInstanceModel(str(devConfig.name()), "1", buildCancelledHistory(devConfig, modificationDate));
@@ -125,7 +126,7 @@ public class PipelineHistoryMother {
         return history;
     }
 
-    public static StageInstanceModels stageHistory(PipelineConfig pipelineConfig, Date modificationDate) {
+    public static StageInstanceModels stageHistory(PipelineConfig pipelineConfig, Instant modificationDate) {
         StageInstanceModels history = new StageInstanceModels();
         for (StageConfig stageConfig : pipelineConfig) {
             StageInstanceModel item = new StageInstanceModel(str(stageConfig.name()), "1", buildHistory(stageConfig, modificationDate));
@@ -143,40 +144,40 @@ public class PipelineHistoryMother {
     }
 
     public static StageInstanceModel stageInstanceModel(String pipelineName, Integer pipelineCounter, String stageName,
-                                                        String stageCounter, Date scheduled) {
+                                                        String stageCounter, Instant scheduled) {
         StageIdentifier stageIdentifier = new StageIdentifier(pipelineName, pipelineCounter, stageName, stageCounter);
         JobHistory jobHistory = new JobHistory();
-        jobHistory.addJob(stageName + "-job", JobState.Completed, JobResult.Passed, scheduled);
+        jobHistory.addJob(stageName + "-job", JobState.Completed, JobResult.Passed, Date.from(scheduled));
         StageInstanceModel stageInstanceModel = new StageInstanceModel(stageName, stageCounter, jobHistory, stageIdentifier);
         stageInstanceModel.setApprovedBy("changes");
         return stageInstanceModel;
     }
 
-    public static JobHistory buildHistory(StageConfig stageConfig, Date modificationDate) {
+    public static JobHistory buildHistory(StageConfig stageConfig, Instant modificationDate) {
         JobHistory history = new JobHistory();
         for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
-            history.addJob(str(jobConfig.name()), JobState.Completed, JobResult.Passed, modificationDate);
+            history.addJob(str(jobConfig.name()), JobState.Completed, JobResult.Passed, Date.from(modificationDate));
         }
         return history;
     }
 
-    public static JobHistory buildCancelledHistory(StageConfig stageConfig, Date modificationDate) {
+    public static JobHistory buildCancelledHistory(StageConfig stageConfig, Instant modificationDate) {
         JobHistory history = new JobHistory();
         for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
-            history.addJob(str(jobConfig.name()), JobState.Unknown, JobResult.Cancelled, modificationDate);
+            history.addJob(str(jobConfig.name()), JobState.Unknown, JobResult.Cancelled, Date.from(modificationDate));
         }
         return history;
     }
 
-    public static JobHistory buildUnknownHistory(StageConfig stageConfig, Date modificationDate) {
+    public static JobHistory buildUnknownHistory(StageConfig stageConfig, Instant modificationDate) {
         JobHistory history = new JobHistory();
         for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
-            history.addJob(str(jobConfig.name()), JobState.Unknown, JobResult.Unknown, modificationDate);
+            history.addJob(str(jobConfig.name()), JobState.Unknown, JobResult.Unknown, Date.from(modificationDate));
         }
         return history;
     }
 
-    public static PipelineInstanceModel pipelineHistoryItemWithOneStage(String pipelineName, String stageName, Date modifiedDate) {
+    public static PipelineInstanceModel pipelineHistoryItemWithOneStage(String pipelineName, String stageName, Instant modifiedDate) {
         StageInstanceModels stageHistory = new StageInstanceModels();
         stageHistory.add(new StageInstanceModel(stageName, "1", StageResult.Passed, new StageIdentifier(pipelineName, 1, "1", stageName, "1")));
         return singlePipeline(pipelineName, stageHistory, modifiedDate);
@@ -184,11 +185,11 @@ public class PipelineHistoryMother {
 
     @SuppressWarnings("unused") // Used by stages_controller_spec.rb
     public static PipelineInstanceModel singlePipeline(String pipelineName, StageInstanceModels stages) {
-        return singlePipeline(pipelineName, stages, new Date());
+        return singlePipeline(pipelineName, stages, Instant.now());
     }
 
-    public static PipelineInstanceModel singlePipeline(String pipelineName, StageInstanceModels stages, Date modifiedDate) {
-        BuildCause manualForced = BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(MaterialsMother.hgMaterial(), new Modification(modifiedDate, "abc", "MOCK_LABEL-12", null))), Username.ANONYMOUS);
+    public static PipelineInstanceModel singlePipeline(String pipelineName, StageInstanceModels stages, Instant modifiedDate) {
+        BuildCause manualForced = BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(MaterialsMother.hgMaterial(), new Modification(Date.from(modifiedDate), "abc", "MOCK_LABEL-12", null))), Username.ANONYMOUS);
         PipelineInstanceModel model = createPipeline(pipelineName, -1, "1", manualForced, stages);
         model.setCounter(1);
         return model;
@@ -211,19 +212,19 @@ public class PipelineHistoryMother {
         return stagePerJob(baseName, Arrays.asList(histories));
     }
 
-    public static JobHistory job(JobResult result, Date scheduledDate) {
+    public static JobHistory job(JobResult result, Instant scheduledDate) {
         return job(JobState.Completed, result, scheduledDate);
     }
 
     public static JobHistory job(JobResult result) {
-        return job(result, new Date());
+        return job(result, Instant.now());
     }
 
     public static JobHistory job(JobState state, JobResult result) {
-        return job(state, result, new Date());
+        return job(state, result, Instant.now());
     }
 
-    public static JobHistory job(JobState state, JobResult result, Date scheduledDate) {
-        return JobHistory.withJob("firstJob", state, result, scheduledDate);
+    public static JobHistory job(JobState state, JobResult result, Instant scheduledDate) {
+        return JobHistory.withJob("firstJob", state, result, Date.from(scheduledDate));
     }
 }

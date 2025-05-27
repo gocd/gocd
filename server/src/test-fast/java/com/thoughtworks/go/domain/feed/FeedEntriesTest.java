@@ -18,17 +18,19 @@ package com.thoughtworks.go.domain.feed;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
-import org.joda.time.DateTime;
+import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FeedEntriesTest {
-    private static final Date LATER_DATE = new DateTime().withDate(2000, 12, 24).toDate();
-    private static final Date EARLIER_DATE = new DateTime().withDate(2000, 12, 23).toDate();
+    private static final Date LATER_DATE = Dates.from(LocalDate.of(2000, 12, 24).atStartOfDay());
+    private static final Date EARLIER_DATE = Dates.from(LocalDate.of(2000, 12, 23).atStartOfDay());
 
     @Test
     public void shouldReturnFirstAndLastEntryId() {
@@ -58,10 +60,7 @@ public class FeedEntriesTest {
 
     @Test
     public void shouldLastUpdatedDate_Empty_List() {
-        assertDateWithTolerance(new FeedEntries().lastUpdatedDate(), new DateTime().toDate());
+        assertThat(new FeedEntries().lastUpdatedDate()).isCloseTo(Instant.now(), 10L);
     }
 
-    private void assertDateWithTolerance(Date firstDate, Date secondDate) {
-        assertThat(Math.abs(firstDate.getTime() - secondDate.getTime())).isLessThan(10L);
-    }
 }

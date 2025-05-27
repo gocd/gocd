@@ -28,7 +28,7 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.joda.time.DateTimeUtils;
+import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,19 +50,21 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMMaterialSource.class);
 
     private final GoConfigService goConfigService;
-    private ConcurrentMap<Material, Long> materialLastUpdateTimeMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Material, Long> materialLastUpdateTimeMap = new ConcurrentHashMap<>();
     private final MaterialConfigConverter materialConfigConverter;
     private final MaterialUpdateService materialUpdateService;
     private final long materialUpdateInterval;
+    private final TimeProvider timeProvider;
     private Set<Material> schedulableMaterials;
 
     @Autowired
     public SCMMaterialSource(GoConfigService goConfigService, SystemEnvironment systemEnvironment,
-                             MaterialConfigConverter materialConfigConverter, MaterialUpdateService materialUpdateService) {
+                             MaterialConfigConverter materialConfigConverter, MaterialUpdateService materialUpdateService, TimeProvider timeProvider) {
         this.goConfigService = goConfigService;
         this.materialConfigConverter = materialConfigConverter;
         this.materialUpdateService = materialUpdateService;
         this.materialUpdateInterval = systemEnvironment.getMaterialUpdateIdleInterval();
+        this.timeProvider = timeProvider;
     }
 
     public void initialize() {
@@ -125,7 +127,7 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
     boolean hasUpdateIntervalElapsedForScmMaterial(Material material) {
         Long lastMaterialUpdateTime = materialLastUpdateTimeMap.get(material);
         if (lastMaterialUpdateTime != null) {
-            boolean shouldUpdateMaterial = (DateTimeUtils.currentTimeMillis() - lastMaterialUpdateTime) >= materialUpdateInterval;
+            boolean shouldUpdateMaterial = (timeProvider.currentTimeMillis() - lastMaterialUpdateTime) >= materialUpdateInterval;
             if (LOGGER.isDebugEnabled() && !shouldUpdateMaterial) {
                 LOGGER.debug("[Material Update] Skipping update of material {} which has been last updated at {}", material, new Date(lastMaterialUpdateTime));
             }
@@ -135,7 +137,7 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
     }
 
     private void updateLastUpdateTimeForScmMaterial(Material material) {
-        materialLastUpdateTimeMap.put(material, DateTimeUtils.currentTimeMillis());
+        materialLastUpdateTimeMap.put(material, timeProvider.currentTimeMillis());
     }
 
     private void updateSchedulableMaterials(boolean forceLoad) {
@@ -144,7 +146,7 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
         }
     }
 
-    private abstract class InternalConfigChangeListener extends EntityConfigChangedListener<Object> {
+    private abstract static class InternalConfigChangeListener extends EntityConfigChangedListener<Object> {
         private final List<Class<?>> securityConfigClasses = List.of(
                 PipelineConfig.class,
                 PackageDefinition.class,

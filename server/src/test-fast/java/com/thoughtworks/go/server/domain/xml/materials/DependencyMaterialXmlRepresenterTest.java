@@ -22,7 +22,7 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.junit5.FileSource;
 import com.thoughtworks.go.server.domain.xml.XmlWriterContext;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import org.dom4j.dom.DOMElement;
 import org.junit.jupiter.params.ParameterizedTest;
 
@@ -34,7 +34,7 @@ public class DependencyMaterialXmlRepresenterTest {
     @ParameterizedTest
     @FileSource(files = "/feeds/materials/dependency-material.xml")
     void shouldRepresentDependencyMaterial(String expectedXML) {
-        Date date = DateUtils.parseISO8601("2019-12-31T15:31:49+05:30");
+        Date date = Dates.parseIso8601StrictOffset("2019-12-31T15:31:49+05:30");
         DependencyMaterial material = MaterialsMother.dependencyMaterial();
         material.setId(60);
         MaterialRevision revision = new MaterialRevision(material, new Modification(date, "acceptance/63/twist-plugins/2", null, null));

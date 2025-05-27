@@ -33,7 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Date;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -97,8 +97,7 @@ public class AgentControllerTest {
     @Test
     void remembersLastPingTime() {
         // initial time
-        Date now = new Date(42);
-        clock.setTime(now);
+        clock.setTime(Instant.ofEpochMilli(42));
         agentController.pingSuccess();
 
         assertThat(agentHealthHolder.hasLostContact()).isFalse();

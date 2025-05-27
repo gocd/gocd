@@ -30,7 +30,7 @@ public class IgnoredFilesTest {
     private String separator = File.separator;
 
     @Test
-    public void shouldIncludeWhenTheTextDoesnotMatchDocumentUnderRoot() {
+    public void shouldIncludeWhenTheTextDoesNotMatchDocumentUnderRoot() {
         IgnoredFiles ignore = new IgnoredFiles("a.doc");
 
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "b.doc")).isFalse();

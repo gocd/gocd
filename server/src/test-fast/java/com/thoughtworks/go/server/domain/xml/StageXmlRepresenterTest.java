@@ -24,7 +24,7 @@ import com.thoughtworks.go.junit5.FileSource;
 import org.dom4j.Document;
 import org.junit.jupiter.params.ParameterizedTest;
 
-import static com.thoughtworks.go.util.DateUtils.parseISO8601;
+import static com.thoughtworks.go.util.Dates.parseIso8601StrictOffset;
 import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 public class StageXmlRepresenterTest {
@@ -38,7 +38,7 @@ public class StageXmlRepresenterTest {
         Stage stage = StageMother.cancelledStage(stageName, jobName);
         stage.getJobInstances().get(0).setIdentifier(new JobIdentifier(pipelineName, 1, null, stageName, "1", jobName));
         stage.getJobInstances().get(0).getTransitions().first()
-            .setStateChangeTime(parseISO8601("2020-01-03T11:14:19+05:30"));
+            .setStateChangeTime(parseIso8601StrictOffset("2020-01-03T11:14:19+05:30"));
         stage.setIdentifier(new StageIdentifier(pipelineName, 10, stage.getName(), "4"));
 
         Document document = new StageXmlRepresenter(stage).toXml(context);

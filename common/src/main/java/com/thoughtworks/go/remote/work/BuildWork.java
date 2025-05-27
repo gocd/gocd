@@ -126,7 +126,7 @@ public class BuildWork implements Work {
             return null;
         }
 
-        goPublisher.consumeLineWithPrefix(format("Job Started: %s\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(timeProvider.currentTime())));
+        goPublisher.consumeLineWithPrefix(format("Job Started: %s\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(timeProvider.currentUtilDate())));
 
         prepareJob(agentIdentifier, scmExtension);
 

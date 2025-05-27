@@ -20,12 +20,11 @@ import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ClonerFactory;
 import org.jetbrains.annotations.TestOnly;
-import org.joda.time.DateTimeUtils;
-import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.util.Date;
 
 public class Stage extends PersistentObject {
@@ -318,15 +317,11 @@ public class Stage extends PersistentObject {
         }
         Date start = new Date(createdTime.getTime());
         Date end = new Date(lastTransitionedTime.getTime());
-        return new RunDuration.ActualDuration(new Duration(end.getTime() - start.getTime()));
+        return new RunDuration.ActualDuration(Duration.ofMillis(end.getTime() - start.getTime()));
     }
 
     public String stageLocator() {
         return identifier.stageLocator();
-    }
-
-    public String stageLocatorForDisplay() {
-        return identifier.stageLocatorForDisplay();
     }
 
     @Override
@@ -441,7 +436,7 @@ public class Stage extends PersistentObject {
         return CLONER.deepClone(this);
     }
 
-    public void prepareForRerunOf(SchedulingContext context, String latestConfigVersion) {
+    public void prepareForRerunOf(SchedulingContext context, String latestConfigVersion, Clock clock) {
         setId(-1);
         if (rerunOfCounter == null) {
             setRerunOfCounter(counter);
@@ -450,7 +445,7 @@ public class Stage extends PersistentObject {
         setApprovedBy(context.getApprovedBy());
         setLatestRun(true);
         resetResult();
-        setCreatedTime(new Timestamp(DateTimeUtils.currentTimeMillis()));
+        setCreatedTime(new Timestamp(clock.currentTimeMillis()));
         jobInstances.resetJobsIds();
     }
 

@@ -57,10 +57,6 @@ module ApplicationHelper
                               stage_counter: stage_identifier.getStageCounter()
   end
 
-  def duration_to_string(duration)
-    org.joda.time.format.PeriodFormat.getDefault().print(duration.toPeriod())
-  end
-
   def load_flash_message(key)
     flash_message_service.get(key.to_s) || session.delete(key) || (default_key?(key) ? load_from_flash : nil)
   end

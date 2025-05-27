@@ -29,6 +29,7 @@ import org.osgi.framework.Bundle;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
@@ -102,7 +103,8 @@ class DefaultPluginJarChangeListenerTest {
         File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         File expectedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
         File activatorFileLocation = new File(expectedBundleDirectory, "lib/go-plugin-activator.jar");
-        FileUtils.writeStringToFile(activatorFileLocation, "SOME-DATA", UTF_8);
+        activatorFileLocation.getParentFile().mkdirs();
+        Files.writeString(activatorFileLocation.toPath(), "SOME-DATA", UTF_8);
 
         copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         String pluginJarFileLocation = pluginJarFile.getAbsolutePath();
@@ -118,7 +120,7 @@ class DefaultPluginJarChangeListenerTest {
         listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         assertThat(new File(expectedBundleDirectory, "lib/go-plugin-activator.jar")).exists();
-        assertThat(FileUtils.readFileToString(activatorFileLocation, UTF_8)).isNotEqualTo("SOME-DATA");
+        assertThat(Files.readAllBytes(activatorFileLocation.toPath())).isNotEqualTo("SOME-DATA".getBytes(UTF_8));
     }
 
     @Test

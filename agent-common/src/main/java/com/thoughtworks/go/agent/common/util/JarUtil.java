@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.agent.common.util;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,7 @@ public class JarUtil {
     private static File extractJarEntry(JarFile jarFile, JarEntry jarEntry, File targetFile) {
         LOG.debug("Extracting {}!/{} -> {}", jarFile, jarEntry, targetFile);
         try (InputStream inputStream = jarFile.getInputStream(jarEntry)) {
-            FileUtils.forceMkdirParent(targetFile);
+            if (targetFile.getParentFile() != null) targetFile.getParentFile().mkdirs();
             Files.copy(inputStream, targetFile.toPath());
             return targetFile;
         } catch (IOException e) {

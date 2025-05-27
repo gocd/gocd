@@ -37,6 +37,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
@@ -54,6 +55,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
@@ -402,9 +404,9 @@ public class StageSqlMapDaoIntegrationTest {
     public void getAllRunsOfStageForPipelineInstance_shouldCacheAllTheStages() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
 
-        Stage first = StageMother.passedStageInstance("pipeline", "stage", 1, "job", new Date());
-        Stage second = StageMother.passedStageInstance("pipeline", "stage", 2, "job", new Date());
-        Stage third = StageMother.passedStageInstance("pipeline", "stage", 3, "job", new Date());
+        Stage first = StageMother.passedStageInstance("pipeline", "stage", 1, "job", Instant.now());
+        Stage second = StageMother.passedStageInstance("pipeline", "stage", 2, "job", Instant.now());
+        Stage third = StageMother.passedStageInstance("pipeline", "stage", 3, "job", Instant.now());
         List<Stage> expected = List.of(third, second, first);
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
@@ -422,9 +424,9 @@ public class StageSqlMapDaoIntegrationTest {
     public void getAllRunsOfStageForPipelineInstance_shouldClearCacheOnJobStateChange() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
 
-        Stage first = StageMother.passedStageInstance("pipeline", "stage", 1, "job", new Date());
-        Stage second = StageMother.passedStageInstance("pipeline", "stage", 2, "job", new Date());
-        Stage third = StageMother.passedStageInstance("pipeline", "stage", 3, "job", new Date());
+        Stage first = StageMother.passedStageInstance("pipeline", "stage", 1, "job", Instant.now());
+        Stage second = StageMother.passedStageInstance("pipeline", "stage", 2, "job", Instant.now());
+        Stage third = StageMother.passedStageInstance("pipeline", "stage", 3, "job", Instant.now());
         List<Stage> expected = List.of(third, second, first);
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
@@ -443,8 +445,8 @@ public class StageSqlMapDaoIntegrationTest {
     public void getAllRunsOfStageForPipelineInstance_shouldRemoveFromCacheOnStageSave() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
 
-        Stage newStage = StageMother.passedStageInstance("pipeline", "stage", 2, "job", new Date());
-        Stage first = StageMother.passedStageInstance("pipeline", "stage", 1, "job", new Date());
+        Stage newStage = StageMother.passedStageInstance("pipeline", "stage", 2, "job", Instant.now());
+        Stage first = StageMother.passedStageInstance("pipeline", "stage", 1, "job", Instant.now());
         List<Stage> expected = List.of(first);
         List<Stage> expectedSecondTime = List.of(first, newStage);
 
@@ -469,8 +471,8 @@ public class StageSqlMapDaoIntegrationTest {
     public void getAllRunsOfStageForPipelineInstance_shouldRemoveFromCacheOnStageStatusChange() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
 
-        Stage newStage = StageMother.passedStageInstance("pipeline", "stage", 2, "job", new Date());
-        Stage first = StageMother.passedStageInstance("pipeline", "stage", 1, "job", new Date());
+        Stage newStage = StageMother.passedStageInstance("pipeline", "stage", 2, "job", Instant.now());
+        Stage first = StageMother.passedStageInstance("pipeline", "stage", 1, "job", Instant.now());
         List<Stage> expected = List.of(first);
         List<Stage> expectedSecondTime = List.of(first, newStage);
 
@@ -495,7 +497,7 @@ public class StageSqlMapDaoIntegrationTest {
     public void findStageWithIdentifier_shouldCacheTheStage() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
 
-        Stage stage = StageMother.passedStageInstance("pipeline", "stage", "job", new Date());
+        Stage stage = StageMother.passedStageInstance("pipeline", "stage", "job", Instant.now());
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
         when(mockTemplate.queryForObject(eq("findStageWithJobsByIdentifier"), any())).thenReturn(stage);
@@ -510,7 +512,7 @@ public class StageSqlMapDaoIntegrationTest {
     public void findStageWithIdentifier_shouldClearCacheWhenJobStateChanges() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
 
-        Stage stage = StageMother.passedStageInstance("pipeline", "stage", "job", new Date());
+        Stage stage = StageMother.passedStageInstance("pipeline", "stage", "job", Instant.now());
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
         when(mockTemplate.queryForObject(eq("findStageWithJobsByIdentifier"), any())).thenReturn(stage);
@@ -539,9 +541,9 @@ public class StageSqlMapDaoIntegrationTest {
     public void findStageWithIdentifier_shouldRemoveFromTheCacheAllStagesWithTheNameOfTheSameCounterOnStageStatusChange() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
 
-        Stage first = StageMother.passedStageInstance("pipeline", "stage", "job", new Date());
+        Stage first = StageMother.passedStageInstance("pipeline", "stage", "job", Instant.now());
         first.setCounter(1);
-        Stage second = StageMother.passedStageInstance("pipeline", "stage", "job", new Date());
+        Stage second = StageMother.passedStageInstance("pipeline", "stage", "job", Instant.now());
         second.setCounter(2);
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
@@ -561,9 +563,9 @@ public class StageSqlMapDaoIntegrationTest {
     public void findStageWithIdentifier_shouldRemoveFromTheCacheOnSave() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
 
-        Stage first = StageMother.passedStageInstance("pipeline", "stage", "job", new Date());
+        Stage first = StageMother.passedStageInstance("pipeline", "stage", "job", Instant.now());
         first.setCounter(1);
-        Stage second = StageMother.passedStageInstance("pipeline", "stage", "job", new Date());
+        Stage second = StageMother.passedStageInstance("pipeline", "stage", "job", Instant.now());
         second.setCounter(2);
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
@@ -585,7 +587,7 @@ public class StageSqlMapDaoIntegrationTest {
     public void findStageWithIdentifier_shouldRemoveFromTheCacheOnStageStatusChange() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
 
-        Stage stage = StageMother.passedStageInstance("pipeline", "stage", "job", new Date());
+        Stage stage = StageMother.passedStageInstance("pipeline", "stage", "job", Instant.now());
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
         when(mockTemplate.queryForObject(eq("findStageWithJobsByIdentifier"), any())).thenReturn(stage);
@@ -825,7 +827,7 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldGetMostRecentlyCompletedAndIncompleteWhenThereAreMulipleCompletedBuildInstances() {
+    public void shouldGetMostRecentlyCompletedAndIncompleteWhenThereAreMultipleCompletedBuildInstances() {
         dbHelper.pass(dbHelper.schedulePipeline(mingleConfig, new TimeProvider()));
         dbHelper.pass(dbHelper.schedulePipeline(mingleConfig, new TimeProvider()));
         Pipeline running = pipelineWithFirstStageRunning(mingleConfig);
@@ -885,10 +887,7 @@ public class StageSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldGetTheCreatedAndCompletedTimeOfACompletedStage() {
-        Clock clock = mock(Clock.class);
-        Date date = new Date();
-        when(clock.currentTimeMillis()).thenReturn(date.getTime());
-        when(clock.currentTime()).thenReturn(date);
+        Clock clock = new TestingClock();
         Pipeline pipeline = dbHelper.schedulePipeline(custom("pipeline", "stage", new JobConfigs(new JobConfig("job")), new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig())), clock);
         Stage actualStage = stageDao.stageById(pipelineAndFirstStageOf(pipeline).stage.getId());
         assertThat(actualStage.completedDate()).isNull();
@@ -898,8 +897,8 @@ public class StageSqlMapDaoIntegrationTest {
 
         actualStage = stageDao.stageById(pipelineAndFirstStageOf(pipeline).stage.getId());
 
-        assertThat(actualStage.scheduledDate()).isEqualTo(date);
-        assertThat(actualStage.getJobInstances().first().getTransition(JobState.Scheduled).getStateChangeTime()).isEqualTo(date);
+        assertThat(actualStage.scheduledDate()).isEqualTo(clock.currentUtilDate());
+        assertThat(actualStage.getJobInstances().first().getTransition(JobState.Scheduled).getStateChangeTime()).isEqualTo(clock.currentUtilDate());
         assertThat(actualStage.completedDate()).isEqualTo(actualStage.getJobInstances().last().getTransition(JobState.Completed).getStateChangeTime());
     }
 

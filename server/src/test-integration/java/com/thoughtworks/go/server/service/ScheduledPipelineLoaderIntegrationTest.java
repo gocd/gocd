@@ -49,7 +49,6 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,13 +60,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -266,7 +267,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
 
-        Date currentTime = new Date(System.currentTimeMillis() - 1);
+        Instant currentTime = Instant.now();
 
         Pipeline loadedPipeline = null;
         try {
@@ -287,11 +288,11 @@ public class ScheduledPipelineLoaderIntegrationTest {
         assertThat(serverHealthService.logsSortedForScope(scope).size()).isEqualTo(1);
         ServerHealthState error = serverHealthService.logsSortedForScope(HealthStateScope.forJob("last", "stage", "job-one")).get(0);
         assertThat(error).isEqualTo(ServerHealthState.error("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.", "Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed.", HealthStateType.general(HealthStateScope.forJob("last", "stage", "job-one"))));
-        DateTime expiryTime = ReflectionUtil.getField(error, "expiryTime");
-        assertThat(expiryTime.toDate().after(currentTime)).isTrue();
-        assertThat(expiryTime.toDate().before(new Date(System.currentTimeMillis() + 5 * 60 * 1000 + 1))).isTrue();
+        Instant expiryTime = ReflectionUtil.getField(error, "expiryTime");
+        assertThat(expiryTime.isAfter(currentTime)).isTrue();
+        assertThat(expiryTime.isBefore(currentTime.plus(5, HOURS))).isTrue();
 
-        String logText = FileUtils.readFileToString(consoleService.consoleLogArtifact(reloadedJobInstance.getIdentifier()), UTF_8);
+        String logText = Files.readString(consoleService.consoleLogArtifact(reloadedJobInstance.getIdentifier()).toPath(), UTF_8);
         assertThat(logText).contains("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.");
         assertThat(logText).contains("Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed.");
     }

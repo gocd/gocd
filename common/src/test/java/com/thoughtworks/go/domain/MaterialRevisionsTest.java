@@ -26,11 +26,12 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
 
@@ -51,11 +52,11 @@ public class MaterialRevisionsTest {
 
     @BeforeEach
     public void setUp() {
-        nowMod = new Modification("user3", "fixed the build.", null, new DateTime().toDate(), "100");
+        nowMod = new Modification("user3", "fixed the build.", null, new Date(), "100");
         nowMod.createModifiedFile("foo.java", ".", ModifiedAction.modified);
-        oneHourAgoMod = new Modification("user2", "fixed the build.", null, new DateTime().minusHours(1).toDate(), "89");
+        oneHourAgoMod = new Modification("user2", "fixed the build.", null, Date.from(Instant.now().minus(1, ChronoUnit.HOURS)), "89");
         oneHourAgoMod.createModifiedFile("foo.java", ".", ModifiedAction.modified);
-        yesterdayMod = new Modification("user1", "fixed the build.", null, new DateTime().minusDays(1).toDate(), "9");
+        yesterdayMod = new Modification("user1", "fixed the build.", null, Date.from(Instant.now().minus(1, ChronoUnit.DAYS)), "9");
         yesterdayMod.createModifiedFile("foo.java", ".", ModifiedAction.modified);
 
         material = MaterialsMother.svnMaterial("foo");
@@ -96,7 +97,7 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldReturnOrginalChangeSet() {
+    public void shouldReturnOriginalChangeSet() {
         MaterialRevisions first = new MaterialRevisions(
             svnMaterialRevision("folder1", FILTER_DOC_PDF, aCheckIn("99", "/a.java")),
             svnMaterialRevision("folder2", FILTER_DOC_PDF, aCheckIn("99", "/b.java"))

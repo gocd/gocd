@@ -24,6 +24,8 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
+import java.time.Instant
+
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
@@ -54,7 +56,7 @@ class PipelineInstanceModelsRepresenterTest {
   }
 
   private static def createPipelineInstance(int counter) {
-    def stage = StageMother.passedStageInstance("pipelineName", "stageName", 4, "buildName", new Date())
+    def stage = StageMother.passedStageInstance("pipelineName", "stageName", 4, "buildName", Instant.now())
     def stageInstanceModel = StageMother.toStageInstanceModel(stage)
     def stageInstanceModels = new StageInstanceModels()
     stageInstanceModels.add(stageInstanceModel)

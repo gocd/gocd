@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.SCMCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
@@ -37,7 +38,6 @@ import java.util.regex.Pattern;
 import static com.thoughtworks.go.config.materials.git.GitMaterial.UNSHALLOW_TRYOUT_STEP;
 import static com.thoughtworks.go.config.materials.git.RefSpecHelper.REFS_HEADS;
 import static com.thoughtworks.go.domain.materials.ModifiedAction.parseGitAction;
-import static com.thoughtworks.go.util.DateUtils.formatRFC822;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
@@ -152,12 +152,12 @@ public class GitCommand extends SCMCommand {
     }
 
     public List<Modification> latestModification() {
-        return gitLog("-1", "--date=iso", "--no-decorate", "--pretty=medium", "--no-color", remoteBranch());
+        return gitLog("-1", "--date=iso-strict", "--no-decorate", "--pretty=medium", "--no-color", remoteBranch());
 
     }
 
     public List<Modification> modificationsSince(Revision revision) {
-        return gitLog("--date=iso", "--pretty=medium", "--no-decorate", "--no-color", format("%s..%s", revision.getRevision(), remoteBranch()));
+        return gitLog("--date=iso-strict", "--no-decorate", "--pretty=medium", "--no-color", format("%s..%s", revision.getRevision(), remoteBranch()));
     }
 
     public void resetWorkingDir(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision, boolean shallow) {
@@ -248,9 +248,7 @@ public class GitCommand extends SCMCommand {
 
     @TestOnly
     public void commitOnDate(String message, Date commitDate) {
-        Map<String, String> env = new HashMap<>();
-        env.put("GIT_AUTHOR_DATE", formatRFC822(commitDate));
-        CommandLine gitCmd = gitWd().withArgs("commit", "-m", message).withEnv(env);
+        CommandLine gitCmd = gitWd().withArgs("commit", "--date", Dates.formatIso8601CompactOffset(commitDate), "-m", message);
         runOrBomb(gitCmd);
     }
 

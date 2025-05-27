@@ -17,7 +17,7 @@ package com.thoughtworks.go.domain.activity;
 
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Users;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import org.jdom2.Element;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +47,7 @@ public class ProjectStatusTest {
         assertThat(element.getAttributeValue("activity")).isEqualTo(activity);
         assertThat(element.getAttributeValue("lastBuildStatus")).isEqualTo(lastBuildStatus);
         assertThat(element.getAttributeValue("lastBuildLabel")).isEqualTo(lastBuildLabel);
-        assertThat(element.getAttributeValue("lastBuildTime")).isEqualTo(DateUtils.formatIso8601ForCCTray(lastBuildTime));
+        assertThat(element.getAttributeValue("lastBuildTime")).isEqualTo(Dates.formatIso8601ForCCTray(lastBuildTime));
         assertThat(element.getAttributeValue("webUrl")).isEqualTo(contextPath + "/" + webUrl);
     }
 
@@ -64,7 +64,7 @@ public class ProjectStatusTest {
     @Test
     public void shouldProvideItsXmlRepresentation_WhenThereAreNoBreakers() {
         ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
-                DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url");
+                Dates.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url");
 
         assertThat(status.xmlRepresentation()).isEqualTo("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
                         "lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"__SITE_URL_PREFIX__/web-url\" />");
@@ -73,7 +73,7 @@ public class ProjectStatusTest {
     @Test
     public void shouldProvideItsXmlRepresentation_WhenThereAreBreakers() {
         ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
-                DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url", new LinkedHashSet<>(List.of("breaker1", "breaker2")));
+                Dates.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url", new LinkedHashSet<>(List.of("breaker1", "breaker2")));
 
         assertThat(status.xmlRepresentation()).isEqualTo("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
                         "lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"__SITE_URL_PREFIX__/web-url\">" +

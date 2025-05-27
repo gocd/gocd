@@ -64,7 +64,7 @@ public class AgentPluginsInitializerIntegrationTest {
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDown() throws IOException {
         cleanupAgentPluginsFile();
     }
 
@@ -73,7 +73,7 @@ public class AgentPluginsInitializerIntegrationTest {
         File existingBundledPlugin = new File(directoryForUnzippedPlugins, "bundled/existing-plugin-1.jar");
 
         setupAgentsPluginFile().withBundledPlugin("new-plugin-1.jar", "SOME-PLUGIN-CONTENT").done();
-        FileUtils.writeStringToFile(existingBundledPlugin, "OLD-CONTENT", UTF_8);
+        Files.writeString(existingBundledPlugin.toPath(), "OLD-CONTENT", UTF_8);
 
         agentPluginsInitializer.onApplicationEvent(null);
 
@@ -86,12 +86,12 @@ public class AgentPluginsInitializerIntegrationTest {
         File bundledPlugin = new File(directoryForUnzippedPlugins, "bundled/plugin-1.jar");
 
         setupAgentsPluginFile().withBundledPlugin("plugin-1.jar", "SOME-NEW-CONTENT").done();
-        FileUtils.writeStringToFile(bundledPlugin, "OLD-CONTENT", UTF_8);
+        Files.writeString(bundledPlugin.toPath(), "OLD-CONTENT", UTF_8);
 
         agentPluginsInitializer.onApplicationEvent(null);
 
         assertThat(bundledPlugin).exists();
-        assertThat(FileUtils.readFileToString(bundledPlugin, UTF_8)).isEqualTo("SOME-NEW-CONTENT");
+        assertThat(Files.readString(bundledPlugin.toPath(), UTF_8)).isEqualTo("SOME-NEW-CONTENT");
     }
 
     @Test
@@ -99,7 +99,7 @@ public class AgentPluginsInitializerIntegrationTest {
         File existingExternalPlugin = new File(directoryForUnzippedPlugins, "external/existing-plugin-1.jar");
 
         setupAgentsPluginFile().withExternalPlugin("new-plugin-1.jar", "SOME-PLUGIN-CONTENT").done();
-        FileUtils.writeStringToFile(existingExternalPlugin, "OLD-CONTENT", UTF_8);
+        Files.writeString(existingExternalPlugin.toPath(), "OLD-CONTENT", UTF_8);
 
         agentPluginsInitializer.onApplicationEvent(null);
 
@@ -112,12 +112,12 @@ public class AgentPluginsInitializerIntegrationTest {
         File externalPlugin = new File(directoryForUnzippedPlugins, "external/plugin-1.jar");
 
         setupAgentsPluginFile().withExternalPlugin("plugin-1.jar", "SOME-NEW-CONTENT").done();
-        FileUtils.writeStringToFile(externalPlugin, "OLD-CONTENT", UTF_8);
+        Files.writeString(externalPlugin.toPath(), "OLD-CONTENT", UTF_8);
 
         agentPluginsInitializer.onApplicationEvent(null);
 
         assertThat(externalPlugin).exists();
-        assertThat(FileUtils.readFileToString(externalPlugin, UTF_8)).isEqualTo("SOME-NEW-CONTENT");
+        assertThat(Files.readString(externalPlugin.toPath(), UTF_8)).isEqualTo("SOME-NEW-CONTENT");
     }
 
     @Test
@@ -125,7 +125,7 @@ public class AgentPluginsInitializerIntegrationTest {
         File existingExternalPlugin = new File(directoryForUnzippedPlugins, "external/plugin-1.jar");
 
         setupAgentsPluginFile().done();
-        FileUtils.writeStringToFile(existingExternalPlugin, "OLD-CONTENT", UTF_8);
+        Files.writeString(existingExternalPlugin.toPath(), "OLD-CONTENT", UTF_8);
 
         agentPluginsInitializer.onApplicationEvent(null);
 
@@ -143,8 +143,8 @@ public class AgentPluginsInitializerIntegrationTest {
         return new SetupOfAgentPluginsFile(AGENT_PLUGINS.getLocalFile());
     }
 
-    private void cleanupAgentPluginsFile() {
-        FileUtils.deleteQuietly(AGENT_PLUGINS.getLocalFile());
+    private void cleanupAgentPluginsFile() throws IOException {
+        Files.deleteIfExists(AGENT_PLUGINS.getLocalFile().toPath());
     }
 
     private class SetupOfAgentPluginsFile {
@@ -163,12 +163,12 @@ public class AgentPluginsInitializerIntegrationTest {
         }
 
         SetupOfAgentPluginsFile withBundledPlugin(String pluginFileName, String pluginFileContent) throws IOException {
-            FileUtils.writeStringToFile(new File(bundledPluginsDir, pluginFileName), pluginFileContent, UTF_8);
+            Files.writeString(new File(bundledPluginsDir, pluginFileName).toPath(), pluginFileContent, UTF_8);
             return this;
         }
 
         SetupOfAgentPluginsFile withExternalPlugin(String pluginFileName, String pluginFileContent) throws IOException {
-            FileUtils.writeStringToFile(new File(externalPluginsDir, pluginFileName), pluginFileContent, UTF_8);
+            Files.writeString(new File(externalPluginsDir, pluginFileName).toPath(), pluginFileContent, UTF_8);
             return this;
         }
 

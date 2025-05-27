@@ -16,6 +16,7 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -42,7 +43,7 @@ public class DESCipherProviderTest {
     public void shouldBeAbleToLoadExistingCipher(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
         byte[] key = new DESCipherProvider(env).getKey();
-        assertThat(key).hasSize(8);
+        assertThat(key).hasSize(8).isEqualTo(Hex.decodeHex(ResetCipher.DES_CIPHER_HEX));
         assertThat(DESKeySpec.isWeak(key, 0)).isFalse();
 
         assertThat(new DESCipherProvider(env).getKey()).isSameAs(key);

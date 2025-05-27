@@ -22,7 +22,6 @@ import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
 import com.thoughtworks.go.agent.testhelper.GoTestResource;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,20 +52,20 @@ public class AgentLauncherImplTest {
     public FakeGoServer server;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         cleanup();
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws IOException {
         cleanup();
     }
 
-    private void cleanup() {
-        FileUtils.deleteQuietly(AGENT_PLUGINS_ZIP);
-        FileUtils.deleteQuietly(AGENT_BINARY_JAR);
-        FileUtils.deleteQuietly(AGENT_LAUNCHER_JAR);
-        FileUtils.deleteQuietly(TFS_IMPL_JAR);
+    private void cleanup() throws IOException {
+        Files.deleteIfExists(AGENT_PLUGINS_ZIP.toPath());
+        Files.deleteIfExists(AGENT_BINARY_JAR.toPath());
+        Files.deleteIfExists(AGENT_LAUNCHER_JAR.toPath());
+        Files.deleteIfExists(TFS_IMPL_JAR.toPath());
         new Lockfile(new File(AgentLauncherImpl.AGENT_BOOTSTRAPPER_LOCK_FILE)).delete();
     }
 
@@ -156,7 +156,7 @@ public class AgentLauncherImplTest {
     }
 
     private File randomFile(final File pathname) throws IOException {
-        FileUtils.write(pathname, "some rubbish", StandardCharsets.UTF_8);
+        Files.writeString(pathname.toPath(), "some rubbish", StandardCharsets.UTF_8);
         return pathname;
     }
 }

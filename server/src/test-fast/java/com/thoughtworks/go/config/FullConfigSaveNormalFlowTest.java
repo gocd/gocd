@@ -110,7 +110,7 @@ public class FullConfigSaveNormalFlowTest {
         ArgumentCaptor<GoConfigRevision> revisionArgumentCaptor = ArgumentCaptor.forClass(GoConfigRevision.class);
 
         when(writer.toString(document)).thenReturn(configAsXml);
-        when(timeProvider.currentTime()).thenReturn(currentTime);
+        when(timeProvider.currentUtilDate()).thenReturn(currentTime);
         doNothing().when(configRepository).checkin(revisionArgumentCaptor.capture());
 
         flow.execute(updateConfigCommand, partials, "test_user");

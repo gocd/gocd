@@ -32,12 +32,12 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
@@ -363,7 +363,8 @@ public class MaterialRevisionTest {
         hgMaterial.updateTo(consumer, localDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
         for (String fileName : fileNames) {
             File file = new File(localDir, fileName);
-            FileUtils.writeStringToFile(file, "", UTF_8);
+            file.getParentFile().mkdirs();
+            Files.writeString(file.toPath(), "", UTF_8);
             hgMaterial.add(localDir, consumer, file);
         }
         hgMaterial.commit(localDir, consumer, "Adding a new file.", "TEST");

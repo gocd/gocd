@@ -43,7 +43,6 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,6 +70,7 @@ import static com.thoughtworks.go.util.TriState.*;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -645,7 +645,7 @@ public class AgentServiceIntegrationTest {
         @Test
         void shouldMarkAgentAsLostContactWhenAgentDoesNotPingWithinTimeoutPeriod() {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
-            Date date = new Date(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli());
+            Date date = Date.from(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC));
             AgentInstance instance = idle(date, "CCeDev01");
             ReflectionUtil.<AgentRuntimeInfo>getField(instance, "agentRuntimeInfo").setOperatingSystem("Minix");
 
@@ -665,7 +665,7 @@ public class AgentServiceIntegrationTest {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
             CONFIG_HELPER.addMailHost(new MailHost("ghost.name", 25, "loser", "boozer", true, false, "go@foo.mail.com", "admin@foo.mail.com"));
 
-            Date date = new Date(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli());
+            Date date = Date.from(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC));
             AgentInstance idleAgentInstance = idle(date, "CCeDev01");
             ReflectionUtil.<AgentRuntimeInfo>getField(idleAgentInstance, "agentRuntimeInfo").setOperatingSystem("Minix");
 
@@ -1334,7 +1334,7 @@ public class AgentServiceIntegrationTest {
     }
 
     private AgentInstance getFirstAgent() {
-        return IterableUtils.first(agentService.getAgentInstances());
+        return stream(agentService.getAgentInstances().spliterator(), false).findFirst().orElseThrow();
     }
 
     private Set<String> getEnvironments(String uuid) {

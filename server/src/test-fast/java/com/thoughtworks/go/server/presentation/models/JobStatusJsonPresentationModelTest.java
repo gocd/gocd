@@ -22,9 +22,10 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
@@ -72,7 +73,7 @@ public class JobStatusJsonPresentationModelTest {
 
     @Test
     public void shouldShowElapsedAndRemainingTimeForIncompleteBuild() {
-        JobInstance instance = building("test", new DateTime().minusSeconds(5).toDate());
+        JobInstance instance = building("test", Date.from(Instant.now().minusSeconds(5)));
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class),
                 new DurationBean(instance.getId(), 10L));

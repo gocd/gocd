@@ -141,7 +141,7 @@ class VSMSCMModificationsModel
     @revision = modification.getRevision
     @user = modification.getUserName
     @comment = modification.getComment()
-    @modified_time=com.thoughtworks.go.util.TimeConverter.convert(modification.getModifiedTime).default_message
+    @modified_time = com.thoughtworks.go.server.presentation.models.TimeConverter.new.getConvertedTime(modification.getModifiedTime).default_message
     @locator = vsm_material_path_partial.call material_fingerprint, modification.getRevision
   end
 end

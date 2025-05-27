@@ -357,7 +357,7 @@
                                   <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_load_nothing_from_empty_id_list" executed="True" success="True" time="0.016" asserts="1" />
                                   <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_load_only_max_results" executed="True" success="True" time="0.031" asserts="1" />
                                   <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_not_return_duplicated_users_after_saving_contact_note_twice" executed="True" success="True" time="0.219" asserts="1" />
-                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_retrive_objects_from_db" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_retrieve_objects_from_db" executed="True" success="True" time="0.016" asserts="1" />
                                   <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_save_If_updated" executed="True" success="True" time="0.016" asserts="2" />
                                   <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_save_object_to_database" executed="True" success="True" time="0.016" asserts="1" />
                                 </results>
@@ -863,7 +863,7 @@
                                       <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest.should_add_multiple_contacts" executed="True" success="True" time="0.078" asserts="8" />
                                       <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest.should_add_to_the_begin_of_another_contact_in_correct_contact_list" executed="True" success="True" time="0.031" asserts="6" />
                                       <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest.should_add_to_the_end_of_another_contact_in_correct_contact_list_and_return_added_contact" executed="True" success="True" time="0.047" asserts="6" />
-                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest.should_retrive_newly_added_contact_interests" executed="True" success="True" time="0.031" asserts="3" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest.should_retrieve_newly_added_contact_interests" executed="True" success="True" time="0.031" asserts="3" />
                                       <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest.should_set_alert_preference_info" executed="True" success="True" time="0.031" asserts="4" />
                                     </results>
                                   </test-suite>

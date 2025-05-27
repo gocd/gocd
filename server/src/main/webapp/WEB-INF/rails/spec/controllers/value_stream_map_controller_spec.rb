@@ -96,7 +96,6 @@ describe ValueStreamMapController do
         revision_p1_1.addStages(Stages.new([StageMother.passedStageInstance("stage-1-for-p1-1", "j1", "p1"), StageMother.passedStageInstance("stage-2-for-p1-1", "j2", "p1")]))
           modification = com.thoughtworks.go.domain.materials.Modification.new("user", "comment", "", java.util.Date.new() , "r1")
           modifications = com.thoughtworks.go.domain.materials.Modifications.new([modification].to_java(com.thoughtworks.go.domain.materials.Modification))
-        scm_revision = SCMRevision.new(modification)
         pipeline = "current"
         vsm = ValueStreamMap.new(CaseInsensitiveString.new(pipeline), nil)
         vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new(pipeline))

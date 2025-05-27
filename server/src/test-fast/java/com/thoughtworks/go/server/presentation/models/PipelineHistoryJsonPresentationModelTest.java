@@ -23,13 +23,13 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.presentation.PipelineHistoryGroupingUtil;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +46,7 @@ public class PipelineHistoryJsonPresentationModelTest {
     private static final int PER_PAGE = 10;
     private static final boolean CAN_FORCE = false;
     private final boolean hasForceBuildCause = false;
-    private final Date modificationDate = new Date();
+    private final Instant modificationDate = Instant.now();
     private final boolean hasModification = false;
 
     private PipelinePauseInfo pipelinePauseInfo;
@@ -67,14 +67,12 @@ public class PipelineHistoryJsonPresentationModelTest {
     }
 
     private PipelineHistoryGroups preparePipelineHistoryGroups(PipelineConfig pipelineConfig) {
-        PipelineInstanceModels pipelineHistory = PipelineHistoryMother.pipelineHistory(pipelineConfig,
-            modificationDate);
+        PipelineInstanceModels pipelineHistory = PipelineHistoryMother.pipelineHistory(pipelineConfig, modificationDate);
         return new PipelineHistoryGroupingUtil().createGroups(pipelineHistory);
     }
 
     private PipelineHistoryGroups preparePipelineHistoryGroupsWithErrorMessage(PipelineConfig pipelineConfig) {
-        PipelineInstanceModels pipelineHistory = PipelineHistoryMother.pipelineHistoryWithErrorMessage(pipelineConfig,
-            modificationDate);
+        PipelineInstanceModels pipelineHistory = PipelineHistoryMother.pipelineHistoryWithErrorMessage(pipelineConfig, modificationDate);
         return new PipelineHistoryGroupingUtil().createGroups(pipelineHistory);
     }
 
@@ -242,7 +240,7 @@ public class PipelineHistoryJsonPresentationModelTest {
             .and(
                 a -> a.node("groups[0].history[0].materialRevisions[0].revision").isEqualTo("svn.100"),
                 a -> a.node("groups[0].history[0].materialRevisions[0].user").isEqualTo("user"),
-                a -> a.node("groups[0].history[0].materialRevisions[0].date").isEqualTo(DateUtils.formatISO8601(modificationDate))
+                a -> a.node("groups[0].history[0].materialRevisions[0].date").isEqualTo(Dates.formatIso8601CompactOffset(modificationDate))
         );
     }
 
@@ -342,7 +340,7 @@ public class PipelineHistoryJsonPresentationModelTest {
                 pipelineConfig1,
                 pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
         assertThatJson(presenter.toJson())
-            .node("groups[0].history[0].scheduled_timestamp").isEqualTo(modificationDate.getTime());
+            .node("groups[0].history[0].scheduled_timestamp").isEqualTo(modificationDate.toEpochMilli());
     }
 
 }

@@ -18,17 +18,13 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.io.IOException;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,14 +39,14 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void shouldReturnSiteUrlAsSecurePreferedSiteUrlIfSecureSiteUrlIsNotDefined() {
+    public void shouldReturnSiteUrlAsSecurePreferredSiteUrlIfSecureSiteUrlIsNotDefined() {
         defaultServerConfig.setSiteUrl("http://example.com");
         defaultServerConfig.setSecureSiteUrl(null);
         assertThat(defaultServerConfig.getSiteUrlPreferablySecured().getUrl()).isEqualTo("http://example.com");
     }
 
     @Test
-    public void shouldReturnSecureSiteUrlAsSecurePreferedSiteUrlIfBothSiteUrlAndSecureSiteUrlIsDefined() {
+    public void shouldReturnSecureSiteUrlAsSecurePreferredSiteUrlIfBothSiteUrlAndSecureSiteUrlIsDefined() {
         defaultServerConfig.setSiteUrl("http://example.com");
         defaultServerConfig.setSecureSiteUrl("https://example.com");
         assertThat(defaultServerConfig.getSiteUrlPreferablySecured().getUrl()).isEqualTo("https://example.com");
@@ -78,9 +74,6 @@ public class ServerConfigTest {
 
     @Test
     public void shouldNotUpdatePasswordForMailHostIfNotChangedOrNull() throws IOException {
-        File cipherFile = new SystemEnvironment().getDESCipherFile();
-        FileUtils.deleteQuietly(cipherFile);
-        FileUtils.writeStringToFile(cipherFile, "269298bc31c44620", UTF_8);
         GoCipher goCipher = new GoCipher();
         MailHost mailHost = new MailHost("abc", 12, "admin", "p", null, true, true, "anc@mail.com", "anc@mail.com", goCipher);
         ServerConfig serverConfig = new ServerConfig(null, mailHost, null, null);

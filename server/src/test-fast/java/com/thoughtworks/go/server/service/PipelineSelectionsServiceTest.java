@@ -22,23 +22,25 @@ import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.user.*;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
+import static java.time.ZoneOffset.UTC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.*;
 
 public class PipelineSelectionsServiceTest {
-    private static final Date FIXED_DATE = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
+    private static final Date FIXED_DATE = Dates.from(ZonedDateTime.of(2000, 1, 1, 1, 1, 1, 1, UTC));
 
     private PipelineSelectionsService pipelineSelectionsService;
     private GoConfigDao goConfigDao;
@@ -59,7 +61,7 @@ public class PipelineSelectionsServiceTest {
         CruiseConfig cruiseConfig = unchangedConfig();
         expectLoad(cruiseConfig);
         Clock clock = mock(Clock.class);
-        when(clock.currentTime()).thenReturn(FIXED_DATE);
+        when(clock.currentUtilDate()).thenReturn(FIXED_DATE);
         userDao = mock(UserDao.class);
 
         goConfigService = mock(GoConfigService.class);

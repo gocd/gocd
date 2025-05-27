@@ -26,7 +26,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.presentation.PipelineHistoryGroupingUtil;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.TimeConverter;
 import com.thoughtworks.go.util.json.JsonAware;
 
 import java.util.*;
@@ -73,10 +72,10 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         this.hasForceBuildCause = hasForceBuildCause;
         this.hasBuildCauseInBuffer = hasBuildCauseInBuffer;
         this.canPause = canPause;
-        createGroupForCurrentConfigIfItHasChanged(null);
+        createGroupForCurrentConfigIfItHasChanged();
     }
 
-    private void createGroupForCurrentConfigIfItHasChanged(Map<String, StageIdentifier> latest) {
+    private void createGroupForCurrentConfigIfItHasChanged() {
         if (pipelineHistoryGroups.isEmpty()) {
             if (hasBuildCauseInBuffer || pipelineConfig.isFirstStageManualApproval()) {
                 createGroupForCurrentConfig();

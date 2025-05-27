@@ -21,14 +21,14 @@ import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AVAILABLE_FEATURE_TOGGLES_FILE_PATH;
@@ -63,7 +63,7 @@ public class FeatureToggleRepository {
     }
 
     public FeatureToggles userToggles() {
-        String userTogglesPath = userTogglesFile().getAbsolutePath();
+        String userTogglesPath = userTogglesFile().toAbsolutePath().toString();
 
         if (!new File(userTogglesPath).exists()) {
             LOGGER.warn("Toggles file, {} does not exist. Saying there are no toggles.", userTogglesPath);
@@ -87,7 +87,7 @@ public class FeatureToggleRepository {
 
     private FeatureToggles readTogglesFromStream(InputStream streamForToggles, String kindOfToggle) {
         try {
-            String existingToggleJSONContent = IOUtils.toString(streamForToggles, UTF_8);
+            String existingToggleJSONContent = new String(streamForToggles.readAllBytes(), UTF_8);
 
             FeatureToggleFileContentRepresentation toggleContent = gson.fromJson(existingToggleJSONContent, FeatureToggleFileContentRepresentation.class);
             return new FeatureToggles(toggleContent.toggles);
@@ -97,19 +97,19 @@ public class FeatureToggleRepository {
         }
     }
 
-    private void writeTogglesToFile(File file, FeatureToggles toggles) {
+    private void writeTogglesToFile(Path file, FeatureToggles toggles) {
         FeatureToggleFileContentRepresentation representation = new FeatureToggleFileContentRepresentation();
         representation.toggles = toggles.all();
 
         try {
-            FileUtils.writeStringToFile(file, gson.toJson(representation), UTF_8);
+            Files.writeString(file, gson.toJson(representation), UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private File userTogglesFile() {
-        return new File(environment.configDir(), environment.get(USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR));
+    private Path userTogglesFile() {
+        return new File(environment.configDir(), environment.get(USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR)).toPath();
     }
 
     public static class FeatureToggleFileContentRepresentation {

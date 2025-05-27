@@ -22,7 +22,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -81,13 +81,13 @@ public class ServerHealthStateTest {
     }
 
     @Test
-    public void shouldtNotTrumpErrorIfCurrentIsWarning() {
+    public void shouldNotTrumpErrorIfCurrentIsWarning() {
         assertThat(ERROR_SERVER_HEALTH_STATE.trump(WARNING_SERVER_HEALTH_STATE)).isEqualTo(ERROR_SERVER_HEALTH_STATE);
     }
 
     @Test
     public void shouldExpireAfterTheExpiryTime() {
-        testingClock.setTime(new Date());
+        testingClock.setTime(Instant.now());
         ServerHealthState expireInFiveMins = ServerHealthState.warning("message", "desc", HealthStateType.databaseDiskFull(), Timeout.FIVE_MINUTES);
         ServerHealthState expireNever = ServerHealthState.warning("message", "desc", HealthStateType.databaseDiskFull());
         assertThat(expireInFiveMins.hasExpired()).isFalse();

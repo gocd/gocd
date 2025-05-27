@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -23,6 +22,7 @@ import org.xml.sax.InputSource;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
+import java.nio.file.Files;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -148,7 +148,7 @@ public class XpathUtilsTest {
 
     private File getTestFile(String xml) throws IOException {
         testFile = File.createTempFile("xpath", null, temporaryFolder);
-        FileUtils.writeStringToFile(testFile, xml, UTF_8);
+        Files.writeString(testFile.toPath(), xml, UTF_8);
         return testFile;
     }
 }

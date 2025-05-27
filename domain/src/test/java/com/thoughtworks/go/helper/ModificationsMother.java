@@ -29,10 +29,14 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.GoConstants;
-import org.joda.time.DateTime;
 
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.*;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 public class ModificationsMother {
     public static final String MOD_COMMENT = "Fixing the not checked in files";
@@ -41,8 +45,8 @@ public class ModificationsMother {
     public static final String MOD_USER = "lgao";
     public static final String MOD_USER_COMMITTER = "committer";
     public static final String MOD_USER_WITH_HTML_CHAR = "committer <html />";
-    public static final Date TWO_DAYS_AGO_CHECKIN = new DateTime().minusDays(2).toDate();
-    public static final Date YESTERDAY_CHECKIN = new DateTime().minusDays(1).toDate();
+    public static final Date YESTERDAY_CHECKIN = Date.from(Instant.now().minus(1, DAYS));
+    public static final Date TWO_DAYS_AGO_CHECKIN = Date.from(Instant.now().minus(2, DAYS));
 
     public static final Date TODAY_CHECKIN = new Date();
     public static final ModifiedAction MOD_MODIFIED_ACTION = ModifiedAction.added;
@@ -212,8 +216,16 @@ public class ModificationsMother {
         return oneModifiedFile(MOD_USER, modRevision, TWO_DAYS_AGO_CHECKIN);
     }
 
+    public static Modification oneModifiedFile(String modRevision, ZonedDateTime date) {
+        return oneModifiedFile(MOD_USER, modRevision, Dates.from(date));
+    }
+
     public static Modification oneModifiedFile(String modRevision, Date date) {
         return oneModifiedFile(MOD_USER, modRevision, date);
+    }
+
+    public static Modification oneModifiedFile(String modUser, String modRevision, ZonedDateTime date) {
+        return oneModifiedFile(modUser, modRevision, MOD_COMMENT, Dates.from(date));
     }
 
     public static Modification oneModifiedFile(String modUser, String modRevision, Date date) {

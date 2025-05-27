@@ -76,7 +76,7 @@ public class FetchArtifactBuilderTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws IOException {
         for (File fileToClean : toClean) {
             FileUtils.deleteQuietly(fileToClean);
         }

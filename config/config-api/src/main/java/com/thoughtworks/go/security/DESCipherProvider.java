@@ -16,13 +16,14 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.decodeHex;
@@ -52,7 +53,7 @@ public class DESCipherProvider implements Serializable {
                 if (cachedKey == null) {
                     try {
                         if (cipherFile.exists()) {
-                            cachedKey = decodeHex(FileUtils.readFileToString(cipherFile, UTF_8).trim());
+                            cachedKey = decodeHex(Files.readString(cipherFile.toPath(), UTF_8).trim());
                         } else {
                             cachedKey = new byte[]{}; // Cache an empty key
                             LOGGER.info("DES cipher not found. Ignoring... we do not support generating new DES keys.");
@@ -71,8 +72,8 @@ public class DESCipherProvider implements Serializable {
     }
 
     @TestOnly
-    public void removeCipher() {
-        FileUtils.deleteQuietly(cipherFile);
+    public void removeCipher() throws IOException {
+        Files.deleteIfExists(cipherFile.toPath());
         DESCipherProvider.removeCachedKey();
     }
 }

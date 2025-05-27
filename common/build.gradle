@@ -26,7 +26,6 @@ dependencies {
   implementation project.deps.commonsCollections4
   implementation project.deps.commonsText
   implementation project.deps.commonsLang3
-  implementation project.deps.jodaTime
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
   compileOnly project.deps.jetBrainsAnnotations

@@ -80,25 +80,25 @@ class AccessTokenTest {
     void shouldRevoke() {
         TestingClock clock = new TestingClock();
         AccessToken token = AccessToken.create(null, null, null, clock);
-        token.revoke("admin", "because I can", clock.currentTimestamp());
+        token.revoke("admin", "because I can", clock.currentSqlTimestamp());
 
         assertThat(token.isRevoked()).isTrue();
         assertThat(token.isDeletedBecauseUserDeleted()).isEqualTo(false);
         assertThat(token.getRevokedBy()).isEqualTo("admin");
         assertThat(token.getRevokeCause()).isEqualTo("because I can");
-        assertThat(token.getRevokedAt()).isEqualTo(clock.currentTimestamp());
+        assertThat(token.getRevokedAt()).isEqualTo(clock.currentSqlTimestamp());
     }
 
     @Test
     void shouldPerforSoftDelete() {
         TestingClock clock = new TestingClock();
         AccessToken token = AccessToken.create(null, null, null, clock);
-        token.revokeBecauseOfUserDelete("admin", clock.currentTimestamp());
+        token.revokeBecauseOfUserDelete("admin", clock.currentSqlTimestamp());
 
         assertThat(token.isRevoked()).isTrue();
         assertThat(token.isDeletedBecauseUserDeleted()).isEqualTo(true);
         assertThat(token.getRevokedBy()).isEqualTo("admin");
         assertThat(token.getRevokeCause()).isEqualTo("Revoked because user was deleted by admin");
-        assertThat(token.getRevokedAt()).isEqualTo(clock.currentTimestamp());
+        assertThat(token.getRevokedAt()).isEqualTo(clock.currentSqlTimestamp());
     }
 }

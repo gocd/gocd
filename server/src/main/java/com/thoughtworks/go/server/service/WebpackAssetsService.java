@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.google.gson.Gson;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.ServletContextAware;
@@ -25,6 +24,7 @@ import org.springframework.web.context.ServletContextAware;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -106,7 +106,7 @@ public class WebpackAssetsService implements ServletContextAware {
         }
 
         Gson gson = new Gson();
-        Map<String, Object> manifest = gson.<Map<String, Object>>fromJson(FileUtils.readFileToString(manifestFile, UTF_8), Map.class);
+        Map<String, Object> manifest = gson.<Map<String, Object>>fromJson(Files.readString(manifestFile.toPath(), UTF_8), Map.class);
 
         if (manifest.containsKey("errors") && !((List<Object>) manifest.get("errors")).isEmpty()) {
             throw new RuntimeException("There were errors in manifest.json file");

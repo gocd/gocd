@@ -177,6 +177,7 @@ public class PipelineScheduleServiceTest {
         configHelper.addEnvironments("dev");
         Agent agentConfigWithUuid1 = new Agent("uuid1", "localhost", "127.0.0.1", "cookie1");
         agentConfigWithUuid1.setEnvironments("dev");
+        agentService.clearAll();
         agentService.saveOrUpdate(agentConfigWithUuid1);
         agentService.saveOrUpdate(new Agent("uuid2", "localhost", "127.0.0.1", "cookie2"));
         agentService.saveOrUpdate(new Agent("uuid3", "localhost", "127.0.0.1", "cookie3"));

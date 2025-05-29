@@ -149,6 +149,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       [
+        "microdnf remove -y shadow-utils",
         "microdnf install -y git-core openssh-clients bash unzip curl-minimal procps-ng coreutils-single glibc-langpack-en tar",
         "microdnf clean all",
         "rm -rf /var/cache/dnf",

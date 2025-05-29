@@ -23,8 +23,6 @@ dependencies {
 
   api project.deps.slf4jApi
 
-  implementation project.deps.commonsIO
-
   api(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
   }

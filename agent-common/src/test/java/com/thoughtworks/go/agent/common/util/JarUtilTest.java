@@ -66,7 +66,7 @@ public class JarUtilTest {
             Set<File> actualFiles = directoryStream.map(Path::toFile).collect(Collectors.toSet());
 
             assertEquals(files, actualFiles);
-            assertEquals(files.size(), 2);
+            assertEquals(2, files.size());
             Set<String> fileNames = files.stream().map(File::getName).collect(Collectors.toSet());
             assertEquals(fileNames, Set.of("ArgPrintingMain.class", "HelloWorldStreamWriter.class"));
         }

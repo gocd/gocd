@@ -23,6 +23,7 @@ dependencies {
     implementation project.deps.slf4jJcl // Allow commons-logging replacement
   }
   api project.deps.gson
+  implementation project.deps.commonsIO
   implementation project.deps.cloning
   api project.deps.jdom
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')

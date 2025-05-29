@@ -42,8 +42,7 @@ import java.util.*;
 import static com.thoughtworks.go.config.materials.git.RefSpecHelper.localBranch;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
-import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
-import static com.thoughtworks.go.util.FileUtil.deleteDirectoryNoisily;
+import static com.thoughtworks.go.util.FileUtil.mkdirsParentQuietly;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isAllBlank;
@@ -355,9 +354,9 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, refSpecOrBranch, false, secrets());
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
             LOG.debug("Invalid git working copy or repository changed. Delete folder: {}", workingFolder);
-            deleteDirectoryNoisily(workingFolder);
+            FileUtils.deleteDirectory(workingFolder);
         }
-        createParentFolderIfNotExist(workingFolder);
+        mkdirsParentQuietly(workingFolder);
         if (!workingFolder.exists()) {
             TransactionSynchronizationManager txManager = new TransactionSynchronizationManager();
             if (txManager.isActualTransactionActive()) {

@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.FilenameUtil;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -29,7 +29,7 @@ import java.io.File;
 public class RakeTaskBuilder implements TaskBuilder<RakeTask> {
     @Override
     public Builder createBuilder(BuilderFactory builderFactory, RakeTask task, Pipeline pipeline, UpstreamPipelineResolver resolver) {
-        String newWorkingDir = FileUtil.join(pipeline.defaultWorkingFolder(), task.workingDirectory());
+        String newWorkingDir = FilenameUtil.join(pipeline.defaultWorkingFolder(), task.workingDirectory());
         String argument = task.arguments();
         Builder builder = builderFactory.builderFor(task.cancelTask(), pipeline, resolver);
         return new CommandBuilder("rake", argument, new File(newWorkingDir), task.getConditions(), builder, task.describe());

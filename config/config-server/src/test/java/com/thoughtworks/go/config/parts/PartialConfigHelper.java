@@ -46,7 +46,7 @@ public class PartialConfigHelper {
 
     public File addFileWithPartialConfig(String relativePath, PartialConfig partialConfig) throws Exception {
         File dest = new File(directory, relativePath);
-        FileUtil.createParentFolderIfNotExist(dest);
+        FileUtil.mkdirsParentQuietly(dest);
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setGroup(partialConfig.getGroups());
@@ -60,7 +60,7 @@ public class PartialConfigHelper {
 
     public File writeFileWithContent(String relativePath, String content) throws Exception {
         File dest = new File(directory, relativePath);
-        FileUtil.createParentFolderIfNotExist(dest);
+        FileUtil.mkdirsParentQuietly(dest);
 
         Files.writeString(dest.toPath(), content, UTF_8);
         return dest;

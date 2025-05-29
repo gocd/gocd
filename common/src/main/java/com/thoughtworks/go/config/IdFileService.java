@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.util.FileUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +34,7 @@ abstract class IdFileService {
     public void store(String data) {
         try {
             delete();
-            file.getParentFile().mkdirs();
+            FileUtil.mkdirsParentQuietly(file);
             Files.writeString(file.toPath(), data, StandardCharsets.UTF_8);
         } catch (IOException ioe) {
             throw bomb(String.format("Couldn't save %s to filesystem", file.getName()), ioe);

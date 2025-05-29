@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.FilenameUtil;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -29,7 +29,7 @@ import java.io.File;
 public class NantTaskBuilder implements TaskBuilder<NantTask> {
     @Override
     public Builder createBuilder(BuilderFactory builderFactory, NantTask task, Pipeline pipeline, UpstreamPipelineResolver resolver) {
-        File taskWorkingDirectory = new File(FileUtil.join(pipeline.defaultWorkingFolder(), task.workingDirectory()));
+        File taskWorkingDirectory = new File(FilenameUtil.join(pipeline.defaultWorkingFolder(), task.workingDirectory()));
         String command = task.command();
         String argument = task.arguments();
         Builder cancelBuilder = builderFactory.builderFor(task.cancelTask(), pipeline, resolver);

@@ -60,4 +60,27 @@ public class FilenameUtilTest {
     public void shouldReturnTrueIfDirectoryIsSubdirectoryOfParent() {
         assertThat(FilenameUtil.isNormalizedDirectoryPathInsideNormalizedParentDirectory("artifacts", "artifacts/config")).isTrue();
     }
+
+    @Test
+    void shouldUseSpecifiedFolderIfAbsolute() {
+        final File absolutePath = new File("zx").getAbsoluteFile();
+        assertThat(FilenameUtil.applyBaseDirIfRelative(new File("xyz"), absolutePath)).isEqualTo(absolutePath);
+    }
+
+    @Test
+    void shouldUseSpecifiedFolderIfBaseDirIsEmpty() {
+        assertThat(FilenameUtil.applyBaseDirIfRelative(new File(""), new File("zx"))).isEqualTo(new File("zx"));
+    }
+
+    @Test
+    void shouldAppendToDefaultIfRelative() {
+        final File relativepath = new File("zx");
+        assertThat(FilenameUtil.applyBaseDirIfRelative(new File("xyz"), relativepath)).isEqualTo(new File("xyz", relativepath.getPath()));
+    }
+
+    @Test
+    void shouldUseDefaultIfActualIsNull() {
+        final File baseFile = new File("xyz");
+        assertThat(FilenameUtil.applyBaseDirIfRelative(baseFile, null)).isEqualTo(baseFile);
+    }
 }

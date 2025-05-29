@@ -127,7 +127,7 @@ public class ZipUtil {
             return;
         }
         try {
-            outputFile.getParentFile().mkdirs();
+            FileUtil.mkdirsParentQuietly(outputFile);
             try (FileOutputStream os = new FileOutputStream(outputFile)) {
                 entryInputStream.transferTo(os);
                 if (zipEntryHandler != null) {

@@ -24,6 +24,7 @@ dependencies {
   compileOnly project.deps.logback
   api project.deps.jaxbApi
   api project.deps.jaxbRuntime
+  implementation project.deps.commonsIO
 
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok

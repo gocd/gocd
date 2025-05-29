@@ -44,7 +44,7 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
-import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
+import static com.thoughtworks.go.util.FileUtil.mkdirsParentQuietly;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isAllBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -211,7 +211,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
             FileUtils.deleteQuietly(workingFolder);
         }
         if (!workingFolder.exists()) {
-            createParentFolderIfNotExist(workingFolder);
+            mkdirsParentQuietly(workingFolder);
             int returnValue = hgCommand.clone(outputStreamConsumer, urlArgument);
             bombIfFailedToRunCommandLine(returnValue, "Failed to run hg clone command");
         }

@@ -60,7 +60,8 @@ public class FeedEntriesTest {
 
     @Test
     public void shouldLastUpdatedDate_Empty_List() {
-        assertThat(new FeedEntries().lastUpdatedDate()).isCloseTo(Instant.now(), 10L);
+        Instant expected = Instant.now();
+        assertThat(new FeedEntries().lastUpdatedDate()).isCloseTo(expected, 10L);
     }
 
 }

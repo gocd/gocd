@@ -36,6 +36,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -354,7 +355,11 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, refSpecOrBranch, false, secrets());
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
             LOG.debug("Invalid git working copy or repository changed. Delete folder: {}", workingFolder);
-            FileUtils.deleteDirectory(workingFolder);
+            try {
+                FileUtils.deleteDirectory(workingFolder);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to delete directory: " + workingFolder.getAbsolutePath(), e);
+            }
         }
         mkdirsParentQuietly(workingFolder);
         if (!workingFolder.exists()) {

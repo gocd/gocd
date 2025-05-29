@@ -57,9 +57,13 @@ class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     @AfterEach
-    void tearDown() throws IOException {
+    void tearDown() {
         for (Integer pluginIndex : plugins.keySet()) {
-            Files.deleteIfExists(pluginLog(pluginIndex));
+            try {
+                Files.deleteIfExists(pluginLog(pluginIndex));
+            } catch (IOException ignore) {
+
+            }
         }
     }
 

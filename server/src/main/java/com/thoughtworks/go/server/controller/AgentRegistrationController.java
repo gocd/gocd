@@ -22,6 +22,8 @@ import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.digest.HmacAlgorithms;
+import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,19 +37,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.PostConstruct;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpStatus.*;
@@ -64,14 +62,13 @@ public class AgentRegistrationController {
     private volatile String agentLauncherChecksum;
     private volatile String tfsSdkChecksum;
     private volatile String agentExtraProperties;
-    private Mac mac;
+    private HmacUtils hmacUtil;
 
     private final InputStreamSrc agentJarSrc;
     private final InputStreamSrc agentLauncherSrc;
     private final InputStreamSrc tfsImplSrc;
     private final EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
     private final InputStreamSrc agentPluginsZipSrc;
-    private static final Object HMAC_GENERATION_MUTEX = new Object();
 
     @Autowired
     public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment,
@@ -85,19 +82,6 @@ public class AgentRegistrationController {
         this.agentPluginsZipSrc = JarDetector.createRaw(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH));
         this.tfsImplSrc = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "tfs-impl-14.jar");
         this.ephemeralAutoRegisterKeyService = ephemeralAutoRegisterKeyService;
-    }
-
-    private Mac hmac() {
-        if (mac == null) {
-            try {
-                mac = Mac.getInstance("HmacSHA256");
-                SecretKeySpec secretKey = new SecretKeySpec(goConfigService.serverConfig().getTokenGenerationKey().getBytes(), "HmacSHA256");
-                mac.init(secretKey);
-            } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return mac;
     }
 
     @RequestMapping(value = "/admin/latest-agent.status", method = {RequestMethod.HEAD, RequestMethod.GET})
@@ -213,7 +197,7 @@ public class AgentRegistrationController {
         boolean isElasticAgent = elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId);
 
         try {
-            if (!encodeBase64String(hmac().doFinal(uuid.getBytes())).equals(token)) {
+            if (!hmacOf(uuid).equals(token)) {
                 String message = "Not a valid token.";
                 LOG.error("Rejecting request for registration. Error: HttpCode=[{}] Message=[{}] UUID=[{}] Hostname=[{}]" +
                         "ElasticAgentID=[{}] PluginID=[{}]", FORBIDDEN, message, uuid, hostname, elasticAgentId, elasticPluginId);
@@ -321,12 +305,8 @@ public class AgentRegistrationController {
                     CONFLICT, message, agentInstance.isPending(), uuid);
             return new ResponseEntity<>(message, CONFLICT);
         }
-        String token;
-        synchronized (HMAC_GENERATION_MUTEX) {
-            token = encodeBase64String(hmac().doFinal(uuid.getBytes()));
-        }
 
-        return new ResponseEntity<>(token, OK);
+        return new ResponseEntity<>(hmacOf(uuid), OK);
     }
 
     private Agent createAgentFromRequest(String uuid, String hostname, String ip, String elasticAgentId, String elasticPluginId) {
@@ -341,8 +321,8 @@ public class AgentRegistrationController {
 
     private String getAgentExtraProperties() {
         if (agentExtraProperties == null) {
-            String base64OfSystemProperty = encodeBase64String(systemEnvironment.get(AGENT_EXTRA_PROPERTIES).getBytes(UTF_8));
-            String base64OfEmptyString = encodeBase64String("".getBytes(UTF_8));
+            String base64OfSystemProperty = Base64.getEncoder().encodeToString(systemEnvironment.get(AGENT_EXTRA_PROPERTIES).getBytes(UTF_8));
+            String base64OfEmptyString = Base64.getEncoder().encodeToString("".getBytes(UTF_8));
 
             this.agentExtraProperties = base64OfSystemProperty.length() >= MAX_HEADER_LENGTH ? base64OfEmptyString : base64OfSystemProperty;
         }
@@ -368,4 +348,10 @@ public class AgentRegistrationController {
         return isNotBlank(agentAutoRegisterHostname) ? agentAutoRegisterHostname : hostname;
     }
 
+    synchronized String hmacOf(String uuid) {
+        if (hmacUtil == null) {
+            hmacUtil = new HmacUtils(HmacAlgorithms.HMAC_SHA_256, goConfigService.serverConfig().getTokenGenerationKey().getBytes());
+        }
+        return Base64.getEncoder().encodeToString(hmacUtil.hmac(uuid.getBytes()));
+    }
 }

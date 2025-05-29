@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.dependency.NewGoConfigMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -76,7 +75,7 @@ class DependencyMaterialConfigTest {
         writer.write(configForEdit, buffer, false);
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
-        CruiseConfig config = loader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
+        CruiseConfig config = loader.loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
 
         DependencyMaterialConfig material = (DependencyMaterialConfig) config.pipelineConfigByName(new CaseInsensitiveString("dependent")).materialConfigs().get(1);
         assertThat(material).isEqualTo(originalMaterial);
@@ -99,7 +98,7 @@ class DependencyMaterialConfigTest {
         writer.write(cruiseConfig, buffer, false);
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
-        CruiseConfig config = loader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
+        CruiseConfig config = loader.loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
 
         MaterialConfigs materialConfigs = config.pipelineConfigByName(new CaseInsensitiveString("dependent")).materialConfigs();
         assertThat(materialConfigs.get(0)).isInstanceOf(DependencyMaterialConfig.class);

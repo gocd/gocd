@@ -150,7 +150,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public void cancel() {
         updateRuntimeStatus(AgentRuntimeStatus.Cancelled);
-        cancelledAt = timeProvider.currentTime();
+        cancelledAt = timeProvider.currentUtilDate();
     }
 
     public void killRunningTasks() throws InvalidAgentInstructionException {
@@ -223,7 +223,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     boolean isTimeout(Date lastHeardTime) {
-        return (timeProvider.currentTime().getTime() - lastHeardTime.getTime()) / 1000 >= systemEnvironment.getAgentConnectionTimeout();
+        return (timeProvider.currentTimeMillis() - lastHeardTime.getTime()) / 1000 >= systemEnvironment.getAgentConnectionTimeout();
     }
 
     @Override
@@ -372,7 +372,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     public boolean isStuckInCancel() {
         int TEN_MINUTES = 600000;
         if (isCancelled() && cancelledAt != null) {
-            return (timeProvider.currentTime().getTime() - cancelledAt.getTime()) > TEN_MINUTES;
+            return (timeProvider.currentUtilDate().getTime() - cancelledAt.getTime()) > TEN_MINUTES;
         }
 
         return false;

@@ -32,6 +32,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -141,7 +142,7 @@ public class CcTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldUpdateBuildDetailsOfStageWhenStageIsCompleted() {
-        Stage completedStage = StageMother.createPassedStage("pipeline", 1, "stage1", 1, "job1", new Date());
+        Stage completedStage = StageMother.createPassedStage("pipeline", 1, "stage1", 1, "job1", Instant.now());
         completedStage.setCompletedByTransitionId(1L);
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(completedStage);
 
@@ -179,7 +180,7 @@ public class CcTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldUpdateCacheWhenStageWhichHasChangedIsNotANullStage() {
-        Stage completedStage = StageMother.createPassedStage("pipeline", 1, "stage1", 1, "job1", new Date());
+        Stage completedStage = StageMother.createPassedStage("pipeline", 1, "stage1", 1, "job1", Instant.now());
         ProjectStatus jobStatus = new ProjectStatus("job1_name", "activity1", "lastBuildStatus1", "lastBuildLabel1", new Date(), "webUrl1");
         when(jobStatusChangeHandler.statusFor(completedStage.getJobInstances().first(), new HashSet<>())).thenReturn(jobStatus);
 

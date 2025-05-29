@@ -15,10 +15,8 @@
  */
 package com.thoughtworks.go.apiv1.versioninfos.models;
 
-import org.apache.commons.io.FileUtils;
+import com.thoughtworks.go.util.TestFileUtil;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,19 +25,19 @@ class EncryptionHelperTest {
 
     @Test
     void shouldVerifySignatureAndSubordinatePublicKeyWithMasterPublicKey() throws Exception {
-        String subordinatePublicKey = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("rsa/subordinate-public.pem").getFile()), "utf8");
-        String signature = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("rsa/subordinate-public.pem.sha512").getFile()), "utf8");
-        String masterPublicKey = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("rsa/master-public.pem").getFile()), "utf8");
+        String subordinatePublicKey = TestFileUtil.resourceToString("/rsa/subordinate-public.pem");
+        String signature = TestFileUtil.resourceToString("/rsa/subordinate-public.pem.sha512");
+        String masterPublicKey = TestFileUtil.resourceToString("/rsa/master-public.pem");
 
         assertTrue(EncryptionHelper.verifyRSASignature(subordinatePublicKey, signature, masterPublicKey));
     }
 
     @Test
     void shouldNotVerifyInvalidSignatureOrInvalidSubordinatePublicKeyWithMasterPublicKey() throws Exception {
-        String subordinatePublicKey = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("rsa/subordinate-public.pem").getFile()), "utf8");
+        String subordinatePublicKey = TestFileUtil.resourceToString("/rsa/subordinate-public.pem");
         subordinatePublicKey = subordinatePublicKey + "\n";
-        String signature = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("rsa/subordinate-public.pem.sha512").getFile()), "utf8");
-        String masterPublicKey = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("rsa/master-public.pem").getFile()), "utf8");
+        String signature = TestFileUtil.resourceToString("/rsa/subordinate-public.pem.sha512");
+        String masterPublicKey = TestFileUtil.resourceToString("/rsa/master-public.pem");
 
         assertFalse(EncryptionHelper.verifyRSASignature(subordinatePublicKey, signature, masterPublicKey));
     }

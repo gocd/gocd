@@ -60,7 +60,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import org.joda.time.DateTime;
+import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,6 +73,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -81,6 +82,7 @@ import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static java.time.ZoneOffset.UTC;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -138,7 +140,7 @@ public class MaterialServiceTest {
         MaterialConfig materialConfig = mock(MaterialConfig.class);
         when(goConfigService.materialForPipelineWithFingerprint("pipeline", "sha")).thenReturn(materialConfig);
 
-        List<MatchedRevision> expected = List.of(new MatchedRevision("23", "revision", "revision", "user", new DateTime(2009, 10, 10, 12, 0, 0, 0).toDate(), "comment"));
+        List<MatchedRevision> expected = List.of(new MatchedRevision("23", "revision", "revision", "user", Dates.from(ZonedDateTime.of(2009, 10, 10, 12, 0, 0, 0, UTC)), "comment"));
         when(materialRepository.findRevisionsMatching(materialConfig, "23")).thenReturn(expected);
         assertThat(materialService.searchRevisions("pipeline", "sha", "23", username, operationResult)).isEqualTo(expected);
     }
@@ -442,9 +444,9 @@ public class MaterialServiceTest {
         GitMaterialConfig materialConfig = git("http://test.com");
         GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
         Modifications modifications = new Modifications();
-        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
-        modifications.add(new Modification("user", "comment 2", "email", new DateTime().minusHours(2).toDate(), "revision"));
-        modifications.add(new Modification("user", "comment 3", "email", new DateTime().minusHours(3).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 1", "email", Dates.from(ZonedDateTime.now().minusHours(1)), "revision"));
+        modifications.add(new Modification("user", "comment 2", "email", Dates.from(ZonedDateTime.now().minusHours(2)), "revision"));
+        modifications.add(new Modification("user", "comment 3", "email", Dates.from(ZonedDateTime.now().minusHours(3)), "revision"));
 
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
         when(materialRepository.loadHistory(anyLong(), any(), anyLong(), anyInt())).thenReturn(modifications);
@@ -460,7 +462,7 @@ public class MaterialServiceTest {
         GitMaterialConfig materialConfig = git("http://test.com");
         GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
         Modifications modifications = new Modifications();
-        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 1", "email", Dates.from(ZonedDateTime.now().minusHours(1)), "revision"));
 
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
         when(materialRepository.loadHistory(anyLong(), any(), anyLong(), anyInt())).thenReturn(modifications);
@@ -475,7 +477,7 @@ public class MaterialServiceTest {
         GitMaterialConfig materialConfig = git("http://test.com");
         GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
         Modifications modifications = new Modifications();
-        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 1", "email", Dates.from(ZonedDateTime.now().minusHours(1)), "revision"));
 
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
         when(materialRepository.loadHistory(anyLong(), any(), anyLong(), anyInt())).thenReturn(modifications);
@@ -547,9 +549,9 @@ public class MaterialServiceTest {
         GitMaterialConfig config = git("http://test.com");
         GitMaterialInstance instance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
         Modifications modifications = new Modifications();
-        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
-        modifications.add(new Modification("user", "comment 2", "email", new DateTime().minusHours(2).toDate(), "revision"));
-        modifications.add(new Modification("user", "comment 3", "email", new DateTime().minusHours(3).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 1", "email", Dates.from(ZonedDateTime.now().minusHours(1)), "revision"));
+        modifications.add(new Modification("user", "comment 2", "email", Dates.from(ZonedDateTime.now().minusHours(2)), "revision"));
+        modifications.add(new Modification("user", "comment 3", "email", Dates.from(ZonedDateTime.now().minusHours(3)), "revision"));
 
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
         when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);
@@ -565,9 +567,9 @@ public class MaterialServiceTest {
         GitMaterialConfig config = git("http://test.com");
         GitMaterialInstance instance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
         Modifications modifications = new Modifications();
-        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
-        modifications.add(new Modification("user", "comment 2", "email", new DateTime().minusHours(2).toDate(), "revision"));
-        modifications.add(new Modification("user", "comment 3", "email", new DateTime().minusHours(3).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 1", "email", Dates.from(ZonedDateTime.now().minusHours(1)), "revision"));
+        modifications.add(new Modification("user", "comment 2", "email", Dates.from(ZonedDateTime.now().minusHours(2)), "revision"));
+        modifications.add(new Modification("user", "comment 3", "email", Dates.from(ZonedDateTime.now().minusHours(3)), "revision"));
 
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
         when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);
@@ -583,9 +585,9 @@ public class MaterialServiceTest {
         GitMaterialConfig config = git("http://test.com");
         GitMaterialInstance instance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
         Modifications modifications = new Modifications();
-        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
-        modifications.add(new Modification("user", "comment 2", "email", new DateTime().minusHours(2).toDate(), "revision"));
-        modifications.add(new Modification("user", "comment 3", "email", new DateTime().minusHours(3).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 1", "email", Dates.from(ZonedDateTime.now().minusHours(1)), "revision"));
+        modifications.add(new Modification("user", "comment 2", "email", Dates.from(ZonedDateTime.now().minusHours(2)), "revision"));
+        modifications.add(new Modification("user", "comment 3", "email", Dates.from(ZonedDateTime.now().minusHours(3)), "revision"));
 
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
         when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);

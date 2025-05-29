@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -50,7 +49,7 @@ public class ChecksumFileHandlerTest {
     @Test
     public void shouldStoreTheMd5ChecksumOnTheAgent() throws IOException {
         checksumFileHandler.handle(new ByteArrayInputStream("Hello World".getBytes()));
-        assertThat(FileUtils.readFileToString(file, UTF_8)).isEqualTo("Hello World");
+        assertThat(Files.readString(file.toPath(), UTF_8)).isEqualTo("Hello World");
     }
 
     @Test

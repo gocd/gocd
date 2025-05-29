@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.config;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.thoughtworks.go.util.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -33,8 +33,9 @@ abstract class IdFileService {
 
     public void store(String data) {
         try {
-            file.delete();
-            FileUtils.writeStringToFile(file, data, StandardCharsets.UTF_8);
+            delete();
+            FileUtil.mkdirsParentQuietly(file);
+            Files.writeString(file.toPath(), data, StandardCharsets.UTF_8);
         } catch (IOException ioe) {
             throw bomb(String.format("Couldn't save %s to filesystem", file.getName()), ioe);
         }
@@ -42,7 +43,7 @@ abstract class IdFileService {
 
     public String load() {
         try {
-            return FileUtils.readFileToString(file, StandardCharsets.UTF_8).trim();
+            return Files.readString(file.toPath(), StandardCharsets.UTF_8).trim();
         } catch (IOException ioe) {
             throw bomb(String.format("Couldn't load %s from filesystem", file.getName()), ioe);
         }
@@ -54,7 +55,8 @@ abstract class IdFileService {
 
     public boolean dataPresent() {
         try {
-            return StringUtils.isNotBlank(load());
+            String id = load();
+            return id != null && !id.isBlank();
         } catch (Exception ioe) {
             return false;
         }

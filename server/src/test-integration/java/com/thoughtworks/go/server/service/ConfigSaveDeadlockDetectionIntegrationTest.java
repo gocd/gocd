@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +43,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -208,9 +208,9 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     }
 
     private void update(File configFile) throws IOException {
-        String currentConfig = FileUtils.readFileToString(configFile, UTF_8);
+        String currentConfig = Files.readString(configFile.toPath(), UTF_8);
         String updatedConfig = currentConfig.replaceFirst("artifactsdir=\".*\"", "artifactsdir=\"" + UUID.randomUUID().toString() + "\"");
-        FileUtils.writeStringToFile(configFile, updatedConfig, UTF_8);
+        Files.writeString(configFile.toPath(), updatedConfig, UTF_8);
     }
 
     private Thread configRepoSaveThread(final ConfigRepoConfig configRepoConfig, final int counter) {

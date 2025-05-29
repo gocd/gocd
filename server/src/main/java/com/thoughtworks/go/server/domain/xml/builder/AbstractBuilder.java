@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.domain.xml.builder;
 
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.dom.DOMElement;
@@ -41,7 +41,7 @@ public abstract class AbstractBuilder<T, SELF> {
     }
 
     public SELF textNode(String name, Date date) {
-        current().add(withNamespace(name).addText(DateUtils.formatIso8601ForCCTray(date)));
+        current().add(withNamespace(name).addText(Dates.formatIso8601ForCCTray(date)));
         return mySelf;
     }
 

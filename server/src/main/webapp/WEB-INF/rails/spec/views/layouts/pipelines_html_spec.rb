@@ -25,9 +25,9 @@ describe "layouts/pipelines.html.erb" do
     @layout_name = 'layouts/pipelines'
     @user = Username.new(CaseInsensitiveString.new("blah-name"), "blah diaply name")
     assign(:user, @user)
-    now = org.joda.time.DateTime.new
-    @stages = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.toDate()),
-                                                          PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.plusDays(1).toDate())])
+    now = ZonedDateTime.now
+    @stages = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.to_instant),
+                                                          PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.plusDays(1).to_instant)])
 
     @stages.get(0).setId(12)
     @stages.get(1).setId(13)

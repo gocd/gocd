@@ -19,8 +19,8 @@ require 'rails_helper'
 describe "stage_trigger_gate.html" do
 
   before do
-    now = org.joda.time.DateTime.new
-    @stage = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.toDate())]).first()
+    now = ZonedDateTime.now
+    @stage = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.to_instant)]).first()
     @stage.setId(12)
     @stage.setOperatePermission(true)
   end

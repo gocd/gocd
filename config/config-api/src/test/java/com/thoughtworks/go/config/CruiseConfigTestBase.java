@@ -477,7 +477,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
     }
 
     @Test
-    public void shouldNotDuplicateErrorWhenPipelineDoesnotExist() {
+    public void shouldNotDuplicateErrorWhenPipelineDoesNotExist() {
         CruiseConfig cruiseConfig = createCruiseConfig();
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         PipelineConfig pipelineConfig2 = goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");

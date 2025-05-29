@@ -30,6 +30,7 @@ import org.springframework.web.context.ServletContextAware;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class RailsAssetsService implements ServletContextAware {
         File manifestFile = files.iterator().next();
 
         LOG.info("Found rails assets manifest file named {} ", manifestFile.getName());
-        String manifest = FileUtils.readFileToString(manifestFile, UTF_8);
+        String manifest = Files.readString(manifestFile.toPath(), UTF_8);
         Gson gson = new Gson();
         railsAssetsManifest = gson.fromJson(manifest, RailsAssetsManifest.class);
         LOG.info("Successfully read rails assets manifest file located at {}", manifestFile.getAbsolutePath());

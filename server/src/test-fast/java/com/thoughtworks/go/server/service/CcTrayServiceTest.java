@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -157,7 +157,7 @@ public class CcTrayServiceTest {
     }
 
     private ProjectStatus statusFor(String projectName, String... allowedUsers) {
-        ProjectStatus status = new ProjectStatus(projectName, "activity1", "build-status-1", "build-label-1", DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url");
+        ProjectStatus status = new ProjectStatus(projectName, "activity1", "build-status-1", "build-label-1", Dates.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url");
         status.updateViewers(viewers(allowedUsers));
         return status;
     }

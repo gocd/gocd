@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.GoPublisher;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -36,6 +35,7 @@ import org.mockito.InOrder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -296,7 +296,7 @@ public class ArtifactsPublisherTest {
                 <testcase/>
                 </testsuite>
                 """;
-        FileUtils.writeStringToFile(testFile, content, StandardCharsets.UTF_8);
+        Files.writeString(testFile.toPath(), content, StandardCharsets.UTF_8);
         return testFolder;
     }
 }

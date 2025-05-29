@@ -206,10 +206,10 @@ describe StagesController do
 
     it "should load pipeline instance " do
       stub_current_config
-      now = org.joda.time.DateTime.new
-      pim = PipelineHistoryMother.singlePipeline("pipeline-name", PipelineHistoryMother.stagePerJob("stage-", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.toDate()),
-                                                                                                              PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.plusDays(1).toDate())]))
-      stage_summary_model=StageSummaryModel.new(stage_instance = StageMother.passedStageInstance("stage", "dev", "pipeline-name"), nil, JobDurationStrategy::ALWAYS_ZERO, nil)
+      now = ZonedDateTime.now
+      pim = PipelineHistoryMother.singlePipeline("pipeline-name", PipelineHistoryMother.stagePerJob("stage-", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.to_instant),
+                                                                                                              PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.plus_minutes(1).to_instant)]))
+      stage_summary_model = StageSummaryModel.new(stage_instance = StageMother.passedStageInstance("stage", "dev", "pipeline-name"), nil, JobDurationStrategy::ALWAYS_ZERO, nil)
       expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("blah-pipeline-name", 12, "stage-0", "3"), @user, @localized_result).and_return(stage_summary_model)
       stage_instance.setPipelineId(100)
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with("blah-pipeline-name", 12, 100, @user, @status).and_return(pim)
@@ -246,7 +246,6 @@ describe StagesController do
     describe "overview tab" do
       it "should assign stage_history" do
         stub_current_config
-        stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
         expect(@stage_service).to receive(:findStageHistoryPage).with(@stage_summary_model.getStage(), StagesController::STAGE_HISTORY_PAGE_SIZE).and_return(stage_history = stage_history_page(2))
         get :overview, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"}
         expect(assigns(:stage_history_page)).to eq stage_history
@@ -254,7 +253,6 @@ describe StagesController do
 
       it "should honour page number" do
         stub_current_config
-        stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
         expect(@stage_service).to receive(:findStageHistoryPageByNumber).with("pipeline", "stage", 5, StagesController::STAGE_HISTORY_PAGE_SIZE).and_return(stage_history = stage_history_page(4))
         get :overview, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", "stage-history-page" => "5"}
         expect(assigns(:stage_history_page)).to eq stage_history
@@ -369,12 +367,12 @@ describe StagesController do
     end
 
     it "should load the duration of last 10 stages in seconds along with start-end dates and chart scale" do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
-      stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_seconds(10))
+      scheduledTime = ZonedDateTime.of(2008, 2, 22, 10, 21, 23, 0, ZoneOffset.ofHoursMinutes(5, 30))
+      stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_seconds(10).to_instant)
       stage1.setPipelineId(100)
-      stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime, scheduledTime.plus_seconds(20))
+      stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_seconds(20).to_instant)
       stage2.setPipelineId(101)
-      stage3 = StageMother.createFailedStageWithFakeDuration("pipeline-name", 3, "stage", 1, "dev", scheduledTime, scheduledTime.plus_seconds(30))
+      stage3 = StageMother.createFailedStageWithFakeDuration("pipeline-name", 3, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_seconds(30).to_instant)
       stage3.setPipelineId(102)
       stage_summary_model1 = StageSummaryModel.new(stage1, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
       stage_summary_model2 = StageSummaryModel.new(stage2, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
@@ -409,10 +407,10 @@ describe StagesController do
     end
 
     it "should load the duration of last 10 stages in minutes" do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
-      stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
+      scheduledTime = ZonedDateTime.of(2008, 2, 22, 10, 21, 23, 0, ZoneOffset.ofHoursMinutes(5, 30))
+      stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_minutes(10).to_instant)
       stage1.setPipelineId(100)
-      stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(20))
+      stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_minutes(20).to_instant)
       stage2.setPipelineId(101)
       stage_summary_model1 = StageSummaryModel.new(stage1, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
       stage_summary_model2 = StageSummaryModel.new(stage2, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
@@ -436,12 +434,12 @@ describe StagesController do
     end
 
     it "should load data in ascending order of pipeline counters" do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
-      stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
+      scheduledTime = ZonedDateTime.of(2008, 2, 22, 10, 21, 23, 0, ZoneOffset.ofHoursMinutes(5, 30))
+      stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_minutes(10).to_instant)
       stage1.setPipelineId(100)
-      stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(20))
+      stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_minutes(20).to_instant)
       stage2.setPipelineId(101)
-      stage3 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 3, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(20))
+      stage3 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 3, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_minutes(20).to_instant)
       stage2.setPipelineId(102)
       stage_summary_model1 = StageSummaryModel.new(stage1, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
       stage_summary_model2 = StageSummaryModel.new(stage2, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
@@ -475,10 +473,10 @@ describe StagesController do
     end
 
     it "should load the correct pipeline label depending on stage run" do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
-      stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
+      scheduledTime = ZonedDateTime.of(2008, 2, 22, 10, 21, 23, 0, ZoneOffset.ofHoursMinutes(5, 30))
+      stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_minutes(10).to_instant)
       stage1.setPipelineId(100)
-      stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 2, "dev", scheduledTime, scheduledTime.plus_minutes(20))
+      stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 2, "dev", scheduledTime.to_instant, scheduledTime.plus_minutes(20).to_instant)
       stage2.setPipelineId(101)
       stage_summary_model1 = StageSummaryModel.new(stage1, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
       stage_summary_model2 = StageSummaryModel.new(stage2, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
@@ -512,10 +510,10 @@ describe StagesController do
     end
 
     it "should deal with stages when there are only failed stages" do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
-      stage1 = StageMother.createFailedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
+      scheduledTime = ZonedDateTime.of(2008, 2, 22, 10, 21, 23, 0, ZoneOffset.ofHoursMinutes(5, 30))
+      stage1 = StageMother.createFailedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_minutes(10).to_instant)
       stage1.setPipelineId(100)
-      stage2 = StageMother.createFailedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(20))
+      stage2 = StageMother.createFailedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_minutes(20).to_instant)
       stage2.setPipelineId(101)
       stage_summary_model1 = StageSummaryModel.new(stage1, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
       stage_summary_model2 = StageSummaryModel.new(stage2, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
@@ -556,8 +554,8 @@ describe StagesController do
 
   describe "config_tab" do
     before do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
-      stage = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
+      scheduledTime = ZonedDateTime.of(2008, 2, 22, 10, 21, 23, 0, ZoneOffset.ofHoursMinutes(5, 30))
+      stage = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_minutes(10).to_instant)
       stage.setPipelineId(100)
       stage.setConfigVersion("some-config-md5")
       @stage_summary_model = StageSummaryModel.new(stage, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
@@ -619,7 +617,7 @@ describe StagesController do
     it 'should redirect to first stage of the pipeline instance' do
       pipeline_name = "pipeline_name"
       stage_name = "stage_name"
-      pim = PipelineHistoryMother.pipelineHistoryItemWithOneStage(pipeline_name, stage_name, java.util.Date.new)
+      pim = PipelineHistoryMother.pipelineHistoryItemWithOneStage(pipeline_name, stage_name, Instant.now)
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with(pipeline_name, 1, @user, @status).and_return(pim)
 
       get :redirect_to_first_stage, params:{pipeline_name: 'pipeline_name', pipeline_counter: 1}

@@ -16,11 +16,14 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jetbrains.annotations.TestOnly;
-import org.joda.time.Duration;
 
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -62,7 +65,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
 
 
     public void schedule() {
-        this.scheduledDate = timeProvider.currentTime();
+        this.scheduledDate = timeProvider.currentUtilDate();
         changeState(JobState.Scheduled, this.scheduledDate);
     }
 
@@ -86,7 +89,11 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     }
 
     public void changeState(JobState newState) {
-        changeState(newState, timeProvider.currentTime());
+        changeState(newState, timeProvider.currentUtilDate());
+    }
+
+    public void changeState(JobState newState, Instant stateChangeTime) {
+        changeState(newState, Date.from(stateChangeTime));
     }
 
     public void changeState(JobState newState, Date stateChangeTime) {
@@ -174,7 +181,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     }
 
     public void completing(JobResult result) {
-        completing(result, timeProvider.currentTime());
+        completing(result, timeProvider.currentUtilDate());
     }
 
     @Override
@@ -269,10 +276,10 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         Date buildingDate = getStartedDateFor(JobState.Building);
         Date completedDate = getCompletedDate();
         if (buildingDate == null || completedDate == null) {
-            return 0L;
+            return 0;
         }
-        long elapsed = completedDate.getTime() - buildingDate.getTime();
-        return Math.round((double) elapsed / 1000);
+        long elapsedSecs = Math.round((double) (completedDate.getTime() - buildingDate.getTime()) / 1000);
+        return elapsedSecs == 0 ? 1 : elapsedSecs; // Ensure at least 1 second for completed jobs
     }
 
     public String getCurrentBuildDuration() {
@@ -286,10 +293,10 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
 
         Date buildingDate = getStartedDateFor(JobState.Building);
         if (buildingDate != null) {
-            long elapsed = timeProvider.currentTime().getTime() - buildingDate.getTime();
-            return Math.round((double) elapsed / 1000);
+            long elapsedSecs = Math.round((double) (timeProvider.currentTimeMillis() - buildingDate.getTime()) / 1000);
+            return elapsedSecs == 0 ? 1 : elapsedSecs; // Ensure at least 1 second for in-progress jobs
         } else {
-            return 0L;
+            return 0;
         }
     }
 
@@ -299,7 +306,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     }
 
     public Duration getElapsedTime() {
-        return new Duration(elapsedSeconds() * 1000);
+        return Duration.ofSeconds(elapsedSeconds());
     }
 
     public RunDuration getDuration() {
@@ -308,7 +315,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         }
         Date scheduleStartTime = getStartedDateFor(JobState.Scheduled);
         Date completedTime = getCompletedDate();
-        return new RunDuration.ActualDuration(new Duration(completedTime.getTime() - scheduleStartTime.getTime()));
+        return new RunDuration.ActualDuration(Duration.ofMillis(completedTime.getTime() - scheduleStartTime.getTime()));
     }
 
     /**
@@ -322,6 +329,10 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         this.scheduledDate = scheduledDate;
     }
 
+    public void setScheduledDate(LocalDateTime scheduledDate) {
+        setScheduledDate(Dates.from(scheduledDate));
+    }
+
     // End Date / Time Related Methods th
     @Override
     public JobInstance clone() {
@@ -333,7 +344,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     }
 
     public void fail() {
-        Date completionDate = timeProvider.currentTime();
+        Date completionDate = timeProvider.currentUtilDate();
         completing(JobResult.Failed, completionDate);
         completed(completionDate);
     }

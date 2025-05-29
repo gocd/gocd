@@ -716,7 +716,7 @@ public class ScheduleService {
                 LOGGER.info("[Agent Assignment] Not assigning a completed job [{}] to agent {}", instance.getIdentifier(), agentUuid);
                 return true;
             }
-            instance.assign(agentUuid, timeProvider.currentTime());
+            instance.assign(agentUuid, timeProvider.currentUtilDate());
             jobInstanceService.updateAssignedInfo(instance);
             return false;
         }

@@ -40,7 +40,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.support.TransactionCallback;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -160,7 +160,7 @@ public class JobRerunScheduleServiceTest {
 
         Pipeline pipeline = PipelineMother.passedPipelineInstance("mingle", "compile", "dev");
 
-        Stage lastStage = StageMother.createPassedStage("mingle", 1, "test", 1, "dev", new Date());
+        Stage lastStage = StageMother.createPassedStage("mingle", 1, "test", 1, "dev", Instant.now());
 
         stub(mingleConfig, pipeline, lastStage);
 

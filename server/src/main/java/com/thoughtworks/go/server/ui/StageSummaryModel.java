@@ -17,17 +17,26 @@ package com.thoughtworks.go.server.ui;
 
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
+import org.joda.time.Duration;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class StageSummaryModel {
+    public static final PeriodFormatter PERIOD_FORMATTER = new PeriodFormatterBuilder()
+        .printZeroAlways()
+        .minimumPrintedDigits(2)
+        .appendHours().appendSeparator(":")
+        .appendMinutes().appendSeparator(":")
+        .appendSeconds().toFormatter();
 
     private final Stage stage;
     private final Stages stages;
     private final JobDurationStrategy jobDurationStrategy;
-    private StageIdentifier lastStageIdentifier;
+    private final StageIdentifier lastStageIdentifier;
 
     public StageSummaryModel(Stage stage, Stages stages, JobDurationStrategy jobDurationStrategy, StageIdentifier lastStageIdentifier) {
         this.stage = stage;
@@ -93,10 +102,10 @@ public class StageSummaryModel {
     }
 
     public String getDuration() {
-        return stage.getDuration().duration(RunDuration.PERIOD_FORMATTER);
+        return stage.getDuration().duration(dur -> PERIOD_FORMATTER.print(Duration.standardSeconds(dur.toSeconds()).toPeriod()));
     }
 
-    public RunDuration.ActualDuration getActualDuration(){
+    public RunDuration.ActualDuration getActualDuration() {
         return (RunDuration.ActualDuration) stage.getDuration();
     }
 
@@ -128,7 +137,7 @@ public class StageSummaryModel {
         return summarize(stage.jobsWithResult(JobResult.Unknown).sortByName());
     }
 
-    public boolean isActive(){
+    public boolean isActive() {
         return stage.isActive();
     }
 

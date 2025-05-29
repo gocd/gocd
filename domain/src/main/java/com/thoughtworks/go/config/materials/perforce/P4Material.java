@@ -36,6 +36,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -312,16 +313,17 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
             String p4RepoId = p4RepoId();
             File file = new File(workingDirectory, ".cruise_p4repo");
             if (!file.exists()) {
-                FileUtils.writeStringToFile(file, p4RepoId, UTF_8);
+                workingDirectory.mkdirs();
+                Files.writeString(file.toPath(), p4RepoId, UTF_8);
                 return true;
             }
 
-            String existingRepoId = FileUtils.readFileToString(file, UTF_8);
+            String existingRepoId = Files.readString(file.toPath(), UTF_8);
             if (!p4RepoId.equals(existingRepoId)) {
                 outputConsumer.stdOutput(format("[%s] Working directory has changed. Deleting and re-creating it.", GoConstants.PRODUCT_NAME));
                 FileUtils.deleteDirectory(workingDirectory);
                 workingDirectory.mkdirs();
-                FileUtils.writeStringToFile(file, p4RepoId, UTF_8);
+                Files.writeString(file.toPath(), p4RepoId, UTF_8);
                 cleaned = true;
             }
             return cleaned;

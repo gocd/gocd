@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.Task;
-import org.apache.commons.lang3.ObjectUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -28,6 +27,7 @@ import org.jdom2.output.XMLOutputter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -36,7 +36,7 @@ public class ConfigUtil {
 
 
     public ConfigUtil(String configFile) {
-        this.configFile = ObjectUtils.defaultIfNull(configFile, "<no config file specified>");
+        this.configFile = Objects.toString(configFile, "<no config file specified>");
     }
 
     public static List<String> allTasks(ConfigElementImplementationRegistry registry) {

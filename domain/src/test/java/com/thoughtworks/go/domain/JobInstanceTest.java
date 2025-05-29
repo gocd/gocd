@@ -16,18 +16,19 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.commons.lang3.time.DateUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,8 +52,8 @@ public class JobInstanceTest {
     @Test
     public void shouldDetermineMostRecentPassed() {
         JobInstance oldestPassed = JobInstanceMother.building("oldestPassed");
-        oldestPassed.completing(JobResult.Passed, DateUtils.addHours(new Date(), -1));
-        oldestPassed.completed(DateUtils.addHours(new Date(), -1));
+        oldestPassed.completing(JobResult.Passed, Dates.from(ZonedDateTime.now().minusHours(1)));
+        oldestPassed.completed(Dates.from(ZonedDateTime.now().minusHours(1)));
 
         JobInstance newestPassed = JobInstanceMother.building("newestPassed");
         newestPassed.completing(JobResult.Passed, new Date());
@@ -62,8 +63,8 @@ public class JobInstanceTest {
         assertEquals(newestPassed, oldestPassed.mostRecentPassed(newestPassed));
 
         JobInstance newestFailed = JobInstanceMother.building("newestFailed");
-        newestFailed.completing(JobResult.Failed, DateUtils.addHours(new Date(), +1));
-        newestFailed.completed(DateUtils.addHours(new Date(), +1));
+        newestFailed.completing(JobResult.Failed, Dates.from(ZonedDateTime.now().plusHours(1)));
+        newestFailed.completed(Dates.from(ZonedDateTime.now().plusHours(1)));
 
         assertEquals(newestPassed, newestPassed.mostRecentPassed(newestFailed));
     }
@@ -83,7 +84,7 @@ public class JobInstanceTest {
     @Test
     public void shouldChangeStatus() {
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
-        instance.assign("1234", timeProvider.currentTime());
+        instance.assign("1234", timeProvider.currentUtilDate());
         assertThat(instance.getState()).isEqualTo(JobState.Assigned);
         assertThat(instance.getTransitions().byState(JobState.Assigned)).isNotNull();
     }
@@ -114,11 +115,11 @@ public class JobInstanceTest {
     public void shouldIncreaseElapsedTimeWhileBuilding() {
         JobInstance instance = JobInstanceMother.building("jobConfig1");
         instance.setClock(timeProvider);
-        when(timeProvider.currentTime()).thenReturn(new Date(1000000));
+        when(timeProvider.currentTimeMillis()).thenReturn(1000000L);
         long before = Long.parseLong(instance.getCurrentBuildDuration());
-        when(timeProvider.currentTime()).thenReturn(new Date(5000000));
+        when(timeProvider.currentTimeMillis()).thenReturn(5000000L);
         long after = Long.parseLong(instance.getCurrentBuildDuration());
-        assertTrue(after > before, "after " + after + " should bigger than " + before);
+        assertThat(after).isGreaterThan(before);
     }
 
     @Test
@@ -208,7 +209,7 @@ public class JobInstanceTest {
     public void shouldReturnDateForLatestTransition() {
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
         instance.setClock(timeProvider);
-        when(timeProvider.currentTime()).thenReturn(new DateTime().plusDays(1).toDate());
+        when(timeProvider.currentUtilDate()).thenReturn(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
         instance.completing(JobResult.Passed);
         assertThat(instance.latestTransitionDate()).isAfter(instance.getScheduledDate());
     }
@@ -225,7 +226,7 @@ public class JobInstanceTest {
     public void shouldReturnJobDurationForACompletedJob() {
         int fiveSeconds = 5000;
         JobInstance instance = JobInstanceMother.passed("first", new Date(), fiveSeconds);
-        assertThat(instance.getDuration()).isEqualTo(new RunDuration.ActualDuration(new Duration(5 * fiveSeconds)));
+        assertThat(instance.getDuration()).isEqualTo(new RunDuration.ActualDuration(Duration.ofMillis(5 * fiveSeconds)));
     }
 
     @Test

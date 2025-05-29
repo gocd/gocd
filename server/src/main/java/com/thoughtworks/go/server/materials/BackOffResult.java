@@ -18,21 +18,20 @@ package com.thoughtworks.go.server.materials;
 
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 public class BackOffResult {
     public static BackOffResult PERMIT = new BackOffResult(false, null, null, null);
     public static BackOffResult DENY = new BackOffResult(true, null, null, null);
 
-    private final LocalDateTime lastFailureTime;
-    private final LocalDateTime failureStartTime;
-    private final LocalDateTime nextRetryAttempt;
+    private final Instant lastFailureTime;
+    private final Instant failureStartTime;
+    private final Instant nextRetryAttempt;
     private final boolean backOff;
 
 
-    public BackOffResult(boolean backOff, LocalDateTime failureStartTime, LocalDateTime lastFailureTime,
-                         LocalDateTime nextRetryAttempt) {
+    public BackOffResult(boolean backOff, Instant failureStartTime, Instant lastFailureTime, Instant nextRetryAttempt) {
         this.backOff = backOff;
         this.lastFailureTime = lastFailureTime;
         this.failureStartTime = failureStartTime;

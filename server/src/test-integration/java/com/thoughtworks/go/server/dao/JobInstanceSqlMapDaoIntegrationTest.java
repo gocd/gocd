@@ -41,7 +41,6 @@ import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.assertj.core.api.Assertions;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,12 +50,14 @@ import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Instant;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -103,7 +104,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     private PipelineConfig pipelineConfig;
     private Pipeline savedPipeline;
     private Stage savedStage;
-    private static final Date MOST_RECENT_DATE = new DateTime().plusMinutes(20).toDate();
+    private static final Date MOST_RECENT_DATE = Date.from(Instant.now().plus(20, MINUTES));
     private int counter;
     private static final String OTHER_JOB_NAME = "unit";
     private DefaultSchedulingContext schedulingContext;
@@ -329,7 +330,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
     private JobInstance savedJobForAgent(final String jobName, final String uuid, final boolean runOnAllAgents, final boolean runMultipleInstance) {
         return transactionTemplate.execute(status -> {
-            JobInstance jobInstance = scheduled(jobName, new DateTime().plusMinutes(1).toDate());
+            JobInstance jobInstance = scheduled(jobName, Date.from(Instant.now().plus(1, MINUTES)));
             jobInstance.setRunOnAllAgents(runOnAllAgents);
             jobInstance.setRunMultipleInstance(runMultipleInstance);
             jobInstanceService.save(savedStage.getIdentifier(), stageId, jobInstance);

@@ -25,18 +25,18 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.helper.PipelineHistoryMother;
 import com.thoughtworks.go.junit5.FileSource;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import org.dom4j.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.xmlunit.assertj.XmlAssert;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialsMother.gitMaterial;
-import static com.thoughtworks.go.util.DateUtils.parseISO8601;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.xmlunit.assertj.XmlAssert.assertThat;
@@ -49,8 +49,8 @@ public class PipelineXmlRepresenterTest {
     @BeforeEach
     void setUp() {
         context = new XmlWriterContext("https://go-server/go", null, null);
-        Date scheduledDate = parseISO8601("2019-12-31T15:31:49+05:30");
-        model = PipelineHistoryMother.pipelineInstanceModel("up42", 100, scheduledDate);
+        ZonedDateTime scheduledDate = ZonedDateTime.parse("2019-12-31T15:31:49+05:30");
+        model = PipelineHistoryMother.pipelineInstanceModel("up42", 100, scheduledDate.toInstant());
         GitMaterial gitMaterial = gitMaterial("https://material/example.git");
         gitMaterial.setId(100);
         MaterialRevision materialRevision = new MaterialRevision(gitMaterial, modifications());
@@ -98,7 +98,7 @@ public class PipelineXmlRepresenterTest {
     }
 
     private List<Modification> modifications() {
-        Date date = DateUtils.parseISO8601("2019-12-31T15:31:49+05:30");
+        Date date = Dates.parseIso8601StrictOffset("2019-12-31T15:31:49+05:30");
         return List.of(
             modification(date, "Bob", "Adding build.xml", "3", "build.xml", ModifiedAction.added),
             modification(date, "Sam", "Fixing the not checked in files", "2", "tools/bin/go.jruby", ModifiedAction.added),

@@ -22,41 +22,14 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.io.IOException;
 
 import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.spy;
 
 public class FileUtilTest {
 
     @TempDir
     File folder;
-
-    @Test
-    void shouldUseSpecifiedFolderIfAbsolute() {
-        final File absolutePath = new File("zx").getAbsoluteFile();
-        assertThat(FileUtil.applyBaseDirIfRelative(new File("xyz"), absolutePath)).isEqualTo(absolutePath);
-    }
-
-    @Test
-    void shouldUseSpecifiedFolderIfBaseDirIsEmpty() {
-        assertThat(FileUtil.applyBaseDirIfRelative(new File(""), new File("zx"))).isEqualTo(new File("zx"));
-    }
-
-    @Test
-    void shouldAppendToDefaultIfRelative() {
-        final File relativepath = new File("zx");
-        assertThat(FileUtil.applyBaseDirIfRelative(new File("xyz"), relativepath)).isEqualTo(new File("xyz", relativepath.getPath()));
-    }
-
-    @Test
-    void shouldUseDefaultIfActualIsNull() {
-        final File baseFile = new File("xyz");
-        assertThat(FileUtil.applyBaseDirIfRelative(baseFile, null)).isEqualTo(baseFile);
-    }
 
     @Test
     void shouldDetectSubfolders() throws Exception {
@@ -96,19 +69,8 @@ public class FileUtilTest {
     }
 
     @Test
-    void FolderIsNotEmptyWhenItHasContents() throws Exception {
+    void folderIsNotEmptyWhenItHasContents() throws Exception {
         new File(folder, "subfolder").createNewFile();
         assertThat(FileUtil.isFolderEmpty(folder)).isFalse();
-    }
-
-    @Test
-    void shouldReturnCanonicalPath() throws IOException {
-        assertThat(FileUtil.getCanonicalPath(folder)).isEqualTo(folder.getCanonicalPath());
-        File spyFile = spy(new File("/xyz/non-existent-file"));
-        IOException canonicalPathException = new IOException("Failed to build the canonical path");
-        doThrow(canonicalPathException).when(spyFile).getCanonicalPath();
-        assertThatThrownBy(() -> FileUtil.getCanonicalPath(spyFile))
-                .isExactlyInstanceOf(RuntimeException.class)
-                .hasCause(canonicalPathException);
     }
 }

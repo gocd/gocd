@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +127,7 @@ public class ZipUtil {
             return;
         }
         try {
-            outputFile.getParentFile().mkdirs();
+            FileUtil.mkdirsParentQuietly(outputFile);
             try (FileOutputStream os = new FileOutputStream(outputFile)) {
                 entryInputStream.transferTo(os);
                 if (zipEntryHandler != null) {
@@ -159,7 +158,7 @@ public class ZipUtil {
         ZipEntry zipEntry = zipInputStream.getNextEntry();
         while (zipEntry != null) {
             if (new File(zipEntry.getName()).getName().equals(file)) {
-                return IOUtils.toString(zipInputStream, UTF_8);
+                return new String(zipInputStream.readAllBytes(), UTF_8);
             }
             zipEntry = zipInputStream.getNextEntry();
         }

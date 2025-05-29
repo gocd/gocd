@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.agent;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
@@ -31,7 +30,7 @@ public class ResponseHelpers {
 
     public static String readBodyAsString(HttpResponse response) throws IOException {
         try (InputStream responseBody = bodyStream(response)) {
-            return IOUtils.toString(responseBody, StandardCharsets.UTF_8);
+            return new String(responseBody.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 

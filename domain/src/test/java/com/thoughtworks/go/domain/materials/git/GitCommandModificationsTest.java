@@ -21,10 +21,9 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.command.CommandLineException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -35,10 +34,11 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.REVISION_4;
-import static com.thoughtworks.go.util.DateUtils.parseRFC822;
+import static com.thoughtworks.go.util.Dates.parseRFC822;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
@@ -228,7 +228,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
     @Test
     void shouldIncludeChangesFromTheFutureInModificationCheck() throws Exception {
         String originalNode = git.latestModification().get(0).getRevision();
-        Date threeDaysFromNow = new Date(Instant.now().plus(3, ChronoUnit.DAYS).with(ChronoField.NANO_OF_SECOND, 0).toEpochMilli());
+        Date threeDaysFromNow = Date.from(Instant.now().plus(3, ChronoUnit.DAYS).with(ChronoField.NANO_OF_SECOND, 0));
         File testingFile = checkInNewRemoteFileInFuture(threeDaysFromNow);
 
         Modification modification = git.latestModification().get(0);
@@ -251,8 +251,8 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
     @Test
     void shouldParseGitOutputCorrectly() throws IOException {
         List<String> stringList;
-        try (InputStream resourceAsStream = getClass().getResourceAsStream("git_sample_output.text")) {
-            stringList = IOUtils.readLines(resourceAsStream, UTF_8);
+        try (InputStream resourceAsStream = Objects.requireNonNull(getClass().getResourceAsStream("git_sample_output.text"))) {
+            stringList = new String(resourceAsStream.readAllBytes(), UTF_8).lines().toList();
         }
 
         GitModificationParser parser = new GitModificationParser();
@@ -261,17 +261,17 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
 
         Modification mod = mods.get(2);
         assertEquals("46cceff864c830bbeab0a7aaa31707ae2302762f", mod.getRevision());
-        assertEquals(DateUtils.parseISO8601("2009-08-11 12:37:09 -0700"), mod.getModifiedTime());
+        assertEquals(Dates.parseIso8601StrictOffset("2009-08-11T12:37:09-07:00"), mod.getModifiedTime());
         assertEquals("Cruise Developer <cruise@cruise-sf3.(none)>", mod.getUserDisplayName());
         final String expected = """
             author:cruise <cceuser@CceDev01.(none)>
             node:ecfab84dd4953105e3301c5992528c2d381c1b8a
-            date:2008-12-31 14:32:40 +0800
+            date:2008-12-31T14:32:40+08:00
             description:Moving rakefile to build subdirectory for #2266
 
             author:CceUser <cceuser@CceDev01.(none)>
             node:fd16efeb70fcdbe63338c49995ce9ff7659e6e77
-            date:2008-12-31 14:17:06 +0800
+            date:2008-12-31T14:17:06+08:00
             description:Adding rakefile""";
         assertEquals(expected, mod.getComment());
     }

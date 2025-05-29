@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -157,7 +158,7 @@ public class GitCommandSubmodulesTest extends GitCommandIntegrationTestBase {
         clonedCopy.clone(outputStreamConsumer, submoduleRepos.mainRepo().urlForCommandLine()); // Clone repository without submodules
         clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"), false);  // Pull submodules to working copy - Pipeline counter 1
         File unversionedFile = new File(new File(cloneDirectory, submoduleDirectoryName), "unversioned_file.txt");
-        FileUtils.writeStringToFile(unversionedFile, "this is an unversioned file. lets see you deleting me.. come on.. I dare you!!!!", UTF_8);
+        Files.writeString(unversionedFile.toPath(), "this is an unversioned file. lets see you deleting me.. come on.. I dare you!!!!", UTF_8);
 
         clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"), false); // Should clean unversioned file on next fetch - Pipeline counter 2
 
@@ -180,7 +181,7 @@ public class GitCommandSubmodulesTest extends GitCommandIntegrationTestBase {
 
         /* Simulate a local modification of file inside submodule, on agent side. */
         File fileInSubmodule = allFilesIn(new File(cloneDirectory, submoduleDirectoryName)).get(0);
-        FileUtils.writeStringToFile(fileInSubmodule, "Some other new content.", UTF_8);
+        Files.writeString(fileInSubmodule.toPath(), "Some other new content.", UTF_8);
 
         /* Commit a change to the file on the repo. */
         List<Modification> modifications = submoduleRepos.modifyOneFileInSubmoduleAndUpdateMainRepo(
@@ -190,7 +191,7 @@ public class GitCommandSubmodulesTest extends GitCommandIntegrationTestBase {
         clonedCopy.fetch(outputStreamConsumer);
         clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision(modifications.get(0).getRevision()), false);
 
-        assertEquals("NEW CONTENT OF FILE", FileUtils.readFileToString(fileInSubmodule, UTF_8));
+        assertEquals("NEW CONTENT OF FILE", Files.readString(fileInSubmodule.toPath(), UTF_8));
     }
 
     @Test

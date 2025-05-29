@@ -16,13 +16,13 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.remote.work.artifact.PluggableArtifactMetadata;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,7 +66,7 @@ public class PluggableArtifactMetadataTest {
         pluggableArtifactMetadata.write(workingDirectory);
 
         final File jsonFile = new File(workingDirectory.listFiles()[0], "cd.go.docker-registry.json");
-        final String fileContent = FileUtils.readFileToString(jsonFile, StandardCharsets.UTF_8);
+        final String fileContent = Files.readString(jsonFile.toPath(), StandardCharsets.UTF_8);
 
         assertThat(fileContent).isEqualTo("{\"alpine\":{\"image\":\"alpine\"},\"centos\":{\"image\":\"centos\"}}");
     }

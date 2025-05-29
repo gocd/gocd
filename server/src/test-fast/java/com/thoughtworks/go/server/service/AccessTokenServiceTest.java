@@ -165,7 +165,7 @@ class AccessTokenServiceTest {
             final Map<Long, Timestamp> argument = argumentCaptor.getValue();
             assertThat(argument)
                     .hasSize(1)
-                    .containsEntry(100L, clock.currentTimestamp());
+                    .containsEntry(100L, clock.currentSqlTimestamp());
         }
     }
 
@@ -195,7 +195,7 @@ class AccessTokenServiceTest {
             final Map<Long, Timestamp> argument = argumentCaptor.getValue();
             assertThat(argument)
                     .hasSize(1)
-                    .containsEntry(100L, clock.currentTimestamp());
+                    .containsEntry(100L, clock.currentSqlTimestamp());
         }
     }
 

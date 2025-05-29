@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -65,9 +63,9 @@ public class ZipUtilTest {
         childDir1 = new File(srcDir, "_child1");
         childDir1.mkdir();
         file1 = new File(srcDir, "_file1");
-        FileUtils.writeStringToFile(file1, "_file1", UTF_8);
+        Files.writeString(file1.toPath(), "_file1", UTF_8);
         file2 = new File(childDir1, "_file2");
-        FileUtils.writeStringToFile(file2, "_file2", UTF_8);
+        Files.writeString(file2.toPath(), "_file2", UTF_8);
         zipUtil = new ZipUtil();
     }
 
@@ -138,7 +136,7 @@ public class ZipUtilTest {
     @EnabledOnOs(OS.LINUX)
     void shouldZipFileWhoseNameHasSpecialCharactersOnLinux() throws IOException {
         File specialFile = new File(srcDir, "$`#?@!()?-_{}^'~.+=[];,a.txt");
-        FileUtils.writeStringToFile(specialFile, "specialFile", UTF_8);
+        Files.writeString(specialFile.toPath(), "specialFile", UTF_8);
 
         zipFile = zipUtil.zip(srcDir, createFileInTempDir(), Deflater.NO_COMPRESSION);
         zipUtil.unzip(zipFile, destDir);
@@ -151,7 +149,7 @@ public class ZipUtilTest {
 
     @Test
     void shouldReadContentsOfAFileWhichIsInsideAZip() throws Exception {
-        FileUtils.writeStringToFile(new File(srcDir, "some-file.txt"), "some-text-here", UTF_8);
+        Files.writeString(new File(srcDir, "some-file.txt").toPath(), "some-text-here", UTF_8);
         zipFile = zipUtil.zip(srcDir, createFileInTempDir(), Deflater.NO_COMPRESSION);
 
         try (ZipInputStream zip = new ZipInputStream(new FileInputStream(zipFile))) {
@@ -163,12 +161,12 @@ public class ZipUtilTest {
     @Test
     void shouldZipMultipleFolderContentsAndExcludeRootDirectory() throws IOException {
         File folderOne = createDirectoryInTempDir("a-folder1");
-        FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1", UTF_8);
-        FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2", UTF_8);
+        Files.writeString(new File(folderOne, "folder1-file1.txt").toPath(), "folder1-file1", UTF_8);
+        Files.writeString(new File(folderOne, "folder1-file2.txt").toPath(), "folder1-file2", UTF_8);
 
         File folderTwo = createDirectoryInTempDir("a-folder2");
-        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1", UTF_8);
-        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2", UTF_8);
+        Files.writeString(new File(folderTwo, "folder2-file1.txt").toPath(), "folder2-file1", UTF_8);
+        Files.writeString(new File(folderTwo, "folder2-file2.txt").toPath(), "folder2-file2", UTF_8);
 
         File targetZipFile = tempDir.resolve("final1.zip").toFile();
 
@@ -191,12 +189,12 @@ public class ZipUtilTest {
     void shouldZipMultipleFolderContentsWhenNotExcludingRootDirectory() throws IOException {
 
         File folderOne = createDirectoryInTempDir("folder1");
-        FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1", UTF_8);
-        FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2", UTF_8);
+        Files.writeString(new File(folderOne, "folder1-file1.txt").toPath(), "folder1-file1", UTF_8);
+        Files.writeString(new File(folderOne, "folder1-file2.txt").toPath(), "folder1-file2", UTF_8);
 
         File folderTwo = createDirectoryInTempDir("folder2");
-        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1", UTF_8);
-        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2", UTF_8);
+        Files.writeString(new File(folderTwo, "folder2-file1.txt").toPath(), "folder2-file1", UTF_8);
+        Files.writeString(new File(folderTwo, "folder2-file2.txt").toPath(), "folder2-file2", UTF_8);
 
         File targetZipFile = tempDir.resolve("final2.zip").toFile();
 
@@ -254,7 +252,7 @@ public class ZipUtilTest {
             ZipEntry entry = actualZip.getEntry(file);
             assertThat(entry).isNotNull();
             try (InputStream entryStream = actualZip.getInputStream(entry)) {
-                assertThat(IOUtils.toString(entryStream, UTF_8)).isEqualTo(expectedContent);
+                assertThat(new String(entryStream.readAllBytes(), UTF_8)).isEqualTo(expectedContent);
             }
         }
     }

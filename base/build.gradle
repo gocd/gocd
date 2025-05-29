@@ -22,9 +22,6 @@ dependencies {
   compileOnly project.deps.bouncyCastlePkix
 
   api project.deps.slf4jApi
-  api project.deps.jodaTime
-
-  implementation project.deps.commonsIO
 
   api(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')

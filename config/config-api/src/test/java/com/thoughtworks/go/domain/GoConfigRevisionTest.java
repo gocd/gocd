@@ -37,7 +37,7 @@ public class GoConfigRevisionTest {
     public void setup() {
         timeProvider = mock(TimeProvider.class);
         date = new Date();
-        when(timeProvider.currentTime()).thenReturn(date);
+        when(timeProvider.currentUtilDate()).thenReturn(date);
     }
 
     @Test

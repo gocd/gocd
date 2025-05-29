@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
@@ -127,7 +128,7 @@ public class CcTrayBreakersCalculatorTest {
         revision.markAsChanged();
 
         CcTrayBreakersCalculator status = new CcTrayBreakersCalculator(materialRepo);
-        Set<String> actualBreakers = status.calculateFor(StageMother.createPassedStage("pipeline1", 1, "stage1", 1, "job1", new Date()));
+        Set<String> actualBreakers = status.calculateFor(StageMother.createPassedStage("pipeline1", 1, "stage1", 1, "job1", Instant.now()));
 
 
         assertThat(actualBreakers).isEqualTo(Collections.<String>emptySet());

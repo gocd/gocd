@@ -21,9 +21,10 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
-import org.joda.time.DateTime;
+import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -83,8 +84,8 @@ public class SCMDependencyNodeTest {
     @Test
     public void revisionsShouldFetchRevisionsFromMaterialRevisionSorted() {
         ScmMaterial gitMaterial = MaterialsMother.gitMaterial("/url/for/repo");
-        Modification twoDaysAgo = ModificationsMother.oneModifiedFile("rev1", new DateTime().minusDays(2).toDate());
-        Modification yesterday = ModificationsMother.oneModifiedFile("rev2", new DateTime().minusDays(1).toDate());
+        Modification twoDaysAgo = ModificationsMother.oneModifiedFile("rev1", Dates.from(ZonedDateTime.now().minusDays(2)));
+        Modification yesterday = ModificationsMother.oneModifiedFile("rev2", Dates.from(ZonedDateTime.now().minusDays(1)));
         Modification today = ModificationsMother.oneModifiedFile("rev3", new Date());
 
         SCMDependencyNode node = new SCMDependencyNode("nodeID", "nodeName", "GIT");

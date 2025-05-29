@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.util.ServletHelper;
-import org.apache.commons.io.IOUtils;
+import com.thoughtworks.go.util.TestFileUtil;
 import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpInput;
@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Optional;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.Mockito.*;
 
 public class BackupFilterTest {
@@ -96,8 +95,7 @@ public class BackupFilterTest {
         when(backupService.backupRunningSinceISO8601()).thenReturn(BACKUP_STARTED_AT);
         when(backupService.backupStartedBy()).thenReturn(BACKUP_STARTED_BY);
 
-        String content = IOUtils.toString(BackupFilter.class.getClassLoader().getResource("backup_in_progress.html"), UTF_8);
-        content = backupFilter.replaceStringLiterals(content);
+        String content = backupFilter.replaceStringLiterals(TestFileUtil.resourceToString("/backup_in_progress.html"));
         Request request = request(HttpMethod.GET, "", "/go/agents");
 
         backupFilter.doFilter(request, res, chain);

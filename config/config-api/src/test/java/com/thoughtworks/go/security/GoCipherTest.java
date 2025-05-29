@@ -16,7 +16,6 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +25,7 @@ import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
@@ -70,8 +70,8 @@ public class GoCipherTest {
 
         GoCipher goCipher = new GoCipher(Encrypter.from(systemEnvironment));
 
-        FileUtils.deleteQuietly(desCipherFile);
-        FileUtils.deleteQuietly(aesCipherFile);
+        Files.deleteIfExists(desCipherFile.toPath());
+        Files.deleteIfExists(aesCipherFile.toPath());
 
         assertThat(desCipherFile).doesNotExist();
         assertThat(aesCipherFile).doesNotExist();

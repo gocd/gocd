@@ -76,7 +76,7 @@ public class MaterialRevisionBuilder {
         String key = key(pipelineName, counter, modifiedTime);
         if (!instanceToRevision.containsKey(key)) {
             if (buildCause.length == 0) {
-                throw new RuntimeException("Cannot create instance without a buildcause. You can retrive it without buildcause once it has been created");
+                throw new RuntimeException("Cannot create instance without a buildcause. You can retrieve it without buildcause once it has been created");
             }
             DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(STAGE_NAME));
             DependencyMaterialRevision revision = DependencyMaterialRevision.create(pipelineName, counter, "label", STAGE_NAME, 1);

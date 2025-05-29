@@ -21,13 +21,13 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.EnumerationUtils;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipFile;
@@ -135,7 +135,7 @@ class PluginsZipTest {
     void shouldUpdateChecksumIfFileIsReCreated() throws Exception {
         pluginsZip.create();
         String oldMd5 = pluginsZip.md5();
-        FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), UUID.randomUUID().toString(), UTF_8);
+        Files.writeString(new File(externalPluginsDir, "external-task-1.jar").toPath(), UUID.randomUUID().toString(), UTF_8);
         pluginsZip.create();
         assertThat(pluginsZip.md5()).isNotEqualTo(oldMd5);
     }
@@ -147,7 +147,7 @@ class PluginsZipTest {
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginsDir.getAbsolutePath());
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn("");
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
-        FileUtils.writeStringToFile(new File(bundledPluginsDir, "bundled-task-1.jar"), "Bundled1", UTF_8);
+        Files.writeString(new File(bundledPluginsDir, "bundled-task-1.jar").toPath(), "Bundled1", UTF_8);
 
         PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, pluginManager);
         assertThatCode(pluginsZipFail::create)
@@ -160,7 +160,7 @@ class PluginsZipTest {
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("");
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
-        FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), "External1", UTF_8);
+        Files.writeString(new File(externalPluginsDir, "external-task-1.jar").toPath(), "External1", UTF_8);
 
         PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, pluginManager);
         assertThatCode(pluginsZipFail::create)
@@ -173,7 +173,7 @@ class PluginsZipTest {
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("/dummy");
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
-        FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), "External1", UTF_8);
+        Files.writeString(new File(externalPluginsDir, "external-task-1.jar").toPath(), "External1", UTF_8);
 
         PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, pluginManager);
         assertThatCode(pluginsZipFail::create)
@@ -259,7 +259,7 @@ class PluginsZipTest {
 
     private File createPluginFile(File pluginsDir, String pluginJarFileName, String contents) throws IOException {
         File bundledTask1Jar = new File(pluginsDir, pluginJarFileName);
-        FileUtils.writeStringToFile(bundledTask1Jar, contents, UTF_8);
+        Files.writeString(bundledTask1Jar.toPath(), contents, UTF_8);
         return bundledTask1Jar;
     }
 }

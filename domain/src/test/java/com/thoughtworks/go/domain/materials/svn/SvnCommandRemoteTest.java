@@ -30,6 +30,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -298,7 +299,7 @@ public class SvnCommandRemoteTest {
     public void shouldMaskPassword_commit() throws IOException {
         command.checkoutTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
         File newFile = new File(workingDir.getAbsolutePath() + "/foo");
-        FileUtils.writeStringToFile(newFile, "content", UTF_8);
+        Files.writeString(newFile.toPath(), "content", UTF_8);
         command.add(outputStreamConsumer, newFile);
 
         try {

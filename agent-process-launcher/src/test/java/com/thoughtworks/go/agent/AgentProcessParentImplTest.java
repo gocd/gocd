@@ -24,7 +24,6 @@ import com.thoughtworks.go.agent.testhelper.GoTestResource;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.LogFixture;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -33,6 +32,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
@@ -49,8 +50,8 @@ public class AgentProcessParentImplTest {
     @GoTestResource
     public FakeGoServer server;
 
-    private final File stderrLog = new File("logs", AgentProcessParentImpl.GO_AGENT_STDERR_LOG);
-    private final File stdoutLog = new File("logs", AgentProcessParentImpl.GO_AGENT_STDOUT_LOG);
+    private final Path stderrLog = Path.of("logs", AgentProcessParentImpl.GO_AGENT_STDERR_LOG);
+    private final Path stdoutLog = Path.of("logs", AgentProcessParentImpl.GO_AGENT_STDOUT_LOG);
 
     @BeforeAll
     public static void setup() {
@@ -58,24 +59,24 @@ public class AgentProcessParentImplTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         cleanup();
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws IOException {
         System.clearProperty("sleep.for.download");
-        FileUtils.deleteQuietly(stdoutLog);
-        FileUtils.deleteQuietly(stderrLog);
+        Files.deleteIfExists(stdoutLog);
+        Files.deleteIfExists(stderrLog);
 
         cleanup();
     }
 
-    private void cleanup() {
-        FileUtils.deleteQuietly(AGENT_BINARY_JAR);
-        FileUtils.deleteQuietly(AGENT_PLUGINS_ZIP);
-        FileUtils.deleteQuietly(AGENT_LAUNCHER_JAR);
-        FileUtils.deleteQuietly(TFS_IMPL_JAR);
+    private void cleanup() throws IOException {
+        Files.deleteIfExists(AGENT_BINARY_JAR.toPath());
+        Files.deleteIfExists(AGENT_PLUGINS_ZIP.toPath());
+        Files.deleteIfExists(AGENT_LAUNCHER_JAR.toPath());
+        Files.deleteIfExists(TFS_IMPL_JAR.toPath());
     }
 
     @Test
@@ -303,8 +304,8 @@ public class AgentProcessParentImplTest {
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd, subProcess);
         int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<>(), context());
         assertThat(returnCode).isEqualTo(42);
-        assertThat(FileUtils.readFileToString(stderrLog, UTF_8).contains(stdErrMsg)).isEqualTo(true);
-        assertThat(FileUtils.readFileToString(stdoutLog, UTF_8).contains(stdOutMsg)).isEqualTo(true);
+        assertThat(Files.readString(stderrLog, UTF_8).contains(stdErrMsg)).isEqualTo(true);
+        assertThat(Files.readString(stdoutLog, UTF_8).contains(stdOutMsg)).isEqualTo(true);
     }
 
     @Test
@@ -376,7 +377,7 @@ public class AgentProcessParentImplTest {
     }
 
     private File randomFile(final File pathname) throws IOException {
-        FileUtils.write(pathname, "some rubbish", StandardCharsets.UTF_8);
+        Files.writeString(pathname.toPath(), "some rubbish", StandardCharsets.UTF_8);
         return pathname;
     }
 

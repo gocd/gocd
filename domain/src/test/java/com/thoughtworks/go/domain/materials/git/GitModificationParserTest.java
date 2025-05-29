@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain.materials.git;
 
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +27,7 @@ public class GitModificationParserTest {
     private void simulateOneComment() {
         parser.processLine("commit 4e55d27dc7aad26dadb02a33db0518cb5ec54888");
         parser.processLine("Author: Cruise Developer <cruise@cruise-sf3.(none)>");
-        parser.processLine("Date:   2009-08-11 13:08:51 -0700");
+        parser.processLine("Date:   2009-08-11T13:08:51-07:00");
     }
 
     @Test
@@ -46,7 +46,7 @@ public class GitModificationParserTest {
     public void shouldHaveCommitDate() {
         simulateOneComment();
         assertThat(
-                parser.getModifications().get(0).getModifiedTime()).isEqualTo(DateUtils.parseISO8601("2009-08-11 13:08:51 -0700"));
+                parser.getModifications().get(0).getModifiedTime()).isEqualTo(Dates.parseIso8601StrictOffset("2009-08-11T13:08:51-07:00"));
     }
 
     @Test

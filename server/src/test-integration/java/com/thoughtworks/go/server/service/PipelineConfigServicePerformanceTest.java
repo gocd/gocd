@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,8 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -234,7 +233,7 @@ public class PipelineConfigServicePerformanceTest {
     private void setupPipelines(Integer numberOfPipelinesToBeCreated) throws Exception {
         String groupName = "jumbo";
         String configFile = "<FULL PATH TO YOUR CONFIG FILE>";
-        String xml = FileUtils.readFileToString(new File(configFile), UTF_8);
+        String xml = Files.readString(Path.of(configFile), UTF_8);
         xml = goConfigMigration.upgradeIfNecessary(xml);
         goConfigService.fileSaver(false).saveConfig(xml, goConfigService.getConfigForEditing().getMd5());
         LOGGER.info("Total number of pipelines in this config: " + goConfigService.getConfigForEditing().allPipelines().size());

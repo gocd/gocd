@@ -21,8 +21,6 @@ import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemUtil;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.NullInputStream;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.RequestBuilder;
@@ -170,8 +168,8 @@ public class SslInfrastructureService {
         }
 
         private String responseBody(CloseableHttpResponse response) throws IOException {
-            try (InputStream is = response.getEntity() == null ? new NullInputStream(0) : response.getEntity().getContent()) {
-                return IOUtils.toString(is, StandardCharsets.UTF_8);
+            try (InputStream is = response.getEntity() == null ? InputStream.nullInputStream() : response.getEntity().getContent()) {
+                return new String(is.readAllBytes(), StandardCharsets.UTF_8);
             }
         }
 

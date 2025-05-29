@@ -82,7 +82,7 @@ class ModificationsRepresenterTest {
     void setUp() {
       for (int i = 6; i >= 2; i--) {
 
-        def mod = new Modification("user", "comment: " + i, "email", new Date(now().minus(1, HOURS).toEpochMilli()), "revision: " + i)
+        def mod = new Modification("user", "comment: " + i, "email", Date.from(now().minus(1, HOURS)), "revision: " + i)
         mod.id = i
         mods.add(mod)
         modsJson.add(toObject({ ModificationRepresenter.toJSON(it, mod) }))

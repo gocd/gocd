@@ -18,13 +18,15 @@ package com.thoughtworks.go.apiv2.compare.representers
 import com.thoughtworks.go.helper.StageMother
 import org.junit.jupiter.api.Test
 
+import java.time.Instant
+
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class StageInstanceModelRepresenterTest {
   @Test
   void 'should deserialize into json'() {
-    def date = new Date()
+    def date = Instant.now()
     def stage = StageMother.passedStageInstance("pipelineName", "stageName", 4, "buildName", date)
     def stageInstanceModel = StageMother.toStageInstanceModel(stage)
 
@@ -47,7 +49,7 @@ class StageInstanceModelRepresenterTest {
 
   @Test
   void 'should not add result if null'() {
-    def date = new Date()
+    def date = Instant.now()
     def stage = StageMother.passedStageInstance("pipelineName", "stageName", 4, "buildName", date)
     def stageInstanceModel = StageMother.toStageInstanceModel(stage)
     stageInstanceModel.result = null
@@ -70,7 +72,7 @@ class StageInstanceModelRepresenterTest {
 
   @Test
   void 'should add rerun_of_counter if not null'() {
-    def date = new Date()
+    def date = Instant.now()
     def stage = StageMother.passedStageInstance("pipelineName", "stageName", 4, "buildName", date)
     def stageInstanceModel = StageMother.toStageInstanceModel(stage)
     stageInstanceModel.setRerunOfCounter(3)

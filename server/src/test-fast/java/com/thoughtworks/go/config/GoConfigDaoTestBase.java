@@ -26,10 +26,10 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
@@ -301,8 +301,7 @@ public abstract class GoConfigDaoTestBase {
         goConfigDao.addPipeline(pipelineConfig2, DEFAULT_GROUP);
 
         goConfigDao.load();
-        final File configFile = new File(goConfigDao.fileLocation());
-        final String content = FileUtils.readFileToString(configFile, UTF_8);
+        final String content = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
         final int indexOfSecond = content.indexOf("addedSecond");
         final int indexOfFirst = content.indexOf("addedFirst");
         assertThat(indexOfSecond).isNotEqualTo(-1);
@@ -347,7 +346,7 @@ public abstract class GoConfigDaoTestBase {
     @Test
     public void shouldNotConfigMultipleTrackingTools() {
         try {
-            FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS, UTF_8);
+            Files.writeString(Path.of(goConfigDao.fileLocation()), INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS, UTF_8);
             goConfigDao.forceReload();
         } catch (Exception e) {
             assertThat(e.getMessage()).contains("Invalid content was found starting with element 'trackingtool'. One of '{timer, environmentvariables, dependencies, materials}");

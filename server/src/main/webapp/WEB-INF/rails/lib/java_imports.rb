@@ -24,8 +24,7 @@ module JavaImports
   java_import com.thoughtworks.go.server.service.result.HttpOperationResult unless defined? HttpOperationResult
 
   java_import com.thoughtworks.go.util.SystemEnvironment unless defined? SystemEnvironment
-  java_import com.thoughtworks.go.util.TimeConverter unless defined? TimeConverter
-  java_import com.thoughtworks.go.util.DateUtils unless defined? DateUtils
+  java_import com.thoughtworks.go.util.Dates unless defined? Dates
   java_import com.thoughtworks.go.util.GoConstants unless defined? GoConstants
   java_import com.thoughtworks.go.plugin.domain.common.PluginConstants unless defined? PluginConstants
 

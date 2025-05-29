@@ -102,7 +102,7 @@ public class PipelineLabelCorrectorIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveAllEntriesForPipelineCounterFromDbIfThePipelineDoesnotBelongToConfigAnymoreAndThereWereNoPipelineRunsForThatPipelineButDuplicatesWereFound() {
+    public void shouldRemoveAllEntriesForPipelineCounterFromDbIfThePipelineDoesNotBelongToConfigAnymoreAndThereWereNoPipelineRunsForThatPipelineButDuplicatesWereFound() {
         // Such a scenario could be created in pre 18.4 world when the pipeline was recreated with different cases via the API or the UI which causes the pipeline to be paused by default. Pipeline pause information is stored in the same table.
         String pipelineName = "Pipeline-Name";
         configHelper.addPipeline(pipelineName, "stage-name");
@@ -120,7 +120,7 @@ public class PipelineLabelCorrectorIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbIfThePipelineDoesnotBelongToConfigAnymoreAndLeaveOutTheOneThatMatchesTheCaseOfLatestPipelineRun() {
+    public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbIfThePipelineDoesNotBelongToConfigAnymoreAndLeaveOutTheOneThatMatchesTheCaseOfLatestPipelineRun() {
         // Such a scenario could be created in pre 18.4 world when the pipeline was recreated with different cases, and has had a few runs after which it was deleted
         String pipelineName = "Pipeline-Name";
         SvnMaterial svn = scheduleUtil.wf(new SvnMaterial("svn", "username", "password", false), "folder1");

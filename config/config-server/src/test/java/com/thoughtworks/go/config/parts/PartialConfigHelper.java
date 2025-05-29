@@ -18,10 +18,10 @@ package com.thoughtworks.go.config.parts;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.util.FileUtil;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -46,7 +46,7 @@ public class PartialConfigHelper {
 
     public File addFileWithPartialConfig(String relativePath, PartialConfig partialConfig) throws Exception {
         File dest = new File(directory, relativePath);
-        FileUtil.createParentFolderIfNotExist(dest);
+        FileUtil.mkdirsParentQuietly(dest);
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setGroup(partialConfig.getGroups());
@@ -60,9 +60,9 @@ public class PartialConfigHelper {
 
     public File writeFileWithContent(String relativePath, String content) throws Exception {
         File dest = new File(directory, relativePath);
-        FileUtil.createParentFolderIfNotExist(dest);
+        FileUtil.mkdirsParentQuietly(dest);
 
-        FileUtils.writeStringToFile(dest, content, UTF_8);
+        Files.writeString(dest.toPath(), content, UTF_8);
         return dest;
     }
 

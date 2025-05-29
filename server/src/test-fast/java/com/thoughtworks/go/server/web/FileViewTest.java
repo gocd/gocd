@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.ZipUtil;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -28,6 +27,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +60,7 @@ public class FileViewTest {
         view = new FileView();
         view.setServletContext(mockServletContext);
         file = newFile(tempDir.resolve("file.txt"));
-        FileUtils.writeStringToFile(file, "hello", UTF_8);
+        Files.writeString(file.toPath(), "hello", UTF_8);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class FileViewTest {
         File unzipHere = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         new ZipUtil().unzip(
                 new ZipInputStream(new ByteArrayInputStream(mockResponse.getContentAsByteArray())), unzipHere);
-        assertEquals(FileUtils.readFileToString(new File(unzipHere, file.getName()), UTF_8), "hello");
+        assertEquals(Files.readString(new File(unzipHere, file.getName()).toPath(), UTF_8), "hello");
     }
 
     @Test

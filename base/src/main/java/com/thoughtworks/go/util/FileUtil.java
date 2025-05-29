@@ -15,11 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -28,7 +23,6 @@ import java.util.UUID;
 public class FileUtil {
     public static final String TMP_PARENT_DIR = "data";
     private static final String CRUISE_TMP_FOLDER = "cruise" + "-" + UUID.randomUUID();
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
 
     private FileUtil() {}
 
@@ -40,42 +34,22 @@ public class FileUtil {
         return files == null || files.length == 0;
     }
 
-    public static String applyBaseDirIfRelativeAndNormalize(File baseDir, File actualFileToUse) {
-        return FilenameUtils.separatorsToUnix(applyBaseDirIfRelative(baseDir, actualFileToUse).getPath());
-    }
-
-    public static File applyBaseDirIfRelative(File baseDir, File actualFileToUse) {
-        if (actualFileToUse == null) {
-            return baseDir;
-        }
-        if (actualFileToUse.isAbsolute()) {
-            return actualFileToUse;
-        }
-
-        if (baseDir.getPath().isBlank()) {
-            return actualFileToUse;
-        }
-
-        return new File(baseDir, actualFileToUse.getPath());
-
-    }
-
-    public static void validateAndCreateDirectory(File directory) {
-        if (directory.exists()) {
-            return;
-        }
-        try {
-            FileUtils.forceMkdir(directory);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create folder: " + directory.getAbsolutePath());
-        }
-    }
-
+    /**
+     * Makes parent directories, ignoring if it already exists
+     */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void createParentFolderIfNotExist(File file) {
-        File parentFile = file.getParentFile();
-        if (parentFile != null && !parentFile.exists()) {
-            parentFile.mkdirs();
+    public static void mkdirsParentQuietly(File file) {
+        File directory = file.getParentFile();
+        mkdirsQuietly(directory);
+    }
+
+    /**
+     * Makes directories, ignoring if null or already exists
+     */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private static void mkdirsQuietly(File directory) {
+        if (directory != null && !directory.exists()) {
+            directory.mkdirs();
         }
     }
 
@@ -122,34 +96,6 @@ public class FileUtil {
             throw new RuntimeException("FileUtil#createTempFolder - Could not create temp folder");
         }
         return dir;
-    }
-
-    public static String getCanonicalPath(File workDir) {
-        try {
-            return workDir.getCanonicalPath();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void deleteDirectoryNoisily(File defaultDirectory) {
-        if (!defaultDirectory.exists()) {
-            return;
-        }
-
-        try {
-            FileUtils.deleteDirectory(defaultDirectory);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete directory: " + defaultDirectory.getAbsolutePath(), e);
-        }
-    }
-
-    public static String join(File defaultWorkingDir, String actualFileToUse) {
-        if (actualFileToUse == null) {
-            LOGGER.trace("Using the default Directory->{}", defaultWorkingDir);
-            return FilenameUtils.separatorsToUnix(defaultWorkingDir.getPath());
-        }
-        return applyBaseDirIfRelativeAndNormalize(defaultWorkingDir, new File(actualFileToUse));
     }
 }
 

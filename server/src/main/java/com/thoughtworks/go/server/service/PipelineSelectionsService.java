@@ -49,7 +49,7 @@ public class PipelineSelectionsService {
     public long save(String id, Long userId, Filters filters) {
 
         PipelineSelections pipelineSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
-        pipelineSelections.update(filters, clock.currentTime(), userId);
+        pipelineSelections.update(filters, clock.currentUtilDate(), userId);
 
         return pipelineRepository.saveSelectedPipelines(pipelineSelections);
     }
@@ -66,7 +66,7 @@ public class PipelineSelectionsService {
         PipelineSelections pipelineSelections = loadByIdOrUserId(id, userId);
 
         if (pipelineSelections == null) {
-            return new PipelineSelections(Filters.defaults(), clock.currentTime(), userId);
+            return new PipelineSelections(Filters.defaults(), clock.currentUtilDate(), userId);
         }
 
         return pipelineSelections;

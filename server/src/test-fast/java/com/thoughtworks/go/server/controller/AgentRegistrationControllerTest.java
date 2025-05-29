@@ -26,8 +26,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,17 +35,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Base64;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -77,7 +70,7 @@ public class AgentRegistrationControllerTest {
         goConfigService = mock(GoConfigService.class);
         ephemeralAutoRegisterKeyService = mock(EphemeralAutoRegisterKeyService.class);
         pluginZipFile = Files.createFile(temporaryFolder.resolve("plugins.zip")).toFile();
-        FileUtils.writeStringToFile(pluginZipFile, "content", UTF_8);
+        Files.writeString(pluginZipFile.toPath(), "content", UTF_8);
         when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
         when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn("");
         pluginsZip = mock(PluginsZip.class);
@@ -94,7 +87,7 @@ public class AgentRegistrationControllerTest {
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.createAgentUsername("blahAgent-uuid", request.getRemoteAddr(), "blahAgent-host")).thenReturn(new Username("some-agent-login-name"));
 
-        controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", token("blahAgent-uuid", serverConfig.getTokenGenerationKey()), request);
+        controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", controller.hmacOf("blahAgent-uuid"), request);
 
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new Agent("blahAgent-uuid", "blahAgent-host", request.getRemoteAddr()), false, "blah-location", 34567L, "osx"));
     }
@@ -103,10 +96,10 @@ public class AgentRegistrationControllerTest {
     public void shouldAutoRegisterAgent() {
         String uuid = "uuid";
         final ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
-        final String token = token(uuid, serverConfig.getTokenGenerationKey());
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        final String token = controller.hmacOf(uuid);
 
         when(agentService.isRegistered(uuid)).thenReturn(false);
-        when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.createAgentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
 
         controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "", "", "", token, request);
@@ -123,7 +116,7 @@ public class AgentRegistrationControllerTest {
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.createAgentUsername(uuid, request.getRemoteAddr(), "autoregister-hostname")).thenReturn(new Username("some-agent-login-name"));
 
-        controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "autoregister-hostname", "", "", token(uuid, serverConfig.getTokenGenerationKey()), request);
+        controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "autoregister-hostname", "", "", controller.hmacOf(uuid), request);
 
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(
                 new Agent(uuid, "autoregister-hostname", request.getRemoteAddr()), false, "location", 233232L, "osx"));
@@ -138,7 +131,7 @@ public class AgentRegistrationControllerTest {
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
 
         when(agentService.createAgentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
-        controller.agentRequest("host", uuid, "location", "233232", "osx", "", "", "", "", "", "", token(uuid, serverConfig.getTokenGenerationKey()), request);
+        controller.agentRequest("host", uuid, "location", "233232", "osx", "", "", "", "", "", "", controller.hmacOf(uuid), request);
 
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new Agent(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx"));
         verify(goConfigService, never()).updateConfig(any(UpdateConfigCommand.class));
@@ -206,7 +199,7 @@ public class AgentRegistrationControllerTest {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
         try (InputStream is = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar").invoke()) {
-            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+            assertTrue(Arrays.equals(is.readAllBytes(), response.getContentAsByteArray()));
         }
     }
 
@@ -244,7 +237,7 @@ public class AgentRegistrationControllerTest {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
         try (InputStream is = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar").invoke()) {
-            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+            assertTrue(Arrays.equals(is.readAllBytes(), response.getContentAsByteArray()));
         }
     }
 
@@ -285,7 +278,7 @@ public class AgentRegistrationControllerTest {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
         try (InputStream is = JarDetector.tfsJar(systemEnvironment).getJarURL().openStream()) {
-            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+            assertTrue(Arrays.equals(is.readAllBytes(), response.getContentAsByteArray()));
         }
     }
 
@@ -356,10 +349,10 @@ public class AgentRegistrationControllerTest {
     public void shouldAutoRegisterElasticAgentIfEphemeralAutoRegisterKeyIsValid() {
         String uuid = "elastic-uuid";
         final ServerConfig serverConfig = mockedServerConfig("token-generation-key", "auto_register_key");
-        final String token = token(uuid, serverConfig.getTokenGenerationKey());
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        final String token = controller.hmacOf(uuid);
 
         when(agentService.isRegistered(uuid)).thenReturn(false);
-        when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.createAgentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
         when(ephemeralAutoRegisterKeyService.validateAndRevoke("someKey")).thenReturn(true);
 
@@ -381,10 +374,10 @@ public class AgentRegistrationControllerTest {
         String autoRegisterKey = "auto_register_key";
 
         final ServerConfig serverConfig = mockedServerConfig("token-generation-key", autoRegisterKey);
-        final String token = token(uuid, serverConfig.getTokenGenerationKey());
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        final String token = controller.hmacOf(uuid);
 
         when(agentService.isRegistered(uuid)).thenReturn(false);
-        when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.createAgentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
         when(ephemeralAutoRegisterKeyService.validateAndRevoke(any())).thenReturn(false);
 
@@ -393,17 +386,6 @@ public class AgentRegistrationControllerTest {
                 "elastic-plugin-id", token, request);
 
         verify(agentService, never()).register(any(Agent.class));
-    }
-
-    private String token(String uuid, String tokenGenerationKey) {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKey = new SecretKeySpec(tokenGenerationKey.getBytes(), "HmacSHA256");
-            mac.init(secretKey);
-            return Base64.getEncoder().encodeToString(mac.doFinal(uuid.getBytes()));
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private ServerConfig mockedServerConfig(String tokenGenerationKey, String agentAutoRegisterKey) {

@@ -16,21 +16,22 @@
 
 package com.thoughtworks.go.server.materials;
 
+import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import static java.lang.Math.round;
 import static java.time.temporal.ChronoUnit.MILLIS;
 
 public class ExponentialBackOff {
-    private LocalDateTime lastFailureTime;
-    private LocalDateTime failureStartTime;
-    private long retryInterval;
-    private final long DEFAULT_INITIAL_INTERVAL_IN_MILLIS = 5 * 60 * 1000;
-    private final long MAX_RETRY_INTERVAL_IN_MILLIS = 60 * 60 * 1000;
-    double multiplier;
-    private SystemTimeClock clock;
+    private static final long DEFAULT_INITIAL_INTERVAL_IN_MILLIS = 5 * 60 * 1000;
+    private static final long MAX_RETRY_INTERVAL_IN_MILLIS = 60 * 60 * 1000;
+    private final Clock clock;
+    private long retryIntervalMillis;
+    private final double multiplier;
+    private final Instant failureStartTime;
+    private Instant lastFailureTime;
 
     public ExponentialBackOff(double multiplier) {
         this(multiplier, new SystemTimeClock());
@@ -38,36 +39,34 @@ public class ExponentialBackOff {
 
     protected ExponentialBackOff(double multiplier, SystemTimeClock clock) {
         this.clock = clock;
-        this.retryInterval = DEFAULT_INITIAL_INTERVAL_IN_MILLIS;
+        this.retryIntervalMillis = DEFAULT_INITIAL_INTERVAL_IN_MILLIS;
         this.lastFailureTime = this.failureStartTime = now();
         this.multiplier = multiplier;
     }
 
     public BackOffResult backOffResult() {
         boolean backOff = lastFailureTime
-                .plus(this.retryInterval, MILLIS)
+                .plus(this.retryIntervalMillis, MILLIS)
                 .isAfter(now());
 
         return new BackOffResult(backOff, failureStartTime, lastFailureTime,
-                lastFailureTime.plus(this.retryInterval, MILLIS));
+                lastFailureTime.plus(this.retryIntervalMillis, MILLIS));
     }
 
     public void failedAgain() {
-        LocalDateTime now = now();
-        this.retryInterval = retryInterval(now);
+        Instant now = now();
+        this.retryIntervalMillis = retryIntervalMillis(now);
         this.lastFailureTime = now;
     }
 
-    private long retryInterval(LocalDateTime now) {
+    private long retryIntervalMillis(Instant now) {
         long timeBetweenFailures = lastFailureTime.until(now, MILLIS);
         long retryInterval = round(timeBetweenFailures * multiplier);
 
-        return retryInterval > MAX_RETRY_INTERVAL_IN_MILLIS
-                ? MAX_RETRY_INTERVAL_IN_MILLIS
-                : retryInterval;
+        return Math.min(retryInterval, MAX_RETRY_INTERVAL_IN_MILLIS);
     }
 
-    private LocalDateTime now() {
-        return clock.currentLocalDateTime();
+    private Instant now() {
+        return clock.currentTime();
     }
 }

@@ -22,8 +22,6 @@ import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.NullAgent;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.server.web.JsonView;
-import com.thoughtworks.go.util.TimeConverter;
-import org.joda.time.DateTime;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -34,9 +32,9 @@ import static java.lang.String.valueOf;
 
 
 public class JobStatusJsonPresentationModel {
-    private Agent agent;
+    private final Agent agent;
     private final JobInstance instance;
-    private DurationBean durationBean;
+    private final DurationBean durationBean;
 
     public JobStatusJsonPresentationModel(JobInstance instance, Agent agent, DurationBean durationBean) {
         this.instance = instance;
@@ -98,18 +96,10 @@ public class JobStatusJsonPresentationModel {
         return this.instance.getResult();
     }
 
-    public String getCurrentStatus() {
-        return instance.currentStatus().toString();
-    }
-
     public String getStatus() {
-        JobState currentstatus = instance.currentStatus();
-        return (currentstatus == JobState.Scheduled || currentstatus == JobState.Waiting)
-                ? getResult().toString() : currentstatus.toString().toLowerCase();
-    }
-
-    public String getBuildInstanceCompletedTimestamp() {
-        return TimeConverter.getHumanReadableDate(new DateTime(instance.getStartedDateFor(JobState.Completed)));
+        JobState currentStatus = instance.currentStatus();
+        return (currentStatus == JobState.Scheduled || currentStatus == JobState.Waiting)
+                ? getResult().toString() : currentStatus.toString().toLowerCase();
     }
 
     public long getBuildInstanceId() {

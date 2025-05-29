@@ -1464,7 +1464,7 @@ class AgentServiceTest {
             AgentInstance agentInstance = mock(AgentInstance.class);
 
             when(agentInstances.agentsStuckInCancel()).thenReturn(List.of(agentInstance));
-            when(agentInstance.cancelledAt()).thenReturn(new Date(Instant.now().minus(20, ChronoUnit.MINUTES).toEpochMilli()));
+            when(agentInstance.cancelledAt()).thenReturn(Date.from(Instant.now().minus(20, ChronoUnit.MINUTES)));
             when(agentInstance.getHostname()).thenReturn("test_agent");
 
             agentService.refresh();

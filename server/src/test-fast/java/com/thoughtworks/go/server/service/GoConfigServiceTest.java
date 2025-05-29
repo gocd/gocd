@@ -54,6 +54,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -709,7 +710,7 @@ public class GoConfigServiceTest {
     public void shouldIgnoreXmlEntitiesAndReplaceThemWithEmptyString_DuringPipelineGroupPartialSave() throws Exception {
         ArgumentCaptor<FullConfigUpdateCommand> commandArgumentCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
         File targetFile = TempFiles.createUniqueFile("somefile");
-        FileUtils.writeStringToFile(targetFile, "CONTENTS_OF_FILE", StandardCharsets.UTF_8);
+        Files.writeString(targetFile.toPath(), "CONTENTS_OF_FILE", StandardCharsets.UTF_8);
 
         cruiseConfig = new BasicCruiseConfig();
         expectLoad(cruiseConfig);

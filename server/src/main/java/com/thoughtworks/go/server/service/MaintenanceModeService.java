@@ -30,7 +30,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.thoughtworks.go.util.DateUtils.UTC;
+import static com.thoughtworks.go.util.Dates.UTC;
 
 @Service
 public class MaintenanceModeService {
@@ -43,7 +43,7 @@ public class MaintenanceModeService {
     public MaintenanceModeService(TimeProvider timeProvider, SystemEnvironment systemEnvironment) {
         this.timeProvider = timeProvider;
         if (systemEnvironment.shouldStartServerInMaintenanceMode()) {
-            this.serverMaintenanceMode = new ServerMaintenanceMode(true, "GoCD", timeProvider.currentTime());
+            this.serverMaintenanceMode = new ServerMaintenanceMode(true, "GoCD", timeProvider.currentUtilDate());
         } else {
             this.serverMaintenanceMode = new ServerMaintenanceMode();
         }

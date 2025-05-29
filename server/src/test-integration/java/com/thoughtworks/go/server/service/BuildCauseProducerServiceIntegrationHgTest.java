@@ -45,6 +45,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -136,7 +137,8 @@ public class BuildCauseProducerServiceIntegrationHgTest {
     private void checkInFiles(String... files) throws Exception {
         for (String fileName : files) {
             File file = new File(workingFolder, fileName);
-            FileUtils.writeStringToFile(file, "bla", UTF_8);
+            file.getParentFile().mkdirs();
+            Files.writeString(file.toPath(), "bla", UTF_8);
             hgMaterial.add(workingFolder, outputStreamConsumer, file);
         }
         hgMaterial.commit(workingFolder, outputStreamConsumer, "comment ", "user");

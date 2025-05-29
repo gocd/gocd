@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.util.TimeConverter;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.Date;
@@ -121,20 +120,12 @@ public class PipelineInstanceModel implements PipelineInfo {
         return stageHistory;
     }
 
-    public String getBuildCauseBy() {
-        return buildCause.getBuildCauseMessage();
-    }
-
     public void setStageHistory(StageInstanceModels stageHistory) {
         this.stageHistory = stageHistory;
     }
 
     public Date getScheduledDate() {
         return stageHistory == null ? null : stageHistory.getScheduledDate();
-    }
-
-    public TimeConverter.ConvertedTime getCreatedTimeForDisplay() {
-        return TimeConverter.convertHandleNull(getScheduledDate());
     }
 
     public String getLabel() {
@@ -160,13 +151,6 @@ public class PipelineInstanceModel implements PipelineInfo {
             return stageHistory.get(index - 1).isScheduled();
         }
         return false;
-    }
-
-    public void selectStage(String selectedStageName) {
-        StageInstanceModel stage = stageHistory.byName(selectedStageName);
-        if (stage != null && stage.isScheduled()) {
-            stage.setSelected(true);
-        }
     }
 
     public boolean isScheduled() {

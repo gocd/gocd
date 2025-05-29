@@ -33,7 +33,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Date;
+import java.time.Instant;
 
 import static com.thoughtworks.go.helper.ModificationsMother.createSvnMaterialRevisions;
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
@@ -224,7 +224,7 @@ public class FeedServiceTest {
         void shouldThrowRecordNotFoundExceptionWhenMaterialRevisionWithFingerprintDoesNotExist() {
             String pipelineName = "up42";
             Integer pipelineCounter = 2;
-            PipelineInstanceModel model = pipelineInstanceModel(pipelineName, pipelineCounter, new Date());
+            PipelineInstanceModel model = pipelineInstanceModel(pipelineName, pipelineCounter, Instant.now());
             model.setLatestRevisions(new MaterialRevisions());
             when(pipelineHistoryService.load(pipelineName, pipelineCounter, username)).thenReturn(model);
 
@@ -240,7 +240,7 @@ public class FeedServiceTest {
             Integer pipelineCounter = 2;
             String pipelineUniqueFingerprint = revisions.getMaterialRevision(0).getMaterial().getPipelineUniqueFingerprint();
 
-            PipelineInstanceModel model = pipelineInstanceModel(pipelineName, pipelineCounter, new Date());
+            PipelineInstanceModel model = pipelineInstanceModel(pipelineName, pipelineCounter, Instant.now());
             model.setLatestRevisions(revisions);
             when(pipelineHistoryService.load(pipelineName, pipelineCounter, username)).thenReturn(model);
 

@@ -23,25 +23,20 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DateUtilsConcurrencyTest {
+public class DatesConcurrencyTest {
     @Test
-    public void shouldFormatISO8601() throws Exception {
-        runInThreads(() -> DateUtils.parseISO8601("2009-09-11 11:11:21 +0800"));
+    public void shouldFormatIso8601CompactOffset() throws Exception {
+        runInThreads(() -> Dates.parseIso8601StrictOffset("2009-09-11T11:11:21+08:00"));
     }
 
     @Test
     public void shouldFormatIntoISO8601String() throws Exception {
-        runInThreads(() -> DateUtils.formatISO8601(new Date()));
+        runInThreads(() -> Dates.formatIso8601CompactOffset(new Date()));
     }
 
     @Test
     public void shouldFormatRFC822() throws Exception {
-        runInThreads(() -> DateUtils.parseRFC822("Wed, 4 Jul 2001 12:08:56 -0700"));
-    }
-
-    @Test
-    public void shouldParseYYYYMMDD() throws Exception {
-        runInThreads(() -> DateUtils.parseYYYYMMDD("2018-12-31"));
+        runInThreads(() -> Dates.parseRFC822("Wed, 4 Jul 2001 12:08:56 -0700"));
     }
 
     private void runInThreads(final DoAction action) throws InterruptedException {

@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.ArtifactTypeConfigs;
 import com.thoughtworks.go.config.BuiltinArtifactConfig;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.FilenameUtil;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -198,7 +199,7 @@ public class ArtifactPlan extends PersistentObject {
     }
 
     protected File getSource(File rootPath) {
-        return new File(FileUtil.applyBaseDirIfRelativeAndNormalize(rootPath, new File(getSrc())));
+        return new File(FilenameUtil.applyBaseDirIfRelativeAndNormalize(rootPath, new File(getSrc())));
     }
 
     public String destinationURL(File rootPath, File file) {

@@ -30,7 +30,6 @@ dependencies {
   implementation project.deps.commonsText
   implementation project.deps.commonsLang3
   implementation project.deps.cloning
-  implementation project.deps.jodaTime
   implementation project.deps.springTx
   if (project.deps.springTx) {
     implementation project.deps.slf4jJcl // Allow commons-logging replacement

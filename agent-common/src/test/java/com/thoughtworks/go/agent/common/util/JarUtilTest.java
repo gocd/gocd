@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.agent.common.util;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,38 +35,38 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JarUtilTest {
 
-    private static final String PATH_WITH_HASHES = "#hashes#in#path/";
+    private static final String PATH_WITH_HASHES = "#hashes#in#path";
 
     @TempDir
     public File temporaryFolder;
 
     @BeforeEach
     public void setUp() throws IOException {
-        TEST_AGENT.copyTo(new File(PATH_WITH_HASHES + "test-agent.jar"));
+        TEST_AGENT.copyTo(new File(PATH_WITH_HASHES, "test-agent.jar"));
     }
 
     @AfterEach
     public void tearDown() throws IOException {
-        FileUtils.deleteQuietly(new File(PATH_WITH_HASHES + "test-agent.jar"));
-        FileUtils.deleteDirectory(new File(PATH_WITH_HASHES));
+        Files.deleteIfExists(new File(PATH_WITH_HASHES, "test-agent.jar").toPath());
+        Files.deleteIfExists(Path.of(PATH_WITH_HASHES));
     }
 
     @Test
     public void shouldGetManifestKey() {
-        String manifestKey = JarUtil.getManifestKey(new File(PATH_WITH_HASHES + "test-agent.jar"), "Go-Agent-Bootstrap-Class");
+        String manifestKey = JarUtil.getManifestKey(new File(PATH_WITH_HASHES, "test-agent.jar"), "Go-Agent-Bootstrap-Class");
         assertThat(manifestKey).isEqualTo("com.thoughtworks.go.HelloWorldStreamWriter");
     }
 
     @Test
     public void shouldExtractJars() throws Exception {
-        File sourceFile = new File(PATH_WITH_HASHES + "test-agent.jar");
+        File sourceFile = new File(PATH_WITH_HASHES, "test-agent.jar");
         Set<File> files = new HashSet<>(JarUtil.extractFilesInLibDirAndReturnFiles(sourceFile, jarEntry -> jarEntry.getName().endsWith(".class"), temporaryFolder));
 
         try (Stream<Path> directoryStream = Files.list(temporaryFolder.toPath())) {
             Set<File> actualFiles = directoryStream.map(Path::toFile).collect(Collectors.toSet());
 
             assertEquals(files, actualFiles);
-            assertEquals(files.size(), 2);
+            assertEquals(2, files.size());
             Set<String> fileNames = files.stream().map(File::getName).collect(Collectors.toSet());
             assertEquals(fileNames, Set.of("ArgPrintingMain.class", "HelloWorldStreamWriter.class"));
         }

@@ -20,11 +20,11 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.PropertiesConfigurationLayout;
 import org.apache.commons.configuration2.convert.ListDelimiterHandler;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
 
@@ -132,7 +132,7 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
     }
 
     private StringReader reader() throws IOException {
-        return new StringReader(FileUtils.readFileToString(configFile, UTF_8));
+        return new StringReader(Files.readString(configFile.toPath(), UTF_8));
     }
 
     private static class FilteringOutputWriterFactory extends PropertiesConfiguration.DefaultIOFactory {

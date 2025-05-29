@@ -46,6 +46,7 @@ import org.springframework.util.Assert;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -122,7 +123,7 @@ public class ConfigRepository {
                 return;
             }
             final File file = new File(workingDir, CRUISE_CONFIG_XML);
-            FileUtils.writeStringToFile(file, rev.getContent(), UTF_8);
+            Files.writeString(file.toPath(), rev.getContent(), UTF_8);
             final AddCommand addCommand = git.add();
             doLocked(new VoidThrowingFn<Exception>() {
                 @Override
@@ -370,7 +371,7 @@ public class ConfigRepository {
             throw new ConfigFileHasChangedException();
         }
         LOGGER.info("[CONFIG_MERGE] Successfully merged commit {} by user {} to branch {}. Merge commit revision is {}", newCommit.getId().getName(), newCommit.getAuthorIdent().getName(), branchName, getCurrentRevCommit().getId().getName());
-        return FileUtils.readFileToString(new File(workingDir, CRUISE_CONFIG_XML), UTF_8);
+        return Files.readString(workingDir.toPath().resolve(CRUISE_CONFIG_XML), UTF_8);
     }
 
     private void checkout(String branchName) throws GitAPIException {

@@ -22,12 +22,12 @@ describe PipelinesHelper do
   include GoUtil
 
   before do
-    @now = org.joda.time.DateTime.new
+    @now = ZonedDateTime.now
   end
 
   describe "stage_bar_url" do
     before do
-      @stages = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.toDate())])
+      @stages = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.to_instant)])
       @stages.add(NullStageHistoryItem.new('blah-stage'))
       @request.path_parameters.reverse_merge!(params)
     end
@@ -43,7 +43,7 @@ describe PipelinesHelper do
 
   describe "run_stage_label" do
     it "should show Rerun for scheduled stage" do
-      stages = PipelineHistoryMother.stagePerJob("stage_name", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.toDate())])
+      stages = PipelineHistoryMother.stagePerJob("stage_name", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.to_instant)])
       stage = stages.get(0)
       expect(run_stage_label(stage)).to eq("rerun")
     end
@@ -65,17 +65,17 @@ describe PipelinesHelper do
     end
 
     it "should display the trigger message with the time and username" do
-      joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
-      message = trigger_message_with_formatted_date_time(joda_date.to_date, "Vipul")
+      date = Dates.from(ZonedDateTime.of(2010, 8, 20, 18, 3, 44, 0, ZoneOffset.ofHoursMinutes(5, 30)))
+      message = trigger_message_with_formatted_date_time(date, "Vipul")
       expect(message).to have_selector(".who", text: "Vipul")
-      expect(message).to have_selector(".time[data='#{joda_date.to_date.getTime}']")
+      expect(message).to have_selector(".time[data='#{date.getTime}']")
     end
 
     it "should display appropriate message when when auto triggered " do
-      joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
-      message = trigger_message_with_formatted_date_time(joda_date.to_date, GoConstants::DEFAULT_APPROVED_BY)
+      date = Dates.from(ZonedDateTime.of(2010, 8, 20, 18, 3, 44, 0, ZoneOffset.ofHoursMinutes(5, 30)))
+      message = trigger_message_with_formatted_date_time(date, GoConstants::DEFAULT_APPROVED_BY)
       expect(message).to have_selector(".label", :text => "Automatically triggered")
-      expect(message).to have_selector(".time[data='#{joda_date.to_date.getTime}']")
+      expect(message).to have_selector(".time[data='#{date.getTime}']")
     end
   end
 

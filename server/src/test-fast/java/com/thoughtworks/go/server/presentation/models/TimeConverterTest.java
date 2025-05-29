@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util;
+package com.thoughtworks.go.server.presentation.models;
 
-import org.joda.time.DateTime;
+import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,11 +34,10 @@ public class TimeConverterTest {
 
     @Test
     public void testShouldReturn() {
-        DateTime now = new DateTime();
-        DateTime yesterday = now.minusDays(1);
-        assertEquals(new TimeConverter.ConvertedTime(TimeConverter.getHumanReadableDate(now)),
-                timeConverter
-                        .getConvertedTime(now.toDate(), yesterday.toDate()));
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime yesterday = now.minusDays(1);
+        assertEquals(new TimeConverter.ConvertedTime(TimeConverter.getHumanReadableDate(Dates.from(now))),
+                timeConverter.getConvertedTime(Dates.from(now), Dates.from(yesterday)));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class TimeConverterTest {
     }
 
     @Test
-    public void testShouldReport1DayFor45Mintues() {
+    public void testShouldReport1DayFor45Minutes() {
         assertEquals(TimeConverter.ABOUT_1_HOUR_AGO, timeConverter.getConvertedTime(45 * 60));
     }
 

@@ -21,8 +21,8 @@ import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.joda.time.DateTime;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,14 +32,14 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 public class ServerHealthState {
+    public static final FastDateFormat TIMESTAMP_FORMAT = FastDateFormat.getInstance("MMM-dd HH:mm:ss");
+    static Clock clock = new SystemTimeClock();
     private final HealthStateLevel healthStateLevel;
     private final HealthStateType type;
     private final String message;
     private final String description;
-    static Clock clock = new SystemTimeClock();
-    private DateTime expiryTime;
-    public static final FastDateFormat TIMESTAMP_FORMAT = FastDateFormat.getInstance("MMM-dd HH:mm:ss");
-    private Date timestamp;
+    private final Date timestamp;
+    private Instant expiryTime;
 
     private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType type) {
         this(healthStateLevel, type, "", "");
@@ -220,7 +220,7 @@ public class ServerHealthState {
     }
 
     public boolean hasExpired() {
-        return expiryTime != null && expiryTime.isBefore(clock.currentDateTime());
+        return expiryTime != null && expiryTime.isBefore(clock.currentTime());
     }
 
     public Set<String> getPipelineNames(CruiseConfig config) {

@@ -28,7 +28,7 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.apache.commons.io.IOUtils;
+import com.thoughtworks.go.util.TestFileUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -69,7 +68,7 @@ public abstract class FullConfigSaveFlowTestBase {
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper(goConfigDao);
         configHelper.onSetUp();
-        xml = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResource("/data/pluggable_artifacts_with_params.xml"), UTF_8));
+        xml = goConfigMigration.upgradeIfNecessary(TestFileUtil.resourceToString("/data/pluggable_artifacts_with_params.xml"));
         loader = new MagicalGoConfigXmlLoader(configCache, registry);
         setupMetadataForPlugin();
     }

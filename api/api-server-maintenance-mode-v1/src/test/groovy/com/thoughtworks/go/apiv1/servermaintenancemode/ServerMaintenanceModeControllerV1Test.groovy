@@ -108,7 +108,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
         ]
 
         when(maintenanceModeService.get())
-          .thenReturn(new ServerMaintenanceMode(newMaintenanceModeState, currentUsernameString(), testingClock.currentTime()))
+          .thenReturn(new ServerMaintenanceMode(newMaintenanceModeState, currentUsernameString(), testingClock.currentUtilDate()))
 
         postWithApiHeader(controller.controllerPath('/enable'), headers)
 
@@ -125,7 +125,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
 
       @Test
       void 'should not enable server maintenance mode in case server is already in maintenance mode'() {
-        when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(true, currentUsernameString(), testingClock.currentTime()))
+        when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(true, currentUsernameString(), testingClock.currentUtilDate()))
 
         def headers = [
           'accept'      : controller.mimeType,
@@ -175,7 +175,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
         ]
 
         when(maintenanceModeService.get())
-          .thenReturn(new ServerMaintenanceMode(newMaintenanceModeState, currentUsernameString(), testingClock.currentTime()))
+          .thenReturn(new ServerMaintenanceMode(newMaintenanceModeState, currentUsernameString(), testingClock.currentUtilDate()))
 
         postWithApiHeader(controller.controllerPath('/disable'), headers)
 
@@ -192,7 +192,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
 
       @Test
       void 'should not disable server maintenance mode in case server is not in maintenance mode'() {
-        when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(false, currentUsernameString(), testingClock.currentTime()))
+        when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(false, currentUsernameString(), testingClock.currentUtilDate()))
 
         def headers = [
           'accept'      : controller.mimeType,
@@ -237,7 +237,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
         def runningMDUs = []
         def runningJobs = []
 
-        when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(true, currentUsernameString(), testingClock.currentTime()))
+        when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(true, currentUsernameString(), testingClock.currentUtilDate()))
         when(maintenanceModeService.getRunningMDUs()).thenReturn(runningMDUs)
         when(goDashboardCache.allEntries()).thenReturn(new GoDashboardPipelines(new HashMap<>(), new TimeStampBasedCounter(testingClock)))
         when(agentService.getAgentInstances()).thenReturn(new AgentInstances(null))
@@ -292,7 +292,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
         def buildingJobs = [job1, job3]
         def scheduledJobs = [job2]
 
-        when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(true, currentUsernameString(), testingClock.currentTime()))
+        when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(true, currentUsernameString(), testingClock.currentUtilDate()))
         when(maintenanceModeService.getRunningMDUs()).thenReturn(runningMDUs)
         when(goDashboardCache.allEntries()).thenReturn(dashboardPipelines)
         when(agentService.getAgentInstances()).thenReturn(agentInstances)
@@ -309,7 +309,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
 
       @Test
       void 'should not fetch running subsystems information when server is not in maintenance mode'() {
-        when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(false, currentUsernameString(), testingClock.currentTime()))
+        when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(false, currentUsernameString(), testingClock.currentUtilDate()))
 
         getWithApiHeader(controller.controllerPath('/info'))
 

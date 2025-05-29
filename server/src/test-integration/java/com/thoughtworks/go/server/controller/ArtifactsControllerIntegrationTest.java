@@ -44,6 +44,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.Deflater;
@@ -51,9 +53,9 @@ import java.util.zip.Deflater;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.readString;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
-import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -345,10 +347,10 @@ public class ArtifactsControllerIntegrationTest {
 
         putFile("/foo/bar.txt");
         assertThat(file(artifactsRoot, "foo/bar.txt")).exists();
-        String original = readFileToString(file(artifactsRoot, "foo/bar.txt"), UTF_8);
+        String original = readString(file(artifactsRoot, "foo/bar.txt").toPath(), UTF_8);
 
         putFile("/foo/bar.txt");
-        assertThat(original.length()).isLessThan(readFileToString(file(artifactsRoot, "foo/bar.txt"), UTF_8).length());
+        assertThat(original.length()).isLessThan(readString(file(artifactsRoot, "foo/bar.txt").toPath(), UTF_8).length());
     }
 
     @Test
@@ -358,7 +360,7 @@ public class ArtifactsControllerIntegrationTest {
         String allContent = refContent.repeat(2 * numberOfLines);
         ModelAndView mav = putConsoleLogContent("cruise-output/console.log", allContent);
 
-        String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile), UTF_8);
+        String consoleLogContent = readString(consoleLogFile.toPath(), UTF_8);
         String[] lines = consoleLogContent.split("\n");
         assertThat(lines.length).isEqualTo(2 * numberOfLines);
         for (int i = 0; i < lines.length; i++) {
@@ -384,7 +386,7 @@ public class ArtifactsControllerIntegrationTest {
 
         ModelAndView mav = putConsoleLogContent("cruise-output/console.log", builder.toString());
 
-        String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile), UTF_8);
+        String consoleLogContent = readString(consoleLogFile.toPath(), UTF_8);
         String[] lines = consoleLogContent.split("\n");
         assertThat(lines.length).isEqualTo(3);
         assertThat(lines[0]).isEqualTo(longLineStr);
@@ -398,7 +400,7 @@ public class ArtifactsControllerIntegrationTest {
         String log = "junit report\nstart\n....";
         ModelAndView mav = putConsoleLogContent("cruise-output/console.log", log);
 
-        String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile), UTF_8);
+        String consoleLogContent = readString(consoleLogFile.toPath(), UTF_8);
         String[] lines = consoleLogContent.split("\n");
         assertThat(lines.length).isEqualTo(3);
         assertThat(lines[0]).isEqualTo("junit report");
@@ -412,7 +414,7 @@ public class ArtifactsControllerIntegrationTest {
         String log = "....";
         ModelAndView mav = putConsoleLogContent("cruise-output/console.log", log);
 
-        String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile), UTF_8);
+        String consoleLogContent = readString(consoleLogFile.toPath(), UTF_8);
         String[] lines = consoleLogContent.split("\n");
         assertThat(lines.length).isEqualTo(1);
         assertThat(lines[0]).isEqualTo("....");
@@ -492,9 +494,9 @@ public class ArtifactsControllerIntegrationTest {
     @Test
     public void shouldSaveChecksumFileInTheCruiseOutputFolder() throws Exception {
         File fooFile = createFile(artifactsRoot, "/tmp/foobar.html");
-        FileUtils.writeStringToFile(fooFile, "FooBarBaz...", UTF_8);
+        Files.writeString(fooFile.toPath(), "FooBarBaz...", UTF_8);
         File checksumFile = createFile(artifactsRoot, "/tmp/foobar.html.checksum");
-        FileUtils.writeStringToFile(checksumFile, "baz/foobar.html:FooMD5\n", UTF_8);
+        Files.writeString(checksumFile.toPath(), "baz/foobar.html:FooMD5\n", UTF_8);
         MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
         MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
         request.addHeader("Confirm", "true");
@@ -504,7 +506,7 @@ public class ArtifactsControllerIntegrationTest {
         assertThat(file(artifactsRoot, "baz/foobar.html")).exists();
         File uploadedChecksumFile = file(artifactsRoot, "cruise-output/md5.checksum");
         assertThat(uploadedChecksumFile).exists();
-        assertThat(FileUtils.readLines(uploadedChecksumFile, UTF_8)).first(InstanceOfAssertFactories.STRING).isEqualTo("baz/foobar.html:FooMD5");
+        assertThat(Files.lines(uploadedChecksumFile.toPath(), UTF_8)).first(InstanceOfAssertFactories.STRING).isEqualTo("baz/foobar.html:FooMD5");
     }
 
     @Test
@@ -521,9 +523,9 @@ public class ArtifactsControllerIntegrationTest {
         postFileWithChecksum("baz/foobar.html", multipartRequest);
 
         assertThat(file(artifactsRoot, "baz/foobar.html")).exists();
-        File uploadedChecksumFile = file(artifactsRoot, "cruise-output/md5.checksum");
+        Path uploadedChecksumFile = file(artifactsRoot, "cruise-output/md5.checksum").toPath();
         assertThat(uploadedChecksumFile).exists();
-        List<String> list = FileUtils.readLines(uploadedChecksumFile, UTF_8);
+        List<String> list = Files.readAllLines(uploadedChecksumFile, UTF_8);
 
         assertThat(list.size()).isEqualTo(2);
         assertThat(list.get(0)).isEqualTo("oldbaz/foobar.html:BazMD5");
@@ -544,7 +546,7 @@ public class ArtifactsControllerIntegrationTest {
 
         JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, pipeline.getCounter(), null, stage.getName(), Integer.toString(stage.getCounter()), job.getName(), job.getId());
         File artifact = artifactService.findArtifact(jobIdentifier, filePath);
-        assertThat(FileUtils.readFileToString(artifact, UTF_8)).isEqualTo(artifactFileContent);
+        assertThat(readString(artifact.toPath(), UTF_8)).isEqualTo(artifactFileContent);
     }
 
     @Test
@@ -566,7 +568,7 @@ public class ArtifactsControllerIntegrationTest {
                 job.getName(), job.getId());
         assertTrue(consoleService.doesLogExist(jobIdentifier));
         File consoleLogFile = consoleService.consoleLogFile(jobIdentifier);
-        assertThat(FileUtils.readFileToString(consoleLogFile, UTF_8)).isEqualTo(consoleLogContent);
+        assertThat(readString(consoleLogFile.toPath(), UTF_8)).isEqualTo(consoleLogContent);
     }
 
     private File createFile(File buildIdArtifactRoot, String fileName) throws IOException {
@@ -578,7 +580,7 @@ public class ArtifactsControllerIntegrationTest {
 
     private File createFileWithContent(File root, String fileName, String content) throws IOException {
         File file = createFile(root, fileName);
-        FileUtils.writeStringToFile(file, content, UTF_8);
+        Files.writeString(file.toPath(), content, UTF_8);
         return file;
     }
 
@@ -589,10 +591,6 @@ public class ArtifactsControllerIntegrationTest {
 
     private File file(File buildIdArtifactRoot, String fileName) {
         return new File(buildIdArtifactRoot, fileName);
-    }
-
-    private File file(File buildIdArtifactRoot) {
-        return new File(buildIdArtifactRoot, "");
     }
 
     private ModelAndView getNonFolder(String file) throws Exception {
@@ -615,7 +613,8 @@ public class ArtifactsControllerIntegrationTest {
     @SuppressWarnings("SameParameterValue")
     private void prepareTempConsoleOut(JobIdentifier jobIdentifier, String content) throws Exception {
         File consoleLogFile = consoleService.consoleLogFile(jobIdentifier);
-        FileUtils.writeStringToFile(consoleLogFile, content, Charset.defaultCharset());
+        consoleLogFile.getParentFile().mkdirs();
+        Files.writeString(consoleLogFile.toPath(), content, Charset.defaultCharset());
     }
 
     private ModelAndView postZipFolderFromTmp(File root, String folder) throws Exception {

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.agent;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,9 +56,9 @@ public class ProcessRunner {
         System.out.println("Finished command: " + Arrays.toString(builder.command().toArray()) + ". Exit code: " + exitCode);
         if (exitCode != 0) {
             if (failOnError) {
-                throw new RuntimeException(String.format("Command exited with code %s. \n Exception: %s", exitCode, IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8)));
+                throw new RuntimeException(String.format("Command exited with code %s. \n Exception: %s", exitCode, new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8)));
             } else {
-                LOGGER.error("Command exited with code {}. \n Exception: {}", exitCode, IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8));
+                LOGGER.error("Command exited with code {}. \n Exception: {}", exitCode, new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8));
             }
         }
         return exitCode;

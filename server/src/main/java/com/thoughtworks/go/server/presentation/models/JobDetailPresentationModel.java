@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.presentation.html.HtmlRenderer;
 import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.util.TimeConverter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
@@ -41,7 +40,6 @@ public class JobDetailPresentationModel {
     private static final String BASE_FILE_URL = "files/";
 
     protected final JobInstance job;
-    protected TimeConverter converter;
     protected JobInstances recent25;
     private final TrackingTool trackingTool;
     private final ArtifactsService artifactsService;
@@ -62,7 +60,6 @@ public class JobDetailPresentationModel {
         this.trackingTool = trackingTool;
         this.artifactsService = artifactsService;
         this.stage = stage;
-        this.converter = new TimeConverter();
         jobIdentifier = this.job.getIdentifier();
         stageIdentifier = jobIdentifier.getStageIdentifier();
     }

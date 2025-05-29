@@ -103,7 +103,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
             return renderHTTPOperationResult(result, req, res);
         }
 
-        maintenanceModeService.update(new ServerMaintenanceMode(true, currentUsernameString(), clock.currentTime()));
+        maintenanceModeService.update(new ServerMaintenanceMode(true, currentUsernameString(), clock.currentUtilDate()));
 
         res.status(204);
         return NOTHING;
@@ -117,7 +117,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
             return renderHTTPOperationResult(result, req, res);
         }
 
-        maintenanceModeService.update(new ServerMaintenanceMode(false, currentUsernameString(), clock.currentTime()));
+        maintenanceModeService.update(new ServerMaintenanceMode(false, currentUsernameString(), clock.currentUtilDate()));
 
         res.status(204);
         return NOTHING;

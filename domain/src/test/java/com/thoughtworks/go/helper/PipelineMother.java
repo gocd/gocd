@@ -34,6 +34,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.util.TimeProvider;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -139,7 +140,7 @@ public class PipelineMother {
 
 
     public static Pipeline completedFailedStageInstance(String pipelineName, String stageName, String planName,
-                                                        Date date) {
+                                                        Instant date) {
         return pipeline(pipelineName, com.thoughtworks.go.helper.StageMother.completedFailedStageInstance(pipelineName, stageName, planName, date));
     }
 

@@ -16,13 +16,13 @@
 package com.thoughtworks.go.remote.work.artifact;
 
 import com.google.gson.Gson;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -70,7 +70,7 @@ public class PluggableArtifactMetadata {
 
         try {
             LOGGER.info(String.format("Writing metadata file for plugin `%s`.", pluginId));
-            FileUtils.writeStringToFile(new File(pluggableArtifactMetadataFolder, format("%s.json", pluginId)), new Gson().toJson(responseMetadata), StandardCharsets.UTF_8);
+            Files.writeString(new File(pluggableArtifactMetadataFolder, format("%s.json", pluginId)).toPath(), new Gson().toJson(responseMetadata), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

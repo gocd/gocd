@@ -30,6 +30,33 @@ public class FilenameUtil {
         final String prefix = FilenameUtils.getPrefix(normalize);
         return normalize != null && (prefix == null || prefix.isBlank());
     }
+
+    public static String join(File defaultWorkingDir, String actualFileToUse) {
+        if (actualFileToUse == null) {
+            return FilenameUtils.separatorsToUnix(defaultWorkingDir.getPath());
+        }
+        return applyBaseDirIfRelativeAndNormalize(defaultWorkingDir, new File(actualFileToUse));
+    }
+
+    public static String applyBaseDirIfRelativeAndNormalize(File baseDir, File actualFileToUse) {
+        return FilenameUtils.separatorsToUnix(applyBaseDirIfRelative(baseDir, actualFileToUse).getPath());
+    }
+
+    public static File applyBaseDirIfRelative(File baseDir, File actualFileToUse) {
+        if (actualFileToUse == null) {
+            return baseDir;
+        }
+        if (actualFileToUse.isAbsolute()) {
+            return actualFileToUse;
+        }
+
+        if (baseDir.getPath().isBlank()) {
+            return actualFileToUse;
+        }
+
+        return new File(baseDir, actualFileToUse.getPath());
+
+    }
 }
 
 

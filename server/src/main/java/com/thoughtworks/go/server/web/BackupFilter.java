@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.web;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.server.newsecurity.filters.helpers.ServerUnavailabilityResponse;
 import com.thoughtworks.go.server.service.BackupService;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -85,17 +85,16 @@ public class BackupFilter extends OncePerRequestFilter {
     }
 
     private String generateHTMLResponse() throws IOException {
-        String path = "backup_in_progress.html";
-        try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path)) {
-            String content = IOUtils.toString(resourceAsStream, UTF_8);
-            return replaceStringLiterals(content);
+        String path = "/backup_in_progress.html";
+        try (InputStream resourceAsStream = Objects.requireNonNull(getClass().getResourceAsStream(path))) {
+            return replaceStringLiterals(new String(resourceAsStream.readAllBytes(), UTF_8));
         }
     }
 
     String replaceStringLiterals(String content) {
-        content = content.replaceAll("%backup_initiated_by%", HtmlUtils.htmlEscape(backupService.backupRunningSinceISO8601().orElse("")));
-        content = content.replaceAll("%backup_started_by%", HtmlUtils.htmlEscape(backupService.backupStartedBy().orElse("")));
-        return content;
+        return content
+            .replaceAll("%backup_initiated_by%", HtmlUtils.htmlEscape(backupService.backupRunningSinceISO8601().orElse("")))
+            .replaceAll("%backup_started_by%", HtmlUtils.htmlEscape(backupService.backupStartedBy().orElse("")));
     }
 
     private boolean isBackupFinishJsonUrl(String url) {

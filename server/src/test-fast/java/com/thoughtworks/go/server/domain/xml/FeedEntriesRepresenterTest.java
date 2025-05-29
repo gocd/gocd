@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.junit5.FileSource;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.GoConstants;
 import org.dom4j.Document;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -57,7 +57,7 @@ public class FeedEntriesRepresenterTest {
         String pipelineName = "up42";
         XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null);
         FeedEntries feedEntries = mock(FeedEntries.class);
-        when(feedEntries.lastUpdatedDate()).thenReturn(DateUtils.parseISO8601("2019-12-31T07:28:30+05:30"));
+        when(feedEntries.lastUpdatedDate()).thenReturn(Dates.parseIso8601StrictOffset("2019-12-31T07:28:30+05:30"));
 
         Document document = new FeedEntriesRepresenter(pipelineName, feedEntries).toXml(context);
 
@@ -67,13 +67,13 @@ public class FeedEntriesRepresenterTest {
     }
 
     private static StageFeedEntry passed() {
-        Date date = DateUtils.parseISO8601("2019-12-31T07:28:30+05:30");
+        Date date = Dates.parseIso8601StrictOffset("2019-12-31T07:28:30+05:30");
         StageIdentifier identifier = new StageIdentifier("up42", 2, "unit-tests", "100");
         return new StageFeedEntry(1L, 1L, identifier, 124L, date, StageResult.Passed, "", "Bob", null);
     }
 
     private static StageFeedEntry cancelled() {
-        Date date = DateUtils.parseISO8601("2019-12-31T07:28:30+05:30");
+        Date date = Dates.parseIso8601StrictOffset("2019-12-31T07:28:30+05:30");
         StageIdentifier identifier = new StageIdentifier("up42", 2, "integration-tests", "100");
         return new StageFeedEntry(1L, 1L, identifier, 123L, date, StageResult.Cancelled, GoConstants.APPROVAL_MANUAL, "Bob", "Admin");
     }

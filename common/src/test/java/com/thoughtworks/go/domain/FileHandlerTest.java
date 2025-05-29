@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +24,8 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,8 +51,8 @@ public class FileHandlerTest {
     }
 
     @AfterEach
-    public void tearDown() {
-        FileUtils.deleteQuietly(artifact);
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(artifact.toPath());
     }
 
     @Test
@@ -62,7 +63,7 @@ public class FileHandlerTest {
         fileHandler.handle(new ByteArrayInputStream("Hello world".getBytes()));
         fileHandler.handleResult(200, goPublisher);
 
-        assertThat(FileUtils.readFileToString(artifact, UTF_8)).isEqualTo("Hello world");
+        assertThat(Files.readString(artifact.toPath(), UTF_8)).isEqualTo("Hello world");
         assertThat(goPublisher.getMessage()).contains("Saved artifact to [foo] after verifying the integrity of its contents.");
         verify(checksums).md5For("src/file/path");
         verifyNoMoreInteractions(checksums);
@@ -76,7 +77,7 @@ public class FileHandlerTest {
 
         assertThat(goPublisher.getMessage()).contains("Saved artifact to [foo] without verifying the integrity of its contents.");
         assertThat(goPublisher.getMessage()).doesNotContain("[WARN] The md5checksum value of the artifact [src/file/path] was not found on the server. Hence, Go could not verify the integrity of its contents.");
-        assertThat(FileUtils.readFileToString(artifact, UTF_8)).isEqualTo("Hello world");
+        assertThat(Files.readString(artifact.toPath(), UTF_8)).isEqualTo("Hello world");
     }
 
     @Test
@@ -90,7 +91,7 @@ public class FileHandlerTest {
 
         assertThat(goPublisher.getMessage()).contains("[WARN] The md5checksum value of the artifact [src/file/path] was not found on the server. Hence, Go could not verify the integrity of its contents.");
         assertThat(goPublisher.getMessage()).contains("Saved artifact to [foo] without verifying the integrity of its contents");
-        assertThat(FileUtils.readFileToString(artifact, UTF_8)).isEqualTo("Hello world");
+        assertThat(Files.readString(artifact.toPath(), UTF_8)).isEqualTo("Hello world");
     }
 
     @Test
@@ -130,9 +131,9 @@ public class FileHandlerTest {
 
     @Test
     void shouldCalculateSha1Digest() throws IOException {
-        File tempFile = tempDir.toPath().resolve("testFile.txt").toFile();
-        FileUtils.writeStringToFile(tempFile, "12345", UTF_8);
-        assertThat(FileHandler.sha1Digest(tempFile)).isEqualTo("jLIjfQZ5yojbZGTqxg2pY0VROWQ=");
+        Path tempFile = tempDir.toPath().resolve("testFile.txt");
+        Files.writeString(tempFile, "12345", UTF_8);
+        assertThat(FileHandler.sha1Digest(tempFile.toFile())).isEqualTo("jLIjfQZ5yojbZGTqxg2pY0VROWQ=");
     }
 
 }

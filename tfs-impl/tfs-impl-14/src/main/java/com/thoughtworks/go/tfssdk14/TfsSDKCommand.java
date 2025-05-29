@@ -87,7 +87,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     protected void retrieveFiles(File workDir, Revision revision) {
         LOGGER.debug("[TFS SDK] Getting Files for TFS workspace {} for user {} ", getWorkspace(), getUserName());
         GoTfsWorkspace workspace = client.queryWorkspace(getWorkspace(), getUserName());
-        ItemSpec spec = new ItemSpec(FileUtil.getCanonicalPath(workDir), RecursionType.FULL);
+        ItemSpec spec = new ItemSpec(getCanonicalPath(workDir), RecursionType.FULL);
         VersionSpec versionSpec = getVersionSpec(revision);
         GetRequest request = new GetRequest(spec, versionSpec);
         if (FileUtil.isFolderEmpty(workDir)) {
@@ -160,10 +160,10 @@ public class TfsSDKCommand extends AbstractTfsCommand {
 
     private void mapWorkingDirectory(GoTfsWorkspace workspace, File workDir) {
         LOGGER.debug("[TFS SDK] Mapping Folder: {}, Workspace: {}, Username: {}", workDir, getWorkspace(), getUserName());
-        if (!workspace.isLocalPathMapped(FileUtil.getCanonicalPath(workDir))) {
+        if (!workspace.isLocalPathMapped(getCanonicalPath(workDir))) {
             WorkingFolder workingFolder = new WorkingFolder(
                     getProjectPath(),
-                    FileUtil.getCanonicalPath(workDir));
+                    getCanonicalPath(workDir));
             workspace.createWorkingFolder(workingFolder);
         }
     }
@@ -207,6 +207,14 @@ public class TfsSDKCommand extends AbstractTfsCommand {
             }
         } catch (Exception e) {
 
+        }
+    }
+
+    private static String getCanonicalPath(File workDir) {
+        try {
+            return workDir.getCanonicalPath();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

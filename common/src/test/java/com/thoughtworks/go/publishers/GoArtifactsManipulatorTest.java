@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
@@ -48,7 +49,7 @@ import static org.mockito.Mockito.*;
 public class GoArtifactsManipulatorTest {
 
     private HttpService httpService;
-    private File tempFile;
+    private Path tempFile;
     private GoArtifactsManipulatorStub goArtifactsManipulatorStub;
     private JobIdentifier jobIdentifier;
     private DefaultGoPublisher goPublisher;
@@ -58,8 +59,8 @@ public class GoArtifactsManipulatorTest {
     public void setUp(@TempDir Path tempDir) throws Exception {
         httpService = mock(HttpService.class);
         artifactFolder = TempDirUtils.createTempDirectoryIn(tempDir, "artifact_folder");
-        tempFile = artifactFolder.resolve("file.txt").toFile();
-        FileUtils.writeStringToFile(tempFile, "some-random-data", UTF_8);
+        tempFile = artifactFolder.resolve("file.txt");
+        Files.writeString(tempFile, "some-random-data", UTF_8);
         goArtifactsManipulatorStub = new GoArtifactsManipulatorStub(httpService);
         jobIdentifier = new JobIdentifier("pipeline1", 1, "label-1", "stage1", "1", "job1");
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("h", "1", "u"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null);
@@ -68,15 +69,15 @@ public class GoArtifactsManipulatorTest {
 
     @Test
     public void shouldBombWithErrorWhenStatusCodeReturnedIsRequestEntityTooLarge() throws IOException {
-        when(httpService.upload(any(String.class), eq(tempFile.length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 
         CircularFifoQueue<?> buffer = ReflectionUtil.getField(ReflectionUtil.getField(goPublisher, "consoleOutputTransmitter"), "buffer");
         synchronized (buffer) {
             try {
-                goArtifactsManipulatorStub.publish(goPublisher, "some_dest", tempFile, jobIdentifier);
+                goArtifactsManipulatorStub.publish(goPublisher, "some_dest", tempFile.toFile(), jobIdentifier);
                 fail("should have thrown request entity too large error");
             } catch (RuntimeException e) {
-                String expectedMessage = "Artifact upload for file " + tempFile.getAbsolutePath() + " (Size: "+ tempFile.length() +") was denied by the server. This usually happens when server runs out of disk space.";
+                String expectedMessage = "Artifact upload for file " + tempFile.toAbsolutePath() + " (Size: "+ tempFile.toFile().length() +") was denied by the server. This usually happens when server runs out of disk space.";
                 assertThat(e.getMessage()).isEqualTo("java.lang.RuntimeException: " + expectedMessage + ".  HTTP return code is 413");
                 assertThat(buffer.toString().contains(expectedMessage)).isTrue();
             }
@@ -86,12 +87,12 @@ public class GoArtifactsManipulatorTest {
     @Test
     public void uploadShouldBeGivenFileSize() throws IOException {
 
-        when(httpService.upload(any(String.class), eq(tempFile.length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
         try {
-            goArtifactsManipulatorStub.publish(goPublisher, "dest", tempFile, jobIdentifier);
+            goArtifactsManipulatorStub.publish(goPublisher, "dest", tempFile.toFile(), jobIdentifier);
             fail("should have thrown request entity too large error");
         } catch (RuntimeException e) {
-            verify(httpService).upload(any(String.class), eq(tempFile.length()), any(File.class), any(Properties.class));
+            verify(httpService).upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), any(Properties.class));
         }
     }
 
@@ -99,26 +100,26 @@ public class GoArtifactsManipulatorTest {
     public void shouldUploadArtifactChecksumAlongWithArtifact() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = DigestUtils.md5Hex(data);
-        FileUtils.writeStringToFile(tempFile, data, UTF_8);
+        Files.writeString(tempFile, data, UTF_8);
         Properties properties = new Properties();
         properties.setProperty("dest/path/file.txt", md5);
 
-        when(httpService.upload(any(String.class), eq(tempFile.length()), any(File.class), eq(properties))).thenReturn(HttpServletResponse.SC_OK);
+        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), eq(properties))).thenReturn(HttpServletResponse.SC_OK);
 
-        goArtifactsManipulatorStub.publish(goPublisher, "/dest/path", tempFile, jobIdentifier);
+        goArtifactsManipulatorStub.publish(goPublisher, "/dest/path", tempFile.toFile(), jobIdentifier);
     }
 
     @Test
     public void shouldUploadArtifactChecksumWithRightPathWhenArtifactDestinationPathIsEmpty() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = DigestUtils.md5Hex(data);
-        FileUtils.writeStringToFile(tempFile, data, UTF_8);
+        Files.writeString(tempFile, data, UTF_8);
         Properties properties = new Properties();
         properties.setProperty("file.txt", md5);
 
-        when(httpService.upload(any(String.class), eq(tempFile.length()), any(File.class), eq(properties))).thenReturn(HttpServletResponse.SC_OK);
+        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), eq(properties))).thenReturn(HttpServletResponse.SC_OK);
 
-        goArtifactsManipulatorStub.publish(goPublisher, "", tempFile, jobIdentifier);
+        goArtifactsManipulatorStub.publish(goPublisher, "", tempFile.toFile(), jobIdentifier);
     }
 
     @Test
@@ -126,11 +127,11 @@ public class GoArtifactsManipulatorTest {
         String data = "Some text whose checksum can be asserted";
         String secondData = "some more";
 
-        FileUtils.writeStringToFile(tempFile, data, UTF_8);
+        Files.writeString(tempFile, data, UTF_8);
 
-        File anotherFile = artifactFolder.resolve("bond/james_bond/another_file").toFile();
-        FileUtils.writeStringToFile(anotherFile, secondData, UTF_8);
-
+        Path anotherFile = artifactFolder.resolve("bond/james_bond/another_file");
+        Files.createDirectories(anotherFile.getParent());
+        Files.writeString(anotherFile, secondData, UTF_8);
 
         when(httpService.upload(any(String.class), eq(FileUtils.sizeOfDirectory(artifactFolder.toFile())), any(File.class), eq(expectedProperties(data, secondData)))).thenReturn(HttpServletResponse.SC_OK);
 

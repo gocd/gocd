@@ -21,10 +21,11 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.VersionInfoDao;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemTimeClock;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -149,14 +150,17 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldGetVersionInfoIflatestVersionIsBeingUpdatedForMoreThanHalfAnHour(){
+    public void shouldGetVersionInfoIfLatestVersionIsBeingUpdatedForMoreThanHalfAnHour(){
         SystemTimeClock systemTimeClock = mock(SystemTimeClock.class);
         Date yesterday = new Date(System.currentTimeMillis() - 24*60*60*1000);
-        DateTime halfAnHourFromNow = new DateTime(System.currentTimeMillis() - 35 * 60 * 1000);
+        Instant overHalfAnHourAgo = Instant.now().minus(35, ChronoUnit.MINUTES);
         VersionInfo versionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"), new GoVersion("2.3.4-2"), yesterday);
 
         when(builder.getServerVersionInfo()).thenReturn(versionInfo);
-        when(systemTimeClock.currentDateTime()).thenReturn(halfAnHourFromNow);
+        when(systemTimeClock.currentTime()).thenReturn(
+            overHalfAnHourAgo, // On initialization
+            Instant.now() // when checking
+        );
 
         manager = new ServerVersionInfoManager(builder, versionInfoDao, systemTimeClock, goCache, systemEnvironment);
         manager.initialize();
@@ -175,7 +179,7 @@ public class ServerVersionInfoManagerTest {
         Date now = new Date();
 
         when(builder.getServerVersionInfo()).thenReturn(versionInfo);
-        when(systemTimeClock.currentTime()).thenReturn(now);
+        when(systemTimeClock.currentUtilDate()).thenReturn(now);
 
         manager = new ServerVersionInfoManager(builder, versionInfoDao, systemTimeClock, goCache, systemEnvironment);
 
@@ -194,7 +198,7 @@ public class ServerVersionInfoManagerTest {
         Date now = new Date();
 
         when(builder.getServerVersionInfo()).thenReturn(versionInfo);
-        when(systemTimeClock.currentTime()).thenReturn(now);
+        when(systemTimeClock.currentUtilDate()).thenReturn(now);
 
         manager = new ServerVersionInfoManager(builder, versionInfoDao, systemTimeClock, goCache, systemEnvironment);
         manager.initialize();

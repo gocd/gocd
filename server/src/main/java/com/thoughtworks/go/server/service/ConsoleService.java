@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
+import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,10 +87,7 @@ public class ConsoleService {
     }
 
     public boolean updateConsoleLog(File dest, InputStream in) {
-        File parentFile = dest.getParentFile();
-        //noinspection ResultOfMethodCallIgnored
-        parentFile.mkdirs();
-
+        FileUtil.mkdirsParentQuietly(dest);
         LOGGER.trace("Updating console log [{}]", dest.getAbsolutePath());
         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(dest, dest.exists()))) {
             in.transferTo(out);

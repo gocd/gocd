@@ -19,8 +19,9 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
-import org.joda.time.Duration;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
 
 import static com.thoughtworks.go.helper.StageMother.completedFailedStageInstance;
 import static com.thoughtworks.go.helper.StageMother.custom;
@@ -81,7 +82,7 @@ public class StageSummaryModelTest {
     }
 
     @Test
-    public void shouldRetriveShowElapsedTime() {
+    public void shouldRetrieveShowElapsedTime() {
         JobInstance first = JobInstanceMother.completed("first", JobResult.Failed);
         Stage stage = StageMother.custom("pipeline", "stage", new JobInstances(first));
         StageSummaryModel model = new StageSummaryModel(stage, new Stages(stage), JOB_DURATION_STRATEGY, null);
@@ -89,11 +90,11 @@ public class StageSummaryModelTest {
     }
 
     @Test
-    public void shouldRetrivePercentCompleteOnJobs() {
+    public void shouldRetrievePercentCompleteOnJobs() {
         JobInstance first = JobInstanceMother.completed("first", JobResult.Failed);
         Stage stage = StageMother.custom("pipeline", "stage", new JobInstances(first));
-        StageSummaryModel model = new StageSummaryModel(stage, new Stages(stage), new JobDurationStrategy.ConstantJobDuration(1000 * 1000), null);
-        assertThat(model.nonPassedJobs().get(0).getElapsedTime()).isEqualTo(new Duration(120 * 1000));
+        StageSummaryModel model = new StageSummaryModel(stage, new Stages(stage), new JobDurationStrategy.ConstantJobDuration(Duration.ofSeconds(1000)), null);
+        assertThat(model.nonPassedJobs().get(0).getElapsedTime()).isEqualTo(Duration.ofSeconds(120));
         assertThat(model.nonPassedJobs().get(0).getPercentComplete()).isEqualTo(12);
     }
 

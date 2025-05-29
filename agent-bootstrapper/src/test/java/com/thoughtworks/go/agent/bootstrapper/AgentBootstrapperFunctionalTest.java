@@ -19,7 +19,6 @@ import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
 import com.thoughtworks.go.agent.testhelper.GoTestResource;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.UUID;
 
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
@@ -55,11 +55,11 @@ public class AgentBootstrapperFunctionalTest {
     }
 
     @AfterEach
-    public void tearDown() {
-        FileUtils.deleteQuietly(AGENT_LAUNCHER_JAR);
-        FileUtils.deleteQuietly(AGENT_BINARY_JAR);
-        FileUtils.deleteQuietly(TFS_IMPL_JAR);
-        FileUtils.deleteQuietly(AGENT_PLUGINS_ZIP);
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(AGENT_LAUNCHER_JAR.toPath());
+        Files.deleteIfExists(AGENT_BINARY_JAR.toPath());
+        Files.deleteIfExists(TFS_IMPL_JAR.toPath());
+        Files.deleteIfExists(AGENT_PLUGINS_ZIP.toPath());
         System.clearProperty(AgentBootstrapper.WAIT_TIME_BEFORE_RELAUNCH_IN_MS);
     }
 
@@ -68,7 +68,7 @@ public class AgentBootstrapperFunctionalTest {
         try {
             AGENT_LAUNCHER_JAR.delete();
             new AgentBootstrapper().validate();
-            assertEquals("agent launcher from default files", FileUtils.readFileToString(AGENT_LAUNCHER_JAR, UTF_8).trim());
+            assertEquals("agent launcher from default files", Files.readString(AGENT_LAUNCHER_JAR.toPath(), UTF_8).trim());
         } finally {
             AGENT_LAUNCHER_JAR.delete();
         }
@@ -126,6 +126,6 @@ public class AgentBootstrapperFunctionalTest {
     }
 
     private void createRandomFile(File agentJar) throws IOException {
-        FileUtils.writeStringToFile(agentJar, UUID.randomUUID().toString(), UTF_8);
+        Files.writeString(agentJar.toPath(), UUID.randomUUID().toString(), UTF_8);
     }
 }

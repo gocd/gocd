@@ -22,11 +22,15 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
-import org.joda.time.DateTime;
+import com.thoughtworks.go.util.Dates;
 
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 public class JobInstanceMother {
     private JobInstanceMother() {
@@ -96,7 +100,7 @@ public class JobInstanceMother {
     public static JobInstance building(String jobConfigName, Date startBuildingDate) {
         final JobInstance instance = new JobInstance(jobConfigName);
         instance.changeState(JobState.Building, startBuildingDate);
-        instance.setScheduledDate(new DateTime().minusMinutes(5).toDate());
+        instance.setScheduledDate(Date.from(Instant.now().minus(5, MINUTES)));
         instance.setIdentifier(defaultJobIdentifier(jobConfigName));
         return instance;
     }
@@ -116,15 +120,15 @@ public class JobInstanceMother {
 
         instance.setState(endState);
         instance.setTransitions(new JobStateTransitions());
-        DateTime now = new DateTime();
-        Date scheduledDate = now.minusMinutes(5).toDate();
-        instance.setScheduledDate(scheduledDate);
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime scheduledDate = now.minusMinutes(5);
+        instance.setScheduledDate(Dates.from(scheduledDate));
 
+        ZonedDateTime stateDate = scheduledDate;
         List<JobState> orderedStates = orderedBuildStates();
-        DateTime stateDate = new DateTime(scheduledDate);
         for (JobState stateToCompareTo : orderedStates) {
             if (endState.compareTo(stateToCompareTo) >= 0) {
-                instance.changeState(stateToCompareTo, stateDate.toDate());
+                instance.changeState(stateToCompareTo, stateDate.toInstant());
                 stateDate = stateDate.plusMinutes(1);
             }
         }
@@ -147,21 +151,21 @@ public class JobInstanceMother {
 
     public static void setBuildingState(JobInstance instance) {
         instance.setAgentUuid("1234");
-        DateTime now = new DateTime();
-        Date scheduledDate = now.minusMinutes(5).toDate();
-        instance.setScheduledDate(scheduledDate);
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime scheduledDate = now.minusMinutes(5);
+        instance.setScheduledDate(Dates.from(scheduledDate));
         setTransitionConditionally(instance, JobState.Scheduled, scheduledDate);
-        setTransitionConditionally(instance, JobState.Assigned, now.minusMinutes(4).toDate());
-        setTransitionConditionally(instance, JobState.Preparing, now.minusMinutes(3).toDate());
-        setTransitionConditionally(instance, JobState.Building, now.minusMinutes(2).toDate());
+        setTransitionConditionally(instance, JobState.Assigned, now.minusMinutes(4));
+        setTransitionConditionally(instance, JobState.Preparing, now.minusMinutes(3));
+        setTransitionConditionally(instance, JobState.Building, now.minusMinutes(2));
     }
 
-    private static void setTransitionConditionally(JobInstance instance, JobState state, Date date) {
+    private static void setTransitionConditionally(JobInstance instance, JobState state, ZonedDateTime date) {
         JobStateTransition transition = instance.getTransition(state);
         if (transition != null) {
             instance.setState(state);
         } else {
-            instance.changeState(state, date);
+            instance.changeState(state, Dates.from(date));
         }
     }
 

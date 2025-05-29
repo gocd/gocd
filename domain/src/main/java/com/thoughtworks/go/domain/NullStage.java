@@ -40,10 +40,6 @@ public final class NullStage extends Stage {
         return nullStage;
     }
 
-    public String buildLabel() {
-        return "Unknown";
-    }
-
     @Override
     public Stage mostRecent(Stage instance) {
         return instance;
@@ -59,10 +55,6 @@ public final class NullStage extends Stage {
         return "NULLSTAGE";
     }
 
-    @Override
-    public String stageLocatorForDisplay() {
-        return stageLocator();
-    }
 
     @Override
     public StageState stageState() {

@@ -18,12 +18,14 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.server.util.GoLauncher.DEFAULT_LOGBACK_CONFIGURATION_FILE;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
 
 /**
@@ -91,8 +93,8 @@ public class DevelopmentServer {
     }
 
     private static void copyPluginAssets() throws IOException {
-        File classPathRoot = new File(DevelopmentServer.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        FileUtils.copyFile(new File("src/main/webapp/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js"), new File(classPathRoot, "plugin-endpoint.js"));
+        Path classPathRoot = Path.of(DevelopmentServer.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        Files.copy(Path.of("src/main/webapp/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js"), classPathRoot.resolve("plugin-endpoint.js"), REPLACE_EXISTING);
     }
 
     private static void assertActivationJarPresent() {

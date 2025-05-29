@@ -25,14 +25,15 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -69,8 +70,8 @@ public class AgentInstanceTest {
     }
 
     @AfterEach
-    void tearDown() {
-        FileUtils.deleteQuietly(new File("config/agentkeystore"));
+    void tearDown() throws IOException {
+        Files.deleteIfExists(Path.of("config/agentkeystore"));
         new SystemEnvironment().setProperty("agent.connection.timeout", "300");
         new SystemEnvironment().clearProperty(SystemEnvironment.AGENT_SIZE_LIMIT);
     }
@@ -201,7 +202,7 @@ public class AgentInstanceTest {
         Date currentTime = mock(Date.class);
         AgentInstance agentInstance = buildingWithTimeProvider(timeProvider);
 
-        when(timeProvider.currentTime()).thenReturn(currentTime);
+        when(timeProvider.currentUtilDate()).thenReturn(currentTime);
 
         agentInstance.cancel();
         agentInstance.killRunningTasks();
@@ -871,7 +872,7 @@ public class AgentInstanceTest {
             TimeProvider timeProvider = mock(TimeProvider.class);
             AgentInstance agentInstance = buildingWithTimeProvider(timeProvider);
 
-            when(timeProvider.currentTime()).thenReturn(currentTime);
+            when(timeProvider.currentUtilDate()).thenReturn(currentTime);
 
             agentInstance.cancel();
 
@@ -917,7 +918,7 @@ public class AgentInstanceTest {
             TimeProvider timeProvider = mock(TimeProvider.class);
             AgentInstance agentInstance = buildingWithTimeProvider(timeProvider);
 
-            when(timeProvider.currentTime()).thenReturn(currentTime, after10Mins);
+            when(timeProvider.currentUtilDate()).thenReturn(currentTime, after10Mins);
 
             agentInstance.cancel();
 

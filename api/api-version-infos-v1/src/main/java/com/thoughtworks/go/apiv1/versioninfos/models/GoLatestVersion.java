@@ -20,12 +20,12 @@ import com.google.gson.Gson;
 import com.thoughtworks.go.util.SystemEnvironment;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -58,8 +58,7 @@ public class GoLatestVersion {
     }
 
     private boolean signingPublicKeyTampered() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
-        File publicKeyPath = new File(systemEnvironment.getUpdateServerPublicKeyPath());
-        String publicKey = FileUtils.readFileToString(publicKeyPath, UTF_8);
+        String publicKey = Files.readString(Path.of(systemEnvironment.getUpdateServerPublicKeyPath()), UTF_8);
         return !EncryptionHelper.verifyRSASignature(signingPublicKey, signingPublicKeySignature, publicKey);
     }
 

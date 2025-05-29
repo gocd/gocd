@@ -34,8 +34,8 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.web.PipelineRevisionRange;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,6 +46,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
@@ -291,18 +292,18 @@ public class ChangesetServiceIntegrationTest {
         Username loser = new Username(new CaseInsensitiveString("loser"));
         ManualBuild build = new ManualBuild(loser);
 
-        DateTime now = new DateTime();
-        Pipeline firstPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("1", "#3518 - hg - foo", now.toDate())));
+        ZonedDateTime now = ZonedDateTime.now();
+        Pipeline firstPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("1", "#3518 - hg - foo", Dates.from(now))));
 
-        Modification bisectModification = checkinWithComment("3", "#4750 - Rev 3", now.plusDays(3).toDate());
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("2", "#3750 - Rev 2", now.plusDays(2).toDate()), bisectModification,
-                checkinWithComment("4", "#4750 - Rev 4", now.plus(4).toDate())));
+        Modification bisectModification = checkinWithComment("3", "#4750 - Rev 3", Dates.from(now.plusDays(3)));
+        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("2", "#3750 - Rev 2", Dates.from(now.plusDays(2))), bisectModification,
+                checkinWithComment("4", "#4750 - Rev 4", Dates.from(now.plusDays(4)))));
 
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("5", "#5750 - Rev 5", now.plusDays(5).toDate())));
+        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("5", "#5750 - Rev 5", Dates.from(now.plusDays(5)))));
 
         Pipeline bisectPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, new MaterialRevision(hg, bisectModification));
 
-        Pipeline nextPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("6", "#4150 - Rev 6", now.plusDays(7).toDate())));
+        Pipeline nextPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("6", "#4150 - Rev 6", Dates.from(now.plusDays(7)))));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         //when to counter is a bisect
@@ -320,18 +321,18 @@ public class ChangesetServiceIntegrationTest {
         Username loser = new Username(new CaseInsensitiveString("loser"));
         ManualBuild build = new ManualBuild(loser);
 
-        DateTime now = new DateTime();
-        Pipeline firstPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("1", "#3518 - hg - foo", now.toDate())));
+        ZonedDateTime now = ZonedDateTime.now();
+        Pipeline firstPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("1", "#3518 - hg - foo", Dates.from(now))));
 
-        Modification bisectModification = checkinWithComment("3", "#4750 - Rev 3", now.plusDays(3).toDate());
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("2", "#3750 - Rev 2", now.plusDays(2).toDate()), bisectModification,
-                checkinWithComment("4", "#4750 - Rev 4", now.plus(4).toDate())));
+        Modification bisectModification = checkinWithComment("3", "#4750 - Rev 3", Dates.from(now.plusDays(3)));
+        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("2", "#3750 - Rev 2", Dates.from(now.plusDays(2))), bisectModification,
+                checkinWithComment("4", "#4750 - Rev 4", Dates.from(now.plusDays(4)))));
 
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("5", "#5750 - Rev 5", now.plusDays(5).toDate())));
+        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("5", "#5750 - Rev 5", Dates.from(now.plusDays(5)))));
 
         Pipeline bisectPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, new MaterialRevision(hg, bisectModification));
 
-        Pipeline nextPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("6", "#4150 - Rev 6", now.plusDays(7).toDate())));
+        Pipeline nextPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("6", "#4150 - Rev 6", Dates.from(now.plusDays(7)))));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         //when to counter is a bisect
@@ -349,22 +350,22 @@ public class ChangesetServiceIntegrationTest {
         Username loser = new Username(new CaseInsensitiveString("loser"));
         ManualBuild build = new ManualBuild(loser);
 
-        DateTime now = new DateTime();
+        ZonedDateTime now = ZonedDateTime.now();
         Pipeline firstPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg,
-                checkinWithComment("1", "#3518 - hg - foo", now.toDate())));
+                checkinWithComment("1", "#3518 - hg - foo", Dates.from(now))));
 
-        Modification bisectModification = checkinWithComment("3", "#4750 - Rev 3", now.plusDays(3).toDate());
+        Modification bisectModification = checkinWithComment("3", "#4750 - Rev 3", Dates.from(now.plusDays(3)));
         dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg,
-                checkinWithComment("2", "#3750 - Rev 2", now.plusDays(2).toDate()),
+                checkinWithComment("2", "#3750 - Rev 2", Dates.from(now.plusDays(2))),
                 bisectModification,
-                checkinWithComment("4", "#4750 - Rev 4", now.plusDays(4).toDate())));
+                checkinWithComment("4", "#4750 - Rev 4", Dates.from(now.plusDays(4)))));
 
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("5", "#5750 - Rev 5", now.plusDays(5).toDate())));
+        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("5", "#5750 - Rev 5", Dates.from(now.plusDays(5)))));
 
         dbHelper.checkinRevisionsToBuild(build, pipelineConfig, new MaterialRevision(hg, bisectModification));
 
         Pipeline lastPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg,
-                checkinWithComment("6", "#6760 - Rev 6", now.plusDays(6).toDate())));
+                checkinWithComment("6", "#6760 - Rev 6", Dates.from(now.plusDays(6)))));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MaterialRevision> revisionsBetween = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), lastPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result,

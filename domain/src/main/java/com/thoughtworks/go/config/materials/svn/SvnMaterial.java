@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
+import static com.thoughtworks.go.util.FileUtil.mkdirsParentQuietly;
 import static java.lang.String.format;
 
 /**
@@ -167,7 +167,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
             FileUtils.deleteQuietly(workingFolder);
         }
         LOGGER.trace("Checking out to revision {} in {}", revision, workingFolder);
-        createParentFolderIfNotExist(workingFolder);
+        mkdirsParentQuietly(workingFolder);
         svn().checkoutTo(outputStreamConsumer, workingFolder, revision);
     }
 

@@ -43,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
@@ -97,8 +98,8 @@ public class GoConfigFileHelper {
         assignFileDao(createTestingDao());
         this.configFile = configFile.getAbsoluteFile();
         try {
-            saveFullConfig(FileUtils.readFileToString(this.configFile, UTF_8), true);
-            this.originalXml = FileUtils.readFileToString(this.configFile, UTF_8);
+            saveFullConfig(Files.readString(this.configFile.toPath(), UTF_8), true);
+            this.originalXml = Files.readString(this.configFile.toPath(), UTF_8);
         } catch (Exception e) {
             throw bomb("Error reading config file", e);
         }
@@ -132,7 +133,7 @@ public class GoConfigFileHelper {
                     configCache, configElementImplementationRegistry, cachedGoPartials, null, normalFlow, mock(PartialConfigHelper.class));
             GoConfigMigration goConfigMigration = new GoConfigMigration(new TimeProvider());
             GoConfigMigrator goConfigMigrator = new GoConfigMigrator(goConfigMigration, new SystemEnvironment(), configCache, configElementImplementationRegistry, normalFlow, configRepository, serverHealthService);
-            FileUtils.writeStringToFile(dataSource.fileLocation(), ConfigFileFixture.configWithSecurity(""), UTF_8);
+            Files.writeString(dataSource.location(), ConfigFileFixture.configWithSecurity(""), UTF_8);
             goConfigMigrator.migrate();
             CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, maintenanceModeService);
             cachedConfigService.loadConfigIfNull();
@@ -206,7 +207,7 @@ public class GoConfigFileHelper {
     }
 
     public String getCurrentXml() throws IOException {
-        return FileUtils.readFileToString(this.configFile, UTF_8);
+        return Files.readString(this.configFile.toPath(), UTF_8);
     }
 
     public void saveFullConfig(String configFileContent, boolean shouldMigrate) throws Exception {
@@ -241,7 +242,7 @@ public class GoConfigFileHelper {
 
     public void writeXmlToConfigFile(String xml) {
         try {
-            FileUtils.writeStringToFile(configFile, xml, UTF_8);
+            Files.writeString(configFile.toPath(), xml, UTF_8);
             goConfigDao.forceReload();
         } catch (Exception e) {
             throw bomb("Error writing config file: " + configFile.getAbsolutePath(), e);

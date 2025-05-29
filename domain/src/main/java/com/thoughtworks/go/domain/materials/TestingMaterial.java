@@ -52,7 +52,7 @@ public class TestingMaterial extends ScmMaterial {
         List<Modification> modifications = new ArrayList<>();
 
         Date today = new Date();
-        Date yesterday = new Date(Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli());
+        Date yesterday = Date.from(Instant.now().minus(1, ChronoUnit.DAYS));
 
         Modification modification1 = new Modification("lgao", "Fixing the not checked in files", "foo@bar.com", yesterday, "99");
         modification1.createModifiedFile("build.xml", "\\build", ModifiedAction.added);

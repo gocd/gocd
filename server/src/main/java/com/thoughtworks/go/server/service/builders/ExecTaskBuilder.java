@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
-import static com.thoughtworks.go.util.FileUtil.applyBaseDirIfRelativeAndNormalize;
+import static com.thoughtworks.go.util.FilenameUtil.applyBaseDirIfRelativeAndNormalize;
 
 @Component
 public class ExecTaskBuilder implements TaskBuilder<ExecTask> {

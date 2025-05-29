@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.util;
 
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -25,27 +25,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DateUtilsTest {
+public class DatesTest {
 
     @Test
     public void shouldBeAbleToParseRFC822Dates() {
-        Date date = DateUtils.parseRFC822("Tue, 09 Dec 2008 18:56:14 +0800");
-        assertThat(date).isEqualTo(new DateTime("2008-12-09T18:56:14+08:00").toDate());
+        Date date = Dates.parseRFC822("Tue, 09 Dec 2008 18:56:14 +0800");
+        assertThat(date).isEqualTo(Date.from(ZonedDateTime.parse("2008-12-09T18:56:14+08:00").toInstant()));
     }
 
     @Test
     public void shouldSerializeDateForCcTray() {
-        Date date = new DateTime("2008-12-09T18:56:14+08:00").toDate();
-        assertThat(DateUtils.formatIso8601ForCCTray(date)).isEqualTo("2008-12-09T10:56:14Z");
-    }
-
-    @Test
-    public void shouldFormatDateToDisplayOnUI() {
-        Calendar instance = Calendar.getInstance();
-        instance.set(2009, Calendar.NOVEMBER, 5);
-        Date date = instance.getTime();
-        String formattedDate = DateUtils.formatToSimpleDate(date);
-        assertThat(formattedDate).isEqualTo("05 Nov 2009");
+        Date date = Date.from(ZonedDateTime.parse("2008-12-09T18:56:14+08:00").toInstant());
+        assertThat(Dates.formatIso8601ForCCTray(date)).isEqualTo("2008-12-09T10:56:14Z");
     }
 
     @Test
@@ -55,7 +46,7 @@ public class DateUtilsTest {
         cal.add(Calendar.DATE, -1);
         Date yesterday = cal.getTime();
 
-        assertTrue(DateUtils.isToday(today));
-        assertFalse(DateUtils.isToday(yesterday));
+        assertTrue(Dates.isToday(today));
+        assertFalse(Dates.isToday(yesterday));
     }
 }

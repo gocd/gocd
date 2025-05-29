@@ -15,27 +15,25 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.joda.time.Duration;
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
+import java.time.Duration;
+import java.util.function.Function;
 
 /**
  * Understands the time taken for a stage to complete
  */
 public abstract class RunDuration  {
-    public static final PeriodFormatter PERIOD_FORMATTER =
-            new PeriodFormatterBuilder().printZeroAlways().minimumPrintedDigits(
-                    2).appendHours().appendSeparator(
-                    ":").appendMinutes().appendSeparator(":").appendSeconds().toFormatter();
-    protected Duration duration;
+    protected final Duration duration;
 
-    public abstract String duration(PeriodFormatter formatter);
+    protected RunDuration(Duration duration) {
+        this.duration = duration;
+    }
 
-    public static final RunDuration IN_PROGRESS_DURATION = new RunDuration() {
+    public abstract String duration(Function<Duration, String> formatter);
+
+    public static final RunDuration IN_PROGRESS_DURATION = new RunDuration(null) {
 
         @Override
-        public String duration(PeriodFormatter formatter) {
+        public String duration(Function<Duration, String> formatter) {
             return "In Progress";
         }
     };
@@ -43,17 +41,16 @@ public abstract class RunDuration  {
     public static class ActualDuration extends RunDuration {
 
         public ActualDuration(Duration duration) {
-            this.duration = duration;
+            super(duration);
         }
 
         @Override
-        public String duration(PeriodFormatter formatter) {
-            return formatter.print(duration.toPeriod());
+        public String duration(Function<Duration, String> formatter) {
+            return formatter.apply(duration);
         }
 
         public long getTotalSeconds() {
-            Period period = duration.toPeriod();
-            return period.getHours()*3600 + period.getMinutes()*60 + period.getSeconds();
+            return duration.getSeconds();
         }
     }
 
@@ -71,9 +68,5 @@ public abstract class RunDuration  {
     @Override
     public int hashCode() {
         return duration != null ? duration.hashCode() : 0;
-    }
-
-    @Override public String toString() {
-        return duration(PERIOD_FORMATTER);
     }
 }

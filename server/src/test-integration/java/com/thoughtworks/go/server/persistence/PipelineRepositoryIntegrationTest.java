@@ -40,9 +40,9 @@ import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,11 +51,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
+import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -166,16 +168,16 @@ public class PipelineRepositoryIntegrationTest {
 
         PipelineConfig pipelineConfig = createPipelineConfig(PIPELINE_NAME, "stage", "job");
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(hgmaterial.config()));
-        DateTime date = new DateTime(1984, 12, 23, 0, 0, 0, 0);
+        ZonedDateTime date = ZonedDateTime.of(1984, 12, 23, 0, 0, 0, 0, UTC);
         long firstId = createPipeline(hgmaterial, pipelineConfig, 1,
-                oneModifiedFile("3", date.plusDays(2).toDate()),
-                oneModifiedFile("2", date.plusDays(2).toDate()),
-                oneModifiedFile("1", date.plusDays(3).toDate()));
+                oneModifiedFile("3", date.plusDays(2)),
+                oneModifiedFile("2", date.plusDays(2)),
+                oneModifiedFile("1", date.plusDays(3)));
 
 
         long secondId = createPipeline(hgmaterial, pipelineConfig, 2,
-                oneModifiedFile("5", date.plusDays(1).toDate()),
-                oneModifiedFile("4", date.toDate()));
+                oneModifiedFile("5", date.plusDays(1)),
+                oneModifiedFile("4", date));
 
 
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
@@ -186,23 +188,23 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size()).isEqualTo(2);
         assertThat(entries.size()).isEqualTo(2);
         assertThat(entries).contains(expected(firstId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 10))), 1));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(2)), "123", hgmaterial.getFingerprint(), 10))), 1));
         assertThat(entries).contains(expected(secondId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(1).toDate(), "12", hgmaterial.getFingerprint(), 8))), 2));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(1)), "12", hgmaterial.getFingerprint(), 8))), 2));
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME)).contains(expected(firstId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 10))), 1));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(2)), "123", hgmaterial.getFingerprint(), 10))), 1));
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME)).contains(expected(secondId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(1).toDate(), "12", hgmaterial.getFingerprint(), 8))), 2));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(1)), "12", hgmaterial.getFingerprint(), 8))), 2));
         assertThat(pipelineTimeline.maximumId()).isEqualTo(secondId);
 
-        long thirdId = createPipeline(hgmaterial, pipelineConfig, 3, oneModifiedFile("30", date.plusDays(10).toDate()));
+        long thirdId = createPipeline(hgmaterial, pipelineConfig, 3, oneModifiedFile("30", date.plusDays(10)));
 
         pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>());
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size()).isEqualTo(3);
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME)).contains(expected(thirdId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(10).toDate(), "1234", hgmaterial.getFingerprint(), 12))), 3));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(10)), "1234", hgmaterial.getFingerprint(), 12))), 3));
         assertThat(pipelineTimeline.maximumId()).isEqualTo(thirdId);
 
         assertThat(pipelineSqlMapDao.pipelineByIdWithMods(firstId).getNaturalOrder()).isEqualTo(1.0);
@@ -219,16 +221,16 @@ public class PipelineRepositoryIntegrationTest {
 
         PipelineConfig pipelineConfig = createPipelineConfig(PIPELINE_NAME, "stage", "job");
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(hgmaterial.config()));
-        DateTime date = new DateTime(1984, 12, 23, 0, 0, 0, 0);
+        ZonedDateTime date = ZonedDateTime.of(1984, 12, 23, 0, 0, 0, 0, UTC);
         long firstId = createPipeline(hgmaterial, pipelineConfig, 1,
-                oneModifiedFile("3", date.plusDays(2).toDate()),
-                oneModifiedFile("2", date.plusDays(2).toDate()),
-                oneModifiedFile("1", date.plusDays(3).toDate()));
+                oneModifiedFile("3", date.plusDays(2)),
+                oneModifiedFile("2", date.plusDays(2)),
+                oneModifiedFile("1", date.plusDays(3)));
 
 
         long secondId = createPipeline(hgmaterial, pipelineConfig, 2,
-                oneModifiedFile("5", date.plusDays(1).toDate()),
-                oneModifiedFile("4", date.toDate()));
+                oneModifiedFile("5", date.plusDays(1)),
+                oneModifiedFile("4", date));
 
 
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
@@ -248,24 +250,24 @@ public class PipelineRepositoryIntegrationTest {
 
         PipelineConfig pipelineConfig = createPipelineConfig(PIPELINE_NAME, "stage", "job");
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(hgmaterial.config(), svnMaterial.config()));
-        final DateTime date = new DateTime(1984, 12, 23, 0, 0, 0, 0);
+        ZonedDateTime date = ZonedDateTime.of(1984, 12, 23, 0, 0, 0, 0, UTC);
         long first = save(pipelineConfig, 1, 1.0,
                 new MaterialRevision(hgmaterial,
-                        oneModifiedFile("13", date.plusDays(2).toDate()),
-                        oneModifiedFile("12", date.plusDays(2).toDate()),
-                        oneModifiedFile("11", date.plusDays(3).toDate())),
+                        oneModifiedFile("13", date.plusDays(2)),
+                        oneModifiedFile("12", date.plusDays(2)),
+                        oneModifiedFile("11", date.plusDays(3))),
                 new MaterialRevision(svnMaterial,
-                        oneModifiedFile("23", date.plusDays(6).toDate()),
-                        oneModifiedFile("22", date.plusDays(2).toDate()),
-                        oneModifiedFile("21", date.plusDays(2).toDate()))
+                        oneModifiedFile("23", date.plusDays(6)),
+                        oneModifiedFile("22", date.plusDays(2)),
+                        oneModifiedFile("21", date.plusDays(2)))
         );
 
         long second = save(pipelineConfig, 2, 0.0,
                 new MaterialRevision(hgmaterial,
-                        oneModifiedFile("15", date.plusDays(3).toDate()),
-                        oneModifiedFile("14", date.plusDays(2).toDate())),
+                        oneModifiedFile("15", date.plusDays(3)),
+                        oneModifiedFile("14", date.plusDays(2))),
                 new MaterialRevision(svnMaterial,
-                        oneModifiedFile("25", date.plusDays(5).toDate())));
+                        oneModifiedFile("25", date.plusDays(5))));
 
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>());
@@ -274,12 +276,12 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(modifications.size()).isEqualTo(2);
 
         assertThat(modifications).contains(expected(first, Map.of(
-            hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 8)),
-            svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(6).toDate(), "456", svnMaterial.getFingerprint(), 12))
+            hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(2)), "123", hgmaterial.getFingerprint(), 8)),
+            svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(6)), "456", svnMaterial.getFingerprint(), 12))
         ), 1));
         assertThat(modifications).contains(expected(second, Map.of(
-            hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(3).toDate(), "234", hgmaterial.getFingerprint(), 9)),
-            svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(5).toDate(), "345", svnMaterial.getFingerprint(), 10))
+            hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(3)), "234", hgmaterial.getFingerprint(), 9)),
+            svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(5)), "345", svnMaterial.getFingerprint(), 10))
         ), 2));
     }
 

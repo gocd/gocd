@@ -23,12 +23,12 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -45,7 +45,7 @@ public class ConsoleActivityMonitor {
     private final JobInstanceService jobInstanceService;
     private final ServerHealthService serverHealthService;
     private final GoConfigService goConfigService;
-    private ConsoleService consoleService;
+    private final ConsoleService consoleService;
     private final ConcurrentMap<JobIdentifier, Long> jobLastActivityMap;
     private final ConcurrentMap<JobIdentifier, Long> jobScheduledMap;
     private final long warningThreshold;
@@ -75,8 +75,8 @@ public class ConsoleActivityMonitor {
                 jobLastActivityMap.put(jobIdentifier, now);
             }
         }
-        LOGGER.info("Found '{}' building jobs. Added them with '{}' as the last heard time", jobLastActivityMap.size(), new DateTime(now));
-        LOGGER.info("Found '{}' scheduled jobs. Added them with '{}' as the last heard time", jobScheduledMap.size(), new DateTime(now));
+        LOGGER.info("Found '{}' building jobs. Added them with '{}' as the last heard time", jobLastActivityMap.size(), Instant.ofEpochMilli(now));
+        LOGGER.info("Found '{}' scheduled jobs. Added them with '{}' as the last heard time", jobScheduledMap.size(), Instant.ofEpochMilli(now));
     }
 
     public void consoleUpdatedFor(JobIdentifier jobIdentifier) {

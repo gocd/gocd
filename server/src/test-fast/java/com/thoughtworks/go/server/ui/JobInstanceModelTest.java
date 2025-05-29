@@ -17,12 +17,14 @@ package com.thoughtworks.go.server.ui;
 
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.util.TestingClock;
-import org.joda.time.Duration;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,42 +67,80 @@ public class JobInstanceModelTest {
         assertThat(new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO).getStatus()).isEqualTo("Active");
     }
 
-    private JobInstanceModel job(int elapsedSeconds, int etaSeconds) {
-        TestingClock clock = new TestingClock();
-        JobInstance instance = JobInstanceMother.building("job", clock.currentTime());
-        instance.setClock(clock);
-        clock.addSeconds(elapsedSeconds);
-
-        return new JobInstanceModel(instance, new JobDurationStrategy.ConstantJobDuration(etaSeconds * 1000));
+    private JobInstanceModel buildingJob(int elapsedMillis, int etaSeconds) {
+        JobInstance instance = buildingJob(elapsedMillis);
+        return new JobInstanceModel(instance, new JobDurationStrategy.ConstantJobDuration(Duration.ofSeconds(etaSeconds)));
     }
 
-    @Test
-    public void shouldTellIfInProgress() {
-        assertThat(job(500, 1000).isInprogress()).isTrue();
-        assertThat(job(1000, 1000).isInprogress()).isFalse();
-        assertThat(job(0, 1000).isInprogress()).isFalse();
+    private JobInstanceModel completeJob(int elapsedMillis, int etaSeconds) {
+        JobInstance instance = buildingJob(elapsedMillis);
+        instance.completing(JobResult.Passed);
+
+        return new JobInstanceModel(instance, new JobDurationStrategy.ConstantJobDuration(Duration.ofSeconds(etaSeconds)));
+    }
+
+    private static JobInstance buildingJob(int elapsedMillis) {
+        TestingClock clock = new TestingClock();
+        JobInstance instance = JobInstanceMother.building("job", clock.currentUtilDate());
+        instance.setClock(clock);
+        clock.addMillis(elapsedMillis);
+        return instance;
+    }
+
+    private static JobInstanceModel scheduledJob(int elapsedMillis, int etaSeconds) {
+        JobInstance instance = JobInstanceMother.scheduled("job");
+        TestingClock clock = new TestingClock();
+        instance.setClock(clock);
+        clock.addMillis(elapsedMillis);
+        return new JobInstanceModel(instance, new JobDurationStrategy.ConstantJobDuration(Duration.ofSeconds(etaSeconds)));
     }
 
     @Test
     public void shouldCalculatePercentageComplete() {
-        assertThat(job(500, 1000).getPercentComplete()).isEqualTo(50);
-        assertThat(job(500, 1020).getPercentComplete()).isEqualTo(49);
-        assertThat(job(0, 1000).getPercentComplete()).isEqualTo(0);
+        assertThat(buildingJob(500_000, 1000).getPercentComplete()).isEqualTo(50);
+        assertThat(buildingJob(500_000, 1020).getPercentComplete()).isEqualTo(49);
+        assertThat(buildingJob(200, 1000).getPercentComplete()).isEqualTo(0);
+        assertThat(buildingJob(0, 1000).getPercentComplete()).isEqualTo(0);
     }
 
     @Test
     public void shouldBeZeroIfWeDontHaveAnEta() {
-        assertThat(job(1000, 0).getPercentComplete()).isEqualTo(0);
+        assertThat(buildingJob(1000, 0).getPercentComplete()).isEqualTo(0);
     }
 
     @Test
     public void shouldBeIndeterminateIfHasTakenLongerThanTheEta() {
-        assertThat(job(1000, 100).getPercentComplete()).isEqualTo(100);
+        assertThat(buildingJob(1000_000, 100).getPercentComplete()).isEqualTo(100);
     }
 
     @Test
     public void shouldShowElapsedTime() {
-        assertThat(job(301, 0).getElapsedTime()).isEqualTo(new Duration(301 * 1000));
+        assertThat(scheduledJob(301, 0).getElapsedTime()).isEqualTo(Duration.ofSeconds(0));
+        assertThat(scheduledJob(0, 0).getElapsedTime()).isEqualTo(Duration.ofSeconds(0));
+
+        assertThat(buildingJob(301_000, 0).getElapsedTime()).isEqualTo(Duration.ofSeconds(301));
+        assertThat(buildingJob(301, 0).getElapsedTime()).isEqualTo(Duration.ofSeconds(1));
+        assertThat(buildingJob(0, 0).getElapsedTime()).isEqualTo(Duration.ofSeconds(1));
+
+        assertThat(completeJob(301_000, 0).getElapsedTime()).isEqualTo(Duration.ofSeconds(301));
+        assertThat(completeJob(301, 0).getElapsedTime()).isEqualTo(Duration.ofSeconds(1));
+        assertThat(completeJob(0, 0).getElapsedTime()).isEqualTo(Duration.ofSeconds(1));
+    }
+
+    @Test
+    public void shouldShowElapsedTimeForDisplay() {
+        assertThat(scheduledJob(300, 0).getElapsedTimeForDisplay()).isEqualTo("");
+        assertThat(scheduledJob(0, 0).getElapsedTimeForDisplay()).isEqualTo("");
+
+        assertThat(buildingJob(301_000, 0).getElapsedTimeForDisplay()).isEqualTo("5 minutes and 1 second");
+        assertThat(buildingJob(1_230_000, 0).getElapsedTimeForDisplay()).isEqualTo("20 minutes and 30 seconds");
+        assertThat(buildingJob(300, 0).getElapsedTimeForDisplay()).isEqualTo("1 second");
+        assertThat(buildingJob(0, 0).getElapsedTimeForDisplay()).isEqualTo("1 second");
+
+        assertThat(completeJob(301_000, 0).getElapsedTimeForDisplay()).isEqualTo("5 minutes and 1 second");
+        assertThat(completeJob(1_230_000, 0).getElapsedTimeForDisplay()).isEqualTo("20 minutes and 30 seconds");
+        assertThat(completeJob(300, 0).getElapsedTimeForDisplay()).isEqualTo("1 second");
+        assertThat(completeJob(0, 0).getElapsedTimeForDisplay()).isEqualTo("1 second");
     }
 
     @Test

@@ -17,12 +17,13 @@ package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.bazaarvoice.jolt.Chainr;
 import com.bazaarvoice.jolt.JsonUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
 
 public class ConfigRepoMigrator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepoMigrator.class);
@@ -41,8 +42,8 @@ public class ConfigRepoMigrator {
 
     private Chainr getTransformerFor(int targetVersion) {
         String targetVersionFile = String.format("/config-repo/migrations/%s.json", targetVersion);
-        try {
-            String transformJSON = IOUtils.toString(this.getClass().getResource(targetVersionFile), StandardCharsets.UTF_8);
+        try (InputStream stream = Objects.requireNonNull(this.getClass().getResourceAsStream(targetVersionFile))) {
+            String transformJSON = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             return Chainr.fromSpec(JsonUtils.jsonToList(transformJSON));
         } catch (Exception e) {
             throw new RuntimeException("Failed to migrate to version " + targetVersion, e);
@@ -51,8 +52,8 @@ public class ConfigRepoMigrator {
 
     private Map<String, Object> getContextMap(int targetVersion) {
         String contextFile = String.format("/config-repo/contexts/%s.json", targetVersion);
-        try {
-            String contextJSON = IOUtils.toString(this.getClass().getResource(contextFile), StandardCharsets.UTF_8);
+        try (InputStream stream = Objects.requireNonNull(this.getClass().getResourceAsStream(contextFile))) {
+            String contextJSON = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             return JsonUtils.jsonToMap(contextJSON);
         } catch (Exception e) {
             LOGGER.debug(String.format("No context file present for target version '%s'.", targetVersion));

@@ -41,6 +41,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import java.time.Instant
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -98,7 +99,7 @@ class InternalCompareControllerV2Test implements SecurityServiceTrait, Controlle
 
       @Test
       void 'should return pipeline instance models'() {
-        def date = new Date()
+        def date = Instant.now()
         def stage = StageMother.passedStageInstance(pipelineName, "stageName", 2, "buildName", date)
         def stageInstanceModel = StageMother.toStageInstanceModel(stage)
         def stageInstanceModels = new StageInstanceModels()

@@ -24,7 +24,6 @@ import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -64,6 +63,17 @@ public class DefaultPluginManager implements PluginManager {
         this.pluginLoader = pluginLoader;
         this.goPluginOSGiFramework = goPluginOSGiFramework;
         this.bundleLocation = bundlePath();
+    }
+
+    public static void validateAndCreateDirectory(File directory) {
+        if (directory.exists()) {
+            return;
+        }
+        try {
+            FileUtils.forceMkdir(directory);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create folder: " + directory.getAbsolutePath());
+        }
     }
 
     @Override
@@ -190,7 +200,7 @@ public class DefaultPluginManager implements PluginManager {
 
     private File bundlePath() {
         File bundleDir = new File(systemEnvironment.get(PLUGIN_WORK_DIR));
-        FileUtil.validateAndCreateDirectory(bundleDir);
+        validateAndCreateDirectory(bundleDir);
         return bundleDir;
     }
 }

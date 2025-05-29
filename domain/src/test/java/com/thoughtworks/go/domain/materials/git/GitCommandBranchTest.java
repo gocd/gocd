@@ -21,11 +21,11 @@ import com.thoughtworks.go.mail.SysOutStreamConsumer;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -79,7 +79,7 @@ public class GitCommandBranchTest extends GitCommandIntegrationTestBase {
     void shouldCleanIgnoredFilesIfToggleIsDisabled() throws IOException {
         InMemoryStreamConsumer output = inMemoryConsumer();
         File gitIgnoreFile = new File(repoLocation, ".gitignore");
-        FileUtils.writeStringToFile(gitIgnoreFile, "*.foo", UTF_8);
+        Files.writeString(gitIgnoreFile.toPath(), "*.foo", UTF_8);
         gitRepo.addFileAndPush(gitIgnoreFile, "added gitignore");
         git.fetchAndResetToHead(output, false);
 
@@ -94,7 +94,7 @@ public class GitCommandBranchTest extends GitCommandIntegrationTestBase {
         systemProperties.set(GitCommand.GIT_CLEAN_KEEP_IGNORED_FILES_FLAG, "Y");
         InMemoryStreamConsumer output = inMemoryConsumer();
         File gitIgnoreFile = new File(repoLocation, ".gitignore");
-        FileUtils.writeStringToFile(gitIgnoreFile, "*.foo", UTF_8);
+        Files.writeString(gitIgnoreFile.toPath(), "*.foo", UTF_8);
         gitRepo.addFileAndPush(gitIgnoreFile, "added gitignore");
         git.fetchAndResetToHead(output, false);
 

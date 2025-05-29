@@ -29,7 +29,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +50,7 @@ public class UnrunStagesPopulatorTest {
     @Test
     public void shouldPopulateRemainingStagesFromConfigurationForCurrentPipeline() {
         ValueStreamMap valueStreamMap = new ValueStreamMap(new CaseInsensitiveString("p"), new PipelineRevision("p", 10, "10"));
-        Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s1", 1, "b", new Date()));
+        Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s1", 1, "b", Instant.now()));
         stages.add(StageMother.scheduledStage("p", 10, "s3", 1, "b"));
         PipelineRevision pipelineRevision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().get(0);
         pipelineRevision.addStages(stages);
@@ -69,7 +69,7 @@ public class UnrunStagesPopulatorTest {
     @Test
     public void shouldNotAddRemainingStagesWhenTheyAreReordered() {
         ValueStreamMap valueStreamMap = new ValueStreamMap(new CaseInsensitiveString("p"), new PipelineRevision("p", 10, "10"));
-        Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s2", 1, "b", new Date()));
+        Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s2", 1, "b", Instant.now()));
         stages.add(StageMother.scheduledStage("p", 10, "s1", 1, "b"));
         PipelineRevision pipelineRevision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().get(0);
         pipelineRevision.addStages(stages);

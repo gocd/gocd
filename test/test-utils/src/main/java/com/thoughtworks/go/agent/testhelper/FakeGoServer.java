@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.agent.testhelper;
 
-import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Hexadecimals;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
@@ -30,6 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.file.Files;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.EnumSet;
@@ -37,6 +37,7 @@ import java.util.Properties;
 
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
 import static com.thoughtworks.go.util.TestFileUtil.resourceToString;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
     public enum TestResource {
@@ -72,7 +73,8 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
         // Because the resource can be a jar resource, which extracts to dir instead of a simple copy.
         public void copyTo(File output) throws IOException {
             try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
-                FileUtils.copyToFile(input, output);
+                if (output.toPath().getParent() != null) Files.createDirectories(output.toPath().getParent());
+                Files.copy(input, output.toPath(), REPLACE_EXISTING);
             }
         }
     }

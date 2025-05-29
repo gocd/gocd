@@ -42,7 +42,6 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -61,6 +60,8 @@ import org.xmlunit.assertj.XmlAssert;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +80,7 @@ import static org.assertj.core.api.Assertions.fail;
         "classpath:/testPropertyConfigurer.xml"
 })
 public class GoConfigMigratorIntegrationTest {
-    private File configFile;
+    private Path configFile;
     ConfigRepository configRepository;
     @Autowired
     private AgentDao agentDao;
@@ -109,8 +110,8 @@ public class GoConfigMigratorIntegrationTest {
     @BeforeEach
     public void setUp(@TempDir File temporaryFolder, ResetCipher resetCipher) throws Exception {
         dbHelper.onSetUp();
-        configFile = new File(temporaryFolder, "cruise-config.xml");
-        new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.getAbsolutePath());
+        configFile = new File(temporaryFolder, "cruise-config.xml").toPath();
+        new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.toAbsolutePath().toString());
         GoConfigFileHelper.clearConfigVersions();
         configRepository = new ConfigRepository(systemEnvironment);
         configRepository.initialize();
@@ -126,7 +127,7 @@ public class GoConfigMigratorIntegrationTest {
     public void tearDown() throws Exception {
         dbHelper.onTearDown();
         GoConfigFileHelper.clearConfigVersions();
-        configFile.delete();
+        Files.deleteIfExists(configFile);
         serverHealthService.removeAllLogs();
     }
 
@@ -134,7 +135,7 @@ public class GoConfigMigratorIntegrationTest {
     public void shouldNotUpgradeCruiseConfigFileUponServerStartupIfSchemaVersionMatches() throws Exception {
 
         String config = ConfigFileFixture.SERVER_WITH_ARTIFACTS_DIR;
-        FileUtils.writeStringToFile(configFile, config, UTF_8);
+        Files.writeString(configFile, config, UTF_8);
         // To create a version of this config in config.git since there wouldn't be any commit
         // in config.git at this point
         goFileConfigDataSource.forceLoad(configFile);
@@ -171,7 +172,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldNotUpgradeInvalidConfigFileWhenThereIsNoValidConfigVersioned() throws GitAPIException, IOException {
         Assertions.assertThat(configRepository.getRevision(ConfigRepository.CURRENT)).isNull();
-        FileUtils.writeStringToFile(configFile, "<cruise></cruise>", UTF_8);
+        Files.writeString(configFile, "<cruise></cruise>", UTF_8);
         goConfigMigrator.migrate();
         assertThat(exceptions.size()).isEqualTo(1);
         assertThat(exceptions.get(0).getMessage()).contains("Cruise config file with version 0 is invalid. Unable to upgrade.");
@@ -197,7 +198,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldTryToRevertConfigToTheLatestValidConfigVersionOnlyOnce() throws Exception {
         configRepository.checkin(new GoConfigRevision("<cruise></cruise>", "md5", "ps", "123", new TimeProvider()));
-        FileUtils.writeStringToFile(configFile, "<cruise></cruise>", UTF_8);
+        Files.writeString(configFile, "<cruise></cruise>", UTF_8);
         goConfigMigrator.migrate();
         assertThat(exceptions.get(0).getMessage()).contains("Cruise config file with version 0 is invalid. Unable to upgrade.");
     }
@@ -215,9 +216,9 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldMigrateApprovalsCorrectlyBug2112() throws Exception {
-        File bjcruise = new File("../common/src/test/resources/data/bjcruise-cruise-config-1.0.xml");
+        Path bjcruise = Path.of("../common/src/test/resources/data/bjcruise-cruise-config-1.0.xml");
         assertThat(bjcruise).exists();
-        String xml = FileUtils.readFileToString(bjcruise, StandardCharsets.UTF_8);
+        String xml = Files.readString(bjcruise, StandardCharsets.UTF_8);
 
         CruiseConfig cruiseConfig = loadConfigFileWithContent(xml);
 
@@ -253,8 +254,8 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldMigrateDependsOnTagToBeADependencyMaterial() throws Exception {
-        String content = FileUtils.readFileToString(
-                new File("../common/src/test/resources/data/config/version4/cruise-config-dependency-migration.xml"), UTF_8);
+        String content = Files.readString(
+                Path.of("../common/src/test/resources/data/config/version4/cruise-config-dependency-migration.xml"), UTF_8);
         CruiseConfig cruiseConfig = loadConfigFileWithContent(content);
         MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("depends")).materialConfigs().first();
         Assertions.assertThat(actual).isInstanceOf(DependencyMaterialConfig.class);
@@ -265,7 +266,7 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldFailIfJobsWithSameNameButDifferentCasesExistInConfig() throws Exception {
-        FileUtils.writeStringToFile(configFile, ConfigFileFixture.JOBS_WITH_DIFFERENT_CASE, UTF_8);
+        Files.writeString(configFile, ConfigFileFixture.JOBS_WITH_DIFFERENT_CASE, UTF_8);
         GoConfigHolder configHolder = goConfigMigrator.migrate();
         Assertions.assertThat(configHolder).isNull();
         PipelineConfig frameworkPipeline = goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString("framework"));
@@ -277,7 +278,7 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldVersionControlAnUpgradedConfigIfItIsValid() throws Exception {
-        FileUtils.writeStringToFile(configFile, ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS, UTF_8);
+        Files.writeString(configFile, ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS, UTF_8);
         configRepository.checkin(new GoConfigRevision("dummy-content", "some-md5", "loser", "100.3.1", new TimeProvider()));
 
         GoConfigHolder goConfigHolder = goConfigMigrator.migrate();
@@ -288,7 +289,7 @@ public class GoConfigMigratorIntegrationTest {
 
         assertThat(latest.getUsername()).isEqualTo("Upgrade");
 
-        String contents = FileUtils.readFileToString(configFile, UTF_8);
+        String contents = Files.readString(configFile, UTF_8);
         assertThat(latest.getContent()).isEqualTo(contents);
         assertThat(latest.getMd5()).isEqualTo(DigestUtils.md5Hex(contents));
     }
@@ -308,12 +309,12 @@ public class GoConfigMigratorIntegrationTest {
                             </jobs>
                           </stage>
                         </pipeline>""", "hello"), 32);
-        FileUtils.writeStringToFile(configFile, configContent, UTF_8);
+        Files.writeString(configFile, configContent, UTF_8);
 
         goConfigMigrator.migrate();
 
-        assertThat(FileUtils.readFileToString(configFile, UTF_8)).contains("encryptedPassword=");
-        assertThat(FileUtils.readFileToString(configFile, UTF_8)).doesNotContain("password=");
+        assertThat(Files.readString(configFile, UTF_8)).contains("encryptedPassword=");
+        assertThat(Files.readString(configFile, UTF_8)).doesNotContain("password=");
     }
 
     @Test
@@ -345,8 +346,8 @@ public class GoConfigMigratorIntegrationTest {
                     </server>
                  </cruise>""";
 
-        File configFile = new File(systemEnvironment.getCruiseConfigFile());
-        FileUtils.writeStringToFile(configFile, configContent, UTF_8);
+        Path configFile = Path.of(systemEnvironment.getCruiseConfigFile());
+        Files.writeString(configFile, configContent, UTF_8);
         CruiseConfig cruiseConfig = goConfigMigrator.migrate().config;
 
         RolesConfig roles = cruiseConfig.server().security().getRoles();
@@ -386,11 +387,11 @@ public class GoConfigMigratorIntegrationTest {
                             </jobs>
                           </stage>
                         </pipeline>""", 34);
-        FileUtils.writeStringToFile(configFile, configContent, UTF_8);
+        Files.writeString(configFile, configContent, UTF_8);
 
         goConfigMigrator.migrate();
 
-        assertThat(FileUtils.readFileToString(configFile, UTF_8)).contains("port=\"#{param_foo}\"");
+        assertThat(Files.readString(configFile, UTF_8)).contains("port=\"#{param_foo}\"");
     }
 
     @Test
@@ -417,11 +418,11 @@ public class GoConfigMigratorIntegrationTest {
                   </server>
                 </cruise>""";
 
-        FileUtils.writeStringToFile(configFile, content, UTF_8);
+        Files.writeString(configFile, content, UTF_8);
 
         goConfigMigrator.migrate();
 
-        String configXml = FileUtils.readFileToString(configFile, UTF_8);
+        String configXml = Files.readString(configFile, UTF_8);
 
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
         GoConfigHolder configHolder = loader.loadConfigHolder(configXml);
@@ -479,7 +480,7 @@ public class GoConfigMigratorIntegrationTest {
                   </stage>
                 </pipeline>""", 62);
         CruiseConfig configAfterMigration = migrateConfigAndLoadTheNewConfig(oldContent);
-        String currentContent = FileUtils.readFileToString(new File(goConfigService.fileLocation()), UTF_8);
+        String currentContent = Files.readString(Path.of(goConfigService.fileLocation()), UTF_8);
 
         PipelineConfig pipelineConfig = configAfterMigration.pipelineConfigByName(new CaseInsensitiveString("old-timer"));
         TimerConfig timer = pipelineConfig.getTimer();
@@ -513,7 +514,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void forVersion63_shouldFailWhenOnChangesValueIsEmpty() throws IOException {
         String config = configWithTimerBasedPipeline("onlyOnChanges=''");
-        FileUtils.writeStringToFile(configFile, config, UTF_8);
+        Files.writeString(configFile, config, UTF_8);
         goConfigMigrator.migrate();
         assertThat(exceptions.size()).isEqualTo(1);
         assertThat(exceptions.get(0).getCause().getMessage()).contains("'' is not a valid value for 'boolean'");
@@ -522,7 +523,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void forVersion63_shouldFailWhenOnChangesValueIsNotAValidBooleanValue() throws IOException {
         String config = configWithTimerBasedPipeline("onlyOnChanges='junk-non-boolean'");
-        FileUtils.writeStringToFile(configFile, config, UTF_8);
+        Files.writeString(configFile, config, UTF_8);
         goConfigMigrator.migrate();
         assertThat(exceptions.size()).isEqualTo(1);
         assertThat(exceptions.get(0).getCause().getMessage()).contains("'junk-non-boolean' is not a valid value for 'boolean'");
@@ -1271,7 +1272,7 @@ public class GoConfigMigratorIntegrationTest {
                         </cruise>""";
 
         CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(oldConfigWithNameInTask);
-        String newConfigWithoutNameInTask = FileUtils.readFileToString(configFile, UTF_8);
+        String newConfigWithoutNameInTask = Files.readString(configFile, UTF_8);
 
         XmlAssert.assertThat(newConfigWithoutNameInTask).hasXPath("//cruise/pipelines/pipeline/stage/jobs/job/tasks/task");
         XmlAssert.assertThat(newConfigWithoutNameInTask).doesNotHaveXPath("//cruise/pipelines/pipeline/stage/jobs/job/tasks/task[@name]");
@@ -1399,7 +1400,7 @@ public class GoConfigMigratorIntegrationTest {
 
         int initialAgentCountInDb = agentDao.getAllAgents().size();
         migrateConfigAndLoadTheNewConfig(configXml);
-        String newConfigFile = FileUtils.readFileToString(configFile, UTF_8);
+        String newConfigFile = Files.readString(configFile, UTF_8);
 
         // clearing out the hibernate cache so that the service fetches from the DB
         Cache cache = sessionFactory.getCache();
@@ -1480,7 +1481,7 @@ public class GoConfigMigratorIntegrationTest {
         agentDao.saveOrUpdate(agent);
 
         migrateConfigAndLoadTheNewConfig(configXml);
-        String newConfigFile = FileUtils.readFileToString(configFile, UTF_8);
+        String newConfigFile = Files.readString(configFile, UTF_8);
 
         Agent staticAgent = agentDao.fetchAgentFromDBByUUID("one");
 
@@ -1517,14 +1518,14 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     private CruiseConfig migrateConfigAndLoadTheNewConfig(String content) throws Exception {
-        FileUtils.writeStringToFile(configFile, content, UTF_8);
+        Files.writeString(configFile, content, UTF_8);
         GoConfigHolder configHolder = goConfigMigrator.migrate();
         assert configHolder != null;
         return configHolder.config;
     }
 
     private CruiseConfig loadConfigFileWithContent(String content) throws Exception {
-        FileUtils.writeStringToFile(configFile, content, UTF_8);
+        Files.writeString(configFile, content, UTF_8);
         goConfigMigrator.migrate();
         return goFileConfigDataSource.forceLoad(configFile).config;
     }

@@ -18,7 +18,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.XmlUtils;
-import org.apache.commons.io.FileUtils;
 import org.jdom2.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +33,15 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.URL;
-import java.text.SimpleDateFormat;
+import java.nio.file.Files;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Understands how to migrate from a previous version of config
@@ -47,7 +49,9 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 @Component
 public class GoConfigMigration {
     private static final Logger LOG = LoggerFactory.getLogger(GoConfigMigration.class.getName());
+    private static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
     private static final int XPATH_EXPRESSION_OPERATION_LIMIT = 200;
+
     private final TimeProvider timeProvider;
 
     @Autowired
@@ -61,7 +65,7 @@ public class GoConfigMigration {
             backup(configFile, backupFile);
             // FIXME the lack of charset here looks rather suspicious. But unclear how to fix without possible regressions.
             // Related to similar issue in MagicalGoConfigXmlWriter?
-            FileUtils.writeStringToFile(configFile, currentConfigRevision.getContent());
+            Files.writeString(configFile.toPath(), currentConfigRevision.getContent());
         } catch (IOException e1) {
             throw new RuntimeException(String.format("Could not write to config file '%s'.", configFile.getAbsolutePath()), e1);
         }
@@ -74,13 +78,12 @@ public class GoConfigMigration {
     }
 
     private void backup(File configFile, File backupFile) throws IOException {
-        FileUtils.copyFile(configFile, backupFile);
+        Files.copy(configFile.toPath(), backupFile.toPath(), REPLACE_EXISTING);
         LOG.info("Config file is backed up, location: {}", backupFile.getAbsolutePath());
     }
 
-    File getBackupFile(File configFile, final String prefix) {
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(timeProvider.currentTime());
-        return new File(configFile + "." + prefix + timestamp);
+    private File getBackupFile(File configFile, final String prefix) {
+        return new File(configFile + "." + prefix + BACKUP_FILE_FORMATTER.format(timeProvider.currentTime().atZone(ZoneId.systemDefault())));
     }
 
     private String upgrade(String content, int currentVersion) {

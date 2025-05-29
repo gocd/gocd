@@ -32,7 +32,7 @@ public enum Timeout {
     ONE_DAY(24 * ONE_HOUR.timeout),
     NEVER(Integer.MAX_VALUE);
 
-    private long timeout;
+    private final long timeout;
 
     Timeout(long timeout) {
         this.timeout = timeout;

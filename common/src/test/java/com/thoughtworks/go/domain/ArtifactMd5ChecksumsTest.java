@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Properties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -58,7 +58,7 @@ public class ArtifactMd5ChecksumsTest {
 
     @Test
     public void shouldLoadThePropertiesFromTheGivenFile() throws IOException {
-        FileUtils.writeStringToFile(file, "first/path:md5=", UTF_8);
+        Files.writeString(file.toPath(), "first/path:md5=", UTF_8);
         ArtifactMd5Checksums artifactMd5Checksums = new ArtifactMd5Checksums(file);
         assertThat(artifactMd5Checksums.md5For("first/path")).isEqualTo("md5=");
     }

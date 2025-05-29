@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.helper.StageMother;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -62,9 +62,9 @@ public class StagesTest {
 
     @Test
     public void shouldDescribeStagesIfCannotFindByCounter() {
-        Stage run1 = StageMother.createPassedStage("pipeline", 1, "stage", 1, "job", new Date());
-        Stage run2 = StageMother.createPassedStage("pipeline", 1, "stage", 2, "job", new Date());
-        Stage run3 = StageMother.createPassedStage("pipeline", 1, "stage", 3, "job", new Date());
+        Stage run1 = StageMother.createPassedStage("pipeline", 1, "stage", 1, "job", Instant.now());
+        Stage run2 = StageMother.createPassedStage("pipeline", 1, "stage", 2, "job", Instant.now());
+        Stage run3 = StageMother.createPassedStage("pipeline", 1, "stage", 3, "job", Instant.now());
         Stages stages = new Stages(run1, run2, run3);
         assertThat(stages.byCounter(2)).isEqualTo(run2);
         try {
@@ -87,12 +87,12 @@ public class StagesTest {
 
     @Test
     public void shouldGetLatestStagesInRunOrder() {
-        Stage s1_1 = StageMother.createPassedStage("p", 1, "s1", 1, "b", new Date());
+        Stage s1_1 = StageMother.createPassedStage("p", 1, "s1", 1, "b", Instant.now());
         s1_1.setOrderId(1);
         s1_1.setLatestRun(false);
-        Stage s2_1 = StageMother.createPassedStage("p", 1, "s2", 1, "b", new Date());
+        Stage s2_1 = StageMother.createPassedStage("p", 1, "s2", 1, "b", Instant.now());
         s2_1.setOrderId(2);
-        Stage s1_2 = StageMother.createPassedStage("p", 1, "s1", 2, "b", new Date());
+        Stage s1_2 = StageMother.createPassedStage("p", 1, "s1", 2, "b", Instant.now());
         s1_2.setOrderId(1);
 
         Stages stages = new Stages(s2_1, s1_2, s1_1);

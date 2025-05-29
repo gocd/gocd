@@ -22,9 +22,9 @@ dependencies {
   implementation(project(path: ':agent-common', configuration: 'runtimeElements')) {
     // Not needed within the bootstrapper
     exclude(group: 'org.apache.httpcomponents')
-    exclude(group: 'joda-time')
     exclude(module: 'jcl-over-slf4j')
   }
+  implementation project.deps.commonsIO
 
   testRuntimeOnly project.deps.bouncyCastle
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')

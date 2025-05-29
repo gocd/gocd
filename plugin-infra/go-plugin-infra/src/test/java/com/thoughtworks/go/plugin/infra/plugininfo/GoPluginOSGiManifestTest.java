@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -75,7 +76,7 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void shouldAddGoPluginActivatorJarToDependenciesOnlyOnceAtTheBeginning() throws Exception {
-        FileUtils.writeStringToFile(new File(bundleLocation, "lib/go-plugin-activator.jar"), "Some data", UTF_8);
+        Files.writeString(bundleLocation.toPath().resolve("lib/go-plugin-activator.jar"), "Some data", UTF_8);
 
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("pluginId").pluginJarFileLocation("some-plugin.jar").bundleLocation(bundleLocation).isBundledPlugin(true).build());
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
@@ -86,9 +87,9 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void shouldCreateManifestWithProperClassPathForAllDependencyJarsInPluginDependenciesDirectory() throws Exception {
-        FileUtils.writeStringToFile(new File(bundleLocation, "lib/dependency-1.jar"), "Some data", UTF_8);
-        FileUtils.writeStringToFile(new File(bundleLocation, "lib/dependency-2.jar"), "Some data", UTF_8);
-        FileUtils.writeStringToFile(new File(bundleLocation, "lib/dependency-3.jar"), "Some data", UTF_8);
+        Files.writeString(bundleLocation.toPath().resolve("lib/dependency-1.jar"), "Some data", UTF_8);
+        Files.writeString(bundleLocation.toPath().resolve("lib/dependency-2.jar"), "Some data", UTF_8);
+        Files.writeString(bundleLocation.toPath().resolve("lib/dependency-3.jar"), "Some data", UTF_8);
 
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("pluginId").pluginJarFileLocation("some-plugin.jar").bundleLocation(bundleLocation).isBundledPlugin(true).build());
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
@@ -155,7 +156,7 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void shouldCreateManifestWithProperClassPathWhenDependencyDirIsEmpty() throws Exception {
-        FileUtils.deleteQuietly(new File(bundleLocation, "lib/dependency.jar"));
+        Files.deleteIfExists(bundleLocation.toPath().resolve("lib/dependency.jar"));
         assertThat(bundleDependencyDir.listFiles().length).isEqualTo(0);
 
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("pluginId").pluginJarFileLocation("some-plugin.jar").bundleLocation(bundleLocation).isBundledPlugin(true).build());

@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.Dates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class ServerStatusService {
 
     private Map<String, Object> serverInfoAsJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
-        json.put("Timestamp", DateUtils.formatISO8601(new Date()));
+        json.put("Timestamp", Dates.formatIso8601CompactOffset(new Date()));
 
         for (ServerInfoProvider provider : providers) {
             try {

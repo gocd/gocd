@@ -80,7 +80,7 @@ class SerializationTest {
     }
 
     @Test
-    void rejectsSerializationOfAESCipherProvider() {
+    void rejectsSerializationOfAESCipherProvider() throws IOException {
         final AESCipherProvider acp = new AESCipherProvider(new TempSystemEnvironment());
         try {
             final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
@@ -113,7 +113,7 @@ class SerializationTest {
     }
 
     @Test
-    void rejectsSerializationOfDESCipherProvider() {
+    void rejectsSerializationOfDESCipherProvider() throws IOException {
         final DESCipherProvider dcp = new DESCipherProvider(new TempSystemEnvironment());
         try {
             final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
@@ -161,7 +161,7 @@ class SerializationTest {
 
     @Nested
     public class DateTimes {
-        final Date TEST_TIME = new Date(ZonedDateTime.of(2023, 12, 13, 1, 2, 3, 4000000, ZoneId.of("UTC")).toInstant().toEpochMilli());
+        final Date TEST_TIME = Date.from(ZonedDateTime.of(2023, 12, 13, 1, 2, 3, 4000000, ZoneId.of("UTC")).toInstant());
 
         @Test
         void serializesDatesDeterministically() {

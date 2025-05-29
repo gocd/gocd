@@ -45,6 +45,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -163,7 +164,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
     private void checkInFiles(String... files) throws Exception {
         for (String fileName : files) {
             File file = new File(workingFolder, fileName);
-            FileUtils.writeStringToFile(file, "bla", UTF_8);
+            Files.writeString(file.toPath(), "bla", UTF_8);
             svnRepository.checkInOneFile(fileName, "random commit " + fileName);
         }
     }

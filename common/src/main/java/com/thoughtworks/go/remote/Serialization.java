@@ -297,7 +297,7 @@ public class Serialization {
             }
 
             try {
-                return new Date(ISO_INSTANT.parse(in.nextString(), Instant::from).toEpochMilli());
+                return Date.from(ISO_INSTANT.parse(in.nextString(), Instant::from));
             } catch (DateTimeParseException e) {
                 throw new JsonParseException(e);
             }

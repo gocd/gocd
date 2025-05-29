@@ -20,7 +20,6 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +72,7 @@ public class SvnRemoteRepository {
             passwd = passwd + "\n[users]\n";
         }
         passwd = passwd + String.format("\n%s = %s\n", username, password);
-        FileUtils.writeStringToFile(passwdFile, passwd, UTF_8);
+        Files.writeString(passwdFile.toPath(), passwd, UTF_8);
     }
 
     private void enableAuthentication() throws IOException {
@@ -85,7 +84,7 @@ public class SvnRemoteRepository {
                 auth-access = write
                 password-db = passwd
                 """;
-        FileUtils.writeStringToFile(confFile, passwd, UTF_8);
+        Files.writeString(confFile.toPath(), passwd, UTF_8);
     }
 
     public void stop() {

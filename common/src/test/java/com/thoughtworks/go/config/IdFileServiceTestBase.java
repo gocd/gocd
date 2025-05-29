@@ -75,13 +75,18 @@ public abstract class IdFileServiceTestBase {
 
     @Test
     public void shouldDeleteFile() {
-        assertTrue(idFileService.file.exists());
+        assertThat(idFileService.file).exists();
 
         idFileService.delete();
 
-        assertFalse(idFileService.file.exists());
+        assertThat(idFileService.file).doesNotExist();
     }
 
+    /**
+     * Validates that we can create files (and ensure directories are created) inside a symlinked config directory.
+     * Note that use of Files.createDirectories() inside the IdFileService provider will fail on Linux if the target directory
+     * although was finally addressed in 17.0.14 via https://bugs.openjdk.org/browse/JDK-8294193 (and always correct on 21)
+     */
     @Test
     public void shouldStoreFileInsideSymlinkedConfigDirs(@TempDir Path tempDir) throws Exception {
         Path targetConfig = tempDir.resolve("target-config");
@@ -92,7 +97,7 @@ public abstract class IdFileServiceTestBase {
         new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, symlinkedConfig.toString());
         this.setUp();
 
-        assertThat(idFileService.file).exists().isFile().hasContent(DATA);
+        assertThat(idFileService.file).exists().isFile().hasContent(DATA).satisfies( f -> assertThat(f.getPath()).contains("symlink-config-dir"));
         assertThat(idFileService.file.toPath().toRealPath().toString()).contains("target-config");
         assertThat(idFileService.load()).isEqualTo(DATA);
     }

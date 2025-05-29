@@ -1441,12 +1441,12 @@ public class PipelineSqlMapDaoIntegrationTest {
         u.checkinInOrder(g1, "g_1");
 
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", "s1", u.m(g1));
-        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock());
         dbHelper.pass(p1_1);
-        PipelineInstanceModel pim1 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper().toString(), 1); //prime cache
+        PipelineInstanceModel pim1 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper(), 1); //prime cache
         scheduleService.rerunStage(p1_1.getName(), p1_1.getCounter(), p1_1.getStages().get(0).getName());
 
-        PipelineInstanceModel pim2 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper().toString(), 1);
+        PipelineInstanceModel pim2 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper(), 1);
 
         assertThat(pim2).isNotEqualTo(pim1);
         assertThat(pim2.getStageHistory().get(0).getIdentifier().getStageCounter()).isEqualTo("2");
@@ -1472,11 +1472,11 @@ public class PipelineSqlMapDaoIntegrationTest {
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith(PipelineConfigMother.createPipelineConfig(pipeline2, "p2s1", "j1"));
 
         // Pipeline 1 Counter 1: All stages green
-        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock());
         dbHelper.pass(p1_1);
 
         // Pipeline 1 Counter 2: S1, S2 green, S3 running. J1 failed, J2 scheduled
-        Pipeline p1_2 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        Pipeline p1_2 = dbHelper.schedulePipeline(p1.config, new TestingClock());
         dbHelper.passStage(p1_2.getFirstStage());
         Stage p1_2_s2_1 = dbHelper.scheduleStage(p1_2, pipelineConfig1.getStage("s2"));
         dbHelper.passStage(p1_2_s2_1);
@@ -1484,15 +1484,15 @@ public class PipelineSqlMapDaoIntegrationTest {
         dbHelper.failJob(p1_2_s3_1, p1_2_s3_1.findJob("WinBuild"));
 
         // Pipeline 1 Counter 3: S1 green, S2 running
-        Pipeline p1_3 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        Pipeline p1_3 = dbHelper.schedulePipeline(p1.config, new TestingClock());
         dbHelper.passStage(p1_3.getFirstStage());
         Stage p1_3_s2_1 = dbHelper.scheduleStage(p1_3, pipelineConfig1.getStage("s2"));
 
         // Pipeline 1 Counter 4: S1 scheduled
-        Pipeline p1_4 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        Pipeline p1_4 = dbHelper.schedulePipeline(p1.config, new TestingClock());
 
         // Pipeline 2 Counter 1: All stages green
-        Pipeline p2_1 = dbHelper.schedulePipeline(p2.config, new TestingClock(new Date()));
+        Pipeline p2_1 = dbHelper.schedulePipeline(p2.config, new TestingClock());
         dbHelper.pass(p2_1);
 
         PipelineInstanceModels pipelineInstanceModels = pipelineDao.loadHistoryForDashboard(List.of(pipeline1, pipeline2)); // Load for all pipelines
@@ -1520,7 +1520,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         u.checkinInOrder(g1, "g_1");
 
         ScheduleTestUtil.AddedPipeline pipeline1 = u.saveConfigWith("pipeline1", u.m(g1));
-        Pipeline pipeline1_1 = dbHelper.schedulePipeline(pipeline1.config, new TestingClock(new Date()));
+        Pipeline pipeline1_1 = dbHelper.schedulePipeline(pipeline1.config, new TestingClock());
         pipelineDao.loadActivePipelines(); //to initialize cache
 
         dbHelper.pass(pipeline1_1);
@@ -1530,7 +1530,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         configHelper.removePipeline(pipeline1.config.name().toString());
         ScheduleTestUtil.AddedPipeline p1ReincarnatedWithDifferentCase = u.saveConfigWith("PIPELINE1", u.m(g1));
-        Pipeline pipelineReincarnatedWithDifferentCase_1 = dbHelper.schedulePipeline(p1ReincarnatedWithDifferentCase.config, new TestingClock(new Date()));
+        Pipeline pipelineReincarnatedWithDifferentCase_1 = dbHelper.schedulePipeline(p1ReincarnatedWithDifferentCase.config, new TestingClock());
         pipelineDao.loadActivePipelines(); //to initialize cache
         pipelineDao.stageStatusChanged(pipelineReincarnatedWithDifferentCase_1.getFirstStage());
 
@@ -1566,9 +1566,9 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         String pipelineName = "p1";
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith(pipelineName, "s1", u.m(g1));
-        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock());
         dbHelper.pass(p1_1);
-        Pipeline p2_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        Pipeline p2_1 = dbHelper.schedulePipeline(p1.config, new TestingClock());
         dbHelper.pass(p2_1);
 
         PipelineIdentifier pipelineIdentifier = pipelineDao.mostRecentPipelineIdentifier(pipelineName);
@@ -1584,11 +1584,11 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         String pipelineName = "p1";
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith(pipelineName, "s1", u.m(g1));
-        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock());
         dbHelper.pass(p1_1);
-        Pipeline p2_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        Pipeline p2_1 = dbHelper.schedulePipeline(p1.config, new TestingClock());
         dbHelper.pass(p2_1);
-        Pipeline p3_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        Pipeline p3_1 = dbHelper.schedulePipeline(p1.config, new TestingClock());
         dbHelper.pass(p3_1);
         PipelineRunIdInfo oldestAndLatestPipelineId = pipelineDao.getOldestAndLatestPipelineId(pipelineName);
 
@@ -1669,9 +1669,9 @@ public class PipelineSqlMapDaoIntegrationTest {
         u.checkinInOrder(g1, "g_1");
 
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", "s1", u.m(g1));
-        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock());
         dbHelper.pass(p1_1);
-        PipelineInstanceModel pim1 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper().toString(), 1);
+        PipelineInstanceModel pim1 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper(), 1);
 
         assertThat(pim1.getBuildCause().getApprover()).isEqualTo("changes");
         assertThat(pim1.getBuildCause().getBuildCauseMessage()).isEqualTo("modified by lgao");

@@ -30,12 +30,12 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
+import java.util.Base64;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -168,7 +168,7 @@ public class AgentUpgradeServiceTest {
     void shouldSetAnyExtraPropertiesSentByTheServer() throws Exception {
         setupForNoChangesToMD5();
 
-        expectHeaderValue(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, encodeBase64String("abc=def%20ghi  jkl%20mno=pqr%20stu".getBytes(UTF_8)));
+        expectHeaderValue(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, Base64.getEncoder().encodeToString("abc=def%20ghi  jkl%20mno=pqr%20stu".getBytes(UTF_8)));
         agentUpgradeService.checkForUpgradeAndExtraProperties();
 
         assertThat(System.getProperty("abc")).isEqualTo("def ghi");
@@ -181,7 +181,7 @@ public class AgentUpgradeServiceTest {
 
         final Map<Object, Object> before = System.getProperties().entrySet().stream().collect(toMap(Entry::getKey, Entry::getValue));
 
-        expectHeaderValue(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, encodeBase64String("this_is_invalid".getBytes(UTF_8)));
+        expectHeaderValue(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, Base64.getEncoder().encodeToString("this_is_invalid".getBytes(UTF_8)));
         agentUpgradeService.checkForUpgradeAndExtraProperties();
 
         final Map<Object, Object> after = System.getProperties().entrySet().stream().collect(toMap(Entry::getKey, Entry::getValue));

@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,9 +84,9 @@ public class GoConfigFileHelper {
         this.originalXml = xml;
         assignFileDao(goConfigDao);
         try {
-            File dir = TestFileUtil.createTempFolder("server-config-dir");
-            this.configFile = new File(dir, "cruise-config.xml");
-            configFile.deleteOnExit();
+            Path dir = Files.createTempDirectory( "server-config-dir");
+            this.configFile = new File(dir.toFile(), "cruise-config.xml");
+            dir.toFile().deleteOnExit();
             sysEnv = new SystemEnvironment();
             sysEnv.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.getAbsolutePath());
             initializeConfigFile();

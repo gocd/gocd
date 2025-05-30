@@ -69,8 +69,8 @@ GEM
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     base64 (0.2.0)
-    bigdecimal (3.1.9)
-    bigdecimal (3.1.9-java)
+    bigdecimal (3.2.0)
+    bigdecimal (3.2.0-java)
     builder (3.3.0)
     capybara (3.40.0)
       addressable

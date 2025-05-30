@@ -69,8 +69,8 @@ GEM
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     base64 (0.2.0)
-    bigdecimal (3.1.9)
-    bigdecimal (3.1.9-java)
+    bigdecimal (3.2.0)
+    bigdecimal (3.2.0-java)
     builder (3.3.0)
     capybara (3.40.0)
       addressable
@@ -99,12 +99,12 @@ GEM
       rake
     globalid (1.2.1)
       activesupport (>= 6.1)
-    google-protobuf (4.31.0-java)
+    google-protobuf (4.31.1-java)
       bigdecimal
       ffi (~> 1)
       ffi-compiler (~> 1)
       rake (>= 13)
-    google-protobuf (4.31.0-x86_64-linux-gnu)
+    google-protobuf (4.31.1-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
     i18n (1.14.7)

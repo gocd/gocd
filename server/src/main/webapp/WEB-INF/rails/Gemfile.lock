@@ -68,7 +68,7 @@ GEM
       tzinfo (~> 2.0)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
-    base64 (0.2.0)
+    base64 (0.3.0)
     bigdecimal (3.2.1)
     bigdecimal (3.2.1-java)
     builder (3.3.0)

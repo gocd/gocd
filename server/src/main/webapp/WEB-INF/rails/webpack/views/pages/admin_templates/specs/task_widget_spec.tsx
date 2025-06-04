@@ -71,7 +71,7 @@ describe("TaskWidget", () => {
       });
 
       expect(testHelper.text(testHelper.root!))
-        .toEqual("blah$ ant -f 'boo\\\\blah with spaces.xml' target with spaces 'boo bah'");
+        .toEqual("blah$ ant -f 'boo\\blah with spaces.xml' target with spaces 'boo bah'");
     });
   });
 
@@ -116,7 +116,7 @@ describe("TaskWidget", () => {
       });
 
       expect(testHelper.text(testHelper.root!))
-        .toEqual("blah$ rake -f 'boo\\\\blah with spaces.rake' target with spaces 'boo bah'");
+        .toEqual("blah$ rake -f 'boo\\blah with spaces.rake' target with spaces 'boo bah'");
     });
   });
 
@@ -162,7 +162,7 @@ describe("TaskWidget", () => {
       });
 
       expect(testHelper.text(testHelper.root!))
-        .toEqual("blah$ c:\\\\nant\\\\nant '-buildfile:boo\\\\blah with spaces.xml' target with spaces 'boo bah'");
+        .toEqual("blah$ 'c:\\nant\\nant' '-buildfile:boo\\blah with spaces.xml' target with spaces 'boo bah'");
     });
   });
 

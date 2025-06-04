@@ -42,7 +42,7 @@
     "normalize-scss": "^8.0.0",
     "opensans": "file:vendor/assets/fonts/opensans",
     "prismjs": "^1.30.0",
-    "shell-quote": "^1.8.2",
+    "shell-quote": "^1.8.3",
     "shellwords-ts": "^3.0.1",
     "underscore.string": "^3.3.6",
     "url-parse": "^1.5.10",
@@ -51,7 +51,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
-    "@babel/eslint-parser": "^7.27.1",
+    "@babel/eslint-parser": "^7.27.5",
     "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",
     "@types/awesomplete": "^1.1.16",
@@ -133,5 +133,5 @@
     "watchpack-chokidar2@npm:2.0.1/chokidar": "^3.6.0",
     "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1"
   },
-  "packageManager": "yarn@4.9.1"
+  "packageManager": "yarn@4.9.2"
 }

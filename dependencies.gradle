@@ -34,7 +34,7 @@ final Map<String, String> libraries = [
   assertJ             : 'org.assertj:assertj-core:3.27.3',
   assertJ_DB          : 'org.assertj:assertj-db:3.0.0',
   awaitility          : 'org.awaitility:awaitility:4.3.0',
-  bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.80',
+  bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.81',
   bucket4j            : 'com.bucket4j:bucket4j_jdk17-core:8.14.0',
   bucket4jCaffeine    : 'com.bucket4j:bucket4j-caffeine:8.10.1',
   caffeine            : 'com.github.ben-manes.caffeine:caffeine:3.2.0',

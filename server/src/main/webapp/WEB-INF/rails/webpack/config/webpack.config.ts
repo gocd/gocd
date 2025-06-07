@@ -22,7 +22,6 @@ import {plugins} from "./plugins";
 import {ConfigOptions, getEntries, getModules} from "./variables";
 
 const TerserPlugin = require("terser-webpack-plugin");
-const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 
 function getConfigOptions(argv: any, env: any): ConfigOptions {
   const assetsDir              = path.join(__dirname, "..");
@@ -100,6 +99,4 @@ function configuration(env: any, argv: any): webpack.Configuration {
   };
 }
 
-const smp = new SpeedMeasurePlugin();
-
-export default smp.wrap(configuration);
+export default configuration;

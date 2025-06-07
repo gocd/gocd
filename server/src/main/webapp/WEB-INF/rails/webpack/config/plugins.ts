@@ -30,7 +30,6 @@ const jasmineCore                = require("jasmine-core");
 const StatsPlugin                = require("stats-webpack-plugin");
 const StylelintPlugin            = require("stylelint-webpack-plugin");
 const UnusedWebpackPlugin        = require("unused-webpack-plugin");
-const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 
 export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
   const plugins = [
@@ -127,16 +126,6 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
 
     plugins.push(new HtmlWebpackPlugin(jasmineIndexPage));
     plugins.push(new JasmineAssetsPlugin());
-
-    // in Windows Server Core containers, this causes webpack to hang indefinitely.
-    // it's not critical for builds anyway, just a nice dev utility.
-    if (process.platform !== "win32") {
-      plugins.push(new WebpackBuildNotifierPlugin({
-                                                    suppressSuccess: true,
-                                                    suppressWarning: true
-                                                  })
-      );
-    }
   }
   return plugins;
 }

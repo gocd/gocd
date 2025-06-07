@@ -223,6 +223,7 @@
     <cve>CVE-2023-26117</cve>
     <cve>CVE-2023-26118</cve>
     <cve>CVE-2024-8373</cve>
+    <cve>CVE-2025-0716</cve>
     <vulnerabilityName>Cross-Site Scripting via JSONP</vulnerabilityName>
     <vulnerabilityName>DOS in $sanitize</vulnerabilityName>
     <vulnerabilityName>The attribute usemap can be used as a security exploit</vulnerabilityName>

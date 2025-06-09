@@ -37,7 +37,7 @@ final Map<String, String> libraries = [
   bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.81',
   bucket4j            : 'com.bucket4j:bucket4j_jdk17-core:8.14.0',
   bucket4jCaffeine    : 'com.bucket4j:bucket4j-caffeine:8.10.1',
-  caffeine            : 'com.github.ben-manes.caffeine:caffeine:3.2.0',
+  caffeine            : 'com.github.ben-manes.caffeine:caffeine:3.2.1',
   cloning             : 'io.github.kostaskougios:cloning:1.12.0',
   commonsCodec        : 'commons-codec:commons-codec:1.18.0',
   commonsCollections  : 'commons-collections:commons-collections:3.2.2',

@@ -29,6 +29,13 @@ Here is the guide to [setup your development environment](https://developer.gocd
 We'd love it if you contributed to GoCD. For information on contributing to this project, please see our [contributor's guide](https://gocd.org/contribute).
 A lot of useful information like links to user documentation, design documentation, mailing lists etc. can be found in the [resources](https://gocd.org/community/resources.html) section.
 
+## Powered By
+
+These organisations kindly provide resources that support the development of GoCD.
+
+<a href="https://www.thoughtworks.com/insights/topic/open-source"><img src="https://www.thoughtworks.com/etc.clientlibs/thoughtworks/clientlibs/clientlib-site/resources/images/thoughtworks-logo.svg" alt="Thoughtworks logo." height="45" margin="25"/></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="https://jb.gg/OpenSource"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg" alt="JetBrains logo. Copyright © JetBrains s.r.o. JetBrains and the JetBrains logo are trwademarks of JetBrains s.r.o." height="50"/></a>
+
 ## License
 
 GoCD is an open source project, sponsored by [Thoughtworks, Inc.](https://www.thoughtworks.com) under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).

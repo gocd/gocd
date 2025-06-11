@@ -90,7 +90,7 @@
     these only affect applications that use UriComponentsBuilder along with validation checks on the host. GoCD and its dependencies
     don't use UriComponentsBuilder at all.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2024-22243</cve>
     <cve>CVE-2024-22259</cve>
     <cve>CVE-2024-22262</cve>

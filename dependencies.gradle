@@ -73,7 +73,7 @@ final Map<String, String> libraries = [
   jetty               : 'org.eclipse.jetty:jetty-server:10.0.25',
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:6.10.1.202505221210-r',
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',
-  jruby               : 'org.jruby:jruby-complete:9.4.13.0',
+  jruby               : 'org.jruby:jruby-complete:9.4.12.1',
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:4.1.1',
   jsoup               : 'org.jsoup:jsoup:1.20.1',
   junit5Bom           : 'org.junit:junit-bom:5.13.1',

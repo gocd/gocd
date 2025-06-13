@@ -96,7 +96,7 @@ final Map<String, String> libraries = [
   servletApi          : 'jakarta.servlet:jakarta.servlet-api:4.0.4', // Should be compatible with Jetty and Spring implementations
   slf4jBom            : 'org.slf4j:slf4j-bom:2.0.17',
   spark               : 'com.sparkjava:spark-core:2.7.2',
-  spring              : 'org.springframework:spring-core:4.3.30.RELEASE',
+  spring              : 'org.springframework:spring-core:6.2.8',
   springSecurity      : 'org.springframework.security:spring-security-config:4.2.20.RELEASE',
   springTestJunit5    : 'com.github.sbrannen:spring-test-junit5:1.5.0',
   systemStubs         : 'uk.org.webcompere:system-stubs-jupiter:2.1.8',

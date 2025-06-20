@@ -211,7 +211,7 @@
     <notes><![CDATA[
     False positive due to bad NVD data; this was in fact fixed in 6.10.1, but NVD doesn't seem to know this.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jgit/org\.eclipse\.jgit@6.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jgit/org\.eclipse\.jgit.*@6.*$</packageUrl>
     <cve>CVE-2025-4949</cve>
   </suppress>
 

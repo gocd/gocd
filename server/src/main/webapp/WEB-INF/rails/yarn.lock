@@ -1419,6 +1419,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kurkle/color@npm:^0.3.0":
+  version: 0.3.4
+  resolution: "@kurkle/color@npm:0.3.4"
+  checksum: 10/a15bfb55eec4ff92ee27cdacff54e85c7497ec1f9e8e0e8eaec3d39320cc90b82eb7f716d92792a8235fad1617003c6e0c0d2cd07f6a79b7b138ca17ec5eb6e7
+  languageName: node
+  linkType: hard
+
 "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1":
   version: 5.1.1-v1
   resolution: "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1"
@@ -3266,10 +3273,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chart.js@npm:^3.9.1":
-  version: 3.9.1
-  resolution: "chart.js@npm:3.9.1"
-  checksum: 10/62ee137b296181d8d12e428cb83a02351768039ff672b8ff775534f844777e9c91a3213fc8c6c46b59175a47f23d1547178fdd64ff9afc37c2c1703b2cede93e
+"chart.js@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "chart.js@npm:4.5.0"
+  dependencies:
+    "@kurkle/color": "npm:^0.3.0"
+  checksum: 10/3561fd996dbe20256f69d5e8b968f98b5bd0e3455e3a6336edba1d03c396fc9604e82dd48d92a87c04a187f7b7a0718a5512c9fc95ff755ca77bf571f88efe54
   languageName: node
   linkType: hard
 
@@ -5508,7 +5517,7 @@ __metadata:
     babel-loader: "npm:^8.4.1"
     bourbon: "npm:~7.1.0"
     cache-loader: "npm:^4.1.0"
-    chart.js: "npm:^3.9.1"
+    chart.js: "npm:^4.5.0"
     chartjs-plugin-zoom: "npm:~2.0.1"
     classnames: "npm:^2.5.1"
     clean-webpack-plugin: "npm:^4.0.0"

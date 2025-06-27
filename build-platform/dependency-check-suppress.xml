@@ -200,15 +200,6 @@
 
   <suppress>
     <notes><![CDATA[
-    While GoCD does use the HttpURI class directly, it does not parse authority names from this, it only reconstructs
-    a URL with the entire URI portion in tact, while modifying the path to remove a prefix and support routing to Rails-handled code.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@.*$</packageUrl>
-    <cve>CVE-2024-6763</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     False positive due to bad NVD data; this was in fact fixed in 6.10.1, but NVD doesn't seem to know this.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jgit/org\.eclipse\.jgit.*@6.*$</packageUrl>

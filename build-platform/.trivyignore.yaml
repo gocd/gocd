@@ -12,6 +12,13 @@ vulnerabilities:
       According to https://spring.io/security/cve-2024-38821 this only affects WebFlux applications which GoCD is not.
       org.springframework.security:spring-security-web (go.jar) Fixed: 5.7.13, 5.8.15, 6.2.7, 6.0.13, 6.1.11, 6.3.4
       https://avd.aquasec.com/nvd/cve-2024-38821
+  - id: CVE-2024-6763
+    statement: >
+      False positive as this was actually fixed in 10.0.x, however while GoCD does use the HttpURI class directly, 
+      it does not parse authority names from this, it only reconstructs a URL with the entire URI portion in tact, 
+      while modifying the path to remove a prefix and support routing to Rails-handled code.
+      org.eclipse.jetty:jetty-http (go.jar) Fixed: 12.0.12
+      https://avd.aquasec.com/nvd/2024/cve-2024-6763/
 
   # Leave whitespace at the end of the file for appending suppressions from OWASP dependency check :-)
   # Augment to this file with

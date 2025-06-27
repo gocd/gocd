@@ -180,7 +180,7 @@ GEM
       zeitwerk (~> 2.5)
     rake (13.3.0)
     regexp_parser (2.10.0)
-    rspec-core (3.13.4)
+    rspec-core (3.13.5)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.5)
       diff-lcs (>= 1.2.0, < 2.0)

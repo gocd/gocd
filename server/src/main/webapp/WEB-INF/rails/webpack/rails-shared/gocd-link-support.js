@@ -50,11 +50,6 @@
       openLinkInNewTab(jobDetailsPagePath);
     },
 
-    "pipeline_instance_page": function pipelineInstancePage(params) {
-      var pipelineInstancePath = '/go/internal/pipelines/' + pipelineName(params) + '/' + pipelineCounter(params);
-      openLinkInNewTab(pipelineInstancePath);
-    },
-
     "vsm_page": function vsmPage(params) {
       var vsmPath = '/go/pipelines/value_stream_map/' + pipelineName(params) + '/' + pipelineCounter(params);
       openLinkInNewTab(vsmPath);

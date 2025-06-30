@@ -14,7 +14,6 @@ require "logger"
 # workaround JRuby 9.4.13.0 issue with the require used within win32/registry.rb, used by resolv.rb via net/http and Capybara
 # See https://github.com/jruby/jruby/issues/8866
 if ENV["RAILS_ENV"] == "test" and ::RbConfig::CONFIG['host_os'] =~ /mswin/
-  puts "Workaround for Win32API on Jruby/Windows"
   module Kernel
     alias_method :original_require, :require
 

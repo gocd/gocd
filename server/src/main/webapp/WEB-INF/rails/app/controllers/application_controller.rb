@@ -120,19 +120,6 @@ class ApplicationController < ActionController::Base
     render plain: message, status: status
   end
 
-  def default_as_empty_list
-    (params.delete(:default_as_empty_list) || []).each do |locator|
-      do_param_defaulting(params, locator.split(/\>/))
-    end
-    return true
-  end
-
-  def do_param_defaulting sub_map, nested_keys
-    nested_keys.empty? && return
-    sub_map[nested_keys.first] ||= ((nested_keys.length > 1) ? {} : [])
-    do_param_defaulting(sub_map[nested_keys.first], nested_keys[1..-1])
-  end
-
   def populate_config_validity
     @config_valid = go_config_service.checkConfigFileValid().isValid()
   end

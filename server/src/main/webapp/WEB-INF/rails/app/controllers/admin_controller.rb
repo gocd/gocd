@@ -18,7 +18,6 @@ class AdminController < ApplicationController
   include ::Admin::AuthorizationHelper
 
   layout "admin"
-  prepend_before_action :default_as_empty_list, :only => [:update]
   before_action :enable_admin_error_template
 
   GO_CONFIG_ERROR_HEADER = 'Go-Config-Error'

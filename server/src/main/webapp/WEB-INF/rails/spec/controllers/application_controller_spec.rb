@@ -74,25 +74,6 @@ describe ApplicationController do
     end
   end
 
-  describe "default_as_empty_list" do
-    it "should default given params as empty list only if not given" do
-      @controller.params = HashWithIndifferentAccess.new
-      @controller.params[:default_as_empty_list] = ["foo", "bar>baz", "quux>bang>boom", "user>name", "hello"]
-      @controller.params[:hi] = "bye"
-      @controller.params[:hello] = "world"
-      @controller.params[:user] = {:name => "foo"}
-      expect(@controller.send(:default_as_empty_list)).to be_truthy
-      expect(@controller.params).to eq(HashWithIndifferentAccess.new({:hi => "bye", :hello => "world", :user => {:name => "foo"}, :foo => [], :bar => {:baz => []}, :quux => {:bang => {:boom => []}}}))
-    end
-
-    it "should always return true, because it needs to be used as a filter" do
-      expect(@controller.send(:default_as_empty_list)).to eq(true)
-      @controller.params[:default_as_empty_list] = ["foo", "bar>baz"]
-      @controller.params[:hello] = "world"
-      expect(@controller.send(:default_as_empty_list)).to eq(true)
-    end
-  end
-
   describe "do for every request" do
     controller do
       def index

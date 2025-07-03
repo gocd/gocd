@@ -55,6 +55,8 @@ Rails.application.configure do
   config.java_services_cache = :TestServiceCache
 end
 
+require_relative '../../lib/spring'
+
 # Override load_context of Spring for rspec.
 java_import org.springframework.context.support.ClassPathXmlApplicationContext
 

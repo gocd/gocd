@@ -124,6 +124,7 @@ task initializeRailsGems {
       workingDir = project.railsRoot
       args = ['-S', 'bundle', 'install']
       maxHeapSize = '1g'
+      environment += [ 'JARS_SKIP': 'true' ] // Avoid issues jar-dependencies and running via jruby-complete https://github.com/jruby/jruby/issues/8886
     }
   }
 }

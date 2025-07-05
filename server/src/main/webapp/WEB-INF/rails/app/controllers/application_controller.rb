@@ -77,14 +77,13 @@ class ApplicationController < ActionController::Base
   end
 
   def unresolved
-    render_error_response 'The url you are trying to reach appears to be incorrect.', 404, false
+    render_error_template 'The url you are trying to reach appears to be incorrect.', 404
   end
 
   def error_template_for_request
     @error_template_for_request || 'shared/error'
   end
 
-  #FIXME could be moved to another helper
   def render_localized_operation_result(result)
     message = result.message()
     render_if_error(message, result.httpCode()) || render_text_with_status(message, result.httpCode())
@@ -94,18 +93,10 @@ class ApplicationController < ActionController::Base
     render_if_error(result.detailedMessage(), result.httpCode()) || render_text_with_status(result.detailedMessage(), result.httpCode())
   end
 
-  def render_if_error message, status
+  def render_if_error(message, status)
     return if (status < 400)
-    render_error_response message, status, no_layout?
+    render_error_template message, status
     return true
-  end
-
-  def render_error_response message, status, is_text
-    if is_text
-      render_text_with_status(message, status)
-    else
-      render_error_template(message, status)
-    end
   end
 
   def render_error_template(message, status)
@@ -126,11 +117,5 @@ class ApplicationController < ActionController::Base
 
   def is_user_an_admin?
     security_service.isUserAdmin(current_user)
-  end
-
-  private
-
-  def no_layout?
-    params[:no_layout] == true || params[:no_layout] == 'true'
   end
 end

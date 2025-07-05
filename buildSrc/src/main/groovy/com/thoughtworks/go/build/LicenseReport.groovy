@@ -52,6 +52,7 @@ class LicenseReport {
     OFL_1_1,
     PLEXUS,
     PUBLIC_DOMAIN,
+    RUBY,
     UNLICENSE,
   ].collect { it.id }
 

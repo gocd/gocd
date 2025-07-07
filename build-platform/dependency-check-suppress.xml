@@ -234,6 +234,15 @@
 
   <suppress>
     <notes><![CDATA[
+    Suppress false positive for DOMPurify within trix.js which is brought in by Rails actiontext. GoCD doesn't use actiontext, despite
+    the mandatory dependency.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:javascript/DOMPurify@.*$</packageUrl>
+    <vulnerabilityName>CVE-2025-26791</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     Suppress false positive from bad OSSIndex data on foundation-sites issue which only affects <= 6.3.3 according to https://nvd.nist.gov/vuln/detail/CVE-2020-26304
     ]]></notes>
     <packageUrl regex="true">^pkg:npm/foundation-sites@.*$</packageUrl>

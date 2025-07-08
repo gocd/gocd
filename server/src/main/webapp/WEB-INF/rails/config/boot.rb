@@ -8,9 +8,6 @@ else
   require "bundler/setup"
 end
 
-# workaround for https://github.com/ruby-concurrency/concurrent-ruby/issues/1077 since https://github.com/rails/rails/pull/54264 wont be backported to Rails 7.0. Fixed on 7.1.
-require "logger"
-
 # workaround JRuby 9.4.13.0 issue with the require used within win32/registry.rb, used by resolv.rb via net/http and Capybara
 # See https://github.com/jruby/jruby/issues/8866
 if ENV["RAILS_ENV"] == "test" and ::RbConfig::CONFIG['host_os'] =~ /mswin/

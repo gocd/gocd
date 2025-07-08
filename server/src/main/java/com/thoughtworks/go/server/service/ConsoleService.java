@@ -89,7 +89,7 @@ public class ConsoleService {
     public boolean updateConsoleLog(File dest, InputStream in) {
         FileUtil.mkdirsParentQuietly(dest);
         LOGGER.trace("Updating console log [{}]", dest.getAbsolutePath());
-        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(dest, dest.exists()))) {
+        try (OutputStream out = new FileOutputStream(dest, dest.exists())) {
             in.transferTo(out);
         } catch (IOException e) {
             LOGGER.error("Failed to update console log at : [{}]", dest.getAbsolutePath(), e);

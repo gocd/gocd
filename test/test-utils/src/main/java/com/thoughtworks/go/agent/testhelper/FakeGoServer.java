@@ -100,6 +100,7 @@ public class FakeGoServer implements AutoCloseable {
     }
 
     @Override
+    @SuppressWarnings("try")
     public void close() throws Exception {
         stop();
     }

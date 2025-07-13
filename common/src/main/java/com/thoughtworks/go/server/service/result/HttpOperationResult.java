@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service.result;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 
@@ -146,7 +147,7 @@ public class HttpOperationResult implements OperationResult {
     public String fullMessage() {
         ServerHealthState serverHealthState = serverHealthStateOperationResult.getServerHealthState();
         String desc = BLANK_STRING;
-        if (serverHealthState != null && !StringUtils.equals(serverHealthState.getDescription(), message)) {
+        if (serverHealthState != null && !Strings.CS.equals(serverHealthState.getDescription(), message)) {
             desc = serverHealthState.getDescription();
         }
 

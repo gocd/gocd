@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +31,6 @@ import java.util.Objects;
 import static com.thoughtworks.go.config.policy.SupportedEntity.ELASTIC_AGENT_PROFILE;
 import static com.thoughtworks.go.config.policy.SupportedEntity.fromString;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public abstract class AbstractDirective implements Directive {
     @ConfigAttribute(value = "action", optional = false)
@@ -87,7 +87,7 @@ public abstract class AbstractDirective implements Directive {
             return false;
         }
 
-        return allowedTypes.stream().noneMatch(it -> equalsIgnoreCase(it, type));
+        return allowedTypes.stream().noneMatch(it -> Strings.CI.equals(it, type));
     }
 
     protected boolean isRequestForClusterProfiles(Class<? extends Validatable> aClass) {
@@ -99,15 +99,15 @@ public abstract class AbstractDirective implements Directive {
     }
 
     private boolean isInvalidAction(String action, List<String> allowedActions) {
-        return allowedActions.stream().noneMatch(it -> equalsIgnoreCase(it, action));
+        return allowedActions.stream().noneMatch(it -> Strings.CI.equals(it, action));
     }
 
     protected boolean matchesAction(String action) {
-        if (equalsIgnoreCase("administer", this.action)) {
+        if (Strings.CI.equals("administer", this.action)) {
             return true;
         }
 
-        return equalsIgnoreCase(action, this.action);
+        return Strings.CI.equals(action, this.action);
     }
 
     protected boolean isViewAction(String action) {
@@ -115,7 +115,7 @@ public abstract class AbstractDirective implements Directive {
     }
 
     protected boolean matchesType(Class<? extends Validatable> entityType) {
-        if (equalsIgnoreCase("*", this.type)) {
+        if (Strings.CI.equals("*", this.type)) {
             return true;
         }
 
@@ -123,7 +123,7 @@ public abstract class AbstractDirective implements Directive {
     }
 
     protected boolean matchesResource(String resource) {
-        if (equalsIgnoreCase("*", this.resource)) {
+        if (Strings.CI.equals("*", this.resource)) {
             return true;
         }
 

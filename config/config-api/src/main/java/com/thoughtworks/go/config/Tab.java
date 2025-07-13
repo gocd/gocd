@@ -117,7 +117,7 @@ public class Tab implements Validatable {
 
     public void validateTabNameUniqueness(List<Tab> tabs) {
         for (Tab tab : tabs) {
-            if(name.equals(tab.getName())){
+            if (name.equals(tab.getName())) {
                 this.addError(NAME, String.format("Tab name '%s' is not unique.", name));
                 tab.addError(NAME, String.format("Tab name '%s' is not unique.", name));
                 return;

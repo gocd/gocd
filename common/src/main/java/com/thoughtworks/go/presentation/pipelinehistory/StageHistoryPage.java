@@ -41,7 +41,7 @@ public class StageHistoryPage {
         return pagination;
     }
 
-    public int currentPage(){
+    public int currentPage() {
         return pagination.getCurrentPage();
     }
 

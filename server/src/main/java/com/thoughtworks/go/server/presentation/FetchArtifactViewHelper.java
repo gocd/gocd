@@ -97,7 +97,7 @@ public class FetchArtifactViewHelper {
         if (!systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)) {
             return new FetchSuggestionHierarchy();
         }
-        if(template && !systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()) {
+        if (template && !systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()) {
             return new FetchSuggestionHierarchy();
         }
         return fetchArtifactSuggestionsForPipeline(template ? createPipelineConfigForTemplate() : cruiseConfig.pipelineConfigByName(pipelineName), cruiseConfig);

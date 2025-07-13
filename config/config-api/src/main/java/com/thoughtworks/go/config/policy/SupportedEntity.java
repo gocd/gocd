@@ -20,11 +20,10 @@ import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import org.apache.commons.lang3.Strings;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public enum SupportedEntity {
     CLUSTER_PROFILE("cluster_profile", ClusterProfile.class),
@@ -50,7 +49,7 @@ public enum SupportedEntity {
     }
 
     public static SupportedEntity fromString(String type) {
-        return Arrays.stream(values()).filter(t -> equalsIgnoreCase(t.type, type))
+        return Arrays.stream(values()).filter(t -> Strings.CI.equals(t.type, type))
                 .findFirst().orElse(UNKNOWN);
     }
 

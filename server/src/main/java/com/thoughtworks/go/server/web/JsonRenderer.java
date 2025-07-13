@@ -41,7 +41,7 @@ public class JsonRenderer {
     public static void render(Object o, GoRequestContext context, Writer writer) {
         if (o instanceof JsonAware) {
             o = ((JsonAware) o).toJson();
-        } else if (o instanceof JsonFakeMap){
+        } else if (o instanceof JsonFakeMap) {
             o = ((JsonFakeMap) o).get("json");
         }
         gsonBuilder(context).toJson(o, writer);

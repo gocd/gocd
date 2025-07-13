@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 public class ResourceConfigsTest {
 
     @Test
@@ -167,7 +168,7 @@ public class ResourceConfigsTest {
     }
 
     @Test
-    public void shouldValidateTree(){
+    public void shouldValidateTree() {
         ResourceConfig resourceConfig1 = new ResourceConfig("a#");
         ResourceConfig resourceConfig2 = new ResourceConfig("b");
         ResourceConfigs resourceConfigs = new ResourceConfigs(resourceConfig1, resourceConfig2);

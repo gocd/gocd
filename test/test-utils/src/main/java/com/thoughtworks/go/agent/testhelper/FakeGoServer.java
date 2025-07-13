@@ -22,7 +22,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.jupiter.api.extension.ExtensionContext;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -39,7 +38,7 @@ import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
 import static com.thoughtworks.go.util.TestFileUtil.resourceToString;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
+public class FakeGoServer implements AutoCloseable {
     public enum TestResource {
         TEST_AGENT("testdata/gen/test-agent.jar"),
         TEST_AGENT_LAUNCHER("testdata/gen/agent-launcher.jar"),
@@ -101,7 +100,7 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
     }
 
     @Override
-    public void close() throws Throwable {
+    public void close() throws Exception {
         stop();
     }
 

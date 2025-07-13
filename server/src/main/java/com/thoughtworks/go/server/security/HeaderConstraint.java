@@ -29,7 +29,7 @@ public class HeaderConstraint {
     }
 
     public boolean isSatisfied(HttpServletRequest request) {
-        if(!systemEnvironment.isApiSafeModeEnabled()) {
+        if (!systemEnvironment.isApiSafeModeEnabled()) {
             return true;
         }
 
@@ -38,7 +38,7 @@ public class HeaderConstraint {
 
     private boolean isValid(HttpServletRequest request, String header) {
         String requestHeader = request.getHeader(header);
-        if(requestHeader == null || !requestHeader.equalsIgnoreCase("true")) {
+        if (requestHeader == null || !requestHeader.equalsIgnoreCase("true")) {
             return false;
         }
         return true;

@@ -22,13 +22,13 @@ import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
+import org.apache.commons.lang3.Strings;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.unmodifiableList;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public enum SupportedEntity {
     PIPELINE("pipeline", PipelineConfig.class),
@@ -56,7 +56,7 @@ public enum SupportedEntity {
     }
 
     public static SupportedEntity fromString(String type) {
-        return Arrays.stream(values()).filter(t -> equalsIgnoreCase(t.type, type))
+        return Arrays.stream(values()).filter(t -> Strings.CI.equals(t.type, type))
                 .findFirst().orElse(UNKNOWN);
     }
 

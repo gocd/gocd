@@ -43,11 +43,11 @@ public class MaterialsMother {
         return new Materials(svnMaterial(svnUrl, "svnDir", null, null, false, null));
     }
 
-    public static PackageMaterial packageMaterial(){
+    public static PackageMaterial packageMaterial() {
         PackageMaterial material = new PackageMaterial("p-id");
         material.setId(1);
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version",
-                new Configuration(ConfigurationPropertyMother.create("k1", false, "repo-v1"), ConfigurationPropertyMother.create("k2", false, "repo-v2")));
+            new Configuration(ConfigurationPropertyMother.create("k1", false, "repo-v1"), ConfigurationPropertyMother.create("k2", false, "repo-v2")));
         PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k3", false, "package-v1")), repository);
         material.setPackageDefinition(packageDefinition);
         repository.getPackages().add(packageDefinition);

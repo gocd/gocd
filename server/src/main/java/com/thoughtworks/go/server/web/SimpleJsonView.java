@@ -52,7 +52,7 @@ public class SimpleJsonView implements View {
         response.setStatus(status);
         response.setContentType(getContentType());
         Object json = jsonAware;
-        if (jsonAware instanceof JsonAware){
+        if (jsonAware instanceof JsonAware) {
             json = ((JsonAware) jsonAware).toJson();
         }
         PrintWriter writer = response.getWriter();

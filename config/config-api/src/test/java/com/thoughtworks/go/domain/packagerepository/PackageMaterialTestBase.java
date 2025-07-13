@@ -30,7 +30,7 @@ public abstract class PackageMaterialTestBase {
         teardown();
     }
 
-    protected void teardown(){
+    protected void teardown() {
     }
 
     protected void createPackageConfigurationsFor(Map<String, Object> attributes, ConfigurationHolder[] configurations) {

@@ -170,7 +170,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
         return errors().isEmpty();
     }
 
-    protected void validateExtras(ValidationContext validationContext){
+    protected void validateExtras(ValidationContext validationContext) {
     }
 
     protected abstract void validateConcreteMaterial(ValidationContext validationContext);
@@ -207,10 +207,10 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
     private void addNameConflictError() {
         errors.add("materialName", String.format(
-                "You have defined multiple materials called '%s'. "
-                        + "Material names are case-insensitive and must be unique. "
-                        + "Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.",
-                getDisplayName()));
+            "You have defined multiple materials called '%s'. "
+                + "Material names are case-insensitive and must be unique. "
+                + "Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.",
+            getDisplayName()));
     }
 
     @Override

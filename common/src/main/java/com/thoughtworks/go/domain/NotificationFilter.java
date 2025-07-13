@@ -20,12 +20,12 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.util.GoConstants;
+import org.apache.commons.lang3.Strings;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public class NotificationFilter extends PersistentObject implements Validatable {
     private String pipelineName;
@@ -171,7 +171,7 @@ public class NotificationFilter extends PersistentObject implements Validatable 
 
     @Override
     public void validate(ValidationContext validationContext) {
-        if (equalsIgnoreCase(this.pipelineName, "[Any Pipeline]")) {
+        if (Strings.CI.equals(this.pipelineName, "[Any Pipeline]")) {
             return;
         }
 
@@ -182,7 +182,7 @@ public class NotificationFilter extends PersistentObject implements Validatable 
             return;
         }
 
-        if (equalsIgnoreCase(this.stageName, "[Any Stage]")) {
+        if (Strings.CI.equals(this.stageName, "[Any Stage]")) {
             return;
         }
 

@@ -29,6 +29,7 @@ public class Result {
 
     /**
      * Checks if result is successful
+     *
      * @return true if result successful
      */
     public boolean isSuccessful() {
@@ -37,6 +38,7 @@ public class Result {
 
     /**
      * Gets error messages associated with result
+     *
      * @return error messages associated with result
      */
     public List<String> getMessages() {
@@ -45,6 +47,7 @@ public class Result {
 
     /**
      * Creates instance of result with specified errors
+     *
      * @param errors the errors with which instance should be created
      * @return created instance
      */
@@ -54,6 +57,7 @@ public class Result {
 
     /**
      * Creates instance of result with specified errors
+     *
      * @param errorList the errors with which instance should be created
      * @return created instance
      */
@@ -63,6 +67,7 @@ public class Result {
 
     /**
      * Creates instance of result with specified success messages
+     *
      * @param successMessages the success messages with which instance should be created
      * @return created instance
      */
@@ -73,6 +78,7 @@ public class Result {
 
     /**
      * Creates instance of result with specified success messages
+     *
      * @param successMessages the success messages with which instance should be created
      * @return created instance
      */
@@ -93,7 +99,7 @@ public class Result {
      * @return a string containing the formatted message.
      */
     public String getMessagesForDisplay() {
-        if(messages.isEmpty()) {
+        if (messages.isEmpty()) {
             return "";
         }
         StringBuilder stringBuilder = new StringBuilder();

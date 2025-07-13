@@ -72,6 +72,7 @@ public class Property {
 
     /**
      * Gets property key
+     *
      * @return property key
      */
     public String getKey() {
@@ -80,13 +81,14 @@ public class Property {
 
     /**
      * Adds an option
+     *
      * @param option Option type to be added
-     * @param value Option value
-     * @param <T> Type of option value
+     * @param value  Option value
+     * @param <T>    Type of option value
      * @return current property instance (this)
      */
     final public <T> Property with(Option<T> option, T value) {
-        if(value != null){
+        if (value != null) {
             options.addOrSet(option, value);
         }
         return this;
@@ -101,18 +103,20 @@ public class Property {
         return value == null ? defaultValue : value;
     }
 
-      /**
+    /**
      * Gets value for given option
+     *
      * @param option for which value needs to fetched
-     * @param <T> type of option
+     * @param <T>    type of option
      * @return option value
      */
-    public  <T> T getOption(Option<T> option) {
+    public <T> T getOption(Option<T> option) {
         return options.findOption(option).getValue();
     }
 
     /**
      * Gets all options of property
+     *
      * @return all options of property
      */
     public Options getOptions() {

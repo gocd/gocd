@@ -55,11 +55,11 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand {
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         EnvironmentConfig config = cruiseConfig.getEnvironments().find(new CaseInsensitiveString(oldEnvironmentConfigName));
-        if(config instanceof MergeEnvironmentConfig){
+        if (config instanceof MergeEnvironmentConfig) {
             config = ((MergeEnvironmentConfig) config).getFirstEditablePart();
         }
 
-        boolean freshRequest =  hashingService.hashForEntity(config).equals(digest);
+        boolean freshRequest = hashingService.hashForEntity(config).equals(digest);
         if (!freshRequest) {
             result.stale(EntityType.Environment.staleConfig(oldEnvironmentConfigName));
         }

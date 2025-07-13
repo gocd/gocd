@@ -53,7 +53,7 @@ public class VersionInfoServiceTest {
     }
 
     @Test
-    public void shouldUpdateLatestVersion(){
+    public void shouldUpdateLatestVersion() {
         ServerVersionInfoManager versionInfoManager = mock(ServerVersionInfoManager.class);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
@@ -64,7 +64,7 @@ public class VersionInfoServiceTest {
     }
 
     @Test
-    public void shouldAddErrorToResultIfVersionFormatIsInValid(){
+    public void shouldAddErrorToResultIfVersionFormatIsInValid() {
         ServerVersionInfoManager versionInfoManager = mock(ServerVersionInfoManager.class);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(versionInfoManager.updateLatestVersion("16.1.0-123")).thenThrow(new VersionFormatException("fail"));
@@ -75,7 +75,7 @@ public class VersionInfoServiceTest {
     }
 
     @Test
-    public void shouldGetGoUpdate(){
+    public void shouldGetGoUpdate() {
         String newRelease = "15.1.0-123";
         ServerVersionInfoManager manager = mock(ServerVersionInfoManager.class);
 
@@ -87,7 +87,7 @@ public class VersionInfoServiceTest {
     }
 
     @Test
-    public void shouldReturnVersionCheckEnabled(){
+    public void shouldReturnVersionCheckEnabled() {
         ServerVersionInfoManager manager = mock(ServerVersionInfoManager.class);
 
         when(manager.isUpdateCheckEnabled()).thenReturn(true);

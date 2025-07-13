@@ -40,12 +40,12 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
 
     public MergeEnvironmentConfig(List<EnvironmentConfig> configs) {
         boolean allPartsDoesNotHaveSameName = configs.stream()
-                .peek(this::add)
-                .map(EnvironmentConfig::name)
-                .distinct()
-                .count() > 1;
+            .peek(this::add)
+            .map(EnvironmentConfig::name)
+            .distinct()
+            .count() > 1;
 
-        if(allPartsDoesNotHaveSameName) {
+        if (allPartsDoesNotHaveSameName) {
             throw new IllegalArgumentException("partial environment configs must all have the same name");
         }
     }
@@ -76,27 +76,27 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
     private void validateDuplicateAgents() {
         Set<String> uuids = new HashSet<>();
         this.stream().flatMap(part -> part.getAgents().stream())
-                .map(EnvironmentAgentConfig::getUuid)
-                .filter(uuid -> !uuids.add(uuid))
-                .findFirst()
-                .ifPresent(uuid -> configErrors.add("agent", format("Environment agent '%s' is defined more than once.", uuid)));
+            .map(EnvironmentAgentConfig::getUuid)
+            .filter(uuid -> !uuids.add(uuid))
+            .findFirst()
+            .ifPresent(uuid -> configErrors.add("agent", format("Environment agent '%s' is defined more than once.", uuid)));
     }
 
     private void validateDuplicateEnvironmentVariables() {
         Set<String> envVariables = new HashSet<>();
         this.stream().flatMap(part -> part.getVariables().stream())
-                .map(EnvironmentVariableConfig::getName)
-                .filter(varName -> !envVariables.add(varName))
-                .findFirst()
-                .ifPresent(varName -> configErrors.add(CONSISTENT_KV, format("Environment variable '%s' is defined more than once with different values", varName)));
+            .map(EnvironmentVariableConfig::getName)
+            .filter(varName -> !envVariables.add(varName))
+            .findFirst()
+            .ifPresent(varName -> configErrors.add(CONSISTENT_KV, format("Environment variable '%s' is defined more than once with different values", varName)));
     }
 
     private void validateDuplicatePipelines() {
         Set<CaseInsensitiveString> pipelines = new HashSet<>();
         this.stream().flatMap(part -> part.getPipelineNames().stream())
-                .filter(pipeline -> !pipelines.add(pipeline))
-                .findFirst()
-                .ifPresent(pipelineName -> configErrors.add(CONSISTENT_KV, format("Environment pipeline '%s' is defined more than once.", pipelineName)));
+            .filter(pipeline -> !pipelines.add(pipeline))
+            .findFirst()
+            .ifPresent(pipelineName -> configErrors.add(CONSISTENT_KV, format("Environment pipeline '%s' is defined more than once.", pipelineName)));
     }
 
     @Override
@@ -163,7 +163,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
     @Override
     public void addAgentIfNew(String uuid) {
         boolean uuidExists = this.stream().anyMatch(part -> part.hasAgent(uuid));
-        if(!uuidExists){
+        if (!uuidExists) {
             this.stream().filter(this::isEditable).findFirst().ifPresent(envConfig -> envConfig.addAgentIfNew(uuid));
         }
     }
@@ -235,7 +235,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
     @Override
     public EnvironmentVariableContext createEnvironmentContext() {
         EnvironmentVariableContext context = new EnvironmentVariableContext(
-                EnvironmentVariableContext.GO_ENVIRONMENT_NAME, CaseInsensitiveString.str(this.name()));
+            EnvironmentVariableContext.GO_ENVIRONMENT_NAME, CaseInsensitiveString.str(this.name()));
         this.getVariables().addTo(context);
         return context;
     }

@@ -16,11 +16,10 @@
 
 package com.thoughtworks.go.spark.spring;
 
+import org.apache.commons.lang3.Strings;
 import spark.route.HttpMethod;
 
 import java.util.List;
-
-import static org.apache.commons.lang3.StringUtils.startsWith;
 
 public class RouteEntry {
     private final List<String> METHODS = List.of("get", "post", "put", "patch", "delete", "trace");
@@ -54,6 +53,6 @@ public class RouteEntry {
 
     public boolean isAPI() {
         return METHODS.contains(httpMethod.name().toLowerCase()) &&
-            startsWith(acceptedType, "application/vnd.go.cd");
+            Strings.CS.startsWith(acceptedType, "application/vnd.go.cd");
     }
 }

@@ -91,11 +91,11 @@ public class ServerVersionInfoManager {
         }
     }
 
-    public String getGoUpdate(){
+    public String getGoUpdate() {
         return goCache.get(GO_UPDATE);
     }
 
-    public boolean isUpdateCheckEnabled(){
+    public boolean isUpdateCheckEnabled() {
         return !isDevelopmentServer() && systemEnvironment.isGOUpdateCheckEnabled();
     }
 

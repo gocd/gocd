@@ -49,7 +49,7 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
         TemplatesConfig templatesConfig = preprocessedConfig.getTemplates();
         preprocessedTemplateConfig = findAddedTemplate(preprocessedConfig);
         preprocessedTemplateConfig.validateTree(ConfigSaveValidationContext.forChain(preprocessedConfig, templatesConfig), preprocessedConfig, isTemplateBeingCreated);
-        if(preprocessedTemplateConfig.getAllErrors().isEmpty()) {
+        if (preprocessedTemplateConfig.getAllErrors().isEmpty()) {
             templatesConfig.validate(null);
             BasicCruiseConfig.copyErrors(preprocessedTemplateConfig, templateConfig);
             return preprocessedTemplateConfig.getAllErrors().isEmpty() && templatesConfig.errors().isEmpty();

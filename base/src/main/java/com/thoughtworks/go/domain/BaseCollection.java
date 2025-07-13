@@ -28,7 +28,8 @@ public class BaseCollection<T> extends ArrayList<T> {
     public BaseCollection() {
     }
 
-    @SafeVarargs @SuppressWarnings("varargs")
+    @SafeVarargs
+    @SuppressWarnings("varargs")
     public BaseCollection(T... items) {
         this(Arrays.asList(items));
     }
@@ -61,7 +62,7 @@ public class BaseCollection<T> extends ArrayList<T> {
             return;
         }
 
-        if(indexOfOldItem < 0 || indexOfOldItem >= this.size()) {
+        if (indexOfOldItem < 0 || indexOfOldItem >= this.size()) {
             throw new IndexOutOfBoundsException(String.format("There is no object at index '%s' in this collection of %s", indexOfOldItem, this.first().getClass().getName()));
         }
 

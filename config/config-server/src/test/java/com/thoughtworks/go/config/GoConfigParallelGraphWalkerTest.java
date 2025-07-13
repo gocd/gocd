@@ -42,8 +42,8 @@ public class GoConfigParallelGraphWalkerTest {
     public void shouldHandlePipelinesWithTemplates() {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipeline-1");
         cruiseConfig.getTemplates().add(
-                new PipelineTemplateConfig(new CaseInsensitiveString("template-1"), new StageConfig(new CaseInsensitiveString("invalid stage name"), new JobConfigs(new JobConfig("job-1"))
-                )));
+            new PipelineTemplateConfig(new CaseInsensitiveString("template-1"), new StageConfig(new CaseInsensitiveString("invalid stage name"), new JobConfigs(new JobConfig("job-1"))
+            )));
         PipelineConfig pipelineWithTemplate = new PipelineConfig(new CaseInsensitiveString("pipeline-with-template"), MaterialConfigsMother.defaultMaterialConfigs());
         pipelineWithTemplate.setTemplateName(new CaseInsensitiveString("template-1"));
         cruiseConfig.getGroups().get(0).add(pipelineWithTemplate);
@@ -61,8 +61,8 @@ public class GoConfigParallelGraphWalkerTest {
     public void shouldAddErrorsToRawCruiseConfigWhenTemplateHasErrors() {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipeline-1");
         cruiseConfig.getTemplates().add(
-                new PipelineTemplateConfig(new CaseInsensitiveString("invalid template name"), new StageConfig(new CaseInsensitiveString("stage-1"), new JobConfigs(new JobConfig("job-1"))
-                )));
+            new PipelineTemplateConfig(new CaseInsensitiveString("invalid template name"), new StageConfig(new CaseInsensitiveString("stage-1"), new JobConfigs(new JobConfig("job-1"))
+            )));
         PipelineConfig pipelineWithTemplate = new PipelineConfig(new CaseInsensitiveString("pipeline-with-template"), MaterialConfigsMother.defaultMaterialConfigs());
         pipelineWithTemplate.setTemplateName(new CaseInsensitiveString("invalid template name"));
         cruiseConfig.getGroups().get(0).add(pipelineWithTemplate);
@@ -110,7 +110,7 @@ public class GoConfigParallelGraphWalkerTest {
     }
 
     @Test
-    public void shouldCopyErrorsForFieldsOnPipelineConfig(){
+    public void shouldCopyErrorsForFieldsOnPipelineConfig() {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline", MaterialConfigsMother.defaultMaterialConfigs(), new JobConfigs(JobConfigMother.createJobConfigWithJobNameAndEmptyResources()));
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("name", "value"))));
 

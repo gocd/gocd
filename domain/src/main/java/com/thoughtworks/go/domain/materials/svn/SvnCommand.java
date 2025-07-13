@@ -24,6 +24,7 @@ import com.thoughtworks.go.util.SafeSaxBuilder;
 import com.thoughtworks.go.util.SvnLogXmlParser;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.slf4j.Logger;
@@ -327,7 +328,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
 
             Element repositoryElement = entryElement.getChild("repository");
             String root = repositoryElement.getChildTextTrim("root");
-            String encodedPath = StringUtils.replace(encodedUrl, root, "");
+            String encodedPath = Strings.CS.replace(encodedUrl, root, "");
 
             this.path = URLDecoder.decode(encodedPath, StandardCharsets.UTF_8);
             this.root = root;

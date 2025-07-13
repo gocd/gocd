@@ -49,7 +49,7 @@ public class ScmVersionInfoProvider implements ServerInfoProvider {
             json.put("Svn Version", svnVersion);
         }
         String p4Version = getP4Version();
-        if(isNotBlank(p4Version)) {
+        if (isNotBlank(p4Version)) {
             json.put("P4 Version", p4Version);
         }
 

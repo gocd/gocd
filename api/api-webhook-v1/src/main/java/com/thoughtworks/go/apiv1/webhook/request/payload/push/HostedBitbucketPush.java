@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv1.webhook.request.payload.push;
 
 import com.thoughtworks.go.apiv1.webhook.request.json.HostedBitbucketRepository;
+import org.apache.commons.lang3.Strings;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,7 +28,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toCollection;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "unused", "RedundantSuppression"})
 public class HostedBitbucketPush implements PushPayload {
@@ -39,7 +39,7 @@ public class HostedBitbucketPush implements PushPayload {
     public Set<String> branches() {
         return this.changes.stream()
                 .filter(change -> change.ref != null)
-                .filter(change -> equalsIgnoreCase(change.ref.type, "branch"))
+                .filter(change -> Strings.CI.equals(change.ref.type, "branch"))
                 .map(change -> change.ref.displayId)
                 .collect(toCollection(TreeSet::new)); // if pushing a tag, this might be empty
     }

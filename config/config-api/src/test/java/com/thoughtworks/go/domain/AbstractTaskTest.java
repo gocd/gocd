@@ -174,7 +174,7 @@ public class AbstractTaskTest {
     }
 
     @Test
-    public void shouldValidateTree(){
+    public void shouldValidateTree() {
         String pipelineName = "p1";
         PipelineConfig pipelineConfig = GoConfigMother.configWithPipelines(pipelineName).pipelineConfigByName(new CaseInsensitiveString(pipelineName));
         StageConfig stageConfig = pipelineConfig.getStages().get(0);

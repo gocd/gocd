@@ -46,7 +46,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -246,7 +246,7 @@ public class ElasticAgentPluginService {
     }
 
     public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, ElasticProfile elasticProfile, ClusterProfile clusterProfile, JobIdentifier identifier) {
-        if (clusterProfile == null || !StringUtils.equals(clusterProfile.getPluginId(), metadata.elasticPluginId())) {
+        if (clusterProfile == null || !Strings.CS.equals(clusterProfile.getPluginId(), metadata.elasticPluginId())) {
             return false;
         }
 

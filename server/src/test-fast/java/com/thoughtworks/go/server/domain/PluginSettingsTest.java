@@ -137,7 +137,7 @@ public class PluginSettingsTest {
     }
 
     @Test
-    public void shouldValidateThatEncryptedVariablesAreEncryptedWithTheCorrectCipher(){
+    public void shouldValidateThatEncryptedVariablesAreEncryptedWithTheCorrectCipher() {
         final PluginInfo pluginInfo = mock(PluginInfo.class);
         String secureKey = "supposedly-secure-key";
         when(pluginInfo.isSecure(secureKey)).thenReturn(true);

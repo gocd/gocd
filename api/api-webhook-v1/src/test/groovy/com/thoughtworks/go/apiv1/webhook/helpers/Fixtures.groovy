@@ -24,6 +24,7 @@ import com.thoughtworks.go.apiv1.webhook.controller.validation.HostedBitbucket
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
+import org.junit.jupiter.params.support.ParameterDeclarations
 
 import java.util.stream.Stream
 
@@ -36,7 +37,7 @@ class Fixtures {
     class ConfigReposWebhook {
         static class PullRequest implements ArgumentsProvider, PostHelper.Mixin {
             @Override
-            Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+            Stream<? extends Arguments> provideArguments(ParameterDeclarations parameters, ExtensionContext context) {
                 return Stream.of(
                         Arguments.of(ConfigRepo.GITHUB, { String s -> withGitHub(s) }, "/github-pr.json", first(GitHub.PR)),
                         Arguments.of(ConfigRepo.GITLAB, { String s -> withGitLab(s) }, "/gitlab-pr.json", first(GitLab.PR)),
@@ -48,7 +49,7 @@ class Fixtures {
 
         static class Push implements ArgumentsProvider, PostHelper.Mixin {
             @Override
-            Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+            Stream<? extends Arguments> provideArguments(ParameterDeclarations parameters, ExtensionContext context) {
                 return Stream.of(
                         Arguments.of(ConfigRepo.GITHUB, { String s -> withGitHub(s) }, "/github-push.json", first(GitHub.PUSH)),
                         Arguments.of(ConfigRepo.GITLAB, { String s -> withGitLab(s) }, "/gitlab-push.json", first(GitLab.PUSH)),
@@ -60,7 +61,7 @@ class Fixtures {
 
         static class Ping implements ArgumentsProvider, PostHelper.Mixin {
             @Override
-            Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+            Stream<? extends Arguments> provideArguments(ParameterDeclarations parameters, ExtensionContext context) {
                 return Stream.of(
                         Arguments.of(ConfigRepo.GITHUB, withGitHub([:]), first(GitHub.PING)),
                         Arguments.of(ConfigRepo.HOSTED_BITBUCKET, withHostedBitbucket([:]), first(HostedBitbucket.PING))
@@ -72,7 +73,7 @@ class Fixtures {
     class NotifyWebhook {
         static class Push implements ArgumentsProvider, PostHelper.Mixin {
             @Override
-            Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+            Stream<? extends Arguments> provideArguments(ParameterDeclarations parameters, ExtensionContext context) {
                 return Stream.of(
                         Arguments.of(Notify.GITHUB, { String s -> withGitHub(s) }, "/github-push.json", first(GitHub.PUSH)),
                         Arguments.of(Notify.GITLAB, { String s -> withGitLab(s) }, "/gitlab-push.json", first(GitLab.PUSH)),
@@ -84,7 +85,7 @@ class Fixtures {
 
         static class PushWithTags implements ArgumentsProvider, PostHelper.Mixin {
             @Override
-            Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+            Stream<? extends Arguments> provideArguments(ParameterDeclarations parameters, ExtensionContext context) {
                 return Stream.of(
                         Arguments.of(Notify.GITHUB, { Map m -> withGitHub(m) }, githubTagPayload(), first(GitHub.PUSH)),
                         Arguments.of(Notify.GITLAB, { Map m -> withGitLab(m) }, gitlabTagPayload(), first(GitLab.PUSH)),
@@ -114,7 +115,7 @@ class Fixtures {
 
         static class PushMultipleChanges implements ArgumentsProvider, PostHelper.Mixin {
             @Override
-            Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+            Stream<? extends Arguments> provideArguments(ParameterDeclarations parameters, ExtensionContext context) {
                 return Stream.of(
                         Arguments.of(Notify.BITBUCKET, { String s -> withBitbucket(s) }, "/bitbucket-push-multiple-changes.json", first(Bitbucket.PUSH)),
                         Arguments.of(Notify.HOSTED_BITBUCKET, { String s -> withHostedBitbucket(s) }, "/hosted-bitbucket-push-multiple-changes.json", first(HostedBitbucket.PUSH))
@@ -124,7 +125,7 @@ class Fixtures {
 
         static class Ping implements ArgumentsProvider, PostHelper.Mixin {
             @Override
-            Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+            Stream<? extends Arguments> provideArguments(ParameterDeclarations parameters, ExtensionContext context) {
                 return Stream.of(
                         Arguments.of(Notify.GITHUB, withGitHub([:]), first(GitHub.PING)),
                         Arguments.of(Notify.HOSTED_BITBUCKET, withHostedBitbucket([:]), first(HostedBitbucket.PING))

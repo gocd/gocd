@@ -38,10 +38,10 @@ public class JsonBasedTaskExtensionHandler_V1Test {
     public void shouldConvertTaskConfigJsonToTaskConfig() {
 
         String json = "{\"URL\":{\"default-value\":\"\",\"secure\":false,\"required\":true,\"display-name\":\"Url\",\"display-order\":\"0\"}," +
-                "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":false,\"display-order\":\"1\"}," +
-                "\"PASSWORD\":{}," +
-                "\"FOO\":null" +
-                "}";
+            "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":false,\"display-order\":\"1\"}," +
+            "\"PASSWORD\":{}," +
+            "\"FOO\":null" +
+            "}";
         TaskConfig config = new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json);
 
         Property url = config.get("URL");
@@ -70,11 +70,11 @@ public class JsonBasedTaskExtensionHandler_V1Test {
     }
 
     @Test
-    public void shouldKeepTheConfigInTheOrderOfDisplayOrder(){
+    public void shouldKeepTheConfigInTheOrderOfDisplayOrder() {
         String json = "{\"URL\":{\"default-value\":\"\",\"secure\":false,\"required\":true,\"display-name\":\"Url\",\"display-order\":\"0\"}," +
-                "\"PASSWORD\":{\"display-order\":\"2\"}," +
-                "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":false,\"display-order\":\"1\"}" +
-                "}";
+            "\"PASSWORD\":{\"display-order\":\"2\"}," +
+            "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":false,\"display-order\":\"1\"}" +
+            "}";
         TaskConfig config = new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json);
         assertThat(config.list().get(0).getKey()).isEqualTo("URL");
         assertThat(config.list().get(1).getKey()).isEqualTo("USER");
@@ -145,8 +145,8 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         }
 
         String json5 = "{\"URL1\":{\"default-value\":true,\"secure\":null,\"required\":true}," +
-                "\"URL2\":{\"default-value\":\"some value\",\"secure\":\"some-string\",\"required\":false}," +
-                "\"URL3\":{\"default-value\":\"some value\",\"secure\":true,\"required\":\"some-string\"}}";
+            "\"URL2\":{\"default-value\":\"some value\",\"secure\":\"some-string\",\"required\":false}," +
+            "\"URL3\":{\"default-value\":\"some value\",\"secure\":true,\"required\":\"some-string\"}}";
         try {
             new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json5);
             fail("should throw exception");
@@ -199,16 +199,16 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);
 
-       assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.isSuccessful()).isFalse();
 
 
         ValidationError error1 = result.getErrors().get(0);
         ValidationError error2 = result.getErrors().get(1);
 
-       assertThat(error1.getKey()).isEqualTo("key1");
-       assertThat(error1.getMessage()).isEqualTo("err1");
-       assertThat(error2.getKey()).isEqualTo("key2");
-       assertThat(error2.getMessage()).isEqualTo("err2");
+        assertThat(error1.getKey()).isEqualTo("key1");
+        assertThat(error1.getMessage()).isEqualTo("err1");
+        assertThat(error2.getKey()).isEqualTo("key2");
+        assertThat(error2.getMessage()).isEqualTo("err2");
     }
 
     @Test
@@ -223,15 +223,15 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);
 
-       assertThat(result.isSuccessful()).isTrue();
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
     public void shouldThrowExceptionForWrongJsonWhileConvertingJsonResponseToValidation() {
-       assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{\"errors\":{}}").isSuccessful());
-       assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{}").isSuccessful());
-       assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("").isSuccessful());
-       assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult(null).isSuccessful());
+        assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{\"errors\":{}}").isSuccessful());
+        assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{}").isSuccessful());
+        assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("").isSuccessful());
+        assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult(null).isSuccessful());
 
         String jsonResponse2 = "{\"errors\":{\"key1\":\"err1\",\"key2\":true}}";
         try {
@@ -264,8 +264,8 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         TaskView view = new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse);
 
-       assertThat(view.displayValue()).isEqualTo("MyTaskPlugin");
-       assertThat(view.template()).isEqualTo("<html>junk</html>");
+        assertThat(view.displayValue()).isEqualTo("MyTaskPlugin");
+        assertThat(view.template()).isEqualTo("<html>junk</html>");
     }
 
     @Test
@@ -401,7 +401,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         assertThat(environmentVariables.get("ENV1").toString()).isEqualTo("VAL1");
         assertThat(environmentVariables.get("ENV2").toString()).isEqualTo("VAL2");
 
-        Map<String,Object> taskConfigMap = (Map<String,Object>) result.get("config");
+        Map<String, Object> taskConfigMap = (Map<String, Object>) result.get("config");
 
         assertThat(taskConfigMap.size()).isEqualTo(2);
         Map<String, Object> property1 = (Map<String, Object>) taskConfigMap.get("Property1");

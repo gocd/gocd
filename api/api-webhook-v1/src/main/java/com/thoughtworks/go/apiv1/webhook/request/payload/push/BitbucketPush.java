@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.webhook.request.payload.push;
 
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.apiv1.webhook.request.json.BitbucketRepository;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.List;
 import java.util.Set;
@@ -36,7 +36,7 @@ public class BitbucketPush implements PushPayload {
     public Set<String> branches() {
         return this.push.changes.stream()
                 .filter(change -> change.newCommit != null)
-                .filter(change -> StringUtils.equalsIgnoreCase(change.newCommit.type, "branch"))
+                .filter(change -> Strings.CI.equals(change.newCommit.type, "branch"))
                 .map(change -> change.newCommit.name)
                 .collect(toCollection(TreeSet::new)); // if pushing a tag, this might be empty
     }

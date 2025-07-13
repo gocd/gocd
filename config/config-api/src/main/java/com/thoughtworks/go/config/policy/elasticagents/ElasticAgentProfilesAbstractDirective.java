@@ -20,8 +20,7 @@ import com.thoughtworks.go.config.policy.AbstractDirective;
 import com.thoughtworks.go.config.policy.DirectiveType;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
-
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import org.apache.commons.lang3.Strings;
 
 public abstract class ElasticAgentProfilesAbstractDirective extends AbstractDirective {
     protected static final String SEPARATOR = ":";
@@ -33,7 +32,7 @@ public abstract class ElasticAgentProfilesAbstractDirective extends AbstractDire
     }
 
     protected boolean matchesResourceToOperateWithin(String resource) {
-        if (equalsIgnoreCase("*", this.resourceToOperateWithin)) {
+        if (Strings.CI.equals("*", this.resourceToOperateWithin)) {
             return true;
         }
 

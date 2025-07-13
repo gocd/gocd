@@ -27,7 +27,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jetbrains.annotations.TestOnly;
 
@@ -247,12 +247,12 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     private void syncIp(AgentRuntimeInfo info) {
-        String ipAddress = (agentType == AgentType.LOCAL || agentType == AgentType.REMOTE) ? info.getIpAdress() : agent.getIpaddress();
+        String ipAddress = (agentType == AgentType.LOCAL || agentType == AgentType.REMOTE) ? info.getIpAddress() : agent.getIpaddress();
         this.agent.setIpaddress(ipAddress);
     }
 
-    public boolean isIpChangeRequired(String newIpAdress) {
-        return !StringUtils.equals(this.agent.getIpaddress(), newIpAdress) && this.isRegistered();
+    public boolean isIpChangeRequired(String newIpAddress) {
+        return !Strings.CS.equals(this.agent.getIpaddress(), newIpAddress) && this.isRegistered();
     }
 
     public String getLocation() {

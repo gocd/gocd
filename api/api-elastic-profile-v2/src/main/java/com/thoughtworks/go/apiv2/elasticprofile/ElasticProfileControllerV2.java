@@ -34,7 +34,7 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -169,7 +169,7 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
 
 
     private boolean isRenameAttempt(String profileIdFromRequestParam, String profileIdFromRequestBody) {
-        return !StringUtils.equals(profileIdFromRequestBody, profileIdFromRequestParam);
+        return !Strings.CS.equals(profileIdFromRequestBody, profileIdFromRequestParam);
     }
 
     @Override

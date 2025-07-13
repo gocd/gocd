@@ -16,6 +16,7 @@
 package com.thoughtworks.go.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -139,7 +140,7 @@ public class XsdErrorTranslator extends DefaultHandler {
                     args[i] = StringUtils.capitalize(args[i]);
                 }
                 if ((transform & REMOVE_TYPE_SUFFIX) != 0) {
-                    args[i] = StringUtils.replace(args[i], " type", "");
+                    args[i] = Strings.CS.replace(args[i], " type", "");
                 }
             }
             return args;

@@ -129,21 +129,22 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
         } else {
             accessTokenService.updateLastUsedCacheWith(accessTokenCredential.getAccessToken());
             ACCESS_TOKEN_LOGGER.debug("[Bearer Token Authentication] Authenticating bearer token for: " +
-                            "GoCD User: '{}'. " +
-                            "GoCD API endpoint: '{}', " +
-                            "API Client: '{}', " +
-                            "Is Admin Scoped Token: '{}', " +
-                            "Current Time: '{}'."
-                    , accessTokenCredential.getAccessToken().getUsername()
-                    , request.getRequestURI()
-                    , request.getHeader("User-Agent")
-                    , securityService.isUserAdmin(new Username(accessTokenCredential.getAccessToken().getUsername()))
-                    , new Timestamp(System.currentTimeMillis()));
+                    "GoCD User: '{}'. " +
+                    "GoCD API endpoint: '{}', " +
+                    "API Client: '{}', " +
+                    "Is Admin Scoped Token: '{}', " +
+                    "Current Time: '{}'.",
+                accessTokenCredential.getAccessToken().getUsername(),
+                request.getRequestURI(),
+                request.getHeader("User-Agent"),
+                securityService.isUserAdmin(new Username(accessTokenCredential.getAccessToken().getUsername())),
+                new Timestamp(System.currentTimeMillis())
+            );
 
             try {
                 String authConfigId = accessTokenCredential.getAccessToken().getAuthConfigId();
                 SecurityAuthConfig authConfig = securityAuthConfigService.findProfile(authConfigId);
-                if(authConfig == null) {
+                if (authConfig == null) {
                     String errorMessage = String.format("Can not find authorization configuration \"%s\" to which the requested personal access token belongs. Authorization Configuration \"%s\" might have been renamed or deleted. Please revoke the existing token and create a new one for the same.", authConfigId, authConfigId);
                     onAuthenticationFailure(request, response, errorMessage);
                     return;

@@ -87,7 +87,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         goConfigService.register(new EntityConfigChangedListener<ConfigRepoConfig>() {
             @Override
             public void onEntityConfigChange(ConfigRepoConfig entity) {
-                if(!goConfigService.getCurrentConfig().getConfigRepos().hasConfigRepo(entity.getId())) {
+                if (!goConfigService.getCurrentConfig().getConfigRepos().hasConfigRepo(entity.getId())) {
                     syncEnvironments(goConfigService.getEnvironments());
                 }
             }
@@ -102,10 +102,10 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
     String envForPipeline(String pipelineName) {
         return matchers.stream()
-                .filter(matcher -> matcher.hasPipeline(pipelineName))
-                .map(matcher -> str(matcher.name()))
-                .findFirst()
-                .orElse(null);
+            .filter(matcher -> matcher.hasPipeline(pipelineName))
+            .map(matcher -> str(matcher.name()))
+            .findFirst()
+            .orElse(null);
     }
 
     public EnvironmentConfig environmentForPipeline(String pipelineName) {
@@ -166,14 +166,14 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
     List<EnvironmentConfig> getAllLocalEnvironments() {
         return getEnvironmentNames().stream()
-                .map(this::getEnvironmentForEdit)
-                .collect(toList());
+            .map(this::getEnvironmentForEdit)
+            .collect(toList());
     }
 
     public List<EnvironmentConfig> getAllMergedEnvironments() {
         return getEnvironmentNames().stream()
-                .map(env -> getMergedEnvironmentforDisplay(env, new HttpLocalizedOperationResult()).getConfigElement())
-                .collect(toList());
+            .map(env -> getMergedEnvironmentforDisplay(env, new HttpLocalizedOperationResult()).getConfigElement())
+            .collect(toList());
     }
 
     public ConfigElementForEdit<EnvironmentConfig> getMergedEnvironmentforDisplay(String envName, HttpLocalizedOperationResult result) {
@@ -283,14 +283,14 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
     private void removeAgentFromCurrentlyAssociatedEnvironments(String uuid, List<String> envNames) {
         envNames.stream().map(this::find)
-                .filter(envConfig -> isEnvironmentAssociatedWithAgentLocally(envConfig, uuid))
-                .forEach(envConfig -> envConfig.removeAgent(uuid));
+            .filter(envConfig -> isEnvironmentAssociatedWithAgentLocally(envConfig, uuid))
+            .forEach(envConfig -> envConfig.removeAgent(uuid));
     }
 
     private void addAgentToNewlyAssociatedEnvironments(String uuid, List<String> envNames) {
         envNames.stream().map(this::find)
-                .filter(envConfig -> isEnvironmentNotAssociatedWithAgent(envConfig, uuid))
-                .forEach(envConfig -> envConfig.addAgentIfNew(uuid));
+            .filter(envConfig -> isEnvironmentNotAssociatedWithAgent(envConfig, uuid))
+            .forEach(envConfig -> envConfig.addAgentIfNew(uuid));
     }
 
     private void syncAssociatedAgentFromDB(AgentInstance agentInstance) {

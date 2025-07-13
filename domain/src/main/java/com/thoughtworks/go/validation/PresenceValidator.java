@@ -26,7 +26,7 @@ class PresenceValidator extends Validator<String> {
 
     @Override
     public ValidationBean validate(String value) {
-        if (StringUtils.isBlank(value)){
+        if (StringUtils.isBlank(value)) {
             return ValidationBean.notValid(errorMessage);
         } else {
             return ValidationBean.valid();

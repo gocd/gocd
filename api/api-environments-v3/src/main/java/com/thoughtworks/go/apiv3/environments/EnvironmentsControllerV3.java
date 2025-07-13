@@ -35,7 +35,7 @@ import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -156,7 +156,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
         EnvironmentConfig oldEnvironmentConfig = fetchEntityFromConfig(environmentName);
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
-        if (!StringUtils.equalsIgnoreCase(environmentName, environmentConfig.name().toString())) {
+        if (!Strings.CI.equals(environmentName, environmentConfig.name().toString())) {
             throw haltBecauseRenameOfEntityIsNotSupported("environment");
         }
 

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
@@ -158,7 +158,7 @@ public class TimeConverter {
          * Create a new ConvertedTime instance based on this with new time value.
          */
         public ConvertedTime argument(long time) {
-            String newMessage = StringUtils.replace(message, "$time", String.valueOf(time));
+            String newMessage = Strings.CS.replace(message, "$time", String.valueOf(time));
             return new ConvertedTime(code, time, newMessage);
         }
 

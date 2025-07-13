@@ -80,7 +80,7 @@ public class PipelineActivityController implements SparkController {
         meta.put("canAdministerPipeline", securityService.hasAdminPermissionsForPipeline(currentUsername(), name));
 
         PipelineConfig found = goConfigService.findPipelineByName(name);
-        if(found != null && found.hasTemplate()) {
+        if (found != null && found.hasTemplate()) {
             meta.put("pipelineUsingTemplate", found.getTemplateName().toString());
         }
 

@@ -45,7 +45,7 @@ public class JsonFakeMap extends LinkedHashMap<String, Object> {
 
     @Override
     public Object get(Object o) {
-        if (json instanceof JsonAware){
+        if (json instanceof JsonAware) {
             return ((JsonAware) json).toJson();
         }
         return json;

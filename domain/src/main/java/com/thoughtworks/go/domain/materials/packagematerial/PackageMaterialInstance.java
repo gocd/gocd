@@ -21,6 +21,8 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.util.json.JsonHelper;
 
+import java.util.Objects;
+
 public class PackageMaterialInstance extends MaterialInstance {
 
     protected PackageMaterialInstance() {
@@ -52,11 +54,7 @@ public class PackageMaterialInstance extends MaterialInstance {
         }
 
 
-        if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(configuration, that.configuration);
     }
 
     @Override
@@ -67,7 +65,7 @@ public class PackageMaterialInstance extends MaterialInstance {
     }
 
     public boolean shouldUpgradeTo(PackageMaterialInstance materialInstance) {
-        if(configuration == null && materialInstance.configuration == null){
+        if (configuration == null && materialInstance.configuration == null) {
             return false;
         }
         return configuration == null || !configuration.equals(materialInstance.configuration);

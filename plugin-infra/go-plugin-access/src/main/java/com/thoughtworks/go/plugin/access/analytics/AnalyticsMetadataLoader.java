@@ -45,8 +45,8 @@ public class AnalyticsMetadataLoader extends MetadataLoader<AnalyticsPluginInfo>
     public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
         super.pluginLoaded(pluginDescriptor);
 
-        if(extension.canHandlePlugin(pluginDescriptor.id())) {
-            for (PluginMetadataChangeListener listener: listeners) {
+        if (extension.canHandlePlugin(pluginDescriptor.id())) {
+            for (PluginMetadataChangeListener listener : listeners) {
                 listener.onPluginMetadataCreate(pluginDescriptor.id());
             }
         }

@@ -74,7 +74,7 @@ public class AgentBuildingInfo implements Serializable {
     }
 
     public String getPipelineName() {
-        if(isBuilding()) {
+        if (isBuilding()) {
             return buildLocator.split("/")[0];
         }
         return null;
@@ -92,7 +92,7 @@ public class AgentBuildingInfo implements Serializable {
     }
 
     public String getStageName() {
-        if(isBuilding()) {
+        if (isBuilding()) {
             try {
                 return buildLocator.split("/")[2];
             } catch (ArrayIndexOutOfBoundsException e) {

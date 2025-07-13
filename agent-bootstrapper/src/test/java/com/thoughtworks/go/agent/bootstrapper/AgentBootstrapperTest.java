@@ -113,7 +113,7 @@ public class AgentBootstrapperTest {
     @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void shouldNotRelaunchAgentLauncherWhenItReturnsAnIrrecoverableCode() {
         final boolean[] destroyCalled = new boolean[1];
-        final AgentBootstrapper bootstrapper = new AgentBootstrapper(){
+        final AgentBootstrapper bootstrapper = new AgentBootstrapper() {
 
             @Override
             AgentLauncherCreator getLauncherCreator() {

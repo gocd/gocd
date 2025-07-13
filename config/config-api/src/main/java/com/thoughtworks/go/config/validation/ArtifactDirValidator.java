@@ -17,7 +17,7 @@ package com.thoughtworks.go.config.validation;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.io.File;
 
@@ -33,7 +33,7 @@ public class ArtifactDirValidator implements GoConfigValidator {
             throw new RuntimeException("Please provide a not empty value for artifactsdir");
         }
 
-        if (StringUtils.equals(".", artifactDir) || new File("").getAbsolutePath().equals(
+        if (Strings.CS.equals(".", artifactDir) || new File("").getAbsolutePath().equals(
                 new File(artifactDir).getAbsolutePath())) {
             throw new RuntimeException("artifactsdir should not point to the root of sand box [" +
                     new File(artifactDir).getAbsolutePath()

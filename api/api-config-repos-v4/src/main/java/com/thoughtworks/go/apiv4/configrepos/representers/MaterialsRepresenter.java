@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import org.apache.commons.lang3.Strings;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -32,7 +33,6 @@ import java.util.function.Supplier;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.Map.entry;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public class MaterialsRepresenter {
     enum Materials {
@@ -93,7 +93,7 @@ public class MaterialsRepresenter {
         JsonReader attributes = jsonReader.readJsonObject("attributes");
 
         return stream(Materials.values())
-            .filter(material -> equalsIgnoreCase(type, material.name()))
+            .filter(material -> Strings.CI.equals(type, material.name()))
             .findFirst()
             .map(material -> material.representer.fromJSON(attributes))
             .orElseThrow(unprocessableMaterialType(type));

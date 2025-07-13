@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Users extends BaseCollection<User> {
-public Users() {
+    public Users() {
     }
 
     public Users(List<User> users) {
@@ -33,7 +33,7 @@ public Users() {
 
     public boolean containsUserNamed(String userName) {
         for (User user : this) {
-            if(user.getName().equals(userName))
+            if (user.getName().equals(userName))
                 return true;
         }
         return false;

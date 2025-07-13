@@ -23,7 +23,7 @@ import java.util.Optional;
 import static com.thoughtworks.go.util.TriState.UNSET;
 
 public class UpdateAgentResourcesCommand extends AgentPerformanceCommand {
-    public UpdateAgentResourcesCommand(AgentService agentService){
+    public UpdateAgentResourcesCommand(AgentService agentService) {
         this.agentService = agentService;
     }
 

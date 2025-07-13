@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.perf.commands;
 
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.Optional;
 
@@ -32,7 +32,8 @@ public class DeleteEnvironmentCommand extends AgentPerformanceCommand {
     @Override
     Optional<String> execute() {
         goConfigService.updateConfig(cruiseConfig -> {
-            cruiseConfig.getEnvironments().removeIf(environmentConfig -> StringUtils.equalsIgnoreCase(environmentConfig.name().toString(), envName));
+            cruiseConfig.getEnvironments()
+                .removeIf(environmentConfig -> Strings.CI.equals(environmentConfig.name().toString(), envName));
             return cruiseConfig;
         });
         return Optional.of(envName);

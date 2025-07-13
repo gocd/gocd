@@ -102,7 +102,7 @@ public class ConsoleLogSenderTest {
         when(consoleService.doesLogExist(jobIdentifier)).thenReturn(true);
 
         when(consoleService.getStreamer(anyLong(), eq(jobIdentifier))).
-                thenReturn(new FakeConsoleStreamer("First Output", "Second Output"));
+            thenReturn(new FakeConsoleStreamer("First Output", "Second Output"));
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
@@ -119,9 +119,9 @@ public class ConsoleLogSenderTest {
         when(consoleService.doesLogExist(jobIdentifier)).thenReturn(true);
 
         when(consoleService.getStreamer(0L, jobIdentifier))
-                .thenReturn(new FakeConsoleStreamer("First Output", "Second Output"));
+            .thenReturn(new FakeConsoleStreamer("First Output", "Second Output"));
         when(consoleService.getStreamer(1L, jobIdentifier))
-                .thenReturn(new FakeConsoleStreamer("More Output"));
+            .thenReturn(new FakeConsoleStreamer("More Output"));
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
@@ -137,7 +137,7 @@ public class ConsoleLogSenderTest {
         when(consoleService.doesLogExist(jobIdentifier)).thenReturn(true);
 
         when(consoleService.getStreamer(anyLong(), eq(jobIdentifier))).
-                thenReturn(new ConsoleStreamer(console.toPath(), 0L));
+            thenReturn(new ConsoleStreamer(console.toPath(), 0L));
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
@@ -204,7 +204,7 @@ public class ConsoleLogSenderTest {
         @Override
         public long stream(Consumer<String> action) {
             // this is necessary for showing no logs has been missed out even after job completion
-            if(mockedLines.length <= count) {
+            if (mockedLines.length <= count) {
                 return mockedLines.length;
             }
             action.accept(mockedLines[count]);

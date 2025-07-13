@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 public class PairTest {
 
     @Test
-    public void equalities(){
+    public void equalities() {
         assertEquals(pair("a", "b"), pair("a", "b"));
         assertNotEquals(pair("a", "b"), pair("a", "c"));
         assertEquals(pair("a", pair("b", pair("c", null))), pair("a", pair("b", pair("c", null))));
@@ -33,6 +33,6 @@ public class PairTest {
 
     @Test
     public void creatingTwins() {
-        assertEquals(pair("a","a"), twins("a"));
+        assertEquals(pair("a", "a"), twins("a"));
     }
 }

@@ -40,7 +40,7 @@ public final class StreamLogger implements StreamConsumer {
 
     @Override
     public void consumeLine(String line) {
-        switch(level){
+        switch (level) {
             case ERROR:
                 logger.error(line);
                 break;

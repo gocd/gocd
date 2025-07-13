@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv1.webhook.request.json;
 
 import com.google.gson.annotations.SerializedName;
+import org.apache.commons.lang3.Strings;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,7 +25,6 @@ import java.util.List;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 @SuppressWarnings({"unused", "RedundantSuppression"})
 public class HostedBitbucketRepository {
@@ -48,7 +48,7 @@ public class HostedBitbucketRepository {
     private URL getHttpUrl() {
         try {
             Link htmlLink = links.cloneLinks.stream()
-                    .filter(link -> equalsIgnoreCase(link.name, "http"))
+                    .filter(link -> Strings.CI.equals(link.name, "http"))
                     .findFirst()
                     .orElseThrow();
             return new URL(htmlLink.href);

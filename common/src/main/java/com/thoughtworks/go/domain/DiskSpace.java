@@ -43,7 +43,7 @@ public class DiskSpace implements Comparable<DiskSpace> {
         return FileSizeUtils.byteCountToDisplaySize(space);
     }
 
-    public Long space(){
+    public Long space() {
         return space;
     }
 
@@ -53,9 +53,15 @@ public class DiskSpace implements Comparable<DiskSpace> {
 
     @Override
     public boolean equals(Object that) {
-        if (this == that) { return true; }
-        if (that == null) { return false; }
-        if (this.getClass() != that.getClass()) { return false; }
+        if (this == that) {
+            return true;
+        }
+        if (that == null) {
+            return false;
+        }
+        if (this.getClass() != that.getClass()) {
+            return false;
+        }
 
         return this.space.equals(((DiskSpace) that).space);
     }

@@ -73,7 +73,7 @@ public class PipelineLockService implements ConfigChangedListener {
     public void lockIfNeeded(Pipeline pipeline) {
         if (goConfigService.isLockable(pipeline.getName())) {
             pipelineStateDao.lockPipeline(pipeline, status -> {
-                if(status == TransactionSynchronization.STATUS_COMMITTED) {
+                if (status == TransactionSynchronization.STATUS_COMMITTED) {
                     notifyListeners(PipelineLockStatusChangeListener.Event.lock(pipeline.getName()));
                 }
             });

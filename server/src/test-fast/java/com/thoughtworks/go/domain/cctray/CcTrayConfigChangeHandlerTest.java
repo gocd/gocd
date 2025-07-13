@@ -113,7 +113,7 @@ public class CcTrayConfigChangeHandlerTest {
         ProjectStatus statusOfJobInDB = new ProjectStatus(jobProjectName, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "job-url");
         when(cache.get(stageProjectName)).thenReturn(null);
         when(stageStatusLoader.getStatusesForStageAndJobsOf(pipelineConfigFor(config, "pipeline1"), stageConfigFor(config, "pipeline1", "stage")))
-                .thenReturn(List.of(statusOfStageInDB, statusOfJobInDB));
+            .thenReturn(List.of(statusOfStageInDB, statusOfJobInDB));
 
         handler.call(config);
 
@@ -139,7 +139,7 @@ public class CcTrayConfigChangeHandlerTest {
 
         when(cache.get(stage2ProjectName)).thenReturn(null);
         when(stageStatusLoader.getStatusesForStageAndJobsOf(pipelineConfigFor(config, "pipeline1"), stageConfigFor(config, "pipeline1", "stage2")))
-                .thenReturn(Collections.emptyList());
+            .thenReturn(Collections.emptyList());
 
 
         handler.call(config);
@@ -164,7 +164,7 @@ public class CcTrayConfigChangeHandlerTest {
         ProjectStatus statusOfJob1InDB = new ProjectStatus(job1ProjectName, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "job1-url");
         when(cache.get(stage1ProjectName)).thenReturn(null);
         when(stageStatusLoader.getStatusesForStageAndJobsOf(pipelineConfigFor(config, "pipeline1"), stageConfigFor(config, "pipeline1", "stage1")))
-                .thenReturn(List.of(statusOfStage1InDB, statusOfJob1InDB));
+            .thenReturn(List.of(statusOfStage1InDB, statusOfJob1InDB));
 
 
         handler.call(config);
@@ -267,7 +267,7 @@ public class CcTrayConfigChangeHandlerTest {
     }
 
     @Test
-    public void shouldUpdateCacheWithPipelineDetailsWhenPipelineConfigChanges(){
+    public void shouldUpdateCacheWithPipelineDetailsWhenPipelineConfigChanges() {
         String pipeline1Stage = "pipeline1 :: stage1";
         String pipeline1job = "pipeline1 :: stage1 :: job1";
 
@@ -292,7 +292,7 @@ public class CcTrayConfigChangeHandlerTest {
     }
 
     @Test
-    public void shouldUpdateCacheWithAppropriateViewersForProjectStatusWhenPipelineConfigChanges(){
+    public void shouldUpdateCacheWithAppropriateViewersForProjectStatusWhenPipelineConfigChanges() {
         String pipeline1Stage = "pipeline1 :: stage1";
         String pipeline1job = "pipeline1 :: stage1 :: job1";
 

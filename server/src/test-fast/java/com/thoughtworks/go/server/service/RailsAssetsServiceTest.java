@@ -106,7 +106,7 @@ public class RailsAssetsServiceTest {
     }
 
     @Test
-    public void shouldHaveAssetsAsTheSerializedNameForAssetsMapInRailsAssetsManifest_ThisIsRequiredSinceManifestFileGeneratedBySprocketsHasAMapOfAssetsWhichThisServiceNeedsAccessTo(){
+    public void shouldHaveAssetsAsTheSerializedNameForAssetsMapInRailsAssetsManifest_ThisIsRequiredSinceManifestFileGeneratedBySprocketsHasAMapOfAssetsWhichThisServiceNeedsAccessTo() {
         List<Field> fields = new ArrayList<>(List.of(RailsAssetsService.RailsAssetsManifest.class.getDeclaredFields()));
         List<Field> fieldsAnnotatedWithSerializedNameAsAssets = fields.stream().filter(field -> {
             if (field.isAnnotationPresent(SerializedName.class)) {
@@ -121,26 +121,26 @@ public class RailsAssetsServiceTest {
     }
 
     private String json = """
-            {
-                "files": {
-                    "application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js": {
-                        "logical_path": "application.js",
-                        "mtime": "2014-08-26T12:39:43+05:30",
-                        "size": 1091366,
-                        "digest": "bfdbd4fff63b0cd45c50ce7a79fe0f53"
-                    },
-                    "application-4b25c82f986c0bef78151a4ab277c3e4.css": {
-                        "logical_path": "application.css",
-                        "mtime": "2014-08-26T13:45:30+05:30",
-                        "size": 513,
-                        "digest": "4b25c82f986c0bef78151a4ab277c3e4"
-                    }
+        {
+            "files": {
+                "application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js": {
+                    "logical_path": "application.js",
+                    "mtime": "2014-08-26T12:39:43+05:30",
+                    "size": 1091366,
+                    "digest": "bfdbd4fff63b0cd45c50ce7a79fe0f53"
                 },
-                "assets": {
-                    "application.js": "application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js",
-                    "application.css": "application-4b25c82f986c0bef78151a4ab277c3e4.css"
+                "application-4b25c82f986c0bef78151a4ab277c3e4.css": {
+                    "logical_path": "application.css",
+                    "mtime": "2014-08-26T13:45:30+05:30",
+                    "size": 513,
+                    "digest": "4b25c82f986c0bef78151a4ab277c3e4"
                 }
-            }""";
+            },
+            "assets": {
+                "application.js": "application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js",
+                "application.css": "application-4b25c82f986c0bef78151a4ab277c3e4.css"
+            }
+        }""";
 
 
 }

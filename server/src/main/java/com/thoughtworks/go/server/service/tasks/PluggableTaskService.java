@@ -33,7 +33,7 @@ public class PluggableTaskService {
     }
 
     public boolean isValid(PluggableTask task) {
-        if(!task.isValid()) {
+        if (!task.isValid()) {
             return false;
         }
 

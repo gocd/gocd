@@ -164,7 +164,7 @@ public class AgentRuntimeInfo implements Serializable {
         return new Agent(getUUId(), identifier.getHostName(), identifier.getIpAddress());
     }
 
-    public String getIpAdress() {
+    public String getIpAddress() {
         return identifier.getIpAddress();
     }
 
@@ -244,11 +244,11 @@ public class AgentRuntimeInfo implements Serializable {
     }
 
     public String agentInfoDebugString() {
-        return format("Agent [%s, %s, %s, %s]", getHostName(), getIpAdress(), getUUId(), cookie);
+        return format("Agent [%s, %s, %s, %s]", getHostName(), getIpAddress(), getUUId(), cookie);
     }
 
     public String agentInfoForDisplay() {
-        return format("Agent located at [%s, %s, %s]", getHostName(), getIpAdress(), getLocation());
+        return format("Agent located at [%s, %s, %s]", getHostName(), getIpAddress(), getLocation());
     }
 
     public String getOperatingSystem() {

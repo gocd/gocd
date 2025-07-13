@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class StageFeedEntryTest {
     @Test
-    public void shouldNotAddDuplicateAuthorsCardsToAuthorsList(){
+    public void shouldNotAddDuplicateAuthorsCardsToAuthorsList() {
         StageFeedEntry entry = new StageFeedEntry(1, 1, new StageIdentifier(), 1, new Date(), StageResult.Passed);
         entry.addAuthor(new Author("name", "email"));
         entry.addAuthor(new Author("name", "email"));

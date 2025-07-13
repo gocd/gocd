@@ -215,11 +215,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         bombIfAgentHasDuplicateCookie(agentRuntimeInfo);
 
         AgentInstance agentInstance = findAgentAndRefreshStatus(agentRuntimeInfo.getUUId());
-        if (agentInstance.isIpChangeRequired(agentRuntimeInfo.getIpAdress())) {
-            LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", agentRuntimeInfo.getUUId(), agentInstance.getAgent().getIpaddress(), agentRuntimeInfo.getIpAdress());
+        if (agentInstance.isIpChangeRequired(agentRuntimeInfo.getIpAddress())) {
+            LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", agentRuntimeInfo.getUUId(), agentInstance.getAgent().getIpaddress(), agentRuntimeInfo.getIpAddress());
             Agent agent = (agentInstance.isRegistered() ? agentInstance.getAgent() : null);
             bombIfNull(agent, () -> "Unable to set agent ipAddress; Agent [" + agentInstance.getAgent().getUuid() + "] not found.");
-            agent.setIpaddress(agentRuntimeInfo.getIpAdress());
+            agent.setIpaddress(agentRuntimeInfo.getIpAddress());
             saveOrUpdate(agent);
         }
 

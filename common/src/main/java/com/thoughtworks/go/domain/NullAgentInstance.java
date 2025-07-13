@@ -39,7 +39,7 @@ public class NullAgentInstance extends AgentInstance {
     }
 
     @Override
-    public boolean isIpChangeRequired(String ipAdress) {
+    public boolean isIpChangeRequired(String newIpAddress) {
         return false;
     }
 

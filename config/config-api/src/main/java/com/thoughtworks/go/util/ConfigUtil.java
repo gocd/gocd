@@ -68,7 +68,7 @@ public class ConfigUtil {
 
     public String getAttribute(Element e, String attribute) {
         Attribute attr = e.getAttribute(attribute);
-        if(attr == null) {
+        if (attr == null) {
             throw bomb("Error finding attribute '" + attribute + "' in config: " + configFile + elementOutput(e));
         }
         return attr.getValue();
@@ -83,7 +83,9 @@ public class ConfigUtil {
     }
 
     public String getAttribute(Element e, String attribute, String defaultValue) {
-        if (!hasAttribute(e, attribute)) { return defaultValue; }
+        if (!hasAttribute(e, attribute)) {
+            return defaultValue;
+        }
         return getAttribute(e, attribute);
     }
 

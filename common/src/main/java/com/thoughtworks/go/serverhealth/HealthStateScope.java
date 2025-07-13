@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -112,28 +111,12 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return new HealthStateScope(ScopeType.SCHEDULED_BACKUP, "Scheduled backup");
     }
 
-    public boolean isSame(String scope) {
-        return StringUtils.endsWithIgnoreCase(this.scope, scope);
-    }
-
-    public boolean isForPipeline() {
-        return type == ScopeType.PIPELINE;
-    }
-
-    public boolean isForGroup() {
-        return type == ScopeType.GROUP;
-    }
-
     public boolean isForMaterial() {
         return type == ScopeType.MATERIAL;
     }
 
     public boolean isForJob() {
         return type == ScopeType.JOB;
-    }
-
-    public boolean isForConfigPartial() {
-        return type == ScopeType.CONFIG_PARTIAL;
     }
 
     ScopeType getType() {
@@ -295,7 +278,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
 
         protected boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String scope) {
             return false;
-        };
+        }
 
     }
 }

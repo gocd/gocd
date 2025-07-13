@@ -37,7 +37,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -625,8 +625,8 @@ public class UserService {
     }
 
     private boolean hasUserChanged(User newUser, User originalUser) {
-        boolean hasEmailChanged = isNotBlank(newUser.getEmail()) && !StringUtils.equals(originalUser.getEmail(), newUser.getEmail());
-        boolean hasDisplayNameChanged = !StringUtils.equals(originalUser.getDisplayName(), newUser.getDisplayName());
+        boolean hasEmailChanged = isNotBlank(newUser.getEmail()) && !Strings.CS.equals(originalUser.getEmail(), newUser.getEmail());
+        boolean hasDisplayNameChanged = !Strings.CS.equals(originalUser.getDisplayName(), newUser.getDisplayName());
         if (hasEmailChanged) {
             LOGGER.debug("User [{}] has an email change. Updating the same in the DB.", originalUser.getName());
         }
@@ -635,4 +635,5 @@ public class UserService {
         }
         return hasEmailChanged || hasDisplayNameChanged;
     }
+
 }

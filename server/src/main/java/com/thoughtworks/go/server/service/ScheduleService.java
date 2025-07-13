@@ -43,6 +43,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -696,7 +697,7 @@ public class ScheduleService {
                 }
                 //TODO: #2318 JobInstance should contain identifier after it's loaded from database
                 jobInstance.setIdentifier(jobIdentifier);
-                if (!StringUtils.equals(jobInstance.getAgentUuid(), agentUuid)) {
+                if (!Strings.CS.equals(jobInstance.getAgentUuid(), agentUuid)) {
                     LOGGER.error("Build Instance is using agent [{}] but status updating from agent [{}]", jobInstance.getAgentUuid(), agentUuid);
                     throw new InvalidAgentException("AgentUUID has changed in the middle of a job. AgentUUID:"
                             + agentUuid + ", Build: " + jobInstance.toString());

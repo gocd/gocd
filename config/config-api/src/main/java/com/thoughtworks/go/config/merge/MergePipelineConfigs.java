@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineConfigVisitor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.*;
 
@@ -49,7 +50,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     public void addPart(BasicPipelineConfigs pipelineConfigs) {
-        if (!StringUtils.equals(pipelineConfigs.getGroup(), this.getGroup()))
+        if (!Strings.CS.equals(pipelineConfigs.getGroup(), this.getGroup()))
             throw new IllegalArgumentException("Group names must be the same in merge");
         this.parts.add(pipelineConfigs);
     }
@@ -58,7 +59,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
         String name = parts.get(0).getGroup();
         for (PipelineConfigs part : parts) {
             String otherName = part.getGroup();
-            if (!StringUtils.equals(otherName, name))
+            if (!Strings.CS.equals(otherName, name))
                 throw new IllegalArgumentException("Group names must be the same in merge");
         }
     }
@@ -445,7 +446,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     private boolean isSameGroup(String groupName) {
-        return StringUtils.equalsIgnoreCase(groupName, this.getGroup());
+        return Strings.CI.equals(groupName, this.getGroup());
     }
 
     private int getIndex(String pipelineName) {

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.helper.ModificationsMother;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +32,6 @@ public class ModificationSummariesTest {
     public void shouldHandleEmptyRevisions() {
         ModificationSummaries summaries = new ModificationSummaries();
         String latest = summaries.latestRevision();
-        assertThat(latest).isEqualTo(StringUtils.EMPTY);
+        assertThat(latest).isEqualTo("");
     }
 }

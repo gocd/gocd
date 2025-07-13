@@ -17,6 +17,8 @@ package com.thoughtworks.go.server.service.dd;
 
 import com.thoughtworks.go.domain.StageIdentifier;
 
+import java.util.Objects;
+
 public class StageIdFaninScmMaterialPair {
     StageIdentifier stageIdentifier;
     FaninScmMaterial faninScmMaterial;
@@ -37,11 +39,7 @@ public class StageIdFaninScmMaterialPair {
 
         StageIdFaninScmMaterialPair that = (StageIdFaninScmMaterialPair) o;
 
-        if (faninScmMaterial != null ? !faninScmMaterial.equals(that.faninScmMaterial) : that.faninScmMaterial != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(faninScmMaterial, that.faninScmMaterial);
     }
 
     @Override

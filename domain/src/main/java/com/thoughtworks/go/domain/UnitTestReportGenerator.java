@@ -120,7 +120,7 @@ public class UnitTestReportGenerator {
     private void pumpFileContent(File file, PrintStream out) throws IOException {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             String line = bufferedReader.readLine();
-            out.println(RegExUtils.removeFirst(line, LINE_STARTING_WITH_XML_DECLARATION));
+            out.println(RegExUtils.replaceFirst(line, LINE_STARTING_WITH_XML_DECLARATION, ""));
             while ((line = bufferedReader.readLine()) != null) {
                 out.println(line);
             }

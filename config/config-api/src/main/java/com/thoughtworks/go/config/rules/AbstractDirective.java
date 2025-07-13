@@ -22,13 +22,13 @@ import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
+import org.apache.commons.lang3.Strings;
 
 import java.util.List;
 import java.util.Objects;
 
 import static com.thoughtworks.go.config.rules.SupportedEntity.fromString;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class AbstractDirective implements Directive {
@@ -78,19 +78,19 @@ public abstract class AbstractDirective implements Directive {
             return false;
         }
 
-        return allowedActions.stream().noneMatch(it -> equalsIgnoreCase(it, actionOrType));
+        return allowedActions.stream().noneMatch(it -> Strings.CI.equals(it, actionOrType));
     }
 
     protected boolean matchesAction(String action) {
-        if (equalsIgnoreCase("*", this.action)) {
+        if (Strings.CI.equals("*", this.action)) {
             return true;
         }
 
-        return equalsIgnoreCase(action, this.action);
+        return Strings.CI.equals(action, this.action);
     }
 
     protected boolean matchesType(Class<? extends Validatable> entityType) {
-        if (equalsIgnoreCase("*", this.type)) {
+        if (Strings.CI.equals("*", this.type)) {
             return true;
         }
 
@@ -98,7 +98,7 @@ public abstract class AbstractDirective implements Directive {
     }
 
     protected boolean matchesResource(String resource) {
-        if (equalsIgnoreCase("*", this.resource)) {
+        if (Strings.CI.equals("*", this.resource)) {
             return true;
         }
 

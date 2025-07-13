@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.domain.materials.Revision;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.assertj.core.api.ThrowingConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +54,7 @@ public class MaterialRevisionsMatchers {
 
         @Override
         public void visit(ModifiedFile file) {
-            if (StringUtils.equals(file.getFileName(), this.file) && StringUtils.equals(currentName, this.user)) {
+            if (Strings.CS.equals(file.getFileName(), this.file) && Strings.CS.equals(currentName, this.user)) {
                 contains = true;
             }
         }
@@ -82,7 +82,7 @@ public class MaterialRevisionsMatchers {
 
         @Override
         public void visit(ModifiedFile file) {
-            if (StringUtils.equals(file.getFileName(), this.file)) {
+            if (Strings.CS.equals(file.getFileName(), this.file)) {
                 contains = true;
             }
         }

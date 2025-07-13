@@ -26,7 +26,7 @@ import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.exceptions.RevokedAccessTokenException;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,7 +141,7 @@ public class AccessTokenServiceIntegrationTest {
         AccessToken.AccessTokenWithDisplayValue createdToken = accessTokenService.create(tokenDescription, "bob", authConfigId);
         String accessTokenInString = createdToken.getDisplayValue();
         //replace last 5 characters to make the current token invalid
-        String invalidAccessToken = StringUtils.replace(accessTokenInString, accessTokenInString.substring(35), "abcde");
+        String invalidAccessToken = Strings.CS.replace(accessTokenInString, accessTokenInString.substring(35), "abcde");
 
         InvalidAccessTokenException exception = assertThrows(InvalidAccessTokenException.class, () -> accessTokenService.findByAccessToken(invalidAccessToken));
         assertThat("Invalid Personal Access Token.").isEqualTo(exception.getMessage());

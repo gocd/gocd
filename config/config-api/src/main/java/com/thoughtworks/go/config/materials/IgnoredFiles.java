@@ -22,7 +22,7 @@ import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -81,7 +81,7 @@ public class IgnoredFiles implements Serializable, Validatable {
                     sb.append("/");
                 }
             }
-            this.processedPattern = StringUtils.removeEnd(sb.toString(), "/");
+            this.processedPattern = Strings.CS.removeEnd(sb.toString(), "/");
         }
         return this.processedPattern;
     }

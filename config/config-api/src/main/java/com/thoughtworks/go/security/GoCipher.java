@@ -18,7 +18,7 @@ package com.thoughtworks.go.security;
 import com.thoughtworks.go.config.EncryptedVariableValueConfig;
 import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -112,7 +112,7 @@ public class GoCipher implements Serializable {
         }
 
         try {
-            if (StringUtils.startsWith(p1, "AES:") && StringUtils.startsWith(p2, "AES:")) {
+            if (Strings.CS.startsWith(p1, "AES:") && Strings.CS.startsWith(p2, "AES:")) {
                 return decrypt(p1).equals(decrypt(p2));
             }
         } catch (Exception e) {

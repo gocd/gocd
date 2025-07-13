@@ -16,6 +16,7 @@
 package com.thoughtworks.go.domain.materials.svn;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -173,7 +174,7 @@ public class SvnExternalParser {
     }
 
     private String relativeRoot(String absoluteRoot, String repoUrl) {
-        return StringUtils.strip(StringUtils.remove(absoluteRoot, repoUrl), "/");
+        return StringUtils.strip(Strings.CS.remove(absoluteRoot, repoUrl), "/");
     }
 
     private class Svn15AndAboveWithRootMatcher extends BaseSvnExternalMatcher {

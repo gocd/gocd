@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineConfigVisitor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -190,7 +191,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     private boolean isSameGroup(String groupName) {
-        return StringUtils.equalsIgnoreCase(groupName, this.getGroup());
+        return Strings.CI.equals(groupName, this.getGroup());
     }
 
     @Override

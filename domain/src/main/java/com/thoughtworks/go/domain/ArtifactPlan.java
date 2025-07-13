@@ -27,6 +27,7 @@ import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.tools.ant.types.selectors.SelectorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static org.apache.commons.lang3.StringUtils.removeStart;
 
 public class ArtifactPlan extends PersistentObject {
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactPlan.class);
@@ -208,11 +207,11 @@ public class ArtifactPlan extends PersistentObject {
 
     protected String destinationURL(File rootPath, File file, String src, String dest) {
         String trimmedPattern = SelectorUtils.rtrimWildcardTokens(FilenameUtils.separatorsToUnix(src).replace('/', File.separatorChar));
-        if (StringUtils.equals(FilenameUtils.separatorsToUnix(trimmedPattern), FilenameUtils.separatorsToUnix(src))) {
+        if (Strings.CS.equals(FilenameUtils.separatorsToUnix(trimmedPattern), FilenameUtils.separatorsToUnix(src))) {
             return dest;
         }
-        String trimmedPath = removeStart(subtractPath(rootPath, file), FilenameUtils.separatorsToUnix(trimmedPattern));
-        if (!StringUtils.startsWith(trimmedPath, "/") && StringUtils.isNotEmpty(trimmedPath)) {
+        String trimmedPath = Strings.CS.removeStart(subtractPath(rootPath, file), FilenameUtils.separatorsToUnix(trimmedPattern));
+        if (!Strings.CS.startsWith(trimmedPath, "/") && StringUtils.isNotEmpty(trimmedPath)) {
             trimmedPath = "/" + trimmedPath;
         }
         return dest + trimmedPath;
@@ -221,7 +220,7 @@ public class ArtifactPlan extends PersistentObject {
     private static String subtractPath(File rootPath, File file) {
         String fullPath = FilenameUtils.separatorsToUnix(file.getParentFile().getPath());
         String basePath = FilenameUtils.separatorsToUnix(rootPath.getPath());
-        return removeStart(removeStart(fullPath, basePath), "/");
+        return Strings.CS.removeStart(Strings.CS.removeStart(fullPath, basePath), "/");
     }
 
     public static List<ArtifactPlan> toArtifactPlans(ArtifactTypeConfigs artifactConfigs) {

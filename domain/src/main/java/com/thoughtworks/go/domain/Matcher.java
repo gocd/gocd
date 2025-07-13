@@ -19,6 +19,7 @@ import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -96,7 +97,7 @@ public class Matcher {
         List<String> escapedMatchers = new ArrayList<>();
         for (String matcher : matchers) {
             for (String specialChar : SPECIAL_CHARS) {
-                matcher = StringUtils.replace(matcher, specialChar, "\\" + specialChar);
+                matcher = Strings.CS.replace(matcher, specialChar, "\\" + specialChar);
             }
             escapedMatchers.add(matcher);
         }

@@ -18,11 +18,10 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.server.domain.xml.XmlRepresentable;
 import com.thoughtworks.go.server.domain.xml.XmlWriterContext;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang3.Strings;
 import org.dom4j.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import static org.apache.commons.lang3.StringUtils.endsWithAny;
 
 @Service
 public class XmlApiService {
@@ -51,7 +50,7 @@ public class XmlApiService {
 
     private void checkBaseUrl(String baseUrl) {
         String expectedContextPath = systemEnvironment.getWebappContextPath();
-        if (!endsWithAny(baseUrl.toLowerCase(), expectedContextPath, expectedContextPath + "/")) {
+        if (!Strings.CS.endsWithAny(baseUrl.toLowerCase(), expectedContextPath, expectedContextPath + "/")) {
             throw new IllegalArgumentException("The baseUrl must end with " + expectedContextPath);
         }
     }

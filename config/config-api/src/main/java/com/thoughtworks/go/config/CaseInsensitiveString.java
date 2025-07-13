@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -46,7 +47,7 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
     }
 
     public boolean startsWith(String string) {
-       return lowerCaseName.startsWith(string.toLowerCase());
+       return Strings.CI.startsWith(lowerCaseName, string);
     }
 
     @Override

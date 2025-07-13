@@ -344,14 +344,14 @@ public class AgentInstanceTest {
         AgentInstance pending = createFromLiveAgent(new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"),
                 systemEnvironment, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
-        assertThat(pending.isIpChangeRequired(info.getIpAdress())).isFalse();
+        assertThat(pending.isIpChangeRequired(info.getIpAddress())).isFalse();
     }
 
     @Test
     void shouldChangeIpWhenSameAgentIpChanged() {
         AgentInstance instance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
-        assertThat(instance.isIpChangeRequired(info.getIpAdress())).isTrue();
+        assertThat(instance.isIpChangeRequired(info.getIpAddress())).isTrue();
     }
 
     @Test

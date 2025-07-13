@@ -35,7 +35,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.plugins.validators.elastic.ElasticAgentProfileConfigurationValidator;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +104,7 @@ public class ElasticProfileService {
                 final JobConfigs jobs = stage.getJobs();
 
                 for (JobConfig job : jobs) {
-                    if (StringUtils.equals(profileId, job.getElasticProfileId())) {
+                    if (Strings.CS.equals(profileId, job.getElasticProfileId())) {
 
                         String templateName = null;
                         if (pipelineConfig.getTemplateName() != null) {

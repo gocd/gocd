@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.remote.work.InvalidAgentException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class BuildRepositoryService {
 
     private void checkAgentUUID(JobIdentifier jobIdentifier, String agentUuid, String state) {
         JobInstance job = jobInstanceService.buildByIdWithTransitions(jobIdentifier.getBuildId());
-        if (!StringUtils.equals(job.getAgentUuid(), agentUuid)) {
+        if (!Strings.CS.equals(job.getAgentUuid(), agentUuid)) {
             LOGGER.error("Build Instance [{}] is using agent [{}] but is being updated to [{}] from agent [{}]", jobIdentifier, job.getAgentUuid(), state, agentUuid);
             throw new InvalidAgentException("AgentUUID has changed in the middle of a job. AgentUUID:"
                     + agentUuid + ", Build: " + job);

@@ -20,6 +20,7 @@ import com.google.gson.JsonElement;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.*;
 
@@ -49,9 +50,9 @@ abstract class UpdateRequestRepresenter {
     static TriState toTriState(String agentConfigState) {
         if (StringUtils.isBlank(agentConfigState)) {
             return TriState.UNSET;
-        } else if (StringUtils.equalsIgnoreCase(agentConfigState, "enabled")) {
+        } else if (Strings.CI.equals(agentConfigState, "enabled")) {
             return TriState.TRUE;
-        } else if (StringUtils.equalsIgnoreCase(agentConfigState, "disabled")) {
+        } else if (Strings.CI.equals(agentConfigState, "disabled")) {
             return TriState.FALSE;
         } else {
             throw HaltApiResponses.haltBecauseOfReason("The value of `agent_config_state` can be one of `Enabled`, `Disabled` or null.");

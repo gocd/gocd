@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.InsecureEnvironmentVariables;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -138,7 +139,7 @@ public class PipelineLabel implements Serializable {
 
         while (matcher.find()) {
             String group = matcher.group(1);
-            if (!StringUtils.startsWith(group, "${env:")) {
+            if (!Strings.CS.startsWith(group, "${env:")) {
                 String replacementText = RegExUtils.replaceFirst(group, "(?<!\\[):", "_");
                 labelTemplate = labelTemplate.replace(group, replacementText);
             }

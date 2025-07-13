@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv1.webhook.request.payload.push;
 
 import com.thoughtworks.go.apiv1.webhook.request.json.GitLabProject;
+import org.apache.commons.lang3.Strings;
 
 import java.util.Collections;
 import java.util.Set;
@@ -24,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.removeStart;
 
 @SuppressWarnings({"unused", "RedundantSuppression"})
 public class GitLabPush implements PushPayload {
@@ -34,7 +34,7 @@ public class GitLabPush implements PushPayload {
 
     @Override
     public Set<String> branches() {
-        return ref.startsWith("refs/heads/") ? Set.of(removeStart(ref, "refs/heads/")) : Collections.emptySet();
+        return ref.startsWith("refs/heads/") ? Set.of(Strings.CS.removeStart(ref, "refs/heads/")) : Collections.emptySet();
     }
 
     @Override

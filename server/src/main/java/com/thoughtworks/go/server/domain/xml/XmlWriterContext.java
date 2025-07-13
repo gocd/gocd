@@ -18,10 +18,11 @@ package com.thoughtworks.go.server.domain.xml;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Modification;
+import org.apache.commons.lang3.Strings;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
  * Understands objects required by domain entities to render xml representation
@@ -56,14 +57,14 @@ public class XmlWriterContext {
     }
 
     public String relative(String path) {
-        if (startsWith(path, "/")) {
+        if (Strings.CS.startsWith(path, "/")) {
             return this.baseUrl + path;
         }
         return this.baseUrl + "/" + path;
     }
 
     private String stripEndSlashIfPresent(String baseUrl) {
-        return removeEnd(trimToEmpty(baseUrl), "/");
+        return Strings.CS.removeEnd(trimToEmpty(baseUrl), "/");
     }
 
     public String stagesXmlLink(String pipelineName) {

@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -349,7 +349,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
 
     public MaterialRevision findRevisionForPipelineUniqueFingerprint(String fingerprint) {
         return revisions.stream()
-            .filter(revision -> StringUtils.equals(revision.getMaterial().getPipelineUniqueFingerprint(), fingerprint))
+            .filter(revision -> Strings.CS.equals(revision.getMaterial().getPipelineUniqueFingerprint(), fingerprint))
             .findFirst()
             .orElse(null);
     }

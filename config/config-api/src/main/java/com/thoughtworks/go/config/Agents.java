@@ -16,7 +16,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.NullAgent;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,12 +38,10 @@ public class Agents extends ArrayList<Agent> {
     }
 
     public Agent getAgentByUUID(String uuid) {
-        for (Agent agent : this) {
-            if (StringUtils.equals(agent.getUuid(), uuid)) {
-                return agent;
-            }
-        }
-        return NullAgent.createNullAgent(uuid);
+        return this.stream()
+            .filter(agent -> Strings.CS.equals(agent.getUuid(), uuid))
+            .findFirst()
+            .orElseGet(() -> NullAgent.createNullAgent(uuid));
     }
 
     public boolean hasAgent(String uuid) {
@@ -51,7 +49,7 @@ public class Agents extends ArrayList<Agent> {
     }
 
     public boolean add(Agent agent) {
-        if(agent != null) {
+        if (agent != null) {
             if (contains(agent)) {
                 throw new IllegalArgumentException("Agent with same UUID already exists: " + agent);
             }

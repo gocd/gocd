@@ -31,6 +31,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
-import static org.apache.commons.lang3.StringUtils.removeStart;
 
 @Component
 public class GoArtifactsManipulator {
@@ -138,7 +138,7 @@ public class GoArtifactsManipulator {
         Collection<File> fileStructure = FileUtils.listFiles(directory, null, true);
         Properties checksumProperties = new Properties();
         for (File file : fileStructure) {
-            String filePath = removeStart(file.getAbsolutePath(), directory.getParentFile().getAbsolutePath());
+            String filePath = Strings.CS.removeStart(file.getAbsolutePath(), directory.getParentFile().getAbsolutePath());
             try (FileInputStream inputStream = new FileInputStream(file)) {
                 checksumProperties.setProperty(getEffectiveFileName(destPath, FilenameUtils.separatorsToUnix(filePath)), DigestUtils.md5Hex(inputStream));
             }
@@ -159,7 +159,7 @@ public class GoArtifactsManipulator {
     }
 
     private String removeLeadingSlash(File artifactDest) {
-        return removeStart(FilenameUtils.separatorsToUnix(artifactDest.getPath()), "/");
+        return Strings.CS.removeStart(FilenameUtils.separatorsToUnix(artifactDest.getPath()), "/");
     }
 
 

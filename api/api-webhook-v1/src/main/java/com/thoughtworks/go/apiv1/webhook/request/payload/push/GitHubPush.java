@@ -17,11 +17,11 @@
 package com.thoughtworks.go.apiv1.webhook.request.payload.push;
 
 import com.thoughtworks.go.apiv1.webhook.request.json.GitHubRepository;
+import org.apache.commons.lang3.Strings;
 
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
-import static org.apache.commons.lang3.StringUtils.removeStart;
 
 @SuppressWarnings({"unused", "RedundantSuppression"})
 public class GitHubPush implements PushPayload {
@@ -31,7 +31,7 @@ public class GitHubPush implements PushPayload {
 
     @Override
     public Set<String> branches() {
-        return ref.startsWith("refs/heads/") ? Set.of(removeStart(ref, "refs/heads/")) : emptySet();
+        return ref.startsWith("refs/heads/") ? Set.of(Strings.CS.removeStart(ref, "refs/heads/")) : emptySet();
     }
 
     @Override

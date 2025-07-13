@@ -26,7 +26,7 @@ import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -76,7 +76,7 @@ public class FeatureTogglesControllerV1 extends ApiController implements SparkSp
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
         String toggleValue = jsonReader.getString("toggle_value");
 
-        if (!(StringUtils.equalsIgnoreCase("on", toggleValue) || StringUtils.equalsIgnoreCase("off", toggleValue))) {
+        if (!(Strings.CI.equals("on", toggleValue) || Strings.CI.equals("off", toggleValue))) {
             throw new UnprocessableEntityException("Value of property \"toggle_value\" is invalid. Valid values are: \"on\" and \"off\".");
         }
 

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
+import org.apache.commons.lang3.Strings;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,7 +31,6 @@ import java.util.stream.Collector;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.replaceOnce;
 
 public class SecretParams extends ArrayList<SecretParam> implements Serializable {
     private static final Pattern PATTERN = Pattern.compile("(?:\\{\\{SECRET:\\[(.*?)\\]\\[(.*?)\\]}})+");
@@ -108,7 +108,7 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
                 throw new UnresolvedSecretParamException(secretParam.getKey());
             }
 
-            return replaceOnce(text, format("{{SECRET:[%s][%s]}}", secretParam.getSecretConfigId(), secretParam.getKey()), secretParam.getValue());
+            return Strings.CS.replaceOnce(text, format("{{SECRET:[%s][%s]}}", secretParam.getSecretConfigId(), secretParam.getKey()), secretParam.getValue());
         };
     }
 
@@ -132,6 +132,6 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
     }
 
     private Function<String, String> maskFunction(SecretParam secretParam) {
-        return text -> replaceOnce(text, secretParam.asString(), MASKED_VALUE);
+        return text -> Strings.CS.replaceOnce(text, secretParam.asString(), MASKED_VALUE);
     }
 }

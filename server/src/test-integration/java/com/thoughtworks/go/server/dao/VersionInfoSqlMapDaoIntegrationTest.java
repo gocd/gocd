@@ -31,10 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class VersionInfoSqlMapDaoIntegrationTest {
     @Autowired
@@ -56,7 +56,7 @@ public class VersionInfoSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSaveVersionInfo(){
+    public void shouldSaveVersionInfo() {
         GoVersion installedVersion = new GoVersion("14.1.0-123");
         GoVersion latestVersion = new GoVersion("15.1.0-876");
         Date now = new Date();
@@ -71,7 +71,7 @@ public class VersionInfoSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateVersionInfo(){
+    public void shouldUpdateVersionInfo() {
         GoVersion installedVersion = new GoVersion("14.1.0-123");
         GoVersion latestVersion = new GoVersion("15.1.0-876");
         Date now = new Date();

@@ -27,7 +27,7 @@ public class DummyNodeCreationTest {
     private DummyNodeCreation dummyNodeCreation;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         dummyNodeCreation = new DummyNodeCreation();
     }
 
@@ -92,12 +92,12 @@ public class DummyNodeCreationTest {
     @Test
     public void shouldMoveNodeAndIntroduceDummyNodesCorrectly_shouldHandleDoubleTriangle() {
         /*
-        * +----- X ------+
-        * |              v
-        * g---->d1----->d2 ---> d3
-        *        |              ^
-        *        ------ X -----+
-        */
+         * +----- X ------+
+         * |              v
+         * g---->d1----->d2 ---> d3
+         *        |              ^
+         *        ------ X -----+
+         */
         CaseInsensitiveString currentPipeline = new CaseInsensitiveString("d3");
         CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
         CaseInsensitiveString d1 = new CaseInsensitiveString("d1");
@@ -125,6 +125,7 @@ public class DummyNodeCreationTest {
         VSMTestHelper.assertThatNodeHasParents(graph, d2, 1, d1);
         VSMTestHelper.assertThatNodeHasParents(graph, d1, 0, g);
     }
+
     @Test
     public void shouldMoveNodeAndIntroduceDummyNodesToCorrectLayer() {
         /*

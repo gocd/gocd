@@ -30,11 +30,11 @@ import java.util.*;
 public class ValueStreamMap {
     private Node currentPipeline;
     private Node currentMaterial;
-	private MaterialInstance currentMaterialInstance;
+    private MaterialInstance currentMaterialInstance;
     private Map<CaseInsensitiveString, Node> nodeIdToNodeMap = new LinkedHashMap<>();
-	private List<Node> rootNodes = new ArrayList<>();
+    private List<Node> rootNodes = new ArrayList<>();
 
-	private LevelAssignment levelAssignment = new LevelAssignment();
+    private LevelAssignment levelAssignment = new LevelAssignment();
     private DummyNodeCreation dummyNodeCreation = new DummyNodeCreation();
     private CrossingMinimization crossingMinimization = new CrossingMinimization();
 
@@ -44,27 +44,27 @@ public class ValueStreamMap {
         currentPipeline.addRevision(pipelineRevision);
     }
 
-	public ValueStreamMap(Material material, MaterialInstance materialInstance, Modification modification) {
-		currentMaterial = new SCMDependencyNode(material.getFingerprint(), material.getUriForDisplay(), material.getTypeForDisplay());
-		currentMaterialInstance = materialInstance;
-		nodeIdToNodeMap.put(currentMaterial.getId(), currentMaterial);
-        ((SCMDependencyNode)currentMaterial).addMaterialRevision(new MaterialRevision(material, false, modification));
-	}
+    public ValueStreamMap(Material material, MaterialInstance materialInstance, Modification modification) {
+        currentMaterial = new SCMDependencyNode(material.getFingerprint(), material.getUriForDisplay(), material.getTypeForDisplay());
+        currentMaterialInstance = materialInstance;
+        nodeIdToNodeMap.put(currentMaterial.getId(), currentMaterial);
+        ((SCMDependencyNode) currentMaterial).addMaterialRevision(new MaterialRevision(material, false, modification));
+    }
 
     //used in rails
     public Node getCurrentPipeline() {
         return currentPipeline;
     }
 
-	public Node getCurrentMaterial() {
-		return currentMaterial;
-	}
+    public Node getCurrentMaterial() {
+        return currentMaterial;
+    }
 
-	public MaterialInstance getCurrentMaterialInstance() {
-		return currentMaterialInstance;
-	}
+    public MaterialInstance getCurrentMaterialInstance() {
+        return currentMaterialInstance;
+    }
 
-	public Node addUpstreamNode(Node node, PipelineRevision revision, CaseInsensitiveString dependentNodeId) {
+    public Node addUpstreamNode(Node node, PipelineRevision revision, CaseInsensitiveString dependentNodeId) {
         node = addUpstreamNode(node, dependentNodeId);
         node.addRevision(revision);
         return node;
@@ -110,21 +110,21 @@ public class ValueStreamMap {
         return nodeIdToNodeMap.values();
     }
 
-	public List<Node> getRootNodes() {
-		if (rootNodes.isEmpty()) {
-			populateRootNodes();
-		}
-		return rootNodes;
-	}
+    public List<Node> getRootNodes() {
+        if (rootNodes.isEmpty()) {
+            populateRootNodes();
+        }
+        return rootNodes;
+    }
 
-	void populateRootNodes() {
-		rootNodes = new ArrayList<>();
-		for (Node currentNode : allNodes()) {
-			if (currentNode.getParents().isEmpty()) {
-				rootNodes.add(currentNode);
-			}
-		}
-	}
+    void populateRootNodes() {
+        rootNodes = new ArrayList<>();
+        for (Node currentNode : allNodes()) {
+            if (currentNode.getParents().isEmpty()) {
+                rootNodes.add(currentNode);
+            }
+        }
+    }
 
     private boolean hasNode(CaseInsensitiveString nodeId) {
         return nodeIdToNodeMap.containsKey(nodeId);
@@ -159,7 +159,7 @@ public class ValueStreamMap {
         boolean anyRootNodeWithInCompatibleRevisions = false;
 
         for (Node rootNode : getRootNodes()) {
-            if (hasMultipleLatestRevisionString(((SCMDependencyNode)rootNode).getMaterialRevisions())) {
+            if (hasMultipleLatestRevisionString(((SCMDependencyNode) rootNode).getMaterialRevisions())) {
                 addWarning(rootNode);
                 anyRootNodeWithInCompatibleRevisions = true;
             }
@@ -170,10 +170,10 @@ public class ValueStreamMap {
 
     private boolean hasMultipleLatestRevisionString(List<MaterialRevision> materialRevisions) {
         int VALID_LATEST_REVISION_STRING_COUNT = 1;
-        if(materialRevisions.size() == VALID_LATEST_REVISION_STRING_COUNT) return false;
+        if (materialRevisions.size() == VALID_LATEST_REVISION_STRING_COUNT) return false;
 
         Set<String> latestRevisions = new HashSet<>();
-        for(MaterialRevision revision : materialRevisions) {
+        for (MaterialRevision revision : materialRevisions) {
             latestRevisions.add(revision.getLatestRevisionString());
         }
 
@@ -186,11 +186,11 @@ public class ValueStreamMap {
     }
 
     @Override
-	public String toString() {
-		String s = "graph:\n";
-		for (Node currentNode : allNodes()) {
-			s += currentNode + "\n";
-		}
-		return s;
-	}
+    public String toString() {
+        String s = "graph:\n";
+        for (Node currentNode : allNodes()) {
+            s += currentNode + "\n";
+        }
+        return s;
+    }
 }

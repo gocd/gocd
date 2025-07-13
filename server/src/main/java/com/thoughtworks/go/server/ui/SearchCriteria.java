@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 
 public class SearchCriteria {
-    private static final Pattern PATTERN= Pattern.compile("^\".*\"$");
+    private static final Pattern PATTERN = Pattern.compile("^\".*\"$");
     private String searchToken;
 
     public SearchCriteria(String searchToken) {
@@ -29,7 +29,7 @@ public class SearchCriteria {
 
     public boolean matches(String value) {
         value = value.toLowerCase();
-        if(isQuotedString())
+        if (isQuotedString())
             return unQuoteToken().equals(value);
         return value.contains(searchToken);
     }

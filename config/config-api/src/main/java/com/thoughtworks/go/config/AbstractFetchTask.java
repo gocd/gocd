@@ -213,16 +213,16 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
     }
 
     private void addStageMayNotCompleteBeforeDownstreamError(PipelineConfig currentPipeline, ValidationContext validationContext) {
-        addError(STAGE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from stage \"%s :: %s\" which does not complete before \"%s\" pipeline's dependencies."
-                , currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName(), stage, currentPipeline.name()));
+        addError(STAGE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from stage \"%s :: %s\" which does not complete before \"%s\" pipeline's dependencies.",
+            currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName(), stage, currentPipeline.name()));
     }
 
     private void validateStagesOfSamePipeline(ValidationContext validationContext, PipelineConfig currentPipeline) {
         @SuppressWarnings("CollectionAddedToSelf") List<StageConfig> validStages = currentPipeline.validStagesForFetchArtifact(currentPipeline, validationContext.getStage().name());
         StageConfig matchingStage = validStages.stream().filter(stageConfig -> stageConfig.name().equals(stage)).findFirst().orElse(null);
         if (matchingStage == null) {
-            addError(STAGE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from its stage \"%s\" which does not complete before the current stage \"%s\"."
-                    , currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), stage, validationContext.getStage().name()));
+            addError(STAGE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from its stage \"%s\" which does not complete before the current stage \"%s\".",
+                currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), stage, validationContext.getStage().name()));
         }
     }
 
@@ -231,14 +231,14 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
 
         if (srcPipeline == null) {
             //"ProdDeploy :: deploy :: scp" tries|attempts to fetch artifact from pipeline "not-found" which does not exist.
-            addError(PIPELINE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from pipeline \"%s\" which does not exist."
-                    , currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName()));
+            addError(PIPELINE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from pipeline \"%s\" which does not exist.",
+                currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName()));
             return true;
         } else {
             StageConfig srcStage = srcPipeline.findBy(stage);
             if (srcStage == null) {
-                addError(STAGE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from stage \"%s :: %s\" which does not exist."
-                        , currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName(), stage));
+                addError(STAGE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from stage \"%s :: %s\" which does not exist.",
+                    currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName(), stage));
                 return true;
             } else {
                 if (srcStage.jobConfigByInstanceName(CaseInsensitiveString.str(job), true) == null) {

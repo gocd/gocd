@@ -59,7 +59,7 @@ public class PipelineStagesFeedServiceTest {
     }
 
     @Test
-    public void shouldReturnUnauthorizedIfUserDoesNotHaveViewPermissionsForFeedBefore(){
+    public void shouldReturnUnauthorizedIfUserDoesNotHaveViewPermissionsForFeedBefore() {
         when(securityService.hasViewPermissionForPipeline(user, "cruise")).thenReturn(false);
 
         FeedEntries feedEntries = pipelineStagesFeedResolver.feedBefore(user, 100L, operationResult);

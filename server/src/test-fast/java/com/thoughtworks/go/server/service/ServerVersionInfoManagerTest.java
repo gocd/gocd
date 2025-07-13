@@ -53,7 +53,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldUseServerVersionInfoBuilderToGetServerVersionInfo(){
+    public void shouldUseServerVersionInfoBuilderToGetServerVersionInfo() {
         when(builder.getServerVersionInfo()).thenReturn(new VersionInfo());
 
         manager.initialize();
@@ -62,7 +62,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldAddNewVersionInfoToCacheIfLatestVersionIsGreaterThanInstalledVersion(){
+    public void shouldAddNewVersionInfoToCacheIfLatestVersionIsGreaterThanInstalledVersion() {
         GoVersion currentVersion = new GoVersion("1.2.3-1");
         GoVersion latestVersion = new GoVersion("2.3.4-2");
         VersionInfo versionInfo = new VersionInfo("go_server", currentVersion, latestVersion, null);
@@ -76,7 +76,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldNotUpdateCacheIfLatestVersionIsLesserThanInstalledVersion(){
+    public void shouldNotUpdateCacheIfLatestVersionIsLesserThanInstalledVersion() {
         GoVersion currentVersion = new GoVersion("4.7.3-1");
         GoVersion latestVersion = new GoVersion("2.3.4-2");
         VersionInfo versionInfo = new VersionInfo("go_server", currentVersion, latestVersion, null);
@@ -90,7 +90,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldNotUpdateCacheIfServerVersionInfoIsUnAvailable(){
+    public void shouldNotUpdateCacheIfServerVersionInfoIsUnAvailable() {
         when(builder.getServerVersionInfo()).thenReturn(null);
 
         manager.initialize();
@@ -98,9 +98,10 @@ public class ServerVersionInfoManagerTest {
         verify(builder).getServerVersionInfo();
         verify(goCache, never()).put(anyString(), anyString());
     }
+
     @Test
-    public void shouldReturnVersionInfoIfServerLatestVersionNotUpdated(){
-        Date yesterday = new Date(System.currentTimeMillis() - 24*60*60*1000);
+    public void shouldReturnVersionInfoIfServerLatestVersionNotUpdated() {
+        Date yesterday = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
         VersionInfo versionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"), new GoVersion("2.3.4-2"), yesterday);
 
         when(builder.getServerVersionInfo()).thenReturn(versionInfo);
@@ -112,7 +113,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldNotReturnVersionInfoIfLatestVersionUpdatedToday(){
+    public void shouldNotReturnVersionInfoIfLatestVersionUpdatedToday() {
         Date today = new Date();
         VersionInfo versionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"), new GoVersion("2.3.4-2"), today);
 
@@ -125,7 +126,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldNotReturnVersionInfoForDevelopementServer(){
+    public void shouldNotReturnVersionInfoForDevelopementServer() {
         when(builder.getServerVersionInfo()).thenReturn(null);
         when(systemEnvironment.isProductionMode()).thenReturn(false);
 
@@ -135,8 +136,8 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldNotGetVersionInfoIfLatestVersionIsBeingUpdated(){
-        Date yesterday = new Date(System.currentTimeMillis() - 24*60*60*1000);
+    public void shouldNotGetVersionInfoIfLatestVersionIsBeingUpdated() {
+        Date yesterday = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
         VersionInfo versionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"), new GoVersion("2.3.4-2"), yesterday);
 
         when(builder.getServerVersionInfo()).thenReturn(versionInfo);
@@ -150,9 +151,9 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldGetVersionInfoIfLatestVersionIsBeingUpdatedForMoreThanHalfAnHour(){
+    public void shouldGetVersionInfoIfLatestVersionIsBeingUpdatedForMoreThanHalfAnHour() {
         SystemTimeClock systemTimeClock = mock(SystemTimeClock.class);
-        Date yesterday = new Date(System.currentTimeMillis() - 24*60*60*1000);
+        Date yesterday = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
         Instant overHalfAnHourAgo = Instant.now().minus(35, ChronoUnit.MINUTES);
         VersionInfo versionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"), new GoVersion("2.3.4-2"), yesterday);
 
@@ -173,7 +174,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldBeAbleToUpdateTheLatestGOVersion(){
+    public void shouldBeAbleToUpdateTheLatestGOVersion() {
         SystemTimeClock systemTimeClock = mock(SystemTimeClock.class);
         VersionInfo versionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"), new GoVersion("2.3.4-1"), null);
         Date now = new Date();
@@ -192,7 +193,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldUpdateCacheWithNewVersionIfLatestVersionIsGreaterThanInstalledVersion(){
+    public void shouldUpdateCacheWithNewVersionIfLatestVersionIsGreaterThanInstalledVersion() {
         SystemTimeClock systemTimeClock = mock(SystemTimeClock.class);
         VersionInfo versionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"), new GoVersion("1.2.3-1"), null);
         Date now = new Date();
@@ -208,7 +209,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldGetGoUpdateFromCache(){
+    public void shouldGetGoUpdateFromCache() {
         String newRelease = "15.0.1-123";
         GoCache goCache = mock(GoCache.class);
 
@@ -220,7 +221,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldBeTrueIfVersionCheckEnabledOnProductionServer(){
+    public void shouldBeTrueIfVersionCheckEnabledOnProductionServer() {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
 
         when(builder.getServerVersionInfo()).thenReturn(new VersionInfo());
@@ -234,7 +235,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void updateCheckShouldBeDisabledForADevelopmentServer(){
+    public void updateCheckShouldBeDisabledForADevelopmentServer() {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
 
         when(builder.getServerVersionInfo()).thenReturn(new VersionInfo());
@@ -248,7 +249,7 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldBeFalseIfVersionCheckIsDisabled(){
+    public void shouldBeFalseIfVersionCheckIsDisabled() {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
 
         when(builder.getServerVersionInfo()).thenReturn(new VersionInfo());

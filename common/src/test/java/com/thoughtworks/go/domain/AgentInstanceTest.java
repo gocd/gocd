@@ -253,7 +253,7 @@ public class AgentInstanceTest {
     void shouldNotAssignCertificateToPendingAgent() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agent, false, "/var/lib", 0L, "linux");
         AgentInstance agentInstance = createFromLiveAgent(agentRuntimeInfo, systemEnvironment,
-                mock(AgentStatusChangeListener.class));
+            mock(AgentStatusChangeListener.class));
 
         assertThat(agentInstance.assignCertification()).isFalse();
     }
@@ -342,7 +342,7 @@ public class AgentInstanceTest {
     @Test
     void shouldNotChangePendingAgentIpAddress() {
         AgentInstance pending = createFromLiveAgent(new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"),
-                systemEnvironment, mock(AgentStatusChangeListener.class));
+            systemEnvironment, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         assertThat(pending.isIpChangeRequired(info.getIpAddress())).isFalse();
     }
@@ -371,7 +371,7 @@ public class AgentInstanceTest {
     void pendingAgentShouldNotBeRegistered() {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         AgentInstance instance = createFromLiveAgent(agentRuntimeInfo, systemEnvironment,
-                mock(AgentStatusChangeListener.class));
+            mock(AgentStatusChangeListener.class));
         assertThat(instance.isRegistered()).isFalse();
     }
 
@@ -393,7 +393,7 @@ public class AgentInstanceTest {
     @Test
     void shouldBecomeIdleAfterApprove() {
         AgentInstance instance = createFromLiveAgent(new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"),
-                systemEnvironment, mock(AgentStatusChangeListener.class));
+            systemEnvironment, mock(AgentStatusChangeListener.class));
         instance.enable();
         instance.update(new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
         assertThat(instance.getStatus()).isEqualTo(AgentStatus.Idle);
@@ -444,7 +444,7 @@ public class AgentInstanceTest {
     void shouldDenyPendingAgent() {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         AgentInstance instance = createFromLiveAgent(agentRuntimeInfo, systemEnvironment,
-                mock(AgentStatusChangeListener.class));
+            mock(AgentStatusChangeListener.class));
         instance.deny();
 
         assertThat(instance.getStatus()).isEqualTo(AgentStatus.Disabled);
@@ -557,7 +557,7 @@ public class AgentInstanceTest {
     void shouldNotBeEqualIfUuidIsNotEqual() {
         AgentInstance agentA = new AgentInstance(new Agent("UUID", "A", "127.0.0.1"), LOCAL, systemEnvironment, null);
         AgentInstance copyOfAgentA = new AgentInstance(new Agent("UUID", "A", "127.0.0.1"),
-                LOCAL, systemEnvironment, null);
+            LOCAL, systemEnvironment, null);
         AgentInstance agentB = new AgentInstance(new Agent("UUID", "B", "127.0.0.2"), LOCAL, systemEnvironment, null);
 
         assertThat(agentA).isNotEqualTo(agentB);
@@ -747,7 +747,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    void buildingMethodShouldUpdateAgentRuntimeStatusToBuildingAndSetSpecifiedBuildInfoInItsRuntimeInfo(){
+    void buildingMethodShouldUpdateAgentRuntimeStatusToBuildingAndSetSpecifiedBuildInfoInItsRuntimeInfo() {
         Agent mockAgent = mock(Agent.class);
         AgentRuntimeInfo mockAgentRuntimeInfo = mock(AgentRuntimeInfo.class);
         AgentBuildingInfo mockAgentBuildingInfo = mock(AgentBuildingInfo.class);
@@ -837,8 +837,8 @@ public class AgentInstanceTest {
             AgentInstance agentInstance = building();
 
             assertThatExceptionOfType(InvalidAgentInstructionException.class)
-                    .isThrownBy(agentInstance::killRunningTasks)
-                    .withMessage("The agent should be in cancelled state before attempting to kill running tasks. Current Agent state is: 'Building'");
+                .isThrownBy(agentInstance::killRunningTasks)
+                .withMessage("The agent should be in cancelled state before attempting to kill running tasks. Current Agent state is: 'Building'");
         }
 
         @Test
@@ -848,8 +848,8 @@ public class AgentInstanceTest {
             agentInstance.killRunningTasks();
 
             assertThatExceptionOfType(InvalidAgentInstructionException.class)
-                    .isThrownBy(agentInstance::killRunningTasks)
-                    .withMessage("There is a pending request to kill running task.");
+                .isThrownBy(agentInstance::killRunningTasks)
+                .withMessage("There is a pending request to kill running task.");
         }
     }
 

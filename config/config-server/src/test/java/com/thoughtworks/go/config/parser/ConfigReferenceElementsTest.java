@@ -30,13 +30,13 @@ public class ConfigReferenceElementsTest {
     }
 
     @Test
-    public void shouldReturnNullReferenceElementWhenCollectionIsMissing(){
+    public void shouldReturnNullReferenceElementWhenCollectionIsMissing() {
         ConfigReferenceElements configReferenceElements = new ConfigReferenceElements();
         assertThat(configReferenceElements.get("missing-collection", "id")).isNull();
     }
 
     @Test
-    public void shouldReturnNullReferenceElementWhenIdIsMissingInCollection(){
+    public void shouldReturnNullReferenceElementWhenIdIsMissingInCollection() {
         ConfigReferenceElements configReferenceElements = new ConfigReferenceElements();
         Object referenceElement = new Object();
         configReferenceElements.add("collection", "id", referenceElement);

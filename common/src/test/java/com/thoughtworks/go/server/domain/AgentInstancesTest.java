@@ -122,9 +122,9 @@ class AgentInstancesTest {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
 
             List<Agent> pendingAgents = agentInstances.filterPendingAgents(List.of(idle.getUuid(),
-                    pending.getUuid(),
-                    building.getUuid(),
-                    disabled.getUuid()));
+                pending.getUuid(),
+                building.getUuid(),
+                disabled.getUuid()));
             assertThat(pendingAgents.size()).isEqualTo(1);
             assertThat(pendingAgents.get(0).getUuid()).isEqualTo(pending.getUuid());
         }
@@ -256,7 +256,7 @@ class AgentInstancesTest {
     }
 
     @Nested
-    class Sync{
+    class Sync {
         @Test
         void shouldSyncAgentInstancesFromAgentsInDB() {
             AgentStatusChangeListener mockListener = mock(AgentStatusChangeListener.class);
@@ -316,7 +316,7 @@ class AgentInstancesTest {
     }
 
     @Nested
-    class CancelBuild{
+    class CancelBuild {
         @Test
         void updateAgentAboutCancelledBuildShouldSetTheRuntimeStatusToCancelled() {
             AgentStatusChangeListener mockListener = mock(AgentStatusChangeListener.class);
@@ -347,7 +347,7 @@ class AgentInstancesTest {
     }
 
     @Nested
-    class ElasticAgent{
+    class ElasticAgent {
         @Test
         void shouldFindElasticAgentUUIDs() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
@@ -358,7 +358,7 @@ class AgentInstancesTest {
         }
 
         @Test
-        void shouldFindElasticAgentByElasticAgentIdAndElasticPluginId(){
+        void shouldFindElasticAgentByElasticAgentIdAndElasticPluginId() {
             AgentInstances agentInstances = createAgentInstancesWithElasticAgents();
 
             String elasticAgentId = "elastic-agent-id-1";
@@ -371,7 +371,7 @@ class AgentInstancesTest {
         }
 
         @Test
-        void shouldReturnNullAsElasticAgentWhenThereIsNoElasticAgentWithSpecifiedElasticAgentIdAndElasticPluginId(){
+        void shouldReturnNullAsElasticAgentWhenThereIsNoElasticAgentWithSpecifiedElasticAgentIdAndElasticPluginId() {
             AgentInstances agentInstances = createAgentInstancesWithElasticAgents();
 
             String elasticAgentId = "blabla";
@@ -382,7 +382,7 @@ class AgentInstancesTest {
         }
 
         @Test
-        void shouldThrowExceptionWhenMoreThanOneElasticAgentWithSameElasticAgentIdAndElasticPluginId(){
+        void shouldThrowExceptionWhenMoreThanOneElasticAgentWithSameElasticAgentIdAndElasticPluginId() {
             AgentInstances agentInstances = createAgentInstancesWithElasticAgents();
             agentInstances.add(createElasticAgentInstance(1, "go.cd.elastic-agent-plugin.docker"));
 
@@ -394,7 +394,7 @@ class AgentInstancesTest {
         }
 
         @Test
-        void shouldReturnMapContainingAllElasticAgentsGroupedByElasticPluginIdKey(){
+        void shouldReturnMapContainingAllElasticAgentsGroupedByElasticPluginIdKey() {
             AgentInstances agentInstances = createAgentInstancesWithElasticAgents();
             LinkedMultiValueMap<String, ElasticAgentMetadata> map = agentInstances.getAllElasticAgentsGroupedByPluginId();
 
@@ -412,7 +412,7 @@ class AgentInstancesTest {
         }
 
         @Test
-        void shouldReturnEmptyMapOfElasticAgentsGroupedByElasticPluginIdKeyWhenThereAreNoElasticAgents(){
+        void shouldReturnEmptyMapOfElasticAgentsGroupedByElasticPluginIdKeyWhenThereAreNoElasticAgents() {
             AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
             LinkedMultiValueMap<String, ElasticAgentMetadata> map = agentInstances.getAllElasticAgentsGroupedByPluginId();
             assertThat(map).isNotNull();
@@ -468,7 +468,7 @@ class AgentInstancesTest {
         when(systemEnvironment.get(MAX_PENDING_AGENTS_ALLOWED)).thenReturn(1);
 
         MaxPendingAgentsLimitReachedException e = assertThrows(MaxPendingAgentsLimitReachedException.class,
-                () -> agentInstances.register(fromServer(agent, false, "/var/lib", 0L, "linux")));
+            () -> agentInstances.register(fromServer(agent, false, "/var/lib", 0L, "linux")));
         assertThat(e.getMessage()).isEqualTo("Max pending agents allowed 1, limit reached");
     }
 
@@ -531,7 +531,7 @@ class AgentInstancesTest {
         return agentInstances;
     }
 
-    private AgentInstance createElasticAgentInstance(int counter, String elasticPluginId){
+    private AgentInstance createElasticAgentInstance(int counter, String elasticPluginId) {
         String uuid = UUID.randomUUID().toString();
         String ip = "127.0.0.1";
         String host = "localhost";
@@ -547,7 +547,7 @@ class AgentInstancesTest {
         return elasticAgentInstance;
     }
 
-    private Agent createElasticAgent(String uuid, String ip, String elasticAgentId, String elasticPluginId){
+    private Agent createElasticAgent(String uuid, String ip, String elasticAgentId, String elasticPluginId) {
         Agent elasticAgent = new Agent(uuid);
         elasticAgent.setElasticAgentId(elasticAgentId);
         elasticAgent.setElasticPluginId(elasticPluginId);

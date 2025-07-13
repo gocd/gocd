@@ -99,14 +99,14 @@ public class TabTest {
     }
 
     @Test
-    public void shouldAddErrorToTheErroneousTabIfNameExceeds15Characters(){
+    public void shouldAddErrorToTheErroneousTabIfNameExceeds15Characters() {
         Tab tab = new Tab("sjadfklsdjaklfsdjaklfjsdklajfklsdajfklsdakf", "path1");
         tab.validate(null);
         assertThat(tab.errors().on(Tab.NAME)).isEqualTo("Tab name should not exceed 15 characters");
     }
 
     @Test
-    public void shouldAddErrorToTabsWithIncorrectTabNameOrPath(){
+    public void shouldAddErrorToTabsWithIncorrectTabNameOrPath() {
         Tab tab1 = new Tab("tab&*", "path1");
         tab1.validate(null);
         assertThat(tab1.errors().on(Tab.NAME)).isEqualTo("Tab name 'tab&*' is invalid. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");

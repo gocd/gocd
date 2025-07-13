@@ -90,15 +90,15 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
             }
         }
         throw new RuntimeException(
-                "Cannot find a stage with counter '" + counter + "'."
+            "Cannot find a stage with counter '" + counter + "'."
                 + " Actual stages are: " + this.toString());
     }
 
 
     public Stages latestStagesInRunOrder() {
         Stages latestRunStages = new Stages();
-        for (Stage  stage: this) {
-            if(stage.isLatestRun()) {
+        for (Stage stage : this) {
+            if (stage.isLatestRun()) {
                 latestRunStages.add(stage);
             }
         }

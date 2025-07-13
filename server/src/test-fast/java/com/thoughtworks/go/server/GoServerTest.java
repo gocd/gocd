@@ -113,7 +113,7 @@ public class GoServerTest {
         when(server.hasStarted()).thenReturn(false);
         when(server.getUnavailableException()).thenReturn(new RuntimeException("Some unhandled server startup exception"));
 
-        GoServer goServer = new GoServer(){
+        GoServer goServer = new GoServer() {
             @Override
             AppServer configureServer() {
                 return server;

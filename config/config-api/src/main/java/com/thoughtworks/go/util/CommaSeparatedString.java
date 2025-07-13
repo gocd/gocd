@@ -36,10 +36,10 @@ public class CommaSeparatedString {
         LinkedHashSet<String> distinctEntrySet = createDistinctEntrySetWithExistingAndNewEntriesToAdd(origCommaSeparatedStr, entriesToAdd);
 
         List<String> entryList = distinctEntrySet.stream()
-                .filter(Objects::nonNull)
-                .map(String::trim)
-                .filter(StringUtils::isNotBlank)
-                .collect(toList());
+            .filter(Objects::nonNull)
+            .map(String::trim)
+            .filter(StringUtils::isNotBlank)
+            .collect(toList());
 
         if (!entryList.isEmpty()) {
             return listToCommaSeparatedStr(entryList);
@@ -57,9 +57,9 @@ public class CommaSeparatedString {
 
         if (isNotBlank(commaSeparatedStr)) {
             List<String> entryListAfterRemoval = Arrays.stream(commaSeparatedStrToArr(commaSeparatedStr))
-                    .map(String::trim)
-                    .filter(entry -> !finalEntriesToRemove.contains(entry))
-                    .collect(toList());
+                .map(String::trim)
+                .filter(entry -> !finalEntriesToRemove.contains(entry))
+                .collect(toList());
 
             if (!entryListAfterRemoval.isEmpty()) {
                 return listToCommaSeparatedStr(entryListAfterRemoval);
@@ -90,7 +90,7 @@ public class CommaSeparatedString {
         return String.join(",", list);
     }
 
-    public static List<String> commaSeparatedStrToList(String commaSeparatedStr){
+    public static List<String> commaSeparatedStrToList(String commaSeparatedStr) {
         return isBlank(commaSeparatedStr) ? emptyList() : Arrays.asList(commaSeparatedStrToArr(commaSeparatedStr));
     }
 

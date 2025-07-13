@@ -90,15 +90,15 @@ public class GoConfigPipelinePermissionsAuthority {
 
         PipelinePermission pipelinePermission = EveryonePermission.INSTANCE;
 
-        if(null != pipeline) {
+        if (null != pipeline) {
             pipelinePermission = pipeline.stream().map(stage -> new StagePermission(stage.name().toString(), policy.operatorsForStage(stage))).collect(Collectors.toCollection(PipelinePermission::new));
         }
 
         return new Permissions(
-                policy.effectiveViewers(),
-                policy.effectiveOperators(),
-                policy.effectiveAdmins(),
-                pipelinePermission
+            policy.effectiveViewers(),
+            policy.effectiveOperators(),
+            policy.effectiveAdmins(),
+            pipelinePermission
         );
     }
 }

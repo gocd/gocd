@@ -24,7 +24,7 @@ import static org.mockito.Mockito.mock;
 
 public class JettyServletHelperTest {
     @Test
-    public void shouldGetInstanceOfServletHelper(){
+    public void shouldGetInstanceOfServletHelper() {
         ServletHelper.init();
         assertThat(ServletHelper.getInstance()).isInstanceOf(JettyServletHelper.class);
     }

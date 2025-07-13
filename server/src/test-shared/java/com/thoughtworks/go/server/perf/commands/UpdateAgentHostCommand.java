@@ -25,7 +25,7 @@ import static com.thoughtworks.go.util.TriState.UNSET;
 
 @SuppressWarnings("unused") // Optional for use by AgentPerformanceVerifier
 public class UpdateAgentHostCommand extends AgentPerformanceCommand {
-    public UpdateAgentHostCommand(AgentService agentService){
+    public UpdateAgentHostCommand(AgentService agentService) {
         this.agentService = agentService;
     }
 

@@ -23,8 +23,10 @@ import java.util.Map;
 
 @ConfigTag("param")
 public class ParamConfig implements Validatable {
-    @ConfigAttribute(value = "name", optional = false) private String name;
-    @ConfigValue private String value;
+    @ConfigAttribute(value = "name", optional = false)
+    private String name;
+    @ConfigValue
+    private String value;
     private final ConfigErrors configErrors = new ConfigErrors();
 
     public static final String NAME = "name";
@@ -122,14 +124,15 @@ public class ParamConfig implements Validatable {
         return result;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "ParamConfig{" +
-                "name='" + name + '\'' +
-                ", value='" + value + '\'' +
-                '}';
+            "name='" + name + '\'' +
+            ", value='" + value + '\'' +
+            '}';
     }
 
-    public String getValueForDisplay(){
+    public String getValueForDisplay() {
         return getValue();
     }
 }

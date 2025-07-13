@@ -48,7 +48,7 @@ public class TimerConfigTest {
     }
 
     @Test
-    public void shouldCreateTimerGivenTheAttributeMapIfOnlyOnChangesIsCheckedInUI(){
+    public void shouldCreateTimerGivenTheAttributeMapIfOnlyOnChangesIsCheckedInUI() {
         Map<String, String> mapOfTimerValues = new HashMap<>();
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         mapOfTimerValues.put(TimerConfig.TIMER_ONLY_ON_CHANGES, "1");
@@ -58,7 +58,7 @@ public class TimerConfigTest {
     }
 
     @Test
-    public void shouldCreateTimerGivenTheAttributeMapOnlyOnChangesIsNotPresent(){
+    public void shouldCreateTimerGivenTheAttributeMapOnlyOnChangesIsNotPresent() {
         Map<String, String> mapOfTimerValues = new HashMap<>();
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         TimerConfig timer = TimerConfig.createTimer(mapOfTimerValues);
@@ -67,7 +67,7 @@ public class TimerConfigTest {
     }
 
     @Test
-    public void shouldCreateTimerGivenTheAttributeMapIfOnlyOnChangesIsNotCheckedInUI(){
+    public void shouldCreateTimerGivenTheAttributeMapIfOnlyOnChangesIsNotCheckedInUI() {
         Map<String, String> mapOfTimerValues = new HashMap<>();
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         mapOfTimerValues.put(TimerConfig.TIMER_ONLY_ON_CHANGES, "0");

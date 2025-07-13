@@ -191,7 +191,7 @@ public class ExecTaskTest {
     }
 
     @Test
-    public void shouldReturnCommandTaskAttributes(){
+    public void shouldReturnCommandTaskAttributes() {
         ExecTask task = new ExecTask("ls", "-laht", "src/build");
         assertThat(task.command()).isEqualTo("ls");
         assertThat(task.arguments()).isEqualTo("-laht");
@@ -199,14 +199,14 @@ public class ExecTaskTest {
     }
 
     @Test
-    public void shouldReturnCommandArgumentList(){
-        ExecTask task = new ExecTask("./bn", new Arguments(new Argument("clean"), new Argument("compile"), new Argument("\"buildfile\"")), "src/build" );
+    public void shouldReturnCommandArgumentList() {
+        ExecTask task = new ExecTask("./bn", new Arguments(new Argument("clean"), new Argument("compile"), new Argument("\"buildfile\"")), "src/build");
         assertThat(task.arguments()).isEqualTo("clean compile \"buildfile\"");
     }
 
     @Test
-    public void shouldReturnEmptyCommandArguments(){
-        ExecTask task = new ExecTask("./bn", new Arguments(), "src/build" );
+    public void shouldReturnEmptyCommandArguments() {
+        ExecTask task = new ExecTask("./bn", new Arguments(), "src/build");
         assertThat(task.arguments()).isEqualTo("");
     }
 

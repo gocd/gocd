@@ -54,7 +54,7 @@ public class TaskConfigTest {
     }
 
     @Test
-    public void shouldSortTheProperties(){
+    public void shouldSortTheProperties() {
         TaskConfigProperty k1 = getTaskConfigProperty(3);
         TaskConfigProperty k2 = getTaskConfigProperty(0);
         TaskConfigProperty k3 = getTaskConfigProperty(2);
@@ -68,8 +68,9 @@ public class TaskConfigTest {
         assertThat(taskConfig.list().get(2)).isEqualTo(k3);
         assertThat(taskConfig.list().get(3)).isEqualTo(k1);
     }
+
     private TaskConfigProperty getTaskConfigProperty(int order) {
-        TaskConfigProperty property = new TaskConfigProperty("Key"+order);
+        TaskConfigProperty property = new TaskConfigProperty("Key" + order);
         property.with(Property.DISPLAY_ORDER, order);
         return property;
     }

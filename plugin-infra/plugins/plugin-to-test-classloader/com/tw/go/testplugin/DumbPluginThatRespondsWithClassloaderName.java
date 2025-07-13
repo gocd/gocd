@@ -32,7 +32,7 @@ import java.util.Collections;
 public class DumbPluginThatRespondsWithClassloaderName implements GoPlugin {
     @Override
     public GoPluginApiResponse handle(GoPluginApiRequest goPluginApiRequest) throws UnhandledRequestTypeException {
-        switch(goPluginApiRequest.requestName()){
+        switch (goPluginApiRequest.requestName()) {
             case "Thread.currentThread.getContextClassLoader":
                 return DefaultGoPluginApiResponse.success(Thread.currentThread().getContextClassLoader().getClass().getCanonicalName());
             case "this.getClass.getClassLoader":

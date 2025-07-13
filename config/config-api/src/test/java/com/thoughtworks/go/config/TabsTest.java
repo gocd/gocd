@@ -35,7 +35,7 @@ public class TabsTest {
     }
 
     @Test
-    public void shouldAddErrorToTheErroneousTabWithinAllTabs(){
+    public void shouldAddErrorToTheErroneousTabWithinAllTabs() {
         Tabs tabs = new Tabs();
         tabs.add(new Tab("tab1", "path1"));
         tabs.add(new Tab("tab1", "path2"));
@@ -45,7 +45,7 @@ public class TabsTest {
     }
 
     @Test
-    public void shouldValidateTree(){
+    public void shouldValidateTree() {
         Tab tab1 = new Tab("tab1", "path1");
         Tab tab2 = new Tab("tab1", "path2");
         Tab tab3 = new Tab("extremely_long_name_that_is_not_allowed", "path");

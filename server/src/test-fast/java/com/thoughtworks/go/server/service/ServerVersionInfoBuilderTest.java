@@ -37,7 +37,7 @@ public class ServerVersionInfoBuilderTest {
     }
 
     @Test
-    public void shouldGetVersionInfoForGOServerIfExists(){
+    public void shouldGetVersionInfoForGOServerIfExists() {
         VersionInfo goVersionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"));
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(goVersionInfo);
 
@@ -48,7 +48,7 @@ public class ServerVersionInfoBuilderTest {
     }
 
     @Test
-    public void shouldCreateVersionInfoForGOServerIfDoesNotExist(){
+    public void shouldCreateVersionInfoForGOServerIfDoesNotExist() {
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(null);
 
         VersionInfo versionInfo = builder.getServerVersionInfo();
@@ -59,7 +59,7 @@ public class ServerVersionInfoBuilderTest {
     }
 
     @Test
-    public void shouldUpdateTheVersionInfoIfInstalledVersionHasChanged(){
+    public void shouldUpdateTheVersionInfoIfInstalledVersionHasChanged() {
         VersionInfo goVersionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"));
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(goVersionInfo);
 
@@ -71,7 +71,7 @@ public class ServerVersionInfoBuilderTest {
     }
 
     @Test
-    public void shouldNotCreateAVersionInfoOnDevelopmentServer(){
+    public void shouldNotCreateAVersionInfoOnDevelopmentServer() {
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(null);
         when(builder.getInstalledVersion()).thenReturn("N/A");
         VersionInfo versionInfo = builder.getServerVersionInfo();
@@ -81,7 +81,7 @@ public class ServerVersionInfoBuilderTest {
     }
 
     @Test
-    public void shouldNotUpdateTheVersionInfoIfUnableToParseTheInstalledVersion(){
+    public void shouldNotUpdateTheVersionInfoIfUnableToParseTheInstalledVersion() {
         VersionInfo goVersionInfo = new VersionInfo("go_server", new GoVersion("1.2.3-1"));
         when(versionInfoDao.findByComponentName("go_server")).thenReturn(goVersionInfo);
         when(builder.getInstalledVersion()).thenReturn("N/A");

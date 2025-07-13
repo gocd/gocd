@@ -30,12 +30,12 @@ public class CrossingMinimizationTest {
     private CrossingMinimization crossingMinimization;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         crossingMinimization = new CrossingMinimization();
     }
 
     @Test
-    public void shouldReorderNodesBasedOnBaryCenterValueForUpstreamGraph(){
+    public void shouldReorderNodesBasedOnBaryCenterValueForUpstreamGraph() {
         /*
             g1 --> P1--->P3
                \/      /
@@ -74,7 +74,7 @@ public class CrossingMinimizationTest {
 
 
     @Test
-    public void shouldAssignNodesBasedOnMinimumDepthForUpstreamGraph(){
+    public void shouldAssignNodesBasedOnMinimumDepthForUpstreamGraph() {
 /*
             g1 --> P1 --> P
                \        / ^
@@ -119,7 +119,7 @@ public class CrossingMinimizationTest {
     }
 
     @Test
-    public void shouldAssignNodesBasedOnMinimumDepthForDownstreamGraph(){
+    public void shouldAssignNodesBasedOnMinimumDepthForDownstreamGraph() {
 /*
             g1 --> P ---> P1  P3
                      \      /
@@ -194,7 +194,7 @@ public class CrossingMinimizationTest {
     }
 
     @Test
-    public void shouldReorderBasedOnBarycenterForDownstreamGraph(){
+    public void shouldReorderBasedOnBarycenterForDownstreamGraph() {
 /*
        g1 -->p ---->p1 -----> p4
              \ \            /
@@ -239,7 +239,7 @@ public class CrossingMinimizationTest {
     }
 
     @Test
-    public void shouldReorderGraphsWithScmMaterialsOccurringInLevelsOtherThanTheFirst(){
+    public void shouldReorderGraphsWithScmMaterialsOccurringInLevelsOtherThanTheFirst() {
 /*
         g1   g3 ---> P
           \          ^
@@ -275,7 +275,7 @@ public class CrossingMinimizationTest {
     }
 
     @Test
-    public void shouldInitializeNodeDepthsInDfSOrder(){
+    public void shouldInitializeNodeDepthsInDfSOrder() {
 
         /*
         g2   p1 --> P --> p3   p6

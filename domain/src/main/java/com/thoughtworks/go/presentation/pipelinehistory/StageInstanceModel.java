@@ -137,8 +137,7 @@ public class StageInstanceModel implements StageConfigurationModel {
     public String getApprovalTypeDescription() {
         if (isAutoApproved()) {
             return "auto";
-        }
-        else {
+        } else {
             return "manual";
         }
     }
@@ -153,7 +152,7 @@ public class StageInstanceModel implements StageConfigurationModel {
     }
 
     public Date getScheduledDate() {
-        if(jobHistory.isEmpty()) {
+        if (jobHistory.isEmpty()) {
             return null;
         }
         return jobHistory.getScheduledDate();
@@ -215,7 +214,6 @@ public class StageInstanceModel implements StageConfigurationModel {
     }
 
 
-
     public void setApprovalType(String approvalType) {
         this.approvalType = approvalType;
     }
@@ -238,28 +236,28 @@ public class StageInstanceModel implements StageConfigurationModel {
 
     public boolean hasUnsuccessfullyCompleted() {
         for (JobHistoryItem jobHistoryItem : jobHistory) {
-            if(jobHistoryItem.hasUnsuccessfullyCompleted()) return true;
+            if (jobHistoryItem.hasUnsuccessfullyCompleted()) return true;
         }
         return false;
     }
 
     public boolean hasPassed() {
         for (JobHistoryItem jobHistoryItem : jobHistory) {
-            if(!jobHistoryItem.hasPassed()) return false;
+            if (!jobHistoryItem.hasPassed()) return false;
         }
         return true;
     }
 
     public boolean hasFailed() {
         for (JobHistoryItem jobHistoryItem : jobHistory) {
-            if(jobHistoryItem.hasFailed()) return true;
+            if (jobHistoryItem.hasFailed()) return true;
         }
         return false;
     }
 
     public boolean isRunning() {
         for (JobHistoryItem jobHistoryItem : jobHistory) {
-            if(jobHistoryItem.isRunning()) return true;
+            if (jobHistoryItem.isRunning()) return true;
         }
         return false;
     }
@@ -284,13 +282,13 @@ public class StageInstanceModel implements StageConfigurationModel {
         return identifier;
     }
 
-	public String getPipelineName() {
-		return identifier.getPipelineName();
-	}
+    public String getPipelineName() {
+        return identifier.getPipelineName();
+    }
 
-	public Integer getPipelineCounter() {
-		return identifier.getPipelineCounter();
-	}
+    public Integer getPipelineCounter() {
+        return identifier.getPipelineCounter();
+    }
 
     public String locator() {
         return identifier.getStageLocator();

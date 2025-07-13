@@ -22,12 +22,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AgentStatusTest {
     @Test
     public void shouldCompareStatusAsExpected() {
-        AgentStatus statusInOrder[] = new AgentStatus[] {AgentStatus.Pending, AgentStatus.LostContact, AgentStatus.Missing,
-                AgentStatus.Building, AgentStatus.Cancelled, AgentStatus.Idle, AgentStatus.Disabled};
+        AgentStatus statusInOrder[] = new AgentStatus[]{AgentStatus.Pending, AgentStatus.LostContact, AgentStatus.Missing,
+            AgentStatus.Building, AgentStatus.Cancelled, AgentStatus.Idle, AgentStatus.Disabled};
         AgentStatus previous = null;
 
-        for(AgentStatus status : statusInOrder) {
-            if(previous != null) {
+        for (AgentStatus status : statusInOrder) {
+            if (previous != null) {
                 assertThat(previous.compareTo(status)).isLessThan(0);
                 assertThat(status.compareTo(previous)).isGreaterThan(0);
             }

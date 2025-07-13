@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.util;
 
-public class Pair<A,B> {
+public class Pair<A, B> {
 
     private final A a;
     private final B b;
@@ -24,20 +24,20 @@ public class Pair<A,B> {
         return new Pair<>(a, b);
     }
 
-    public Pair(A a, B b){
+    public Pair(A a, B b) {
         this.a = a;
         this.b = b;
     }
 
-    public static<T> Pair<T,T> twins(T value){
-       return new Pair<>(value, value);
+    public static <T> Pair<T, T> twins(T value) {
+        return new Pair<>(value, value);
     }
 
-    public A first(){
+    public A first() {
         return a;
     }
 
-    public B last(){
+    public B last() {
         return b;
     }
 

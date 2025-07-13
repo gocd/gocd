@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class VariableValueConfigTest {
     @Test
-    public void shouldBeEqualIfValuesAreEqual(){
+    public void shouldBeEqualIfValuesAreEqual() {
         assertThat(new VariableValueConfig("abcd")).isEqualTo(new VariableValueConfig("abcd"));
     }
 

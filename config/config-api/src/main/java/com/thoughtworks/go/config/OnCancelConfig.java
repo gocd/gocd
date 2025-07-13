@@ -172,7 +172,7 @@ public class OnCancelConfig implements Validatable {
     }
 
     public boolean validateTree(ValidationContext validationContext) {
-        if(hasCancelTask()){
+        if (hasCancelTask()) {
             return task.validateTree(validationContext);
         }
         return true;

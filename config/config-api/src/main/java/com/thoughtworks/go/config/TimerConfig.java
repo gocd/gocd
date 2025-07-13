@@ -28,8 +28,10 @@ import java.util.Objects;
  */
 @ConfigTag("timer")
 public class TimerConfig implements Validatable {
-    @ConfigAttribute(value = "onlyOnChanges", optional = true, allowNull = true) private Boolean onlyOnChanges = false;
-    @ConfigValue private String timerSpec;
+    @ConfigAttribute(value = "onlyOnChanges", optional = true, allowNull = true)
+    private Boolean onlyOnChanges = false;
+    @ConfigValue
+    private String timerSpec;
 
     public static final String TIMER_SPEC = "timerSpec";
     public static final String TIMER_ONLY_ON_CHANGES = "onlyOnChanges";
@@ -46,8 +48,9 @@ public class TimerConfig implements Validatable {
     public String getTimerSpec() {
         return timerSpec;
     }
-    public void setTimerSpec(String timerSpec){
-        this.timerSpec=timerSpec;
+
+    public void setTimerSpec(String timerSpec) {
+        this.timerSpec = timerSpec;
     }
 
     public boolean shouldTriggerOnlyOnChanges() {
@@ -55,10 +58,11 @@ public class TimerConfig implements Validatable {
     }
 
     //Only for Rails
-    public boolean getOnlyOnChanges(){
+    public boolean getOnlyOnChanges() {
         return onlyOnChanges;
     }
-    public void setOnlyOnChanges(boolean onlyOnChanges){
+
+    public void setOnlyOnChanges(boolean onlyOnChanges) {
         this.onlyOnChanges = onlyOnChanges;
     }
 

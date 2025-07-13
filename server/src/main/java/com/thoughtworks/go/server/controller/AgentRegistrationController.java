@@ -211,8 +211,8 @@ public class AgentRegistrationController {
             } else {
                 if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
                     String message = String.format("Elastic agent registration requires an auto-register agent key to be" +
-                            " setup on the server. The agentAutoRegisterKey: [%s] is either not provided or expired. Agent-id: [%s], Plugin-id: [%s]"
-                            , agentAutoRegisterKey, elasticAgentId, elasticPluginId);
+                            " setup on the server. The agentAutoRegisterKey: [%s] is either not provided or expired. Agent-id: [%s], Plugin-id: [%s]",
+                        agentAutoRegisterKey, elasticAgentId, elasticPluginId);
                     LOG.error("Rejecting request for registration. Error: HttpCode=[{}] Message=[{}] UUID=[{}] Hostname=[{}]" +
                             "ElasticAgentID=[{}] PluginID=[{}]", UNPROCESSABLE_ENTITY, message, uuid, hostname, elasticAgentId, elasticPluginId);
                     return new ResponseEntity<>(message, UNPROCESSABLE_ENTITY);

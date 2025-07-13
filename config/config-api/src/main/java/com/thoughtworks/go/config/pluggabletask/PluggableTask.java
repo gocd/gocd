@@ -113,9 +113,9 @@ public class PluggableTask extends AbstractTask {
         ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
         for (ConfigurationProperty property : configurations) {
 
-            if(isValidPluginConfiguration(property.getConfigKeyName())) {
+            if (isValidPluginConfiguration(property.getConfigKeyName())) {
                 configuration.add(builder.create(property.getConfigKeyName(), property.getConfigValue(), property.getEncryptedValue(),
-                                                 pluginConfigurationFor(property.getConfigKeyName()).getOption(Property.SECURE)));
+                    pluginConfigurationFor(property.getConfigKeyName()).getOption(Property.SECURE)));
             } else {
                 configuration.add(property);
             }
@@ -157,7 +157,7 @@ public class PluggableTask extends AbstractTask {
         return (onCancelConfig.validateTree(validationContext) && errors.isEmpty() && !configuration.hasErrors());
     }
 
-//  This method is called from PluggableTaskService to validate Tasks.
+    //  This method is called from PluggableTaskService to validate Tasks.
     public boolean isValid() {
         if (PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()) == null) {
             addError(TYPE, String.format("Could not find plugin for given pluggable id:[%s].", pluginConfiguration.getId()));

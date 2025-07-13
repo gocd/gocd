@@ -22,28 +22,28 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class AuthorTest {
     @Test
-    public void shouldBeEqualToAnotherAuthorWithSameNameAndEmail(){
+    public void shouldBeEqualToAnotherAuthorWithSameNameAndEmail() {
         Author author1 = new Author("name", "email");
         Author author2 = new Author("name", "email");
         assertThat(author1.equals(author2)).isTrue();
     }
 
     @Test
-    public void shouldNotBeEqualToAnotherMingleCardWithSameNameButDifferentEmail(){
+    public void shouldNotBeEqualToAnotherMingleCardWithSameNameButDifferentEmail() {
         Author author1 = new Author("name", "email1");
         Author author2 = new Author("name", "email2");
         assertThat(author1.equals(author2)).isFalse();
     }
 
     @Test
-    public void shouldNotBeEqualToAnotherMingleCardWithDifferentNameButSameEmail(){
+    public void shouldNotBeEqualToAnotherMingleCardWithDifferentNameButSameEmail() {
         Author author1 = new Author("name1", "email");
         Author author2 = new Author("name2", "email");
         assertThat(author1.equals(author2)).isFalse();
     }
 
     @Test
-    public void shouldNotBeEqualToNull(){
+    public void shouldNotBeEqualToNull() {
         assertNotEquals(new Author("name1", "email"), null);
     }
 }

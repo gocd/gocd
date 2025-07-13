@@ -32,13 +32,13 @@ public class ArtifactTypeAdapter extends TypeAdapter implements JsonDeserializer
 
     @Override
     protected Class<?> classForName(String typeName, String origin) {
-        if(typeName.equals("external"))
+        if (typeName.equals("external"))
             return CRPluggableArtifact.class;
         if (typeName.equals("build") || typeName.equals("test"))
             return CRBuiltInArtifact.class;
         else
             throw new JsonParseException(
-                    String.format("Invalid or unknown task type '%s'",typeName));
+                String.format("Invalid or unknown task type '%s'", typeName));
     }
 
     @Override

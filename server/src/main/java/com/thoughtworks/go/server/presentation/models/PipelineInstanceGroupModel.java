@@ -80,10 +80,10 @@ public class PipelineInstanceGroupModel {
     }
 
     public PipelineInstanceModel findPipelineInstance(String pipelineLabel) {
-        if("latest".equals(pipelineLabel) && !pipelineInstances.isEmpty()){
+        if ("latest".equals(pipelineLabel) && !pipelineInstances.isEmpty()) {
             return pipelineInstances.first();
         }
-        
+
         for (PipelineInstanceModel instance : pipelineInstances) {
             if (instance.getLabel().equals(pipelineLabel)) {
                 return instance;

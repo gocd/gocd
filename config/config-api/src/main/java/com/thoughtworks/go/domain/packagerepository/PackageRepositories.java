@@ -46,7 +46,7 @@ public class PackageRepositories extends BaseCollection<PackageRepository> imple
 
     public PackageRepository findPackageRepositoryWithPackageIdOrBomb(String packageId) {
         PackageRepository packageRepository = findPackageRepositoryHaving(packageId);
-        if (packageRepository == null){
+        if (packageRepository == null) {
             throw new RuntimeException(format("Could not find repository for given package id:[%s]", packageId));
         }
         return packageRepository;

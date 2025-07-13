@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service.result;
 
 import java.util.ArrayList;
 import java.util.List;
+
 public class BulkUpdateUsersOperationResult extends HttpLocalizedOperationResult {
     private final List<String> nonExistentUsers;
     private final List<String> enabledUsers;
@@ -30,11 +31,11 @@ public class BulkUpdateUsersOperationResult extends HttpLocalizedOperationResult
         this.enabledUsers = enabledUsers;
     }
 
-    public List<String> getNonExistentUsers(){
+    public List<String> getNonExistentUsers() {
         return nonExistentUsers;
     }
 
-    public List<String> getEnabledUsers(){
+    public List<String> getEnabledUsers() {
         return enabledUsers;
     }
 

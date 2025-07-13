@@ -35,7 +35,7 @@ public class PipelineInstanceModels extends BaseCollection<PipelineInstanceModel
         return new PipelineInstanceModels(instances.toArray(new PipelineInstanceModel[]{}));
     }
 
-    public PipelineInstanceModel find(String pipelineName){
+    public PipelineInstanceModel find(String pipelineName) {
         PipelineInstanceModels found = findAll(pipelineName);
         return found.isEmpty() ? null : found.get(0);
     }
@@ -43,7 +43,7 @@ public class PipelineInstanceModels extends BaseCollection<PipelineInstanceModel
     public PipelineInstanceModels findAll(String pipelineName) {
         PipelineInstanceModels found = PipelineInstanceModels.createPipelineInstanceModels();
         for (PipelineInstanceModel pipelineInstanceModel : this) {
-            if(pipelineInstanceModel.getName().equalsIgnoreCase(pipelineName)){
+            if (pipelineInstanceModel.getName().equalsIgnoreCase(pipelineName)) {
                 found.add(pipelineInstanceModel);
             }
         }

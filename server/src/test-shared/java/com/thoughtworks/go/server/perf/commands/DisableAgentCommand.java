@@ -23,7 +23,7 @@ import java.util.Optional;
 import static com.thoughtworks.go.util.TriState.FALSE;
 
 public class DisableAgentCommand extends AgentPerformanceCommand {
-    public DisableAgentCommand(AgentService agentService){
+    public DisableAgentCommand(AgentService agentService) {
         this.agentService = agentService;
     }
 

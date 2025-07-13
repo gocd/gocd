@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class GoConfigInvalidExceptionTest {
     @Test
-    public void shouldReturnAllErrorMessagesOnCruiseConfig(){
+    public void shouldReturnAllErrorMessagesOnCruiseConfig() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.addError("BasicCruiseConfig_key", "BasicCruiseConfig_error");
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("");

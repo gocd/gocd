@@ -19,15 +19,15 @@ public class Heartbeat {
     private long startTime = 0;
     private long endTime = 0;
 
-    public void start(){
+    public void start() {
         startTime = System.currentTimeMillis();
     }
 
-    public void end(){
+    public void end() {
         endTime = System.currentTimeMillis();
     }
 
-    public long getAgeInMillis(){
+    public long getAgeInMillis() {
         return startTime > 0 && endTime > 0 ? (endTime - startTime) : 0;
     }
 }

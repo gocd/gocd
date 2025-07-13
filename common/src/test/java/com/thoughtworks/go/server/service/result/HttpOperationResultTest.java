@@ -32,7 +32,7 @@ public class HttpOperationResultTest {
 
     @Test
     public void shouldReturn202IfEverythingWorks() {
-        httpOperationResult.accepted("Request to schedule pipeline 'baboon' accepted","blah blah", HealthStateType.general(HealthStateScope.forPipeline("baboon")));
+        httpOperationResult.accepted("Request to schedule pipeline 'baboon' accepted", "blah blah", HealthStateType.general(HealthStateScope.forPipeline("baboon")));
         assertThat(httpOperationResult.httpCode()).isEqualTo(202);
         assertThat(httpOperationResult.canContinue()).isTrue();
         assertThat(httpOperationResult.message()).isEqualTo("Request to schedule pipeline 'baboon' accepted");
@@ -71,7 +71,7 @@ public class HttpOperationResultTest {
     }
 
     @Test
-    public void successShouldReturnTrueIfStatusIs2xx(){
+    public void successShouldReturnTrueIfStatusIs2xx() {
         assertThat(httpOperationResult.isSuccess()).isTrue();
 
         httpOperationResult.notAcceptable("not acceptable", HealthStateType.general(HealthStateScope.GLOBAL));

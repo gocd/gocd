@@ -137,12 +137,13 @@ public class Pagination {
         return offset - pageSize >= 0;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "Pagination{" +
-                "pageSize=" + pageSize +
-                ", offset=" + offset +
-                ", total=" + total +
-                '}';
+            "pageSize=" + pageSize +
+            ", offset=" + offset +
+            ", total=" + total +
+            '}';
     }
 
     public static Pagination pageFor(int currentItem, int totalCount, int pageSize) {
@@ -176,15 +177,15 @@ public class Pagination {
             }
         } else {
             if (getCurrentPage() <= endLength()) {
-                for(int i = 1; i <= getCurrentPage() + NUMBER_OF_NEIGHBOURS; i++) {
+                for (int i = 1; i <= getCurrentPage() + NUMBER_OF_NEIGHBOURS; i++) {
                     addPage(pages, i);
                 }
                 pages.add(PageNumber.DOTS);
                 addPage(pages, getLastPage());
-            } else if(getCurrentPage() > getLastPage() - endLength()) {
+            } else if (getCurrentPage() > getLastPage() - endLength()) {
                 addPage(pages, getFirstPage());
                 pages.add(PageNumber.DOTS);
-                for(int i = getCurrentPage() - NUMBER_OF_NEIGHBOURS; i <= getLastPage(); i++) {
+                for (int i = getCurrentPage() - NUMBER_OF_NEIGHBOURS; i <= getLastPage(); i++) {
                     addPage(pages, i);
                 }
             } else {
@@ -230,11 +231,13 @@ public class Pagination {
 
     public static class PageNumber {
         public static final PageNumber DOTS = new PageNumber(-1, "...") {
-            @Override public String toString() {
+            @Override
+            public String toString() {
                 return "...";
             }
 
-            @Override public boolean isDots() {
+            @Override
+            public boolean isDots() {
                 return true;
             }
         };
@@ -305,10 +308,11 @@ public class Pagination {
             return result;
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return "" + page +
-                    "(" + label + ')'
-                    + (current ? "current" : "");
+                "(" + label + ')'
+                + (current ? "current" : "");
         }
     }
 }

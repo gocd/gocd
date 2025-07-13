@@ -52,21 +52,30 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class MaterialDatabaseDependencyUpdaterTest {
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired protected MaterialRepository materialRepository;
-    @Autowired private GoCache goCache;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private MaterialService materialService;
-    @Autowired private LegacyMaterialChecker legacyMaterialChecker;
-    @Autowired private SubprocessExecutionContext subprocessExecutionContext;
-    @Autowired private MaterialExpansionService materialExpansionService;
-    @Autowired private GoConfigService goConfigService;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    protected MaterialRepository materialRepository;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private MaterialService materialService;
+    @Autowired
+    private LegacyMaterialChecker legacyMaterialChecker;
+    @Autowired
+    private SubprocessExecutionContext subprocessExecutionContext;
+    @Autowired
+    private MaterialExpansionService materialExpansionService;
+    @Autowired
+    private GoConfigService goConfigService;
 
     protected MaterialDatabaseUpdater updater;
     private DependencyMaterialSourceDao dependencyMaterialSourceDao;
@@ -111,8 +120,8 @@ public class MaterialDatabaseDependencyUpdaterTest {
 
         RuntimeException runtimeException = new RuntimeException("Description of error");
         when(dependencyMaterialSourceDao.getPassedStagesByName(new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name")),
-                Pagination.pageStartingAt(0, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)))
-                .thenThrow(runtimeException);
+            Pagination.pageStartingAt(0, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)))
+            .thenThrow(runtimeException);
 
         try {
             updater.updateMaterial(dependencyMaterial);
@@ -131,8 +140,8 @@ public class MaterialDatabaseDependencyUpdaterTest {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
         when(dependencyMaterialSourceDao.getPassedStagesByName(new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name")),
-                Pagination.pageStartingAt(0, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)))
-                .thenReturn(new ArrayList<>());
+            Pagination.pageStartingAt(0, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)))
+            .thenReturn(new ArrayList<>());
 
         updater.updateMaterial(dependencyMaterial);
 
@@ -158,7 +167,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
     }
 
     private void stubStageServiceGetHistoryAfter(DependencyMaterial material, int pipelineCounter, Stages... stageses) {
-        if(material == null){
+        if (material == null) {
             material = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         }
         StageIdentifier identifier = new StageIdentifier(String.format("%s/%s/%s/0", material.getPipelineName().toString(), pipelineCounter, material.getStageName().toString()));
@@ -170,13 +179,13 @@ public class MaterialDatabaseDependencyUpdaterTest {
                 mods.add(new Modification(stage.completedDate(), id.stageLocator(), id.getPipelineLabel(), stage.getPipelineId()));
             }
             when(dependencyMaterialSourceDao.getPassedStagesAfter(identifier.stageLocator(),
-                    material,
-                    Pagination.pageStartingAt(i * MaterialDatabaseUpdater.STAGES_PER_PAGE, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
+                material,
+                Pagination.pageStartingAt(i * MaterialDatabaseUpdater.STAGES_PER_PAGE, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
             )).thenReturn(mods);
         }
         when(dependencyMaterialSourceDao.getPassedStagesAfter(identifier.stageLocator(),
-                material,
-                Pagination.pageStartingAt(MaterialDatabaseUpdater.STAGES_PER_PAGE * stageses.length, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
+            material,
+            Pagination.pageStartingAt(MaterialDatabaseUpdater.STAGES_PER_PAGE * stageses.length, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
         )).thenReturn(new ArrayList<>());
     }
 
@@ -274,11 +283,11 @@ public class MaterialDatabaseDependencyUpdaterTest {
                 mods.add(new Modification(stage.completedDate(), id.stageLocator(), id.getPipelineLabel(), stage.getPipelineId()));
             }
             when(dependencyMaterialSourceDao.getPassedStagesByName(dependencyMaterial,
-                    Pagination.pageStartingAt(i * MaterialDatabaseUpdater.STAGES_PER_PAGE, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)))
-                    .thenReturn(mods);
+                Pagination.pageStartingAt(i * MaterialDatabaseUpdater.STAGES_PER_PAGE, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)))
+                .thenReturn(mods);
         }
         when(dependencyMaterialSourceDao.getPassedStagesByName(dependencyMaterial,
-                Pagination.pageStartingAt(MaterialDatabaseUpdater.STAGES_PER_PAGE * stageses.length, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
+            Pagination.pageStartingAt(MaterialDatabaseUpdater.STAGES_PER_PAGE * stageses.length, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
         )).thenReturn(new ArrayList<>());
     }
 }

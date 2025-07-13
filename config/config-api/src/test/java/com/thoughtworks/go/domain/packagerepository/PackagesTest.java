@@ -42,8 +42,9 @@ public class PackagesTest {
         Packages packages = new Packages();
         assertThat(packages.find("id2")).isNull();
     }
+
     @Test
-    public void shouldValidateForCaseInsensitiveNameUniqueness(){
+    public void shouldValidateForCaseInsensitiveNameUniqueness() {
         PackageDefinition p1 = PackageDefinitionMother.create("id1", "pkg1", null, null);
         PackageDefinition p2 = PackageDefinitionMother.create("id2", "pkg1", null, null);
         PackageDefinition p3 = PackageDefinitionMother.create("id3", "pkg3", null, null);

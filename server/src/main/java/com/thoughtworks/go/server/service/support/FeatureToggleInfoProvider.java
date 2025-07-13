@@ -27,7 +27,7 @@ public class FeatureToggleInfoProvider implements ServerInfoProvider {
     private FeatureToggleService featureToggleService;
 
     @Autowired
-    public FeatureToggleInfoProvider(FeatureToggleService featureToggleService){
+    public FeatureToggleInfoProvider(FeatureToggleService featureToggleService) {
         this.featureToggleService = featureToggleService;
     }
 

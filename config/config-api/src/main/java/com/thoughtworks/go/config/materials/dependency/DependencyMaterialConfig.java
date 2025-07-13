@@ -193,11 +193,12 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         return result;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "DependencyMaterialConfig{" +
-                "pipelineName='" + pipelineName + '\'' +
-                ", stageName='" + stageName + '\'' +
-                '}';
+            "pipelineName='" + pipelineName + '\'' +
+            ", stageName='" + stageName + '\'' +
+            '}';
     }
 
     @Override
@@ -212,10 +213,9 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
 
         PipelineConfig upstreamPipeline = validationContext.getPipelineConfigByName(upstreamPipelineName);
         PipelineConfig pipeline = validationContext.getPipeline();
-        if (upstreamPipeline==null) {
+        if (upstreamPipeline == null) {
             errors.add(DependencyMaterialConfig.PIPELINE_STAGE_NAME, String.format("Pipeline with name '%s' does not exist, it is defined as a dependency for pipeline '%s' (%s)", upstreamPipelineName, pipeline.name(), pipeline.getOriginDisplayName()));
-        }
-        else if (upstreamPipeline.findBy(upstreamStageName) == null) {
+        } else if (upstreamPipeline.findBy(upstreamStageName) == null) {
             errors.add(DependencyMaterialConfig.PIPELINE_STAGE_NAME, String.format("Stage with name '%s' does not exist on pipeline '%s', it is being referred to from pipeline '%s' (%s)", upstreamStageName, upstreamPipelineName, pipeline.name(), pipeline.getOriginDisplayName()));
         }
     }
@@ -250,13 +250,12 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         if (attributesMap.containsKey(PIPELINE_STAGE_NAME)) {
             pipelineStageName = (String) attributesMap.get(PIPELINE_STAGE_NAME);
             Matcher matcher = PIPELINE_STAGE_COMBINATION_PATTERN.matcher(pipelineStageName);
-            if(matcher.matches()){
+            if (matcher.matches()) {
                 pipelineName = new CaseInsensitiveString(matcher.group(1));
                 String stageNameWithBrackets = matcher.group(2);
-                stageName = new CaseInsensitiveString(stageNameWithBrackets.replace("[","").replace("]",""));
-            }
-            else {
-               errors.add(PIPELINE_STAGE_NAME, String.format("'%s' should conform to the pattern 'pipeline [stage]'",pipelineStageName));
+                stageName = new CaseInsensitiveString(stageNameWithBrackets.replace("[", "").replace("]", ""));
+            } else {
+                errors.add(PIPELINE_STAGE_NAME, String.format("'%s' should conform to the pattern 'pipeline [stage]'", pipelineStageName));
             }
         }
         this.ignoreForScheduling = "true".equals(attributesMap.get(IGNORE_FOR_SCHEDULING));
@@ -273,10 +272,10 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
     }
 
     @Override
-    public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig){
+    public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
         List<FetchTask> fetchTasks = pipelineConfig.getFetchTasks();
         for (FetchTask fetchTask : fetchTasks) {
-            if(pipelineName.equals(fetchTask.getDirectParentInAncestorPath()))
+            if (pipelineName.equals(fetchTask.getDirectParentInAncestorPath()))
                 return true;
         }
         return false;

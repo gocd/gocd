@@ -41,7 +41,7 @@ public class ParamConfigTest {
     }
 
     @Test
-    public void shouldValidateName(){
+    public void shouldValidateName() {
         ParamConfig paramConfig = new ParamConfig();
         ValidationContext validationContext = mock(ValidationContext.class);
         when(validationContext.getPipeline()).thenReturn(new PipelineConfig(new CaseInsensitiveString("p"), null));

@@ -46,9 +46,13 @@ public class MaterialChecker {
     }
 
     public MaterialRevision findSpecificRevision(Material material, String revision) {
-        if (StringUtils.isEmpty(revision)) { throw new RuntimeException(format("Revision was not specified for material [%s]", material)); }
+        if (StringUtils.isEmpty(revision)) {
+            throw new RuntimeException(format("Revision was not specified for material [%s]", material));
+        }
         Modification modification = materialRepository.findModificationWithRevision(material, revision);
-        if (modification == null) { throw new RuntimeException(format("Unable to find revision [%s] for material [%s]", revision, material)); }
+        if (modification == null) {
+            throw new RuntimeException(format("Unable to find revision [%s] for material [%s]", revision, material));
+        }
         return new MaterialRevision(material, modification);
     }
 
@@ -76,7 +80,9 @@ public class MaterialChecker {
         MaterialRevisions revisions = new MaterialRevisions();
 
         for (Material material : materials) {
-            if (ensureHasRevisionForMaterial(peggedRevisions, revisions, material)) { continue; }
+            if (ensureHasRevisionForMaterial(peggedRevisions, revisions, material)) {
+                continue;
+            }
 
             for (MaterialRevision revision : materialRepository.findLatestModification(material)) {
                 revision.markAsChanged();
@@ -105,14 +111,13 @@ public class MaterialChecker {
             Long latestModificationRunByPipeline = materialRepository.latestModificationRunByPipeline(pipelineName, materialRevision.getMaterial());
             Modifications revised = new Modifications();
             for (Modification modification : materialRevision.getModifications()) {
-                if(modification.getId() > latestModificationRunByPipeline)
+                if (modification.getId() > latestModificationRunByPipeline)
                     revised.add(modification);
             }
-            if(!revised.isEmpty()) {
+            if (!revised.isEmpty()) {
                 materialRevision.replaceModifications(revised);
                 materialRevision.markAsChanged();
-            }
-            else{
+            } else {
                 materialRevision.markAsNotChanged();
             }
         }

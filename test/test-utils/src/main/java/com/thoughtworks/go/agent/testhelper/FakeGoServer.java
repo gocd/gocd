@@ -38,6 +38,7 @@ import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
 import static com.thoughtworks.go.util.TestFileUtil.resourceToString;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+@SuppressWarnings("try")
 public class FakeGoServer implements AutoCloseable {
     public enum TestResource {
         TEST_AGENT("testdata/gen/test-agent.jar"),
@@ -100,7 +101,6 @@ public class FakeGoServer implements AutoCloseable {
     }
 
     @Override
-    @SuppressWarnings("try")
     public void close() throws Exception {
         stop();
     }

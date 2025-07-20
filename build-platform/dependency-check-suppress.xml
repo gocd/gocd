@@ -249,6 +249,15 @@
     <vulnerabilityName>CVE-2020-26304</vulnerabilityName>
   </suppress>
 
+  <suppress>
+    <notes><![CDATA[
+    Suppress false positive from bas OSSIndex data on shaded gson issue which actually only affects connect2id according to https://ossindex.sonatype.org/vulnerability/CVE-2025-53864
+    file name: protobuf_java.jar (shaded: com.google.code.gson:gson:2.8.9)
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@2\.8\..*$</packageUrl>
+    <vulnerabilityName>CVE-2025-53864</vulnerabilityName>
+  </suppress>
+
   <!-- Suppression rules for dependencies only visible after a ./gradlew prepare (yarn install / bundle install / tw-go-plugins bundled download -->
   <suppress>
     <notes><![CDATA[

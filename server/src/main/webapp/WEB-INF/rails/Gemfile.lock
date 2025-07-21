@@ -219,7 +219,7 @@ GEM
       erb
       psych (>= 4.0.0)
     regexp_parser (2.10.0)
-    reline (0.6.1)
+    reline (0.6.2)
       io-console (~> 0.5)
     rspec-core (3.13.5)
       rspec-support (~> 3.13.0)

@@ -39,7 +39,6 @@ import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.VoidThrowingFn;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -324,15 +323,18 @@ public class BackupService implements BackupStatusProvider {
             new DirectoryStructureWalker(configDirectory, configZip, cruiseConfigFile, desCipherFile, aesCipherFile).walk();
 
             configZip.putNextEntry(new ZipEntry(cruiseConfigFile.getName()));
-            IOUtils.write(goConfigService.xml(), configZip, UTF_8);
+            String xml = goConfigService.xml();
+            if (xml != null) {
+                configZip.write(xml.getBytes(UTF_8));
+            }
 
             if (desCipherFile.exists()) {
                 configZip.putNextEntry(new ZipEntry(desCipherFile.getName()));
-                IOUtils.write(encodeHexString(new DESCipherProvider(systemEnvironment).getKey()), configZip, UTF_8);
+                configZip.write(encodeHexString(new DESCipherProvider(systemEnvironment).getKey()).getBytes(UTF_8));
             }
 
             configZip.putNextEntry(new ZipEntry(aesCipherFile.getName()));
-            IOUtils.write(encodeHexString(new AESCipherProvider(systemEnvironment).getKey()), configZip, UTF_8);
+            configZip.write(encodeHexString(new AESCipherProvider(systemEnvironment).getKey()).getBytes(UTF_8));
         }
     }
 

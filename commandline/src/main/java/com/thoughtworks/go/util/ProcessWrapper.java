@@ -19,17 +19,15 @@ import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.ErrorConsumer;
 import com.thoughtworks.go.util.command.OutputConsumer;
 import com.thoughtworks.go.util.command.StreamPumper;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class ProcessWrapper {
 
@@ -52,16 +50,20 @@ public class ProcessWrapper {
         this.processInputStream = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
     }
 
+    @SuppressWarnings("try")
     public int waitForExit() {
         int returnValue = -1;
-        try {
+        try (InputStream ignored = process.getInputStream();
+             InputStream ignored1 = process.getErrorStream();
+             OutputStream ignored2 = process.getOutputStream()) {
+
             returnValue = process.waitFor();
             processOutputStream.readToEnd();
             processErrorStream.readToEnd();
-        } catch (InterruptedException ignored) {
-            LOGGER.warn(ignored.getMessage(), ignored);
+        } catch (InterruptedException | IOException ignored) {
         } finally {
-            close();
+            process.destroy();
+            ProcessManager.getInstance().processKilled(process);
         }
         return returnValue;
     }
@@ -73,7 +75,6 @@ public class ProcessWrapper {
         }
         processInputStream.close();
     }
-
 
     private long lastHeardTime() {
         if (processErrorStream == null & processOutputStream == null) {
@@ -88,14 +89,8 @@ public class ProcessWrapper {
         return Math.min(processOutputStream.getLastHeard(), processErrorStream.getLastHeard());
     }
 
-
     public void closeOutputStream() throws IOException {
         process.getOutputStream().close();
-    }
-
-    public void close() {
-        close(process);
-        ProcessManager.getInstance().processKilled(process);
     }
 
     public boolean isRunning() {
@@ -134,28 +129,12 @@ public class ProcessWrapper {
 
         ProcessWrapper that = (ProcessWrapper) o;
 
-        if (process != null ? !process.equals(that.process) : that.process != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(process, that.process);
     }
 
     @Override
     public int hashCode() {
         return process != null ? process.hashCode() : 0;
-    }
-
-    private void close(Process p) {
-        try {
-            IOUtils.closeQuietly(p.getInputStream());
-            IOUtils.closeQuietly(p.getOutputStream());
-            IOUtils.closeQuietly(p.getErrorStream());
-        } finally {
-            if (p != null) {
-                p.destroy();
-            }
-        }
     }
 
 }

@@ -36,7 +36,6 @@ task pathingJar(type: Jar) {
 
 task generateJSRoutes(type: ExecuteUnderRailsTask) {
   outputs.cacheIf { true }
-  onlyIf { !project.hasProperty('fastBuild') }
   def outputDir = file("${project.railsRoot}/webpack/gen")
   inputs.dir(file("${project.railsRoot}/vendor"))
   inputs.files(fileTree(dir: "${project.railsRoot}/config", includes: ['**/*.rb']))
@@ -160,8 +159,6 @@ clean.dependsOn cleanRails
 task compileAssetsWebpackDev(type: YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
 
-  onlyIf { !project.hasProperty('fastBuild') }
-
   ext.licenseReportFile = project.layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
   outputs.dir(ext.licenseReportFile.parentFile)
 
@@ -182,8 +179,6 @@ task compileAssetsWebpackDev(type: YarnRunTask) {
 
 task compileAssetsWebpackProd(type: YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
-
-  onlyIf { !project.hasProperty('fastBuild') }
 
   ext.licenseReportFile = project.layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
   outputs.dir(ext.licenseReportFile.parentFile)
@@ -206,7 +201,6 @@ task compileAssetsWebpackProd(type: YarnRunTask) {
 task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
   dependsOn yarnInstall
   outputs.cacheIf { true }
-  onlyIf { !project.hasProperty('fastBuild') }
 
   def publicAssetsDir = file("${project.railsRoot}/public/assets")
 
@@ -239,7 +233,6 @@ task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
 task compileAssetsRailsProd(type: ExecuteUnderRailsTask) {
   dependsOn yarnInstall
   outputs.cacheIf { true }
-  onlyIf { !project.hasProperty('fastBuild') }
 
   def outputAssetsDir = project.layout.buildDirectory.dir("rails-assets").get().asFile
   def publicAssetsDir =  project.layout.buildDirectory.dir("public/assets").get().asFile
@@ -291,8 +284,6 @@ task compileAssets {
 
   def outputDir = project.layout.buildDirectory.dir("assets").get().asFile
   outputs.dir(outputDir)
-
-  onlyIf { !project.hasProperty('fastBuild') }
 
   doFirst {
     delete outputDir

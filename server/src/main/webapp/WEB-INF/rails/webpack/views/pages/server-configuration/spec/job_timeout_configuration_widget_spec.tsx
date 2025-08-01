@@ -52,7 +52,7 @@ describe("defaultJobTimeoutWidget", () => {
     expect(helper.byTestId("form-field-label-never-job-timeout")).toBeInDOM();
     expect(helper.byTestId("form-field-label-default-job-timeout")).toBeInDOM();
     expect(helper.byTestId("form-field-input-default-job-timeout").nextSibling)
-      .toHaveText("the job will get cancel after the given minutes of inactivity");
+      .toHaveText("Jobs will be cancelled after the given minutes of inactivity");
   });
 
   describe("Save", () => {

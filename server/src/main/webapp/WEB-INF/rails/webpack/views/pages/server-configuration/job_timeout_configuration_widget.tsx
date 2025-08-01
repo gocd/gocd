@@ -41,7 +41,7 @@ export class JobTimeoutConfigurationWidget extends MithrilViewComponent<JobTimeo
                            label={"Never job timeout"}
                            onchange={() => jobTimeout.defaultJobTimeout(0)}/>
             <NumberField label="Default Job timeout"
-                         helpText="the job will get cancel after the given minutes of inactivity"
+                         helpText="Jobs will be cancelled after the given minutes of inactivity"
                          readonly={jobTimeout.neverTimeout()}
                          property={jobTimeout.defaultJobTimeout}
                          required={true}

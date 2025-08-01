@@ -595,7 +595,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private boolean validateThatAllAgentsExistAndCanBeDeleted(List<String> uuids) {
         if (isEmpty(uuids)) {
-            return true;
+            throw new BadRequestException("Bad Request. No agent UUIDs were supplied to delete.");
         }
         return uuids.stream().allMatch(uuid -> validateThatAgentExistAndCanBeDeleted(uuid, uuids.size()));
     }

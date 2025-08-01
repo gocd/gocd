@@ -729,6 +729,15 @@ class AgentServiceTest {
                 UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(List.of(uuid1, uuid2)));
                 assertThat(e.getMessage()).isEqualTo("Could not delete any agents, as one or more agents might not be disabled or are still building.");
             }
+
+            @Test
+            void shouldThrow400WhenTryingToDeleteNoAgents() {
+                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
+                    agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
+
+                BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.deleteAgents(List.of()));
+                assertThat(e.getMessage()).isEqualTo("Bad Request. No agent UUIDs were supplied to delete.");
+            }
         }
 
         @Nested
@@ -754,18 +763,6 @@ class AgentServiceTest {
 
                 assertDoesNotThrow(() -> agentService.deleteAgents(List.of(uuid)));
                 verify(agentDao).bulkSoftDelete(List.of(uuid));
-            }
-
-            @Test
-            void shouldReturn200WhenDeleteAgentsIsCalledWithNullAsListOfUUIDs() {
-                Username username = new Username(new CaseInsensitiveString("test"));
-
-                when(securityService.hasOperatePermissionForAgents(username)).thenReturn(true);
-
-                serverHealthService = mock(ServerHealthService.class);
-                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances, agentDao, uuidGenerator, serverHealthService, null);
-
-                assertDoesNotThrow(() -> agentService.deleteAgents(null));
             }
 
             @Test

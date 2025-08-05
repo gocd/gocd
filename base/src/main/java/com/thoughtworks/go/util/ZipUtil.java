@@ -87,7 +87,7 @@ public class ZipUtil {
         if (srcFile.isDirectory()) {
             addFolderToZip(path, srcFile, zip, excludeRootDir);
         } else {
-            try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(srcFile))) {
+            try (InputStream inputStream = new FileInputStream(srcFile)) {
                 ZipEntry zipEntry = path.with(srcFile).asZipEntry();
                 zipEntry.setTime(srcFile.lastModified());
                 zip.putNextEntry(zipEntry);

@@ -3580,10 +3580,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.44.0":
-  version: 3.44.0
-  resolution: "core-js@npm:3.44.0"
-  checksum: 10/759ef4ab0d12c9a6e8a32537d2b0fe64c2d7be40e13e0d7eb9604a970c380d64f37489dee03bd1c286c169e47a69d3ca2a968e8fcde0f78094ea22a20465d763
+"core-js@npm:^3.45.0":
+  version: 3.45.0
+  resolution: "core-js@npm:3.45.0"
+  checksum: 10/162cd63b4d4cb2fed7a8635e69b760f4247e5d39ea99348e0b66af8e8899395a34de1b93504eb8db2adf4c47a0756475545c3da9c24875c7c33396fa8dc061c1
   languageName: node
   linkType: hard
 
@@ -5548,7 +5548,7 @@ __metadata:
     chartjs-plugin-zoom: "npm:~2.0.1"
     classnames: "npm:^2.5.1"
     clean-webpack-plugin: "npm:^4.0.0"
-    core-js: "npm:^3.44.0"
+    core-js: "npm:^3.45.0"
     cross-env: "npm:^10.0.0"
     css-loader: "npm:^5.2.7"
     eslint: "npm:^8.57.1"

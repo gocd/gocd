@@ -17,7 +17,7 @@
 # Please file any issues or PRs at https://github.com/gocd/gocd
 ###############################################################################################
 
-FROM cgr.dev/chainguard/bash:latest AS gocd-server-unzip
+FROM chainguard/bash:latest AS gocd-server-unzip
 ARG TARGETARCH
 ARG UID=1000
 <#if useFromArtifact >

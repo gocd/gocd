@@ -111,7 +111,7 @@ enum Distro implements DistroBehavior {
 
     @Override
     String getBaseImageLocation(DistroVersion distroVersion) {
-      "cgr.dev/chainguard/wolfi-base"
+      "docker.io/chainguard/wolfi-base"
     }
 
     @Override

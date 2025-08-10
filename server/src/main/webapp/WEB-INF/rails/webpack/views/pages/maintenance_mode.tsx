@@ -103,8 +103,7 @@ export class MaintenanceModePage extends Page<null, State> {
 
     const options = {
       repeaterFn: () => this.fetchData(vnode),
-      intervalSeconds: 30,
-      initialIntervalSeconds: 30
+      intervalSeconds: 10
     };
 
     new AjaxPoller(options).start();

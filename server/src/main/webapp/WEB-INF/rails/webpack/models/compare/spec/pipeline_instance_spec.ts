@@ -48,7 +48,7 @@ describe('PipelineHistorySpec', () => {
     expect(pipelineHistory.pipelineInstances.length).toBe(1);
   });
 
-  it('should should be able to parse json when no links are present', () => {
+  it('should be able to parse json when no links are present', () => {
     const pipelineJson = PipelineInstanceData.pipeline();
     const json         = {pipelines: [pipelineJson]} as PipelineHistoryJSON;
 

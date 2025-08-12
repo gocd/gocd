@@ -309,13 +309,21 @@ class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
   protected doValidate(entity: any, attr: string): void {
     const url = this.get(entity, attr) as string;
     if (!!url) {
-      const urlObj   = urlParse(url); // use url-parse instead of native URL() because MSEdge will not allow embedded credentials
-      const username = this.get(entity, "username") as string | undefined;
-      const password = this.get(entity, "password") as EncryptedValue | undefined;
+      try {
+        const urlObj = urlParse(url); // use url-parse instead of native URL() because MSEdge will not allow embedded credentials
+        const username = this.get(entity, "username") as string | undefined;
+        const password = this.get(entity, "password") as EncryptedValue | undefined;
 
-      if ((!!username || !!(password && password.value())) && (!!urlObj.username || !!urlObj.password || url.indexOf("@") !== -1)) {
-        entity.errors()
-              .add(attr, "URL credentials must be set in either the URL or the username+password fields, but not both.");
+        if ((!!username || !!(password && password.value())) && (!!urlObj.username || !!urlObj.password || url.indexOf("@") !== -1)) {
+          entity.errors()
+                .add(attr, "URL credentials must be set in either the URL or the username+password fields, but not both.");
+        }
+      } catch (err) {
+        if (err instanceof URIError) {
+          entity.errors().add(attr, "URL is malformed and could not be parsed.");
+        } else {
+          throw err;
+        }
       }
     }
   }

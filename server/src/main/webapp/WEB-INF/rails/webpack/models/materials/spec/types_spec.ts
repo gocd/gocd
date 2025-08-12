@@ -108,7 +108,7 @@ describe("Material Types", () => {
   });
 
   describe("Validation", () => {
-    it("should should validate Git material attributes", () => {
+    it("should validate Git material attributes", () => {
       const material = new Material("git", new GitMaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
@@ -116,7 +116,7 @@ describe("Material Types", () => {
       expect(material.attributes()!.errors().keys()).toEqual(["url"]);
     });
 
-    it("should should validate SVN material attributes", () => {
+    it("should validate SVN material attributes", () => {
       const material = new Material("svn", new SvnMaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
@@ -124,7 +124,7 @@ describe("Material Types", () => {
       expect(material.attributes()!.errors().keys()).toEqual(["url"]);
     });
 
-    it("should should validate P4 material attributes", () => {
+    it("should validate P4 material attributes", () => {
       const material = new Material("p4", new P4MaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
@@ -134,7 +134,7 @@ describe("Material Types", () => {
         .toEqual("Host and port must be present.");
     });
 
-    it("should should validate Hg material attributes", () => {
+    it("should validate Hg material attributes", () => {
       const material = new Material("hg", new HgMaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
@@ -142,7 +142,7 @@ describe("Material Types", () => {
       expect(material.attributes()!.errors().keys()).toEqual(["url"]);
     });
 
-    it("should should validate TFS material attributes", () => {
+    it("should validate TFS material attributes", () => {
       const material = new Material("tfs", new TfsMaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
@@ -204,7 +204,7 @@ describe("Material Types", () => {
       }
     });
 
-    it("should should allow Git SCP-style URLs", () => {
+    it("should allow Git SCP-style URLs", () => {
       const material = new Material("git", new GitMaterialAttributes(undefined, true, "git@host:repo.git"));
       expect(material.isValid()).toBe(true);
       expect(material.errors().count()).toBe(0);
@@ -212,7 +212,7 @@ describe("Material Types", () => {
       expect(material.attributes()!.errors().count()).toBe(0);
     });
 
-    it("should should allow SSH URLs", () => {
+    it("should allow SSH URLs", () => {
       const material = new Material("git", new GitMaterialAttributes(undefined, true, "ssh://git@host/repo.git"));
       expect(material.isValid()).toBe(true);
       expect(material.errors().count()).toBe(0);
@@ -220,7 +220,7 @@ describe("Material Types", () => {
       expect(material.attributes()!.errors().count()).toBe(0);
     });
 
-    it("should should validate Git URL credentials", () => {
+    it("should validate Git URL credentials", () => {
       const material = new Material("git",
                                     new GitMaterialAttributes(undefined,
                                                               true,
@@ -237,7 +237,24 @@ describe("Material Types", () => {
         .toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
     });
 
-    it("should should validate Hg URL credentials", () => {
+    it("should fail gracefully on unparseable URL", () => {
+      const material = new Material("git",
+        new GitMaterialAttributes(undefined,
+          true,
+          "https://user:pass^%@host",
+          "master",
+          false,
+          "user",
+          "pass"));
+      expect(material.isValid()).toBe(false);
+      expect(material.errors().count()).toBe(0);
+      expect(material.attributes()!.errors().count()).toBe(1);
+      expect(material.attributes()!.errors().keys()).toEqual(["url"]);
+      expect(material.attributes()!.errors().errorsForDisplay("url"))
+        .toBe("URL is malformed and could not be parsed.");
+    });
+
+    it("should validate Hg URL credentials", () => {
       const material = new Material("hg",
                                     new HgMaterialAttributes(undefined, true, "http://user:pass@host", "user", "pass"));
       expect(material.isValid()).toBe(false);
@@ -317,39 +334,6 @@ describe("Material Types", () => {
   });
 
   describe('DisplayNameSpec', () => {
-    it('should return the url as display name if name is undefined', () => {
-      const material = new Material("git", new GitMaterialAttributes(undefined, true, "http://repo.git"));
-
-      expect(material.displayName()).toBe('http://repo.git/');
-    });
-
-    it('should mask the user info for http/https url', () => {
-      const attrs    = new GitMaterialAttributes(undefined, true, "http://user:pass@repo.git");
-      const material = new Material("git", attrs);
-
-      expect(material.displayName()).toBe('http://user:******@repo.git/');
-
-      attrs.url("http://user@repo.git");
-      expect(material.displayName()).toBe('http://******@repo.git/');
-    });
-
-    it("should not mask Git SCP-style URLs", () => {
-      const material = new Material("git", new GitMaterialAttributes(undefined, true, "git@host:repo.git"));
-      expect(material.displayName()).toBe('git@host:repo.git');
-    });
-
-    it("should not mask SSH URLs", () => {
-      const material = new Material("git", new GitMaterialAttributes(undefined, true, "ssh://git@host/repo.git"));
-      expect(material.displayName()).toBe('ssh://git@host/repo.git');
-    });
-
-    it("should not mask SSH+SVN URLs", () => {
-      const material = new Material("git", new GitMaterialAttributes(undefined, true, "ssh+svn://git@host/repo.git"));
-      expect(material.displayName()).toBe('ssh+svn://git@host/repo.git');
-    });
-  });
-
-  describe('MaterialUrlSpec', () => {
     it('should return the url as display name if name is undefined', () => {
       const material = new Material("git", new GitMaterialAttributes(undefined, true, "http://repo.git"));
 

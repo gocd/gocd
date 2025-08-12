@@ -37,7 +37,7 @@ describe("Config Repo Types", () => {
       expect(configRepo.errors().keys()).toEqual(["id", "pluginId"]);
     });
 
-    it("should should validate Git material attributes", () => {
+    it("should validate Git material attributes", () => {
       const configRepo = new ConfigRepo("id", "pluginId", new Material("git", new GitMaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
@@ -46,7 +46,7 @@ describe("Config Repo Types", () => {
       expect(configRepo.material().attributes()!.errors().keys()).toEqual(["url"]);
     });
 
-    it("should should validate SVN material attributes", () => {
+    it("should validate SVN material attributes", () => {
       const configRepo = new ConfigRepo("id", "pluginId", new Material("svn", new SvnMaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
@@ -55,7 +55,7 @@ describe("Config Repo Types", () => {
       expect(configRepo.material().attributes()!.errors().keys()).toEqual(["url"]);
     });
 
-    it("should should validate P4 material attributes", () => {
+    it("should validate P4 material attributes", () => {
       const configRepo = new ConfigRepo("id", "pluginId", new Material("p4", new P4MaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
@@ -66,7 +66,7 @@ describe("Config Repo Types", () => {
         .toEqual("Host and port must be present.");
     });
 
-    it("should should validate Hg material attributes", () => {
+    it("should validate Hg material attributes", () => {
       const configRepo = new ConfigRepo("id", "pluginId", new Material("hg", new HgMaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
@@ -75,7 +75,7 @@ describe("Config Repo Types", () => {
       expect(configRepo.material().attributes()!.errors().keys()).toEqual(["url"]);
     });
 
-    it("should should validate TFS material attributes", () => {
+    it("should validate TFS material attributes", () => {
       const configRepo = new ConfigRepo("id", "pluginId", new Material("tfs", new TfsMaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);

@@ -237,7 +237,24 @@ describe("Material Types", () => {
         .toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
     });
 
-    it("should should validate Hg URL credentials", () => {
+    it("should fail gracefully on unparseable URL", () => {
+      const material = new Material("git",
+        new GitMaterialAttributes(undefined,
+          true,
+          "https://user:pass^%@host",
+          "master",
+          false,
+          "user",
+          "pass"));
+      expect(material.isValid()).toBe(false);
+      expect(material.errors().count()).toBe(0);
+      expect(material.attributes()!.errors().count()).toBe(1);
+      expect(material.attributes()!.errors().keys()).toEqual(["url"]);
+      expect(material.attributes()!.errors().errorsForDisplay("url"))
+        .toBe("URL is malformed and could not be parsed.");
+    });
+
+    it("should validate Hg URL credentials", () => {
       const material = new Material("hg",
                                     new HgMaterialAttributes(undefined, true, "http://user:pass@host", "user", "pass"));
       expect(material.isValid()).toBe(false);

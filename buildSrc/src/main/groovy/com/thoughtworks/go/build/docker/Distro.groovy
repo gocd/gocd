@@ -186,8 +186,8 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       [ // See https://endoflife.date/debian
-        new DistroVersion(version: '11', releaseName: '11-slim', eolDate: parseDate('2026-08-31')),
-        new DistroVersion(version: '12', releaseName: '12-slim', eolDate: parseDate('2028-06-10')),
+        new DistroVersion(version: '12', releaseName: '12-slim', eolDate: parseDate('2026-06-10')),
+        new DistroVersion(version: '13', releaseName: '13-slim', eolDate: parseDate('2028-08-10')),
       ]
     }
   },

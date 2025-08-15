@@ -114,12 +114,12 @@ GEM
       rake
     globalid (1.2.1)
       activesupport (>= 6.1)
-    google-protobuf (4.31.1-java)
+    google-protobuf (4.32.0-java)
       bigdecimal
       ffi (~> 1)
       ffi-compiler (~> 1)
       rake (>= 13)
-    google-protobuf (4.31.1-x86_64-linux-gnu)
+    google-protobuf (4.32.0-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
     i18n (1.14.7)

@@ -104,7 +104,6 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
     <cve>CVE-2024-38809</cve>
   </suppress>
-
   <suppress>
     <notes><![CDATA[
     GoCD does not appear to be vulnerable to this as it does not bind @RequestBody byte[]
@@ -112,6 +111,14 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
     <cve>CVE-2024-38828</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not appear to be vulnerable to this path traversal as documented at https://spring.io/security/cve-2025-41242
+    as it uses Eclipse Jetty with appropriate path/url sanitization which is noted as not affected.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-core@4\.3.*$</packageUrl>
+    <vulnerabilityName>CVE-2025-41242</vulnerabilityName>
   </suppress>
 
   <suppress>

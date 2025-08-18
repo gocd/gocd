@@ -381,9 +381,12 @@ public class ConfigConverter {
             }
         }
 
+        // FIXME should we modify this? :-/
+        scmConfig.setAutoUpdate(crPluggableScmMaterial.isAutoUpdate());
+
         return new PluggableSCMMaterialConfig(toMaterialName(crPluggableScmMaterial.getName()),
-                scmConfig, crPluggableScmMaterial.getDestination(),
-                toFilter(crPluggableScmMaterial.getFilterList()), crPluggableScmMaterial.isWhitelist());
+            scmConfig, crPluggableScmMaterial.getDestination(),
+            toFilter(crPluggableScmMaterial.getFilterList()), crPluggableScmMaterial.isWhitelist());
     }
 
     private SCMs existingServerSCMs() {
@@ -940,9 +943,11 @@ public class ConfigConverter {
             throw new ConfigConvertionException(
                     String.format("Failed to find referenced scm '%s'", id));
 
-        return new CRPluggableScmMaterial(pluggableScmMaterialConfig.getName().toString(),
-                id, pluggableScmMaterialConfig.getFolder(),
-                pluggableScmMaterialConfig.filter().ignoredFileNames(), pluggableScmMaterialConfig.isInvertFilter());
+        CRPluggableScmMaterial scmMaterial = new CRPluggableScmMaterial(pluggableScmMaterialConfig.getName().toString(),
+            id, pluggableScmMaterialConfig.getFolder(),
+            pluggableScmMaterialConfig.filter().ignoredFileNames(), pluggableScmMaterialConfig.isInvertFilter());
+        scmMaterial.setAutoUpdate(pluggableScmMaterialConfig.isAutoUpdate());
+        return scmMaterial;
     }
 
     private CRPackageMaterial packageMaterialToCRPackageMaterial(PackageMaterialConfig packageMaterialConfig) {

@@ -131,5 +131,5 @@
     "watchpack-chokidar2@npm:2.0.1/chokidar": "^3.6.0",
     "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1"
   },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "yarn@4.9.3"
 }

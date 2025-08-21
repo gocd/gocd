@@ -468,7 +468,7 @@ subprojects {
     def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
     systemProperty 'java.io.tmpdir', tmpDir
     jvmArgs += testTask.project.name.startsWith("agent") ? InstallerType.agent.jvmModuleOpensArgs : InstallerType.server.jvmModuleOpensArgs
-    jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? "-javaagent:${testTask.project.configurations.testJavaAgents.asPath}" : []
+    jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? ["-javaagent:${testTask.project.configurations.testJavaAgents.asPath}", "-XX:-PrintWarnings"] : []
 
     doFirst {
       // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40

@@ -65,26 +65,6 @@ def getVersion = { ... args ->
   }
 }
 
-List<String> partitionFiles(Collection originalFiles) {
-  def files = originalFiles.unique().sort()
-  def seed = System.getenv('GO_PIPELINE_COUNTER')?.toInteger() ?: System.getenv('PARTITION_SEED')?.toInteger() ?: new SecureRandom().nextInt().abs()
-  def totalWorkers = System.getenv('GO_JOB_RUN_COUNT')?.toInteger() ?: 1
-  def currentWorkerIndex = System.getenv('GO_JOB_RUN_INDEX')?.toInteger() ?: 1
-
-  Integer testsPerBucket = (Integer) Math.ceil((double) files.size() / totalWorkers)
-
-  rootProject.logger.quiet("Partitioning ${files.size()} files into ${totalWorkers} buckets with approx ${testsPerBucket} files per bucket. Using seed ${seed}.")
-  rootProject.logger.quiet("To reproduce the test failure, run with:")
-  rootProject.logger.quiet("PARTITION_SEED=${seed} GO_JOB_RUN_COUNT=${totalWorkers} GO_JOB_RUN_INDEX=${currentWorkerIndex} ./gradlew YOUR_TARGET")
-
-  // random shuffle, every agent uses the same seed, so shuffling is predictable
-  Collections.shuffle(files, new Random(seed))
-
-  def allPartitions = files.collate(testsPerBucket)
-  def currentPartition = allPartitions[currentWorkerIndex - 1]
-  return (currentPartition ?: []) as List<String>
-}
-
 def GO_VERSION_PREVIOUS = '25.3.0'
 def GO_VERSION_SEGMENTS = [year: 25, releaseInYear: 4, patch: 0]
 def GO_VERSION_NEXT = '25.5.0'
@@ -433,7 +413,7 @@ subprojects {
   }
 
   project.afterEvaluate {
-    tasks.withType(License) { License thisTask ->
+    tasks.withType(License).configureEach { License thisTask ->
       def sourceSetName = thisTask.name.replaceFirst('licenseFormat', '').replaceFirst('license', '')
       def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) }
 
@@ -450,114 +430,102 @@ subprojects {
         thisTask.source -= mappedSourceSet.resources
       }
     }
-  }
 
-  tasks.withType(Test) { Test testTask ->
-    dependsOn 'jar'
+    tasks.withType(Test).configureEach { Test testTask ->
+      dependsOn 'jar'
 
-    testTask.useJUnitPlatform()
-    javaLauncher = javaToolchains.launcherFor {
-      languageVersion = JavaLanguageVersion.of(project.buildJavaVersion)
-    }
+      testTask.useJUnitPlatform()
+      javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(project.buildJavaVersion)
+      }
 
     def allTestClasses
 
-    maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1
+      maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1
 
-    // fixup a tempdir that is predictable and we can clean it up later
-    def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
-    systemProperty 'java.io.tmpdir', tmpDir
-    jvmArgs += testTask.project.name.startsWith("agent") ? InstallerType.agent.jvmModuleOpensArgs : InstallerType.server.jvmModuleOpensArgs
-    jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? ["-javaagent:${testTask.project.configurations.testJavaAgents.asPath}", "-XX:-PrintWarnings"] : []
+      // fixup a tempdir that is predictable and we can clean it up later
+      def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
+      systemProperty 'java.io.tmpdir', tmpDir
+      jvmArgs += testTask.project.name.startsWith("agent") ? InstallerType.agent.jvmModuleOpensArgs : InstallerType.server.jvmModuleOpensArgs
+      jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? ["-javaagent:${testTask.project.configurations.testJavaAgents.asPath}", "-XX:-PrintWarnings"] : []
 
-    doFirst {
-      // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40
-      classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
-    }
+      doFirst {
+        classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
+      }
 
-    defaultCharacterEncoding = "UTF-8"
+      defaultCharacterEncoding = "UTF-8"
+      failOnNoDiscoveredTests = FilePartition.partitioningDisabled
 
-    filter {
-      failOnNoMatchingTests = true
-    }
+      doFirst {
+        project.logger.info("Setting tmpdir ${tmpDir}")
+        project.delete(tmpDir)
+        tmpDir.mkdirs()
 
-    doFirst {
-      project.logger.info("Setting tmpdir ${tmpDir}")
-      project.delete(tmpDir)
-      tmpDir.mkdirs()
+        List<String> files = []
+        testTask.testClassesDirs.files.each { File classDir ->
+          if (classDir.exists()) {
+            classDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+              def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
+              if (relPath.endsWith("Test.*")) files << relPath
+            }
+          }
+        }
+        files = files.unique()
 
-      List<String> files = []
-      testTask.testClassesDirs.files.each { File classDir ->
-        if (classDir.exists()) {
-          classDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
-            def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
-            files << relPath
+        def partition = new FilePartition(files)
+        def testsToRun = partition.currentFiles()
+        allTestClasses = getTestClassesForTask(testsToRun)
+        partition.logTo(rootProject.logger)
+
+        (files - testsToRun).each { f ->
+          testTask.exclude f
+        }
+        testsToRun.each { f ->
+          testTask.include f
+        }
+      }
+
+      beforeTest { TestDescriptor test ->
+        allTestClasses.remove(test.className)
+      }
+
+      beforeSuite { TestDescriptor test ->
+        allTestClasses.remove(test.className)
+      }
+
+      doLast {
+        project.delete(tmpDir)
+
+        if (!allTestClasses.empty) {
+          throw new GradleException("Missed the following classes to test: ${allTestClasses}".toString())
+        }
+      }
+
+      testLogging {
+        showStandardStreams = project.path != ':server'
+
+        exceptionFormat = 'full'
+
+        beforeSuite { suite ->
+          if (suite.parent) {
+            logger.quiet("Running ${suite.name}")
+          }
+        }
+
+        afterSuite { suite, result ->
+          if (suite.parent) {
+            logger.quiet("Tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
+            if (result.resultType == TestResult.ResultType.FAILURE) {
+              logger.quiet("Test ${suite.name} FAILED")
+            }
+          } else {
+            logger.quiet("Total tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
           }
         }
       }
-
-      files = files.unique()
-
-      List testsToRun = partitionFiles(files)
-      allTestClasses = getTestClassesForTask(testsToRun)
-      List testsToIgnore = files - testsToRun
-
-      testsToIgnore.each { f ->
-        testTask.exclude f
-      }
-      testsToRun.each { f ->
-        testTask.include f
-      }
     }
 
-    beforeTest { TestDescriptor test ->
-      allTestClasses.remove(test.className)
-    }
-
-    beforeSuite { TestDescriptor test ->
-      allTestClasses.remove(test.className)
-    }
-
-    doLast {
-      project.logger.info("Deleting tmpdir ${tmpDir}")
-      project.delete(tmpDir)
-
-      def allowTestsToBeSkipped = false
-      if (project.hasProperty("allowTestsToBeSkipped")) {
-        allowTestsToBeSkipped = Boolean.parseBoolean(project.property("allowTestsToBeSkipped"))
-      }
-
-      if (!allTestClasses.empty && !allowTestsToBeSkipped) {
-        throw new GradleException("Missed the following classes to test: ${allTestClasses}".toString())
-      }
-    }
-
-    testLogging {
-      showStandardStreams = project.path != ':server'
-
-      exceptionFormat = 'full'
-
-      beforeSuite { suite ->
-        if (suite.parent) {
-          logger.quiet("Running ${suite.name}")
-        }
-      }
-
-      afterSuite { suite, result ->
-        if (suite.parent) {
-          logger.quiet("Tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
-          if (result.resultType == TestResult.ResultType.FAILURE) {
-            logger.quiet("Test ${suite.name} FAILED")
-          }
-        } else {
-          logger.quiet("Total tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
-        }
-      }
-    }
-  }
-
-  tasks.withType(Delete) { Delete deleteTask ->
-    project.afterEvaluate {
+    tasks.withType(Delete).configureEach { Delete deleteTask ->
       idea {
         module {
           excludeDirs += deleteTask.targetFiles

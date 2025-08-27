@@ -22,6 +22,8 @@ import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.helper.ModificationsMother
 import org.junit.jupiter.api.Test
 
+import java.sql.Timestamp
+
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
@@ -58,7 +60,7 @@ class MaterialWithModificationsRepresenterTest {
     def map = new HashMap()
     def git = MaterialConfigsMother.git("http://example.com", "main")
     def modification = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()
-    def timestamp = new Date().toTimestamp()
+    def timestamp = new Timestamp(System.currentTimeMillis())
     def logs = [
       warning("Material Update hung", "The update has been hung for last 4 minutes", general(forMaterialConfig(git))),
       error("Updated failed", "There was an error executing the command", general(forMaterialConfig(git)))

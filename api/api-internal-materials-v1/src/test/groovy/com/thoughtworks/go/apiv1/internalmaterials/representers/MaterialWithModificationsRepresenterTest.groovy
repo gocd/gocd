@@ -114,7 +114,7 @@ class MaterialWithModificationsRepresenterTest {
   void 'should render modification as null'() {
     def map = new HashMap()
     def git = MaterialConfigsMother.git("http://example.com", "main")
-    def timestamp = new Date().toTimestamp()
+    def timestamp = new Timestamp(System.currentTimeMillis())
     map.put(git, new MaterialInfo(null, false, true, timestamp, []))
 
     def actualJson = toObjectString({ MaterialWithModificationsRepresenter.toJSON(it, map) })

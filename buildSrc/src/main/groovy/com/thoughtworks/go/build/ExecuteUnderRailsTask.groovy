@@ -25,7 +25,7 @@ import org.gradle.process.JavaExecSpec
 
 import static com.thoughtworks.go.build.OperatingSystemHelper.normalizeEnvironmentPath
 
-class ExecuteUnderRailsTask extends JavaExec {
+abstract class ExecuteUnderRailsTask extends JavaExec {
   private static final OperatingSystem CURRENT_OS = OperatingSystem.current()
   private Map<String, Object> originalEnv
 

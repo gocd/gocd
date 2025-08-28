@@ -23,13 +23,16 @@ import groovy.text.Template
 import org.apache.tools.ant.types.Commandline
 import org.gradle.internal.jvm.Jvm
 
-task pathingJar(type: Jar) {
+tasks.register('pathingJar', Jar) {
   archiveClassifier = 'pathing'
-  dependsOn(project.railsClasspath, project.configurations.compileClasspath)
+
+  def railsClasspath = project.railsClasspath
+  def jrubyJar = project.jrubyJar()
+  dependsOn(railsClasspath, project.configurations.compileClasspath)
 
   doFirst {
     manifest {
-      attributes 'Class-Path': (project.railsClasspath.files - [project.jrubyJar()]).collect { it.toURI() }.join(' ')
+      attributes 'Class-Path': (railsClasspath.files - [jrubyJar]).collect { it.toURI() }.join(' ')
     }
   }
 }
@@ -78,8 +81,8 @@ task createJRubyBinstubs {
   outputs.dir(outputDir)
 
   doFirst {
-    project.delete(outputDir)
-    project.mkdir(outputDir)
+    delete(outputDir)
+    mkdir(outputDir)
 
     ['rspec'].each { file ->
       copy {
@@ -103,24 +106,27 @@ task createJRubyBinstubs {
   }
 }
 
-task initializeRailsGems {
+tasks.register('initializeRailsGems') {
   outputs.cacheIf { true }
   dependsOn createJRubyBinstubs
-  inputs.file("${project.railsRoot}/Gemfile")
-  inputs.file("${project.railsRoot}/Gemfile.lock")
-  inputs.file("${project.railsRoot}/.bundle/config")
+
+  def root = project.railsRoot
+  inputs.file("${root}/Gemfile")
+  inputs.file("${root}/Gemfile.lock")
+  inputs.file("${root}/.bundle/config")
   inputs.properties([
     jrubyVersion : project.deps.jruby,
     bundledGemDir: project.bundledGemDir,
-    railsRoot    : project.railsRoot
+    railsRoot    : root
   ])
 
   outputs.dir(project.bundledGemDir)
 
+  def jrubyexec = project.jrubyexec
   def injected = project.objects.newInstance(InjectedExecOps)
   doFirst {
-    project.jrubyexec(injected.execOps) {
-      workingDir = project.railsRoot
+    jrubyexec(injected.execOps) {
+      workingDir = root
       args = ['-S', 'bundle', 'install']
       maxHeapSize = '1g'
       environment += [ 'JARS_SKIP': 'true' ] // Avoid issues jar-dependencies and running via jruby-complete https://github.com/jruby/jruby/issues/8886
@@ -305,7 +311,7 @@ task compileAssets {
   }
 }
 
-task rspec(type: ExecuteUnderRailsTask) {
+tasks.register('rspec', ExecuteUnderRailsTask) {
   dependsOn yarnInstall
   mustRunAfter generateJSRoutes, compileAssets, compileAssetsWebpackDev, compileAssetsRailsTest
   outputs.cacheIf { true }
@@ -320,7 +326,8 @@ task rspec(type: ExecuteUnderRailsTask) {
     'REPORTS_DIR': "${project.layout.buildDirectory.get()}/rspec-results"
   ]
 
-  jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.layout.buildDirectory.get()}/heap-dumps"]
+  def heapDumps = "${project.layout.buildDirectory.get()}/heap-dumps"
+  jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${heapDumps}"]
   args = ['-S', 'rspec', '--backtrace']
   maxHeapSize = '2g'
 
@@ -328,13 +335,14 @@ task rspec(type: ExecuteUnderRailsTask) {
     args += Commandline.translateCommandline(project.property('opts')) as List<String>
   }
 
+
   doFirst {
-    project.mkdir("${project.layout.buildDirectory.get()}/heap-dumps")
-    project.file("${project.layout.buildDirectory.get()}/heap-dumps/foo.txt").setText("")
+    mkdir(heapDumps)
+    file("${heapDumps}/.keep").setText("")
   }
 }
 
-task railsExec(type: ExecuteUnderRailsTask) {
+tasks.register('railsExec', ExecuteUnderRailsTask) {
   outputs.upToDateWhen { false }
 
   description = "rails exec (pass '-Pcmd=...' to pass options)"

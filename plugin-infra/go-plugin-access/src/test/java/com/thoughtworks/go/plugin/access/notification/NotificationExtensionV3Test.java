@@ -17,7 +17,7 @@ package com.thoughtworks.go.plugin.access.notification;
 
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
-import com.thoughtworks.go.plugin.access.notification.v4.JsonMessageHandler4_0;
+import com.thoughtworks.go.plugin.access.notification.v3.JsonMessageHandler3_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import org.junit.jupiter.api.Test;
@@ -35,16 +35,16 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-public class NotificationExtensionTestForV4 extends NotificationExtensionTestBase {
+public class NotificationExtensionV3Test extends NotificationExtensionTestBase {
     @Mock
     private PluginSettingsJsonMessageHandler2_0 pluginSettingsJSONMessageHandlerv2;
 
     @Mock
-    private JsonMessageHandler4_0 jsonMessageHandlerv4;
+    private JsonMessageHandler3_0 jsonMessageHandlerv3;
 
     @Override
     protected String apiVersion() {
-        return "4.0";
+        return "3.0";
     }
 
     @Override
@@ -54,12 +54,12 @@ public class NotificationExtensionTestForV4 extends NotificationExtensionTestBas
 
     @Override
     protected JsonMessageHandler jsonMessageHandler() {
-        return jsonMessageHandlerv4;
+        return jsonMessageHandlerv3;
     }
 
     @Test
     public void shouldNotifyPluginSettingsChange() {
-        String supportedVersion = "4.0";
+        String supportedVersion = "3.0";
         Map<String, String> settings = Map.of("foo", "bar");
         ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 

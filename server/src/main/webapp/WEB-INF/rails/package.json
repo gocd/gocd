@@ -36,7 +36,7 @@
     "lodash": "^4.17.21",
     "lodash-inflection": "^1.5.0",
     "lru-cache": "^7.18.3",
-    "mithril": "^2.3.4",
+    "mithril": "^2.3.5",
     "moment": "^2.30.1",
     "moment-duration-format": "^2.3.2",
     "normalize-scss": "^8.0.0",

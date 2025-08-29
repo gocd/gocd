@@ -119,9 +119,6 @@ GEM
       ffi (~> 1)
       ffi-compiler (~> 1)
       rake (>= 13)
-    google-protobuf (4.32.0-x86_64-linux-gnu)
-      bigdecimal
-      rake (>= 13)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     io-console (0.8.1)
@@ -159,14 +156,9 @@ GEM
     nio4r (2.7.4-java)
     nokogiri (1.18.9-java)
       racc (~> 1.4)
-    nokogiri (1.18.9-x86_64-linux-gnu)
-      racc (~> 1.4)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
-    psych (5.2.6)
-      date
-      stringio
     psych (5.2.6-java)
       date
       jar-dependencies (>= 0.1.7)
@@ -254,7 +246,6 @@ GEM
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
-    stringio (3.1.7)
     thor (1.4.0)
     tilt (2.6.1)
     timeout (0.4.3)
@@ -278,15 +269,13 @@ GEM
     zeitwerk (2.6.18)
 
 PLATFORMS
-  java
   universal-java-17
   universal-java-21
-  x86_64-linux
 
 DEPENDENCIES
   capybara
   dartsass-sprockets
-  js-routes
+  js-routes (~> 1.4)
   rack (~> 2.2.17)
   rails (~> 7.2.2)
   rails-controller-testing

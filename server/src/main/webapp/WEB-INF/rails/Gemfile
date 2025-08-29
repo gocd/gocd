@@ -11,7 +11,7 @@ platforms :jruby do
 
   group :assets do
     gem 'dartsass-sprockets'
-    gem 'js-routes'
+    gem 'js-routes', '~> 1.4'
     gem 'ts_routes'
   end
 

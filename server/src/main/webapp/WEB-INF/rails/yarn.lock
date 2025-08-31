@@ -5723,10 +5723,10 @@ __metadata:
     fs-extra: "npm:^11.3.1"
     hack-font: "npm:^3.3.0"
     html-webpack-plugin: "npm:^4.5.2"
-    jasmine: "npm:^5.9.0"
+    jasmine: "npm:^5.10.0"
     jasmine-ajax: "npm:^4.0.0"
     jasmine-browser-runner: "npm:^3.0.0"
-    jasmine-core: "npm:^5.9.0"
+    jasmine-core: "npm:^5.10.0"
     jasmine-jquery: "npm:^2.1.1"
     jquery: "npm:^3.7.1"
     karma: "npm:^6.4.4"
@@ -6690,10 +6690,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine-core@npm:^5.1.1, jasmine-core@npm:^5.9.0, jasmine-core@npm:~5.9.0":
+"jasmine-core@npm:^5.1.1":
   version: 5.9.0
   resolution: "jasmine-core@npm:5.9.0"
   checksum: 10/4229d63794bcef5a48505a94df1da1616ed36eb4f9e916f7bdab024c88f3f3e88d69967fd5dd537e0a302dd02a5676470b1f62cae2e9c59c102d8fde9f8bcf72
+  languageName: node
+  linkType: hard
+
+"jasmine-core@npm:^5.10.0, jasmine-core@npm:~5.10.0":
+  version: 5.10.0
+  resolution: "jasmine-core@npm:5.10.0"
+  checksum: 10/6164ce33d6d8ebb298756cab263bf5c78410b0ed6a53893ce2b5b2f19d9a8f0901aaa491af3370e332f80854cf6b59061506772044433267dbc785a22c5373b3
   languageName: node
   linkType: hard
 
@@ -6704,15 +6711,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine@npm:^5.9.0":
-  version: 5.9.0
-  resolution: "jasmine@npm:5.9.0"
+"jasmine@npm:^5.10.0":
+  version: 5.10.0
+  resolution: "jasmine@npm:5.10.0"
   dependencies:
     glob: "npm:^10.2.2"
-    jasmine-core: "npm:~5.9.0"
+    jasmine-core: "npm:~5.10.0"
   bin:
     jasmine: bin/jasmine.js
-  checksum: 10/bd87611c589f37760f5da6a67bc26b1e7689214f889fe00ace2c458acf66eee589093f8d0b57f375ee84163a641ac5e5fa967f113de5b81230cf67ca013bb71e
+  checksum: 10/ba54dac485f3853d799baba1623f03db517ece41267309e39cceab0c01a4e0e2c22ce8f2c358b6069fb0fa35f764be60159ed15b4b9e94f8911622a009c5e62a
   languageName: node
   linkType: hard
 

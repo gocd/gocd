@@ -975,7 +975,7 @@ task licenseReportAggregate {
 
   def getAllJarDependencies = {
     // get a list of all dependencies from each gradle module
-    def allDependenciesInReport = rootProject.allprojects.inject(new LinkedHashSet<Map<String, Object>>(), { result, eachProject ->
+    def allDependenciesInReport = rootProject.subprojects.inject(new LinkedHashSet<Map<String, Object>>(), { result, eachProject ->
       def file = eachProject.file("${eachProject.licenseReport.outputDir}/index.json")
       if (file.exists()) {
         Map<String, Object> json = new JsonSlurper().parse(file)
@@ -1019,7 +1019,7 @@ task licenseReportAggregate {
   doFirst {
     LinkedHashSet<Map<String, Object>> allDependenciesInReport = getAllJarDependencies()
 
-    List<VerifyJarTask> verifyJarTasks = rootProject.allprojects.collect { eachProject ->
+    List<VerifyJarTask> verifyJarTasks = rootProject.subprojects.collect { eachProject ->
       eachProject.tasks.withType(VerifyJarTask)
     }.flatten()
 

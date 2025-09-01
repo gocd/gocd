@@ -857,7 +857,7 @@ task verifyWar(type: VerifyJarTask) {
 }
 
 task licenseReportAggregate {
-  rootProject.allprojects.each { eachProject ->
+  rootProject.subprojects.each { eachProject ->
     def reportTasks = eachProject.tasks.withType(ReportTask)
     if (!reportTasks.isEmpty()) {
       licenseReportAggregate.dependsOn reportTasks

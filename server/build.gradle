@@ -676,7 +676,6 @@ task configureWar {
 }
 
 task war(type: Jar) {
-  dependsOn rootProject.generateLicenseReport
   dependsOn configureWar
   dependsOn ':server:jar', ':server:compileAssets'
   dependsOn project.configurations.runtimeClasspath

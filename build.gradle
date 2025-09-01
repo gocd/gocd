@@ -162,6 +162,8 @@ idea {
   }
 }
 
+generateLicenseReport.enabled = false // No need to generate for root project; and this causes incorrect resolutions
+
 subprojects {
   if (!project.childProjects.isEmpty()) {
     return

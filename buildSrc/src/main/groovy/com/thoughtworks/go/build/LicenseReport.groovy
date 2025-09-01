@@ -91,7 +91,8 @@ class LicenseReport {
           licensesForPackagedJarDependencies.each { String moduleName, Map<String, Object> moduleLicenseData ->
             // find what project contains the specific module
             def additionalFiles = []
-            def projectWithDependency = rootProject.allprojects.find { Project eachProject ->
+            def projectWithDependency = rootProject.subprojects.find { Project eachProject ->
+              if (!eachProject.hasProperty('licenseReport')) return false
               additionalFiles = eachProject.fileTree("${eachProject.licenseReport.outputDir}/${moduleLicenseData.moduleName.split(':').first()}-${moduleLicenseData.moduleVersion}.jar")
               !additionalFiles.isEmpty()
             }

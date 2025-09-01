@@ -31,8 +31,8 @@ import java.util.stream.Collectors
 plugins {
   id 'base'
   id 'org.owasp.dependencycheck' version '12.1.3'
-  id 'com.github.hierynomus.license-base' version '0.16.1'
-  id 'com.github.jk1.dependency-license-report' version '2.9'
+  id 'com.github.hierynomus.license-base' version '0.16.1' apply false
+  id 'com.github.jk1.dependency-license-report' version '2.9' apply false
 }
 
 apply from: 'dependencies.gradle'
@@ -161,8 +161,6 @@ idea {
     languageLevel = new IdeaLanguageLevel(project.targetJavaVersion)
   }
 }
-
-generateLicenseReport.enabled = false // No need to generate for root project; and this causes incorrect resolutions
 
 subprojects {
   if (!project.childProjects.isEmpty()) {

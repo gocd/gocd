@@ -976,14 +976,16 @@ task licenseReportAggregate {
   def getAllJarDependencies = {
     // get a list of all dependencies from each gradle module
     def allDependenciesInReport = rootProject.subprojects.inject(new LinkedHashSet<Map<String, Object>>(), { result, eachProject ->
+      if (!eachProject.hasProperty('licenseReport')) return result
+
       def file = eachProject.file("${eachProject.licenseReport.outputDir}/index.json")
-      if (file.exists()) {
-        Map<String, Object> json = new JsonSlurper().parse(file)
-        if (json.dependencies != null) {
-          result.addAll(json.dependencies)
-        }
+      if (!file.exists()) return result
+
+      def json = new JsonSlurper().parse(file) as Map<String, Object>
+      if (json.dependencies != null) {
+        result.addAll(json.dependencies)
       }
-      result
+      return result
     })
 
     // remove items that we know to have missing license data

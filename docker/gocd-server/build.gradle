@@ -145,7 +145,7 @@ subprojects {
   }
 }
 
-task generateManifest() {
+tasks.register('generateManifest') {
   doLast {
     def meta = []
     subprojects.tasks*.getByName('docker').forEach { BuildDockerImageTask dockerTask ->

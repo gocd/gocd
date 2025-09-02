@@ -41,11 +41,6 @@ class YarnRunTask extends DefaultTask {
   YarnRunTask(ExecOperations execOperations) {
     this.execOperations = execOperations
     inputs.property('os', OperatingSystem.current().toString())
-    project.afterEvaluate({
-      source(project.file("${getWorkingDir()}/package.json"))
-      source(project.file("${getWorkingDir()}/yarn.lock"))
-      source(project.file("${getWorkingDir()}/node_modules"))
-    })
   }
 
   @Input // not an @InputFile/InputDirectory, because we don't care about the contents of the workingDir itself
@@ -84,6 +79,9 @@ class YarnRunTask extends DefaultTask {
 
   void setWorkingDir(Object workingDir) {
     this.workingDir = project.file(workingDir)
+    source(project.file("${getWorkingDir()}/package.json"))
+    source(project.file("${getWorkingDir()}/yarn.lock"))
+    source(project.file("${getWorkingDir()}/node_modules"))
   }
 
   void source(Object... sources) {

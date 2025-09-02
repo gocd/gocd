@@ -238,11 +238,14 @@ subprojects {
       js = 'SLASHSTAR_STYLE'
     }
   }
+  check.dependsOn 'license'
 
-  final List<String> includeInLicensing = [':server-launcher']
+  if (project.path.startsWithAny(":build-platform", ":installers", ":docker", ":release")) {
+    return
+  }
+
   final boolean hasJavaSources = !project.fileTree("src/main/java").files.isEmpty()
-
-  if (includeInLicensing.contains(project.path) || hasJavaSources) {
+  if (project.path.startsWithAny(':server-launcher') || hasJavaSources) {
     apply plugin: 'com.github.jk1.dependency-license-report'
 
     licenseReport {
@@ -280,7 +283,7 @@ subprojects {
       }
     }
 
-    task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
+    tasks.register('testJar', Jar) {
       archiveClassifier = 'tests'
       from sourceSets.test.output
     }
@@ -326,7 +329,7 @@ subprojects {
     }
   }
 
-  configurations.all {
+  configurations.configureEach {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
       // Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables
       if (details.requested.group == 'org.hamcrest' && details.requested.name ==~ /hamcrest-(core|library|all)/) {
@@ -348,18 +351,17 @@ subprojects {
     }
   }
 
-  task cleanLogs(type: Delete) {
+  tasks.register('cleanLogs', Delete) {
     delete 'logs'
   }
 
-  task cleanApiOut(type: Delete) {
+  tasks.register('cleanApiOut', Delete) {
     delete 'out'
   }
 
   clean.dependsOn cleanLogs, cleanApiOut
-  check.dependsOn 'license'
 
-  tasks.withType(Jar) { jarTask ->
+  tasks.withType(Jar).configureEach { jarTask ->
     manifest {
       attributes(
         'Go-Version': project.version,
@@ -379,7 +381,7 @@ subprojects {
     }
   }
 
-  tasks.withType(AbstractArchiveTask) {
+  tasks.withType(AbstractArchiveTask).configureEach {
     includeEmptyDirs = false
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
@@ -387,7 +389,7 @@ subprojects {
     reproducibleFileOrder = true
   }
 
-  tasks.withType(Exec) {
+  tasks.withType(Exec).configureEach {
     if (logger.isInfoEnabled()) {
       standardOutput = System.out
       errorOutput = System.err
@@ -401,7 +403,7 @@ subprojects {
     options.incremental = true
   }
 
-  tasks.withType(JavaCompile) {
+  tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
     options.compilerArgs += '-Werror'
     options.compilerArgs += '-Xlint:all,-serial,-deprecation,-processing,-this-escape,-classfile,-overloads'
@@ -412,130 +414,128 @@ subprojects {
     }
   }
 
-  project.afterEvaluate {
-    tasks.withType(License).configureEach { License thisTask ->
-      def sourceSetName = thisTask.name.replaceFirst('licenseFormat', '').replaceFirst('license', '')
-      def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) }
+  tasks.withType(License).configureEach { License thisTask ->
+    def sourceSetName = thisTask.name.replaceFirst('licenseFormat', '').replaceFirst('license', '')
+    def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) }
 
-      if (project.path == ':server' && sourceSetName.toLowerCase() == 'test') {
-        thisTask.source += project.file("rails/")
-        return
-      }
-
-      if (thisTask.name.toLowerCase().contains('test')) {
-        thisTask.source -= mappedSourceSet.resources
-      }
-
-      if (project.path == ':test:test-utils') {
-        thisTask.source -= mappedSourceSet.resources
-      }
+    if (project.path == ':server' && sourceSetName.toLowerCase() == 'test') {
+      thisTask.source += project.file("rails/")
+      return
     }
 
-    tasks.withType(Test).configureEach { Test testTask ->
-      dependsOn 'jar'
+    if (thisTask.name.toLowerCase().contains('test')) {
+      thisTask.source -= mappedSourceSet.resources
+    }
 
-      testTask.useJUnitPlatform()
-      javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(project.buildJavaVersion)
-      }
+    if (project.path == ':test:test-utils') {
+      thisTask.source -= mappedSourceSet.resources
+    }
+  }
+
+  tasks.withType(Test).configureEach { Test testTask ->
+    dependsOn 'jar'
+
+    testTask.useJUnitPlatform()
+    javaLauncher = javaToolchains.launcherFor {
+      languageVersion = JavaLanguageVersion.of(project.buildJavaVersion)
+    }
 
     def allTestClasses
 
-      maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1
+    maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1
 
-      // fixup a tempdir that is predictable and we can clean it up later
-      def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
-      systemProperty 'java.io.tmpdir', tmpDir
-      jvmArgs += testTask.project.name.startsWith("agent") ? InstallerType.agent.jvmModuleOpensArgs : InstallerType.server.jvmModuleOpensArgs
-      jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? ["-javaagent:${testTask.project.configurations.testJavaAgents.asPath}", "-XX:-PrintWarnings"] : []
+    // fixup a tempdir that is predictable and we can clean it up later
+    def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
+    systemProperty 'java.io.tmpdir', tmpDir
+    jvmArgs += testTask.project.name.startsWith("agent") ? InstallerType.agent.jvmModuleOpensArgs : InstallerType.server.jvmModuleOpensArgs
+    jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? ["-javaagent:${testTask.project.configurations.testJavaAgents.asPath}", "-XX:-PrintWarnings"] : []
 
-      doFirst {
-        classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
-      }
+    doFirst {
+      classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
+    }
 
-      defaultCharacterEncoding = "UTF-8"
-      failOnNoDiscoveredTests = FilePartition.partitioningDisabled
+    defaultCharacterEncoding = "UTF-8"
+    failOnNoDiscoveredTests = FilePartition.partitioningDisabled
 
-      doFirst {
-        project.logger.info("Setting tmpdir ${tmpDir}")
-        project.delete(tmpDir)
-        tmpDir.mkdirs()
+    doFirst {
+      project.logger.info("Setting tmpdir ${tmpDir}")
+      project.delete(tmpDir)
+      tmpDir.mkdirs()
 
-        List<String> files = []
-        testTask.testClassesDirs.files.each { File classDir ->
-          if (classDir.exists()) {
-            classDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
-              def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
-              if (relPath.endsWith("Test.*")) files << relPath
-            }
+      List<String> files = []
+      testTask.testClassesDirs.files.each { File classDir ->
+        if (classDir.exists()) {
+          classDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+            def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
+            if (relPath.endsWith("Test.*")) files << relPath
           }
         }
-        files = files.unique()
-
-        def partition = new FilePartition(files)
-        def testsToRun = partition.currentFiles()
-        allTestClasses = getTestClassesForTask(testsToRun)
-        partition.logTo(rootProject.logger)
-
-        (files - testsToRun).each { f ->
-          testTask.exclude f
-        }
-        testsToRun.each { f ->
-          testTask.include f
-        }
       }
+      files = files.unique()
 
-      beforeTest { TestDescriptor test ->
-        allTestClasses.remove(test.className)
+      def partition = new FilePartition(files)
+      def testsToRun = partition.currentFiles()
+      allTestClasses = getTestClassesForTask(testsToRun)
+      partition.logTo(rootProject.logger)
+
+      (files - testsToRun).each { f ->
+        testTask.exclude f
       }
-
-      beforeSuite { TestDescriptor test ->
-        allTestClasses.remove(test.className)
-      }
-
-      doLast {
-        project.delete(tmpDir)
-
-        if (!allTestClasses.empty) {
-          throw new GradleException("Missed the following classes to test: ${allTestClasses}".toString())
-        }
-      }
-
-      testLogging {
-        showStandardStreams = project.path != ':server'
-
-        exceptionFormat = 'full'
-
-        beforeSuite { suite ->
-          if (suite.parent) {
-            logger.quiet("Running ${suite.name}")
-          }
-        }
-
-        afterSuite { suite, result ->
-          if (suite.parent) {
-            logger.quiet("Tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
-            if (result.resultType == TestResult.ResultType.FAILURE) {
-              logger.quiet("Test ${suite.name} FAILED")
-            }
-          } else {
-            logger.quiet("Total tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
-          }
-        }
+      testsToRun.each { f ->
+        testTask.include f
       }
     }
 
-    tasks.withType(Delete).configureEach { Delete deleteTask ->
-      idea {
-        module {
-          excludeDirs += deleteTask.targetFiles
+    beforeTest { TestDescriptor test ->
+      allTestClasses.remove(test.className)
+    }
+
+    beforeSuite { TestDescriptor test ->
+      allTestClasses.remove(test.className)
+    }
+
+    doLast {
+      project.delete(tmpDir)
+
+      if (!allTestClasses.empty) {
+        throw new GradleException("Missed the following classes to test: ${allTestClasses}".toString())
+      }
+    }
+
+    testLogging {
+      showStandardStreams = project.path != ':server'
+
+      exceptionFormat = 'full'
+
+      beforeSuite { suite ->
+        if (suite.parent) {
+          logger.quiet("Running ${suite.name}")
         }
+      }
+
+      afterSuite { suite, result ->
+        if (suite.parent) {
+          logger.quiet("Tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
+          if (result.resultType == TestResult.ResultType.FAILURE) {
+            logger.quiet("Test ${suite.name} FAILED")
+          }
+        } else {
+          logger.quiet("Total tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
+        }
+      }
+    }
+  }
+
+  tasks.withType(Delete).configureEach { Delete deleteTask ->
+    idea {
+      module {
+        excludeDirs += deleteTask.targetFiles
       }
     }
   }
 }
 
-task allDependencies {
+tasks.register('allDependencies') {
   dependsOn allprojects.collect { "$it.path:dependencies" }
 
   description = "Print dependency tree of all projects"
@@ -543,25 +543,22 @@ task allDependencies {
 
 private allCompileTasks(Closure<Boolean> include = { t -> true }) {
   allprojects.collect { Project prj ->
-    prj.afterEvaluate {
-      compileAll.dependsOn(prj.getTasks().withType(JavaCompile).findAll(include))
-      compileAll.dependsOn(prj.getTasks().withType(GroovyCompile).findAll(include))
-    }
+    compileAll.dependsOn(prj.getTasks().withType(JavaCompile).findAll(include))
+    compileAll.dependsOn(prj.getTasks().withType(GroovyCompile).findAll(include))
   }
 }
 
-
-task compileAll { compileAllTask ->
+tasks.register('compileAll') { compileAllTask ->
   group = LifecycleBasePlugin.BUILD_GROUP
   allCompileTasks()
 }
 
-task prepare {
+tasks.register('prepare') {
   group = LifecycleBasePlugin.BUILD_GROUP
   allCompileTasks { Task task -> !task.name.toLowerCase().contains('test') && !task.project.path.toLowerCase().contains('test') }
 }
 
-task sparkTest { thisTask ->
+tasks.register('sparkTest') { thisTask ->
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all api tests"
   (project(':api').subprojects + project(':spark').subprojects).each { Project subPrj ->
@@ -570,7 +567,7 @@ task sparkTest { thisTask ->
   finalizedBy 'sparkTestJunitHtmlReport'
 }
 
-task sparkTestJunitHtmlReport(type: TestReport) {
+tasks.register('sparkTestJunitHtmlReport', TestReport) {
   dependsOn sparkTest
 
   testResults.from(project(':api').subprojects*.test.binaryResultsDirectory.locationOnly)
@@ -579,20 +576,16 @@ task sparkTestJunitHtmlReport(type: TestReport) {
 }
 
 private void forAllTask(Closure<Task> closure) {
-  allprojects.each { Project subPrj ->
-
-    // afterEvaluate, because the testsset plugin defines tasks much later
-    subPrj.afterEvaluate {
-      subPrj.tasks.withType(Test).each { eachTestTask ->
-        if (!(eachTestTask.path in [':server:integrationTest'])) {
-          closure.call(eachTestTask)
-        }
+  subprojects.each { Project subPrj ->
+    subPrj.tasks.withType(Test).each { eachTestTask ->
+      if (!(eachTestTask.path in [':server:integrationTest'])) {
+        closure.call(eachTestTask)
       }
     }
   }
 }
 
-task allTests { thisTask ->
+tasks.register('allTests') { thisTask ->
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all tests"
 
@@ -603,7 +596,7 @@ task allTests { thisTask ->
   finalizedBy 'allTestsJunitHtmlReport'
 }
 
-task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
+tasks.register('allTestsJunitHtmlReport', TestReport) { TestReport thisTask ->
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all api tests"
 
@@ -717,7 +710,7 @@ if (System.getenv().containsKey("NEXUS_CACHE_USERNAME")) {
   dependencyCheckAggregate.finalizedBy uploadDependencyCheckCache
 }
 
-task newSPA {
+tasks.register('newSPA') {
   description = "Helper to create a new SPA. Pass `-PspaName=maintenance_mode"
 
   doFirst {
@@ -902,7 +895,7 @@ task newSPA {
   }
 }
 
-task removeApi {
+tasks.register('removeApi') {
   description = "Helper to create a delete an api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
   def injected = project.objects.newInstance(InjectedExecOps)
 
@@ -954,7 +947,7 @@ task removeApi {
   }
 }
 
-task newApi {
+tasks.register('newApi') {
   description = "Helper to create a new api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
 
   doFirst {
@@ -1202,7 +1195,7 @@ task newApi {
   }
 }
 
-task upgradeApi {
+tasks.register('upgradeApi') {
   description = "Helper to upgrade an new api module. Pass `-PapiName=roles-config`"
 
   doFirst {

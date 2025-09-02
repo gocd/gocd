@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-task bumpSchemaVersion {
+tasks.register('bumpSchemaVersion') {
   description = "Helper to bump `schemaVersion` and setup cruise-config.xml migrations."
   doFirst {
 

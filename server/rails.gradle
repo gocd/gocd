@@ -27,17 +27,17 @@ tasks.register('pathingJar', Jar) {
   archiveClassifier = 'pathing'
 
   def railsClasspath = project.railsClasspath
-  def jrubyJar = project.jrubyJar()
   dependsOn(railsClasspath, project.configurations.compileClasspath)
 
+  def jrubyJarLoc = project.jrubyJar
   doFirst {
     manifest {
-      attributes 'Class-Path': (railsClasspath.files - [jrubyJar]).collect { it.toURI() }.join(' ')
+      attributes 'Class-Path': (railsClasspath.files - [jrubyJarLoc.get()]).collect { it.toURI() }.join(' ')
     }
   }
 }
 
-task generateJSRoutes(type: ExecuteUnderRailsTask) {
+tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
   outputs.cacheIf { true }
   def outputDir = file("${project.railsRoot}/webpack/gen")
   inputs.dir(file("${project.railsRoot}/vendor"))
@@ -57,8 +57,10 @@ task generateJSRoutes(type: ExecuteUnderRailsTask) {
   }
 }
 
-task createJRubyBinstubs {
+tasks.register('createJRubyBinstubs') {
   outputs.cacheIf { true }
+  dependsOn pathingJar, configurations.compileClasspath
+
   def outputDir = file("scripts")
   inputs.dir("script-templates")
   inputs.properties([
@@ -66,12 +68,13 @@ task createJRubyBinstubs {
     railsRoot    : project.railsRoot
   ])
 
+  def jrubyJarLoc = project.jrubyJar
+
   def templateProperties = [
     mainClassName       : 'org.jruby.Main',
     jvmArgs             : project.jrubyOptimizationJvmArgs,
     systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties + project.railsSystemProperties),
     classpath           : [pathingJar.archiveFile.get().asFile],
-    jrubyJar            : project.jrubyJar(),
     environment         : project.defaultJRubyEnvironment,
     additionalJRubyPaths: project.additionalJRubyPaths,
     javaExecutable      : Jvm.current().getExecutable("java")
@@ -81,6 +84,7 @@ task createJRubyBinstubs {
   outputs.dir(outputDir)
 
   doFirst {
+    templateProperties['jrubyJar'] = jrubyJarLoc.get()
     delete(outputDir)
     mkdir(outputDir)
 
@@ -134,13 +138,13 @@ tasks.register('initializeRailsGems') {
   }
 }
 
-task yarnInstall(type: YarnInstallTask) {
+tasks.register('yarnInstall', YarnInstallTask) {
   workingDir = project.railsRoot
 }
 
 prepare.dependsOn(initializeRailsGems, createJRubyBinstubs, yarnInstall)
 
-task cleanRails(type: Delete) {
+tasks.register('cleanRails', Delete) {
   delete layout.buildDirectory.dir("railsTests")
   delete "${project.railsRoot}/config/cipher"
   delete "${project.railsRoot}/config/cipher.aes"
@@ -156,13 +160,13 @@ task cleanRails(type: Delete) {
 
   doFirst {
     // these are purposely added as `doFirst` to avoid intellij from excluding these from the modules
-    project.delete project.jrubyScriptsDir
-    project.delete project.bundledGemDir
+    delete project.jrubyScriptsDir
+    delete project.bundledGemDir
   }
 }
 clean.dependsOn cleanRails
 
-task compileAssetsWebpackDev(type: YarnRunTask) {
+tasks.register('compileAssetsWebpackDev', YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
 
   ext.licenseReportFile = project.layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
@@ -183,7 +187,7 @@ task compileAssetsWebpackDev(type: YarnRunTask) {
   }
 }
 
-task compileAssetsWebpackProd(type: YarnRunTask) {
+tasks.register('compileAssetsWebpackProd', YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
 
   ext.licenseReportFile = project.layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
@@ -204,7 +208,7 @@ task compileAssetsWebpackProd(type: YarnRunTask) {
   }
 }
 
-task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
+tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
   dependsOn yarnInstall
   outputs.cacheIf { true }
 
@@ -236,12 +240,12 @@ task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
   }
 }
 
-task compileAssetsRailsProd(type: ExecuteUnderRailsTask) {
+tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
   dependsOn yarnInstall
   outputs.cacheIf { true }
 
   def outputAssetsDir = project.layout.buildDirectory.dir("rails-assets").get().asFile
-  def publicAssetsDir =  project.layout.buildDirectory.dir("public/assets").get().asFile
+  def publicAssetsDir = project.layout.buildDirectory.dir("public/assets").get().asFile
 
   inputs.dir(file("${project.railsRoot}/config"))
   inputs.dir(file("${project.railsRoot}/app/assets"))
@@ -280,7 +284,7 @@ task compileAssetsRailsProd(type: ExecuteUnderRailsTask) {
   }
 }
 
-task compileAssets {
+tasks.register('compileAssets') {
   dependsOn compileAssetsWebpackProd
   dependsOn licenseReportAggregate
   dependsOn compileAssetsRailsProd
@@ -332,7 +336,7 @@ tasks.register('rspec', ExecuteUnderRailsTask) {
   maxHeapSize = '2g'
 
   if (project.hasProperty('opts')) {
-    args += Commandline.translateCommandline(project.property('opts')) as List<String>
+    args += Commandline.translateCommandline(project.property('opts') as String)
   }
 
 
@@ -347,5 +351,5 @@ tasks.register('railsExec', ExecuteUnderRailsTask) {
 
   description = "rails exec (pass '-Pcmd=...' to pass options)"
 
-  args = Commandline.translateCommandline(project.properties.get('cmd')) as List<String>
+  args = Commandline.translateCommandline(project.properties.get('cmd') as String)
 }

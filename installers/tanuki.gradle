@@ -22,14 +22,14 @@ private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
-task downloadTanukiDeltaPack(type: DownloadFile) {
+tasks.register('downloadTanukiDeltaPack', DownloadFile) {
   def srcUrl = "https://download.tanukisoftware.com/wrapper/${project.versions.tanuki.split("-").first()}/wrapper-delta-pack-${project.versions.tanuki}.tar.gz"
   src srcUrl
   dest destFile(srcUrl)
   checksum = project.versions.tanukiSha256sum
 }
 
-task extractDeltaPack(type: Copy) {
+tasks.register('extractDeltaPack', Copy) {
   dependsOn downloadTanukiDeltaPack
   from(project.tarTree(downloadTanukiDeltaPack.outputs.files.singleFile))
   into project.layout.buildDirectory

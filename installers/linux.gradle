@@ -358,14 +358,10 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
     }
   }
 
-  packageTask.finalizedBy(project.tasks.create("${packageTask.name}Metadata", InstallerMetadataTask.class) {
-    architecture = Architecture.all
-    it.packageTask = packageTask
-    type = installerType
-  })
+  packageTask.finalizedBy"${packageTask.name}Metadata"
 }
 
-def copyMultipleAgentsReadme(DefaultTask packageTask, File buildRoot, InstallerType installerType) {
+static def copyMultipleAgentsReadme(DefaultTask packageTask, File buildRoot, InstallerType installerType) {
   packageTask.doFirst {
     project.copy {
       from "go-agent/release/README-running-multiple-agents.md"
@@ -374,7 +370,7 @@ def copyMultipleAgentsReadme(DefaultTask packageTask, File buildRoot, InstallerT
   }
 }
 
-task agentPackageRpm { DefaultTask thisTask ->
+tasks.register('agentPackageRpm') { thisTask ->
   def installerType = InstallerType.agent
   def packageType = PackageType.rpm
   def buildRoot = project.layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
@@ -385,7 +381,7 @@ task agentPackageRpm { DefaultTask thisTask ->
 }
 
 
-task agentPackageDeb { DefaultTask thisTask ->
+tasks.register('agentPackageDeb') { thisTask ->
   def installerType = InstallerType.agent
   def packageType = PackageType.deb
   def buildRoot = project.layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
@@ -395,7 +391,7 @@ task agentPackageDeb { DefaultTask thisTask ->
   configureLinuxPackage(thisTask, installerType, packageType, buildRoot, configurations.agentBootstrapperJar, destDir)
 }
 
-task serverPackageRpm { DefaultTask thisTask ->
+tasks.register('serverPackageRpm') { thisTask ->
   def installerType = InstallerType.server
   def packageType = PackageType.rpm
   def buildRoot = project.layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
@@ -404,13 +400,24 @@ task serverPackageRpm { DefaultTask thisTask ->
   configureLinuxPackage(thisTask, installerType, packageType, buildRoot, configurations.serverJar, destDir)
 }
 
-task serverPackageDeb { DefaultTask thisTask ->
+tasks.register('serverPackageDeb') { thisTask ->
   def installerType = InstallerType.server
   def packageType = PackageType.deb
   def buildRoot = project.layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
   def destDir = project.layout.buildDirectory.dir("distributions/${packageType}").get().asFile
 
   configureLinuxPackage(thisTask, installerType, packageType, buildRoot, configurations.serverJar, destDir)
+}
+
+['agent', 'server'].each { installerType ->
+  ['Deb', 'Rpm'].each { packageType ->
+    def packageTaskName = "${installerType}Package${packageType}"
+    tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
+      architecture = Architecture.all
+      packageTask = project.getTasksByName(packageTaskName, false).first()
+      type = InstallerType."${installerType}"
+    }
+  }
 }
 
 assemble.dependsOn(":installers:agentPackageRpm", ":installers:serverPackageRpm", ":installers:agentPackageDeb", ":installers:serverPackageDeb")

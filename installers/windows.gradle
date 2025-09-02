@@ -23,12 +23,12 @@ private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
-task downloadWindowsJreChecksum(type: DownloadFile) {
+tasks.register('downloadWindowsJreChecksum', DownloadFile) {
   src project.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
 }
 
-task downloadWindowsJre(type: DownloadFile) {
+tasks.register('downloadWindowsJre', DownloadFile) {
   dependsOn downloadWindowsJreChecksum
   src project.packagedJavaVersion.toDownloadURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
@@ -151,7 +151,7 @@ def executeNSIS(ExecOperations execOperations, InstallerType installerType, File
   }
 }
 
-task agentWindows64bitExe { DefaultTask thisTask ->
+tasks.register('agentWindows64bitExe') { thisTask ->
   def installerType = InstallerType.agent
   def buildRoot = project.file("${project.layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
   def destDir = project.file("${project.layout.buildDirectory.get()}/distributions/win")
@@ -165,15 +165,10 @@ task agentWindows64bitExe { DefaultTask thisTask ->
     executeNSIS(injected.execOps, installerType, buildRoot, destDir)
   }
 
-  finalizedBy(project.tasks.create("${thisTask.name}Metadata", InstallerMetadataTask.class) {
-    architecture = Architecture.x64
-    adoptiumVersion = project.packagedJavaVersion
-    packageTask = thisTask
-    type = installerType
-  })
+  finalizedBy "${thisTask.name}Metadata"
 }
 
-task serverWindows64bitExe { DefaultTask thisTask ->
+tasks.register('serverWindows64bitExe') { thisTask ->
   def installerType = InstallerType.server
   def buildRoot = project.file("${project.layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
   def destDir = project.file("${project.layout.buildDirectory.get()}/distributions/win")
@@ -186,12 +181,17 @@ task serverWindows64bitExe { DefaultTask thisTask ->
     executeNSIS(injected.execOps, installerType, buildRoot, destDir)
   }
 
-  finalizedBy(project.tasks.create("${thisTask.name}Metadata", InstallerMetadataTask.class) {
+  finalizedBy "${thisTask.name}Metadata"
+}
+
+['agent', 'server'].each { installerType ->
+  def packageTaskName = "${installerType}Windows64bitExe"
+  tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
     architecture = Architecture.x64
     adoptiumVersion = project.packagedJavaVersion
-    packageTask = thisTask
-    type = installerType
-  })
+    packageTask = project.getTasksByName(packageTaskName, false).first()
+    type = InstallerType."${installerType}"
+  }
 }
 
 assemble.dependsOn(":installers:agentWindows64bitExe", ":installers:serverWindows64bitExe")

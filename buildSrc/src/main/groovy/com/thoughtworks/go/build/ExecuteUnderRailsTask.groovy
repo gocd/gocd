@@ -55,15 +55,11 @@ abstract class ExecuteUnderRailsTask extends JavaExec {
       normalizeEnvironmentPath(environment)
       environment['PATH'] = (project.additionalJRubyPaths + [environment['PATH']]).join(File.pathSeparator)
 
-      classpath(project.jrubyJar())
+      classpath( { project.jrubyJar.get() })
       standardOutput = new PrintStream(System.out, true)
       errorOutput = new PrintStream(System.err, true)
 
       environment += project.defaultJRubyEnvironment
-
-      if (CURRENT_OS.isWindows()) {
-        environment += [CLASSPATH: project.jrubyJar().toString()]
-      }
 
       // flags to optimize jruby startup performance
       if (!disableJRubyOptimization) {
@@ -79,6 +75,10 @@ abstract class ExecuteUnderRailsTask extends JavaExec {
   @Override
   @TaskAction
   void exec() {
+    if (CURRENT_OS.isWindows()) {
+      environment += [CLASSPATH: project.jrubyJar.get().toString()]
+    }
+
     project.delete(project.rails.testDataDir)
 
     project.copy {

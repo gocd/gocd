@@ -19,6 +19,7 @@ package com.thoughtworks.go.build
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.Zip
 
@@ -27,8 +28,12 @@ class VerifyJarTask extends DefaultTask {
   @Input
   Zip jarTask
 
+  @Internal
+  FileTree archiveZipTree
+
   void setJarTask(Zip jarTask) {
     this.jarTask = jarTask
+    this.archiveZipTree = project.zipTree(jarTask.archiveFile)
     this.dependsOn(jarTask)
   }
 
@@ -40,7 +45,7 @@ class VerifyJarTask extends DefaultTask {
     def expectedMessages = []
 
     expectedJars.each { directoryInJar, expectedJarsInDir ->
-      FileTree tree = project.zipTree(jarTask.archiveFile).matching {
+      FileTree tree = archiveZipTree.matching {
         include "${directoryInJar}/*.jar"
         include "${directoryInJar}/*.zip"
       }

@@ -36,7 +36,7 @@ dependencies {
   serverJar project(path: ':server-launcher', configuration: 'fatJarConfig')
 }
 
-task versionFile {
+tasks.register('versionFile') {
   outputs.upToDateWhen { false }
   def versionFile = base.distsDirectory.file("meta/version.json")
 

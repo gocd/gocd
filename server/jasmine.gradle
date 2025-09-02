@@ -95,7 +95,7 @@ def driverImpl = { ->
   }
 }
 
-task downloadGeckoDriver(type: DownloaderTask) { thisTask ->
+tasks.register('downloadGeckoDriver', DownloaderTask) { thisTask ->
   executable = 'geckodriver'
   packageName = 'geckodriver'
   packageVersion = seleniumDrivers.geckodriver
@@ -117,7 +117,7 @@ task downloadGeckoDriver(type: DownloaderTask) { thisTask ->
   url = "https://github.com/mozilla/geckodriver/releases/download/v${packageVersion}/geckodriver-v${packageVersion}-${osURIPart}.${archiveExtension}"
 }
 
-task downloadChromeDriver(type: DownloaderTask) { thisTask ->
+tasks.register('downloadChromeDriver', DownloaderTask) { thisTask ->
   executable = 'chromedriver'
   packageName = 'chromedriver'
   packageVersion = seleniumDrivers.chromedriver
@@ -138,7 +138,7 @@ task downloadChromeDriver(type: DownloaderTask) { thisTask ->
   url = "https://storage.googleapis.com/chrome-for-testing-public/${packageVersion}/${osURIPart}/chromedriver-${osURIPart}.zip"
 }
 
-task jasmineKarma(type: YarnRunTask) {
+tasks.register('jasmineKarma', YarnRunTask) {
   description = 'Run new jasmine tests (typescript) via karma'
   dependsOn ':server:yarnInstall'
   dependsOn ':server:lintNew'
@@ -150,7 +150,7 @@ task jasmineKarma(type: YarnRunTask) {
   yarnCommand = ['jasmine-ci']
 }
 
-task jasmineOld(type: YarnRunTask) {
+tasks.register('jasmineOld', YarnRunTask) {
   description = 'Run old jasmine tests (legacy JS) via jasmine-browser-runner'
   dependsOn driverImpl()
   dependsOn ':server:yarnInstall'
@@ -168,9 +168,11 @@ task jasmineOld(type: YarnRunTask) {
   }
 }
 
-task jasmine(dependsOn: [':server:lint', jasmineKarma, jasmineOld])
+tasks.register('jasmine') {
+  dependsOn ':server:lint', jasmineKarma, jasmineOld
+}
 
-task jasmineKarmaServer(type: YarnRunTask) {
+tasks.register('jasmineKarmaServer', YarnRunTask) {
   description = 'Run new jasmine tests (typescript) via karma inside a browser'
   dependsOn ':server:yarnInstall'
   dependsOn ':server:compileAssetsWebpackDev'
@@ -181,7 +183,7 @@ task jasmineKarmaServer(type: YarnRunTask) {
   yarnCommand = ['jasmine-server']
 }
 
-task jasmineOldServer(type: YarnRunTask) {
+tasks.register('jasmineOldServer', YarnRunTask) {
   description = 'Run old jasmine tests (legacy JS) via jasmine-browser-runner inside a browser'
   dependsOn driverImpl()
   dependsOn ':server:yarnInstall'

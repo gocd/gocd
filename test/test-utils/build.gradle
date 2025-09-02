@@ -66,7 +66,7 @@ clean {
   delete(generatedResourcesOutput)
 }
 
-task generateResources(type: Copy) {
+tasks.register('generateResources', Copy) {
   into "$generatedResourcesOutput/testdata/gen"
   from(project.configurations.copyOnly) {
     rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
@@ -77,7 +77,7 @@ processResources {
   dependsOn generateResources
 }
 
-task prepare {
+tasks.register('prepare') {
   dependsOn generateResources
 }
 

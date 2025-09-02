@@ -42,21 +42,21 @@ private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
-task downloadTfsSdk(type: DownloadFile) {
+tasks.register('downloadTfsSdk', DownloadFile) {
   def srcUrl = "https://github.com/microsoft/team-explorer-everywhere/releases/download/${project.versions.tfsSdk}/TFS-SDK-${project.versions.tfsSdk}.zip"
   src srcUrl
   dest destFile(srcUrl)
   checksum = project.versions.tfsSdkSha256sum
 }
 
-task extractTfsSdk(type: Copy) {
+tasks.register('extractTfsSdk', Copy) {
   doFirst {
     delete sdkTarget
   }
   dependsOn downloadTfsSdk
   from(project.zipTree(downloadTfsSdk.outputs.files.singleFile)) {
     include "*/redist/**"
-    eachFile { fcd ->
+    eachFile { FileCopyDetails fcd ->
       fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(2))
     }
     includeEmptyDirs = false
@@ -67,7 +67,7 @@ task extractTfsSdk(type: Copy) {
 compileJava.dependsOn extractTfsSdk
 generateLicenseReport.dependsOn extractTfsSdk
 
-task fatJar(type: Jar) {
+tasks.register('fatJar', Jar) {
   finalizedBy 'verifyJar'
   dependsOn extractTfsSdk, jar
   from(jar.archiveFile) { into('lib/') }
@@ -80,7 +80,7 @@ task fatJar(type: Jar) {
   }
 }
 
-task verifyJar(type: VerifyJarTask) {
+tasks.register('verifyJar', VerifyJarTask) {
   jarTask = fatJar
   expectedJars = [
     "lib": [

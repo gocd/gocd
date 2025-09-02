@@ -62,7 +62,7 @@ clean {
   delete(generatedResourcesOutput)
 }
 
-task generateResources {
+tasks.register('generateResources') {
   inputs.dir(generatedResourcesInput)
   outputs.dir(generatedResourcesOutput)
 
@@ -92,6 +92,6 @@ processResources {
   dependsOn generateResources
 }
 
-task prepare {
+tasks.register('prepare') {
   dependsOn generateResources
 }

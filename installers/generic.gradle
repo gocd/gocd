@@ -20,7 +20,7 @@ import com.thoughtworks.go.build.InstallerType
 import org.apache.tools.ant.filters.ConcatFilter
 import org.apache.tools.ant.filters.FixCrLfFilter
 
-task agentGenericZip(type: Zip) { Zip thisTask ->
+tasks.register('agentGenericZip', Zip) { Zip thisTask ->
   configureGenericZip(thisTask, InstallerType.agent)
 
   from(configurations.agentBootstrapperJar) {
@@ -29,14 +29,27 @@ task agentGenericZip(type: Zip) { Zip thisTask ->
   }
 
   from("go-agent/release/README-running-multiple-agents.md")
+
+  finalizedBy "${thisTask.name}Metadata"
 }
 
-task serverGenericZip(type: Zip) { Zip thisTask ->
+tasks.register('serverGenericZip', Zip) { Zip thisTask ->
   configureGenericZip(thisTask, InstallerType.server)
 
   from(configurations.serverJar) {
     rename "(.*)-${project.version}.(.*)", 'go.jar'
     into "lib"
+  }
+
+  finalizedBy "${thisTask.name}Metadata"
+}
+
+['agent', 'server'].each { installerType ->
+  def packageTaskName = "${installerType}GenericZip"
+  tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
+    architecture = Architecture.all
+    packageTask = project.getTasksByName(packageTaskName, false).first()
+    type = InstallerType."${installerType}"
   }
 }
 
@@ -234,10 +247,4 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
       rename ".*", ".ignore"
     }
   }
-
-  zipTask.finalizedBy(project.tasks.create("${zipTask.name}Metadata", InstallerMetadataTask.class) {
-    architecture = Architecture.all
-    packageTask = zipTask
-    type = installerType
-  })
 }

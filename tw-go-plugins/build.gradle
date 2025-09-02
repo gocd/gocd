@@ -61,7 +61,7 @@ def dependencies = [
   )
 ]
 
-task createVersionFile {
+tasks.register('createVersionFile') {
   def file = layout.buildDirectory.file("version.txt").get().asFile
   inputs.property('version', rootProject.version)
   inputs.property('gitRevision', rootProject.gitRevision)
@@ -76,10 +76,10 @@ task createVersionFile {
   }
 }
 
-task downloadPlugins {
+tasks.register('downloadPlugins') {
 }
 
-task pluginsZip(type: Zip) {
+tasks.register('pluginsZip', Zip) {
   finalizedBy 'verifyPluginZip'
 
   archiveBaseName = 'plugins'
@@ -89,7 +89,7 @@ task pluginsZip(type: Zip) {
   from(dependencies.collect { dep -> destFile(dep) })
 }
 
-task verifyPluginZip(type: VerifyJarTask) {
+tasks.register('verifyPluginZip', VerifyJarTask) {
   jarTask = pluginsZip
 
   expectedJars = [
@@ -102,7 +102,7 @@ artifacts {
 }
 
 dependencies.each { dep ->
-  task "download-${dep.repo}"(type: DownloadFile) { downloadTask ->
+  tasks.register("download-${dep.repo}", DownloadFile) { downloadTask ->
     pluginsZip.dependsOn downloadTask
     downloadPlugins.dependsOn downloadTask
     downloadTask.src dep.downloadUrl
@@ -117,4 +117,4 @@ private File destFile(GithubArtifact dep) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(dep.downloadUrl)}/${dep.repo}.jar")
 }
 
-task prepare(dependsOn: pluginsZip)
+tasks.register('prepare') { dependsOn pluginsZip }

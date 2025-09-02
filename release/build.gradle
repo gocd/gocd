@@ -16,7 +16,7 @@
 
 description = 'GoCD Release Scripts'
 
-task updateBuildMap {
+tasks.register('updateBuildMap') {
   outputs.upToDateWhen { false }
   def checkoutDir = "${layout.buildDirectory.get()}/build-map"
   String username = System.getenv('BUILD_MAP_USER')
@@ -34,7 +34,7 @@ task updateBuildMap {
       errorOutput = System.err
     }
 
-   injected.execOps.exec {
+    injected.execOps.exec {
       commandLine = ['./build_go_cd_commit_to_package.rb']
       workingDir = checkoutDir
       standardOutput = System.out

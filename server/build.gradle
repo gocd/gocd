@@ -133,7 +133,7 @@ project.ext.jrubyDefaultSystemProperties = [
   // 'jruby.debug.loadService': 'true',
 ]
 
-project.ext.jrubyJar = { project.configurations.compileClasspath.incoming.artifactView {componentFilter {it instanceof ModuleComponentIdentifier && it.module == "jruby-complete"} }.files.first() }
+project.ext.jrubyJar = project.provider { project.configurations.compileClasspath.incoming.artifactView { componentFilter {it instanceof ModuleComponentIdentifier && it.module == "jruby-complete"} }.files.first() }
 
 project.ext.jrubyScriptsDir = project.file("scripts")
 
@@ -324,12 +324,13 @@ idea {
   }
 }
 
-task sharedTest(type: Test) { thisTask ->
+tasks.register('sharedTest', Test) { thisTask ->
   description = 'Runs the functional tests.'
   group = 'verification'
   testClassesDirs = sourceSets.sharedTest.output.classesDirs
   classpath = sourceSets.sharedTest.runtimeClasspath
   mustRunAfter test
+  failOnNoDiscoveredTests = false
 
   reports {
     html.required = true
@@ -353,7 +354,7 @@ task sharedTest(type: Test) { thisTask ->
   }
 }
 
-task fastUnitTest(type: Test) { thisTask ->
+tasks.register('fastUnitTest', Test) { thisTask ->
   description = 'Runs the fast unit tests.'
   group = 'verification'
 
@@ -387,7 +388,7 @@ task fastUnitTest(type: Test) { thisTask ->
   }
 }
 
-task integrationTest(type: Test) { thisTask ->
+tasks.register('integrationTest', Test) { thisTask ->
   description = 'Runs the integration tests.'
   group = 'verification'
   testClassesDirs = sourceSets.integrationTest.output.classesDirs
@@ -419,14 +420,14 @@ task integrationTest(type: Test) { thisTask ->
   }
 }
 
-task sharedTestJar(type: Jar) {
+tasks.register('sharedTestJar', Jar) {
   description = "Assembles a jar archive containing the sharedTest classes."
   group = BasePlugin.BUILD_GROUP
   from sourceSets.sharedTest.output
   archiveClassifier = 'shared-test'
 }
 
-task fastUnitTestJar(type: Jar) {
+tasks.register('fastUnitTestJar', Jar) {
   description = "Assembles a jar archive containing the fastUnitTest classes."
   group = BasePlugin.BUILD_GROUP
   from sourceSets.fastUnitTest.output
@@ -435,7 +436,7 @@ task fastUnitTestJar(type: Jar) {
 
 check.dependsOn(sharedTest, fastUnitTest, integrationTest)
 
-task findGemsToNotPack {
+tasks.register('findGemsToNotPack') {
   dependsOn ':server:initializeRailsGems'
 
   inputs.file("${project.railsRoot}/Gemfile")
@@ -457,7 +458,7 @@ task findGemsToNotPack {
   }
 }
 
-task generateRubygemsLicenseReport {
+tasks.register('generateRubygemsLicenseReport') {
   dependsOn ':server:initializeRailsGems'
 
   inputs.file("${project.railsRoot}/Gemfile")
@@ -479,20 +480,20 @@ task generateRubygemsLicenseReport {
   }
 }
 
-task cleanDb(type: Delete) {
+tasks.register('cleanDb', Delete) {
   delete "db/h2db"
   delete "db/config.git"
 }
 
 clean.dependsOn cleanDb
 
-task cleanTestRepo(type: Delete) {
+tasks.register('cleanTestRepo', Delete) {
   delete 'test-repo'
 }
 
 clean.dependsOn cleanTestRepo
 
-task prepareTestGitRepo {
+tasks.register('prepareTestGitRepo') {
   File repoDir = project.file('test-repo')
   outputs.dir repoDir
 
@@ -519,25 +520,27 @@ task prepareTestGitRepo {
   }
 }
 
-task copyTestDataJarsToServerDir(type: Copy) {
+tasks.register('copyTestDataJarsToServerDir', Copy) {
   from(project.configurations.copyOnlyTestData)
   into 'testdata'
   rename "(.*)-${project.version}.jar", '$1.jar'
 }
 
-task copyAgentJarsToServerDir(type: Copy) {
+tasks.register('copyAgentJarsToServerDir', Copy) {
   from(project.configurations.copyOnly)
   into 'defaultFiles'
   rename "(.*)-${project.version}.jar", '$1.jar'
 }
 
-task copyAgentSideJarsToServerDir(dependsOn: [copyAgentJarsToServerDir, copyTestDataJarsToServerDir])
+tasks.register('copyAgentSideJarsToServerDir') {
+  dependsOn = [copyAgentJarsToServerDir, copyTestDataJarsToServerDir]
+}
 
-task prepareNoRails {
+tasks.register('prepareNoRails') {
   dependsOn = [cleanDb, ':plugin-infra:go-plugin-activator:jar', copyAgentJarsToServerDir]
 }
 
-task prepare {
+tasks.register('prepare') {
   dependsOn = [prepareNoRails, prepareTestGitRepo, ':server:compileAssetsWebpackDev']
 }
 
@@ -576,9 +579,9 @@ tasks.withType(Test) {
   }
 
   doFirst {
-    project.delete(heapDumpDir)
-    project.mkdir(heapDumpDir)
-    project.file("${heapDumpDir}/ignore.txt").createNewFile()
+    delete(heapDumpDir)
+    mkdir(heapDumpDir)
+    file("${heapDumpDir}/ignore.txt").createNewFile()
   }
 
   doLast {
@@ -623,10 +626,20 @@ clean {
   delete 'config/truststore'
 }
 
-task configureWar {
+tasks.register('configureWar') {
   dependsOn findGemsToNotPack
+  dependsOn ':server:compileAssets'
+
+  def webAppDir = project.webAppDir
+  def bundledGemRubyVersion = project.bundledGemRubyVersion
+
+  inputs.properties([
+    bundledGemRubyVersion: bundledGemRubyVersion
+  ])
+  inputs.dir(webAppDir)
+
   doFirst {
-    war.from(project.webAppDir) { theSpec ->
+    war.from(webAppDir) { theSpec ->
       into '/'
 
       // Unnecessary dev-time configuration
@@ -663,21 +676,21 @@ task configureWar {
       exclude("**/rails/webpack/")
 
       // Unnecessary Gems and related cruft
-      exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/bin/")
-      exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/bundler/")
-      exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/cache/")
+      exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/bin/")
+      exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/bundler/")
+      exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/cache/")
       new JsonSlurper().parse(findGemsToNotPack.outputFile).each { gem ->
-        theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/gems/${gem}")
-        theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/specifications/${gem}.gemspec")
-        theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/extensions/**/${gem}")
+        theSpec.exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/gems/${gem}")
+        theSpec.exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/specifications/${gem}.gemspec")
+        theSpec.exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/extensions/**/${gem}")
       }
     }
   }
 }
 
-task war(type: Jar) {
+tasks.register('war', Jar) {
   dependsOn configureWar
-  dependsOn ':server:jar', ':server:compileAssets'
+  dependsOn ':server:jar'
   dependsOn project.configurations.runtimeClasspath
   dependsOn project.configurations.packagingOnly
   dependsOn project.configurations.allApis
@@ -686,21 +699,25 @@ task war(type: Jar) {
   archiveBaseName = 'cruise'
   archiveExtension = 'war'
 
-  // Using a Set<String> is more reliable than Set<File> because File.equals() may be affected by other internal fields
-  // aside from `path` that aren't important to us; thus, Set<File> may allow duplicate paths and Set<String> will not.
-  Set<String> classpath = (
+  def classpathResolver = {
+    // Using a Set<String> is more reliable than Set<File> because File.equals() may be affected by other internal fields
+    // aside from `path` that aren't important to us; thus, Set<File> may allow duplicate paths and Set<String> will not.
+    Set<String> classpath = (
       project.configurations.runtimeClasspath +
         project.configurations.packagingOnly +
         project.configurations.allApis +
         project.configurations.spark
     )
-    .collect { f -> f.toString() }
-    .toSet()
+      .collect { f -> f.toString() }
+      .toSet()
 
-  // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
-  classpath.removeAll([project(':app-server').jar.archiveFile.get().toString(), jar.archiveFile.get().toString()])
+    // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
+    classpath.removeAll([project(':app-server').jar.archiveFile.get().toString(), jar.archiveFile.get().toString()])
 
-  from(classpath) {
+    classpath
+  }
+
+  from(classpathResolver) {
     into 'WEB-INF/lib'
   }
 
@@ -730,7 +747,7 @@ task war(type: Jar) {
   }
 }
 
-task verifyWar(type: VerifyJarTask) {
+tasks.register('verifyWar', VerifyJarTask) {
   jarTask = war
   expectedJars = [
     "WEB-INF/lib": (
@@ -846,7 +863,7 @@ task verifyWar(type: VerifyJarTask) {
         "spring-tx-${project.versions.spring}.jar",
         "spring-web-${project.versions.spring}.jar",
         "spring-webmvc-${project.versions.spring}.jar",
-        "statistics-1.0.6.jar", 
+        "statistics-1.0.6.jar",
         "txw2-${project.versions.jaxb}.jar",
         "urlrewritefilter-${project.versions.urlrewrite}.jar",
         "util-${project.version}.jar",
@@ -855,7 +872,7 @@ task verifyWar(type: VerifyJarTask) {
   ]
 }
 
-task licenseReportAggregate {
+tasks.register('licenseReportAggregate') {
   rootProject.subprojects.each { eachProject ->
     def reportTasks = eachProject.tasks.withType(ReportTask)
     if (!reportTasks.isEmpty()) {
@@ -1052,6 +1069,6 @@ apply from: 'lint.gradle'
 
 generateLicenseReport.dependsOn(compileAssetsWebpackProd, generateRubygemsLicenseReport)
 
-task verifyJar {
+tasks.register('verifyJar') {
   dependsOn verifyWar
 }

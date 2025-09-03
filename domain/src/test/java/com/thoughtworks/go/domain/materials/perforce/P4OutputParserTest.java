@@ -59,11 +59,11 @@ class P4OutputParserTest {
     }
 
     @Test
-    void shouldThrowExceptionIfP4ReturnDifferentDateFormatWhenCannotParseFistLineOfP4Describe() {
+    void shouldThrowExceptionIfP4ReturnDifferentDateFormatWhenCannotParseFirstLineOfP4Describe() {
         String output = "Change 2 on 08/08/19 by cceuser@connect4 'some modification message'";
         Modification modification = new Modification();
         try {
-            parser.parseFistline(modification, output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+            parser.parseFirstLine(modification, output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         } catch (P4OutputParseException e) {
             assertThat(e.getMessage()).contains("Could not parse P4 describe:");
 

@@ -64,7 +64,7 @@ public class P4OutputParser {
         Matcher matcher = pattern.matcher(parts[0]);
         if (matcher.find()) {
             Modification modification = new Modification();
-            parseFistline(modification, matcher.group(1), result);
+            parseFirstLine(modification, matcher.group(1), result);
             parseComment(matcher, modification);
             parseAffectedFiles(parts, modification);
             return modification;
@@ -100,7 +100,7 @@ public class P4OutputParser {
         }
     }
 
-    void parseFistline(Modification modification, String line, ConsoleResult result) throws P4OutputParseException {
+    void parseFirstLine(Modification modification, String line, ConsoleResult result) throws P4OutputParseException {
         Pattern pattern = Pattern.compile(FIRST_LINE_PATTERN);
         Matcher matcher = pattern.matcher(line);
         if (matcher.find()) {

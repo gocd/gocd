@@ -73,9 +73,8 @@ tasks.register('generateResources', Copy) {
   }
 }
 
-processResources {
-  dependsOn generateResources
-}
+licenseMain.dependsOn generateResources
+processResources.dependsOn generateResources
 
 tasks.register('prepare') {
   dependsOn generateResources

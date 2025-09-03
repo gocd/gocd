@@ -147,10 +147,14 @@ subprojects {
     return
   }
   apply plugin: 'base'
-  apply plugin: "com.github.hierynomus.license"
+  apply plugin: 'com.github.hierynomus.license'
   license {
     skipExistingHeaders = false
     strictCheck = true
+    exclude '**/.gitkeep'
+    exclude '**/.tool-versions'
+    exclude '**/*.enc'
+    exclude '**/*.key'
     exclude '**/*.erb'
     exclude '**/*.ejs'
     exclude '**/*.keep'
@@ -159,6 +163,7 @@ subprojects {
     exclude '**/*.json'
     exclude '**/*.html'
     exclude '**/*.zip'
+    exclude '**/*.ico'
     exclude '**/*.png'
     exclude '**/*.jpg'
     exclude '**/*.jpeg'
@@ -167,8 +172,14 @@ subprojects {
     exclude '**/*.woff2'
     exclude '**/*.svg'
     exclude '**/*.json'
+    exclude '**/*.pk1'
+    exclude '**/*.pk8'
+    exclude '**/*.crt'
+    exclude '**/*.pass'
+    exclude '**/*.p12'
     exclude '**/*.scss.d.ts'
     exclude '**/.*.json'
+    exclude '**/*.lock'
     exclude '**/hg.template'
     exclude '**/available.toggles'
     exclude '**/META-INF/services/*'
@@ -182,6 +193,12 @@ subprojects {
     exclude '**/log/**'
     exclude '**/robots.txt'
     exclude '**/rails/bin/**'
+    exclude '**/rails/Gemfile*'
+    exclude '**/rails/Rakefile*'
+    exclude '**/rails/.babelrc'
+    exclude '**/rails/.eslintignore'
+    exclude '**/rails/.bundle/**'
+    exclude '**/rails/.yarn/**'
 
     // Code borrowed from other projects
     exclude '**/JavaVersion.java'
@@ -225,6 +242,8 @@ subprojects {
       scss = 'SLASHSTAR_STYLE'
       sass = 'SLASHSTAR_STYLE'
       css = 'SLASHSTAR_STYLE'
+      rb = 'SCRIPT_STYLE'
+      rake = 'SCRIPT_STYLE'
 
       xml = 'intellijStyleXML'
       xsl = 'intellijStyleXML'
@@ -317,12 +336,12 @@ subprojects {
         // workaround for Caffeine metadata declaring dependencies that are not needed at runtime
         withModule('com.github.ben-manes.caffeine:caffeine', { details ->
           details.allVariants {
-            withDependencies { removeAll {it.name in [ "jspecify", "error_prone_annotations" ] } }
+            withDependencies { removeAll { it.name in ["jspecify", "error_prone_annotations"] } }
           }
         })
         withModule('com.google.code.gson:gson', { details ->
           details.allVariants {
-            withDependencies { removeAll { it.name in [ "error_prone_annotations" ] } }
+            withDependencies { removeAll { it.name in ["error_prone_annotations"] } }
           }
         })
       }
@@ -405,8 +424,8 @@ subprojects {
 
   tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
-    options.compilerArgs += '-Werror'
-    options.compilerArgs += '-Xlint:all,-serial,-deprecation,-processing,-this-escape,-classfile,-overloads'
+    options.compilerArgs << '-Werror'
+    options.compilerArgs << '-Xlint:all,-serial,-deprecation,-processing,-this-escape,-classfile,-overloads'
     options.release.set(project.targetJavaVersion as Integer)
 
     javaCompiler = javaToolchains.compilerFor {
@@ -415,20 +434,15 @@ subprojects {
   }
 
   tasks.withType(License).configureEach { License thisTask ->
-    def sourceSetName = thisTask.name.replaceFirst('licenseFormat', '').replaceFirst('license', '')
-    def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) }
+    // Needs to be be done after evaluation for the task's source to be populated (either in afterEvaluate or doFirst)
+    doFirst {
+      def sourceSetName = thisTask.name.replaceFirst('licenseFormat', '').replaceFirst('license', '')
+      def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) } as SourceSet
 
-    if (project.path == ':server' && sourceSetName.toLowerCase() == 'test') {
-      thisTask.source += project.file("rails/")
-      return
-    }
-
-    if (thisTask.name.toLowerCase().contains('test')) {
-      thisTask.source -= mappedSourceSet.resources
-    }
-
-    if (project.path == ':test:test-utils') {
-      thisTask.source -= mappedSourceSet.resources
+      // Test resources are often just data files, and don't need license headers
+      if (thisTask.name.toLowerCase().contains('test')) {
+        thisTask.source -= mappedSourceSet.resources
+      }
     }
   }
 

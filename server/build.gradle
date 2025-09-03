@@ -544,14 +544,17 @@ tasks.register('prepare') {
   dependsOn = [prepareNoRails, prepareTestGitRepo, ':server:compileAssetsWebpackDev']
 }
 
-test {
-  dependsOn prepareNoRails
+licenseMain {
+  // Add in the webapp for license checks since we do not have a dedicated sourceSet for it
+  source += project.webAppDir
+}
+licenseFormatMain {
+  // Add in the webapp for license checks since we do not have a dedicated sourceSet for it
+  source += project.webAppDir
 }
 
 test { Test thisTask ->
-  // because the rails codebase is part of the test sourcetree
-  dependsOn licenseTest
-  dependsOn licenseMain
+  dependsOn prepareNoRails
   doFirst {
     def files = project.files([])
     project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->

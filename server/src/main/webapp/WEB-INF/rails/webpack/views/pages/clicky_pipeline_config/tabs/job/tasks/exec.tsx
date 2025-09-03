@@ -9,11 +9,10 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARREXECIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import m from "mithril";
 import {ExecTask, ExecTaskAttributes, Task} from "models/pipeline_configs/task";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";

@@ -1,3 +1,18 @@
+/*
+ * Copyright Thoughtworks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import {ApiRequestBuilder, ApiResult, ApiVersion, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
@@ -6,14 +21,18 @@ import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {MessageType} from "views/components/flash_message";
 import {ArtifactsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/artifacts_tab_content";
 import {CustomTabTabContent} from "views/pages/clicky_pipeline_config/tabs/job/custom_tab_tab_content";
-import {JobEnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_environment_variable_tab_content";
+import {
+  JobEnvironmentVariablesTabContent
+} from "views/pages/clicky_pipeline_config/tabs/job/job_environment_variable_tab_content";
 import {JobSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_settings_tab_content";
 import {TasksTabContent} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 import {StagesTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/stages_tab_content";
 import {PipelineConfigSPARouteHelper} from "views/pages/clicky_pipeline_config/tabs/route_helper";
 import {JobsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/jobs_tab_content";
 import {PermissionsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/permissions_tab_content";
-import {StageEnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/stage_environment_variable_tab_content";
+import {
+  StageEnvironmentVariablesTabContent
+} from "views/pages/clicky_pipeline_config/tabs/stage/stage_environment_variable_tab_content";
 import {StageSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/stage_settings_tab_content";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {GeneralOptionsTabContent} from "views/pages/clicky_pipeline_config/tabs/template/general_tab_content";

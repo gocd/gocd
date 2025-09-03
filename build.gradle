@@ -275,7 +275,7 @@ subprojects {
       configurations = ['runtimeClasspath', 'packagingInLibDir']
     }
 
-    tasks.withType(ReportTask) { ReportTask reportTask ->
+    tasks.withType(ReportTask).configureEach { ReportTask reportTask ->
       reportTask.outputs.cacheIf { true }
       project.configurations.each { config ->
         if (config.name in project.licenseReport.configurations) {

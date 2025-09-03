@@ -44,7 +44,7 @@ subprojects {
   def distroVersionOnProject = project.name.replaceFirst("${distro.name()}-", "")
   DistroVersion distroVersion = distro.getVersion(distroVersionOnProject)
 
-  tasks.register("docker", BuildDockerImageTask.class) { BuildDockerImageTask task ->
+  def docker = tasks.register("docker", BuildDockerImageTask.class) { BuildDockerImageTask task ->
     task.dependsOn ':docker:initializeBuildx'
 
     if (project.hasProperty('dockerBuildLocalZip')) {
@@ -152,13 +152,13 @@ subprojects {
       }
     }
   }
-  assemble.dependsOn("docker")
+  assemble.dependsOn docker
 }
 
 tasks.register('generateManifest') {
   doLast {
     def meta = []
-    subprojects.tasks*.getByName('docker').forEach { BuildDockerImageTask dockerTask ->
+    subprojects.tasks*.named('docker').forEach { BuildDockerImageTask dockerTask ->
       meta << [
         file     : "${dockerTask.imageTarFile.name}",
         format   : 'oci',
@@ -176,5 +176,5 @@ tasks.register('generateManifest') {
   }
 }
 
-assemble.dependsOn(subprojects.tasks*.getByName('assemble'))
+assemble.dependsOn(subprojects.tasks*.named('assemble'))
 assemble.dependsOn(generateManifest)

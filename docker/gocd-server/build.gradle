@@ -44,9 +44,8 @@ subprojects {
   def distroVersionOnProject = project.name.replaceFirst("${distro.name()}-", "")
   DistroVersion distroVersion = distro.getVersion(distroVersionOnProject)
 
-  tasks.create("docker", BuildDockerImageTask.class) { BuildDockerImageTask task ->
+  def docker = tasks.register("docker", BuildDockerImageTask.class) { BuildDockerImageTask task ->
     task.dependsOn ':docker:initializeBuildx'
-    assemble.dependsOn(task)
 
     if (project.hasProperty('dockerBuildLocalZip')) {
       task.dependsOn ':installers:serverGenericZip'
@@ -143,6 +142,7 @@ subprojects {
       }
     }
   }
+  assemble.dependsOn(docker)
 }
 
 tasks.register('generateManifest') {
@@ -166,5 +166,5 @@ tasks.register('generateManifest') {
   }
 }
 
-assemble.dependsOn(subprojects.tasks*.getByName('assemble'))
+assemble.dependsOn(subprojects.tasks*.named('assemble'))
 assemble.dependsOn(generateManifest)

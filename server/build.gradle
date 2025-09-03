@@ -572,7 +572,7 @@ test { Test thisTask ->
   }
 }
 
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
   dependsOn copyAgentSideJarsToServerDir
   dependsOn prepareNoRails
 

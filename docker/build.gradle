@@ -71,4 +71,4 @@ tasks.register('initializeBuildx') {
   }
 }
 
-assemble.dependsOn(subprojects.tasks*.getByName('assemble'))
+assemble.dependsOn(subprojects.tasks*.named('assemble'))

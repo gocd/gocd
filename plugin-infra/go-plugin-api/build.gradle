@@ -48,6 +48,8 @@ javadoc {
     docTitle = 'GoCD Plugin API'
     header = 'GoCD Plugin API'
     bottom = "Copyright &copy; Thoughtworks, Inc. GoCD Version: ${project.version}"
+
+    addBooleanOption('Xdoclint:-missing', true)
   }
 }
 

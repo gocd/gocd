@@ -39,12 +39,13 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 javadoc {
   title = 'GoCD Plugin Config Repo Contract'
-
   options {
     windowTitle = 'GoCD Plugin Config Repo Contract'
     docTitle = 'GoCD Plugin Config Repo Contract'
     header = 'GoCD Plugin Config Repo Contract'
     bottom = "Copyright &copy; Thoughtworks, Inc. GoCD Version: ${project.version}"
+
+    addBooleanOption('Xdoclint:-missing', true)
   }
 }
 

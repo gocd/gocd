@@ -49,9 +49,9 @@ subprojects {
 
     if (project.hasProperty('dockerBuildLocalZip')) {
       task.dependsOn ':installers:serverGenericZip'
-      task.artifactZip = rootProject.project(':installers').tasks.getByName('serverGenericZip').outputs.files.singleFile
+      task.artifactZip.set(rootProject.project(':installers').tasks.named('serverGenericZip').flatMap { Zip zt ->  zt.archiveFile } as Provider<? extends RegularFile>)
     } else if (project.hasProperty('dockerbuildServerZipLocation')) {
-      task.artifactZip = project.file(project.dockerbuildServerZipLocation)
+      task.artifactZip.set(project.file(project.dockerbuildServerZipLocation))
     } else {
       task.doFirst {
         throw new GradleException("You must specify either -PdockerBuildLocalZip or -PdockerbuildServerZipLocation=/path/to/server.zip")
@@ -68,19 +68,19 @@ subprojects {
     task.outputDir = parent.layout.buildDirectory.dir("docker").get()
 
     task.templateHelper = {
-      project.delete(project.fileTree(task.gitRepoDirectory).include("*"))
+      deleteGitRepoDirectoryContents()
 
       project.copy {
         from rootProject.file("LICENSE")
-        into task.gitRepoDirectory
+        into gitRepoDirectory
       }
 
-      task.writeTemplateToFile("README.md.ftl", project.file("${task.gitRepoDirectory}/README.md"))
+      task.writeTemplateToFile("README.md.ftl", "README.md")
 
       [
         'logback-include.xml',
       ].forEach { eachFile ->
-        project.file("${task.gitRepoDirectory}/${eachFile}").bytes = BuildDockerImageTask.class.getResource("/gocd-docker-server/${eachFile}").bytes
+        task.resolveGitRepoFileFor(eachFile).bytes = BuildDockerImageTask.class.getResource("/gocd-docker-server/${eachFile}").bytes
       }
 
       [
@@ -88,8 +88,7 @@ subprojects {
         'git-clone-config',
         'docker-entrypoint.sh'
       ].forEach { eachFile ->
-        def file = project.file("${task.gitRepoDirectory}/${eachFile}")
-
+        def file = task.resolveGitRepoFileFor(eachFile)
         file.bytes = BuildDockerImageTask.class.getResource("/gocd-docker-server/${eachFile}").bytes
         file.setExecutable(true, false)
       }
@@ -98,7 +97,7 @@ subprojects {
     // test image
     task.verifyHelper = {
       def cleanContainer = { OutputStream errorStream = System.err ->
-        execOperations.exec {
+        execOps.exec {
           workingDir = project.rootProject.projectDir
           commandLine = ["docker", "rm", "--force", docker.dockerImageName]
           standardOutput = System.out
@@ -109,7 +108,7 @@ subprojects {
       cleanContainer.call(OutputStream.nullOutputStream()) // Clean-up after any previous aborted runs
 
       // daemonize the container
-      execOperations.exec {
+      execOps.exec {
         workingDir = project.rootProject.projectDir
         commandLine = ["docker", "run", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
         standardOutput = System.out
@@ -128,7 +127,7 @@ subprojects {
         }
 
         distro.additionalVerifyCommands.each { command ->
-          execOperations.exec {
+          execOps.exec {
             workingDir = project.rootProject.projectDir
             commandLine = ["docker", "exec", docker.dockerImageName] + command
             standardOutput = System.out

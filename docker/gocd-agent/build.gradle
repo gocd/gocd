@@ -49,9 +49,9 @@ subprojects {
 
     if (project.hasProperty('dockerBuildLocalZip')) {
       task.dependsOn ':installers:agentGenericZip'
-      task.artifactZip = rootProject.project(':installers').tasks.getByName('agentGenericZip').outputs.files.singleFile
+      task.artifactZip.set(rootProject.project(':installers').tasks.named('agentGenericZip').flatMap { Zip zt ->  zt.archiveFile } as Provider<? extends RegularFile>)
     } else if (project.hasProperty('dockerbuildAgentZipLocation')) {
-      task.artifactZip = project.file(project.dockerbuildAgentZipLocation)
+      task.artifactZip.set(project.file(project.dockerbuildAgentZipLocation))
     } else {
       task.doFirst {
         throw new GradleException("You must specify either -PdockerBuildLocalZip or -PdockerbuildAgentZipLocation=/path/to/agent.zip")
@@ -68,38 +68,37 @@ subprojects {
     task.outputDir = parent.layout.buildDirectory.dir("docker").get()
 
     task.templateHelper = {
-      project.delete(project.fileTree(task.gitRepoDirectory).include("*"))
+      task.deleteGitRepoDirectoryContents()
 
       project.copy {
         from rootProject.file("LICENSE")
         into task.gitRepoDirectory
       }
 
-      task.writeTemplateToFile("README.md.ftl", project.file("${task.gitRepoDirectory}/README.md"))
+      task.writeTemplateToFile("README.md.ftl", "README.md")
 
       [
         'agent-bootstrapper-logback-include.xml',
         'agent-launcher-logback-include.xml',
         'agent-logback-include.xml',
       ].forEach { eachFile ->
-        project.file("${task.gitRepoDirectory}/${eachFile}").bytes = BuildDockerImageTask.class.getResource("/gocd-docker-agent/${eachFile}").bytes
+        task.resolveGitRepoFileFor(eachFile).bytes = BuildDockerImageTask.class.getResource("/gocd-docker-agent/${eachFile}").bytes
       }
 
       [
         'docker-entrypoint.sh',
       ].forEach { eachFile ->
-        def file = project.file("${task.gitRepoDirectory}/${eachFile}")
-
+        def file = task.resolveGitRepoFileFor(eachFile)
         file.bytes = BuildDockerImageTask.class.getResource("/gocd-docker-agent/${eachFile}").bytes
         file.setExecutable(true, false)
       }
 
       if (distro == Distro.docker) {
-        def file = project.file("${task.gitRepoDirectory}/run-docker-daemon.sh")
+        def file = task.resolveGitRepoFileFor("run-docker-daemon.sh")
         file.bytes = BuildDockerImageTask.class.getResource("/gocd-docker-agent/run-docker-daemon.sh").bytes
         file.setExecutable(true, false)
 
-        file = project.file("${task.gitRepoDirectory}/dockerd-sudo")
+        file = task.resolveGitRepoFileFor("dockerd-sudo")
         file.bytes = BuildDockerImageTask.class.getResource("/gocd-docker-agent/dockerd-sudo").bytes
       }
     }
@@ -107,8 +106,8 @@ subprojects {
     // test image
     task.verifyHelper = {
       def cleanContainer = { OutputStream errorStream = System.err ->
-        execOperations.exec {
-          workingDir = project.rootProject.projectDir
+        execOps.exec {
+          workingDir = task.gitRepoDirectory
           commandLine = ["docker", "rm", "--force", docker.dockerImageName]
           standardOutput = System.out
           errorOutput = errorStream
@@ -118,9 +117,9 @@ subprojects {
       cleanContainer.call(OutputStream.nullOutputStream()) // Clean-up after any previous aborted runs
 
       // daemonize the container
-      execOperations.exec {
+      execOps.exec {
         def additionalFlags = distro == Distro.docker ? ["--privileged"] : []
-        workingDir = project.rootProject.projectDir
+        workingDir = task.gitRepoDirectory
         commandLine = ["docker", "run", "-e", "GO_SERVER_URL=http://localhost:8153/go", "-d", "--name", docker.dockerImageName] + additionalFlags + [docker.imageNameWithTag] as List<String>
         standardOutput = System.out
         errorOutput = System.err
@@ -138,8 +137,8 @@ subprojects {
         }
 
         distro.additionalVerifyCommands.each { command ->
-          execOperations.exec {
-            workingDir = project.rootProject.projectDir
+          execOps.exec {
+            workingDir = task.gitRepoDirectory
             commandLine = ["docker", "exec", docker.dockerImageName] + command
             standardOutput = System.out
             errorOutput = System.err

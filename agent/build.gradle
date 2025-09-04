@@ -99,12 +99,12 @@ def fatJar = tasks.register('fatJar', Jar) {
     attributes 'Go-Agent-Bootstrap-Class': 'com.thoughtworks.go.agent.AgentProcessParentImpl'
   }
 
-  from({ configurations.runtimeClasspath + project.configurations.packagingOnly + jar.archiveFile }) {
+  from({ configurations.runtimeClasspath + configurations.packagingOnly + jar.archiveFile }) {
     into "lib/"
     rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
   }
 
-  from({ project.configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }) {
+  from({ configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }) {
     into("/")
   }
 }

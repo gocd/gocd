@@ -26,7 +26,7 @@ tasks.register('updateBuildMap') {
 
   def injected = project.objects.newInstance(InjectedExecOps)
   doFirst {
-    project.delete(checkoutDir)
+    delete(checkoutDir)
 
     injected.execOps.exec {
       commandLine = ['git', 'clone', '--quiet', "https://github.com/gocd/build_map", checkoutDir]

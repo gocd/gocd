@@ -88,21 +88,21 @@ dependencies {
 }
 
 tasks.register('mainJar', Jar) {
-  dependsOn project.configurations.packagingInMainJarBaseJar, project.configurations.packagingInMainJarCommonJar, project.configurations.packagingInMainJarTopLevel, project.configurations.packagingInMainJarServerJar
+  dependsOn configurations.packagingInMainJarBaseJar, configurations.packagingInMainJarCommonJar, configurations.packagingInMainJarTopLevel, configurations.packagingInMainJarServerJar
   archiveClassifier = 'main'
 
-  from({ project.configurations.packagingInMainJarTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }) {
+  from({ configurations.packagingInMainJarTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }) {
     into('/')
   }
 
-  from({ project.configurations.packagingInMainJarServerJar.collect { it.isDirectory() ? it : zipTree(it) } }) {
+  from({ configurations.packagingInMainJarServerJar.collect { it.isDirectory() ? it : zipTree(it) } }) {
     include "**/GoLauncher*.class"
     include "**/GoServer*.class"
 
     into('/')
   }
 
-  from({ project.configurations.packagingInMainJarCommonJar.collect { it.isDirectory() ? it : zipTree(it) } }) {
+  from({ configurations.packagingInMainJarCommonJar.collect { it.isDirectory() ? it : zipTree(it) } }) {
     include "**/SubprocessLogger*.class"
     include "**/CurrentProcess*.class"
     include "**/validators/*.class"
@@ -110,7 +110,7 @@ tasks.register('mainJar', Jar) {
     into('/')
   }
 
-  from({ project.configurations.packagingInMainJarBaseJar.collect { it.isDirectory() ? it : zipTree(it) } }) {
+  from({ configurations.packagingInMainJarBaseJar.collect { it.isDirectory() ? it : zipTree(it) } }) {
     include "**/LogHelper.class"
     include "**/LogConfigurator*.class"
     include "**/SystemEnvironment*.class"
@@ -154,7 +154,7 @@ def fatJar = tasks.register('fatJar', Jar) {
   from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
   from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
   from("${project(':config:config-server').projectDir}/src/main/resources/cruise-config.xsd") { into 'defaultFiles/config' }
-  from(configurations.pluginsZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from({ configurations.pluginsZip }) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
 
   from({ configurations.packagingInLibDir }) {
     into 'lib/'

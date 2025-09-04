@@ -16,14 +16,12 @@
 
 package com.thoughtworks.go.build
 
-import org.gradle.api.Project
+
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.process.JavaExecSpec
-
-import static com.thoughtworks.go.build.OperatingSystemHelper.normalizeEnvironmentPath
 
 abstract class ExecuteUnderRailsTask extends JavaExec {
   private static final OperatingSystem CURRENT_OS = OperatingSystem.current()
@@ -47,30 +45,9 @@ abstract class ExecuteUnderRailsTask extends JavaExec {
     if (CURRENT_OS.isWindows()) {
       environment['CLASSPATH'] += "${File.pathSeparatorChar}${pathingJarLoc.get()}"
     }
-    setup(project, this, disableJRubyOptimization)
+    JRuby.setup(this, project, disableJRubyOptimization)
   }
 
-  static void setup(Project project, JavaExecSpec execSpec, boolean disableJRubyOptimization) {
-    execSpec.with {
-      normalizeEnvironmentPath(environment)
-      environment['PATH'] = (project.additionalJRubyPaths + [environment['PATH']]).join(File.pathSeparator)
-
-      classpath( { project.jrubyJar.get() })
-      standardOutput = new PrintStream(System.out, true)
-      errorOutput = new PrintStream(System.err, true)
-
-      environment += project.defaultJRubyEnvironment
-
-      // flags to optimize jruby startup performance
-      if (!disableJRubyOptimization) {
-        jvmArgs += project.jrubyOptimizationJvmArgs
-      }
-
-      systemProperties += project.jrubyDefaultSystemProperties
-
-      mainClass.set('org.jruby.Main')
-    }
-  }
 
   @Override
   @TaskAction

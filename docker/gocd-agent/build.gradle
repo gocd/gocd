@@ -30,7 +30,7 @@ plugins {
 
 subprojects {
   apply plugin: 'base'
-  project.layout.buildDirectory = parent.layout.buildDirectory.dir(project.name).get()
+  layout.buildDirectory = parent.layout.buildDirectory.dir(project.name).get()
 
   // detect the distro name and version from the project name.
   // For e.g. `ubuntu-20.04` will map to `Distro.ubuntu` and version `20.04` as returned by `Distro.ubuntu.supportedVersions`

@@ -16,7 +16,7 @@
 
 
 import com.github.jk1.license.task.ReportTask
-import com.thoughtworks.go.build.ExecuteUnderRailsTask
+import com.thoughtworks.go.build.JRuby
 import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.TextUtils
 import com.thoughtworks.go.build.VerifyJarTask
@@ -105,13 +105,13 @@ project.ext.railsRoot = file("${project.webAppDir}/WEB-INF/rails")
 project.ext.bundledGemRubyVersion = "${RUBY_MAJOR_VERSION}.0"
 project.ext.bundledGemDir = file("${project.railsRoot}/gems/jruby/${project.bundledGemRubyVersion}")
 
-project.ext.railsClasspath = project.sourceSets.test.runtimeClasspath +
-  project.sourceSets.main.runtimeClasspath +
-  project.sourceSets.sharedTest.runtimeClasspath +
-  project.sourceSets.fastUnitTest.runtimeClasspath +
-  project.configurations.spark +
-  project.configurations.apiBase +
-  project.rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
+project.ext.railsClasspath = sourceSets.test.runtimeClasspath +
+  sourceSets.main.runtimeClasspath +
+  sourceSets.sharedTest.runtimeClasspath +
+  sourceSets.fastUnitTest.runtimeClasspath +
+  configurations.spark +
+  configurations.apiBase +
+  rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
 
 project.ext.jrubyOptimizationJvmArgs = [
   '-XX:+TieredCompilation',
@@ -133,7 +133,7 @@ project.ext.jrubyDefaultSystemProperties = [
   // 'jruby.debug.loadService': 'true',
 ]
 
-project.ext.jrubyJar = project.provider { project.configurations.compileClasspath.incoming.artifactView { componentFilter {it instanceof ModuleComponentIdentifier && it.module == "jruby-complete"} }.files.first() }
+project.ext.jrubyJar = project.provider { configurations.compileClasspath.incoming.artifactView { componentFilter {it instanceof ModuleComponentIdentifier && it.module == "jruby-complete"} }.files.first() }
 
 project.ext.jrubyScriptsDir = project.file("scripts")
 
@@ -148,9 +148,9 @@ project.ext.defaultJRubyEnvironment = [
 ]
 
 project.ext.rails = [:]
-project.ext.rails.testDataDir = project.file("${project.layout.getBuildDirectory().get()}/railsTests")
-project.ext.rails.testConfigDir = project.file("${project.layout.getBuildDirectory().get()}/railsTests/config")
-project.ext.rails.testPluginsDir = project.file("${project.layout.getBuildDirectory().get()}/railsTests/plugins")
+project.ext.rails.testDataDir = project.file("${layout.getBuildDirectory().get()}/railsTests")
+project.ext.rails.testConfigDir = project.file("${layout.getBuildDirectory().get()}/railsTests/config")
+project.ext.rails.testPluginsDir = project.file("${layout.getBuildDirectory().get()}/railsTests/plugins")
 project.ext.rails.testBundledPluginsDir = project.file("${project.rails.testPluginsDir}/bundled")
 project.ext.rails.testExternalPluginsDir = project.file("${project.rails.testPluginsDir}/external")
 project.ext.rails.testPluginsWorkDir = project.file("${project.rails.testPluginsDir}/work")
@@ -163,27 +163,6 @@ project.ext.railsSystemProperties = [
   'rails.use.compressed.js'                      : false,
   'go.enforce.server.immutability'               : 'N',
 ]
-
-project.ext.jrubyexec = { ExecOperations execOperations, Closure<JavaExecSpec> cl ->
-  try {
-    execOperations.javaexec { JavaExecSpec javaExecSpec ->
-      cl.delegate = javaExecSpec
-
-      LinkedHashMap<String, Object> originalEnv = new LinkedHashMap<String, Object>(javaExecSpec.environment)
-
-      ExecuteUnderRailsTask.setup(project, javaExecSpec, false)
-
-      cl.call()
-
-      ExecuteUnderRailsTask.debugEnvironment(javaExecSpec, originalEnv)
-      ExecuteUnderRailsTask.dumpTaskCommand(javaExecSpec)
-    }
-  } finally {
-    System.out.flush()
-    System.err.flush()
-  }
-}
-
 
 def props = [
   'go.enforce.server.immutability': 'N',
@@ -339,7 +318,7 @@ tasks.register('sharedTest', Test) { thisTask ->
 
   doFirst {
     def files = project.files([])
-    project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
+    sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
       files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
     }
 
@@ -373,7 +352,7 @@ tasks.register('fastUnitTest', Test) { thisTask ->
 
   doFirst {
     def files = project.files([])
-    project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
+    sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
       files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
     }
 
@@ -405,7 +384,7 @@ tasks.register('integrationTest', Test) { thisTask ->
 
   doFirst {
     def files = project.files([])
-    project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
+    sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
       files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
     }
 
@@ -439,19 +418,20 @@ check.dependsOn(sharedTest, fastUnitTest, integrationTest)
 tasks.register('findGemsToNotPack') {
   dependsOn ':server:initializeRailsGems'
 
-  inputs.file("${project.railsRoot}/Gemfile")
-  inputs.file("${project.railsRoot}/Gemfile.lock")
+  def gemfile = "${project.railsRoot}/Gemfile"
+  inputs.file(gemfile)
+  inputs.file("${gemfile}.lock")
   inputs.file("find-gems-to-package.rake")
-  ext.outputFile = file("${project.layout.getBuildDirectory().get()}/gems-to-not-package.json")
+  ext.outputFile = file("${layout.getBuildDirectory().get()}/gems-to-not-package.json")
   outputs.file(outputFile)
   outputs.cacheIf { true }
 
   def injected = project.objects.newInstance(InjectedExecOps)
   doFirst {
-    project.jrubyexec(injected.execOps) {
+    JRuby.exec(project, injected.execOps) {
       environment += [
         'OUTPUT_FILE'   : outputFile,
-        'BUNDLE_GEMFILE': file("${project.railsRoot}/Gemfile")
+        'BUNDLE_GEMFILE': file(gemfile)
       ]
       args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
     }
@@ -461,19 +441,20 @@ tasks.register('findGemsToNotPack') {
 tasks.register('generateRubygemsLicenseReport') {
   dependsOn ':server:initializeRailsGems'
 
-  inputs.file("${project.railsRoot}/Gemfile")
-  inputs.file("${project.railsRoot}/Gemfile.lock")
+  def gemfile = "${project.railsRoot}/Gemfile"
+  inputs.file(gemfile)
+  inputs.file("${gemfile}.lock")
   inputs.file("rubygems-license-report.rake")
-  ext.licenseReportFile = file("${project.layout.getBuildDirectory().get()}/rubygems-license.json")
+  ext.licenseReportFile = file("${layout.getBuildDirectory().get()}/rubygems-license.json")
   outputs.file(licenseReportFile)
   outputs.cacheIf { true }
 
   def injected = project.objects.newInstance(InjectedExecOps)
   doFirst {
-    project.jrubyexec(injected.execOps) {
+    JRuby.exec(project, injected.execOps) {
       environment += [
         'OUTPUT_FILE'   : licenseReportFile,
-        'BUNDLE_GEMFILE': file("${project.railsRoot}/Gemfile")
+        'BUNDLE_GEMFILE': file(gemfile)
       ]
       args = ['-S', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
     }
@@ -498,7 +479,7 @@ tasks.register('prepareTestGitRepo') {
   outputs.dir repoDir
 
   doFirst {
-    project.delete(repoDir)
+    delete(repoDir)
     repoDir.mkdirs()
 
     // `git init`
@@ -508,7 +489,7 @@ tasks.register('prepareTestGitRepo') {
     git.getRepository().config.save()
 
     // create a file
-    project.file("${repoDir}/README.md").withPrintWriter { out ->
+    file("${repoDir}/README.md").withPrintWriter { out ->
       out.println("# This is a test repo")
     }
 
@@ -521,13 +502,13 @@ tasks.register('prepareTestGitRepo') {
 }
 
 tasks.register('copyTestDataJarsToServerDir', Copy) {
-  from(project.configurations.copyOnlyTestData)
+  from({ configurations.copyOnlyTestData })
   into 'testdata'
   rename "(.*)-${project.version}.jar", '$1.jar'
 }
 
 tasks.register('copyAgentJarsToServerDir', Copy) {
-  from(project.configurations.copyOnly)
+  from({ configurations.copyOnly })
   into 'defaultFiles'
   rename "(.*)-${project.version}.jar", '$1.jar'
 }
@@ -557,7 +538,7 @@ test { Test thisTask ->
   dependsOn prepareNoRails
   doFirst {
     def files = project.files([])
-    project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
+    sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
       files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
     }
 
@@ -590,13 +571,13 @@ tasks.withType(Test).configureEach {
   doLast {
     project.fileTree(heapDumpDir).files.each { File eachFile ->
       ant.gzip(src: eachFile, destfile: "${eachFile}.gz")
-      project.delete eachFile
+      delete eachFile
     }
   }
 
   systemProperties += project.testSystemProperties
 
-  classpath += project.files(project.configurations.additionalClasspath.files)
+  classpath += project.files(configurations.additionalClasspath.files)
 
   testLogging {
     showStandardStreams = false
@@ -694,28 +675,30 @@ tasks.register('configureWar') {
 def war = tasks.register('war', Jar) {
   dependsOn configureWar
   dependsOn ':server:jar'
-  dependsOn project.configurations.runtimeClasspath
-  dependsOn project.configurations.packagingOnly
-  dependsOn project.configurations.allApis
-  dependsOn project.configurations.spark
+  dependsOn configurations.runtimeClasspath
+  dependsOn configurations.packagingOnly
+  dependsOn configurations.allApis
+  dependsOn configurations.spark
   finalizedBy 'verifyWar'
   archiveBaseName = 'cruise'
   archiveExtension = 'war'
+
+  def appServerJarTask = project(':app-server').tasks.named('jar') as TaskProvider<Jar>
 
   def classpathResolver = {
     // Using a Set<String> is more reliable than Set<File> because File.equals() may be affected by other internal fields
     // aside from `path` that aren't important to us; thus, Set<File> may allow duplicate paths and Set<String> will not.
     Set<String> classpath = (
-      project.configurations.runtimeClasspath +
-        project.configurations.packagingOnly +
-        project.configurations.allApis +
-        project.configurations.spark
+      configurations.runtimeClasspath +
+        configurations.packagingOnly +
+        configurations.allApis +
+        configurations.spark
     )
       .collect { f -> f.toString() }
       .toSet()
 
     // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
-    classpath.removeAll([project(':app-server').jar.archiveFile.get().toString(), jar.archiveFile.get().toString()])
+    classpath.removeAll([appServerJarTask.get().archiveFile.get().toString(), jar.archiveFile.get().toString()])
 
     classpath
   }
@@ -885,7 +868,7 @@ tasks.register('licenseReportAggregate') {
   }
   dependsOn generateLicenseReport
 
-  def licenseReportAggregateOutputDir = project.file("${project.layout.getBuildDirectory().get()}/reports/license-report-aggregate")
+  def licenseReportAggregateOutputDir = project.file("${layout.getBuildDirectory().get()}/reports/license-report-aggregate")
   outputs.dir(licenseReportAggregateOutputDir)
 
   LinkedHashSet<Map<String, Object>> missingLicenseData = [
@@ -1051,14 +1034,14 @@ tasks.register('licenseReportAggregate') {
     }.flatten().collect { name -> name.toString() }.sort().unique()
 
     // remove unwanted stuff, mostly nested zip files and jars with GoCD package version
-    allJars.removeIf { name -> name.endsWith(".zip") || name.endsWith("-${project.version}.jar") || name.contains("-${project.version}-") }
+    allJars.removeIf { name -> name.endsWith(".zip") || name.endsWith("-${version}.jar") || name.contains("-${version}-") }
     allJars.removeAll(goCDJarsWithoutLicenses)
 
     // get the licenses corresponding to the jars we actually package.
     Map<String, Map<String, Object>> licensesForPackagedJarDependencies = getLicenseDataFor(allJars, allDependenciesInReport)
 
-    project.delete(licenseReportAggregateOutputDir)
-    project.mkdir(licenseReportAggregateOutputDir)
+    delete(licenseReportAggregateOutputDir)
+    mkdir(licenseReportAggregateOutputDir)
 
     def licenseReport = new LicenseReport(project, licenseReportAggregateOutputDir, licensesForPackagedJarDependencies, compileAssetsWebpackProd.ext.licenseReportFile, generateRubygemsLicenseReport.ext.licenseReportFile)
     licenseReport.generate()

@@ -62,7 +62,7 @@ clean {
   delete(generatedResourcesOutput)
 }
 
-tasks.register('generateResources') {
+tasks.register('generateResources', Copy) {
   inputs.dir(generatedResourcesInput)
   outputs.dir(generatedResourcesOutput)
 
@@ -72,19 +72,16 @@ tasks.register('generateResources') {
     'fullVersion'  : rootProject.fullVersion,
     'gitRevision'  : rootProject.gitRevision,
   ]
-
   inputs.properties(props)
 
   doFirst {
-    project.delete(generatedResourcesOutput)
+    delete(generatedResourcesOutput)
     generatedResourcesOutput.mkdirs()
+  }
 
-    project.copy {
-      into generatedResourcesOutput
-      from(generatedResourcesInput) {
-        expand(props)
-      }
-    }
+  into generatedResourcesOutput
+  from(generatedResourcesInput) {
+    expand(props)
   }
 }
 licenseMain.dependsOn generateResources

@@ -44,12 +44,12 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
     dependsOn genericZipTask
 
     doFirst {
-      project.delete(buildRoot)
-      project.mkdir(project.file("${project.layout.buildDirectory.get()}/distributions/win"))
+      delete(buildRoot)
+      mkdir(file("${layout.buildDirectory.get()}/distributions/win"))
 
       def genericZipTree = zipTree(genericZipTask.archiveFile)
 
-      project.copy {
+      copy {
         into buildRoot
 
         // dont include the wrapper.conf, and tanuki wrappers for OSes other than windows
@@ -106,7 +106,7 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
 
 def executeNSIS(ExecOperations execOperations, InstallerType installerType, File buildRoot, File destDir) {
 
-  project.mkdir(destDir)
+  mkdir(destDir)
 
   def outputFile = project.file("${destDir.path}/${installerType.baseName}-${project.fullVersion}-jre-64bit-setup.exe")
 
@@ -153,15 +153,15 @@ def executeNSIS(ExecOperations execOperations, InstallerType installerType, File
 
 tasks.register('agentWindows64bitExe') { thisTask ->
   def installerType = InstallerType.agent
-  def buildRoot = project.file("${project.layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
-  def destDir = project.file("${project.layout.buildDirectory.get()}/distributions/win")
+  def buildRoot = project.file("${layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
+  def destDir = project.file("${layout.buildDirectory.get()}/distributions/win")
   outputs.dir(destDir)
 
   configureWindowsFilesystem(thisTask, installerType, agentGenericZip, buildRoot)
 
   def injected = project.objects.newInstance(InjectedExecOps)
   doLast {
-    project.copy { from('go-agent/win/ServerURL.ini') into(buildRoot) }
+    copy { from('go-agent/win/ServerURL.ini') into(buildRoot) }
     executeNSIS(injected.execOps, installerType, buildRoot, destDir)
   }
 
@@ -170,8 +170,8 @@ tasks.register('agentWindows64bitExe') { thisTask ->
 
 tasks.register('serverWindows64bitExe') { thisTask ->
   def installerType = InstallerType.server
-  def buildRoot = project.file("${project.layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
-  def destDir = project.file("${project.layout.buildDirectory.get()}/distributions/win")
+  def buildRoot = project.file("${layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
+  def destDir = project.file("${layout.buildDirectory.get()}/distributions/win")
   outputs.dir(destDir)
 
   configureWindowsFilesystem(thisTask, installerType, serverGenericZip, buildRoot)

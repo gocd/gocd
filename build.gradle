@@ -271,13 +271,13 @@ subprojects {
       renderers = [new JsonReportRenderer("index.json", false)]
       excludeGroups = ["com.thoughtworks.go"]
       filters = [new LicenseBundleNormalizer()]
-      outputDir = project.layout.buildDirectory.dir("reports/dependency-license").get().asFile
+      outputDir = layout.buildDirectory.dir("reports/dependency-license").get().asFile
       configurations = ['runtimeClasspath', 'packagingInLibDir']
     }
 
     tasks.withType(ReportTask).configureEach { ReportTask reportTask ->
       reportTask.outputs.cacheIf { true }
-      project.configurations.each { config ->
+      configurations.each { config ->
         if (config.name in project.licenseReport.configurations) {
           reportTask.inputs.files(config)
         }
@@ -473,8 +473,8 @@ subprojects {
 
     doFirst {
       logger.info("Setting tmpdir ${tmpDir}")
-      project.delete(tmpDir)
-      tmpDir.mkdirs()
+      delete(tmpDir)
+      mkdir(tmpDir)
 
       List<String> files = []
       testTask.testClassesDirs.files.each { File classDir ->
@@ -509,7 +509,7 @@ subprojects {
     }
 
     doLast {
-      project.delete(tmpDir)
+      delete(tmpDir)
 
       if (!allTestClasses.empty) {
         throw new GradleException("Missed the following classes to test: ${allTestClasses}".toString())
@@ -735,9 +735,9 @@ tasks.register('newSPA') {
     String widgetBase = "${pagesBase}/${spaName}"
     String mountPoint = "${project(':server').webAppDir}/WEB-INF/rails/webpack/single_page_apps"
 
-    project.delete(modelsBase, widgetBase)
-    project.mkdir(modelsBase)
-    project.mkdir(widgetBase)
+    delete(modelsBase, widgetBase)
+    mkdir(modelsBase)
+    mkdir(widgetBase)
 
     String licenseHeader =
       """
@@ -919,7 +919,7 @@ tasks.register('removeApi') {
     String moduleDir = file("api/${newProjectName}")
     String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
 
-    project.delete(moduleDir)
+    delete(moduleDir)
 
     List<String> springConfigContents = file("server/src/main/resources/applicationContext-global.xml").readLines("utf-8")
     file("server/src/main/resources/applicationContext-global.xml").withWriter { out ->
@@ -969,7 +969,7 @@ tasks.register('newApi') {
     String newProjectName = "api-${apiName}-${project.apiVersion}"
     String oldProjectName = "api-${apiName}-v${project.apiVersion.replaceFirst('v', '').toInteger() - 1}"
     File oldModuleDir = file("api/${oldProjectName}")
-    project.delete(oldModuleDir)
+    delete(oldModuleDir)
     if (oldModuleDir.exists()) {
       throw new GradleException("Please use `upgradeApi` task instead of `newApi`")
     }
@@ -981,10 +981,10 @@ tasks.register('newApi') {
     String entityVariableName = entityClassName.uncapitalize()
     String controllerClassName = "${entityClassName}Controller${project.apiVersion.capitalize()}"
 
-    project.delete(moduleDir)
-    project.mkdir(moduleDir)
-    project.mkdir(basePackage)
-    project.mkdir(testPackage)
+    delete(moduleDir)
+    mkdir(moduleDir)
+    mkdir(basePackage)
+    mkdir(testPackage)
 
     file("${moduleDir}/build.gradle").withWriter { out ->
       def contents =
@@ -1237,9 +1237,9 @@ tasks.register('upgradeApi') {
     String newControllerClassSuffix = "ControllerV${apiVersion}"
     String newPackage = newPackagePrefix
 
-    project.delete(moduleDir)
+    delete(moduleDir)
 
-    project.copy {
+    copy {
       from oldProject.projectDir
       into moduleDir
 

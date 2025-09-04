@@ -55,7 +55,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
   @Inject abstract ExecOperations getExecOps()
   @Inject abstract FileSystemOperations getFileOps()
 
-  private final Provider<Directory> buildDirectory = project.layout.buildDirectory
+  private final Provider<Directory> buildDirectory = layout.buildDirectory
 
   private final boolean skipBuild = project.hasProperty('skipDockerBuild')
   private final boolean skipNonNativeVerify = project.hasProperty('dockerBuildSkipNonNativeVerify')

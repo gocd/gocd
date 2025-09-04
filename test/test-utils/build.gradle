@@ -67,8 +67,11 @@ clean {
 }
 
 tasks.register('generateResources', Copy) {
+  dependsOn configurations.copyOnly
+  outputs.dir(generatedResourcesOutput)
+
   into "$generatedResourcesOutput/testdata/gen"
-  from(project.configurations.copyOnly) {
+  from({ configurations.copyOnly }) {
     rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
   }
 }

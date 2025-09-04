@@ -691,7 +691,7 @@ tasks.register('configureWar') {
   }
 }
 
-tasks.register('war', Jar) {
+def war = tasks.register('war', Jar) {
   dependsOn configureWar
   dependsOn ':server:jar'
   dependsOn project.configurations.runtimeClasspath
@@ -872,7 +872,7 @@ tasks.register('verifyWar', VerifyJarTask) {
         "util-${project.version}.jar",
         "zt-exec-${project.versions.ztExec}.jar",
       ])
-  ]
+  ] as Map<String, List<String>>
 }
 
 tasks.register('licenseReportAggregate') {

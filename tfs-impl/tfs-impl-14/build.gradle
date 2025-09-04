@@ -67,7 +67,7 @@ tasks.register('extractTfsSdk', Copy) {
 compileJava.dependsOn extractTfsSdk
 generateLicenseReport.dependsOn extractTfsSdk
 
-tasks.register('fatJar', Jar) {
+def fatJar = tasks.register('fatJar', Jar) {
   finalizedBy 'verifyJar'
   dependsOn extractTfsSdk, jar
   from(jar.archiveFile) { into('lib/') }

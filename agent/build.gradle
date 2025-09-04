@@ -89,7 +89,7 @@ clean {
   delete 'tfs-impl.jar'
 }
 
-tasks.register('fatJar', Jar) {
+def fatJar = tasks.register('fatJar', Jar) {
   finalizedBy 'verifyJar'
   dependsOn jar, configurations.extractedAtTopLevel, configurations.packagingOnly, configurations.runtimeClasspath
 

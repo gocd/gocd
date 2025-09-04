@@ -40,7 +40,7 @@ jar {
   archiveClassifier = 'classes'
 }
 
-tasks.register('fatJar', Jar) {
+def fatJar = tasks.register('fatJar', Jar) {
   finalizedBy 'verifyJar'
   dependsOn jar, configurations.packagingOnly, configurations.runtimeClasspath
 

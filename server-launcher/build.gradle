@@ -128,7 +128,7 @@ clean {
   delete 'defaultFiles'
 }
 
-tasks.register('fatJar', Jar) {
+def fatJar = tasks.register('fatJar', Jar) {
   finalizedBy 'verifyFatJar'
   dependsOn ':server:jar'
   dependsOn ':server:war'

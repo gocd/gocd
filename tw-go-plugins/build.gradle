@@ -76,10 +76,9 @@ tasks.register('createVersionFile') {
   }
 }
 
-tasks.register('downloadPlugins') {
-}
+def downloadPlugins = tasks.register('downloadPlugins')
 
-tasks.register('pluginsZip', Zip) {
+def pluginsZip = tasks.register('pluginsZip', Zip) {
   finalizedBy 'verifyPluginZip'
 
   archiveBaseName = 'plugins'
@@ -91,7 +90,6 @@ tasks.register('pluginsZip', Zip) {
 
 tasks.register('verifyPluginZip', VerifyJarTask) {
   jarTask = pluginsZip
-
   expectedJars = [
     '/': dependencies.collect { dep -> "${dep.repo}.jar".toString() }
   ]
@@ -102,15 +100,20 @@ artifacts {
 }
 
 dependencies.each { dep ->
-  tasks.register("download-${dep.repo}", DownloadFile) { downloadTask ->
-    pluginsZip.dependsOn downloadTask
-    downloadPlugins.dependsOn downloadTask
+  def downloadTask = tasks.register("download-${dep.repo}", DownloadFile) { downloadTask ->
     downloadTask.src dep.downloadUrl
     downloadTask.dest destFile(dep)
     downloadTask.checksum = dep.checksum
   }
 
-  pluginsZip.from(destFile(dep))
+  downloadPlugins.configure {
+    dependsOn downloadTask
+  }
+
+  pluginsZip.configure { Zip zipTask ->
+    zipTask.dependsOn downloadTask
+    zipTask.from(destFile(dep))
+  }
 }
 
 private File destFile(GithubArtifact dep) {

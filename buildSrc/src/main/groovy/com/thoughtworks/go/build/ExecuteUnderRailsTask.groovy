@@ -16,19 +16,27 @@
 
 package com.thoughtworks.go.build
 
-
+import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.jvm.tasks.Jar
 import org.gradle.process.JavaExecSpec
+
+import javax.inject.Inject
 
 abstract class ExecuteUnderRailsTask extends JavaExec {
   private static final OperatingSystem CURRENT_OS = OperatingSystem.current()
   private Map<String, Object> originalEnv
 
-  @Input
-  boolean disableJRubyOptimization = false
+  @Input boolean disableJRubyOptimization = false
+  @Internal final projectRailsMeta = project.rails
+  @Internal final Provider<File> jrubyJar = project.jrubyJar
+  @Inject abstract FileSystemOperations getFileOps()
 
   ExecuteUnderRailsTask() {
     super()
@@ -39,7 +47,7 @@ abstract class ExecuteUnderRailsTask extends JavaExec {
 
     systemProperties += project.railsSystemProperties
 
-    def pathingJarLoc = project.tasks.getByName('pathingJar').archiveFile
+    def pathingJarLoc = project.tasks.named('pathingJar').flatMap { Jar jt -> jt.archiveFile } as Provider<RegularFile>
 
     classpath(pathingJarLoc)
     if (CURRENT_OS.isWindows()) {
@@ -48,19 +56,20 @@ abstract class ExecuteUnderRailsTask extends JavaExec {
     JRuby.setup(this, project, disableJRubyOptimization)
   }
 
-
   @Override
   @TaskAction
   void exec() {
     if (CURRENT_OS.isWindows()) {
-      environment += [CLASSPATH: project.jrubyJar.get().toString()]
+      environment += [CLASSPATH: jrubyJar.get().toString()]
     }
 
-    project.delete(project.rails.testDataDir)
+    fileOps.delete {
+      it.delete(this.projectRailsMeta.testDataDir)
+    }
 
-    project.copy {
-      from('config')
-      into project.rails.testConfigDir
+    fileOps.copy {
+      it.from('config')
+      it.into(this.projectRailsMeta.testConfigDir)
     }
 
     try {

@@ -41,7 +41,7 @@ class JRuby {
     }
   }
 
-  static void setup(JavaExecSpec execSpec, Project project, boolean disableJRubyOptimization) {
+  static void setup(JavaExecSpec execSpec, @Deprecated Project project, boolean disableJRubyOptimization) {
     execSpec.with {
       OperatingSystemHelper.normalizeEnvironmentPath(environment)
       environment['PATH'] = (project.additionalJRubyPaths + [environment['PATH']]).join(File.pathSeparator)

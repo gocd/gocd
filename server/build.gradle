@@ -133,7 +133,7 @@ project.ext.jrubyDefaultSystemProperties = [
   // 'jruby.debug.loadService': 'true',
 ]
 
-project.ext.jrubyJar = project.provider { configurations.compileClasspath.incoming.artifactView { componentFilter {it instanceof ModuleComponentIdentifier && it.module == "jruby-complete"} }.files.first() }
+project.ext.jrubyJar = project.provider { configurations.compileClasspath.incoming.artifactView { componentFilter {it instanceof ModuleComponentIdentifier && it.module == "jruby-complete"} }.files.first() } as Provider<File>
 
 project.ext.jrubyScriptsDir = project.file("scripts")
 

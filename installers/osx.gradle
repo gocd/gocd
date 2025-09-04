@@ -123,7 +123,7 @@ tasks.register('serverMacArm64Zip', Zip) { Zip thisTask ->
     def packageTaskName = "${installerType}Mac${arch}Zip"
     tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
       architecture = Architecture.canonicalize(arch)
-      packageTask = project.getTasksByName(packageTaskName, false).first()
+      packageTask = project.tasks.named(packageTaskName)
       type = InstallerType."${installerType}"
     }
   }

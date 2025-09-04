@@ -189,7 +189,7 @@ tasks.register('serverWindows64bitExe') { thisTask ->
   tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
     architecture = Architecture.x64
     packagedJavaVersion = project.packagedJavaVersion
-    packageTask = project.getTasksByName(packageTaskName, false).first()
+    packageTask = project.tasks.named(packageTaskName)
     type = InstallerType."${installerType}"
   }
 }

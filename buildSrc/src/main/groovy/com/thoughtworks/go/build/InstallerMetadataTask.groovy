@@ -19,6 +19,8 @@ package com.thoughtworks.go.build
 import groovy.json.JsonOutput
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
+import org.gradle.api.file.FileSystemLocation
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 
 class InstallerMetadataTask extends DefaultTask {
@@ -26,21 +28,18 @@ class InstallerMetadataTask extends DefaultTask {
   @Input Architecture architecture
   @Internal InstallerType type
 
-  private Task packageTask
+  private Provider<FileSystemLocation> distributionArchive
 
   InstallerMetadataTask() {
     outputs.cacheIf { false }
     outputs.upToDateWhen { false }
   }
 
-  String setPackageTask(Task packageTask) {
+  String setPackageTask(TaskProvider<Task> packageTask) {
     super.dependsOn(packageTask)
-    this.packageTask = packageTask
-  }
-
-  @Input
-  String getPackageTaskPath() {
-    packageTask.path
+    this.distributionArchive = packageTask.flatMap {
+      it.outputs.getFiles().asFileTree.filter { it.name.startsWith(type.baseName) && !it.name.endsWith(".json") }.elements.map { it.first() }
+    } as Provider<FileSystemLocation>
   }
 
   @TaskAction
@@ -55,7 +54,6 @@ class InstallerMetadataTask extends DefaultTask {
 
   @OutputFile
   File getOutputMetadataFile() {
-    def distributionArchive = packageTask.outputs.getFiles().asFileTree.filter { it.name.startsWith(type.baseName) && !it.name.endsWith(".json") }.singleFile
-    project.file("${distributionArchive}.json") as File
+    new File("${distributionArchive.get().asFile.toString()}.json")
   }
 }

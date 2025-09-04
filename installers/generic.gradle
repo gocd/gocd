@@ -48,7 +48,7 @@ tasks.register('serverGenericZip', Zip) { Zip thisTask ->
   def packageTaskName = "${installerType}GenericZip"
   tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
     architecture = Architecture.all
-    packageTask = project.getTasksByName(packageTaskName, false).first()
+    packageTask = project.tasks.named(packageTaskName)
     type = InstallerType."${installerType}"
   }
 }

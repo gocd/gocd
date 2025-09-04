@@ -130,7 +130,7 @@ private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
-def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, PackageType packageType, File buildRoot, Configuration configuration, File destDir) {
+def configureLinuxPackage(Task packageTask, InstallerType installerType, PackageType packageType, File buildRoot, Configuration configuration, File destDir) {
   packageTask.with {
     dependsOn configuration
     dependsOn extractDeltaPack
@@ -361,7 +361,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
   packageTask.finalizedBy"${packageTask.name}Metadata"
 }
 
-static def copyMultipleAgentsReadme(DefaultTask packageTask, File buildRoot, InstallerType installerType) {
+static def copyMultipleAgentsReadme(Task packageTask, File buildRoot, InstallerType installerType) {
   packageTask.doFirst {
     project.copy {
       from "go-agent/release/README-running-multiple-agents.md"
@@ -414,7 +414,7 @@ tasks.register('serverPackageDeb') { thisTask ->
     def packageTaskName = "${installerType}Package${packageType}"
     tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
       architecture = Architecture.all
-      packageTask = project.getTasksByName(packageTaskName, false).first()
+      packageTask = project.tasks.named(packageTaskName)
       type = InstallerType."${installerType}"
     }
   }

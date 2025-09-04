@@ -52,8 +52,10 @@ tasks.register('initializeBuildx') {
   dependsOn configureDockerRegistryMirror
 
   def injected = project.objects.newInstance(InjectedExecOps)
+  def skipDockerBuild = project.hasProperty('skipDockerBuild')
+
   doFirst {
-    if (!project.hasProperty('skipDockerBuild')) {
+    if (!skipDockerBuild) {
       // Need to do once before everything (not in parallel) see https://github.com/docker/buildx/issues/344
       def builderName = 'gocd-builder'
       logger.lifecycle("Initializing docker buildx builder [$builderName]...")

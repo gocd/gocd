@@ -49,7 +49,7 @@ subprojects {
 
     if (project.hasProperty('dockerBuildLocalZip')) {
       task.dependsOn ':installers:serverGenericZip'
-      task.artifactZip.set(rootProject.project(':installers').tasks.named('serverGenericZip').flatMap { Zip zt ->  zt.archiveFile } as Provider<? extends RegularFile>)
+      task.artifactZip.set(rootProject.project(':installers').tasks.named('serverGenericZip').flatMap { Zip zt ->  zt.archiveFile } as Provider<RegularFile>)
     } else if (project.hasProperty('dockerbuildServerZipLocation')) {
       task.artifactZip.set(project.file(project.dockerbuildServerZipLocation))
     } else {
@@ -65,7 +65,7 @@ subprojects {
     task.distroVersion = distroVersion
     task.tiniVersion = project.versions.tini
     task.imageType = ImageType.server
-    task.outputDir = parent.layout.buildDirectory.dir("docker").get()
+    task.outputDir.set(parent.layout.buildDirectory.dir("docker") as Provider<Directory>)
 
     task.templateHelper = {
       deleteGitRepoDirectoryContents()

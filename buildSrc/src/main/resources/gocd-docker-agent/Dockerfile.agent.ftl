@@ -89,7 +89,7 @@ RUN \
 <#list distro.getInstallPrerequisitesCommands(distroVersion) as command>
   ${command} && \
 </#list>
-<#list distro.getInstallJavaCommands(project) as command>
+<#list distro.getInstallJavaCommands(packagedJavaVersion) as command>
   ${command} && \
 </#list>
   mkdir -p /go-agent /docker-entrypoint.d /go /godata

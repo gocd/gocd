@@ -65,12 +65,12 @@ subprojects {
     task.distroVersion = distroVersion
     task.tiniVersion = project.versions.tini
     task.imageType = ImageType.agent
-    task.outputDir = parent.layout.buildDirectory.dir("docker").get()
+    task.outputDir.set(parent.layout.buildDirectory.dir("docker") as Provider<Directory>)
 
     task.templateHelper = {
       task.deleteGitRepoDirectoryContents()
 
-      project.copy {
+      fileOps.copy {
         from rootProject.file("LICENSE")
         into task.gitRepoDirectory
       }
@@ -168,7 +168,7 @@ tasks.register('generateManifest') {
     }
 
     def jsonFile = layout.buildDirectory.file("docker/manifest.json").get().asFile
-    project.mkdir(jsonFile.parentFile)
+    jsonFile.parentFile.mkdirs()
     jsonFile.withWriter("utf-8") { Writer out ->
       out << JsonOutput.toJson(meta)
     }

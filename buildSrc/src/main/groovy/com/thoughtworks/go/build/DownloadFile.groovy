@@ -40,7 +40,7 @@ class DownloadFile extends Download {
   DownloadFile() {
     doLast {
       if (shouldDownload && expectedChecksum != null) {
-        project.logger.info("Verifying checksum of ${dest}")
+        logger.info("Verifying checksum of ${dest}")
         def action = new VerifyAction(project)
         action.checksum(expectedChecksum)
         action.algorithm('SHA-256')
@@ -64,7 +64,7 @@ class DownloadFile extends Download {
     if (dest.exists()) {
       if (expectedChecksum != null) {
         def actualChecksum = dest.withInputStream { is -> DigestUtils.sha256Hex(is) }
-        project.logger.info("Verifying checksum. Actual: ${actualChecksum}, expected: ${expectedChecksum}.")
+        logger.info("Verifying checksum. Actual: ${actualChecksum}, expected: ${expectedChecksum}.")
         shouldDownload = actualChecksum != expectedChecksum
       } else {
         shouldDownload = false
@@ -72,10 +72,10 @@ class DownloadFile extends Download {
     }
 
     if (shouldDownload) {
-      project.logger.info("Attempting download of ${src} into ${dest}")
+      logger.info("Attempting download of ${src} into ${dest}")
       super.download()
     } else {
-      project.logger.info("Skipping download of ${src}")
+      logger.info("Skipping download of ${src}")
     }
   }
 }

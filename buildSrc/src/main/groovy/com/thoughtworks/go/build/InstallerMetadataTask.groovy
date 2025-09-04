@@ -22,7 +22,7 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.*
 
 class InstallerMetadataTask extends DefaultTask {
-  @Input @Optional AdoptiumVersion adoptiumVersion
+  @Input @Optional AdoptiumVersion packagedJavaVersion
   @Input Architecture architecture
   @Internal InstallerType type
 
@@ -48,7 +48,7 @@ class InstallerMetadataTask extends DefaultTask {
     getOutputMetadataFile().withWriter { out ->
       out.write(JsonOutput.prettyPrint(JsonOutput.toJson([
         architecture: architecture.canonicalName,
-        jre:          adoptiumVersion?.toMetadata() ?: AdoptiumVersion.noneMetadata(),
+        jre:          packagedJavaVersion?.toMetadata() ?: AdoptiumVersion.noneMetadata(),
       ])))
     }
   }
@@ -56,6 +56,6 @@ class InstallerMetadataTask extends DefaultTask {
   @OutputFile
   File getOutputMetadataFile() {
     def distributionArchive = packageTask.outputs.getFiles().asFileTree.filter { it.name.startsWith(type.baseName) && !it.name.endsWith(".json") }.singleFile
-    project.file("${ distributionArchive}.json") as File
+    project.file("${distributionArchive}.json") as File
   }
 }

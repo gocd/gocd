@@ -244,8 +244,8 @@ tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
   dependsOn yarnInstall
   outputs.cacheIf { true }
 
-  def outputAssetsDir = project.layout.buildDirectory.dir("rails-assets").get().asFile
-  def publicAssetsDir = project.layout.buildDirectory.dir("public/assets").get().asFile
+  def outputAssetsDir = layout.buildDirectory.dir("rails-assets")
+  def publicAssetsDir = layout.buildDirectory.dir("public/assets")
 
   inputs.dir(file("${project.railsRoot}/config"))
   inputs.dir(file("${project.railsRoot}/app/assets"))
@@ -271,7 +271,7 @@ tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
   doFirst {
     delete "${project.railsRoot}/tmp"
     delete outputAssetsDir
-    outputAssetsDir.parentFile.mkdirs()
+    outputAssetsDir.get().asFile.parentFile.mkdirs()
   }
 
   doLast {

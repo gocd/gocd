@@ -25,13 +25,11 @@ import freemarker.template.TemplateExceptionHandler
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.process.ExecOperations
 
 import javax.inject.Inject
@@ -42,21 +40,32 @@ enum ImageType {
 }
 
 abstract class BuildDockerImageTask extends DefaultTask {
-  @Input
-  Distro distro
+  @Input Distro distro
   @Input DistroVersion distroVersion
   @Input String tiniVersion
   @InputFile abstract RegularFileProperty getArtifactZip()
   @Input ImageType imageType
-  // Not really a classic output dir from Gradle perspective, as multiple tasks share dir from parent with unique tarballs per distribution.
-  // We use a string for Gradle 7 compatibility, and because we don't want Gradle to consider the actual contents.
-  @Input String outputDir
+
+  // We don't declare an output here, only an input; just so the task re-runs if it changes. We dont want it to be cached.
+  // Multiple tasks share dir from parent with unique tarballs per distribution, so they are not "owned" by the task.
+  @InputDirectory abstract DirectoryProperty getOutputDir()
 
   @Internal Closure templateHelper
   @Internal Closure verifyHelper
   @Inject abstract ExecOperations getExecOps()
   @Inject abstract FileSystemOperations getFileOps()
-  @Internal Provider<Directory> gitRepoDirectory = project.layout.buildDirectory.dir(gitHubRepoName)
+
+  private final Provider<Directory> buildDirectory = project.layout.buildDirectory
+
+  private final boolean skipBuild = project.hasProperty('skipDockerBuild')
+  private final boolean skipNonNativeVerify = project.hasProperty('dockerBuildSkipNonNativeVerify')
+  private final boolean keepImages = project.hasProperty('dockerBuildKeepImages')
+  private final String gitPush = project.findProperty('dockerGitPush')
+
+  private final projectFullVersion = project.fullVersion
+  private final projectGoVersion = project.goVersion
+  private final projectGitRevision = project.gitRevision
+  private final projectPackagedJavaVersion = project.packagedJavaVersion
 
   BuildDockerImageTask() {
     outputs.cacheIf { false }
@@ -65,11 +74,11 @@ abstract class BuildDockerImageTask extends DefaultTask {
 
   @TaskAction
   def perform() {
-    if (!project.hasProperty("skipDockerBuild") && distroVersion.pastEolGracePeriod) {
+    if (!skipBuild && distroVersion.pastEolGracePeriod) {
       throw new RuntimeException("The image $distro:v$distroVersion.version is unsupported. EOL was ${distroVersion.eolDate}, and GoCD build grace period has passed.")
     }
 
-    if (!project.hasProperty("skipDockerBuild") && distroVersion.eol && !distroVersion.continueToBuild) {
+    if (!skipBuild && distroVersion.eol && !distroVersion.continueToBuild) {
       throw new RuntimeException("The image $distro:v$distroVersion.version was EOL on ${distroVersion.eolDate}. Set :continueToBuild option to continue building through the grace period.")
     }
 
@@ -89,18 +98,18 @@ abstract class BuildDockerImageTask extends DefaultTask {
       templateHelper.call()
     }
 
-    project.copy {
+    fileOps.copy {
       from artifactZip
       into gitRepoDirectory
     }
 
     writeTemplateToFile("Dockerfile.${imageType.name()}.ftl", "Dockerfile")
 
-    if (!project.hasProperty('skipDockerBuild')) {
+    if (!skipBuild) {
       logger.lifecycle("Building ${distro} image for ${distro.supportedArchitectures}. (Current build architecture is ${Architecture.current()}).")
 
       // build image
-      project.mkdir(imageTarFile.parentFile)
+      imageTarFile.parentFile.mkdirs()
       executeInGitRepo("docker", "buildx", "build",
         "--pull",
         "--platform", supportedPlatforms.join(","),
@@ -111,7 +120,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
 
       // verify image
       def isNativeVerify = distro.dockerVerifyArchitecture == Architecture.current()
-      if (verifyHelper != null && (isNativeVerify || !project.hasProperty('dockerBuildSkipNonNativeVerify'))) {
+      if (verifyHelper != null && (isNativeVerify || !skipNonNativeVerify)) {
         // Load image  into local docker from buildx for sanity checking
         executeInGitRepo("docker", "buildx", "build",
           "--quiet",
@@ -128,7 +137,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
 
       logger.lifecycle("Cleaning up...")
       // delete the image, to save space
-      if (!project.hasProperty('dockerBuildKeepImages')) {
+      if (!keepImages) {
         execOps.exec {
           workingDir = gitRepoDirectory
           commandLine = ["docker", "rmi", imageNameWithTag]
@@ -138,7 +147,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
 
     fileOps.delete { it.delete(this.gitRepoDirectory.map { it.file(artifactZip.get().asFile.name) }) }
 
-    if (project.hasProperty('dockerGitPush') && project.dockerGitPush == 'I_REALLY_WANT_TO_DO_THIS') {
+    if (gitPush == 'I_REALLY_WANT_TO_DO_THIS') {
       logger.lifecycle("Pushing changed Dockerfile for ${imageNameWithTag} to ${gitHubRepoName}...")
       executeInGitRepo("git", "add", ".")
 
@@ -147,9 +156,8 @@ abstract class BuildDockerImageTask extends DefaultTask {
         it.commandLine = ["git", "diff-index", "--quiet", "HEAD"]
         it.ignoreExitValue = true
       }.exitValue != 0) {
-
-        executeInGitRepo("git", "commit", "-m", "Bump to version ${project.fullVersion}", "--author", "GoCD CI User <12554687+gocd-ci-user@users.noreply.github.com>")
-        executeInGitRepo("git", "tag", "v${project.goVersion}")
+        executeInGitRepo("git", "commit", "-m", "Bump to version ${projectFullVersion}", "--author", "GoCD CI User <12554687+gocd-ci-user@users.noreply.github.com>")
+        executeInGitRepo("git", "tag", "v${projectGoVersion}")
         executeInGitRepo("git", "push")
         executeInGitRepo("git", "push", "--tags")
         logger.lifecycle("Updated Dockerfile for for ${imageNameWithTag} at ${gitHubRepoName}.")
@@ -210,12 +218,12 @@ abstract class BuildDockerImageTask extends DefaultTask {
 
   @Input
   GString getImageTag() {
-    "v${project.fullVersion}"
+    "v${projectFullVersion}"
   }
 
   @Internal
   File getImageTarFile() {
-    project.file("${outputDir}/gocd-${imageType.name()}-${dockerImageName}-v${project.fullVersion}.tar")
+    outputDir.get().file("gocd-${imageType.name()}-${dockerImageName}-v${projectFullVersion}.tar").asFile
   }
 
   void writeTemplateToFile(String templateFile, String outputFile) {
@@ -232,21 +240,32 @@ abstract class BuildDockerImageTask extends DefaultTask {
     def templateVars = [
       distro                         : distro,
       distroVersion                  : distroVersion,
-      project                        : project,
-      goVersion                      : project.goVersion,
-      fullVersion                    : project.fullVersion,
-      gitRevision                    : project.gitRevision,
+      goVersion                      : projectGoVersion,
+      fullVersion                    : projectFullVersion,
+      gitRevision                    : projectGitRevision,
+      packagedJavaVersion            : projectPackagedJavaVersion,
       additionalFiles                : additionalFiles,
       imageName                      : dockerImageName,
-      useFromArtifact                : !project.hasProperty('dockerGitPush'),
+      useFromArtifact                : gitPush == null,
       dockerAliasToWrapperArchAsShell: Architecture.dockerAliasToWrapperArchAsShell(),
     ]
-
-    project.mkdir(project.layout.buildDirectory)
 
     resolveGitRepoFileFor(outputFile).withWriter("utf-8") { writer ->
       template.process(templateVars, writer)
     }
+  }
+
+  @Internal
+  Provider<Directory> getGitRepoDirectory() {
+    buildDirectory.dir(gitHubRepoName)
+  }
+
+  void deleteGitRepoDirectoryContents() {
+    fileOps.delete { it.delete(gitRepoDirectory.map { it.asFileTree }) }
+  }
+
+  File resolveGitRepoFileFor(String fileName) {
+    gitRepoDirectory.map { it.file(fileName) }.get().asFile
   }
 
   @Internal
@@ -275,11 +294,4 @@ abstract class BuildDockerImageTask extends DefaultTask {
     ]
   }
 
-  void deleteGitRepoDirectoryContents() {
-    fileOps.delete { it.delete(this.gitRepoDirectory.map { it.asFileTree }) }
-  }
-
-  File resolveGitRepoFileFor(String fileName) {
-    gitRepoDirectory.map { it.file(fileName) }.get().asFile
-  }
 }

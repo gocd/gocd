@@ -472,7 +472,7 @@ subprojects {
     failOnNoDiscoveredTests = FilePartition.partitioningDisabled
 
     doFirst {
-      project.logger.info("Setting tmpdir ${tmpDir}")
+      logger.info("Setting tmpdir ${tmpDir}")
       project.delete(tmpDir)
       tmpDir.mkdirs()
 

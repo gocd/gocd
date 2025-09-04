@@ -17,6 +17,7 @@
 package com.thoughtworks.go.build
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.*
 import org.gradle.internal.os.OperatingSystem
@@ -28,8 +29,7 @@ import javax.inject.Inject
 import static com.thoughtworks.go.build.OperatingSystemHelper.normalizeEnvironmentPath
 
 @CacheableTask
-class YarnRunTask extends DefaultTask {
-  private ExecOperations execOperations
+abstract class YarnRunTask extends DefaultTask {
   private File workingDir
 
   private List<String> yarnCommand = new ArrayList<>()
@@ -37,9 +37,10 @@ class YarnRunTask extends DefaultTask {
   private File destinationDir
   private String additionalPath
 
-  @Inject
-  YarnRunTask(ExecOperations execOperations) {
-    this.execOperations = execOperations
+  @Inject abstract ExecOperations getExecOps()
+  @Inject abstract FileSystemOperations getFileOps()
+
+  YarnRunTask() {
     inputs.property('os', OperatingSystem.current().toString())
   }
 
@@ -69,8 +70,8 @@ class YarnRunTask extends DefaultTask {
   @PathSensitive(PathSensitivity.NONE)
   FileTree getSourceFiles() {
     List<Object> copy = new ArrayList<Object>(this.sourceFiles)
-    FileTree src = getProject().files(copy).getAsFileTree()
-    src == null ? getProject().files().getAsFileTree() : src
+    FileTree src = project.files(copy).getAsFileTree()
+    src == null ? project.files().getAsFileTree() : src
   }
 
   void setYarnCommand(List<String> yarnCommand) {
@@ -99,10 +100,12 @@ class YarnRunTask extends DefaultTask {
   @TaskAction
   def execute() {
     if (getDestinationDir() != null) {
-      project.delete(getDestinationDir())
+      fileOps.delete {
+        it.delete(getDestinationDir())
+      }
     }
 
-    execOperations.exec { ExecSpec execSpec ->
+    execOps.exec { ExecSpec execSpec ->
       if (additionalPath) {
         execSpec.environment = normalizeEnvironmentPath(execSpec.environment)
         execSpec.environment("PATH", ([additionalPath] + execSpec.environment["PATH"].toString()).join(File.pathSeparator))

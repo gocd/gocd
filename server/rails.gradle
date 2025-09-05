@@ -169,8 +169,8 @@ clean.dependsOn cleanRails
 tasks.register('compileAssetsWebpackDev', YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
 
-  ext.licenseReportFile = layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
-  outputs.dir(ext.licenseReportFile.parentFile)
+  ext.yarnLicenseReportFile = layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
+  outputs.dir(ext.yarnLicenseReportFile.parentFile)
 
   source(project.file("${project.railsRoot}/.babelrc"))
   source(project.file("${project.railsRoot}/tsconfig.json"))
@@ -180,7 +180,7 @@ tasks.register('compileAssetsWebpackDev', YarnRunTask) {
 
   workingDir = project.railsRoot
   destinationDir = project.file("${project.railsRoot}/public/assets/webpack")
-  yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
+  yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.yarnLicenseReportFile}"]
 
   doFirst {
     delete "${project.railsRoot}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
@@ -190,8 +190,8 @@ tasks.register('compileAssetsWebpackDev', YarnRunTask) {
 tasks.register('compileAssetsWebpackProd', YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
 
-  ext.licenseReportFile = layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
-  outputs.dir(ext.licenseReportFile.parentFile)
+  ext.yarnLicenseReportFile = layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
+  outputs.dir(ext.yarnLicenseReportFile.parentFile)
 
   source(project.file("${project.railsRoot}/.babelrc"))
   source(project.file("${project.railsRoot}/tsconfig.json"))
@@ -201,7 +201,7 @@ tasks.register('compileAssetsWebpackProd', YarnRunTask) {
 
   workingDir = project.railsRoot
   destinationDir = layout.buildDirectory.dir("webpack-assets").get().asFile
-  yarnCommand = ['webpack-prod', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
+  yarnCommand = ['webpack-prod', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.yarnLicenseReportFile}"]
 
   doFirst {
     delete "${workingDir}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts

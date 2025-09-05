@@ -446,7 +446,7 @@ tasks.register('generateRubygemsLicenseReport') {
   inputs.file("${gemfile}.lock")
   inputs.file("rubygems-license-report.rake")
   ext.licenseReportFile = file("${layout.getBuildDirectory().get()}/rubygems-license.json")
-  outputs.file(licenseReportFile)
+  outputs.file(ext.licenseReportFile)
   outputs.cacheIf { true }
 
   def injected = project.objects.newInstance(Injected)
@@ -1021,6 +1021,7 @@ tasks.register('licenseReportAggregate') {
     })
   }
 
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     LinkedHashSet<Map<String, Object>> allDependenciesInReport = getAllJarDependencies()
 
@@ -1040,10 +1041,10 @@ tasks.register('licenseReportAggregate') {
     // get the licenses corresponding to the jars we actually package.
     Map<String, Map<String, Object>> licensesForPackagedJarDependencies = getLicenseDataFor(allJars, allDependenciesInReport)
 
-    delete(licenseReportAggregateOutputDir)
-    mkdir(licenseReportAggregateOutputDir)
+    injected.fileOps.delete { delete(licenseReportAggregateOutputDir) }
+    licenseReportAggregateOutputDir.mkdirs()
 
-    def licenseReport = new LicenseReport(project, licenseReportAggregateOutputDir, licensesForPackagedJarDependencies, compileAssetsWebpackProd.ext.licenseReportFile, generateRubygemsLicenseReport.ext.licenseReportFile)
+    def licenseReport = new LicenseReport(project, licenseReportAggregateOutputDir, licensesForPackagedJarDependencies, compileAssetsWebpackProd.ext.yarnLicenseReportFile, generateRubygemsLicenseReport.ext.licenseReportFile)
     licenseReport.generate()
   }
 }

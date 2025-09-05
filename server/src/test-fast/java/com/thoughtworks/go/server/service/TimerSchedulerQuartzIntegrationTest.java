@@ -121,7 +121,7 @@ public class TimerSchedulerQuartzIntegrationTest {
     }
 
     private void pauseForScheduling() throws InterruptedException {
-        Thread.sleep(1000);
+        Thread.sleep(1200);
     }
 
 }

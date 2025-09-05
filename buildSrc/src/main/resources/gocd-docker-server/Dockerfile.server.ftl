@@ -21,34 +21,34 @@ FROM chainguard/bash:latest AS gocd-server-unzip
 ARG TARGETARCH
 ARG UID=1000
 <#if useFromArtifact >
-COPY go-server-${fullVersion}.zip /tmp/go-server-${fullVersion}.zip
+COPY go-server-${goVersions.fullVersion}.zip /tmp/go-server-${goVersions.fullVersion}.zip
 RUN \
 <#else>
-RUN curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-server-${fullVersion}.zip" > /tmp/go-server-${fullVersion}.zip && \
+RUN curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${goVersions.fullVersion}/generic/go-server-${goVersions.fullVersion}.zip" > /tmp/go-server-${goVersions.fullVersion}.zip && \
 </#if>
-    unzip -q /tmp/go-server-${fullVersion}.zip -d / && \
+    unzip -q /tmp/go-server-${goVersions.fullVersion}.zip -d / && \
     mkdir -p /go-server/wrapper /go-server/bin && \
-    mv -v /go-server-${goVersion}/LICENSE /go-server/LICENSE && \
-    mv -v /go-server-${goVersion}/bin/go-server /go-server/bin/go-server && \
-    mv -v /go-server-${goVersion}/lib /go-server/lib && \
-    mv -v /go-server-${goVersion}/logs /go-server/logs && \
-    mv -v /go-server-${goVersion}/run /go-server/run && \
-    mv -v /go-server-${goVersion}/wrapper-config /go-server/wrapper-config && \
+    mv -v /go-server-${goVersions.goVersion}/LICENSE /go-server/LICENSE && \
+    mv -v /go-server-${goVersions.goVersion}/bin/go-server /go-server/bin/go-server && \
+    mv -v /go-server-${goVersions.goVersion}/lib /go-server/lib && \
+    mv -v /go-server-${goVersions.goVersion}/logs /go-server/logs && \
+    mv -v /go-server-${goVersions.goVersion}/run /go-server/run && \
+    mv -v /go-server-${goVersions.goVersion}/wrapper-config /go-server/wrapper-config && \
     WRAPPERARCH=${dockerAliasToWrapperArchAsShell} && \
-    mv -v /go-server-${goVersion}/wrapper/wrapper-linux-$WRAPPERARCH* /go-server/wrapper/ && \
-    mv -v /go-server-${goVersion}/wrapper/libwrapper-linux-$WRAPPERARCH* /go-server/wrapper/ && \
-    mv -v /go-server-${goVersion}/wrapper/wrapper.jar /go-server/wrapper/ && \
+    mv -v /go-server-${goVersions.goVersion}/wrapper/wrapper-linux-$WRAPPERARCH* /go-server/wrapper/ && \
+    mv -v /go-server-${goVersions.goVersion}/wrapper/libwrapper-linux-$WRAPPERARCH* /go-server/wrapper/ && \
+    mv -v /go-server-${goVersions.goVersion}/wrapper/wrapper.jar /go-server/wrapper/ && \
     chown -R ${r"${UID}"}:0 /go-server && chmod -R g=u /go-server
 
 FROM ${distro.getBaseImageLocation(distroVersion)}
 ARG TARGETARCH
 
-LABEL gocd.version="${goVersion}" \
+LABEL gocd.version="${goVersions.goVersion}" \
   description="GoCD server based on ${distro.getBaseImageLocation(distroVersion)}" \
   maintainer="GoCD Team <go-cd-dev@googlegroups.com>" \
   url="https://www.gocd.org" \
-  gocd.full.version="${fullVersion}" \
-  gocd.git.sha="${gitRevision}"
+  gocd.full.version="${goVersions.fullVersion}" \
+  gocd.git.sha="${goVersions.gitRevision}"
 
 # the ports that GoCD server runs on
 EXPOSE 8153
@@ -86,7 +86,7 @@ RUN \
 <#list distro.getInstallPrerequisitesCommands(distroVersion) as command>
   ${command} && \
 </#list>
-<#list distro.getInstallJavaCommands(packagedJavaVersion) as command>
+<#list distro.getInstallJavaCommands(goVersions.packagedJavaVersion) as command>
   ${command} && \
 </#list>
   mkdir -p /go-server /docker-entrypoint.d /go-working-dir /godata

@@ -1,3 +1,5 @@
+import com.thoughtworks.go.build.GoVersions
+
 /*
  * Copyright Thoughtworks, Inc.
  *
@@ -66,11 +68,12 @@ tasks.register('generateResources', Copy) {
   inputs.dir(generatedResourcesInput)
   outputs.dir(generatedResourcesOutput)
 
+  def goVersions = project.goVersions as GoVersions
   def props = [
-    'goVersion'    : rootProject.goVersion,
-    'distVersion'  : rootProject.distVersion,
-    'fullVersion'  : rootProject.fullVersion,
-    'gitRevision'  : rootProject.gitRevision,
+    'goVersion'    : goVersions.goVersion,
+    'distVersion'  : goVersions.distVersion,
+    'fullVersion'  : goVersions.fullVersion,
+    'gitRevision'  : goVersions.gitRevision,
   ]
   inputs.properties(props)
 

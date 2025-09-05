@@ -17,6 +17,7 @@
 package com.thoughtworks.go.build.docker
 
 import com.thoughtworks.go.build.Architecture
+import com.thoughtworks.go.build.GoVersions
 import freemarker.cache.ClassTemplateLoader
 import freemarker.core.PlainTextOutputFormat
 import freemarker.template.Configuration
@@ -65,10 +66,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
   private final boolean keepImages = project.hasProperty('dockerBuildKeepImages')
   private final String gitPush = project.findProperty('dockerGitPush')
 
-  private final projectFullVersion = project.fullVersion
-  private final projectGoVersion = project.goVersion
-  private final projectGitRevision = project.gitRevision
-  private final projectPackagedJavaVersion = project.packagedJavaVersion
+  private final goVersions = project.goVersions as GoVersions
 
   BuildDockerImageTask() {
     outputs.cacheIf { false }
@@ -158,8 +156,8 @@ abstract class BuildDockerImageTask extends DefaultTask {
         it.commandLine = ["git", "diff-index", "--quiet", "HEAD"]
         it.ignoreExitValue = true
       }.exitValue != 0) {
-        executeInGitRepo("git", "commit", "-m", "Bump to version ${projectFullVersion}", "--author", "GoCD CI User <12554687+gocd-ci-user@users.noreply.github.com>")
-        executeInGitRepo("git", "tag", "v${projectGoVersion}")
+        executeInGitRepo("git", "commit", "-m", "Bump to version ${goVersions.fullVersion}", "--author", "GoCD CI User <12554687+gocd-ci-user@users.noreply.github.com>")
+        executeInGitRepo("git", "tag", "v${goVersions.goVersion}")
         executeInGitRepo("git", "push")
         executeInGitRepo("git", "push", "--tags")
         logger.lifecycle("Updated Dockerfile for for ${imageNameWithTag} at ${gitHubRepoName}.")
@@ -218,12 +216,12 @@ abstract class BuildDockerImageTask extends DefaultTask {
 
   @Input
   GString getImageTag() {
-    "v${projectFullVersion}"
+    "v${goVersions.fullVersion}"
   }
 
   @Internal
   File getImageTarFile() {
-    outputDir.get().file("gocd-${imageType.name()}-${dockerImageName}-v${projectFullVersion}.tar").asFile
+    outputDir.get().file("gocd-${imageType.name()}-${dockerImageName}-v${goVersions.fullVersion}.tar").asFile
   }
 
   void writeTemplateToFile(String templateFile, String outputFile) {
@@ -240,10 +238,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
     def templateVars = [
       distro                         : distro,
       distroVersion                  : distroVersion,
-      goVersion                      : projectGoVersion,
-      fullVersion                    : projectFullVersion,
-      gitRevision                    : projectGitRevision,
-      packagedJavaVersion            : projectPackagedJavaVersion,
+      goVersions                     : goVersions,
       additionalFiles                : additionalFiles,
       imageName                      : dockerImageName,
       useFromArtifact                : gitPush == null,

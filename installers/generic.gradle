@@ -63,7 +63,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
     destinationDirectory = project.base.distsDirectory.dir("zip")
     archiveBaseName = installerType.baseName
 
-    into("${installerType.baseName}-${project.goVersion}")
+    into("${installerType.baseName}-${project.goVersions.goVersion}")
 
     from("${rootProject.projectDir}/LICENSE")
 

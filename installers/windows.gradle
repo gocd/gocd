@@ -24,13 +24,15 @@ private File destFile(String url) {
 }
 
 tasks.register('downloadWindowsJreChecksum', DownloadFile) {
-  src project.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.windows, Architecture.x64)
+  def goVersions = project.goVersions as GoVersions
+  src goVersions.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
 }
 
 tasks.register('downloadWindowsJre', DownloadFile) {
   dependsOn downloadWindowsJreChecksum
-  src project.packagedJavaVersion.toDownloadURLFor(OperatingSystem.windows, Architecture.x64)
+  def goVersions = project.goVersions as GoVersions
+  src goVersions.packagedJavaVersion.toDownloadURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
   checksum = { downloadWindowsJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
@@ -43,7 +45,8 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
     dependsOn downloadWindowsJre
     dependsOn genericZipTask
 
-    def installerBaseDirName = "${installerType.baseName}-${project.goVersion}"
+    def goVersions = project.goVersions as GoVersions
+    def installerBaseDirName = "${installerType.baseName}-${goVersions.goVersion}"
 
     def injected = project.objects.newInstance(Injected)
     doFirst {
@@ -108,12 +111,13 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
 
 def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot, File destDir) {
   packageTask.with {
-    def outputFile = project.file("${destDir.path}/${installerType.baseName}-${project.fullVersion}-jre-64bit-setup.exe")
+    def goVersions = project.goVersions as GoVersions
+    def outputFile = project.file("${destDir.path}/${installerType.baseName}-${goVersions.fullVersion}-jre-64bit-setup.exe")
 
     // pad enough zeros to be able to convert the version string using simple numbers, instead of version numbers
-    def registryVersionString = "${project.goVersion.split(/\./).collect { it.padLeft(2, '0') }.join()}${project.distVersion.padLeft(5, '0')}"
+    def registryVersionString = "${goVersions.goVersion.split(/\./).collect { it.padLeft(2, '0') }.join()}${goVersions.distVersion.padLeft(5, '0')}"
 
-    def installerContents = project.file("${buildRoot.path}/${installerType.baseName}-${project.goVersion}")
+    def installerContents = project.file("${buildRoot.path}/${installerType.baseName}-${goVersions.goVersion}")
     def unInstallManifestFile = project.file("${buildRoot.path}/uninstall-manifest.nsi")
     def nsisPluginsDir = project.file("windows/nsis-plugins")
     def icon = project.file('windows/gocd.ico')
@@ -135,20 +139,19 @@ def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot,
         }
       }
 
-      // FIXME all exec time project usage here
       List<String> cmdArgs = [
         "-DADDITIONAL_PLUGINS_DIR=${nsisPluginsDir}",
-        "-DCOMPONENT_FULL_VERSION=${project.fullVersion}",
+        "-DCOMPONENT_FULL_VERSION=${goVersions.fullVersion}",
         "-DCOMPONENT_NAME=${installerType.baseName.replace("go-", "").capitalize()}",
         "-DCOMPONENT_REGISTRY_VERSION=${registryVersionString}",
-        "-DCOMPONENT_VERSION=${project.goVersion}",
+        "-DCOMPONENT_VERSION=${goVersions.goVersion}",
         "-DCUSTOM_PAGES=${installerType.baseName}-custom-page.nsi",
         "-DGOCD_ICON=${icon}",
         "-DGOCD_LICENSE_FILE=${licenseSourceFile}",
         "-DINSTALLER_CONTENTS=${installerContents.path}",
         "-DOUTPUT_FILE=${outputFile.path}",
         "-DUNINSTALL_MANIFEST_FILE=${unInstallManifestFile.path}",
-        "-DWINDOWS_PRODUCT_VERSION=${project.goVersion}.${project.distVersion}",
+        "-DWINDOWS_PRODUCT_VERSION=${goVersions.goVersion}.${goVersions.distVersion}",
       ]
 
       if (usingCustomNsisBinaryWithLogging) {
@@ -197,7 +200,7 @@ tasks.register('serverWindows64bitExe') { thisTask ->
   def packageTaskName = "${installerType}Windows64bitExe"
   tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
     architecture = Architecture.x64
-    packagedJavaVersion = project.packagedJavaVersion
+    packagedJavaVersion = (project.goVersions as GoVersions).packagedJavaVersion
     packageTask = project.tasks.named(packageTaskName)
     type = InstallerType."${installerType}"
   }

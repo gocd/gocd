@@ -15,6 +15,7 @@
  */
 
 import com.thoughtworks.go.build.Architecture
+import com.thoughtworks.go.build.GoVersions
 import com.thoughtworks.go.build.InstallerMetadataTask
 import com.thoughtworks.go.build.InstallerType
 import groovy.json.JsonOutput
@@ -136,13 +137,14 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
     def licenseSource = "${rootProject.projectDir}/LICENSE"
     def injected = project.objects.newInstance(Injected)
 
+    def goVersions = project.goVersions as GoVersions
     def versions = [
       deps: project.versions,
       java: [
-        packaged: project.packagedJavaVersion,
-        target: project.targetJavaVersion,
+        packaged: goVersions.packagedJavaVersion,
+        target: goVersions.targetJavaVersion,
       ],
-      go: project.goVersion,
+      go: goVersions.goVersion,
     ]
 
     doFirst {
@@ -332,8 +334,8 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         cmd += ['-C', buildRoot.path]
         cmd += ['--name', installerType.baseName]
         cmd += ['--description', installerType.packageDescription]
-        cmd += ['--version', versions.go]
-        cmd += ['--iteration', distVersion]
+        cmd += ['--version', goVersions.goVersion]
+        cmd += ['--iteration', goVersions.distVersion]
         cmd += ['--license', 'Apache-2.0']
         cmd += ['--vendor', 'Thoughtworks, Inc.']
         cmd += ['--category', 'Development/Build Tools']

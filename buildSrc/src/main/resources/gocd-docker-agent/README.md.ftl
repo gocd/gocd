@@ -17,7 +17,7 @@ Please make sure to log them at https://github.com/gocd/gocd.
 Start the container with this:
 
 ```
-docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d -e GO_SERVER_URL=... gocd/${imageName}:v${goVersion}
+docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d -e GO_SERVER_URL=... gocd/${imageName}:v${goVersions.goVersion}
 ```
 
 **Note:** Please make sure to *always* provide the version. We do not publish the `latest` tag. And we don't intend to.
@@ -31,14 +31,14 @@ This will start the GoCD agent and connect it the GoCD server specified by `GO_S
 If you have a [gocd-server container](https://hub.docker.com/r/gocd/gocd-server/) running and it's named `angry_feynman`, you can connect a gocd-agent container to it by doing:
 
 ```
-docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d -e GO_SERVER_URL=http://$(docker inspect --format='{{(index (index .NetworkSettings.IPAddress))}}' angry_feynman):8153/go gocd/${imageName}:v${goVersion}
+docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d -e GO_SERVER_URL=http://$(docker inspect --format='{{(index (index .NetworkSettings.IPAddress))}}' angry_feynman):8153/go gocd/${imageName}:v${goVersions.goVersion}
 ```
 OR
 
 If the docker container running the GoCD server has ports mapped to the host,
 
 ```
-docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d -e GO_SERVER_URL=http://<ip_of_host_machine>:$(docker inspect --format='{{(index (index .NetworkSettings.Ports "8153/tcp") 0).HostPort}}' angry_feynman)/go gocd/${imageName}:v${goVersion}
+docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d -e GO_SERVER_URL=http://ip_of_host_machine:$(docker inspect --format='{{(index (index .NetworkSettings.Ports "8153/tcp") 0).HostPort}}' angry_feynman)/go gocd/${imageName}:v${goVersions.goVersion}
 ```
 
 # Available configuration options
@@ -51,19 +51,19 @@ docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d \
         -e AGENT_AUTO_REGISTER_RESOURCES=... \
         -e AGENT_AUTO_REGISTER_ENVIRONMENTS=... \
         -e AGENT_AUTO_REGISTER_HOSTNAME=... \
-        gocd/${imageName}:v${goVersion}
+        gocd/${imageName}:v${goVersions.goVersion}
 ```
 
-If the `AGENT_AUTO_REGISTER_*` variables are provided (we recommend that you do), then the agent will be automatically approved by the server. See the [auto registration docs](https://docs.gocd.org/${goVersion}/advanced_usage/agent_auto_register.html) on the GoCD website.
+If the `AGENT_AUTO_REGISTER_*` variables are provided (we recommend that you do), then the agent will be automatically approved by the server. See the [auto registration docs](https://docs.gocd.org/${goVersions.goVersion}/advanced_usage/agent_auto_register.html) on the GoCD website.
 
 ## Configuring SSL
 
-To configure SSL parameters, pass the parameters using the environment variable `AGENT_BOOTSTRAPPER_ARGS`. See [this documentation](https://docs.gocd.org/${goVersion}/installation/ssl_tls/end_to_end_transport_security.html) for supported options.
+To configure SSL parameters, pass the parameters using the environment variable `AGENT_BOOTSTRAPPER_ARGS`. See [this documentation](https://docs.gocd.org/${goVersions.goVersion}/installation/ssl_tls/end_to_end_transport_security.html) for supported options.
 
 ```shell
     docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d \
     -e AGENT_BOOTSTRAPPER_ARGS='-sslVerificationMode NONE ...' \
-    gocd/${imageName}:v${goVersion}
+    gocd/${imageName}:v${goVersions.goVersion}
 ```
 
 <#if !distro.privilegedModeSupport>
@@ -76,7 +76,7 @@ This image will work well with the [docker elastic agent plugin](https://github.
 The GoCD agent will store all configuration, logs and perform builds in `/godata`. If you'd like to provide secure credentials like SSH private keys among other things, you can mount `/home/go`.
 
 ```
-docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-v /path/to/godata:/godata -v /path/to/home-dir:/home/go gocd/${imageName}:v${goVersion}
+docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-v /path/to/godata:/godata -v /path/to/home-dir:/home/go gocd/${imageName}:v${goVersions.goVersion}
 ```
 
 > **Note:** Ensure that `/path/to/home-dir` and `/path/to/godata` is accessible by the `go` user in container (`go` user - uid 1000).
@@ -86,7 +86,7 @@ docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-v /path/t
 JVM options can be tweaked using the environment variable `GOCD_AGENT_JVM_OPTS`.
 
 ```
-docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-e GOCD_AGENT_JVM_OPTS="-Dfoo=bar" gocd/${imageName}:v${goVersion}
+docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-e GOCD_AGENT_JVM_OPTS="-Dfoo=bar" gocd/${imageName}:v${goVersions.goVersion}
 ```
 
 # Under the hood

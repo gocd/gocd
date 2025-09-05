@@ -16,8 +16,11 @@
 
 package com.thoughtworks.go.build
 
+import groovy.transform.Immutable
+
 import java.nio.charset.StandardCharsets
 
+@Immutable
 class AdoptiumVersion implements Serializable {
   int feature // e.g 17
   Integer interim // e.g null, or 0

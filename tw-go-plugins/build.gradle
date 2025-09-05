@@ -1,5 +1,6 @@
 import com.thoughtworks.go.build.DownloadFile
 import com.thoughtworks.go.build.GithubArtifact
+import com.thoughtworks.go.build.GoVersions
 import com.thoughtworks.go.build.VerifyJarTask
 import org.apache.commons.codec.digest.DigestUtils
 
@@ -62,16 +63,16 @@ def dependencies = [
 ]
 
 tasks.register('createVersionFile') {
-  def file = layout.buildDirectory.file("version.txt").get().asFile
-  inputs.property('version', rootProject.version)
-  inputs.property('gitRevision', rootProject.gitRevision)
+  def goVersions = project.goVersions as GoVersions
+  inputs.property('goVersions', goVersions)
 
+  def file = layout.buildDirectory.file("version.txt").get().asFile
   outputs.file file
 
   doLast {
     file.getParentFile().mkdirs()
     file.withWriter { out ->
-      out.write("${rootProject.version} (${rootProject.gitRevision})")
+      out.write("${goVersions.fullVersion} (${goVersions.gitRevision})")
     }
   }
 }

@@ -19,6 +19,7 @@ import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
 import com.thoughtworks.go.build.AdoptiumVersion
+import com.thoughtworks.go.build.GoVersions
 import com.thoughtworks.go.build.InstallerType
 import de.undercouch.gradle.tasks.download.Download
 import nl.javadude.gradle.plugins.license.License
@@ -41,89 +42,38 @@ if (file('build-ext.gradle').exists()) {
   apply from: 'build-ext.gradle'
 }
 
-def script = this
-
-def determineGitRevision = { ->
-  def process = "git rev-list HEAD --max-count=1".execute(null, project.file(script.buildscript.sourceFile.canonicalFile.parent))
-  process.waitFor()
-  return process.text.stripIndent().trim()
-}
-
-def determineReleaseRevision = { ->
-  def process = "git rev-list HEAD --count".execute(null, project.file(script.buildscript.sourceFile.canonicalFile.parent))
-  process.waitFor()
-  return process.text.stripIndent().trim()
-}
-
-def getVersion = { ... args ->
-  try {
-    return providers.exec {
-      commandLine(args)
-    }.standardOutput.asText.getOrElse("could not determine version!").trim()
-  } catch (Exception e) {
-    return "could not determine version! (${e.message})"
-  }
-}
-
+// Updated via automated scripting
 def GO_VERSION_PREVIOUS = '25.3.0'
 def GO_VERSION_SEGMENTS = [year: 25, releaseInYear: 4, patch: 0]
 def GO_VERSION_NEXT = '25.5.0'
 
-def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
-def DIST_VERSION = determineReleaseRevision()
-def GIT_REVISION = determineGitRevision()
-
-if (System.getenv().containsKey("GO_SERVER_URL")) {
-  def separator = "=".multiply(72)
-
-  println separator
-  println "Gradle version:  ${gradle.gradleVersion}"
-  println "JVM:             ${System.getProperty('java.version')} (${System.getProperty('java.vm.vendor')} ${System.getProperty('java.vm.version')})"
-  println "OS:              ${System.getProperty('os.name')} ${System.getProperty('os.version')} ${System.getProperty('os.arch')}"
-  println separator
-  println("")
-
-  println("Tool Versions")
-  println(separator)
-  println("node: ${getVersion("node", "--version")}")
-  println(" git: ${getVersion("git", "--version")}")
-  println("  hg: ${getVersion("hg", "--quiet", "--version")}")
-  println(" svn: ${getVersion("svn", "--quiet", "--version")}")
-  println("  p4: ${getVersion("p4", "-V").readLines().grep(~/Rev.*/).join("")}")
-  println(" p4d: ${getVersion("p4d", "-V").readLines().grep(~/Rev.*/).join("")}")
-  println(separator)
-  println("")
-}
-
-ext {
-  previousVersion = GO_VERSION_PREVIOUS
-  nextVersion = GO_VERSION_NEXT
-  goVersionSegments = GO_VERSION_SEGMENTS
-  goVersion = GO_VERSION
-  distVersion = DIST_VERSION
-  fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
-  gitRevision = GIT_REVISION
+def goVersions = new GoVersions(
+  previousVersion: GO_VERSION_PREVIOUS,
+  goVersion: [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.'),
+  nextVersion: GO_VERSION_NEXT,
 
   // Default target version. Can be overridden by sub-projects.
-  targetJavaVersion = 17
+  targetJavaVersion: 17,
 
   // Version of JVM to compile and test using.
-  buildJavaVersion = 21
+  buildJavaVersion: 21,
 
   // Version to package with installers and container images by default
-  packagedJavaVersion = new AdoptiumVersion(
+  packagedJavaVersion: new AdoptiumVersion(
     feature: 21,
     interim: 0,    // set to `null` for the first release of a new featureVersion
-    update : 8,    // set to `null` for the first release of a new featureVersion
-    patch  : null, // set to `null` for most releases. Patch releases are "exceptional".
-    build  : 9
-  )
-}
+    update: 8,    // set to `null` for the first release of a new featureVersion
+    patch: null, // set to `null` for most releases. Patch releases are "exceptional".
+    build: 9
+  ),
+)
+ext.goVersions = goVersions
+GoVersions.printGradleDebuggingOutputFor(gradle, goVersions)
 
 allprojects {
   apply plugin: 'idea'
   group = 'com.thoughtworks.go'
-  version = project.fullVersion
+  version = goVersions.fullVersion
   layout.buildDirectory = "${projectDir}/target"
 
   repositories {
@@ -136,9 +86,9 @@ allprojects {
 
 idea {
   project {
-    jdkName = project.buildJavaVersion
-    targetBytecodeVersion = JavaVersion.toVersion(project.targetJavaVersion)
-    languageLevel = new IdeaLanguageLevel(project.targetJavaVersion)
+    jdkName = goVersions.buildJavaVersion
+    targetBytecodeVersion = JavaVersion.toVersion(goVersions.targetJavaVersion)
+    languageLevel = new IdeaLanguageLevel(goVersions.targetJavaVersion)
   }
 }
 
@@ -384,7 +334,7 @@ subprojects {
     manifest {
       attributes(
         'Go-Version': project.version,
-        'Go-Revision': project.gitRevision,
+        'Go-Revision': goVersions.gitRevision,
         'Implementation-Title': project.name,
         'Implementation-Version': project.version
       )
@@ -426,10 +376,10 @@ subprojects {
     options.encoding = "UTF-8"
     options.compilerArgs << '-Werror'
     options.compilerArgs << '-Xlint:all,-serial,-deprecation,-processing,-this-escape,-classfile,-overloads'
-    options.release.set(project.targetJavaVersion as Integer)
+    options.release.set(goVersions.targetJavaVersion as Integer)
 
     javaCompiler = javaToolchains.compilerFor {
-      languageVersion = JavaLanguageVersion.of(project.buildJavaVersion)
+      languageVersion = JavaLanguageVersion.of(goVersions.buildJavaVersion)
     }
   }
 
@@ -451,7 +401,7 @@ subprojects {
 
     testTask.useJUnitPlatform()
     javaLauncher = javaToolchains.launcherFor {
-      languageVersion = JavaLanguageVersion.of(project.buildJavaVersion)
+      languageVersion = JavaLanguageVersion.of(goVersions.buildJavaVersion)
     }
 
     def allTestClasses

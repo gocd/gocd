@@ -62,6 +62,7 @@ class LicenseReport {
   private final File yarnLicenseReport
   private final File reportDir
   private final File rubygemsLicenseReport
+  private final GoVersions goVersions
 
   LicenseReport(Project project, File reportDir, Map<String, Map<String, Object>> licensesForPackagedJarDependencies, File yarnLicenseReport, File rubygemsLicenseReport) {
     this.licensesForPackagedJarDependencies = licensesForPackagedJarDependencies
@@ -70,6 +71,7 @@ class LicenseReport {
     this.yarnLicenseReport = yarnLicenseReport
     this.rubygemsLicenseReport = rubygemsLicenseReport
     this.counter = new AtomicInteger(0)
+    this.goVersions = project.goVersions
   }
 
   String generate() {
@@ -86,7 +88,7 @@ class LicenseReport {
         }
 
         body {
-          div(class: "header", "Dependency License Report for GoCD ${project.version}")
+          div(class: "header", "Dependency License Report for GoCD ${goVersions.goVersion}")
 
           licensesForPackagedJarDependencies.each { String moduleName, Map<String, Object> moduleLicenseData ->
             // find what project contains the specific module
@@ -126,7 +128,7 @@ class LicenseReport {
             renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
           }
 
-          def jreLicense = project.packagedJavaVersion.toLicenseMetadata()
+          def jreLicense = goVersions.packagedJavaVersion.toLicenseMetadata()
           renderModuleData(markup, counter.incrementAndGet(), jreLicense.moduleName, jreLicense)
         }
       }

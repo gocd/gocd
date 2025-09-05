@@ -23,25 +23,29 @@ private File destFile(String url) {
 }
 
 tasks.register('downloadMacJreX64Checksum', DownloadFile) {
-  src project.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.mac, Architecture.x64)
+  def goVersions = project.goVersions as GoVersions
+  src goVersions.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.mac, Architecture.x64)
   dest destFile(src.toString())
 }
 
 tasks.register('downloadMacJreX64', DownloadFile) {
   dependsOn downloadMacJreX64Checksum
-  src project.packagedJavaVersion.toDownloadURLFor(OperatingSystem.mac, Architecture.x64)
+  def goVersions = project.goVersions as GoVersions
+  src goVersions.packagedJavaVersion.toDownloadURLFor(OperatingSystem.mac, Architecture.x64)
   dest destFile(src.toString())
   checksum = { downloadMacJreX64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
 tasks.register('downloadMacJreArm64Checksum', DownloadFile) {
-  src project.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.mac, Architecture.aarch64)
+  def goVersions = project.goVersions as GoVersions
+  src goVersions.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.mac, Architecture.aarch64)
   dest destFile(src.toString())
 }
 
 tasks.register('downloadMacJreArm64', DownloadFile) {
   dependsOn downloadMacJreArm64Checksum
-  src project.packagedJavaVersion.toDownloadURLFor(OperatingSystem.mac, Architecture.aarch64)
+  def goVersions = project.goVersions as GoVersions
+  src goVersions.packagedJavaVersion.toDownloadURLFor(OperatingSystem.mac, Architecture.aarch64)
   dest destFile(src.toString())
   checksum = { downloadMacJreArm64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
@@ -59,26 +63,27 @@ def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
     archiveBaseName = installerType.baseName
     archiveClassifier = arch == Architecture.aarch64 ? 'osx-aarch64' : 'osx'
 
+    def goVersions = project.goVersions as GoVersions
     def genericZipTree = zipTree(genericZipTask.archiveFile)
 
     // dont include the wrapper.conf, and tanuki wrappers for OSes other than osx
     from(genericZipTree) {
-      exclude "${installerType.baseName}-${project.goVersion}/wrapper-config/wrapper.conf"
-      exclude "${installerType.baseName}-${project.goVersion}/wrapper/wrapper-*"
-      exclude "${installerType.baseName}-${project.goVersion}/wrapper/libwrapper-*"
-      exclude "${installerType.baseName}-${project.goVersion}/bin/*.bat"
+      exclude "${installerType.baseName}-${goVersions.goVersion}/wrapper-config/wrapper.conf"
+      exclude "${installerType.baseName}-${goVersions.goVersion}/wrapper/wrapper-*"
+      exclude "${installerType.baseName}-${goVersions.goVersion}/wrapper/libwrapper-*"
+      exclude "${installerType.baseName}-${goVersions.goVersion}/bin/*.bat"
     }
 
     def wrapperArch = arch == Architecture.aarch64 ? 'arm-64' : 'universal-64'
 
     from(genericZipTree) {
-      include "${installerType.baseName}-${project.goVersion}/wrapper/wrapper-macosx-${wrapperArch}"
-      include "${installerType.baseName}-${project.goVersion}/wrapper/libwrapper-macosx-${wrapperArch}*"
+      include "${installerType.baseName}-${goVersions.goVersion}/wrapper/wrapper-macosx-${wrapperArch}"
+      include "${installerType.baseName}-${goVersions.goVersion}/wrapper/libwrapper-macosx-${wrapperArch}*"
     }
 
     // include the wrapper.conf, but replace the java command
     from(genericZipTree) {
-      include "${installerType.baseName}-${project.goVersion}/wrapper-config/wrapper.conf"
+      include "${installerType.baseName}-${goVersions.goVersion}/wrapper-config/wrapper.conf"
       filter { String eachLine ->
         if (eachLine == 'wrapper.java.command=java') {
           eachLine = 'wrapper.java.command=jre/Contents/Home/bin/java'
@@ -95,7 +100,7 @@ def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
         fcd.relativePath = new RelativePath(!fcd.isDirectory(), (segments as String[]))
       }
       includeEmptyDirs = false
-      into("${installerType.baseName}-${project.goVersion}")
+      into("${installerType.baseName}-${goVersions.goVersion}")
     }
   }
 

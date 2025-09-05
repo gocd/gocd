@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+import com.thoughtworks.go.build.GoVersions
 import groovy.json.JsonOutput
 
 plugins {
@@ -38,24 +40,24 @@ dependencies {
 
 tasks.register('versionFile') {
   outputs.upToDateWhen { false }
+
+  def goVersions = project.goVersions as GoVersions
+  inputs.property('goVersions', goVersions)
+
   def versionFile = base.distsDirectory.file("meta/version.json")
-
-  inputs.property('goVersion', rootProject.goVersion)
-  inputs.property('distVersion', rootProject.distVersion)
-  inputs.property('gitRevision', rootProject.gitRevision)
-
   outputs.file versionFile
+
   doLast {
     versionFile.get().asFile.with {
       parentFile.mkdirs()
       withWriter { out ->
         out.write(JsonOutput.prettyPrint(JsonOutput.toJson([
-          go_version         : rootProject.goVersion,
-          previous_go_version: rootProject.previousVersion,
-          next_go_version    : rootProject.nextVersion,
-          go_build_number    : rootProject.distVersion,
-          go_full_version    : rootProject.fullVersion,
-          git_sha            : rootProject.gitRevision,
+          go_version         : goVersions.goVersion,
+          previous_go_version: goVersions.previousVersion,
+          next_go_version    : goVersions.nextVersion,
+          go_build_number    : goVersions.distVersion,
+          go_full_version    : goVersions.fullVersion,
+          git_sha            : goVersions.gitRevision,
           pipeline_name      : System.getenv('GO_PIPELINE_NAME'),
           pipeline_counter   : System.getenv('GO_PIPELINE_COUNTER'),
           pipeline_label     : System.getenv('GO_PIPELINE_LABEL'),

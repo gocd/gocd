@@ -29,8 +29,9 @@ static def useRegistryMirror() {
 }
 
 def configureDockerRegistryMirror = tasks.register('configureDockerRegistryMirror') {
+  def skipDockerBuild = project.hasProperty('skipDockerBuild')
   doFirst {
-    if (!project.hasProperty('skipDockerBuild') && useRegistryMirror()) {
+    if (!skipDockerBuild && useRegistryMirror()) {
       logger.lifecycle("Configuring dockerhub mirror credentials, assuming docker.gocd.io is configured...")
       def dockerConfig = file("${System.properties['user.home']}/.docker/config.json")
       dockerConfig.parentFile.mkdirs()
@@ -51,7 +52,7 @@ def configureDockerRegistryMirror = tasks.register('configureDockerRegistryMirro
 tasks.register('initializeBuildx') {
   dependsOn configureDockerRegistryMirror
 
-  def injected = project.objects.newInstance(InjectedExecOps)
+  def injected = project.objects.newInstance(Injected)
   def skipDockerBuild = project.hasProperty('skipDockerBuild')
 
   doFirst {

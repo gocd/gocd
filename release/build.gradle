@@ -24,7 +24,7 @@ tasks.register('updateBuildMap') {
 
   onlyIf { username && password }
 
-  def injected = project.objects.newInstance(InjectedExecOps)
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     delete(checkoutDir)
 

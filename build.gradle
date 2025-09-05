@@ -648,7 +648,7 @@ dependencyCheck {
 }
 
 dependencyCheckAggregate {
-  def injected = project.objects.newInstance(InjectedExecOps)
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     injected.execOps.exec {
       commandLine = [ "gem", "install", "bundler-audit", "--no-document" ]
@@ -702,7 +702,7 @@ if (System.getenv().containsKey("NEXUS_CACHE_USERNAME")) {
     archiveFileName = "dependency-check-data-updated.zip"
     destinationDirectory = layout.buildDirectory
 
-    def injected = project.objects.newInstance(InjectedExecOps)
+    def injected = project.objects.newInstance(Injected)
     doLast {
       injected.execOps.exec {
         workingDir = projectDir
@@ -911,7 +911,7 @@ tasks.register('newSPA') {
 
 tasks.register('removeApi') {
   description = "Helper to create a delete an api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
-  def injected = project.objects.newInstance(InjectedExecOps)
+  def injected = project.objects.newInstance(Injected)
 
   doFirst {
     String apiName = project.apiName
@@ -1212,6 +1212,7 @@ tasks.register('newApi') {
 tasks.register('upgradeApi') {
   description = "Helper to upgrade an new api module. Pass `-PapiName=roles-config`"
 
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     String apiName = project.apiName
     List<Integer> allApiVersions = rootProject.project(':api').allprojects
@@ -1239,7 +1240,7 @@ tasks.register('upgradeApi') {
 
     delete(moduleDir)
 
-    copy {
+    injected.fileOps.copy {
       from oldProject.projectDir
       into moduleDir
 

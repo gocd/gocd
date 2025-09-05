@@ -426,7 +426,7 @@ tasks.register('findGemsToNotPack') {
   outputs.file(outputFile)
   outputs.cacheIf { true }
 
-  def injected = project.objects.newInstance(InjectedExecOps)
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     JRuby.exec(project, injected.execOps) {
       environment += [
@@ -449,7 +449,7 @@ tasks.register('generateRubygemsLicenseReport') {
   outputs.file(licenseReportFile)
   outputs.cacheIf { true }
 
-  def injected = project.objects.newInstance(InjectedExecOps)
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     JRuby.exec(project, injected.execOps) {
       environment += [

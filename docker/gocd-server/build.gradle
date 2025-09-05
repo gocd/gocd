@@ -70,7 +70,7 @@ subprojects {
     task.templateHelper = {
       deleteGitRepoDirectoryContents()
 
-      copy {
+      fileOps.copy {
         from rootProject.file("LICENSE")
         into gitRepoDirectory
       }
@@ -98,7 +98,6 @@ subprojects {
     task.verifyHelper = {
       def cleanContainer = { OutputStream errorStream = System.err ->
         execOps.exec {
-          workingDir = project.rootProject.projectDir
           commandLine = ["docker", "rm", "--force", docker.dockerImageName]
           standardOutput = System.out
           errorOutput = errorStream
@@ -109,7 +108,6 @@ subprojects {
 
       // daemonize the container
       execOps.exec {
-        workingDir = project.rootProject.projectDir
         commandLine = ["docker", "run", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
         standardOutput = System.out
         errorOutput = System.err
@@ -128,7 +126,6 @@ subprojects {
 
         distro.additionalVerifyCommands.each { command ->
           execOps.exec {
-            workingDir = project.rootProject.projectDir
             commandLine = ["docker", "exec", docker.dockerImageName] + command
             standardOutput = System.out
             errorOutput = System.err
@@ -145,9 +142,13 @@ subprojects {
 }
 
 tasks.register('generateManifest') {
+  def dockerTasks = subprojects.tasks*.named('docker') as Collection<TaskProvider<? extends BuildDockerImageTask>>
+  def manifest = layout.buildDirectory.file("docker/manifest.json")
+  outputs.file(manifest)
+
   doLast {
     def meta = []
-    subprojects.tasks*.getByName('docker').forEach { BuildDockerImageTask dockerTask ->
+    dockerTasks.collect { it.get() }.each { dockerTask ->
       meta << [
         file     : "${dockerTask.imageTarFile.name}",
         format   : 'oci',
@@ -157,7 +158,7 @@ tasks.register('generateManifest') {
       ]
     }
 
-    def jsonFile = layout.buildDirectory.file("docker/manifest.json").get().asFile
+    def jsonFile = manifest.get().asFile
     mkdir(jsonFile.parentFile)
     jsonFile.withWriter("utf-8") { Writer out ->
       out << JsonOutput.toJson(meta)

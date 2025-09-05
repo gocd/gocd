@@ -26,18 +26,18 @@ enum PackageType {
   deb {
     // Debian packages allow either most recent or minimum Java version in dependencies because
     // Java 21 was not available on Debian releases despite it being preferred, although was available for Ubuntu.
-    String jreDependency(Project project) {
-      "openjdk-${project.packagedJavaVersion.feature}-jre-headless | openjdk-${project.targetJavaVersion}-jre-headless"
+    String jreDependency(Object javaVersions) {
+      "openjdk-${javaVersions.packaged.feature}-jre-headless | openjdk-${javaVersions.target}-jre-headless"
     }
 
-    String jreBinaryLocator(Project project) {
+    String jreBinaryLocator(Object javaVersions) {
       // Find the most recent version that was installed
-      """ls /usr/lib/jvm/java-${project.packagedJavaVersion.feature}-openjdk-\$(dpkg --print-architecture)/bin/java \
-            /usr/lib/jvm/java-${project.targetJavaVersion}-openjdk-\$(dpkg --print-architecture)/bin/java \
+      """ls /usr/lib/jvm/java-${javaVersions.packaged.feature}-openjdk-\$(dpkg --print-architecture)/bin/java \
+            /usr/lib/jvm/java-${javaVersions.target}-openjdk-\$(dpkg --print-architecture)/bin/java \
          2>/dev/null | tail -1"""
     }
 
-    List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {
+    List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, Object javaVersions) {
       List<String> fpmArgs = []
       fpmArgs += ['-t', 'deb']
       fpmArgs += ['--deb-no-default-config-files']
@@ -48,36 +48,33 @@ enum PackageType {
       // for `ps`
       fpmArgs += ['--depends', 'procps']
 
-      fpmArgs += ['--deb-recommends', jreDependency(project)]
+      fpmArgs += ['--deb-recommends', jreDependency(javaVersions)]
 
       // HACK: for debian packages :(, since manifests cannot contain fine grained ownership
-      def tmpDir = layout.buildDirectory.dir("tmp").get().asFile
-      tmpDir.mkdirs()
+      File dirPermissions = File.createTempFile("dirPermissions-", ".json")
+      File filePermissions = File.createTempFile("filePermissions-", ".json")
 
-      File dirPermissons = File.createTempFile("dirPermissions-", ".json", tmpDir)
-      File filePermissions = File.createTempFile("filePermissions-", ".json", tmpDir)
-
-      fpmArgs += ['--template-value', "dir_permissions=${dirPermissons}"]
+      fpmArgs += ['--template-value', "dir_permissions=${dirPermissions}"]
       fpmArgs += ['--template-value', "file_permissions=${filePermissions}"]
 
-      dirPermissons.write(JsonOutput.toJson(installerType.directories))
+      dirPermissions.write(JsonOutput.toJson(installerType.directories))
       filePermissions.write(JsonOutput.toJson(installerType.configFiles))
       return fpmArgs
     }
   },
   rpm {
-    String jreDependency(Project project) {
-      "(java-${project.packagedJavaVersion.feature}-openjdk-headless or java-${project.targetJavaVersion}-openjdk-headless)"
+    String jreDependency(Object javaVersions) {
+      "(java-${javaVersions.packaged.feature}-openjdk-headless or java-${javaVersions.target}-openjdk-headless)"
     }
 
-    String jreBinaryLocator(Project project) {
+    String jreBinaryLocator(Object javaVersions) {
       // Find the most recent version that was installed
-      """ls /etc/alternatives/jre_${project.packagedJavaVersion.feature}/bin/java \
-            /etc/alternatives/jre_${project.targetJavaVersion}/bin/java \
+      """ls /etc/alternatives/jre_${javaVersions.packaged.feature}/bin/java \
+            /etc/alternatives/jre_${javaVersions.target}/bin/java \
          2>/dev/null | tail -1"""
     }
 
-    List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {
+    List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, Object javaVersions) {
       List<String> fpmArgs = []
 
       fpmArgs += ['-t', 'rpm']
@@ -89,7 +86,7 @@ enum PackageType {
       // for `ps`
       fpmArgs += ['--depends', 'procps']
 
-      fpmArgs += ['--rpm-tag', "Recommends: ${jreDependency(project)}"]
+      fpmArgs += ['--rpm-tag', "Recommends: ${jreDependency(javaVersions)}"]
 
       fpmArgs += ['--rpm-defattrfile', '0444']
       fpmArgs += ['--rpm-defattrdir', '0755']
@@ -101,7 +98,7 @@ enum PackageType {
           }
       }
 
-      project.fileTree(buildRoot).files.forEach({ File eachFile ->
+      injected.objectFactory.fileTree().from(buildRoot).files.forEach({ File eachFile ->
         if (eachFile.canExecute()) {
           def relativePath = buildRoot.toURI().relativize(eachFile.toURI()).getPath()
           fpmArgs += ['--rpm-attr', "0755,root,root:/${relativePath}"]
@@ -122,8 +119,8 @@ enum PackageType {
   /**
    * @return POSIX shell script that will find a path to the optimal JRE java binary for the relevant package
    */
-  abstract jreBinaryLocator(Project project)
-  abstract List<String> configureFpm(Project project, File buildRoot, InstallerType installerType)
+  abstract jreBinaryLocator(Object javaVersions)
+  abstract List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, Object javaVersions)
 }
 
 private File destFile(String url) {
@@ -136,13 +133,23 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
     dependsOn extractDeltaPack
     outputs.dir(destDir)
 
-    def injected = project.objects.newInstance(InjectedExecOps)
+    def licenseSource = "${rootProject.projectDir}/LICENSE"
+    def injected = project.objects.newInstance(Injected)
+
+    def versions = [
+      deps: project.versions,
+      java: [
+        packaged: project.packagedJavaVersion,
+        target: project.targetJavaVersion,
+      ],
+      go: project.goVersion,
+    ]
 
     doFirst {
-      delete(buildRoot)
-      mkdir(destDir)
+      injected.fileOps.delete { delete(buildRoot) }
+      destDir.mkdirs()
 
-      copy {
+      injected.fileOps.copy {
         from(configuration.singleFile) {
           rename "(.*)", installerType.jarFileName
         }
@@ -153,18 +160,18 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         file("${buildRoot.path}/${dirName}").mkdirs()
       }
 
-      copy {
-        from("${rootProject.projectDir}/LICENSE")
+      injected.fileOps.copy {
+        from(licenseSource)
         into "${buildRoot.path}/usr/share/doc/${installerType.baseName}"
       }
 
-      copy {
+      injected.fileOps.copy {
         into "${buildRoot.path}/usr/share/${installerType.baseName}/bin"
         filePermissions {
           unix(0755)
         }
 
-        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}/src/bin/App.sh.in") {
+        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${versions.deps.tanuki}/src/bin/App.sh.in") {
           filter({ String eachLine ->
             eachLine = eachLine
               .replaceAll('@app.name@', installerType.baseName)
@@ -197,9 +204,9 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         }
       }
 
-      copy {
+      injected.fileOps.copy {
         into "${buildRoot}/usr/share/${installerType.baseName}/wrapper-config"
-        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}/src/conf/wrapper.conf.in") {
+        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${versions.deps.tanuki}/src/conf/wrapper.conf.in") {
           filter({ String eachLine ->
             eachLine = eachLine
               .replaceAll('@app.name@', installerType.baseName)
@@ -285,20 +292,30 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         }
       }
 
-      copy {
+      injected.fileOps.copy {
         into "${buildRoot}/usr/share/${installerType.baseName}/wrapper"
-        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}/bin") {
+        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${versions.deps.tanuki}/bin") {
           include 'wrapper-linux-x86-64*'
           include 'wrapper-linux-arm-64*'
         }
 
-        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}/lib") {
+        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${versions.deps.tanuki}/lib") {
           include 'wrapper.jar'
           include 'libwrapper-linux-x86-64*'
           include 'libwrapper-linux-arm-64*'
         }
       }
     }
+
+    def templatePaths = [
+      beforeInstall: project.file('linux/shared/before-install.sh.erb').path,
+      beforeUpgrade: project.file("linux/${packageType}/before-upgrade.sh.erb").path,
+      afterUpgrade: project.file("linux/${packageType}/after-upgrade.sh.erb").path,
+      afterInstall: project.file("linux/${packageType}/after-install.sh.erb").path,
+      beforeRemove: project.file("linux/${packageType}/before-remove.sh.erb").path,
+      postTrans: project.file("linux/rpm/post-tran.sh.erb").path,
+    ]
+    def installScriptsDir = project.file('linux').path
 
     doLast {
       injected.execOps.exec {
@@ -315,7 +332,7 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         cmd += ['-C', buildRoot.path]
         cmd += ['--name', installerType.baseName]
         cmd += ['--description', installerType.packageDescription]
-        cmd += ['--version', project.goVersion]
+        cmd += ['--version', versions.go]
         cmd += ['--iteration', distVersion]
         cmd += ['--license', 'Apache-2.0']
         cmd += ['--vendor', 'Thoughtworks, Inc.']
@@ -323,13 +340,13 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         cmd += ['--architecture', 'all']
         cmd += ['--maintainer', 'Thoughtworks, Inc.']
         cmd += ['--url', 'https://gocd.org']
-        cmd += ['--before-install', project.file('linux/shared/before-install.sh.erb').path]
-        cmd += ['--before-upgrade', project.file("linux/${packageType}/before-upgrade.sh.erb").path]
-        cmd += ['--after-upgrade', project.file("linux/${packageType}/after-upgrade.sh.erb").path]
-        cmd += ['--after-install', project.file("linux/${packageType}/after-install.sh.erb").path]
-        cmd += ['--before-remove', project.file("linux/${packageType}/before-remove.sh.erb").path]
-        cmd += ['--rpm-posttrans', project.file("linux/rpm/post-tran.sh.erb").path]
-        cmd += ['--template-value', "install_scripts_dir=${project.file('linux').path}"]
+        cmd += ['--before-install', templatePaths.beforeInstall]
+        cmd += ['--before-upgrade', templatePaths.beforeUpgrade]
+        cmd += ['--after-upgrade', templatePaths.afterUpgrade]
+        cmd += ['--after-install', templatePaths.afterInstall]
+        cmd += ['--before-remove', templatePaths.beforeRemove]
+        cmd += ['--rpm-posttrans', templatePaths.postTrans]
+        cmd += ['--template-value', "install_scripts_dir=${installScriptsDir}"]
         cmd += ['--template-scripts']
 
         installerType.directories.each { dirName, permissions ->
@@ -344,13 +361,13 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
           }
         }
 
-        cmd += packageType.configureFpm(project, buildRoot, installerType)
+        cmd += packageType.fpmArgs(injected, buildRoot, installerType, versions.java)
 
         commandLine = cmd
 
-        environment += ['JRE_BINARY_LOCATOR': packageType.jreBinaryLocator(project)]
+        environment += ['JRE_BINARY_LOCATOR': packageType.jreBinaryLocator(versions.java)]
 
-        workingDir layout.buildDirectory.dir("distributions/${packageType}")
+        workingDir = destDir
 
         standardOutput = System.out
         errorOutput = System.err
@@ -362,8 +379,9 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
 }
 
 def copyMultipleAgentsReadme(Task packageTask, File buildRoot, InstallerType installerType) {
+  def injected = project.objects.newInstance(Injected)
   packageTask.doFirst {
-    copy {
+    injected.fileOps.copy {
       from "go-agent/release/README-running-multiple-agents.md"
       into "${buildRoot.path}/usr/share/doc/${installerType.baseName}"
     }

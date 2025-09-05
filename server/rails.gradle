@@ -81,13 +81,14 @@ tasks.register('createJRubyBinstubs') {
   inputs.properties(templateProperties)
   outputs.dir(outputDir)
 
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     templateProperties['jrubyJar'] = jrubyJarLoc.get()
     delete(outputDir)
     mkdir(outputDir)
 
     ['rspec'].each { file ->
-      copy {
+      injected.fileOps.copy {
         from "script-templates/${file}"
         into outputDir
         filePermissions {
@@ -124,7 +125,7 @@ tasks.register('initializeRailsGems') {
 
   outputs.dir(project.bundledGemDir)
 
-  def injected = project.objects.newInstance(InjectedExecOps)
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     JRuby.exec(project, injected.execOps) {
       workingDir = root
@@ -267,6 +268,7 @@ tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
 
   args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
 
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     delete "${workingDir}/tmp"
     delete outputAssetsDir
@@ -274,7 +276,7 @@ tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
   }
 
   doLast {
-    copy {
+    injected.fileOps.copy {
       from publicAssetsDir
       into outputAssetsDir
     }
@@ -294,20 +296,21 @@ tasks.register('compileAssets') {
   def outputDir = layout.buildDirectory.dir("assets").get().asFile
   outputs.dir(outputDir)
 
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     delete outputDir
 
-    copy {
+    injected.fileOps.copy {
       from licenseReportAggregate
       // assets are cached with a long lived cache header
       // we purposefully add a version string in the path so every new build will basically use a different url
       into "${outputDir}/dependency-license-report-${version}"
     }
-    copy {
+    injected.fileOps.copy {
       from compileAssetsRailsProd
       into outputDir
     }
-    copy {
+    injected.fileOps.copy {
       from compileAssetsWebpackProd
       into "${outputDir}/webpack"
     }

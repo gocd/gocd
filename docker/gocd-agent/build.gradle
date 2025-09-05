@@ -68,11 +68,11 @@ subprojects {
     task.outputDir.set(parent.layout.buildDirectory.dir("docker") as Provider<Directory>)
 
     task.templateHelper = {
-      task.deleteGitRepoDirectoryContents()
+      deleteGitRepoDirectoryContents()
 
       fileOps.copy {
         from rootProject.file("LICENSE")
-        into task.gitRepoDirectory
+        into gitRepoDirectory
       }
 
       task.writeTemplateToFile("README.md.ftl", "README.md")
@@ -107,7 +107,6 @@ subprojects {
     task.verifyHelper = {
       def cleanContainer = { OutputStream errorStream = System.err ->
         execOps.exec {
-          workingDir = task.gitRepoDirectory
           commandLine = ["docker", "rm", "--force", docker.dockerImageName]
           standardOutput = System.out
           errorOutput = errorStream
@@ -119,7 +118,6 @@ subprojects {
       // daemonize the container
       execOps.exec {
         def additionalFlags = distro == Distro.docker ? ["--privileged"] : []
-        workingDir = task.gitRepoDirectory
         commandLine = ["docker", "run", "-e", "GO_SERVER_URL=http://localhost:8153/go", "-d", "--name", docker.dockerImageName] + additionalFlags + [docker.imageNameWithTag] as List<String>
         standardOutput = System.out
         errorOutput = System.err
@@ -138,7 +136,6 @@ subprojects {
 
         distro.additionalVerifyCommands.each { command ->
           execOps.exec {
-            workingDir = task.gitRepoDirectory
             commandLine = ["docker", "exec", docker.dockerImageName] + command
             standardOutput = System.out
             errorOutput = System.err
@@ -151,13 +148,17 @@ subprojects {
       }
     }
   }
-  assemble.dependsOn docker
+  assemble.dependsOn(docker)
 }
 
 tasks.register('generateManifest') {
+  def dockerTasks = subprojects.tasks*.named('docker') as Collection<TaskProvider<? extends BuildDockerImageTask>>
+  def manifest = layout.buildDirectory.file("docker/manifest.json")
+  outputs.file(manifest)
+
   doLast {
     def meta = []
-    subprojects.tasks*.named('docker').forEach { BuildDockerImageTask dockerTask ->
+    dockerTasks.collect { it.get() }.each { dockerTask ->
       meta << [
         file     : "${dockerTask.imageTarFile.name}",
         format   : 'oci',
@@ -167,8 +168,8 @@ tasks.register('generateManifest') {
       ]
     }
 
-    def jsonFile = layout.buildDirectory.file("docker/manifest.json").get().asFile
-    jsonFile.parentFile.mkdirs()
+    def jsonFile = manifest.get().asFile
+    mkdir(jsonFile.parentFile)
     jsonFile.withWriter("utf-8") { Writer out ->
       out << JsonOutput.toJson(meta)
     }

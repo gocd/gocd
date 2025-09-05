@@ -93,7 +93,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
         return eachLine
       })
 
-      filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.UNIX)
+      filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance("unix"))
       rename 'App.sh.in', installerType.baseName
       into "bin"
       filePermissions {
@@ -145,7 +145,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
         return eachLine
       })
 
-      filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.DOS)
+      filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance("dos"))
     }
 
     from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}/src/conf/wrapper.conf.in") {
@@ -209,7 +209,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
 
       filter(ConcatFilter, append: file("include/wrapper-license-relative-path-${installerType.baseName}.conf"))
       filter(ConcatFilter, append: file("include/additional-properties.conf"))
-      filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.UNIX)
+      filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.newInstance("unix"))
 
       into 'wrapper-config'
       rename 'wrapper.conf.in', 'wrapper.conf'

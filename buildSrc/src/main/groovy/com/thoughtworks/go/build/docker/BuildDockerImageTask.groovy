@@ -29,7 +29,10 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
 
 import javax.inject.Inject
@@ -46,16 +49,16 @@ abstract class BuildDockerImageTask extends DefaultTask {
   @InputFile abstract RegularFileProperty getArtifactZip()
   @Input ImageType imageType
 
-  // We don't declare an output here, only an input; just so the task re-runs if it changes. We dont want it to be cached.
+  // We don't declare an output here, only an input. We dont want it to be cached.
   // Multiple tasks share dir from parent with unique tarballs per distribution, so they are not "owned" by the task.
-  @InputDirectory abstract DirectoryProperty getOutputDir()
+  @Internal abstract DirectoryProperty getOutputDir()
 
   @Internal Closure templateHelper
   @Internal Closure verifyHelper
   @Inject abstract ExecOperations getExecOps()
   @Inject abstract FileSystemOperations getFileOps()
 
-  private final Provider<Directory> buildDirectory = layout.buildDirectory
+  private final Provider<Directory> buildDirectory = project.layout.buildDirectory
 
   private final boolean skipBuild = project.hasProperty('skipDockerBuild')
   private final boolean skipNonNativeVerify = project.hasProperty('dockerBuildSkipNonNativeVerify')
@@ -139,7 +142,6 @@ abstract class BuildDockerImageTask extends DefaultTask {
       // delete the image, to save space
       if (!keepImages) {
         execOps.exec {
-          workingDir = gitRepoDirectory
           commandLine = ["docker", "rmi", imageNameWithTag]
         }
       }
@@ -171,7 +173,6 @@ abstract class BuildDockerImageTask extends DefaultTask {
     // run a `ps aux`
     ByteArrayOutputStream psOutput = new ByteArrayOutputStream()
     execOps.exec {
-      workingDir = gitRepoDirectory
       commandLine = ["docker", "exec", dockerImageName, "ps", "aux"]
       standardOutput = psOutput
       errorOutput = psOutput
@@ -180,7 +181,6 @@ abstract class BuildDockerImageTask extends DefaultTask {
 
     ByteArrayOutputStream containerOutput = new ByteArrayOutputStream()
     execOps.exec {
-      workingDir = gitRepoDirectory
       commandLine = ["docker", "logs", dockerImageName]
       standardOutput = containerOutput
       errorOutput = containerOutput

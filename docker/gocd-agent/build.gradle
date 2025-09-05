@@ -67,11 +67,13 @@ subprojects {
     task.imageType = ImageType.agent
     task.outputDir.set(parent.layout.buildDirectory.dir("docker") as Provider<Directory>)
 
+    def licenseSourceFile = rootProject.file("LICENSE")
+
     task.templateHelper = {
       deleteGitRepoDirectoryContents()
 
       fileOps.copy {
-        from rootProject.file("LICENSE")
+        from licenseSourceFile
         into gitRepoDirectory
       }
 

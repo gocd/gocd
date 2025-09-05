@@ -19,6 +19,7 @@ import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
 import com.thoughtworks.go.build.AdoptiumVersion
+import com.thoughtworks.go.build.GoVersions
 import com.thoughtworks.go.build.InstallerType
 import de.undercouch.gradle.tasks.download.Download
 import nl.javadude.gradle.plugins.license.License
@@ -41,109 +42,38 @@ if (file('build-ext.gradle').exists()) {
   apply from: 'build-ext.gradle'
 }
 
-def script = this
-
-def determineGitRevision = { ->
-  def process = "git rev-list HEAD --max-count=1".execute(null, project.file(script.buildscript.sourceFile.canonicalFile.parent))
-  process.waitFor()
-  return process.text.stripIndent().trim()
-}
-
-def determineReleaseRevision = { ->
-  def process = "git rev-list HEAD --count".execute(null, project.file(script.buildscript.sourceFile.canonicalFile.parent))
-  process.waitFor()
-  return process.text.stripIndent().trim()
-}
-
-def getVersion = { ... args ->
-  try {
-    return providers.exec {
-      commandLine(args)
-    }.standardOutput.asText.getOrElse("could not determine version!").trim()
-  } catch (Exception e) {
-    return "could not determine version! (${e.message})"
-  }
-}
-
-List<String> partitionFiles(Collection originalFiles) {
-  def files = originalFiles.unique().sort()
-  def seed = System.getenv('GO_PIPELINE_COUNTER')?.toInteger() ?: System.getenv('PARTITION_SEED')?.toInteger() ?: new SecureRandom().nextInt().abs()
-  def totalWorkers = System.getenv('GO_JOB_RUN_COUNT')?.toInteger() ?: 1
-  def currentWorkerIndex = System.getenv('GO_JOB_RUN_INDEX')?.toInteger() ?: 1
-
-  Integer testsPerBucket = (Integer) Math.ceil((double) files.size() / totalWorkers)
-
-  rootProject.logger.quiet("Partitioning ${files.size()} files into ${totalWorkers} buckets with approx ${testsPerBucket} files per bucket. Using seed ${seed}.")
-  rootProject.logger.quiet("To reproduce the test failure, run with:")
-  rootProject.logger.quiet("PARTITION_SEED=${seed} GO_JOB_RUN_COUNT=${totalWorkers} GO_JOB_RUN_INDEX=${currentWorkerIndex} ./gradlew YOUR_TARGET")
-
-  // random shuffle, every agent uses the same seed, so shuffling is predictable
-  Collections.shuffle(files, new Random(seed))
-
-  def allPartitions = files.collate(testsPerBucket)
-  def currentPartition = allPartitions[currentWorkerIndex - 1]
-  return (currentPartition ?: []) as List<String>
-}
-
+// Updated via automated scripting
 def GO_VERSION_PREVIOUS = '25.3.0'
 def GO_VERSION_SEGMENTS = [year: 25, releaseInYear: 4, patch: 0]
 def GO_VERSION_NEXT = '25.5.0'
 
-def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
-def DIST_VERSION = determineReleaseRevision()
-def GIT_REVISION = determineGitRevision()
-
-if (System.getenv().containsKey("GO_SERVER_URL")) {
-  def separator = "=".multiply(72)
-
-  println separator
-  println "Gradle version:  ${gradle.gradleVersion}"
-  println "JVM:             ${System.getProperty('java.version')} (${System.getProperty('java.vm.vendor')} ${System.getProperty('java.vm.version')})"
-  println "OS:              ${System.getProperty('os.name')} ${System.getProperty('os.version')} ${System.getProperty('os.arch')}"
-  println separator
-  println("")
-
-  println("Tool Versions")
-  println(separator)
-  println("node: ${getVersion("node", "--version")}")
-  println(" git: ${getVersion("git", "--version")}")
-  println("  hg: ${getVersion("hg", "--quiet", "--version")}")
-  println(" svn: ${getVersion("svn", "--quiet", "--version")}")
-  println("  p4: ${getVersion("p4", "-V").readLines().grep(~/Rev.*/).join("")}")
-  println(" p4d: ${getVersion("p4d", "-V").readLines().grep(~/Rev.*/).join("")}")
-  println(separator)
-  println("")
-}
-
-ext {
-  previousVersion = GO_VERSION_PREVIOUS
-  nextVersion = GO_VERSION_NEXT
-  goVersionSegments = GO_VERSION_SEGMENTS
-  goVersion = GO_VERSION
-  distVersion = DIST_VERSION
-  fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
-  gitRevision = GIT_REVISION
+def goVersions = new GoVersions(
+  previousVersion: GO_VERSION_PREVIOUS,
+  goVersion: [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.'),
+  nextVersion: GO_VERSION_NEXT,
 
   // Default target version. Can be overridden by sub-projects.
-  targetJavaVersion = 17
+  targetJavaVersion: 17,
 
   // Version of JVM to compile and test using.
-  buildJavaVersion = 21
+  buildJavaVersion: 21,
 
   // Version to package with installers and container images by default
-  packagedJavaVersion = new AdoptiumVersion(
+  packagedJavaVersion: new AdoptiumVersion(
     feature: 21,
     interim: 0,    // set to `null` for the first release of a new featureVersion
-    update : 8,    // set to `null` for the first release of a new featureVersion
-    patch  : null, // set to `null` for most releases. Patch releases are "exceptional".
-    build  : 9
-  )
-}
+    update: 8,    // set to `null` for the first release of a new featureVersion
+    patch: null, // set to `null` for most releases. Patch releases are "exceptional".
+    build: 9
+  ),
+)
+ext.goVersions = goVersions
+GoVersions.printGradleDebuggingOutputFor(gradle, goVersions)
 
 allprojects {
   apply plugin: 'idea'
   group = 'com.thoughtworks.go'
-  version = project.fullVersion
+  version = goVersions.fullVersion
   layout.buildDirectory = "${projectDir}/target"
 
   repositories {
@@ -156,9 +86,9 @@ allprojects {
 
 idea {
   project {
-    jdkName = project.buildJavaVersion
-    targetBytecodeVersion = JavaVersion.toVersion(project.targetJavaVersion)
-    languageLevel = new IdeaLanguageLevel(project.targetJavaVersion)
+    jdkName = goVersions.buildJavaVersion
+    targetBytecodeVersion = JavaVersion.toVersion(goVersions.targetJavaVersion)
+    languageLevel = new IdeaLanguageLevel(goVersions.targetJavaVersion)
   }
 }
 
@@ -167,10 +97,14 @@ subprojects {
     return
   }
   apply plugin: 'base'
-  apply plugin: "com.github.hierynomus.license"
+  apply plugin: 'com.github.hierynomus.license'
   license {
     skipExistingHeaders = false
     strictCheck = true
+    exclude '**/.gitkeep'
+    exclude '**/.tool-versions'
+    exclude '**/*.enc'
+    exclude '**/*.key'
     exclude '**/*.erb'
     exclude '**/*.ejs'
     exclude '**/*.keep'
@@ -179,6 +113,7 @@ subprojects {
     exclude '**/*.json'
     exclude '**/*.html'
     exclude '**/*.zip'
+    exclude '**/*.ico'
     exclude '**/*.png'
     exclude '**/*.jpg'
     exclude '**/*.jpeg'
@@ -187,8 +122,14 @@ subprojects {
     exclude '**/*.woff2'
     exclude '**/*.svg'
     exclude '**/*.json'
+    exclude '**/*.pk1'
+    exclude '**/*.pk8'
+    exclude '**/*.crt'
+    exclude '**/*.pass'
+    exclude '**/*.p12'
     exclude '**/*.scss.d.ts'
     exclude '**/.*.json'
+    exclude '**/*.lock'
     exclude '**/hg.template'
     exclude '**/available.toggles'
     exclude '**/META-INF/services/*'
@@ -202,6 +143,12 @@ subprojects {
     exclude '**/log/**'
     exclude '**/robots.txt'
     exclude '**/rails/bin/**'
+    exclude '**/rails/Gemfile*'
+    exclude '**/rails/Rakefile*'
+    exclude '**/rails/.babelrc'
+    exclude '**/rails/.eslintignore'
+    exclude '**/rails/.bundle/**'
+    exclude '**/rails/.yarn/**'
 
     // Code borrowed from other projects
     exclude '**/JavaVersion.java'
@@ -245,6 +192,8 @@ subprojects {
       scss = 'SLASHSTAR_STYLE'
       sass = 'SLASHSTAR_STYLE'
       css = 'SLASHSTAR_STYLE'
+      rb = 'SCRIPT_STYLE'
+      rake = 'SCRIPT_STYLE'
 
       xml = 'intellijStyleXML'
       xsl = 'intellijStyleXML'
@@ -258,24 +207,27 @@ subprojects {
       js = 'SLASHSTAR_STYLE'
     }
   }
+  check.dependsOn 'license'
 
-  final List<String> includeInLicensing = [':server-launcher']
+  if (project.path.startsWithAny(":build-platform", ":installers", ":docker", ":release")) {
+    return
+  }
+
   final boolean hasJavaSources = !project.fileTree("src/main/java").files.isEmpty()
-
-  if (includeInLicensing.contains(project.path) || hasJavaSources) {
+  if (project.path.startsWithAny(':server-launcher') || hasJavaSources) {
     apply plugin: 'com.github.jk1.dependency-license-report'
 
     licenseReport {
       renderers = [new JsonReportRenderer("index.json", false)]
       excludeGroups = ["com.thoughtworks.go"]
       filters = [new LicenseBundleNormalizer()]
-      outputDir = project.layout.buildDirectory.dir("reports/dependency-license").get().asFile
+      outputDir = layout.buildDirectory.dir("reports/dependency-license").get().asFile
       configurations = ['runtimeClasspath', 'packagingInLibDir']
     }
 
-    tasks.withType(ReportTask) { ReportTask reportTask ->
+    tasks.withType(ReportTask).configureEach { ReportTask reportTask ->
       reportTask.outputs.cacheIf { true }
-      project.configurations.each { config ->
+      configurations.each { config ->
         if (config.name in project.licenseReport.configurations) {
           reportTask.inputs.files(config)
         }
@@ -300,7 +252,7 @@ subprojects {
       }
     }
 
-    task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
+    tasks.register('testJar', Jar) {
       archiveClassifier = 'tests'
       from sourceSets.test.output
     }
@@ -334,19 +286,19 @@ subprojects {
         // workaround for Caffeine metadata declaring dependencies that are not needed at runtime
         withModule('com.github.ben-manes.caffeine:caffeine', { details ->
           details.allVariants {
-            withDependencies { removeAll {it.name in [ "jspecify", "error_prone_annotations" ] } }
+            withDependencies { removeAll { it.name in ["jspecify", "error_prone_annotations"] } }
           }
         })
         withModule('com.google.code.gson:gson', { details ->
           details.allVariants {
-            withDependencies { removeAll { it.name in [ "error_prone_annotations" ] } }
+            withDependencies { removeAll { it.name in ["error_prone_annotations"] } }
           }
         })
       }
     }
   }
 
-  configurations.all {
+  configurations.configureEach {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
       // Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables
       if (details.requested.group == 'org.hamcrest' && details.requested.name ==~ /hamcrest-(core|library|all)/) {
@@ -368,22 +320,21 @@ subprojects {
     }
   }
 
-  task cleanLogs(type: Delete) {
+  tasks.register('cleanLogs', Delete) {
     delete 'logs'
   }
 
-  task cleanApiOut(type: Delete) {
+  tasks.register('cleanApiOut', Delete) {
     delete 'out'
   }
 
   clean.dependsOn cleanLogs, cleanApiOut
-  check.dependsOn 'license'
 
-  tasks.withType(Jar) { jarTask ->
+  tasks.withType(Jar).configureEach { jarTask ->
     manifest {
       attributes(
         'Go-Version': project.version,
-        'Go-Revision': project.gitRevision,
+        'Go-Revision': goVersions.gitRevision,
         'Implementation-Title': project.name,
         'Implementation-Version': project.version
       )
@@ -399,7 +350,7 @@ subprojects {
     }
   }
 
-  tasks.withType(AbstractArchiveTask) {
+  tasks.withType(AbstractArchiveTask).configureEach {
     includeEmptyDirs = false
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
@@ -407,7 +358,7 @@ subprojects {
     reproducibleFileOrder = true
   }
 
-  tasks.withType(Exec) {
+  tasks.withType(Exec).configureEach {
     if (logger.isInfoEnabled()) {
       standardOutput = System.out
       errorOutput = System.err
@@ -421,43 +372,36 @@ subprojects {
     options.incremental = true
   }
 
-  tasks.withType(JavaCompile) {
+  tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
-    options.compilerArgs += '-Werror'
-    options.compilerArgs += '-Xlint:all,-serial,-deprecation,-processing,-this-escape,-classfile,-overloads'
-    options.release.set(project.targetJavaVersion as Integer)
+    options.compilerArgs << '-Werror'
+    options.compilerArgs << '-Xlint:all,-serial,-deprecation,-processing,-this-escape,-classfile,-overloads'
+    options.release.set(goVersions.targetJavaVersion as Integer)
 
     javaCompiler = javaToolchains.compilerFor {
-      languageVersion = JavaLanguageVersion.of(project.buildJavaVersion)
+      languageVersion = JavaLanguageVersion.of(goVersions.buildJavaVersion)
     }
   }
 
-  project.afterEvaluate {
-    tasks.withType(License) { License thisTask ->
+  tasks.withType(License).configureEach { License thisTask ->
+    // Needs to be be done after evaluation for the task's source to be populated (either in afterEvaluate or doFirst)
+    doFirst {
       def sourceSetName = thisTask.name.replaceFirst('licenseFormat', '').replaceFirst('license', '')
-      def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) }
+      def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) } as SourceSet
 
-      if (project.path == ':server' && sourceSetName.toLowerCase() == 'test') {
-        thisTask.source += project.file("rails/")
-        return
-      }
-
+      // Test resources are often just data files, and don't need license headers
       if (thisTask.name.toLowerCase().contains('test')) {
         thisTask.source -= mappedSourceSet.resources
       }
-
-      if (project.path == ':test:test-utils') {
-        thisTask.source -= mappedSourceSet.resources
-      }
     }
   }
 
-  tasks.withType(Test) { Test testTask ->
+  tasks.withType(Test).configureEach { Test testTask ->
     dependsOn 'jar'
 
     testTask.useJUnitPlatform()
     javaLauncher = javaToolchains.launcherFor {
-      languageVersion = JavaLanguageVersion.of(project.buildJavaVersion)
+      languageVersion = JavaLanguageVersion.of(goVersions.buildJavaVersion)
     }
 
     def allTestClasses
@@ -471,38 +415,34 @@ subprojects {
     jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? ["-javaagent:${testTask.project.configurations.testJavaAgents.asPath}", "-XX:-PrintWarnings"] : []
 
     doFirst {
-      // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40
       classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
     }
 
     defaultCharacterEncoding = "UTF-8"
-
-    filter {
-      failOnNoMatchingTests = true
-    }
+    failOnNoDiscoveredTests = FilePartition.partitioningDisabled
 
     doFirst {
-      project.logger.info("Setting tmpdir ${tmpDir}")
-      project.delete(tmpDir)
-      tmpDir.mkdirs()
+      logger.info("Setting tmpdir ${tmpDir}")
+      delete(tmpDir)
+      mkdir(tmpDir)
 
       List<String> files = []
       testTask.testClassesDirs.files.each { File classDir ->
         if (classDir.exists()) {
           classDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
             def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
-            files << relPath
+            if (relPath.endsWith("Test.*")) files << relPath
           }
         }
       }
-
       files = files.unique()
 
-      List testsToRun = partitionFiles(files)
+      def partition = new FilePartition(files)
+      def testsToRun = partition.currentFiles()
       allTestClasses = getTestClassesForTask(testsToRun)
-      List testsToIgnore = files - testsToRun
+      partition.logTo(rootProject.logger)
 
-      testsToIgnore.each { f ->
+      (files - testsToRun).each { f ->
         testTask.exclude f
       }
       testsToRun.each { f ->
@@ -519,15 +459,9 @@ subprojects {
     }
 
     doLast {
-      project.logger.info("Deleting tmpdir ${tmpDir}")
-      project.delete(tmpDir)
+      delete(tmpDir)
 
-      def allowTestsToBeSkipped = false
-      if (project.hasProperty("allowTestsToBeSkipped")) {
-        allowTestsToBeSkipped = Boolean.parseBoolean(project.property("allowTestsToBeSkipped"))
-      }
-
-      if (!allTestClasses.empty && !allowTestsToBeSkipped) {
+      if (!allTestClasses.empty) {
         throw new GradleException("Missed the following classes to test: ${allTestClasses}".toString())
       }
     }
@@ -556,18 +490,16 @@ subprojects {
     }
   }
 
-  tasks.withType(Delete) { Delete deleteTask ->
-    project.afterEvaluate {
-      idea {
-        module {
-          excludeDirs += deleteTask.targetFiles
-        }
+  tasks.withType(Delete).configureEach { Delete deleteTask ->
+    idea {
+      module {
+        excludeDirs += deleteTask.targetFiles
       }
     }
   }
 }
 
-task allDependencies {
+tasks.register('allDependencies') {
   dependsOn allprojects.collect { "$it.path:dependencies" }
 
   description = "Print dependency tree of all projects"
@@ -575,25 +507,22 @@ task allDependencies {
 
 private allCompileTasks(Closure<Boolean> include = { t -> true }) {
   allprojects.collect { Project prj ->
-    prj.afterEvaluate {
-      compileAll.dependsOn(prj.getTasks().withType(JavaCompile).findAll(include))
-      compileAll.dependsOn(prj.getTasks().withType(GroovyCompile).findAll(include))
-    }
+    compileAll.dependsOn(prj.getTasks().withType(JavaCompile).findAll(include))
+    compileAll.dependsOn(prj.getTasks().withType(GroovyCompile).findAll(include))
   }
 }
 
-
-task compileAll { compileAllTask ->
+tasks.register('compileAll') { compileAllTask ->
   group = LifecycleBasePlugin.BUILD_GROUP
   allCompileTasks()
 }
 
-task prepare {
+tasks.register('prepare') {
   group = LifecycleBasePlugin.BUILD_GROUP
   allCompileTasks { Task task -> !task.name.toLowerCase().contains('test') && !task.project.path.toLowerCase().contains('test') }
 }
 
-task sparkTest { thisTask ->
+tasks.register('sparkTest') { thisTask ->
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all api tests"
   (project(':api').subprojects + project(':spark').subprojects).each { Project subPrj ->
@@ -602,7 +531,7 @@ task sparkTest { thisTask ->
   finalizedBy 'sparkTestJunitHtmlReport'
 }
 
-task sparkTestJunitHtmlReport(type: TestReport) {
+tasks.register('sparkTestJunitHtmlReport', TestReport) {
   dependsOn sparkTest
 
   testResults.from(project(':api').subprojects*.test.binaryResultsDirectory.locationOnly)
@@ -611,20 +540,16 @@ task sparkTestJunitHtmlReport(type: TestReport) {
 }
 
 private void forAllTask(Closure<Task> closure) {
-  allprojects.each { Project subPrj ->
-
-    // afterEvaluate, because the testsset plugin defines tasks much later
-    subPrj.afterEvaluate {
-      subPrj.tasks.withType(Test).each { eachTestTask ->
-        if (!(eachTestTask.path in [':server:integrationTest'])) {
-          closure.call(eachTestTask)
-        }
+  subprojects.each { Project subPrj ->
+    subPrj.tasks.withType(Test).each { eachTestTask ->
+      if (!(eachTestTask.path in [':server:integrationTest'])) {
+        closure.call(eachTestTask)
       }
     }
   }
 }
 
-task allTests { thisTask ->
+tasks.register('allTests') { thisTask ->
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all tests"
 
@@ -635,7 +560,7 @@ task allTests { thisTask ->
   finalizedBy 'allTestsJunitHtmlReport'
 }
 
-task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
+tasks.register('allTestsJunitHtmlReport', TestReport) { TestReport thisTask ->
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all api tests"
 
@@ -673,7 +598,7 @@ dependencyCheck {
 }
 
 dependencyCheckAggregate {
-  def injected = project.objects.newInstance(InjectedExecOps)
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     injected.execOps.exec {
       commandLine = [ "gem", "install", "bundler-audit", "--no-document" ]
@@ -727,7 +652,7 @@ if (System.getenv().containsKey("NEXUS_CACHE_USERNAME")) {
     archiveFileName = "dependency-check-data-updated.zip"
     destinationDirectory = layout.buildDirectory
 
-    def injected = project.objects.newInstance(InjectedExecOps)
+    def injected = project.objects.newInstance(Injected)
     doLast {
       injected.execOps.exec {
         workingDir = projectDir
@@ -749,7 +674,7 @@ if (System.getenv().containsKey("NEXUS_CACHE_USERNAME")) {
   dependencyCheckAggregate.finalizedBy uploadDependencyCheckCache
 }
 
-task newSPA {
+tasks.register('newSPA') {
   description = "Helper to create a new SPA. Pass `-PspaName=maintenance_mode"
 
   doFirst {
@@ -760,9 +685,9 @@ task newSPA {
     String widgetBase = "${pagesBase}/${spaName}"
     String mountPoint = "${project(':server').webAppDir}/WEB-INF/rails/webpack/single_page_apps"
 
-    project.delete(modelsBase, widgetBase)
-    project.mkdir(modelsBase)
-    project.mkdir(widgetBase)
+    delete(modelsBase, widgetBase)
+    mkdir(modelsBase)
+    mkdir(widgetBase)
 
     String licenseHeader =
       """
@@ -934,9 +859,9 @@ task newSPA {
   }
 }
 
-task removeApi {
+tasks.register('removeApi') {
   description = "Helper to create a delete an api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
-  def injected = project.objects.newInstance(InjectedExecOps)
+  def injected = project.objects.newInstance(Injected)
 
   doFirst {
     String apiName = project.apiName
@@ -944,7 +869,7 @@ task removeApi {
     String moduleDir = file("api/${newProjectName}")
     String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
 
-    project.delete(moduleDir)
+    delete(moduleDir)
 
     List<String> springConfigContents = file("server/src/main/resources/applicationContext-global.xml").readLines("utf-8")
     file("server/src/main/resources/applicationContext-global.xml").withWriter { out ->
@@ -986,7 +911,7 @@ task removeApi {
   }
 }
 
-task newApi {
+tasks.register('newApi') {
   description = "Helper to create a new api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
 
   doFirst {
@@ -994,7 +919,7 @@ task newApi {
     String newProjectName = "api-${apiName}-${project.apiVersion}"
     String oldProjectName = "api-${apiName}-v${project.apiVersion.replaceFirst('v', '').toInteger() - 1}"
     File oldModuleDir = file("api/${oldProjectName}")
-    project.delete(oldModuleDir)
+    delete(oldModuleDir)
     if (oldModuleDir.exists()) {
       throw new GradleException("Please use `upgradeApi` task instead of `newApi`")
     }
@@ -1006,10 +931,10 @@ task newApi {
     String entityVariableName = entityClassName.uncapitalize()
     String controllerClassName = "${entityClassName}Controller${project.apiVersion.capitalize()}"
 
-    project.delete(moduleDir)
-    project.mkdir(moduleDir)
-    project.mkdir(basePackage)
-    project.mkdir(testPackage)
+    delete(moduleDir)
+    mkdir(moduleDir)
+    mkdir(basePackage)
+    mkdir(testPackage)
 
     file("${moduleDir}/build.gradle").withWriter { out ->
       def contents =
@@ -1234,9 +1159,10 @@ task newApi {
   }
 }
 
-task upgradeApi {
+tasks.register('upgradeApi') {
   description = "Helper to upgrade an new api module. Pass `-PapiName=roles-config`"
 
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     String apiName = project.apiName
     List<Integer> allApiVersions = rootProject.project(':api').allprojects
@@ -1262,9 +1188,9 @@ task upgradeApi {
     String newControllerClassSuffix = "ControllerV${apiVersion}"
     String newPackage = newPackagePrefix
 
-    project.delete(moduleDir)
+    delete(moduleDir)
 
-    project.copy {
+    injected.fileOps.copy {
       from oldProject.projectDir
       into moduleDir
 

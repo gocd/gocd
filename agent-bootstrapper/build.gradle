@@ -40,7 +40,7 @@ jar {
   archiveClassifier = 'classes'
 }
 
-task fatJar(type: Jar) {
+def fatJar = tasks.register('fatJar', Jar) {
   dependsOn jar, configurations.packagingOnly, configurations.extractedAtTopLevel
 
   manifest {
@@ -48,25 +48,25 @@ task fatJar(type: Jar) {
     attributes 'GoCD-Main-Class': 'com.thoughtworks.go.agent.bootstrapper.AgentBootstrapper'
   }
 
-  from(configurations.runtimeClasspath + jar.archiveFile) { into "lib/" }
+  from({ configurations.runtimeClasspath + jar.archiveFile }) { into "lib/" }
 
-  from(configurations.packagingOnly) {
+  from({ configurations.packagingOnly }) {
     into "defaultFiles/"
     rename "(.*)-${project.version}.jar", '$1.jar'
   }
 
-  from(configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) }) {
+  from({ configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }) {
     into("/")
   }
 }
 
-task verifyJar(type: VerifyJarTask) {
+tasks.register('verifyJar', VerifyJarTask) {
   jarTask = fatJar
   expectedJars = [
     'defaultFiles': [
       "agent-launcher.jar",
     ],
-    'lib'         : [
+    'lib': [
       "agent-bootstrapper-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
       "base-${project.version}.jar",

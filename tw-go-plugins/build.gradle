@@ -1,5 +1,6 @@
 import com.thoughtworks.go.build.DownloadFile
 import com.thoughtworks.go.build.GithubArtifact
+import com.thoughtworks.go.build.GoVersions
 import com.thoughtworks.go.build.VerifyJarTask
 import org.apache.commons.codec.digest.DigestUtils
 
@@ -61,25 +62,24 @@ def dependencies = [
   )
 ]
 
-task createVersionFile {
-  def file = layout.buildDirectory.file("version.txt").get().asFile
-  inputs.property('version', rootProject.version)
-  inputs.property('gitRevision', rootProject.gitRevision)
+tasks.register('createVersionFile') {
+  def goVersions = project.goVersions as GoVersions
+  inputs.property('goVersions', goVersions)
 
+  def file = layout.buildDirectory.file("version.txt").get().asFile
   outputs.file file
 
   doLast {
     file.getParentFile().mkdirs()
     file.withWriter { out ->
-      out.write("${rootProject.version} (${rootProject.gitRevision})")
+      out.write("${goVersions.fullVersion} (${goVersions.gitRevision})")
     }
   }
 }
 
-task downloadPlugins {
-}
+def downloadPlugins = tasks.register('downloadPlugins')
 
-task pluginsZip(type: Zip) {
+def pluginsZip = tasks.register('pluginsZip', Zip) {
   finalizedBy 'verifyPluginZip'
 
   archiveBaseName = 'plugins'
@@ -89,9 +89,8 @@ task pluginsZip(type: Zip) {
   from(dependencies.collect { dep -> destFile(dep) })
 }
 
-task verifyPluginZip(type: VerifyJarTask) {
+tasks.register('verifyPluginZip', VerifyJarTask) {
   jarTask = pluginsZip
-
   expectedJars = [
     '/': dependencies.collect { dep -> "${dep.repo}.jar".toString() }
   ]
@@ -102,19 +101,24 @@ artifacts {
 }
 
 dependencies.each { dep ->
-  task "download-${dep.repo}"(type: DownloadFile) { downloadTask ->
-    pluginsZip.dependsOn downloadTask
-    downloadPlugins.dependsOn downloadTask
+  def downloadTask = tasks.register("download-${dep.repo}", DownloadFile) { downloadTask ->
     downloadTask.src dep.downloadUrl
     downloadTask.dest destFile(dep)
     downloadTask.checksum = dep.checksum
   }
 
-  pluginsZip.from(destFile(dep))
+  downloadPlugins.configure {
+    dependsOn downloadTask
+  }
+
+  pluginsZip.configure { Zip zipTask ->
+    zipTask.dependsOn downloadTask
+    zipTask.from(destFile(dep))
+  }
 }
 
 private File destFile(GithubArtifact dep) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(dep.downloadUrl)}/${dep.repo}.jar")
 }
 
-task prepare(dependsOn: pluginsZip)
+tasks.register('prepare') { dependsOn pluginsZip }

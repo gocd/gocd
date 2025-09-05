@@ -40,7 +40,7 @@ jar {
   archiveClassifier = 'classes'
 }
 
-task fatJar(type: Jar) {
+def fatJar = tasks.register('fatJar', Jar) {
   finalizedBy 'verifyJar'
   dependsOn jar, configurations.packagingOnly, configurations.runtimeClasspath
 
@@ -49,10 +49,10 @@ task fatJar(type: Jar) {
     attributes 'Go-Agent-Launcher-Lib-Dir': 'libs'
   }
 
-  from(configurations.runtimeClasspath + configurations.packagingOnly + jar.archiveFile) { into "libs/" }
+  from({ configurations.runtimeClasspath + configurations.packagingOnly + jar.archiveFile }) { into "libs/" }
 }
 
-task verifyJar(type: VerifyJarTask) {
+tasks.register('verifyJar', VerifyJarTask) {
   jarTask = fatJar
   expectedJars = [
     "libs": [

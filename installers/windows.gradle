@@ -23,14 +23,16 @@ private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
-task downloadWindowsJreChecksum(type: DownloadFile) {
-  src project.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.windows, Architecture.x64)
+tasks.register('downloadWindowsJreChecksum', DownloadFile) {
+  def goVersions = project.goVersions as GoVersions
+  src goVersions.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
 }
 
-task downloadWindowsJre(type: DownloadFile) {
+tasks.register('downloadWindowsJre', DownloadFile) {
   dependsOn downloadWindowsJreChecksum
-  src project.packagedJavaVersion.toDownloadURLFor(OperatingSystem.windows, Architecture.x64)
+  def goVersions = project.goVersions as GoVersions
+  src goVersions.packagedJavaVersion.toDownloadURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
   checksum = { downloadWindowsJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
@@ -43,37 +45,40 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
     dependsOn downloadWindowsJre
     dependsOn genericZipTask
 
+    def goVersions = project.goVersions as GoVersions
+    def installerBaseDirName = "${installerType.baseName}-${goVersions.goVersion}"
+
+    def injected = project.objects.newInstance(Injected)
     doFirst {
-      project.delete(buildRoot)
-      project.mkdir(project.file("${project.layout.buildDirectory.get()}/distributions/win"))
+      injected.fileOps.delete { delete(buildRoot) }
+      new File("${layout.buildDirectory.get()}/distributions/win").mkdirs()
 
-      def genericZipTree = zipTree(genericZipTask.archiveFile)
-
-      project.copy {
+      injected.fileOps.copy {
         into buildRoot
 
+        def genericZipTree = injected.archiveOps.zipTree(genericZipTask.archiveFile)
         // dont include the wrapper.conf, and tanuki wrappers for OSes other than windows
         from(genericZipTree) {
-          exclude "${installerType.baseName}-${project.goVersion}/wrapper-config/wrapper.conf"
-          exclude "${installerType.baseName}-${project.goVersion}/wrapper/wrapper-*"
-          exclude "${installerType.baseName}-${project.goVersion}/wrapper/libwrapper-*"
-          exclude "${installerType.baseName}-${project.goVersion}/bin/*"
+          exclude "${installerBaseDirName}/wrapper-config/wrapper.conf"
+          exclude "${installerBaseDirName}/wrapper/wrapper-*"
+          exclude "${installerBaseDirName}/wrapper/libwrapper-*"
+          exclude "${installerBaseDirName}/bin/*"
         }
 
         from(genericZipTree) {
-          include "${installerType.baseName}-${project.goVersion}/wrapper/*.dll"
-          include "${installerType.baseName}-${project.goVersion}/wrapper/*.exe"
-          include "${installerType.baseName}-${project.goVersion}/bin/*.bat"
+          include "${installerBaseDirName}/wrapper/*.dll"
+          include "${installerBaseDirName}/wrapper/*.exe"
+          include "${installerBaseDirName}/bin/*.bat"
         }
 
         from("include/wrapper-properties.${installerType.baseName}.conf.example") {
-          into "${installerType.baseName}-${project.goVersion}/wrapper-config"
+          into "${installerBaseDirName}/wrapper-config"
           rename ".*", "wrapper-properties.conf.example"
         }
 
         // include the wrapper.conf, but replace the java command
         from(genericZipTree) {
-          include "${installerType.baseName}-${project.goVersion}/wrapper-config/wrapper.conf"
+          include "${installerBaseDirName}/wrapper-config/wrapper.conf"
           filter { String eachLine ->
             if (eachLine == 'wrapper.java.command=java') {
               eachLine = 'wrapper.java.command=jre/bin/java'
@@ -86,10 +91,10 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
             return eachLine
           }
 
-          filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.DOS)
+          filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance("dos"))
         }
 
-        from(zipTree(downloadWindowsJre.outputs.files.singleFile)) {
+        from(injected.archiveOps.zipTree(downloadWindowsJre.outputs.files.singleFile)) {
           eachFile { FileCopyDetails fcd ->
             List<String> segments = fcd.relativePath.segments
             segments.set(1, "jre")
@@ -97,101 +102,108 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
           }
           includeEmptyDirs = false
           // relative to parent copy task's `into`
-          into "${installerType.baseName}-${project.goVersion}"
+          into installerBaseDirName
         }
       }
     }
   }
 }
 
-def executeNSIS(ExecOperations execOperations, InstallerType installerType, File buildRoot, File destDir) {
+def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot, File destDir) {
+  packageTask.with {
+    def goVersions = project.goVersions as GoVersions
+    def outputFile = project.file("${destDir.path}/${installerType.baseName}-${goVersions.fullVersion}-jre-64bit-setup.exe")
 
-  project.mkdir(destDir)
+    // pad enough zeros to be able to convert the version string using simple numbers, instead of version numbers
+    def registryVersionString = "${goVersions.goVersion.split(/\./).collect { it.padLeft(2, '0') }.join()}${goVersions.distVersion.padLeft(5, '0')}"
 
-  def outputFile = project.file("${destDir.path}/${installerType.baseName}-${project.fullVersion}-jre-64bit-setup.exe")
+    def installerContents = project.file("${buildRoot.path}/${installerType.baseName}-${goVersions.goVersion}")
+    def unInstallManifestFile = project.file("${buildRoot.path}/uninstall-manifest.nsi")
+    def nsisPluginsDir = project.file("windows/nsis-plugins")
+    def icon = project.file('windows/gocd.ico')
+    def nsiPath = project.file("windows/${installerType.baseName}.nsi").path
+    def licenseSourceFile = rootProject.file("LICENSE")
 
-  // pad enough zeros to be able to convert the version string using simple numbers, instead of version numbers
-  def registryVersionString = "${project.goVersion.split(/\./).collect { it.padLeft(2, '0') }.join()}${project.distVersion.padLeft(5, '0')}"
+    def injected = project.objects.newInstance(Injected)
 
-  def installerContents = project.file("${buildRoot.path}/${installerType.baseName}-${project.goVersion}")
+    // We only have a custom NSIS build with logging enabled for Linux on CI
+    // See https://github.com/gocd/nsis-rpm/blob/master/mingw-nsis.spec#L2
+    def usingCustomNsisBinaryWithLogging = OperatingSystemHelper.CURRENT_OS.isLinux()
 
-  def unInstallManifestFile = project.file("${buildRoot.path}/uninstall-manifest.nsi")
+    doLast {
+      destDir.mkdirs()
 
-  unInstallManifestFile.withWriter { out ->
-    project.fileTree(installerContents).forEach({ File eachFile ->
-      out.println("Delete \"\$INSTDIR\\${installerContents.relativePath(eachFile).replaceAll("/", "\\\\")}\"")
-    })
-  }
+      unInstallManifestFile.withWriter { out ->
+        injected.objectFactory.fileTree().from(installerContents).forEach { File eachFile ->
+          out.println("Delete \"\$INSTDIR\\${installerContents.relativePath(eachFile).replaceAll("/", "\\\\")}\"")
+        }
+      }
 
-  List<String> cmdArgs = [
-    "-DADDITIONAL_PLUGINS_DIR=${project.file("windows/nsis-plugins")}",
-    "-DCOMPONENT_FULL_VERSION=${project.fullVersion}",
-    "-DCOMPONENT_NAME=${installerType.baseName.replace("go-", "").capitalize()}",
-    "-DCOMPONENT_REGISTRY_VERSION=${registryVersionString}",
-    "-DCOMPONENT_VERSION=${project.goVersion}",
-    "-DCUSTOM_PAGES=${installerType.baseName}-custom-page.nsi",
-    "-DENABLE_LOGGING=true",
-    "-DGOCD_ICON=${project.file('windows/gocd.ico')}",
-    "-DGOCD_LICENSE_FILE=${rootProject.file("LICENSE")}",
-    "-DINSTALLER_CONTENTS=${installerContents.path}",
-    "-DOUTPUT_FILE=${outputFile.path}",
-    "-DUNINSTALL_MANIFEST_FILE=${unInstallManifestFile.path}",
-    "-DWINDOWS_PRODUCT_VERSION=${project.goVersion}.${project.distVersion}",
-  ]
+      List<String> cmdArgs = [
+        "-DADDITIONAL_PLUGINS_DIR=${nsisPluginsDir}",
+        "-DCOMPONENT_FULL_VERSION=${goVersions.fullVersion}",
+        "-DCOMPONENT_NAME=${installerType.baseName.replace("go-", "").capitalize()}",
+        "-DCOMPONENT_REGISTRY_VERSION=${registryVersionString}",
+        "-DCOMPONENT_VERSION=${goVersions.goVersion}",
+        "-DCUSTOM_PAGES=${installerType.baseName}-custom-page.nsi",
+        "-DGOCD_ICON=${icon}",
+        "-DGOCD_LICENSE_FILE=${licenseSourceFile}",
+        "-DINSTALLER_CONTENTS=${installerContents.path}",
+        "-DOUTPUT_FILE=${outputFile.path}",
+        "-DUNINSTALL_MANIFEST_FILE=${unInstallManifestFile.path}",
+        "-DWINDOWS_PRODUCT_VERSION=${goVersions.goVersion}.${goVersions.distVersion}",
+      ]
 
-  cmdArgs += ["-V4"] // verbose
+      if (usingCustomNsisBinaryWithLogging) {
+        cmdArgs += ["-DLOGGING_ENABLED=true"]
+      }
 
-  execOperations.exec { ExecSpec execSpec ->
-    commandLine = (["makensis"] + cmdArgs + [project.file("windows/${installerType.baseName}.nsi").path])
+      cmdArgs += ["-V4"] // verbose
 
-    standardOutput = System.out
-    errorOutput = System.err
+      injected.execOps.exec { ExecSpec execSpec ->
+        commandLine = (["makensis"] + cmdArgs + [nsiPath])
 
-    println "[${execSpec.workingDir}]\$ ${execSpec.executable} ${execSpec.args.join(' ')}"
+        standardOutput = System.out
+        errorOutput = System.err
+
+        println "[${execSpec.workingDir}]\$ ${execSpec.executable} ${execSpec.args.join(' ')}"
+      }
+    }
   }
 }
 
-task agentWindows64bitExe { DefaultTask thisTask ->
+tasks.register('agentWindows64bitExe') { thisTask ->
   def installerType = InstallerType.agent
-  def buildRoot = project.file("${project.layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
-  def destDir = project.file("${project.layout.buildDirectory.get()}/distributions/win")
+  def buildRoot = project.file("${layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
+  def destDir = project.file("${layout.buildDirectory.get()}/distributions/win")
   outputs.dir(destDir)
 
   configureWindowsFilesystem(thisTask, installerType, agentGenericZip, buildRoot)
+  configureNSIS(thisTask, installerType, buildRoot, destDir)
 
-  def injected = project.objects.newInstance(InjectedExecOps)
-  doLast {
-    project.copy { from('go-agent/win/ServerURL.ini') into(buildRoot) }
-    executeNSIS(injected.execOps, installerType, buildRoot, destDir)
-  }
-
-  finalizedBy(project.tasks.create("${thisTask.name}Metadata", InstallerMetadataTask.class) {
-    architecture = Architecture.x64
-    adoptiumVersion = project.packagedJavaVersion
-    packageTask = thisTask
-    type = installerType
-  })
+  finalizedBy "${thisTask.name}Metadata"
 }
 
-task serverWindows64bitExe { DefaultTask thisTask ->
+tasks.register('serverWindows64bitExe') { thisTask ->
   def installerType = InstallerType.server
-  def buildRoot = project.file("${project.layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
-  def destDir = project.file("${project.layout.buildDirectory.get()}/distributions/win")
+  def buildRoot = project.file("${layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
+  def destDir = project.file("${layout.buildDirectory.get()}/distributions/win")
   outputs.dir(destDir)
 
   configureWindowsFilesystem(thisTask, installerType, serverGenericZip, buildRoot)
+  configureNSIS(thisTask, installerType, buildRoot, destDir)
 
-  def injected = project.objects.newInstance(InjectedExecOps)
-  doLast {
-    executeNSIS(injected.execOps, installerType, buildRoot, destDir)
-  }
+  finalizedBy "${thisTask.name}Metadata"
+}
 
-  finalizedBy(project.tasks.create("${thisTask.name}Metadata", InstallerMetadataTask.class) {
+['agent', 'server'].each { installerType ->
+  def packageTaskName = "${installerType}Windows64bitExe"
+  tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
     architecture = Architecture.x64
-    adoptiumVersion = project.packagedJavaVersion
-    packageTask = thisTask
-    type = installerType
-  })
+    packagedJavaVersion = (project.goVersions as GoVersions).packagedJavaVersion
+    packageTask = project.tasks.named(packageTaskName)
+    type = InstallerType."${installerType}"
+  }
 }
 
 assemble.dependsOn(":installers:agentWindows64bitExe", ":installers:serverWindows64bitExe")

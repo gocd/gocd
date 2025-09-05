@@ -49,19 +49,19 @@ clean {
   delete 'plugins_work'
 }
 
-task generateResources(type: Copy) {
+tasks.register('generateResources', Copy) {
+  dependsOn configurations.copyOnly
   outputs.dir(generatedResourcesOutput)
 
   into generatedResourcesOutput
-  from(project.configurations.copyOnly) {
+  from({ configurations.copyOnly }) {
     rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
   }
 }
 
-processResources {
-  dependsOn generateResources
-}
+licenseMain.dependsOn generateResources
+processResources.dependsOn generateResources
 
-task prepare {
+tasks.register('prepare') {
   dependsOn generateResources
 }

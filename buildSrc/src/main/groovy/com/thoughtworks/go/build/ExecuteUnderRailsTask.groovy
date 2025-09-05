@@ -16,21 +16,27 @@
 
 package com.thoughtworks.go.build
 
-import org.gradle.api.Project
+import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.jvm.tasks.Jar
 import org.gradle.process.JavaExecSpec
 
-import static com.thoughtworks.go.build.OperatingSystemHelper.normalizeEnvironmentPath
+import javax.inject.Inject
 
 abstract class ExecuteUnderRailsTask extends JavaExec {
   private static final OperatingSystem CURRENT_OS = OperatingSystem.current()
   private Map<String, Object> originalEnv
 
-  @Input
-  boolean disableJRubyOptimization = false
+  @Input boolean disableJRubyOptimization = false
+  @Internal final projectRailsMeta = project.rails
+  @Internal final Provider<File> jrubyJar = project.jrubyJar
+  @Inject abstract FileSystemOperations getFileOps()
 
   ExecuteUnderRailsTask() {
     super()
@@ -41,49 +47,29 @@ abstract class ExecuteUnderRailsTask extends JavaExec {
 
     systemProperties += project.railsSystemProperties
 
-    def pathingJarLoc = project.tasks.getByName('pathingJar').archiveFile
+    def pathingJarLoc = project.tasks.named('pathingJar').flatMap { Jar jt -> jt.archiveFile } as Provider<RegularFile>
 
     classpath(pathingJarLoc)
     if (CURRENT_OS.isWindows()) {
       environment['CLASSPATH'] += "${File.pathSeparatorChar}${pathingJarLoc.get()}"
     }
-    setup(project, this, disableJRubyOptimization)
-  }
-
-  static void setup(Project project, JavaExecSpec execSpec, boolean disableJRubyOptimization) {
-    execSpec.with {
-      normalizeEnvironmentPath(environment)
-      environment['PATH'] = (project.additionalJRubyPaths + [environment['PATH']]).join(File.pathSeparator)
-
-      classpath(project.jrubyJar())
-      standardOutput = new PrintStream(System.out, true)
-      errorOutput = new PrintStream(System.err, true)
-
-      environment += project.defaultJRubyEnvironment
-
-      if (CURRENT_OS.isWindows()) {
-        environment += [CLASSPATH: project.jrubyJar().toString()]
-      }
-
-      // flags to optimize jruby startup performance
-      if (!disableJRubyOptimization) {
-        jvmArgs += project.jrubyOptimizationJvmArgs
-      }
-
-      systemProperties += project.jrubyDefaultSystemProperties
-
-      mainClass.set('org.jruby.Main')
-    }
+    JRuby.setup(this, project, disableJRubyOptimization)
   }
 
   @Override
   @TaskAction
   void exec() {
-    project.delete(project.rails.testDataDir)
+    if (CURRENT_OS.isWindows()) {
+      environment += [CLASSPATH: jrubyJar.get().toString()]
+    }
 
-    project.copy {
-      from('config')
-      into project.rails.testConfigDir
+    fileOps.delete {
+      it.delete(this.projectRailsMeta.testDataDir)
+    }
+
+    fileOps.copy {
+      it.from('config')
+      it.into(this.projectRailsMeta.testConfigDir)
     }
 
     try {

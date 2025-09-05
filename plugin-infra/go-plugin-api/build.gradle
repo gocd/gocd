@@ -35,7 +35,8 @@ dependencies {
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+tasks.register('sourcesJar', Jar) {
+  dependsOn classes
   archiveClassifier = 'sources'
   from sourceSets.main.allSource
 }
@@ -53,7 +54,8 @@ javadoc {
   }
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+tasks.register('javadocJar', Jar) {
+  dependsOn javadoc
   archiveClassifier = 'javadoc'
   from javadoc.destinationDir
 }
@@ -75,6 +77,6 @@ publishing {
   }
 }
 
-tasks.withType(GenerateModuleMetadata) {
+tasks.withType(GenerateModuleMetadata).configureEach {
   enabled = false
 }

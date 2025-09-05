@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.build.docker
 
+import com.thoughtworks.go.build.AdoptiumVersion
 import com.thoughtworks.go.build.Architecture
 import com.thoughtworks.go.build.OperatingSystem
-import org.gradle.api.Project
 
 enum Distro implements DistroBehavior {
 
@@ -66,7 +66,7 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    List<String> getInstallJavaCommands(Project project) {
+    List<String> getInstallJavaCommands(AdoptiumVersion version) {
       // Tanuki Wrapper currently requires glibc, which is not available in Alpine (which is a musl libc distro). See https://github.com/gocd/gocd/issues/11355
       // for a discussion of this problem. To workaround this, use glibc built within https://hub.docker.com/r/frolvlad/alpine-glibc from source at
       // https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc since he original project at https://github.com/sgerrand/alpine-pkg-glibc is unmaintained.
@@ -86,7 +86,7 @@ enum Distro implements DistroBehavior {
         '  echo "export LANG=C.UTF-8" > /etc/profile.d/locale.sh',
         '  ${GLIBC_DIR}/sbin/ldconfig',
         '# end installing glibc',
-      ] + super.getInstallJavaCommands(project)
+      ] + super.getInstallJavaCommands(version)
     }
 
     @Override
@@ -273,8 +273,8 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    List<String> getInstallJavaCommands(Project project) {
-      alpine.getInstallJavaCommands(project)
+    List<String> getInstallJavaCommands(AdoptiumVersion version) {
+      alpine.getInstallJavaCommands(version)
     }
 
     @Override

@@ -17,30 +17,37 @@
 package com.thoughtworks.go.build
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.FileTree
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 
-class VerifyJarTask extends DefaultTask {
+import javax.inject.Inject
 
-  @Input
-  Zip jarTask
+abstract class VerifyJarTask extends DefaultTask {
 
-  void setJarTask(Zip jarTask) {
-    this.jarTask = jarTask
+  @Input TaskProvider<? extends Zip> jarTask
+  @Input Map<String, List<String>> expectedJars
+
+  @Internal abstract RegularFileProperty getJar()
+  @Inject abstract ArchiveOperations getArchiveOps()
+
+  void setJarTask(TaskProvider<? extends Zip> jarTask) {
     this.dependsOn(jarTask)
+    this.jarTask = jarTask
+    this.jar.set(jarTask.flatMap { it.archiveFile })
   }
-
-  @Input
-  Map<String, List<String>> expectedJars
 
   @TaskAction
   void perform() {
     def expectedMessages = []
 
     expectedJars.each { directoryInJar, expectedJarsInDir ->
-      FileTree tree = project.zipTree(jarTask.archiveFile).matching {
+      FileTree tree = archiveOps.zipTree(jar).matching {
         include "${directoryInJar}/*.jar"
         include "${directoryInJar}/*.zip"
       }
@@ -48,14 +55,14 @@ class VerifyJarTask extends DefaultTask {
 
       if (!allJars.equals(expectedJarsInDir.sort())) {
         if (!(allJars - expectedJarsInDir).empty) {
-          expectedMessages += ["Got some extra jars in ${jarTask.archiveFile.get()}!${directoryInJar} that were not expected"]
+          expectedMessages += ["Got some extra jars in ${jar.get()}!${directoryInJar} that were not expected"]
           (allJars - expectedJarsInDir).each { jar ->
             expectedMessages += ["  - ${jar}"]
           }
         }
 
         if (!(expectedJarsInDir - allJars).empty) {
-          expectedMessages += ["Some jars that were expected in ${jarTask.archiveFile.get()}!${directoryInJar} were not present"]
+          expectedMessages += ["Some jars that were expected in ${jar.get()}!${directoryInJar} were not present"]
           (expectedJarsInDir - allJars).each { jar ->
             expectedMessages += ["  - ${jar}"]
           }

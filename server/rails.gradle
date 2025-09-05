@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.ExecuteUnderRailsTask
-import com.thoughtworks.go.build.InstallerType
-import com.thoughtworks.go.build.YarnInstallTask
-import com.thoughtworks.go.build.YarnRunTask
+
+import com.thoughtworks.go.build.*
 import groovy.text.SimpleTemplateEngine
 import groovy.text.Template
 import org.apache.tools.ant.types.Commandline
 import org.gradle.internal.jvm.Jvm
 
-task pathingJar(type: Jar) {
+tasks.register('pathingJar', Jar) {
   archiveClassifier = 'pathing'
-  dependsOn(project.railsClasspath, project.configurations.compileClasspath)
 
+  def railsClasspath = project.railsClasspath
+  dependsOn(railsClasspath, configurations.compileClasspath)
+
+  def jrubyJarLoc = project.jrubyJar
   doFirst {
     manifest {
-      attributes 'Class-Path': (project.railsClasspath.files - [project.jrubyJar()]).collect { it.toURI() }.join(' ')
+      attributes 'Class-Path': (railsClasspath.files - [jrubyJarLoc.get()]).collect { it.toURI() }.join(' ')
     }
   }
 }
 
-task generateJSRoutes(type: ExecuteUnderRailsTask) {
+tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
   outputs.cacheIf { true }
   def outputDir = file("${project.railsRoot}/webpack/gen")
   inputs.dir(file("${project.railsRoot}/vendor"))
@@ -54,8 +55,10 @@ task generateJSRoutes(type: ExecuteUnderRailsTask) {
   }
 }
 
-task createJRubyBinstubs {
+tasks.register('createJRubyBinstubs') {
   outputs.cacheIf { true }
+  dependsOn pathingJar, configurations.compileClasspath
+
   def outputDir = file("scripts")
   inputs.dir("script-templates")
   inputs.properties([
@@ -63,12 +66,13 @@ task createJRubyBinstubs {
     railsRoot    : project.railsRoot
   ])
 
+  def jrubyJarLoc = project.jrubyJar
+
   def templateProperties = [
     mainClassName       : 'org.jruby.Main',
     jvmArgs             : project.jrubyOptimizationJvmArgs,
     systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties + project.railsSystemProperties),
     classpath           : [pathingJar.archiveFile.get().asFile],
-    jrubyJar            : project.jrubyJar(),
     environment         : project.defaultJRubyEnvironment,
     additionalJRubyPaths: project.additionalJRubyPaths,
     javaExecutable      : Jvm.current().getExecutable("java")
@@ -77,12 +81,14 @@ task createJRubyBinstubs {
   inputs.properties(templateProperties)
   outputs.dir(outputDir)
 
+  def injected = project.objects.newInstance(Injected)
   doFirst {
-    project.delete(outputDir)
-    project.mkdir(outputDir)
+    templateProperties['jrubyJar'] = jrubyJarLoc.get()
+    delete(outputDir)
+    mkdir(outputDir)
 
     ['rspec'].each { file ->
-      copy {
+      injected.fileOps.copy {
         from "script-templates/${file}"
         into outputDir
         filePermissions {
@@ -103,24 +109,26 @@ task createJRubyBinstubs {
   }
 }
 
-task initializeRailsGems {
+tasks.register('initializeRailsGems') {
   outputs.cacheIf { true }
   dependsOn createJRubyBinstubs
-  inputs.file("${project.railsRoot}/Gemfile")
-  inputs.file("${project.railsRoot}/Gemfile.lock")
-  inputs.file("${project.railsRoot}/.bundle/config")
+
+  def root = project.railsRoot
+  inputs.file("${root}/Gemfile")
+  inputs.file("${root}/Gemfile.lock")
+  inputs.file("${root}/.bundle/config")
   inputs.properties([
     jrubyVersion : project.deps.jruby,
     bundledGemDir: project.bundledGemDir,
-    railsRoot    : project.railsRoot
+    railsRoot    : root
   ])
 
   outputs.dir(project.bundledGemDir)
 
-  def injected = project.objects.newInstance(InjectedExecOps)
+  def injected = project.objects.newInstance(Injected)
   doFirst {
-    project.jrubyexec(injected.execOps) {
-      workingDir = project.railsRoot
+    JRuby.exec(project, injected.execOps) {
+      workingDir = root
       args = ['-S', 'bundle', 'install']
       maxHeapSize = '1g'
       environment += [ 'JARS_SKIP': 'true' ] // Avoid issues jar-dependencies and running via jruby-complete https://github.com/jruby/jruby/issues/8886
@@ -128,13 +136,13 @@ task initializeRailsGems {
   }
 }
 
-task yarnInstall(type: YarnInstallTask) {
+tasks.register('yarnInstall', YarnInstallTask) {
   workingDir = project.railsRoot
 }
 
 prepare.dependsOn(initializeRailsGems, createJRubyBinstubs, yarnInstall)
 
-task cleanRails(type: Delete) {
+tasks.register('cleanRails', Delete) {
   delete layout.buildDirectory.dir("railsTests")
   delete "${project.railsRoot}/config/cipher"
   delete "${project.railsRoot}/config/cipher.aes"
@@ -148,19 +156,21 @@ task cleanRails(type: Delete) {
   delete "${project.railsRoot}/yarn-error.log"
   delete "${project.railsRoot}/yarn-license-report"
 
+  // these are purposely added as `doFirst` to avoid intellij from excluding these from the modules
+  def jrubyScriptsDir = project.jrubyScriptsDir
+  def bundledGemDir = project.bundledGemDir
   doFirst {
-    // these are purposely added as `doFirst` to avoid intellij from excluding these from the modules
-    project.delete project.jrubyScriptsDir
-    project.delete project.bundledGemDir
+    delete jrubyScriptsDir
+    delete bundledGemDir
   }
 }
 clean.dependsOn cleanRails
 
-task compileAssetsWebpackDev(type: YarnRunTask) {
+tasks.register('compileAssetsWebpackDev', YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
 
-  ext.licenseReportFile = project.layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
-  outputs.dir(ext.licenseReportFile.parentFile)
+  ext.yarnLicenseReportFile = layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
+  outputs.dir(ext.yarnLicenseReportFile.parentFile)
 
   source(project.file("${project.railsRoot}/.babelrc"))
   source(project.file("${project.railsRoot}/tsconfig.json"))
@@ -170,18 +180,18 @@ task compileAssetsWebpackDev(type: YarnRunTask) {
 
   workingDir = project.railsRoot
   destinationDir = project.file("${project.railsRoot}/public/assets/webpack")
-  yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
+  yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.yarnLicenseReportFile}"]
 
   doFirst {
     delete "${project.railsRoot}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
   }
 }
 
-task compileAssetsWebpackProd(type: YarnRunTask) {
+tasks.register('compileAssetsWebpackProd', YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
 
-  ext.licenseReportFile = project.layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
-  outputs.dir(ext.licenseReportFile.parentFile)
+  ext.yarnLicenseReportFile = layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
+  outputs.dir(ext.yarnLicenseReportFile.parentFile)
 
   source(project.file("${project.railsRoot}/.babelrc"))
   source(project.file("${project.railsRoot}/tsconfig.json"))
@@ -190,15 +200,15 @@ task compileAssetsWebpackProd(type: YarnRunTask) {
   source(project.file("${project.railsRoot}/config"))
 
   workingDir = project.railsRoot
-  destinationDir = project.layout.buildDirectory.dir("webpack-assets").get().asFile
-  yarnCommand = ['webpack-prod', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
+  destinationDir = layout.buildDirectory.dir("webpack-assets").get().asFile
+  yarnCommand = ['webpack-prod', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.yarnLicenseReportFile}"]
 
   doFirst {
-    delete "${project.railsRoot}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
+    delete "${workingDir}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
   }
 }
 
-task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
+tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
   dependsOn yarnInstall
   outputs.cacheIf { true }
 
@@ -224,18 +234,18 @@ task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
   args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
 
   doFirst {
-    delete "${project.railsRoot}/tmp"
+    delete "${workingDir}/tmp"
     delete publicAssetsDir
     publicAssetsDir.parentFile.mkdirs()
   }
 }
 
-task compileAssetsRailsProd(type: ExecuteUnderRailsTask) {
+tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
   dependsOn yarnInstall
   outputs.cacheIf { true }
 
-  def outputAssetsDir = project.layout.buildDirectory.dir("rails-assets").get().asFile
-  def publicAssetsDir =  project.layout.buildDirectory.dir("public/assets").get().asFile
+  def outputAssetsDir = layout.buildDirectory.dir("rails-assets")
+  def publicAssetsDir = layout.buildDirectory.dir("public/assets")
 
   inputs.dir(file("${project.railsRoot}/config"))
   inputs.dir(file("${project.railsRoot}/app/assets"))
@@ -258,14 +268,15 @@ task compileAssetsRailsProd(type: ExecuteUnderRailsTask) {
 
   args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
 
+  def injected = project.objects.newInstance(Injected)
   doFirst {
-    delete "${project.railsRoot}/tmp"
+    delete "${workingDir}/tmp"
     delete outputAssetsDir
-    outputAssetsDir.parentFile.mkdirs()
+    outputAssetsDir.get().asFile.parentFile.mkdirs()
   }
 
   doLast {
-    copy {
+    injected.fileOps.copy {
       from publicAssetsDir
       into outputAssetsDir
     }
@@ -274,7 +285,7 @@ task compileAssetsRailsProd(type: ExecuteUnderRailsTask) {
   }
 }
 
-task compileAssets {
+tasks.register('compileAssets') {
   dependsOn compileAssetsWebpackProd
   dependsOn licenseReportAggregate
   dependsOn compileAssetsRailsProd
@@ -282,30 +293,31 @@ task compileAssets {
   inputs.files compileAssetsRailsProd.outputs.files
   inputs.files compileAssetsWebpackProd.outputs.files
 
-  def outputDir = project.layout.buildDirectory.dir("assets").get().asFile
+  def outputDir = layout.buildDirectory.dir("assets").get().asFile
   outputs.dir(outputDir)
 
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     delete outputDir
 
-    copy {
+    injected.fileOps.copy {
       from licenseReportAggregate
       // assets are cached with a long lived cache header
       // we purposefully add a version string in the path so every new build will basically use a different url
-      into "${outputDir}/dependency-license-report-${project.version}"
+      into "${outputDir}/dependency-license-report-${version}"
     }
-    copy {
+    injected.fileOps.copy {
       from compileAssetsRailsProd
       into outputDir
     }
-    copy {
+    injected.fileOps.copy {
       from compileAssetsWebpackProd
       into "${outputDir}/webpack"
     }
   }
 }
 
-task rspec(type: ExecuteUnderRailsTask) {
+tasks.register('rspec', ExecuteUnderRailsTask) {
   dependsOn yarnInstall
   mustRunAfter generateJSRoutes, compileAssets, compileAssetsWebpackDev, compileAssetsRailsTest
   outputs.cacheIf { true }
@@ -317,27 +329,29 @@ task rspec(type: ExecuteUnderRailsTask) {
   disableJRubyOptimization = true
 
   environment += [
-    'REPORTS_DIR': "${project.layout.buildDirectory.get()}/rspec-results"
+    'REPORTS_DIR': "${layout.buildDirectory.get()}/rspec-results"
   ]
 
-  jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.layout.buildDirectory.get()}/heap-dumps"]
+  def heapDumps = "${layout.buildDirectory.get()}/heap-dumps"
+  jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${heapDumps}"]
   args = ['-S', 'rspec', '--backtrace']
   maxHeapSize = '2g'
 
   if (project.hasProperty('opts')) {
-    args += Commandline.translateCommandline(project.property('opts')) as List<String>
+    args += Commandline.translateCommandline(project.property('opts') as String)
   }
 
+
   doFirst {
-    project.mkdir("${project.layout.buildDirectory.get()}/heap-dumps")
-    project.file("${project.layout.buildDirectory.get()}/heap-dumps/foo.txt").setText("")
+    mkdir(heapDumps)
+    file("${heapDumps}/.keep").setText("")
   }
 }
 
-task railsExec(type: ExecuteUnderRailsTask) {
+tasks.register('railsExec', ExecuteUnderRailsTask) {
   outputs.upToDateWhen { false }
 
   description = "rails exec (pass '-Pcmd=...' to pass options)"
 
-  args = Commandline.translateCommandline(project.properties.get('cmd')) as List<String>
+  args = Commandline.translateCommandline(project.properties.get('cmd') as String)
 }

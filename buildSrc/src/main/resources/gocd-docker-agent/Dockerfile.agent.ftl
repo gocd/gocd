@@ -21,24 +21,24 @@ FROM chainguard/bash:latest AS gocd-agent-unzip
 ARG TARGETARCH
 ARG UID=1000
 <#if useFromArtifact >
-COPY go-agent-${fullVersion}.zip /tmp/go-agent-${fullVersion}.zip
+COPY go-agent-${goVersions.fullVersion}.zip /tmp/go-agent-${goVersions.fullVersion}.zip
 RUN \
 <#else>
-RUN curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-agent-${fullVersion}.zip" > /tmp/go-agent-${fullVersion}.zip && \
+RUN curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${goVersions.fullVersion}/generic/go-agent-${goVersions.fullVersion}.zip" > /tmp/go-agent-${goVersions.fullVersion}.zip && \
 </#if>
-    unzip -q /tmp/go-agent-${fullVersion}.zip -d / && \
+    unzip -q /tmp/go-agent-${goVersions.fullVersion}.zip -d / && \
     mkdir -p /go-agent/wrapper /go-agent/bin && \
-    mv -v /go-agent-${goVersion}/LICENSE /go-agent/LICENSE && \
-    mv -v /go-agent-${goVersion}/*.md /go-agent && \
-    mv -v /go-agent-${goVersion}/bin/go-agent /go-agent/bin/go-agent && \
-    mv -v /go-agent-${goVersion}/lib /go-agent/lib && \
-    mv -v /go-agent-${goVersion}/logs /go-agent/logs && \
-    mv -v /go-agent-${goVersion}/run /go-agent/run && \
-    mv -v /go-agent-${goVersion}/wrapper-config /go-agent/wrapper-config && \
+    mv -v /go-agent-${goVersions.goVersion}/LICENSE /go-agent/LICENSE && \
+    mv -v /go-agent-${goVersions.goVersion}/*.md /go-agent && \
+    mv -v /go-agent-${goVersions.goVersion}/bin/go-agent /go-agent/bin/go-agent && \
+    mv -v /go-agent-${goVersions.goVersion}/lib /go-agent/lib && \
+    mv -v /go-agent-${goVersions.goVersion}/logs /go-agent/logs && \
+    mv -v /go-agent-${goVersions.goVersion}/run /go-agent/run && \
+    mv -v /go-agent-${goVersions.goVersion}/wrapper-config /go-agent/wrapper-config && \
     WRAPPERARCH=${dockerAliasToWrapperArchAsShell} && \
-    mv -v /go-agent-${goVersion}/wrapper/wrapper-linux-$WRAPPERARCH* /go-agent/wrapper/ && \
-    mv -v /go-agent-${goVersion}/wrapper/libwrapper-linux-$WRAPPERARCH* /go-agent/wrapper/ && \
-    mv -v /go-agent-${goVersion}/wrapper/wrapper.jar /go-agent/wrapper/ && \
+    mv -v /go-agent-${goVersions.goVersion}/wrapper/wrapper-linux-$WRAPPERARCH* /go-agent/wrapper/ && \
+    mv -v /go-agent-${goVersions.goVersion}/wrapper/libwrapper-linux-$WRAPPERARCH* /go-agent/wrapper/ && \
+    mv -v /go-agent-${goVersions.goVersion}/wrapper/wrapper.jar /go-agent/wrapper/ && \
     chown -R ${r"${UID}"}:0 /go-agent && chmod -R g=u /go-agent
 <#if distro.getMultiStageInputImage()?has_content >
 FROM ${distro.getMultiStageInputImage()} AS multistageinput
@@ -46,12 +46,12 @@ FROM ${distro.getMultiStageInputImage()} AS multistageinput
 FROM ${distro.getBaseImageLocation(distroVersion)}
 ARG TARGETARCH
 
-LABEL gocd.version="${goVersion}" \
+LABEL gocd.version="${goVersions.goVersion}" \
   description="GoCD agent based on ${distro.getBaseImageLocation(distroVersion)}" \
   maintainer="GoCD Team <go-cd-dev@googlegroups.com>" \
   url="https://www.gocd.org" \
-  gocd.full.version="${fullVersion}" \
-  gocd.git.sha="${gitRevision}"
+  gocd.full.version="${goVersions.fullVersion}" \
+  gocd.git.sha="${goVersions.gitRevision}"
 
 <#list additionalFiles as filePath, fileDescriptor>
 ADD ${fileDescriptor.url} ${filePath}
@@ -89,7 +89,7 @@ RUN \
 <#list distro.getInstallPrerequisitesCommands(distroVersion) as command>
   ${command} && \
 </#list>
-<#list distro.getInstallJavaCommands(project) as command>
+<#list distro.getInstallJavaCommands(goVersions.packagedJavaVersion) as command>
   ${command} && \
 </#list>
   mkdir -p /go-agent /docker-entrypoint.d /go /godata

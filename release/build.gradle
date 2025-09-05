@@ -16,7 +16,7 @@
 
 description = 'GoCD Release Scripts'
 
-task updateBuildMap {
+tasks.register('updateBuildMap') {
   outputs.upToDateWhen { false }
   def checkoutDir = "${layout.buildDirectory.get()}/build-map"
   String username = System.getenv('BUILD_MAP_USER')
@@ -24,9 +24,9 @@ task updateBuildMap {
 
   onlyIf { username && password }
 
-  def injected = project.objects.newInstance(InjectedExecOps)
+  def injected = project.objects.newInstance(Injected)
   doFirst {
-    project.delete(checkoutDir)
+    delete(checkoutDir)
 
     injected.execOps.exec {
       commandLine = ['git', 'clone', '--quiet', "https://github.com/gocd/build_map", checkoutDir]
@@ -34,7 +34,7 @@ task updateBuildMap {
       errorOutput = System.err
     }
 
-   injected.execOps.exec {
+    injected.execOps.exec {
       commandLine = ['./build_go_cd_commit_to_package.rb']
       workingDir = checkoutDir
       standardOutput = System.out

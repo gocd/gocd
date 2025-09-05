@@ -16,10 +16,9 @@
 
 package com.thoughtworks.go.build.docker
 
-
+import com.thoughtworks.go.build.AdoptiumVersion
 import com.thoughtworks.go.build.Architecture
 import com.thoughtworks.go.build.OperatingSystem
-import org.gradle.api.Project
 
 trait DistroBehavior {
 
@@ -66,8 +65,8 @@ trait DistroBehavior {
     throw new RuntimeException("Subclasses must implement!")
   }
 
-  List<String> getInstallJavaCommands(Project project) {
-    def downloadUrl = project.packagedJavaVersion.toDownloadURLFor(getOperatingSystem(), Architecture.dockerDynamic)
+  List<String> getInstallJavaCommands(AdoptiumVersion version) {
+    def downloadUrl = version.toDownloadURLFor(getOperatingSystem(), Architecture.dockerDynamic)
 
     return [
       "curl --fail --location --silent --show-error \"${downloadUrl}\" --output /tmp/jre.tar.gz",

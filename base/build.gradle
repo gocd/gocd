@@ -1,3 +1,5 @@
+import com.thoughtworks.go.build.GoVersions
+
 /*
  * Copyright Thoughtworks, Inc.
  *
@@ -62,36 +64,32 @@ clean {
   delete(generatedResourcesOutput)
 }
 
-task generateResources {
+tasks.register('generateResources', Copy) {
   inputs.dir(generatedResourcesInput)
   outputs.dir(generatedResourcesOutput)
 
+  def goVersions = project.goVersions as GoVersions
   def props = [
-    'goVersion'    : rootProject.goVersion,
-    'distVersion'  : rootProject.distVersion,
-    'fullVersion'  : rootProject.fullVersion,
-    'gitRevision'  : rootProject.gitRevision,
+    'goVersion'    : goVersions.goVersion,
+    'distVersion'  : goVersions.distVersion,
+    'fullVersion'  : goVersions.fullVersion,
+    'gitRevision'  : goVersions.gitRevision,
   ]
-
   inputs.properties(props)
 
   doFirst {
-    project.delete(generatedResourcesOutput)
+    delete(generatedResourcesOutput)
     generatedResourcesOutput.mkdirs()
+  }
 
-    project.copy {
-      into generatedResourcesOutput
-      from(generatedResourcesInput) {
-        expand(props)
-      }
-    }
+  into generatedResourcesOutput
+  from(generatedResourcesInput) {
+    expand(props)
   }
 }
+licenseMain.dependsOn generateResources
+processResources.dependsOn generateResources
 
-processResources {
-  dependsOn generateResources
-}
-
-task prepare {
+tasks.register('prepare') {
   dependsOn generateResources
 }

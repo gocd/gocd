@@ -16,7 +16,7 @@ import com.thoughtworks.go.build.YarnRunTask
  * limitations under the License.
  */
 
-task stylelintold(type: YarnRunTask) {
+tasks.register('stylelintold', YarnRunTask) {
   description = "Run stylelint for SCSS on old Rails-bundled SCSS"
   dependsOn 'yarnInstall'
 
@@ -27,7 +27,7 @@ task stylelintold(type: YarnRunTask) {
   source(project.file("${project.railsRoot}/.stylelintrc.yml"))
 }
 
-task eslintold(type: YarnRunTask) {
+tasks.register('eslintold', YarnRunTask) {
   description = "Run ESLint for old javascript code"
   dependsOn 'yarnInstall'
 
@@ -39,7 +39,7 @@ task eslintold(type: YarnRunTask) {
   source(project.file("${project.railsRoot}/.eslintrc-old.json"))
 }
 
-task eslint(type: YarnRunTask) {
+tasks.register('eslint', YarnRunTask) {
   description = "Run ESLint"
   dependsOn 'yarnInstall'
   dependsOn 'generateJSRoutes'
@@ -53,7 +53,7 @@ task eslint(type: YarnRunTask) {
   source(project.file("${project.railsRoot}/.eslintrc.json"))
 }
 
-task tslint(type: YarnRunTask) {
+tasks.register('tslint', YarnRunTask) {
   description = "Run TSLint"
   dependsOn 'yarnInstall'
   dependsOn 'generateJSRoutes'
@@ -66,17 +66,17 @@ task tslint(type: YarnRunTask) {
   source(project.file("${project.railsRoot}/tslint.json"))
 }
 
-task lintNew {
+tasks.register('lintNew') {
   description = 'Run lint tools on newer js/scss'
   dependsOn eslint, tslint
 }
 
-task lintOld {
+tasks.register('lintOld') {
   description = 'Run lint tools on older legacy js/scss'
   dependsOn stylelintold, eslintold
 }
 
-task lint {
+tasks.register('lint') {
   description = 'Run all lint tools'
   dependsOn lintNew, lintOld
 }

@@ -1,9 +1,10 @@
 import com.thoughtworks.go.build.Architecture
 import com.thoughtworks.go.build.DownloaderTask
 import com.thoughtworks.go.build.YarnRunTask
-import org.gradle.internal.os.OperatingSystem
 
 import java.util.regex.Pattern
+
+import static com.thoughtworks.go.build.OperatingSystemHelper.CURRENT_OS
 
 /*
  * Copyright Thoughtworks, Inc.
@@ -21,7 +22,6 @@ import java.util.regex.Pattern
  * limitations under the License.
  */
 
-OperatingSystem currentOS = OperatingSystem.current()
 Architecture currentArch = Architecture.current()
 
 // Chrome:        See https://googlechromelabs.github.io/chrome-for-testing/ Must match version of Chrome on build host
@@ -36,7 +36,7 @@ def execute = { String path, String... argv ->
   try {
     return providers.exec {
       def pathVariable = 'PATH'
-      if (currentOS.isWindows()) {
+      if (CURRENT_OS.isWindows()) {
         // because windows PATH variable is case-insensitive :-/
         pathVariable = environment.keySet().find { eachKey -> eachKey.toUpperCase().equals("PATH") }
       }
@@ -45,7 +45,7 @@ def execute = { String path, String... argv ->
 
       // java's ProcessBuilder does not lookup executables on `PATH` specified in the environment map
       // it instead looks up executable on the PATH of the caller.
-      def executableName = currentOS.getExecutableName(executable)
+      def executableName = CURRENT_OS.getExecutableName(executable)
 
       for (String entryInPath : path.split(Pattern.quote(File.pathSeparator))) {
         def candidateExecutable = new File(entryInPath, executableName)
@@ -100,19 +100,16 @@ tasks.register('downloadGeckoDriver', DownloaderTask) { thisTask ->
   packageName = 'geckodriver'
   packageVersion = seleniumDrivers.geckodriver
 
+  String archiveExtension = CURRENT_OS.isWindows() ? 'zip' : 'tar.gz'
   String osURIPart
-  String archiveExtension = currentOS.isWindows() ? 'zip' : 'tar.gz'
-
-  switch (currentOS) {
-    case OperatingSystem.MacOs:
-      osURIPart = currentArch == Architecture.aarch64 ? 'macos-aarch64' : 'macos'
-      break
-    case OperatingSystem.Windows:
-      osURIPart = currentArch == Architecture.aarch64 ? 'win-aarch64' : 'win64'
-      break
-    default:
-      osURIPart = currentArch == Architecture.aarch64 ? 'linux-aarch64' : 'linux64'
-      break
+  if (CURRENT_OS.isMacOsX()) {
+    osURIPart = currentArch == Architecture.aarch64 ? 'macos-aarch64' : 'macos'
+  } else if (CURRENT_OS.isWindows()) {
+    osURIPart = currentArch == Architecture.aarch64 ? 'win-aarch64' : 'win64'
+  } else if (CURRENT_OS.isLinux()) {
+    osURIPart = currentArch == Architecture.aarch64 ? 'linux-aarch64' : 'linux64'
+  } else {
+    throw new IllegalStateException("Unsupported OS ${CURRENT_OS}")
   }
   url = "https://github.com/mozilla/geckodriver/releases/download/v${packageVersion}/geckodriver-v${packageVersion}-${osURIPart}.${archiveExtension}"
 }
@@ -123,17 +120,14 @@ tasks.register('downloadChromeDriver', DownloaderTask) { thisTask ->
   packageVersion = seleniumDrivers.chromedriver
 
   String osURIPart
-
-  switch (currentOS) {
-    case OperatingSystem.MacOs:
-      osURIPart = currentArch == Architecture.aarch64 ? 'mac-arm64' : 'mac-x64'
-      break
-    case OperatingSystem.Windows:
-      osURIPart = 'win64'
-      break
-    default:
-      osURIPart = 'linux64'
-      break
+  if (CURRENT_OS.isMacOsX()) {
+    osURIPart = currentArch == Architecture.aarch64 ? 'mac-arm64' : 'mac-x64'
+  } else if (CURRENT_OS.isWindows()) {
+    osURIPart = 'win64'
+  } else if (CURRENT_OS.isLinux()) {
+    osURIPart = 'linux64'
+  } else {
+    throw new IllegalStateException("Unsupported OS ${CURRENT_OS}")
   }
   url = "https://storage.googleapis.com/chrome-for-testing-public/${packageVersion}/${osURIPart}/chromedriver-${osURIPart}.zip"
 }

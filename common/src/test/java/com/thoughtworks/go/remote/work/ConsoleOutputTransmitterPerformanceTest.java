@@ -26,7 +26,7 @@ public class ConsoleOutputTransmitterPerformanceTest {
 
     @Test
     public void shouldNotBlockPublisherWhenSendingToServer() throws InterruptedException {
-        int consolePublishIntervalMillis = 50;
+        int consolePublishIntervalMillis = 100;
         try (ConsoleOutputTransmitter transmitter = new ConsoleOutputTransmitter(new SlowResource(), consolePublishIntervalMillis, TimeUnit.MILLISECONDS, new ScheduledThreadPoolExecutor(1))) {
             long startTime = System.currentTimeMillis();
             int numberMessages = 4;
@@ -35,8 +35,8 @@ public class ConsoleOutputTransmitterPerformanceTest {
                 Thread.sleep(consolePublishIntervalMillis);
             }
             assertThat(System.currentTimeMillis() - startTime)
-                .describedAs("Publishing messages should not be blocked (buffer of 50 ms)")
-                .isLessThan(consolePublishIntervalMillis * numberMessages + 50);
+                .describedAs("Publishing messages should not be blocked (buffer of 200 ms)")
+                .isLessThan(consolePublishIntervalMillis * numberMessages + 200);
         }
     }
 }

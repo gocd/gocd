@@ -69,7 +69,7 @@ class GoVersions implements Serializable {
       println("GoCD Versions")
       println(separator)
       println("        goVersion: ${goVersions.goVersion}")
-      println("      distVersion: ${goVersions.distVersion}  (will be inaccurate on shallow clones!)")
+      println("      distVersion: ${goVersions.distVersion}        (will be inaccurate on shallow clones!)")
       println("      fullVersion: ${goVersions.fullVersion}")
       println("      gitRevision: ${goVersions.gitRevision}")
       println("targetJavaVersion: ${goVersions.targetJavaVersion}")

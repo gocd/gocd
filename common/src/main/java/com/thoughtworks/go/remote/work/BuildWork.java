@@ -96,7 +96,7 @@ public class BuildWork implements Work {
         } catch (Exception e) {
             reportFailure(e);
         } finally {
-            goPublisher.stop();
+            goPublisher.close();
         }
     }
 

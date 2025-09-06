@@ -40,14 +40,13 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
     private final ScheduledThreadPoolExecutor executor;
 
     public ConsoleOutputTransmitter(ConsoleAppender consoleAppender) {
-        this(consoleAppender, new SystemEnvironment().getConsolePublishInterval(), new ScheduledThreadPoolExecutor(1));
+        this(consoleAppender, new SystemEnvironment().getConsolePublishInterval(), TimeUnit.SECONDS, new ScheduledThreadPoolExecutor(1));
     }
 
-    ConsoleOutputTransmitter(ConsoleAppender consoleAppender, Integer consolePublishInterval,
-                                       ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
+    ConsoleOutputTransmitter(ConsoleAppender consoleAppender, Integer consolePublishInterval, TimeUnit consumePublishIntervalUnit, ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
         this.consoleAppender = consoleAppender;
         this.executor = scheduledThreadPoolExecutor;
-        executor.scheduleAtFixedRate(this, 0L, consolePublishInterval, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(this, 0L, consolePublishInterval, consumePublishIntervalUnit);
     }
 
     @Override
@@ -104,7 +103,7 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
     }
 
     @Override
-    public void stop() {
+    public void close() {
         flushToServer();
         executor.shutdown();
     }

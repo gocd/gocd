@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -38,12 +39,12 @@ public class ConsoleOutputTransmitterTest {
     @BeforeEach
     public void setup() {
         new SystemEnvironment().setProperty(SystemEnvironment.INTERVAL, "60"); // so the thread does not wake up
-        transmitter = new ConsoleOutputTransmitter(consoleAppender, 0, mock(ScheduledThreadPoolExecutor.class));
+        transmitter = new ConsoleOutputTransmitter(consoleAppender, 0, TimeUnit.SECONDS, mock(ScheduledThreadPoolExecutor.class));
     }
 
     @AfterEach
     public void tearDown() {
-        transmitter.stop();
+        transmitter.close();
     }
 
     @Test

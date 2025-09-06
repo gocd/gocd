@@ -28,12 +28,13 @@ package com.thoughtworks.go.util.command;
  * @author <a href="mailto:fvancea@maxiq.com">Florin Vancea</a>
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
-public interface StreamConsumer {
+public interface StreamConsumer extends AutoCloseable {
 
     /**
      * Called when the StreamPumper pumps a line from the Stream.
      */
     void consumeLine(String line);
 
-    default void stop() {};
+    @Override
+    default void close() {};
 }

@@ -79,9 +79,9 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     @Override
-    public void stop() {
+    public void close() {
         LOG.info("Stopping Transmission for {}", jobIdentifier.toFullString());
-        consoleOutputTransmitter.stop();
+        consoleOutputTransmitter.close();
     }
 
     private void reportCurrentStatus(JobState state) {

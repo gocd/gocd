@@ -15,61 +15,28 @@
  */
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConsoleOutputTransmitterPerformanceTest {
-    private static final int SECOND = 1000;
-
-    @BeforeEach
-    public void setUp() {
-        new SystemEnvironment().setProperty(SystemEnvironment.INTERVAL, "1");
-    }
-
-    @AfterEach
-    public void tearDown() {
-        new SystemEnvironment().clearProperty(SystemEnvironment.INTERVAL);
-    }
 
     @Test
     public void shouldNotBlockPublisherWhenSendingToServer() throws InterruptedException {
-        SlowResource resource = new SlowResource();
-        final ConsoleOutputTransmitter transmitter = new ConsoleOutputTransmitter(resource);
-
-        int numberToSend = 4;
-        int actuallySent = transmitData(transmitter, numberToSend);
-        transmitter.stop();
-
-        assertThat(numberToSend).isLessThanOrEqualTo(actuallySent);
-    }
-
-    private int transmitData(final ConsoleOutputTransmitter transmitter, final int numberOfSeconds)
-            throws InterruptedException {
-        final int[] count = {0};
-        Thread thread = new Thread(() -> {
+        int consolePublishIntervalMillis = 50;
+        try (ConsoleOutputTransmitter transmitter = new ConsoleOutputTransmitter(new SlowResource(), consolePublishIntervalMillis, TimeUnit.MILLISECONDS, new ScheduledThreadPoolExecutor(1))) {
             long startTime = System.currentTimeMillis();
-            count[0] = 0;
-            while (System.currentTimeMillis() < startTime + numberOfSeconds * SECOND) {
-                String line = "This is line " + count[0];
-                transmitter.consumeLine(line);
-                sleepFor(SECOND);
-                count[0]++;
+            int numberMessages = 4;
+            for (int i = 0; i < numberMessages; i++) {
+                transmitter.consumeLine("This is line " + i);
+                Thread.sleep(consolePublishIntervalMillis);
             }
-        });
-        thread.start();
-        thread.join();
-        return count[0];
-    }
-
-    private void sleepFor(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            //ignore
+            assertThat(System.currentTimeMillis() - startTime)
+                .describedAs("Publishing messages should not be blocked (buffer of 50 ms)")
+                .isLessThan(consolePublishIntervalMillis * numberMessages + 50);
         }
     }
 }

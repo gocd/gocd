@@ -45,7 +45,7 @@ class DownloaderTask extends DefaultTask {
     // perform the download
     File distributionRoot = installer.getDistributionRoot(packageVersion).get()
     extensions.ext.outputDir = distributionRoot
-    extensions.ext.absoluteBinaryPath = project.file("${distributionRoot}/${OperatingSystem.current().getExecutableNames(executable).first()}")
+    extensions.ext.absoluteBinaryPath = new File("${distributionRoot}/${OperatingSystem.current().getExecutableNames(executable).first()}")
   }
 
   private AbstractDistributionInstaller createInstaller() {

@@ -245,12 +245,13 @@ subprojects {
       extractedAtTopLevel { transitive = false }
       fatJarConfig
 
-      testJavaAgents { transitive = false }
       testOutput {
         extendsFrom testRuntimeClasspath
         transitive = true
       }
+      testJavaAgents { transitive = false }
     }
+    test.dependsOn configurations.testJavaAgents
 
     tasks.register('testJar', Jar) {
       archiveClassifier = 'tests'

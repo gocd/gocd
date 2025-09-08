@@ -15,19 +15,20 @@
  */
 
 description = 'GoCD Test Agent'
+
 dependencies {
-  implementation project(':agent-common')
+  testFixturesImplementation project(':agent-common')
 }
 
-jar {
+testFixturesJar {
   manifest {
     attributes(
-        'Main-Class': 'com.thoughtworks.go.ArgPrintingMain',
-        'Go-Agent-Bootstrap-Class': 'com.thoughtworks.go.HelloWorldStreamWriter'
+      'Main-Class': 'com.thoughtworks.go.ArgPrintingMain',
+      'Go-Agent-Bootstrap-Class': 'com.thoughtworks.go.HelloWorldStreamWriter'
     )
   }
 
-  from({ configurations.runtimeClasspath }) {
+  from({ configurations.testFixturesRuntimeClasspath }) {
     into "lib"
   }
 }

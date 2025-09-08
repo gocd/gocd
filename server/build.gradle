@@ -181,7 +181,7 @@ dependencies {
   copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
-  copyOnlyTestData project(':test:test-agent')
+  copyOnlyTestData(testFixtures(project(':test:test-agent')))
 
   implementation project.deps.commonsCodec
   implementation project.deps.commonsCollections4
@@ -262,7 +262,7 @@ dependencies {
   testImplementation(testFixtures(project(':config:config-server')))
   testImplementation(testFixtures(project(':common')))
   testImplementation(testFixtures(project(':domain')))
-  testImplementation project(':test:test-utils')
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project(':app-server')
   testImplementation project(':jetty')
   testImplementation(project.deps.jettyWebsocket) {
@@ -275,7 +275,7 @@ dependencies {
   testImplementation project.deps.awaitility
   testImplementation project.deps.xmlUnit
 
-  testImplementation project(':test:http-mocks')
+  testImplementation(testFixtures(project(':test:http-mocks')))
 
   testImplementation project.deps.junit5Api
   testImplementation project.deps.junit5Params
@@ -486,7 +486,7 @@ tasks.register('prepareTestGitRepo') {
 tasks.register('copyTestDataJarsToServerDir', Copy) {
   from({ configurations.copyOnlyTestData })
   into 'testdata'
-  rename "(.*)-${project.version}.jar", '$1.jar'
+  rename "(.*)-${project.version}-.*.jar", '$1.jar'
 }
 
 tasks.register('copyAgentJarsToServerDir', Copy) {

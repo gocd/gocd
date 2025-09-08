@@ -248,12 +248,6 @@ subprojects {
     }
     test.dependsOn configurations.testJavaAgents
 
-    tasks.register('testJar', Jar) {
-      archiveClassifier = 'tests'
-      from sourceSets.test.output
-    }
-    assemble.dependsOn testJar
-
     dependencies {
       // Force all sub-projects to have managed dependency versions for certain transitive dependencies
       implementation platform(project(':build-platform'))
@@ -300,7 +294,7 @@ subprojects {
     apply plugin: 'java-test-fixtures'
 
     layout.buildDirectory = "${projectDir}/target"
-    
+
     dependencies {
       // Force all sub-projects to have managed dependency versions for certain transitive dependencies
       testFixturesImplementation platform(project(':build-platform'))
@@ -464,7 +458,7 @@ subprojects {
     doLast {
       delete(tmpDir)
 
-      if (!allTestClasses.empty) {
+      if (!allTestClasses.empty && !filter.includePatterns.empty) {
         throw new GradleException("Missed the following classes to test: ${allTestClasses}".toString())
       }
     }
@@ -591,7 +585,6 @@ dependencyCheck {
   failBuildOnUnusedSuppressionRule = true
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
   skipTestGroups = true
-  skipProjects = [':test:http-mocks', ':test:test-agent', ':test:test-utils']
 
   nvd.apiKey = System.getenv("NVD_API_KEY") ?: ""
 

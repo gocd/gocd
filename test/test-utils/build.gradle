@@ -23,28 +23,28 @@ configurations {
 }
 
 dependencies {
-  api project(':base')
-  api project(':util')
-  api project.deps.logback
-  implementation project.deps.jetty
-  implementation project.deps.jettyUtil
-  implementation project.deps.jettyServlet
-  implementation project.deps.jettyWebapp
+  testFixturesApi project(':base')
+  testFixturesApi project(':util')
+  testFixturesApi project.deps.logback
+  testFixturesImplementation project.deps.jetty
+  testFixturesImplementation project.deps.jettyUtil
+  testFixturesImplementation project.deps.jettyServlet
+  testFixturesImplementation project.deps.jettyWebapp
 
-  api project.deps.assertJ
-  api enforcedPlatform(project.deps.junit5Bom)
-  api project.deps.junit5Api
-  api project.deps.junit5Params
+  testFixturesApi project.deps.assertJ
+  testFixturesApi enforcedPlatform(project.deps.junit5Bom)
+  testFixturesApi project.deps.junit5Api
+  testFixturesApi project.deps.junit5Params
 
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
-  copyOnly project(':test:test-agent')
+  copyOnly(testFixtures(project(':test:test-agent')))
   copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
 }
 
 def generatedResourcesOutput = file("resources-generated")
 
 sourceSets {
-  main {
+  testFixtures {
     resources {
       output.dir generatedResourcesOutput, builtBy: 'generateResources'
       srcDirs += generatedResourcesOutput
@@ -62,12 +62,11 @@ tasks.register('generateResources', Copy) {
 
   into "$generatedResourcesOutput/testdata/gen"
   from({ configurations.copyOnly }) {
-    rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
+    rename "(.*)-${project.version}(-.*)?.(jar|zip)", '$1.$3'
   }
 }
 
-licenseMain.dependsOn generateResources
-processResources.dependsOn generateResources
+processTestFixturesResources.dependsOn generateResources
 
 tasks.register('prepare') {
   dependsOn generateResources

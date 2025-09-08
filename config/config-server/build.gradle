@@ -42,7 +42,7 @@ dependencies {
   compileOnly project.deps.lombok
 
   testImplementation(testFixtures(project(":config:config-api")))
-  testImplementation project(':test:test-utils')
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
   testImplementation project.deps.assertJ
   testImplementation project.deps.xmlUnit
@@ -52,7 +52,7 @@ dependencies {
 
   testFixturesApi project(':config:config-api')
   testFixturesImplementation project(':util')
-  testFixturesImplementation project(':test:test-utils')
+  testFixturesImplementation(testFixtures(project(':test:test-utils')))
 }
 
 test {

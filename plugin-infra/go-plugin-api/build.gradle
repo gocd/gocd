@@ -32,7 +32,7 @@ dependencies {
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.mockitoCore
-  testImplementation project(':test:test-utils')
+  testImplementation(testFixtures(project(':test:test-utils')))
 }
 
 tasks.register('sourcesJar', Jar) {

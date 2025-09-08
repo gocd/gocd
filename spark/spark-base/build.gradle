@@ -61,7 +61,7 @@ dependencies {
     exclude(group: 'org.eclipse.jetty.websocket')
   }
   testFixturesApi project.deps.servletApi
-  testFixturesApi project(':test:http-mocks')
+  testFixturesApi(testFixtures(project(':test:http-mocks')))
   testFixturesApi project.deps.springTest
   testFixturesImplementation project(':server')
   testFixturesImplementation project.deps.gson

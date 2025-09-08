@@ -36,7 +36,7 @@ dependencies {
   compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation localGroovy()
-  testImplementation project(':test:test-utils')
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation(testFixtures(project(":domain")))
   testImplementation(testFixtures(project(":config:config-api")))
   testImplementation project.deps.junit5Api

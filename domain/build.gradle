@@ -57,7 +57,7 @@ dependencies {
   testFixturesApi project(":config:config-api")
   testFixturesApi project(':base')
   testFixturesApi project(':domain')
-  testFixturesApi project(':test:test-utils')
+  testFixturesApi(testFixtures(project(':test:test-utils')))
   testFixturesApi project.deps.junit5Api
   testFixturesImplementation(testFixtures(project(":config:config-api")))
   testFixturesImplementation project(':commandline')

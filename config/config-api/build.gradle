@@ -55,9 +55,9 @@ dependencies {
   testImplementation project.deps.junit5Params
   testImplementation project.deps.assertJ
   testImplementation project.deps.systemStubs
-  testImplementation project(':test:test-utils')
+  testImplementation(testFixtures(project(':test:test-utils')))
 
   testFixturesApi project.deps.junit5Api
   testFixturesImplementation project(':util')
-  testFixturesImplementation project(':test:test-utils')
+  testFixturesImplementation(testFixtures(project(':test:test-utils')))
 }

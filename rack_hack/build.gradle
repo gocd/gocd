@@ -19,7 +19,7 @@ dependencies {
   implementation project(':app-server')
   compileOnly project.deps.servletApi
   testCompileOnly project.deps.servletApi
-  testImplementation project(':test:test-utils')
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
   testImplementation project.deps.junit5Api

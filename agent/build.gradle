@@ -76,7 +76,7 @@ dependencies {
     implementation project.deps.slf4jJcl // Allow commons-logging replacement
   }
 
-  testImplementation project(':test:test-utils')
+  testImplementation(testFixtures(project(':test:test-utils')))
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

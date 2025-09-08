@@ -26,7 +26,7 @@ dependencies {
   implementation project.deps.commonsIO
   api project.deps.cloning
   implementation project.deps.jdom
-  testImplementation project(':test:test-utils')
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher

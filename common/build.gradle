@@ -37,7 +37,7 @@ dependencies {
 
   testImplementation(testFixtures(project(':config:config-api')))
   testImplementation(testFixtures(project(':domain')))
-  testImplementation project(':test:test-utils')
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
@@ -50,7 +50,7 @@ dependencies {
   testFixturesApi project(":config:config-api")
   testFixturesApi project.deps.assertJ
   testFixturesImplementation(testFixtures(project(':domain')))
-  testFixturesImplementation project(':test:test-utils')
+  testFixturesImplementation(testFixtures(project(':test:test-utils')))
   testFixturesImplementation project.deps.mockitoCore
 }
 

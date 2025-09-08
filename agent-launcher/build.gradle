@@ -31,7 +31,7 @@ dependencies {
   implementation project.deps.commonsIO
   implementation project.deps.slf4jApi
 
-  testImplementation project(':test:test-utils')
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
   testImplementation project.deps.mockitoCore
   testRuntimeOnly project.deps.junit5Engine

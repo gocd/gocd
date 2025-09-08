@@ -66,7 +66,7 @@ public class AgentLauncherImplTest {
         Files.deleteIfExists(AGENT_BINARY_JAR.toPath());
         Files.deleteIfExists(AGENT_LAUNCHER_JAR.toPath());
         Files.deleteIfExists(TFS_IMPL_JAR.toPath());
-        new Lockfile(new File(AgentLauncherImpl.AGENT_BOOTSTRAPPER_LOCK_FILE)).delete();
+        new File(AgentLauncherImpl.AGENT_BOOTSTRAPPER_LOCK_FILE).delete();
     }
 
     @Test

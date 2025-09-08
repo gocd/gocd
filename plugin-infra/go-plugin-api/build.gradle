@@ -32,6 +32,7 @@ dependencies {
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.mockitoCore
+  testImplementation project.deps.assertJ
   testImplementation(testFixtures(project(':test:test-utils')))
 }
 

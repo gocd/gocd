@@ -30,6 +30,7 @@ dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
 
+  testImplementation project.deps.logback
   testImplementation project.deps.springTestJunit5
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
@@ -38,6 +39,7 @@ dependencies {
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation project.deps.assertJ
 }
 
 clean {

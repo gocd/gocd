@@ -27,10 +27,11 @@ dependencies {
 
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
-  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation project.deps.assertJ
+  //testImplementation(testFixtures(project(':test:test-utils')))
 }
 
 tasks.register('sourcesJar', Jar) {

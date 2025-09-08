@@ -262,7 +262,6 @@ dependencies {
   testImplementation(testFixtures(project(':config:config-server')))
   testImplementation(testFixtures(project(':common')))
   testImplementation(testFixtures(project(':domain')))
-  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project(':app-server')
   testImplementation project(':jetty')
   testImplementation(project.deps.jettyWebsocket) {

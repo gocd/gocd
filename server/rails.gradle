@@ -318,7 +318,7 @@ tasks.register('compileAssets') {
 }
 
 tasks.register('rspec', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall
+  dependsOn yarnInstall, configurations.spark, configurations.apiBase
   mustRunAfter generateJSRoutes, compileAssets, compileAssetsWebpackDev, compileAssetsRailsTest
   outputs.cacheIf { true }
   inputs.files project.railsRoot

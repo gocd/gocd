@@ -43,8 +43,8 @@ import java.util.Map;
 import static com.thoughtworks.go.domain.JobResult.*;
 import static com.thoughtworks.go.domain.JobState.Building;
 import static com.thoughtworks.go.domain.JobState.Completed;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -90,7 +90,7 @@ public class ScheduleServiceTest {
         Stage resultStage = spyedService.cancelAndTriggerRelevantStages(stageId, admin, result);
 
         assertThat(resultStage).isEqualTo(spiedStage);
-        assertThat(result.httpCode()).isEqualTo(SC_OK);
+        assertThat(result.httpCode()).isEqualTo(HTTP_OK);
         assertThat(result.isSuccessful()).isTrue();
         assertThat(result.message()).isEqualTo("Stage cancelled successfully.");
 
@@ -109,7 +109,7 @@ public class ScheduleServiceTest {
         when(stageService.stageById(stageId)).thenReturn(firstStage);
         Stage resultStage = service.cancelAndTriggerRelevantStages(stageId, admin, result);
         assertThat(resultStage).isEqualTo(firstStage);
-        assertThat(result.httpCode()).isEqualTo(SC_OK);
+        assertThat(result.httpCode()).isEqualTo(HTTP_OK);
         assertThat(result.isSuccessful()).isTrue();
         assertThat(result.hasMessage()).isTrue();
         String respMsg = "Stage is not active. Cancellation Ignored.";
@@ -133,7 +133,7 @@ public class ScheduleServiceTest {
         Stage resultStage = service.cancelAndTriggerRelevantStages(stageId, admin, result);
 
         assertThat(resultStage).isNull();
-        assertThat(result.httpCode()).isEqualTo(SC_FORBIDDEN);
+        assertThat(result.httpCode()).isEqualTo(HTTP_FORBIDDEN);
         assertThat(result.isSuccessful()).isFalse();
         verify(securityService).hasOperatePermissionForStage(pipeline.getName(), spiedStage.getName(), admin.getUsername().toString());
         verify(stageService, never()).cancelStage(spiedStage, admin.getUsername().toString());

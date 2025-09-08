@@ -20,13 +20,21 @@ dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
 
-  api project(path: ':base', configuration: 'runtimeElements')
-  api project.deps.jcommander
+  api project(':base')
+  implementation project.deps.jcommander
   runtimeOnly project.deps.logback
 
+  implementation(project.deps.apacheHttpComponents) {
+    exclude(module: 'commons-codec')
+  }
+  if (project.deps.apacheHttpComponents) {
+    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+  }
+
   testImplementation project.deps.mockitoCore
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation project.deps.assertJ
 }

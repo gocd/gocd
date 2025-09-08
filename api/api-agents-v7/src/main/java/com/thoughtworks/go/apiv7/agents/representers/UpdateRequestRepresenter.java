@@ -19,7 +19,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.util.TriState;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
 import java.util.*;
@@ -48,7 +47,7 @@ abstract class UpdateRequestRepresenter {
     }
 
     static TriState toTriState(String agentConfigState) {
-        if (StringUtils.isBlank(agentConfigState)) {
+        if (agentConfigState == null  || agentConfigState.isBlank()) {
             return TriState.UNSET;
         } else if (Strings.CI.equals(agentConfigState, "enabled")) {
             return TriState.TRUE;

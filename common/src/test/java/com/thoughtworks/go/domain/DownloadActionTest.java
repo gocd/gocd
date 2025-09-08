@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.SocketException;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static javax.servlet.http.HttpServletResponse.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -98,7 +98,7 @@ public class DownloadActionTest {
         HttpService httpService = mock(HttpService.class);
         StubGoPublisher goPublisher = new StubGoPublisher();
 
-        when(httpService.download("foo", fetchHandler)).thenReturn(SC_NOT_MODIFIED);
+        when(httpService.download("foo", fetchHandler)).thenReturn(HttpURLConnection.HTTP_NOT_MODIFIED);
 
         new DownloadAction(httpService, goPublisher, clock).perform("foo", fetchHandler);
 
@@ -124,9 +124,9 @@ public class DownloadActionTest {
         public int download(String url, FetchHandler handler) {
             timesCalled += 1;
             if (timesCalled < count) {
-                return SC_ACCEPTED;
+                return HttpURLConnection.HTTP_ACCEPTED;
             } else {
-                return SC_OK;
+                return HttpURLConnection.HTTP_OK;
             }
         }
     }
@@ -159,7 +159,7 @@ public class DownloadActionTest {
             if (timesCalled <= count) {
                 throw new SocketException("Connection Reset");
             } else {
-                return SC_OK;
+                return HttpURLConnection.HTTP_OK;
             }
         }
     }

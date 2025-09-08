@@ -47,7 +47,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -64,8 +63,9 @@ import static com.thoughtworks.go.domain.JobState.*;
 import static com.thoughtworks.go.helper.ConfigFileFixture.withJob;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcherJunit5.assertConsoleOut;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static java.net.HttpURLConnection.HTTP_NOT_ACCEPTABLE;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
@@ -371,7 +371,7 @@ class BuildWorkTest {
         Files.writeString(new File(basedir, artifactFile).toPath(), "foo", UTF_8);
 
         buildWork = getWork(willUploadToDest(artifactFile, destFolder), PIPELINE_NAME);
-        com.thoughtworks.go.remote.work.HttpServiceStub httpService = new com.thoughtworks.go.remote.work.HttpServiceStub(HttpServletResponse.SC_OK);
+        com.thoughtworks.go.remote.work.HttpServiceStub httpService = new com.thoughtworks.go.remote.work.HttpServiceStub(HTTP_OK);
         artifactManipulator = new GoArtifactsManipulatorStub(httpService);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
@@ -390,7 +390,7 @@ class BuildWorkTest {
     void shouldFailTheJobWhenFailedToUploadArtifact() throws Exception {
         String artifactFile = "some.txt";
         buildWork = getWork(willUpload(artifactFile), PIPELINE_NAME);
-        artifactManipulator = new GoArtifactsManipulatorStub(new HttpServiceStub(SC_NOT_ACCEPTABLE));
+        artifactManipulator = new GoArtifactsManipulatorStub(new HttpServiceStub(HTTP_NOT_ACCEPTABLE));
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
@@ -405,7 +405,7 @@ class BuildWorkTest {
     void shouldCallArtifactExtensionToPublishPluggableArtifact() throws Exception {
         final ArtifactExtension artifactExtension = mock(ArtifactExtension.class);
         buildWork = getWork(pluggableArtifact(), PIPELINE_NAME);
-        artifactManipulator = new GoArtifactsManipulatorStub(new HttpServiceStub(SC_NOT_ACCEPTABLE));
+        artifactManipulator = new GoArtifactsManipulatorStub(new HttpServiceStub(HTTP_NOT_ACCEPTABLE));
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry));

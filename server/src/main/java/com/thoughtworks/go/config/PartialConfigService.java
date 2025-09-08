@@ -119,7 +119,7 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
         }
     }
 
-    public CruiseConfig merge(PartialConfig partialConfig, String fingerprint, CruiseConfig cruiseConfig) {
+    public CruiseConfig merge(PartialConfig partialConfig, String fingerprint, CruiseConfig cruiseConfig) throws InvalidPartialConfigException {
         PartialConfigUpdateCommand command = buildUpdateCommand(partialConfig, fingerprint);
         command.update(cruiseConfig);
         return cruiseConfig;

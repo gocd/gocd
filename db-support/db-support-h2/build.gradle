@@ -16,13 +16,14 @@
 
 dependencies {
   implementation project.deps.h2
-  api project(path: ':db-support:db-support-base', configuration: 'runtimeElements')
+  implementation project(':db-support:db-support-base')
 
-  testImplementation project(path: ':db-support:db-migration', configuration: 'runtimeElements')
-  testImplementation project(path: ':db-support:db-migration', configuration: 'testOutput')
+  testImplementation project(':db-support:db-migration')
+  testImplementation(testFixtures(project(":db-support:db-migration")))
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.assertJ
+  testImplementation project.deps.commonsDbcp
 }

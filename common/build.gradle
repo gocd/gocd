@@ -17,26 +17,40 @@
 description = 'GoCD Common Module'
 
 dependencies {
-  api project(path: ':commandline', configuration: 'runtimeElements')
-  api project(path: ':base', configuration: 'runtimeElements')
-  api project(path: ':util', configuration: 'runtimeElements')
-  api project(path: ':domain', configuration: 'runtimeElements')
-  api project(path: ':plugin-infra:go-plugin-access', configuration: 'runtimeElements')
+  api project(':domain')
+  implementation project(':commandline')
+  implementation project(':base')
+  implementation project(':util')
+  implementation project(':plugin-infra:go-plugin-api')
+  implementation project(':plugin-infra:go-plugin-access')
+  api project(':config:config-api')
   implementation project.deps.apacheHttpMime
   implementation project.deps.commonsCollections4
+  implementation project.deps.commonsIO
   implementation project.deps.commonsText
   implementation project.deps.commonsLang3
+  implementation project.deps.gson
+  api project.deps.springContext
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
   compileOnly project.deps.jetBrainsAnnotations
 
-  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
-  testImplementation project(path: ':domain', configuration: 'testOutput')
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation(testFixtures(project(':config:config-api')))
+  testImplementation(testFixtures(project(':domain')))
+  testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.junit5Params
   testImplementation project.deps.mockitoJunit5
+  testImplementation project.deps.assertJ
+  testImplementation project.deps.systemStubs
+  testImplementation project.deps.jsonUnit
+
+  testFixturesApi project(":config:config-api")
+  testFixturesApi project.deps.assertJ
+  testFixturesImplementation(testFixtures(project(':domain')))
+  testFixturesImplementation project(':test:test-utils')
+  testFixturesImplementation project.deps.mockitoCore
 }
 

@@ -17,14 +17,15 @@
 description = 'GoCD Plugin Infrastructure'
 
 dependencies {
-  implementation project(path: ':base', configuration: 'runtimeElements')
-  implementation project(path: ':util', configuration: 'runtimeElements')
-  implementation project(path: ':plugin-infra:go-plugin-api', configuration: 'runtimeElements')
-  implementation project(path: ':plugin-infra:go-plugin-activator', configuration: 'runtimeElements')
+  implementation project(':base')
+  implementation project(':util')
+  api project(':plugin-infra:go-plugin-api')
+  implementation project(':plugin-infra:go-plugin-activator')
   compileOnly project.deps.logback
-  api project.deps.jaxbApi
-  api project.deps.jaxbRuntime
+  compileOnlyApi project.deps.jaxbApi
+  implementation project.deps.jaxbRuntime
   implementation project.deps.commonsIO
+  implementation project.deps.springContext
 
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
@@ -32,7 +33,7 @@ dependencies {
   testImplementation project.deps.springTestJunit5
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation project(':test:test-utils')
   testImplementation project.deps.tinybundles
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

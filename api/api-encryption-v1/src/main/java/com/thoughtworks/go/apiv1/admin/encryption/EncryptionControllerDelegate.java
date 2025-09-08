@@ -37,13 +37,13 @@ import io.github.bucket4j.caffeine.CaffeineProxyManager;
 import io.github.bucket4j.distributed.BucketProxy;
 import io.github.bucket4j.distributed.proxy.ClientSideConfig;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
-import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
 import java.time.Duration;
 
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static spark.Spark.*;
 
 public class EncryptionControllerDelegate extends ApiController {
@@ -85,7 +85,7 @@ public class EncryptionControllerDelegate extends ApiController {
             post("", mimeType, this::encrypt);
 
             exception(CryptoException.class, (CryptoException exception, Request request, Response response) -> {
-                response.status(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                response.status(HTTP_INTERNAL_ERROR);
                 response.body(MessageJson.create(HaltApiMessages.errorWhileEncryptingMessage()));
             });
         });

@@ -22,7 +22,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 
-import static com.thoughtworks.go.config.SecurityConfigTest.*;
+import static com.thoughtworks.go.helper.SecurityConfigMother.*;
+
 
 public class SecurityConfigTest {
 

@@ -63,8 +63,8 @@ import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static java.lang.String.format;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -822,7 +822,7 @@ public class GoConfigServiceTest {
         when(configRepo.configChangesFor("md5-5", "md5-4")).thenThrow(new IllegalArgumentException("something"));
         assertThat(goConfigService.configChangesFor("md5-5", "md5-4", result)).isNull();
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(SC_BAD_REQUEST);
+        assertThat(result.httpCode()).isEqualTo(HTTP_BAD_REQUEST);
         assertThat(result.message()).isEqualTo("Historical configuration is not available for this stage run.");
     }
 
@@ -832,7 +832,7 @@ public class GoConfigServiceTest {
         when(configRepo.configChangesFor("md5-5", "md5-4")).thenThrow(new RuntimeException("something"));
         assertThat(goConfigService.configChangesFor("md5-5", "md5-4", result)).isNull();
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(SC_INTERNAL_SERVER_ERROR);
+        assertThat(result.httpCode()).isEqualTo(HTTP_INTERNAL_ERROR);
         assertThat(result.message()).isEqualTo("Could not retrieve config changes for this revision.");
     }
 

@@ -31,7 +31,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.error.ShouldBeEqual.shouldBeEqual;
@@ -159,7 +158,7 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
     }
 
     public SELF isEntityTooLarge() {
-        return hasStatus(SC_REQUEST_ENTITY_TOO_LARGE);
+        return hasStatus(413);
     }
 
     public SELF redirectsTo(String url) {

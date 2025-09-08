@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import static javax.servlet.http.HttpServletResponse.*;
+import static java.net.HttpURLConnection.*;
 
 @UtilityClass
 public class FileModelAndView {
@@ -41,7 +41,7 @@ public class FileModelAndView {
                 @Override
                 protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
                                                        HttpServletResponse response) throws Exception {
-                    response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                    response.setStatus(HTTP_NOT_MODIFIED);
                     response.getWriter().close();
                 }
             });
@@ -65,39 +65,39 @@ public class FileModelAndView {
     }
 
     public static ModelAndView forbiddenUrl(String filePath) {
-        return ResponseCodeView.create(SC_FORBIDDEN, "Url " + filePath + " contains forbidden characters.");
+        return ResponseCodeView.create(HTTP_FORBIDDEN, "Url " + filePath + " contains forbidden characters.");
     }
 
     public static ModelAndView fileCreated(String filePath) {
-        return ResponseCodeView.create(SC_CREATED, "File " + filePath + " was created successfully");
+        return ResponseCodeView.create(HTTP_CREATED, "File " + filePath + " was created successfully");
     }
 
     public static ModelAndView fileAppended(String filePath) {
-        return ResponseCodeView.create(SC_OK, "File " + filePath + " was appended successfully");
+        return ResponseCodeView.create(HTTP_OK, "File " + filePath + " was appended successfully");
     }
 
     public static ModelAndView errorSavingFile(String filePath) {
-        return ResponseCodeView.create(SC_INTERNAL_SERVER_ERROR, "Error saving file " + filePath);
+        return ResponseCodeView.create(HTTP_INTERNAL_ERROR, "Error saving file " + filePath);
     }
 
     public static ModelAndView errorSavingChecksumFile(String filePath) {
-        return ResponseCodeView.create(SC_INTERNAL_SERVER_ERROR, String.format("Error saving checksum file for the artifact at path '%s'", filePath));
+        return ResponseCodeView.create(HTTP_INTERNAL_ERROR, String.format("Error saving checksum file for the artifact at path '%s'", filePath));
     }
 
     public static ModelAndView invalidUploadRequest() {
         String content = "Invalid request. MultipartFile must have name '" + GoConstants.REGULAR_MULTIPART_FILENAME + "'"
                 + " or '" + GoConstants.ZIP_MULTIPART_FILENAME + "' (to automatically unzip stream)";
-        return ResponseCodeView.create(SC_BAD_REQUEST, content);
+        return ResponseCodeView.create(HTTP_BAD_REQUEST, content);
     }
 
     public static ModelAndView fileNotFound(String filePath) {
         if ((ArtifactLogUtil.getConsoleOutputFolderAndFileName()).equals(filePath)) {
-            return ResponseCodeView.create(SC_NOT_FOUND, "Console log for this job is unavailable as it may have been purged by Go or deleted externally.");
+            return ResponseCodeView.create(HTTP_NOT_FOUND, "Console log for this job is unavailable as it may have been purged by Go or deleted externally.");
         }
-        return ResponseCodeView.create(SC_NOT_FOUND, "Artifact '" + filePath + "' is unavailable as it may have been purged by Go or deleted externally.");
+        return ResponseCodeView.create(HTTP_NOT_FOUND, "Artifact '" + filePath + "' is unavailable as it may have been purged by Go or deleted externally.");
     }
 
     public static ModelAndView fileAlreadyExists(String filePath) {
-        return ResponseCodeView.create(SC_FORBIDDEN, "File " + filePath + " already exists.");
+        return ResponseCodeView.create(HTTP_FORBIDDEN, "File " + filePath + " already exists.");
     }
 }

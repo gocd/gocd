@@ -32,8 +32,8 @@ import com.thoughtworks.go.config.update.DeleteBackupConfigCommand;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -96,7 +96,7 @@ public class BackupConfigControllerV1 extends ApiController implements SparkSpri
         try {
             goConfigService.updateConfig(new CreateOrUpdateBackupConfigCommand(backupConfig), currentUsername());
         } catch (GoConfigInvalidException e) {
-            res.status(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+            res.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
             return MessageJson.create(e.getMessage(), jsonWriter(backupConfig));
         }
         return show(req, res);

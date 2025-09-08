@@ -197,8 +197,7 @@ public class FeatureToggleRepositoryTest {
     @Test
     public void ensureThatTheRealTogglesFileIsValid() throws Exception {
         String realAvailableTogglesFilePath = new SystemEnvironment().get(SystemEnvironment.AVAILABLE_FEATURE_TOGGLES_FILE_PATH);
-        File realAvailableTogglesFile = new File(getClass().getResource(realAvailableTogglesFilePath).toURI());
-        String currentContentOfRealAvailableTogglesFile = Files.readString(realAvailableTogglesFile.toPath(), UTF_8);
+        String currentContentOfRealAvailableTogglesFile = TestFileUtil.resourceToString(realAvailableTogglesFilePath);
 
         try {
             new Gson().fromJson(currentContentOfRealAvailableTogglesFile, FeatureToggleRepository.FeatureToggleFileContentRepresentation.class);

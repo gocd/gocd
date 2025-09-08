@@ -17,7 +17,6 @@ package com.thoughtworks.go.agent.statusapi;
 
 import com.sun.net.httpserver.HttpServer;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 
 import static com.thoughtworks.go.util.Pair.pair;
@@ -49,7 +49,7 @@ public class AgentStatusHttpd {
     private void setupRoutes(HttpServer server) {
         server.createContext("/health/v1/isConnectedToServer", isConnectedToServer);
         server.createContext("/health/latest/isConnectedToServer", isConnectedToServer);
-        server.createContext("/", (HttpHandler) () -> pair(HttpStatus.SC_NOT_FOUND, "The page you requested was not found"));
+        server.createContext("/", (HttpHandler) () -> pair(HttpURLConnection.HTTP_NOT_FOUND, "The page you requested was not found"));
     }
 
     @PostConstruct

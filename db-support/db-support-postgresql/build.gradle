@@ -18,13 +18,17 @@ dependencies {
   implementation(project.deps.postgresql) {
     exclude(module: 'checker-qual') // See https://github.com/pgjdbc/pgjdbc/pull/2262
   }
-  api project(path: ':db-support:db-support-base', configuration: 'runtimeElements')
+  implementation project(':db-support:db-support-base')
+  implementation project.deps.ztExec
+  implementation(project.deps.apacheAnt) {
+    transitive = false
+  }
 
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
 
-  testImplementation project(path: ':db-support:db-migration', configuration: 'runtimeElements')
-  testImplementation project(path: ':db-support:db-migration', configuration: 'testOutput')
+  testImplementation project(':db-support:db-migration')
+  testImplementation(testFixtures(project(":db-support:db-migration")))
 
   testImplementation(project.deps.testcontainersJunit) {
     exclude group: 'junit' // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970

@@ -43,8 +43,8 @@ import java.util.stream.Stream;
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertInstances;
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertStageDetails;
 import static com.thoughtworks.go.domain.valuestreammap.VSMViewType.NO_PERMISSION;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NOT_IMPLEMENTED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -287,7 +287,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         assertThat(valueStreamMapService.getValueStreamMap(pipeline, 1, username, result)).isNull();
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(SC_NOT_FOUND);
+        assertThat(result.httpCode()).isEqualTo(HTTP_NOT_FOUND);
         assertThat(result.message()).isEqualTo("Pipeline 'NewlyCreated' with counter '1' not found.");
     }
 
@@ -295,7 +295,7 @@ public class ValueStreamMapServiceIntegrationTest {
     public void shouldNotReturnGraphForNonExistentPipeline() {
         assertThat(valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("does_not_exist"), 1, username, result)).isNull();
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(SC_NOT_FOUND);
+        assertThat(result.httpCode()).isEqualTo(HTTP_NOT_FOUND);
         assertThat(result.message()).isEqualTo("Pipeline 'does_not_exist' with counter '1' not found.");
     }
 
@@ -519,7 +519,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p1"), 2, username, result);
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(SC_NOT_IMPLEMENTED);
+        assertThat(result.httpCode()).isEqualTo(HTTP_NOT_IMPLEMENTED);
         assertThat(result.message()).isEqualTo(String.format(
                 "Value Stream Map of Pipeline 'p1' with counter '2' can not be rendered. Changes to the configuration have introduced complex dependencies for this instance which are not supported currently.",
                 "p1", 2));

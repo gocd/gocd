@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.net.HttpURLConnection;
 import java.util.Collections;
 import java.util.List;
 
@@ -157,6 +158,6 @@ public class CreatePipelineConfigsCommandTest {
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, result, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
-        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_FORBIDDEN);
+        assertThat(result.httpCode()).isEqualTo(HttpURLConnection.HTTP_FORBIDDEN);
     }
 }

@@ -18,10 +18,10 @@ package com.thoughtworks.go.agent.statusapi;
 import com.sun.net.httpserver.HttpExchange;
 import com.thoughtworks.go.util.Pair;
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
@@ -34,7 +34,7 @@ interface HttpHandler extends com.sun.net.httpserver.HttpHandler {
     default void handle(HttpExchange exchange) throws IOException {
         writeResponse(exchange, isAllowed(exchange.getRequestMethod())
             ? response()
-            : Pair.pair(HttpStatus.SC_METHOD_NOT_ALLOWED, "This method is not allowed. Please use GET or HEAD.")
+            : Pair.pair(HttpURLConnection.HTTP_BAD_METHOD, "This method is not allowed. Please use GET or HEAD.")
         );
     }
 

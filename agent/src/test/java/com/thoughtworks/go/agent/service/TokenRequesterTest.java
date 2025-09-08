@@ -34,7 +34,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.apache.http.HttpStatus.SC_OK;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -61,7 +61,7 @@ class TokenRequesterTest {
         when(agentRegistry.uuid()).thenReturn("agent-uuid");
         when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
         when(httpResponse.getEntity()).thenReturn(new StringEntity("token-from-server"));
-        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), SC_OK, null));
+        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), HTTP_OK, null));
 
         final String token = tokenRequester.getToken();
 

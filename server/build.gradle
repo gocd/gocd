@@ -39,18 +39,6 @@ buildscript {
 }
 
 sourceSets {
-  sharedTest {
-    java {
-      srcDirs = [project.file('src/test-shared/java')]
-    }
-    resources {
-      srcDirs = [project.file('src/test-shared/resources')]
-    }
-
-    compileClasspath += sourceSets.main.output + configurations.compileClasspath + configurations.testCompileClasspath
-    runtimeClasspath += sourceSets.main.output + configurations.compileClasspath + configurations.testCompileClasspath
-  }
-
   fastUnitTest {
     java {
       srcDirs = [project.file('src/test-fast/java')]
@@ -59,8 +47,8 @@ sourceSets {
       srcDirs = [project.file('src/test-fast/resources')]
     }
 
-    compileClasspath += sourceSets.sharedTest.output + sourceSets.sharedTest.compileClasspath
-    runtimeClasspath += sourceSets.sharedTest.output + sourceSets.sharedTest.runtimeClasspath
+    compileClasspath += sourceSets.test.output + sourceSets.test.compileClasspath
+    runtimeClasspath += sourceSets.test.output + sourceSets.test.runtimeClasspath
   }
 
   integrationTest {
@@ -70,9 +58,6 @@ sourceSets {
     resources {
       srcDirs = [project.file('src/test-integration/resources')]
     }
-
-    compileClasspath += sourceSets.sharedTest.output + sourceSets.sharedTest.compileClasspath
-    runtimeClasspath += sourceSets.sharedTest.output + sourceSets.sharedTest.runtimeClasspath
   }
 }
 
@@ -90,11 +75,6 @@ configurations {
     transitive = false
   }
 
-  sharedTestOutput {
-    extendsFrom testRuntimeClasspath
-    transitive = true
-  }
-
   apiBase
   allApis
   spark
@@ -105,10 +85,7 @@ project.ext.railsRoot = file("${project.webAppDir}/WEB-INF/rails")
 project.ext.bundledGemRubyVersion = "${RUBY_MAJOR_VERSION}.0"
 project.ext.bundledGemDir = file("${project.railsRoot}/gems/jruby/${project.bundledGemRubyVersion}")
 
-project.ext.railsClasspath = sourceSets.test.runtimeClasspath +
-  sourceSets.main.runtimeClasspath +
-  sourceSets.sharedTest.runtimeClasspath +
-  sourceSets.fastUnitTest.runtimeClasspath +
+project.ext.railsClasspath = sourceSets.fastUnitTest.runtimeClasspath +
   configurations.spark +
   configurations.apiBase +
   rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
@@ -180,30 +157,42 @@ project.ext.testSystemProperties = props
 dependencies {
   compileOnly project.deps.jetBrainsAnnotations
 
-  apiBase project(path: ':api:api-base', configuration: 'runtimeElements')
+  apiBase project(':api:api-base')
   allApis project(':api').subprojects
   spark project(':spark').subprojects
-  implementation project(path: ':config:config-api', configuration: 'runtimeElements')
-  implementation project(path: ':config:config-server', configuration: 'runtimeElements')
-  implementation project(path: ':plugin-infra:go-plugin-access', configuration: 'runtimeElements')
-  implementation project(path: ':common', configuration: 'runtimeElements')
-  implementation project(path: ':rack_hack', configuration: 'runtimeElements')
-  implementation project(path: ':db-support:db-migration', configuration: 'runtimeElements')
-  implementation project(path: ':db-support:db-support-h2', configuration: 'runtimeElements')
-  implementation project(path: ':db-support:db-support-postgresql', configuration: 'runtimeElements')
-  implementation project(path: ':db-support:db-support-mysql', configuration: 'runtimeElements')
+  implementation project(':config:config-api')
+  api project(':config:config-server')
+  api project(':plugin-infra:go-plugin-access')
+  api project(':plugin-infra:go-plugin-domain')
+  implementation project(':plugin-infra:go-plugin-config-repo')
+  implementation project(':plugin-infra:plugin-metadata-store')
+  api project(':common')
+  implementation project(':commandline')
+  implementation project(':util')
+  implementation project(':rack_hack')
+  implementation project(':db-support:db-migration')
+  implementation project(':db-support:db-support-base')
+  implementation project(':db-support:db-support-h2')
+  implementation project(':db-support:db-support-postgresql')
+  implementation project(':db-support:db-support-mysql')
 
   packagingOnly project.deps.servletApi
 
   copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
-  copyOnlyTestData project(path: ':test:test-agent', configuration: 'runtimeElements')
+  copyOnlyTestData project(':test:test-agent')
 
   implementation project.deps.commonsCodec
   implementation project.deps.commonsCollections4
   implementation project.deps.commonsDbcp
   implementation project.deps.commonsLang3
+  implementation project.deps.commonsText
+
+  implementation project.deps.caffeine
+  implementation(project.deps.quartz) {
+    transitive = false
+  }
 
   api(project.deps.hibernate) {
     exclude(module: 'ehcache-core')
@@ -224,22 +213,25 @@ dependencies {
 
   implementation project.deps.activeMQ
 
+  implementation project.deps.gson
   implementation project.deps.jdom
   if (project.deps.jdom) {
     // Required for use of org.jdom2.xpath.XPathFactory where jaxen is the default impl
-    api project.deps.jaxen
+    implementation project.deps.jaxen
   }
-  api project.deps.dom4j
+  implementation project.deps.dom4j
 
   implementation project.deps.jruby
   implementation project.deps.rack
+  implementation project.deps.apacheHttpComponents
 
   implementation project.deps.springOrm
-  api project.deps.springWeb
-  api project.deps.springWebmvc
-  api project.deps.springContextSupport
-  api project.deps.springSecurityWeb
-  implementation(project.deps.springSecurity)
+  implementation project.deps.springWeb
+  implementation project.deps.springWebmvc
+  implementation project.deps.springContextSupport
+  api project.deps.springSecurity
+  implementation project.deps.springSecurityWeb
+  implementation project.deps.springTx
   if (project.deps.springWeb) {
     implementation project.deps.commonsFileUpload // used by CommonsMultipartResolver
   }
@@ -258,7 +250,7 @@ dependencies {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
-  compileOnly project(path: ':app-server', configuration: 'runtimeElements')
+  compileOnly project(':app-server')
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
   compileOnly project.deps.logback
@@ -266,29 +258,64 @@ dependencies {
     exclude(module: 'jetty-annotations')
   }
 
-  testImplementation(project.deps.dbunit) {
-    exclude(group: 'org.postgresql')
-    exclude(group: 'com.oracle.database.jdbc')
+  testImplementation(testFixtures(project(':config:config-api')))
+  testImplementation(testFixtures(project(':config:config-server')))
+  testImplementation(testFixtures(project(':common')))
+  testImplementation(testFixtures(project(':domain')))
+  testImplementation project(':test:test-utils')
+  testImplementation project(':app-server')
+  testImplementation project(':jetty')
+  testImplementation(project.deps.jettyWebsocket) {
+    exclude(module: 'jetty-annotations')
   }
-  testImplementation project(path: ':common', configuration: 'testOutput')
-  testImplementation project(path: ':config:config-server', configuration: 'testOutput')
-  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
-  testImplementation project(path: ':jetty', configuration: 'runtimeElements')
+  testImplementation project.deps.jettyWebapp
   testImplementation project.deps.jsoup
   testImplementation project.deps.xmlUnitMatchers
   testImplementation project.deps.assertJ
   testImplementation project.deps.awaitility
   testImplementation project.deps.xmlUnit
 
-  testImplementation project(path: ':test:http-mocks', configuration: 'runtimeElements')
+  testImplementation project(':test:http-mocks')
 
   testImplementation project.deps.junit5Api
   testImplementation project.deps.junit5Params
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
+  testImplementation project.deps.systemStubs
+  testImplementation project.deps.jsonUnit
+  testImplementation project.deps.springTest
+
   integrationTestImplementation project.deps.springTestJunit5
+  integrationTestImplementation(testFixtures(project(":domain")))
+
+  testFixturesImplementation platform(project(':build-platform'))
+  testFixturesApi project(':domain')
+  testFixturesImplementation project(':util')
+  testFixturesImplementation project(':config:config-api')
+  testFixturesImplementation project(':config:config-server')
+  testFixturesImplementation project(':plugin-infra:go-plugin-access')
+
+  testFixturesImplementation(testFixtures(project(':config:config-api')))
+  testFixturesImplementation(testFixtures(project(':config:config-server')))
+  testFixturesImplementation(testFixtures(project(':domain')))
+  testFixturesImplementation project.deps.mockitoCore
+  testFixturesImplementation project.deps.assertJ
+  testFixturesImplementation(project.deps.dbunit) {
+    exclude(group: 'org.postgresql')
+    exclude(group: 'com.oracle.database.jdbc')
+  }
+
+  testFixturesImplementation project.deps.commonsCollections4
+  testFixturesImplementation project.deps.commonsLang3
+  testFixturesImplementation project.deps.commonsIO
+  testFixturesImplementation project.deps.springContext
+  testFixturesApi project.deps.springSecurity
+  testFixturesApi project.deps.springOrm
+  testFixturesImplementation project.deps.springTx
+  testFixturesImplementation project.deps.mybatis
+  testFixturesApi project.deps.servletApi
 }
 
 jar {
@@ -297,39 +324,8 @@ jar {
 
 idea {
   module {
-    testSources.from(sourceSets.sharedTest.java.srcDirs)
     testSources.from(sourceSets.fastUnitTest.java.srcDirs)
     testSources.from(sourceSets.integrationTest.java.srcDirs)
-  }
-}
-
-tasks.register('sharedTest', Test) { thisTask ->
-  description = 'Runs the functional tests.'
-  group = 'verification'
-  testClassesDirs = sourceSets.sharedTest.output.classesDirs
-  classpath = sourceSets.sharedTest.runtimeClasspath
-  mustRunAfter test
-  failOnNoDiscoveredTests = false
-
-  reports {
-    html.required = true
-    junitXml.required = true
-  }
-
-  doFirst {
-    def files = project.files([])
-    sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
-      files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
-    }
-
-    def badFiles = files.findAll { eachFile ->
-      def text = eachFile.getText("utf-8")
-      text.contains("@Test")
-    }
-
-    if (!badFiles.isEmpty()) {
-      throw new GradleException("${thisTask} is not supposed to contain any tests. The following files contained what looks like test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
-    }
   }
 }
 
@@ -399,21 +395,7 @@ tasks.register('integrationTest', Test) { thisTask ->
   }
 }
 
-tasks.register('sharedTestJar', Jar) {
-  description = "Assembles a jar archive containing the sharedTest classes."
-  group = BasePlugin.BUILD_GROUP
-  from sourceSets.sharedTest.output
-  archiveClassifier = 'shared-test'
-}
-
-tasks.register('fastUnitTestJar', Jar) {
-  description = "Assembles a jar archive containing the fastUnitTest classes."
-  group = BasePlugin.BUILD_GROUP
-  from sourceSets.fastUnitTest.output
-  archiveClassifier = 'fast-unit-test'
-}
-
-check.dependsOn(sharedTest, fastUnitTest, integrationTest)
+check.dependsOn(fastUnitTest, integrationTest)
 
 tasks.register('findGemsToNotPack') {
   dependsOn ':server:initializeRailsGems'

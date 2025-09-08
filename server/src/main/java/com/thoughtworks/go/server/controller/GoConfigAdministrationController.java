@@ -44,6 +44,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonByValidity;
 import static com.thoughtworks.go.server.controller.actions.XmlAction.X_CRUISE_CONFIG_MD5;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 @Controller
 public class GoConfigAdministrationController {
@@ -70,7 +71,7 @@ public class GoConfigAdministrationController {
     public void getConfigRevision(@RequestParam(value = "version", required = true) String version, HttpServletResponse response) throws Exception {
         GoConfigRevision configRevision = goConfigService.getConfigAtVersion(version);
         String md5 = configRevision.getMd5();
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(HTTP_OK);
         response.setContentType("text/xml");
         response.setCharacterEncoding("utf-8");
         response.setHeader(X_CRUISE_CONFIG_MD5, md5);

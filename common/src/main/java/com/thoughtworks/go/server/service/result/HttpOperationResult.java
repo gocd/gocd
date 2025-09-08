@@ -20,7 +20,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
+import java.net.HttpURLConnection;
 
 /**
  * Understands how to turn the problems that can occur during api calls into human-readable form and http codes
@@ -87,7 +87,7 @@ public class HttpOperationResult implements OperationResult {
     @Override
     public ServerHealthState forbidden(String message, String description, HealthStateType id) {
         this.message = message;
-        httpCode = SC_FORBIDDEN;
+        httpCode = HttpURLConnection.HTTP_FORBIDDEN;
         return serverHealthStateOperationResult.forbidden(message, description, id);
     }
 

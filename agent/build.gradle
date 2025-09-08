@@ -48,17 +48,35 @@ dependencies {
   packagingOnly project.deps.bouncyCastle
   packagingOnly project.deps.bouncyCastlePkix
 
-  implementation project(path: ':agent-common', configuration: 'runtimeElements')
-  implementation(project(path: ':common', configuration: 'runtimeElements')) {
-    exclude(group: 'org.quartz-scheduler') // Comes from config-api, but we don't need this
+  implementation project(':agent-common')
+  implementation project(':base')
+  implementation(project(':common')) {
     exclude(group: 'com.bazaarvoice.jolt') // Comes from go-plugin-access, but only for config repo migrations
+    exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents
+  }
+  implementation(project(':plugin-infra:go-plugin-access')) {
+    exclude(group: 'com.bazaarvoice.jolt') // Only for config repo migrations
+    exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents
+  }
+  implementation(project(':config:config-api')) {
+    exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents
   }
   implementation project.deps.jakartaAnnotation
   implementation project.deps.commonsConfiguration
+  implementation project.deps.commonsIO
+  implementation project.deps.gson
+  implementation project.deps.springContext
   implementation project.deps.oshi
   compileOnly project.deps.jetBrainsAnnotations
 
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  implementation(project.deps.apacheHttpComponents) {
+    exclude(module: 'commons-codec')
+  }
+  if (project.deps.apacheHttpComponents) {
+    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+  }
+
+  testImplementation project(':test:test-utils')
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
@@ -70,8 +88,8 @@ dependencies {
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
 
-  extractedAtTopLevel project(path: ':agent-process-launcher', configuration: 'runtimeElements')
-  extractedAtTopLevel project(path: ':jar-class-loader', configuration: 'runtimeElements')
+  extractedAtTopLevel project(':agent-process-launcher')
+  extractedAtTopLevel project(':jar-class-loader')
 }
 
 jar {

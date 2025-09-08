@@ -64,7 +64,7 @@ dependencies {
     exclude(module: 'jetty-annotations')
   }
 
-  packagingInLibDir(project(path: ':plugin-infra:go-plugin-activator')) {
+  packagingInLibDir(project(':plugin-infra:go-plugin-activator')) {
     transitive = false
   }
   packagingInLibDir project.deps.servletApi
@@ -78,13 +78,13 @@ dependencies {
 
   pluginsZip project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
 
-  packagingInMainJarTopLevel project(path: ':jetty', configuration: 'runtimeElements')
-  packagingInMainJarTopLevel project(path: ':app-server', configuration: 'runtimeElements')
-  packagingInMainJarCommonJar project(path: ':common', configuration: 'runtimeElements')
-  packagingInMainJarBaseJar project(path: ':base', configuration: 'runtimeElements')
-  packagingInMainJarServerJar project(path: ':server', configuration: 'runtimeElements')
+  packagingInMainJarTopLevel project(':jetty')
+  packagingInMainJarTopLevel project(':app-server')
+  packagingInMainJarCommonJar project(':common')
+  packagingInMainJarBaseJar project(':base')
+  packagingInMainJarServerJar project(':server')
 
-  extractedAtTopLevel project(path: ':jar-class-loader', configuration: 'runtimeElements')
+  extractedAtTopLevel project(':jar-class-loader')
 }
 
 tasks.register('mainJar', Jar) {

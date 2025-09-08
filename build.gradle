@@ -244,11 +244,6 @@ subprojects {
       packagingOnly
       extractedAtTopLevel { transitive = false }
       fatJarConfig
-
-      testOutput {
-        extendsFrom testRuntimeClasspath
-        transitive = true
-      }
       testJavaAgents { transitive = false }
     }
     test.dependsOn configurations.testJavaAgents
@@ -257,6 +252,7 @@ subprojects {
       archiveClassifier = 'tests'
       from sourceSets.test.output
     }
+    assemble.dependsOn testJar
 
     dependencies {
       // Force all sub-projects to have managed dependency versions for certain transitive dependencies
@@ -296,6 +292,18 @@ subprojects {
           }
         })
       }
+    }
+  }
+
+  final boolean hasJavaTestFixtures = !project.fileTree("src/testFixtures").files.isEmpty()
+  if (hasJavaTestFixtures) {
+    apply plugin: 'java-test-fixtures'
+
+    layout.buildDirectory = "${projectDir}/target"
+    
+    dependencies {
+      // Force all sub-projects to have managed dependency versions for certain transitive dependencies
+      testFixturesImplementation platform(project(':build-platform'))
     }
   }
 
@@ -343,12 +351,6 @@ subprojects {
 
     includeEmptyDirs = false
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-  }
-
-  artifacts { artifacts ->
-    tasks.withType(Jar).each { jarTask ->
-      artifacts.add(jarTask.name == 'testJar' ? 'testOutput' : 'archives', jarTask)
-    }
   }
 
   tasks.withType(AbstractArchiveTask).configureEach {
@@ -961,9 +963,9 @@ tasks.register('newApi') {
           }
 
           dependencies {
-            implementation project(path: ':api:api-base', configuration: 'runtimeElements')
+            implementation project(':api:api-base')
 
-            testImplementation project(path: ':api:api-base', configuration: 'testOutput')
+            testImplementation(testFixtures(project(":api:api-base")))
 
             testImplementation project.deps.junit5Api
             testRuntimeOnly project.deps.junit5Engine

@@ -31,7 +31,6 @@ import com.thoughtworks.go.config.remote.EphemeralConfigOrigin;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException;
 import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.UuidGenerator;

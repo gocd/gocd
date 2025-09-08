@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.remote.EphemeralConfigOrigin
 import com.thoughtworks.go.config.remote.PartialConfig
-import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException
 import com.thoughtworks.go.server.service.ConfigRepoService
 import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.spark.AdminUserSecurity

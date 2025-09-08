@@ -39,7 +39,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -52,6 +51,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.*;
 import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
+import static java.net.HttpURLConnection.HTTP_CONFLICT;
+import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
@@ -125,10 +126,10 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         String fingerprint = request.params(FINGERPRINT);
         MaterialConfig materialConfig = materialConfigService.getMaterialConfig(currentUsernameString(), fingerprint);
         if (materialUpdateService.updateMaterial(materialConfigConverter.toMaterial(materialConfig))) {
-            response.status(HttpStatus.CREATED.value());
+            response.status(HTTP_CREATED);
             return MessageJson.create("OK");
         } else {
-            response.status(HttpStatus.CONFLICT.value());
+            response.status(HTTP_CONFLICT);
             return MessageJson.create("Update already in progress.");
         }
     }

@@ -20,9 +20,10 @@ dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
 
-  implementation project(path: ':plugin-infra:go-plugin-api', configuration: 'runtimeElements')
+  api project(':plugin-infra:go-plugin-api')
+  api project(':plugin-infra:go-plugin-infra')
   implementation project.deps.commonsIO
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher

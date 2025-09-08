@@ -145,7 +145,7 @@ public class RoutesHelper {
     }
 
     private void invalidJsonPayload(JsonParseException ex, Request req, Response res) {
-        res.status(HttpStatus.SC_BAD_REQUEST);
+        res.status(HttpURLConnection.HTTP_BAD_REQUEST);
         res.body(GSON.toJson(Map.of("error", "Payload data is not valid JSON: " + ex.getMessage())));
     }
 

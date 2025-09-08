@@ -20,20 +20,18 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletResponse;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
-import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
+import static java.net.HttpURLConnection.*;
 
 public class XmlAction extends BasicRestfulAction {
     private final String md5;
     public static final String X_CRUISE_CONFIG_MD5 = "X-CRUISE-CONFIG-MD5";
 
     public static RestfulAction xmlFound(String xml, String md5) {
-        return new XmlAction(SC_OK, xml, md5);
+        return new XmlAction(HTTP_OK, xml, md5);
     }
 
     public static RestfulAction xmlMd5Conflict(String errorMessage, String newMd5) {
-        return new XmlAction(SC_CONFLICT, RESPONSE_CHARSET, errorMessage, newMd5);
+        return new XmlAction(HTTP_CONFLICT, RESPONSE_CHARSET, errorMessage, newMd5);
     }
 
     public static RestfulAction xmlNotFound(String errorMessage) {
@@ -62,6 +60,6 @@ public class XmlAction extends BasicRestfulAction {
     }
 
     public static RestfulAction xmlForbidden(String message) {
-       return new XmlAction(SC_FORBIDDEN, message);
+       return new XmlAction(HTTP_FORBIDDEN, message);
     }
 }

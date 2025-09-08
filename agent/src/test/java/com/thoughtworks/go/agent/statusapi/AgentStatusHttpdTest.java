@@ -19,7 +19,6 @@ import com.sun.net.httpserver.HttpServer;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -36,6 +35,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
@@ -72,7 +72,7 @@ class AgentStatusHttpdTest {
         setupAgentStatusParameters();
         startAgentStatusEndpointServer();
         processHttpRequest(createPostRequest("/health/latest/isConnectedToServer"), (response, httpEntity) -> {
-            assertThat(statusCode(response)).isEqualTo(HttpStatus.SC_METHOD_NOT_ALLOWED);
+            assertThat(statusCode(response)).isEqualTo(HttpURLConnection.HTTP_BAD_METHOD);
             assertThat(contentType(httpEntity)).isEqualTo("text/plain; charset=utf-8");
             assertThat(responseBody(httpEntity)).isEqualTo("This method is not allowed. Please use GET or HEAD.");
         });
@@ -83,7 +83,7 @@ class AgentStatusHttpdTest {
         setupAgentStatusParameters();
         startAgentStatusEndpointServer();
         processHttpRequest(createGetRequest("/foo"), (response, httpEntity) -> {
-            assertThat(statusCode(response)).isEqualTo(HttpStatus.SC_NOT_FOUND);
+            assertThat(statusCode(response)).isEqualTo(HttpURLConnection.HTTP_NOT_FOUND);
             assertThat(contentType(httpEntity)).isEqualTo("text/plain; charset=utf-8");
             assertThat(responseBody(httpEntity)).isEqualTo("The page you requested was not found");
         });
@@ -94,7 +94,7 @@ class AgentStatusHttpdTest {
         setupAgentStatusParameters();
         startAgentStatusEndpointServer();
         processHttpRequest(createGetRequest("/health/latest/isConnectedToServer"), (response, httpEntity) -> {
-            assertThat(statusCode(response)).isEqualTo(HttpStatus.SC_OK);
+            assertThat(statusCode(response)).isEqualTo(HttpURLConnection.HTTP_OK);
             assertThat(contentType(httpEntity)).isEqualTo("text/plain; charset=utf-8");
             assertThat(responseBody(httpEntity)).isEqualTo("OK!");
         });
@@ -108,7 +108,7 @@ class AgentStatusHttpdTest {
         startAgentStatusEndpointServer();
 
         processHttpRequest(createGetRequest("/health/v1/isConnectedToServer"), (response, httpEntity) -> {
-            assertThat(statusCode(response)).isEqualTo(HttpStatus.SC_OK);
+            assertThat(statusCode(response)).isEqualTo(HttpURLConnection.HTTP_OK);
             assertThat(contentType(httpEntity)).isEqualTo("text/plain; charset=utf-8");
             assertThat(responseBody(httpEntity)).isEqualTo("OK!");
         });

@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
 
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
-import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 public class VerifyAuthorityFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(VerifyAuthorityFilter.class);
@@ -58,9 +58,9 @@ public class VerifyAuthorityFilter extends OncePerRequestFilter {
         } else {
             LOGGER.debug("User {} not authorized to access {}: has authorities {}", authentication.getUser().getUsername(), request.getRequestURI(), authentication.getUser().getAuthorities());
             if (SessionUtils.getCurrentUser().asUsernameObject().isAnonymous()) {
-                requestHandler.handle(request, response, SC_UNAUTHORIZED, "You are not authenticated!");
+                requestHandler.handle(request, response, HTTP_UNAUTHORIZED, "You are not authenticated!");
             } else {
-                requestHandler.handle(request, response, SC_FORBIDDEN, "You are not authorized to access this resource!");
+                requestHandler.handle(request, response, HTTP_FORBIDDEN, "You are not authorized to access this resource!");
             }
         }
     }

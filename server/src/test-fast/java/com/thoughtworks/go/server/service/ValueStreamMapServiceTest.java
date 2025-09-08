@@ -55,7 +55,7 @@ import java.util.UUID;
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertDepth;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
-import static javax.servlet.http.HttpServletResponse.*;
+import static java.net.HttpURLConnection.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -804,7 +804,7 @@ public class ValueStreamMapServiceTest {
 
         valueStreamMapService.getValueStreamMap(new CaseInsensitiveString(pipelineName), 1, newUser, result);
 
-        assertResult(SC_FORBIDDEN, "You do not have view permissions for pipeline 'p1'.");
+        assertResult(HTTP_FORBIDDEN, "You do not have view permissions for pipeline 'p1'.");
     }
 
     @Test
@@ -947,12 +947,12 @@ public class ValueStreamMapServiceTest {
         // unknown material
         valueStreamMapService.getValueStreamMap("unknown-material", "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-        assertResult(SC_NOT_FOUND, "Material with fingerprint 'unknown-material' not found.");
+        assertResult(HTTP_NOT_FOUND, "Material with fingerprint 'unknown-material' not found.");
 
         // unauthorized
         valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-        assertResult(SC_FORBIDDEN, "You do not have view permissions for material with fingerprint '" + gitConfig.getFingerprint() + "'.");
+        assertResult(HTTP_FORBIDDEN, "You do not have view permissions for material with fingerprint '" + gitConfig.getFingerprint() + "'.");
 
         // material config exists but no material instance
         when(securityService.hasViewPermissionForGroup(userName, groupName)).thenReturn(true);
@@ -960,7 +960,7 @@ public class ValueStreamMapServiceTest {
 
         valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-        assertResult(SC_NOT_FOUND, "Material Instance with fingerprint '" + gitConfig.getFingerprint() + "' not found.");
+        assertResult(HTTP_NOT_FOUND, "Material Instance with fingerprint '" + gitConfig.getFingerprint() + "' not found.");
 
         // modification (revision) doesn't exist
         when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
@@ -968,14 +968,14 @@ public class ValueStreamMapServiceTest {
 
         valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-        assertResult(SC_NOT_FOUND, "Modification 'r1' for material with fingerprint '" + gitMaterial.getFingerprint() + "' not found.");
+        assertResult(HTTP_NOT_FOUND, "Modification 'r1' for material with fingerprint '" + gitMaterial.getFingerprint() + "' not found.");
 
         // internal error
         when(goConfigService.groups()).thenThrow(new RuntimeException("just for fun"));
 
         valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-        assertResult(SC_INTERNAL_SERVER_ERROR, "Value Stream Map of material with fingerprint '" + gitMaterial.getFingerprint() + "' with revision 'r1' can not be rendered. Please check the server log for details.");
+        assertResult(HTTP_INTERNAL_ERROR, "Value Stream Map of material with fingerprint '" + gitMaterial.getFingerprint() + "' with revision 'r1' can not be rendered. Please check the server log for details.");
     }
 
     private void assertResult(int httpCode, String msgKey) {

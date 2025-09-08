@@ -47,8 +47,8 @@ import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.
 import static com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.OUT;
 import static java.lang.String.format;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -85,7 +85,7 @@ public class FetchPluggableArtifactBuilderTest {
 
         sourceOnServer = format("%s/%s", PLUGGABLE_ARTIFACT_METADATA_FOLDER, "cd.go.s3.json");
 
-        when(checksumFileHandler.handleResult(SC_OK, publisher)).thenReturn(true);
+        when(checksumFileHandler.handleResult(HTTP_OK, publisher)).thenReturn(true);
     }
 
     @Test

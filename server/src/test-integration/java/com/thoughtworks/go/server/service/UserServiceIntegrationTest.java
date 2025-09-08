@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.helper.ConfigFileFixture;
@@ -42,10 +42,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -365,7 +365,7 @@ public class UserServiceIntegrationTest {
         userService.disable(List.of("Pavan", "Jake"), result);//disable remaining admins
 
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+        assertThat(result.httpCode()).isEqualTo(HTTP_BAD_REQUEST);
         assertThat(result.message()).isEqualTo("There must be at least one admin user enabled!");
     }
 

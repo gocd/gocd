@@ -19,8 +19,8 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
-import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.exception.UncheckedValidationException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -42,7 +42,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +49,8 @@ import java.util.Set;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static com.thoughtworks.go.helper.SecurityConfigMother.securityConfigWithRole;
 import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_CONFLICT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -253,7 +254,7 @@ public class UserServiceTest {
         userService.create(List.of(searchModel), result);
 
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_CONFLICT);
+        assertThat(result.httpCode()).isEqualTo(HTTP_CONFLICT);
     }
 
     @Test
@@ -268,7 +269,7 @@ public class UserServiceTest {
         userService.create(List.of(searchModel), result);
 
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+        assertThat(result.httpCode()).isEqualTo(HTTP_BAD_REQUEST);
     }
 
     @Test
@@ -283,7 +284,7 @@ public class UserServiceTest {
         userService.disable(List.of("Pavan", "Jake"), result);
 
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+        assertThat(result.httpCode()).isEqualTo(HTTP_BAD_REQUEST);
     }
 
     @Test

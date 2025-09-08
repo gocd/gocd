@@ -52,9 +52,9 @@ import java.util.zip.Deflater;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
+import static java.net.HttpURLConnection.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.readString;
-import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -156,7 +156,7 @@ public class ArtifactsControllerIntegrationTest {
     @Test
     public void shouldReturn404WhenNoLatestBuildForGet() throws Exception {
         ModelAndView mav = artifactsController.getArtifactNonFolder(pipelineName, "1", "stage", "1", "build2", "/foo.xml", null);
-        assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/1/stage/1/build2 not found.");
+        assertValidContentAndStatus(mav, HTTP_NOT_FOUND, "Job " + pipelineName + "/1/stage/1/build2 not found.");
     }
 
     private void assertValidContentAndStatus(ModelAndView mav, int responseCode, String content) {
@@ -173,13 +173,13 @@ public class ArtifactsControllerIntegrationTest {
     public void shouldReturn404WhenNoLastGoodBuildForGet() throws Exception {
         ModelAndView mav = artifactsController.getArtifactNonFolder(pipelineName, "lastgood", "stage", "1", "build", "/foo.xml", null);
         String content = "Job " + pipelineName + "/lastgood/stage/1/build not found.";
-        assertValidContentAndStatus(mav, SC_NOT_FOUND, content);
+        assertValidContentAndStatus(mav, HTTP_NOT_FOUND, content);
     }
 
     @Test
     public void shouldReturn404WhenNotAValidBuildForGet() throws Exception {
         ModelAndView mav = artifactsController.getArtifactNonFolder(pipelineName, "whatever", "stage", "1", "build", "/foo.xml", null);
-        assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/whatever/stage/1/build not found.");
+        assertValidContentAndStatus(mav, HTTP_NOT_FOUND, "Job " + pipelineName + "/whatever/stage/1/build not found.");
     }
 
     @Test
@@ -187,13 +187,13 @@ public class ArtifactsControllerIntegrationTest {
         request.addHeader("Confirm", "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request);
         ModelAndView mav = artifactsController.postArtifact(pipelineName, "latest", "stage", "1", "build2", null, "/foo.xml", 1, multipartRequest);
-        assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
+        assertValidContentAndStatus(mav, HTTP_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
     }
 
     @Test
     public void shouldReturn404WhenNoLatestBuildForPut() throws Exception {
         ModelAndView mav = artifactsController.putArtifact(pipelineName, "latest", "stage", "1", "build2", null, "/foo.xml", null, request);
-        assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
+        assertValidContentAndStatus(mav, HTTP_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
     }
 
     @Test
@@ -209,7 +209,7 @@ public class ArtifactsControllerIntegrationTest {
         createFile(artifactsRoot, "foo");
 
         ModelAndView view = getNonFolder("/foo.html");
-        assertValidContentAndStatus(view, SC_NOT_FOUND, "Artifact '/foo.html' is unavailable as it may have been purged by Go or deleted externally.");
+        assertValidContentAndStatus(view, HTTP_NOT_FOUND, "Artifact '/foo.html' is unavailable as it may have been purged by Go or deleted externally.");
     }
 
     @Test
@@ -232,10 +232,10 @@ public class ArtifactsControllerIntegrationTest {
         createFile(artifactsRoot, "foo/bar.xml");
 
         ModelAndView mav = getNonFolder("/foo");
-        assertValidContentAndStatus(mav, SC_NOT_FOUND, "Artifact '/foo' is unavailable as it may have been purged by Go or deleted externally.");
+        assertValidContentAndStatus(mav, HTTP_NOT_FOUND, "Artifact '/foo' is unavailable as it may have been purged by Go or deleted externally.");
 
         mav = getNonFolder("/foo/");
-        assertValidContentAndStatus(mav, SC_NOT_FOUND, "Artifact '/foo/' is unavailable as it may have been purged by Go or deleted externally.");
+        assertValidContentAndStatus(mav, HTTP_NOT_FOUND, "Artifact '/foo/' is unavailable as it may have been purged by Go or deleted externally.");
     }
 
     @Test
@@ -243,7 +243,7 @@ public class ArtifactsControllerIntegrationTest {
         createFile(artifactsRoot, "directory/foo");
 
         ModelAndView mav = getNonFolder("/directory.html");
-        assertValidContentAndStatus(mav, SC_NOT_FOUND, "Artifact '/directory.html' is unavailable as it may have been purged by Go or deleted externally.");
+        assertValidContentAndStatus(mav, HTTP_NOT_FOUND, "Artifact '/directory.html' is unavailable as it may have been purged by Go or deleted externally.");
     }
 
     @Test
@@ -260,7 +260,7 @@ public class ArtifactsControllerIntegrationTest {
         createFile(artifactsRoot, "bar/2.xml");
 
         ModelAndView mav = getNonFolder("/foo/../bar/2.xml");
-        assertStatus(mav, SC_FORBIDDEN);
+        assertStatus(mav, HTTP_FORBIDDEN);
         // The controller already URL escapes the filePath, so this also works with %2e
     }
 
@@ -279,19 +279,19 @@ public class ArtifactsControllerIntegrationTest {
         ModelAndView mav = postFile("/dir/bar.xml");
         assertThat(file(artifactsRoot, "dir/bar.xml")).exists();
         assertThat(file(artifactsRoot, "dir/bar.xml")).isFile();
-        assertStatus(mav, SC_CREATED);
+        assertStatus(mav, HTTP_CREATED);
 
         mav = postFile("/notexists/quux.txt");
         assertThat(file(artifactsRoot, "notexists/quux.txt")).exists();
         assertThat(file(artifactsRoot, "notexists/quux.txt")).isFile();
-        assertStatus(mav, SC_CREATED);
+        assertStatus(mav, HTTP_CREATED);
     }
 
     @Test
     public void shouldReturn403WhenPostingAlreadyExistingFile() throws Exception {
         createFile(artifactsRoot, "dir/foo.txt");
         ModelAndView view = postFile("/dir/foo.txt");
-        assertValidContentAndStatus(view, SC_FORBIDDEN, "File /dir/foo.txt already exists.");
+        assertValidContentAndStatus(view, HTTP_FORBIDDEN, "File /dir/foo.txt already exists.");
     }
 
     @Test
@@ -304,7 +304,7 @@ public class ArtifactsControllerIntegrationTest {
 
         ModelAndView view = postZipFolderFromTmp(artifactsRoot, "/dir/");
 
-        assertStatus(view, SC_CREATED);
+        assertStatus(view, HTTP_CREATED);
         assertThat(file(artifactsRoot, "dir/bar.xml")).exists();
         assertThat(file(artifactsRoot, "dir/bar.xml")).isFile();
         assertThat(file(artifactsRoot, "dir/quux.txt")).exists();
@@ -322,7 +322,7 @@ public class ArtifactsControllerIntegrationTest {
         assertThat(file(artifactsRoot, "notexists/bar.csv")).isFile();
         assertThat(file(artifactsRoot, "notexists/quux.tmp")).exists();
         assertThat(file(artifactsRoot, "notexists/quux.tmp")).isFile();
-        assertStatus(view, SC_CREATED);
+        assertStatus(view, HTTP_CREATED);
     }
 
     @Test
@@ -330,7 +330,7 @@ public class ArtifactsControllerIntegrationTest {
         ModelAndView mav = postFile("/dir/../../foo/bar.txt");
         assertThat(file(artifactsRoot, "foo/bar.txt")).doesNotExist();
         assertThat(file(artifactsRoot, "dir")).doesNotExist();
-        assertStatus(mav, SC_FORBIDDEN);
+        assertStatus(mav, HTTP_FORBIDDEN);
     }
 
     @Test
@@ -338,7 +338,7 @@ public class ArtifactsControllerIntegrationTest {
         ModelAndView mav = postFile("/foo/bar.txt", "badname");
         assertThat(file(artifactsRoot, "foo/bar.txt")).doesNotExist();
         assertThat(file(artifactsRoot, "notfoo/bar.txt")).doesNotExist();
-        assertStatus(mav, SC_BAD_REQUEST);
+        assertStatus(mav, HTTP_BAD_REQUEST);
     }
 
     @Test
@@ -369,7 +369,7 @@ public class ArtifactsControllerIntegrationTest {
                 assertThat(line + "\n").as("Line " + i + " doesn't have desired content.").isEqualTo(refContent);
             }
         }
-        assertStatus(mav, SC_OK);
+        assertStatus(mav, HTTP_OK);
     }
 
     @Test
@@ -392,7 +392,7 @@ public class ArtifactsControllerIntegrationTest {
         assertThat(lines[0]).isEqualTo(longLineStr);
         assertThat(lines[1] + "\n").isEqualTo("Testing:\n");
         assertThat(lines[2]).isEqualTo(longLineStr);
-        assertStatus(mav, SC_OK);
+        assertStatus(mav, HTTP_OK);
     }
 
     @Test
@@ -406,7 +406,7 @@ public class ArtifactsControllerIntegrationTest {
         assertThat(lines[0]).isEqualTo("junit report");
         assertThat(lines[1]).isEqualTo("start");
         assertThat(lines[2]).isEqualTo("....");
-        assertStatus(mav, SC_OK);
+        assertStatus(mav, HTTP_OK);
     }
 
     @Test
@@ -418,7 +418,7 @@ public class ArtifactsControllerIntegrationTest {
         String[] lines = consoleLogContent.split("\n");
         assertThat(lines.length).isEqualTo(1);
         assertThat(lines[0]).isEqualTo("....");
-        assertStatus(mav, SC_OK);
+        assertStatus(mav, HTTP_OK);
     }
 
     @Test
@@ -542,7 +542,7 @@ public class ArtifactsControllerIntegrationTest {
         ModelAndView modelAndView = artifactsController.putArtifact(pipelineName.toUpperCase(), Integer.toString(pipeline.getCounter()),
                 stage.getName().toUpperCase(), Integer.toString(stage.getCounter()), job.getName().toUpperCase(), buildId, filePath,
                 null, request);
-        assertValidContentAndStatus(modelAndView, SC_OK, String.format("File %s was appended successfully", filePath));
+        assertValidContentAndStatus(modelAndView, HTTP_OK, String.format("File %s was appended successfully", filePath));
 
         JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, pipeline.getCounter(), null, stage.getName(), Integer.toString(stage.getCounter()), job.getName(), job.getId());
         File artifact = artifactService.findArtifact(jobIdentifier, filePath);
@@ -561,7 +561,7 @@ public class ArtifactsControllerIntegrationTest {
 
         String md5Hex = DigestUtils.md5Hex(String.format("%s/1/stage/1/build", pipelineName));
         String path = new File("data/console/", String.format("%s.log", md5Hex)).getPath();
-        assertValidContentAndStatus(modelAndView, SC_OK, String.format("File %s was appended successfully", path));
+        assertValidContentAndStatus(modelAndView, HTTP_OK, String.format("File %s was appended successfully", path));
 
         JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, pipeline.getCounter(),
                 null, stage.getName(), Integer.toString(stage.getCounter()),

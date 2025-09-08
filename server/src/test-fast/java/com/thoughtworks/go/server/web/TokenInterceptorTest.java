@@ -23,6 +23,7 @@ import org.springframework.mock.web.MockHttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -84,6 +85,6 @@ public class TokenInterceptorTest {
 
         verify(request).getMethod();
         verify(manager).verify(request);
-        verify(response).sendError(HttpServletResponse.SC_FORBIDDEN, "Bad or missing Token in the POST request");
+        verify(response).sendError(HTTP_FORBIDDEN, "Bad or missing Token in the POST request");
     }
 }

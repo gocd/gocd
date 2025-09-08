@@ -32,9 +32,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,7 +69,7 @@ public class GoArtifactsManipulatorTest {
 
     @Test
     public void shouldBombWithErrorWhenStatusCodeReturnedIsRequestEntityTooLarge() throws IOException {
-        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), any(Properties.class))).thenReturn(HttpURLConnection.HTTP_ENTITY_TOO_LARGE);
 
         CircularFifoQueue<?> buffer = ReflectionUtil.getField(ReflectionUtil.getField(goPublisher, "consoleOutputTransmitter"), "buffer");
         synchronized (buffer) {
@@ -87,7 +87,7 @@ public class GoArtifactsManipulatorTest {
     @Test
     public void uploadShouldBeGivenFileSize() throws IOException {
 
-        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), any(Properties.class))).thenReturn(HttpURLConnection.HTTP_ENTITY_TOO_LARGE);
         try {
             goArtifactsManipulatorStub.publish(goPublisher, "dest", tempFile.toFile(), jobIdentifier);
             fail("should have thrown request entity too large error");
@@ -104,7 +104,7 @@ public class GoArtifactsManipulatorTest {
         Properties properties = new Properties();
         properties.setProperty("dest/path/file.txt", md5);
 
-        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), eq(properties))).thenReturn(HttpServletResponse.SC_OK);
+        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), eq(properties))).thenReturn(HttpURLConnection.HTTP_OK);
 
         goArtifactsManipulatorStub.publish(goPublisher, "/dest/path", tempFile.toFile(), jobIdentifier);
     }
@@ -117,7 +117,7 @@ public class GoArtifactsManipulatorTest {
         Properties properties = new Properties();
         properties.setProperty("file.txt", md5);
 
-        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), eq(properties))).thenReturn(HttpServletResponse.SC_OK);
+        when(httpService.upload(any(String.class), eq(tempFile.toFile().length()), any(File.class), eq(properties))).thenReturn(HttpURLConnection.HTTP_OK);
 
         goArtifactsManipulatorStub.publish(goPublisher, "", tempFile.toFile(), jobIdentifier);
     }
@@ -133,7 +133,7 @@ public class GoArtifactsManipulatorTest {
         Files.createDirectories(anotherFile.getParent());
         Files.writeString(anotherFile, secondData, UTF_8);
 
-        when(httpService.upload(any(String.class), eq(FileUtils.sizeOfDirectory(artifactFolder.toFile())), any(File.class), eq(expectedProperties(data, secondData)))).thenReturn(HttpServletResponse.SC_OK);
+        when(httpService.upload(any(String.class), eq(FileUtils.sizeOfDirectory(artifactFolder.toFile())), any(File.class), eq(expectedProperties(data, secondData)))).thenReturn(HttpURLConnection.HTTP_OK);
 
         goArtifactsManipulatorStub.publish(goPublisher, "dest", artifactFolder.toFile(), jobIdentifier);
     }

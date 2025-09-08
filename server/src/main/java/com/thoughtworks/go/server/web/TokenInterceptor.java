@@ -22,6 +22,8 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+
 @Component
 public class TokenInterceptor extends HandlerInterceptorAdapter {
     private TokenManager tokenManager;
@@ -40,7 +42,7 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
         if (tokenManager.verify(request)) {
             return true;
         }
-        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bad or missing Token in the POST request");
+        response.sendError(HTTP_FORBIDDEN, "Bad or missing Token in the POST request");
         return false;
     }
 }

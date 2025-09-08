@@ -27,7 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 
 @Controller
 public class AuthorizationInterceptor implements HandlerInterceptor {
@@ -51,7 +51,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
             String name = CaseInsensitiveString.str(username.getUsername());
             if (request.getMethod().equalsIgnoreCase("get")) {
                 if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
-                    response.sendError(SC_FORBIDDEN);
+                    response.sendError(HTTP_FORBIDDEN);
                     return false;
                 }
             } else if (request.getMethod().equalsIgnoreCase("post") || request.getMethod().equalsIgnoreCase("put")) {
@@ -62,12 +62,12 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
                 String stageName = request.getParameter("stageName");
                 if (stageName != null) {
                     if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, name)) {
-                        response.sendError(SC_FORBIDDEN);
+                        response.sendError(HTTP_FORBIDDEN);
                         return false;
                     }
                 } else {
                     if (!securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
-                        response.sendError(SC_FORBIDDEN);
+                        response.sendError(HTTP_FORBIDDEN);
                         return false;
                     }
                 }

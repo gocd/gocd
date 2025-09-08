@@ -17,30 +17,53 @@
 description = 'GoCD Domain Module'
 
 dependencies {
-  implementation project(path: ':util', configuration: 'runtimeElements')
-  api project(path: ':db', configuration: 'runtimeElements')
-  implementation project(path: ':config:config-api', configuration: 'runtimeElements')
-  implementation project(path: ':commandline', configuration: 'runtimeElements')
-  implementation project(path: ':plugin-infra:plugin-metadata-store', configuration: 'runtimeElements')
+  api project(':db')
+
+  implementation project(':base')
+  api project(':util')
+  api project(':config:config-api')
+  implementation project(':commandline')
+  implementation project(':plugin-infra:plugin-metadata-store')
   implementation(project.deps.apacheAnt)  {
     transitive = false
   }
   implementation project.deps.jakartaAnnotation
+  implementation project.deps.gson
   implementation project.deps.commonsCodec
+  implementation project.deps.commonsIO
   implementation project.deps.commonsText
   implementation project.deps.commonsLang3
   implementation project.deps.cloning
+  implementation project.deps.springContext
   implementation project.deps.springTx
-  if (project.deps.springTx) {
+  implementation(project.deps.apacheHttpComponents) {
+    exclude(module: 'commons-codec')
+  }
+  if (project.deps.springTx || project.deps.apacheHttpComponents) {
     implementation project.deps.slf4jJcl // Allow commons-logging replacement
   }
-  api project.deps.semanticVersion
+  implementation project.deps.semanticVersion
   compileOnly project.deps.jetBrainsAnnotations
-  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+
+  testImplementation(testFixtures(project(":config:config-api")))
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.jsonUnit
-  testImplementation project.deps.awaitility
+  testImplementation project.deps.mockitoCore
+  testImplementation project.deps.mockitoJunit5
+  testImplementation project.deps.systemStubs
+
+  testFixturesApi project(":config:config-api")
+  testFixturesApi project(':base')
+  testFixturesApi project(':domain')
+  testFixturesApi(testFixtures(project(':test:test-utils')))
+  testFixturesApi project.deps.junit5Api
+  testFixturesImplementation(testFixtures(project(":config:config-api")))
+  testFixturesImplementation project(':commandline')
+  testFixturesImplementation project.deps.assertJ
+  testFixturesImplementation project.deps.awaitility
+  testFixturesImplementation project.deps.commonsIO
+  testFixturesImplementation project.deps.commonsLang3
+  testFixturesImplementation project.deps.springTx
 }

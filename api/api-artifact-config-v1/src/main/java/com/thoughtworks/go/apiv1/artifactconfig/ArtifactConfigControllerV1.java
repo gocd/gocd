@@ -32,8 +32,8 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -87,7 +87,7 @@ public class ArtifactConfigControllerV1 extends ApiController implements SparkSp
         try {
             serverConfigService.updateArtifactConfig(modifiedArtifactConfig);
         } catch (GoConfigInvalidException e) {
-            response.status(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+            response.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
             String errorMessage = entityConfigValidationFailed(modifiedArtifactConfig.getClass().getAnnotation(ConfigTag.class).value(), e.getAllErrorMessages());
             return MessageJson.create(errorMessage, jsonWriter(modifiedArtifactConfig));
         }

@@ -16,9 +16,10 @@
 package com.thoughtworks.go.agent.statusapi;
 
 import com.thoughtworks.go.util.Pair;
-import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.net.HttpURLConnection;
 
 import static com.thoughtworks.go.util.Pair.pair;
 
@@ -35,7 +36,7 @@ public class IsConnectedToServerV1 implements HttpHandler {
 
     @Override
     public Pair<Integer, String> response() {
-        return isPassed() ? pair(HttpStatus.SC_OK, "OK!") : pair(HttpStatus.SC_SERVICE_UNAVAILABLE, "Bad!");
+        return isPassed() ? pair(HttpURLConnection.HTTP_OK, "OK!") : pair(HttpURLConnection.HTTP_UNAVAILABLE, "Bad!");
     }
 
     protected boolean isPassed() {

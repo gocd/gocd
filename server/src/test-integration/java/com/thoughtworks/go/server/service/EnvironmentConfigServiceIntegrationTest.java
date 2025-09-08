@@ -36,11 +36,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -150,7 +150,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     public void shouldReturnBadRequestForInvalidEnvName() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         environmentConfigService.createEnvironment(env("foo env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), result);
-        assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+        assertThat(result.httpCode()).isEqualTo(HTTP_BAD_REQUEST);
         assertThat(result.message()).isEqualTo("Failed to add environment 'foo env'. failed to save : Environment name is invalid. \"foo env\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
@@ -211,7 +211,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String digest = entityHashingService.hashForEntity(environmentConfigService.getEnvironmentConfig("foo-env"));
         environmentConfigService.updateEnvironment("foo-env", env("foo env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), digest, result);
-        assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+        assertThat(result.httpCode()).isEqualTo(HTTP_BAD_REQUEST);
         assertThat(result.message()).contains("Failed to update environment 'foo-env'.");
     }
 

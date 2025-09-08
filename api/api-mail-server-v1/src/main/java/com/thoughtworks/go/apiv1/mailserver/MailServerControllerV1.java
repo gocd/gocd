@@ -34,8 +34,8 @@ import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -96,7 +96,7 @@ public class MailServerControllerV1 extends ApiController implements SparkSpring
         try {
             goConfigService.updateConfig(new CreateOrUpdateUpdateMailHostCommand(mailHost), currentUsername());
         } catch (GoConfigInvalidException e) {
-            response.status(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+            response.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
             return MessageJson.create(e.getMessage(), jsonWriter(mailHost));
         }
         return show(request, response);

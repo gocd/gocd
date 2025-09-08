@@ -27,12 +27,13 @@ compileJava {
 }
 
 dependencies {
-  api project(path: ':plugin-infra:go-plugin-api-internal', configuration: 'runtimeElements')
+  api project(':plugin-infra:go-plugin-api-internal')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.mockitoCore
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation project.deps.assertJ
+  testImplementation(testFixtures(project(':test:test-utils')))
 }
 
 tasks.register('sourcesJar', Jar) {

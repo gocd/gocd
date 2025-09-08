@@ -55,7 +55,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.isConsoleOutput;
 import static com.thoughtworks.go.util.GoConstants.*;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 @Controller
 public class ArtifactsController {
@@ -133,7 +134,7 @@ public class ArtifactsController {
                                      MultipartHttpServletRequest request) throws Exception {
         JobIdentifier jobIdentifier;
         if (!headerConstraint.isSatisfied(request)) {
-            return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
+            return ResponseCodeView.create(HTTP_BAD_REQUEST, "Missing required header 'Confirm'");
         }
         if (!isValidStageCounter(stageCounter)) {
             return buildNotFound(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
@@ -333,13 +334,13 @@ public class ArtifactsController {
     private ModelAndView buildNotFound(String pipelineName, String counterOrLabel, String stageName,
                                        String stageCounter,
                                        String buildName) {
-        return ResponseCodeView.create(SC_NOT_FOUND, String.format("Job %s/%s/%s/%s/%s not found.", pipelineName,
+        return ResponseCodeView.create(HTTP_NOT_FOUND, String.format("Job %s/%s/%s/%s/%s not found.", pipelineName,
                 counterOrLabel, stageName, stageCounter, buildName));
     }
 
     private ModelAndView logsNotFound(JobIdentifier identifier) {
         String notFound = String.format("Console log for %s is unavailable as it may have been purged by Go or deleted externally.", identifier.toFullString());
-        return ResponseCodeView.create(SC_NOT_FOUND, notFound);
+        return ResponseCodeView.create(HTTP_NOT_FOUND, notFound);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")

@@ -17,15 +17,21 @@
 description = 'API to configure/access cruise-config.xml'
 
 dependencies {
-  implementation project(path: ':config:config-api', configuration: 'runtimeElements')
-  implementation project(path: ':common', configuration: 'runtimeElements')
+  implementation project(':config:config-api')
+  implementation project(':common')
+  implementation project(':util')
   implementation(project.deps.jgit) {
     exclude(group: 'org.apache.httpcomponents')
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
+  implementation project.deps.springContext
   implementation project.deps.slf4jApi
   implementation project.deps.caffeine
+  implementation project.deps.commonsIO
+  implementation project.deps.commonsLang3
+  implementation project.deps.cloning
+  implementation project.deps.jakartaAnnotation
   implementation project.deps.jdom
   if (project.deps.jdom) {
     // Required for use of org.jdom2.xpath.XPathFactory where jaxen is the default impl
@@ -35,14 +41,18 @@ dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
 
-  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation(testFixtures(project(":config:config-api")))
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
   testImplementation project.deps.assertJ
   testImplementation project.deps.xmlUnit
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.mockitoJunit5
+
+  testFixturesApi project(':config:config-api')
+  testFixturesImplementation project(':util')
+  testFixturesImplementation(testFixtures(project(':test:test-utils')))
 }
 
 test {

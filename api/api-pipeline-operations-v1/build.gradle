@@ -20,11 +20,11 @@ plugins {
 }
 
 dependencies {
-  implementation project(path: ':config:config-api', configuration: 'runtimeElements')
-  implementation project(path: ':api:api-base', configuration: 'runtimeElements')
+  implementation project(':api:api-base')
+  implementation project.deps.commonsLang3
 
-  testImplementation project(path: ':api:api-base', configuration: 'testOutput')
-  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
+  testImplementation(testFixtures(project(":api:api-base")))
+  testImplementation(testFixtures(project(":config:config-api")))
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher

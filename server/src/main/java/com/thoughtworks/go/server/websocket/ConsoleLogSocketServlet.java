@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 
 /**
  * Handles upgrade request for console log WebSocket connections. Validates that user is authorized to
@@ -64,7 +64,7 @@ public class ConsoleLogSocketServlet extends JettyWebSocketServlet {
             return;
         }
 
-        response.sendError(SC_FORBIDDEN, String.format("%s is not authorized to view the pipeline %s", userName.getDisplayName(), pipeline));
+        response.sendError(HTTP_FORBIDDEN, String.format("%s is not authorized to view the pipeline %s", userName.getDisplayName(), pipeline));
     }
 
     private boolean authorizedToViewPipeline(Username username, String pipelineName) {

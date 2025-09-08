@@ -26,14 +26,19 @@ dependencies {
   packagingOnly project.deps.bouncyCastle
   packagingOnly project.deps.bouncyCastlePkix
 
-  implementation project(path: ':agent-common', configuration: 'runtimeElements')
+  implementation project(':base')
+  implementation project(':agent-common')
   implementation project.deps.commonsIO
+  implementation project.deps.slf4jApi
 
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
   testImplementation project.deps.mockitoCore
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation project.deps.assertJ
+  testImplementation project.deps.systemStubs
+
 }
 
 jar {

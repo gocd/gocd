@@ -24,25 +24,24 @@ dependencies {
   compileOnly project.deps.bouncyCastlePkix
 
   api project.deps.slf4jApi
+  compileOnly project.deps.logback
 
-  api(project.deps.apacheHttpComponents) {
+  implementation(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
   }
   if (project.deps.apacheHttpComponents) {
     implementation project.deps.slf4jJcl // Allow commons-logging replacement
   }
 
-  compileOnly project.deps.logback
-  testImplementation project.deps.logback
-
   compileOnly project.deps.jetBrainsAnnotations
 
   testRuntimeOnly project.deps.bouncyCastle
   testRuntimeOnly project.deps.bouncyCastlePkix
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation project.deps.junit5Params
   testImplementation project.deps.systemStubs
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.assertJ

@@ -32,8 +32,8 @@ import java.io.IOException;
 import java.util.Set;
 
 import static com.thoughtworks.go.server.security.GoAuthority.*;
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
-import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -62,7 +62,7 @@ public class VerifyAuthorityFilterTest {
             new VerifyAuthorityFilter(Set.of(ROLE_AGENT.asAuthority()), responseHandler)
                     .doFilter(request, response, filterChain);
 
-            verify(responseHandler).handle(request, response, SC_FORBIDDEN, "You are not authorized to access this resource!");
+            verify(responseHandler).handle(request, response, HTTP_FORBIDDEN, "You are not authorized to access this resource!");
             verifyNoInteractions(filterChain);
         }
 
@@ -87,7 +87,7 @@ public class VerifyAuthorityFilterTest {
             new VerifyAuthorityFilter(Set.of(ROLE_AGENT.asAuthority()), responseHandler)
                     .doFilter(request, response, filterChain);
 
-            verify(responseHandler).handle(request, response, SC_UNAUTHORIZED, "You are not authenticated!");
+            verify(responseHandler).handle(request, response, HTTP_UNAUTHORIZED, "You are not authenticated!");
             verifyNoInteractions(filterChain);
         }
     }

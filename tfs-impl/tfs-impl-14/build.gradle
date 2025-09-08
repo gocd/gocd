@@ -23,7 +23,7 @@ description = 'GoCD TFS SDK wrapper v14'
 def sdkTarget = layout.buildDirectory.dir("tfssdk")
 
 dependencies {
-  implementation project(path: ':common', configuration: 'runtimeElements')
+  implementation project(':common')
   implementation files(sdkTarget.get().file("lib/com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar"))
   compileOnly project.deps.jetBrainsAnnotations
 

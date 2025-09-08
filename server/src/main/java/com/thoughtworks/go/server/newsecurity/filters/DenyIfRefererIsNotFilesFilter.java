@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class DenyIfRefererIsNotFilesFilter extends OncePerRequestFilter {
@@ -42,7 +43,7 @@ public class DenyIfRefererIsNotFilesFilter extends OncePerRequestFilter {
         }
 
         if (isRequestFromArtifact(request)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HTTP_BAD_REQUEST);
 
             ContentTypeAwareResponse contentTypeAwareResponse = CONTENT_TYPE_NEGOTIATION_MESSAGE_HANDLER.getResponse(request);
             response.setCharacterEncoding("utf-8");

@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.access.packagematerial;
 
+import com.thoughtworks.go.domain.config.RepositoryMetadataStoreHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

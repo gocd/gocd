@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -95,6 +96,6 @@ public class DeletePipelineConfigsCommandTest {
         DeletePipelineConfigsCommand command = new DeletePipelineConfigsCommand(pipelineConfigs, result, user, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
-        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_FORBIDDEN);
+        assertThat(result.httpCode()).isEqualTo(HTTP_FORBIDDEN);
     }
 }

@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 
 import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
-import static javax.servlet.http.HttpServletResponse.*;
+import static java.net.HttpURLConnection.*;
 
 public class JsonAction implements RestfulAction {
     private final int status;
@@ -46,37 +46,37 @@ public class JsonAction implements RestfulAction {
     }
 
     public static JsonAction jsonCreated(Object json) {
-        return new JsonAction(SC_CREATED, json);
+        return new JsonAction(HTTP_CREATED, json);
     }
 
     public static JsonAction jsonFound(Object json) {
-        return new JsonAction(SC_OK, json);
+        return new JsonAction(HTTP_OK, json);
     }
 
     public static JsonAction jsonNotAcceptable(Object json) {
-        return new JsonAction(SC_NOT_ACCEPTABLE, json);
+        return new JsonAction(HTTP_NOT_ACCEPTABLE, json);
     }
 
     public static JsonAction jsonForbidden() {
-        return new JsonAction(SC_FORBIDDEN, new LinkedHashMap<>());
+        return new JsonAction(HTTP_FORBIDDEN, new LinkedHashMap<>());
     }
 
     public static JsonAction jsonForbidden(String message) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put(ERROR_FOR_JSON, message);
-        return new JsonAction(SC_FORBIDDEN, map);
+        return new JsonAction(HTTP_FORBIDDEN, map);
     }
 
     public static JsonAction jsonBadRequest(Object json) {
-        return new JsonAction(SC_BAD_REQUEST, json);
+        return new JsonAction(HTTP_BAD_REQUEST, json);
     }
 
     public static JsonAction jsonNotFound(Object json) {
-        return new JsonAction(SC_NOT_FOUND, json);
+        return new JsonAction(HTTP_NOT_FOUND, json);
     }
 
     public static JsonAction jsonConflict(Object json) {
-        return new JsonAction(SC_CONFLICT, json);
+        return new JsonAction(HTTP_CONFLICT, json);
     }
 
     public static JsonAction jsonByValidity(Object json, GoConfigValidity.InvalidGoConfig configValidity) {

@@ -16,30 +16,33 @@
 description = 'APIs to allow GoCD to communicate with GoCD Plugins'
 
 dependencies {
-  api project(path: ':plugin-infra:go-plugin-activator', configuration: 'runtimeElements')
-  api project(path: ':plugin-infra:go-plugin-api', configuration: 'runtimeElements')
-  api project(path: ':plugin-infra:go-plugin-config-repo', configuration: 'runtimeElements')
-  api project(path: ':plugin-infra:go-plugin-domain', configuration: 'runtimeElements')
-  api project(path: ':plugin-infra:go-plugin-infra', configuration: 'runtimeElements')
-  api project(path: ':plugin-infra:plugin-metadata-store', configuration: 'runtimeElements')
-  implementation project(path: ':domain', configuration: 'runtimeElements')
-  implementation project(path: ':base', configuration: 'runtimeElements')
-  implementation project(path: ':config:config-api', configuration: 'runtimeElements')
+  api project(':plugin-infra:go-plugin-activator')
+  api project(':plugin-infra:go-plugin-api')
+  api project(':plugin-infra:go-plugin-api-internal')
+  api project(':plugin-infra:go-plugin-config-repo')
+  api project(':plugin-infra:go-plugin-domain')
+  api project(':plugin-infra:go-plugin-infra')
+  api project(':plugin-infra:plugin-metadata-store')
+  implementation project(':domain')
+  implementation project(':base')
+  implementation project(':config:config-api')
   implementation project.deps.jolt
   implementation project.deps.joltJsonUtils
   implementation project.deps.commonsCollections4
   implementation project.deps.commonsCodec
+  implementation project.deps.commonsLang3
   implementation project.deps.gson
   implementation project.deps.springContext
   compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation localGroovy()
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
-  testImplementation project(path: ':domain', configuration: 'testOutput')
+  testImplementation(testFixtures(project(":domain")))
+  testImplementation(testFixtures(project(":config:config-api")))
   testImplementation project.deps.junit5Api
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.assertJ
+  testImplementation project.deps.jsonUnit
 }

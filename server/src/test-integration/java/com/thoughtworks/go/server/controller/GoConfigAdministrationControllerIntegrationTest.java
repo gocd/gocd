@@ -37,8 +37,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.ByteArrayOutputStream;
 
 import static com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH;
-import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static java.net.HttpURLConnection.HTTP_CONFLICT;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(ClearSingleton.class)
@@ -80,7 +80,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         controller.getCurrentConfigXml(null, response);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(new ConfigCache(), registry).write(goConfigDao.loadForEditing(), os, true);
-        assertValidContentAndStatus(SC_OK, "text/xml", os.toString());
+        assertValidContentAndStatus(HTTP_OK, "text/xml", os.toString());
         assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5)).isEqualTo(goConfigDao.md5OfConfigFile());
     }
 
@@ -91,7 +91,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         controller.getCurrentConfigXml("crapy_md5", response);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(goConfigDao.loadForEditing(), os, true);
-        assertValidContentAndStatus(SC_CONFLICT, "text/plain; charset=utf-8", CONFIG_CHANGED_PLEASE_REFRESH);
+        assertValidContentAndStatus(HTTP_CONFLICT, "text/plain; charset=utf-8", CONFIG_CHANGED_PLEASE_REFRESH);
         assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5)).isEqualTo(goConfigDao.md5OfConfigFile());
     }
 

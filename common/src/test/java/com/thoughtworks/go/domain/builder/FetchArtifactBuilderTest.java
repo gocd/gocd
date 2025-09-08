@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.zip.Deflater;
 
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -85,7 +85,7 @@ public class FetchArtifactBuilderTest {
     @Test
     public void shouldUnzipWhenFetchingFolder() throws Exception {
         ChecksumFileHandler checksumFileHandler = mock(ChecksumFileHandler.class);
-        when(checksumFileHandler.handleResult(SC_OK, publisher)).thenReturn(true);
+        when(checksumFileHandler.handleResult(HTTP_OK, publisher)).thenReturn(true);
 
         File destOnAgent = new File("pipelines/cruise/", dest.getPath());
         FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -10, "1", "dev", "1", "windows", 1L), "log", dest.getPath(), new DirHandler("log",destOnAgent), checksumFileHandler);
@@ -98,7 +98,7 @@ public class FetchArtifactBuilderTest {
     @Test
     public void shouldSaveFileWhenFetchingFile() throws Exception {
         ChecksumFileHandler checksumFileHandler = mock(ChecksumFileHandler.class);
-        when(checksumFileHandler.handleResult(SC_OK, publisher)).thenReturn(true);
+        when(checksumFileHandler.handleResult(HTTP_OK, publisher)).thenReturn(true);
 
         File artifactOnAgent = new File("pipelines/cruise/a.jar");
         toClean.add(artifactOnAgent);
@@ -229,7 +229,7 @@ public class FetchArtifactBuilderTest {
             try (FileInputStream stream = new FileInputStream(zip)) {
                 handler.handle(stream);
             }
-            return SC_OK;
+            return HTTP_OK;
         }
     }
 

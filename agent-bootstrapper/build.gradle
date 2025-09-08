@@ -19,21 +19,24 @@ import com.thoughtworks.go.build.VerifyJarTask
 description = 'GoCD Agent Bootstrapper'
 
 dependencies {
-  implementation(project(path: ':agent-common', configuration: 'runtimeElements')) {
+  implementation(project(':agent-common')) {
     // Not needed within the bootstrapper
     exclude(group: 'org.apache.httpcomponents')
     exclude(module: 'jcl-over-slf4j')
   }
   implementation project.deps.commonsIO
+  implementation project.deps.slf4jApi
 
   testRuntimeOnly project.deps.bouncyCastle
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.mockitoCore
-  packagingOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
-  extractedAtTopLevel project(path: ':jar-class-loader')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation project.deps.assertJ
+
+  packagingOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
+  extractedAtTopLevel project(':jar-class-loader')
 }
 
 jar {

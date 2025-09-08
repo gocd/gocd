@@ -17,16 +17,16 @@
 description = 'GoCD Utils'
 
 dependencies {
-  implementation project(path: ':base', configuration: 'runtimeElements')
-  api project.deps.springContext
+  implementation project(':base')
+  implementation project.deps.springContext
   if (project.deps.springContext) {
     implementation project.deps.slf4jJcl // Allow commons-logging replacement
   }
-  api project.deps.gson
+  implementation project.deps.gson
   implementation project.deps.commonsIO
-  implementation project.deps.cloning
-  api project.deps.jdom
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  api project.deps.cloning
+  implementation project.deps.jdom
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher

@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,15 +33,15 @@ public class ConfigUpdateAjaxResponseTest {
         Map<String, List<String>> fieldErrors = new HashMap<>();
         fieldErrors.put("field1", List.of("error 1"));
         fieldErrors.put("field2", List.of("error 2"));
-        ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.failure("id", SC_BAD_REQUEST, "Save failed", fieldErrors, List.of("global1", "global2"));
+        ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.failure("id", HTTP_BAD_REQUEST, "Save failed", fieldErrors, List.of("global1", "global2"));
         String jsonString = response.toJson();
-        assertThat(response.getStatusCode()).isEqualTo(SC_BAD_REQUEST);
+        assertThat(response.getStatusCode()).isEqualTo(HTTP_BAD_REQUEST);
         assertThatJson(jsonString).isEqualTo("{\"fieldErrors\":{\"field1\":[\"error 1\"], \"field2\":[\"error 2\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"Save failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}");
     }
 
     @Test
     public void shouldGetJsonRepresentationForSuccess() {
-        ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.success("id", SC_OK, "saved successful");
+        ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.success("id", HTTP_OK, "saved successful");
         String jsonString = response.toJson();
         assertThatJson(jsonString).isEqualTo("{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"saved successful\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\"}");
     }

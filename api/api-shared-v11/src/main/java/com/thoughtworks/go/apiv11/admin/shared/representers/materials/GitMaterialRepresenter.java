@@ -19,7 +19,6 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import org.apache.commons.lang3.StringUtils;
 
 public class GitMaterialRepresenter extends ScmMaterialRepresenter<GitMaterialConfig> {
     @Override
@@ -36,7 +35,7 @@ public class GitMaterialRepresenter extends ScmMaterialRepresenter<GitMaterialCo
         jsonReader.readStringIfPresent("url", gitMaterialConfig::setUrl);
         super.fromJSON(jsonReader, gitMaterialConfig, options);
         jsonReader.optString("branch").ifPresent(branch -> {
-            if (StringUtils.isNotBlank(branch)) {
+            if (!branch.isBlank()) {
                 gitMaterialConfig.setBranch(branch);
             } else {
                 gitMaterialConfig.setBranch("master");

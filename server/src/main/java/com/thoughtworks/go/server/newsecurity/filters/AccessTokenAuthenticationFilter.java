@@ -43,8 +43,8 @@ import java.sql.Timestamp;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
 @Component
 public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
@@ -52,9 +52,9 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
     protected final Logger ACCESS_TOKEN_LOGGER = LoggerFactory.getLogger(AccessToken.class);
     private static final String BAD_CREDENTIALS_MSG = "Invalid Personal Access Token.";
     protected final SecurityService securityService;
-    private SecurityAuthConfigService securityAuthConfigService;
+    private final SecurityAuthConfigService securityAuthConfigService;
     private final AccessTokenBasedPluginAuthenticationProvider authenticationProvider;
-    private AccessTokenService accessTokenService;
+    private final AccessTokenService accessTokenService;
 
     @Autowired
     public AccessTokenAuthenticationFilter(SecurityService securityService,
@@ -175,7 +175,7 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, String errorMessage) throws IOException {
-        response.setStatus(SC_UNAUTHORIZED);
+        response.setStatus(HTTP_UNAUTHORIZED);
         ContentTypeAwareResponse contentTypeAwareResponse = new ContentTypeNegotiationMessageRenderer().getResponse(request);
         response.setCharacterEncoding("utf-8");
         response.setContentType(contentTypeAwareResponse.getContentType().toString());

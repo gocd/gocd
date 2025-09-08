@@ -21,8 +21,9 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.apiv1.webhook.controller.validation.WebhookValidation;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.springframework.http.HttpStatus;
 import spark.Response;
+
+import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 
 public abstract class BaseWebhookController extends ApiController implements SparkSpringController, WebhookValidation {
     public static final String PING_RESPONSE = "pong";
@@ -49,6 +50,6 @@ public abstract class BaseWebhookController extends ApiController implements Spa
     }
 
     protected String accepted(Response response, String message) {
-        return renderMessage(response, HttpStatus.ACCEPTED.value(), message);
+        return renderMessage(response, HTTP_ACCEPTED, message);
     }
 }

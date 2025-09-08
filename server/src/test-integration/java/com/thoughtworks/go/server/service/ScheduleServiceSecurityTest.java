@@ -38,7 +38,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
-import static javax.servlet.http.HttpServletResponse.*;
+import static java.net.HttpURLConnection.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -86,7 +86,7 @@ public class ScheduleServiceSecurityTest {
 
         assertThat(resultStage).isNull();
         assertThat(operationResult.isSuccessful()).isFalse();
-        assertThat(operationResult.httpCode()).isEqualTo(SC_FORBIDDEN);
+        assertThat(operationResult.httpCode()).isEqualTo(HTTP_FORBIDDEN);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class ScheduleServiceSecurityTest {
 
         assertThat(resultStage).isNull();
         assertThat(operationResult.isSuccessful()).isFalse();
-        assertThat(operationResult.httpCode()).isEqualTo(SC_NOT_FOUND);
+        assertThat(operationResult.httpCode()).isEqualTo(HTTP_NOT_FOUND);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class ScheduleServiceSecurityTest {
 
         assertThat(resultStage).isNotNull();
         assertThat(operationResult.isSuccessful()).isTrue();
-        assertThat(operationResult.httpCode()).isEqualTo(SC_OK);
+        assertThat(operationResult.httpCode()).isEqualTo(HTTP_OK);
     }
 
 }

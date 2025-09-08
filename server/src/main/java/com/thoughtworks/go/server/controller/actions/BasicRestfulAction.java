@@ -20,7 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletResponse;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 public class BasicRestfulAction implements RestfulAction {
     private final int status;
@@ -38,7 +38,7 @@ public class BasicRestfulAction implements RestfulAction {
     }
 
     public static RestfulAction notFound(String errorMessage) {
-        return new BasicRestfulAction(SC_NOT_FOUND, errorMessage);
+        return new BasicRestfulAction(HTTP_NOT_FOUND, errorMessage);
     }
 
     @Override

@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 @Component
 public class BasicAuthenticationWithChallengeFilter extends AbstractBasicAuthenticationFilter {
@@ -43,6 +43,6 @@ public class BasicAuthenticationWithChallengeFilter extends AbstractBasicAuthent
     protected void onAuthenticationFailure(HttpServletRequest request,
                                            HttpServletResponse response,
                                            String errorMessage) throws IOException {
-        basicAuthenticationWithChallengeFailureResponseHandler.handle(request, response, SC_UNAUTHORIZED, errorMessage);
+        basicAuthenticationWithChallengeFailureResponseHandler.handle(request, response, HTTP_UNAUTHORIZED, errorMessage);
     }
 }

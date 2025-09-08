@@ -19,15 +19,35 @@ plugins {
 }
 
 dependencies {
-  api project(path: ':config:config-server', configuration: 'runtimeElements')
-  api project(path: ':spark:spark-base', configuration: 'runtimeElements')
+  api project(':config:config-api')
+  api project(':spark:spark-base')
+  api project(':server')
+  implementation(project.deps.apacheHttpComponents) {
+    exclude(module: 'commons-codec')
+  }
+  if (project.deps.apacheHttpComponents) {
+    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+  }
+
+  api project.deps.gson
+  api project.deps.springContext
+  implementation project.deps.commonsCodec
+  implementation project.deps.springWeb
+
   testImplementation localGroovy()
-  testImplementation project(path: ':common', configuration: 'testOutput')
-  testImplementation project(path: ':domain', configuration: 'testOutput')
-  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
-  testImplementation project(path: ':test:http-mocks', configuration: 'runtimeElements')
-  testImplementation project(path: ':spark:spark-base', configuration: 'testOutput')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
+
+  testFixturesApi localGroovy()
+  testFixturesApi(testFixtures(project(':spark:spark-base')))
+  testFixturesApi(testFixtures(project(':config:config-api')))
+  testFixturesApi(testFixtures(project(':common')))
+  testFixturesApi(testFixtures(project(':domain')))
+
+  testFixturesApi project.deps.jsonUnit
+  testFixturesApi project.deps.mockitoCore
+  testFixturesApi project.deps.mockitoJunit5
+  testFixturesApi project.deps.junit5Params
+  testFixturesApi project.deps.springTest
 }

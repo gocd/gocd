@@ -35,6 +35,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_PRECON_FAILED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
@@ -165,7 +167,7 @@ public class UpdatePipelineConfigsCommandTest {
         UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
-        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_PRECONDITION_FAILED);
+        assertThat(result.httpCode()).isEqualTo(HTTP_PRECON_FAILED);
     }
 
     @Test
@@ -179,7 +181,7 @@ public class UpdatePipelineConfigsCommandTest {
         UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
-        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_FORBIDDEN);
+        assertThat(result.httpCode()).isEqualTo(HTTP_FORBIDDEN);
     }
 
     @Test

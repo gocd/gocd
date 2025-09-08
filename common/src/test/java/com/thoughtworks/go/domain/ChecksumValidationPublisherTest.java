@@ -18,8 +18,8 @@ package com.thoughtworks.go.domain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.net.HttpURLConnection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -40,7 +40,7 @@ public class ChecksumValidationPublisherTest {
     @Test
     public void testMessagesPublished_WhenMD5PropertyFileIsNotFoundOnServer() {
         checksumValidationPublisher.md5ChecksumFileNotFound();
-        checksumValidationPublisher.publish(HttpServletResponse.SC_OK, artifact, goPublisher);
+        checksumValidationPublisher.publish(HttpURLConnection.HTTP_OK, artifact, goPublisher);
         assertThat(goPublisher.getMessage()).doesNotContain(String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.", artifact));
         assertThat(goPublisher.getMessage()).contains(String.format("Saved artifact to [%s] without verifying the integrity of its contents.", artifact));
 
@@ -50,7 +50,7 @@ public class ChecksumValidationPublisherTest {
     public void shouldThrowExceptionWhenMd5ValuesMismatch() {
         checksumValidationPublisher.md5Mismatch(artifact.getPath());
         try {
-            checksumValidationPublisher.publish(HttpServletResponse.SC_OK, artifact, goPublisher);
+            checksumValidationPublisher.publish(HttpURLConnection.HTTP_OK, artifact, goPublisher);
             fail("Should throw exception when checksums do not match.");
         } catch (Exception e) {
             assertThat(e.getMessage()).isEqualTo(String.format("Artifact download failed for [%s]",artifact));

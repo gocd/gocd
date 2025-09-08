@@ -47,7 +47,6 @@ import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +55,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -155,7 +155,7 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
         } catch (HttpException e) {
             throw e;
         } catch (Exception e) {
-            throw halt(HttpStatus.SC_INTERNAL_SERVER_ERROR, MessageJson.create(e.getMessage()));
+            throw halt(HttpURLConnection.HTTP_INTERNAL_ERROR, MessageJson.create(e.getMessage()));
         }
 
         return handleCreateOrUpdateResponse(request, response, updatedAgentInstance, result);
@@ -180,7 +180,7 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
         } catch (HttpException e) {
             throw e;
         } catch (Exception e) {
-            throw halt(HttpStatus.SC_INTERNAL_SERVER_ERROR, MessageJson.create(e.getMessage()));
+            throw halt(HttpURLConnection.HTTP_INTERNAL_ERROR, MessageJson.create(e.getMessage()));
         }
 
         return renderHTTPOperationResult(result, request, response);
@@ -331,7 +331,7 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
         } catch (Exception e) {
             String msg = "Shoot! This is unexpected. Something went wrong while deleting agent(s)! More details : ";
             LOG.error(msg, e);
-            throw halt(HttpStatus.SC_INTERNAL_SERVER_ERROR, MessageJson.create(msg + e.getMessage()));
+            throw halt(HttpURLConnection.HTTP_INTERNAL_ERROR, MessageJson.create(msg + e.getMessage()));
         }
     }
 }

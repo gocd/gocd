@@ -21,10 +21,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
+import static java.net.HttpURLConnection.HTTP_ACCEPTED;
+
 public class PreparingArtifactFile extends AbstractView {
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setStatus(HttpServletResponse.SC_ACCEPTED);
+        response.setStatus(HTTP_ACCEPTED);
         response.getWriter().close();
     }
 }

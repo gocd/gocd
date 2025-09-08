@@ -19,25 +19,30 @@ plugins {
 }
 
 dependencies {
-  implementation project(path: ':app-server', configuration: 'runtimeElements')
-  api project(path: ':common', configuration: 'runtimeElements')
-  api project(path: ':server', configuration: 'runtimeElements')
+  implementation project(':app-server')
+  implementation project(':common')
+  implementation project(':server')
+  implementation project(':config:config-api')
 
   implementation project.deps.commonsLang3
+  implementation project.deps.commonsText
+  implementation project.deps.gson
   implementation platform(project.deps.jacksonBom)
   implementation project.deps.jacksonCore
-  implementation project.deps.jacksonDatabind
+  api project.deps.jacksonDatabind
   implementation project.deps.springWeb
   if (project.deps.springWeb) {
     implementation project.deps.slf4jJcl // Allow commons-logging replacement
   }
 
   api(project.deps.spark) {
-    transitive = false
+    exclude(group: 'org.eclipse.jetty')
+    exclude(group: 'org.eclipse.jetty.websocket')
   }
+  api project.deps.servletApi
+  implementation project.deps.apacheHttpComponents
 
   testImplementation localGroovy()
-  testImplementation project(path: ':jetty', configuration: 'runtimeElements')
 
   testImplementation project.deps.junit5Api
   testImplementation project.deps.junit5Params
@@ -47,6 +52,22 @@ dependencies {
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
   testImplementation project.deps.assertJ
-  testImplementation project.deps.springTest
-  testImplementation project(path: ':test:http-mocks', configuration: 'runtimeElements')
+
+  testRuntimeOnly project(':jetty')
+
+  testFixturesImplementation localGroovy()
+  testFixturesApi(project.deps.spark) {
+    exclude(group: 'org.eclipse.jetty')
+    exclude(group: 'org.eclipse.jetty.websocket')
+  }
+  testFixturesApi project.deps.servletApi
+  testFixturesApi(testFixtures(project(':test:http-mocks')))
+  testFixturesApi project.deps.springTest
+  testFixturesImplementation project(':server')
+  testFixturesImplementation project.deps.gson
+
+  testFixturesApi project.deps.junit5Api
+  testFixturesImplementation project.deps.mockitoCore
+  testFixturesImplementation project.deps.assertJ
+  testFixturesImplementation project.deps.jsonUnit
 }

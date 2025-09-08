@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.service.result;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.apache.http.HttpStatus;
 
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
-
 /**
  * Understands localized operation result for http
  */
@@ -54,7 +52,7 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
     public void forbidden(String message, HealthStateType healthStateType) {
         this.message = message;
         this.healthStateType = healthStateType;
-        httpCode = SC_FORBIDDEN;
+        httpCode = HttpStatus.SC_FORBIDDEN;
     }
 
     @Override

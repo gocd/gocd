@@ -26,6 +26,8 @@ import java.nio.charset.Charset;
 import java.nio.file.NoSuchFileException;
 import java.util.Map;
 
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+
 public class ConsoleOutView implements View {
     private final ConsoleConsumer consumer;
     private final Charset charset;
@@ -48,7 +50,7 @@ public class ConsoleOutView implements View {
             try {
                 consumer.stream(line -> writer.write(line + "\n"));
             } catch (FileNotFoundException | NoSuchFileException e) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.setStatus(HTTP_NOT_FOUND);
             }
         } finally {
             consumer.close();

@@ -29,7 +29,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import static org.apache.http.HttpStatus.SC_OK;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 public class TokenRequester {
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenRequester.class);
@@ -51,7 +51,7 @@ public class TokenRequester {
                 .build();
 
         try (CloseableHttpResponse response = httpClient.execute(getTokenRequest)) {
-            if (response.getStatusLine().getStatusCode() == SC_OK) {
+            if (response.getStatusLine().getStatusCode() == HTTP_OK) {
                 LOGGER.info("The server has generated token for the agent.");
                 return responseBody(response);
             } else {

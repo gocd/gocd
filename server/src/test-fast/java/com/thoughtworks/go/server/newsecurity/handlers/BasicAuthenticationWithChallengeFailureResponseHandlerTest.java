@@ -26,8 +26,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
-import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +56,7 @@ class BasicAuthenticationWithChallengeFailureResponseHandlerTest {
         void shouldNotChallengeWhenSecurityIsDisabled() throws IOException {
             when(securityService.isSecurityEnabled()).thenReturn(false);
             new BasicAuthenticationWithChallengeFailureResponseHandler(securityService)
-                    .handle(request, response, SC_UNAUTHORIZED, "some-error-message");
+                    .handle(request, response, HTTP_UNAUTHORIZED, "some-error-message");
 
             MockHttpServletResponseAssert.assertThat(response)
                     .isUnauthorized()
@@ -69,7 +69,7 @@ class BasicAuthenticationWithChallengeFailureResponseHandlerTest {
         void shouldShowChallengeWhenSecurityIsEnabled() throws IOException {
             when(securityService.isSecurityEnabled()).thenReturn(true);
             new BasicAuthenticationWithChallengeFailureResponseHandler(securityService)
-                    .handle(request, response, SC_FORBIDDEN, "some-error-message");
+                    .handle(request, response, HTTP_FORBIDDEN, "some-error-message");
 
             MockHttpServletResponseAssert.assertThat(response)
                     .isForbidden()
@@ -91,7 +91,7 @@ class BasicAuthenticationWithChallengeFailureResponseHandlerTest {
             final MockHttpServletResponse response = new MockHttpServletResponse();
 
             new BasicAuthenticationWithChallengeFailureResponseHandler(securityService)
-                    .handle(request, response, SC_UNAUTHORIZED, "some-error-message");
+                    .handle(request, response, HTTP_UNAUTHORIZED, "some-error-message");
 
             MockHttpServletResponseAssert.assertThat(response)
                     .isUnauthorized()

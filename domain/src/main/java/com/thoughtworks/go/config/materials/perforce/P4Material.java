@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemUtil;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -165,8 +164,9 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     }
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
-        File baseDir = new TempFiles().createUniqueFolder("for-p4");
+        File baseDir = null;
         try {
+            baseDir = Files.createTempDirectory("cruise-for-p4").toFile();
             getP4(baseDir).checkConnection();
             return ValidationBean.valid();
         } catch (Exception e) {

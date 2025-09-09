@@ -17,7 +17,6 @@ package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.validators.Validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +26,7 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
+import java.nio.file.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -50,7 +50,7 @@ public class GoServerTest {
         final SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         StubGoServer goServer = new StubGoServer(systemEnvironment, Validation.SUCCESS);
         goServer.subprocessLogger = mock(SubprocessLogger.class);
-        final File tmpFile = TestFileUtil.createTempFile("keystore.tmp");
+        final File tmpFile = Files.createTempFile("keystore", ".tmp").toFile();
         tmpFile.deleteOnExit();
 
 

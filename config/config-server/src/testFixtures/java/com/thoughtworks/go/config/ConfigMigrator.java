@@ -17,7 +17,6 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.TimeProvider;
 
 import java.io.ByteArrayInputStream;
@@ -49,7 +48,7 @@ public class ConfigMigrator {
     }
 
     public static String migrate(String configXml) throws IOException {
-        Path tempFile = TestFileUtil.createTempFile("cruise-config.xml").toPath();
+        Path tempFile = Files.createTempFile("cruise-config", ".xml");
         Files.writeString(tempFile, configXml, UTF_8);
         migrate(tempFile);
         String newConfigXml = Files.readString(tempFile, UTF_8);
@@ -78,7 +77,7 @@ public class ConfigMigrator {
     }
 
     public static GoConfigHolder loadWithMigration(InputStream input, final ConfigElementImplementationRegistry registry) throws Exception {
-        Path tempFile = TestFileUtil.createTempFile("cruise-config.xml").toPath();
+        Path tempFile = Files.createTempFile("cruise-config", ".xml");
         try {
             MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
             try (FileOutputStream out = new FileOutputStream(tempFile.toFile())) {

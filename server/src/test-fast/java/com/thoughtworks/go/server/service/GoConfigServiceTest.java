@@ -709,7 +709,7 @@ public class GoConfigServiceTest {
     @Test
     public void shouldIgnoreXmlEntitiesAndReplaceThemWithEmptyString_DuringPipelineGroupPartialSave() throws Exception {
         ArgumentCaptor<FullConfigUpdateCommand> commandArgumentCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
-        File targetFile = TempFiles.createUniqueFile("somefile");
+        File targetFile = Files.createTempFile("somefile", null).toFile();
         Files.writeString(targetFile.toPath(), "CONTENTS_OF_FILE", StandardCharsets.UTF_8);
 
         cruiseConfig = new BasicCruiseConfig();

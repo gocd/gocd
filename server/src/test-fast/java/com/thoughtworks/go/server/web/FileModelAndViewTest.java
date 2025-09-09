@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.FileHandler;
 import com.thoughtworks.go.server.domain.ZippedArtifact;
-import com.thoughtworks.go.util.TestFileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -25,6 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.File;
+import java.nio.file.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,8 +35,8 @@ public class FileModelAndViewTest {
     @BeforeEach
     public void setUp() throws Exception {
         response = new MockHttpServletResponse();
-        existFile = TestFileUtil.createTempFile("a.log");
-        existFile.createNewFile();
+        existFile = Files.createTempFile("a", ".log").toFile();
+        existFile.deleteOnExit();
     }
 
     @Test

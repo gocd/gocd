@@ -232,16 +232,16 @@ public class ZipUtilTest {
     }
 
     @Test
-    void shouldReadContentFromFileInsideZip() throws IOException, URISyntaxException {
-        try (ZipInputStream zip = new ZipInputStream(new FileInputStream(new File(getClass().getResource("/dummy-plugins.zip").toURI())))) {
+    void shouldReadContentFromFileInsideZip() throws IOException {
+        try (ZipInputStream zip = new ZipInputStream(getClass().getResourceAsStream("/dummy-plugins.zip"))) {
             String contents = zipUtil.getFileContentInsideZip(zip, "version.txt");
             assertThat(contents).isEqualTo("13.3.0(17222-4c7fabcb9c9e9c)");
         }
     }
 
     @Test
-    void shouldReturnNullIfTheFileByTheNameDoesNotExistInsideZip() throws IOException, URISyntaxException {
-        try (ZipInputStream zip = new ZipInputStream(new FileInputStream(new File(getClass().getResource("/dummy-plugins.zip").toURI())))) {
+    void shouldReturnNullIfTheFileByTheNameDoesNotExistInsideZip() throws IOException {
+        try (ZipInputStream zip = new ZipInputStream(getClass().getResourceAsStream("/dummy-plugins.zip"))) {
             String contents = zipUtil.getFileContentInsideZip(zip, "does_not_exist.txt");
             assertThat(contents).isNull();
         }

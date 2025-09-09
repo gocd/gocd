@@ -289,25 +289,14 @@ subprojects {
         substitute module("net.sf.ehcache:ehcache") using module(project.deps.ehcache) because("Use the much slimmer core artifact which is fine for our use case")
         substitute module("commons-logging:commons-logging") using module("${project.deps.slf4jJcl}:${project.versions.slf4jBom}") because("Replace commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html")
         substitute module("com.bucket4j:bucket4j-core") using module(project.deps.bucket4j) because("Replace bucket4j-core with Java 17+ variant")
-      }
 
-      eachDependency { DependencyResolveDetails details ->
-        // Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables
-        if (details.requested.group == 'org.hamcrest' && details.requested.name ==~ /hamcrest-(core|library|all)/) {
-          details.useTarget project.deps.hamcrest
-        }
-        // Javax Annotation has migrated to jakarta annotations
-        if (details.requested.group == 'javax.annotation' && details.requested.name == 'javax.annotation-api') {
-          details.useTarget project.deps.jakartaAnnotation
-        }
-        // Javax Servlet API has migrated to jakarta Servlet API
-        if (details.requested.group in ['javax.servlet', 'org.eclipse.jetty.toolchain'] && details.requested.name in ['javax.servlet-api', 'jetty-servlet-api']) {
-          details.useTarget project.deps.servletApi
-        }
-        // Javax Transaction API has migrated to jakarta Transaction API
-        if (details.requested.group == 'javax.transaction' && details.requested.name == 'jta') {
-          details.useTarget project.deps.jakartaTransaction
-        }
+        substitute module("javax.annotation:javax.annotation-api") using module(project.deps.jakartaAnnotation) because("Javax Annotation has migrated to jakarta annotations")
+        substitute module("javax.inject:javax.inject") using module(project.deps.jakartaInject) because("Javax Inject API has migrated to jakarta Inject API")
+        substitute module("javax.servlet:javax.servlet-api") using module(project.deps.servletApi) because("Javax Servlet API has migrated to jakarta Servlet API")
+        substitute module("org.eclipse.jetty.toolchain:jetty-servlet-api") using module(project.deps.servletApi) because("Javax Servlet API has migrated to jakarta Servlet API")
+        substitute module("javax.transaction:jta") using module(project.deps.jakartaTransaction) because("Javax Transaction API has migrated to jakarta Transaction API")
+
+        substitute module("org.hamcrest:hamcrest-core") using module(project.deps.hamcrest) because("Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables")
       }
     }
   }

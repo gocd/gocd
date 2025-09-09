@@ -253,27 +253,7 @@ subprojects {
       implementation platform(project(':build-platform'))
       testJavaAgents("${project.deps.mockitoCore}:${project.versions.mockitoBom}")
 
-      modules {
-        module("dom4j:dom4j") {
-          replacedBy("org.dom4j:dom4j", "Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
-        }
-        module("javassist:javassist") {
-          replacedBy("org.javassist:javassist", "Upgrade the legacy javassist in old Hibernate 3.6")
-        }
-        module("net.sf.ehcache:ehcache") {
-          replacedBy("net.sf.ehcache.internal:ehcache-core", "Use the much slimmer core artifact which is fine for our use case")
-        }
-        module("commons-logging:commons-logging") {
-          replacedBy(project.deps.slf4jJcl, "Replace commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html")
-        }
-        module("com.bucket4j:bucket4j-core") {
-          replacedBy("com.bucket4j:bucket4j_jdk17-core", "Replace bucket4j-core with Java 17+ variant")
-        }
-      }
       components {
-        // workaround for dom4j Gradle metadata optional dependency issues to avoid it pulling in
-        // optional dependencies when it should not (https://github.com/dom4j/dom4j/issues/99)
-        withModule('org.dom4j:dom4j', { details -> details.allVariants { withDependencies { clear() } } })
         // workaround for Caffeine metadata declaring dependencies that are not needed at runtime
         withModule('com.github.ben-manes.caffeine:caffeine', { details ->
           details.allVariants {
@@ -302,24 +282,33 @@ subprojects {
   }
 
   configurations.configureEach {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-      // Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables
-      if (details.requested.group == 'org.hamcrest' && details.requested.name ==~ /hamcrest-(core|library|all)/) {
-        details.useTarget project.deps.hamcrest
-      }
-      // Javax Annotation has migrated to jakarta annotations
-      if (details.requested.group == 'javax.annotation' && details.requested.name == 'javax.annotation-api') {
-        details.useTarget project.deps.jakartaAnnotation
-      }
-      // Javax Servlet API has migrated to jakarta Servlet API
-      if (details.requested.group in ['javax.servlet', 'org.eclipse.jetty.toolchain'] && details.requested.name in ['javax.servlet-api', 'jetty-servlet-api']) {
-        details.useTarget project.deps.servletApi
-      }
-      // Javax Transaction API has migrated to jakarta Transaction API
-      if (details.requested.group == 'javax.transaction' && details.requested.name == 'jta') {
-        details.useTarget project.deps.jakartaTransaction
+    resolutionStrategy {
+      dependencySubstitution {
+        substitute module("dom4j:dom4j") using module(project.deps.dom4j) because("Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
+        substitute module("javassist:javassist") using module(project.deps.javassist) because("Upgrade the legacy javassist in old Hibernate 3.6")
+        substitute module("net.sf.ehcache:ehcache") using module(project.deps.ehcache) because("Use the much slimmer core artifact which is fine for our use case")
+        substitute module("commons-logging:commons-logging") using module("${project.deps.slf4jJcl}:${project.versions.slf4jBom}") because("Replace commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html")
+        substitute module("com.bucket4j:bucket4j-core") using module(project.deps.bucket4j) because("Replace bucket4j-core with Java 17+ variant")
       }
 
+      eachDependency { DependencyResolveDetails details ->
+        // Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables
+        if (details.requested.group == 'org.hamcrest' && details.requested.name ==~ /hamcrest-(core|library|all)/) {
+          details.useTarget project.deps.hamcrest
+        }
+        // Javax Annotation has migrated to jakarta annotations
+        if (details.requested.group == 'javax.annotation' && details.requested.name == 'javax.annotation-api') {
+          details.useTarget project.deps.jakartaAnnotation
+        }
+        // Javax Servlet API has migrated to jakarta Servlet API
+        if (details.requested.group in ['javax.servlet', 'org.eclipse.jetty.toolchain'] && details.requested.name in ['javax.servlet-api', 'jetty-servlet-api']) {
+          details.useTarget project.deps.servletApi
+        }
+        // Javax Transaction API has migrated to jakarta Transaction API
+        if (details.requested.group == 'javax.transaction' && details.requested.name == 'jta') {
+          details.useTarget project.deps.jakartaTransaction
+        }
+      }
     }
   }
 

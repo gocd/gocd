@@ -652,18 +652,18 @@ tasks.register('newSPA') {
   description = "Helper to create a new SPA. Pass `-PspaName=maintenance_mode"
 
   doFirst {
-    String spaName = project.spaName
-    String entityName = toCamelCase(spaName)
-    String modelsBase = "${project(':server').webAppDir}/WEB-INF/rails/webpack/models/${spaName}"
-    String pagesBase = "${project(':server').webAppDir}/WEB-INF/rails/webpack/views/pages"
-    String widgetBase = "${pagesBase}/${spaName}"
-    String mountPoint = "${project(':server').webAppDir}/WEB-INF/rails/webpack/single_page_apps"
+    def spaName = project.spaName
+    def entityName = toCamelCase(spaName)
+    def modelsBase = "${project(':server').webAppDir}/WEB-INF/rails/webpack/models/${spaName}"
+    def pagesBase = "${project(':server').webAppDir}/WEB-INF/rails/webpack/views/pages"
+    def widgetBase = "${pagesBase}/${spaName}"
+    def mountPoint = "${project(':server').webAppDir}/WEB-INF/rails/webpack/single_page_apps"
 
     delete(modelsBase, widgetBase)
     mkdir(modelsBase)
     mkdir(widgetBase)
 
-    String licenseHeader =
+    def licenseHeader =
       """
       * Copyright Thoughtworks, Inc.
       *
@@ -680,7 +680,7 @@ tasks.register('newSPA') {
       * limitations under the License.
       """.stripIndent().trim()
 
-    String javaOrJavaScriptLicenseHeader = "/*\n${licenseHeader.split('\n').collect { eachLine -> " ${eachLine}" }.join("\n")}\n */\n\n"
+    def javaOrJavaScriptLicenseHeader = "/*\n${licenseHeader.split('\n').collect { eachLine -> " ${eachLine}" }.join("\n")}\n */\n\n"
 
     file("${mountPoint}/${spaName}.tsx").withWriter { out ->
       def contents =
@@ -838,10 +838,10 @@ tasks.register('removeApi') {
   def injected = project.objects.newInstance(Injected)
 
   doFirst {
-    String apiName = project.apiName
-    String newProjectName = "api-${apiName}-${project.apiVersion}"
-    String moduleDir = file("api/${newProjectName}")
-    String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+    def apiName = project.apiName
+    def newProjectName = "api-${apiName}-${project.apiVersion}"
+    def moduleDir = file("api/${newProjectName}")
+    def packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
 
     delete(moduleDir)
 
@@ -889,21 +889,21 @@ tasks.register('newApi') {
   description = "Helper to create a new api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
 
   doFirst {
-    String apiName = project.apiName
-    String newProjectName = "api-${apiName}-${project.apiVersion}"
-    String oldProjectName = "api-${apiName}-v${project.apiVersion.replaceFirst('v', '').toInteger() - 1}"
-    File oldModuleDir = file("api/${oldProjectName}")
+    def apiName = project.apiName
+    def newProjectName = "api-${apiName}-${project.apiVersion}"
+    def oldProjectName = "api-${apiName}-v${project.apiVersion.replaceFirst('v', '').toInteger() - 1}"
+    def oldModuleDir = file("api/${oldProjectName}")
     delete(oldModuleDir)
     if (oldModuleDir.exists()) {
       throw new GradleException("Please use `upgradeApi` task instead of `newApi`")
     }
-    String moduleDir = file("api/${newProjectName}")
-    String basePackage = "${moduleDir}/src/main/java/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
-    String testPackage = "${moduleDir}/src/test/groovy/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
-    String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
-    String entityClassName = toCamelCase(apiName)
-    String entityVariableName = entityClassName.uncapitalize()
-    String controllerClassName = "${entityClassName}Controller${project.apiVersion.capitalize()}"
+    def moduleDir = file("api/${newProjectName}")
+    def basePackage = "${moduleDir}/src/main/java/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+    def testPackage = "${moduleDir}/src/test/groovy/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+    def packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+    def entityClassName = toCamelCase(apiName)
+    def entityVariableName = entityClassName.uncapitalize()
+    def controllerClassName = "${entityClassName}Controller${project.apiVersion.capitalize()}"
 
     delete(moduleDir)
     moduleDir.mkdirs()
@@ -1138,29 +1138,29 @@ tasks.register('upgradeApi') {
 
   def injected = project.objects.newInstance(Injected)
   doFirst {
-    String apiName = project.apiName
-    List<Integer> allApiVersions = rootProject.project(':api').allprojects
+    def apiName = project.apiName
+    def allApiVersions = rootProject.project(':api').allprojects
       .findAll { Project eachProject -> eachProject.name.startsWith("api-${apiName}-v") }
       .collect { Project eachProject -> eachProject.name.replaceFirst("^api-${apiName}-v", "").toInteger() }
 
-    Integer currentMaxApiVersion = allApiVersions.max()
+    def currentMaxApiVersion = allApiVersions.max()
 
     if (currentMaxApiVersion == null) {
       throw new GradleException("Unable to find any projects with path prefix `:api:api-${apiName}-v`".toString())
     }
 
-    Project oldProject = rootProject.project("api:api-${apiName}-v${currentMaxApiVersion}")
-    Integer apiVersion = currentMaxApiVersion + 1
+    def oldProject = rootProject.project("api:api-${apiName}-v${currentMaxApiVersion}")
+    def apiVersion = currentMaxApiVersion + 1
 
-    String newProjectName = "api-${apiName}-v${apiVersion}"
-    File moduleDir = file("api/${newProjectName}")
+    def newProjectName = "api-${apiName}-v${apiVersion}"
+    def moduleDir = file("api/${newProjectName}")
 
-    String oldPackagePrefix = "com.thoughtworks.go.apiv${currentMaxApiVersion}"
-    String newPackagePrefix = "com.thoughtworks.go.apiv${apiVersion}"
+    def oldPackagePrefix = "com.thoughtworks.go.apiv${currentMaxApiVersion}"
+    def newPackagePrefix = "com.thoughtworks.go.apiv${apiVersion}"
 
-    String oldControllerClassSuffix = "ControllerV${currentMaxApiVersion}"
-    String newControllerClassSuffix = "ControllerV${apiVersion}"
-    String newPackage = newPackagePrefix
+    def oldControllerClassSuffix = "ControllerV${currentMaxApiVersion}"
+    def newControllerClassSuffix = "ControllerV${apiVersion}"
+    def newPackage = newPackagePrefix
 
     delete(moduleDir)
 
@@ -1205,7 +1205,7 @@ tasks.register('upgradeApi') {
 }
 
 private void addUrlRewriteRule(String spaName) {
-  String rule =
+  def rule =
     """
         <rule>
           <name>${spaName}</name>
@@ -1214,7 +1214,7 @@ private void addUrlRewriteRule(String spaName) {
         </rule>
       """
 
-  List<String> lines = file("${project(':server').webAppDir}/WEB-INF/urlrewrite.xml").readLines()
+  def lines = file("${project(':server').webAppDir}/WEB-INF/urlrewrite.xml").readLines()
   int insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*<urlrewrite/).find() }
   lines.add(insertionIdx + 1, rule.stripIndent().trim())
 
@@ -1224,7 +1224,7 @@ private void addUrlRewriteRule(String spaName) {
 }
 
 private void addRoute(String entityName, String route) {
-  List<String> lines = file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').readLines()
+  def lines = file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').readLines()
   lines.add(lines.size() - 1, "\tpublic class ${entityName} {public static final String BASE = \"/admin/api/${route}\";}")
 
   file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').withWriter { out ->
@@ -1233,8 +1233,8 @@ private void addRoute(String entityName, String route) {
 }
 
 private void addPackageToSpringClasspathScanning(String packageName) {
-  List<String> lines = file("server/src/main/resources/applicationContext-global.xml").readLines()
-  int insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*<context:component-scan /).find() }
+  def lines = file("server/src/main/resources/applicationContext-global.xml").readLines()
+  def insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*<context:component-scan /).find() }
   lines.add(insertionIdx, "  <context:component-scan base-package=\"${packageName}\"/>")
 
   file("server/src/main/resources/applicationContext-global.xml").withWriter { out ->
@@ -1279,7 +1279,7 @@ private Object addProjectToSettingsGradle(String newProjectName, it) {
 }
 
 private void addProjectToGitIgnore(String newProjectName) {
-  String[] ignoredFiles = ["api/${newProjectName}/out/", "api/${newProjectName}/target/", "api/${newProjectName}/logs/", "api/${newProjectName}/config/"]
+  def ignoredFiles = ["api/${newProjectName}/out/", "api/${newProjectName}/target/", "api/${newProjectName}/logs/", "api/${newProjectName}/config/"]
   rootProject.file('.gitignore').withWriterAppend { out ->
     ignoredFiles.each { line ->
       out.println(line)

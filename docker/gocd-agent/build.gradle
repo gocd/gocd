@@ -171,7 +171,7 @@ tasks.register('generateManifest') {
     }
 
     def jsonFile = manifest.get().asFile
-    mkdir(jsonFile.parentFile)
+    jsonFile.parentFile.mkdirs()
     jsonFile.withWriter("utf-8") { Writer out ->
       out << JsonOutput.toJson(meta)
     }

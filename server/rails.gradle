@@ -85,7 +85,7 @@ tasks.register('createJRubyBinstubs') {
   doFirst {
     templateProperties['jrubyJar'] = jrubyJarLoc.get()
     delete(outputDir)
-    mkdir(outputDir)
+    outputDir.mkdirs()
 
     ['rspec'].each { file ->
       injected.fileOps.copy {

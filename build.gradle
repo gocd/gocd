@@ -399,7 +399,7 @@ subprojects {
     doFirst {
       logger.info("Setting tmpdir ${tmpDir}")
       delete(tmpDir)
-      mkdir(tmpDir)
+      tmpDir.mkdirs()
 
       List<String> files = []
       testTask.testClassesDirs.files.each { File classDir ->
@@ -906,7 +906,7 @@ tasks.register('newApi') {
     String controllerClassName = "${entityClassName}Controller${project.apiVersion.capitalize()}"
 
     delete(moduleDir)
-    mkdir(moduleDir)
+    moduleDir.mkdirs()
     mkdir(basePackage)
     mkdir(testPackage)
 

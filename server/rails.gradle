@@ -130,7 +130,7 @@ tasks.register('initializeRailsGems') {
     JRuby.exec(project, injected.execOps) {
       workingDir = root
       args = ['-S', 'bundle', 'install']
-      maxHeapSize = '1g'
+      maxHeapSize = '256m'
       environment += [ 'JARS_SKIP': 'true' ] // Avoid issues jar-dependencies and running via jruby-complete https://github.com/jruby/jruby/issues/8886
     }
   }
@@ -332,19 +332,12 @@ tasks.register('rspec', ExecuteUnderRailsTask) {
     'REPORTS_DIR': "${layout.buildDirectory.get()}/rspec-results"
   ]
 
-  def heapDumps = "${layout.buildDirectory.get()}/heap-dumps"
-  jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${heapDumps}"]
+  jvmArgs += InstallerType.server.jvmModuleOpensArgs
   args = ['-S', 'rspec', '--backtrace']
-  maxHeapSize = '2g'
+  maxHeapSize = '256m'
 
   if (project.hasProperty('opts')) {
     args += Commandline.translateCommandline(project.property('opts') as String)
-  }
-
-
-  doFirst {
-    mkdir(heapDumps)
-    file("${heapDumps}/.keep").setText("")
   }
 }
 

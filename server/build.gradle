@@ -65,7 +65,6 @@ configurations {
   integrationTestImplementation.extendsFrom testImplementation
 
   warConfig
-  additionalClasspath
 
   copyOnly {
     transitive = false
@@ -538,27 +537,7 @@ tasks.withType(Test).configureEach {
   dependsOn copyAgentSideJarsToServerDir
   dependsOn prepareNoRails
 
-  def heapDumpDir = project.file("${layout.buildDirectory.get()}/heap-dumps")
-  if (project.hasProperty("heapDumpOnOOM")) {
-    jvmArgs("-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=${heapDumpDir}")
-  }
-
-  doFirst {
-    delete(heapDumpDir)
-    mkdir(heapDumpDir)
-    file("${heapDumpDir}/ignore.txt").createNewFile()
-  }
-
-  doLast {
-    project.fileTree(heapDumpDir).files.each { File eachFile ->
-      ant.gzip(src: eachFile, destfile: "${eachFile}.gz")
-      delete eachFile
-    }
-  }
-
   systemProperties += project.testSystemProperties
-
-  classpath += project.files(configurations.additionalClasspath.files)
 
   testLogging {
     showStandardStreams = false

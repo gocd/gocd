@@ -21,7 +21,6 @@ import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -59,9 +58,9 @@ public class GitCommandTest {
         @Test
         void freshCloneIsNonShallowWithoutWorkingCopy() {
             assertWorkingCopyNotCheckedOut();
-            Assertions.assertFalse(git.isShallow());
-            Assertions.assertTrue(git.containsRevisionInBranch(REVISION_4));
-            Assertions.assertFalse(git.containsRevisionInBranch(NON_EXISTENT_REVISION));
+            assertFalse(git.isShallow());
+            assertTrue(git.containsRevisionInBranch(REVISION_4));
+            assertFalse(git.containsRevisionInBranch(NON_EXISTENT_REVISION));
         }
 
         @Test
@@ -79,13 +78,13 @@ public class GitCommandTest {
         void shouldOnlyCloneLimitedRevisionsIfDepthSpecified() {
             FileUtils.deleteQuietly(this.gitLocalRepoDir);
             git.clone(inMemoryConsumer(), repoUrl, 2);
-            Assertions.assertTrue(git.isShallow());
-            Assertions.assertTrue(git.containsRevisionInBranch(GitTestRepo.REVISION_4));
-            Assertions.assertTrue(git.containsRevisionInBranch(GitTestRepo.REVISION_3));
+            assertTrue(git.isShallow());
+            assertTrue(git.containsRevisionInBranch(GitTestRepo.REVISION_4));
+            assertTrue(git.containsRevisionInBranch(GitTestRepo.REVISION_3));
             // can not assert on revision_2, because on old version of git (1.7)
             // depth '2' actually clone 3 revisions
-            Assertions.assertFalse(git.containsRevisionInBranch(GitTestRepo.REVISION_1));
-            Assertions.assertFalse(git.containsRevisionInBranch(GitTestRepo.REVISION_0));
+            assertFalse(git.containsRevisionInBranch(GitTestRepo.REVISION_1));
+            assertFalse(git.containsRevisionInBranch(GitTestRepo.REVISION_0));
 
         }
 
@@ -94,16 +93,16 @@ public class GitCommandTest {
             FileUtils.deleteQuietly(this.gitLocalRepoDir);
             git.clone(inMemoryConsumer(), repoUrl, 2);
             git.unshallow(inMemoryConsumer(), 3);
-            Assertions.assertTrue(git.isShallow());
-            Assertions.assertTrue(git.containsRevisionInBranch(GitTestRepo.REVISION_2));
+            assertTrue(git.isShallow());
+            assertTrue(git.containsRevisionInBranch(GitTestRepo.REVISION_2));
             // can not assert on revision_1, because on old version of git (1.7)
             // depth '3' actually clone 4 revisions
-            Assertions.assertFalse(git.containsRevisionInBranch(GitTestRepo.REVISION_0));
+            assertFalse(git.containsRevisionInBranch(GitTestRepo.REVISION_0));
 
             git.unshallow(inMemoryConsumer(), Integer.MAX_VALUE);
-            Assertions.assertFalse(git.isShallow());
+            assertFalse(git.isShallow());
 
-            Assertions.assertTrue(git.containsRevisionInBranch(GitTestRepo.REVISION_0));
+            assertTrue(git.containsRevisionInBranch(GitTestRepo.REVISION_0));
         }
 
         @Test
@@ -116,7 +115,7 @@ public class GitCommandTest {
 
         @Test
         void shouldRetrieveRemoteRepoValue() {
-            Assertions.assertTrue(git.workingRepositoryUrl().originalArgument().startsWith(repoUrl));
+            assertTrue(git.workingRepositoryUrl().originalArgument().startsWith(repoUrl));
         }
 
         @Test

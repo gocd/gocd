@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -146,16 +145,16 @@ class StageSqlMapDaoTest {
     class CacheKeyForPipelineAndStage {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForPipelineAndStage("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForPipelineAndStage("foo", "bar_baz"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$isStageActive.$foo.$bar_baz");
         }
 
         @Test
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForPipelineAndStage("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForPipelineAndStage("foo", "bar_baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForPipelineAndStage("foo_bar", "baz"));
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForPipelineAndStage("foo", "bar-baz"))
+            assertThat(stageSqlMapDao.cacheKeyForPipelineAndStage("foo", "bar-baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForPipelineAndStage("foo-bar", "baz"));
         }
     }
@@ -164,16 +163,16 @@ class StageSqlMapDaoTest {
     class CacheKeyForStageCount {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageCount("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageCount("foo", "bar_baz"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$numberOfStages.$foo.$bar_baz");
         }
 
         @Test
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageCount("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageCount("foo", "bar_baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageCount("foo_bar", "baz"));
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageCount("foo", "bar-baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageCount("foo", "bar-baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageCount("foo-bar", "baz"));
         }
     }
@@ -183,7 +182,7 @@ class StageSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             final StageIdentifier stageIdentifier = new StageIdentifier("foo", 1, "bar_baz", "1");
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForListOfStageIdentifiers(stageIdentifier))
+            assertThat(stageSqlMapDao.cacheKeyForListOfStageIdentifiers(stageIdentifier))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$stageRunIdentifier.$foo.$1.$bar_baz");
         }
 
@@ -191,12 +190,12 @@ class StageSqlMapDaoTest {
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
             StageIdentifier identifierOne = new StageIdentifier("foo", 1, "bar_baz", "1");
             StageIdentifier identifierTwo = new StageIdentifier("foo_bar", 1, "bar", "1");
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForListOfStageIdentifiers(identifierOne))
+            assertThat(stageSqlMapDao.cacheKeyForListOfStageIdentifiers(identifierOne))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForListOfStageIdentifiers(identifierTwo));
 
             identifierOne = new StageIdentifier("foo", 1, "bar-baz", "1");
             identifierTwo = new StageIdentifier("foo-bar", 1, "bar", "1");
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForListOfStageIdentifiers(identifierOne))
+            assertThat(stageSqlMapDao.cacheKeyForListOfStageIdentifiers(identifierOne))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForListOfStageIdentifiers(identifierTwo));
         }
     }
@@ -206,7 +205,7 @@ class StageSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             final StageIdentifier stageIdentifier = new StageIdentifier("foo", 1, "bar_baz", "1");
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageIdentifier(stageIdentifier))
+            assertThat(stageSqlMapDao.cacheKeyForStageIdentifier(stageIdentifier))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$stageIdentifier.$foo.$1.$bar_baz.$1");
         }
 
@@ -214,12 +213,12 @@ class StageSqlMapDaoTest {
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
             StageIdentifier identifierOne = new StageIdentifier("foo", 1, "bar_baz", "1");
             StageIdentifier identifierTwo = new StageIdentifier("foo_bar", 1, "bar", "1");
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageIdentifier(identifierOne))
+            assertThat(stageSqlMapDao.cacheKeyForStageIdentifier(identifierOne))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageIdentifier(identifierTwo));
 
             identifierOne = new StageIdentifier("foo", 1, "bar-baz", "1");
             identifierTwo = new StageIdentifier("foo-bar", 1, "bar", "1");
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageIdentifier(identifierOne))
+            assertThat(stageSqlMapDao.cacheKeyForStageIdentifier(identifierOne))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageIdentifier(identifierTwo));
         }
     }
@@ -228,16 +227,16 @@ class StageSqlMapDaoTest {
     class CacheKeyForStageHistoryViaCursor {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo", "bar_baz"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$findDetailedStageHistoryViaCursor.$foo.$bar_baz");
         }
 
         @Test
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo", "bar_baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo_bar", "baz"));
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo", "bar-baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo", "bar-baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo-bar", "baz"));
         }
     }
@@ -250,7 +249,7 @@ class StageSqlMapDaoTest {
             final Stage stage = new Stage();
             stage.setIdentifier(new StageIdentifier("up42", 1, "1", "Foo", "1"));
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageOffset(stage))
+            assertThat(stageSqlMapDao.cacheKeyForStageOffset(stage))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$stageOffsetMap.$up42.$Foo");
         }
 
@@ -262,13 +261,13 @@ class StageSqlMapDaoTest {
             stageOne.setIdentifier(new StageIdentifier("Foo", 1, "1", "Bar_Baz", "1"));
             stageTwo.setIdentifier(new StageIdentifier("Foo_Bar", 1, "1", "Baz", "1"));
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageOffset(stageOne))
+            assertThat(stageSqlMapDao.cacheKeyForStageOffset(stageOne))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageOffset(stageTwo));
 
             stageOne.setIdentifier(new StageIdentifier("Foo", 1, "1", "Bar-Baz", "1"));
             stageTwo.setIdentifier(new StageIdentifier("Foo-Bar", 1, "1", "Baz", "1"));
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageOffset(stageOne))
+            assertThat(stageSqlMapDao.cacheKeyForStageOffset(stageOne))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageOffset(stageTwo));
         }
     }
@@ -277,13 +276,13 @@ class StageSqlMapDaoTest {
     class CacheKeyForPipelineAndCounter {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForPipelineAndCounter("foo", 1))
+            assertThat(stageSqlMapDao.cacheKeyForPipelineAndCounter("foo", 1))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$allStagesOfPipelineInstance.$foo.$1");
         }
 
         @Test
         void shouldGenerateADifferentCacheKeyForDifferentPipelineName() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForPipelineAndCounter("foo", 1))
+            assertThat(stageSqlMapDao.cacheKeyForPipelineAndCounter("foo", 1))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForPipelineAndCounter("bar", 1));
         }
     }
@@ -292,7 +291,7 @@ class StageSqlMapDaoTest {
     class CacheKeyForLatestStageInstances {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForLatestStageInstances())
+            assertThat(stageSqlMapDao.cacheKeyForLatestStageInstances())
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$latestStageInstances");
         }
     }
@@ -301,16 +300,16 @@ class StageSqlMapDaoTest {
     class CacheKeyForStageCountForGraph {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageCountForGraph("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageCountForGraph("foo", "bar_baz"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$totalStageCountForChart.$foo.$bar_baz");
         }
 
         @Test
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageCountForGraph("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageCountForGraph("foo", "bar_baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageCountForGraph("foo_bar", "baz"));
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageCountForGraph("foo", "bar-baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageCountForGraph("foo", "bar-baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageCountForGraph("foo-bar", "baz"));
         }
     }
@@ -319,16 +318,16 @@ class StageSqlMapDaoTest {
     class CacheKeyForMostRecentId {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForMostRecentId("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForMostRecentId("foo", "bar_baz"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$mostRecentId.$foo.$bar_baz");
         }
 
         @Test
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForMostRecentId("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForMostRecentId("foo", "bar_baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForMostRecentId("foo_bar", "baz"));
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForMostRecentId("foo", "bar-baz"))
+            assertThat(stageSqlMapDao.cacheKeyForMostRecentId("foo", "bar-baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForMostRecentId("foo-bar", "baz"));
         }
     }
@@ -337,25 +336,25 @@ class StageSqlMapDaoTest {
     class CacheKeyForStageHistories {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistories("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageHistories("foo", "bar_baz"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$stageHistories.$foo.$bar_baz");
         }
 
         @Test
         void shouldGenerateSameCacheKeyEvenIfPipelineAndStageIsInDifferentLetterCase() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistories("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageHistories("foo", "bar_baz"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$stageHistories.$foo.$bar_baz");
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistories("FOO", "BAR_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageHistories("FOO", "BAR_baz"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$stageHistories.$foo.$bar_baz");
         }
 
         @Test
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistories("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageHistories("foo", "bar_baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageHistories("foo_bar", "baz"));
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistories("foo", "bar-baz"))
+            assertThat(stageSqlMapDao.cacheKeyForStageHistories("foo", "bar-baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageHistories("foo-bar", "baz"));
         }
     }
@@ -364,25 +363,25 @@ class StageSqlMapDaoTest {
     class CacheKeyForAllStageOfPipeline {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo", 1, "bar"))
+            assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo", 1, "bar"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$allStageOfPipeline.$foo.$1.$bar");
         }
 
         @Test
         void shouldGenerateSameCacheKeyEvenIfPipelineAndStageIsInDifferentLetterCase() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo", 1, "bar"))
+            assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo", 1, "bar"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$allStageOfPipeline.$foo.$1.$bar");
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("FOO", 1, "BAR"))
+            assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("FOO", 1, "BAR"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$allStageOfPipeline.$foo.$1.$bar");
         }
 
         @Test
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo", 1, "1_bar"))
+            assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo", 1, "1_bar"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo_1", 1, "bar"));
 
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo", 1, "1-bar"))
+            assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo", 1, "1-bar"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo-1", 1, "bar"));
         }
     }
@@ -391,7 +390,7 @@ class StageSqlMapDaoTest {
     class CacheKeyForStageById {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageById(1L))
+            assertThat(stageSqlMapDao.cacheKeyForStageById(1L))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$stageById.$1");
         }
     }
@@ -400,16 +399,16 @@ class StageSqlMapDaoTest {
     class MutexForStageHistory {
         @Test
         void shouldUniqueMutexForGivenCombination() {
-            Assertions.assertThat(stageSqlMapDao.mutexForStageHistory("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.mutexForStageHistory("foo", "bar_baz"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao_stageHistoryMutex_foo_<>_bar_baz");
         }
 
         @Test
         void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
-            Assertions.assertThat(stageSqlMapDao.mutexForStageHistory("foo", "bar_baz"))
+            assertThat(stageSqlMapDao.mutexForStageHistory("foo", "bar_baz"))
                     .isNotEqualTo(stageSqlMapDao.mutexForStageHistory("foo_bar", "baz"));
 
-            Assertions.assertThat(stageSqlMapDao.mutexForStageHistory("foo", "bar-baz"))
+            assertThat(stageSqlMapDao.mutexForStageHistory("foo", "bar-baz"))
                     .isNotEqualTo(stageSqlMapDao.mutexForStageHistory("foo-bar", "baz"));
         }
     }

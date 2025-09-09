@@ -35,7 +35,6 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -670,8 +669,8 @@ class FetchPluggableArtifactTaskTest {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
         task.setFetchTaskAttributes(configAttrs);
 
-        Assertions.assertThat(task.getArtifactId()).isEqualTo("installers");
-        Assertions.assertThat(task.getConfiguration())
+        assertThat(task.getArtifactId()).isEqualTo("installers");
+        assertThat(task.getConfiguration())
                 .hasSize(1)
                 .contains(new ConfigurationProperty(new ConfigurationKey("NAME"), new ConfigurationValue("gocd.zip")));
     }
@@ -687,8 +686,8 @@ class FetchPluggableArtifactTaskTest {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
         task.setFetchTaskAttributes(configAttrs);
 
-        Assertions.assertThat(task.getArtifactId()).isEqualTo("installers");
-        Assertions.assertThat(task.getConfiguration())
+        assertThat(task.getArtifactId()).isEqualTo("installers");
+        assertThat(task.getConfiguration())
                 .hasSize(1)
                 .contains(new ConfigurationProperty(new ConfigurationKey("NAME"), new EncryptedConfigurationValue(new GoCipher().encrypt("gocd.zip"))));
     }
@@ -702,7 +701,7 @@ class FetchPluggableArtifactTaskTest {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
         task.setFetchTaskAttributes(configAttrs);
 
-        Assertions.assertThat(task.getArtifactId()).isEmpty();
-        Assertions.assertThat(task.getConfiguration()).isEmpty();
+        assertThat(task.getArtifactId()).isEmpty();
+        assertThat(task.getConfiguration()).isEmpty();
     }
 }

@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv7.agents.representers
 import com.thoughtworks.go.apiv7.agents.model.AgentBulkUpdateRequest
 import com.thoughtworks.go.util.TriState
 import groovy.json.JsonBuilder
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
 import static org.assertj.core.api.Assertions.assertThat
@@ -47,21 +46,21 @@ class AgentBulkUpdateRequestRepresenterTest {
     AgentBulkUpdateRequest request = AgentBulkUpdateRequestRepresenter.fromJSON(requestBody)
 
     assertThat(request.getAgentConfigState()).isEqualTo(TriState.TRUE)
-    Assertions.assertThat(request.getUuids())
+    assertThat(request.getUuids())
       .hasSize(2)
       .contains("adb9540a-b954-4571-9d9b-2f330739d4da", "adb528b2-b954-1234-9d9b-b27ag4h568e1")
 
-    Assertions.assertThat(request.getOperations().getEnvironments().toAdd())
+    assertThat(request.getOperations().getEnvironments().toAdd())
       .hasSize(2)
       .contains("Dev", "Test")
-    Assertions.assertThat(request.getOperations().getEnvironments().toRemove())
+    assertThat(request.getOperations().getEnvironments().toRemove())
       .hasSize(1)
       .contains("Production")
 
-    Assertions.assertThat(request.getOperations().getResources().toAdd())
+    assertThat(request.getOperations().getResources().toAdd())
       .hasSize(2)
       .contains("Linux", "Firefox")
-    Assertions.assertThat(request.getOperations().getResources().toRemove())
+    assertThat(request.getOperations().getResources().toRemove())
       .hasSize(1)
       .contains("Chrome")
   }
@@ -85,17 +84,17 @@ class AgentBulkUpdateRequestRepresenterTest {
     AgentBulkUpdateRequest request = AgentBulkUpdateRequestRepresenter.fromJSON(requestBody)
 
     assertThat(request.getAgentConfigState()).isEqualTo(TriState.TRUE)
-    Assertions.assertThat(request.getUuids())
+    assertThat(request.getUuids())
       .hasSize(2)
       .contains("adb9540a-b954-4571-9d9b-2f330739d4da", "adb528b2-b954-1234-9d9b-b27ag4h568e1")
 
-    Assertions.assertThat(request.getOperations().getEnvironments().toAdd()).isEmpty()
-    Assertions.assertThat(request.getOperations().getEnvironments().toRemove()).isEmpty()
+    assertThat(request.getOperations().getEnvironments().toAdd()).isEmpty()
+    assertThat(request.getOperations().getEnvironments().toRemove()).isEmpty()
 
-    Assertions.assertThat(request.getOperations().getResources().toAdd())
+    assertThat(request.getOperations().getResources().toAdd())
       .hasSize(2)
       .contains("Linux", "Firefox")
-    Assertions.assertThat(request.getOperations().getResources().toRemove())
+    assertThat(request.getOperations().getResources().toRemove())
       .hasSize(1)
       .contains("Chrome")
   }
@@ -119,18 +118,18 @@ class AgentBulkUpdateRequestRepresenterTest {
     AgentBulkUpdateRequest request = AgentBulkUpdateRequestRepresenter.fromJSON(requestBody)
 
     assertThat(request.getAgentConfigState()).isEqualTo(TriState.TRUE)
-    Assertions.assertThat(request.getUuids())
+    assertThat(request.getUuids())
       .hasSize(2)
       .contains("adb9540a-b954-4571-9d9b-2f330739d4da", "adb528b2-b954-1234-9d9b-b27ag4h568e1")
 
-    Assertions.assertThat(request.getOperations().getEnvironments().toAdd())
+    assertThat(request.getOperations().getEnvironments().toAdd())
       .hasSize(2)
       .contains("Dev", "Test")
-    Assertions.assertThat(request.getOperations().getEnvironments().toRemove())
+    assertThat(request.getOperations().getEnvironments().toRemove())
       .hasSize(1)
       .contains("Production")
 
-    Assertions.assertThat(request.getOperations().getResources().toAdd()).isEmpty()
-    Assertions.assertThat(request.getOperations().getResources().toRemove()).isEmpty()
+    assertThat(request.getOperations().getResources().toAdd()).isEmpty()
+    assertThat(request.getOperations().getResources().toRemove()).isEmpty()
   }
 }

@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import org.assertj.core.api.Assertions;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,7 +110,7 @@ class PipelineStateDaoTest {
     class PipelineLockStateCacheKey {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(pipelineStateDao.pipelineLockStateCacheKey("foo"))
+            assertThat(pipelineStateDao.pipelineLockStateCacheKey("foo"))
                     .isEqualTo("com.thoughtworks.go.server.dao.PipelineStateDao.$lockedPipeline.$foo");
         }
     }

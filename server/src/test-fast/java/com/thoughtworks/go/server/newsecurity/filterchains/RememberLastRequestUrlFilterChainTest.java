@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.newsecurity.filterchains;
 
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -31,6 +30,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 class RememberLastRequestUrlFilterChainTest {
@@ -57,10 +57,10 @@ class RememberLastRequestUrlFilterChainTest {
         request = HttpRequestBuilder.GET(url)
                 .build();
 
-        Assertions.assertThat(SessionUtils.savedRequest(request))
+        assertThat(SessionUtils.savedRequest(request))
                 .isNull();
         filter.doFilter(request, response, filterChain);
-        Assertions.assertThat(SessionUtils.savedRequest(request))
+        assertThat(SessionUtils.savedRequest(request))
                 .isNull();
     }
 
@@ -75,10 +75,10 @@ class RememberLastRequestUrlFilterChainTest {
         request = HttpRequestBuilder.GET(url)
                 .build();
 
-        Assertions.assertThat(SessionUtils.savedRequest(request))
+        assertThat(SessionUtils.savedRequest(request))
                 .isNull();
         filter.doFilter(request, response, filterChain);
-        Assertions.assertThat(SessionUtils.savedRequest(request))
+        assertThat(SessionUtils.savedRequest(request))
                 .isNull();
     }
 
@@ -88,10 +88,10 @@ class RememberLastRequestUrlFilterChainTest {
         request = HttpRequestBuilder.GET(url)
                 .build();
 
-        Assertions.assertThat(SessionUtils.savedRequest(request))
+        assertThat(SessionUtils.savedRequest(request))
                 .isNull();
         filter.doFilter(request, response, filterChain);
-        Assertions.assertThat(SessionUtils.savedRequest(request).getRedirectUrl())
+        assertThat(SessionUtils.savedRequest(request).getRedirectUrl())
                 .isEqualTo("http://test.host/go" + url);
     }
 
@@ -101,13 +101,13 @@ class RememberLastRequestUrlFilterChainTest {
         request = HttpRequestBuilder.POST(url)
                 .build();
 
-        Assertions.assertThat(SessionUtils.savedRequest(request))
+        assertThat(SessionUtils.savedRequest(request))
                 .isNull();
 
         filter.doFilter(request, response, filterChain);
 
 
-        Assertions.assertThat(SessionUtils.savedRequest(request))
+        assertThat(SessionUtils.savedRequest(request))
                 .isNull();
     }
 }

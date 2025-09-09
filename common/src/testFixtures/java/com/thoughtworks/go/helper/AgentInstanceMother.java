@@ -26,8 +26,6 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.SystemUtil;
-import org.mockito.Mockito;
 
 import java.util.Date;
 import java.util.List;
@@ -35,6 +33,8 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
+import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static org.mockito.Mockito.mock;
 
 public class AgentInstanceMother {
 
@@ -70,7 +70,7 @@ public class AgentInstanceMother {
         agentRuntimeInfo.updateAgentVersion(agentVersion);
         agentRuntimeInfo.updateBootstrapperVersion(agentBootstrapperVersion);
 
-        AgentInstance agentInstance = createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), Mockito.mock(AgentStatusChangeListener.class));
+        AgentInstance agentInstance = createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
         agentInstance.idle();
         agentInstance.update(agentRuntimeInfo);
         agentInstance.syncAgentFrom(agent);
@@ -80,11 +80,11 @@ public class AgentInstanceMother {
 
     public static AgentInstance idle(final Date lastHeardAt, final String hostname, SystemEnvironment systemEnvironment) {
         Agent idleAgentConfig = new Agent("uuid2", hostname, "10.18.5.1");
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, SystemUtil.currentWorkingDirectory(), "cookie");
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo.setLocation("/var/lib/foo");
         agentRuntimeInfo.idle();
         agentRuntimeInfo.setUsableSpace(10 * 1024L);
-        AgentInstance agentInstance = createFromLiveAgent(agentRuntimeInfo, systemEnvironment, Mockito.mock(AgentStatusChangeListener.class));
+        AgentInstance agentInstance = createFromLiveAgent(agentRuntimeInfo, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.idle();
         agentInstance.update(agentRuntimeInfo);
         ReflectionUtil.setField(agentInstance, "lastHeardTime", lastHeardAt);
@@ -106,9 +106,9 @@ public class AgentInstanceMother {
 
     public static AgentInstance building(String buildLocator, SystemEnvironment systemEnvironment) {
         Agent buildingAgentConfig = new Agent("uuid3", "CCeDev01", "10.18.5.1", List.of("java"));
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, SystemUtil.currentWorkingDirectory(), "cookie");
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo.busy(new AgentBuildingInfo("pipeline", buildLocator));
-        AgentInstance building = AgentInstance.createFromAgent(buildingAgentConfig, systemEnvironment, Mockito.mock(AgentStatusChangeListener.class));
+        AgentInstance building = AgentInstance.createFromAgent(buildingAgentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         building.update(agentRuntimeInfo);
         return building;
     }
@@ -117,7 +117,7 @@ public class AgentInstanceMother {
         Agent agent = new Agent("uuid4", "CCeDev03", "10.18.5.3", List.of("db", "web"));
 
         AgentRuntimeInfo runtimeInfo = fromServer(agent, false,"/var/lib", 0L, "linux");
-        AgentInstance agentInstance = createFromLiveAgent(runtimeInfo, systemEnvironment, Mockito.mock(AgentStatusChangeListener.class));
+        AgentInstance agentInstance = createFromLiveAgent(runtimeInfo, systemEnvironment, mock(AgentStatusChangeListener.class));
 
         agentInstance.pending();
         agentInstance.update(runtimeInfo);
@@ -130,8 +130,8 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance pendingInstance() {
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(new AgentIdentifier("CCeDev03", "10.18.5.3", "uuid4"), AgentRuntimeStatus.Idle, SystemUtil.currentWorkingDirectory(), null);
-        return createFromLiveAgent(runtimeInfo, new SystemEnvironment(), Mockito.mock(AgentStatusChangeListener.class));
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(new AgentIdentifier("CCeDev03", "10.18.5.3", "uuid4"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null);
+        return createFromLiveAgent(runtimeInfo, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
     }
 
     public static AgentInstance updateUsableSpace(AgentInstance agentInstance, Long freeDiskSpace) {
@@ -182,7 +182,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance disabled(String ip, SystemEnvironment systemEnvironment) {
         AgentInstance denied = AgentInstance.createFromAgent(new Agent("uuid5", "CCeDev04", ip), systemEnvironment,
-                Mockito.mock(AgentStatusChangeListener.class));
+                mock(AgentStatusChangeListener.class));
         denied.enable();
         denied.deny();
         return denied;
@@ -208,7 +208,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance missing() {
         Agent agent = new Agent("1234", "localhost", "192.168.0.1");
-        AgentInstance instance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), Mockito.mock(AgentStatusChangeListener.class));
+        AgentInstance instance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.initialState(agent);
         newRuntimeInfo.setStatus(AgentStatus.Missing);
         instance.update(newRuntimeInfo);
@@ -221,7 +221,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance lostContact(String buildLocator) {
         Agent agent = new Agent("1234", "localhost", "192.168.0.1");
-        AgentInstance instance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), Mockito.mock(AgentStatusChangeListener.class));
+        AgentInstance instance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.initialState(agent);
         newRuntimeInfo.setStatus(AgentStatus.LostContact);
         newRuntimeInfo.setUsableSpace(1000L);
@@ -233,6 +233,6 @@ public class AgentInstanceMother {
     public static AgentInstance agentWithConfigErrors() {
         Agent agent = new Agent("uuid", "host", "IP", List.of("foo%","bar$"));
         agent.validate();
-        return AgentInstance.createFromAgent(agent, new SystemEnvironment(), Mockito.mock(AgentStatusChangeListener.class));
+        return AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
     }
 }

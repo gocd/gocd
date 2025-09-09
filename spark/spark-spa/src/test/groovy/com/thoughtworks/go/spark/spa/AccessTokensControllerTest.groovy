@@ -27,7 +27,6 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -37,6 +36,7 @@ import spark.ModelAndView
 import spark.Request
 import spark.Response
 
+import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -83,7 +83,7 @@ class AccessTokensControllerTest implements ControllerTrait<AccessTokensControll
     ModelAndView modelAndView = controller.index(new Request(request), response)
     Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
-    Assertions.assertThat(model.get("meta") as Map<String, Object>)
+    assertThat(model.get("meta") as Map<String, Object>)
       .containsEntry("pluginId", "cd.go.ldap-plugin")
       .containsEntry("supportsAccessToken", true)
   }
@@ -101,7 +101,7 @@ class AccessTokensControllerTest implements ControllerTrait<AccessTokensControll
     ModelAndView modelAndView = controller.index(new Request(request), response)
     Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
-    Assertions.assertThat(model.get("meta") as Map<String, Object>)
+    assertThat(model.get("meta") as Map<String, Object>)
       .containsEntry("pluginId", "cd.go.ldap-plugin")
       .containsEntry("supportsAccessToken", false)
   }

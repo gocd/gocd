@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import org.assertj.core.api.Assertions;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 class PluginSqlMapDaoTest {
@@ -33,7 +33,7 @@ class PluginSqlMapDaoTest {
 
     @Test
     void shouldGenerateCacheKeyForPluginId() {
-        Assertions.assertThat(pluginSqlMapDao.cacheKeyForPluginSettings("cd.go.docker"))
+        assertThat(pluginSqlMapDao.cacheKeyForPluginSettings("cd.go.docker"))
                 .isEqualTo("com.thoughtworks.go.server.dao.PluginSqlMapDao.$plugin_settings.$cd.go.docker");
     }
 }

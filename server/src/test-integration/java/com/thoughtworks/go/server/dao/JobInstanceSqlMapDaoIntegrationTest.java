@@ -40,7 +40,6 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -1106,8 +1105,8 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
         JobInstances history = jobInstanceDao.findDetailedJobHistoryViaCursor(pipelineName, STAGE_NAME, JOB_NAME, FeedModifier.After, jobInstances.get(2).getId(), 3);
 
-        Assertions.assertThat(history).hasSize(2);
-        Assertions.assertThat(history.stream().map(JobInstance::getId).collect(toList()))
+        assertThat(history).hasSize(2);
+        assertThat(history.stream().map(JobInstance::getId).collect(toList()))
                 .containsExactly(jobInstances.get(1).getId(), jobInstances.get(0).getId());
     }
 
@@ -1128,8 +1127,8 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
         JobInstances history = jobInstanceDao.findDetailedJobHistoryViaCursor(pipelineName, STAGE_NAME, JOB_NAME, FeedModifier.Before, jobInstances.get(2).getId(), 3);
 
-        Assertions.assertThat(history).hasSize(2);
-        Assertions.assertThat(history.stream().map(JobInstance::getId).collect(toList()))
+        assertThat(history).hasSize(2);
+        assertThat(history.stream().map(JobInstance::getId).collect(toList()))
                 .containsExactly(jobInstances.get(0).getId(), jobInstances.get(1).getId());
     }
 }

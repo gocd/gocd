@@ -17,7 +17,6 @@ package com.thoughtworks.go.util;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.process.CurrentProcess;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -79,7 +78,7 @@ public class SubprocessLoggerTest {
             }
             allLogs = result;
         }
-        Assertions.assertThat(allLogs).isEqualToNormalizingNewlines("""
+        assertThat(allLogs).isEqualToNormalizingNewlines("""
                 WARN foo bar baz
                 101
                 103

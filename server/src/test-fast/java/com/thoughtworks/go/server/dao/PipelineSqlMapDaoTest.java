@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -195,7 +194,7 @@ class PipelineSqlMapDaoTest {
     class CacheKeyForBuildCauseByNameAndCounter {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(pipelineSqlMapDao.cacheKeyForBuildCauseByNameAndCounter("foo", 1))
+            assertThat(pipelineSqlMapDao.cacheKeyForBuildCauseByNameAndCounter("foo", 1))
                     .isEqualTo("com.thoughtworks.go.server.dao.PipelineSqlMapDao.$buildCauseByNameAndCounter.$foo.$1");
         }
     }
@@ -204,7 +203,7 @@ class PipelineSqlMapDaoTest {
     class CacheKeyForPipelineHistoryByNameAndCounter {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(pipelineSqlMapDao.cacheKeyForPipelineHistoryByNameAndCounter("foo", 1))
+            assertThat(pipelineSqlMapDao.cacheKeyForPipelineHistoryByNameAndCounter("foo", 1))
                     .isEqualTo("com.thoughtworks.go.server.dao.PipelineSqlMapDao.$cacheKeyForPipelineHistoryByName.$foo.$AndCounter.$1");
         }
     }
@@ -213,7 +212,7 @@ class PipelineSqlMapDaoTest {
     class CacheKeyForLatestPipelineIdByPipelineName {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(pipelineSqlMapDao.cacheKeyForLatestPipelineIdByPipelineName("foo"))
+            assertThat(pipelineSqlMapDao.cacheKeyForLatestPipelineIdByPipelineName("foo"))
                     .isEqualTo("com.thoughtworks.go.server.dao.PipelineSqlMapDao.$latestPipelineIdByPipelineName.$foo");
         }
     }
@@ -222,7 +221,7 @@ class PipelineSqlMapDaoTest {
     class CacheKeyForPauseState {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(pipelineSqlMapDao.cacheKeyForPauseState("foo"))
+            assertThat(pipelineSqlMapDao.cacheKeyForPauseState("foo"))
                     .isEqualTo("com.thoughtworks.go.server.dao.PipelineSqlMapDao.$cacheKeyForPauseState.$foo");
         }
     }
@@ -231,7 +230,7 @@ class PipelineSqlMapDaoTest {
     class cacheKeyForLatestPassedStage {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(pipelineSqlMapDao.cacheKeyForLatestPassedStage(1, "stage_1"))
+            assertThat(pipelineSqlMapDao.cacheKeyForLatestPassedStage(1, "stage_1"))
                     .isEqualTo("com.thoughtworks.go.server.dao.PipelineSqlMapDao.$cacheKeyForlatestPassedStage.$1.$stage_1");
         }
     }
@@ -240,16 +239,16 @@ class PipelineSqlMapDaoTest {
     class CacheKeyForPipelineInstancesTriggeredWithDependencyMaterial {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(pipelineSqlMapDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("Foo", "Bar", 1))
+            assertThat(pipelineSqlMapDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("Foo", "Bar", 1))
                     .isEqualTo("com.thoughtworks.go.server.dao.PipelineSqlMapDao.$cacheKeyForPipelineInstancesWithDependencyMaterial.$foo.$bar.$1");
         }
 
         @Test
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
-            Assertions.assertThat(pipelineSqlMapDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("foo", "bar_baz", 1))
+            assertThat(pipelineSqlMapDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("foo", "bar_baz", 1))
                     .isNotEqualTo(pipelineSqlMapDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("foo_bar", "baz", 1));
 
-            Assertions.assertThat(pipelineSqlMapDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("foo", "bar-baz", 1))
+            assertThat(pipelineSqlMapDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("foo", "bar-baz", 1))
                     .isNotEqualTo(pipelineSqlMapDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("foo-bar", "baz", 1));
         }
     }
@@ -258,7 +257,7 @@ class PipelineSqlMapDaoTest {
     class CacheKeyForPipelineInstancesTriggeredWithDependencyMaterialWithRevision {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(pipelineSqlMapDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("Foo", "finger-print", "1c71670ed"))
+            assertThat(pipelineSqlMapDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("Foo", "finger-print", "1c71670ed"))
                     .isEqualTo("com.thoughtworks.go.server.dao.PipelineSqlMapDao.$cacheKeyForPipelineInstancesWithDependencyMaterial.$foo.$finger-print.$1c71670ed");
         }
     }
@@ -267,16 +266,16 @@ class PipelineSqlMapDaoTest {
     class LatestSuccessfulStageCacheKey {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(pipelineSqlMapDao.latestSuccessfulStageCacheKey("Foo", "Bar"))
+            assertThat(pipelineSqlMapDao.latestSuccessfulStageCacheKey("Foo", "Bar"))
                     .isEqualTo("com.thoughtworks.go.server.dao.PipelineSqlMapDao.$latestSuccessfulStage.$Foo.$Bar");
         }
 
         @Test
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
-            Assertions.assertThat(pipelineSqlMapDao.latestSuccessfulStageCacheKey("foo", "bar-baz"))
+            assertThat(pipelineSqlMapDao.latestSuccessfulStageCacheKey("foo", "bar-baz"))
                     .isNotEqualTo(pipelineSqlMapDao.latestSuccessfulStageCacheKey("foo-bar", "baz"));
 
-            Assertions.assertThat(pipelineSqlMapDao.latestSuccessfulStageCacheKey("foo", "bar_baz"))
+            assertThat(pipelineSqlMapDao.latestSuccessfulStageCacheKey("foo", "bar_baz"))
                     .isNotEqualTo(pipelineSqlMapDao.latestSuccessfulStageCacheKey("foo_bar", "baz"));
         }
     }
@@ -285,7 +284,7 @@ class PipelineSqlMapDaoTest {
     class ActivePipelinesCacheKey {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(pipelineSqlMapDao.activePipelinesCacheKey())
+            assertThat(pipelineSqlMapDao.activePipelinesCacheKey())
                     .isEqualTo("com.thoughtworks.go.server.dao.PipelineSqlMapDao.$activePipelines");
         }
     }
@@ -294,7 +293,7 @@ class PipelineSqlMapDaoTest {
     class PipelineHistoryCacheKey {
         @Test
         void shouldGenerateCacheKey() {
-            Assertions.assertThat(pipelineSqlMapDao.pipelineHistoryCacheKey(1L))
+            assertThat(pipelineSqlMapDao.pipelineHistoryCacheKey(1L))
                     .isEqualTo("com.thoughtworks.go.server.dao.PipelineSqlMapDao.$pipelineHistory.$1");
         }
     }

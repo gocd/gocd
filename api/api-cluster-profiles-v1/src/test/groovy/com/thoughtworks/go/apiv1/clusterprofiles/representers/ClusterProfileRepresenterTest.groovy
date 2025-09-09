@@ -23,13 +23,13 @@ import com.thoughtworks.go.plugin.domain.common.Metadata
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
+import static org.assertj.core.api.Assertions.assertThat
 
 class ClusterProfileRepresenterTest {
   @Test
@@ -50,7 +50,7 @@ class ClusterProfileRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(clusterProfile)
     def object = ClusterProfileRepresenter.fromJSON(jsonReader)
 
-    Assertions.assertThat(object).isEqualTo(expectedObject)
+    assertThat(object).isEqualTo(expectedObject)
   }
 
   @Test
@@ -103,7 +103,7 @@ class ClusterProfileRepresenterTest {
 
     def object = ClusterProfileRepresenter.fromJSON(jsonReader)
 
-    Assertions.assertThat(object.getProperty("Password").isSecure()).isTrue()
+    assertThat(object.getProperty("Password").isSecure()).isTrue()
   }
 
   private static PluginDescriptor pluginDescriptor() {

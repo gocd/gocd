@@ -23,11 +23,11 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +50,7 @@ public class SecretConfigUpdateCommandTest {
         SecretConfig secretConfig = new SecretConfig("foo", "docker");
         SecretConfigUpdateCommand command = new SecretConfigUpdateCommand(null, secretConfig, null, null, new HttpLocalizedOperationResult(), null, null);
 
-        Assertions.assertThrows(RecordNotFoundException.class, () -> command.update(cruiseConfig));
+        assertThrows(RecordNotFoundException.class, () -> command.update(cruiseConfig));
     }
 
     @Test

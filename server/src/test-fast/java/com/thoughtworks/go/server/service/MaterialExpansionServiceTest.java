@@ -30,7 +30,6 @@ import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
 import com.thoughtworks.go.server.cache.GoCache;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -207,7 +206,7 @@ public class MaterialExpansionServiceTest {
 
     @Test
     public void shouldGenerateCacheKeyForMaterialFingerprint() {
-        Assertions.assertThat(materialExpansionService.cacheKeyForSubversionMaterialCommand("1223423423"))
+        assertThat(materialExpansionService.cacheKeyForSubversionMaterialCommand("1223423423"))
                 .isEqualTo("com.thoughtworks.go.server.service.MaterialExpansionService.$cacheKeyForSvnMaterialCheckExternalCommand.$1223423423");
 
     }

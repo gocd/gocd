@@ -41,7 +41,6 @@ import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -1596,13 +1595,13 @@ public class StageSqlMapDaoIntegrationTest {
             keysThatWereAdded.add(element.getObjectKey());
         }
 
-        Assertions.assertThat(keysThatWereRemoved).contains(
+        assertThat(keysThatWereRemoved).contains(
             stageDao.cacheKeyForStageHistories(pipelineName, stageName),
             stageDao.cacheKeyForStageCount(pipelineName, stageName),
             stageDao.cacheKeyForStageOffset(stage)
         );
 
-        Assertions.assertThat(keysThatWereAdded).contains(
+        assertThat(keysThatWereAdded).contains(
             stageDao.cacheKeyForStageHistories(pipelineName, stageName),
             stageDao.cacheKeyForStageCount(pipelineName, stageName),
             stageDao.cacheKeyForStageOffset(stage)

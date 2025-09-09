@@ -319,11 +319,4 @@
     <cpe>cpe:/a:json-c:json-c</cpe>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-    Suppress false positive from bad matching of ADA CPE to GoCD itself, which is an unrelated project. https://github.com/dependency-check/DependencyCheck/issues/7237
-    ]]></notes>
-    <cpe>cpe:/a:ada:ada</cpe>
-  </suppress>
-
 </suppressions>

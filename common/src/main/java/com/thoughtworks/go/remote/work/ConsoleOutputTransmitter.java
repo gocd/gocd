@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -84,7 +85,7 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
             buffer.clear();
         }
         try {
-            consoleAppender.append(String.join("\n", toFlush));
+            consoleAppender.append(toFlush.stream().collect(Collectors.joining("\n", "", "\n")));
         } catch (IOException e) {
             LOGGER.warn("Could not send console output to server", e);
             synchronized (buffer) {

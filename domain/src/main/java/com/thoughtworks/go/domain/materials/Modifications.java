@@ -25,14 +25,10 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class Modifications extends BaseCollection<Modification> {
-    private static final Logger LOG = LoggerFactory.getLogger(Modifications.class);
-
     public Modifications() {
     }
 

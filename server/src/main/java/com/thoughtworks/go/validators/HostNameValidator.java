@@ -17,14 +17,16 @@ package com.thoughtworks.go.validators;
 
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
-public class HostNameValidator implements Validator<String> {
+import java.util.regex.Pattern;
 
-    private static final String IPV6_ADDRESS_PATTERN = "([a-fA-F0-9]+\\:)*[a-fA-F0-9]+";
-    static final String HOSTNAME_PATTERN = "([-_0-9\\w]*\\.)*[-_0-9\\w]+";
+public class HostNameValidator implements Validator<String>, com.thoughtworks.go.validation.HostNameValidator {
+
+    private static final Pattern IPV6_ADDRESS = Pattern.compile("([a-fA-F0-9]+\\:)*[a-fA-F0-9]+");
+    private static final Pattern HOSTNAME = Pattern.compile(HOSTNAME_PATTERN);
 
     @Override
     public void validate(String hostname, LocalizedOperationResult result) {
-        if (hostname == null || (!hostname.matches(HOSTNAME_PATTERN) && !hostname.matches(IPV6_ADDRESS_PATTERN))) {
+        if (hostname == null || (!HOSTNAME.matcher(hostname).matches() && !IPV6_ADDRESS.matcher(hostname).matches())) {
             result.notAcceptable("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_).");
         }
     }

@@ -34,7 +34,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class ConfigUtil {
     private final String configFile;
 
-
     public ConfigUtil(String configFile) {
         this.configFile = Objects.toString(configFile, "<no config file specified>");
     }
@@ -80,13 +79,6 @@ public class ConfigUtil {
 
     public boolean hasChild(Element e, ConfigTag tag) {
         return child(e, tag) != null;
-    }
-
-    public String getAttribute(Element e, String attribute, String defaultValue) {
-        if (!hasAttribute(e, attribute)) {
-            return defaultValue;
-        }
-        return getAttribute(e, attribute);
     }
 
     public boolean hasAttribute(Element e, String attribute) {

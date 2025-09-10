@@ -223,11 +223,6 @@ class AbstractMaterialConfigTest {
         }
 
         @Override
-        public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
-            return false;
-        }
-
-        @Override
         public String getLongDescription() {
             throw new UnsupportedOperationException();
         }

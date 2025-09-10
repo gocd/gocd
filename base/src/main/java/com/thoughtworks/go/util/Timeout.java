@@ -16,20 +16,16 @@
 package com.thoughtworks.go.util;
 
 public enum Timeout {
-    ZERO_SECOND(0),
     ONE_SECOND(1000),
     FIVE_SECONDS(5 * ONE_SECOND.timeout),
     TEN_SECONDS(2 * FIVE_SECONDS.timeout),
-    NINETY_SECONDS(90 * ONE_SECOND.timeout),
-    TWENTY_SECONDS(20 * ONE_SECOND.timeout),
     THIRTY_SECONDS(30 * ONE_SECOND.timeout),
+    NINETY_SECONDS(90 * ONE_SECOND.timeout),
     ONE_MINUTE(60 * ONE_SECOND.timeout),
     TWO_MINUTES(2 * ONE_MINUTE.timeout),
     THREE_MINUTES(3 * ONE_MINUTE.timeout),
     FIVE_MINUTES(5 * ONE_MINUTE.timeout),
-    TEN_MINUTES(2 * FIVE_MINUTES.timeout),
     ONE_HOUR(60 * ONE_MINUTE.timeout),
-    ONE_DAY(24 * ONE_HOUR.timeout),
     NEVER(Integer.MAX_VALUE);
 
     private final long timeout;

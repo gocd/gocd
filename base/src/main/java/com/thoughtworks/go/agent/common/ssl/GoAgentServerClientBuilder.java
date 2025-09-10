@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class GoAgentServerClientBuilder<T> {
-    protected final SystemEnvironment systemEnvironment;
     protected final File rootCertificate;
     protected final SslVerificationMode sslVerificationMode;
     protected final File agentSslPrivateKey;
@@ -51,8 +50,7 @@ public abstract class GoAgentServerClientBuilder<T> {
 
     public abstract T build() throws Exception;
 
-    GoAgentServerClientBuilder(SystemEnvironment systemEnvironment, File rootCertificate, SslVerificationMode sslVerificationMode, File agentSslCertificate, File agentSslPrivateKey, File agentSslPrivateKeyPassphraseFile) {
-        this.systemEnvironment = systemEnvironment;
+    GoAgentServerClientBuilder(File rootCertificate, SslVerificationMode sslVerificationMode, File agentSslCertificate, File agentSslPrivateKey, File agentSslPrivateKeyPassphraseFile) {
         this.rootCertificate = rootCertificate;
         this.sslVerificationMode = sslVerificationMode;
         this.agentSslCertificate = agentSslCertificate;
@@ -61,7 +59,7 @@ public abstract class GoAgentServerClientBuilder<T> {
     }
 
     GoAgentServerClientBuilder(SystemEnvironment systemEnvironment) {
-        this(systemEnvironment, systemEnvironment.getRootCertFile(), systemEnvironment.getAgentSslVerificationMode(), systemEnvironment.getAgentSslCertificate(), systemEnvironment.getAgentPrivateKeyFile(), systemEnvironment.getAgentSslPrivateKeyPassphraseFile());
+        this(systemEnvironment.getRootCertFile(), systemEnvironment.getAgentSslVerificationMode(), systemEnvironment.getAgentSslCertificate(), systemEnvironment.getAgentPrivateKeyFile(), systemEnvironment.getAgentSslPrivateKeyPassphraseFile());
     }
 
     KeyStore agentTruststore() throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException {

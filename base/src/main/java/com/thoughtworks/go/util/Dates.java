@@ -50,10 +50,6 @@ public class Dates {
         return ISO_FORMATTER_NO_MILLIS.format(date.atZone(ZoneId.systemDefault()));
     }
 
-    public static String formatIso8601CompactOffset(LocalDateTime date) {
-        return ISO_FORMATTER_NO_MILLIS.format(date.atZone(ZoneId.systemDefault()));
-    }
-
     public static String formatIso8601ForCCTray(Date date) {
         if (date == null) {
             return null;
@@ -77,7 +73,7 @@ public class Dates {
         return Date.from(ISO_OFFSET_DATE_TIME.parse(date, ZonedDateTime::from).toInstant());
     }
 
-    @SuppressWarnings("unused") // Used from Ruby stageS_controller
+    @SuppressWarnings("unused") // Used from Ruby stages_controller
     public static String formatToSimpleDate(Date date) {
         SimpleDateFormat simpleDate = new SimpleDateFormat("dd MMM yyyy");
         return simpleDate.format(date);

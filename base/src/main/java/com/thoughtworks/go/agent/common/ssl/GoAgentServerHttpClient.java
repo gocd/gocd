@@ -18,7 +18,6 @@ package com.thoughtworks.go.agent.common.ssl;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +43,6 @@ public class GoAgentServerHttpClient implements Closeable {
     public CloseableHttpResponse execute(HttpRequestBase request) throws IOException {
         request.setURI(request.getURI().normalize());
         return client.execute(request);
-    }
-
-    public CloseableHttpResponse execute(HttpRequestBase request, HttpContext context) throws IOException {
-        request.setURI(request.getURI().normalize());
-        return client.execute(request, context);
     }
 
     @Override

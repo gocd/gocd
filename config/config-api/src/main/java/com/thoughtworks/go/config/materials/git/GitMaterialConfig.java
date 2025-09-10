@@ -124,13 +124,6 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
     }
 
     @Override
-    public String getShortRevision(String revision) {
-        if (revision == null) return null;
-        if (revision.length() < 7) return revision;
-        return revision.substring(0, 7);
-    }
-
-    @Override
     public String toString() {
         return "GitMaterialConfig{" +
                 "url=" + url +

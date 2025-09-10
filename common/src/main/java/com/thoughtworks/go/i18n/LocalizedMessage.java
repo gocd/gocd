@@ -38,20 +38,8 @@ public abstract class LocalizedMessage {
         return String.format("Cannot delete %s '%s' as it is referenced from %s(s) [%s]", resourceTypeBeingDeleted, resourceNameBeingDeleted, dependentResourceType, join(dependentResourceUUIDs, ", "));
     }
 
-    public static String forbiddenToDelete(String resourceType, CaseInsensitiveString resourceName) {
-        return forbiddenToDelete(resourceType, resourceName.toString());
-    }
-
-    public static String forbiddenToDelete(String resourceType, String resourceName) {
-        return "Unauthorized to delete " + resourceType + "' " + resourceName + "'";
-    }
-
     public static String staleResourceConfig(String resourceType, String resourceName) {
         return "Someone has modified the configuration for " + resourceType + " '" + resourceName + "'. Please update your copy of the config with the changes.";
-    }
-
-    public static String staleResourceConfig(String resourceType, CaseInsensitiveString resourceName) {
-        return staleResourceConfig(resourceType, resourceName.toString());
     }
 
     public static String forbiddenToViewPipeline(CaseInsensitiveString pipelineName) {
@@ -62,20 +50,8 @@ public abstract class LocalizedMessage {
         return "You do not have view permissions for pipeline '" + pipelineName + "'.";
     }
 
-    public static String modifiedBy(String who, String when) {
-        return who + " on " + when;
-    }
-
     public static String resourceNotFound(String resourceType, String resourceName) {
         return resourceType + " '" + resourceName + "' not found.";
-    }
-
-    public static String resourceNotFound(String resourceType, CaseInsensitiveString resourceName) {
-        return resourceNotFound(resourceType, resourceName.toString());
-    }
-
-    public static String forbiddenToEditGroup(String groupName) {
-        return "Unauthorized to edit '" + groupName + "' group.";
     }
 
     public static String forbiddenToEdit() {
@@ -84,76 +60,6 @@ public abstract class LocalizedMessage {
 
     public static String forbiddenToEditPipeline(String pipelineName) {
         return "Unauthorized to edit '" + pipelineName + "' pipeline.";
-    }
-
-    public static String forbiddenToEditPipeline(CaseInsensitiveString pipelineName) {
-        return forbiddenToEditPipeline(pipelineName.toString());
-    }
-
-    public static String forbiddenToEditResource(String resourceType, String resourceName, String username) {
-        return String.format("Failed to access %s '%s'. User '%s' does not have permission to access %s.", resourceType, resourceName, username, resourceType);
-    }
-
-    public static String forbiddenToEditResource(String resourceType, CaseInsensitiveString resourceName, String username) {
-        return forbiddenToEditResource(resourceType, resourceName.toString(), username);
-    }
-
-    public static String resourceAlreadyExists(String resourceType, String resourceName) {
-        return "Failed to add " + resourceType + ". The " + resourceType + " '" + resourceName + "' already exists.";
-    }
-
-    public static String resourceAlreadyExists(String resourceType, CaseInsensitiveString resourceName) {
-        return resourceAlreadyExists(resourceType, resourceName.toString());
-    }
-
-    public static String tooltipBuildFilePath(String toolName) {
-        if (toolName.equalsIgnoreCase("ANT")) {
-            return "Path to Ant build file. If not specified, the path defaults to 'build.xml'.";
-        }
-        if (toolName.equalsIgnoreCase("NANT")) {
-            return "Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'.";
-        }
-        if (toolName.equalsIgnoreCase("RAKE")) {
-            return "Path to Rake file. If not specified, the path defaults to 'rakefile'.";
-        }
-
-        throw new IllegalArgumentException("Unknown tool name " + toolName);
-    }
-
-    public static String tooltipDefaultTarget(String toolName) {
-        if (toolName.equalsIgnoreCase("ANT")) {
-            return "Ant target(s) to run. If not specified, the target defaults to 'default'.";
-        }
-        if (toolName.equalsIgnoreCase("NANT")) {
-            return "NAnt target(s) to run. If not specified, defaults to the default target of the build file.";
-        }
-        if (toolName.equalsIgnoreCase("RAKE")) {
-            return "Path to Rake file. If not specified, the path defaults to 'rakefile'.";
-        }
-        throw new IllegalArgumentException("Unknown tool name " + toolName);
-    }
-
-    public static String renamingNotAllowed(String resourceType) {
-        return "Renaming the " + resourceType + " resource is not supported by this API.";
-    }
-
-    public static String userOperationSuccessful(String operation, int count) {
-        if (operation.equalsIgnoreCase("ENABLE")) {
-            return "Enabled " + count + " user(s) successfully.";
-        }
-        if (operation.equalsIgnoreCase("DISABLE")) {
-            return "Disabled " + count + " user(s) successfully.";
-        }
-
-        if (operation.equalsIgnoreCase("APPLY_ROLES")) {
-            return "Role(s)/Admin-Privilege modified for " + count + " user(s) successfully.";
-        }
-
-        if (operation.equalsIgnoreCase("ADD_ROLE")) {
-            return "New role assigned to " + count + " user(s) successfully.";
-        }
-
-        throw new IllegalArgumentException("Unknown operation " + operation);
     }
 
     public static String entityConfigValidationFailed(String entityType, String entityName, String errors) {

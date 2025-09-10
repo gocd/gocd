@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.DependencyFilter;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -269,16 +268,6 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
             return null;
         }
         return String.format("%s [%s]", pipelineName, stageName);
-    }
-
-    @Override
-    public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
-        List<FetchTask> fetchTasks = pipelineConfig.getFetchTasks();
-        for (FetchTask fetchTask : fetchTasks) {
-            if (pipelineName.equals(fetchTask.getDirectParentInAncestorPath()))
-                return true;
-        }
-        return false;
     }
 
     @Override

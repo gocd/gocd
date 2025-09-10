@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service.dd;
 
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
@@ -89,11 +88,6 @@ public class SomeRandomMaterialConfig extends AbstractMaterialConfig {
 
     @Override
     public String getUriForDisplay() {
-        throw new RuntimeException("Ouch!");
-    }
-
-    @Override
-    public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
         throw new RuntimeException("Ouch!");
     }
 

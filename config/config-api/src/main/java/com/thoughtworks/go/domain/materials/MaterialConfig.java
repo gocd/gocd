@@ -69,13 +69,8 @@ public interface MaterialConfig extends Serializable, Validatable {
 
     boolean isUsedInLabelTemplate(PipelineConfig pipelineConfig);
 
-    Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig);
-
     String getLongDescription();
 
     void setConfigAttributes(Object attributes);
 
-    String getShortRevision(String revision);
-
-    String getTruncatedDisplayName();
 }

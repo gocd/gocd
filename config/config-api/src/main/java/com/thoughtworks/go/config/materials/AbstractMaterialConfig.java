@@ -36,7 +36,6 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
      */
     public static final String FINGERPRINT_DELIMITER = "<|>";
 
-    private static final int TRUNCATED_NAME_MAX_LENGTH = 20;
     public static final String MATERIAL_TYPE = "materialType";
 
     @SkipParameterResolution
@@ -117,19 +116,6 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
         return DigestUtils.sha256Hex(fingerprint);
     }
 
-    @Override
-    public String getTruncatedDisplayName() {
-        String displayName = getDisplayName();
-        if (displayName.length() > TRUNCATED_NAME_MAX_LENGTH) {
-            StringBuilder builder = new StringBuilder();
-            builder.append(displayName, 0, TRUNCATED_NAME_MAX_LENGTH / 2);
-            builder.append("...");
-            builder.append(displayName.substring(displayName.length() - TRUNCATED_NAME_MAX_LENGTH / 2));
-            displayName = builder.toString();
-        }
-        return displayName;
-    }
-
     protected abstract void appendCriteria(Map<String, Object> parameters);
 
     protected abstract void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria);
@@ -147,11 +133,6 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
     @Override
     public final String getType() {
         return type;
-    }
-
-    @Override
-    public String getShortRevision(String revision) {
-        return revision;
     }
 
     @Override

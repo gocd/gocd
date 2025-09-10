@@ -28,18 +28,14 @@ import java.util.Set;
  * Understands What values are selected on multiple agents
  */
 public class TriStateSelection implements Comparable<TriStateSelection> {
-    private String value;
-    private Action action;
-    private boolean enabled;
+    private final String value;
+    private final Action action;
+    private final boolean enabled;
 
-    private AlphaAsciiComparator comparator = new AlphaAsciiComparator();
+    private final AlphaAsciiComparator comparator = new AlphaAsciiComparator();
 
     public TriStateSelection(String value, Action action) {
         this(value, action, true);
-    }
-
-    public TriStateSelection(String value, String action) {
-        this(value, Action.valueOf(action));
     }
 
     public TriStateSelection(String value, Action action, boolean enabled) {

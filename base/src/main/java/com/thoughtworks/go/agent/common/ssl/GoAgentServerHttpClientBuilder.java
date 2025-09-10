@@ -16,7 +16,6 @@
 package com.thoughtworks.go.agent.common.ssl;
 
 import com.thoughtworks.go.util.SslVerificationMode;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
@@ -33,11 +32,7 @@ import java.security.KeyStore;
 public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<CloseableHttpClient> {
 
     public GoAgentServerHttpClientBuilder(File rootCertificate, SslVerificationMode sslVerificationMode, File agentSslCertificate, File agentSslPrivateKey, File agentSslPrivateKeyPassphraseFile) {
-        super(new SystemEnvironment(), rootCertificate, sslVerificationMode, agentSslCertificate, agentSslPrivateKey, agentSslPrivateKeyPassphraseFile);
-    }
-
-    public GoAgentServerHttpClientBuilder(SystemEnvironment systemEnvironment) {
-        super(systemEnvironment);
+        super(rootCertificate, sslVerificationMode, agentSslCertificate, agentSslPrivateKey, agentSslPrivateKeyPassphraseFile);
     }
 
     @Override

@@ -141,17 +141,6 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     @Override
-    public String getShortRevision(String revision) {
-        if (revision == null) {
-            return null;
-        }
-        if (revision.length() < 12) {
-            return revision;
-        }
-        return revision.substring(0, 12);
-    }
-
-    @Override
     public String toString() {
         return "HgMaterialConfig{" +
                 "url=" + url +

@@ -63,10 +63,6 @@ public class PipelineModel {
         return getLatestPipelineInstance().hasNewRevisions();
     }
 
-    public boolean hasNeverCheckedForRevisions() {
-        return getLatestPipelineInstance().hasNeverCheckedForRevisions();
-    }
-
     /**
      * Note: this check should be part of the scheduling checker.
      * We will refactor it down to that point.

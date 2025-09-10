@@ -16,26 +16,15 @@
 package com.thoughtworks.go.server.presentation.models;
 
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 
 import java.util.Collection;
-import java.util.Map;
 
 public class PipelineInstanceGroupModel {
-    private StageConfigurationModels stages;
-    private PipelineInstanceModels pipelineInstances;
-    private Map<String, StageIdentifier> latestStages;
-
-    public void setLatestStages(Map<String, StageIdentifier> latestStages) {
-        this.latestStages = latestStages;
-    }
-
-    public Map<String, StageIdentifier> getLatestStages() {
-        return latestStages;
-    }
+    private final StageConfigurationModels stages;
+    private final PipelineInstanceModels pipelineInstances;
 
     public PipelineInstanceGroupModel() {
         this(new StageConfigurationModels());
@@ -77,18 +66,5 @@ public class PipelineInstanceGroupModel {
 
     public void add(PipelineInstanceModel instance) {
         pipelineInstances.add(instance);
-    }
-
-    public PipelineInstanceModel findPipelineInstance(String pipelineLabel) {
-        if ("latest".equals(pipelineLabel) && !pipelineInstances.isEmpty()) {
-            return pipelineInstances.first();
-        }
-
-        for (PipelineInstanceModel instance : pipelineInstances) {
-            if (instance.getLabel().equals(pipelineLabel)) {
-                return instance;
-            }
-        }
-        return null;
     }
 }

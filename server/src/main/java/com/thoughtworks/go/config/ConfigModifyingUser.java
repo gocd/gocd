@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 
 /**
@@ -31,11 +30,7 @@ public class ConfigModifyingUser {
     public ConfigModifyingUser(String userName) {
         this.userName = userName;
     }
-
-    public ConfigModifyingUser(Username username) {
-        this(username.getUsername().toString());
-    }
-
+    
     public String getUserName() {
         return userName;
     }

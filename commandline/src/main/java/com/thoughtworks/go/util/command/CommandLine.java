@@ -251,11 +251,6 @@ public class CommandLine {
         return this;
     }
 
-    public CommandLine argPassword(String password) {
-        arguments.add(new PasswordArgument(password));
-        return this;
-    }
-
     public CommandLine withWorkingDir(File folder) {
         setWorkingDir(folder);
         return this;

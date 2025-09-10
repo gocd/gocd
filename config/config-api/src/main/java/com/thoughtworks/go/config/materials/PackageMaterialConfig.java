@@ -174,11 +174,6 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
     }
 
     @Override
-    public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
-        return Boolean.FALSE;
-    }
-
-    @Override
     public String getLongDescription() {
         return getUriForDisplay();
     }

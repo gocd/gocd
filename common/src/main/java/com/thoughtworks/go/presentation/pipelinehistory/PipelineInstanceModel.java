@@ -18,7 +18,6 @@ package com.thoughtworks.go.presentation.pipelinehistory;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -467,10 +466,6 @@ public class PipelineInstanceModel implements PipelineInfo {
 
     public void setTrackingTool(TrackingTool trackingTool) {
         this.trackingTool = trackingTool;
-    }
-
-    public DependencyMaterialConfig findDependencyMaterial(CaseInsensitiveString pipelineName) {
-        return getMaterials().findDependencyMaterial(pipelineName);
     }
 
     public void setComment(String comment) {

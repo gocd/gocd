@@ -21,10 +21,6 @@ import java.util.zip.ZipEntry;
 public class ZipPath {
     private final String path;
 
-    ZipPath() {
-        this("");
-    }
-
     ZipPath(String path) {
         this.path = path;
     }

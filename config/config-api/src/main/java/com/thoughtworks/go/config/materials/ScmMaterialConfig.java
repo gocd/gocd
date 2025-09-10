@@ -331,11 +331,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         }
     }
 
-    @Override
-    public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
-        return false;
-    }
-
     // TODO: Consider renaming this to dest since we use that word in the UI & Config
     public void setFolder(String folder) {
         this.folder = folder;

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.agent.common.ssl;
 
 import com.thoughtworks.go.util.SslVerificationMode;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -123,7 +122,7 @@ class GoAgentServerClientBuilderTest {
     }
 
     private static GoAgentServerClientBuilder<Object> builderWith(final File rootCertificate, final SslVerificationMode sslVerificationMode, final File agentSslCertificate, final File agentSslPrivateKey, final File agentSslPrivateKeyPassphraseFile) {
-        return new GoAgentServerClientBuilder<>(new SystemEnvironment(), rootCertificate, sslVerificationMode, agentSslCertificate, agentSslPrivateKey, agentSslPrivateKeyPassphraseFile) {
+        return new GoAgentServerClientBuilder<>(rootCertificate, sslVerificationMode, agentSslCertificate, agentSslPrivateKey, agentSslPrivateKeyPassphraseFile) {
             @Override
             public Object build() {
                 return null;

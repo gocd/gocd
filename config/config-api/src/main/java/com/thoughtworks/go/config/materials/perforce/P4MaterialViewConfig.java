@@ -28,8 +28,6 @@ public class P4MaterialViewConfig implements Serializable, Validatable {
 
     @ConfigValue(requireCdata = true)@ValidationErrorKey(value = P4MaterialConfig.VIEW) private String value;
 
-    private static final String CLIENT_RENAME_REGEX = "//(.+?)\\s+(\"?)//(.+?)/(.+)";
-    private static final String SPACE_BEFORE_DEPOT_REGEX = "\\s*(\"?[+\\-]?//.+?//)";
     private ConfigErrors configErrors = new ConfigErrors();
 
     public P4MaterialViewConfig() { }
@@ -37,11 +35,6 @@ public class P4MaterialViewConfig implements Serializable, Validatable {
     public P4MaterialViewConfig(String view) {
         bombIfNull(view, "null view");
         this.value = view;
-    }
-
-    public String viewUsing(String clientName) {
-        String fromClientName = value.replaceAll(CLIENT_RENAME_REGEX, "//$1 $2//" + clientName + "/$4");
-        return fromClientName.replaceAll(SPACE_BEFORE_DEPOT_REGEX, "\n\t$1");
     }
 
     public String getValue() {

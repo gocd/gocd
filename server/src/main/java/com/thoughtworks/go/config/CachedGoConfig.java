@@ -18,7 +18,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
@@ -65,10 +64,6 @@ public class CachedGoConfig {
         this.cachedGoPartials = cachedGoPartials;
         this.goConfigMigrator = goConfigMigrator;
         this.maintenanceModeService = maintenanceModeService;
-    }
-
-    public static List<ConfigErrors> validate(CruiseConfig config) {
-        return new ArrayList<>(config.validateAfterPreprocess());
     }
 
     @TestOnly

@@ -19,8 +19,6 @@ import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.ErrorConsumer;
 import com.thoughtworks.go.util.command.OutputConsumer;
 import com.thoughtworks.go.util.command.StreamPumper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -38,7 +36,6 @@ public class ProcessWrapper {
     private final long startTime;
     private final ProcessTag processTag;
     private final String command;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
 
     ProcessWrapper(Process process, ProcessTag processTag, String command, ConsoleOutputStreamConsumer consumer, Charset encoding, String errorPrefix) {
         this.process = process;

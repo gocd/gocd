@@ -265,20 +265,6 @@ public class MergePipelineConfigs implements PipelineConfigs {
         return false;
     }
 
-    public PipelineConfigs getPartWithIndex(int i) {
-        if (i < 0)
-            throw new IndexOutOfBoundsException();
-
-        int start = 0;
-        for (PipelineConfigs part : this.parts) {
-            int end = start + part.size();
-            if (i < end)
-                return part;
-            start = end;
-        }
-        throw new IndexOutOfBoundsException();
-    }
-
     public PipelineConfigs getPartWithIndexForInsert(int i) {
         if (i < 0)
             throw new IndexOutOfBoundsException();

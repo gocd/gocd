@@ -33,6 +33,7 @@ dependencies {
     implementation project.deps.slf4jJcl // Allow commons-logging replacement
   }
 
+  compileOnly project.deps.jakartaAnnotation
   compileOnly project.deps.jetBrainsAnnotations
 
   testRuntimeOnly project.deps.bouncyCastle

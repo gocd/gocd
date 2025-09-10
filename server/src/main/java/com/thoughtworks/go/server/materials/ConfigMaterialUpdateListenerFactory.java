@@ -23,6 +23,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 import static java.util.stream.IntStream.range;
 
 @Component
@@ -52,6 +54,7 @@ public class ConfigMaterialUpdateListenerFactory {
         this.subprocessExecutionContext = subprocessExecutionContext;
     }
 
+    @PostConstruct
     public void init() {
         int numberOfConfigMaterialPostUpdateListeners = systemEnvironment.getNumberOfConfigMaterialPostUpdateListeners();
 

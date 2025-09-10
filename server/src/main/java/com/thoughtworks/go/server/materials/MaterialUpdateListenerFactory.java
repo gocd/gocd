@@ -29,6 +29,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 @Component
 public class MaterialUpdateListenerFactory {
     private final MaterialUpdateCompletedTopic topic;
@@ -89,6 +91,7 @@ public class MaterialUpdateListenerFactory {
         this.goConfigService = goConfigService;
     }
 
+    @PostConstruct
     public void init() {
         int numberOfStandardMaterialListeners = systemEnvironment.getNumberOfMaterialCheckListener();
         int numberOfConfigListeners = systemEnvironment.getNumberOfConfigMaterialCheckListener();

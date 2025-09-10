@@ -25,6 +25,8 @@ import com.thoughtworks.go.server.service.StageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 import static java.util.Optional.ofNullable;
 
 @Component
@@ -51,6 +53,7 @@ public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
         this.jobInstanceService = jobInstanceService;
     }
 
+    @PostConstruct
     public void init() {
         jobStatusTopic.addListener(this);
     }

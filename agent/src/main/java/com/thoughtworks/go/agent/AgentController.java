@@ -36,6 +36,7 @@ import com.thoughtworks.go.util.SystemUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.security.GeneralSecurityException;
 
@@ -127,7 +128,7 @@ public abstract class AgentController {
         return (e instanceof GeneralSecurityException) || isCausedBySecurity(e.getCause());
     }
 
-    // Executed when Spring initializes this bean
+    @PostConstruct
     void init() {
         initPipelinesFolder();
         initSslInfrastructure();

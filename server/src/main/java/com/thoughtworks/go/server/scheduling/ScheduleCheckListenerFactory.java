@@ -20,6 +20,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 @Component
 public class ScheduleCheckListenerFactory {
     private final ScheduleCheckCompletedTopic topic;
@@ -41,6 +43,7 @@ public class ScheduleCheckListenerFactory {
         this.schedulingPerformanceLogger = schedulingPerformanceLogger;
     }
 
+    @PostConstruct
     public void init() {
         int numberOfListeners = systemEnvironment.getNumberOfMaterialCheckListener();
 

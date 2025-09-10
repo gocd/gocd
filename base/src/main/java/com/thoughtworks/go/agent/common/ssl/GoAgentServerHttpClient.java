@@ -22,6 +22,7 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -35,7 +36,7 @@ public class GoAgentServerHttpClient implements Closeable {
         this.builder = builder;
     }
 
-    // called by spring
+    @PostConstruct
     public void init() throws Exception {
         this.client = builder.build();
     }

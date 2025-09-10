@@ -20,6 +20,8 @@ import com.thoughtworks.go.server.service.AgentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 @Component
 public class JobResultListener implements GoMessageListener<JobResultMessage> {
     private final JobResultTopic jobResultTopic;
@@ -31,6 +33,7 @@ public class JobResultListener implements GoMessageListener<JobResultMessage> {
         this.agentService = agentService;
     }
 
+    @PostConstruct
     public void init() {
         jobResultTopic.addListener(this);
     }

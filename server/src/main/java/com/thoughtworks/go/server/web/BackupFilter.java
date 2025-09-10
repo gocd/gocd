@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.HtmlUtils;
 
+import javax.annotation.PreDestroy;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
@@ -109,6 +110,7 @@ public class BackupFilter extends OncePerRequestFilter {
         }
     }
 
+    @PreDestroy
     @Override
     public void destroy() {
 

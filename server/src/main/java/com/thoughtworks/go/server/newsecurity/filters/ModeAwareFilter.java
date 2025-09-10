@@ -28,6 +28,7 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.annotation.PreDestroy;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -110,6 +111,7 @@ public class ModeAwareFilter implements Filter {
                 RequestMethod.HEAD.name().equalsIgnoreCase(servletRequest.getMethod());
     }
 
+    @PreDestroy
     @Override
     public void destroy() {
     }

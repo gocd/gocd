@@ -158,10 +158,6 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
                 '}';
     }
 
-    public PipelineTimelineEntry previous() {
-        return insertedAfter();
-    }
-
     public double naturalOrder() {
         return naturalOrder;
     }

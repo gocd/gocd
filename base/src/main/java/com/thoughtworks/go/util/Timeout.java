@@ -25,7 +25,6 @@ public enum Timeout {
     TWO_MINUTES(2 * ONE_MINUTE.timeout),
     THREE_MINUTES(3 * ONE_MINUTE.timeout),
     FIVE_MINUTES(5 * ONE_MINUTE.timeout),
-    ONE_HOUR(60 * ONE_MINUTE.timeout),
     NEVER(Integer.MAX_VALUE);
 
     private final long timeout;

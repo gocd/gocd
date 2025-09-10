@@ -189,10 +189,6 @@ public class CommandLine {
         return toString(getCommandLineForDisplay(), false);
     }
 
-    public int size() {
-        return getCommandLine().length;
-    }
-
     public File getWorkingDirectory() {
         return workingDir;
     }

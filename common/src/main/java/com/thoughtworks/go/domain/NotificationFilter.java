@@ -22,9 +22,6 @@ import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.lang3.Strings;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static java.lang.String.format;
 
 public class NotificationFilter extends PersistentObject implements Validatable {
@@ -107,23 +104,6 @@ public class NotificationFilter extends PersistentObject implements Validatable 
     @Override
     public String toString() {
         return "NotificationFilter[" + description() + "]";
-    }
-
-    /**
-     * Used for JSON serialization in Rails
-     *
-     * @return a Map representation of this {@link NotificationFilter} instance that is serializable by JRuby
-     */
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
-
-        map.put("id", id);
-        map.put("pipelineName", pipelineName);
-        map.put("stageName", stageName);
-        map.put("myCheckin", myCheckin);
-        map.put("event", event.toString());
-
-        return map;
     }
 
     @Override

@@ -22,9 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -33,10 +33,10 @@ import static java.lang.String.format;
 
 public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleOutputTransmitter.class);
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
     private final CircularFifoQueue<String> buffer = new CircularFifoQueue<>(10 * 1024); // maximum 10k lines
     private final ConsoleAppender consoleAppender;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
     private final ScheduledThreadPoolExecutor executor;
 
     public ConsoleOutputTransmitter(ConsoleAppender consoleAppender) {
@@ -56,12 +56,11 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
 
     @Override
     public void taggedConsumeLine(String tag, String line) {
+        if (tag == null) tag = "  ";
+        String taggedDate = format("%s|%s", tag, FORMATTER.format(LocalTime.now()));
+        String logLine = format("%s %s", taggedDate, line).replace("\n", "\n" + taggedDate + " ");
         synchronized (buffer) {
-            if (null == tag) tag = "  ";
-            String date = dateFormat.format(new Date());
-            String prepend = format("%s|%s", tag, date);
-            String multilineJoin = "\n" + prepend + " ";
-            buffer.add(format("%s %s", prepend, line).replaceAll("\n", multilineJoin));
+            buffer.add(logLine);
         }
     }
 
@@ -79,25 +78,19 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
             return;
         }
 
-        List<String> sent = new ArrayList<>();
+        List<String> toFlush;
+        synchronized (buffer) {
+            toFlush = new ArrayList<>(buffer);
+            buffer.clear();
+        }
         try {
-            synchronized (buffer) {
-                while (!buffer.isEmpty()) {
-                    sent.add(buffer.remove());
-                }
-            }
-            StringBuilder result = new StringBuilder();
-            for (Object string : sent) {
-                result.append(string);
-                result.append("\n");
-            }
-            consoleAppender.append(result.toString());
+            consoleAppender.append(String.join("\n", toFlush));
         } catch (IOException e) {
             LOGGER.warn("Could not send console output to server", e);
             synchronized (buffer) {
-                sent.addAll(buffer);
+                toFlush.addAll(buffer);
                 buffer.clear();
-                buffer.addAll(sent);
+                buffer.addAll(toFlush);
             }
         }
     }

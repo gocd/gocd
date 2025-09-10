@@ -32,10 +32,14 @@ public class ConsoleOutputTransmitterPerformanceTest {
 
     @BeforeEach
     public void setup() {
-        try (ConsoleOutputTransmitter transmitter = new ConsoleOutputTransmitter(new SlowConsoleAppender(), 50, MILLISECONDS, new ScheduledThreadPoolExecutor(1))) {
+        try (ConsoleOutputTransmitter transmitter = new ConsoleOutputTransmitter(new SlowConsoleAppender(), 50, MILLISECONDS, newExecutor())) {
             transmitter.consumeLine("Warming up...");
         }
-        transmitter = new ConsoleOutputTransmitter(new SlowConsoleAppender(), CONSOLE_PUBLISH_INTERVAL_MILLIS, MILLISECONDS, new ScheduledThreadPoolExecutor(1));
+        transmitter = new ConsoleOutputTransmitter(new SlowConsoleAppender(), CONSOLE_PUBLISH_INTERVAL_MILLIS, MILLISECONDS, newExecutor());
+    }
+
+    private static ScheduledThreadPoolExecutor newExecutor() {
+        return new ScheduledThreadPoolExecutor(2);
     }
 
     @Test

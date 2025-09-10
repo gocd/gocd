@@ -18,11 +18,9 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.commands.CheckedUpdateCommand;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
@@ -30,12 +28,10 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.helper.ConfigFileFixture.BASIC_CONFIG;
 import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -188,28 +184,6 @@ public abstract class GoConfigDaoTestBase {
         }
     }
 
-
-    @Test
-    public void shouldFeedCloneOfConfigBackToCommand() {
-        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true) {
-
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) {
-                PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("foo"), "#{bar}-${COUNT}", null, false, new MaterialConfigs(hg("url", null)),
-                        List.of(StageConfigMother.custom("stage", "job")));
-                pipelineConfig.addParam(new ParamConfig("bar", "baz"));
-                cruiseConfig.addPipeline("my-group", pipelineConfig);
-                return cruiseConfig;
-            }
-        };
-        goConfigDao.updateConfig(command);
-        assertThat(command.after.pipelineConfigByName(new CaseInsensitiveString("foo")).getLabelTemplate()).isEqualTo("baz-${COUNT}");
-
-        assertThat(command.after.getEnvironments().size()).isEqualTo(0);
-        command.after.addEnvironment("bar");
-        assertThat(cachedGoConfig.currentConfig().getEnvironments().size()).isEqualTo(0);
-    }
-
     @Test
     public void shouldNotUpdateIfCannotContinueIfTheCommandIsPreprocessable() {
         CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), false);
@@ -219,7 +193,6 @@ public abstract class GoConfigDaoTestBase {
         } catch (ConfigUpdateCheckFailedException ignored) {
         }
         assertThat(command.wasUpdated).isFalse();
-        assertThat(command.after).isNotNull();
     }
 
     @Test
@@ -405,12 +378,11 @@ public abstract class GoConfigDaoTestBase {
         configHelper.writeXmlToConfigFile(ConfigMigrator.migrate(config));
     }
 
-    static class CheckedTestUpdateCommand implements NoOverwriteUpdateConfigCommand, CheckedUpdateCommand, ConfigAwareUpdate {
+    static class CheckedTestUpdateCommand implements NoOverwriteUpdateConfigCommand, CheckedUpdateCommand {
 
         private final String md5;
         private final boolean canContinue;
         private boolean wasUpdated;
-        private CruiseConfig after;
 
         CheckedTestUpdateCommand(String md5, boolean canContinue) {
             this.md5 = md5;
@@ -432,17 +404,6 @@ public abstract class GoConfigDaoTestBase {
             wasUpdated = true;
             return cruiseConfig;
         }
-
-        @Override
-        public void afterUpdate(CruiseConfig cruiseConfig) {
-            after = cruiseConfig;
-        }
-
-        @Override
-        public CruiseConfig configAfter() {
-            return after;
-        }
-
     }
 
     private MailHost getMailhost(String hostname) {

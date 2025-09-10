@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Understands how to modify the cruise config sources
@@ -41,8 +42,7 @@ import java.util.List;
 @Component
 public class GoConfigDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigDao.class);
-    private CachedGoConfig cachedConfigService;
-    private GoConfigCloner cloner = new GoConfigCloner();
+    private final CachedGoConfig cachedConfigService;
 
     @Autowired
     public GoConfigDao(CachedGoConfig cachedConfigService) {
@@ -104,50 +104,36 @@ public class GoConfigDao {
     }
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {
+        return doSaveWith(command, c -> {
+            if (c instanceof CheckedUpdateCommand checkedCommand) {
+                if (!checkedCommand.canContinue(cachedConfigService.currentConfig())) {
+                    throw new ConfigUpdateCheckFailedException();
+                }
+            }
+            return cachedConfigService.writeWithLock(c);
+        });
+    }
+
+    public ConfigSaveState updateFullConfig(FullConfigUpdateCommand command) {
+        return doSaveWith(command, cachedConfigService::writeFullConfigWithLock);
+    }
+
+    private <T extends UpdateConfigCommand> ConfigSaveState doSaveWith(T command, Function<T, ConfigSaveState> configOperation) {
         ConfigSaveState configSaveState;
         LOGGER.info("Config update request by {} is in queue - {}", SessionUtils.currentUsername().getUsername(), command);
         synchronized (GoConfigWriteLock.class) {
             try {
                 LOGGER.info("Config update request {} by {} is being processed", command, SessionUtils.currentUsername().getUsername());
-                if (command instanceof CheckedUpdateCommand checkedCommand) {
-                    if (!checkedCommand.canContinue(cachedConfigService.currentConfig())) {
-                        throw new ConfigUpdateCheckFailedException();
-                    }
-                }
-                configSaveState = cachedConfigService.writeWithLock(command);
-            } catch (Exception e) {
-                LOGGER.error("Config update failed.", e);
-                throw e;
-            } finally {
-                if (command instanceof ConfigAwareUpdate) {
-                    ((ConfigAwareUpdate) command).afterUpdate(clonedConfig());
-                }
-                LOGGER.info("Config update request by {} is completed", SessionUtils.currentUsername().getUsername());
-            }
-        }
-        return configSaveState;
-    }
 
-    public ConfigSaveState updateFullConfig(FullConfigUpdateCommand command) {
-        ConfigSaveState configSaveState;
-        LOGGER.info("Config update request by {} is in queue - {}", SessionUtils.currentUsername().getUsername(), command);
-        synchronized (GoConfigWriteLock.class) {
-            try {
-                LOGGER.info("Config update request by {} is being processed", SessionUtils.currentUsername().getUsername());
-
-                configSaveState = cachedConfigService.writeFullConfigWithLock(command);
+                configSaveState = configOperation.apply(command);
             } catch (Exception e) {
-                LOGGER.error("Full config update failed", e);
+                LOGGER.error("{} failed", command, e);
                 throw e;
             } finally {
                 LOGGER.info("Config update request by {} is completed", SessionUtils.currentUsername().getUsername());
             }
         }
         return configSaveState;
-    }
-
-    private CruiseConfig clonedConfig() {
-        return cloner.deepClone(cachedConfigService.currentConfig());
     }
 
     public GoConfigValidity checkConfigFileValid() {

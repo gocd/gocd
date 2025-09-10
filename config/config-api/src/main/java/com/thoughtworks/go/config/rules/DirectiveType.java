@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.config.rules;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Optional;
 
 public enum DirectiveType {
@@ -33,7 +31,7 @@ public enum DirectiveType {
     }
 
     public static Optional<DirectiveType> fromString(String directive) {
-        if (StringUtils.isBlank(directive)) {
+        if (directive == null) {
             return Optional.empty();
         }
 

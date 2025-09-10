@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.websocket;
 
 import com.google.gson.Gson;
 import com.thoughtworks.go.domain.JobIdentifier;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
@@ -34,7 +33,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.Optional;
 
 @WebSocket
 public class ConsoleLogSocket implements SocketEndpoint {
@@ -135,11 +133,12 @@ public class ConsoleLogSocket implements SocketEndpoint {
     }
 
     private long parseStartLine(UpgradeRequest request) {
-        Optional<NameValuePair> startLine = URLEncodedUtils.parse(request.getRequestURI(), StandardCharsets.UTF_8).
-                stream().
-                filter(pair -> "startLine".equals(pair.getName())).findFirst();
-
-        return startLine.isPresent() ? Long.valueOf(startLine.get().getValue()) : 0L;
+        return URLEncodedUtils.parse(request.getRequestURI(), StandardCharsets.UTF_8)
+            .stream()
+            .filter(pair -> "startLine".equals(pair.getName()))
+            .findFirst()
+            .map(startLine -> Long.valueOf(startLine.getValue()))
+            .orElse(0L);
     }
 
 }

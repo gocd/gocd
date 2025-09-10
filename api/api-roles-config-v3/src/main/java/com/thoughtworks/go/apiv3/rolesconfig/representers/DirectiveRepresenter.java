@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.policy.*;
 
 import java.util.HashMap;
-import java.util.Optional;
 
 import static com.thoughtworks.go.config.policy.DirectiveType.fromString;
 
@@ -50,16 +49,11 @@ public class DirectiveRepresenter {
         String type = reader.optString("type").orElse(null);
         String resource = reader.optString("resource").orElse(null);
 
-        Optional<DirectiveType> directiveType = fromString(directive);
-
-        if (directiveType.isEmpty()) {
-            return new Unknown(directive, action, type, resource);
-        }
-
-        return switch (directiveType.get()) {
+        return fromString(directive).map(value -> switch (value) {
             case ALLOW -> new Allow(action, type, resource);
             case DENY -> new Deny(action, type, resource);
-        };
+        }).orElseGet(() -> new Unknown(directive, action, type, resource));
+
     }
 
     static class Unknown extends AbstractDirective {

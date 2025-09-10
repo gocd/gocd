@@ -45,14 +45,6 @@ public class JsonHelper {
         return GSON.fromJson(jsonString, type);
     }
 
-    public static <T> T safeFromJson(final String jsonString, final Class<T> clazz) {
-        try {
-            return fromJson(jsonString, clazz);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public static <T> T safeFromJson(final String jsonString, Type type) {
         try {
             return fromJson(jsonString, type);

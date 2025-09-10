@@ -45,9 +45,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class BackupFilter extends OncePerRequestFilter {
     private final static Logger LOGGER = LoggerFactory.getLogger(BackupFilter.class);
 
-    public static final String JSON = "json";
-    public static final String XML = "xml";
-
     private final BackupService backupService;
 
     @Autowired

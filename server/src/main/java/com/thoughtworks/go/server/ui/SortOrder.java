@@ -15,21 +15,6 @@
  */
 package com.thoughtworks.go.server.ui;
 
-import java.util.Comparator;
-
 public enum SortOrder {
-    ASC {
-        @Override
-        public <T> Comparator<T> comparator(final Comparator<T> comparator) {
-            return comparator;
-        }
-    },
-    DESC {
-        @Override
-        public <T> Comparator<T> comparator(final Comparator<T> comparator) {
-            return (one, other) -> comparator.compare(one, other) * -1;
-        }
-    };
-
-    public abstract <T> Comparator<T> comparator(final Comparator<T> comparator);
+    ASC, DESC
 }

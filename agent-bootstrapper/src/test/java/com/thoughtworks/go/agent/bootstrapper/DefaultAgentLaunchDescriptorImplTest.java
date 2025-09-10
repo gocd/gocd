@@ -16,7 +16,7 @@
 package com.thoughtworks.go.agent.bootstrapper;
 
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.Test;
 
 import java.net.URL;
@@ -47,7 +47,7 @@ public class DefaultAgentLaunchDescriptorImplTest {
         DefaultAgentLaunchDescriptorImpl launchDescriptor = new DefaultAgentLaunchDescriptorImpl(new AgentBootstrapperArgs().setServerUrl(new URL("https://www.example.com")), bootstrapper);
         Map<String, String> context = launchDescriptor.context();
 
-        assertEquals("1.2.3-1234", context.get(GoConstants.AGENT_BOOTSTRAPPER_VERSION));
+        assertEquals("1.2.3-1234", context.get(SystemEnvironment.AGENT_BOOTSTRAPPER_VERSION));
     }
 
     private void assertContainsAll(Map<String, String> expected, Map<String, String> actual) {

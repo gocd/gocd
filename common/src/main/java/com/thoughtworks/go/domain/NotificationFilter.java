@@ -19,12 +19,13 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
-import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.lang3.Strings;
 
 import static java.lang.String.format;
 
 public class NotificationFilter extends PersistentObject implements Validatable {
+    public static final String ANY_PIPELINE = "[Any Pipeline]";
+    public static final String ANY_STAGE = "[Any Stage]";
     private String pipelineName;
     private String stageName;
     private StageEvent event;
@@ -89,9 +90,9 @@ public class NotificationFilter extends PersistentObject implements Validatable 
 
     public boolean appliesTo(String pipelineName, String stageName) {
         boolean pipelineMatches = this.pipelineName.equals(pipelineName) ||
-            this.pipelineName.equals(GoConstants.ANY_PIPELINE);
+            this.pipelineName.equals(ANY_PIPELINE);
         boolean stageMatches = this.stageName.equals(stageName) ||
-            this.stageName.equals(GoConstants.ANY_STAGE);
+            this.stageName.equals(ANY_STAGE);
 
         return pipelineMatches && stageMatches;
     }

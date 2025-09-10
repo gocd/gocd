@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.logging.LogConfigurator;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.io.File;
@@ -61,7 +60,7 @@ public class DevelopmentServer {
         setupPeriodicGC(systemEnvironment);
         assertPluginsZipExists();
         GoServer server = new GoServer();
-        systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(false));
+        systemEnvironment.setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(false));
         try {
             server.startServer();
 

@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.server.GoServer;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 
@@ -30,7 +29,7 @@ public final class GoLauncher {
 
     public static void main(String[] args) {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
-        systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(true));
+        systemEnvironment.setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(true));
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);
         logConfigurator.initialize();
 

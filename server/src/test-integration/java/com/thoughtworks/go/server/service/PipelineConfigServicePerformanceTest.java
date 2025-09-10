@@ -21,7 +21,10 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.NamedProcessTag;
+import com.thoughtworks.go.util.PerfTimer;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.lang3.StringUtils;
@@ -62,7 +65,7 @@ public class PipelineConfigServicePerformanceTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfigServicePerformanceTest.class);
 
     static {
-        new SystemEnvironment().setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, "false");
+        new SystemEnvironment().setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, "false");
     }
 
     @TempDir

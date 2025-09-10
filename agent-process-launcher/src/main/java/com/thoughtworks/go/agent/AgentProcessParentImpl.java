@@ -21,7 +21,6 @@ import com.thoughtworks.go.agent.common.launcher.AgentProcessParent;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.launcher.DownloadableFile;
 import com.thoughtworks.go.agent.launcher.ServerBinaryDownloader;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,11 +125,11 @@ public class AgentProcessParentImpl implements AgentProcessParent {
 
         extraProperties.forEach((key, value) -> commandSnippets.add(property(key, value)));
 
-        commandSnippets.add(property(GoConstants.AGENT_PLUGINS_MD5, agentPluginsZipMd5));
-        commandSnippets.add(property(GoConstants.AGENT_JAR_MD5, agentMD5));
-        commandSnippets.add(property(GoConstants.GIVEN_AGENT_LAUNCHER_JAR_MD5, launcherMd5));
-        commandSnippets.add(property(GoConstants.TFS_IMPL_MD5, tfsImplMd5));
-        commandSnippets.add(property(GoConstants.AGENT_BOOTSTRAPPER_VERSION, context.getOrDefault(GoConstants.AGENT_BOOTSTRAPPER_VERSION, "UNKNOWN")));
+        commandSnippets.add(property(SystemEnvironment.AGENT_PLUGINS_MD5, agentPluginsZipMd5));
+        commandSnippets.add(property(SystemEnvironment.AGENT_JAR_MD5, agentMD5));
+        commandSnippets.add(property(SystemEnvironment.AGENT_LAUNCHER_JAR_MD5, launcherMd5));
+        commandSnippets.add(property(SystemEnvironment.AGENT_TFS_IMPL_MD5, tfsImplMd5));
+        commandSnippets.add(property(SystemEnvironment.AGENT_BOOTSTRAPPER_VERSION, context.getOrDefault(SystemEnvironment.AGENT_BOOTSTRAPPER_VERSION, "UNKNOWN")));
 
         commandSnippets.add("-jar");
         commandSnippets.add(Downloader.AGENT_BINARY);

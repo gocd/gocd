@@ -22,8 +22,8 @@ import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
 import com.thoughtworks.go.agent.testhelper.GoTestResource;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.LogFixture;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -115,7 +115,7 @@ public class AgentProcessParentImplTest {
 
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
         Map<String, String> context = context();
-        context.put(GoConstants.AGENT_BOOTSTRAPPER_VERSION, "20.3.0-1234");
+        context.put(SystemEnvironment.AGENT_BOOTSTRAPPER_VERSION, "20.3.0-1234");
         int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), new HashMap<>(), context);
 
         assertThat(returnCode).isEqualTo(42);

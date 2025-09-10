@@ -33,9 +33,10 @@ public abstract class DiskSpaceChecker implements SchedulingChecker {
     protected GoConfigService goConfigService;
     private final HealthStateType healthStateType;
     private boolean error = false;
-    private File targetFolder;
-    private String targetFolderCanicalPath;
+    private final File targetFolder;
     private final SystemDiskSpaceChecker diskSpaceChecker;
+
+    private String targetFolderCanonicalPath;
     private boolean targetExists;
     private long availableSpace;
     private volatile long lastCheckedTime;
@@ -52,10 +53,10 @@ public abstract class DiskSpaceChecker implements SchedulingChecker {
     }
 
     protected synchronized String targetFolderCanonicalPath() {
-        if (this.targetFolderCanicalPath == null) {
-            targetFolderCanicalPath = getCanicalPath(this.targetFolder);
+        if (this.targetFolderCanonicalPath == null) {
+            targetFolderCanonicalPath = getCanonicalPath(this.targetFolder);
         }
-        return targetFolderCanicalPath;
+        return targetFolderCanonicalPath;
     }
 
     @Override
@@ -102,7 +103,7 @@ public abstract class DiskSpaceChecker implements SchedulingChecker {
         return System.currentTimeMillis() - lastCheckedTime;
     }
 
-    private String getCanicalPath(File file) {
+    private String getCanonicalPath(File file) {
         try {
             return file.getCanonicalPath();
         } catch (IOException e) {

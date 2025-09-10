@@ -17,7 +17,7 @@ package com.thoughtworks.go.agent.bootstrapper;
 
 import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +34,7 @@ class DefaultAgentLaunchDescriptorImpl implements AgentLaunchDescriptor {
 
     private void buildContext(AgentBootstrapperArgs bootstrapperArgs) {
         context.putAll(bootstrapperArgs.toProperties());
-        context.put(GoConstants.AGENT_BOOTSTRAPPER_VERSION, bootstrapper.version());
+        context.put(SystemEnvironment.AGENT_BOOTSTRAPPER_VERSION, bootstrapper.version());
     }
 
     @Override

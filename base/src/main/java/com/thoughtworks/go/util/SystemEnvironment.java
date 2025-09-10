@@ -36,51 +36,58 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String CRUISE_LISTEN_HOST = "cruise.listen.host";
     public static final String CRUISE_SERVER_PORT = "cruise.server.port";
-    static final String AGENT_CONNECTION_TIMEOUT_IN_SECONDS = "agent.connection.timeout";
+
     private static final String JETTY_XML = "jetty.xml";
     public static final String CRUISE_SERVER_WAR_PROPERTY = "cruise.server.war";
-
 
     public static final String CRUISE_CONFIG_REPO_DIR = "cruise.config.repo.dir";
     public static final String DB_BASE_DIR = "db/";
     private static final String CONFIG_REPO_DEFAULT_PATH = DB_BASE_DIR + "config.git";
+
     public static final String ACTIVEMQ_USE_JMX = "activemq.use.jmx";
     public static final String ACTIVEMQ_QUEUE_PREFETCH = "activemq.queue.prefetch";
     private static final String ACTIVEMQ_CONNECTOR_PORT = "activemq.conn.port";
 
     public static final String PARENT_LOADER_PRIORITY = "parent.loader.priority";
 
-    public static final String EMPTY_STRING = "";
-    public static final String BLANK_STRING = EMPTY_STRING;
     public static final String ENFORCE_SERVER_IMMUTABILITY = "go.enforce.server.immutability";
 
     public static final String CONFIGURATION_YES = "Y";
-
     public static final String CONFIGURATION_NO = "N";
+
     public static final String RESOLVE_FANIN_REVISIONS = "resolve.fanin.revisions";
 
     public static final String ENABLE_CONFIG_MERGE_PROPERTY = "enable.config.merge";
     public static final GoSystemProperty<Boolean> ENABLE_CONFIG_MERGE_FEATURE = new CachedProperty<>(new GoBooleanSystemProperty(ENABLE_CONFIG_MERGE_PROPERTY, Boolean.TRUE));
 
     public static final String CRUISE_PROPERTIES = "/cruise.properties";
-    private Properties properties;
 
+    public static final String USE_COMPRESSED_JAVASCRIPT = "rails.use.compressed.js";
+
+    public static final String AGENT_SIZE_LIMIT = "agent.size.limit";
     public static final String ARTIFACT_FULL_SIZE_LIMIT = "artifact.full.size.limit";
     public static final String DATABASE_FULL_SIZE_LIMIT = "db.full.size.limit";
     public static final String ARTIFACT_WARNING_SIZE_LIMIT = "artifact.warning.size.limit";
     public static final String DATABASE_WARNING_SIZE_LIMIT = "db.warning.size.limit";
-    public static final String AGENT_SIZE_LIMIT = "agent.size.limit";
     private static final String DISK_SPACE_CACHE_REFRESHER_INTERVAL = "disk.space.cache.refresher.interval";
 
 
     public static final String CONFIG_FILE_PROPERTY = "cruise.config.file";
     public static final String CONSOLE_PUBLISH_INTERVAL_SECONDS = "cruise.console.publish.interval";
+
+
     public static final String SERVICE_URL = "serviceUrl";
     public static final String AGENT_SSL_VERIFICATION_MODE = "sslVerificationMode";
     public static final String AGENT_ROOT_CERT_FILE = "rootCertFile";
     public static final String AGENT_PRIVATE_KEY = "sslPrivateKeyFile";
     public static final String AGENT_PRIVATE_KEY_PASSPHRASE_FILE = "sslPrivateKeyPassphraseFile";
     public static final String AGENT_SSL_CERTIFICATE = "sslCertificateFile";
+    static final String AGENT_CONNECTION_TIMEOUT_IN_SECONDS = "agent.connection.timeout";
+    public static final String AGENT_JAR_MD5 = "agent.binary.md5";
+    public static final String AGENT_PLUGINS_MD5 = "agent.plugins.md5";
+    public static final String AGENT_BOOTSTRAPPER_VERSION = "agent.bootstrapper.version";
+    public static final String AGENT_TFS_IMPL_MD5 = "agent.tfs.md5";
+    public static final String AGENT_LAUNCHER_JAR_MD5 = "agent.launcher.md5";
 
     public static final String CONFIG_DIR_PROPERTY = "cruise.config.dir";
     public static final String DES_CONFIG_CIPHER = "cipher";
@@ -201,6 +208,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private volatile static Long artifactFullSizeLimit;
     private volatile static Long diskSpaceCacheRefresherInterval;
 
+    private Properties properties;
     private File configDir;
     private volatile Boolean enforceRevisionCompatibilityWithUpstream;
 
@@ -355,19 +363,19 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public String getAgentMd5() {
-        return getPropertyImpl(GoConstants.AGENT_JAR_MD5, BLANK_STRING);
+        return getPropertyImpl(AGENT_JAR_MD5, "");
     }
 
     public String getTfsImplMd5() {
-        return getPropertyImpl(GoConstants.TFS_IMPL_MD5, BLANK_STRING);
+        return getPropertyImpl(AGENT_TFS_IMPL_MD5, "");
     }
 
     public String getGivenAgentLauncherMd5() {
-        return getPropertyImpl(GoConstants.GIVEN_AGENT_LAUNCHER_JAR_MD5, BLANK_STRING);
+        return getPropertyImpl(AGENT_LAUNCHER_JAR_MD5, "");
     }
 
     public String getAgentPluginsMd5() {
-        return getPropertyImpl(GoConstants.AGENT_PLUGINS_MD5, BLANK_STRING);
+        return getPropertyImpl(AGENT_PLUGINS_MD5, "");
     }
 
     private Properties properties() {
@@ -443,7 +451,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public boolean useCompressedJs() {
-        return Boolean.parseBoolean(getPropertyImpl(GoConstants.USE_COMPRESSED_JAVASCRIPT, "true"));
+        return Boolean.parseBoolean(getPropertyImpl(USE_COMPRESSED_JAVASCRIPT, "true"));
     }
 
     public Map<String, String> getGitAllowedProtocols() {

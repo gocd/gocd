@@ -29,7 +29,6 @@ import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
@@ -151,7 +150,7 @@ public abstract class AgentController {
 
     private void initRuntimeInfo() {
         agentAutoRegistrationProperties = new AgentAutoRegistrationPropertiesImpl(new File("config", "autoregister.properties"));
-        String bootstrapperVersion = System.getProperty(GoConstants.AGENT_BOOTSTRAPPER_VERSION, "UNKNOWN");
+        String bootstrapperVersion = System.getProperty(SystemEnvironment.AGENT_BOOTSTRAPPER_VERSION, "UNKNOWN");
         String agentVersion = getClass().getPackage().getImplementationVersion();
 
         if (agentAutoRegistrationProperties.isElastic()) {

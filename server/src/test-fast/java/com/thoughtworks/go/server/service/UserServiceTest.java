@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
@@ -693,9 +692,9 @@ public class UserServiceTest {
     @Test
     void shouldFindUserSubscribingForAnyPipelineAndThatHasPermission() {
         User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
-        foo.addNotificationFilter(new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Passes, true));
+        foo.addNotificationFilter(new NotificationFilter(NotificationFilter.ANY_PIPELINE, NotificationFilter.ANY_STAGE, StageEvent.Passes, true));
         User bar = new User("bar", List.of("bAR", "Bar"), "bar@go.com", true);
-        bar.addNotificationFilter(new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Passes, true));
+        bar.addNotificationFilter(new NotificationFilter(NotificationFilter.ANY_PIPELINE, NotificationFilter.ANY_STAGE, StageEvent.Passes, true));
 
         when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(List.of(foo, bar)));
         when(securityService.hasViewPermissionForPipeline(foo.getUsername(), "p1")).thenReturn(true);

@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,25 +81,25 @@ class NotificationFilterTest {
 
     @Test
     void anyPipelineShouldAlwaysMatch() {
-        NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Breaks, false);
+        NotificationFilter filter = new NotificationFilter(NotificationFilter.ANY_PIPELINE, NotificationFilter.ANY_STAGE, StageEvent.Breaks, false);
         assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks)).isTrue();
     }
 
     @Test
     void anyStageShouldAlwaysMatchWithinSamePipeline() {
-        NotificationFilter filter = new NotificationFilter("cruise", GoConstants.ANY_STAGE, StageEvent.Breaks, false);
+        NotificationFilter filter = new NotificationFilter("cruise", NotificationFilter.ANY_STAGE, StageEvent.Breaks, false);
         assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks)).isTrue();
     }
 
     @Test
     void anyStageShouldNotMatchWithinADifferentPipeline() {
-        NotificationFilter filter = new NotificationFilter("cruise", GoConstants.ANY_STAGE, StageEvent.Breaks, false);
+        NotificationFilter filter = new NotificationFilter("cruise", NotificationFilter.ANY_STAGE, StageEvent.Breaks, false);
         assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "dev"), StageEvent.Breaks)).isFalse();
     }
 
     @Test
     void specificStageShouldMatchWithinAnyPipeline() {
-        NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, "dev", StageEvent.Breaks, false);
+        NotificationFilter filter = new NotificationFilter(NotificationFilter.ANY_PIPELINE, "dev", StageEvent.Breaks, false);
         assertThat(filter.matchStage(new StageConfigIdentifier("cruise1", "dev"), StageEvent.Breaks)).isTrue();
         assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "dev"), StageEvent.Breaks)).isTrue();
         assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "not-dev"), StageEvent.Breaks)).isFalse();
@@ -108,19 +107,19 @@ class NotificationFilterTest {
 
     @Test
     void anyPipelineAndAnyStageShouldAlwaysApply() {
-        NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Breaks, false);
+        NotificationFilter filter = new NotificationFilter(NotificationFilter.ANY_PIPELINE, NotificationFilter.ANY_STAGE, StageEvent.Breaks, false);
         assertThat(filter.appliesTo("cruise2", "dev")).isTrue();
     }
 
     @Test
     void anyStageShouldAlwaysApply() {
-        NotificationFilter filter = new NotificationFilter("cruise2", GoConstants.ANY_STAGE, StageEvent.Breaks, false);
+        NotificationFilter filter = new NotificationFilter("cruise2", NotificationFilter.ANY_STAGE, StageEvent.Breaks, false);
         assertThat(filter.appliesTo("cruise2", "dev")).isTrue();
     }
 
     @Test
     void shouldNotApplyIfPipelineDiffers() {
-        NotificationFilter filter = new NotificationFilter("cruise1", GoConstants.ANY_STAGE, StageEvent.Breaks, false);
+        NotificationFilter filter = new NotificationFilter("cruise1", NotificationFilter.ANY_STAGE, StageEvent.Breaks, false);
         assertThat(filter.appliesTo("cruise2", "dev")).isFalse();
     }
 
@@ -132,7 +131,7 @@ class NotificationFilterTest {
 
     @Test
     void specificStageShouldApplyToAnyPipeline() {
-        NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, "dev", StageEvent.Breaks, false);
+        NotificationFilter filter = new NotificationFilter(NotificationFilter.ANY_PIPELINE, "dev", StageEvent.Breaks, false);
         assertThat(filter.appliesTo("cruise1", "dev")).isTrue();
         assertThat(filter.appliesTo("cruise2", "dev")).isTrue();
         assertThat(filter.appliesTo("cruise2", "not-dev")).isFalse();

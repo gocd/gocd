@@ -42,19 +42,13 @@ public class GoConstants {
     public static final String APPROVAL_SUCCESS = "success";
     public static final String APPROVAL_MANUAL = "manual";
     public static final int PUBLISH_MAX_RETRIES = 3;
+
     public static final long MEGABYTES_IN_GIGABYTE = 1024;
     public static final long MEGA_BYTE = 1024 * 1024;
     public static final long GIGA_BYTE = MEGABYTES_IN_GIGABYTE * MEGA_BYTE;
-    public static final String USE_COMPRESSED_JAVASCRIPT = "rails.use.compressed.js";
+
     public static final String GO_URL_CONTEXT = "/go";
     public static final String REGULAR_MULTIPART_FILENAME = "file";
     public static final String CHECKSUM_MULTIPART_FILENAME = "file_checksum";
     public static final String ZIP_MULTIPART_FILENAME = "zipfile";
-    public static final String AGENT_JAR_MD5 = "agent.binary.md5";
-    public static final String AGENT_PLUGINS_MD5 = "agent.plugins.md5";
-    public static final String AGENT_BOOTSTRAPPER_VERSION = "agent.bootstrapper.version";
-    public static final String TFS_IMPL_MD5 = "agent.tfs.md5";
-    public static final String GIVEN_AGENT_LAUNCHER_JAR_MD5 = "agent.launcher.md5";
-    public static final String ANY_PIPELINE = "[Any Pipeline]";
-    public static final String ANY_STAGE = "[Any Stage]";
 }

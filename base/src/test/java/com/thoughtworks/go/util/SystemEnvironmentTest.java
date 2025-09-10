@@ -58,9 +58,9 @@ class SystemEnvironmentTest {
     @Test
     void shouldUnderstandWhetherToUseCompressedJs() {
         assertThat(systemEnvironment.useCompressedJs()).isTrue();
-        systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.FALSE.toString());
+        systemEnvironment.setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, Boolean.FALSE.toString());
         assertThat(systemEnvironment.useCompressedJs()).isFalse();
-        systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.TRUE.toString());
+        systemEnvironment.setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, Boolean.TRUE.toString());
         assertThat(systemEnvironment.useCompressedJs()).isTrue();
     }
 

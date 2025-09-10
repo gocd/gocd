@@ -16,18 +16,18 @@
 package com.thoughtworks.go.apiv1.usersearch.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.presentation.UserSearchModel;
+import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.Collection;
 
 public class UserSearchResultsRepresenter {
-    public static void toJSON(OutputWriter jsonOutputWriter, String searchTerm, Collection<UserSearchModel> userSearchModels) {
+    public static void toJSON(OutputWriter jsonOutputWriter, String searchTerm, Collection<User> users) {
         jsonOutputWriter
                 .addLinks(outputLinkWriter -> outputLinkWriter
                         .addAbsoluteLink("doc", Routes.UserSearch.DOC)
                         .addLink("self", Routes.UserSearch.self(searchTerm))
                         .addLink("find", Routes.UserSearch.find()))
-                .addChild("_embedded", embeddedWriter -> embeddedWriter.addChildList("users", usersWriter -> userSearchModels.forEach(userSearchModel -> usersWriter.addChild(outputWriter -> UserSearchRepresenter.toJSON(outputWriter, userSearchModel)))));
+                .addChild("_embedded", embeddedWriter -> embeddedWriter.addChildList("users", usersWriter -> users.forEach(user -> usersWriter.addChild(outputWriter -> UserSearchRepresenter.toJSON(outputWriter, user)))));
     }
 }

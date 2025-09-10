@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.UserModel;
-import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
@@ -458,11 +457,6 @@ public class UserService {
         }
     }
 
-    private boolean userExists(User user) {
-        User foundUser = userDao.findUser(user.getName());
-        return !(foundUser instanceof NullUser);
-    }
-
     public User findUserByName(String username) {
         return userDao.findUser(username);
     }
@@ -557,34 +551,6 @@ public class UserService {
 
     public Collection<User> allUsers() {
         return new HashSet<>(userDao.allUsers());
-    }
-
-    public void create(List<UserSearchModel> userSearchModels, HttpLocalizedOperationResult result) {
-        if (userSearchModels.isEmpty()) {
-            result.badRequest("No users selected.");
-            return;
-        }
-        synchronized (enableUserMutex) {
-            for (UserSearchModel userSearchModel : userSearchModels) {
-                User user = userSearchModel.getUser();
-
-                if (userExists(user)) {
-                    result.conflict(EntityType.User.alreadyExists(user.getName()));
-                    return;
-                }
-
-                if (user.isAnonymous()) {
-                    result.badRequest("Failed to add user. Username '" + user.getName() + "' is not permitted.");
-                    return;
-                }
-
-                if (validate(result, user)) {
-                    return;
-                }
-                userDao.saveOrUpdate(user);
-                result.setMessage("User '" + user.getName() + "' successfully added.");
-            }
-        }
     }
 
     public static class AdminAndRoleSelections {

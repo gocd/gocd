@@ -16,8 +16,6 @@
 package com.thoughtworks.go.apiv1.usersearch.representers
 
 import com.thoughtworks.go.domain.User
-import com.thoughtworks.go.presentation.UserSearchModel
-import com.thoughtworks.go.presentation.UserSourceType
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
@@ -27,9 +25,9 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 class UserSearchResultsRepresenterTest {
   @Test
   void 'should serialize'() {
-    def userSearchModel = new UserSearchModel(new User("bob", "Bob The Builder", "bob@example.com"), UserSourceType.PLUGIN)
+    def user = new User("bob", "Bob The Builder", "bob@example.com")
 
-    def actualJson = toObjectString({ UserSearchResultsRepresenter.toJSON(it, 'Bob Builder', [userSearchModel]) })
+    def actualJson = toObjectString({ UserSearchResultsRepresenter.toJSON(it, 'Bob Builder', [user]) })
 
     Map<String, Object> expectedJson = [
       _links   : [

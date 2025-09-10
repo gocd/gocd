@@ -16,8 +16,6 @@
 package com.thoughtworks.go.apiv1.usersearch.representers
 
 import com.thoughtworks.go.domain.User
-import com.thoughtworks.go.presentation.UserSearchModel
-import com.thoughtworks.go.presentation.UserSourceType
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
@@ -28,7 +26,7 @@ class UserSearchRepresenterTest {
   @Test
   void 'should serialize'() {
     def user = new User("bob", "Bob", "bob@example.com")
-    def actualJson = toObjectString({ UserSearchRepresenter.toJSON(it, new UserSearchModel(user, UserSourceType.PLUGIN)) })
+    def actualJson = toObjectString({ UserSearchRepresenter.toJSON(it, user) })
 
     Map<String, Object> expectedJson = [
       _links      : [

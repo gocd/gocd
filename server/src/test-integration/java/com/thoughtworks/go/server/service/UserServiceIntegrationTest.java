@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.config.Admin;
@@ -25,8 +24,6 @@ import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.UserRoleMatcherMother;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.UserModel;
-import com.thoughtworks.go.presentation.UserSearchModel;
-import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserSqlMapDao;
@@ -45,7 +42,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -257,45 +253,6 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCreateANewUser() {
-        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(List.of(foo), result);
-
-        assertThat(result.isSuccessful()).isTrue();
-        assertThat(result.message()).isEqualTo("User 'fooUser' successfully added.");
-    }
-
-    @Test
-    public void shouldReturnErrorWhenTryingToAddAnonymousUser() {
-        UserSearchModel anonymous = new UserSearchModel(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()), "Mr. Anonymous", "anon@cruise.com"), UserSourceType.PLUGIN);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(List.of(anonymous), result);
-
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.message()).isEqualTo("Failed to add user. Username 'anonymous' is not permitted.");
-    }
-
-    @Test
-    public void shouldReturnErrorWhenUserAlreadyExists() {
-        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
-        addUser(foo.getUser());
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(List.of(foo), result);
-
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.message()).isEqualTo(EntityType.User.alreadyExists("fooUser"));
-    }
-
-    @Test
-    public void create_shouldReturnErrorWhenNoUsersSelected() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(new ArrayList<>(), result);
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.message()).isEqualTo("No users selected.");
-    }
-
-    @Test
     public void disableUsers_shouldDisableUsers() {
         addUser(new User("user_one"));
         addUser(new User("user_two"));
@@ -327,7 +284,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldKnowEnabledAndDisbaledUsersCount() {
+    public void shouldKnowEnabledAndDisabledUsersCount() {
         addUser(new User("user_one"));
         addUser(new User("user_three"));
 
@@ -335,38 +292,6 @@ public class UserServiceIntegrationTest {
 
         assertThat(userService.enabledUserCount()).isEqualTo(2L);
         assertThat(userService.disabledUserCount()).isEqualTo(1L);
-    }
-
-    @Test
-    public void shouldReturnErrorMessageWhenUserValidationsFail() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        User invalidUser = new User("fooUser", "Foo User", "invalidEmail");
-        UserSearchModel searchModel = new UserSearchModel(invalidUser, UserSourceType.PLUGIN);
-
-        userService.create(List.of(searchModel), result);
-
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.message()).isEqualTo("Failed to add user. Validations failed. Invalid email address.");
-    }
-
-    @Test
-    public void shouldReturnErrorMessageWhenTheLastAdminIsBeingDisabled() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        configFileHelper.enableSecurity();
-        configFileHelper.addAdmins("Jake", "Pavan", "Yogi");
-
-        userService.create(users("Jake", "Pavan", "Shilpa", "Yogi"), new HttpLocalizedOperationResult());
-
-        userService.disable(List.of("Yogi"), result);
-        assertThat(result.isSuccessful()).isTrue();
-
-        userService.disable(List.of("Pavan", "Jake"), result);//disable remaining admins
-
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(HTTP_BAD_REQUEST);
-        assertThat(result.message()).isEqualTo("There must be at least one admin user enabled!");
     }
 
     @Test
@@ -723,12 +648,12 @@ public class UserServiceIntegrationTest {
         addUser(user);
     }
 
-    private List<UserSearchModel> users(String... usernames) {
-        List<UserSearchModel> models = new ArrayList<>();
+    private List<User> users(String... usernames) {
+        List<User> users = new ArrayList<>();
         for (String username : usernames) {
-            models.add(new UserSearchModel(new User(username, username, "foo@cruise.com"), UserSourceType.PLUGIN));
+            users.add(new User(username, username, "foo@cruise.com"));
         }
-        return models;
+        return users;
     }
 
     private void givingJezViewPermissionToMingle() {

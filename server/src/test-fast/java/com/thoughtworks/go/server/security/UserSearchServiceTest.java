@@ -25,8 +25,6 @@ import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
 import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.presentation.UserSearchModel;
-import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,13 +70,13 @@ public class UserSearchServiceTest  {
         when(authorizationExtension.searchUsers("plugin-id-3", searchTerm, Collections.emptyList())).thenReturn(new ArrayList<>());
         when(authorizationExtension.searchUsers("plugin-id-4", searchTerm, Collections.emptyList())).thenReturn(List.of(new User("username-" + 4, null, null)));
 
-        List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
+        List<com.thoughtworks.go.domain.User> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
 
         assertThat(models).contains(
-                new UserSearchModel(getUser(1), UserSourceType.PLUGIN),
-                new UserSearchModel(getUser(2), UserSourceType.PLUGIN),
-                new UserSearchModel(getUser(3), UserSourceType.PLUGIN),
-                new UserSearchModel(new com.thoughtworks.go.domain.User ("username-" + 4, "", ""), UserSourceType.PLUGIN)
+                getUser(1),
+                getUser(2),
+                getUser(3),
+                new com.thoughtworks.go.domain.User ("username-" + 4, "", "")
         );
     }
 

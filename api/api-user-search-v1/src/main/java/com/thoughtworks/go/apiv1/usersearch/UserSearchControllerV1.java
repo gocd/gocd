@@ -19,7 +19,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.usersearch.representers.UserSearchResultsRepresenter;
-import com.thoughtworks.go.presentation.UserSearchModel;
+import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.security.UserSearchService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
@@ -70,10 +70,10 @@ public class UserSearchControllerV1 extends ApiController implements SparkSpring
         if (isBlank(searchTerm)) {
             throw haltBecauseOfReason("Search term not specified!");
         }
-        List<UserSearchModel> userSearchModels = userSearchService.search(searchTerm, result);
+        List<User> users = userSearchService.search(searchTerm, result);
 
         if (result.isSuccessful()) {
-            return writerForTopLevelObject(req, res, writer -> UserSearchResultsRepresenter.toJSON(writer, searchTerm, userSearchModels));
+            return writerForTopLevelObject(req, res, writer -> UserSearchResultsRepresenter.toJSON(writer, searchTerm, users));
         } else {
             return renderHTTPOperationResult(result, req, res);
         }

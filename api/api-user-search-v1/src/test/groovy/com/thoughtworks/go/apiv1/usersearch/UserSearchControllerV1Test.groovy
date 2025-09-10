@@ -19,8 +19,6 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.usersearch.representers.UserSearchResultsRepresenter
 import com.thoughtworks.go.domain.User
-import com.thoughtworks.go.presentation.UserSearchModel
-import com.thoughtworks.go.presentation.UserSourceType
 import com.thoughtworks.go.server.security.UserSearchService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
@@ -100,7 +98,7 @@ class UserSearchControllerV1Test implements SecurityServiceTrait, ControllerTrai
         def searchTerm = 'blah blah'
         def user = new User("bob", searchTerm, "bob@example.com")
         def expectedUsers = [
-          new UserSearchModel(user, UserSourceType.PLUGIN)
+          user
         ]
         when(userSearchService.search(eq(searchTerm), any() as HttpLocalizedOperationResult)).thenReturn(expectedUsers)
 

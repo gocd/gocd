@@ -19,8 +19,6 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.presentation.UserSearchModel;
-import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.slf4j.Logger;
@@ -29,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,7 +37,7 @@ import java.util.List;
 public class UserSearchService {
     private final AuthorizationMetadataStore store;
     private final AuthorizationExtension authorizationExtension;
-    private GoConfigService goConfigService;
+    private final GoConfigService goConfigService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserSearchService.class);
     private static final int MINIMUM_SEARCH_STRING_LENGTH = 2;
@@ -50,26 +49,25 @@ public class UserSearchService {
         this.goConfigService = goConfigService;
     }
 
-    public List<UserSearchModel> search(String searchText, HttpLocalizedOperationResult result) {
-        List<UserSearchModel> userSearchModels = new ArrayList<>();
-        if (isInputValid(searchText, result)) {
-            return userSearchModels;
+    public List<User> search(String searchText, HttpLocalizedOperationResult result) {
+        if (isInputInvalid(searchText, result)) {
+            return Collections.emptyList();
         }
 
-        searchUsingPlugins(searchText, userSearchModels);
+        List<User> results = searchUsingPlugins(searchText);
 
-        if (userSearchModels.size() == 0 && !result.hasMessage()) {
+        if (results.isEmpty() && !result.hasMessage()) {
             result.setMessage("No results found.");
         }
-        return userSearchModels;
+        return results;
     }
 
-    private void searchUsingPlugins(String searchText, List<UserSearchModel> userSearchModels) {
+    private List<User> searchUsingPlugins(String searchText) {
         List<User> searchResults = new ArrayList<>();
         for (final String pluginId : store.getPluginsThatSupportsUserSearch()) {
             try {
                 List<com.thoughtworks.go.plugin.domain.authorization.User> users = getUsersConfiguredViaPlugin(pluginId, searchText);
-                if (users != null && !users.isEmpty()) {
+                if (!users.isEmpty()) {
                     for (com.thoughtworks.go.plugin.domain.authorization.User user : users) {
                         String displayName = user.getDisplayName() == null ? "" : user.getDisplayName();
                         String emailId = user.getEmailId() == null ? "" : user.getEmailId();
@@ -80,7 +78,7 @@ public class UserSearchService {
                 LOGGER.warn("Error occurred while performing user search using plugin: {}", pluginId, e);
             }
         }
-        userSearchModels.addAll(convertUsersToUserSearchModel(searchResults, UserSourceType.PLUGIN));
+        return searchResults;
     }
 
     private List<com.thoughtworks.go.plugin.domain.authorization.User> getUsersConfiguredViaPlugin(String pluginId, String searchTerm) {
@@ -92,19 +90,11 @@ public class UserSearchService {
         return users;
     }
 
-    private boolean isInputValid(String searchText, HttpLocalizedOperationResult result) {
+    private boolean isInputInvalid(String searchText, HttpLocalizedOperationResult result) {
         if (searchText.trim().length() < MINIMUM_SEARCH_STRING_LENGTH) {
             result.badRequest("Please use a search string that has at least two (2) letters.");
             return true;
         }
         return false;
-    }
-
-    private List<UserSearchModel> convertUsersToUserSearchModel(List<User> users, UserSourceType source) {
-        List<UserSearchModel> userSearchModels = new ArrayList<>();
-        for (User user : users) {
-            userSearchModels.add(new UserSearchModel(user, source));
-        }
-        return userSearchModels;
     }
 }

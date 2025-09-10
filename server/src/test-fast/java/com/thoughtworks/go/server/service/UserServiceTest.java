@@ -25,8 +25,6 @@ import com.thoughtworks.go.domain.exception.UncheckedValidationException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.UserModel;
-import com.thoughtworks.go.presentation.UserSearchModel;
-import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
@@ -50,7 +48,6 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConf
 import static com.thoughtworks.go.helper.SecurityConfigMother.securityConfigWithRole;
 import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static java.net.HttpURLConnection.HTTP_CONFLICT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -229,47 +226,6 @@ public class UserServiceTest {
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
         assertThat(models).isEqualTo(List.of(model(bar, List.of("user", "loser"), false), model(foo, List.of("loser", "boozer"), true)));
-    }
-
-    @Test
-    void shouldCreateNewUsers() {
-        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
-
-        doNothing().when(userDao).saveOrUpdate(foo.getUser());
-        when(userDao.findUser("fooUser")).thenReturn(new NullUser());
-        when(userDao.enabledUserCount()).thenReturn(10L);
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(List.of(foo), result);
-        assertThat(result.isSuccessful()).isTrue();
-    }
-
-    @Test
-    void shouldReturnConflictWhenUserAlreadyExists() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        User existsingUser = new User("existingUser", "Existing User", "existing@user.com");
-        UserSearchModel searchModel = new UserSearchModel(existsingUser, UserSourceType.PLUGIN);
-        when(userDao.findUser("existingUser")).thenReturn(existsingUser);
-        userService.create(List.of(searchModel), result);
-
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(HTTP_CONFLICT);
-    }
-
-    @Test
-    void shouldReturnErrorMessageWhenUserValidationsFail() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        User invalidUser = new User("fooUser", "Foo User", "invalidEmail");
-        UserSearchModel searchModel = new UserSearchModel(invalidUser, UserSourceType.PLUGIN);
-        when(userDao.findUser("fooUser")).thenReturn(new NullUser());
-        when(userDao.enabledUserCount()).thenReturn(1L);
-
-        userService.create(List.of(searchModel), result);
-
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(HTTP_BAD_REQUEST);
     }
 
     @Test

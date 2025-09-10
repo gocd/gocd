@@ -43,7 +43,7 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
         this(consoleAppender, new SystemEnvironment().getConsolePublishInterval(), TimeUnit.SECONDS, new ScheduledThreadPoolExecutor(1));
     }
 
-    ConsoleOutputTransmitter(ConsoleAppender consoleAppender, Integer consolePublishInterval, TimeUnit consumePublishIntervalUnit, ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
+    ConsoleOutputTransmitter(ConsoleAppender consoleAppender, long consolePublishInterval, TimeUnit consumePublishIntervalUnit, ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
         this.consoleAppender = consoleAppender;
         this.executor = scheduledThreadPoolExecutor;
         executor.scheduleAtFixedRate(this, 0L, consolePublishInterval, consumePublishIntervalUnit);

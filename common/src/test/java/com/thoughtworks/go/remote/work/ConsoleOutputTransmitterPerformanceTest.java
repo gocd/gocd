@@ -24,19 +24,41 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConsoleOutputTransmitterPerformanceTest {
 
+    public static final long CONSOLE_PUBLISH_INTERVAL_MILLIS = 100;
+
     @Test
     public void shouldNotBlockPublisherWhenSendingToServer() throws InterruptedException {
-        int consolePublishIntervalMillis = 400;
-        try (ConsoleOutputTransmitter transmitter = new ConsoleOutputTransmitter(new SlowResource(), consolePublishIntervalMillis, TimeUnit.MILLISECONDS, new ScheduledThreadPoolExecutor(1))) {
+        int numberToSend = 4;
+        int actuallySent;
+        try (ConsoleOutputTransmitter transmitter = new ConsoleOutputTransmitter(new SlowResource(), CONSOLE_PUBLISH_INTERVAL_MILLIS, TimeUnit.MILLISECONDS, new ScheduledThreadPoolExecutor(1))) {
+            actuallySent = transmitData(transmitter, numberToSend);
+        }
+        assertThat(numberToSend).isLessThanOrEqualTo(actuallySent);
+    }
+
+    private int transmitData(final ConsoleOutputTransmitter transmitter, final int numberIterations)
+        throws InterruptedException {
+        final int[] count = {0};
+        Thread thread = new Thread(() -> {
             long startTime = System.currentTimeMillis();
-            int numberMessages = 4;
-            for (int i = 0; i < numberMessages; i++) {
-                transmitter.consumeLine("This is line " + i);
-                Thread.sleep(consolePublishIntervalMillis);
+            count[0] = 0;
+            while (System.currentTimeMillis() < startTime + (numberIterations * CONSOLE_PUBLISH_INTERVAL_MILLIS)) {
+                String line = "This is line " + count[0];
+                transmitter.consumeLine(line);
+                sleepForPublishInterval();
+                count[0]++;
             }
-            assertThat(System.currentTimeMillis() - startTime)
-                .describedAs("Publishing messages should not be blocked (buffer of 300 ms)")
-                .isLessThan(consolePublishIntervalMillis * numberMessages + 300);
+        });
+        thread.start();
+        thread.join();
+        return count[0];
+    }
+
+    private void sleepForPublishInterval() {
+        try {
+            Thread.sleep(ConsoleOutputTransmitterPerformanceTest.CONSOLE_PUBLISH_INTERVAL_MILLIS);
+        } catch (InterruptedException ignore) {
+            Thread.currentThread().interrupt();
         }
     }
 }

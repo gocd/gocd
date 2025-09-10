@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.Date;
 
-import static com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
+import static com.thoughtworks.go.util.ArtifactLogUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;

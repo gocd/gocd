@@ -81,7 +81,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
 
     public static final String CONFIG_FILE_PROPERTY = "cruise.config.file";
-    public static final String INTERVAL = "cruise.console.publish.interval";
+    public static final String CONSOLE_PUBLISH_INTERVAL_SECONDS = "cruise.console.publish.interval";
     public static final String SERVICE_URL = "serviceUrl";
     public static final String AGENT_SSL_VERIFICATION_MODE = "sslVerificationMode";
     public static final String AGENT_ROOT_CERT_FILE = "rootCertFile";
@@ -401,8 +401,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
             () -> agentConnectionTimeout = Integer.parseInt(getPropertyImpl(AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "300")));
     }
 
-    public Integer getConsolePublishInterval() {
-        return Integer.valueOf(getPropertyImpl(INTERVAL, "10"));
+    public Integer getConsolePublishIntervalSeconds() {
+        return Integer.valueOf(getPropertyImpl(CONSOLE_PUBLISH_INTERVAL_SECONDS, "10"));
     }
 
     public String getServiceUrl() {

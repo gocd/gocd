@@ -23,6 +23,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -31,14 +34,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@ExtendWith(SystemStubsExtension.class)
 public class ConsoleOutputTransmitterTest {
     @Mock
     private ConsoleAppender consoleAppender;
     private ConsoleOutputTransmitter transmitter;
 
+    @SystemStub
+    SystemProperties systemProperties;
+
     @BeforeEach
     public void setup() {
-        new SystemEnvironment().setProperty(SystemEnvironment.INTERVAL, "60"); // so the thread does not wake up
+        systemProperties.set(SystemEnvironment.CONSOLE_PUBLISH_INTERVAL_SECONDS, "60"); // so the thread does not wake up
         transmitter = new ConsoleOutputTransmitter(consoleAppender, 0, TimeUnit.SECONDS, mock(ScheduledThreadPoolExecutor.class));
     }
 

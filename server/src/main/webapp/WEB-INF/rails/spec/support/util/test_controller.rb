@@ -48,7 +48,7 @@ class NonApiController < ApplicationController
 
   def localized_not_found_action
     hor = HttpLocalizedOperationResult.new()
-    hor.notFound(com.thoughtworks.go.i18n.LocalizedMessage::forbiddenToViewPipeline("mingle"), HealthStateType.general(HealthStateScope::GLOBAL))
+    hor.notFound("it was not found, but localized", HealthStateType.general(HealthStateScope::GLOBAL))
     render_localized_operation_result(hor)
   end
 

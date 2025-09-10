@@ -16,7 +16,6 @@
 
 module JavaImports
   java_import com.thoughtworks.go.server.newsecurity.utils.SessionUtils unless defined? SessionUtils
-  java_import com.thoughtworks.go.i18n.LocalizedMessage unless defined? LocalizedMessage
   java_import com.thoughtworks.go.listener.BaseUrlChangeListener unless defined? BaseUrlChangeListener
   java_import com.thoughtworks.go.presentation.FlashMessageModel unless defined? FlashMessageModel
 

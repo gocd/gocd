@@ -32,11 +32,13 @@ describe NonApiController do
       expect(page.title).to include("HTTP ERROR 404 - Go")
     end
 
-    it "should render erroneous responses" do
+    it "should render erroneous localized responses" do
       get :localized_not_found_action
       expect(response.status).to eq(404)
       expect(response.body).to have_selector("div.biggest", :text=>":(")
-      expect(response.body).to have_selector("h3", :text=>"You do not have view permissions for pipeline 'mingle'.")
+      expect(response.body).to have_selector("h3", :text=>"it was not found, but localized")
+      page = Capybara::Node::Simple.new(response.body)
+      expect(page.title).to include("HTTP ERROR 404 - Go")
     end
 
     it "should fail with double_render error when not rendering error" do

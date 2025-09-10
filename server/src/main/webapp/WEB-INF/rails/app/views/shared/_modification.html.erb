@@ -8,7 +8,7 @@
     <div class="modified_by">
         <dl>
             <dt>Modified by:</dt>
-            <dd><%= h(com.thoughtworks.go.i18n.LocalizedMessage::modifiedBy(scope[:modification].getUserDisplayName(), scope[:modification].getModifiedTime().iso8601)) -%></dd>
+            <dd><%= h(scope[:modification].getUserDisplayName()) -%> on <%= scope[:modification].getModifiedTime().iso8601 -%></dd>
         </dl>
     </div>
     <div class="comment">

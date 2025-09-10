@@ -145,7 +145,7 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
 
     @Override
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        return Long.hashCode(id);
     }
 
     @Override public String toString() {

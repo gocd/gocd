@@ -146,7 +146,7 @@ public class DefaultJobPlan implements JobPlan {
         int result;
         result = (resources != null ? resources.hashCode() : 0);
         result = 31 * result + (artifactPlans != null ? artifactPlans.hashCode() : 0);
-        result = 31 * result + (int) (jobId ^ (jobId >>> 32));
+        result = 31 * result + Long.hashCode(jobId);
         result = 31 * result + (identifier != null ? identifier.hashCode() : 0);
         return result;
     }

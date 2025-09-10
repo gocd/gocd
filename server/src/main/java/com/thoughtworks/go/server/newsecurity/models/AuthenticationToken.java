@@ -110,7 +110,7 @@ public class AuthenticationToken<T extends Credentials> {
         int result = user != null ? user.hashCode() : 0;
         result = 31 * result + (credentials != null ? credentials.hashCode() : 0);
         result = 31 * result + (authConfigId != null ? authConfigId.hashCode() : 0);
-        result = 31 * result + (int) (authenticatedAt ^ (authenticatedAt >>> 32));
+        result = 31 * result + Long.hashCode(authenticatedAt);
         result = 31 * result + (invalidated ? 1 : 0);
         result = 31 * result + (pluginId != null ? pluginId.hashCode() : 0);
         return result;

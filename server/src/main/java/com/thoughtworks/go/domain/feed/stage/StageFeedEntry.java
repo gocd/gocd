@@ -129,10 +129,10 @@ public class StageFeedEntry implements FeedEntry {
 
     @Override
     public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (int) (pipelineId ^ (pipelineId >>> 32));
+        int result = Long.hashCode(id);
+        result = 31 * result + Long.hashCode(pipelineId);
         result = 31 * result + (identifier != null ? identifier.hashCode() : 0);
-        result = 31 * result + (int) (entryId ^ (entryId >>> 32));
+        result = 31 * result + Long.hashCode(entryId);
         result = 31 * result + (updateDate != null ? updateDate.hashCode() : 0);
         result = 31 * result + (stageResult != null ? stageResult.hashCode() : 0);
         return result;

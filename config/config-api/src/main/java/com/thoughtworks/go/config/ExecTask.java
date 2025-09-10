@@ -250,7 +250,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         result = command.hashCode();
         result = 31 * result + (args != null ? args.hashCode() : 0);
         result = 31 * result + (workingDirectory != null ? workingDirectory.hashCode() : 0);
-        result = 31 * result + (int) (timeout ^ (timeout >>> 32));
+        result = 31 * result + timeout.hashCode();
         return result;
     }
 

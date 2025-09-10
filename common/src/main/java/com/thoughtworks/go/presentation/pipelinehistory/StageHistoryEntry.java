@@ -100,7 +100,7 @@ public class StageHistoryEntry extends PersistentObject {
         result = identifier != null ? identifier.hashCode() : 0;
         result = 31 * result + (state != null ? state.hashCode() : 0);
         temp = naturalOrder != +0.0d ? Double.doubleToLongBits(naturalOrder) : 0L;
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + Long.hashCode(temp);
         return result;
     }
 

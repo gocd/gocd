@@ -85,7 +85,7 @@ public class JobStateTransition extends PersistentObject {
         int result = Long.valueOf(jobId).hashCode();
         result = 31 * result + (currentState != null ? currentState.hashCode() : 0);
         result = 31 * result + (stateChangeTime != null ? stateChangeTime.hashCode() : 0);
-        result = 31 * result + (int) (jobId ^ (jobId >>> 32));
+        result = 31 * result + Long.hashCode(jobId);
         return result;
     }
 

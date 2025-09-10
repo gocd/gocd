@@ -129,7 +129,7 @@ public class GoDashboardPipeline {
         int result = pipelineModel != null ? pipelineModel.hashCode() : 0;
         result = 31 * result + (permissions != null ? permissions.hashCode() : 0);
         result = 31 * result + (groupName != null ? groupName.hashCode() : 0);
-        result = 31 * result + (int) (lastUpdatedTimeStamp ^ (lastUpdatedTimeStamp >>> 32));
+        result = 31 * result + Long.hashCode(lastUpdatedTimeStamp);
         return result;
     }
 

@@ -68,7 +68,7 @@ public class DiskSpace implements Comparable<DiskSpace> {
 
     @Override
     public int hashCode() {
-        return (int) (space ^ (space >>> 32));
+        return space.hashCode();
     }
 
     private static class NullDiskSpace extends DiskSpace {

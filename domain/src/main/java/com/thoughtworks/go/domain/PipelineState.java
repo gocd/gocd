@@ -82,7 +82,7 @@ public class PipelineState extends PersistentObject {
         int result = super.hashCode();
         result = 31 * result + pipelineName.hashCode();
         result = 31 * result + (locked ? 1 : 0);
-        result = 31 * result + (int) (lockedByPipelineId ^ (lockedByPipelineId >>> 32));
+        result = 31 * result + Long.hashCode(lockedByPipelineId);
         result = 31 * result + (lockedBy != null ? lockedBy.hashCode() : 0);
         return result;
     }

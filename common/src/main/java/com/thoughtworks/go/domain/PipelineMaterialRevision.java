@@ -162,7 +162,7 @@ public class PipelineMaterialRevision extends PersistentObject {
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (folder != null ? folder.hashCode() : 0);
-        result = 31 * result + (int) (pipelineId ^ (pipelineId >>> 32));
+        result = 31 * result + Long.hashCode(pipelineId);
         result = 31 * result + (fromRevision != null ? fromRevision.hashCode() : 0);
         result = 31 * result + (toRevision != null ? toRevision.hashCode() : 0);
         result = 31 * result + (changed ? 1 : 0);

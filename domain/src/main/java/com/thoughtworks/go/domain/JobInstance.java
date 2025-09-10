@@ -437,7 +437,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     @Override
     public int hashCode() {
         int result1;
-        result1 = (int) (stageId ^ (stageId >>> 32));
+        result1 = Long.hashCode(stageId);
         result1 = 31 * result1 + (name != null ? name.hashCode() : 0);
         result1 = 31 * result1 + (state != null ? state.hashCode() : 0);
         result1 = 31 * result1 + (result != null ? result.hashCode() : 0);

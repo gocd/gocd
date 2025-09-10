@@ -122,7 +122,7 @@ public class ActiveJob {
 
     @Override
     public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
+        int result = Long.hashCode(id);
         result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
         result = 31 * result + (buildName != null ? buildName.hashCode() : 0);
         result = 31 * result + (stageName != null ? stageName.hashCode() : 0);

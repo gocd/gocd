@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.withinPercentage;
@@ -53,7 +54,7 @@ public class ConsoleOutputTransmitterPerformanceTest {
         long lastSleepExcess = 0;
         for (int i = 0; i < expectedNumberToSendWithZeroBlocking; i++) {
             transmitter.consumeLine("This is line " + i);
-            lastSleepExcess = sleepFor(sendIntervalMillis - lastSleepExcess);
+            lastSleepExcess = sleepFor(max(sendIntervalMillis - lastSleepExcess, 0));
         }
         assertThat(System.currentTimeMillis() - startTime)
             .describedAs("Publishing messages should not be blocked excessively (buffer of 15% for sleep variation and minor blocking%)")
@@ -67,7 +68,7 @@ public class ConsoleOutputTransmitterPerformanceTest {
         } catch (InterruptedException ignore) {
             Thread.currentThread().interrupt();
         }
-        return Math.max(System.currentTimeMillis() - start - sleepFor, 0);
+        return System.currentTimeMillis() - start - sleepFor;
     }
 
     private static class SlowConsoleAppender implements ConsoleAppender {

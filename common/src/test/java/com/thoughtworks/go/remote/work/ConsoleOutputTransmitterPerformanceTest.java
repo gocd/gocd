@@ -15,50 +15,59 @@
  */
 package com.thoughtworks.go.remote.work;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.withinPercentage;
 
 public class ConsoleOutputTransmitterPerformanceTest {
 
-    public static final long CONSOLE_PUBLISH_INTERVAL_MILLIS = 100;
+    private static final long CONSOLE_PUBLISH_INTERVAL_MILLIS = 200;
+
+    private ConsoleOutputTransmitter transmitter;
+
+    @BeforeEach
+    public void setup() {
+        try (ConsoleOutputTransmitter transmitter = new ConsoleOutputTransmitter(new SlowConsoleAppender(), 50, MILLISECONDS, new ScheduledThreadPoolExecutor(1))) {
+            transmitter.consumeLine("Warming up...");
+        }
+        transmitter = new ConsoleOutputTransmitter(new SlowConsoleAppender(), CONSOLE_PUBLISH_INTERVAL_MILLIS, MILLISECONDS, new ScheduledThreadPoolExecutor(1));
+    }
 
     @Test
     public void shouldNotBlockPublisherWhenSendingToServer() throws InterruptedException {
-        int numberToSend = 4;
-        int actuallySent;
-        try (ConsoleOutputTransmitter transmitter = new ConsoleOutputTransmitter(new SlowResource(), CONSOLE_PUBLISH_INTERVAL_MILLIS, TimeUnit.MILLISECONDS, new ScheduledThreadPoolExecutor(1))) {
-            actuallySent = transmitData(transmitter, numberToSend);
+        int numberPublishIntervals = 5;
+        int sendPerPublishInterval = 5;
+        long sendIntervalMillis = CONSOLE_PUBLISH_INTERVAL_MILLIS / sendPerPublishInterval;
+        int expectedNumberToSendWithZeroBlocking = numberPublishIntervals * sendPerPublishInterval;
+
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < expectedNumberToSendWithZeroBlocking; i++) {
+            transmitter.consumeLine("This is line " + i);
+            Thread.sleep(sendIntervalMillis);
         }
-        assertThat(numberToSend).isLessThanOrEqualTo(actuallySent);
+        assertThat(System.currentTimeMillis() - startTime)
+            .describedAs("Publishing messages should not be blocked excessively (buffer of 15 for sleep variation and minor blocking%)")
+            .isCloseTo(expectedNumberToSendWithZeroBlocking * sendIntervalMillis, withinPercentage(15));
     }
 
-    private int transmitData(final ConsoleOutputTransmitter transmitter, final int numberIterations)
-        throws InterruptedException {
-        final int[] count = {0};
-        Thread thread = new Thread(() -> {
-            long startTime = System.currentTimeMillis();
-            count[0] = 0;
-            while (System.currentTimeMillis() < startTime + (numberIterations * CONSOLE_PUBLISH_INTERVAL_MILLIS)) {
-                String line = "This is line " + count[0];
-                transmitter.consumeLine(line);
-                sleepForPublishInterval();
-                count[0]++;
-            }
-        });
-        thread.start();
-        thread.join();
-        return count[0];
-    }
-
-    private void sleepForPublishInterval() {
+    private static void sleepFor(long millis) {
         try {
-            Thread.sleep(ConsoleOutputTransmitterPerformanceTest.CONSOLE_PUBLISH_INTERVAL_MILLIS);
+            Thread.sleep(millis);
         } catch (InterruptedException ignore) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    private static class SlowConsoleAppender implements ConsoleAppender {
+        @Override
+        public void append(String content) {
+            // Every publish will take 90% of the published interval, so that it can actually catch up
+            sleepFor(Math.round(0.9 * CONSOLE_PUBLISH_INTERVAL_MILLIS));
         }
     }
 }

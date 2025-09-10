@@ -56,7 +56,7 @@ public class ConfigRepoMigrator {
             String contextJSON = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             return JsonUtils.jsonToMap(contextJSON);
         } catch (Exception e) {
-            LOGGER.debug(String.format("No context file present for target version '%s'.", targetVersion));
+            LOGGER.debug("No context file present for target version '{}'.", targetVersion);
             return null;
         }
     }

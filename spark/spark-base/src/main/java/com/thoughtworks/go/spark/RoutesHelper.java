@@ -125,7 +125,7 @@ public class RoutesHelper {
     void unhandledException(Exception ex, Request req, Response res) {
         final String query = req.queryString();
         final String uri = req.requestMethod() + " " + (isNotBlank(query) ? req.pathInfo() + "?" + query : req.pathInfo());
-        LOG.error(format("Unhandled exception on [%s]: %s", uri, ex.getMessage()), ex);
+        LOG.error("Unhandled exception on [{}]: {}", uri, ex.getMessage(), ex);
 
         res.status(HttpURLConnection.HTTP_INTERNAL_ERROR);
         res.body(GSON.toJson(Map.of("error", ex.getMessage() == null ? "Internal server error" : ex.getMessage())));

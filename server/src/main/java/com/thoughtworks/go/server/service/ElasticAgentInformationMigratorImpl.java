@@ -100,7 +100,7 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
             goConfigService.updateConfig(command);
             return true;
         } catch (Exception e) {
-            LOG.error(String.format("Failed migrating elastic agent information for plugin with id '%s'", pluginDescriptor.id()), e);
+            LOG.error("Failed migrating elastic agent information for plugin with id '{}'", pluginDescriptor.id(), e);
 
             String pluginId = pluginDescriptor.id();
             String pluginAPIRequest = "cd.go.elastic-agent.migrate-config";

@@ -577,7 +577,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             envsToAdd.forEach(envName -> {
                 EnvironmentConfig env = environmentConfigService.find(envName);
                 if (env != null && env.containsAgentRemotely(uuid)) {
-                    LOGGER.info(format("Not adding Agent [%s] to Environment [%s] as it is already associated from a Config Repo", uuid, envName));
+                    LOGGER.info("Not adding Agent [{}] to Environment [{}] as it is already associated from a Config Repo", uuid, envName);
                 } else {
                     agent.addEnvironment(envName);
                 }

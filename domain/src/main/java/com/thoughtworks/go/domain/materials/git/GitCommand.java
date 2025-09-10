@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 
 import java.io.File;
 import java.util.*;
@@ -161,7 +162,7 @@ public class GitCommand extends SCMCommand {
     }
 
     public void resetWorkingDir(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision, boolean shallow) {
-        log(outputStreamConsumer, "Reset working directory %s", workingDir);
+        log(outputStreamConsumer, "Reset working directory {}", workingDir);
         cleanAllUnversionedFiles(outputStreamConsumer);
         removeSubmoduleSectionsFromGitConfig(outputStreamConsumer);
         resetHard(outputStreamConsumer, revision);
@@ -171,7 +172,7 @@ public class GitCommand extends SCMCommand {
     }
 
     public void resetHard(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision) {
-        log(outputStreamConsumer, "Updating working copy to revision " + revision.getRevision());
+        log(outputStreamConsumer, "Updating working copy to revision {}", revision.getRevision());
         String[] args = new String[]{"reset", "--hard", revision.getRevision()};
         CommandLine gitCmd = gitWd().withArgs(args);
         int result = run(gitCmd, outputStreamConsumer);
@@ -273,7 +274,7 @@ public class GitCommand extends SCMCommand {
     // Special depth 2147483647 (Integer.MAX_VALUE) are treated as infinite -- fully unshallow
     // https://git-scm.com/docs/git-fetch-pack
     public void unshallow(ConsoleOutputStreamConsumer outputStreamConsumer, Integer depth) {
-        log(outputStreamConsumer, "Unshallowing repository with depth %d", depth);
+        log(outputStreamConsumer, "Unshallowing repository with depth {}", depth);
         CommandLine gitFetch = gitWd()
                 .withArgs("fetch", "origin")
                 .withArg(format("--depth=%d", depth));
@@ -578,8 +579,8 @@ public class GitCommand extends SCMCommand {
     }
 
     private void log(ConsoleOutputStreamConsumer outputStreamConsumer, String message, Object... args) {
-        LOG.debug(format(message, args));
-        outputStreamConsumer.stdOutput(format("[GIT] " + message, args));
+        LOG.debug(message, args);
+        outputStreamConsumer.stdOutput(MessageFormatter.basicArrayFormat("[GIT] " + message, args));
     }
 
     private List<String> submoduleForEachRecursive(List<String> args) {

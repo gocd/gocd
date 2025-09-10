@@ -381,7 +381,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         try {
             consoleService.appendToConsoleLog(jobIdentifier, errorMessage);
         } catch (IllegalArtifactLocationException e) {
-            LOGGER.error(format("Failed to add message(%s) to the job(%s) console", errorMessage, jobIdentifier), e);
+            LOGGER.error("Failed to add message({}) to the job({}) console", errorMessage, jobIdentifier, e);
         }
     }
 

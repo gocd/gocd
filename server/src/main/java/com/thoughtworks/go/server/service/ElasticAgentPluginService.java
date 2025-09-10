@@ -354,7 +354,7 @@ public class ElasticAgentPluginService {
         try {
             consoleService.appendToConsoleLog(identifier, message);
         } catch (IllegalArtifactLocationException e) {
-            LOGGER.error(format("Failed to add message(%s) to the job(%s) console", message, identifier), e);
+            LOGGER.error("Failed to add message({}) to the job({}) console", message, identifier, e);
         }
     }
 

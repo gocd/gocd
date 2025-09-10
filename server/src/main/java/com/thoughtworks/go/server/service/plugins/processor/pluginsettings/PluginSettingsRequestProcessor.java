@@ -63,7 +63,7 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
 
             return response;
         } catch (Exception e) {
-            LOGGER.error(format("Error processing PluginSettings request from plugin: %s.", pluginDescriptor.id()), e);
+            LOGGER.error("Error processing PluginSettings request from plugin: {}.", pluginDescriptor.id(), e);
 
             DefaultGoApiResponse errorResponse = new DefaultGoApiResponse(400);
             errorResponse.setResponseBody(format("Error while processing get PluginSettings request - %s", e.getMessage()));

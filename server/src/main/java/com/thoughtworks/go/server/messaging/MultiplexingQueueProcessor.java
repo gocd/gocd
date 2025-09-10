@@ -62,7 +62,7 @@ public class MultiplexingQueueProcessor {
 
                     LOGGER.debug("Finished acting on item in {} queue for {}. Time taken: {} ms", queueName, action.description(), (endTime - startTime));
                 } catch (Exception e) {
-                    LOGGER.warn(format("Failed to handle action in {0} queue", queueName), e);
+                    LOGGER.warn("Failed to handle action in {} queue", queueName, e);
                 }
             }
         });

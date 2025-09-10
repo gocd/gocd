@@ -158,7 +158,6 @@ public class RemotingClient implements BuildRepositoryRemote {
     private void logFailure(final HttpResponse response, final String action) {
         final StatusLine status = response.getStatusLine();
         final String body = readBodyAsStringOrElse(response, "<ERROR: UNABLE TO READ RESPONSE BODY>");
-        LOG.error(format("Server responded to action `%s` with: status[%d %s], body[%s]",
-                action, status.getStatusCode(), status.getReasonPhrase(), body));
+        LOG.error("Server responded to action `{}` with: status[{} {}], body[{}]", action, status.getStatusCode(), status.getReasonPhrase(), body);
     }
 }

@@ -64,12 +64,12 @@ public class PluggableArtifactMetadata {
 
     private void writeMetadataFile(File pluggableArtifactMetadataFolder, String pluginId, Map<String, Map<String, Object>> responseMetadata) {
         if (responseMetadata == null || responseMetadata.isEmpty()) {
-            LOGGER.info(String.format("No metadata to write for plugin `%s`.", pluginId));
+            LOGGER.info("No metadata to write for plugin `{}`.", pluginId);
             return;
         }
 
         try {
-            LOGGER.info(String.format("Writing metadata file for plugin `%s`.", pluginId));
+            LOGGER.info("Writing metadata file for plugin `{}`.", pluginId);
             Files.writeString(new File(pluggableArtifactMetadataFolder, format("%s.json", pluginId)).toPath(), new Gson().toJson(responseMetadata), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);

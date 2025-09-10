@@ -97,7 +97,7 @@ public class BackupScheduler extends EntityConfigChangedListener<BackupConfig> i
                     .build();
 
             quartzScheduler.scheduleJob(jobDetail, trigger);
-            LOG.info("Initialized backup job with schedule " + newBackupConfig.getSchedule());
+            LOG.info("Initialized backup job with schedule {}", newBackupConfig.getSchedule());
             clearServerHealthError();
         } catch (SchedulerException e) {
             LOG.error("Unable to schedule backup job", e);

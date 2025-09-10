@@ -128,7 +128,7 @@ public class ConfigRepositoryInitializer implements ConfigChangedListener, Plugi
                 LOGGER.debug("[Config Repository Initializer] Initializing config repository '{}'. Loading the GoCD configuration from last fetched modification '{}'.", repo.getId(), modification.getRevision());
                 goConfigRepoConfigDataSource.onCheckoutComplete(materialConfig, folder, modification);
             } catch (Exception e) {
-                LOGGER.error(String.format("[Config Repository Initializer] an error occurred while initializing '%s' config repository.", repo.getId()), e);
+                LOGGER.error("[Config Repository Initializer] an error occurred while initializing '{}' config repository.", repo.getId(), e);
                 // Do nothing when error occurs while initializing the config repository.
                 // The config repo initialization may fail due to config repo errors (config errors, or rules violation errors)
             }

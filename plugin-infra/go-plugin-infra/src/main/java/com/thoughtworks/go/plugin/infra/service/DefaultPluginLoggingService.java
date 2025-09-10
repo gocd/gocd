@@ -178,7 +178,7 @@ public class DefaultPluginLoggingService implements LoggingService {
                     logger.addAppender(consoleAppender);
                 }
 
-                loggingServiceLogger.debug("Plugin with ID: " + pluginId + " will log to: " + pluginAppender.rawFileProperty());
+                loggingServiceLogger.debug("Plugin with ID: {} will log to: {}", pluginId, pluginAppender.rawFileProperty());
             }
         }
     }

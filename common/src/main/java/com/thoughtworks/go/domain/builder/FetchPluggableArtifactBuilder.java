@@ -126,7 +126,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
 
     private Map<String, Object> getMetadataFromFile(String artifactId) throws IOException {
         final String fileToString = Files.readString(metadataFileDest.toPath(), StandardCharsets.UTF_8);
-        LOGGER.debug(format("Reading metadata from file %s.", metadataFileDest.getAbsolutePath()));
+        LOGGER.debug("Reading metadata from file {}.", metadataFileDest.getAbsolutePath());
         final Map<String, Map<String, Object>> allArtifactsPerPlugin = GSON.fromJson(fileToString, new TypeToken<Map<String, Map<String, Object>>>() {}.getType());
         return allArtifactsPerPlugin.get(artifactId);
     }

@@ -89,7 +89,7 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
             LOGGER.debug("[Bearer Authentication] Authorization header found for user '{}'", credential.getAccessToken().getUsername());
         }
 
-        LOGGER.debug("Security Enabled: " + securityService.isSecurityEnabled());
+        LOGGER.debug("Security Enabled: {}", securityService.isSecurityEnabled());
         if (securityService.isSecurityEnabled()) {
             filterWhenSecurityEnabled(request, response, filterChain, credential);
         } else {

@@ -63,7 +63,7 @@ public class ServerInfoRequestProcessor implements GoPluginApiRequestProcessor {
 
             return DefaultGoApiResponse.success(serverInfoJSON);
         } catch (Exception e) {
-            LOGGER.error(format("Error processing ServerInfo request from plugin: %s.", pluginDescriptor.id()), e);
+            LOGGER.error("Error processing ServerInfo request from plugin: {}.", pluginDescriptor.id(), e);
             return DefaultGoApiResponse.badRequest(format("Error while processing get ServerInfo request - %s", e.getMessage()));
         }
     }

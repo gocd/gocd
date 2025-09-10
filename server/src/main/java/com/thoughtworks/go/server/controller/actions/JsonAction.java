@@ -16,13 +16,18 @@
 package com.thoughtworks.go.server.controller.actions;
 
 import com.thoughtworks.go.config.validation.GoConfigValidity;
+import com.thoughtworks.go.server.web.GoRequestContext;
+import com.thoughtworks.go.server.web.JsonRenderer;
 import com.thoughtworks.go.server.web.JsonView;
-import com.thoughtworks.go.server.web.SimpleJsonView;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.json.JsonAware;
+import org.apache.http.HttpHeaders;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -62,9 +67,7 @@ public class JsonAction implements RestfulAction {
     }
 
     public static JsonAction jsonForbidden(String message) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put(ERROR_FOR_JSON, message);
-        return new JsonAction(HTTP_FORBIDDEN, map);
+        return new JsonAction(HTTP_FORBIDDEN, JsonView.getSimpleAjaxResult(ERROR_FOR_JSON, message));
     }
 
     public static JsonAction jsonBadRequest(Object json) {
@@ -98,8 +101,43 @@ public class JsonAction implements RestfulAction {
         return new ModelAndView(view, JsonView.asMap(json));
     }
 
-    private static class JsonModelAndView extends ModelAndView {
+    private static final String CLEAR_CACHE = "max-age=1, no-cache";
 
+    public static class SimpleJsonView implements View {
+        private final int status;
+        private final Object jsonAware;
+
+        public SimpleJsonView(int status, Object jsonAware) {
+            this.status = status;
+            this.jsonAware = jsonAware;
+        }
+
+        @Override
+        public String getContentType() {
+            return RESPONSE_CHARSET_JSON;
+        }
+
+        @Override
+        public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+            // In IE, there's a problem with caching. We want to cache if we can.
+            // This will force the browser to clear the cache only for this page.
+            // If any other pages need to clear the cache, we might want to move this
+            // logic to an interceptor.
+            GoRequestContext goRequestContext = new GoRequestContext(request);
+            response.addHeader(HttpHeaders.CACHE_CONTROL, CLEAR_CACHE);
+            response.setStatus(status);
+            response.setContentType(getContentType());
+            Object json = jsonAware;
+            if (jsonAware instanceof JsonAware) {
+                json = ((JsonAware) jsonAware).toJson();
+            }
+            PrintWriter writer = response.getWriter();
+            JsonRenderer.render(json, goRequestContext, writer);
+            writer.close();
+        }
+    }
+
+    private static class JsonModelAndView extends ModelAndView {
         @Override
         public String getViewName() {
             return "jsonView";
@@ -111,10 +149,9 @@ public class JsonAction implements RestfulAction {
             // This will force the browser to clear the cache only for this page.
             // If any other pages need to clear the cache, we might want to move this
             // logic to an interceptor.
-            response.addHeader("Cache-Control", GoConstants.CACHE_CONTROL);
+            response.addHeader(HttpHeaders.CACHE_CONTROL, CLEAR_CACHE);
             response.setStatus(status);
             response.setContentType(RESPONSE_CHARSET_JSON);
         }
     }
-
 }

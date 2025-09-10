@@ -40,12 +40,12 @@ public class DefaultGoPublisher implements GoPublisher {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGoPublisher.class);
     private final AgentRuntimeInfo agentRuntimeInfo;
     private final Charset consoleLogCharset;
-    private GoArtifactsManipulator manipulator;
-    private JobIdentifier jobIdentifier;
-    private AgentIdentifier agentIdentifier;
-    private BuildRepositoryRemote remoteBuildRepository;
+    private final GoArtifactsManipulator manipulator;
+    private final JobIdentifier jobIdentifier;
+    private final AgentIdentifier agentIdentifier;
+    private final BuildRepositoryRemote remoteBuildRepository;
     private ConsoleOutputTransmitter consoleOutputTransmitter;
-    private String currentWorkingDirectory = SystemUtil.currentWorkingDirectory();
+    private final String currentWorkingDirectory = SystemUtil.currentWorkingDirectory();
 
     public DefaultGoPublisher(GoArtifactsManipulator manipulator, JobIdentifier jobIdentifier,
                               BuildRepositoryRemote remoteBuildRepository,

@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 
+import static com.thoughtworks.go.remote.StandardHeaders.REQUEST_CONFIRM_MODIFICATION;
 import static com.thoughtworks.go.util.GoConstants.*;
 import static java.net.HttpURLConnection.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,30 +107,37 @@ public class ArtifactsControllerTest {
         when(artifactService.saveFile(any(File.class), any(InputStream.class), eq(false), eq(1))).thenReturn(true);
         when(artifactService.saveOrAppendFile(any(File.class), any(InputStream.class))).thenReturn(false);
 
-        MockMultipartHttpServletRequest mockMultipartHttpServletRequest = new MockMultipartHttpServletRequest();
-        mockMultipartHttpServletRequest.addFile(new MockMultipartFile(REGULAR_MULTIPART_FILENAME, "content".getBytes()));
-        mockMultipartHttpServletRequest.addFile(new MockMultipartFile(CHECKSUM_MULTIPART_FILENAME, "checksum-content".getBytes()));
+        MockMultipartHttpServletRequest request = newMultiPartRequest();
+        request.addFile(new MockMultipartFile(REGULAR_MULTIPART_FILENAME, "content".getBytes()));
+        request.addFile(new MockMultipartFile(CHECKSUM_MULTIPART_FILENAME, "checksum-content".getBytes()));
 
-        ModelAndView modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "2", "job-1", 122L, "some-path", 1, mockMultipartHttpServletRequest);
-
+        ModelAndView modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "2", "job-1", 122L, "some-path", 1, request);
 
         ResponseCodeView view = (ResponseCodeView) modelAndView.getView();
         assertThat(view.getStatusCode()).isEqualTo(HTTP_INTERNAL_ERROR);
         assertThat(view.getContent()).isEqualTo("Error saving checksum file for the artifact at path 'some-path'");
     }
 
+    private static MockMultipartHttpServletRequest newMultiPartRequest() {
+        MockMultipartHttpServletRequest mockMultipartHttpServletRequest = new MockMultipartHttpServletRequest();
+        mockMultipartHttpServletRequest.addHeader(REQUEST_CONFIRM_MODIFICATION, true);
+        return mockMultipartHttpServletRequest;
+    }
+
     @Test
     void shouldFailToPostAndPutWhenStageCounterIsNotAPositiveInteger() throws Exception {
-        ModelAndView modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "NOT_AN_INTEGER", "job-1", 122L, "some-path", 1, null);
+        MockMultipartHttpServletRequest request = newMultiPartRequest();
+
+        ModelAndView modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "NOT_AN_INTEGER", "job-1", 122L, "some-path", 1, request);
         assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode()).isEqualTo(HTTP_NOT_FOUND);
 
-        modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "-123", "job-1", 122L, "some-path", 1, null);
+        modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "-123", "job-1", 122L, "some-path", 1, request);
         assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode()).isEqualTo(HTTP_NOT_FOUND);
 
-        modelAndView = artifactsController.putArtifact("pipeline-1", "1", "stage-1", "NOT_AN_INTEGER", "job-1", 122L, "some-path", "1", null);
+        modelAndView = artifactsController.putArtifact("pipeline-1", "1", "stage-1", "NOT_AN_INTEGER", "job-1", 122L, "some-path", "1", request);
         assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode()).isEqualTo(HTTP_NOT_FOUND);
 
-        modelAndView = artifactsController.putArtifact("pipeline-1", "1", "stage-1", "-123", "job-1", 122L, "some-path", "1", null);
+        modelAndView = artifactsController.putArtifact("pipeline-1", "1", "stage-1", "-123", "job-1", 122L, "some-path", "1", request);
         assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode()).isEqualTo(HTTP_NOT_FOUND);
     }
 
@@ -165,12 +173,11 @@ public class ArtifactsControllerTest {
     public void shouldReturnBadRequestIfRequiredHeadersAreMissingOnACreateArtifactRequest() throws Exception {
         MultipartHttpServletRequest multipartHttpServletRequest = new MockMultipartHttpServletRequest();
 
-        when(systemEnvironment.isApiSafeModeEnabled()).thenReturn(true);
         ModelAndView modelAndView = artifactsController.postArtifact("pipeline", "invalid-label", "stage", "stage-counter", "job-name", 3L, "file-path", 3, multipartHttpServletRequest);
         ResponseCodeView codeView = (ResponseCodeView) modelAndView.getView();
 
         assertThat(codeView.getStatusCode()).isEqualTo(HTTP_BAD_REQUEST);
-        assertThat(codeView.getContent()).isEqualTo("Missing required header 'Confirm'");
+        assertThat(codeView.getContent()).isEqualTo("Missing required header 'X-GoCD-Confirm'");
 
     }
 }

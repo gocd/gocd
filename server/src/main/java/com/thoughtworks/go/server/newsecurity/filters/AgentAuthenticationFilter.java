@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.newsecurity.filters;
 
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.newsecurity.models.AgentToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -65,8 +66,8 @@ public class AgentAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void tokenBasedFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        String uuid = request.getHeader("X-Agent-GUID");
-        String token = request.getHeader("Authorization");
+        String uuid = request.getHeader(StandardHeaders.REQUEST_UUID);
+        String token = request.getHeader(StandardHeaders.REQUEST_AUTH);
 
         if (isBlank(uuid) || isBlank(token)) {
             LOGGER.debug("Denying access, either the UUID or token is not provided.");

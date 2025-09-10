@@ -49,13 +49,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static final String ACTIVEMQ_CONNECTOR_PORT = "activemq.conn.port";
 
     public static final String PARENT_LOADER_PRIORITY = "parent.loader.priority";
-    public static final String AGENT_CONTENT_MD5_HEADER = "Agent-Content-MD5";
-
-    public static final String AGENT_LAUNCHER_CONTENT_MD5_HEADER = "Agent-Launcher-Content-MD5";
-
-    public static final String AGENT_PLUGINS_ZIP_MD5_HEADER = "Agent-Plugins-Content-MD5";
-    public static final String AGENT_TFS_SDK_MD5_HEADER = "TFS-SDK-Content-MD5";
-    public static final String AGENT_EXTRA_PROPERTIES_HEADER = "GoCD-Agent-Extra-Properties";
 
     public static final String EMPTY_STRING = "";
     public static final String BLANK_STRING = EMPTY_STRING;
@@ -159,7 +152,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final GoSystemProperty<Boolean> GO_SERVER_SHALLOW_CLONE = new GoBooleanSystemProperty("go.server.shallowClone", false);
 
-    public static final GoSystemProperty<Boolean> GO_API_WITH_SAFE_MODE = new GoBooleanSystemProperty("go.api.with.safe.mode", true);
     public static final GoSystemProperty<Integer> MAX_PENDING_AGENTS_ALLOWED = new GoIntSystemProperty("max.pending.agents.allowed", 100);
     public static final GoSystemProperty<Boolean> CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS = new GoBooleanSystemProperty("go.modifications.removeDuplicates", true);
     public static final GoSystemProperty<Boolean> GO_DIAGNOSTICS_MODE = new GoBooleanSystemProperty("go.diagnostics.mode", false);
@@ -570,10 +562,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public long getConfigGitGcExpireInMillis() {
         return HOURS.toMillis(GO_CONFIG_REPO_GC_EXPIRE_IN_HOURS.getValue());
-    }
-
-    public boolean isApiSafeModeEnabled() {
-        return GO_API_WITH_SAFE_MODE.getValue();
     }
 
     public int sessionTimeoutInSeconds() {

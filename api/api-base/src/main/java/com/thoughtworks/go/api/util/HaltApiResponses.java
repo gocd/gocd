@@ -81,10 +81,6 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.BAD_REQUEST.value(), MessageJson.create(confirmHeaderMissing()));
     }
 
-    public static HaltException haltBecauseDeprecatedConfirmHeaderMissing() {
-        return halt(HttpStatus.BAD_REQUEST.value(), MessageJson.create(deprecatedConfirmHeaderMissing()));
-    }
-
     public static HaltException haltBecausePropertyIsNotAJsonString(String property, JsonObject jsonObject) {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonString(property, jsonObject)));
     }

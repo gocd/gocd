@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.apiv1.internalagent.representers.*;
 import com.thoughtworks.go.remote.AgentInstruction;
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.remote.request.*;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.messaging.BuildRepositoryMessageProducer;
@@ -135,7 +136,7 @@ public class InternalAgentControllerV1 extends ApiController implements SparkSpr
 
     public void ensureAgentIsMakingARequestForItself(AgentRequest agentRequest, Request request) {
         String uuidInRuntimeInfo = agentRequest.getAgentRuntimeInfo().getUUId();
-        String uuidInRequest = request.headers("X-Agent-GUID");
+        String uuidInRequest = request.headers(StandardHeaders.REQUEST_UUID);
 
         if (!Strings.CS.equals(uuidInRequest, uuidInRuntimeInfo)) {
             String message = String.format("Agent with uuid: '%s' is attempting a request for agent: '%s'.", uuidInRequest,

@@ -38,14 +38,14 @@ import java.net.HttpURLConnection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER;
+import static com.thoughtworks.go.remote.StandardHeaders.RESPONSE_AGENT_EXTRA_PROPERTIES;
+import static com.thoughtworks.go.remote.StandardHeaders.RESPONSE_CONTENT_MD5;
 
 public class ServerBinaryDownloader implements Downloader {
-
     private static final Logger LOG = LoggerFactory.getLogger(ServerBinaryDownloader.class);
     private static final String DEFAULT_FAILED_DOWNLOAD_SLEEP_MS = "60000";
     private static final int HTTP_TIMEOUT_IN_MILLISECONDS = 5000;
-    private static final String MD5_HEADER = "Content-MD5";
+
     private final ServerUrlGenerator urlGenerator;
 
     private final GoAgentServerHttpClientBuilder httpClientBuilder;
@@ -108,8 +108,8 @@ public class ServerBinaryDownloader implements Downloader {
             CloseableHttpResponse response = httpClient.execute(request)
         ) {
             handleInvalidResponse(response, url);
-            this.md5 = response.getFirstHeader(MD5_HEADER).getValue();
-            this.extraProperties = HeaderUtil.parseExtraProperties(response.getFirstHeader(AGENT_EXTRA_PROPERTIES_HEADER));
+            this.md5 = response.getFirstHeader(RESPONSE_CONTENT_MD5).getValue();
+            this.extraProperties = HeaderUtil.parseExtraProperties(response.getFirstHeader(RESPONSE_AGENT_EXTRA_PROPERTIES));
         }
     }
 
@@ -148,9 +148,9 @@ public class ServerBinaryDownloader implements Downloader {
                 out.println("2. This agent might be incompatible with your GoCD Server. Please fix the version mismatch between GoCD Server and GoCD Agent.");
 
                 throw new ClientProtocolException(sw.toString());
-            } else if (response.getFirstHeader(MD5_HEADER) == null) {
+            } else if (response.getFirstHeader(RESPONSE_CONTENT_MD5) == null) {
                 out.print("Missing required headers '");
-                out.print(MD5_HEADER);
+                out.print(RESPONSE_CONTENT_MD5);
                 out.println("' in response.");
                 throw new ClientProtocolException(sw.toString());
             }

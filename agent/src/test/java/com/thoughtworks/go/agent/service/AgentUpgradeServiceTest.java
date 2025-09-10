@@ -17,6 +17,7 @@ package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -77,7 +78,7 @@ public class AgentUpgradeServiceTest {
     @Test
     void checkForUpgradeShouldKillAgentIfAgentMD5doesNotMatch() {
         when(systemEnvironment.getAgentMd5()).thenReturn("old-agent-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "new-agent-md5");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_CONTENT_MD5, "new-agent-md5");
 
         RuntimeException toBeThrown = new RuntimeException("Boo!");
         doThrow(toBeThrown).when(jvmExitter).jvmExit(anyString(), anyString(), anyString());
@@ -95,10 +96,10 @@ public class AgentUpgradeServiceTest {
     @Test
     void checkForUpgradeShouldKillAgentIfLauncherMD5doesNotMatch() {
         when(systemEnvironment.getAgentMd5()).thenReturn("not-changing");
-        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "not-changing");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_CONTENT_MD5, "not-changing");
 
         when(systemEnvironment.getGivenAgentLauncherMd5()).thenReturn("old-launcher-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "new-launcher-md5");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_LAUNCHER_CONTENT_MD5, "new-launcher-md5");
 
         RuntimeException toBeThrown = new RuntimeException("Boo!");
         doThrow(toBeThrown).when(jvmExitter).jvmExit(anyString(), anyString(), anyString());
@@ -116,13 +117,13 @@ public class AgentUpgradeServiceTest {
     @Test
     void checkForUpgradeShouldKillAgentIfPluginZipMd5doesNotMatch() {
         when(systemEnvironment.getAgentMd5()).thenReturn("not-changing");
-        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "not-changing");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_CONTENT_MD5, "not-changing");
 
         when(systemEnvironment.getGivenAgentLauncherMd5()).thenReturn("not-changing");
-        expectHeaderValue(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "not-changing");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_LAUNCHER_CONTENT_MD5, "not-changing");
 
         when(systemEnvironment.getAgentPluginsMd5()).thenReturn("old-plugins-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, "new-plugins-md5");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_PLUGINS_ZIP_MD5, "new-plugins-md5");
 
         RuntimeException toBeThrown = new RuntimeException("Boo!");
         doThrow(toBeThrown).when(jvmExitter).jvmExit(anyString(), anyString(), anyString());
@@ -140,16 +141,16 @@ public class AgentUpgradeServiceTest {
     @Test
     void checkForUpgradeShouldKillAgentIfTfsMd5doesNotMatch() {
         when(systemEnvironment.getAgentMd5()).thenReturn("not-changing");
-        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "not-changing");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_CONTENT_MD5, "not-changing");
 
         when(systemEnvironment.getGivenAgentLauncherMd5()).thenReturn("not-changing");
-        expectHeaderValue(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "not-changing");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_LAUNCHER_CONTENT_MD5, "not-changing");
 
         when(systemEnvironment.getAgentPluginsMd5()).thenReturn("not-changing");
-        expectHeaderValue(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, "not-changing");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_PLUGINS_ZIP_MD5, "not-changing");
 
         when(systemEnvironment.getTfsImplMd5()).thenReturn("old-tfs-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER, "new-tfs-md5");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_TFS_SDK_MD5, "new-tfs-md5");
 
         RuntimeException toBeThrown = new RuntimeException("Boo!");
         doThrow(toBeThrown).when(jvmExitter).jvmExit(anyString(), anyString(), anyString());
@@ -168,7 +169,7 @@ public class AgentUpgradeServiceTest {
     void shouldSetAnyExtraPropertiesSentByTheServer() throws Exception {
         setupForNoChangesToMD5();
 
-        expectHeaderValue(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, Base64.getEncoder().encodeToString("abc=def%20ghi  jkl%20mno=pqr%20stu".getBytes(UTF_8)));
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_EXTRA_PROPERTIES, Base64.getEncoder().encodeToString("abc=def%20ghi  jkl%20mno=pqr%20stu".getBytes(UTF_8)));
         agentUpgradeService.checkForUpgradeAndExtraProperties();
 
         assertThat(System.getProperty("abc")).isEqualTo("def ghi");
@@ -181,7 +182,7 @@ public class AgentUpgradeServiceTest {
 
         final Map<Object, Object> before = System.getProperties().entrySet().stream().collect(toMap(Entry::getKey, Entry::getValue));
 
-        expectHeaderValue(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, Base64.getEncoder().encodeToString("this_is_invalid".getBytes(UTF_8)));
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_EXTRA_PROPERTIES, Base64.getEncoder().encodeToString("this_is_invalid".getBytes(UTF_8)));
         agentUpgradeService.checkForUpgradeAndExtraProperties();
 
         final Map<Object, Object> after = System.getProperties().entrySet().stream().collect(toMap(Entry::getKey, Entry::getValue));
@@ -195,10 +196,10 @@ public class AgentUpgradeServiceTest {
         when(systemEnvironment.getAgentPluginsMd5()).thenReturn("latest-md5");
         when(systemEnvironment.getTfsImplMd5()).thenReturn("latest-md5");
 
-        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "latest-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "latest-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, "latest-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER, "latest-md5");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_CONTENT_MD5, "latest-md5");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_LAUNCHER_CONTENT_MD5, "latest-md5");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_PLUGINS_ZIP_MD5, "latest-md5");
+        expectHeaderValue(StandardHeaders.RESPONSE_AGENT_TFS_SDK_MD5, "latest-md5");
     }
 
     private void expectHeaderValue(final String headerName, final String headerValue) {

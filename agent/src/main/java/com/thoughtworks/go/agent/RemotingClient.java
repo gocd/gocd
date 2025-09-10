@@ -28,6 +28,7 @@ import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.remote.request.*;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
@@ -47,13 +48,13 @@ import java.util.List;
 
 import static com.thoughtworks.go.agent.ResponseHelpers.readBodyAsString;
 import static com.thoughtworks.go.agent.ResponseHelpers.readBodyAsStringOrElse;
+import static com.thoughtworks.go.remote.StandardHeaders.REQUEST_AUTH;
+import static com.thoughtworks.go.remote.StandardHeaders.REQUEST_UUID;
 import static java.lang.String.format;
 
 @Component
 public class RemotingClient implements BuildRepositoryRemote {
     private static final Logger LOG = LoggerFactory.getLogger(RemotingClient.class);
-    private static final String UUID_HEADER = "X-Agent-GUID";
-    private static final String AUTH_HEADER = "Authorization";
     private static final Gson GSON = Serialization.instance();
 
     private final GoAgentServerHttpClient client;
@@ -118,8 +119,8 @@ public class RemotingClient implements BuildRepositoryRemote {
     }
 
     private HttpRequestBase injectCredentials(final HttpRequestBase request) {
-        request.setHeader(UUID_HEADER, agent.uuid());
-        request.setHeader(AUTH_HEADER, agent.token());
+        request.setHeader(REQUEST_UUID, agent.uuid());
+        request.setHeader(REQUEST_AUTH, agent.token());
         return request;
     }
 
@@ -150,7 +151,7 @@ public class RemotingClient implements BuildRepositoryRemote {
 
     private HttpRequestBase postRequestFor(String action, AgentRequest payload) {
         final HttpPost request = new HttpPost(urls.remotingUrlFor(action));
-        request.addHeader("Accept", "application/vnd.go.cd+json");
+        request.addHeader(HttpHeaders.ACCEPT, "application/vnd.go.cd+json");
         request.setEntity(new StringEntity(GSON.toJson(payload, AgentRequest.class), ContentType.APPLICATION_JSON));
         return request;
     }

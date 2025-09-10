@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.newsecurity.filterchains;
 
 import ch.qos.logback.core.util.FileSize;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.newsecurity.filters.ArtifactSizeEnforcementFilter;
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -65,7 +66,7 @@ class ArtifactSizeEnforcementFilterChainTest {
     @ParameterizedTest
     @ValueSource(strings = {"/files/bar/foo.zip", "/remoting/files/bar/foo.zip"})
     void shouldAllowIfEnoughDiskSpaceIsAvailable(String path) throws IOException, ServletException {
-        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader("X-GO-ARTIFACT-SIZE", FileSize.valueOf("100MB").getSize()).build();
+        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE, FileSize.valueOf("100MB").getSize()).build();
 
         filter.doFilter(request, response, filterChain);
 
@@ -77,7 +78,7 @@ class ArtifactSizeEnforcementFilterChainTest {
     @ParameterizedTest
     @ValueSource(strings = {"/files/bar/foo.zip", "/remoting/files/bar/foo.zip"})
     void shouldDisallowIfNotEnoughDiskSpaceIsAvailable(String path) throws IOException, ServletException {
-        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader("X-GO-ARTIFACT-SIZE", FileSize.valueOf("600MB").getSize()).build();
+        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE, FileSize.valueOf("600MB").getSize()).build();
 
         filter.doFilter(request, response, filterChain);
 

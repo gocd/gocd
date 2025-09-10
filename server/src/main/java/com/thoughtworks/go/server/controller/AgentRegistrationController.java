@@ -44,6 +44,7 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.List;
 
+import static com.thoughtworks.go.remote.StandardHeaders.*;
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -86,29 +87,29 @@ public class AgentRegistrationController {
 
     @RequestMapping(value = "/admin/latest-agent.status", method = {RequestMethod.HEAD, RequestMethod.GET})
     public void checkAgentStatus(HttpServletResponse response) {
-        response.setHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, agentChecksum);
-        response.setHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, agentLauncherChecksum);
-        response.setHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, pluginsZip.md5());
-        response.setHeader(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER, tfsSdkChecksum);
-        response.setHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, getAgentExtraProperties());
+        response.setHeader(RESPONSE_AGENT_CONTENT_MD5, agentChecksum);
+        response.setHeader(RESPONSE_AGENT_LAUNCHER_CONTENT_MD5, agentLauncherChecksum);
+        response.setHeader(RESPONSE_AGENT_PLUGINS_ZIP_MD5, pluginsZip.md5());
+        response.setHeader(RESPONSE_AGENT_TFS_SDK_MD5, tfsSdkChecksum);
+        response.setHeader(RESPONSE_AGENT_EXTRA_PROPERTIES, getAgentExtraProperties());
         setOtherHeaders(response);
     }
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.HEAD)
     public void checkAgentVersion(HttpServletResponse response) {
-        response.setHeader("Content-MD5", agentChecksum);
+        response.setHeader(RESPONSE_CONTENT_MD5, agentChecksum);
         setOtherHeaders(response);
     }
 
     @RequestMapping(value = "/admin/agent-launcher.jar", method = RequestMethod.HEAD)
     public void checkAgentLauncherVersion(HttpServletResponse response) {
-        response.setHeader("Content-MD5", agentLauncherChecksum);
+        response.setHeader(RESPONSE_CONTENT_MD5, agentLauncherChecksum);
         setOtherHeaders(response);
     }
 
     @RequestMapping(value = "/admin/tfs-impl.jar", method = RequestMethod.HEAD)
     public void checkTfsImplVersion(HttpServletResponse response) {
-        response.setHeader("Content-MD5", tfsSdkChecksum);
+        response.setHeader(RESPONSE_CONTENT_MD5, tfsSdkChecksum);
         setOtherHeaders(response);
     }
 
@@ -120,7 +121,7 @@ public class AgentRegistrationController {
 
     @RequestMapping(value = "/admin/agent-plugins.zip", method = RequestMethod.HEAD)
     public void checkAgentPluginsZipStatus(HttpServletResponse response) {
-        response.setHeader("Content-MD5", pluginsZip.md5());
+        response.setHeader(RESPONSE_CONTENT_MD5, pluginsZip.md5());
         setOtherHeaders(response);
     }
 
@@ -152,7 +153,7 @@ public class AgentRegistrationController {
     }
 
     private void setOtherHeaders(HttpServletResponse response) {
-        response.setHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, getAgentExtraProperties());
+        response.setHeader(RESPONSE_AGENT_EXTRA_PROPERTIES, getAgentExtraProperties());
     }
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.GET)

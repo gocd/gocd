@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.newsecurity.filters;
 
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthenticationProvider;
@@ -57,7 +58,7 @@ public abstract class AbstractBasicAuthenticationFilter extends OncePerRequestFi
                 return;
             }
 
-            final UsernamePassword credential = BasicAuthHeaderExtractor.extractBasicAuthenticationCredentials(request.getHeader("Authorization"));
+            final UsernamePassword credential = BasicAuthHeaderExtractor.extractBasicAuthenticationCredentials(request.getHeader(StandardHeaders.REQUEST_AUTH));
             if (credential != null) {
                 LOGGER.debug("[Basic Authentication] Authorization header found for user '{}'", credential.getUsername());
             }

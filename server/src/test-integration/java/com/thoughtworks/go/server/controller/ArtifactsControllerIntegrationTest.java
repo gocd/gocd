@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.zip.Deflater;
 
+import static com.thoughtworks.go.remote.StandardHeaders.REQUEST_CONFIRM_MODIFICATION;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
 import static java.net.HttpURLConnection.*;
@@ -183,7 +184,7 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenNoLatestBuildForPost() throws Exception {
-        request.addHeader("Confirm", "true");
+        request.addHeader(REQUEST_CONFIRM_MODIFICATION, "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request);
         ModelAndView mav = artifactsController.postArtifact(pipelineName, "latest", "stage", "1", "build2", null, "/foo.xml", 1, multipartRequest);
         assertValidContentAndStatus(mav, HTTP_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
@@ -498,7 +499,7 @@ public class ArtifactsControllerIntegrationTest {
         Files.writeString(checksumFile.toPath(), "baz/foobar.html:FooMD5\n", UTF_8);
         MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
         MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
-        request.addHeader("Confirm", "true");
+        request.addHeader(REQUEST_CONFIRM_MODIFICATION, "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
         postFileWithChecksum("baz/foobar.html", multipartRequest);
 
@@ -516,7 +517,7 @@ public class ArtifactsControllerIntegrationTest {
 
         MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
         MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
-        request.addHeader("Confirm", "true");
+        request.addHeader(REQUEST_CONFIRM_MODIFICATION, "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
 
         postFileWithChecksum("baz/foobar.html", multipartRequest);
@@ -533,7 +534,7 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldPutArtifact() throws Exception {
-        request.addHeader("Confirm", "true");
+        request.addHeader(REQUEST_CONFIRM_MODIFICATION, "true");
         String artifactFileContent = "FooBarBaz...";
         request.setContent(artifactFileContent.getBytes());
 
@@ -550,7 +551,7 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldPutConsoleLogAsArtifact() throws Exception {
-        request.addHeader("Confirm", "true");
+        request.addHeader(REQUEST_CONFIRM_MODIFICATION, "true");
         String consoleLogContent = "Job output";
         request.setContent(consoleLogContent.getBytes());
 
@@ -629,7 +630,7 @@ public class ArtifactsControllerIntegrationTest {
 
     private ModelAndView postFile(String requestFilename, String multipartFilename, InputStream stream) throws Exception {
         MockMultipartFile multipartFile = new MockMultipartFile(multipartFilename, stream);
-        request.addHeader("Confirm", "true");
+        request.addHeader(REQUEST_CONFIRM_MODIFICATION, "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, multipartFile);
         return artifactsController.postArtifact(pipelineName, Integer.toString(pipeline.getCounter()), "stage", "LATEST", "build", buildId,
                 requestFilename,

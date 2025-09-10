@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.handlers.renderer.ContentTypeNegotiationMessageRenderer;
 import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential;
@@ -79,7 +80,7 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
 
         AccessTokenCredential credential;
         try {
-            credential = extractAuthTokenCredential(request.getHeader("Authorization"));
+            credential = extractAuthTokenCredential(request.getHeader(StandardHeaders.REQUEST_AUTH));
         } catch (Exception e) {
             onAuthenticationFailure(request, response, e.getMessage());
             return;

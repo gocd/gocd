@@ -36,6 +36,7 @@ import java.util.Set;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseConfirmHeaderMissing;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseJsonContentTypeExpected;
+import static com.thoughtworks.go.remote.StandardHeaders.REQUEST_CONFIRM_MODIFICATION;
 
 public abstract class ApiController implements ControllerMethods, SparkController {
     protected static final String DEFAULT_PAGE_SIZE = "10";
@@ -82,7 +83,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
             if (!isJsonContentType(request)) {
                 throw haltBecauseJsonContentTypeExpected();
             }
-        } else if (request.headers().stream().noneMatch(headerName -> headerName.equalsIgnoreCase("x-gocd-confirm"))) {
+        } else if (request.headers().stream().noneMatch(headerName -> headerName.equalsIgnoreCase(REQUEST_CONFIRM_MODIFICATION))) {
             throw haltBecauseConfirmHeaderMissing();
         }
     }

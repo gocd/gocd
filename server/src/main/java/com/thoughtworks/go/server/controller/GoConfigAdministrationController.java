@@ -19,16 +19,16 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.controller.actions.JsonAction;
 import com.thoughtworks.go.server.controller.actions.RestfulAction;
 import com.thoughtworks.go.server.controller.actions.XmlAction;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.security.HeaderConstraint;
+import com.thoughtworks.go.server.security.ConfirmationConstraint;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.web.JsonView;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,7 +47,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 @Controller
 public class GoConfigAdministrationController {
-    private HeaderConstraint headerConstraint;
+    private ConfirmationConstraint confirmationConstraint;
     private GoConfigService goConfigService;
     private SecurityService securityService;
 
@@ -55,10 +55,10 @@ public class GoConfigAdministrationController {
     }
 
     @Autowired
-    GoConfigAdministrationController(GoConfigService goConfigService, SecurityService securityService, SystemEnvironment systemEnvironment) {
+    GoConfigAdministrationController(GoConfigService goConfigService, SecurityService securityService) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
-        this.headerConstraint = new HeaderConstraint(systemEnvironment);
+        this.confirmationConstraint = new ConfirmationConstraint();
     }
 
     @RequestMapping(value = "/admin/restful/configuration/file/GET/xml", method = RequestMethod.GET)
@@ -108,8 +108,8 @@ public class GoConfigAdministrationController {
     public ModelAndView postFileAsXml(@RequestParam("xmlFile") String xmlFile,
                                       @RequestParam("md5") String md5,
                                       HttpServletRequest request, HttpServletResponse response) throws Exception {
-        if (!headerConstraint.isSatisfied(request)) {
-            return JsonAction.jsonBadRequest(Map.of("message", "Missing required header `Confirm`")).respond(response);
+        if (!confirmationConstraint.isSatisfied(request)) {
+            return JsonAction.jsonBadRequest(Map.of("message", String.format("Missing required header `%s`", StandardHeaders.REQUEST_CONFIRM_MODIFICATION))).respond(response);
         }
 
         if (!isCurrentUserAdmin()) {

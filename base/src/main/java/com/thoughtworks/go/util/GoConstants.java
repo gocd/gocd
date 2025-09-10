@@ -20,7 +20,6 @@ import java.util.Date;
 
 public class GoConstants {
     public static final Date NEVER;
-    public static final String GO_ARTIFACT_PAYLOAD_SIZE = "X-GO-ARTIFACT-SIZE";
 
     static {
         Calendar calendar = Calendar.getInstance();
@@ -29,12 +28,6 @@ public class GoConstants {
         NEVER = calendar.getTime();
     }
 
-    /**
-     * This will force the browser to clear the cache only for this page.
-     * If any other pages need to clear the cache, we might want to move this
-     * logic to an interceptor.
-     */
-    public static final String CACHE_CONTROL = "max-age=1, no-cache";
     public static final String DEFAULT_APPROVED_BY = "changes";
     public static final String ERROR_FOR_PAGE = "errorMessage";
     public static final String ERROR_FOR_JSON = "error";

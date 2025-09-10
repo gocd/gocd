@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.newsecurity.filters;
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.newsecurity.models.AgentToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -69,8 +70,8 @@ public class AgentAuthenticationFilterTest {
             AgentAuthenticationFilter filter = new AgentAuthenticationFilter(goConfigService, clock, agentService);
 
             final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
-                    .withHeader("X-Agent-GUID", "blah")
-                    .withHeader("Authorization", filter.hmacOf("blah"))
+                    .withHeader(StandardHeaders.REQUEST_UUID, "blah")
+                    .withHeader(StandardHeaders.REQUEST_AUTH, filter.hmacOf("blah"))
                     .build();
 
             filter.doFilter(request, response, filterChain);
@@ -96,8 +97,8 @@ public class AgentAuthenticationFilterTest {
             AgentAuthenticationFilter filter = new AgentAuthenticationFilter(goConfigService, clock, agentService);
 
             final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
-                    .withHeader("X-Agent-GUID", "blah")
-                    .withHeader("Authorization", filter.hmacOf("blah"))
+                    .withHeader(StandardHeaders.REQUEST_UUID, "blah")
+                    .withHeader(StandardHeaders.REQUEST_AUTH, filter.hmacOf("blah"))
                     .build();
 
             filter.doFilter(request, response, filterChain);
@@ -119,8 +120,8 @@ public class AgentAuthenticationFilterTest {
             AgentAuthenticationFilter filter = new AgentAuthenticationFilter(goConfigService, clock, agentService);
 
             final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
-                    .withHeader("X-Agent-GUID", "blah")
-                    .withHeader("Authorization", "bad-authorization")
+                    .withHeader(StandardHeaders.REQUEST_UUID, "blah")
+                    .withHeader(StandardHeaders.REQUEST_AUTH, "bad-authorization")
                     .build();
 
             filter.doFilter(request, response, filterChain);
@@ -152,8 +153,8 @@ public class AgentAuthenticationFilterTest {
 
             final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
                     .withSession(originalSession)
-                    .withHeader("X-Agent-GUID", uuid)
-                    .withHeader("Authorization", token)
+                    .withHeader(StandardHeaders.REQUEST_UUID, uuid)
+                    .withHeader(StandardHeaders.REQUEST_AUTH, token)
                     .build();
 
             authenticationFilter.doFilter(request, response, filterChain);
@@ -188,8 +189,8 @@ public class AgentAuthenticationFilterTest {
             SessionUtils.setAuthenticationTokenWithoutRecreatingSession(new AuthenticationToken<>(goodAgentPrincipal, new AgentToken(uuid, token), null, 0, null), HttpRequestBuilder.GET("/dont-care").withSession(existingSession).build());
 
             final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
-                    .withHeader("X-Agent-GUID", uuid)
-                    .withHeader("Authorization", token)
+                    .withHeader(StandardHeaders.REQUEST_UUID, uuid)
+                    .withHeader(StandardHeaders.REQUEST_AUTH, token)
                     .withSession(existingSession)
                     .build();
 

@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static com.thoughtworks.go.util.GoConstants.GO_ARTIFACT_PAYLOAD_SIZE;
+import static com.thoughtworks.go.remote.StandardHeaders.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -77,10 +77,10 @@ public class HttpServiceTest {
 
         service.upload(uploadUrl, 100L, uploadingFile, checksums);
 
-        verify(mockPostMethod).setHeader(GO_ARTIFACT_PAYLOAD_SIZE, "100");
-        verify(mockPostMethod).setHeader("Confirm", "true");
-        verify(mockPostMethod).setHeader("X-Agent-GUID", "some-guid");
-        verify(mockPostMethod).setHeader("Authorization", "some-token");
+        verify(mockPostMethod).setHeader(REQUEST_ARTIFACT_PAYLOAD_SIZE, "100");
+        verify(mockPostMethod).setHeader(REQUEST_CONFIRM_MODIFICATION, "true");
+        verify(mockPostMethod).setHeader(REQUEST_UUID, "some-guid");
+        verify(mockPostMethod).setHeader(REQUEST_AUTH, "some-token");
         verify(httpClientFactory).createMultipartRequestEntity(uploadingFile, checksums);
         verify(httpClient).execute(mockPostMethod);
     }

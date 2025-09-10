@@ -19,9 +19,10 @@ import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
-import com.thoughtworks.go.server.security.HeaderConstraint;
+import com.thoughtworks.go.server.security.ConfirmationConstraint;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
 import com.thoughtworks.go.server.service.ConsoleService;
@@ -69,7 +70,7 @@ public class ArtifactsController {
     private final ArtifactsService artifactsService;
     private final RestfulService restfulService;
     private final ConsoleService consoleService;
-    private final HeaderConstraint headerConstraint;
+    private final ConfirmationConstraint confirmationConstraint;
 
     @Autowired
     ArtifactsController(ArtifactsService artifactsService, RestfulService restfulService, ZipArtifactCache zipArtifactCache, JobInstanceDao jobInstanceDao,
@@ -80,7 +81,7 @@ public class ArtifactsController {
         this.consoleActivityMonitor = consoleActivityMonitor;
         this.consoleService = consoleService;
         this.zipFolderViewFactory = new ZipArtifactFolderViewFactory(zipArtifactCache);
-        this.headerConstraint = new HeaderConstraint(systemEnvironment);
+        this.confirmationConstraint = new ConfirmationConstraint();
         this.consoleLogCharset = systemEnvironment.consoleLogCharset();
     }
 
@@ -133,8 +134,8 @@ public class ArtifactsController {
                                      @RequestParam(value = "attempt", required = false) Integer attempt,
                                      MultipartHttpServletRequest request) throws Exception {
         JobIdentifier jobIdentifier;
-        if (!headerConstraint.isSatisfied(request)) {
-            return ResponseCodeView.create(HTTP_BAD_REQUEST, "Missing required header 'Confirm'");
+        if (!confirmationConstraint.isSatisfied(request)) {
+            return ResponseCodeView.create(HTTP_BAD_REQUEST, String.format("Missing required header '%s'", StandardHeaders.REQUEST_CONFIRM_MODIFICATION));
         }
         if (!isValidStageCounter(stageCounter)) {
             return buildNotFound(pipelineName, pipelineCounter, stageName, stageCounter, buildName);

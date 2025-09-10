@@ -19,7 +19,6 @@ import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.controller.actions.XmlAction;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +38,7 @@ public class GoConfigAdministrationControllerTest {
     public void setUp() {
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
-        controller = new GoConfigAdministrationController(goConfigService, securityService, new SystemEnvironment());
+        controller = new GoConfigAdministrationController(goConfigService, securityService);
     }
 
     @Test

@@ -22,7 +22,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER;
+import static com.thoughtworks.go.remote.StandardHeaders.RESPONSE_AGENT_EXTRA_PROPERTIES;
+import static com.thoughtworks.go.remote.StandardHeaders.RESPONSE_CONTENT_MD5;
 
 public class AgentBinariesServlet extends HttpServlet {
 
@@ -37,11 +38,11 @@ public class AgentBinariesServlet extends HttpServlet {
     @Override
     protected void doHead(HttpServletRequest request, HttpServletResponse response) {
         try {
-            response.setHeader("Content-MD5", resource.getMd5());
+            response.setHeader(RESPONSE_CONTENT_MD5, resource.getMd5());
 
             final String extraPropertiesHeaderValue = fakeGoServer.getExtraPropertiesHeaderValue();
             if (extraPropertiesHeaderValue != null) {
-                response.setHeader(AGENT_EXTRA_PROPERTIES_HEADER, Base64.getEncoder().encodeToString(extraPropertiesHeaderValue.getBytes(StandardCharsets.UTF_8)));
+                response.setHeader(RESPONSE_AGENT_EXTRA_PROPERTIES, Base64.getEncoder().encodeToString(extraPropertiesHeaderValue.getBytes(StandardCharsets.UTF_8)));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

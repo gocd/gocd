@@ -37,6 +37,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.util.Properties;
 
+import static com.thoughtworks.go.remote.StandardHeaders.*;
+
 @Component
 public class HttpService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpService.class);
@@ -77,7 +79,7 @@ public class HttpService {
     private HttpPost createHttpPostForUpload(String url, long size, File artifactFile, Properties artifactChecksums) throws IOException {
         HttpPost filePost = httpClientFactory.createPost(url);
         setSizeHeader(filePost, size);
-        filePost.setHeader("Confirm", "true");
+        filePost.setHeader(REQUEST_CONFIRM_MODIFICATION, "true");
         filePost.setEntity(httpClientFactory.createMultipartRequestEntity(artifactFile, artifactChecksums));
         return filePost;
     }
@@ -114,8 +116,8 @@ public class HttpService {
         @SuppressWarnings("resource") // Believe this is intentional to re-use the client
         GoAgentServerHttpClient client = httpClientFactory.httpClient();
 
-        httpMethod.setHeader("X-Agent-GUID", agentRegistry.uuid());
-        httpMethod.setHeader("Authorization", agentRegistry.token());
+        httpMethod.setHeader(REQUEST_UUID, agentRegistry.uuid());
+        httpMethod.setHeader(REQUEST_AUTH, agentRegistry.token());
 
         CloseableHttpResponse response = client.execute(httpMethod);
         LOGGER.info("Got back {} from server", response.getStatusLine().getStatusCode());
@@ -123,7 +125,7 @@ public class HttpService {
     }
 
     public static void setSizeHeader(HttpRequestBase method, long size) {
-        method.setHeader(GoConstants.GO_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));
+        method.setHeader(REQUEST_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));
     }
 
     /**

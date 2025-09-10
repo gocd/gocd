@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.newsecurity.filters;
 
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.util.LastOperationTime;
 import com.thoughtworks.go.util.GoConstants;
@@ -54,7 +55,7 @@ public class ArtifactSizeEnforcementFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
-        String headerValue = request.getHeader(GoConstants.GO_ARTIFACT_PAYLOAD_SIZE);
+        String headerValue = request.getHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE);
         if (isBlank(headerValue)) {
             filterChain.doFilter(request, response);
             return;

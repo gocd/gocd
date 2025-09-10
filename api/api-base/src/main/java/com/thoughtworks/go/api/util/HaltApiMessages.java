@@ -17,6 +17,7 @@ package com.thoughtworks.go.api.util;
 
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.remote.StandardHeaders;
 
 import static java.lang.String.format;
 
@@ -58,12 +59,8 @@ public abstract class HaltApiMessages {
         return "You must specify a 'Content-Type' of 'application/json'";
     }
 
-    public static String deprecatedConfirmHeaderMissing() {
-        return "Missing required header 'Confirm' with value 'true'";
-    }
-
     public static String confirmHeaderMissing() {
-        return "Missing required header 'X-GoCD-Confirm' with value 'true'";
+        return format("Missing required header '%s' with value 'true'", StandardHeaders.REQUEST_CONFIRM_MODIFICATION);
     }
 
     public static String propertyIsNotAJsonString(String property, JsonObject jsonObject) {

@@ -15,32 +15,22 @@
  */
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.util.SystemEnvironment;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-public class HeaderConstraint {
-    private static final List<String> HEADERS = List.of("Confirm", "X-GoCD-Confirm");
-    private SystemEnvironment systemEnvironment;
+import static com.thoughtworks.go.remote.StandardHeaders.REQUEST_CONFIRM_MODIFICATION;
+import static com.thoughtworks.go.remote.StandardHeaders.REQUEST_CONFIRM_MODIFICATION_DEPRECATED;
 
-    public HeaderConstraint(SystemEnvironment systemEnvironment) {
-        this.systemEnvironment = systemEnvironment;
-    }
+public class ConfirmationConstraint {
+
+    private static final List<String> HEADERS = List.of(REQUEST_CONFIRM_MODIFICATION_DEPRECATED, REQUEST_CONFIRM_MODIFICATION);
 
     public boolean isSatisfied(HttpServletRequest request) {
-        if (!systemEnvironment.isApiSafeModeEnabled()) {
-            return true;
-        }
-
         return HEADERS.stream().anyMatch(header -> isValid(request, header));
     }
 
     private boolean isValid(HttpServletRequest request, String header) {
         String requestHeader = request.getHeader(header);
-        if (requestHeader == null || !requestHeader.equalsIgnoreCase("true")) {
-            return false;
-        }
-        return true;
+        return requestHeader != null && requestHeader.equalsIgnoreCase("true");
     }
 }

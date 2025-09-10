@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.domain.JarDetector;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -143,18 +144,18 @@ public class AgentRegistrationControllerTest {
         controller.checkAgentStatus(response);
 
         try (InputStream stream = JarDetector.tfsJar(systemEnvironment).getJarURL().openStream()) {
-            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER));
+            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(StandardHeaders.RESPONSE_AGENT_TFS_SDK_MD5));
         }
 
         try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar").invoke()) {
-            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER));
+            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(StandardHeaders.RESPONSE_AGENT_LAUNCHER_CONTENT_MD5));
         }
 
         try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar").invoke()) {
-            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER));
+            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(StandardHeaders.RESPONSE_AGENT_CONTENT_MD5));
         }
 
-        assertEquals("plugins-zip-md5", response.getHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER));
+        assertEquals("plugins-zip-md5", response.getHeader(StandardHeaders.RESPONSE_AGENT_PLUGINS_ZIP_MD5));
     }
 
     @Test
@@ -167,7 +168,7 @@ public class AgentRegistrationControllerTest {
 
         controller.checkAgentStatus(response);
 
-        assertEquals(base64ExtraPropertiesValue, response.getHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER));
+        assertEquals(base64ExtraPropertiesValue, response.getHeader(StandardHeaders.RESPONSE_AGENT_EXTRA_PROPERTIES));
     }
 
     @Test
@@ -175,7 +176,7 @@ public class AgentRegistrationControllerTest {
         controller.checkAgentVersion(response);
 
         try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar").invoke()) {
-            assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
+            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(StandardHeaders.RESPONSE_CONTENT_MD5));
         }
     }
 
@@ -184,7 +185,7 @@ public class AgentRegistrationControllerTest {
         controller.checkAgentLauncherVersion(response);
 
         try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar").invoke()) {
-            assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
+            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(StandardHeaders.RESPONSE_CONTENT_MD5));
         }
     }
 
@@ -194,7 +195,7 @@ public class AgentRegistrationControllerTest {
         assertEquals("application/octet-stream", response.getContentType());
 
         try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar").invoke()) {
-            assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
+            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(StandardHeaders.RESPONSE_CONTENT_MD5));
         }
         try (InputStream is = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar").invoke()) {
             assertArrayEquals(is.readAllBytes(), response.getContentAsByteArray());
@@ -210,7 +211,7 @@ public class AgentRegistrationControllerTest {
 
         controller.downloadAgent(response);
 
-        assertEquals(base64ExtraPropertiesValue, response.getHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER));
+        assertEquals(base64ExtraPropertiesValue, response.getHeader(StandardHeaders.RESPONSE_AGENT_EXTRA_PROPERTIES));
     }
 
     @Test
@@ -223,7 +224,7 @@ public class AgentRegistrationControllerTest {
 
         controller.downloadAgent(response);
 
-        assertEquals(expectedBase64ExtraPropertiesValue, response.getHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER));
+        assertEquals(expectedBase64ExtraPropertiesValue, response.getHeader(StandardHeaders.RESPONSE_AGENT_EXTRA_PROPERTIES));
     }
 
     @Test
@@ -232,7 +233,7 @@ public class AgentRegistrationControllerTest {
         assertEquals("application/octet-stream", response.getContentType());
 
         try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar").invoke()) {
-            assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
+            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(StandardHeaders.RESPONSE_CONTENT_MD5));
         }
         try (InputStream is = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar").invoke()) {
             assertArrayEquals(is.readAllBytes(), response.getContentAsByteArray());
@@ -244,7 +245,7 @@ public class AgentRegistrationControllerTest {
         when(pluginsZip.md5()).thenReturn("md5");
         controller.checkAgentPluginsZipStatus(response);
 
-        assertEquals("md5", response.getHeader("Content-MD5"));
+        assertEquals("md5", response.getHeader(StandardHeaders.RESPONSE_CONTENT_MD5));
         verify(pluginsZip).md5();
     }
 
@@ -263,7 +264,7 @@ public class AgentRegistrationControllerTest {
     public void shouldReturnChecksumOfTfsJar() throws Exception {
         controller.checkTfsImplVersion(response);
         try (InputStream stream = JarDetector.tfsJar(systemEnvironment).getJarURL().openStream()) {
-            assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
+            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(StandardHeaders.RESPONSE_CONTENT_MD5));
         }
     }
 
@@ -273,7 +274,7 @@ public class AgentRegistrationControllerTest {
         assertEquals("application/octet-stream", response.getContentType());
 
         try (InputStream stream = JarDetector.tfsJar(systemEnvironment).getJarURL().openStream()) {
-            assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
+            assertEquals(DigestUtils.md5Hex(stream), response.getHeader(StandardHeaders.RESPONSE_CONTENT_MD5));
         }
         try (InputStream is = JarDetector.tfsJar(systemEnvironment).getJarURL().openStream()) {
             assertArrayEquals(is.readAllBytes(), response.getContentAsByteArray());

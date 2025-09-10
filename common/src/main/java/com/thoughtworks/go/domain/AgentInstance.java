@@ -390,7 +390,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return NONE;
     }
 
-    enum AgentType {
+    public enum AgentType {
         LOCAL, REMOTE
     }
 

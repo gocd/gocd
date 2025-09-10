@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.withinPercentage;
 
 public class ConsoleOutputTransmitterPerformanceTest {
 
-    private static final long CONSOLE_PUBLISH_INTERVAL_MILLIS = 200;
+    private static final long CONSOLE_PUBLISH_INTERVAL_MILLIS = 1000;
 
     private ConsoleOutputTransmitter transmitter;
 
@@ -51,7 +51,7 @@ public class ConsoleOutputTransmitterPerformanceTest {
             Thread.sleep(sendIntervalMillis);
         }
         assertThat(System.currentTimeMillis() - startTime)
-            .describedAs("Publishing messages should not be blocked excessively (buffer of 15 for sleep variation and minor blocking%)")
+            .describedAs("Publishing messages should not be blocked excessively (buffer of 15% for sleep variation and minor blocking%)")
             .isCloseTo(expectedNumberToSendWithZeroBlocking * sendIntervalMillis, withinPercentage(15));
     }
 

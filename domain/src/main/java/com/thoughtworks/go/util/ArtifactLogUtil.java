@@ -15,19 +15,11 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.FilenameUtils;
-
-import java.io.File;
-
 public class ArtifactLogUtil {
     public static final String CONSOLE_LOG_FILE_NAME = "console.log";
     public static final String CRUISE_OUTPUT_FOLDER = "cruise-output";
     public static final String MD5_CHECKSUM_FILENAME = "md5.checksum";
     public static final String PLUGGABLE_ARTIFACT_METADATA_FOLDER = "pluggable-artifact-metadata";
-
-    public static String getPath(long buildId) {
-        return getPath(buildId, CONSOLE_LOG_FILE_NAME);
-    }
 
     public static String getConsoleOutputFolderAndFileNameUrl() {
         return getOutputFolderAndFileName(CONSOLE_LOG_FILE_NAME, "/");
@@ -41,14 +33,7 @@ public class ArtifactLogUtil {
         return separator + CRUISE_OUTPUT_FOLDER + separator + fileName;
     }
 
-    private static String getPath(long buildId, String fileName) {
-        String path = "" + buildId + File.separator + CRUISE_OUTPUT_FOLDER + File.separator + fileName;
-
-        return FilenameUtils.separatorsToUnix(new File(path).getPath());
-    }
-
     public static boolean isConsoleOutput(String filePath) {
         return getConsoleOutputFolderAndFileName().equalsIgnoreCase(filePath);
     }
-
 }

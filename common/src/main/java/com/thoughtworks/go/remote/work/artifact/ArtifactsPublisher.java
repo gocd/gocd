@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.ArtifactPlanType;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
+import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -41,13 +42,12 @@ import static java.lang.String.format;
 
 public class ArtifactsPublisher implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsPublisher.class);
-    public static final String PLUGGABLE_ARTIFACT_METADATA_FOLDER = "pluggable-artifact-metadata";
     private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     private final File workingDirectory;
     private final GoPublisher goPublisher;
     private final ArtifactPlanFilter artifactPlanFilter;
-    private ArtifactExtension artifactExtension;
-    private ArtifactStores artifactStores;
+    private final ArtifactExtension artifactExtension;
+    private final ArtifactStores artifactStores;
     private final List<ArtifactPlan> failedArtifact = new ArrayList<>();
 
     public ArtifactsPublisher(GoPublisher goPublisher, ArtifactExtension artifactExtension, ArtifactStores artifactStores, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, File workingDirectory) {
@@ -67,7 +67,7 @@ public class ArtifactsPublisher implements Serializable {
             if (isMetadataFolderEmpty(pluggableArtifactFolder)) {
                 LOGGER.info("Pluggable metadata folder is empty.");
             } else if (pluggableArtifactFolder != null) {
-                mergedPlans.add(0, new ArtifactPlan(ArtifactPlanType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), PLUGGABLE_ARTIFACT_METADATA_FOLDER));
+                mergedPlans.add(0, new ArtifactPlan(ArtifactPlanType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), ArtifactLogUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER));
             }
 
             for (ArtifactPlan artifactPlan : mergedPlans) {
@@ -106,7 +106,7 @@ public class ArtifactsPublisher implements Serializable {
             }
 
             if (!pluggableArtifactPlans.isEmpty() && pluggableArtifactMetadata.isEmpty()) {
-                LOGGER.info(format("[%s] No pluggable artifact metadata to upload.", PRODUCT_NAME));
+                LOGGER.info("[{}] No pluggable artifact metadata to upload.", PRODUCT_NAME);
                 goPublisher.taggedConsumeLine(GoPublisher.PUBLISH, format("[%s] No pluggable artifact metadata to upload.", PRODUCT_NAME));
                 return null;
             }

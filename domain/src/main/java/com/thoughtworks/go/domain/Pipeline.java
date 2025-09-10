@@ -118,14 +118,6 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
         return message;
     }
 
-    public ModificationSummaries toModificationSummaries() {
-        if (buildCause == null) {
-            return new ModificationSummaries();
-        } else {
-            return buildCause.toModificationSummaries();
-        }
-    }
-
     @Override
     public boolean hasStageBeenRun(String stageName) {
         return stages.hasStage(stageName);

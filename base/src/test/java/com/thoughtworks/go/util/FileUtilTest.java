@@ -16,9 +16,6 @@
 package com.thoughtworks.go.util;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
@@ -45,22 +42,6 @@ public class FileUtilTest {
     void shouldDetectSubfoldersWhenUsingRelativePaths() throws Exception {
         File parent = new File("/a/b");
         assertThat(isSubdirectoryOf(parent, new File(parent, "../../.."))).isFalse();
-    }
-
-    @Test
-    @DisabledOnOs(OS.WINDOWS)
-    void shouldCreateFileURIForFile() {
-        assertThat(FileUtil.toFileURI(new File("/var/lib/foo/"))).isEqualTo("file:///var/lib/foo");
-        assertThat(FileUtil.toFileURI(new File("/var/a dir with spaces/foo"))).isEqualTo("file:///var/a%20dir%20with%20spaces/foo");
-        assertThat(FileUtil.toFileURI(new File("/var/司徒空在此/foo"))).isEqualTo("file:///var/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4/foo");
-    }
-
-
-    @Test
-    @EnabledOnOs(OS.WINDOWS)
-    void shouldCreateFileURIForFileOnWindows() {
-        assertThat(FileUtil.toFileURI(new File("c:\\foo")).startsWith("file:///c:/foo")).isTrue();
-        assertThat(FileUtil.toFileURI(new File("c:\\a dir with spaces\\foo")).startsWith("file:///c:/a%20dir%20with%20spaces/foo")).isTrue();
     }
 
     @Test

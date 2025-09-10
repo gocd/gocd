@@ -18,7 +18,6 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.*;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.command.InMemoryConsumer;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
@@ -80,7 +79,7 @@ public class SvnTestRepo extends TestRepo {
     }
 
     public String repositoryUrl(String project) {
-        return FileUtil.toFileURI(new File(tempRepo, project));
+        return toFileURI(new File(tempRepo, project));
     }
 
     public File repositoryUrlAsFile(String project) {

@@ -17,7 +17,6 @@ package com.thoughtworks.go.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.UUID;
 
 public class FileUtil {
@@ -51,16 +50,6 @@ public class FileUtil {
         if (directory != null && !directory.exists()) {
             directory.mkdirs();
         }
-    }
-
-    public static String toFileURI(File file) {
-        URI uri = file.toURI();
-        String uriString = uri.toASCIIString();
-        return uriString.replaceAll("^file:/", "file:///");
-    }
-
-    public static String toFileURI(String path) {
-        return toFileURI(new File(path));
     }
 
     public static boolean isSubdirectoryOf(File parent, File subdirectory) throws IOException {

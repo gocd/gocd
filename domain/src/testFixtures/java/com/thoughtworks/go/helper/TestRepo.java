@@ -19,7 +19,9 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.util.TempDirUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -29,6 +31,16 @@ public abstract class TestRepo {
 
     public TestRepo(Path tempDir) {
         this.tempDir = tempDir;
+    }
+
+    public static String toFileURI(File file) {
+        URI uri = file.toURI();
+        String uriString = uri.toASCIIString();
+        return uriString.replaceAll("^file:/", "file:///");
+    }
+
+    public static String toFileURI(String path) {
+        return toFileURI(new File(path));
     }
 
     public Path createRandomTempDirectory() throws IOException {

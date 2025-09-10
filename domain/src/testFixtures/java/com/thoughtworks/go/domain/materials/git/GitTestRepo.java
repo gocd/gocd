@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.CommandLine;
@@ -83,7 +82,7 @@ public class GitTestRepo extends TestRepo {
 
     @Override
     public String projectRepositoryUrl() {
-        return FileUtil.toFileURI(gitRepo);
+        return toFileURI(gitRepo);
     }
 
     @Override

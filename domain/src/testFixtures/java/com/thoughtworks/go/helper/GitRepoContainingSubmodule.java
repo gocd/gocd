@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.command.CommandLine;
@@ -55,7 +54,7 @@ public class GitRepoContainingSubmodule extends TestRepo {
 
     public File addSubmodule(String repoName, String submoduleNameToPutInGitSubmodules, String folderName) throws Exception {
         File submodule = createRepo(repoName);
-        git(remoteRepoDir).submoduleAdd(FileUtil.toFileURI(submodule.getAbsolutePath()), submoduleNameToPutInGitSubmodules, folderName);
+        git(remoteRepoDir).submoduleAdd(TestRepo.toFileURI(submodule.getAbsolutePath()), submoduleNameToPutInGitSubmodules, folderName);
         git(remoteRepoDir).commit("Added submodule " + folderName);
         return submodule;
     }
@@ -80,7 +79,7 @@ public class GitRepoContainingSubmodule extends TestRepo {
 
     @Override
     public String projectRepositoryUrl() {
-        return FileUtil.toFileURI(remoteRepoDir.getAbsoluteFile());
+        return TestRepo.toFileURI(remoteRepoDir.getAbsoluteFile());
     }
 
     @Override

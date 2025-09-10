@@ -43,28 +43,31 @@ public class ConsoleOutputTransmitterPerformanceTest {
     }
 
     @Test
-    public void shouldNotBlockPublisherWhenSendingToServer() throws InterruptedException {
+    public void shouldNotBlockPublisherWhenSendingToServer() {
         int numberPublishIntervals = 5;
         int sendPerPublishInterval = 5;
         long sendIntervalMillis = CONSOLE_PUBLISH_INTERVAL_MILLIS / sendPerPublishInterval;
         int expectedNumberToSendWithZeroBlocking = numberPublishIntervals * sendPerPublishInterval;
 
         long startTime = System.currentTimeMillis();
+        long lastSleepExcess = 0;
         for (int i = 0; i < expectedNumberToSendWithZeroBlocking; i++) {
             transmitter.consumeLine("This is line " + i);
-            Thread.sleep(sendIntervalMillis);
+            lastSleepExcess = sleepFor(sendIntervalMillis - lastSleepExcess);
         }
         assertThat(System.currentTimeMillis() - startTime)
             .describedAs("Publishing messages should not be blocked excessively (buffer of 15% for sleep variation and minor blocking%)")
             .isCloseTo(expectedNumberToSendWithZeroBlocking * sendIntervalMillis, withinPercentage(15));
     }
 
-    private static void sleepFor(long millis) {
+    private static long sleepFor(long sleepFor) {
+        long start = System.currentTimeMillis();
         try {
-            Thread.sleep(millis);
+            Thread.sleep(sleepFor);
         } catch (InterruptedException ignore) {
             Thread.currentThread().interrupt();
         }
+        return Math.max(System.currentTimeMillis() - start - sleepFor, 0);
     }
 
     private static class SlowConsoleAppender implements ConsoleAppender {

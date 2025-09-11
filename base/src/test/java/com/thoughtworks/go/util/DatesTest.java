@@ -15,17 +15,35 @@
  */
 package com.thoughtworks.go.util;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DatesTest {
+
+    private Locale originalLocale;
+
+    @BeforeEach
+    public void setUp() {
+        originalLocale = Locale.getDefault();
+        Locale.setDefault(Locale.US);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        Locale.setDefault(originalLocale);
+    }
 
     @Test
     public void shouldBeAbleToParseRfc3339OrIso8601Dates() {
@@ -47,13 +65,29 @@ public class DatesTest {
     }
 
     @Test
-    public void shouldAnswerIfTheProvidedDateIsToday() {
-        final Calendar cal = Calendar.getInstance();
-        Date today = cal.getTime();
-        cal.add(Calendar.DATE, -1);
-        Date yesterday = cal.getTime();
+    public void shouldFormatIsoDatesToUtc() {
+        assertThat(Dates.parseIso8601StrictOffset("2013-03-21T13:43:57Z"))
+            .isEqualTo("2013-03-21T13:43:57Z");
+        assertThat(Dates.parseIso8601StrictOffset("2013-03-21T13:43:57+05:30"))
+            .isEqualTo("2013-03-21T08:13:57Z");
+        assertThat(Dates.parseIso8601StrictOffset("2013-03-21T13:43:57.333+05:30"))
+            .isEqualTo("2013-03-21T08:13:57.333Z");
+    }
 
-        assertTrue(Dates.isToday(today));
-        assertFalse(Dates.isToday(yesterday));
+    @Test
+    public void shouldFormatSimpleDisplayDatesLocaleAware() {
+        assertThat(Dates.formatToSimpleDate(Date.from(ZonedDateTime.parse("2008-09-09T18:56:14+08:00").toInstant())))
+            .isEqualTo("09 Sep 2008");
+
+        Locale.setDefault(Locale.forLanguageTag("en-SG"));
+        assertThat(Dates.formatToSimpleDate(Date.from(ZonedDateTime.parse("2008-09-09T18:56:14+08:00").toInstant())))
+            .isEqualTo("09 Sept 2008");
+    }
+
+    @Test
+    public void shouldAnswerIfTheProvidedDateIsToday() {
+        assertTrue(Dates.isToday(new Date()));
+        assertFalse(Dates.isToday(Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneOffset.systemDefault()).toInstant())));
+        assertFalse(Dates.isToday(Date.from(LocalDate.now().minusDays(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant())));
     }
 }

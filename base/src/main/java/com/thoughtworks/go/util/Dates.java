@@ -17,19 +17,17 @@ package com.thoughtworks.go.util;
 
 import org.jetbrains.annotations.TestOnly;
 
-import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
+import java.util.Locale;
 
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 public class Dates {
-    public static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     private static final DateTimeFormatter ISO_FORMATTER_NO_MILLIS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
     private static final DateTimeFormatter ISO_FORMATTER_UTC_NO_MILLIS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC);
+    private static final DateTimeFormatter FORMATTER_SIMPLE_DISPLAY_DATE = DateTimeFormatter.ofPattern("dd MMM yyyy").withZone(ZoneId.systemDefault());
 
     @TestOnly
     public static Date from(LocalDateTime date) {
@@ -46,6 +44,10 @@ public class Dates {
 
     public static String formatIso8601CompactOffset(Instant date) {
         return ISO_FORMATTER_NO_MILLIS.format(date.atZone(ZoneId.systemDefault()));
+    }
+
+    public static String formatIso8601StrictOffsetUtc(Date date) {
+        return ISO_OFFSET_DATE_TIME.format(date.toInstant());
     }
 
     public static String formatIso8601ForCCTray(Date date) {
@@ -77,16 +79,10 @@ public class Dates {
 
     @SuppressWarnings("unused") // Used from Ruby stages_controller
     public static String formatToSimpleDate(Date date) {
-        SimpleDateFormat simpleDate = new SimpleDateFormat("dd MMM yyyy");
-        return simpleDate.format(date);
+        return FORMATTER_SIMPLE_DISPLAY_DATE.withLocale(Locale.getDefault()).format(date.toInstant());
     }
 
     public static boolean isToday(Date date) {
-        Calendar today = Calendar.getInstance();
-        Calendar otherDay = Calendar.getInstance();
-        otherDay.setTime(date);
-
-        return (today.get(Calendar.YEAR) == otherDay.get(Calendar.YEAR) &&
-                today.get(Calendar.DAY_OF_YEAR) == otherDay.get(Calendar.DAY_OF_YEAR));
+        return LocalDate.now().isEqual(LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault()));
     }
 }

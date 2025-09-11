@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
@@ -29,8 +29,6 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static com.thoughtworks.go.util.Dates.UTC;
 
 @Service
 public class MaintenanceModeService {
@@ -70,7 +68,7 @@ public class MaintenanceModeService {
     }
 
     public String updatedOn() {
-        return ISO8601Utils.format(updatedOnTimeStamp(), false, UTC);
+        return Dates.formatIso8601StrictOffsetUtc(updatedOnTimeStamp());
     }
 
     public String updatedBy() {

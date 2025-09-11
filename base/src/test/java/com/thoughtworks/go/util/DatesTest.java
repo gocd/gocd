@@ -65,7 +65,17 @@ public class DatesTest {
     }
 
     @Test
-    public void shouldFormatIsoDatesToUtc() {
+    public void shouldForDatesToIsoUtcWithoutMillis() {
+        assertThat(Dates.formatIso8601StrictOffsetUtcWithoutMillis(Date.from(ZonedDateTime.parse("2008-12-09T18:56:14+08:00").toInstant())))
+            .isEqualTo("2008-12-09T10:56:14Z");
+        assertThat(Dates.formatIso8601StrictOffsetUtcWithoutMillis(Date.from(ZonedDateTime.parse("2008-12-09T18:56:14.456+08:00").toInstant())))
+            .isEqualTo("2008-12-09T10:56:14Z");
+        assertThat(Dates.formatIso8601StrictOffsetUtcWithoutMillis(Date.from(ZonedDateTime.parse("2008-12-09T18:56:14.556+08:00").toInstant())))
+            .isEqualTo("2008-12-09T10:56:14Z");
+    }
+
+    @Test
+    public void shouldParseIsoDatesWithStrictOffset() {
         assertThat(Dates.parseIso8601StrictOffset("2013-03-21T13:43:57Z"))
             .isEqualTo("2013-03-21T13:43:57Z");
         assertThat(Dates.parseIso8601StrictOffset("2013-03-21T13:43:57+05:30"))

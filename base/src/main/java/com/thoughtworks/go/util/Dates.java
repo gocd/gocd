@@ -46,8 +46,8 @@ public class Dates {
         return ISO_FORMATTER_NO_MILLIS.format(date.atZone(ZoneId.systemDefault()));
     }
 
-    public static String formatIso8601StrictOffsetUtc(Date date) {
-        return ISO_OFFSET_DATE_TIME.format(date.toInstant());
+    public static String formatIso8601StrictOffsetUtcWithoutMillis(Date date) {
+        return ISO_FORMATTER_UTC_NO_MILLIS.format(date.toInstant());
     }
 
     public static String formatIso8601ForCCTray(Date date) {

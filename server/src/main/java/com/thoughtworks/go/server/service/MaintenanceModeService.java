@@ -68,7 +68,7 @@ public class MaintenanceModeService {
     }
 
     public String updatedOn() {
-        return Dates.formatIso8601StrictOffsetUtc(updatedOnTimeStamp());
+        return Dates.formatIso8601StrictOffsetUtcNoMillis(updatedOnTimeStamp());
     }
 
     public String updatedBy() {

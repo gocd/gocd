@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.command.CommandLineException;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,7 @@ import java.util.Objects;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.REVISION_4;
-import static com.thoughtworks.go.util.Dates.parseRFC822;
+import static com.thoughtworks.go.util.Dates.parseIso8601StrictOffset;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,7 +49,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         Modification mod = git.latestModification().get(0);
         assertEquals("Chris Turner <cturner@thoughtworks.com>", mod.getUserName());
         assertEquals("Added 'run-till-file-exists' ant target", mod.getComment());
-        assertEquals(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800"), mod.getModifiedTime());
+        assertEquals(parseIso8601StrictOffset("2010-02-12T16:12:04-08:00"), mod.getModifiedTime());
         assertEquals("5def073a425dfe239aabd4bf8039ffe3b0e8856b", mod.getRevision());
 
         List<ModifiedFile> files = mod.getModifiedFiles();
@@ -65,7 +64,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         Modification mod = git.latestModification().get(0);
         assertEquals("Chris Turner <cturner@thoughtworks.com>", mod.getUserName());
         assertEquals("Added 'run-till-file-exists' ant target", mod.getComment());
-        assertEquals(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800"), mod.getModifiedTime());
+        assertEquals(parseIso8601StrictOffset("2010-02-12T16:12:04-08:00"), mod.getModifiedTime());
         assertEquals("5def073a425dfe239aabd4bf8039ffe3b0e8856b", mod.getRevision());
 
         List<ModifiedFile> files = mod.getModifiedFiles();
@@ -80,7 +79,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         Modification mod = git.latestModification().get(0);
         assertEquals("Chris Turner <cturner@thoughtworks.com>", mod.getUserName());
         assertEquals("Added 'run-till-file-exists' ant target", mod.getComment());
-        assertEquals(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800"), mod.getModifiedTime());
+        assertEquals(parseIso8601StrictOffset("2010-02-12T16:12:04-08:00"), mod.getModifiedTime());
         assertEquals("5def073a425dfe239aabd4bf8039ffe3b0e8856b", mod.getRevision());
 
         List<ModifiedFile> files = mod.getModifiedFiles();
@@ -203,7 +202,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
 
         assertEquals("Chris Turner <cturner@thoughtworks.com>", mod.getUserName());
         assertEquals("Started foo branch", mod.getComment());
-        assertEquals(parseRFC822("Tue, 05 Feb 2009 14:28:08 -0800"), mod.getModifiedTime());
+        assertEquals(parseIso8601StrictOffset("2009-02-05T14:28:08-08:00"), mod.getModifiedTime());
         assertEquals("b4fa7271c3cef91822f7fa502b999b2eab2a380d", mod.getRevision());
 
         List<ModifiedFile> files = mod.getModifiedFiles();
@@ -211,7 +210,6 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         assertEquals("first.txt", files.get(0).getFileName());
         assertEquals(ModifiedAction.modified, files.get(0).getAction());
     }
-
 
     @Test
     void shouldIncludeNewChangesInModificationCheck() throws Exception {
@@ -261,7 +259,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
 
         Modification mod = mods.get(2);
         assertEquals("46cceff864c830bbeab0a7aaa31707ae2302762f", mod.getRevision());
-        assertEquals(Dates.parseIso8601StrictOffset("2009-08-11T12:37:09-07:00"), mod.getModifiedTime());
+        assertEquals(parseIso8601StrictOffset("2009-08-11T12:37:09-07:00"), mod.getModifiedTime());
         assertEquals("Cruise Developer <cruise@cruise-sf3.(none)>", mod.getUserDisplayName());
         final String expected = """
             author:cruise <cceuser@CceDev01.(none)>

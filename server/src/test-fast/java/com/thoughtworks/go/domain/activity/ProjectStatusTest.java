@@ -64,7 +64,7 @@ public class ProjectStatusTest {
     @Test
     public void shouldProvideItsXmlRepresentation_WhenThereAreNoBreakers() {
         ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
-                Dates.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url");
+                Dates.parseIso8601StrictOffset("2010-05-23T10:00:00+02:00"), "web-url");
 
         assertThat(status.xmlRepresentation()).isEqualTo("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
                         "lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"__SITE_URL_PREFIX__/web-url\" />");
@@ -73,7 +73,7 @@ public class ProjectStatusTest {
     @Test
     public void shouldProvideItsXmlRepresentation_WhenThereAreBreakers() {
         ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
-                Dates.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url", new LinkedHashSet<>(List.of("breaker1", "breaker2")));
+                Dates.parseIso8601StrictOffset("2010-05-23T10:00:00+02:00"), "web-url", new LinkedHashSet<>(List.of("breaker1", "breaker2")));
 
         assertThat(status.xmlRepresentation()).isEqualTo("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
                         "lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"__SITE_URL_PREFIX__/web-url\">" +

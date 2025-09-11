@@ -33,7 +33,7 @@ public class HgModificationSplitterTest {
                 <changeset>
                 <node>ca3ebb67f527c0ad7ed26b789056823d8b9af23f</node>
                 <author>cruise</author>
-                <date>Tue, 09 Dec 2008 18:56:14 +0800</date>
+                <date>2008-12-09T18:56:14+08:00</date>
                 <desc>test</desc>
                 <files>
                 <modified>

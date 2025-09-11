@@ -28,9 +28,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class DatesTest {
 
     @Test
-    public void shouldBeAbleToParseRFC822Dates() {
-        Date date = Dates.parseRFC822("Tue, 09 Dec 2008 18:56:14 +0800");
-        assertThat(date).isEqualTo(Date.from(ZonedDateTime.parse("2008-12-09T18:56:14+08:00").toInstant()));
+    public void shouldBeAbleToParseRfc3339OrIso8601Dates() {
+        assertThat(Dates.parseIso8601StrictOffset("2008-09-09T10:56:14.345Z"))
+            .isEqualTo(Date.from(ZonedDateTime.parse("2008-09-09T18:56:14.345+08:00").toInstant()));
+        assertThat(Dates.parseIso8601StrictOffset("2008-09-09T10:56:14Z"))
+            .isEqualTo(Date.from(ZonedDateTime.parse("2008-09-09T18:56:14+08:00").toInstant()));
+
+        assertThat(Dates.parseIso8601StrictOffset("2013-03-21T13:43:57+05:30"))
+            .isEqualTo(Date.from(ZonedDateTime.parse("2013-03-21T13:43:57+05:30").toInstant()));
+        assertThat(Dates.parseIso8601StrictOffset("2013-03-21T13:43:57.789+05:30"))
+            .isEqualTo(Date.from(ZonedDateTime.parse("2013-03-21T13:43:57.789+05:30").toInstant()));
     }
 
     @Test

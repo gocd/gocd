@@ -157,7 +157,7 @@ public class CcTrayServiceTest {
     }
 
     private ProjectStatus statusFor(String projectName, String... allowedUsers) {
-        ProjectStatus status = new ProjectStatus(projectName, "activity1", "build-status-1", "build-label-1", Dates.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url");
+        ProjectStatus status = new ProjectStatus(projectName, "activity1", "build-status-1", "build-label-1", Dates.parseIso8601StrictOffset("2010-05-23T10:00:00+02:00"), "web-url");
         status.updateViewers(viewers(allowedUsers));
         return status;
     }
@@ -165,7 +165,12 @@ public class CcTrayServiceTest {
     private void assertCcTrayXmlFor(String actualXml, final String siteUrlPrefix, final String... projects) {
         StringBuilder expectedXml = new StringBuilder("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Projects>\n");
         for (String project : projects) {
-            expectedXml.append("  <Project name=\"").append(project).append("\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"" + siteUrlPrefix + "/web-url\" />\n");
+            expectedXml
+                .append("  <Project name=\"")
+                .append(project)
+                .append("\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"")
+                .append(siteUrlPrefix)
+                .append("/web-url\" />\n");
         }
         expectedXml.append("</Projects>");
 

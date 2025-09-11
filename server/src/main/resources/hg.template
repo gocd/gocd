@@ -1,4 +1,0 @@
-changeset = '<changeset>\n<node>{node}</node>\n<author>{author|escape}</author>\n<date>{date|rfc822date}</date>\n<desc>{desc|escape}</desc>\n<files>\n<modified>\n{files}</modified>\n<added>\n{file_adds}</added>\n<deleted>\n{file_dels}</deleted>\n</files>\n</changeset>'
-file = '<file>{file|escape}</file>\n'
-file_add = '<file>{file_add|escape}</file>\n'
-file_del = '<file>{file_del|escape}</file>\n'

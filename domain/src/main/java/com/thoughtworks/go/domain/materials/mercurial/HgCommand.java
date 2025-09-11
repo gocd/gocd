@@ -24,9 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.net.URLDecoder;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombUnless;
@@ -34,15 +38,25 @@ import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class HgCommand extends SCMCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(HgCommand.class);
-    private static String templatePath;
+    private static final Path TEMPLATE_PATH = findTemplate();
     private final File workingDir;
     private final String branch;
     private final String url;
     private final List<SecretString> secrets;
 
+    private static Path findTemplate() {
+        try (InputStream inputStream = Objects.requireNonNull(HgCommand.class.getResourceAsStream("hg.template"), "Could not load hg.template resource")) {
+            Path location = Files.createTempFile("hg", ".template");
+            Files.copy(inputStream, location, REPLACE_EXISTING);
+            return location;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public HgCommand(String materialFingerprint, File workingDir, String branch, String url, List<SecretString> secrets) {
         super(materialFingerprint);
@@ -118,24 +132,17 @@ public class HgCommand extends SCMCommand {
         // Currently impossible to check modifications on a remote repository.
         InMemoryStreamConsumer consumer = inMemoryConsumer();
         bombUnless(pull(consumer), () -> "Failed to run hg pull command: " + consumer.getAllOutput());
-        CommandLine hg = hg("log", "--limit", String.valueOf(count), branchArg(), "--style", templatePath());
+        CommandLine hg = hg("log", "--limit", String.valueOf(count), branchArg(), "--style", TEMPLATE_PATH.toString());
         return new HgModificationSplitter(execute(hg)).modifications();
     }
 
     public List<Modification> modificationsSince(Revision revision) {
         InMemoryStreamConsumer consumer = inMemoryConsumer();
         bombUnless(pull(consumer), () -> "Failed to run hg pull command: " + consumer.getAllOutput());
-        CommandLine hg = hg("log", "-r", "tip:" + revision.getRevision(), branchArg(), "--style", templatePath());
+        CommandLine hg = hg("log", "-r", "tip:" + revision.getRevision(), branchArg(), "--style", TEMPLATE_PATH.toString());
         return new HgModificationSplitter(execute(hg)).filterOutRevision(revision);
     }
 
-    private String templatePath() {
-        if (templatePath == null) {
-            String file = HgCommand.class.getResource("/hg.template").getFile();
-            templatePath = URLDecoder.decode(new File(file).getAbsolutePath(), UTF_8);
-        }
-        return templatePath;
-    }
 
     public ConsoleResult workingRepositoryUrl() {
         CommandLine hg = hg("showconfig", "paths.default");

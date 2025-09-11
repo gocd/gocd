@@ -17,7 +17,6 @@ package com.thoughtworks.go.util;
 
 import org.jetbrains.annotations.TestOnly;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -25,7 +24,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 public class Dates {
@@ -57,18 +55,22 @@ public class Dates {
         return ISO_FORMATTER_UTC_NO_MILLIS.format(date.toInstant());
     }
 
-    public static Date parseRFC822(String date) {
-        try {
-            return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss ZZZZZ").parse(date.trim());
-        } catch (ParseException e) {
-            throw bomb(e);
-        }
-    }
-
+    /**
+     * Parses a date that is ISO8601-like, but has no milliseconds, and uses "compact" offsets, e.g +0200 instead of +02:00
+     * @param date An ISO8601 compatible date
+     * @return The parsed date
+     */
+    @TestOnly
     public static Date parseIso8601CompactOffset(String date) {
         return Date.from(ISO_FORMATTER_NO_MILLIS.parse(date, ZonedDateTime::from).toInstant());
     }
 
+    /**
+     * Parses the date using Java's standard parser, which should be broadly compatible with ISO 8601 and RFC 3339
+     * despite them having some differences
+     * @param date An ISO8601 or RFC3339 compatible date
+     * @return The parsed date
+     */
     public static Date parseIso8601StrictOffset(String date) {
         return Date.from(ISO_OFFSET_DATE_TIME.parse(date, ZonedDateTime::from).toInstant());
     }

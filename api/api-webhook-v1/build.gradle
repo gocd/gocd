@@ -27,7 +27,7 @@ dependencies {
     exclude(module: 'commons-codec')
   }
   if (project.deps.apacheHttpComponents) {
-    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
 
   testImplementation(testFixtures(project(":api:api-base")))

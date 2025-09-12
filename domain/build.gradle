@@ -40,7 +40,7 @@ dependencies {
     exclude(module: 'commons-codec')
   }
   if (project.deps.springTx || project.deps.apacheHttpComponents) {
-    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
   implementation project.deps.semanticVersion
   compileOnly project.deps.jetBrainsAnnotations

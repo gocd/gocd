@@ -18,12 +18,11 @@ description = 'GoCD Plugin Infrastructure'
 
 dependencies {
   implementation project(':base')
-  implementation project(':util')
   api project(':plugin-infra:go-plugin-api')
   implementation project(':plugin-infra:go-plugin-activator')
   compileOnly project.deps.logback
   compileOnlyApi project.deps.jaxbApi
-  implementation project.deps.jaxbRuntime
+  runtimeOnly project.deps.jaxbRuntime
   implementation project.deps.commonsIO
   implementation project.deps.springContext
 

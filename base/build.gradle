@@ -30,7 +30,7 @@ dependencies {
     exclude(module: 'commons-codec')
   }
   if (project.deps.apacheHttpComponents) {
-    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
 
   compileOnly project.deps.jakartaAnnotation
@@ -44,7 +44,6 @@ dependencies {
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.junit5Params
   testImplementation project.deps.systemStubs
-  testImplementation project.deps.mockitoCore
   testImplementation project.deps.assertJ
 }
 

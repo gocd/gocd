@@ -24,24 +24,25 @@ configurations {
 
 dependencies {
   implementation project(':server')
-  implementation project(':api').subprojects.collect { project(it.path) }
-  implementation project(':spark').subprojects.collect { project(it.path) }
-  implementation project.deps.jetty
-  implementation project.deps.jettyJmx
-  implementation project.deps.jettyServlets
-  implementation project.deps.jettyUtil
-  implementation project.deps.jettyDeploy
-  implementation(project.deps.jettyWebsocket) {
+  implementation project(':base')
+  runtimeOnly project(':api').subprojects.collect { project(it.path) }
+  runtimeOnly project(':spark').subprojects.collect { project(it.path) }
+  runtimeOnly project.deps.jetty
+  runtimeOnly project.deps.jettyJmx
+  runtimeOnly project.deps.jettyServlets
+  runtimeOnly project.deps.jettyUtil
+  runtimeOnly project.deps.jettyDeploy
+  runtimeOnly(project.deps.jettyWebsocket) {
     exclude(module: 'jetty-annotations')
   }
 
-  implementation(project.deps.jgitServer) {
+  runtimeOnly(project.deps.jgitServer) {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
-  implementation project(':jetty')
+  runtimeOnly project(':jetty')
   implementation project.deps.servletApi
-  implementation project.deps.jruby
+  runtimeOnly project.deps.jruby
   implementation project.deps.rack
   implementation project.deps.slf4jApi
   runtimeOnly project.deps.logback

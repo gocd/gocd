@@ -28,13 +28,11 @@ dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
 
-  testImplementation project(':db-support:db-migration')
   testImplementation(testFixtures(project(":db-support:db-migration")))
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.assertJ
 
   testImplementation(project.deps.testcontainersJunit) {
     exclude group: 'junit' // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970

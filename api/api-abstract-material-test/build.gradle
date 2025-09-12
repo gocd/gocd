@@ -23,10 +23,4 @@ dependencies {
   implementation project(':api:api-shared-v11')
   implementation project(':config:config-server')
   implementation project.deps.commonsLang3
-
-  testImplementation(testFixtures(project(":api:api-base")))
-
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
 }

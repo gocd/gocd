@@ -21,12 +21,10 @@ dependencies {
   compileOnly project.deps.lombok
 
   api project(':plugin-infra:go-plugin-api')
-  api project(':plugin-infra:go-plugin-infra')
   implementation project.deps.commonsIO
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.assertJ
-  //testImplementation(testFixtures(project(':test:test-utils')))
 }

@@ -20,7 +20,7 @@ dependencies {
   implementation project(':base')
   implementation project.deps.springContext
   if (project.deps.springContext) {
-    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
   implementation project.deps.gson
   implementation project.deps.commonsIO
@@ -30,6 +30,5 @@ dependencies {
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.junit5Params
   testImplementation project.deps.assertJ
 }

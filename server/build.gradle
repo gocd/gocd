@@ -168,12 +168,12 @@ dependencies {
   api project(':common')
   implementation project(':commandline')
   implementation project(':util')
-  implementation project(':rack_hack')
+  runtimeOnly project(':rack_hack')
   implementation project(':db-support:db-migration')
   implementation project(':db-support:db-support-base')
-  implementation project(':db-support:db-support-h2')
-  implementation project(':db-support:db-support-postgresql')
-  implementation project(':db-support:db-support-mysql')
+  runtimeOnly project(':db-support:db-support-h2')
+  runtimeOnly project(':db-support:db-support-postgresql')
+  runtimeOnly project(':db-support:db-support-mysql')
 
   packagingOnly project.deps.servletApi
 
@@ -185,6 +185,7 @@ dependencies {
   implementation project.deps.commonsCodec
   implementation project.deps.commonsCollections4
   implementation project.deps.commonsDbcp
+  implementation project.deps.commonsIO
   implementation project.deps.commonsLang3
   implementation project.deps.commonsText
 
@@ -200,7 +201,7 @@ dependencies {
   if (project.deps.hibernate) {
     // Required by Hibernate 3.6 but Hibernate declares as an 'optional' dependency.
     // Remove for later Hibernate versions where it is declared as compulsory, so we can use a validated version
-    implementation project.deps.javassist
+    runtimeOnly project.deps.javassist
   }
   implementation project.deps.mybatis
   implementation project.deps.mybatisSpring
@@ -214,14 +215,10 @@ dependencies {
 
   implementation project.deps.gson
   implementation project.deps.jdom
-  if (project.deps.jdom) {
-    // Required for use of org.jdom2.xpath.XPathFactory where jaxen is the default impl
-    implementation project.deps.jaxen
-  }
   implementation project.deps.dom4j
 
   implementation project.deps.jruby
-  implementation project.deps.rack
+  runtimeOnly project.deps.rack
   implementation project.deps.apacheHttpComponents
 
   implementation project.deps.springOrm
@@ -232,15 +229,15 @@ dependencies {
   implementation project.deps.springSecurityWeb
   implementation project.deps.springTx
   if (project.deps.springWeb) {
-    implementation project.deps.commonsFileUpload // used by CommonsMultipartResolver
+    runtimeOnly project.deps.commonsFileUpload // used by CommonsMultipartResolver
   }
   if (project.deps.commonsDbcp || project.deps.oscache || project.deps.springWeb) {
-    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
   implementation project.deps.aspectj
-  implementation project.deps.urlrewrite
+  runtimeOnly project.deps.urlrewrite
 
-  implementation project.deps.freemarker
+  runtimeOnly project.deps.freemarker
   implementation project.deps.jakartaMail
   runtimeOnly project.deps.angusMailSmtp
 
@@ -260,19 +257,20 @@ dependencies {
   testImplementation(testFixtures(project(':config:config-api')))
   testImplementation(testFixtures(project(':config:config-server')))
   testImplementation(testFixtures(project(':common')))
-  testImplementation(testFixtures(project(':domain')))
   testImplementation project(':app-server')
-  testImplementation project(':jetty')
+  testRuntimeOnly project(':jetty')
+  testImplementation project.deps.jetty
   testImplementation(project.deps.jettyWebsocket) {
     exclude(module: 'jetty-annotations')
   }
   testImplementation project.deps.jettyWebapp
+  testImplementation project.deps.freemarker
   testImplementation project.deps.jsoup
-  testImplementation project.deps.xmlUnitMatchers
   testImplementation project.deps.assertJ
   testImplementation project.deps.awaitility
   testImplementation project.deps.xmlUnit
 
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation(testFixtures(project(':test:http-mocks')))
 
   testImplementation project.deps.junit5Api
@@ -284,7 +282,9 @@ dependencies {
   testImplementation project.deps.systemStubs
   testImplementation project.deps.jsonUnit
   testImplementation project.deps.springTest
+  testImplementation(testFixtures(project(':domain')))
 
+  integrationTestImplementation project.deps.urlrewrite
   integrationTestImplementation project.deps.springTestJunit5
   integrationTestImplementation(testFixtures(project(":domain")))
 

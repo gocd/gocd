@@ -32,6 +32,8 @@ import java.util.stream.Collectors
 plugins {
   id 'base'
   id 'org.owasp.dependencycheck' version '12.1.3'
+  id 'com.autonomousapps.dependency-analysis' version '3.0.2'
+  id 'org.barfuin.gradle.taskinfo' version '2.2.0'
   id 'com.github.hierynomus.license-base' version '0.16.1' apply false
   id 'com.github.jk1.dependency-license-report' version '2.9' apply false
 }
@@ -72,6 +74,7 @@ GoVersions.printGradleDebuggingOutputFor(gradle, goVersions)
 
 allprojects {
   apply plugin: 'idea'
+  apply plugin: 'com.autonomousapps.dependency-analysis'
   group = 'com.thoughtworks.go'
   version = goVersions.fullVersion
   layout.buildDirectory = "${projectDir}/target"
@@ -556,6 +559,16 @@ static List<String> getTestClassesForTask(List<String> testsToRun) {
     .filter { testToRun -> testToRun.endsWith("Test.*") }
     .map { testToRun -> testToRun.replaceAll(".\\*", "").replaceAll("[^\\w.*]", ".") }
     .collect(Collectors.toList())
+}
+
+dependencyAnalysis {
+  issues {
+    all {
+      onAny {
+        severity("fail")
+      }
+    }
+  }
 }
 
 dependencyCheck {

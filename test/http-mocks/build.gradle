@@ -22,7 +22,7 @@ dependencies {
   testFixturesImplementation project.deps.spring
   testFixturesImplementation project.deps.springTest
   if (project.deps.apacheHttpComponents || project.deps.spring) {
-    testFixturesImplementation project.deps.slf4jJcl // Allow commons-logging replacement
+    testFixturesRuntimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
 
   testFixturesImplementation project.deps.assertJ

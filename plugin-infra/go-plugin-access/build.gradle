@@ -16,7 +16,6 @@
 description = 'APIs to allow GoCD to communicate with GoCD Plugins'
 
 dependencies {
-  api project(':plugin-infra:go-plugin-activator')
   api project(':plugin-infra:go-plugin-api')
   api project(':plugin-infra:go-plugin-api-internal')
   api project(':plugin-infra:go-plugin-config-repo')

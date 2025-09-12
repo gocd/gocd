@@ -25,13 +25,11 @@ dependencies {
   compileOnly project.deps.lombok
   compileOnly project.deps.jetBrainsAnnotations
 
-  testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.assertJ
-  //testImplementation(testFixtures(project(':test:test-utils')))
 }
 
 tasks.register('sourcesJar', Jar) {

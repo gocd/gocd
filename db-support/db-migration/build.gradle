@@ -18,13 +18,8 @@ dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
 
-  implementation project.deps.commonsDbcp
   implementation project.deps.commonsLang3
   implementation project.deps.gson
-  implementation project.deps.springContext
-  if (project.deps.commonsDbcp || project.deps.springContext) {
-    implementation project.deps.slf4jJcl // Allow commons-logging replacement
-  }
   implementation project.deps.jakartaAnnotation
 
   implementation(project.deps.liquibase) {
@@ -44,16 +39,15 @@ dependencies {
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.assertJ
-  testImplementation project.deps.assertJ_DB
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
 
+  testImplementation project.deps.commonsDbcp
   testImplementation project.deps.h2
-  testImplementation project(':db-support:db-support-h2')
+  testRuntimeOnly project(':db-support:db-support-h2')
 
   testFixturesApi(project.deps.testcontainersJdbc) {
     exclude group: 'junit' // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970
   }
-  testFixturesImplementation project.deps.assertJ
   testFixturesImplementation project.deps.assertJ_DB
 }

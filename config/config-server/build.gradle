@@ -35,12 +35,13 @@ dependencies {
   implementation project.deps.jdom
   if (project.deps.jdom) {
     // Required for use of org.jdom2.xpath.XPathFactory where jaxen is the default impl
-    implementation project.deps.jaxen
+    runtimeOnly project.deps.jaxen
   }
   compileOnly project.deps.jetBrainsAnnotations
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
 
+  testImplementation project(":plugin-infra:go-plugin-infra")
   testImplementation(testFixtures(project(":config:config-api")))
   testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
@@ -52,7 +53,6 @@ dependencies {
 
   testFixturesApi project(':config:config-api')
   testFixturesImplementation project(':util')
-  testFixturesImplementation(testFixtures(project(':test:test-utils')))
 }
 
 test {

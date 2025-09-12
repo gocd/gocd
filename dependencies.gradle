@@ -224,7 +224,6 @@ final Map<String, String> related = [
   testcontainersJunit     : "org.testcontainers:junit-jupiter",
   testcontainersMysql     : "org.testcontainers:mysql",
   testcontainersPostgresql: "org.testcontainers:postgresql",
-  xmlUnitMatchers         : "org.xmlunit:xmlunit-matchers:${v.xmlUnit}",
 ]
 
 ext {

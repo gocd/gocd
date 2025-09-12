@@ -17,16 +17,10 @@
 dependencies {
   implementation project.deps.commonsDbcp
   if (project.deps.commonsDbcp) {
-    implementation project.deps.slf4jJcl // Allow commons-logging replacement
+    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
-  implementation project.deps.commonsLang3
 
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
-
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.assertJ
 }
 

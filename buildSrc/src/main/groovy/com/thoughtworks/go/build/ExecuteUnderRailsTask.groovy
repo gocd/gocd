@@ -16,15 +16,12 @@
 
 package com.thoughtworks.go.build
 
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileSystemOperations
-import org.gradle.api.file.RegularFile
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.JavaExec
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.*
 import org.gradle.internal.os.OperatingSystem
-import org.gradle.jvm.tasks.Jar
 import org.gradle.process.JavaExecSpec
 
 import javax.inject.Inject
@@ -34,33 +31,31 @@ abstract class ExecuteUnderRailsTask extends JavaExec {
   private Map<String, Object> originalEnv
 
   @Input boolean disableJRubyOptimization = false
+  @InputFiles final FileCollection jrubyJar = project.configurations.jruby as ConfigurableFileCollection
+  @InputFile abstract RegularFileProperty getPathingJar()
+
   @Internal final projectRailsMeta = project.rails
-  @Internal final Provider<File> jrubyJar = project.jrubyJar
   @Inject abstract FileSystemOperations getFileOps()
 
   ExecuteUnderRailsTask() {
     super()
-    dependsOn(':server:initializeRailsGems', ':server:cleanDb', ':server:createJRubyBinstubs', ':server:pathingJar')
+    dependsOn(':server:initializeRailsGems')
 
     originalEnv = new LinkedHashMap<String, Object>(environment)
     workingDir = project.railsRoot
 
     systemProperties += project.railsSystemProperties
 
-    def pathingJarLoc = project.tasks.named('pathingJar').flatMap { Jar jt -> jt.archiveFile } as Provider<RegularFile>
-
-    classpath(pathingJarLoc)
-    if (CURRENT_OS.isWindows()) {
-      environment['CLASSPATH'] += "${File.pathSeparatorChar}${pathingJarLoc.get()}"
-    }
     JRuby.setup(this, project, disableJRubyOptimization)
   }
 
   @Override
   @TaskAction
   void exec() {
+    classpath(pathingJar.get())
     if (CURRENT_OS.isWindows()) {
-      environment += [CLASSPATH: jrubyJar.get().toString()]
+      environment['CLASSPATH'] += "${File.pathSeparatorChar}${pathingJar.get()}"
+      environment += [CLASSPATH: jrubyJar.first().toString()]
     }
 
     fileOps.delete {

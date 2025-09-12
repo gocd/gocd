@@ -64,17 +64,24 @@ configurations {
   apiBase
   allApis
   spark
+  jruby
+
+  railsRuntimeClasspath {
+    extendsFrom runtimeClasspath
+    extendsFrom spark
+    extendsFrom apiBase
+  }
+
+  railsTestRuntimeClasspath {
+    extendsFrom railsRuntimeClasspath
+    extendsFrom testRuntimeClasspath
+  }
 }
 
 project.ext.webAppDir = file("src/main/webapp")
 project.ext.railsRoot = file("${project.webAppDir}/WEB-INF/rails")
 project.ext.bundledGemRubyVersion = "${RUBY_MAJOR_VERSION}.0"
 project.ext.bundledGemDir = file("${project.railsRoot}/gems/jruby/${project.bundledGemRubyVersion}")
-
-project.ext.railsClasspath = sourceSets.test.runtimeClasspath +
-  configurations.spark +
-  configurations.apiBase +
-  rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
 
 project.ext.jrubyOptimizationJvmArgs = [
   '-XX:+TieredCompilation',
@@ -96,18 +103,13 @@ project.ext.jrubyDefaultSystemProperties = [
   // 'jruby.debug.loadService': 'true',
 ]
 
-project.ext.jrubyJar = project.provider { configurations.compileClasspath.incoming.artifactView { componentFilter {it instanceof ModuleComponentIdentifier && it.module == "jruby-complete"} }.files.first() } as Provider<File>
-
 project.ext.jrubyScriptsDir = project.file("scripts")
 
 project.ext.additionalJRubyPaths = [jrubyScriptsDir, project.file("${project.bundledGemDir}/bin")]
 
-def forwardSlashedString = { File file -> file.toString().replaceAll('\\\\', '/') }
-
 project.ext.defaultJRubyEnvironment = [
   GEM_HOME: project.bundledGemDir,
   GEM_PATH: project.bundledGemDir,
-  RUBY    : forwardSlashedString(project.file("${project.ext.jrubyScriptsDir}/jruby${org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''}"))
 ]
 
 project.ext.rails = [:]
@@ -204,6 +206,7 @@ dependencies {
   implementation project.deps.jdom
   implementation project.deps.dom4j
 
+  jruby project.deps.jruby
   implementation project.deps.jruby
   runtimeOnly project.deps.rack
   implementation project.deps.apacheHttpComponents
@@ -242,9 +245,12 @@ dependencies {
     exclude(module: 'jetty-annotations')
   }
 
+  railsRuntimeClasspath project.deps.logback
+
   testImplementation(testFixtures(project(':config:config-api')))
   testImplementation(testFixtures(project(':config:config-server')))
   testImplementation(testFixtures(project(':common')))
+
   testImplementation project(':app-server')
   testRuntimeOnly project(':jetty')
   testImplementation project.deps.jetty

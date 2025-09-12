@@ -21,26 +21,57 @@ import groovy.text.Template
 import org.apache.tools.ant.types.Commandline
 import org.gradle.internal.jvm.Jvm
 
-tasks.register('pathingJar', Jar) {
-  archiveClassifier = 'pathing'
+def railsPathingJarMain = tasks.register('railsPathingJarMain', Jar) {
+  group = LifecycleBasePlugin.BUILD_GROUP
+  archiveClassifier = 'pathingMain'
 
-  def railsClasspath = project.railsClasspath
-  dependsOn(railsClasspath, configurations.compileClasspath)
+  dependsOn(configurations.jruby, configurations.railsRuntimeClasspath)
 
-  def jrubyJarLoc = project.jrubyJar
-  doFirst {
+  def extraResources = rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
+  inputs.files(
+    extraResources,
+    configurations.jruby,
+    configurations.railsRuntimeClasspath,
+  )
+
+  doFirst { Jar ->
     manifest {
-      attributes 'Class-Path': (railsClasspath.files - [jrubyJarLoc.get()]).collect { it.toURI() }.join(' ')
+      attributes 'Class-Path': (extraResources + configurations.railsRuntimeClasspath.files - configurations.jruby.files).collect { it.toURI() }.join(' ')
+    }
+  }
+}
+
+def railsPathingJarTest = tasks.register('railsPathingJarTest', Jar) {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  archiveClassifier = 'pathingTest'
+
+  dependsOn(configurations.jruby, configurations.railsTestRuntimeClasspath)
+
+
+  def extraResources = rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
+  inputs.files(
+    extraResources,
+    configurations.jruby,
+    configurations.railsTestRuntimeClasspath,
+  )
+
+  doFirst { Jar ->
+    manifest {
+      attributes 'Class-Path': (extraResources + configurations.railsTestRuntimeClasspath.files - configurations.jruby.files).collect { it.toURI() }.join(' ')
     }
   }
 }
 
 tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
-  outputs.cacheIf { true }
+  group = LifecycleBasePlugin.BUILD_GROUP
+  dependsOn ':server:createJRubyBinstubs', railsPathingJarMain
+  pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
+
   def outputDir = file("${project.railsRoot}/webpack/gen")
   inputs.dir(file("${project.railsRoot}/vendor"))
   inputs.files(fileTree(dir: "${project.railsRoot}/config", includes: ['**/*.rb']))
   outputs.dir(outputDir)
+  outputs.cacheIf { true }
 
   environment(
     'RAILS_ENV': 'production',
@@ -55,61 +86,91 @@ tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
   }
 }
 
+def forwardSlashedString = { File file -> file.toString().replaceAll('\\\\', '/') }
+
 tasks.register('createJRubyBinstubs') {
-  outputs.cacheIf { true }
-  dependsOn pathingJar, configurations.compileClasspath
+  group = LifecycleBasePlugin.BUILD_GROUP
+  dependsOn configurations.jruby, railsPathingJarMain
 
+  def ext = org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''
   def outputDir = file("scripts")
-  inputs.dir("script-templates")
-  inputs.properties([
-    bundledGemDir: project.bundledGemDir,
-    railsRoot    : project.railsRoot
-  ])
-
-  def jrubyJarLoc = project.jrubyJar
-
+  def outputScriptFile = file("${outputDir}/jruby${ext}")
   def templateProperties = [
     mainClassName       : 'org.jruby.Main',
     jvmArgs             : project.jrubyOptimizationJvmArgs,
-    systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties + project.railsSystemProperties),
-    classpath           : [pathingJar.archiveFile.get().asFile],
-    environment         : project.defaultJRubyEnvironment,
+    systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties),
+    classpath           : [tasks.named('railsPathingJarMain').flatMap { Jar jt -> jt.archiveFile }.get().asFile],
+    environment         : project.defaultJRubyEnvironment + [
+      RUBY: forwardSlashedString(outputScriptFile)
+    ],
     additionalJRubyPaths: project.additionalJRubyPaths,
     javaExecutable      : Jvm.current().getExecutable("java")
   ]
 
+  inputs.dir("script-templates")
   inputs.properties(templateProperties)
-  outputs.dir(outputDir)
+  outputs.file(outputScriptFile)
+  outputs.cacheIf { true }
+
+  doFirst {
+    templateProperties['jrubyJar'] = configurations.jruby.first().toString()
+    outputDir.mkdirs()
+
+    def inputTemplate = file("script-templates/jruby${ext}")
+    def engine = new SimpleTemplateEngine()
+    Template template = engine.createTemplate(inputTemplate)
+    outputScriptFile.write(template.make(templateProperties).toString())
+    outputScriptFile.setExecutable(true)
+  }
+}
+
+tasks.register('createJRubyBinstubsTest') {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  dependsOn configurations.jruby, railsPathingJarTest
+
+  def ext = org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''
+  def outputDir = file("scripts")
+  def outputScriptFile = file("${outputDir}/jrubyTest${ext}")
+  def templateProperties = [
+    mainClassName       : 'org.jruby.Main',
+    jvmArgs             : project.jrubyOptimizationJvmArgs,
+    systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties + project.railsSystemProperties),
+    classpath           : [tasks.named('railsPathingJarTest').flatMap { Jar jt -> jt.archiveFile }.get().asFile],
+    environment         : project.defaultJRubyEnvironment + [
+      RUBY: forwardSlashedString(outputScriptFile)
+    ],
+    additionalJRubyPaths: project.additionalJRubyPaths,
+    javaExecutable      : Jvm.current().getExecutable("java")
+  ]
+
+  inputs.dir("script-templates")
+  inputs.properties(templateProperties)
+  outputs.files(outputScriptFile, file("${outputDir}/rspec"))
+  outputs.cacheIf { true }
 
   def injected = project.objects.newInstance(Injected)
   doFirst {
-    templateProperties['jrubyJar'] = jrubyJarLoc.get()
-    delete(outputDir)
+    templateProperties['jrubyJar'] = configurations.jruby.first().toString()
     outputDir.mkdirs()
 
-    ['rspec'].each { file ->
-      injected.fileOps.copy {
-        from "script-templates/${file}"
-        into outputDir
-        filePermissions {
-          unix(0755)
-        }
+    injected.fileOps.copy {
+      from "script-templates/rspec"
+      into outputDir
+      filePermissions {
+        unix(0755)
       }
     }
 
-    ['jruby', 'jruby.bat'].each { eachFile ->
-      def inputTemplate = file("script-templates/${eachFile}")
-      def engine = new SimpleTemplateEngine()
-      Template template = engine.createTemplate(inputTemplate)
-      String output = template.make(templateProperties).toString()
-
-      file("${outputDir}/${inputTemplate.name}").write(output)
-      file("${outputDir}/${inputTemplate.name}").setExecutable(true)
-    }
+    def inputTemplate = file("script-templates/jruby${ext}")
+    def engine = new SimpleTemplateEngine()
+    Template template = engine.createTemplate(inputTemplate)
+    outputScriptFile.write(template.make(templateProperties).toString())
+    outputScriptFile.setExecutable(true)
   }
 }
 
 tasks.register('initializeRailsGems') {
+  group = LifecycleBasePlugin.BUILD_GROUP
   outputs.cacheIf { true }
   dependsOn createJRubyBinstubs
 
@@ -140,7 +201,7 @@ tasks.register('yarnInstall', YarnInstallTask) {
   workingDir = project.railsRoot
 }
 
-prepare.dependsOn(initializeRailsGems, createJRubyBinstubs, yarnInstall)
+prepare.dependsOn(initializeRailsGems, yarnInstall)
 
 tasks.register('cleanRails', Delete) {
   delete layout.buildDirectory.dir("railsTests")
@@ -209,8 +270,9 @@ tasks.register('compileAssetsWebpackProd', YarnRunTask) {
 }
 
 tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall
+  dependsOn yarnInstall, ':server:createJRubyBinstubs'
   outputs.cacheIf { true }
+  pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
 
   def publicAssetsDir = file("${project.railsRoot}/public/assets")
 
@@ -241,8 +303,9 @@ tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
 }
 
 tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall
+  dependsOn yarnInstall, ':server:createJRubyBinstubs'
   outputs.cacheIf { true }
+  pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
 
   def outputAssetsDir = layout.buildDirectory.dir("rails-assets")
   def publicAssetsDir = layout.buildDirectory.dir("public/assets")
@@ -318,11 +381,11 @@ tasks.register('compileAssets') {
 }
 
 tasks.register('rspec', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall, configurations.spark, configurations.apiBase
-  mustRunAfter generateJSRoutes, compileAssets, compileAssetsWebpackDev, compileAssetsRailsTest
+  dependsOn yarnInstall, ':server:cleanDb', compileAssetsRailsTest, railsPathingJarTest
+  pathingJar.set(railsPathingJarTest.flatMap { it.archiveFile } as Provider<RegularFile>)
+  mustRunAfter compileAssets, compileAssetsWebpackDev
   outputs.cacheIf { true }
   inputs.files project.railsRoot
-  inputs.files project.railsClasspath
 
   description = "Run specs (pass '-Popts=...' to pass options)"
 
@@ -342,6 +405,7 @@ tasks.register('rspec', ExecuteUnderRailsTask) {
 }
 
 tasks.register('railsExec', ExecuteUnderRailsTask) {
+  dependsOn dependsOn, ':server:createJRubyBinstubs'
   outputs.upToDateWhen { false }
 
   description = "rails exec (pass '-Pcmd=...' to pass options)"

@@ -20,20 +20,6 @@ import org.apache.commons.codec.digest.DigestUtils
 
 description = 'GoCD TFS SDK wrapper v14'
 
-def sdkTarget = layout.buildDirectory.dir("tfssdk")
-
-dependencies {
-  implementation project(':common')
-  implementation files(sdkTarget.get().file("lib/com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar"))
-  compileOnly project.deps.jetBrainsAnnotations
-
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.assertJ
-}
-
 jar {
   archiveClassifier = 'classes'
 }
@@ -50,11 +36,17 @@ tasks.register('downloadTfsSdk', DownloadFile) {
 }
 
 tasks.register('extractTfsSdk', Copy) {
+  dependsOn downloadTfsSdk
+  def sdk = downloadTfsSdk.outputs.files.singleFile
+  def sdkTarget = layout.buildDirectory.dir("tfssdk")
+  inputs.file(sdk)
+  outputs.dir(sdkTarget)
+
   doFirst {
     delete sdkTarget
   }
-  dependsOn downloadTfsSdk
-  from(project.zipTree(downloadTfsSdk.outputs.files.singleFile)) {
+
+  from(project.zipTree(sdk)) {
     include "*/redist/**"
     eachFile { FileCopyDetails fcd ->
       fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(2))
@@ -64,14 +56,27 @@ tasks.register('extractTfsSdk', Copy) {
   into sdkTarget
 }
 
-compileJava.dependsOn extractTfsSdk
-generateLicenseReport.dependsOn extractTfsSdk
+dependencies {
+  implementation project(':common')
+  implementation files(tasks.named('extractTfsSdk').map { Copy copy -> new File(copy.destinationDir, "lib/com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar") })
+  compileOnly project.deps.jetBrainsAnnotations
+
+  testImplementation project.deps.junit5Api
+  testRuntimeOnly project.deps.junit5Engine
+  testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation project.deps.mockitoCore
+  testImplementation project.deps.assertJ
+}
 
 def fatJar = tasks.register('fatJar', Jar) {
   finalizedBy 'verifyJar'
   dependsOn extractTfsSdk, jar
+  def processedSdk = extractTfsSdk.outputs.files.singleFile
+  inputs.dir(processedSdk)
+
   from(jar.archiveFile) { into('lib/') }
-  from("${extractTfsSdk.outputs.files.singleFile}/lib") {
+
+  from("${processedSdk}/lib") {
     include "*.jar"
     into 'lib/'
   }

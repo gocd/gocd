@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.newsecurity.filterchains;
 
-import ch.qos.logback.core.util.FileSize;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.newsecurity.filters.ArtifactSizeEnforcementFilter;
@@ -34,17 +33,19 @@ import java.io.IOException;
 
 import static com.thoughtworks.go.http.mocks.MockHttpServletResponseAssert.assertThat;
 import static com.thoughtworks.go.server.newsecurity.filterchains.DenyGoCDAccessForArtifactsFilterChainTest.wrap;
+import static com.thoughtworks.go.util.GoConstants.GIGA_BYTE;
+import static com.thoughtworks.go.util.GoConstants.MEGA_BYTE;
 import static org.mockito.Mockito.*;
 
 class ArtifactSizeEnforcementFilterChainTest {
-    private MockHttpServletResponse response = new MockHttpServletResponse();
+    private final MockHttpServletResponse response = new MockHttpServletResponse();
     private ArtifactSizeEnforcementFilterChain filter;
     private FilterChain filterChain;
 
     @BeforeEach
     void setUp() {
         File artifactsDir = mock(File.class);
-        when(artifactsDir.getUsableSpace()).thenReturn(FileSize.valueOf("1GB").getSize());
+        when(artifactsDir.getUsableSpace()).thenReturn(GIGA_BYTE);
         ArtifactsDirHolder artifactsDirHolder = mock(ArtifactsDirHolder.class);
         when(artifactsDirHolder.getArtifactsDir()).thenReturn(artifactsDir);
         filter = new ArtifactSizeEnforcementFilterChain(new ArtifactSizeEnforcementFilter(artifactsDirHolder, new SystemEnvironment()));
@@ -66,7 +67,7 @@ class ArtifactSizeEnforcementFilterChainTest {
     @ParameterizedTest
     @ValueSource(strings = {"/files/bar/foo.zip", "/remoting/files/bar/foo.zip"})
     void shouldAllowIfEnoughDiskSpaceIsAvailable(String path) throws IOException, ServletException {
-        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE, FileSize.valueOf("100MB").getSize()).build();
+        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE, 100 * MEGA_BYTE).build();
 
         filter.doFilter(request, response, filterChain);
 
@@ -78,7 +79,7 @@ class ArtifactSizeEnforcementFilterChainTest {
     @ParameterizedTest
     @ValueSource(strings = {"/files/bar/foo.zip", "/remoting/files/bar/foo.zip"})
     void shouldDisallowIfNotEnoughDiskSpaceIsAvailable(String path) throws IOException, ServletException {
-        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE, FileSize.valueOf("600MB").getSize()).build();
+        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE, 600 * MEGA_BYTE).build();
 
         filter.doFilter(request, response, filterChain);
 

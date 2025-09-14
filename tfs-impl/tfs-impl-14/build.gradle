@@ -57,7 +57,9 @@ tasks.register('extractTfsSdk', Copy) {
 }
 
 dependencies {
+  implementation project(':base')
   implementation project(':common')
+  implementation project(':domain')
   implementation files(tasks.named('extractTfsSdk').map { Copy copy -> new File(copy.destinationDir, "lib/com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar") })
   compileOnly project.deps.jetBrainsAnnotations
 

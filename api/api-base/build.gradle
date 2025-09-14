@@ -48,6 +48,5 @@ dependencies {
   testFixturesApi project.deps.jsonUnit
   testFixturesApi project.deps.mockitoCore
   testFixturesApi project.deps.mockitoJunit5
-  testFixturesApi project.deps.junit5Params
   testFixturesApi project.deps.springTest
 }

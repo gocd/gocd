@@ -54,10 +54,15 @@ dependencies {
     exclude(group: 'com.bazaarvoice.jolt') // Comes from go-plugin-access, but only for config repo migrations
     exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents
   }
+  implementation(project(':domain')) {
+    exclude(group: 'com.bazaarvoice.jolt') // Comes from go-plugin-access, but only for config repo migrations
+    exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents
+  }
   implementation(project(':plugin-infra:go-plugin-access')) {
     exclude(group: 'com.bazaarvoice.jolt') // Only for config repo migrations
     exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents
   }
+  implementation project(':plugin-infra:go-plugin-infra')
   implementation(project(':config:config-api')) {
     exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents
   }
@@ -87,6 +92,8 @@ dependencies {
   testImplementation project.deps.systemStubs
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
+
+  functionalTestImplementation project.deps.apacheHttpComponents
 
   extractedAtTopLevel project(':agent-process-launcher')
   extractedAtTopLevel project(':jar-class-loader')

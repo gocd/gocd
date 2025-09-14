@@ -41,5 +41,5 @@ dependencies {
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
   testImplementation project.deps.assertJ
-  testImplementation project.deps.logback
+  testRuntimeOnly project.deps.logback
 }

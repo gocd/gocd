@@ -16,19 +16,28 @@
 
 description = 'GoCD Agent Common Utilities'
 
+java {
+  // For use of the GoAgentServerClientBuilder
+  registerFeature('agentClient') {
+    usingSourceSet(sourceSets.create('agentClient'))
+  }
+}
+CapabilitySupport.extendMain(project, 'agentClient')
+
 dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
 
-  api project(':base')
+  api(project(':base')) { capabilities { requireFeature('logging') } }
+  agentClientApi(project(':base')) { capabilities { requireFeature('agent-client') } }
   implementation project.deps.jcommander
-  runtimeOnly project.deps.logback
+  agentClientRuntimeOnly project.deps.jcommander
 
-  implementation(project.deps.apacheHttpComponents) {
+  agentClientImplementation(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
   }
   if (project.deps.apacheHttpComponents) {
-    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
+    agentClientRuntimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
 
   testImplementation project.deps.mockitoCore
@@ -47,5 +56,4 @@ dependencies {
   testFixturesApi project.deps.assertJ
   testFixturesApi enforcedPlatform(project.deps.junit5Bom)
   testFixturesApi project.deps.junit5Api
-  testFixturesApi project.deps.junit5Params
 }

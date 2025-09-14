@@ -18,26 +18,38 @@ import com.thoughtworks.go.build.GoVersions
 
 description = 'GoCD Base'
 
+java {
+  // For use of the LogConfigurator or LogHelper
+  registerFeature('logging') {
+    usingSourceSet(sourceSets.create('logging'))
+  }
+
+  // For use of the GoAgentServerClientBuilder
+  registerFeature('agentClient') {
+    usingSourceSet(sourceSets.create('agentClient'))
+  }
+}
+
+CapabilitySupport.extendMain(project, 'logging', 'agentClient')
+
 dependencies {
-  // Make BouncyCastle essentially an optional dependency. If you use GoAgentServerClientBuilder, you'll need it.
-  compileOnly project.deps.bouncyCastle
-  compileOnly project.deps.bouncyCastlePkix
-
   api project.deps.slf4jApi
-  compileOnly project.deps.logback
+  loggingApi project.deps.logback
 
-  implementation(project.deps.apacheHttpComponents) {
+  agentClientApi project.deps.logback
+  agentClientImplementation project.deps.bouncyCastle
+  agentClientImplementation project.deps.bouncyCastlePkix
+
+  agentClientImplementation(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
   }
   if (project.deps.apacheHttpComponents) {
-    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
+    agentClientRuntimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
 
   compileOnly project.deps.jakartaAnnotation
   compileOnly project.deps.jetBrainsAnnotations
 
-  testRuntimeOnly project.deps.bouncyCastle
-  testRuntimeOnly project.deps.bouncyCastlePkix
   testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation(testFixtures(project(':agent-common')))
   testImplementation project.deps.junit5Api

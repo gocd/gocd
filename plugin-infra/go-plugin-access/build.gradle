@@ -13,20 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 description = 'APIs to allow GoCD to communicate with GoCD Plugins'
+
+java {
+  // For use of server-only plugins
+  registerFeature('serverOnly') {
+    usingSourceSet(sourceSets.create('serverOnly'))
+  }
+}
+CapabilitySupport.extendMain(project, 'serverOnly')
 
 dependencies {
   api project(':plugin-infra:go-plugin-api')
   api project(':plugin-infra:go-plugin-api-internal')
-  api project(':plugin-infra:go-plugin-config-repo')
+  serverOnlyApi project(':plugin-infra:go-plugin-config-repo')
   api project(':plugin-infra:go-plugin-domain')
   api project(':plugin-infra:go-plugin-infra')
   api project(':plugin-infra:plugin-metadata-store')
+
   implementation project(':domain')
   implementation project(':base')
   implementation project(':config:config-api')
-  implementation project.deps.jolt
-  implementation project.deps.joltJsonUtils
+
+  serverOnlyImplementation project.deps.jolt
+  serverOnlyImplementation project.deps.joltJsonUtils
+
   implementation project.deps.commonsCollections4
   implementation project.deps.commonsCodec
   implementation project.deps.commonsLang3

@@ -150,9 +150,10 @@ dependencies {
   spark project(':spark').subprojects
   implementation project(':config:config-api')
   api project(':config:config-server')
-  api project(':plugin-infra:go-plugin-access')
+  api(project(':plugin-infra:go-plugin-access')) { capabilities { requireFeature('server-only') } }
   api project(':plugin-infra:go-plugin-domain')
-  implementation project(':plugin-infra:go-plugin-config-repo')
+  api project(':plugin-infra:go-plugin-infra')
+  api project(':plugin-infra:go-plugin-config-repo')
   implementation project(':plugin-infra:plugin-metadata-store')
   api project(':common')
   implementation project(':commandline')
@@ -179,9 +180,7 @@ dependencies {
   implementation project.deps.commonsText
 
   implementation project.deps.caffeine
-  implementation(project.deps.quartz) {
-    transitive = false
-  }
+  implementation project.deps.quartz
 
   api(project.deps.hibernate) {
     exclude(module: 'ehcache-core')
@@ -197,7 +196,6 @@ dependencies {
   implementation project.deps.ehcache
   implementation(project.deps.oscache) {
     exclude(module: 'jms')
-    exclude(module: 'servlet-api')
   }
 
   implementation project.deps.activeMQ
@@ -240,12 +238,8 @@ dependencies {
   compileOnly project(':app-server')
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
-  compileOnly project.deps.logback
-  compileOnly(project.deps.jettyWebsocket) {
-    exclude(module: 'jetty-annotations')
-  }
-
-  railsRuntimeClasspath project.deps.logback
+  implementation project.deps.logback
+  compileOnly project.deps.jettyWebsocket
 
   testImplementation(testFixtures(project(':config:config-api')))
   testImplementation(testFixtures(project(':config:config-server')))
@@ -254,10 +248,8 @@ dependencies {
   testImplementation project(':app-server')
   testRuntimeOnly project(':jetty')
   testImplementation project.deps.jetty
-  testImplementation(project.deps.jettyWebsocket) {
-    exclude(module: 'jetty-annotations')
-  }
   testImplementation project.deps.jettyWebapp
+  testImplementation project.deps.jettyWebsocket
   testImplementation project.deps.freemarker
   testImplementation project.deps.jsoup
   testImplementation project.deps.assertJ
@@ -277,7 +269,9 @@ dependencies {
   testImplementation project.deps.springTest
   testImplementation(testFixtures(project(':domain')))
 
+  integrationTestImplementation(project(':base')) { capabilities { requireFeature('agent-client') } }
   integrationTestImplementation project.deps.urlrewrite
+  integrationTestImplementation project.deps.springTest
   integrationTestImplementation project.deps.springTestJunit5
   integrationTestImplementation(testFixtures(project(":domain")))
   integrationTestImplementation(project.deps.dbunit) {
@@ -599,12 +593,9 @@ tasks.register('configureWar') {
 }
 
 def war = tasks.register('war', Jar) {
-  dependsOn configureWar
-  dependsOn ':server:jar'
-  dependsOn configurations.runtimeClasspath
-  dependsOn configurations.packagingOnly
-  dependsOn configurations.allApis
-  dependsOn configurations.spark
+  dependsOn configureWar, ':server:jar'
+  dependsOn configurations.runtimeClasspath, configurations.packagingOnly, configurations.allApis, configurations.spark
+
   finalizedBy 'verifyWar'
   archiveBaseName = 'cruise'
   archiveExtension = 'war'
@@ -615,16 +606,20 @@ def war = tasks.register('war', Jar) {
     // Using a Set<String> is more reliable than Set<File> because File.equals() may be affected by other internal fields
     // aside from `path` that aren't important to us; thus, Set<File> may allow duplicate paths and Set<String> will not.
     Set<String> classpath = (
-      configurations.runtimeClasspath +
-        configurations.packagingOnly +
-        configurations.allApis +
-        configurations.spark
+      configurations.runtimeClasspath
+        + configurations.packagingOnly
+        + configurations.allApis
+        + configurations.spark
+        - configurations.runtimeClasspath.findAll { it.name.startsWith('logback') } // Rely on logback from launcher
     )
       .collect { f -> f.toString() }
       .toSet()
 
     // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
-    classpath.removeAll([appServerJarTask.get().archiveFile.get().toString(), jar.archiveFile.get().toString()])
+    classpath.removeAll([
+      appServerJarTask.get().archiveFile.get().toString(),
+      jar.archiveFile.get().toString()
+    ])
 
     classpath
   }

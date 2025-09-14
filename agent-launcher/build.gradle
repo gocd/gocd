@@ -23,15 +23,11 @@ configurations {
 }
 
 dependencies {
-  packagingOnly project.deps.bouncyCastle
-  packagingOnly project.deps.bouncyCastlePkix
-
-  implementation project(':base')
-  implementation project(':agent-common')
+  implementation(project(':base')) { capabilities { requireFeature('agent-client') } }
+  implementation(project(':agent-common')) { capabilities { requireFeature('agent-client') } }
   implementation project.deps.commonsIO
   implementation project.deps.slf4jApi
 
-  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation(testFixtures(project(':agent-common')))
   testImplementation project.deps.junit5Api
   testImplementation project.deps.mockitoCore

@@ -86,7 +86,7 @@ allprojects {
     maven { url = 'https://jitpack.io' } // Needed for spring-test-junit5 and jruby-rack
   }
 
-  if (project.path.startsWith(':api:') && !project.path != ':api:api-base') {
+  if (project.path.startsWith(':api:') && !project.path.endsWith(':api-base')) {
     dependencyAnalysis {
       issues {
         onAny {
@@ -303,19 +303,20 @@ subprojects {
   configurations.configureEach {
     resolutionStrategy {
       dependencySubstitution {
-        substitute module("dom4j:dom4j") using module(project.deps.dom4j) because("Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
-        substitute module("javassist:javassist") using module(project.deps.javassist) because("Upgrade the legacy javassist in old Hibernate 3.6")
-        substitute module("net.sf.ehcache:ehcache") using module(project.deps.ehcache) because("Use the much slimmer core artifact which is fine for our use case")
+        substitute module("dom4j:dom4j") using module(project.deps.dom4j as String) because("Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
+        substitute module("javassist:javassist") using module(project.deps.javassist as String) because("Upgrade the legacy javassist in old Hibernate 3.6")
+        substitute module("net.sf.ehcache:ehcache") using module(project.deps.ehcache as String) because("Use the much slimmer core artifact which is fine for our use case")
         substitute module("commons-logging:commons-logging") using module("${project.deps.slf4jJcl}:${project.versions.slf4jBom}") because("Replace commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html")
-        substitute module("com.bucket4j:bucket4j-core") using module(project.deps.bucket4j) because("Replace bucket4j-core with Java 17+ variant")
+        substitute module("com.bucket4j:bucket4j-core") using module(project.deps.bucket4j as String) because("Replace bucket4j-core with Java 17+ variant")
 
-        substitute module("javax.annotation:javax.annotation-api") using module(project.deps.jakartaAnnotation) because("Javax Annotation has migrated to jakarta annotations")
-        substitute module("javax.inject:javax.inject") using module(project.deps.jakartaInject) because("Javax Inject API has migrated to jakarta Inject API")
-        substitute module("javax.servlet:javax.servlet-api") using module(project.deps.servletApi) because("Javax Servlet API has migrated to jakarta Servlet API")
-        substitute module("org.eclipse.jetty.toolchain:jetty-servlet-api") using module(project.deps.servletApi) because("Javax Servlet API has migrated to jakarta Servlet API")
-        substitute module("javax.transaction:jta") using module(project.deps.jakartaTransaction) because("Javax Transaction API has migrated to jakarta Transaction API")
+        substitute module("javax.annotation:javax.annotation-api") using module(project.deps.jakartaAnnotation as String) because("Javax Annotation has migrated to jakarta annotations")
+        substitute module("javax.inject:javax.inject") using module(project.deps.jakartaInject as String) because("Javax Inject API has migrated to jakarta Inject API")
+        substitute module("javax.servlet:javax.servlet-api") using module(project.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
+        substitute module("javax.servlet:servlet-api") using module(project.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
+        substitute module("org.eclipse.jetty.toolchain:jetty-servlet-api") using module(project.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
+        substitute module("javax.transaction:jta") using module(project.deps.jakartaTransaction as String) because("Javax Transaction API has migrated to jakarta Transaction API")
 
-        substitute module("org.hamcrest:hamcrest-core") using module(project.deps.hamcrest) because("Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables")
+        substitute module("org.hamcrest:hamcrest-core") using module(project.deps.hamcrest as String) because("Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables")
       }
     }
   }
@@ -595,8 +596,8 @@ dependencyAnalysis {
       onIncorrectConfiguration {
       }
       onUsedTransitiveDependencies {
-        // Exclude critical parts of frameworks which are annoying to declare individually
-        excludeRegex(/.*:.*core/)
+        // Exclude critical parts of frameworks which are annoying/pointless to declare individually
+        excludeRegex(/.*:.*(core|commons)/)
         excludeRegex(/org.springframework:spring-(core|beans)/)
       }
 
@@ -639,7 +640,7 @@ dependencyCheck {
   data.directory = layout.buildDirectory.dir("dependency-check-data").get()
 }
 
-tasks.register('downloadDependencyCheckCache', Download) {
+def downloadDependencyCheckCache = tasks.register('downloadDependencyCheckCache', Download) {
   src 'https://nexus.gocd.io/repository/cache/dependency-check-data.zip'
   dest layout.buildDirectory.file('dependency-check-data.zip')
   onlyIfModified true
@@ -649,13 +650,13 @@ tasks.register('downloadDependencyCheckCache', Download) {
 
 tasks.register('unzipDependencyCheckCache', Copy) {
   dependsOn downloadDependencyCheckCache
-  onlyIf { downloadDependencyCheckCache.dest.length() > 100 * 1024 }
-  from zipTree(downloadDependencyCheckCache.dest)
+  onlyIf { downloadDependencyCheckCache.map { it.dest.length() > 100 * 1024 } }
+  from zipTree(downloadDependencyCheckCache.map { it.dest })
   into layout.buildDirectory.dir("dependency-check-data")
-  def copyDetails = []
-  eachFile { copyDetails << it }
+  def copyDetails = [] as List<FileCopyDetails>
+  eachFile { FileCopyDetails fcd -> copyDetails << fcd }
   doLast {
-    copyDetails.each { FileCopyDetails details ->
+    copyDetails.each { details ->
       def target = new File(destinationDir, details.path)
       if (target.exists()) {
         target.setLastModified(details.lastModified)

@@ -51,7 +51,10 @@ dependencies {
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.mockitoJunit5
 
-  testFixturesApi project(':config:config-api')
+  testFixturesApi(project(':config:config-api')) {
+    capabilities { requireFeature('server-only') }
+  }
+  testFixturesImplementation project(':base')
   testFixturesImplementation project(':util')
 }
 

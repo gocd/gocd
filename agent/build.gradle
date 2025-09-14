@@ -45,11 +45,12 @@ configurations {
 }
 
 dependencies {
-  packagingOnly project.deps.bouncyCastle
-  packagingOnly project.deps.bouncyCastlePkix
-
   implementation project(':agent-common')
-  implementation project(':base')
+  runtimeOnly(project(':base')) {
+    capabilities {
+      requireFeature('agent-client')
+    }
+  }
   implementation(project(':common')) {
     exclude(group: 'com.bazaarvoice.jolt') // Comes from go-plugin-access, but only for config repo migrations
     exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents

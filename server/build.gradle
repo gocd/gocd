@@ -240,12 +240,10 @@ dependencies {
   compileOnly project(':app-server')
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
-  compileOnly project.deps.logback
+  implementation project.deps.logback
   compileOnly(project.deps.jettyWebsocket) {
     exclude(module: 'jetty-annotations')
   }
-
-  railsRuntimeClasspath project.deps.logback
 
   testImplementation(testFixtures(project(':config:config-api')))
   testImplementation(testFixtures(project(':config:config-server')))
@@ -277,6 +275,11 @@ dependencies {
   testImplementation project.deps.springTest
   testImplementation(testFixtures(project(':domain')))
 
+  integrationTestImplementation(project(':base')) {
+    capabilities {
+      requireFeature('agent-client')
+    }
+  }
   integrationTestImplementation project.deps.urlrewrite
   integrationTestImplementation project.deps.springTestJunit5
   integrationTestImplementation(testFixtures(project(":domain")))
@@ -599,12 +602,9 @@ tasks.register('configureWar') {
 }
 
 def war = tasks.register('war', Jar) {
-  dependsOn configureWar
-  dependsOn ':server:jar'
-  dependsOn configurations.runtimeClasspath
-  dependsOn configurations.packagingOnly
-  dependsOn configurations.allApis
-  dependsOn configurations.spark
+  dependsOn configureWar, ':server:jar'
+  dependsOn configurations.runtimeClasspath, configurations.packagingOnly, configurations.allApis, configurations.spark
+
   finalizedBy 'verifyWar'
   archiveBaseName = 'cruise'
   archiveExtension = 'war'
@@ -615,16 +615,20 @@ def war = tasks.register('war', Jar) {
     // Using a Set<String> is more reliable than Set<File> because File.equals() may be affected by other internal fields
     // aside from `path` that aren't important to us; thus, Set<File> may allow duplicate paths and Set<String> will not.
     Set<String> classpath = (
-      configurations.runtimeClasspath +
-        configurations.packagingOnly +
-        configurations.allApis +
-        configurations.spark
+      configurations.runtimeClasspath
+        + configurations.packagingOnly
+        + configurations.allApis
+        + configurations.spark
+        - configurations.runtimeClasspath.findAll { it.name.startsWith('logback') } // Rely on logback from launcher
     )
       .collect { f -> f.toString() }
       .toSet()
 
     // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
-    classpath.removeAll([appServerJarTask.get().archiveFile.get().toString(), jar.archiveFile.get().toString()])
+    classpath.removeAll([
+      appServerJarTask.get().archiveFile.get().toString(),
+      jar.archiveFile.get().toString()
+    ])
 
     classpath
   }

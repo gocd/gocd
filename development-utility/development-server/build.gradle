@@ -45,7 +45,6 @@ dependencies {
   runtimeOnly project.deps.jruby
   implementation project.deps.rack
   implementation project.deps.slf4jApi
-  runtimeOnly project.deps.logback
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
   copyOnly project(':plugin-infra:go-plugin-activator')

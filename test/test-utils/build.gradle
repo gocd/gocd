@@ -23,9 +23,13 @@ configurations {
 }
 
 dependencies {
-  testFixturesApi project(':base')
+  testFixturesApi(project(':base')) {
+    capabilities {
+      requireFeature('logging')
+    }
+  }
   testFixturesApi project(':util')
-  testFixturesApi project.deps.logback
+  testFixturesImplementation project.deps.logback
   testFixturesImplementation project.deps.jetty
   testFixturesImplementation project.deps.jettyUtil
   testFixturesImplementation project.deps.jettyServlet

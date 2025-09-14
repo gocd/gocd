@@ -20,9 +20,12 @@ dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
 
-  api project(':base')
+  api(project(':base')) {
+    capabilities {
+      requireFeature('logging')
+    }
+  }
   implementation project.deps.jcommander
-  runtimeOnly project.deps.logback
 
   implementation(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')

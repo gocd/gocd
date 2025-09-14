@@ -23,10 +23,11 @@ configurations {
 }
 
 dependencies {
-  packagingOnly project.deps.bouncyCastle
-  packagingOnly project.deps.bouncyCastlePkix
-
-  implementation project(':base')
+  implementation(project(':base')) {
+    capabilities {
+      requireFeature('agent-client')
+    }
+  }
   implementation project(':agent-common')
   implementation project.deps.commonsIO
   implementation project.deps.slf4jApi

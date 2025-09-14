@@ -46,6 +46,8 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
     dependsOn genericZipTask
 
     def goVersions = project.goVersions as GoVersions
+    inputs.property('goVersions', goVersions)
+
     def installerBaseDirName = "${installerType.baseName}-${goVersions.goVersion}"
 
     def injected = project.objects.newInstance(Injected)

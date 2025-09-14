@@ -57,8 +57,8 @@ def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
     group = project.name
     description = "Build the ${installerType.baseName} osx (zip) installer"
 
-    dependsOn downloadTask
-    dependsOn genericZipTask
+    dependsOn downloadTask, genericZipTask
+
     destinationDirectory = project.base.distsDirectory.dir("osx")
     archiveBaseName = installerType.baseName
     archiveClassifier = arch == Architecture.aarch64 ? 'osx-aarch64' : 'osx'

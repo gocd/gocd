@@ -22,7 +22,7 @@ private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
-tasks.register('downloadTanukiDeltaPack', DownloadFile) {
+def downloadTanukiDeltaPack = tasks.register('downloadTanukiDeltaPack', DownloadFile) {
   def srcUrl = "https://download.tanukisoftware.com/wrapper/${project.versions.tanuki.split("-").first()}/wrapper-delta-pack-${project.versions.tanuki}.tar.gz"
   src srcUrl
   dest destFile(srcUrl)
@@ -31,6 +31,11 @@ tasks.register('downloadTanukiDeltaPack', DownloadFile) {
 
 tasks.register('extractDeltaPack', Copy) {
   dependsOn downloadTanukiDeltaPack
-  from(project.tarTree(downloadTanukiDeltaPack.outputs.files.singleFile))
-  into layout.buildDirectory
+  destinationDir = layout.buildDirectory.dir("tanuki").get().asFile
+  from(project.tarTree(downloadTanukiDeltaPack.map { it.outputFiles.first() })) {
+    eachFile { FileCopyDetails fcd ->
+      fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(1))
+    }
+    includeEmptyDirs = false
+  }
 }

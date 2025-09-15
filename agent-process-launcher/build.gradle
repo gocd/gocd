@@ -17,11 +17,7 @@
 description = 'GoCD Agent Process Launcher Classes'
 
 dependencies {
-  implementation(project(':base')) {
-    capabilities {
-      requireFeature('logging')
-    }
-  }
+  implementation(project(':base')) { capabilities { requireFeature('logging') } }
   implementation project(':agent-common')
   implementation project.deps.logback
   testImplementation project.deps.mockitoCore

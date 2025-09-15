@@ -150,11 +150,7 @@ dependencies {
   spark project(':spark').subprojects
   implementation project(':config:config-api')
   api project(':config:config-server')
-  api(project(':plugin-infra:go-plugin-access')) {
-    capabilities {
-      requireFeature('server-only')
-    }
-  }
+  api(project(':plugin-infra:go-plugin-access')) { capabilities { requireFeature('server-only') } }
   api project(':plugin-infra:go-plugin-domain')
   api project(':plugin-infra:go-plugin-infra')
   api project(':plugin-infra:go-plugin-config-repo')
@@ -278,12 +274,9 @@ dependencies {
   testImplementation project.deps.springTest
   testImplementation(testFixtures(project(':domain')))
 
-  integrationTestImplementation(project(':base')) {
-    capabilities {
-      requireFeature('agent-client')
-    }
-  }
+  integrationTestImplementation(project(':base')) { capabilities { requireFeature('agent-client') } }
   integrationTestImplementation project.deps.urlrewrite
+  integrationTestImplementation project.deps.springTest
   integrationTestImplementation project.deps.springTestJunit5
   integrationTestImplementation(testFixtures(project(":domain")))
   integrationTestImplementation(project.deps.dbunit) {

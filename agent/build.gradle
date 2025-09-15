@@ -46,11 +46,7 @@ configurations {
 
 dependencies {
   implementation project(':agent-common')
-  runtimeOnly(project(':base')) {
-    capabilities {
-      requireFeature('agent-client')
-    }
-  }
+  runtimeOnly(project(':base')) { capabilities { requireFeature('agent-client') } }
   implementation project(':common')
   implementation project(':domain')
   implementation project(':plugin-infra:go-plugin-access')

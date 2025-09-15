@@ -20,11 +20,7 @@ dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
 
-  api(project(':base')) {
-    capabilities {
-      requireFeature('logging')
-    }
-  }
+  api(project(':base')) { capabilities { requireFeature('logging') } }
   implementation project.deps.jcommander
 
   implementation(project.deps.apacheHttpComponents) {

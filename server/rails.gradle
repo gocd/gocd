@@ -25,39 +25,30 @@ def railsPathingJarMain = tasks.register('railsPathingJarMain', Jar) {
   group = LifecycleBasePlugin.BUILD_GROUP
   archiveClassifier = 'pathingMain'
 
-  dependsOn(configurations.jruby, configurations.railsRuntimeClasspath)
-
-  def extraResources = rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
-  inputs.files(
-    extraResources,
-    configurations.jruby,
-    configurations.railsRuntimeClasspath,
-  )
-
-  doFirst { Jar ->
-    manifest {
-      attributes 'Class-Path': (extraResources + configurations.railsRuntimeClasspath.files - configurations.jruby.files).collect { it.toURI() }.join(' ')
-    }
-  }
+  configureRailsPathingJar(it, configurations.railsRuntimeClasspath)
 }
 
 def railsPathingJarTest = tasks.register('railsPathingJarTest', Jar) {
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   archiveClassifier = 'pathingTest'
 
-  dependsOn(configurations.jruby, configurations.railsTestRuntimeClasspath)
+  configureRailsPathingJar(it, configurations.railsTestRuntimeClasspath, rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects"))
+}
 
+def configureRailsPathingJar(Jar jarTask, Configuration railsRuntimeConfiguration, Iterable<File> extraResources = []) {
+  jarTask.with {
+    jarTask.dependsOn(configurations.jruby, railsRuntimeConfiguration)
 
-  def extraResources = rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
-  inputs.files(
-    extraResources,
-    configurations.jruby,
-    configurations.railsTestRuntimeClasspath,
-  )
+    inputs.files(
+      extraResources,
+      configurations.jruby,
+      railsRuntimeConfiguration,
+    )
 
-  doFirst { Jar ->
-    manifest {
-      attributes 'Class-Path': (extraResources + configurations.railsTestRuntimeClasspath.files - configurations.jruby.files).collect { it.toURI() }.join(' ')
+    doFirst { Jar ->
+      manifest {
+        attributes 'Class-Path': (extraResources + railsRuntimeConfiguration.files - configurations.jruby.files).collect { it.toURI() }.join(' ')
+      }
     }
   }
 }
@@ -86,73 +77,22 @@ tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
   }
 }
 
-def forwardSlashedString = { File file -> file.toString().replaceAll('\\\\', '/') }
-
 tasks.register('createJRubyBinstubs') {
   group = LifecycleBasePlugin.BUILD_GROUP
-  dependsOn configurations.jruby, railsPathingJarMain
 
-  def ext = org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''
-  def outputDir = file("scripts")
-  def outputScriptFile = file("${outputDir}/jruby${ext}")
-  def templateProperties = [
-    mainClassName       : 'org.jruby.Main',
-    jvmArgs             : project.jrubyOptimizationJvmArgs,
-    systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties),
-    classpath           : [tasks.named('railsPathingJarMain').flatMap { Jar jt -> jt.archiveFile }.get().asFile],
-    environment         : project.defaultJRubyEnvironment + [
-      RUBY: forwardSlashedString(outputScriptFile)
-    ],
-    additionalJRubyPaths: project.additionalJRubyPaths,
-    javaExecutable      : Jvm.current().getExecutable("java")
-  ]
-
-  inputs.dir("script-templates")
-  inputs.properties(templateProperties)
-  outputs.file(outputScriptFile)
-  outputs.cacheIf { true }
-
-  doFirst {
-    templateProperties['jrubyJar'] = configurations.jruby.first().toString()
-    outputDir.mkdirs()
-
-    def inputTemplate = file("script-templates/jruby${ext}")
-    def engine = new SimpleTemplateEngine()
-    Template template = engine.createTemplate(inputTemplate)
-    outputScriptFile.write(template.make(templateProperties).toString())
-    outputScriptFile.setExecutable(true)
-  }
+  configureJRubyBinstubs(it, railsPathingJarMain, 'jruby')
 }
 
 tasks.register('createJRubyBinstubsTest') {
   group = LifecycleBasePlugin.VERIFICATION_GROUP
-  dependsOn configurations.jruby, railsPathingJarTest
 
-  def ext = org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''
+  configureJRubyBinstubs(it, railsPathingJarTest, 'jrubyTest', project.railsSystemProperties as Map<String, String>)
+
   def outputDir = file("scripts")
-  def outputScriptFile = file("${outputDir}/jrubyTest${ext}")
-  def templateProperties = [
-    mainClassName       : 'org.jruby.Main',
-    jvmArgs             : project.jrubyOptimizationJvmArgs,
-    systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties + project.railsSystemProperties),
-    classpath           : [tasks.named('railsPathingJarTest').flatMap { Jar jt -> jt.archiveFile }.get().asFile],
-    environment         : project.defaultJRubyEnvironment + [
-      RUBY: forwardSlashedString(outputScriptFile)
-    ],
-    additionalJRubyPaths: project.additionalJRubyPaths,
-    javaExecutable      : Jvm.current().getExecutable("java")
-  ]
-
-  inputs.dir("script-templates")
-  inputs.properties(templateProperties)
-  outputs.files(outputScriptFile, file("${outputDir}/rspec"))
-  outputs.cacheIf { true }
+  outputs.files(file("${outputDir}/rspec"))
 
   def injected = project.objects.newInstance(Injected)
   doFirst {
-    templateProperties['jrubyJar'] = configurations.jruby.first().toString()
-    outputDir.mkdirs()
-
     injected.fileOps.copy {
       from "script-templates/rspec"
       into outputDir
@@ -160,12 +100,45 @@ tasks.register('createJRubyBinstubsTest') {
         unix(0755)
       }
     }
+  }
+}
 
-    def inputTemplate = file("script-templates/jruby${ext}")
-    def engine = new SimpleTemplateEngine()
-    Template template = engine.createTemplate(inputTemplate)
-    outputScriptFile.write(template.make(templateProperties).toString())
-    outputScriptFile.setExecutable(true)
+def configureJRubyBinstubs(Task task, TaskProvider<? extends Task> railsPathingJar, String scriptPrefix, Map<String, String> extraSystemProperties = [:]) {
+  def forwardSlashedString = { File file -> file.toString().replaceAll('\\\\', '/') }
+
+  task.with {
+    dependsOn configurations.jruby, railsPathingJar
+
+    def ext = org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''
+    def outputDir = file("scripts")
+    def outputScriptFile = file("${outputDir}/${scriptPrefix}${ext}")
+    def templateProperties = [
+      mainClassName       : 'org.jruby.Main',
+      jvmArgs             : project.jrubyOptimizationJvmArgs,
+      systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties + extraSystemProperties),
+      classpath           : [railsPathingJar.map { Jar jt -> jt.archiveFile }.get().asFile],
+      environment         : project.defaultJRubyEnvironment + [
+        RUBY: forwardSlashedString(outputScriptFile)
+      ],
+      additionalJRubyPaths: project.additionalJRubyPaths,
+      javaExecutable      : Jvm.current().getExecutable("java")
+    ]
+
+    inputs.dir("script-templates")
+    inputs.properties(templateProperties)
+    outputs.files(outputScriptFile)
+    outputs.cacheIf { true }
+
+    doFirst {
+      templateProperties['jrubyJar'] = configurations.jruby.first().toString()
+      outputDir.mkdirs()
+
+      def inputTemplate = file("script-templates/jruby${ext}")
+      def engine = new SimpleTemplateEngine()
+      Template template = engine.createTemplate(inputTemplate)
+      outputScriptFile.write(template.make(templateProperties).toString())
+      outputScriptFile.setExecutable(true)
+    }
   }
 }
 

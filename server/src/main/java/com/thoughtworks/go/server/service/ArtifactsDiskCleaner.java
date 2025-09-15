@@ -54,6 +54,7 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
                 throw new RuntimeException(e);
             }
         }, "goArtifactsDiskCleaner");
+        cleaner.setDaemon(true);
         cleaner.start();
     }
 

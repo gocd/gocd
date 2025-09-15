@@ -51,22 +51,11 @@ dependencies {
       requireFeature('agent-client')
     }
   }
-  implementation(project(':common')) {
-    exclude(group: 'com.bazaarvoice.jolt') // Comes from go-plugin-access, but only for config repo migrations
-    exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents
-  }
-  implementation(project(':domain')) {
-    exclude(group: 'com.bazaarvoice.jolt') // Comes from go-plugin-access, but only for config repo migrations
-    exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents
-  }
-  implementation(project(':plugin-infra:go-plugin-access')) {
-    exclude(group: 'com.bazaarvoice.jolt') // Only for config repo migrations
-    exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents
-  }
+  implementation project(':common')
+  implementation project(':domain')
+  implementation project(':plugin-infra:go-plugin-access')
   implementation project(':plugin-infra:go-plugin-infra')
-  implementation(project(':config:config-api')) {
-    exclude(group: 'org.quartz-scheduler') // Comes from config-api, only used for validation so not needed in agents
-  }
+  implementation project(':config:config-api')
   implementation project.deps.jakartaAnnotation
   implementation project.deps.commonsConfiguration
   implementation project.deps.commonsIO
@@ -88,6 +77,7 @@ dependencies {
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.junit5Params
+  testImplementation project.deps.springTest
   testImplementation project.deps.springTestJunit5
   testImplementation project.deps.assertJ
   testImplementation project.deps.systemStubs
@@ -164,7 +154,6 @@ tasks.register('verifyJar', VerifyJarTask) {
       "go-plugin-activator.jar",
       "go-plugin-api-${project.version}.jar",
       "go-plugin-api-internal-${project.version}.jar",
-      "go-plugin-config-repo-${project.version}.jar",
       "go-plugin-domain-${project.version}.jar",
       "go-plugin-infra-${project.version}.jar",
       "gson-${project.versions.gson}.jar",

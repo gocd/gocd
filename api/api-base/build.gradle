@@ -50,3 +50,18 @@ dependencies {
   testFixturesApi project.deps.mockitoJunit5
   testFixturesApi project.deps.springTest
 }
+
+dependencyAnalysis {
+  issues {
+    // We ignore these for now because api-base is essentially used to propagate dependencies to the dozemns
+    // of individual API projects where it doesn't add value to declare them directly.
+    onIncorrectConfiguration {
+      exclude(project.deps.mockitoJunit5)
+    }
+    onUnusedDependencies {
+      exclude(dependencies.project(path: ':spark:spark-base', configuration: 'testFixtures'))
+      exclude(dependencies.project(path: ':common', configuration: 'testFixtures'))
+      exclude(dependencies.project(path: ':domain', configuration: 'testFixtures'))
+    }
+  }
+}

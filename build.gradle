@@ -85,6 +85,22 @@ allprojects {
     maven { url = 'https://repo.terracotta.org/maven2/' } // Needed for later ehcache repos
     maven { url = 'https://jitpack.io' } // Needed for spring-test-junit5 and jruby-rack
   }
+
+  if (project.path.startsWith(':api:') && !project.path != ':api:api-base') {
+    dependencyAnalysis {
+      issues {
+        onAny {
+          // Ignore issues with dependencies on api-base, we rely on this to make API projects
+          // easier to configure
+          exclude(dependencies.project(path: ':api:api-base'))
+        }
+        onUsedTransitiveDependencies {
+          // API projects use transitives from api-base rather than declaring everything directly
+          severity('ignore')
+        }
+      }
+    }
+  }
 }
 
 idea {
@@ -562,12 +578,30 @@ static List<String> getTestClassesForTask(List<String> testsToRun) {
 }
 
 dependencyAnalysis {
+  abi {
+    exclusions {
+      // Disable ABI analysis, as GoCD does not model module visibility correctly.
+      excludeClasses(/com\.thoughtworks\.go\..*/)
+    }
+  }
   issues {
     all {
       onAny {
-        severity("fail")
+        exclude(project.deps.slf4jApi as String)
       }
+      onCompileOnly {
+        exclude(project.deps.jakartaAnnotation as String) // Spring needs at runtime
+      }
+      onIncorrectConfiguration {
+      }
+      onUsedTransitiveDependencies {
+        // Exclude critical parts of frameworks which are annoying to declare individually
+        excludeRegex(/.*:.*core/)
+        excludeRegex(/org.springframework:spring-(core|beans)/)
+      }
+
     }
+
   }
 }
 

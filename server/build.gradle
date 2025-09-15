@@ -196,7 +196,6 @@ dependencies {
   implementation project.deps.ehcache
   implementation(project.deps.oscache) {
     exclude(module: 'jms')
-    exclude(module: 'servlet-api')
   }
 
   implementation project.deps.activeMQ
@@ -240,9 +239,7 @@ dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
   implementation project.deps.logback
-  compileOnly(project.deps.jettyWebsocket) {
-    exclude(module: 'jetty-annotations')
-  }
+  compileOnly project.deps.jettyWebsocket
 
   testImplementation(testFixtures(project(':config:config-api')))
   testImplementation(testFixtures(project(':config:config-server')))
@@ -251,10 +248,8 @@ dependencies {
   testImplementation project(':app-server')
   testRuntimeOnly project(':jetty')
   testImplementation project.deps.jetty
-  testImplementation(project.deps.jettyWebsocket) {
-    exclude(module: 'jetty-annotations')
-  }
   testImplementation project.deps.jettyWebapp
+  testImplementation project.deps.jettyWebsocket
   testImplementation project.deps.freemarker
   testImplementation project.deps.jsoup
   testImplementation project.deps.assertJ

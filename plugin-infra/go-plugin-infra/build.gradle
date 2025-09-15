@@ -30,6 +30,7 @@ dependencies {
   compileOnly project.deps.lombok
 
   testImplementation project.deps.logback
+  testImplementation project.deps.springTest
   testImplementation project.deps.springTestJunit5
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5

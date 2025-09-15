@@ -45,7 +45,7 @@ configurations {
 }
 
 dependencies {
-  implementation project(':agent-common')
+  implementation(project(':agent-common')) { capabilities { requireFeature('agent-client') } }
   runtimeOnly(project(':base')) { capabilities { requireFeature('agent-client') } }
   implementation project(':common')
   implementation project(':domain')

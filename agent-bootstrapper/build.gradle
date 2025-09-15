@@ -19,14 +19,11 @@ import com.thoughtworks.go.build.VerifyJarTask
 description = 'GoCD Agent Bootstrapper'
 
 dependencies {
-  implementation(project(':agent-common')) {
-    // Not needed within the bootstrapper
-    exclude(group: 'org.apache.httpcomponents')
-    exclude(module: 'jcl-over-slf4j')
-  }
+  implementation project(':agent-common')
   implementation project.deps.commonsIO
   implementation project.deps.slf4jApi
 
+  testImplementation(project(':agent-common')) { capabilities { requireFeature('agent-client') } }
   testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation(testFixtures(project(':agent-common')))
   testImplementation project.deps.mockitoCore

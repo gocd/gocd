@@ -38,11 +38,11 @@ dependencies {
   agentClientImplementation project.deps.bouncyCastle
   agentClientImplementation project.deps.bouncyCastlePkix
 
-  implementation(project.deps.apacheHttpComponents) {
+  agentClientImplementation(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
   }
   if (project.deps.apacheHttpComponents) {
-    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
+    agentClientRuntimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
 
   compileOnly project.deps.jakartaAnnotation

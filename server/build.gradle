@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import com.github.jk1.license.task.ReportTask
 import com.thoughtworks.go.build.JRuby
 import com.thoughtworks.go.build.LicenseReport
@@ -39,18 +38,6 @@ buildscript {
 }
 
 sourceSets {
-  fastUnitTest {
-    java {
-      srcDirs = [project.file('src/test-fast/java')]
-    }
-    resources {
-      srcDirs = [project.file('src/test-fast/resources')]
-    }
-
-    compileClasspath += sourceSets.test.output + sourceSets.test.compileClasspath
-    runtimeClasspath += sourceSets.test.output + sourceSets.test.runtimeClasspath
-  }
-
   integrationTest {
     java {
       srcDirs = [project.file('src/test-integration/java')]
@@ -84,7 +71,7 @@ project.ext.railsRoot = file("${project.webAppDir}/WEB-INF/rails")
 project.ext.bundledGemRubyVersion = "${RUBY_MAJOR_VERSION}.0"
 project.ext.bundledGemDir = file("${project.railsRoot}/gems/jruby/${project.bundledGemRubyVersion}")
 
-project.ext.railsClasspath = sourceSets.fastUnitTest.runtimeClasspath +
+project.ext.railsClasspath = sourceSets.test.runtimeClasspath +
   configurations.spark +
   configurations.apiBase +
   rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
@@ -321,78 +308,9 @@ jar {
 
 idea {
   module {
-    testSources.from(sourceSets.fastUnitTest.java.srcDirs)
     testSources.from(sourceSets.integrationTest.java.srcDirs)
   }
 }
-
-tasks.register('fastUnitTest', Test) { thisTask ->
-  description = 'Runs the fast unit tests.'
-  group = 'verification'
-
-  testClassesDirs = sourceSets.fastUnitTest.output.classesDirs
-  classpath = testing.suites.test.sources.runtimeClasspath + sourceSets.fastUnitTest.runtimeClasspath
-
-  mustRunAfter test
-
-  forkEvery = 256
-  maxHeapSize = '2g'
-
-  reports {
-    html.required = true
-    junitXml.required = true
-  }
-
-  doFirst {
-    def files = project.files([])
-    sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
-      files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
-    }
-
-    def badFiles = files.findAll { eachFile ->
-      def text = eachFile.getText("utf-8")
-      text.contains("SpringExtension") || text.contains("SpringJUnitJupiterConfig") || text.contains("@ContextConfiguration")
-    }
-
-    if (!badFiles.isEmpty()) {
-      throw new GradleException("${thisTask} is not supposed to contain any integration tests. The following files contained what looks like integration test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
-    }
-  }
-}
-
-tasks.register('integrationTest', Test) { thisTask ->
-  description = 'Runs the integration tests.'
-  group = 'verification'
-  testClassesDirs = sourceSets.integrationTest.output.classesDirs
-  classpath = testing.suites.test.sources.runtimeClasspath + sourceSets.integrationTest.runtimeClasspath
-  mustRunAfter test
-
-  forkEvery = System.properties.containsKey('idea.home.path') ? 0 : 1
-  maxHeapSize = '2g'
-
-  reports {
-    html.required = true
-    junitXml.required = true
-  }
-
-  doFirst {
-    def files = project.files([])
-    sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
-      files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
-    }
-
-    def badFiles = files.findAll { eachFile ->
-      def text = eachFile.getText("utf-8")
-      text.contains("@Test") && !(text.contains("SpringExtension") || text.contains("SpringJUnitJupiterConfig") || text.contains("@ContextConfiguration"))
-    }
-
-    if (!badFiles.isEmpty()) {
-      throw new GradleException("${thisTask} is not supposed to contain any unit tests. The following files contained what looks like unit test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
-    }
-  }
-}
-
-check.dependsOn(fastUnitTest, integrationTest)
 
 tasks.register('findGemsToNotPack') {
   dependsOn ':server:initializeRailsGems'
@@ -496,11 +414,11 @@ tasks.register('copyAgentSideJarsToServerDir') {
   dependsOn = [copyAgentJarsToServerDir, copyTestDataJarsToServerDir]
 }
 
-tasks.register('prepareNoRails') {
+def prepareNoRails = tasks.register('prepareNoRails') {
   dependsOn = [cleanDb, ':plugin-infra:go-plugin-activator:jar', copyAgentJarsToServerDir]
 }
 
-tasks.register('prepare') {
+def prepare = tasks.register('prepare') {
   dependsOn = [prepareNoRails, prepareTestGitRepo, ':server:compileAssetsWebpackDev']
 }
 
@@ -513,21 +431,61 @@ licenseFormatMain {
   source += project.webAppDir
 }
 
-test { Test thisTask ->
-  dependsOn prepareNoRails
+static def isIntegrationTest(String text) {
+  text =~ /SpringExtension|SpringJUnitJupiterConfig|@ContextConfiguration/
+}
+
+test {
+  description = 'Runs the fast unit tests.'
+
+  forkEvery = 256
+  maxHeapSize = '2g'
+
+  reports {
+    html.required = true
+    junitXml.required = true
+  }
+
+  def testFiles = project.files([])
   doFirst {
-    def files = project.files([])
-    sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
-      files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
+    sourceSets[name].java.srcDirs.each { srcDir ->
+      testFiles = testFiles.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
     }
 
-    def badFiles = files.findAll { eachFile ->
-      def text = eachFile.getText("utf-8")
-      text.contains("@Test")
-    }
-
+    def badFiles = testFiles.findAll { eachFile -> isIntegrationTest(eachFile.getText("utf-8")) }
     if (!badFiles.isEmpty()) {
-      throw new GradleException("${thisTask} is not supposed to contain any unit tests. Move the tests to fast-test or integration-test as appropriate. The following files contained what looks like test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
+      throw new GradleException("${name} is not supposed to contain any integration tests. The following files contained what looks like integration test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
+    }
+  }
+}
+
+tasks.register('integrationTest', Test) { thisTask ->
+  description = 'Runs the integration tests.'
+  group = 'verification'
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath = testing.suites.test.sources.runtimeClasspath + sourceSets.integrationTest.runtimeClasspath
+  mustRunAfter test
+
+  forkEvery = System.properties.containsKey('idea.home.path') ? 0 : 1
+  maxHeapSize = '2g'
+
+  reports {
+    html.required = true
+    junitXml.required = true
+  }
+
+  def testFiles = project.files([])
+  doFirst {
+    sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
+      testFiles = testFiles.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
+    }
+
+    def badFiles = testFiles.findAll { eachFile ->
+      def text = eachFile.getText("utf-8")
+      text.contains('@Test') && !isIntegrationTest(text)
+    }
+    if (!badFiles.isEmpty()) {
+      throw new GradleException("${thisTask} is not supposed to contain any unit tests. The following files contained what looks like unit test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
     }
   }
 }
@@ -551,6 +509,8 @@ tasks.withType(Test).configureEach {
     }
   }
 }
+
+check.dependsOn(integrationTest)
 
 clean {
   delete 'artifacts'

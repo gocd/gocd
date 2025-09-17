@@ -273,6 +273,10 @@ dependencies {
   integrationTestImplementation project.deps.urlrewrite
   integrationTestImplementation project.deps.springTestJunit5
   integrationTestImplementation(testFixtures(project(":domain")))
+  integrationTestImplementation(project.deps.dbunit) {
+    exclude(group: 'org.postgresql')
+    exclude(group: 'com.oracle.database.jdbc')
+  }
 
   testFixturesImplementation platform(project(':build-platform'))
   testFixturesApi project(':domain')
@@ -286,10 +290,6 @@ dependencies {
   testFixturesImplementation(testFixtures(project(':domain')))
   testFixturesImplementation project.deps.mockitoCore
   testFixturesImplementation project.deps.assertJ
-  testFixturesImplementation(project.deps.dbunit) {
-    exclude(group: 'org.postgresql')
-    exclude(group: 'com.oracle.database.jdbc')
-  }
 
   testFixturesImplementation project.deps.commonsCollections4
   testFixturesImplementation project.deps.commonsLang3

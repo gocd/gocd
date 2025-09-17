@@ -31,15 +31,19 @@ import org.apache.activemq.broker.region.Destination;
 import org.apache.activemq.broker.region.Subscription;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.util.BrokerSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 @Component
 public class ActiveMqMessagingService implements MessagingService<GoMessage> {
+    private static final Logger LOG = LoggerFactory.getLogger(ActiveMqMessagingService.class);
 
     private static final String BROKER_NAME = "go-server";
     private static final String BROKER_URL = "vm://go-server";
@@ -141,12 +145,14 @@ public class ActiveMqMessagingService implements MessagingService<GoMessage> {
         }
     }
 
+    @PreDestroy
     @Override
-    public void stop() throws JMSException {
-        connection.close();
+    public void stop() throws Exception {
         try {
-            broker.stop();
-        } catch (Exception ignore) {
+            connection.close();
+        } catch (Exception ex) {
+            LOG.info("Error during internal broker connection closure being ignored.", ex);
         }
+        broker.stop();
     }
 }

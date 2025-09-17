@@ -19,7 +19,6 @@ import com.thoughtworks.go.server.messaging.*;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import jakarta.jms.JMSException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +51,7 @@ public class ActiveMqTest implements GoMessageListener<GoTextMessage> {
     }
 
     @AfterEach
-    public void tearDown() throws JMSException {
+    public void tearDown() throws Exception {
         receivedMessage = null;
         messaging.stop();
     }

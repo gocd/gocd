@@ -208,6 +208,7 @@ dependencies {
   runtimeOnly project.deps.rack
   implementation project.deps.apacheHttpComponents
 
+  implementation project.deps.jakartaAnnotation
   implementation project.deps.springOrm
   implementation project.deps.springWeb
   implementation project.deps.springWebmvc

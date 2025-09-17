@@ -19,11 +19,9 @@ package com.thoughtworks.go.agent.testhelper;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionConfigurationException;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.platform.commons.util.AnnotationUtils;
 import org.junit.platform.commons.util.ExceptionUtils;
 import org.junit.platform.commons.util.ReflectionUtils;
-
-import static org.junit.platform.commons.util.AnnotationUtils.findAnnotatedFields;
-import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
 
 public class FakeGoServerExtension implements BeforeEachCallback {
 
@@ -36,10 +34,10 @@ public class FakeGoServerExtension implements BeforeEachCallback {
     }
 
     private void injectInstanceFields(ExtensionContext context, Object instance) {
-        findAnnotatedFields(instance.getClass(), GoTestResource.class, ReflectionUtils::isNotStatic).forEach(field -> {
+        AnnotationUtils.findAnnotatedFields(instance.getClass(), GoTestResource.class, ReflectionUtils::isNotStatic).forEach(field -> {
             assertSupportedType("field", FakeGoServer.class);
             try {
-                makeAccessible(field).set(instance, newFakeGoServer(context));
+                ReflectionUtils.makeAccessible(field).set(instance, newFakeGoServer(context));
             }
             catch (Throwable t) {
                 ExceptionUtils.throwAsUncheckedException(t);

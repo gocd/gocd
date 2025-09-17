@@ -15,15 +15,14 @@
  */
 package com.thoughtworks.go.agent.testhelper;
 
+import com.thoughtworks.go.remote.StandardHeaders;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-
-import static com.thoughtworks.go.remote.StandardHeaders.RESPONSE_AGENT_EXTRA_PROPERTIES;
-import static com.thoughtworks.go.remote.StandardHeaders.RESPONSE_CONTENT_MD5;
 
 public class AgentBinariesServlet extends HttpServlet {
 
@@ -38,11 +37,11 @@ public class AgentBinariesServlet extends HttpServlet {
     @Override
     protected void doHead(HttpServletRequest request, HttpServletResponse response) {
         try {
-            response.setHeader(RESPONSE_CONTENT_MD5, resource.getMd5());
+            response.setHeader(StandardHeaders.RESPONSE_CONTENT_MD5, resource.getMd5());
 
             final String extraPropertiesHeaderValue = fakeGoServer.getExtraPropertiesHeaderValue();
             if (extraPropertiesHeaderValue != null) {
-                response.setHeader(RESPONSE_AGENT_EXTRA_PROPERTIES, Base64.getEncoder().encodeToString(extraPropertiesHeaderValue.getBytes(StandardCharsets.UTF_8)));
+                response.setHeader(StandardHeaders.RESPONSE_AGENT_EXTRA_PROPERTIES, Base64.getEncoder().encodeToString(extraPropertiesHeaderValue.getBytes(StandardCharsets.UTF_8)));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

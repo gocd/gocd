@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.agent.testhelper;
 
+import com.thoughtworks.go.util.TestFileUtil;
 import org.assertj.core.util.Hexadecimals;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
@@ -35,7 +36,6 @@ import java.util.EnumSet;
 import java.util.Properties;
 
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
-import static com.thoughtworks.go.util.TestFileUtil.resourceToString;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @SuppressWarnings("try")
@@ -162,10 +162,10 @@ public class FakeGoServer implements AutoCloseable {
         sslContextFactory.setCertAlias("1");
         sslContextFactory.setKeyStoreType("PKCS12");
         sslContextFactory.setKeyStoreResource(Resource.newClassPathResource("testdata/server-localhost-ec.p12"));
-        sslContextFactory.setKeyStorePassword(resourceToString("/testdata/keystore.pass"));
+        sslContextFactory.setKeyStorePassword(TestFileUtil.resourceToString("/testdata/keystore.pass"));
         sslContextFactory.setTrustStoreType("PKCS12");
         sslContextFactory.setTrustStoreResource(Resource.newClassPathResource("testdata/root-ca-ec.p12"));
-        sslContextFactory.setTrustStorePassword(resourceToString("/testdata/keystore.pass"));
+        sslContextFactory.setTrustStorePassword(TestFileUtil.resourceToString("/testdata/keystore.pass"));
         return sslContextFactory;
     }
 

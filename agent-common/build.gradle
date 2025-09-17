@@ -37,4 +37,15 @@ dependencies {
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.assertJ
+
+  testFixturesImplementation(testFixtures(project(':test:test-utils')))
+  testFixturesImplementation project.deps.jetty
+  testFixturesImplementation project.deps.jettyUtil
+  testFixturesImplementation project.deps.jettyServlet
+  testFixturesImplementation project.deps.jettyWebapp
+
+  testFixturesApi project.deps.assertJ
+  testFixturesApi enforcedPlatform(project.deps.junit5Bom)
+  testFixturesApi project.deps.junit5Api
+  testFixturesApi project.deps.junit5Params
 }

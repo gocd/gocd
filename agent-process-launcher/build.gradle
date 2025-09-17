@@ -21,6 +21,7 @@ dependencies {
   compileOnly project.deps.logback
   testImplementation project.deps.mockitoCore
   testImplementation(testFixtures(project(':test:test-utils')))
+  testImplementation(testFixtures(project(':agent-common')))
   testRuntimeOnly project.deps.bouncyCastle
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

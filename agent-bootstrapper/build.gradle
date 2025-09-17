@@ -29,6 +29,7 @@ dependencies {
 
   testRuntimeOnly project.deps.bouncyCastle
   testImplementation(testFixtures(project(':test:test-utils')))
+  testImplementation(testFixtures(project(':agent-common')))
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

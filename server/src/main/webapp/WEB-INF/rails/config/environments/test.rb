@@ -77,3 +77,7 @@ def Spring.load_context
   ctx_files = Dir[File.expand_path(File.join(Rails.root, "..", "..", "..", "resources", "applicationContext*.xml"))].map { |path| "/#{File.basename(path)}" }
   ClassPathXmlApplicationContext.new(ctx_files.to_java(:string))
 end
+
+def Spring.test_close_context
+  @context&.close
+end

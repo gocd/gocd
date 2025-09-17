@@ -87,20 +87,6 @@ tasks.register('createJRubyBinstubsTest') {
   group = LifecycleBasePlugin.VERIFICATION_GROUP
 
   configureJRubyBinstubs(it, railsPathingJarTest, 'jrubyTest', project.railsSystemProperties as Map<String, String>)
-
-  def outputDir = file("scripts")
-  outputs.files(file("${outputDir}/rspec"))
-
-  def injected = project.objects.newInstance(Injected)
-  doFirst {
-    injected.fileOps.copy {
-      from "script-templates/rspec"
-      into outputDir
-      filePermissions {
-        unix(0755)
-      }
-    }
-  }
 }
 
 def configureJRubyBinstubs(Task task, TaskProvider<? extends Task> railsPathingJar, String scriptPrefix, Map<String, String> extraSystemProperties = [:]) {

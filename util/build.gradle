@@ -33,5 +33,4 @@ dependencies {
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
   testImplementation project.deps.assertJ
-  testImplementation project.deps.logback
 }

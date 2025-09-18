@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.remote;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.server.messaging.JobStatusMessage;
@@ -29,6 +28,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 import org.springframework.remoting.RemoteAccessException;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;

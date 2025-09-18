@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
@@ -46,6 +45,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.event.Level;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

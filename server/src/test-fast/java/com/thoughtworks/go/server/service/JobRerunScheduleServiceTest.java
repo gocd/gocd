@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
@@ -38,6 +37,7 @@ import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.time.Instant;

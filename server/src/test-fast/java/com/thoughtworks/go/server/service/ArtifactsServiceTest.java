@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.LocatableEntity;
 import com.thoughtworks.go.domain.Stage;
@@ -36,6 +35,7 @@ import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.event.Level;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

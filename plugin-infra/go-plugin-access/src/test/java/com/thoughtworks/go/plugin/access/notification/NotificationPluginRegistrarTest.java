@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.notification;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.LogFixture;
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.event.Level;
 
 import java.util.List;
 

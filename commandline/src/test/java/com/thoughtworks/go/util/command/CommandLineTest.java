@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.util.command;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ProcessWrapper;
@@ -25,6 +24,7 @@ import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.event.Level;
 
 import java.io.File;
 import java.io.IOException;

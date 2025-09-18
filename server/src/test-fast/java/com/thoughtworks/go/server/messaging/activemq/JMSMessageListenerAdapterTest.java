@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.messaging.activemq;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
@@ -32,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
+import org.slf4j.event.Level;
 
 import static com.thoughtworks.go.serverhealth.HealthStateLevel.ERROR;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;

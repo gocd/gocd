@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.util;
 
-import ch.qos.logback.classic.Level;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.io.File;
 import java.io.InputStream;
@@ -318,6 +318,15 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return System.getProperty(property);
     }
 
+    @SuppressWarnings("SameParameterValue")
+    private <T extends Enum<T>> T safeToEnum(Class<T> enumClass, String value, T defaultValue) {
+        try {
+            return Enum.valueOf(enumClass, value.trim().toUpperCase());
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
     public String getOperatingSystemFamilyJvmName() {
         return System.getProperty("os.name").startsWith("Windows") ? "Windows" : System.getProperty("os.name");
     }
@@ -518,7 +527,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public Level pluginLoggingLevel(String pluginId) {
-        return Level.toLevel(getPropertyImpl("plugin." + pluginId + ".log.level", "INFO"), Level.INFO);
+        return safeToEnum(Level.class, getPropertyImpl("plugin." + pluginId + ".log.level", "INFO"), Level.INFO);
     }
 
     public Charset consoleLogCharset() {

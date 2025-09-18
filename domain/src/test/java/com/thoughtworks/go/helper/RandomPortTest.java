@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.helper;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.util.LogFixture;
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.assertj.core.api.Assertions.assertThat;

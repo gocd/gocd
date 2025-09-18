@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -27,6 +26,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.LogFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 
 import java.net.HttpURLConnection;
 

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.materials.perforce;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
@@ -23,6 +22,7 @@ import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.server.messaging;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor.Action;
 import com.thoughtworks.go.util.LogFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.mockito.InOrder;
+import org.slf4j.event.Level;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.assertj.core.api.Assertions.assertThat;

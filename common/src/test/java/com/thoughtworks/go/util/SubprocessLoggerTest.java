@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.util;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.process.CurrentProcess;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 
 import java.util.List;
 import java.util.Optional;

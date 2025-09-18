@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.util;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import com.thoughtworks.go.logging.LogHelper;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class LogFixture implements Closeable {
         this.appender = new ListAppender(LogHelper.encoder("%level %msg%n"));
         this.appender.start();
         logger.addAppender(appender);
-        logger.setLevel(level);
+        logger.setLevel(ch.qos.logback.classic.Level.convertAnSLF4JLevel(level));
     }
 
     public static LogFixture logFixtureFor(Class<?> aClass, Level level) {
@@ -82,12 +82,10 @@ public class LogFixture implements Closeable {
     }
 
     public synchronized boolean contains(Level level, String message) {
-        for (ILoggingEvent event : appender.getRawEvents()) {
-            if (event.getLevel().equals(level) && event.getFormattedMessage().contains(message)) {
-                return true;
-            }
-        }
-        return false;
+        return appender
+            .getRawEvents()
+            .stream()
+            .anyMatch(event -> event.getLevel().equals(ch.qos.logback.classic.Level.convertAnSLF4JLevel(level)) && event.getFormattedMessage().contains(message));
     }
 
     private static class ListAppender extends AppenderBase<ILoggingEvent> {

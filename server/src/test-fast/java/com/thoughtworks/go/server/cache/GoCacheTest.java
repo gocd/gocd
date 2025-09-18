@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.cache;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.NullUser;
@@ -28,6 +27,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.junit.jupiter.api.*;
+import org.slf4j.event.Level;
 
 import java.util.List;
 

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
@@ -36,6 +35,7 @@ import com.thoughtworks.go.util.LogFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.event.Level;
 import org.springframework.transaction.support.TransactionSynchronization;
 
 import java.util.List;

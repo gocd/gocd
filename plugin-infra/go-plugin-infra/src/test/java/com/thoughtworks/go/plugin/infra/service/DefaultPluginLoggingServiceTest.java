@@ -21,13 +21,16 @@ import ch.qos.logback.core.FileAppender;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class DefaultPluginLoggingServiceTest {
     @Test
@@ -46,6 +49,7 @@ class DefaultPluginLoggingServiceTest {
 
     private void assertPluginLogFile(String pluginId, String expectedPluginLogFileName) {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(systemEnvironment.pluginLoggingLevel(any())).thenReturn(Level.DEBUG);
 
         DefaultPluginLoggingService loggingService = new DefaultPluginLoggingService(systemEnvironment);
         loggingService.debug(pluginId, "some-logger-name", "message");

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.agent;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
@@ -28,6 +27,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.event.Level;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

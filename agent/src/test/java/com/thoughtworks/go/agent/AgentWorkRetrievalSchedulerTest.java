@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.agent;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.util.LogFixture;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
+import org.slf4j.event.Level;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.util.backoff.ExponentialBackOff;
 

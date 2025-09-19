@@ -52,7 +52,7 @@ def goVersions = new GoVersions(
   targetJavaVersion: 17,
 
   // Version of JVM to compile and test using.
-  buildJavaVersion: 21,
+  buildJavaVersion: 25,
 
   // Version to package with installers and container images by default
   packagedJavaVersion: new AdoptiumVersion(

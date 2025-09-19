@@ -24,14 +24,13 @@ enum PackageType {
     // Debian packages allow either most recent or minimum Java version in dependencies because
     // Java 21 was not available on Debian releases despite it being preferred, although was available for Ubuntu.
     String jreDependency(GoVersions goVersions) {
-      "openjdk-${goVersions.packagedJavaVersion.feature}-jre-headless | openjdk-${goVersions.targetJavaVersion}-jre-headless"
+      goVersions.preferredJavaVersions().collect { "openjdk-${it}-jre-headless" }.join(' | ')
     }
 
     String jreBinaryLocator(GoVersions goVersions) {
       // Find the most recent version that was installed
-      """ls /usr/lib/jvm/java-${goVersions.packagedJavaVersion.feature}-openjdk-\$(dpkg --print-architecture)/bin/java \
-            /usr/lib/jvm/java-${goVersions.targetJavaVersion}-openjdk-\$(dpkg --print-architecture)/bin/java \
-         2>/dev/null | tail -1"""
+      """ls ${goVersions.preferredJavaVersions().collect { "/usr/lib/jvm/java-${it}-openjdk-\$(dpkg --print-architecture)/bin/java" }.join(' \\\n   ') } \\
+           2>/dev/null | tail -1"""
     }
 
     List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, GoVersions goVersions) {
@@ -61,14 +60,13 @@ enum PackageType {
   },
   rpm {
     String jreDependency(GoVersions goVersions) {
-      "(java-${goVersions.packagedJavaVersion.feature}-openjdk-headless or java-${goVersions.targetJavaVersion}-openjdk-headless)"
+      "(${goVersions.preferredJavaVersions().collect { "java-${it}-openjdk-headless" }.join(' or ')})"
     }
 
     String jreBinaryLocator(GoVersions goVersions) {
       // Find the most recent version that was installed
-      """ls /etc/alternatives/jre_${goVersions.packagedJavaVersion.feature}/bin/java \
-            /etc/alternatives/jre_${goVersions.targetJavaVersion}/bin/java \
-         2>/dev/null | tail -1"""
+      """ls ${goVersions.preferredJavaVersions().collect { "/etc/alternatives/jre_${it}/bin/java" }.join(' \\\n   ') } \\
+           2>/dev/null | tail -1"""
     }
 
     List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, GoVersions goVersions) {
@@ -118,10 +116,6 @@ enum PackageType {
    */
   abstract jreBinaryLocator(GoVersions goVersions)
   abstract List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, GoVersions goVersions)
-}
-
-def destFile(String url) {
-  new File(gradle.gradleUserHomeDir, "download-cache/${TextUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
 def configureLinuxPackage(Task packageTask, InstallerType installerType, PackageType packageType, File buildRoot, Configuration configuration, File destDir) {

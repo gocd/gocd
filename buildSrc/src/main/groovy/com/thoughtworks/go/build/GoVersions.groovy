@@ -19,6 +19,8 @@ package com.thoughtworks.go.build
 import groovy.transform.Immutable
 import org.gradle.api.invocation.Gradle
 
+import static org.gradle.api.JavaVersion.*
+
 @Immutable
 class GoVersions implements Serializable {
   String goVersion
@@ -33,6 +35,14 @@ class GoVersions implements Serializable {
   int targetJavaVersion
   int buildJavaVersion
   AdoptiumVersion packagedJavaVersion
+
+  List<String> preferredJavaVersions() {
+    [VERSION_11, VERSION_17, VERSION_21, VERSION_25, VERSION_29] // LTS versions
+      .findAll { v -> v.ordinal() >= toVersion(targetJavaVersion).ordinal() && v.ordinal() <= toVersion(packagedJavaVersion.feature).ordinal() }
+      .sort()
+      .reverse()
+      .collect { v -> v.majorVersion }
+  }
 
   private static String determineGitRevision() {
     def process = "git rev-list HEAD --max-count=1".execute(null, null)
@@ -74,6 +84,7 @@ class GoVersions implements Serializable {
       println("      gitRevision: ${goVersions.gitRevision}")
       println("targetJavaVersion: ${goVersions.targetJavaVersion}")
       println(" buildJavaVersion: ${goVersions.buildJavaVersion}")
+      println("   javaPreference: ${goVersions.preferredJavaVersions()}")
       println("")
     }
   }

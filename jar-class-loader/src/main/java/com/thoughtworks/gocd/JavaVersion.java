@@ -22,8 +22,8 @@ import java.util.List;
 
 /**
  * An enumeration of Java versions.
- * Before 9: http://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html
- * 9+: http://openjdk.java.net/jeps/223
+ * Before 9: https://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html
+ * 9+: https://openjdk.java.net/jeps/223
  */
 public enum JavaVersion {
     VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4,
@@ -46,6 +46,8 @@ public enum JavaVersion {
     VERSION_25,
     VERSION_26,
     VERSION_27,
+    VERSION_28,
+    VERSION_29,
     VERSION_HIGHER;
     // Since Java 9, version should be X instead of 1.X
     private static final int FIRST_MAJOR_VERSION_ORDINAL = 9 - 1;
@@ -63,7 +65,9 @@ public enum JavaVersion {
      * @return The version, or null if the provided value is null.
      * @throws IllegalArgumentException when the provided value cannot be converted.
      */
+    @SuppressWarnings("NullAway") // We cannot annotate it as nullable as it would be a breaking change for Kotlin clients.
     public static JavaVersion toVersion(Object value) throws IllegalArgumentException {
+        //noinspection ConstantValue
         if (value == null) {
             return null;
         }
@@ -84,10 +88,11 @@ public enum JavaVersion {
      * @return The version of the current JVM.
      */
     public static JavaVersion current() {
-        if (currentJavaVersion == null) {
-            currentJavaVersion = toVersion(System.getProperty("java.version"));
+        JavaVersion version = currentJavaVersion;
+        if (version == null) {
+            currentJavaVersion = version = toVersion(System.getProperty("java.version"));
         }
-        return currentJavaVersion;
+        return version;
     }
 
     /**
@@ -126,8 +131,7 @@ public enum JavaVersion {
      * limitations under the License.
      */
     /**
-     * Shared code between {@link JavaVersion} and other code for parsing a full
-     * Java version string.
+     * Parses the major version, as an integer, from the string returned by the {@code java.version} system property.
      */
     // Copied  from gradle's source and unused bits removed.
     // https://github.com/gradle/gradle/blob/master/platforms/core-runtime/stdlib-java-extensions/src/main/java/org/gradle/api/internal/jvm/JavaVersionParser.java

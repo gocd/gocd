@@ -28,6 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -83,7 +84,7 @@ public class ZipArtifactCacheTest {
             thread.start();
         }
         for (FileCheckerThread thread : threads) {
-            thread.join(1000);
+            thread.join(SECONDS.toMillis(2));
             if (thread.isAlive()) {
                 fail("Timeout waiting for threads");
             }

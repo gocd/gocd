@@ -56,11 +56,11 @@ def goVersions = new GoVersions(
 
   // Version to package with installers and container images by default
   packagedJavaVersion: new AdoptiumVersion(
-    feature: 21,
+    feature: 25,
     interim: 0,    // set to `null` for the first release of a new featureVersion
-    update:  9,    // set to `null` for the first release of a new featureVersion
+    update:  1,    // set to `null` for the first release of a new featureVersion
     patch:   null, // set to `null` for most releases. Patch releases are "exceptional".
-    build:   10,
+    build:   8
   ),
 )
 ext.goVersions = goVersions

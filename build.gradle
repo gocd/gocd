@@ -612,6 +612,8 @@ dependencyCheck {
   skipTestGroups = true
 
   nvd.apiKey = System.getenv("NVD_API_KEY") ?: ""
+  analyzers.ossIndex.username = System.getenv("OSS_INDEX_USERNAME") ?: ""
+  analyzers.ossIndex.password = System.getenv("OSS_INDEX_API_KEY") ?: ""
 
   analyzers.nodeAudit.yarnEnabled = false // Doesn't work correctly with Yarn 3+ https://github.com/jeremylong/DependencyCheck/issues/4894
   analyzers.assemblyEnabled = false // Avoid dotnet false positives

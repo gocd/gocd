@@ -20,7 +20,7 @@ dependencies {
   implementation project(':base')
   api project(':plugin-infra:go-plugin-api')
   implementation project(':plugin-infra:go-plugin-activator')
-  compileOnly project.deps.logback
+  implementation project.deps.logback
   compileOnlyApi project.deps.jaxbApi
   runtimeOnly project.deps.jaxbRuntime
   implementation project.deps.commonsIO
@@ -30,6 +30,7 @@ dependencies {
   compileOnly project.deps.lombok
 
   testImplementation project.deps.logback
+  testImplementation project.deps.springTest
   testImplementation project.deps.springTestJunit5
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5

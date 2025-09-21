@@ -719,7 +719,7 @@ tasks.register('verifyWar', VerifyJarTask) {
         "jackson-annotations-${project.versions.jacksonBom.replaceFirst(/\.\d+$/, '')}.jar",
         "jackson-core-${project.versions.jacksonBom}.jar",
         "jackson-databind-${project.versions.jacksonBom}.jar",
-        "jakarta.activation-api-2.1.3.jar",
+        "jakarta.activation-api-2.1.4.jar",
         "jakarta.annotation-api-${project.versions.jakartaAnnotation}.jar",
         "jakarta.inject-api-${project.versions.jakartaInject}.jar",
         "jakarta.jms-api-3.1.0.jar",

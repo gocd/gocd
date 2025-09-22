@@ -25,9 +25,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
+import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietlyRethrowInterrupt;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -42,7 +44,6 @@ public class ZipArtifactCacheTest {
     @TempDir
     File folder;
     private ArtifactFolder artifactFolder;
-    private ArtifactsDirHolder artifactsDirHolder;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -51,9 +52,9 @@ public class ZipArtifactCacheTest {
         TestFileUtil.createTestFolder(artifact, "dir");
         TestFileUtil.createTestFile(artifact, "dir/file1");
 
-        artifactsDirHolder = mock(ArtifactsDirHolder.class);
+        ArtifactsDirHolder artifactsDirHolder = mock(ArtifactsDirHolder.class);
         when(artifactsDirHolder.getArtifactsDir()).thenReturn(folder);
-        zipArtifactCache = new ZipArtifactCache(this.artifactsDirHolder, new ZipUtil());
+        zipArtifactCache = new ZipArtifactCache(artifactsDirHolder, new ZipUtil());
         artifactFolder = new ArtifactFolder(JOB_IDENTIFIER, new File(artifact, "dir"), "dir");
     }
 
@@ -75,24 +76,25 @@ public class ZipArtifactCacheTest {
     }
 
     @Test
-    public void shouldOnlyCreateCacheOnce() throws Exception {
-        List<FileCheckerThread> threads = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            threads.add(new FileCheckerThread());
-        }
-        for (FileCheckerThread thread : threads) {
-            thread.start();
-        }
-        for (FileCheckerThread thread : threads) {
-            thread.join(SECONDS.toMillis(2));
-            if (thread.isAlive()) {
-                fail("Timeout waiting for threads");
-            }
-        }
+    public void shouldOnlyCreateCacheOnce() {
 
-        for (FileCheckerThread thread : threads) {
-            assertThat(thread.isDone()).isTrue();
-            assertThat(thread.artifact.replaceAll("\\\\", "/")).endsWith(JOB_FOLDERS + "/dir.zip");
+        List<FileCheckerThread> threads = IntStream.range(0, 10).mapToObj(i -> new FileCheckerThread()).toList();
+        threads.forEach(Thread::start);
+
+        try {
+            threads.forEach(thread -> doInterruptiblyQuietlyRethrowInterrupt(() -> {
+                thread.join(TimeUnit.SECONDS.toMillis(2));
+                if (thread.isAlive()) {
+                    fail("Timeout waiting for threads");
+                }
+            }));
+
+            threads.forEach(thread -> {
+                assertThat(thread.isDone()).isTrue();
+                assertThat(thread.artifact.replaceAll("\\\\", "/")).endsWith(JOB_FOLDERS + "/dir.zip");
+            });
+        } finally {
+            threads.forEach(Thread::interrupt);
         }
     }
 
@@ -109,12 +111,11 @@ public class ZipArtifactCacheTest {
     }
 
     private void waitForCacheCreated() throws Exception {
-        int timesTried = 10;
-        while (timesTried > 0 && !zipArtifactCache.cacheCreated(artifactFolder)) {
-            Thread.sleep(100);
-            timesTried--;
+        long waitUntil = System.currentTimeMillis() + SECONDS.toMillis(2);
+        while (System.currentTimeMillis() <= waitUntil && !zipArtifactCache.cacheCreated(artifactFolder)) {
+            Thread.sleep(10);
         }
-        if (timesTried <= 0) {
+        if (System.currentTimeMillis() > waitUntil) {
             fail("Timeout creating cache");
         }
     }
@@ -130,7 +131,7 @@ public class ZipArtifactCacheTest {
         public void run() {
             try {
                 while (!zipArtifactCache.cacheCreated(artifactFolder)) {
-                    Thread.sleep(1);
+                    Thread.sleep(10);
                 }
                 artifact = zipArtifactCache.cachedFile(artifactFolder).getAbsolutePath();
             } catch (Exception e) {

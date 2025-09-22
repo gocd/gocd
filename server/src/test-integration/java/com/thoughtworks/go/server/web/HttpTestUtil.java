@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.util.TestUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -107,11 +108,8 @@ public class HttpTestUtil {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            try {
-                Thread.sleep(Integer.MAX_VALUE);
-            } catch (InterruptedException ignore) {
-                Thread.currentThread().interrupt();
-            }
+            TestUtils.sleepQuietly(Integer.MAX_VALUE);
+
         });
         blocker.start();
         while (!server.isStarted()) {

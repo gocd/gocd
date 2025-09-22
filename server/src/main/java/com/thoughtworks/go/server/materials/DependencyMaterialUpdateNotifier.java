@@ -161,8 +161,8 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
 
         Collection<Material> newMaterials = CollectionUtils.subtract(materialsAfterConfigChange, materialsBeforeConfigChange);
 
-        for (Object material : newMaterials) {
-            updateMaterial((Material) material);
+        for (Material material : newMaterials) {
+            updateMaterial(material);
         }
     }
 

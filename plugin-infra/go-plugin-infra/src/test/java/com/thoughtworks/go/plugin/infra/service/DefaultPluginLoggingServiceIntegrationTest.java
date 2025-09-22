@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.infra.service;
 import ch.qos.logback.core.FileAppender;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -193,20 +194,15 @@ class DefaultPluginLoggingServiceIntegrationTest {
         return new Thread(() -> {
             for (int i = 0; i < 100; i++) {
                 pluginLoggingService.info(pluginId, "LoggingClass", "info-" + threadIdentifier + "-" + i);
-
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                TestUtils.sleepQuietlyRethrowInterrupt(10);
             }
         });
     }
 
     private void assertMessageInLog(Path pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws IOException {
         List<String> linesInLog = Files.readAllLines(pluginLogFile, Charset.defaultCharset());
-        for (Object line : linesInLog) {
-            if (((String) line).matches(String.format("^.*%s\\s+\\[%s\\] %s:.* - %s$", expectedLoggingLevel, Thread.currentThread().getName(), loggerName, expectedLogMessage))) {
+        for (String line : linesInLog) {
+            if (line.matches(String.format("^.*%s\\s+\\[%s\\] %s:.* - %s$", expectedLoggingLevel, Thread.currentThread().getName(), loggerName, expectedLogMessage))) {
                 return;
             }
         }

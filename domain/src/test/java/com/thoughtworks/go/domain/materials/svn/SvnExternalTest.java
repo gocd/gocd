@@ -54,8 +54,8 @@ public class SvnExternalTest {
     @Test
     public void shouldGetLatestRevisionFromExpandedSvnExternalRepository() {
         MaterialRevisions materialRevisions = new MaterialRevisions();
-        Material svnExt = svnMaterial(svnRepo.externalRepositoryUrl(), "end2end");
-        List<Modification> modifications = ((SvnMaterial) svnExt).latestModification(svnRepo.workingFolder(), new TestSubprocessExecutionContext());
+        SvnMaterial svnExt = svnMaterial(svnRepo.externalRepositoryUrl(), "end2end");
+        List<Modification> modifications = svnExt.latestModification(svnRepo.workingFolder(), new TestSubprocessExecutionContext());
         materialRevisions.addRevision(svnExt, modifications);
 
         assertThat(materialRevisions.numberOfRevisions()).isEqualTo(1);

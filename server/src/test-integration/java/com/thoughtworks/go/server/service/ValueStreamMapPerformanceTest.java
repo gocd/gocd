@@ -42,9 +42,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietly;
+import static com.thoughtworks.go.util.TestUtils.sleepQuietly;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -97,23 +100,14 @@ public class ValueStreamMapPerformanceTest {
         List<Thread> ts = new ArrayList<>();
         int numberOfParallelRequests = 10;
         for (int i = 0; i < numberOfParallelRequests; i++) {
-            final int finalI = i;
             Thread t = new Thread(() -> {
-                try {
-                    Thread.sleep(5000);
-                    doRun(numberOfDownstreamPipelines, cruiseConfig);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+                sleepQuietly(Duration.ofSeconds(5));
+                doRun(numberOfDownstreamPipelines, cruiseConfig);
             }, "Thread" + i);
             ts.add(t);
         }
-        for (Thread t : ts) {
-            t.start();
-        }
-        for (Thread t : ts) {
-            t.join();
-        }
+        ts.forEach(Thread::start);
+        ts.forEach(t -> doInterruptiblyQuietly(t::join));
     }
 
     @Test
@@ -159,7 +153,7 @@ public class ValueStreamMapPerformanceTest {
         return nodes;
     }
 
-    private CruiseConfig setupVSM(int numberOfDownstreamPipelines) {
+    private CruiseConfig setupVSM(@SuppressWarnings("SameParameterValue") int numberOfDownstreamPipelines) {
         HgMaterial hg = new HgMaterial("hgurl", "folder");
         String hg_revs = "hg1";
         u.checkinInOrder(hg, hg_revs);

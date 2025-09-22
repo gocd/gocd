@@ -22,26 +22,30 @@ import lombok.EqualsAndHashCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+
 @EqualsAndHashCode
 public class BackgroundMailSender implements GoMailSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(BackgroundMailSender.class);
+    private static final AtomicInteger COUNTER = new AtomicInteger(0);
 
     private final GoMailSender mailSender;
-    private final int timeout;
-    private volatile ValidationBean validation;
+    private final int timeoutMillis;
 
     public BackgroundMailSender(GoMailSender sender) {
         this(sender, new SystemEnvironment().getMailSenderTimeoutMillis());
     }
 
-    public BackgroundMailSender(GoMailSender sender, int timeout) {
+    public BackgroundMailSender(GoMailSender sender, int timeoutMillis) {
         this.mailSender = sender;
-        this.timeout = timeout;
+        this.timeoutMillis = timeoutMillis;
     }
 
     @Override
     public ValidationBean send(final String subject, final String body, final String to) {
-        return execute(() -> validation = mailSender.send(subject, body, to));
+        return execute(() -> mailSender.send(subject, body, to));
     }
 
     @Override
@@ -49,16 +53,18 @@ public class BackgroundMailSender implements GoMailSender {
         return send(message.getSubject(), message.getBody(), message.getTo());
     }
 
-    private ValidationBean execute(Runnable action) {
-        Thread thread = new Thread(action);
+    private ValidationBean execute(Supplier<ValidationBean> sender) {
+        AtomicReference<ValidationBean> validation = new AtomicReference<>(null);
+        Thread thread = new Thread(() -> validation.set(sender.get()), "mailSender-" + COUNTER.incrementAndGet());
+        thread.setDaemon(true);
         thread.start();
         try {
-            thread.join(timeout);
+            thread.join(timeoutMillis);
             if (thread.isAlive()) {
                 thread.interrupt();
                 return ValidationBean.notValid(ERROR_MESSAGE);
             }
-            return validation;
+            return validation.get();
         } catch (InterruptedException e) {
             LOGGER.error("Timed out when sending an email. Please check email configuration.");
             return ValidationBean.notValid(ERROR_MESSAGE);

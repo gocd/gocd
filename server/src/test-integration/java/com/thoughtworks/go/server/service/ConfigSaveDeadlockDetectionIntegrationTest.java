@@ -37,6 +37,8 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -51,6 +53,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.util.TestUtils.sleepQuietly;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -63,6 +66,7 @@ import static org.junit.jupiter.api.Assertions.fail;
         "classpath:/spring-all-servlet.xml",
 })
 public class ConfigSaveDeadlockDetectionIntegrationTest {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigSaveDeadlockDetectionIntegrationTest.class);
     @Autowired
     private GoConfigDao goConfigDao;
     @Autowired
@@ -107,7 +111,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
     @Test
     @Timeout(value = 3, unit = TimeUnit.MINUTES)
-    public void shouldNotDeadlockWhenAllPossibleWaysOfUpdatingTheConfigAreBeingUsedAtTheSameTime() {
+    public void shouldNotDeadlockWhenAllPossibleWaysOfUpdatingTheConfigAreBeingUsedAtTheSameTime() throws InterruptedException {
         int EXISTING_ENV_COUNT = goConfigService.cruiseConfig().getEnvironments().size();
         final List<Thread> group1 = new ArrayList<>();
         final List<Thread> group2 = new ArrayList<>();
@@ -148,34 +152,28 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         }
         configHelper.setConfigRepos(configRepos);
         for (int i = 0; i < count; i++) {
-            Thread timerThread = null;
+            Thread timerThread;
             timerThread = createThread(() -> {
                 try {
                     writeConfigToFile(new File(goConfigDao.fileLocation()));
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    fail("Failed with error: " + e.getMessage());
+                    fail("Failed with error: ", e);
                 }
                 cachedGoConfig.forceReload();
             }, "timer-thread");
 
-            try {
-                group1.get(i).start();
-                group2.get(i).start();
-                group3.get(i).start();
-                group4.get(i).start();
-                group5.get(i).start();
-                timerThread.start();
-                group1.get(i).join();
-                group2.get(i).join();
-                group3.get(i).join();
-                group4.get(i).join();
-                group5.get(i).join();
-                timerThread.join();
-            } catch (InterruptedException e) {
-                fail(e.getMessage());
-            }
-
+            group1.get(i).start();
+            group2.get(i).start();
+            group3.get(i).start();
+            group4.get(i).start();
+            group5.get(i).start();
+            timerThread.start();
+            group1.get(i).join();
+            group2.get(i).join();
+            group3.get(i).join();
+            group4.get(i).join();
+            group5.get(i).join();
+            timerThread.join();
         }
 
         assertThat(goConfigService.getAllPipelineConfigs().size()).isEqualTo(count + count + count);
@@ -194,13 +192,8 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                 update(configFile);
                 return;
             } catch (IOException e) {
-                try {
-                    System.out.println(String.format("Retry attempt - %s. Error: %s", retries, e.getMessage()));
-                    e.printStackTrace();
-                    Thread.sleep(10);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
+                LOG.info("Retry attempt - {}. Error: {}", retries, e, e);
+                sleepQuietly(10);
                 retries = retries + 1;
             }
         }
@@ -219,15 +212,11 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
     private Thread fullConfigSaveThread(final int counter) {
         return createThread(() -> {
-            try {
-                CruiseConfig cruiseConfig = cachedGoConfig.loadForEditing();
-                CruiseConfig cruiseConfig1 = configHelper.deepClone(cruiseConfig);
-                cruiseConfig1.addEnvironment(UUID.randomUUID().toString());
+            CruiseConfig cruiseConfig = cachedGoConfig.loadForEditing();
+            CruiseConfig cruiseConfig1 = configHelper.deepClone(cruiseConfig);
+            cruiseConfig1.addEnvironment(UUID.randomUUID().toString());
 
-                goConfigDao.updateFullConfig(new FullConfigUpdateCommand(cruiseConfig1, cruiseConfig.getMd5()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            goConfigDao.updateFullConfig(new FullConfigUpdateCommand(cruiseConfig1, cruiseConfig.getMd5()));
         }, "full-config-save-thread" + counter);
 
     }
@@ -260,7 +249,6 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     private Thread createThread(Runnable runnable, String name) {
         Thread thread = new Thread(runnable, name);
         thread.setUncaughtExceptionHandler((t, e) -> {
-            e.printStackTrace();
             throw new RuntimeException(e.getMessage(), e);
         });
         return thread;

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
+import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietly;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DaemonThreadStatsCollectorTest {
@@ -51,7 +52,7 @@ public class DaemonThreadStatsCollectorTest {
 
     @Test
     public void shouldIgnoreIfCantFindThreadCurrentlyAtStart() throws Exception {
-        Thread tempThread = withTemporaryThread(thread -> {});
+        Thread tempThread = doWithTemporaryThread(thread -> {});
         assertThat(tempThread.isAlive()).isFalse();
         collector.captureStats(tempThread.getId());
         assertThat(collector.statsFor(tempThread.getId())).isNull();
@@ -59,20 +60,14 @@ public class DaemonThreadStatsCollectorTest {
 
     @Test
     public void shouldIgnoreIfCantFindThreadCurrentlyAtEnd() throws Exception {
-        Thread tempThread = withTemporaryThread(thread -> collector.captureStats(thread.getId()));
+        Thread tempThread = doWithTemporaryThread(thread -> collector.captureStats(thread.getId()));
         assertThat(tempThread.isAlive()).isFalse();
         assertThat(collector.statsFor(tempThread.getId())).isNull();
     }
 
-    private Thread withTemporaryThread(Consumer<Thread> consumer) throws InterruptedException {
+    private Thread doWithTemporaryThread(Consumer<Thread> consumer) throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        Thread tempThread = new Thread(() -> {
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
+        Thread tempThread = new Thread(() -> doInterruptiblyQuietly(latch::await));
         tempThread.setDaemon(true);
         tempThread.start();
         consumer.accept(tempThread);

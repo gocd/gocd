@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.util.TestUtils.sleepQuietly;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StreamPumperTest {
@@ -87,7 +88,7 @@ public class StreamPumperTest {
     /**
      * Used by the test to track whether a line actually got consumed or not.
      */
-    class TestConsumer implements StreamConsumer {
+    static class TestConsumer implements StreamConsumer {
 
         private final List<String> lines = new ArrayList<>();
 
@@ -103,19 +104,14 @@ public class StreamPumperTest {
         public boolean wasLineConsumed(String testLine, long timeout) {
 
             long start = System.currentTimeMillis();
-            long trialTime = 0;
+            long trialTime;
 
             do {
                 if (lines.contains(testLine)) {
                     return true;
                 }
 
-                //Sleep a bit.
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    //ignoring...
-                }
+                sleepQuietly(10);
 
                 //How long have been waiting for the line?
                 trialTime = System.currentTimeMillis() - start;

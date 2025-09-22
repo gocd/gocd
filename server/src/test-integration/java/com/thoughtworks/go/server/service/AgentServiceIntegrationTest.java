@@ -57,15 +57,16 @@ import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietly;
 import static com.thoughtworks.go.util.TriState.*;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
@@ -958,7 +959,7 @@ public class AgentServiceIntegrationTest {
             String prodEnv = "prod";
             createEnabledAgent(UUID);
 
-            createMergeEnvironment(prodEnv, UUID);
+            createMergeEnvironment(prodEnv);
 
             agentService.bulkUpdateAgentAttributes(List.of(UUID), emptyStrList, emptyStrList,
                     List.of(prodEnv), emptyStrList, UNSET, environmentConfigService);
@@ -1239,18 +1240,15 @@ public class AgentServiceIntegrationTest {
         }
     }
 
-    private void joinFutures(Collection<Future<?>> futures, int numOfThreads) {
-        int count = 0;
+    private void joinFutures(Collection<Future<?>> futures, @SuppressWarnings("SameParameterValue") int numOfThreads) {
+        AtomicInteger count = new AtomicInteger();
         for (Future<?> f : futures) {
-            try {
+            doInterruptiblyQuietly(() -> {
                 f.get();
-                count++;
-            } catch (InterruptedException | ExecutionException e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
+                count.getAndIncrement();
+            });
         }
-        assertThat(count).isEqualTo(numOfThreads / 2 * 5);
+        assertThat(count.get()).isEqualTo(numOfThreads / 2 * 5);
     }
 
     private AgentStatusChangeListener agentStatusChangeListener() {
@@ -1262,12 +1260,12 @@ public class AgentServiceIntegrationTest {
         goConfigService.forceNotifyListeners();
     }
 
-    private void createMergeEnvironment(String envName, String agentUuid) {
+    private void createMergeEnvironment(String envName) {
         RepoConfigOrigin repoConfigOrigin = PartialConfigMother.createRepoOrigin();
         ConfigRepoConfig configRepo = repoConfigOrigin.getConfigRepo();
         PartialConfig partialConfig = new PartialConfig();
         BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
-        envConfig.addAgent(agentUuid);
+        envConfig.addAgent(AgentServiceIntegrationTest.UUID);
         partialConfig.getEnvironments().add(envConfig);
         partialConfig.setOrigins(repoConfigOrigin);
         goConfigService.updateConfig(cruiseConfig -> {

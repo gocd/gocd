@@ -40,9 +40,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.thoughtworks.go.util.TestUtils.sleepQuietlyRethrowInterrupt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -126,7 +129,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
         if (!threadTwoExceptions.isEmpty()) {
             throw threadTwoExceptions.get(0);
         }
-        assertThat(transactionTemplateWithInvocationCount.invocationCount).isEqualTo(1);
+        assertThat(transactionTemplateWithInvocationCount.invocationCount).hasValue(1);
     }
 
     private class MaterialServiceWhichSlowsDownFirstTimeModificationCheck extends MaterialService {
@@ -138,21 +141,16 @@ public class MaterialDatabaseUpdaterIntegrationTest {
         @Override
         public List<Modification> latestModification(Material material, File baseDir, SubprocessExecutionContext execCtx) {
             System.err.println(Thread.currentThread() + "Slowing down latest modification check");
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            sleepQuietlyRethrowInterrupt(Duration.ofSeconds(5));
             System.err.println(Thread.currentThread() + "Done slowing down latest modification check");
 
             return super.latestModification(material, baseDir, execCtx);
         }
     }
 
-    private class TransactionTemplateWithInvocationCount extends TransactionTemplate {
-
-        public int invocationCount = 0;
-        private TransactionTemplate nestedTransactionTemplate;
+    private static class TransactionTemplateWithInvocationCount extends TransactionTemplate {
+        final AtomicInteger invocationCount = new AtomicInteger(0);
+        private final TransactionTemplate nestedTransactionTemplate;
 
 
         public TransactionTemplateWithInvocationCount(TransactionTemplate transactionTemplate) {
@@ -162,7 +160,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
 
         @Override
         public Object executeWithExceptionHandling(TransactionCallback action) throws Exception {
-            invocationCount++;
+            invocationCount.incrementAndGet();
             return nestedTransactionTemplate.executeWithExceptionHandling(action);
         }
     }

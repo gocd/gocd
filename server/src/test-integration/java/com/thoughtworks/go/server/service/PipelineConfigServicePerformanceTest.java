@@ -62,7 +62,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "classpath:/spring-all-servlet.xml",
 })
 public class PipelineConfigServicePerformanceTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfigServicePerformanceTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PipelineConfigServicePerformanceTest.class);
 
     static {
         new SystemEnvironment().setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, "false");
@@ -112,8 +112,8 @@ public class PipelineConfigServicePerformanceTest {
             updateTimer.stop();
             results.put(Thread.currentThread().getName(), result.isSuccessful());
             if (!result.isSuccessful()) {
-                LOGGER.error(result.toString());
-                LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
+                LOG.error(result.toString());
+                LOG.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
             }
         }, numberOfRequests, results);
     }
@@ -130,8 +130,8 @@ public class PipelineConfigServicePerformanceTest {
             updateTimer.stop();
             results.put(Thread.currentThread().getName(), result.isSuccessful());
             if (!result.isSuccessful()) {
-                LOGGER.error(result.toString());
-                LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
+                LOG.error(result.toString());
+                LOG.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
             }
         }, numberOfRequests, results);
     }
@@ -149,8 +149,8 @@ public class PipelineConfigServicePerformanceTest {
             updateTimer.stop();
             results.put(Thread.currentThread().getName(), result.isSuccessful());
             if (!result.isSuccessful()) {
-                LOGGER.error(result.toString());
-                LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
+                LOG.error(result.toString());
+                LOG.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
             }
         }, numberOfRequests, results);
     }
@@ -163,7 +163,7 @@ public class PipelineConfigServicePerformanceTest {
 
     private void run(Runnable runnable, @SuppressWarnings("SameParameterValue") int numberOfRequests, final ConcurrentHashMap<String, Boolean> results) throws InterruptedException {
         Boolean finalResult = true;
-        LOGGER.info("Tests start now!");
+        LOG.info("Tests start now!");
         final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < numberOfRequests; i++) {
             Thread t = new Thread(runnable, "pipeline" + i);
@@ -172,7 +172,7 @@ public class PipelineConfigServicePerformanceTest {
         for (Thread t : threads) {
             Thread.sleep(1000 * (new Random().nextInt(3) + 1));
             t.setUncaughtExceptionHandler((t1, e) -> {
-                LOGGER.error("Exception " + e + " from thread " + t1);
+                LOG.error("Exception " + e + " from thread " + t1);
                 results.put(t1.getName(), false);
             });
             t.start();
@@ -194,11 +194,11 @@ public class PipelineConfigServicePerformanceTest {
     private void takeHeapDump(int i) {
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         CommandLine commandLine = CommandLine.createCommandLine("jmap").withArgs("-J-d64", String.format("-dump:format=b,file=%s/%s.hprof", tempDir.toFile().getAbsoluteFile(), i), ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
-        LOGGER.info(commandLine.describe());
+        LOG.info(commandLine.describe());
         int exitCode = commandLine.run(outputStreamConsumer, new NamedProcessTag("thread" + i));
-        LOGGER.info(outputStreamConsumer.getAllOutput());
+        LOG.info(outputStreamConsumer.getAllOutput());
         assertThat(exitCode).isEqualTo(0);
-        LOGGER.info("Heap dump available at " + tempDir.toFile().getAbsolutePath());
+        LOG.info("Heap dump available at {}", tempDir.toFile().getAbsolutePath());
     }
 
     private static abstract class ErrorCollectingHandler implements GoConfigGraphWalker.Handler {
@@ -239,7 +239,7 @@ public class PipelineConfigServicePerformanceTest {
         String xml = Files.readString(Path.of(configFile), UTF_8);
         xml = goConfigMigration.upgradeIfNecessary(xml);
         goConfigService.fileSaver(false).saveConfig(xml, goConfigService.getConfigForEditing().getMd5());
-        LOGGER.info("Total number of pipelines in this config: " + goConfigService.getConfigForEditing().allPipelines().size());
+        LOG.info("Total number of pipelines in this config: " + goConfigService.getConfigForEditing().allPipelines().size());
         if (goConfigService.getConfigForEditing().hasPipelineGroup(groupName)) {
             ((BasicPipelineConfigs) goConfigService.getConfigForEditing().findGroup(groupName)).clear();
         }

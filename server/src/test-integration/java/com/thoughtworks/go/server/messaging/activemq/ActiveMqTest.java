@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietly;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -127,11 +128,7 @@ public class ActiveMqTest implements GoMessageListener<GoTextMessage> {
 
         @Override
         public void onMessage(GoTextMessage message) {
-            try {
-                finish.await();
-            } catch (InterruptedException ignore) {
-                Thread.currentThread().interrupt();
-            }
+            doInterruptiblyQuietly(finish::await);
         }
 
         public void finish() {

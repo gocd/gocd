@@ -26,9 +26,9 @@ public class TaskMother {
     private TaskMother() {
     }
 
-    public class StubTask implements Task {
+    public static class StubTask implements Task {
 
-        private TaskConfig taskConfig;
+        private final TaskConfig taskConfig;
 
         public StubTask() {
             this.taskConfig = new TaskConfig();

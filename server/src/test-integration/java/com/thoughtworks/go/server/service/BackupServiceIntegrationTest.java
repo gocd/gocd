@@ -54,14 +54,12 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietlyRethrowInterrupt;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -368,11 +366,7 @@ public class BackupServiceIntegrationTest {
                 if (!backupStarted) {
                     backupStarted = true;
                     waitForBackupToStart.release();
-                    try {
-                        waitForAssertionToCompleteWhileBackupIsOn.acquire();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    doInterruptiblyQuietlyRethrowInterrupt(waitForAssertionToCompleteWhileBackupIsOn::acquire);
                 }
             }
 
@@ -416,11 +410,7 @@ public class BackupServiceIntegrationTest {
                 if (!backupStarted) {
                     backupStarted = true;
                     waitForBackupToStart.release();
-                    try {
-                        waitForAssertionToCompleteWhileBackupIsOn.acquire();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    doInterruptiblyQuietlyRethrowInterrupt(waitForAssertionToCompleteWhileBackupIsOn::acquire);
                 }
             }
 
@@ -528,39 +518,33 @@ public class BackupServiceIntegrationTest {
         assertThat(backup.getMessage()).isEqualTo("Post backup script exited with an error, check the server log for details.");
     }
 
-    private void deleteWrapperConfigFileIfExists(String ...fileNames) throws IOException {
+    private void deleteWrapperConfigFileIfExists(String ...fileNames) {
         for (String fileName : fileNames) {
             FileUtils.deleteQuietly(new File(WRAPPER_CONFIG_DIR, fileName));
         }
     }
 
-    private boolean fileExists(String fileName) {
+    private boolean fileExists(@SuppressWarnings("SameParameterValue") String fileName) {
         return new File(backupsDirectory, fileName).exists();
     }
 
-    private void deleteConfigFileIfExists(String ...fileNames) throws IOException {
+    private void deleteConfigFileIfExists(String ...fileNames) {
         for (String fileName : fileNames) {
             FileUtils.deleteQuietly(new File(configDir(), fileName));
         }
     }
 
     private String fileContents(File location, String filename) throws IOException {
-        ZipInputStream zipIn = null;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            zipIn = new ZipInputStream(new FileInputStream(location));
-            while (zipIn.available() > 0) {
-                ZipEntry nextEntry = zipIn.getNextEntry();
+        try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(location))) {
+            ZipEntry nextEntry;
+            while ((nextEntry = zipIn.getNextEntry()) != null) {
                 if (nextEntry.getName().equals(filename)) {
                     zipIn.transferTo(out);
                 }
             }
-        } finally {
-            if (zipIn != null) {
-                zipIn.close();
-            }
         }
-        return out.toString();
+        return out.toString(UTF_8);
     }
 
     private void createWrapperConfigFile(String fileName, String content) throws IOException {

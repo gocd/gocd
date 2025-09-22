@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietlyRethrowInterrupt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -91,11 +92,7 @@ public class AgentBootstrapperTest {
         final AgentBootstrapper spyBootstrapper = stubJVMExit(bootstrapper);
 
         Thread stopLoopThd = new Thread(() -> {
-            try {
-                waitForLauncherCreation.acquire();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            doInterruptiblyQuietlyRethrowInterrupt(waitForLauncherCreation::acquire);
             ReflectionUtil.setField(spyBootstrapper, "loop", false);
         });
         stopLoopThd.start();
@@ -103,7 +100,7 @@ public class AgentBootstrapperTest {
             spyBootstrapper.go(true, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
-            fail("should not have propagated exception thrown while creating launcher");
+            fail("should not have propagated exception thrown while creating launcher", e);
         }
         assertThat(reLaunchWaitIsCalled[0]).isTrue();
     }
@@ -136,7 +133,7 @@ public class AgentBootstrapperTest {
         try {
             spyBootstrapper.go(true, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
         } catch (Exception e) {
-            fail("should not have propagated exception thrown while invoking the launcher");
+            fail("should not have propagated exception thrown while invoking the launcher", e);
         }
         assertThat(destroyCalled[0]).isTrue();
     }
@@ -173,11 +170,7 @@ public class AgentBootstrapperTest {
         final AgentBootstrapper spyBootstrapper = stubJVMExit(bootstrapper);
 
         Thread stopLoopThd = new Thread(() -> {
-            try {
-                waitForLauncherInvocation.acquire();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            doInterruptiblyQuietlyRethrowInterrupt(waitForLauncherInvocation::acquire);
             ReflectionUtil.setField(spyBootstrapper, "loop", false);
         });
         stopLoopThd.start();
@@ -185,7 +178,7 @@ public class AgentBootstrapperTest {
             spyBootstrapper.go(true, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
-            fail("should not have propagated exception thrown while invoking the launcher");
+            fail("should not have propagated exception thrown while invoking the launcher", e);
         }
     }
 

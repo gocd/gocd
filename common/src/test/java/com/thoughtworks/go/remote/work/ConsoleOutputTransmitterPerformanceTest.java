@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import static com.thoughtworks.go.util.TestUtils.sleepQuietly;
 import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,20 +55,16 @@ public class ConsoleOutputTransmitterPerformanceTest {
         long lastSleepExcess = 0;
         for (int i = 0; i < expectedNumberToSendWithZeroBlocking; i++) {
             transmitter.consumeLine("This is line " + i);
-            lastSleepExcess = sleepFor(max(sendIntervalMillis - lastSleepExcess, 0));
+            lastSleepExcess = sleepForReturningExcess(max(sendIntervalMillis - lastSleepExcess, 0));
         }
         assertThat(System.currentTimeMillis() - startTime)
             .describedAs("Publishing messages should not be blocked excessively (buffer of 15% for sleep variation and minor blocking%)")
             .isCloseTo(expectedNumberToSendWithZeroBlocking * sendIntervalMillis, withinPercentage(15));
     }
 
-    private static long sleepFor(long sleepFor) {
+    private static long sleepForReturningExcess(long sleepFor) {
         long start = System.currentTimeMillis();
-        try {
-            Thread.sleep(sleepFor);
-        } catch (InterruptedException ignore) {
-            Thread.currentThread().interrupt();
-        }
+        sleepQuietly(sleepFor);
         return System.currentTimeMillis() - start - sleepFor;
     }
 
@@ -75,7 +72,7 @@ public class ConsoleOutputTransmitterPerformanceTest {
         @Override
         public void append(String content) {
             // Every publish will take 90% of the published interval, so that it can actually catch up
-            sleepFor(Math.round(0.9 * CONSOLE_PUBLISH_INTERVAL_MILLIS));
+            sleepForReturningExcess(Math.round(0.9 * CONSOLE_PUBLISH_INTERVAL_MILLIS));
         }
     }
 }

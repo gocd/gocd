@@ -183,25 +183,10 @@ public class ScheduleTestUtil {
         return new AddedPipeline(newPipeline, pipeline.material);
     }
 
-    protected static class RevisionsForMaterial {
+    public record RevisionsForMaterial(List<String> revs) {}
 
-        List<String> revs;
-
-        private RevisionsForMaterial(List<String> revs) {
-            this.revs = revs;
-        }
-
-        @Override
-        public String toString() {
-            return "RevisionsForMaterial{" +
-                "revs=" + revs +
-                '}';
-        }
-
-    }
-
-    public RevisionsForMaterial[] rs(String... revs) {
-        return new RevisionsForMaterial[]{new RevisionsForMaterial(Arrays.asList(revs))};
+    public RevisionsForMaterial rs(String... revs) {
+        return new RevisionsForMaterial(Arrays.asList(revs));
     }
 
     public List<String> revisions(String... revs) {
@@ -255,7 +240,7 @@ public class ScheduleTestUtil {
     public Pipeline scheduleWith(AddedPipeline pipeline, String... revisions) {
         RevisionsForMaterial[] revsForMat = new RevisionsForMaterial[revisions.length];
         for (int i = 0; i < revisions.length; i++) {
-            revsForMat[i] = rs(revisions[i])[0];
+            revsForMat[i] = rs(revisions[i]);
         }
         return scheduleWith(pipeline, revsForMat);
     }

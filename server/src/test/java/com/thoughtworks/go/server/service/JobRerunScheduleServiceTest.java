@@ -40,11 +40,14 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.springframework.transaction.support.TransactionCallback;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
+import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietlyRethrowInterrupt;
+import static com.thoughtworks.go.util.TestUtils.sleepQuietlyRethrowInterrupt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -247,11 +250,8 @@ public class JobRerunScheduleServiceTest {
             @Override
             public <T> T execute(TransactionCallback<T> action) {
                 if (requestNumber.get() == 0) {
-                    try {
-                        Thread.sleep(5000);//let the other thread try for 5 seconds
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException();
-                    }
+                    // let the other thread try for 5 seconds
+                    sleepQuietlyRethrowInterrupt(Duration.ofSeconds(5));
                 }
                 return super.execute(action);
             }
@@ -277,12 +277,8 @@ public class JobRerunScheduleServiceTest {
         });
 
         Thread secondReq = new Thread(() -> {
-            try {
-                requestNumber.set(1);
-                sem.acquire();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            requestNumber.set(1);
+            doInterruptiblyQuietlyRethrowInterrupt(sem::acquire);
             service.rerunJobs(firstStage, List.of("unit"), new HttpOperationResult());
         });
 

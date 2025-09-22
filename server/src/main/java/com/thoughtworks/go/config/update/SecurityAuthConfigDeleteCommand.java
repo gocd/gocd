@@ -47,8 +47,8 @@ public class SecurityAuthConfigDeleteCommand extends SecurityAuthConfigCommand {
         RolesConfig rolesConfig = preprocessedConfig.server().security().getRoles();
 
         List<String> usedByRolesConfig = new ArrayList<>();
-        for (Role role : rolesConfig.getPluginRoleConfigs()) {
-            if (profile.hasRole((PluginRoleConfig) role)) {
+        for (PluginRoleConfig role : rolesConfig.getPluginRoleConfigs()) {
+            if (profile.hasRole(role)) {
                 usedByRolesConfig.add(role.getName().toString());
             }
         }

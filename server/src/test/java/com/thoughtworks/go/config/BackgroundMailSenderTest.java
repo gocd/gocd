@@ -17,23 +17,24 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.CountDownLatch;
+
+import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietly;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class BackgroundMailSenderTest {
 
-    GoMailSender neverReturns = new GoMailSender() {
+    private final CountDownLatch countDownLatch = new CountDownLatch(1);
+    private final GoMailSender neverReturns = new GoMailSender() {
         @Override
         public ValidationBean send(String subject, String body, String to) {
-            try {
-                Thread.sleep(10000000);
-            } catch (InterruptedException ignore) {
-                Thread.currentThread().interrupt();
-            }
+            doInterruptiblyQuietly(countDownLatch::await);
             return null;
         }
 
@@ -48,6 +49,11 @@ public class BackgroundMailSenderTest {
     @BeforeEach
     public void setUp() {
         sender = mock(GoMailSender.class);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        countDownLatch.countDown();
     }
 
     @Test

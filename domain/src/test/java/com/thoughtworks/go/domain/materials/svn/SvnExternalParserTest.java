@@ -24,50 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SvnExternalParserTest {
 
     @Test
-    public void shouldParseOneLineSvnExternalOnCurrentFolderForSvn14() {
-        String svnExternals = "http://10.18.3.171:8080/svn/connect4/trunk - CSharp http://10.18.3.171:8080/svn/CSharpProject/trunk\n";
-
-        List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/connect4/trunk", "http://10.18.3.171:8080/svn");
-        assertThat(externals.get(0)).isEqualTo(new SvnExternal("CSharp", "http://10.18.3.171:8080/svn/CSharpProject/trunk"));
-    }
-
-    @Test
-    public void shouldParseOneLineSvnExternalOnMultipleLevelFolderForSvn14() {
-        String svnExternals = "http://10.18.3.171:8080/svn/connect4/trunk/dir1/dir2 - externals-2 http://10.18.3.171:8080/svn/CSharpProject/trunk/\n";
-
-        List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/connect4/trunk", "http://10.18.3.171:8080/svn");
-        assertThat(externals.get(0)).isEqualTo(new SvnExternal("dir1/dir2/externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk/"));
-    }
-
-    @Test
-    public void shouldParseMultipleLineSvnExternalForSvn14() {
-        String svnExternals = "http://10.18.3.171:8080/svn/connect4/trunk - externals-2 http://10.18.3.171:8080/svn/CSharpProject/trunk/\n" +
-                "dir1 http://10.18.3.171:8080/svn/CSharpProject/trunk";
-
-        List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/connect4/trunk", "http://10.18.3.171:8080/svn");
-        assertThat(externals.get(0)).isEqualTo(new SvnExternal("externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk/"));
-        assertThat(externals.get(1)).isEqualTo(new SvnExternal("dir1", "http://10.18.3.171:8080/svn/CSharpProject/trunk"));
-    }
-
-    @Test
-    public void shouldParseMultipleSvnExternalsForSvn14() {
-        String svnExternals = """
-                http://10.18.3.171:8080/svn/connect4/trunk - externals-2 http://10.18.3.171:8080/svn/CSharpProject/trunk
-                dir1 http://10.18.3.171:8080/svn/CSharpProject/trunk
-
-                http://10.18.3.171:8080/svn/connect4/trunk/dir2 - externals-2 http://10.18.3.171:8080/svn/CSharpProject/trunk
-                dir3 http://10.18.3.171:8080/svn/CSharpProject/trunk
-                """;
-
-        List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/connect4/trunk", "http://10.18.3.171:8080/svn");
-        assertThat(externals.get(0)).isEqualTo(new SvnExternal("externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk"));
-        assertThat(externals.get(1)).isEqualTo(new SvnExternal("dir1", "http://10.18.3.171:8080/svn/CSharpProject/trunk"));
-        assertThat(externals.get(2)).isEqualTo(new SvnExternal("dir2/externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk"));
-        assertThat(externals.get(3)).isEqualTo(new SvnExternal("dir2/dir3", "http://10.18.3.171:8080/svn/CSharpProject/trunk"));
-    }
-
-    @Test
-    public void shouldParseOneLineSvnExternalOnCurrentFolderForSvn15() {
+    public void shouldParseOneLineSvnExternalOnCurrentFolder() {
         String svnExternals = "http://10.18.3.171:8080/svn/connect4/trunk - http://10.18.3.171:8080/svn/CSharpProject/trunk externals-2 \n";
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/connect4/trunk", "http://10.18.3.171:8080/svn");
@@ -75,7 +32,7 @@ public class SvnExternalParserTest {
     }
 
     @Test
-    public void shouldParseOneLineSvnExternalOnMultipleLevelFolderForSvn15() {
+    public void shouldParseOneLineSvnExternalOnMultipleLevelFolder() {
         String svnExternals = "http://10.18.3.171:8080/svn/connect4/trunk/dir1/dir2 - http://10.18.3.171:8080/svn/CSharpProject/trunk externals-2 \n";
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/connect4/trunk", "http://10.18.3.171:8080/svn");
@@ -83,7 +40,7 @@ public class SvnExternalParserTest {
     }
 
     @Test
-    public void shouldParseMultipleLineSvnExternalForSvn15() {
+    public void shouldParseMultipleLineSvnExternal() {
         String svnExternals = "http://10.18.3.171:8080/svn/connect4/trunk - http://10.18.3.171:8080/svn/CSharpProject/trunk/ externals-2 \n" +
                 "http://10.18.3.171:8080/svn/CSharpProject/trunk dir1 ";
 
@@ -93,7 +50,7 @@ public class SvnExternalParserTest {
     }
 
     @Test
-    public void shouldParseMultipleSvnExternalsForSvn15() {
+    public void shouldParseMultipleSvnExternals() {
         String svnExternals = """
                 http://10.18.3.171:8080/svn/connect4/trunk - http://10.18.3.171:8080/svn/CSharpProject/trunk externals-2\s
                 http://10.18.3.171:8080/svn/CSharpProject/trunk dir1\s
@@ -110,8 +67,8 @@ public class SvnExternalParserTest {
     }
 
     @Test
-    public void shouldSupportFileProtocal() {
-        String svnExternals = "file:///tmp/repo/project/trunk - end2end file:///tmp/testSvnRepo-1246619674077/end2end";
+    public void shouldSupportFileProtocol() {
+        String svnExternals = "file:///tmp/repo/project/trunk - file:///tmp/testSvnRepo-1246619674077/end2end end2end";
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "file:///tmp/repo/project", "http://10.18.3.171:8080/svn");
         assertThat(externals.get(0)).isEqualTo(new SvnExternal("trunk/end2end", "file:///tmp/testSvnRepo-1246619674077/end2end"));
@@ -119,25 +76,10 @@ public class SvnExternalParserTest {
 
     @Test
     public void shouldSupportUrlWithEncodedSpaces() {
-        String svnExternals = "file:///C:/Program%20Files/trunk - end2end file:///C:/Program%20Files/testSvnRepo-1246619674077/end2end";
+        String svnExternals = "file:///C:/Program%20Files/trunk - file:///C:/Program%20Files/testSvnRepo-1246619674077/end2end end2end";
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "file:///C:/Program%20Files", "http://10.18.3.171:8080/svn");
         assertThat(externals.get(0)).isEqualTo(new SvnExternal("trunk/end2end", "file:///C:/Program%20Files/testSvnRepo-1246619674077/end2end"));
-    }
-
-    @Test
-    public void shouldParseMultipleSvnExternalsWithMixedFormat() {
-        String svnExternals = """
-                http://10.18.3.171:8080/svn/connect4/trunk/lib - http://10.18.3.171:8080/svn/CSharpProject/trunk/ externals-2\s
-
-                http://10.18.3.171:8080/svn/connect4/trunk - svn://10.18.3.171:8080/svn/CSharpProject/trunk/ externals-6
-                externals-x svn://10.18.3.171:8080/svn/CSharpProject/trunk/
-                """;
-
-        List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/connect4/trunk", "http://10.18.3.171:8080/svn");
-        assertThat(externals.get(0)).isEqualTo(new SvnExternal("lib/externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk/"));
-        assertThat(externals.get(1)).isEqualTo(new SvnExternal("externals-6", "svn://10.18.3.171:8080/svn/CSharpProject/trunk/"));
-        assertThat(externals.get(2)).isEqualTo(new SvnExternal("externals-x", "svn://10.18.3.171:8080/svn/CSharpProject/trunk/"));
     }
 
     @Test
@@ -146,31 +88,17 @@ public class SvnExternalParserTest {
                 http://10.18.3.171:8080/svn/connect4/trunk/lib - http://10.18.3.171:8080/svn/CSharpProject/trunk/     externals-2\s
 
                 http://10.18.3.171:8080/svn/connect4/trunk - svn://10.18.3.171:8080/svn/CSharpProject/trunk/     externals-6
-                  externals-x     svn://10.18.3.171:8080/svn/CSharpProject/trunk/
                  svn://10.18.3.171:8080/svn/CSharpProject/trunk/    externals-y
                 """;
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/connect4/trunk", "http://10.18.3.171:8080/svn");
         assertThat(externals.get(0)).isEqualTo(new SvnExternal("lib/externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk/"));
         assertThat(externals.get(1)).isEqualTo(new SvnExternal("externals-6", "svn://10.18.3.171:8080/svn/CSharpProject/trunk/"));
-        assertThat(externals.get(2)).isEqualTo(new SvnExternal("externals-x", "svn://10.18.3.171:8080/svn/CSharpProject/trunk/"));
-        assertThat(externals.get(3)).isEqualTo(new SvnExternal("externals-y", "svn://10.18.3.171:8080/svn/CSharpProject/trunk/"));
+        assertThat(externals.get(2)).isEqualTo(new SvnExternal("externals-y", "svn://10.18.3.171:8080/svn/CSharpProject/trunk/"));
     }
 
     @Test
-    public void shouldParseSvnExternalWithOperativeRevisionForSvn14() {
-        String svnExternals = """
-                http://10.18.3.171:8080/svn/connect4/trunk/lib - externals-2 -r 2 http://10.18.3.171:8080/svn/CSharpProject/trunk/  \s
-                externals-6  -r3 svn://10.18.3.171:8080/svn/CSharpProject/trunk/\s
-                """;
-
-        List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/connect4/trunk", "http://10.18.3.171:8080/svn");
-        assertThat(externals.get(0)).isEqualTo(new SvnExternal("lib/externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk/"));
-        assertThat(externals.get(1)).isEqualTo(new SvnExternal("lib/externals-6", "svn://10.18.3.171:8080/svn/CSharpProject/trunk/"));
-    }
-
-    @Test
-    public void shouldParseSvnExternalWithOperativeRevisionForSvn15() {
+    public void shouldParseSvnExternalWithOperativeRevision() {
         String svnExternals = """
                 http://10.18.3.171:8080/svn/connect4/trunk/lib - -r 2 http://10.18.3.171:8080/svn/CSharpProject/trunk/  externals-2\s
                 -r3 svn://10.18.3.171:8080/svn/CSharpProject/trunk/ externals-6
@@ -182,7 +110,7 @@ public class SvnExternalParserTest {
     }
 
     @Test
-    public void shouldParseSvnExternalsWithRootSvn15AndAboveWithRootMatcherRelativePathsForSvn15() {
+    public void shouldParseSvnExternalsWithRootMatcherRelativePaths() {
         String svnExternals = """
                 http://10.18.3.171:8080/svn/externalstest - ^/repo1/trunk lib/repo1
                 ^/repo2/trunk repo2

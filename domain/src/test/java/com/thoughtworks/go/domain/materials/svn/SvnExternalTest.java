@@ -46,8 +46,11 @@ public class SvnExternalTest {
     public void shouldGetAllExternalUrlsByPropGetOnMainURL() {
         String url = svnRepo.projectRepositoryUrl();
         SvnCommand svn = new SvnCommand(null, url, "user", "pass", false);
-        List<SvnExternal> urls = svn.getAllExternalURLs();
-        assertThat(urls.size()).isEqualTo(1);
+        List<SvnExternal> externals = svn.getAllExternalURLs();
+        assertThat(externals).singleElement().satisfies(ext -> {
+            assertThat(ext.getFolder()).isEqualTo("end2end");
+            assertThat(ext.getURL()).endsWith("/end2end/");
+        });
     }
 
     @Test

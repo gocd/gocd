@@ -56,7 +56,7 @@ public class SvnTestRepoWithExternal extends SvnTestRepo {
         String url = projectRepositoryUrl();
         SvnCommand svnRepo = getSvnExternalCommand(url, false);
         svnRepo.checkoutTo(outputStreamConsumer, workingFolder, SubversionRevision.HEAD);
-        svnRepo.propset(externalsHost, "svn:externals", externalRepoName + " " + externalRepositoryUrl());
+        svnRepo.propset(externalsHost, "svn:externals", externalRepositoryUrl() + " " + externalRepoName);
         svnRepo.commit(inMemoryConsumer(), workingFolder, "changed svn externals");
         commitToExternalRepo(externalRepositoryUrl());
     }

@@ -25,7 +25,6 @@ import com.thoughtworks.go.util.Node;
 import com.thoughtworks.go.util.PipelineDependencyState;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PipelineConfigTreeValidator {
@@ -46,12 +45,7 @@ public class PipelineConfigTreeValidator {
         for (StageConfig stageConfig : pipelineConfig.getStages()) {
             isValid = stageConfig.validateTree(contextForChildren) && isValid;
             if (pipelineConfig.hasTemplateApplied()) {
-                final List<ConfigErrors> allErrors = new ArrayList<>();
-                new GoConfigGraphWalker(stageConfig).walk(new ErrorCollectingHandler(allErrors) {
-                    @Override
-                    public void handleValidation(Validatable validatable, ValidationContext context) {
-                    }
-                });
+                List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(stageConfig);
                 for (ConfigErrors error : allErrors) {
                     pipelineConfig.errors().add("template", StringUtils.join(error.getAll(), ", "));
                 }
@@ -132,9 +126,9 @@ public class PipelineConfigTreeValidator {
         }
     }
 
-    private class PipelineConfigValidationContextDependencyState implements PipelineDependencyState {
-        private PipelineConfig pipelineConfig;
-        private PipelineConfigSaveValidationContext validationContext;
+    private static class PipelineConfigValidationContextDependencyState implements PipelineDependencyState {
+        private final PipelineConfig pipelineConfig;
+        private final PipelineConfigSaveValidationContext validationContext;
 
         public PipelineConfigValidationContextDependencyState(PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext validationContext) {
             this.pipelineConfig = pipelineConfig;

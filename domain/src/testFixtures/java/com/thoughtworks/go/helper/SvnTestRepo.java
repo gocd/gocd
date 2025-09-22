@@ -56,7 +56,6 @@ public class SvnTestRepo extends TestRepo {
         }
     }
 
-
     public String urlFor(String project) {
         return repositoryUrl(project);
     }
@@ -68,10 +67,6 @@ public class SvnTestRepo extends TestRepo {
 
     public File projectRepositoryRoot() {
         return repositoryUrlAsFile("project1");
-    }
-
-    public File projectRepositoryUrlAsFile() {
-        return repositoryUrlAsFile("project1/trunk");
     }
 
     public String end2endRepositoryUrl() {

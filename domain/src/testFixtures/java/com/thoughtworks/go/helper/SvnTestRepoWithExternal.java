@@ -31,10 +31,11 @@ import java.util.List;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 
 public class SvnTestRepoWithExternal extends SvnTestRepo {
-    private ProcessOutputStreamConsumer<InMemoryConsumer, InMemoryConsumer> outputStreamConsumer = ProcessOutputStreamConsumer.inMemoryConsumer();
-    private File workingFolder;
     public static final String EXTERNAL_REPO_NAME = "end2end";
-    private String externalRepoUrl;
+
+    private final ProcessOutputStreamConsumer<InMemoryConsumer, InMemoryConsumer> outputStreamConsumer = ProcessOutputStreamConsumer.inMemoryConsumer();
+    private File workingFolder;
+    private final String externalRepoUrl;
 
     public SvnTestRepoWithExternal(String externalRepoUrl, Path tempDir) throws IOException {
         super(tempDir);
@@ -55,7 +56,7 @@ public class SvnTestRepoWithExternal extends SvnTestRepo {
         String url = projectRepositoryUrl();
         SvnCommand svnRepo = getSvnExternalCommand(url, false);
         svnRepo.checkoutTo(outputStreamConsumer, workingFolder, SubversionRevision.HEAD);
-        svnRepo.propset(externalsHost, "svn:externals", externalRepoName + " " + externalRepositoryUrl());
+        svnRepo.propset(externalsHost, "svn:externals", externalRepositoryUrl() + " " + externalRepoName);
         svnRepo.commit(inMemoryConsumer(), workingFolder, "changed svn externals");
         commitToExternalRepo(externalRepositoryUrl());
     }

@@ -35,7 +35,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MixedMultipleMaterialsTest {
+public class MaterialRevisionsMultipleMixedTest {
     private SvnTestRepo svnRepo;
     private HgTestRepo hgRepo;
     private GitTestRepo gitRepo;

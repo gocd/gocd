@@ -161,7 +161,7 @@ public class JsonMessageHandler3_0 implements JsonMessageHandler {
         return migrator.migrate(responseBody, targetVersion);
     }
 
-    class ResponseScratch {
+    static class ResponseScratch {
         public Integer target_version;
     }
 }

@@ -147,7 +147,7 @@ public class MultiplexingQueueProcessorTest {
         Thread.sleep(time);
     }
 
-    private class ThreadNameAccumulator {
+    private static class ThreadNameAccumulator {
         String threadOfCall;
         String threadOfQueueAdd;
     }

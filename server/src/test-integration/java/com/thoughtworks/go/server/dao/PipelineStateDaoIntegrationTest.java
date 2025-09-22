@@ -215,7 +215,7 @@ public class PipelineStateDaoIntegrationTest {
         });
     }
 
-    private class TestAfterCompletionCallback implements AfterCompletionCallback {
+    private static class TestAfterCompletionCallback implements AfterCompletionCallback {
 
         boolean called = false;
         Integer status = null;
@@ -226,7 +226,7 @@ public class PipelineStateDaoIntegrationTest {
             this.status = status;
         }
 
-        void assertCalledWithStatus(int status) {
+        void assertCalledWithStatus(@SuppressWarnings("SameParameterValue") int status) {
             assertTrue(called);
             assertThat(this.status).isEqualTo(status);
         }

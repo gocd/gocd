@@ -58,7 +58,7 @@ public class SvnExternalParser {
         }
     }
 
-    private class SvnExternalRoot {
+    private static class SvnExternalRoot {
         private String root;
 
         private SvnExternalRoot() {
@@ -79,7 +79,7 @@ public class SvnExternalParser {
     }
 
     private class Svn14WithRootMatcher extends BaseSvnExternalMatcher {
-        private Pattern SVN_14_ROOT_PATTERN = Pattern.compile("(\\S+) - (\\S+)\\s+(-r\\s*\\d)?\\s*(\\S+:((//)|(\\\\))+\\S+)\\s*");
+        private static final Pattern SVN_14_ROOT_PATTERN = Pattern.compile("(\\S+) - (\\S+)\\s+(-r\\s*\\d)?\\s*(\\S+:((//)|(\\\\))+\\S+)\\s*");
 
         @Override
         protected Pattern pattern() {
@@ -108,7 +108,7 @@ public class SvnExternalParser {
     }
 
     private class Svn14NoRootMatcher extends BaseSvnExternalMatcher {
-        private Pattern SVN_14_SAMEFOLER_PATTERN = Pattern.compile("\\s*(\\S+)\\s+(-r\\s*\\d)?\\s*(\\S+:((//)|(\\\\))+\\S+)\\s*");
+        private static final Pattern SVN_14_SAMEFOLER_PATTERN = Pattern.compile("\\s*(\\S+)\\s+(-r\\s*\\d)?\\s*(\\S+:((//)|(\\\\))+\\S+)\\s*");
 
         @Override
         protected Pattern pattern() {
@@ -137,7 +137,7 @@ public class SvnExternalParser {
     }
 
     private abstract class BaseSvnExternalMatcher implements SvnExternalMatcher {
-        final Pattern CARET_AT_START_OF_BOUNDARY = Pattern.compile("(?<![/\\w])\\^/");
+        private static final Pattern CARET_AT_START_OF_BOUNDARY = Pattern.compile("(?<![/\\w])\\^/");
 
         @Override
         public boolean match(String external, String repoUrl, String repoRoot, List<SvnExternal> results, SvnExternalRoot svnExternalRoot) {
@@ -178,7 +178,7 @@ public class SvnExternalParser {
     }
 
     private class Svn15AndAboveWithRootMatcher extends BaseSvnExternalMatcher {
-        private Pattern SVN_15_ROOT_PATTERN = Pattern.compile("(\\S+) - (-r\\s*\\d)?\\s*(\\S+:(//|\\\\)+.*)\\s+(\\S+)\\s*");
+        private static final Pattern SVN_15_ROOT_PATTERN = Pattern.compile("(\\S+) - (-r\\s*\\d)?\\s*(\\S+:(//|\\\\)+.*)\\s+(\\S+)\\s*");
 
         @Override
         protected Pattern pattern() {
@@ -214,7 +214,8 @@ public class SvnExternalParser {
     }
 
     private class Svn15AndAboveNoRootMatcher extends BaseSvnExternalMatcher {
-        private Pattern SVN_15_SAMEFOLER_PATTERN = Pattern.compile("\\s*(-r\\s*\\d)?\\s*(\\S+:(//|\\\\)+\\S+)\\s+(\\S+)\\s*");
+        private static final Pattern SVN_15_SAMEFOLER_PATTERN = Pattern.compile("\\s*(-r\\s*\\d)?\\s*(\\S+:(//|\\\\)+\\S+)\\s+(\\S+)\\s*");
+
         @Override
         protected Pattern pattern() {
             return SVN_15_SAMEFOLER_PATTERN;

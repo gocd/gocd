@@ -103,7 +103,7 @@ public class RuleAwarePluginProfileCommandTest {
         assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
-    private class StubSecretConfigCommand extends RuleAwarePluginProfileCommand<SecretConfig, SecretConfigs> {
+    private static class StubSecretConfigCommand extends RuleAwarePluginProfileCommand<SecretConfig, SecretConfigs> {
 
         public StubSecretConfigCommand(GoConfigService goConfigService, SecretConfig profile, Username currentUser, LocalizedOperationResult result) {
             super(goConfigService, profile, currentUser, result);

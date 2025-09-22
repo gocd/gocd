@@ -42,9 +42,9 @@ public class EntityConfigChangedListenerTest {
         assertThat(entityConfigChangedListenerForA.shouldCareAbout(new B())).isFalse();
     }
 
-    private class A {
+    private static class A {
     }
 
-    private class B {
+    private static class B {
     }
 }

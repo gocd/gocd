@@ -124,8 +124,9 @@ public class GoConfigParallelGraphWalkerTest {
         assertThat(pipelineConfig.first().getJobs().first().errors().on("name")).isEqualTo("error on job");
     }
 
-    private class AValidatableObjectWithAList implements Validatable {
-        private ConfigErrors configErrors = new ConfigErrors();
+    private static class AValidatableObjectWithAList implements Validatable {
+        private final ConfigErrors configErrors = new ConfigErrors();
+        @SuppressWarnings("FieldMayBeFinal")
         private SomeOtherObjectList someOtherObjectList = new SomeOtherObjectList();
 
         @Override
@@ -151,11 +152,12 @@ public class GoConfigParallelGraphWalkerTest {
         }
     }
 
-    private class SomeOtherObjectList extends BaseCollection<SomeOtherObject> {
+    private static class SomeOtherObjectList extends BaseCollection<SomeOtherObject> {
     }
 
-    private class AValidatableObjectWithAField implements Validatable {
-        private ConfigErrors configErrors = new ConfigErrors();
+    private static class AValidatableObjectWithAField implements Validatable {
+        private final ConfigErrors configErrors = new ConfigErrors();
+        @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
         private SomeOtherObject someOtherObject;
 
         private AValidatableObjectWithAField(SomeOtherObject someOtherObject) {
@@ -177,9 +179,9 @@ public class GoConfigParallelGraphWalkerTest {
         }
     }
 
-    private class SomeOtherObject implements Validatable {
-        private ConfigErrors configErrors = new ConfigErrors();
-        private String id;
+    private static class SomeOtherObject implements Validatable {
+        private final ConfigErrors configErrors = new ConfigErrors();
+        private final String id;
 
         private SomeOtherObject(String id) {
             this.id = id;

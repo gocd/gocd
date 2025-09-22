@@ -221,7 +221,7 @@ public class GoConfigRepoConfigDataSource implements ChangedRepoConfigWatchListL
         return result.getLatestParsedModification().getRevision();
     }
 
-    private class LoadContext implements PartialConfigLoadContext {
+    private static class LoadContext implements PartialConfigLoadContext {
         private final ConfigRepoConfig repoConfig;
 
         public LoadContext(ConfigRepoConfig repoConfig) {

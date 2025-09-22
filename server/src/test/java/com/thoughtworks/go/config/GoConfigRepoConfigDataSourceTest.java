@@ -37,6 +37,7 @@ import java.io.File;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -51,7 +52,7 @@ public class GoConfigRepoConfigDataSourceTest {
     private ServerHealthService serverHealthService;
     private ConfigRepoService configRepoService;
 
-    File folder = new File("dir");
+    private final File folder = new File("dir");
     private GoConfigService goConfigService;
 
     @BeforeEach
@@ -175,7 +176,7 @@ public class GoConfigRepoConfigDataSourceTest {
         repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
     }
 
-    private class AssertingConfigPlugin implements PartialConfigProvider {
+    private static class AssertingConfigPlugin implements PartialConfigProvider {
         private final Configuration configuration;
 
         public AssertingConfigPlugin(Configuration configuration) {
@@ -275,7 +276,7 @@ public class GoConfigRepoConfigDataSourceTest {
         assertTrue(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(configRepoConfig)).isEmpty());
     }
 
-    private class BrokenConfigPlugin implements PartialConfigProvider {
+    private static class BrokenConfigPlugin implements PartialConfigProvider {
         @Override
         public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
             throw new BrokenConfigPluginException();
@@ -287,7 +288,7 @@ public class GoConfigRepoConfigDataSourceTest {
         }
     }
 
-    private class BrokenConfigPluginException extends RuntimeException {
+    private static class BrokenConfigPluginException extends RuntimeException {
     }
 
     @Test
@@ -303,11 +304,9 @@ public class GoConfigRepoConfigDataSourceTest {
 
         assertTrue(repoConfigDataSource.latestParseHasFailedForMaterial(material));
 
-        try {
-            repoConfigDataSource.latestPartialConfigForMaterial(material);
-        } catch (RuntimeException ex) {
-            assertThat(ex.getMessage()).isEqualTo("Failed to initialize plugin");
-        }
+        assertThatThrownBy(() -> repoConfigDataSource.latestPartialConfigForMaterial(material))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Failed to initialize plugin");
     }
 
     @Test

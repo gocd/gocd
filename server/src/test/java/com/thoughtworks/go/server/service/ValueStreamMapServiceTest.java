@@ -1069,7 +1069,7 @@ public class ValueStreamMapServiceTest {
         return new DependencyMaterialDetail(pipelineName, pipelineCounter);
     }
 
-    private class DependencyMaterialDetail {
+    private static class DependencyMaterialDetail {
         private final String pipelineName;
         private final int pipelineCounter;
 

@@ -58,7 +58,7 @@ public class SecurityAuthConfigCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
+        SecurityAuthConfigCommand command = new StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo")).isNull();
 
         assertThat(command.canContinue(cruiseConfig)).isFalse();
@@ -71,7 +71,7 @@ public class SecurityAuthConfigCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
+        SecurityAuthConfigCommand command = new StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
         assertThat(command.canContinue(cruiseConfig)).isTrue();
@@ -85,7 +85,7 @@ public class SecurityAuthConfigCommandTest {
         when(goConfigService.isGroupAdministrator(currentUser)).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
+        SecurityAuthConfigCommand command = new StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo")).isNull();
 
         assertThat(command.canContinue(cruiseConfig)).isFalse();
@@ -98,7 +98,7 @@ public class SecurityAuthConfigCommandTest {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig(null, "ldap");
         cruiseConfig.server().security().securityAuthConfigs().add(securityAuthConfig);
 
-        SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
+        SecurityAuthConfigCommand command = new StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         assertThatThrownBy(() -> command.isValid(cruiseConfig))
                 .hasMessageContaining(EntityType.SecurityAuthConfig.idCannotBeBlank());
     }
@@ -110,7 +110,7 @@ public class SecurityAuthConfigCommandTest {
         cruiseConfig.server().security().securityAuthConfigs().add(securityAuthConfig);
         when(extension.validateAuthConfig(eq("ldap"), ArgumentMatchers.anyMap())).thenReturn(new ValidationResult());
 
-        SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
+        SecurityAuthConfigCommand command = new StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         boolean isValid = command.isValid(cruiseConfig);
         assertTrue(isValid);
     }
@@ -121,7 +121,7 @@ public class SecurityAuthConfigCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
+        SecurityAuthConfigCommand command = new StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
         assertThat(command.canContinue(cruiseConfig)).isTrue();
@@ -135,13 +135,13 @@ public class SecurityAuthConfigCommandTest {
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
+        SecurityAuthConfigCommand command = new StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap")).isNull();
 
         assertThat(command.canContinue(cruiseConfig)).isFalse();
     }
 
-    private class StubCommand extends SecurityAuthConfigCommand {
+    private static class StubCommand extends SecurityAuthConfigCommand {
 
 
         public StubCommand(GoConfigService goConfigService, SecurityAuthConfig newSecurityAuthConfig, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result) {

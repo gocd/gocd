@@ -103,7 +103,7 @@ public class PluginProfileCommandTest {
         assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
 
-    private class StubSecurityAuthConfigCommand extends PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> {
+    private static class StubSecurityAuthConfigCommand extends PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> {
 
         public StubSecurityAuthConfigCommand(GoConfigService goConfigService, SecurityAuthConfig profile, Username currentUser, LocalizedOperationResult result) {
             super(goConfigService, profile, currentUser, result);

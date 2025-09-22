@@ -192,9 +192,9 @@ public class ConsoleLogSenderTest {
     /**
      * allows us to simulate log appending by doing reads with multiple invocations to stream()
      */
-    private class FakeConsoleStreamer implements ConsoleConsumer {
+    private static class FakeConsoleStreamer implements ConsoleConsumer {
 
-        private String[] mockedLines;
+        private final String[] mockedLines;
         private int count = 0;
 
         FakeConsoleStreamer(String... mockedLines) {

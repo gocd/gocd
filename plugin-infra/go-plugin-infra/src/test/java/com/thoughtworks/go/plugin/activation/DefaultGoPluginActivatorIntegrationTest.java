@@ -395,7 +395,7 @@ class DefaultGoPluginActivatorIntegrationTest {
         return destinationPluginBundleLocation;
     }
 
-    private class StubOfDefaultPluginRegistry extends DefaultPluginRegistry {
+    private static class StubOfDefaultPluginRegistry extends DefaultPluginRegistry {
         void fakeRegistrationOfPlugin(GoPluginDescriptor pluginDescriptor) {
             idToDescriptorMap.putIfAbsent(pluginDescriptor.id().toLowerCase(), pluginDescriptor);
         }

@@ -76,6 +76,7 @@ public class TestPluginOuterClass implements GoPlugin {
             return new GoPluginIdentifier("some-extension-type2", List.of("1.0"));
         }
 
+        @SuppressWarnings("InnerClassMayBeStatic")
         public class SecondLevelInnerClass {
 
             @Extension
@@ -97,7 +98,9 @@ public class TestPluginOuterClass implements GoPlugin {
             }
         }
 
+        @SuppressWarnings("InnerClassMayBeStatic")
         public class SecondLevelSiblingInnerClassNoDefaultConstructor {
+            @SuppressWarnings("unused")
             public SecondLevelSiblingInnerClassNoDefaultConstructor(int x) {
             }
 

@@ -58,8 +58,8 @@ public class ScheduleOptionsBuilder {
         void build(ScheduleOptions scheduleOptions, HttpOperationResult result, String pipelineName, PipelineScheduleOptions pipelineScheduleOptions, HealthStateType healthStateType);
     }
 
-    private class MaterialsBuilder implements Builder {
-        private GoConfigService goConfigService;
+    private static class MaterialsBuilder implements Builder {
+        private final GoConfigService goConfigService;
 
         public MaterialsBuilder(GoConfigService goConfigService) {
             this.goConfigService = goConfigService;
@@ -83,19 +83,15 @@ public class ScheduleOptionsBuilder {
         }
     }
 
-    private class MDUOptionBuilder implements Builder {
-
-        public MDUOptionBuilder() {
-        }
-
+    private static class MDUOptionBuilder implements Builder {
         @Override
         public void build(ScheduleOptions scheduleOptions, HttpOperationResult result, String pipelineName, PipelineScheduleOptions pipelineScheduleOptions, HealthStateType healthStateType) {
             scheduleOptions.shouldPerformMDUBeforeScheduling(pipelineScheduleOptions.shouldPerformMDUBeforeScheduling());
         }
     }
 
-    private class EnvironmentVariableBuilder implements Builder {
-        private GoConfigService goConfigService;
+    private static class EnvironmentVariableBuilder implements Builder {
+        private final GoConfigService goConfigService;
 
         public EnvironmentVariableBuilder(GoConfigService goConfigService) {
             this.goConfigService = goConfigService;
@@ -114,8 +110,8 @@ public class ScheduleOptionsBuilder {
         }
     }
 
-    private class SecureEnvironmentVariableBuilder implements Builder {
-        private GoConfigService goConfigService;
+    private static class SecureEnvironmentVariableBuilder implements Builder {
+        private final GoConfigService goConfigService;
 
         public SecureEnvironmentVariableBuilder(GoConfigService goConfigService) {
             this.goConfigService = goConfigService;

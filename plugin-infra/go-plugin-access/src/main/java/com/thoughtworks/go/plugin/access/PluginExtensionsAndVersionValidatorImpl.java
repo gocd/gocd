@@ -93,7 +93,7 @@ public class PluginExtensionsAndVersionValidatorImpl implements PluginExtensions
         };
     }
 
-    class ValidationResult {
+    static class ValidationResult {
         private final String pluginId;
 
         ValidationResult(String pluginId) {

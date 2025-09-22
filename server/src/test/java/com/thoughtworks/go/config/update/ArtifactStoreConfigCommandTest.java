@@ -151,7 +151,7 @@ public class ArtifactStoreConfigCommandTest {
                 .isInstanceOf(RecordNotFoundException.class);
     }
 
-    private class StubCommand extends ArtifactStoreConfigCommand {
+    private static class StubCommand extends ArtifactStoreConfigCommand {
 
         public StubCommand(GoConfigService goConfigService, ArtifactStore newArtifactStore, ArtifactExtension extension, Username currentUser, LocalizedOperationResult result) {
             super(goConfigService, newArtifactStore, extension, currentUser, result);

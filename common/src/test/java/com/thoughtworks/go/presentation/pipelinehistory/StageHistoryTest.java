@@ -77,7 +77,7 @@ public class StageHistoryTest {
         assertThat(history.getScheduledDate()).isEqualTo((DATE));
     }
 
-    private class StageHistoryItemStub extends StageInstanceModel {
+    private static class StageHistoryItemStub extends StageInstanceModel {
         private final Date date;
 
         public StageHistoryItemStub(Date date) {
@@ -90,7 +90,7 @@ public class StageHistoryTest {
         }
     }
 
-    private class NullStageHistoryItemStub extends NullStageHistoryItem {
+    private static class NullStageHistoryItemStub extends NullStageHistoryItem {
         private final Date date;
 
         public NullStageHistoryItemStub(Date date) {

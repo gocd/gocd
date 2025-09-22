@@ -90,7 +90,7 @@ public class LevelAssignment {
         boolean canResetLevel(Node node, int nextLevel);
     }
 
-    private class Upstream implements LevelAssignmentDirection {
+    private static class Upstream implements LevelAssignmentDirection {
         @Override
         public List<Node> getRelatedNodes(Node node) {
             return node.getParents();
@@ -107,7 +107,7 @@ public class LevelAssignment {
         }
     }
 
-    private class Downstream implements LevelAssignmentDirection {
+    private static class Downstream implements LevelAssignmentDirection {
         @Override
         public List<Node> getRelatedNodes(Node node) {
             return node.getChildren();

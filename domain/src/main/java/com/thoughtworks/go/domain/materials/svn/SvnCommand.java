@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -283,6 +284,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         executeCommand(line, output);
     }
 
+    @TestOnly
     public void propset(File workingDir, String propName, String propValue) {
         CommandLine line = svn(true).withArgs("propset", "--non-interactive", propName, propValue, ".");
         line.setWorkingDir(workingDir);
@@ -307,7 +309,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         return urlToUUIDMap;
     }
 
-    static class SvnInfo {
+    public static class SvnInfo {
         private String path = "";
         private String encodedUrl = "";
         private String root = "";

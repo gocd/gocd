@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SvnExternalParserTest {
 
-
     @Test
     public void shouldParseOneLineSvnExternalOnCurrentFolderForSvn14() {
         String svnExternals = "http://10.18.3.171:8080/svn/connect4/trunk - CSharp http://10.18.3.171:8080/svn/CSharpProject/trunk\n";
@@ -188,7 +187,8 @@ public class SvnExternalParserTest {
                 http://10.18.3.171:8080/svn/externalstest - ^/repo1/trunk lib/repo1
                 ^/repo2/trunk repo2
                 ^/repo3/trunk app/repo3
-                ^/repo4/trunk app/repo4""";
+                ^/repo4/trunk app/repo4
+                """;
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/externalstest", "http://10.18.3.171:8080/svn");
         assertThat(externals.size()).isEqualTo(4);

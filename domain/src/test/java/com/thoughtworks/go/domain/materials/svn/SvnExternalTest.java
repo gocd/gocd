@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
@@ -44,7 +43,7 @@ public class SvnExternalTest {
     }
 
     @Test
-    public void shouldGetAllExternalURLSByPropGetOnMainURL() {
+    public void shouldGetAllExternalUrlsByPropGetOnMainURL() {
         String url = svnRepo.projectRepositoryUrl();
         SvnCommand svn = new SvnCommand(null, url, "user", "pass", false);
         List<SvnExternal> urls = svn.getAllExternalURLs();

@@ -77,7 +77,7 @@ tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
   }
 }
 
-tasks.register('createJRubyBinstubs') {
+def createJRubyBinstubs = tasks.register('createJRubyBinstubs') {
   group = LifecycleBasePlugin.BUILD_GROUP
 
   configureJRubyBinstubs(it, railsPathingJarMain, 'jruby')
@@ -89,8 +89,11 @@ tasks.register('createJRubyBinstubsTest') {
   configureJRubyBinstubs(it, railsPathingJarTest, 'jrubyTest', project.railsSystemProperties as Map<String, String>)
 }
 
+static def forwardSlashedString(File file) {
+  file.toString().replaceAll('\\\\', '/')
+}
+
 def configureJRubyBinstubs(Task task, TaskProvider<? extends Task> railsPathingJar, String scriptPrefix, Map<String, String> extraSystemProperties = [:]) {
-  def forwardSlashedString = { File file -> file.toString().replaceAll('\\\\', '/') }
 
   task.with {
     dependsOn configurations.jruby, railsPathingJar
@@ -137,6 +140,8 @@ tasks.register('initializeRailsGems') {
   inputs.file("${root}/Gemfile")
   inputs.file("${root}/Gemfile.lock")
   inputs.file("${root}/.bundle/config")
+  def jrubyScriptFile = createJRubyBinstubs.map { it.outputs.files.singleFile }
+  inputs.file(jrubyScriptFile)
   inputs.properties([
     jrubyVersion : project.deps.jruby,
     bundledGemDir: project.bundledGemDir,
@@ -151,7 +156,10 @@ tasks.register('initializeRailsGems') {
       workingDir = root
       args = ['-S', 'bundle', 'install']
       maxHeapSize = '256m'
-      environment += [ 'JARS_SKIP': 'true' ] // Avoid issues jar-dependencies and running via jruby-complete https://github.com/jruby/jruby/issues/8886
+      environment += [
+        RUBY: forwardSlashedString(jrubyScriptFile.get()),
+        JARS_SKIP: 'true'
+      ] // Avoid issues jar-dependencies and running via jruby-complete https://github.com/jruby/jruby/issues/8886
     }
   }
 }

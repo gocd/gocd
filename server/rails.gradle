@@ -236,7 +236,7 @@ tasks.register('compileAssetsWebpackProd', YarnRunTask) {
   }
 }
 
-tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
+def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
   dependsOn yarnInstall, ':server:createJRubyBinstubs'
   outputs.cacheIf { true }
   pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
@@ -348,11 +348,14 @@ tasks.register('compileAssets') {
 }
 
 tasks.register('rspec', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall, ':server:cleanDb', compileAssetsRailsTest, railsPathingJarTest
+  dependsOn ':server:cleanDb', compileAssetsRailsTest, railsPathingJarTest
   pathingJar.set(railsPathingJarTest.flatMap { it.archiveFile } as Provider<RegularFile>)
-  mustRunAfter compileAssets, compileAssetsWebpackDev
-  outputs.cacheIf { true }
-  inputs.files project.railsRoot
+  mustRunAfter compileAssets, compileAssetsWebpackDev, generateJSRoutes
+  inputs.files("${project.railsRoot}/app")
+  inputs.files("${project.railsRoot}/config")
+  inputs.files("${project.railsRoot}/lib")
+  inputs.files("${project.railsRoot}/spec")
+  inputs.files(compileAssetsRailsTest.map { it.outputs.files })
 
   description = "Run specs (pass '-Popts=...' to pass options)"
 

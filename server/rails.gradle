@@ -107,7 +107,7 @@ def configureJRubyBinstubs(Task task, TaskProvider<? extends Task> railsPathingJ
       systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties + extraSystemProperties),
       classpath           : [railsPathingJar.map { Jar jt -> jt.archiveFile }.get().asFile],
       environment         : project.defaultJRubyEnvironment + [
-        RUBY: forwardSlashedString(outputScriptFile)
+//        RUBY: forwardSlashedString(outputScriptFile)
       ],
       additionalJRubyPaths: project.additionalJRubyPaths,
       javaExecutable      : Jvm.current().getExecutable("java")

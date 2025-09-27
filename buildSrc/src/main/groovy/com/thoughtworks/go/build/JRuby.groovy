@@ -46,7 +46,7 @@ class JRuby {
       OperatingSystemHelper.normalizeEnvironmentPath(environment)
       environment['PATH'] = (project.additionalJRubyPaths + [environment['PATH']]).join(File.pathSeparator)
 
-      classpath( { project.jrubyJar.get() })
+      classpath(project.configurations.jruby)
       standardOutput = new PrintStream(System.out, true)
       errorOutput = new PrintStream(System.err, true)
 

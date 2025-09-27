@@ -60,9 +60,7 @@ dependencies {
   packagingInLibDir project.deps.jettyServlets
   packagingInLibDir project.deps.jettyUtil
   packagingInLibDir project.deps.jettyDeploy
-  packagingInLibDir(project.deps.jettyWebsocket) {
-    exclude(module: 'jetty-annotations')
-  }
+  packagingInLibDir project.deps.jettyWebsocket
 
   packagingInLibDir(project(':plugin-infra:go-plugin-activator')) {
     transitive = false

@@ -53,10 +53,6 @@ abstract class ExecuteUnderRailsTask extends JavaExec {
   @TaskAction
   void exec() {
     classpath(pathingJar.get())
-    if (CURRENT_OS.isWindows()) {
-      environment['CLASSPATH'] += "${File.pathSeparatorChar}${pathingJar.get()}"
-      environment += [CLASSPATH: jrubyJar.first().toString()]
-    }
 
     fileOps.delete {
       it.delete(this.projectRailsMeta.testDataDir)

@@ -79,55 +79,35 @@ tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
 
 def createJRubyBinstubs = tasks.register('createJRubyBinstubs') {
   group = LifecycleBasePlugin.BUILD_GROUP
+  dependsOn configurations.jruby, railsPathingJarMain
 
-  configureJRubyBinstubs(it, railsPathingJarMain, 'jruby')
-}
+  def ext = org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''
+  def outputDir = file("scripts")
+  def outputScriptFile = file("${outputDir}/jruby${ext}")
+  def templateProperties = [
+    mainClassName       : 'org.jruby.Main',
+    jvmArgs             : project.jrubyOptimizationJvmArgs,
+    systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties),
+    classpath           : [railsPathingJarMain.map { Jar jt -> jt.archiveFile }.get().asFile],
+    environment         : project.defaultJRubyEnvironment,
+    additionalJRubyPaths: project.additionalJRubyPaths,
+    javaExecutable      : Jvm.current().getExecutable("java")
+  ]
 
-tasks.register('createJRubyBinstubsTest') {
-  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  inputs.dir("script-templates")
+  inputs.properties(templateProperties)
+  outputs.files(outputScriptFile)
+  outputs.cacheIf { true }
 
-  configureJRubyBinstubs(it, railsPathingJarTest, 'jrubyTest', project.railsSystemProperties as Map<String, String>)
-}
+  doFirst {
+    templateProperties['jrubyJar'] = configurations.jruby.first().toString()
+    outputDir.mkdirs()
 
-static def forwardSlashedString(File file) {
-  file.toString().replaceAll('\\\\', '/')
-}
-
-def configureJRubyBinstubs(Task task, TaskProvider<? extends Task> railsPathingJar, String scriptPrefix, Map<String, String> extraSystemProperties = [:]) {
-
-  task.with {
-    dependsOn configurations.jruby, railsPathingJar
-
-    def ext = org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''
-    def outputDir = file("scripts")
-    def outputScriptFile = file("${outputDir}/${scriptPrefix}${ext}")
-    def templateProperties = [
-      mainClassName       : 'org.jruby.Main',
-      jvmArgs             : project.jrubyOptimizationJvmArgs,
-      systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties + extraSystemProperties),
-      classpath           : [railsPathingJar.map { Jar jt -> jt.archiveFile }.get().asFile],
-      environment         : project.defaultJRubyEnvironment + [
-//        RUBY: forwardSlashedString(outputScriptFile)
-      ],
-      additionalJRubyPaths: project.additionalJRubyPaths,
-      javaExecutable      : Jvm.current().getExecutable("java")
-    ]
-
-    inputs.dir("script-templates")
-    inputs.properties(templateProperties)
-    outputs.files(outputScriptFile)
-    outputs.cacheIf { true }
-
-    doFirst {
-      templateProperties['jrubyJar'] = configurations.jruby.first().toString()
-      outputDir.mkdirs()
-
-      def inputTemplate = file("script-templates/jruby${ext}")
-      def engine = new SimpleTemplateEngine()
-      Template template = engine.createTemplate(inputTemplate)
-      outputScriptFile.write(template.make(templateProperties).toString())
-      outputScriptFile.setExecutable(true)
-    }
+    def inputTemplate = file("script-templates/jruby${ext}")
+    def engine = new SimpleTemplateEngine()
+    Template template = engine.createTemplate(inputTemplate)
+    outputScriptFile.write(template.make(templateProperties).toString())
+    outputScriptFile.setExecutable(true)
   }
 }
 
@@ -157,9 +137,11 @@ tasks.register('initializeRailsGems') {
       args = ['-S', 'bundle', 'install']
       maxHeapSize = '256m'
       environment += [
-        RUBY: forwardSlashedString(jrubyScriptFile.get()),
-        JARS_SKIP: 'true'
-      ] // Avoid issues jar-dependencies and running via jruby-complete https://github.com/jruby/jruby/issues/8886
+    // RUBY env var needs to be forward-slashed on Windows to avoid backslashes getting stripped somewhere
+        RUBY: jrubyScriptFile.get().toString().replaceAll('\\\\', '/'),
+    // Avoid issues jar-dependencies and running via jruby-complete https://github.com/jruby/jruby/issues/8886
+    JARS_SKIP: 'true',
+  ]
     }
   }
 }

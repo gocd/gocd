@@ -16,12 +16,13 @@
 
 package com.thoughtworks.go.build
 
-import org.gradle.api.Project
 import org.gradle.process.ExecOperations
 import org.gradle.process.JavaExecSpec
 import org.jruby.runtime.Constants
 
 class JRuby {
+  static jar = (JRuby.class.classLoader as URLClassLoader).URLs.find { it.toString().contains('jruby-complete')}.file
+
   static bundledGemRubyVersion = "${Constants.RUBY_MAJOR_VERSION}.0"
 
   static jrubyJvmArgs = [
@@ -34,14 +35,14 @@ class JRuby {
     'jruby.home': 'uri:classloader://META-INF/jruby.home',
   ]
 
-  static def exec = { @Deprecated Project project, ExecOperations execOperations, Closure<JavaExecSpec> cl ->
+  static def exec = { ExecOperations execOperations, List<File> additionalPaths, Map<String, ?> additionalEnvironment, Closure<JavaExecSpec> cl ->
     try {
       execOperations.javaexec { JavaExecSpec javaExecSpec ->
         cl.delegate = javaExecSpec
 
-        LinkedHashMap<String, Object> originalEnv = new LinkedHashMap<String, Object>(javaExecSpec.environment)
+        Map<String, Object> originalEnv = new LinkedHashMap<String, Object>(javaExecSpec.environment)
 
-        setup(javaExecSpec, project)
+        setup(javaExecSpec, additionalPaths, additionalEnvironment)
 
         cl.call()
 
@@ -54,16 +55,16 @@ class JRuby {
     }
   }
 
-  static void setup(JavaExecSpec execSpec, @Deprecated Project project) {
+  static void setup(JavaExecSpec execSpec, List<File> additionalPaths, Map<String, ?> additionalEnvironment) {
     execSpec.with {
       OperatingSystemHelper.normalizeEnvironmentPath(environment)
-      environment['PATH'] = (project.additionalJRubyPaths + [environment['PATH']]).join(File.pathSeparator)
+      environment['PATH'] = (additionalPaths + [environment['PATH']]).join(File.pathSeparator)
 
-      classpath(project.configurations.jruby)
+      classpath(jar)
       standardOutput = new PrintStream(System.out, true)
       errorOutput = new PrintStream(System.err, true)
 
-      environment += project.jrubyEnvironment
+      environment += additionalEnvironment
       jvmArgs += jrubyJvmArgs
       systemProperties += jrubySystemProperties
 

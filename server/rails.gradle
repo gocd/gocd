@@ -21,16 +21,12 @@ import groovy.text.Template
 import org.apache.tools.ant.types.Commandline
 import org.gradle.internal.jvm.Jvm
 
-def bundledGemDir = file("${project.railsRoot}/gems/jruby/${JRuby.bundledGemRubyVersion}")
-
 def jrubyScriptsDir = project.file("scripts")
-
-project.ext.additionalJRubyPaths = [jrubyScriptsDir, project.file("${bundledGemDir}/bin")]
-
-project.ext.jrubyEnvironment = [
-  GEM_HOME: bundledGemDir,
-  GEM_PATH: bundledGemDir,
-]
+def bundledGemDir = file("${project.railsRoot}/gems/jruby/${JRuby.bundledGemRubyVersion}")
+def additionalJRubyPaths = [jrubyScriptsDir, project.file("${bundledGemDir}/bin")]
+def jrubyEnvironment = [GEM_HOME: bundledGemDir, GEM_PATH: bundledGemDir]
+project.ext.additionalJRubyPaths = additionalJRubyPaths
+project.ext.jrubyEnvironment = jrubyEnvironment
 
 def railsPathingJarMain = tasks.register('railsPathingJarMain', Jar) {
   group = LifecycleBasePlugin.BUILD_GROUP
@@ -46,60 +42,37 @@ def railsPathingJarTest = tasks.register('railsPathingJarTest', Jar) {
   configureRailsPathingJar(it, configurations.railsTestRuntimeClasspath, rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects"))
 }
 
-def configureRailsPathingJar(Jar jarTask, Configuration railsRuntimeConfiguration, Iterable<File> extraResources = []) {
+static def configureRailsPathingJar(Jar jarTask, Configuration railsRuntimeConfiguration, Iterable<File> extraResources = []) {
   jarTask.with {
-    jarTask.dependsOn(configurations.jruby, railsRuntimeConfiguration)
+    jarTask.dependsOn(railsRuntimeConfiguration)
 
     inputs.files(
       extraResources,
-      configurations.jruby,
       railsRuntimeConfiguration,
     )
 
     doFirst { Jar ->
       manifest {
-        attributes 'Class-Path': (extraResources + railsRuntimeConfiguration.files - configurations.jruby.files).collect { it.toURI() }.join(' ')
+        attributes 'Class-Path': (extraResources + railsRuntimeConfiguration.files - JRuby.jar).collect { it.toURI() }.join(' ')
       }
     }
   }
 }
 
-tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
-  group = LifecycleBasePlugin.BUILD_GROUP
-  dependsOn ':server:createJRubyBinstubs', railsPathingJarMain
-  pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
 
-  def outputDir = file("${project.railsRoot}/webpack/gen")
-  inputs.dir(file("${project.railsRoot}/vendor"))
-  inputs.files(fileTree(dir: "${project.railsRoot}/config", includes: ['**/*.rb']))
-  outputs.dir(outputDir)
-  outputs.cacheIf { true }
-
-  environment(
-    'RAILS_ENV': 'production',
-    'RAILS_GROUPS': 'assets',
-    'OUTPUT_DIR': outputDir,
-  )
-
-  args = ['-S', 'rake', '--trace', 'generated_js']
-
-  doFirst {
-    delete outputDir
-  }
-}
 
 def createJRubyBinstubs = tasks.register('createJRubyBinstubs') {
   group = LifecycleBasePlugin.BUILD_GROUP
-  dependsOn configurations.jruby
 
   def ext = org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''
   def outputScriptFile = file("${jrubyScriptsDir}/jruby${ext}")
   def templateProperties = [
     mainClassName       : 'org.jruby.Main',
+    jrubyJar            : JRuby.jar,
     jvmArgs             : JRuby.jrubyJvmArgs,
     systemProperties    : JRuby.jrubySystemProperties,
-    environment         : project.jrubyEnvironment,
-    additionalJRubyPaths: project.additionalJRubyPaths,
+    environment         : jrubyEnvironment,
+    additionalJRubyPaths: additionalJRubyPaths,
     javaExecutable      : Jvm.current().getExecutable("java")
   ]
 
@@ -109,7 +82,6 @@ def createJRubyBinstubs = tasks.register('createJRubyBinstubs') {
   outputs.cacheIf { true }
 
   doFirst {
-    templateProperties['jrubyJar'] = configurations.jruby.first().toString()
     jrubyScriptsDir.mkdirs()
 
     def inputTemplate = file("script-templates/jruby${ext}")
@@ -120,7 +92,7 @@ def createJRubyBinstubs = tasks.register('createJRubyBinstubs') {
   }
 }
 
-tasks.register('initializeRailsGems') {
+def initializeRailsGems = tasks.register('initializeRailsGems') {
   group = LifecycleBasePlugin.BUILD_GROUP
   outputs.cacheIf { true }
   dependsOn createJRubyBinstubs
@@ -141,7 +113,7 @@ tasks.register('initializeRailsGems') {
 
   def injected = project.objects.newInstance(Injected)
   doFirst {
-    JRuby.exec(project, injected.execOps) {
+    JRuby.exec(injected.execOps, additionalJRubyPaths, jrubyEnvironment) {
       workingDir = root
       args = ['-S', 'bundle', 'install']
       maxHeapSize = '256m'
@@ -155,7 +127,53 @@ tasks.register('initializeRailsGems') {
   }
 }
 
-tasks.register('yarnInstall', YarnInstallTask) {
+tasks.register('findGemsToNotPack') {
+  dependsOn initializeRailsGems
+
+  def gemfile = "${project.railsRoot}/Gemfile"
+  inputs.file(gemfile)
+  inputs.file("${gemfile}.lock")
+  inputs.file("find-gems-to-package.rake")
+  ext.outputFile = file("${layout.getBuildDirectory().get()}/gems-to-not-package.json")
+  outputs.file(outputFile)
+  outputs.cacheIf { true }
+
+  def injected = project.objects.newInstance(Injected)
+  doFirst {
+    JRuby.exec(injected.execOps, additionalJRubyPaths, jrubyEnvironment) {
+      environment += [
+        'OUTPUT_FILE'   : outputFile,
+        'BUNDLE_GEMFILE': file(gemfile)
+      ]
+      args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
+    }
+  }
+}
+
+tasks.register('generateRubygemsLicenseReport') {
+  dependsOn initializeRailsGems
+
+  def gemfile = "${project.railsRoot}/Gemfile"
+  inputs.file(gemfile)
+  inputs.file("${gemfile}.lock")
+  inputs.file("rubygems-license-report.rake")
+  ext.licenseReportFile = file("${layout.getBuildDirectory().get()}/rubygems-license.json")
+  outputs.file(ext.licenseReportFile)
+  outputs.cacheIf { true }
+
+  def injected = project.objects.newInstance(Injected)
+  doFirst {
+    JRuby.exec(injected.execOps, additionalJRubyPaths, jrubyEnvironment) {
+      environment += [
+        'OUTPUT_FILE'   : licenseReportFile,
+        'BUNDLE_GEMFILE': file(gemfile)
+      ]
+      args = ['-S', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
+    }
+  }
+}
+
+def yarnInstall = tasks.register('yarnInstall', YarnInstallTask) {
   workingDir = project.railsRoot
 }
 
@@ -183,8 +201,33 @@ tasks.register('cleanRails', Delete) {
 }
 clean.dependsOn cleanRails
 
+def generateJSRoutes = tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
+  group = LifecycleBasePlugin.BUILD_GROUP
+  dependsOn railsPathingJarMain
+  pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
+
+  def outputDir = file("${project.railsRoot}/webpack/gen")
+  inputs.dir(file("${project.railsRoot}/vendor"))
+  inputs.files(fileTree(dir: "${project.railsRoot}/config", includes: ['**/*.rb']))
+  outputs.dir(outputDir)
+  outputs.cacheIf { true }
+
+  environment(
+    'RAILS_ENV': 'production',
+    'RAILS_GROUPS': 'assets',
+    'OUTPUT_DIR': outputDir,
+  )
+
+  args = ['-S', 'rake', '--trace', 'generated_js']
+
+  doFirst {
+    delete outputDir
+  }
+}
+
 tasks.register('compileAssetsWebpackDev', YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
+  mustRunAfter compileAssetsRailsTest // Both output into the same /public/assets dir :-(
 
   ext.yarnLicenseReportFile = layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
   outputs.dir(ext.yarnLicenseReportFile.parentFile)
@@ -226,7 +269,7 @@ tasks.register('compileAssetsWebpackProd', YarnRunTask) {
 }
 
 def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall, ':server:createJRubyBinstubs'
+  dependsOn yarnInstall
   outputs.cacheIf { true }
   pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
 
@@ -253,7 +296,7 @@ def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnd
 }
 
 tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall, ':server:createJRubyBinstubs'
+  dependsOn yarnInstall
   outputs.cacheIf { true }
   pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
 
@@ -324,17 +367,18 @@ tasks.register('compileAssets') {
 
 tasks.register('rspec', ExecuteUnderRailsTask) {
   dependsOn ':server:cleanDb', compileAssetsRailsTest, railsPathingJarTest
+  mustRunAfter compileAssetsWebpackDev // Both this and compileAssetsRailsTest output into the same /public/assets dir :-(
+
   description = "Run specs (pass '-Popts=...' to pass options)"
 
   pathingJar.set(railsPathingJarTest.flatMap { it.archiveFile } as Provider<RegularFile>)
 
-  def root = project.railsRoot
   inputs.files(bundledGemDir)
-  inputs.files("${root}/app")
-  inputs.files("${root}/config")
-  inputs.files("${root}/lib")
-  inputs.files("${root}/spec")
-  inputs.files(compileAssetsRailsTest.map { it.outputs.files })
+  inputs.files("${project.railsRoot}/app")
+  inputs.files("${project.railsRoot}/config")
+  inputs.files("${project.railsRoot}/lib")
+  inputs.files("${project.railsRoot}/spec")
+  inputs.files(compileAssetsRailsTest)
 
   maxHeapSize = '256m'
   jvmArgs += InstallerType.server.jvmModuleOpensArgs
@@ -366,7 +410,6 @@ tasks.register('rspec', ExecuteUnderRailsTask) {
 }
 
 tasks.register('railsExec', ExecuteUnderRailsTask) {
-  dependsOn dependsOn, ':server:createJRubyBinstubs'
   outputs.upToDateWhen { false }
 
   description = "rails exec (pass '-Pcmd=...' to pass options)"

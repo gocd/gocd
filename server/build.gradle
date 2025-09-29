@@ -15,7 +15,6 @@
  */
 
 import com.github.jk1.license.task.ReportTask
-import com.thoughtworks.go.build.JRuby
 import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.TextUtils
 import com.thoughtworks.go.build.VerifyJarTask
@@ -52,7 +51,6 @@ configurations {
   apiBase
   allApis
   spark
-  jruby
 
   railsRuntimeClasspath {
     extendsFrom runtimeClasspath
@@ -66,18 +64,8 @@ configurations {
   }
 }
 
-project.ext.webAppDir = file("src/main/webapp")
-project.ext.railsRoot = file("${project.webAppDir}/WEB-INF/rails")
-
-project.ext.testSystemProperties = [
-  'db.host'                       : 'localhost',
-  'db.user'                       : 'sa',
-  'db.password'                   : '',
-  'db.name'                       : 'cruise',
-  'db.port'                       : '',
-  'rails.use.compressed.js'       : false,
-  'go.enforce.server.immutability': 'N',
-]
+def webAppDir = file("src/main/webapp")
+project.ext.railsRoot = file("${webAppDir}/WEB-INF/rails")
 
 dependencies {
   compileOnly project.deps.jetBrainsAnnotations
@@ -141,7 +129,6 @@ dependencies {
   implementation project.deps.jdom
   implementation project.deps.dom4j
 
-  jruby project.deps.jruby
   implementation project.deps.jruby
   runtimeOnly project.deps.rack
   implementation project.deps.apacheHttpComponents
@@ -250,52 +237,6 @@ idea {
   }
 }
 
-tasks.register('findGemsToNotPack') {
-  dependsOn ':server:initializeRailsGems'
-
-  def gemfile = "${project.railsRoot}/Gemfile"
-  inputs.file(gemfile)
-  inputs.file("${gemfile}.lock")
-  inputs.file("find-gems-to-package.rake")
-  ext.outputFile = file("${layout.getBuildDirectory().get()}/gems-to-not-package.json")
-  outputs.file(outputFile)
-  outputs.cacheIf { true }
-
-  def injected = project.objects.newInstance(Injected)
-  doFirst {
-    JRuby.exec(project, injected.execOps) {
-      environment += [
-        'OUTPUT_FILE'   : outputFile,
-        'BUNDLE_GEMFILE': file(gemfile)
-      ]
-      args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
-    }
-  }
-}
-
-tasks.register('generateRubygemsLicenseReport') {
-  dependsOn ':server:initializeRailsGems'
-
-  def gemfile = "${project.railsRoot}/Gemfile"
-  inputs.file(gemfile)
-  inputs.file("${gemfile}.lock")
-  inputs.file("rubygems-license-report.rake")
-  ext.licenseReportFile = file("${layout.getBuildDirectory().get()}/rubygems-license.json")
-  outputs.file(ext.licenseReportFile)
-  outputs.cacheIf { true }
-
-  def injected = project.objects.newInstance(Injected)
-  doFirst {
-    JRuby.exec(project, injected.execOps) {
-      environment += [
-        'OUTPUT_FILE'   : licenseReportFile,
-        'BUNDLE_GEMFILE': file(gemfile)
-      ]
-      args = ['-S', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
-    }
-  }
-}
-
 tasks.register('cleanDb', Delete) {
   delete "db/h2db"
   delete "db/config.git"
@@ -370,11 +311,11 @@ def prepare = tasks.register('prepare') {
 
 licenseMain {
   // Add in the webapp for license checks since we do not have a dedicated sourceSet for it
-  source += project.webAppDir
+  source += webAppDir
 }
 licenseFormatMain {
   // Add in the webapp for license checks since we do not have a dedicated sourceSet for it
-  source += project.webAppDir
+  source += webAppDir
 }
 
 static def isIntegrationTest(String text) {
@@ -440,7 +381,15 @@ tasks.withType(Test).configureEach {
   dependsOn copyAgentSideJarsToServerDir
   dependsOn prepareNoRails
 
-  systemProperties += project.testSystemProperties
+  systemProperties += [
+    'db.host'                       : 'localhost',
+    'db.user'                       : 'sa',
+    'db.password'                   : '',
+    'db.name'                       : 'cruise',
+    'db.port'                       : '',
+    'rails.use.compressed.js'       : false,
+    'go.enforce.server.immutability': 'N',
+  ]
 
   testLogging {
     showStandardStreams = false
@@ -482,7 +431,6 @@ tasks.register('configureWar') {
   inputs.properties([
     bundledGemRubyVersion: bundledGemRubyVersion
   ])
-  def webAppDir = project.webAppDir
   inputs.dir(webAppDir)
 
   doFirst {
@@ -575,7 +523,7 @@ def war = tasks.register('war', Jar) {
     into('WEB-INF/classes')
   }
 
-  from("${project.webAppDir}/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js") {
+  from("${webAppDir}/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js") {
     into('WEB-INF/classes')
   }
 
@@ -589,7 +537,7 @@ def war = tasks.register('war', Jar) {
 
   from({ compileAssets }) { into '/WEB-INF/rails/public/assets' }
 
-  from("${project.webAppDir}/WEB-INF/web.xml") {
+  from("${webAppDir}/WEB-INF/web.xml") {
     filter {
       it.replaceAll('<param-value>development</param-value>', '<param-value>production</param-value>')
     }

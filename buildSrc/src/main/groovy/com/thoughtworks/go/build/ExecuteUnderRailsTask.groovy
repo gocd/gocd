@@ -16,11 +16,8 @@
 
 package com.thoughtworks.go.build
 
-import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.JavaExecSpec
@@ -28,7 +25,6 @@ import org.gradle.process.JavaExecSpec
 abstract class ExecuteUnderRailsTask extends JavaExec {
   private Map<String, Object> originalEnv
 
-  @InputFiles final FileCollection jrubyJar = project.configurations.jruby as ConfigurableFileCollection
   @InputFile abstract RegularFileProperty getPathingJar()
 
   ExecuteUnderRailsTask() {
@@ -38,7 +34,7 @@ abstract class ExecuteUnderRailsTask extends JavaExec {
     originalEnv = new LinkedHashMap<String, Object>(environment)
     workingDir = project.railsRoot
 
-    JRuby.setup(this, project)
+    JRuby.setup(this, project.additionalJRubyPaths, project.jrubyEnvironment)
   }
 
   @Override

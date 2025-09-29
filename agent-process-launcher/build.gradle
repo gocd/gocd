@@ -17,14 +17,15 @@
 description = 'GoCD Agent Process Launcher Classes'
 
 dependencies {
-  implementation project(':agent-common')
-  compileOnly project.deps.logback
-  testImplementation project.deps.mockitoCore
+  implementation(project(':base')) { capabilities { requireFeature('logging') } }
+  implementation(project(':agent-common')) { capabilities { requireFeature('agent-client') } }
+  implementation project.deps.logback
+
   testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation(testFixtures(project(':agent-common')))
-  testRuntimeOnly project.deps.bouncyCastle
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation project.deps.mockitoCore
   testImplementation project.deps.assertJ
 }

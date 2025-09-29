@@ -28,8 +28,10 @@ dependencies {
   implementation localGroovy()
   implementation gradleApi()
   implementation project.deps.commonsCodec
+  implementation project.deps.commonsLang3
   implementation project.deps.gradleDownload
   implementation project.deps.grolifant
+  implementation project.deps.jruby
   implementation project.deps.freemarker
   implementation project.deps.resilience4jRetry
 }

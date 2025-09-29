@@ -23,13 +23,9 @@ configurations {
 }
 
 dependencies {
-  testFixturesApi project(':base')
+  testFixturesApi(project(':base')) { capabilities { requireFeature('logging') } }
   testFixturesApi project(':util')
-  testFixturesApi project.deps.logback
-  testFixturesImplementation project.deps.jetty
-  testFixturesImplementation project.deps.jettyUtil
-  testFixturesImplementation project.deps.jettyServlet
-  testFixturesImplementation project.deps.jettyWebapp
+  testFixturesImplementation project.deps.logback
 
   testFixturesApi project.deps.assertJ
   testFixturesApi enforcedPlatform(project.deps.junit5Bom)

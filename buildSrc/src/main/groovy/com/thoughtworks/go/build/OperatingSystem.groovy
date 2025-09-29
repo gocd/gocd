@@ -34,10 +34,10 @@ enum OperatingSystem {
 class OperatingSystemHelper {
   static final org.gradle.internal.os.OperatingSystem CURRENT_OS = org.gradle.internal.os.OperatingSystem.current()
 
-  static Map<String, Object> normalizeEnvironmentPath(Map<String, Object> environment) {
+  static Map<String, ?> normalizeEnvironmentPath(Map<String, ?> environment) {
     if (CURRENT_OS.isWindows()) {
       // because windows PATH variable is case-insensitive, so we force it to be `PATH` instead of `Path` or whatever else
-      def pathVariableName = environment.keySet().find { eachKey -> eachKey.toUpperCase().equals("PATH")}
+      def pathVariableName = environment.keySet().find { eachKey -> (eachKey.toUpperCase() == "PATH") }
       if (pathVariableName != null) {
         environment['PATH'] = environment.remove(pathVariableName)
       }

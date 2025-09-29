@@ -16,6 +16,14 @@
 
 description = 'GoCD Config API'
 
+java {
+  // For use of server-only plugins
+  registerFeature('serverOnly') {
+    usingSourceSet(sourceSets.create('serverOnly'))
+  }
+}
+CapabilitySupport.extendMain(project, 'serverOnly')
+
 dependencies {
   api project(':base')
   api project(':db')
@@ -31,9 +39,7 @@ dependencies {
   implementation project.deps.commonsIO
   implementation project.deps.commonsText
   implementation project.deps.commonsLang3
-  implementation(project.deps.quartz) {
-    transitive = false
-  }
+  serverOnlyImplementation project.deps.quartz
   implementation project.deps.cloning
   implementation(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')

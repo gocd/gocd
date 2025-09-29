@@ -16,6 +16,14 @@
 
 description = 'GoCD Common Module'
 
+java {
+  // For use of server-only plugins
+  registerFeature('serverOnly') {
+    usingSourceSet(sourceSets.create('serverOnly'))
+  }
+}
+CapabilitySupport.extendMain(project, 'serverOnly')
+
 dependencies {
   api project(':domain')
   implementation project(':commandline')
@@ -23,7 +31,9 @@ dependencies {
   implementation project(':util')
   implementation project(':plugin-infra:go-plugin-api')
   implementation project(':plugin-infra:go-plugin-access')
+  serverOnlyImplementation(project(':plugin-infra:go-plugin-access')) { capabilities { requireFeature('server-only') } }
   api project(':config:config-api')
+  serverOnlyApi(project(':config:config-api')) { capabilities { requireFeature('server-only') } }
   implementation project.deps.apacheHttpMime
   implementation project.deps.commonsCollections4
   implementation project.deps.commonsIO

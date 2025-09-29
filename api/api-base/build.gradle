@@ -56,12 +56,12 @@ dependencyAnalysis {
     // We ignore these for now because api-base is essentially used to propagate dependencies to the dozemns
     // of individual API projects where it doesn't add value to declare them directly.
     onIncorrectConfiguration {
-      exclude(project.deps.mockitoJunit5)
+      exclude(project.deps.mockitoJunit5 as String)
     }
     onUnusedDependencies {
-      exclude(dependencies.project(path: ':spark:spark-base', configuration: 'testFixtures'))
-      exclude(dependencies.project(path: ':common', configuration: 'testFixtures'))
-      exclude(dependencies.project(path: ':domain', configuration: 'testFixtures'))
+      exclude(dependencies.project(path: ':spark:spark-base', configuration: 'testFixtures') as ProjectDependency)
+      exclude(dependencies.project(path: ':common', configuration: 'testFixtures') as ProjectDependency)
+      exclude(dependencies.project(path: ':domain', configuration: 'testFixtures') as ProjectDependency)
     }
   }
 }

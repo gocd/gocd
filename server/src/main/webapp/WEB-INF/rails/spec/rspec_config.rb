@@ -36,6 +36,13 @@ RSpec.configure do |config|
     ServiceCacheStrategy.instance.clear_services
   end
 
+  # Force any spring context to be closed after all tests to avoid rspec hanging waiting
+  config.after(:suite) do
+    if defined? Spring.test_close_context
+      Spring.test_close_context
+    end
+  end
+
   config.example_status_persistence_file_path = Rails.root.join('tmp/rspec_failures.txt')
 end
 

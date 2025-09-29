@@ -21,95 +21,79 @@ import groovy.text.Template
 import org.apache.tools.ant.types.Commandline
 import org.gradle.internal.jvm.Jvm
 
-tasks.register('pathingJar', Jar) {
-  archiveClassifier = 'pathing'
+def jrubyScriptsDir = project.file("scripts")
+def bundledGemDir = file("${project.railsRoot}/gems/jruby/${JRuby.bundledGemRubyVersion}")
+def additionalJRubyPaths = [jrubyScriptsDir, project.file("${bundledGemDir}/bin")]
+def jrubyEnvironment = [GEM_HOME: bundledGemDir, GEM_PATH: bundledGemDir]
+project.ext.additionalJRubyPaths = additionalJRubyPaths
+project.ext.jrubyEnvironment = jrubyEnvironment
 
-  def railsClasspath = project.railsClasspath
-  dependsOn(railsClasspath, configurations.compileClasspath)
+def railsPathingJarMain = tasks.register('railsPathingJarMain', Jar) {
+  group = LifecycleBasePlugin.BUILD_GROUP
+  archiveClassifier = 'pathingMain'
 
-  def jrubyJarLoc = project.jrubyJar
-  doFirst {
-    manifest {
-      attributes 'Class-Path': (railsClasspath.files - [jrubyJarLoc.get()]).collect { it.toURI() }.join(' ')
+  configureRailsPathingJar(it, configurations.railsRuntimeClasspath)
+}
+
+def railsPathingJarTest = tasks.register('railsPathingJarTest', Jar) {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  archiveClassifier = 'pathingTest'
+
+  configureRailsPathingJar(it, configurations.railsTestRuntimeClasspath, rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects"))
+}
+
+static def configureRailsPathingJar(Jar jarTask, Configuration railsRuntimeConfiguration, Iterable<File> extraResources = []) {
+  jarTask.with {
+    jarTask.dependsOn(railsRuntimeConfiguration)
+
+    inputs.files(
+      extraResources,
+      railsRuntimeConfiguration,
+    )
+
+    doFirst { Jar ->
+      manifest {
+        attributes 'Class-Path': (extraResources + railsRuntimeConfiguration.files - JRuby.jar).collect { it.toURI() }.join(' ')
+      }
     }
   }
 }
 
-tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
-  outputs.cacheIf { true }
-  def outputDir = file("${project.railsRoot}/webpack/gen")
-  inputs.dir(file("${project.railsRoot}/vendor"))
-  inputs.files(fileTree(dir: "${project.railsRoot}/config", includes: ['**/*.rb']))
-  outputs.dir(outputDir)
 
-  environment(
-    'RAILS_ENV': 'production',
-    'RAILS_GROUPS': 'assets',
-    'OUTPUT_DIR': outputDir,
-  )
 
-  args = ['-S', 'rake', '--trace', 'generated_js']
+def createJRubyBinstubs = tasks.register('createJRubyBinstubs') {
+  group = LifecycleBasePlugin.BUILD_GROUP
 
-  doFirst {
-    delete outputDir
-  }
-}
-
-tasks.register('createJRubyBinstubs') {
-  outputs.cacheIf { true }
-  dependsOn pathingJar, configurations.compileClasspath
-
-  def outputDir = file("scripts")
-  inputs.dir("script-templates")
-  inputs.properties([
-    bundledGemDir: project.bundledGemDir,
-    railsRoot    : project.railsRoot
-  ])
-
-  def jrubyJarLoc = project.jrubyJar
-
+  def ext = org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''
+  def outputScriptFile = file("${jrubyScriptsDir}/jruby${ext}")
   def templateProperties = [
     mainClassName       : 'org.jruby.Main',
-    jvmArgs             : project.jrubyOptimizationJvmArgs,
-    systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties + project.railsSystemProperties),
-    classpath           : [pathingJar.archiveFile.get().asFile],
-    environment         : project.defaultJRubyEnvironment,
-    additionalJRubyPaths: project.additionalJRubyPaths,
+    jrubyJar            : JRuby.jar,
+    jvmArgs             : JRuby.jrubyJvmArgs,
+    systemProperties    : JRuby.jrubySystemProperties,
+    environment         : jrubyEnvironment,
+    additionalJRubyPaths: additionalJRubyPaths,
     javaExecutable      : Jvm.current().getExecutable("java")
   ]
 
+  inputs.dir("script-templates")
   inputs.properties(templateProperties)
-  outputs.dir(outputDir)
+  outputs.files(outputScriptFile)
+  outputs.cacheIf { true }
 
-  def injected = project.objects.newInstance(Injected)
   doFirst {
-    templateProperties['jrubyJar'] = jrubyJarLoc.get()
-    delete(outputDir)
-    outputDir.mkdirs()
+    jrubyScriptsDir.mkdirs()
 
-    ['rspec'].each { file ->
-      injected.fileOps.copy {
-        from "script-templates/${file}"
-        into outputDir
-        filePermissions {
-          unix(0755)
-        }
-      }
-    }
-
-    ['jruby', 'jruby.bat'].each { eachFile ->
-      def inputTemplate = file("script-templates/${eachFile}")
-      def engine = new SimpleTemplateEngine()
-      Template template = engine.createTemplate(inputTemplate)
-      String output = template.make(templateProperties).toString()
-
-      file("${outputDir}/${inputTemplate.name}").write(output)
-      file("${outputDir}/${inputTemplate.name}").setExecutable(true)
-    }
+    def inputTemplate = file("script-templates/jruby${ext}")
+    def engine = new SimpleTemplateEngine()
+    Template template = engine.createTemplate(inputTemplate)
+    outputScriptFile.write(template.make(templateProperties).toString())
+    outputScriptFile.setExecutable(true)
   }
 }
 
-tasks.register('initializeRailsGems') {
+def initializeRailsGems = tasks.register('initializeRailsGems', JRuby) {
+  group = LifecycleBasePlugin.BUILD_GROUP
   outputs.cacheIf { true }
   dependsOn createJRubyBinstubs
 
@@ -117,30 +101,68 @@ tasks.register('initializeRailsGems') {
   inputs.file("${root}/Gemfile")
   inputs.file("${root}/Gemfile.lock")
   inputs.file("${root}/.bundle/config")
+  def jrubyScriptFile = createJRubyBinstubs.map { it.outputs.files.singleFile }
+  inputs.file(jrubyScriptFile)
   inputs.properties([
     jrubyVersion : project.deps.jruby,
-    bundledGemDir: project.bundledGemDir,
+    bundledGemDir: bundledGemDir,
     railsRoot    : root
   ])
 
-  outputs.dir(project.bundledGemDir)
+  outputs.dir(bundledGemDir)
 
-  def injected = project.objects.newInstance(Injected)
-  doFirst {
-    JRuby.exec(project, injected.execOps) {
-      workingDir = root
-      args = ['-S', 'bundle', 'install']
-      maxHeapSize = '256m'
-      environment += [ 'JARS_SKIP': 'true' ] // Avoid issues jar-dependencies and running via jruby-complete https://github.com/jruby/jruby/issues/8886
-    }
-  }
+  workingDir = root
+  args = ['-S', 'bundle', 'install']
+  maxHeapSize = '256m'
+  environment += [
+    // RUBY env var needs to be forward-slashed on Windows to avoid backslashes getting stripped somewhere
+    RUBY: jrubyScriptFile.get().toString().replaceAll('\\\\', '/'),
+    // Avoid issues jar-dependencies and running via jruby-complete https://github.com/jruby/jruby/issues/8886
+    JARS_SKIP: 'true',
+  ]
 }
 
-tasks.register('yarnInstall', YarnInstallTask) {
+tasks.register('findGemsToNotPack', JRuby) {
+  dependsOn initializeRailsGems
+
+  def gemfile = "${project.railsRoot}/Gemfile"
+  inputs.file(gemfile)
+  inputs.file("${gemfile}.lock")
+  inputs.file("find-gems-to-package.rake")
+  ext.outputFile = file("${layout.getBuildDirectory().get()}/gems-to-not-package.json")
+  outputs.file(outputFile)
+  outputs.cacheIf { true }
+
+  environment += [
+    'OUTPUT_FILE'   : outputFile,
+    'BUNDLE_GEMFILE': file(gemfile)
+  ]
+  args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
+}
+
+tasks.register('generateRubygemsLicenseReport', JRuby) {
+  dependsOn initializeRailsGems
+
+  def gemfile = "${project.railsRoot}/Gemfile"
+  inputs.file(gemfile)
+  inputs.file("${gemfile}.lock")
+  inputs.file("rubygems-license-report.rake")
+  ext.licenseReportFile = file("${layout.getBuildDirectory().get()}/rubygems-license.json")
+  outputs.file(ext.licenseReportFile)
+  outputs.cacheIf { true }
+
+  environment += [
+    'OUTPUT_FILE'   : licenseReportFile,
+    'BUNDLE_GEMFILE': file(gemfile)
+  ]
+  args = ['-S', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
+}
+
+def yarnInstall = tasks.register('yarnInstall', YarnInstallTask) {
   workingDir = project.railsRoot
 }
 
-prepare.dependsOn(initializeRailsGems, createJRubyBinstubs, yarnInstall)
+prepare.dependsOn(initializeRailsGems, yarnInstall)
 
 tasks.register('cleanRails', Delete) {
   delete layout.buildDirectory.dir("railsTests")
@@ -157,8 +179,6 @@ tasks.register('cleanRails', Delete) {
   delete "${project.railsRoot}/yarn-license-report"
 
   // these are purposely added as `doFirst` to avoid intellij from excluding these from the modules
-  def jrubyScriptsDir = project.jrubyScriptsDir
-  def bundledGemDir = project.bundledGemDir
   doFirst {
     delete jrubyScriptsDir
     delete bundledGemDir
@@ -166,8 +186,33 @@ tasks.register('cleanRails', Delete) {
 }
 clean.dependsOn cleanRails
 
+def generateJSRoutes = tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
+  group = LifecycleBasePlugin.BUILD_GROUP
+  dependsOn railsPathingJarMain
+  pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
+
+  def outputDir = file("${project.railsRoot}/webpack/gen")
+  inputs.dir(file("${project.railsRoot}/vendor"))
+  inputs.files(fileTree(dir: "${project.railsRoot}/config", includes: ['**/*.rb']))
+  outputs.dir(outputDir)
+  outputs.cacheIf { true }
+
+  environment(
+    'RAILS_ENV': 'production',
+    'RAILS_GROUPS': 'assets',
+    'OUTPUT_DIR': outputDir,
+  )
+
+  args = ['-S', 'rake', '--trace', 'generated_js']
+
+  doFirst {
+    delete outputDir
+  }
+}
+
 tasks.register('compileAssetsWebpackDev', YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
+  mustRunAfter compileAssetsRailsTest // Both output into the same /public/assets dir :-(
 
   ext.yarnLicenseReportFile = layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
   outputs.dir(ext.yarnLicenseReportFile.parentFile)
@@ -183,7 +228,7 @@ tasks.register('compileAssetsWebpackDev', YarnRunTask) {
   yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.yarnLicenseReportFile}"]
 
   doFirst {
-    delete "${project.railsRoot}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
+    delete "${workingDir}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
   }
 }
 
@@ -208,9 +253,10 @@ tasks.register('compileAssetsWebpackProd', YarnRunTask) {
   }
 }
 
-tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
+def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
   dependsOn yarnInstall
   outputs.cacheIf { true }
+  pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
 
   def publicAssetsDir = file("${project.railsRoot}/public/assets")
 
@@ -225,12 +271,6 @@ tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
     'RAILS_GROUPS': 'assets',
   ]
 
-  // Native-subprocess control is needed for usage of Dart Sass via sass-embedded
-  jvmArgs += [
-    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
-    '--add-opens=java.base/java.io=ALL-UNNAMED'
-  ]
-
   args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
 
   doFirst {
@@ -243,6 +283,7 @@ tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
 tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
   dependsOn yarnInstall
   outputs.cacheIf { true }
+  pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
 
   def outputAssetsDir = layout.buildDirectory.dir("rails-assets")
   def publicAssetsDir = layout.buildDirectory.dir("public/assets")
@@ -253,18 +294,10 @@ tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
 
   outputs.dir(outputAssetsDir)
 
-  disableJRubyOptimization = true
-
   environment(
     'RAILS_ENV': 'production',
     'RAILS_GROUPS': 'assets',
   )
-
-  // Native-subprocess control is needed for usage of Dart Sass via sass-embedded
-  jvmArgs += [
-    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
-    '--add-opens=java.base/java.io=ALL-UNNAMED'
-  ]
 
   args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
 
@@ -318,26 +351,46 @@ tasks.register('compileAssets') {
 }
 
 tasks.register('rspec', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall, configurations.spark, configurations.apiBase
-  mustRunAfter generateJSRoutes, compileAssets, compileAssetsWebpackDev, compileAssetsRailsTest
-  outputs.cacheIf { true }
-  inputs.files project.railsRoot
-  inputs.files project.railsClasspath
+  dependsOn ':server:cleanDb', compileAssetsRailsTest, railsPathingJarTest
+  mustRunAfter compileAssetsWebpackDev // Both this and compileAssetsRailsTest output into the same /public/assets dir :-(
 
   description = "Run specs (pass '-Popts=...' to pass options)"
 
-  disableJRubyOptimization = true
+  pathingJar.set(railsPathingJarTest.flatMap { it.archiveFile } as Provider<RegularFile>)
 
+  inputs.files(bundledGemDir)
+  inputs.files("${project.railsRoot}/app")
+  inputs.files("${project.railsRoot}/config")
+  inputs.files("${project.railsRoot}/lib")
+  inputs.files("${project.railsRoot}/spec")
+  inputs.files(compileAssetsRailsTest)
+
+  maxHeapSize = '256m'
+  jvmArgs += InstallerType.server.jvmModuleOpensArgs
+  args = ['-S', 'rspec', '--backtrace']
+  if (project.hasProperty('opts')) {
+    args += Commandline.translateCommandline(project.property('opts') as String)
+  }
   environment += [
     'REPORTS_DIR': "${layout.buildDirectory.get()}/rspec-results"
   ]
 
-  jvmArgs += InstallerType.server.jvmModuleOpensArgs
-  args = ['-S', 'rspec', '--backtrace']
-  maxHeapSize = '256m'
+  def testDataDir = layout.buildDirectory.dir('railsTests')
+  def testConfigDir = testDataDir.map { it.dir('config') }
+  systemProperties += [
+    'cruise.config.dir'             : testConfigDir.get().asFile,
+    'plugins.all.zip.path'          : testDataDir.map { it.file('plugins.zip') }.get().asFile,
+    'rails.use.compressed.js'       : false,
+    'go.enforce.server.immutability': 'N',
+  ]
 
-  if (project.hasProperty('opts')) {
-    args += Commandline.translateCommandline(project.property('opts') as String)
+  def injected = project.objects.newInstance(Injected)
+  doFirst {
+    injected.fileOps.delete {  delete(testDataDir) }
+    injected.fileOps.copy {
+      from 'config'
+      into testConfigDir
+    }
   }
 }
 

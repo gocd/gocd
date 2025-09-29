@@ -15,27 +15,14 @@
  */
 
 import com.github.jk1.license.task.ReportTask
-import com.thoughtworks.go.build.JRuby
 import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.TextUtils
 import com.thoughtworks.go.build.VerifyJarTask
 import groovy.json.JsonSlurper
-import org.eclipse.jgit.api.Git
 
-import static org.jruby.runtime.Constants.RUBY_MAJOR_VERSION
+import static com.thoughtworks.go.build.JRuby.bundledGemRubyVersion
 
 description = 'GoCD Server'
-
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath project.deps.jruby
-    classpath project.deps.jgit
-  }
-}
 
 sourceSets {
   integrationTest {
@@ -64,81 +51,21 @@ configurations {
   apiBase
   allApis
   spark
+
+  railsRuntimeClasspath {
+    extendsFrom runtimeClasspath
+    extendsFrom spark
+    extendsFrom apiBase
+  }
+
+  railsTestRuntimeClasspath {
+    extendsFrom railsRuntimeClasspath
+    extendsFrom testRuntimeClasspath
+  }
 }
 
-project.ext.webAppDir = file("src/main/webapp")
-project.ext.railsRoot = file("${project.webAppDir}/WEB-INF/rails")
-project.ext.bundledGemRubyVersion = "${RUBY_MAJOR_VERSION}.0"
-project.ext.bundledGemDir = file("${project.railsRoot}/gems/jruby/${project.bundledGemRubyVersion}")
-
-project.ext.railsClasspath = sourceSets.test.runtimeClasspath +
-  configurations.spark +
-  configurations.apiBase +
-  rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
-
-project.ext.jrubyOptimizationJvmArgs = [
-  '-XX:+TieredCompilation',
-  '-XX:TieredStopAtLevel=1',
-  '-Xss2048k',
-  '-client',
-  // Enable native sub-process control by default, required on JDK 17+ and often needed by bundler and such to fork processes
-  '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
-  '--add-opens=java.base/java.io=ALL-UNNAMED',
-]
-
-project.ext.jrubyOptimizationSystemProperties = [
-  'jruby.compile.mode'         : 'OFF',
-]
-project.ext.jrubyDefaultSystemProperties = [
-  'jruby.home': 'uri:classloader://META-INF/jruby.home',
-  // turn these on for debugging some stuff with jruby not finding scripts
-  // 'jruby.debug.scriptResolution': 'true',
-  // 'jruby.debug.loadService': 'true',
-]
-
-project.ext.jrubyJar = project.provider { configurations.compileClasspath.incoming.artifactView { componentFilter {it instanceof ModuleComponentIdentifier && it.module == "jruby-complete"} }.files.first() } as Provider<File>
-
-project.ext.jrubyScriptsDir = project.file("scripts")
-
-project.ext.additionalJRubyPaths = [jrubyScriptsDir, project.file("${project.bundledGemDir}/bin")]
-
-def forwardSlashedString = { File file -> file.toString().replaceAll('\\\\', '/') }
-
-project.ext.defaultJRubyEnvironment = [
-  GEM_HOME: project.bundledGemDir,
-  GEM_PATH: project.bundledGemDir,
-  RUBY    : forwardSlashedString(project.file("${project.ext.jrubyScriptsDir}/jruby${org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''}"))
-]
-
-project.ext.rails = [:]
-project.ext.rails.testDataDir = project.file("${layout.getBuildDirectory().get()}/railsTests")
-project.ext.rails.testConfigDir = project.file("${layout.getBuildDirectory().get()}/railsTests/config")
-project.ext.rails.testPluginsDir = project.file("${layout.getBuildDirectory().get()}/railsTests/plugins")
-project.ext.rails.testBundledPluginsDir = project.file("${project.rails.testPluginsDir}/bundled")
-project.ext.rails.testExternalPluginsDir = project.file("${project.rails.testPluginsDir}/external")
-project.ext.rails.testPluginsWorkDir = project.file("${project.rails.testPluginsDir}/work")
-
-project.ext.railsSystemProperties = [
-  'cruise.config.dir'                            : project.rails.testConfigDir,
-  'plugins.go.provided.path'                     : project.rails.testBundledPluginsDir,
-  'plugins.external.provided.path'               : project.rails.testExternalPluginsDir,
-  'plugins.work.path'                            : project.rails.testPluginsWorkDir,
-  'rails.use.compressed.js'                      : false,
-  'go.enforce.server.immutability'               : 'N',
-]
-
-def props = [
-  'go.enforce.server.immutability': 'N',
-  'rails.use.compressed.js'       : 'false',
-  'db.host'                       : 'localhost',
-  'db.user'                       : 'sa',
-  'db.password'                   : '',
-  'db.name'                       : 'cruise',
-  'db.port'                       : ''
-]
-
-props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemProperties : [:])
-project.ext.testSystemProperties = props
+def webAppDir = file("src/main/webapp")
+project.ext.railsRoot = file("${webAppDir}/WEB-INF/rails")
 
 dependencies {
   compileOnly project.deps.jetBrainsAnnotations
@@ -148,9 +75,10 @@ dependencies {
   spark project(':spark').subprojects
   implementation project(':config:config-api')
   api project(':config:config-server')
-  api project(':plugin-infra:go-plugin-access')
+  api(project(':plugin-infra:go-plugin-access')) { capabilities { requireFeature('server-only') } }
   api project(':plugin-infra:go-plugin-domain')
-  implementation project(':plugin-infra:go-plugin-config-repo')
+  api project(':plugin-infra:go-plugin-infra')
+  api project(':plugin-infra:go-plugin-config-repo')
   implementation project(':plugin-infra:plugin-metadata-store')
   api project(':common')
   implementation project(':commandline')
@@ -177,9 +105,7 @@ dependencies {
   implementation project.deps.commonsText
 
   implementation project.deps.caffeine
-  implementation(project.deps.quartz) {
-    transitive = false
-  }
+  implementation project.deps.quartz
 
   api(project.deps.hibernate) {
     exclude(module: 'ehcache-core')
@@ -195,7 +121,6 @@ dependencies {
   implementation project.deps.ehcache
   implementation(project.deps.oscache) {
     exclude(module: 'jms')
-    exclude(module: 'servlet-api')
   }
 
   implementation project.deps.activeMQ
@@ -237,21 +162,18 @@ dependencies {
   compileOnly project(':app-server')
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
-  compileOnly project.deps.logback
-  compileOnly(project.deps.jettyWebsocket) {
-    exclude(module: 'jetty-annotations')
-  }
+  implementation project.deps.logback
+  compileOnly project.deps.jettyWebsocket
 
   testImplementation(testFixtures(project(':config:config-api')))
   testImplementation(testFixtures(project(':config:config-server')))
   testImplementation(testFixtures(project(':common')))
+
   testImplementation project(':app-server')
   testRuntimeOnly project(':jetty')
   testImplementation project.deps.jetty
-  testImplementation(project.deps.jettyWebsocket) {
-    exclude(module: 'jetty-annotations')
-  }
   testImplementation project.deps.jettyWebapp
+  testImplementation project.deps.jettyWebsocket
   testImplementation project.deps.freemarker
   testImplementation project.deps.jsoup
   testImplementation project.deps.assertJ
@@ -271,7 +193,9 @@ dependencies {
   testImplementation project.deps.springTest
   testImplementation(testFixtures(project(':domain')))
 
+  integrationTestImplementation(project(':base')) { capabilities { requireFeature('agent-client') } }
   integrationTestImplementation project.deps.urlrewrite
+  integrationTestImplementation project.deps.springTest
   integrationTestImplementation project.deps.springTestJunit5
   integrationTestImplementation(testFixtures(project(":domain")))
   integrationTestImplementation(project.deps.dbunit) {
@@ -313,52 +237,6 @@ idea {
   }
 }
 
-tasks.register('findGemsToNotPack') {
-  dependsOn ':server:initializeRailsGems'
-
-  def gemfile = "${project.railsRoot}/Gemfile"
-  inputs.file(gemfile)
-  inputs.file("${gemfile}.lock")
-  inputs.file("find-gems-to-package.rake")
-  ext.outputFile = file("${layout.getBuildDirectory().get()}/gems-to-not-package.json")
-  outputs.file(outputFile)
-  outputs.cacheIf { true }
-
-  def injected = project.objects.newInstance(Injected)
-  doFirst {
-    JRuby.exec(project, injected.execOps) {
-      environment += [
-        'OUTPUT_FILE'   : outputFile,
-        'BUNDLE_GEMFILE': file(gemfile)
-      ]
-      args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
-    }
-  }
-}
-
-tasks.register('generateRubygemsLicenseReport') {
-  dependsOn ':server:initializeRailsGems'
-
-  def gemfile = "${project.railsRoot}/Gemfile"
-  inputs.file(gemfile)
-  inputs.file("${gemfile}.lock")
-  inputs.file("rubygems-license-report.rake")
-  ext.licenseReportFile = file("${layout.getBuildDirectory().get()}/rubygems-license.json")
-  outputs.file(ext.licenseReportFile)
-  outputs.cacheIf { true }
-
-  def injected = project.objects.newInstance(Injected)
-  doFirst {
-    JRuby.exec(project, injected.execOps) {
-      environment += [
-        'OUTPUT_FILE'   : licenseReportFile,
-        'BUNDLE_GEMFILE': file(gemfile)
-      ]
-      args = ['-S', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
-    }
-  }
-}
-
 tasks.register('cleanDb', Delete) {
   delete "db/h2db"
   delete "db/config.git"
@@ -376,26 +254,34 @@ tasks.register('prepareTestGitRepo') {
   File repoDir = project.file('test-repo')
   outputs.dir repoDir
 
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     delete(repoDir)
     repoDir.mkdirs()
 
-    // `git init`
-    Git git = Git.init().setDirectory(repoDir).call()
-
-    git.getRepository().config.setBoolean("commit", null, "gpgsign", false)
-    git.getRepository().config.save()
-
-    // create a file
-    file("${repoDir}/README.md").withPrintWriter { out ->
-      out.println("# This is a test repo")
+    injected.execOps.with {
+      exec {
+        workingDir = repoDir
+        commandLine = ['git', 'init', '--initial-branch=master']
+        standardOutput = new ByteArrayOutputStream()
+      }
+      exec {
+        workingDir = repoDir
+        commandLine = ['git', 'config', 'commit.gpgsign', 'false']
+      }
+      file("${repoDir}/README.md").withPrintWriter { out ->
+        out.println("# This is a test repo")
+      }
+      exec {
+        workingDir = repoDir
+        commandLine = ['git', 'add', '.']
+      }
+      exec {
+        workingDir = repoDir
+        commandLine = ['git', 'commit', '--author=GoCD Test User <devnull@example.com>', '-m', 'Initial commit']
+        standardOutput = new ByteArrayOutputStream()
+      }
     }
-
-    git.add().addFilepattern(".").call()
-    git.commit()
-      .setAuthor("GoCD Test User", "devnull@example.com")
-      .setCommitter("GoCD Test User", "devnull@example.com")
-      .setMessage("Initial commit").call()
   }
 }
 
@@ -425,11 +311,11 @@ def prepare = tasks.register('prepare') {
 
 licenseMain {
   // Add in the webapp for license checks since we do not have a dedicated sourceSet for it
-  source += project.webAppDir
+  source += webAppDir
 }
 licenseFormatMain {
   // Add in the webapp for license checks since we do not have a dedicated sourceSet for it
-  source += project.webAppDir
+  source += webAppDir
 }
 
 static def isIntegrationTest(String text) {
@@ -448,9 +334,12 @@ test {
   }
 
   def testFiles = project.files([])
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     sourceSets[name].java.srcDirs.each { srcDir ->
-      testFiles = testFiles.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
+      def srcFiles = injected.objectFactory.fileTree().from(srcDir)
+      srcFiles.include('**/*.java')
+      testFiles = testFiles.plus(srcFiles)
     }
 
     def badFiles = testFiles.findAll { eachFile -> isIntegrationTest(eachFile.getText("utf-8")) }
@@ -476,9 +365,12 @@ tasks.register('integrationTest', Test) { thisTask ->
   }
 
   def testFiles = project.files([])
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
-      testFiles = testFiles.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
+      def srcFiles = injected.objectFactory.fileTree().from(srcDir)
+      srcFiles.include('**/*.java')
+      testFiles = testFiles.plus(srcFiles)
     }
 
     def badFiles = testFiles.findAll { eachFile ->
@@ -495,7 +387,15 @@ tasks.withType(Test).configureEach {
   dependsOn copyAgentSideJarsToServerDir
   dependsOn prepareNoRails
 
-  systemProperties += project.testSystemProperties
+  systemProperties += [
+    'db.host'                       : 'localhost',
+    'db.user'                       : 'sa',
+    'db.password'                   : '',
+    'db.name'                       : 'cruise',
+    'db.port'                       : '',
+    'rails.use.compressed.js'       : false,
+    'go.enforce.server.immutability': 'N',
+  ]
 
   testLogging {
     showStandardStreams = false
@@ -533,9 +433,6 @@ clean {
 tasks.register('configureWar') {
   dependsOn findGemsToNotPack
   dependsOn ':server:compileAssets'
-
-  def webAppDir = project.webAppDir
-  def bundledGemRubyVersion = project.bundledGemRubyVersion
 
   inputs.properties([
     bundledGemRubyVersion: bundledGemRubyVersion
@@ -593,12 +490,9 @@ tasks.register('configureWar') {
 }
 
 def war = tasks.register('war', Jar) {
-  dependsOn configureWar
-  dependsOn ':server:jar'
-  dependsOn configurations.runtimeClasspath
-  dependsOn configurations.packagingOnly
-  dependsOn configurations.allApis
-  dependsOn configurations.spark
+  dependsOn configureWar, ':server:jar'
+  dependsOn configurations.runtimeClasspath, configurations.packagingOnly, configurations.allApis, configurations.spark
+
   finalizedBy 'verifyWar'
   archiveBaseName = 'cruise'
   archiveExtension = 'war'
@@ -609,16 +503,20 @@ def war = tasks.register('war', Jar) {
     // Using a Set<String> is more reliable than Set<File> because File.equals() may be affected by other internal fields
     // aside from `path` that aren't important to us; thus, Set<File> may allow duplicate paths and Set<String> will not.
     Set<String> classpath = (
-      configurations.runtimeClasspath +
-        configurations.packagingOnly +
-        configurations.allApis +
-        configurations.spark
+      configurations.runtimeClasspath
+        + configurations.packagingOnly
+        + configurations.allApis
+        + configurations.spark
+        - configurations.runtimeClasspath.findAll { it.name.startsWith('logback') } // Rely on logback from launcher
     )
       .collect { f -> f.toString() }
       .toSet()
 
     // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
-    classpath.removeAll([appServerJarTask.get().archiveFile.get().toString(), jar.archiveFile.get().toString()])
+    classpath.removeAll([
+      appServerJarTask.get().archiveFile.get().toString(),
+      jar.archiveFile.get().toString()
+    ])
 
     classpath
   }
@@ -631,7 +529,7 @@ def war = tasks.register('war', Jar) {
     into('WEB-INF/classes')
   }
 
-  from("${project.webAppDir}/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js") {
+  from("${webAppDir}/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js") {
     into('WEB-INF/classes')
   }
 
@@ -645,7 +543,7 @@ def war = tasks.register('war', Jar) {
 
   from({ compileAssets }) { into '/WEB-INF/rails/public/assets' }
 
-  from("${project.webAppDir}/WEB-INF/web.xml") {
+  from("${webAppDir}/WEB-INF/web.xml") {
     filter {
       it.replaceAll('<param-value>development</param-value>', '<param-value>production</param-value>')
     }

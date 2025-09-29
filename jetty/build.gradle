@@ -26,15 +26,11 @@ dependencies {
   compileOnly project.deps.jettyServlets
   compileOnly project.deps.jettyUtil
   compileOnly project.deps.jettyDeploy
-  compileOnly(project.deps.jettyWebsocket) {
-    exclude(module: 'jetty-annotations')
-  }
+  compileOnly project.deps.jettyWebsocket
 
   testImplementation project.deps.jettyDeploy
   testImplementation project.deps.jettyJmx
-  testImplementation(project.deps.jettyWebsocket) {
-    exclude(module: 'jetty-annotations')
-  }
+  testImplementation project.deps.jettyWebsocket
   testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
   testImplementation project.deps.junit5Params

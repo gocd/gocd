@@ -16,50 +16,73 @@
 
 package com.thoughtworks.go.build
 
-import org.gradle.api.Project
-import org.gradle.process.ExecOperations
-import org.gradle.process.JavaExecSpec
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.JavaExec
+import org.gradle.api.tasks.TaskAction
+import org.jruby.runtime.Constants
 
-class JRuby {
-  static def exec = { @Deprecated Project project, ExecOperations execOperations, Closure<JavaExecSpec> cl ->
+abstract class JRuby extends JavaExec {
+  static jar = (JRuby.class.classLoader as URLClassLoader).URLs.find { it.toString().contains('jruby-complete')}.file
+
+  static bundledGemRubyVersion = "${Constants.RUBY_MAJOR_VERSION}.0"
+
+  static jrubyJvmArgs = [
+    // Enable native sub-process control by default, required on JDK 17+ and often needed by bundler and such to fork processes
+    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+    '--add-opens=java.base/java.io=ALL-UNNAMED',
+  ]
+
+  static jrubySystemProperties = [
+    'jruby.home': 'uri:classloader://META-INF/jruby.home',
+  ]
+
+  @InputFiles List<File> additionalPaths = new ArrayList<>()
+
+  private Map<String, ?> originalEnv = new LinkedHashMap<String, ?>(environment)
+
+  JRuby() {
+    additionalPaths = project.additionalJRubyPaths
+    environment += project.jrubyEnvironment
+
+    standardOutput = new PrintStream(System.out, true)
+    errorOutput = new PrintStream(System.err, true)
+
+    jvmArgs += jrubyJvmArgs
+    systemProperties += jrubySystemProperties
+
+    classpath(jar)
+    mainClass.set('org.jruby.Main')
+  }
+
+  @Override
+  @TaskAction
+  void exec() {
     try {
-      execOperations.javaexec { JavaExecSpec javaExecSpec ->
-        cl.delegate = javaExecSpec
+        OperatingSystemHelper.normalizeEnvironmentPath(environment)
+        environment['PATH'] = (additionalPaths + [environment['PATH']]).join(File.pathSeparator)
 
-        LinkedHashMap<String, Object> originalEnv = new LinkedHashMap<String, Object>(javaExecSpec.environment)
+        debugEnvironment()
+        dumpTaskCommand()
 
-        setup(javaExecSpec, project, false)
-
-        cl.call()
-
-        ExecuteUnderRailsTask.debugEnvironment(javaExecSpec, originalEnv)
-        ExecuteUnderRailsTask.dumpTaskCommand(javaExecSpec)
-      }
+        super.exec()
     } finally {
-      System.out.flush()
-      System.err.flush()
+      standardOutput.flush()
+      errorOutput.flush()
     }
   }
 
-  static void setup(JavaExecSpec execSpec, @Deprecated Project project, boolean disableJRubyOptimization) {
-    execSpec.with {
-      OperatingSystemHelper.normalizeEnvironmentPath(environment)
-      environment['PATH'] = (project.additionalJRubyPaths + [environment['PATH']]).join(File.pathSeparator)
+  void dumpTaskCommand() {
+    println "[${workingDir}]\$ java ${allJvmArgs.join(' ')} ${mainClass.get()} ${args.join(' ')}"
+  }
 
-      classpath( { project.jrubyJar.get() })
-      standardOutput = new PrintStream(System.out, true)
-      errorOutput = new PrintStream(System.err, true)
+  void debugEnvironment() {
+    println "Using environment variables"
+    def toDump = environment - originalEnv
 
-      environment += project.defaultJRubyEnvironment
+    int longestEnv = toDump.keySet().sort { a, b -> a.length() - b.length() }.last().length()
 
-      // flags to optimize jruby startup performance
-      if (!disableJRubyOptimization) {
-        jvmArgs += project.jrubyOptimizationJvmArgs
-      }
-
-      systemProperties += project.jrubyDefaultSystemProperties
-
-      mainClass.set('org.jruby.Main')
+    toDump.keySet().sort().each { k ->
+      println """${k.padLeft(longestEnv)}='${toDump.get(k)}' \\"""
     }
   }
 }

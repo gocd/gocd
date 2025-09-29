@@ -19,8 +19,11 @@ package com.thoughtworks.go.build
 import org.gradle.api.Project
 import org.gradle.process.ExecOperations
 import org.gradle.process.JavaExecSpec
+import org.jruby.runtime.Constants
 
 class JRuby {
+  static bundledGemRubyVersion = "${Constants.RUBY_MAJOR_VERSION}.0"
+
   static jrubyJvmArgs = [
     // Enable native sub-process control by default, required on JDK 17+ and often needed by bundler and such to fork processes
     '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',

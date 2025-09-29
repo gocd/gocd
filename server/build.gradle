@@ -20,22 +20,10 @@ import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.TextUtils
 import com.thoughtworks.go.build.VerifyJarTask
 import groovy.json.JsonSlurper
-import org.eclipse.jgit.api.Git
 
-import static org.jruby.runtime.Constants.RUBY_MAJOR_VERSION
+import static com.thoughtworks.go.build.JRuby.bundledGemRubyVersion
 
 description = 'GoCD Server'
-
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath project.deps.jruby
-    classpath project.deps.jgit
-  }
-}
 
 sourceSets {
   integrationTest {
@@ -80,17 +68,6 @@ configurations {
 
 project.ext.webAppDir = file("src/main/webapp")
 project.ext.railsRoot = file("${project.webAppDir}/WEB-INF/rails")
-project.ext.bundledGemRubyVersion = "${RUBY_MAJOR_VERSION}.0"
-project.ext.bundledGemDir = file("${project.railsRoot}/gems/jruby/${project.bundledGemRubyVersion}")
-
-project.ext.jrubyScriptsDir = project.file("scripts")
-
-project.ext.additionalJRubyPaths = [jrubyScriptsDir, project.file("${project.bundledGemDir}/bin")]
-
-project.ext.jrubyEnvironment = [
-  GEM_HOME: project.bundledGemDir,
-  GEM_PATH: project.bundledGemDir,
-]
 
 project.ext.testSystemProperties = [
   'db.host'                       : 'localhost',
@@ -336,26 +313,34 @@ tasks.register('prepareTestGitRepo') {
   File repoDir = project.file('test-repo')
   outputs.dir repoDir
 
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     delete(repoDir)
     repoDir.mkdirs()
 
-    // `git init`
-    Git git = Git.init().setDirectory(repoDir).call()
-
-    git.getRepository().config.setBoolean("commit", null, "gpgsign", false)
-    git.getRepository().config.save()
-
-    // create a file
-    file("${repoDir}/README.md").withPrintWriter { out ->
-      out.println("# This is a test repo")
+    injected.execOps.with {
+      exec {
+        workingDir = repoDir
+        commandLine = ['git', 'init', '--initial-branch=master']
+        standardOutput = new ByteArrayOutputStream()
+      }
+      exec {
+        workingDir = repoDir
+        commandLine = ['git', 'config', 'commit.gpgsign', 'false']
+      }
+      file("${repoDir}/README.md").withPrintWriter { out ->
+        out.println("# This is a test repo")
+      }
+      exec {
+        workingDir = repoDir
+        commandLine = ['git', 'add', '.']
+      }
+      exec {
+        workingDir = repoDir
+        commandLine = ['git', 'commit', '--author=GoCD Test User <devnull@example.com>', '-m', 'Initial commit']
+        standardOutput = new ByteArrayOutputStream()
+      }
     }
-
-    git.add().addFilepattern(".").call()
-    git.commit()
-      .setAuthor("GoCD Test User", "devnull@example.com")
-      .setCommitter("GoCD Test User", "devnull@example.com")
-      .setMessage("Initial commit").call()
   }
 }
 
@@ -494,12 +479,10 @@ tasks.register('configureWar') {
   dependsOn findGemsToNotPack
   dependsOn ':server:compileAssets'
 
-  def webAppDir = project.webAppDir
-  def bundledGemRubyVersion = project.bundledGemRubyVersion
-
   inputs.properties([
     bundledGemRubyVersion: bundledGemRubyVersion
   ])
+  def webAppDir = project.webAppDir
   inputs.dir(webAppDir)
 
   doFirst {

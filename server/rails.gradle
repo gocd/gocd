@@ -21,6 +21,17 @@ import groovy.text.Template
 import org.apache.tools.ant.types.Commandline
 import org.gradle.internal.jvm.Jvm
 
+def bundledGemDir = file("${project.railsRoot}/gems/jruby/${JRuby.bundledGemRubyVersion}")
+
+def jrubyScriptsDir = project.file("scripts")
+
+project.ext.additionalJRubyPaths = [jrubyScriptsDir, project.file("${bundledGemDir}/bin")]
+
+project.ext.jrubyEnvironment = [
+  GEM_HOME: bundledGemDir,
+  GEM_PATH: bundledGemDir,
+]
+
 def railsPathingJarMain = tasks.register('railsPathingJarMain', Jar) {
   group = LifecycleBasePlugin.BUILD_GROUP
   archiveClassifier = 'pathingMain'
@@ -79,16 +90,14 @@ tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
 
 def createJRubyBinstubs = tasks.register('createJRubyBinstubs') {
   group = LifecycleBasePlugin.BUILD_GROUP
-  dependsOn configurations.jruby, railsPathingJarMain
+  dependsOn configurations.jruby
 
   def ext = org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''
-  def outputDir = file("scripts")
-  def outputScriptFile = file("${outputDir}/jruby${ext}")
+  def outputScriptFile = file("${jrubyScriptsDir}/jruby${ext}")
   def templateProperties = [
     mainClassName       : 'org.jruby.Main',
     jvmArgs             : JRuby.jrubyJvmArgs,
     systemProperties    : JRuby.jrubySystemProperties,
-    classpath           : [railsPathingJarMain.map { Jar jt -> jt.archiveFile }.get().asFile],
     environment         : project.jrubyEnvironment,
     additionalJRubyPaths: project.additionalJRubyPaths,
     javaExecutable      : Jvm.current().getExecutable("java")
@@ -101,7 +110,7 @@ def createJRubyBinstubs = tasks.register('createJRubyBinstubs') {
 
   doFirst {
     templateProperties['jrubyJar'] = configurations.jruby.first().toString()
-    outputDir.mkdirs()
+    jrubyScriptsDir.mkdirs()
 
     def inputTemplate = file("script-templates/jruby${ext}")
     def engine = new SimpleTemplateEngine()
@@ -124,11 +133,11 @@ tasks.register('initializeRailsGems') {
   inputs.file(jrubyScriptFile)
   inputs.properties([
     jrubyVersion : project.deps.jruby,
-    bundledGemDir: project.bundledGemDir,
+    bundledGemDir: bundledGemDir,
     railsRoot    : root
   ])
 
-  outputs.dir(project.bundledGemDir)
+  outputs.dir(bundledGemDir)
 
   def injected = project.objects.newInstance(Injected)
   doFirst {
@@ -167,8 +176,6 @@ tasks.register('cleanRails', Delete) {
   delete "${project.railsRoot}/yarn-license-report"
 
   // these are purposely added as `doFirst` to avoid intellij from excluding these from the modules
-  def jrubyScriptsDir = project.jrubyScriptsDir
-  def bundledGemDir = project.bundledGemDir
   doFirst {
     delete jrubyScriptsDir
     delete bundledGemDir
@@ -322,7 +329,7 @@ tasks.register('rspec', ExecuteUnderRailsTask) {
   pathingJar.set(railsPathingJarTest.flatMap { it.archiveFile } as Provider<RegularFile>)
 
   def root = project.railsRoot
-  inputs.files(project.bundledGemDir)
+  inputs.files(bundledGemDir)
   inputs.files("${root}/app")
   inputs.files("${root}/config")
   inputs.files("${root}/lib")

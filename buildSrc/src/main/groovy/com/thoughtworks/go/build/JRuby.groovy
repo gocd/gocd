@@ -16,11 +16,12 @@
 
 package com.thoughtworks.go.build
 
-import org.gradle.process.ExecOperations
-import org.gradle.process.JavaExecSpec
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.JavaExec
+import org.gradle.api.tasks.TaskAction
 import org.jruby.runtime.Constants
 
-class JRuby {
+abstract class JRuby extends JavaExec {
   static jar = (JRuby.class.classLoader as URLClassLoader).URLs.find { it.toString().contains('jruby-complete')}.file
 
   static bundledGemRubyVersion = "${Constants.RUBY_MAJOR_VERSION}.0"
@@ -35,40 +36,53 @@ class JRuby {
     'jruby.home': 'uri:classloader://META-INF/jruby.home',
   ]
 
-  static def exec = { ExecOperations execOperations, List<File> additionalPaths, Map<String, ?> additionalEnvironment, Closure<JavaExecSpec> cl ->
+  @InputFiles List<File> additionalPaths = new ArrayList<>()
+
+  private Map<String, ?> originalEnv = new LinkedHashMap<String, ?>(environment)
+
+  JRuby() {
+    additionalPaths = project.additionalJRubyPaths
+    environment += project.jrubyEnvironment
+
+    standardOutput = new PrintStream(System.out, true)
+    errorOutput = new PrintStream(System.err, true)
+
+    jvmArgs += jrubyJvmArgs
+    systemProperties += jrubySystemProperties
+
+    classpath(jar)
+    mainClass.set('org.jruby.Main')
+  }
+
+  @Override
+  @TaskAction
+  void exec() {
     try {
-      execOperations.javaexec { JavaExecSpec javaExecSpec ->
-        cl.delegate = javaExecSpec
+        OperatingSystemHelper.normalizeEnvironmentPath(environment)
+        environment['PATH'] = (additionalPaths + [environment['PATH']]).join(File.pathSeparator)
 
-        Map<String, Object> originalEnv = new LinkedHashMap<String, Object>(javaExecSpec.environment)
+        debugEnvironment()
+        dumpTaskCommand()
 
-        setup(javaExecSpec, additionalPaths, additionalEnvironment)
-
-        cl.call()
-
-        ExecuteUnderRailsTask.debugEnvironment(javaExecSpec, originalEnv)
-        ExecuteUnderRailsTask.dumpTaskCommand(javaExecSpec)
-      }
+        super.exec()
     } finally {
-      System.out.flush()
-      System.err.flush()
+      standardOutput.flush()
+      errorOutput.flush()
     }
   }
 
-  static void setup(JavaExecSpec execSpec, List<File> additionalPaths, Map<String, ?> additionalEnvironment) {
-    execSpec.with {
-      OperatingSystemHelper.normalizeEnvironmentPath(environment)
-      environment['PATH'] = (additionalPaths + [environment['PATH']]).join(File.pathSeparator)
+  void dumpTaskCommand() {
+    println "[${workingDir}]\$ java ${allJvmArgs.join(' ')} ${mainClass.get()} ${args.join(' ')}"
+  }
 
-      classpath(jar)
-      standardOutput = new PrintStream(System.out, true)
-      errorOutput = new PrintStream(System.err, true)
+  void debugEnvironment() {
+    println "Using environment variables"
+    def toDump = environment - originalEnv
 
-      environment += additionalEnvironment
-      jvmArgs += jrubyJvmArgs
-      systemProperties += jrubySystemProperties
+    int longestEnv = toDump.keySet().sort { a, b -> a.length() - b.length() }.last().length()
 
-      mainClass.set('org.jruby.Main')
+    toDump.keySet().sort().each { k ->
+      println """${k.padLeft(longestEnv)}='${toDump.get(k)}' \\"""
     }
   }
 }

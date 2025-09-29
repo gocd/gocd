@@ -18,51 +18,20 @@ package com.thoughtworks.go.build
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.TaskAction
-import org.gradle.process.JavaExecSpec
 
-abstract class ExecuteUnderRailsTask extends JavaExec {
-  private Map<String, Object> originalEnv
-
+abstract class ExecuteUnderRailsTask extends JRuby {
   @InputFile abstract RegularFileProperty getPathingJar()
 
   ExecuteUnderRailsTask() {
-    super()
     dependsOn(':server:initializeRailsGems')
-
-    originalEnv = new LinkedHashMap<String, Object>(environment)
     workingDir = project.railsRoot
-
-    JRuby.setup(this, project.additionalJRubyPaths, project.jrubyEnvironment)
   }
 
   @Override
   @TaskAction
   void exec() {
     classpath(pathingJar.get())
-    try {
-      debugEnvironment(this, originalEnv)
-      dumpTaskCommand(this)
-      super.exec()
-    } finally {
-      standardOutput.flush()
-      errorOutput.flush()
-    }
-  }
-
-  static dumpTaskCommand(JavaExecSpec execSpec) {
-    println "[${execSpec.workingDir}]\$ java ${execSpec.allJvmArgs.join(' ')} ${execSpec.mainClass.get()} ${execSpec.args.join(' ')}"
-  }
-
-  static void debugEnvironment(JavaExecSpec javaExecSpec, Map<String, Object> originalEnv) {
-    println "Using environment variables"
-    def toDump = javaExecSpec.environment - originalEnv
-
-    int longestEnv = toDump.keySet().sort { a, b -> a.length() - b.length() }.last().length()
-
-    toDump.keySet().sort().each { k ->
-      println """${k.padLeft(longestEnv)}='${toDump.get(k)}' \\"""
-    }
+    super.exec()
   }
 }

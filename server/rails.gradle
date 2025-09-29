@@ -92,7 +92,7 @@ def createJRubyBinstubs = tasks.register('createJRubyBinstubs') {
   }
 }
 
-def initializeRailsGems = tasks.register('initializeRailsGems') {
+def initializeRailsGems = tasks.register('initializeRailsGems', JRuby) {
   group = LifecycleBasePlugin.BUILD_GROUP
   outputs.cacheIf { true }
   dependsOn createJRubyBinstubs
@@ -111,23 +111,18 @@ def initializeRailsGems = tasks.register('initializeRailsGems') {
 
   outputs.dir(bundledGemDir)
 
-  def injected = project.objects.newInstance(Injected)
-  doFirst {
-    JRuby.exec(injected.execOps, additionalJRubyPaths, jrubyEnvironment) {
-      workingDir = root
-      args = ['-S', 'bundle', 'install']
-      maxHeapSize = '256m'
-      environment += [
+  workingDir = root
+  args = ['-S', 'bundle', 'install']
+  maxHeapSize = '256m'
+  environment += [
     // RUBY env var needs to be forward-slashed on Windows to avoid backslashes getting stripped somewhere
-        RUBY: jrubyScriptFile.get().toString().replaceAll('\\\\', '/'),
+    RUBY: jrubyScriptFile.get().toString().replaceAll('\\\\', '/'),
     // Avoid issues jar-dependencies and running via jruby-complete https://github.com/jruby/jruby/issues/8886
     JARS_SKIP: 'true',
   ]
-    }
-  }
 }
 
-tasks.register('findGemsToNotPack') {
+tasks.register('findGemsToNotPack', JRuby) {
   dependsOn initializeRailsGems
 
   def gemfile = "${project.railsRoot}/Gemfile"
@@ -138,19 +133,14 @@ tasks.register('findGemsToNotPack') {
   outputs.file(outputFile)
   outputs.cacheIf { true }
 
-  def injected = project.objects.newInstance(Injected)
-  doFirst {
-    JRuby.exec(injected.execOps, additionalJRubyPaths, jrubyEnvironment) {
-      environment += [
-        'OUTPUT_FILE'   : outputFile,
-        'BUNDLE_GEMFILE': file(gemfile)
-      ]
-      args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
-    }
-  }
+  environment += [
+    'OUTPUT_FILE'   : outputFile,
+    'BUNDLE_GEMFILE': file(gemfile)
+  ]
+  args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
 }
 
-tasks.register('generateRubygemsLicenseReport') {
+tasks.register('generateRubygemsLicenseReport', JRuby) {
   dependsOn initializeRailsGems
 
   def gemfile = "${project.railsRoot}/Gemfile"
@@ -161,16 +151,11 @@ tasks.register('generateRubygemsLicenseReport') {
   outputs.file(ext.licenseReportFile)
   outputs.cacheIf { true }
 
-  def injected = project.objects.newInstance(Injected)
-  doFirst {
-    JRuby.exec(injected.execOps, additionalJRubyPaths, jrubyEnvironment) {
-      environment += [
-        'OUTPUT_FILE'   : licenseReportFile,
-        'BUNDLE_GEMFILE': file(gemfile)
-      ]
-      args = ['-S', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
-    }
-  }
+  environment += [
+    'OUTPUT_FILE'   : licenseReportFile,
+    'BUNDLE_GEMFILE': file(gemfile)
+  ]
+  args = ['-S', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
 }
 
 def yarnInstall = tasks.register('yarnInstall', YarnInstallTask) {

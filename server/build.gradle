@@ -83,64 +83,24 @@ project.ext.railsRoot = file("${project.webAppDir}/WEB-INF/rails")
 project.ext.bundledGemRubyVersion = "${RUBY_MAJOR_VERSION}.0"
 project.ext.bundledGemDir = file("${project.railsRoot}/gems/jruby/${project.bundledGemRubyVersion}")
 
-project.ext.jrubyOptimizationJvmArgs = [
-  '-XX:+TieredCompilation',
-  '-XX:TieredStopAtLevel=1',
-  '-Xss2048k',
-  '-client',
-  // Enable native sub-process control by default, required on JDK 17+ and often needed by bundler and such to fork processes
-  '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
-  '--add-opens=java.base/java.io=ALL-UNNAMED',
-]
-
-project.ext.jrubyOptimizationSystemProperties = [
-  'jruby.compile.mode'         : 'OFF',
-]
-project.ext.jrubyDefaultSystemProperties = [
-  'jruby.home': 'uri:classloader://META-INF/jruby.home',
-  // turn these on for debugging some stuff with jruby not finding scripts
-  // 'jruby.debug.scriptResolution': 'true',
-  // 'jruby.debug.loadService': 'true',
-]
-
 project.ext.jrubyScriptsDir = project.file("scripts")
 
 project.ext.additionalJRubyPaths = [jrubyScriptsDir, project.file("${project.bundledGemDir}/bin")]
 
-project.ext.defaultJRubyEnvironment = [
+project.ext.jrubyEnvironment = [
   GEM_HOME: project.bundledGemDir,
   GEM_PATH: project.bundledGemDir,
 ]
 
-project.ext.rails = [:]
-project.ext.rails.testDataDir = project.file("${layout.getBuildDirectory().get()}/railsTests")
-project.ext.rails.testConfigDir = project.file("${layout.getBuildDirectory().get()}/railsTests/config")
-project.ext.rails.testPluginsDir = project.file("${layout.getBuildDirectory().get()}/railsTests/plugins")
-project.ext.rails.testBundledPluginsDir = project.file("${project.rails.testPluginsDir}/bundled")
-project.ext.rails.testExternalPluginsDir = project.file("${project.rails.testPluginsDir}/external")
-project.ext.rails.testPluginsWorkDir = project.file("${project.rails.testPluginsDir}/work")
-
-project.ext.railsSystemProperties = [
-  'cruise.config.dir'                            : project.rails.testConfigDir,
-  'plugins.go.provided.path'                     : project.rails.testBundledPluginsDir,
-  'plugins.external.provided.path'               : project.rails.testExternalPluginsDir,
-  'plugins.work.path'                            : project.rails.testPluginsWorkDir,
-  'rails.use.compressed.js'                      : false,
-  'go.enforce.server.immutability'               : 'N',
-]
-
-def props = [
-  'go.enforce.server.immutability': 'N',
-  'rails.use.compressed.js'       : 'false',
+project.ext.testSystemProperties = [
   'db.host'                       : 'localhost',
   'db.user'                       : 'sa',
   'db.password'                   : '',
   'db.name'                       : 'cruise',
-  'db.port'                       : ''
+  'db.port'                       : '',
+  'rails.use.compressed.js'       : false,
+  'go.enforce.server.immutability': 'N',
 ]
-
-props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemProperties : [:])
-project.ext.testSystemProperties = props
 
 dependencies {
   compileOnly project.deps.jetBrainsAnnotations

@@ -18,24 +18,18 @@ package com.thoughtworks.go.build
 
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
-import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.*
-import org.gradle.internal.os.OperatingSystem
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.JavaExec
+import org.gradle.api.tasks.TaskAction
 import org.gradle.process.JavaExecSpec
 
-import javax.inject.Inject
-
 abstract class ExecuteUnderRailsTask extends JavaExec {
-  private static final OperatingSystem CURRENT_OS = OperatingSystem.current()
   private Map<String, Object> originalEnv
 
-  @Input boolean disableJRubyOptimization = false
   @InputFiles final FileCollection jrubyJar = project.configurations.jruby as ConfigurableFileCollection
   @InputFile abstract RegularFileProperty getPathingJar()
-
-  @Internal final projectRailsMeta = project.rails
-  @Inject abstract FileSystemOperations getFileOps()
 
   ExecuteUnderRailsTask() {
     super()
@@ -44,25 +38,13 @@ abstract class ExecuteUnderRailsTask extends JavaExec {
     originalEnv = new LinkedHashMap<String, Object>(environment)
     workingDir = project.railsRoot
 
-    systemProperties += project.railsSystemProperties
-
-    JRuby.setup(this, project, disableJRubyOptimization)
+    JRuby.setup(this, project)
   }
 
   @Override
   @TaskAction
   void exec() {
     classpath(pathingJar.get())
-
-    fileOps.delete {
-      it.delete(this.projectRailsMeta.testDataDir)
-    }
-
-    fileOps.copy {
-      it.from('config')
-      it.into(this.projectRailsMeta.testConfigDir)
-    }
-
     try {
       debugEnvironment(this, originalEnv)
       dumpTaskCommand(this)

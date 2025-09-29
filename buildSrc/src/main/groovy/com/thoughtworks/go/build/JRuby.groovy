@@ -21,6 +21,16 @@ import org.gradle.process.ExecOperations
 import org.gradle.process.JavaExecSpec
 
 class JRuby {
+  static jrubyJvmArgs = [
+    // Enable native sub-process control by default, required on JDK 17+ and often needed by bundler and such to fork processes
+    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+    '--add-opens=java.base/java.io=ALL-UNNAMED',
+  ]
+
+  static jrubySystemProperties = [
+    'jruby.home': 'uri:classloader://META-INF/jruby.home',
+  ]
+
   static def exec = { @Deprecated Project project, ExecOperations execOperations, Closure<JavaExecSpec> cl ->
     try {
       execOperations.javaexec { JavaExecSpec javaExecSpec ->
@@ -28,7 +38,7 @@ class JRuby {
 
         LinkedHashMap<String, Object> originalEnv = new LinkedHashMap<String, Object>(javaExecSpec.environment)
 
-        setup(javaExecSpec, project, false)
+        setup(javaExecSpec, project)
 
         cl.call()
 
@@ -41,7 +51,7 @@ class JRuby {
     }
   }
 
-  static void setup(JavaExecSpec execSpec, @Deprecated Project project, boolean disableJRubyOptimization) {
+  static void setup(JavaExecSpec execSpec, @Deprecated Project project) {
     execSpec.with {
       OperatingSystemHelper.normalizeEnvironmentPath(environment)
       environment['PATH'] = (project.additionalJRubyPaths + [environment['PATH']]).join(File.pathSeparator)
@@ -50,14 +60,9 @@ class JRuby {
       standardOutput = new PrintStream(System.out, true)
       errorOutput = new PrintStream(System.err, true)
 
-      environment += project.defaultJRubyEnvironment
-
-      // flags to optimize jruby startup performance
-      if (!disableJRubyOptimization) {
-        jvmArgs += project.jrubyOptimizationJvmArgs
-      }
-
-      systemProperties += project.jrubyDefaultSystemProperties
+      environment += project.jrubyEnvironment
+      jvmArgs += jrubyJvmArgs
+      systemProperties += jrubySystemProperties
 
       mainClass.set('org.jruby.Main')
     }

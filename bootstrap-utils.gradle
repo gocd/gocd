@@ -1,0 +1,658 @@
+/*
+ * Copyright Thoughtworks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import org.apache.tools.ant.filters.FixCrLfFilter
+
+import java.util.stream.Collectors
+
+tasks.register('newSPA') {
+  description = "Helper to create a new SPA. Pass `-PspaName=maintenance_mode"
+
+  doFirst {
+    def spaName = project.spaName
+    def entityName = toCamelCase(spaName)
+    def modelsBase = "${project(':server').webAppDir}/WEB-INF/rails/webpack/models/${spaName}"
+    def pagesBase = "${project(':server').webAppDir}/WEB-INF/rails/webpack/views/pages"
+    def widgetBase = "${pagesBase}/${spaName}"
+    def mountPoint = "${project(':server').webAppDir}/WEB-INF/rails/webpack/single_page_apps"
+
+    delete(modelsBase, widgetBase)
+    mkdir(modelsBase)
+    mkdir(widgetBase)
+
+    def licenseHeader =
+      """
+      * Copyright Thoughtworks, Inc.
+      *
+      * Licensed under the Apache License, Version 2.0 (the "License");
+      * you may not use this file except in compliance with the License.
+      * You may obtain a copy of the License at
+      *
+      *     http://www.apache.org/licenses/LICENSE-2.0
+      *
+      * Unless required by applicable law or agreed to in writing, software
+      * distributed under the License is distributed on an "AS IS" BASIS,
+      * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      * See the License for the specific language governing permissions and
+      * limitations under the License.
+      """.stripIndent().trim()
+
+    def javaOrJavaScriptLicenseHeader = "/*\n${licenseHeader.split('\n').collect { eachLine -> " ${eachLine}" }.join("\n")}\n */\n\n"
+
+    file("${mountPoint}/${spaName}.tsx").withWriter { out ->
+      def contents =
+        """
+          import {SinglePageAppBase} from "helpers/spa_base";
+          import {${entityName}Page} from "views/pages/${spaName}";
+
+          export class ${entityName}SPA extends SinglePageAppBase {
+            constructor() {
+              super(${entityName}Page);
+            }
+          }
+
+          //tslint:disable-next-line
+          new ${entityName}SPA();
+        """
+      out.println(javaOrJavaScriptLicenseHeader + contents.stripIndent().trim() + "\n")
+    }
+
+    file("${pagesBase}/${spaName}.tsx").withWriter { out ->
+      def contents =
+        """
+          import m from "mithril";
+          import {${entityName}} from "models/${spaName}/${spaName}";
+          import {${entityName}Widget} from "views/pages/${spaName}/${spaName}_widget";
+          import {Page} from "views/pages/page";
+
+          interface State {
+            dummy?: ${entityName};
+          }
+
+          export class ${entityName}Page extends Page<null, State> {
+            componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+              return <${entityName}Widget/>;
+            }
+
+            pageName(): string {
+              return "SPA Name goes here!";
+            }
+
+            fetchData(vnode: m.Vnode<null, State>): Promise<any> {
+              // to be implemented
+              return Promise.resolve();
+            }
+          }
+        """
+      out.println(javaOrJavaScriptLicenseHeader + contents.stripIndent().trim() + "\n")
+    }
+
+    file("${widgetBase}/${spaName}_widget.tsx").withWriter { out ->
+      def contents =
+        """
+          import {MithrilViewComponent} from "jsx/mithril-component";
+          import m from "mithril";
+          import {${entityName}} from "models/${spaName}/${spaName}";
+
+          interface Attrs {
+            dummy?: ${entityName};
+          }
+
+          export class ${entityName}Widget extends MithrilViewComponent<Attrs> {
+            view(vnode: m.Vnode<Attrs>) {
+              return <div> This is widget</div>;
+            }
+          }
+        """
+      out.println(javaOrJavaScriptLicenseHeader + contents.stripIndent().trim() + "\n")
+    }
+
+    file("${modelsBase}/${spaName}.ts").withWriter { out ->
+      def contents =
+        """
+          interface EmbeddedJSON {
+            dummy?: boolean;
+            // to be implemented
+          }
+
+          interface ${entityName}JSON {
+            _embedded: EmbeddedJSON;
+          }
+
+          export class ${entityName} {
+            // to be implemented
+            static fromJSON(data: ${entityName}JSON) {
+              // to be implemented
+            }
+          }
+        """
+      out.println(javaOrJavaScriptLicenseHeader + contents.stripIndent().trim() + "\n")
+    }
+
+    file("spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/${entityName}Controller.java").withWriter { out ->
+      def contents =
+        """
+          package com.thoughtworks.go.spark.spa;
+          import com.thoughtworks.go.spark.Routes;
+          import com.thoughtworks.go.spark.SparkController;
+          import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+          import spark.ModelAndView;
+          import spark.Request;
+          import spark.Response;
+          import spark.TemplateEngine;
+
+          import java.util.Map;
+
+          import static spark.Spark.*;
+
+          public class ${entityName}Controller implements SparkController {
+            private final SPAAuthenticationHelper authenticationHelper;
+            private final TemplateEngine engine;
+            public ${entityName}Controller(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+              this.authenticationHelper = authenticationHelper;
+              this.engine = engine;
+            }
+
+            @Override
+            public String controllerBasePath() {
+                  return Routes.${entityName}.SPA_BASE;
+            }
+
+            @Override
+            public void setupRoutes() {
+               path(controllerBasePath(), () -> {
+                  before("", authenticationHelper::checkAdminUserAnd403);
+                  get("", this::index, engine);
+              });
+            }
+            public ModelAndView index(Request request, Response response) {
+                Map<String, Object> object = Map.of(
+                    "viewTitle", "${entityName}"
+                );
+                return new ModelAndView(object, null);
+            }
+          }
+        """
+      out.println(javaOrJavaScriptLicenseHeader + contents.stripIndent().trim() + "\n")
+    }
+
+    addUrlRewriteRule("${spaName} UI")
+
+    List<String> lines = file('spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/spring/SpaControllers.java').readLines()
+    def insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*sparkControllers.add/).find() }
+    lines.add(insertionIdx, "\t\tsparkControllers.add(new ${entityName}Controller(authenticationHelper, templateEngineFactory.create(${entityName}Controller.class, () -> COMPONENT_LAYOUT_PATH)));")
+
+    file('spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/spring/SpaControllers.java').withWriter { out ->
+      out.println(lines.join("\n").trim() + "\n")
+    }
+
+    addRoute(entityName, spaName)
+  }
+}
+
+tasks.register('removeApi') {
+  description = "Helper to create a delete an api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
+  def injected = project.objects.newInstance(Injected)
+
+  doFirst {
+    def apiName = project.apiName
+    def newProjectName = "api-${apiName}-${project.apiVersion}"
+    def moduleDir = file("api/${newProjectName}")
+    def packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+
+    delete(moduleDir)
+
+    List<String> springConfigContents = file("server/src/main/resources/applicationContext-global.xml").readLines("utf-8")
+    file("server/src/main/resources/applicationContext-global.xml").withWriter { out ->
+      def newContents = springConfigContents
+        .stream()
+        .filter({ eachLine -> !eachLine.contains("base-package=\"${packageName}\"") })
+        .collect(Collectors.joining("\n"))
+        .trim() + "\n"
+      out.println(newContents)
+    }
+
+    List<String> settingsFileContents = file('settings.gradle').readLines("utf-8")
+    file('settings.gradle').withWriter { out ->
+      def newContents = settingsFileContents
+        .stream()
+        .filter({ eachLine -> !eachLine.contains("':api:${newProjectName}'") })
+        .collect(Collectors.joining("\n"))
+        .trim() + "\n"
+      out.println(newContents)
+    }
+
+    List<String> gitIgnoreFileContents = file('.gitignore').readLines("utf-8")
+    file('.gitignore').withWriter { out ->
+      def newContents = gitIgnoreFileContents
+        .stream()
+        .filter({ eachLine -> !eachLine.startsWith("api/${newProjectName}/") })
+        .collect(Collectors.joining("\n"))
+        .trim() + "\n"
+      out.println(newContents)
+    }
+
+    injected.execOps.exec {
+      commandLine = ['git', 'add', '-u']
+    }
+
+    injected.execOps.exec {
+      commandLine = ['git', 'commit', '-m', "Removed ${apiName} version ${project.apiVersion}"]
+    }
+  }
+}
+
+tasks.register('newApi') {
+  description = "Helper to create a new api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
+
+  doFirst {
+    def apiName = project.apiName
+    def newProjectName = "api-${apiName}-${project.apiVersion}"
+    def oldProjectName = "api-${apiName}-v${project.apiVersion.replaceFirst('v', '').toInteger() - 1}"
+    def oldModuleDir = file("api/${oldProjectName}")
+    delete(oldModuleDir)
+    if (oldModuleDir.exists()) {
+      throw new GradleException("Please use `upgradeApi` task instead of `newApi`")
+    }
+    def moduleDir = file("api/${newProjectName}")
+    def basePackage = "${moduleDir}/src/main/java/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+    def testPackage = "${moduleDir}/src/test/groovy/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+    def packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+    def entityClassName = toCamelCase(apiName)
+    def entityVariableName = entityClassName.uncapitalize()
+    def controllerClassName = "${entityClassName}Controller${project.apiVersion.capitalize()}"
+
+    delete(moduleDir)
+    moduleDir.mkdirs()
+    mkdir(basePackage)
+    mkdir(testPackage)
+
+    file("${moduleDir}/build.gradle").withWriter { out ->
+      def contents =
+        """
+          /*
+           * Copyright Thoughtworks, Inc.
+           *
+           * Licensed under the Apache License, Version 2.0 (the "License");
+           * you may not use this file except in compliance with the License.
+           * You may obtain a copy of the License at
+           *
+           *     http://www.apache.org/licenses/LICENSE-2.0
+           *
+           * Unless required by applicable law or agreed to in writing, software
+           * distributed under the License is distributed on an "AS IS" BASIS,
+           * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+           * See the License for the specific language governing permissions and
+           * limitations under the License.
+           */
+
+          plugins {
+            id 'groovy'
+          }
+
+          dependencies {
+            implementation project(':api:api-base')
+
+            testImplementation(testFixtures(project(":api:api-base")))
+
+            testImplementation project.deps.junit5Api
+            testRuntimeOnly project.deps.junit5Engine
+            testRuntimeOnly project.deps.junit5PlatformLauncher
+          }
+        """
+      out.println(contents.stripIndent().trim() + "\n")
+    }
+
+    file("${basePackage}/${controllerClassName}.java").withWriter { out ->
+      def contents =
+        """
+          /*
+           * Copyright Thoughtworks, Inc.
+           *
+           * Licensed under the Apache License, Version 2.0 (the "License");
+           * you may not use this file except in compliance with the License.
+           * You may obtain a copy of the License at
+           *
+           *     http://www.apache.org/licenses/LICENSE-2.0
+           *
+           * Unless required by applicable law or agreed to in writing, software
+           * distributed under the License is distributed on an "AS IS" BASIS,
+           * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+           * See the License for the specific language governing permissions and
+           * limitations under the License.
+           */
+
+          package ${packageName};
+
+          import com.thoughtworks.go.api.ApiController;
+          import com.thoughtworks.go.api.ApiVersion;
+          import com.thoughtworks.go.api.CrudController;
+          import com.thoughtworks.go.api.base.OutputWriter;
+          import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+          import com.thoughtworks.go.config.exceptions.EntityType;
+          import com.thoughtworks.go.config.exceptions.HttpException;
+          import com.thoughtworks.go.server.service.EntityHashingService;
+          import com.thoughtworks.go.spark.spring.SparkSpringController;
+          import org.springframework.beans.factory.annotation.Autowired;
+          import org.springframework.stereotype.Component;
+          import spark.Request;
+          import spark.Response;
+
+          import java.io.IOException;
+          import java.util.function.Consumer;
+
+          import static spark.Spark.*;
+
+          @Component
+          public class ${controllerClassName} extends ApiController implements SparkSpringController, CrudController<${entityClassName}> {
+
+              private final ApiAuthenticationHelper apiAuthenticationHelper;
+              private final EntityHashingService entityHashingService;
+
+              @Autowired
+              public ${controllerClassName}(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
+                  super(ApiVersion.${project.apiVersion});
+                  this.apiAuthenticationHelper = apiAuthenticationHelper;
+                  this.entityHashingService = entityHashingService;
+              }
+
+              @Override
+              public String controllerBasePath() {
+                  return Routes.${entityClassName}.BASE;
+              }
+
+              @Override
+              public void setupRoutes() {
+                  path(controllerBasePath(), () -> {
+                      // uncomment the line below to set the content type on the base path
+                      // before("", mimeType, this::setContentType);
+                      // uncomment the line below to set the content type on nested routes
+                      // before("/*", mimeType, this::setContentType);
+
+                      // uncomment for the `index` action
+                      // get("", mimeType, this::index);
+
+                      // change the line below to enable appropriate security
+                      before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+                      // to be implemented
+                  });
+              }
+
+              // public String index(Request request, Response response) throws IOException {
+              //    ${entityClassName} ${entityVariableName} = fetchEntityFromConfig(request.params(":id"));
+              //    return writerForTopLevelObject(request, response, outputWriter -> ${entityClassName}sRepresenter.toJSON(outputWriter, ${entityVariableName}));
+              // }
+
+
+              @Override
+              public String etagFor(${entityClassName} entityFromServer) {
+                  return entityHashingService.hashForEntity(entityFromServer);
+              }
+
+              @Override
+              public EntityType getEntityType() {
+                  return EntityType.${entityClassName};
+              }
+
+              @Override
+              public ${entityClassName} doFetchEntityFromConfig(String name) {
+                  return someService.getEntity(name);
+              }
+
+              @Override
+              public ${entityClassName} buildEntityFromRequestBody(Request req) {
+                JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+                return ${entityClassName}Representer.fromJSON(jsonReader);
+              }
+
+              @Override
+              public Consumer<OutputWriter> jsonWriter(${entityClassName} ${entityVariableName}) {
+                  return outputWriter -> ${entityClassName}Representer.toJSON(outputWriter, ${entityVariableName});
+              }
+          }
+        """
+      out.println(contents.stripIndent().trim() + "\n")
+    }
+
+    file("${testPackage}/${controllerClassName}Test.groovy").withWriter { out ->
+      def contents =
+        """
+          /*
+           * Copyright Thoughtworks, Inc.
+           *
+           * Licensed under the Apache License, Version 2.0 (the "License");
+           * you may not use this file except in compliance with the License.
+           * You may obtain a copy of the License at
+           *
+           *     http://www.apache.org/licenses/LICENSE-2.0
+           *
+           * Unless required by applicable law or agreed to in writing, software
+           * distributed under the License is distributed on an "AS IS" BASIS,
+           * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+           * See the License for the specific language governing permissions and
+           * limitations under the License.
+           */
+
+          package ${packageName}
+
+          import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+          import com.thoughtworks.go.spark.ControllerTrait
+          import com.thoughtworks.go.spark.SecurityServiceTrait
+          import org.junit.jupiter.api.BeforeEach
+          import org.junit.jupiter.api.Nested
+          import org.junit.jupiter.api.Test
+          import org.mockito.junit.jupiter.MockitoSettings
+          import org.mockito.quality.Strictness
+
+          @MockitoSettings(strictness = Strictness.LENIENT)
+          class ${controllerClassName}Test implements SecurityServiceTrait, ControllerTrait<${controllerClassName}> {
+
+            @Override
+            ${controllerClassName} createControllerInstance() {
+              new ${controllerClassName}(new ApiAuthenticationHelper(securityService, goConfigService))
+            }
+
+            @Nested
+            class Index {
+
+              @BeforeEach
+              void setUp() {
+                loginAsUser()
+              }
+
+              @Test
+              void 'test a request'() {
+              }
+
+              @Nested
+              class Security implements SecurityTestTrait, AdminUserSecurity {
+
+                @Override
+                String getControllerMethodUnderTest() {
+                  return "index"
+                }
+
+                @Override
+                void makeHttpCall() {
+                  getWithApiHeader(controller.controllerBasePath())
+                }
+              }
+            }
+          }
+        """
+      out.println(contents.stripIndent().trim() + "\n")
+    }
+
+    addRoute(entityClassName, apiName)
+    addPackageToSpringClasspathScanning(packageName)
+    addProjectToSettingsGradle(newProjectName, it)
+    addProjectToGitIgnore(newProjectName)
+  }
+}
+
+tasks.register('upgradeApi') {
+  description = "Helper to upgrade an new api module. Pass `-PapiName=roles-config`"
+
+  def injected = project.objects.newInstance(Injected)
+  doFirst {
+    def apiName = project.apiName
+    def allApiVersions = rootProject.project(':api').allprojects
+      .findAll { Project eachProject -> eachProject.name.startsWith("api-${apiName}-v") }
+      .collect { Project eachProject -> eachProject.name.replaceFirst("^api-${apiName}-v", "").toInteger() }
+
+    def currentMaxApiVersion = allApiVersions.max()
+
+    if (currentMaxApiVersion == null) {
+      throw new GradleException("Unable to find any projects with path prefix `:api:api-${apiName}-v`".toString())
+    }
+
+    def oldProject = rootProject.project("api:api-${apiName}-v${currentMaxApiVersion}")
+    def apiVersion = currentMaxApiVersion + 1
+
+    def newProjectName = "api-${apiName}-v${apiVersion}"
+    def moduleDir = file("api/${newProjectName}")
+
+    def oldPackagePrefix = "com.thoughtworks.go.apiv${currentMaxApiVersion}"
+    def newPackagePrefix = "com.thoughtworks.go.apiv${apiVersion}"
+
+    def oldControllerClassSuffix = "ControllerV${currentMaxApiVersion}"
+    def newControllerClassSuffix = "ControllerV${apiVersion}"
+    def newPackage = newPackagePrefix
+
+    delete(moduleDir)
+
+    injected.fileOps.copy {
+      from oldProject.projectDir
+      into moduleDir
+
+      exclude "out/**/*.*", "target/**/*.*"
+
+      filter { String eachLine ->
+        eachLine
+          .replace(oldPackagePrefix, newPackagePrefix)
+          .replace(oldControllerClassSuffix, newControllerClassSuffix)
+          .replaceAll("ApiVersion\\.v${currentMaxApiVersion}", "ApiVersion.v${apiVersion}")
+      }
+      filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.newInstance("unix"))
+
+      eachFile { FileCopyDetails fcd ->
+        List<String> segments = fcd.relativePath.segments
+        segments.replaceAll({ String eachSegment ->
+          if (eachSegment == "apiv${currentMaxApiVersion}") {
+            return "apiv${apiVersion}"
+          } else if (eachSegment.contains("${oldControllerClassSuffix}")) {
+            if (fcd.name.endsWith("${oldControllerClassSuffix}.java")) {
+              newPackage = new File(oldProject.projectDir, fcd.path).readLines().find { it.startsWith("package ${oldPackagePrefix}") }.replaceAll(/\.apiv[\d]+\./, ".apiv${apiVersion}.").replaceFirst(/^package ([\w\.\-]+);.*$/, '$1')
+            }
+            return eachSegment.replace(oldControllerClassSuffix, newControllerClassSuffix)
+          } else {
+            return eachSegment
+          }
+        })
+        fcd.relativePath = new RelativePath(!fcd.isDirectory(), (segments as String[]))
+      }
+      includeEmptyDirs = false
+    }
+
+    addPackageToSpringClasspathScanning(newPackage)
+    addProjectToSettingsGradle(newProjectName, it)
+    addProjectToGitIgnore(newProjectName)
+  }
+
+}
+
+private void addUrlRewriteRule(String spaName) {
+  def rule =
+    """
+        <rule>
+          <name>${spaName}</name>
+          <from>^/admin/${spaName}(/?)\$</from>
+          <to last="true">/spark/admin/${spaName}</to>
+        </rule>
+      """
+
+  def lines = file("${project(':server').webAppDir}/WEB-INF/urlrewrite.xml").readLines()
+  int insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*<urlrewrite/).find() }
+  lines.add(insertionIdx + 1, rule.stripIndent().trim())
+
+  file("${project(':server').webAppDir}/WEB-INF/urlrewrite.xml").withWriter { out ->
+    out.println(lines.join("\n").trim() + "\n")
+  }
+}
+
+private void addRoute(String entityName, String route) {
+  def lines = file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').readLines()
+  lines.add(lines.size() - 1, "\tpublic class ${entityName} {public static final String BASE = \"/admin/api/${route}\";}")
+
+  file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').withWriter { out ->
+    out.println(lines.join("\n").trim() + "\n")
+  }
+}
+
+private void addPackageToSpringClasspathScanning(String packageName) {
+  def lines = file("server/src/main/resources/applicationContext-global.xml").readLines()
+  def insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*<context:component-scan /).find() }
+  lines.add(insertionIdx, "  <context:component-scan base-package=\"${packageName}\"/>")
+
+  file("server/src/main/resources/applicationContext-global.xml").withWriter { out ->
+    out.println(lines.join("\n").trim() + "\n")
+  }
+}
+
+private Object addProjectToSettingsGradle(String newProjectName, it) {
+  file('settings.gradle').withWriter { out ->
+
+    def contents =
+      """
+          /*
+           * Copyright Thoughtworks, Inc.
+           *
+           * Licensed under the Apache License, Version 2.0 (the "License");
+           * you may not use this file except in compliance with the License.
+           * You may obtain a copy of the License at
+           *
+           *     http://www.apache.org/licenses/LICENSE-2.0
+           *
+           * Unless required by applicable law or agreed to in writing, software
+           * distributed under the License is distributed on an "AS IS" BASIS,
+           * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+           * See the License for the specific language governing permissions and
+           * limitations under the License.
+           */
+        """
+
+    out.println(contents.stripIndent().trim())
+    out.println("")
+    out.println("rootProject.name = 'gocd'")
+    out.println("")
+    def existingProjects = rootProject.allprojects.findAll { prj -> prj.childProjects.isEmpty() && !prj.path.startsWith(":docker") }.collect {
+      it.path
+    }
+    def newProjects = existingProjects + [":api:${newProjectName}"]
+    newProjects.sort().unique().each { out.println "include '${it}'" }
+    out.println("")
+    out.println("apply from: 'settings-docker.gradle'")
+  }
+}
+
+private void addProjectToGitIgnore(String newProjectName) {
+  def ignoredFiles = ["api/${newProjectName}/out/", "api/${newProjectName}/target/", "api/${newProjectName}/logs/", "api/${newProjectName}/config/"]
+  rootProject.file('.gitignore').withWriterAppend { out ->
+    ignoredFiles.each { line ->
+      out.println(line)
+    }
+  }
+}

@@ -269,7 +269,8 @@ subprojects {
 
     dependencies {
       // Force all sub-projects to have managed dependency versions for certain transitive dependencies
-      implementation platform(project(':build-platform'))
+      api platform(project(':build-platform'))
+      compileOnlyApi platform(project(':build-platform'))
       testJavaAgents("${project.deps.mockitoCore}:${project.versions.mockitoBom}")
 
       components {

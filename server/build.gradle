@@ -203,7 +203,6 @@ dependencies {
     exclude(group: 'com.oracle.database.jdbc')
   }
 
-  testFixturesImplementation platform(project(':build-platform'))
   testFixturesApi project(':domain')
   testFixturesImplementation project(':util')
   testFixturesImplementation project(':config:config-api')

@@ -334,9 +334,12 @@ test {
   }
 
   def testFiles = project.files([])
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     sourceSets[name].java.srcDirs.each { srcDir ->
-      testFiles = testFiles.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
+      def srcFiles = injected.objectFactory.fileTree().from(srcDir)
+      srcFiles.include('**/*.java')
+      testFiles = testFiles.plus(srcFiles)
     }
 
     def badFiles = testFiles.findAll { eachFile -> isIntegrationTest(eachFile.getText("utf-8")) }
@@ -362,9 +365,12 @@ tasks.register('integrationTest', Test) { thisTask ->
   }
 
   def testFiles = project.files([])
+  def injected = project.objects.newInstance(Injected)
   doFirst {
     sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
-      testFiles = testFiles.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
+      def srcFiles = injected.objectFactory.fileTree().from(srcDir)
+      srcFiles.include('**/*.java')
+      testFiles = testFiles.plus(srcFiles)
     }
 
     def badFiles = testFiles.findAll { eachFile ->

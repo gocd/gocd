@@ -228,7 +228,7 @@ tasks.register('compileAssetsWebpackDev', YarnRunTask) {
   yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.yarnLicenseReportFile}"]
 
   doFirst {
-    delete "${project.railsRoot}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
+    delete "${workingDir}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
   }
 }
 

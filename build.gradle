@@ -38,10 +38,6 @@ plugins {
 
 apply from: 'dependencies.gradle'
 
-if (file('build-ext.gradle').exists()) {
-  apply from: 'build-ext.gradle'
-}
-
 // Updated via automated scripting
 def GO_VERSION_PREVIOUS = '25.3.0'
 def GO_VERSION_SEGMENTS = [year: 25, releaseInYear: 4, patch: 0]

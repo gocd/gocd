@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.Architecture
-import com.thoughtworks.go.build.GoVersions
-import com.thoughtworks.go.build.InstallerMetadataTask
-import com.thoughtworks.go.build.InstallerType
+import com.thoughtworks.go.build.*
 import groovy.json.JsonOutput
-import org.apache.commons.codec.digest.DigestUtils
 import org.apache.tools.ant.filters.ConcatFilter
 
 enum PackageType {
@@ -124,8 +120,8 @@ enum PackageType {
   abstract List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, GoVersions goVersions)
 }
 
-private File destFile(String url) {
-  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
+def destFile(String url) {
+  new File(gradle.gradleUserHomeDir, "download-cache/${TextUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
 def configureLinuxPackage(Task packageTask, InstallerType installerType, PackageType packageType, File buildRoot, Configuration configuration, File destDir) {

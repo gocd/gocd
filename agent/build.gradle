@@ -160,8 +160,8 @@ tasks.register('verifyJar', VerifyJarTask) {
       "jakarta.activation-api-2.1.4.jar",
       "jakarta.annotation-api-${project.versions.jakartaAnnotation}.jar",
       "jakarta.xml.bind-api-4.0.4.jar",
-      "jaxb-core-${project.versions.jaxb}.jar",
-      "jaxb-runtime-${project.versions.jaxb}.jar",
+      "jaxb-core-${project.versions.jaxbBom}.jar",
+      "jaxb-runtime-${project.versions.jaxbBom}.jar",
       "jcl-over-slf4j-${project.versions.slf4jBom}.jar",
       "jcommander-${project.versions.jcommander}.jar",
       "jdom2-${project.versions.jdom}.jar",
@@ -182,7 +182,7 @@ tasks.register('verifyJar', VerifyJarTask) {
       "spring-expression-${project.versions.spring}.jar",
       "spring-tx-${project.versions.spring}.jar",
       "spring-web-${project.versions.spring}.jar",
-      "txw2-${project.versions.jaxb}.jar",
+      "txw2-${project.versions.jaxbBom}.jar",
       "util-${project.version}.jar"
     ]
   ]

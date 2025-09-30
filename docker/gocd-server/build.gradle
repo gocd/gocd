@@ -24,6 +24,12 @@ import io.github.resilience4j.retry.RetryConfig
 
 import java.time.Duration
 
+buildscript {
+  dependencies {
+    classpath project.deps.resilience4jRetry
+  }
+}
+
 plugins {
   id 'base'
 }

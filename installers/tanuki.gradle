@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-
 import com.thoughtworks.go.build.DownloadFile
-import org.apache.commons.codec.digest.DigestUtils
+import com.thoughtworks.go.build.TextUtils
 
-private File destFile(String url) {
-  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
+def destFile(String url) {
+  new File(gradle.gradleUserHomeDir, "download-cache/${TextUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
 def downloadTanukiDeltaPack = tasks.register('downloadTanukiDeltaPack', DownloadFile) {
-  def srcUrl = "https://download.tanukisoftware.com/wrapper/${project.versions.tanuki.split("-").first()}/wrapper-delta-pack-${project.versions.tanuki}.tar.gz"
+  def srcUrl = "https://download.tanukisoftware.com/wrapper/${project.versions.tanuki.split('-').first()}/wrapper-delta-pack-${project.versions.tanuki}.tar.gz"
   src srcUrl
   dest destFile(srcUrl)
   checksum = project.versions.tanukiSha256sum

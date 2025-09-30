@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.DownloadFile
-import com.thoughtworks.go.build.GithubArtifact
-import com.thoughtworks.go.build.GoVersions
-import com.thoughtworks.go.build.VerifyJarTask
-import org.apache.commons.codec.digest.DigestUtils
+import com.thoughtworks.go.build.*
 
 configurations {
   pluginsZipConfig
@@ -118,7 +114,7 @@ dependencies.each { dep ->
 }
 
 private File destFile(GithubArtifact dep) {
-  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(dep.downloadUrl)}/${dep.repo}.jar")
+  new File(gradle.gradleUserHomeDir, "download-cache/${TextUtils.md5Hex(dep.downloadUrl)}/${dep.repo}.jar")
 }
 
 tasks.register('prepare') { dependsOn pluginsZip }

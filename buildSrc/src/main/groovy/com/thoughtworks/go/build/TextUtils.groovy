@@ -16,18 +16,35 @@
 
 package com.thoughtworks.go.build
 
+import org.gradle.internal.hash.Hashing
+
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 
 class TextUtils {
-  private static final Pattern NEW_LINES = Pattern.compile(/\r\n|\r|\n/)
-  private static final Pattern NEW_LINE = Pattern.compile(/\n/)
+  private static final def NEW_LINES = Pattern.compile(/\r\n|\r|\n/)
+  private static final def NEW_LINE = Pattern.compile(/\n/)
 
-  static String toPlatformLineSeparators(String input) {
+  static toPlatformLineSeparators(String input) {
     return NEW_LINES.matcher(input).replaceAll(System.lineSeparator())
   }
 
-  static String indent(String input, String indentPrefix) {
+  static indent(String input, String indentPrefix) {
     return NEW_LINE.splitAsStream(input).map { line -> indentPrefix + line }.collect(Collectors.joining("\n"))
+  }
+
+  static def substringAfter(String str, String find) {
+    if (!str) return str
+    if (!find) return ''
+    def pos = str.indexOf(find)
+    return pos == -1 ? '' : str.substring(pos + find.length())
+  }
+
+  static sha256Hex(InputStream input) {
+    return Hashing.sha256().hashStream(input).toString()
+  }
+
+  static md5Hex(String input) {
+    return Hashing.md5().hashString(input).toString()
   }
 }

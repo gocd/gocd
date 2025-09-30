@@ -18,8 +18,6 @@ plugins {
   id 'groovy'
 }
 
-apply from: '../dependencies.gradle'
-
 repositories {
   mavenCentral()
 }
@@ -27,11 +25,8 @@ repositories {
 dependencies {
   implementation localGroovy()
   implementation gradleApi()
-  implementation project.deps.commonsCodec
-  implementation project.deps.commonsLang3
-  implementation project.deps.gradleDownload
-  implementation project.deps.grolifant
-  implementation project.deps.jruby
-  implementation project.deps.freemarker
-  implementation project.deps.resilience4jRetry
+  implementation 'de.undercouch:gradle-download-task:5.6.0'
+  implementation 'org.ysb33r.gradle:grolifant-herd:4.0.0'
+  implementation 'org.jruby:jruby-complete:9.4.14.0'
+  implementation 'org.freemarker:freemarker:2.3.34'
 }

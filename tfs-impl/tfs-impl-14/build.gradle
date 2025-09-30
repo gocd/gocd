@@ -15,8 +15,8 @@
  */
 
 import com.thoughtworks.go.build.DownloadFile
+import com.thoughtworks.go.build.TextUtils
 import com.thoughtworks.go.build.VerifyJarTask
-import org.apache.commons.codec.digest.DigestUtils
 
 description = 'GoCD TFS SDK wrapper v14'
 
@@ -24,8 +24,8 @@ jar {
   archiveClassifier = 'classes'
 }
 
-private File destFile(String url) {
-  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
+def destFile(String url) {
+  new File(gradle.gradleUserHomeDir, "download-cache/${TextUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
 tasks.register('downloadTfsSdk', DownloadFile) {

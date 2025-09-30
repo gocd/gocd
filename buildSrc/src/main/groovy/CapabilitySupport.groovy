@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
+import com.thoughtworks.go.build.TextUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-
-import static org.apache.commons.lang3.StringUtils.substringAfter
-import static org.apache.commons.lang3.StringUtils.uncapitalize
 
 class CapabilitySupport {
   /**
@@ -33,7 +31,7 @@ class CapabilitySupport {
       features.each { feature ->
         // Make feature configurations include the the same artifacts and variants as main
         configurations.matching { it.name == "${feature}ApiElements" || it.name == "${feature}RuntimeElements" }.configureEach { c ->
-          def main = configurations.named(uncapitalize(substringAfter(name, feature)))
+          def main = configurations.named(TextUtils.substringAfter(name, feature).uncapitalize())
           c.outgoing.artifacts.clear()
           c.outgoing.artifacts(main.map { it.outgoing.artifacts })
           c.outgoing.variants.clear()

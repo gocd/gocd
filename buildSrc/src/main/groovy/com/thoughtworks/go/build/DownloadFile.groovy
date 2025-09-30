@@ -18,7 +18,6 @@ package com.thoughtworks.go.build
 
 import de.undercouch.gradle.tasks.download.Download
 import de.undercouch.gradle.tasks.download.VerifyAction
-import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
@@ -63,7 +62,7 @@ class DownloadFile extends Download {
 
     if (dest.exists()) {
       if (expectedChecksum != null) {
-        def actualChecksum = dest.withInputStream { is -> DigestUtils.sha256Hex(is) }
+        def actualChecksum = dest.withInputStream { is -> TextUtils.sha256Hex(is) }
         logger.info("Verifying checksum. Actual: ${actualChecksum}, expected: ${expectedChecksum}.")
         shouldDownload = actualChecksum != expectedChecksum
       } else {

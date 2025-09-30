@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.database.migration;
 import liquibase.Liquibase;
 import liquibase.Scope;
 import liquibase.UpdateSummaryOutputEnum;
+import liquibase.analytics.configuration.AnalyticsArgs;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
@@ -51,7 +52,7 @@ public class DatabaseMigrator {
                 log.info(message);
             }
 
-            disableLiquibaseConsoleLogging();
+            configureLiquibase();
 
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
             newLiquibaseFor(database).update();
@@ -81,12 +82,18 @@ public class DatabaseMigrator {
         return liquibase;
     }
 
-    private static void disableLiquibaseConsoleLogging() {
+    private static void configureLiquibase() {
+        try {
+            Scope.enter(Map.of(AnalyticsArgs.ENABLED.getKey(), false));
+        } catch (Exception e) {
+            log.warn("Failed to disable liquibase analytics. Continuing anyway...", e);
+        }
+
         // See https://github.com/liquibase/liquibase/issues/2396
         try {
             Scope.enter(Map.of(Scope.Attr.ui.name(), new LoggerUIService()));
         } catch (Exception e) {
-            log.error("Failed to disable liquibase console logging. Continuing anyway...", e);
+            log.warn("Failed to disable liquibase console logging. Continuing anyway...", e);
         }
     }
 }

@@ -122,7 +122,7 @@ def libraries = [
   junit5Bom           : 'org.junit:junit-bom:5.13.4',
   liquibase           : 'org.liquibase:liquibase-core:4.33.0',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.1.0',
-  logback             : 'ch.qos.logback:logback-classic:1.5.18',
+  logback             : 'ch.qos.logback:logback-classic:1.5.19',
   lombok              : 'org.projectlombok:lombok:1.18.42',
   mockitoBom          : 'org.mockito:mockito-bom:5.20.0',
   mybatis             : 'org.mybatis:mybatis:3.5.19',

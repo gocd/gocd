@@ -14,20 +14,17 @@
 # limitations under the License.
 ##########################################################################
 
-# intellij
+# IDEs / Editors
 .idea/
 !.idea/copyright/
 !.idea/codeStyleSettings.xml
 !.idea/jsLinters/eslint.xml
 bin/
 *.iml
-
-# eclipse
 .project
 .classpath
 .settings/
-
-# vim swap files
+.vscode/
 [._]*.s[a-w][a-z]
 [._]s[a-w][a-z]
 
@@ -37,13 +34,10 @@ tags
 # temporary files from vim and emacs
 *~
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+# Gradle
 !gradle-wrapper.jar
-
 .gradle/
 
-# gradle cache of project
-.gradletasknamecache
 
 # virtual machine crash logs
 hs_err_pid*

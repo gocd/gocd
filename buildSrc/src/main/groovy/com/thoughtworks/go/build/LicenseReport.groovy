@@ -56,6 +56,7 @@ class LicenseReport {
     UNLICENSE,
   ].collect { it.id }
 
+  @Deprecated
   private final Project project
   private final Map<String, Map<String, Object>> licensesForPackagedJarDependencies
   private final AtomicInteger counter

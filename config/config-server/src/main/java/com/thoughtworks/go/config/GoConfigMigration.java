@@ -146,6 +146,7 @@ public class GoConfigMigration {
             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
             factory.setAttribute("jdk.xml.xpathExprOpLimit", XPATH_EXPRESSION_OPERATION_LIMIT);
+            factory.setFeature("jdk.xml.enableExtensionFunctions", true);
             return factory.newTransformer(new StreamSource(xslt));
         } catch (TransformerConfigurationException tce) {
             throw bomb("Couldn't parse XSL template " + upgradeScriptLocation.getPath(), tce);

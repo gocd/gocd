@@ -16,13 +16,9 @@
 
 package com.thoughtworks.go.build
 
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 
 abstract class ExecuteUnderRailsTask extends JRuby {
-  @InputFile abstract RegularFileProperty getPathingJar()
-
   ExecuteUnderRailsTask() {
     dependsOn(':server:initializeRailsGems')
     workingDir = project.railsRoot
@@ -31,7 +27,6 @@ abstract class ExecuteUnderRailsTask extends JRuby {
   @Override
   @TaskAction
   void exec() {
-    classpath(pathingJar.get())
     super.exec()
   }
 }

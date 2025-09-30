@@ -28,39 +28,6 @@ def jrubyEnvironment = [GEM_HOME: bundledGemDir, GEM_PATH: bundledGemDir]
 project.ext.additionalJRubyPaths = additionalJRubyPaths
 project.ext.jrubyEnvironment = jrubyEnvironment
 
-def railsPathingJarMain = tasks.register('railsPathingJarMain', Jar) {
-  group = LifecycleBasePlugin.BUILD_GROUP
-  archiveClassifier = 'pathingMain'
-
-  configureRailsPathingJar(it, configurations.railsRuntimeClasspath)
-}
-
-def railsPathingJarTest = tasks.register('railsPathingJarTest', Jar) {
-  group = LifecycleBasePlugin.VERIFICATION_GROUP
-  archiveClassifier = 'pathingTest'
-
-  configureRailsPathingJar(it, configurations.railsTestRuntimeClasspath, rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects"))
-}
-
-static def configureRailsPathingJar(Jar jarTask, Configuration railsRuntimeConfiguration, Iterable<File> extraResources = []) {
-  jarTask.with {
-    jarTask.dependsOn(railsRuntimeConfiguration)
-
-    inputs.files(
-      extraResources,
-      railsRuntimeConfiguration,
-    )
-
-    doFirst { Jar ->
-      manifest {
-        attributes 'Class-Path': (extraResources + railsRuntimeConfiguration.files - JRuby.jar).collect { it.toURI() }.join(' ')
-      }
-    }
-  }
-}
-
-
-
 def createJRubyBinstubs = tasks.register('createJRubyBinstubs') {
   group = LifecycleBasePlugin.BUILD_GROUP
 
@@ -188,8 +155,9 @@ clean.dependsOn cleanRails
 
 def generateJSRoutes = tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
   group = LifecycleBasePlugin.BUILD_GROUP
-  dependsOn railsPathingJarMain
-  pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
+
+  dependsOn configurations.railsRuntimeClasspath
+  classpath(configurations.railsRuntimeClasspath)
 
   def outputDir = file("${project.railsRoot}/webpack/gen")
   inputs.dir(file("${project.railsRoot}/vendor"))
@@ -254,9 +222,10 @@ tasks.register('compileAssetsWebpackProd', YarnRunTask) {
 }
 
 def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall
+  dependsOn yarnInstall, configurations.railsRuntimeClasspath
+  classpath(configurations.railsRuntimeClasspath)
+
   outputs.cacheIf { true }
-  pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
 
   def publicAssetsDir = file("${project.railsRoot}/public/assets")
 
@@ -281,9 +250,9 @@ def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnd
 }
 
 tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall
+  dependsOn yarnInstall, configurations.railsRuntimeClasspath
+  classpath(configurations.railsRuntimeClasspath)
   outputs.cacheIf { true }
-  pathingJar.set(railsPathingJarMain.flatMap { it.archiveFile } as Provider<RegularFile>)
 
   def outputAssetsDir = layout.buildDirectory.dir("rails-assets")
   def publicAssetsDir = layout.buildDirectory.dir("public/assets")
@@ -351,12 +320,11 @@ tasks.register('compileAssets') {
 }
 
 tasks.register('rspec', ExecuteUnderRailsTask) {
-  dependsOn ':server:cleanDb', compileAssetsRailsTest, railsPathingJarTest
+  dependsOn ':server:cleanDb', compileAssetsRailsTest, configurations.railsTestRuntimeClasspath
+  classpath(configurations.railsTestRuntimeClasspath, rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects"))
   mustRunAfter compileAssetsWebpackDev // Both this and compileAssetsRailsTest output into the same /public/assets dir :-(
 
   description = "Run specs (pass '-Popts=...' to pass options)"
-
-  pathingJar.set(railsPathingJarTest.flatMap { it.archiveFile } as Provider<RegularFile>)
 
   inputs.files(bundledGemDir)
   inputs.files("${project.railsRoot}/app")

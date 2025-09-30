@@ -832,4 +832,4 @@ if (System.getenv().containsKey("NEXUS_CACHE_USERNAME")) {
   dependencyCheckAggregate.finalizedBy uploadDependencyCheckCache
 }
 
-apply from: 'bootstrap-utils.gradle'
+apply from: 'build-bootstrap-utils.gradle'

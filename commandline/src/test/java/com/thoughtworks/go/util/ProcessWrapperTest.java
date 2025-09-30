@@ -82,7 +82,7 @@ class ProcessWrapperTest {
     void shouldCollectOutput() {
         String output = "SYSOUT: Hello World!";
         String error = "SYSERR: Some error happened!";
-        CommandLine line = CommandLine.createCommandLine("jshell").withEncoding(UTF_8).withArgs(script("echo.jsh"), "-R-Doutput=" + output, "-R-Derror=" + error);
+        CommandLine line = CommandLine.createCommandLine("java").withEncoding(UTF_8).withArgs(script("Echo.java"), output, error);
         ConsoleResult result = run(line);
 
         assertThat(result.returnValue()).as("Errors: " + result.errorAsString()).isEqualTo(0);
@@ -91,7 +91,7 @@ class ProcessWrapperTest {
     }
 
     private String script(final String scriptFilename) {
-        return "../commandline/src/test/resources/executables/" + scriptFilename;
+        return "../commandline/src/test/java/" + scriptFilename;
     }
 
     private static String jshellScriptFromInput(String echoMe) {
@@ -124,7 +124,7 @@ class ProcessWrapperTest {
 
     @Test
     void shouldReportReturnValueIfProcessFails() {
-        CommandLine line = CommandLine.createCommandLine("jshell").withEncoding(UTF_8).withArgs(script("nonexistent-script.jsh"));
+        CommandLine line = CommandLine.createCommandLine("java").withEncoding(UTF_8).withArgs(script("nonexistent-script.jsh"));
         ConsoleResult result = run(line);
         assertThat(result.returnValue()).isEqualTo(1);
     }
@@ -132,7 +132,7 @@ class ProcessWrapperTest {
     @Test
     void shouldSetGoServerVariablesIfTheyExist() {
         System.setProperty("GO_DEPENDENCY_LABEL_PIPELINE_NAME", "999");
-        CommandLine line = CommandLine.createCommandLine("jshell").withEncoding(UTF_8).withArgs(script("dump-environment.jsh"));
+        CommandLine line = CommandLine.createCommandLine("java").withEncoding(UTF_8).withArgs(script("DumpEnvironment.java"));
         ConsoleResult result = run(line);
         assertThat(result.error()).isEmpty();
         assertThat(result.returnValue()).as("Errors: " + result.errorAsString()).isEqualTo(0);

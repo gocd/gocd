@@ -14,5 +14,10 @@
  * limitations under the License.
  */
 
-System.getenv().forEach((key, value) -> System.out.println(key + "=" + value))
-/exit
+@SuppressWarnings("unused") // Used by ProcessWrapperTest
+class Echo {
+    public static void main(String... args) {
+        System.out.println(args[0]);
+        System.err.println(args[1]);
+    }
+}

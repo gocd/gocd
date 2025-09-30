@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
-System.out.println(System.getProperty("output", "<no output system property set>"))
-System.err.println(System.getProperty("error", "<no error system property set>"))
-/exit
+@SuppressWarnings("unused") // Used by ProcessWrapperTest
+public class DumpEnvironment {
+    public static void main(String... args) {
+        System.getenv().forEach((key, value) -> System.out.println(key + "=" + value));
+    }
+}

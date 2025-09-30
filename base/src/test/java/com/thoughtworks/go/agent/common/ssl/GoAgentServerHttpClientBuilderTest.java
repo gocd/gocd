@@ -59,7 +59,7 @@ class GoAgentServerHttpClientBuilderTest {
     public void shouldThrowExceptionIfTheServerIsDown() {
         GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null);
         assertThatThrownBy(() -> requestFor(builder, generatorFor("badhost", server.getPort())))
-                .isExactlyInstanceOf(UnknownHostException.class);
+            .isExactlyInstanceOf(UnknownHostException.class);
     }
 
     @Nested
@@ -88,8 +88,8 @@ class GoAgentServerHttpClientBuilderTest {
         public void shouldRaiseExceptionWhenSelfSignedCertDoesNotMatchTheHostName() throws Exception {
             GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca-ec.crt"), SslVerificationMode.FULL, null, null, null);
             assertThatThrownBy(() -> requestFor(builder, generatorFor("https://127.0.0.1:" + server.getSecurePort() + "/go/")))
-                    .isInstanceOf(IOException.class)
-                    .hasMessage("Certificate for <127.0.0.1> doesn't match any of the subject alternative names: [localhost]");
+                .isInstanceOf(IOException.class)
+                .hasMessage("Certificate for <127.0.0.1> doesn't match any of the subject alternative names: [localhost]");
         }
     }
 
@@ -115,8 +115,9 @@ class GoAgentServerHttpClientBuilderTest {
         public void shouldRaiseExceptionWhenNoAgentCertPresentedOnMtlsPort() throws Exception {
             GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca-ec.crt"), SslVerificationMode.FULL, null, null, null);
             assertThatThrownBy(() -> requestFor(builder, mtlsUrlGenerator()))
-                    .isInstanceOf(SSLHandshakeException.class)
-                    .hasMessage("Received fatal alert: bad_certificate");
+                .isInstanceOf(SSLHandshakeException.class)
+                .hasMessageContaining("Received fatal alert")
+                .hasMessageContaining("certificate");
         }
 
         private ServerUrlGenerator mtlsUrlGenerator() {

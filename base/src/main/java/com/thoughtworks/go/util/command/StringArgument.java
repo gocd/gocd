@@ -16,7 +16,7 @@
 package com.thoughtworks.go.util.command;
 
 public class StringArgument extends CommandArgument {
-    private String value;
+    private final String value;
 
     public StringArgument(String value) {
         this.value = value;

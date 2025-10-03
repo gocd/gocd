@@ -30,6 +30,8 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static java.lang.String.format;
+
 /**
  * Commandline objects help handling command lines specifying processes to execute.
  * <p/>
@@ -58,7 +60,7 @@ public class CommandLine {
 
     private final String executable;
     private final List<CommandArgument> arguments = new ArrayList<>();
-    private final List<SecretString> secrets = new ArrayList<>();
+    private final List<SecretRedactor> secrets = new ArrayList<>();
     private final Map<String, String> env = new HashMap<>();
     private final List<String> inputs = new ArrayList<>();
 
@@ -165,16 +167,16 @@ public class CommandLine {
     }
 
     public String describe() {
-        String description = "--- Command ---\n" + this
-            + "\n--- Environment ---\n" + env + "\n"
-            + "--- INPUT ----\n" + String.join(",", inputs) + "\n";
-        for (CommandArgument argument : arguments) {
-            description = argument.replaceSecretInfo(description);
-        }
-        for (SecretString secret : secrets) {
-            description = secret.replaceSecretInfo(description);
-        }
-        return description;
+        return SecretRedactor.redact(
+            format("""
+                --- Command ---
+                %s
+                --- Environment ---
+                %s
+                --- INPUT ----
+                %s
+                """, this, env, String.join(",", inputs)),
+            arguments, secrets);
     }
 
     @Override
@@ -262,12 +264,12 @@ public class CommandLine {
         return this;
     }
 
-    public CommandLine withNonArgSecret(SecretString argument) {
+    public CommandLine withNonArgSecret(SecretRedactor argument) {
         secrets.add(argument);
         return this;
     }
 
-    public CommandLine withNonArgSecrets(List<SecretString> secrets) {
+    public CommandLine withNonArgSecrets(List<SecretRedactor> secrets) {
         this.secrets.addAll(secrets);
         return this;
     }
@@ -308,14 +310,14 @@ public class CommandLine {
         try {
             process = startProcess(environmentVariableContext, streamConsumer, processTag);
         } catch (CommandLineException e) {
-            String message = String.format("Error happened while attempting to execute '%s'. \nPlease make sure [%s] can be executed on this agent.\n", toStringForDisplay(), getExecutable());
+            String message = format("Error happened while attempting to execute '%s'. \nPlease make sure [%s] can be executed on this agent.\n", toStringForDisplay(), getExecutable());
             String path = System.getenv("PATH");
             streamConsumer.errOutput(message);
-            streamConsumer.errOutput(String.format("[Debug Information] Environment variable PATH: %s", path));
+            streamConsumer.errOutput(format("[Debug Information] Environment variable PATH: %s", path));
             LOG.error("[Command Line] {}. Path: {}", message, path);
             throw new CommandLineException(message, e);
         } catch (IOException e) {
-            String msg = String.format("Encountered an IO exception while attempting to execute '%s'. Go cannot continue.\n", toStringForDisplay());
+            String msg = format("Encountered an IO exception while attempting to execute '%s'. Go cannot continue.\n", toStringForDisplay());
             streamConsumer.errOutput(msg);
             throw new CommandLineException(msg, e);
         }

@@ -46,7 +46,7 @@ public class HgModificationSplitter {
         try {
             return parseDOMTree(XmlUtils.buildXmlDocument(output));
         } catch (Exception e) {
-            throw ExceptionUtils.bomb("Unable to parse hg log output: " + result.replaceSecretInfo(output), result.smudgedException(e));
+            throw ExceptionUtils.bomb("Unable to parse hg log output: " + result.redactFrom(output), result.redactFrom(e));
         }
     }
 

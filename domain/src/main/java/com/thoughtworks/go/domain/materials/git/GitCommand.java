@@ -55,11 +55,11 @@ public class GitCommand extends SCMCommand {
     private static final Pattern GIT_DIFF_TREE_PATTERN = Pattern.compile("^(.)\\s+(.+)$");
 
     private final File workingDir;
-    private final List<SecretString> secrets;
+    private final List<SecretRedactor> secrets;
     private final String branch;
     private final boolean isSubmodule;
 
-    public GitCommand(String materialFingerprint, File workingDir, String branch, boolean isSubmodule, List<SecretString> secrets) {
+    public GitCommand(String materialFingerprint, File workingDir, String branch, boolean isSubmodule, List<SecretRedactor> secrets) {
         super(materialFingerprint);
         this.workingDir = workingDir;
         this.secrets = secrets != null ? secrets : new ArrayList<>();
@@ -378,9 +378,9 @@ public class GitCommand extends SCMCommand {
         for (String submoduleLine : submoduleList) {
             Matcher m = GIT_SUBMODULE_URL_PATTERN.matcher(submoduleLine);
             if (!m.find()) {
-                bomb("Unable to parse git-config output line: " + result.replaceSecretInfo(submoduleLine) + "\n"
+                bomb("Unable to parse git-config output line: " + result.redactFrom(submoduleLine) + "\n"
                         + "From output:\n"
-                        + result.replaceSecretInfo(StringUtils.join(submoduleList, "\n")));
+                        + result.redactFrom(String.join("\n", submoduleList)));
             }
             submoduleUrls.put(m.group(1), m.group(2));
         }
@@ -426,7 +426,7 @@ public class GitCommand extends SCMCommand {
 
             Matcher m = matchResultLine(resultLine);
             if (!m.find()) {
-                bomb("Unable to parse git-diff-tree output line: " + consoleResult.replaceSecretInfo(resultLine) + "\n"
+                bomb("Unable to parse git-diff-tree output line: " + consoleResult.redactFrom(resultLine) + "\n"
                         + "From output:\n"
                         + consoleResult.outputForDisplayAsString());
             }

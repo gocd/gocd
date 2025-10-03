@@ -30,8 +30,8 @@ import static java.lang.String.format;
 public class EnvironmentVariableContext implements Serializable, SecretParamAware {
 
 
-    public List<SecretString> secrets() {
-        List<SecretString> passwordArguments = new ArrayList<>();
+    public List<SecretRedactor> secrets() {
+        List<SecretRedactor> passwordArguments = new ArrayList<>();
 
         for (EnvironmentVariable secureEnvironmentVariable : getSecureEnvironmentVariables()) {
             passwordArguments.add(new PasswordArgument(secureEnvironmentVariable.value()));

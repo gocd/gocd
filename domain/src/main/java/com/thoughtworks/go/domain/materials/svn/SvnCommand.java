@@ -103,7 +103,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         try {
             svnExternalList = new SvnExternalParser().parse(svnExternalConsoleOut, repoUrl, repoRoot);
         } catch (RuntimeException e) {
-            throw (RuntimeException) result.smudgedException(e);
+            throw result.redactFrom(e);
         }
         return svnExternalList;
     }
@@ -127,7 +127,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         try {
             return parseSvnLog(output);
         } catch (Exception e) {
-            throw bomb(result.smudgedException(e));
+            throw bomb(result.redactFrom(e));
         }
     }
 
@@ -143,7 +143,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
             modifications = Modifications.filterOutRevision(modifications, subversionRevision);
             return modifications;
         } catch (Exception e) {
-            LOG.error("Error parsing svn log output", result.smudgedException(e));
+            LOG.error("Error parsing svn log output", result.redactFrom(e));
             throw bomb(e);
         }
     }

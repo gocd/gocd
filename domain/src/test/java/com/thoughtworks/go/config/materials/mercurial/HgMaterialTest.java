@@ -653,7 +653,7 @@ public class HgMaterialTest {
         void shouldReplaceUrlForCommandLineWithUrlForDisplay_whenCredntialsAreProvidedInUrl() {
             HgMaterial hgMaterial = new HgMaterial("https://bob:pass@example.com", "destinations");
 
-            String info = hgMaterial.secrets().get(0).replaceSecretInfo("https://bob:pass@example.com");
+            String info = hgMaterial.secrets().get(0).redactFrom("https://bob:pass@example.com");
 
             assertThat(info).isEqualTo(hgMaterial.getUriForDisplay());
         }
@@ -664,7 +664,7 @@ public class HgMaterialTest {
             hgMaterial.setUserName("bob");
             hgMaterial.setPassword("pass");
 
-            String info = hgMaterial.secrets().get(0).replaceSecretInfo("https://bob:pass@example.com");
+            String info = hgMaterial.secrets().get(0).redactFrom("https://bob:pass@example.com");
 
             assertThat(info).isEqualTo(hgMaterial.getUriForDisplay());
         }

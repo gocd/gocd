@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.util.command;
 
-public class PasswordArgument extends CommandArgument implements SecretString {
-    private String secret;
+public class PasswordArgument extends CommandArgument {
+    private final String secret;
 
     public PasswordArgument(String secret) {
         this.secret = secret;

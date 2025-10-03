@@ -16,15 +16,14 @@
 package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.config.ConfigAttributeValue;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigAttributeValue(fieldName = "url")
 public class UrlArgument extends CommandArgument {
@@ -81,26 +80,22 @@ public class UrlArgument extends CommandArgument {
     }
 
     @Override
-    public String replaceSecretInfo(String line) {
-        if (StringUtils.isBlank(line)) {
-            return line;
-        }
-
-        if (isBlank(this.url)) {
-            return line;
+    public @NotNull Redactable redactFrom(@NotNull Redactable toRedact) {
+        if (toRedact.isBlank() || this.url == null || this.url.isBlank()) {
+            return toRedact;
         }
 
         try {
             final URIBuilder uriBuilder = new URIBuilder(this.url).setPath(null).setCustomQuery(null).setFragment(null);
             final UrlUserInfo urlUserInfo = new UrlUserInfo(uriBuilder.getUserInfo());
             if (uriBuilder.getUserInfo() != null) {
-                line = line.replace(uriBuilder.getUserInfo(), urlUserInfo.maskedUserInfo());
+                return toRedact.next(toRedact.value().replace(uriBuilder.getUserInfo(), urlUserInfo.maskedUserInfo()));
             }
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException ignore) {
             //Ignore as url is not according to URI specs
         }
 
-        return line;
+        return toRedact;
     }
 
     @Override

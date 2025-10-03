@@ -145,32 +145,20 @@ class PluginsZipTest {
         File bundledPluginsDir = temporaryFolder.newFolder("plugins-bundled-ext");
         SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginsDir.getAbsolutePath());
-        when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn("");
+        when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn("dummy");
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
         Files.writeString(new File(bundledPluginsDir, "bundled-task-1.jar").toPath(), "Bundled1", UTF_8);
 
         PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, pluginManager);
         assertThatCode(pluginsZipFail::create)
-                .isInstanceOf(FileAccessRightsCheckException.class);
+                .isInstanceOf(FileAccessRightsCheckException.class)
+                .hasMessageContaining("dummy");
     }
 
     @Test
     void shouldFailGracefullyWhenBundledFileCannotBeRead() throws Exception {
         SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
-        when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("");
-        when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
-        when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
-        Files.writeString(new File(externalPluginsDir, "external-task-1.jar").toPath(), "External1", UTF_8);
-
-        PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, pluginManager);
-        assertThatCode(pluginsZipFail::create)
-                .isInstanceOf(FileAccessRightsCheckException.class);
-    }
-
-    @Test
-    void fileAccessErrorShouldContainPathToTheFolderInWhichTheErrorOccurred() throws Exception {
-        SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
-        when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("/dummy");
+        when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("dummy");
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
         Files.writeString(new File(externalPluginsDir, "external-task-1.jar").toPath(), "External1", UTF_8);
@@ -180,7 +168,6 @@ class PluginsZipTest {
                 .isInstanceOf(FileAccessRightsCheckException.class)
                 .hasMessageContaining("dummy");
     }
-
 
     @Test
     void shouldCreatePluginsWhenTaskPluginsAreAdded() {

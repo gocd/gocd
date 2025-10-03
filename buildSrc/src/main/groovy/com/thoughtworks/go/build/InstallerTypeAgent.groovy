@@ -36,30 +36,38 @@ class InstallerTypeAgent implements InstallerType {
   @Override
   Map<String, String> getAdditionalEnvVars() {
     [
-      AGENT_STARTUP_ARGS: '-Xms128m -Xmx256m'
+      AGENT_STARTUP_ARGS: (agentStartupJvmArgs + jvmInternalAccessArgs).join(' ')
     ]
   }
 
   @Override
   Map<String, String> getAdditionalLinuxEnvVars() {
     [
-      AGENT_STARTUP_ARGS: '-Xms128m -Xmx256m -Dgocd.agent.log.dir=/var/log/go-agent'
+      AGENT_STARTUP_ARGS: (agentStartupJvmArgs + jvmInternalAccessArgs + linuxJvmArgs).join(' ')
     ]
   }
 
-  // Note that these apply to the launcher, but not necessarily the agent itself
-  @Override
-  List<String> getJvmModuleOpensArgs() {
-    []
+  @SuppressWarnings('GrMethodMayBeStatic')
+  List<String> getAgentStartupJvmArgs() {
+    [ '-Xms128m', '-Xmx256m' ]
   }
 
-  // Note that these apply to the launcher, but not necessarily the agent itself
+  // Note that these apply only to the agent start-up, but not the bootstrapper or launcher
+  List<String> getJvmInternalAccessArgs() {
+    [
+      '--enable-native-access=ALL-UNNAMED',    // JDK 25+: Needed by JNA used by OSHI library at least
+      '--sun-misc-unsafe-memory-access=allow', // JDK 25+: sun.misc.Unsafe needed by Felix SecureAction and probably others
+      '-XX:+IgnoreUnrecognizedVMOptions',      // JDK <25: Allow use of --sun-misc-unsafe-memory-access on older JVMs without errors
+    ]
+  }
+
+  // Note that these apply to the bootstrapper/launcher, but not necessarily the agent itself (see AGENT_STARTUP_ARGS for that)
   @Override
   List<String> getJvmArgs() {
     []
   }
 
-  // Note that these apply to the launcher, but not the agent itself
+  // Note that these apply to both the launcher/bootstrapper and the agent itself
   @Override
   List<String> getLinuxJvmArgs() {
     [

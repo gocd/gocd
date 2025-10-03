@@ -27,9 +27,11 @@ abstract class JRuby extends JavaExec {
   static bundledGemRubyVersion = "${Constants.RUBY_MAJOR_VERSION}.0"
 
   static jrubyJvmArgs = [
-    // Enable native sub-process control by default, required on JDK 17+ and often needed by bundler and such to fork processes
-    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
-    '--add-opens=java.base/java.io=ALL-UNNAMED',
+    '--add-opens=java.base/java.io=ALL-UNNAMED',     // JDK 17+: Enable native sub-process control by default
+    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',  //          Often needed by bundler and such to fork processes
+    '--enable-native-access=ALL-UNNAMED',            // JDK 25+: Needed by com.kenai.jffi.internal.StubLoader at least
+    '--sun-misc-unsafe-memory-access=allow',         // JDK 25+: sun.misc.Unsafe needed by org.jruby.util.StringSupport at least
+    '-XX:+IgnoreUnrecognizedVMOptions',              // JDK <25: Allow use of --sun-misc-unsafe-memory-access on older JVMs without errors
   ]
 
   static jrubySystemProperties = [

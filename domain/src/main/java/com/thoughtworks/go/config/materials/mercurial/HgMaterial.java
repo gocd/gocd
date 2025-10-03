@@ -218,8 +218,8 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return hgCommand;
     }
 
-    protected List<SecretString> secrets() {
-        SecretString secretSubstitution = line -> line.replace(urlForCommandLine(), getUriForDisplay());
+    protected List<SecretRedactor> secrets() {
+        SecretRedactor secretSubstitution = toRedact -> toRedact.next(toRedact.value().replace(urlForCommandLine(), getUriForDisplay()));
         return List.of(secretSubstitution);
     }
 

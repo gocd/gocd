@@ -20,7 +20,7 @@ import java.util.List;
 
 public class SafeOutputStreamConsumer implements ConsoleOutputStreamConsumer {
     private final List<CommandArgument> arguments = new ArrayList<>();
-    private final List<SecretString> secrets = new ArrayList<>();
+    private final List<SecretRedactor> secrets = new ArrayList<>();
     private final ConsoleOutputStreamConsumer consumer;
 
     public SafeOutputStreamConsumer(ConsoleOutputStreamConsumer consumer) {
@@ -33,39 +33,33 @@ public class SafeOutputStreamConsumer implements ConsoleOutputStreamConsumer {
 
     @Override
     public void taggedStdOutput(String tag, String line) {
-        consumer.taggedStdOutput(tag, replaceSecretInfo(line));
+        consumer.taggedStdOutput(tag, redactSecretsFrom(line));
     }
 
     @Override
     public void taggedErrOutput(String tag, String line) {
-        consumer.taggedErrOutput(tag, replaceSecretInfo(line));
+        consumer.taggedErrOutput(tag, redactSecretsFrom(line));
     }
 
     @Override
     public void stdOutput(String line) {
-        consumer.stdOutput(replaceSecretInfo(line));
+        consumer.stdOutput(redactSecretsFrom(line));
     }
 
     @Override
     public void errOutput(String line) {
-        consumer.errOutput(replaceSecretInfo(line));
+        consumer.errOutput(redactSecretsFrom(line));
     }
 
-    private String replaceSecretInfo(String line) {
-        for (CommandArgument argument : arguments) {
-            line = argument.replaceSecretInfo(line);
-        }
-        for (SecretString secret : secrets) {
-            line = secret.replaceSecretInfo(line);
-        }
-        return line;
+    private String redactSecretsFrom(String line) {
+        return SecretRedactor.redact(line, arguments, secrets);
     }
 
     public void addArguments(List<CommandArgument> arguments) {
         this.arguments.addAll(arguments);
     }
 
-    public void addSecrets(List<SecretString> secrets) {
+    public void addSecrets(List<SecretRedactor> secrets) {
         this.secrets.addAll(secrets);
     }
 }

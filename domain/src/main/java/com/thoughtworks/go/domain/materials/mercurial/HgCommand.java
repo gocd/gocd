@@ -46,7 +46,7 @@ public class HgCommand extends SCMCommand {
     private final File workingDir;
     private final String branch;
     private final String url;
-    private final List<SecretString> secrets;
+    private final List<SecretRedactor> secrets;
 
     private static Path findTemplate() {
         try (InputStream inputStream = Objects.requireNonNull(HgCommand.class.getResourceAsStream("hg.template"), "Could not load hg.template resource")) {
@@ -58,7 +58,7 @@ public class HgCommand extends SCMCommand {
         }
     }
 
-    public HgCommand(String materialFingerprint, File workingDir, String branch, String url, List<SecretString> secrets) {
+    public HgCommand(String materialFingerprint, File workingDir, String branch, String url, List<SecretRedactor> secrets) {
         super(materialFingerprint);
         this.workingDir = workingDir;
         this.branch = branch;

@@ -15,25 +15,25 @@
  */
 package com.thoughtworks.go.util.command;
 
-import com.thoughtworks.go.util.ExceptionUtils;
+import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class ConsoleResult {
+public class ConsoleResult implements SecretRedactor {
     private final int returnValue;
     private final List<String> output;
     private final List<String> error;
     private final List<CommandArgument> arguments;
-    private final List<SecretString> secrets;
+    private final List<SecretRedactor> secrets;
     private final boolean failOnNonZeroReturn;
 
-    public ConsoleResult(int returnValue, List<String> output, List<String> error, List<CommandArgument> arguments, List<SecretString> secrets) {
+    public ConsoleResult(int returnValue, List<String> output, List<String> error, List<CommandArgument> arguments, List<SecretRedactor> secrets) {
         this(returnValue, output, error, arguments, secrets, true);
     }
 
-    public ConsoleResult(int returnValue, List<String> output, List<String> error, List<CommandArgument> arguments, List<SecretString> secrets, boolean failOnNonZeroReturn) {
+    public ConsoleResult(int returnValue, List<String> output, List<String> error, List<CommandArgument> arguments, List<SecretRedactor> secrets, boolean failOnNonZeroReturn) {
         this.returnValue = returnValue;
         this.output = output;
         this.error = new ArrayList<>(error);
@@ -50,17 +50,13 @@ public class ConsoleResult {
         return error;
     }
 
-    public String replaceSecretInfo(String line) {
-        if (line == null) {
-            return null;
+    @NotNull
+    @Override
+    public SecretRedactor.Redactable redactFrom(@NotNull Redactable toRedact) {
+        if (toRedact.isBlank()) {
+            return toRedact;
         }
-        for (CommandArgument argument : arguments) {
-            line = argument.replaceSecretInfo(line);
-        }
-        for (SecretString secret : secrets) {
-            line = secret.replaceSecretInfo(line);
-        }
-        return line;
+        return SecretRedactor.redactRepeatably(toRedact, arguments, secrets);
     }
 
     public List<String> outputForDisplay() {
@@ -88,11 +84,7 @@ public class ConsoleResult {
     }
 
     private List<String> forDisplay(List<String> from) {
-        List<String> forDisplay = new ArrayList<>();
-        for (String line : from) {
-            forDisplay.add(replaceSecretInfo(line));
-        }
-        return forDisplay;
+        return from.stream().map(this::redactFrom).toList();
     }
 
     public boolean failed() {
@@ -113,22 +105,32 @@ public class ConsoleResult {
         return new ConsoleResult(-1, List.of(), List.of("Unknown result."), List.of(), List.of());
     }
 
-    public Exception smudgedException(Exception rawException) {
-        try {
-            Throwable cause = rawException.getCause();
-            if (cause != null) {
-                smudgeException(cause);
-            }
-            smudgeException(rawException);
-        } catch (Exception e) {
-            ExceptionUtils.bomb(e);
-        }
-        return rawException;
+    public RuntimeException redactFrom(RuntimeException rawException) {
+        return (RuntimeException) redactFrom((Exception) rawException);
     }
 
-    private void smudgeException(Throwable rawException) throws NoSuchFieldException, IllegalAccessException {
-        Field messageField = Throwable.class.getDeclaredField("detailMessage");
-        messageField.setAccessible(true);
-        messageField.set(rawException,replaceSecretInfo(rawException.getMessage()));
+    public Exception redactFrom(Exception rawException) {
+        Redactable message = redactFromRepeatably(rawException.toString());
+        Optional<Redactable> causeMessage = Optional.ofNullable(rawException.getCause()).map(t -> redactFromRepeatably(t.toString()));
+
+        if (causeMessage.map(Redactable::wasRedacted).orElse(false)) {
+            return new RedactedException(message, causeMessage.get(), rawException);
+        } else if (message.wasRedacted()) {
+            return new RedactedException(message, rawException);
+        } else {
+            return rawException;
+        }
+    }
+
+    static class RedactedException extends RuntimeException {
+        public RedactedException(Redactable message, Throwable copyMe) {
+            super(String.format("Redacted: %s", message.toString()), copyMe.getCause());
+            setStackTrace(copyMe.getStackTrace());
+        }
+
+        public RedactedException(Redactable message, Redactable causeMessage, Throwable copyMe) {
+            super(String.format("Redacted: %s", message.toString()), new RedactedException(causeMessage, copyMe.getCause()));
+            setStackTrace(copyMe.getStackTrace());
+        }
     }
 }

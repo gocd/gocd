@@ -15,9 +15,11 @@
  */
 package com.thoughtworks.go.util.command;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 
-public abstract class CommandArgument implements Serializable {
+public abstract class CommandArgument implements Serializable, SecretRedactor {
     public abstract String originalArgument();
 
     public abstract String forDisplay();
@@ -49,10 +51,11 @@ public abstract class CommandArgument implements Serializable {
         return originalArgument != null ? originalArgument.equals(othersOriginalArgument) : othersOriginalArgument == null;
     }
 
-    public String replaceSecretInfo(String line) {
-        if (originalArgument().length() > 0) {
-            line = line.replace(originalArgument(), forDisplay());
+    @Override
+    public @NotNull Redactable redactFrom(@NotNull Redactable toRedact) {
+        if (!originalArgument().isEmpty()) {
+            return toRedact.next(toRedact.value().replace(originalArgument(), forDisplay()));
         }
-        return line;
+        return toRedact;
     }
 }

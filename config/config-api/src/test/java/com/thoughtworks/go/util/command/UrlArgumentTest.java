@@ -209,19 +209,19 @@ class UrlArgumentTest {
         @Test
         void shouldReturnLineAsItIsIfLineIsBlank() {
             final UrlArgument urlArgument = new UrlArgument("http://username:password@somewhere?name=bob");
-            assertThat(urlArgument.replaceSecretInfo("")).isEqualTo("");
+            assertThat(urlArgument.redactFrom("")).isEqualTo("");
         }
 
         @Test
         void shouldReturnLineAsItIsIfLineIsNull() {
             final UrlArgument urlArgument = new UrlArgument("http://username:password@somewhere?name=bob");
-            assertThat(urlArgument.replaceSecretInfo(null)).isNull();
+            assertThat(urlArgument.redactFrom((String) null)).isNull();
         }
 
         @Test
         void shouldReturnLineAsItIsIfUrlIsBlank() {
             final UrlArgument urlArgument = new UrlArgument("");
-            assertThat(urlArgument.replaceSecretInfo("some-content")).isEqualTo("some-content");
+            assertThat(urlArgument.redactFrom("some-content")).isEqualTo("some-content");
         }
 
         @ParameterizedTest
@@ -231,7 +231,7 @@ class UrlArgumentTest {
             final String originalLine = format("[go] Start updating repo at revision 08e7cc03 from %s", input);
 
             final String expectedLine = format("[go] Start updating repo at revision 08e7cc03 from %s", maskedUrl);
-            assertThat(urlArgument.replaceSecretInfo(originalLine)).isEqualTo(expectedLine);
+            assertThat(urlArgument.redactFrom(originalLine)).isEqualTo(expectedLine);
         }
 
         @Test
@@ -240,7 +240,7 @@ class UrlArgumentTest {
             final String originalLine = format("[go] echoing same url twice: %s and %s", url, url);
             final UrlArgument urlArgument = new UrlArgument(url);
 
-            final String actual = urlArgument.replaceSecretInfo(originalLine);
+            final String actual = urlArgument.redactFrom(originalLine);
 
             final String maskedUrl = "http://username:******@somewhere?name=bob";
             final String expectedLine = format("[go] echoing same url twice: %s and %s", maskedUrl, maskedUrl);
@@ -274,7 +274,7 @@ class UrlArgumentTest {
                     </info>""";
 
             UrlArgument url = new UrlArgument("http://cce:password@10.18.3.171:8080/svn/connect4/trunk");
-            String result = url.replaceSecretInfo(output);
+            String result = url.redactFrom(output);
             assertThat(result).contains("<url>http://cce:******@10.18.3.171:8080/svn/connect4/trunk</url>");
             assertThat(result).contains("<root>http://cce:******@10.18.3.171:8080/svn/connect4</root>");
             assertThat(result).doesNotContain("cce:password");

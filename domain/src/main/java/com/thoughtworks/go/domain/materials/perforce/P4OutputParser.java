@@ -112,8 +112,8 @@ public class P4OutputParser {
                 throw bomb(e);
             }
         } else {
-            LOG.warn("Could not parse P4 describe: {}", result.replaceSecretInfo(line));
-            throw new P4OutputParseException("Could not parse P4 describe: " + result.replaceSecretInfo(line));
+            LOG.warn("Could not parse P4 describe: {}", result.redactFrom(line));
+            throw new P4OutputParseException("Could not parse P4 describe: " + result.redactFrom(line));
         }
     }
 
@@ -129,12 +129,12 @@ public class P4OutputParser {
                 } catch (P4OutputParseException e) {
                     LOG.error("Error parsing changes for {}", this);
                     LOG.error("---- change ---------");
-                    LOG.error(result.replaceSecretInfo(change));
+                    LOG.error(result.redactFrom(change));
                     LOG.error("---- description ----");
-                    LOG.error(result.replaceSecretInfo(description));
+                    LOG.error(result.redactFrom(description));
                     LOG.error("---------------------");
                 } catch (RuntimeException e) {
-                    throw (RuntimeException) result.smudgedException(e);
+                    throw result.redactFrom(e);
                 }
             }
         }

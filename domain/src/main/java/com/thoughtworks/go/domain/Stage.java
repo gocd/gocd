@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ClonerFactory;
@@ -51,7 +50,6 @@ public class Stage extends PersistentObject {
     private boolean artifactsDeleted;
 
     private static final StageResult DEFAULT_RESULT = StageResult.Unknown;
-    private static final Cloner CLONER = ClonerFactory.instance();
     private String configVersion = null;
     private StageIdentifier previousStage;
 
@@ -433,7 +431,7 @@ public class Stage extends PersistentObject {
     }
 
     public Stage createClone() {
-        return CLONER.deepClone(this);
+        return ClonerFactory.instance().deepClone(this);
     }
 
     public void prepareForRerunOf(SchedulingContext context, String latestConfigVersion, Clock clock) {

@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.RunOnAllAgentsJobTypeConfig.MARKER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -167,7 +168,7 @@ public class StageConfigTest {
         jobs.add(new JobConfig("job"));
         StageConfig stage = new StageConfig(new CaseInsensitiveString("stage-name"), jobs);
 
-        JobConfig found = stage.jobConfigByInstanceName("job-for-all-agents-" + RunOnAllAgentsJobTypeConfig.MARKER + "-1", true);
+        JobConfig found = stage.jobConfigByInstanceName("job-for-all-agents-" + MARKER + "-1", true);
         assertThat(found).isEqualTo(allAgentsJob);
     }
 
@@ -184,7 +185,7 @@ public class StageConfigTest {
         jobs.add(allAgentsJob);
         StageConfig stage = new StageConfig(new CaseInsensitiveString("stage-name"), jobs);
 
-        JobConfig found = stage.jobConfigByInstanceName(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("job-for-all-agents", 1), true);
+        JobConfig found = stage.jobConfigByInstanceName("job-for-all-agents-" + MARKER + "-1", true);
         assertThat(found).isEqualTo(allAgentsJob);
     }
 

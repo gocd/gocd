@@ -53,6 +53,7 @@ class InstallerTypeAgent implements InstallerType {
   }
 
   // Note that these apply only to the agent start-up, but not the bootstrapper or launcher
+  @Override
   List<String> getJvmInternalAccessArgs() {
     [
       '--enable-native-access=ALL-UNNAMED',    // JDK 25+: Needed by JNA used by OSHI library at least

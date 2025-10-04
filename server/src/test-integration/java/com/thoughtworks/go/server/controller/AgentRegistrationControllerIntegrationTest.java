@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.controller;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -65,12 +64,11 @@ public class AgentRegistrationControllerIntegrationTest {
     @Autowired
     EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
 
-    static final Cloner CLONER = ClonerFactory.instance();
     private Properties original;
 
     @BeforeEach
     public void before() {
-        original = CLONER.deepClone(System.getProperties());
+        original = ClonerFactory.instance().deepClone(System.getProperties());
     }
 
     @AfterEach

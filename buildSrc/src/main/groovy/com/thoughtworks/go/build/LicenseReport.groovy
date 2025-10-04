@@ -40,6 +40,8 @@ class LicenseReport {
     EDL_1_0,
     EPL_1_0,
     EPL_2_0,
+    FSL_1_1_ALv2,
+    FSL_1_1_MIT,
     GPL_2_0_CLASSPATH_EXCEPTION,
     GPL_2_0_UNIVERSAL_FOSS_EXCEPTION,
     ISC,

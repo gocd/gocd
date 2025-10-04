@@ -136,6 +136,8 @@ enum SpdxLicense {
   EGENIX("eGenix", "eGenix.com Public License 1.1.0"),
   EFL_1_0("EFL-1.0", "Eiffel Forum License v1.0"),
   EFL_2_0("EFL-2.0", "Eiffel Forum License v2.0"),
+  FSL_1_1_ALv2("FSL-1.1-ALv2", "Functional Source License, Version 1.1, ALv2 Future License"),
+  FSL_1_1_MIT("FSL-1.1-ALv2", "Functional Source License, Version 1.1, MIT Future License"),
   MIT_ADVERTISING("MIT-advertising", "Enlightenment License (e16)"),
   MIT_ENNA("MIT-enna", "enna License"),
   ENTESSA("Entessa", "Entessa Public License v1.0"),

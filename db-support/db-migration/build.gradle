@@ -28,8 +28,9 @@ dependencies {
 
     // These dependencies used to be shaded, but are now directly added. However they seem only related to use of
     // CSV or YAML snapshots/changelogs and/or offline storage which does not seem relevant to GoCD.
-    exclude group: 'org.yaml', module: 'snakeyaml'
-    exclude group: 'com.opencsv', module: 'opencsv'
+    // TEMPORARILY re-add dependencies due to https://github.com/liquibase/liquibase/issues/7318
+//    exclude group: 'org.yaml', module: 'snakeyaml'
+//    exclude group: 'com.opencsv', module: 'opencsv'
   }
   implementation project.deps.slf4jApi
   runtimeOnly project.deps.liquibaseSlf4j

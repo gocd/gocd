@@ -47,19 +47,15 @@ class AdoptiumVersion implements Serializable {
   // Examples
   // 17_35 (first release)
   // 17.0.4_8 (normal release)
-  // 17.0.4.1_1 (rare emergency patch release
+  // 17.0.4.1_1 (rare emergency patch release)
   def fileSafeDisplayVersion() {
     canonicalDisplayVersion().replace('+', '_')
-  }
-
-  def featureSuffix() {
-    update == null ? '' : 'U'
   }
 
   def toDownloadURLFor(OperatingSystem os, Architecture arch) {
     "https://github.com/adoptium/temurin${feature}-binaries/releases/download/" +
       "jdk-${urlSafeDisplayVersion()}/" +
-      "OpenJDK${feature}${featureSuffix()}-jre_${arch.canonicalName}_${os.adoptiumAlias}_hotspot_${fileSafeDisplayVersion()}.${os.extension}"
+      "OpenJDK${feature}U-jre_${arch.canonicalName}_${os.adoptiumAlias}_hotspot_${fileSafeDisplayVersion()}.${os.extension}"
   }
 
   @SuppressWarnings('unused') // Used in Gradle build scripts

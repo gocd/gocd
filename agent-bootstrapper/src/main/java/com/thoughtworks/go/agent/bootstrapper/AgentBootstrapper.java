@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class AgentBootstrapper {
@@ -45,22 +46,24 @@ public class AgentBootstrapper {
     int waitTimeBeforeRelaunch = SystemUtil.getIntProperty(WAIT_TIME_BEFORE_RELAUNCH_IN_MS, DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS);
     private static final Logger LOG = LoggerFactory.getLogger(AgentBootstrapper.class);
 
-    private boolean loop;
-
-    private Thread launcherThread;
+    private final AtomicBoolean continueTrying = new AtomicBoolean(true);
+    private final boolean jvmExitOnFailure;
 
     public AgentBootstrapper() {
+        jvmExitOnFailure = true;
+    }
+
+    public AgentBootstrapper(boolean oneShot) {
+        continueTrying.set(!oneShot);
+        jvmExitOnFailure = !oneShot;
     }
 
     public static void main(String[] argv) {
         AgentBootstrapperArgs args = new AgentCLI().parse(argv);
-        new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE).runWithLogger(() -> new AgentBootstrapper().go(true, args));
+        new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE).runWithLogger(() -> new AgentBootstrapper().go(args));
     }
 
-    public void go(boolean shouldLoop, AgentBootstrapperArgs bootstrapperArgs) {
-        loop = shouldLoop;
-        launcherThread = Thread.currentThread();
-
+    public void go(AgentBootstrapperArgs bootstrapperArgs) {
         validate();
         cleanupTempFiles();
 
@@ -68,7 +71,7 @@ public class AgentBootstrapper {
         DefaultAgentLaunchDescriptorImpl descriptor = new DefaultAgentLaunchDescriptorImpl(bootstrapperArgs, this);
 
         do {
-            ClassLoader tccl = launcherThread.getContextClassLoader();
+            ClassLoader tccl = Thread.currentThread().getContextClassLoader();
             try (AgentLauncherCreator agentLauncherCreator = getLauncherCreator()) {
                 AgentLauncher launcher = agentLauncherCreator.createLauncher();
                 LOG.info("Attempting create and start launcher...");
@@ -77,7 +80,7 @@ public class AgentBootstrapper {
                 resetContextClassLoader(tccl);
                 LOG.info("Launcher returned with code {}(0x{})", returnValue, Integer.toHexString(returnValue).toUpperCase());
                 if (returnValue == AgentLauncher.IRRECOVERABLE_ERROR) {
-                    loop = false;
+                    break;
                 }
             } catch (Exception e) {
                 LOG.error("Error starting launcher", e);
@@ -90,11 +93,11 @@ public class AgentBootstrapper {
             if (returnValue != AgentLauncher.NOT_UP_TO_DATE) {
                 waitForRelaunchTime();
             }
-        } while (loop);
+        } while (continueTrying.get());
 
         LOG.info("Agent Bootstrapper stopped");
 
-        jvmExit(returnValue);
+        if (jvmExitOnFailure) jvmExit(returnValue);
     }
 
     private void cleanupTempFiles() {
@@ -130,7 +133,7 @@ public class AgentBootstrapper {
     }
 
     public void stopLooping() {
-        loop = false;
+        continueTrying.set(false);
     }
 
     void validate() {

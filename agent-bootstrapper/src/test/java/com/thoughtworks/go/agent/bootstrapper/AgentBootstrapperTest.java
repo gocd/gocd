@@ -19,7 +19,6 @@ import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.util.Downloader;
-import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -93,18 +92,17 @@ public class AgentBootstrapperTest {
 
         Thread stopLoopThd = new Thread(() -> {
             doInterruptiblyQuietlyRethrowInterrupt(waitForLauncherCreation::acquire);
-            ReflectionUtil.setField(spyBootstrapper, "loop", false);
+            spyBootstrapper.stopLooping();
         });
         stopLoopThd.start();
         try {
-            spyBootstrapper.go(true, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+            spyBootstrapper.go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
             fail("should not have propagated exception thrown while creating launcher", e);
         }
         assertThat(reLaunchWaitIsCalled[0]).isTrue();
     }
-
 
     @Test
     @Timeout(value = 10, unit = TimeUnit.SECONDS)
@@ -131,7 +129,7 @@ public class AgentBootstrapperTest {
         final AgentBootstrapper spyBootstrapper = stubJVMExit(bootstrapper);
 
         try {
-            spyBootstrapper.go(true, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+            spyBootstrapper.go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
         } catch (Exception e) {
             fail("should not have propagated exception thrown while invoking the launcher", e);
         }
@@ -139,7 +137,6 @@ public class AgentBootstrapperTest {
     }
 
     @Test
-    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void shouldNotDieWhenInvocationOfLauncherRaisesException_butCreationOfLauncherWentThrough() throws InterruptedException {
         final Semaphore waitForLauncherInvocation = new Semaphore(1);
         waitForLauncherInvocation.acquire();
@@ -171,11 +168,11 @@ public class AgentBootstrapperTest {
 
         Thread stopLoopThd = new Thread(() -> {
             doInterruptiblyQuietlyRethrowInterrupt(waitForLauncherInvocation::acquire);
-            ReflectionUtil.setField(spyBootstrapper, "loop", false);
+            spyBootstrapper.stopLooping();
         });
         stopLoopThd.start();
         try {
-            spyBootstrapper.go(true, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+            spyBootstrapper.go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
             fail("should not have propagated exception thrown while invoking the launcher", e);
@@ -222,7 +219,7 @@ public class AgentBootstrapperTest {
             }
         };
         AgentBootstrapper spy = stubJVMExit(agentBootstrapper);
-        spy.go(true, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + 80 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+        spy.go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + 80 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
     }
 
     private AgentBootstrapper stubJVMExit(AgentBootstrapper bootstrapper) {

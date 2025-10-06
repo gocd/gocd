@@ -83,11 +83,7 @@ public class AgentBootstrapperFunctionalTest {
             System.setErr(new PrintStream(os));
             File agentJar = new File("agent.jar");
             agentJar.delete();
-            new AgentBootstrapper() {
-                @Override
-                void jvmExit(int returnValue) {
-                }
-            }.go(false, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+            new AgentBootstrapper(true).go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             agentJar.delete();
             assertThat(os.toString()).contains("Hello World Fellas!");
         } finally {
@@ -100,11 +96,7 @@ public class AgentBootstrapperFunctionalTest {
     public void shouldDownloadJarIfItDoesNotExist() throws Exception {
         File agentJar = new File("agent.jar");
         agentJar.delete();
-        new AgentBootstrapper() {
-            @Override
-            void jvmExit(int returnValue) {
-            }
-        }.go(false, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+        new AgentBootstrapper(true).go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
         assertTrue(agentJar.exists(), "No agent downloaded");
         agentJar.delete();
     }
@@ -116,11 +108,7 @@ public class AgentBootstrapperFunctionalTest {
         agentJar.delete();
         createRandomFile(agentJar);
         long original = agentJar.length();
-        new AgentBootstrapper() {
-            @Override
-            void jvmExit(int returnValue) {
-            }
-        }.go(false, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+        new AgentBootstrapper(true).go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
         assertThat(agentJar.length()).isNotEqualTo(original);
         agentJar.delete();
     }

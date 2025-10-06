@@ -33,20 +33,15 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCMs;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.security.GoAcl;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.Pair;
@@ -72,7 +67,8 @@ import java.util.*;
 import static com.thoughtworks.go.config.validation.GoConfigValidity.*;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
-import static com.thoughtworks.go.serverhealth.HealthStateType.*;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbiddenForPipeline;
+import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
 
@@ -150,34 +146,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     }
 
-    public ConfigForEdit<PipelineConfig> loadForEdit(String pipelineName,
-                                                     Username username,
-                                                     HttpLocalizedOperationResult result) {
-        if (!canEditPipeline(pipelineName, username, result)) {
-            return null;
-        }
-        GoConfigHolder configHolder = cloner.deepClone(goConfigDao.loadConfigHolder());
-        PipelineConfig config = configHolder.configForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        return new ConfigForEdit<>(config, configHolder);
-    }
-
     boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result) {
         return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
-    }
-
-    @TestOnly
-    //do not use this method as it is coupled with the origin.
-    // ideally these should be two different checks:
-    // - pipeline is editable (Not defined in config repository)
-    // - whether a user has permissions to edit the pipeline
-    public boolean canEditPipeline(String pipelineName, Username username) {
-        PipelineConfig pipelineConfig;
-        try {
-            pipelineConfig = pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-        } catch (RecordNotFoundException e) {
-            return false;
-        }
-        return pipelineConfig != null && pipelineConfig.isLocal() && isUserAdminOfGroup(username.getUsername(), findGroupNameByPipeline(pipelineConfig.name()));
     }
 
     public boolean canEditPipeline(String pipelineName,
@@ -243,10 +213,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().pipelineConfigByName(name);
     }
 
-    public boolean stageHasTests(String pipelineName, String stageName) {
-        return stageConfigNamed(pipelineName, stageName).hasTests();
-    }
-
     public boolean stageExists(String pipelineName, String stageName) {
         try {
             stageConfigNamed(pipelineName, stageName);
@@ -266,6 +232,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return new File(s);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasStageConfigNamed(String pipelineName, String stageName) {
         return getCurrentConfig().hasStageConfigNamed(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), true);
     }
@@ -469,18 +436,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().getAllLocalPipelineConfigs(true);
     }
 
-    public List<PipelineConfig> getAllPipelineConfigsForEditForUser(Username username) {
-        List<PipelineConfig> pipelineConfigs = new ArrayList<>();
-
-        List<String> groupsForUser = getConfigForEditing().getGroupsForUser(username.getUsername(), rolesForUser(username.getUsername()));
-
-        for (String groupName : groupsForUser) {
-            pipelineConfigs.addAll(getAllPipelinesForEditInGroup(groupName).getPipelines());
-        }
-
-        return pipelineConfigs;
-    }
-
     public String adminEmail() {
         return getCurrentConfig().adminEmail();
     }
@@ -613,10 +568,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return pipelines;
     }
 
-    public PipelineConfigs getAllPipelinesForEditInGroup(String group) {
-        return getConfigForEditing().pipelines(group);
-    }
-
     public GoConfigValidity checkConfigFileValid() {
         return goConfigDao.checkConfigFileValid();
     }
@@ -683,16 +634,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return goConfigDao.md5OfConfigFile();
     }
 
-    public List<PipelineConfig> downstreamPipelinesOf(String pipelineName) {
-        List<PipelineConfig> dependencies = new ArrayList<>();
-        for (PipelineConfig config : getAllPipelineConfigs()) {
-            if (config.dependsOn(new CaseInsensitiveString(pipelineName))) {
-                dependencies.add(config);
-            }
-        }
-        return dependencies;
-    }
-
     public boolean hasVariableInScope(String pipelineName, String variableName) {
         return cruiseConfig().hasVariableInScope(pipelineName, variableName);
     }
@@ -735,10 +676,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().getEnvironments().hasEnvironmentNamed(environmentName);
     }
 
-    public boolean shouldFetchMaterials(String pipelineName, String stageName) {
-        return stageConfigNamed(pipelineName, stageName).isFetchMaterials();
-    }
-
     public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, String groupName) {
         if (!isSecurityEnabled()) {
             return true;
@@ -758,10 +695,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return isAdministrator(CaseInsensitiveString.str(username.getUsername()));
     }
 
-    private boolean isUserTemplateAdmin(Username username) {
-        return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername(), rolesForUser(username.getUsername()));
-    }
-
     public GoConfigRevision getConfigAtVersion(String version) {
         GoConfigRevision goConfigRevision = null;
         try {
@@ -770,34 +703,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             LOGGER.info("[Go Config Service] Could not fetch cruise config xml at version={}", version, e);
         }
         return goConfigRevision;
-    }
-
-    public List<PipelineConfig> pipelinesForFetchArtifacts(String pipelineName) {
-        return currentCruiseConfig().pipelinesForFetchArtifacts(pipelineName);
-    }
-
-    private boolean isValidGroup(String groupName, CruiseConfig cruiseConfig, HttpLocalizedOperationResult result) {
-        if (!cruiseConfig.hasPipelineGroup(groupName)) {
-            result.notFound(EntityType.PipelineGroup.notFoundMessage(groupName), HealthStateType.general(HealthStateScope.forGroup(groupName)));
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isAdminOfGroup(String toGroupName, Username username, HttpLocalizedOperationResult result) {
-        if (!isUserAdminOfGroup(username.getUsername(), toGroupName)) {
-            result.forbidden(EntityType.PipelineGroup.forbiddenToEdit(toGroupName, username.getUsername()), forbidden());
-            return false;
-        }
-        return true;
-    }
-
-    @TestOnly
-    public CruiseConfig loadCruiseConfigForEdit(Username username, HttpLocalizedOperationResult result) {
-        if (!isUserAdmin(username) && !isUserTemplateAdmin(username)) {
-            result.forbidden(LocalizedMessage.forbiddenToEdit(), HealthStateType.forbidden());
-        }
-        return clonedConfigForEdit();
     }
 
     public CruiseConfig clonedConfigForEdit() {
@@ -813,29 +718,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return config;
     }
 
-    public ConfigForEdit<PipelineConfigs> loadGroupForEditing(String groupName,
-                                                              Username username,
-                                                              HttpLocalizedOperationResult result) {
-        GoConfigHolder configForEdit = cloner.deepClone(goConfigDao.loadConfigHolder());
-        if (!isValidGroup(groupName, configForEdit.configForEdit, result)) {
-            return null;
-        }
-
-        if (!isAdminOfGroup(groupName, username, result)) {
-            return null;
-        }
-        PipelineConfigs config = cloner.deepClone(configForEdit.configForEdit.findGroup(groupName));
-        return new ConfigForEdit<>(config, configForEdit);
-    }
-
-    public boolean doesMd5Match(String md5) {
-        return configFileMd5().equals(md5);
-    }
-
     public String getServerId() {
         return serverConfig().getServerId();
     }
 
+    @SuppressWarnings("unused") // Used by Rails code
     public String configChangesFor(String laterMd5, String earlierMd5, LocalizedOperationResult result) {
         try {
             return configRepository.configChangesFor(laterMd5, earlierMd5);
@@ -919,10 +806,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     @TestOnly
     public void forceNotifyListeners() {
         goConfigDao.reloadListeners();
-    }
-
-    public ConfigElementImplementationRegistry getRegistry() {
-        return registry;
     }
 
     public PipelineConfig findPipelineByName(CaseInsensitiveString pipelineName) {

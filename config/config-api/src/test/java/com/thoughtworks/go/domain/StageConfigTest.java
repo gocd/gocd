@@ -190,15 +190,6 @@ public class StageConfigTest {
     }
 
     @Test
-    public void shouldReturnTrueIfStageHasTests() {
-        StageConfig stageWithTests = StageConfigMother.stageConfigWithArtifact("stage1", "job1", ArtifactType.test);
-
-        StageConfig stageWithoutTests = StageConfigMother.stageConfigWithArtifact("stage2", "job2", ArtifactType.build);
-        assertThat(stageWithTests.hasTests()).isTrue();
-        assertThat(stageWithoutTests.hasTests()).isFalse();
-    }
-
-    @Test
     public void shouldPopulateErrorMessagesWhenHasJobNamesRepeated() {
         CruiseConfig config = new BasicCruiseConfig();
         config.initializeServer();

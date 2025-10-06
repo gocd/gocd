@@ -1274,14 +1274,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public List<PipelineConfig> pipelinesForFetchArtifacts(String pipelineName) {
-        PipelineConfig currentPipeline = pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        List<PipelineConfig> pipelinesForFetchArtifact = currentPipeline.allFirstLevelUpstreamPipelines(this);
-        pipelinesForFetchArtifact.add(currentPipeline);
-        return pipelinesForFetchArtifact;
-    }
-
-    @Override
     public Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> templatesWithAssociatedPipelines() {
         if (allTemplatesWithAssociatedPipelines == null) {
             allTemplatesWithAssociatedPipelines = new AllTemplatesWithAssociatedPipelines();

@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.update.CreatePipelineConfigsCommand;
 import com.thoughtworks.go.config.update.DeletePipelineConfigsCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigsCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
-import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
@@ -39,8 +38,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -262,25 +259,6 @@ public class PipelineConfigsServiceTest {
         GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
         assertThat(invalidGoConfig.isPostValidationError()).isTrue();
         assertThat(result.message()).isEqualTo("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.");
-    }
-
-    @Test
-    public void shouldGetPipelineGroupsForUser() {
-        PipelineConfig pipelineInGroup1 = new PipelineConfig();
-        PipelineConfigs group1 = new BasicPipelineConfigs(pipelineInGroup1);
-        group1.setGroup("group1");
-        PipelineConfig pipelineInGroup2 = new PipelineConfig();
-        PipelineConfigs group2 = new BasicPipelineConfigs(pipelineInGroup2);
-        group2.setGroup("group2");
-        when(goConfigService.groups()).thenReturn(new PipelineGroups(group1, group2));
-        String user = "looser";
-        when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(true);
-        when(securityService.hasViewPermissionForGroup(user, "group2")).thenReturn(false);
-
-        List<PipelineConfigs> gotPipelineGroups = service.getGroupsForUser(user);
-
-        verify(goConfigService, never()).getAllPipelinesForEditInGroup("group1");
-        assertThat(gotPipelineGroups).isEqualTo(List.of(group1));
     }
 
     @Test

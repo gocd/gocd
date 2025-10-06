@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -30,12 +29,14 @@ import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.config.rules.Rules;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.DefaultSchedulingContext;
+import com.thoughtworks.go.domain.GoConfigRevision;
+import com.thoughtworks.go.domain.JobConfigIdentifier;
+import com.thoughtworks.go.domain.RunOnAllAgents;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.security.GoCipher;
@@ -142,18 +143,6 @@ public class GoConfigServiceTest {
         assertThat(goConfigService.hasVariableInScope("pipeline_other", "NOT_IN_SCOPE")).isFalse();
     }
 
-    @Test
-    public void shouldUnderstandIfAStageHasFetchMaterialsConfigured() {
-        PipelineConfig pipeline = createPipelineConfig("cruise", "dev", "test");
-        StageConfig stage = pipeline.first();
-        stage.setFetchMaterials(false);
-
-        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline));
-        expectLoad(cruiseConfig);
-
-        assertThat(goConfigService.shouldFetchMaterials("cruise", "dev")).isFalse();
-    }
-
     private void expectLoad(final CruiseConfig result) {
         when(goConfigDao.load()).thenReturn(result);
     }
@@ -202,31 +191,19 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnTrueIfStageHasTestsAndFalseIfItDoesnt() {
-        PipelineConfigs newPipelines = new BasicPipelineConfigs();
-        PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
-        pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage1", "job1", ArtifactType.test));
-        pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage2", "job2", ArtifactType.build));
-        newPipelines.add(pipelineConfig);
-        expectLoad(new BasicCruiseConfig(newPipelines));
-        assertThat(goConfigService.stageHasTests("pipeline", "stage1")).isTrue();
-        assertThat(goConfigService.stageHasTests("pipeline", "stage2")).isFalse();
-    }
-
-    @Test
     public void shouldGetCommentRenderer() {
         PipelineConfigs newPipeline = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.setTrackingTool(new TrackingTool("link", "regex"));
         newPipeline.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(newPipeline));
-        assertEquals(goConfigService.getCommentRendererFor("pipeline"), new TrackingTool("link", "regex"));
+        assertEquals(new TrackingTool("link", "regex"), goConfigService.getCommentRendererFor("pipeline"));
 
         pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         newPipeline = new BasicPipelineConfigs();
         newPipeline.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(newPipeline));
-        assertEquals(goConfigService.getCommentRendererFor("pipeline"), new TrackingTool());
+        assertEquals(new TrackingTool(), goConfigService.getCommentRendererFor("pipeline"));
     }
 
     @Test
@@ -516,20 +493,6 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnDependentPipelinesForAGivenPipeline() {
-        PipelineConfig up = createPipelineConfig("blahPipeline", "blahStage");
-        up.addMaterialConfig(MaterialConfigsMother.hgMaterialConfig());
-        PipelineConfig down1 = GoConfigMother.createPipelineConfigWithMaterialConfig("down1", new DependencyMaterialConfig(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage")));
-        PipelineConfig down2 = GoConfigMother.createPipelineConfigWithMaterialConfig("down2", new DependencyMaterialConfig(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage")));
-        when(goConfigDao.load()).thenReturn(configWith(
-                up, down1, down2, GoConfigMother.createPipelineConfigWithMaterialConfig("otherPipeline", new DependencyMaterialConfig(new CaseInsensitiveString("someotherpipeline"),
-                        new CaseInsensitiveString("blahStage")))
-        ));
-
-        assertThat(goConfigService.downstreamPipelinesOf("blahPipeline")).isEqualTo(List.of(down1, down2));
-    }
-
-    @Test
     public void shouldReturnUpstreamDependencyGraphForAGivenPipeline() {
         PipelineConfig current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first")),
                 new DependencyMaterialConfig(new CaseInsensitiveString("up2"), new CaseInsensitiveString("first")));
@@ -587,28 +550,6 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnListOfUpstreamPipelineConfigValidForFetchArtifact() {
-        PipelineConfig unrelatedPipeline = PipelineConfigMother.pipelineConfig("some.random.pipeline");
-        PipelineConfig upstream = PipelineConfigMother.createPipelineConfig("upstream", "upstream.stage", "upstream.job");
-        upstream.add(StageConfigMother.stageConfig("upstream.stage.2"));
-        upstream.add(StageConfigMother.stageConfig("upstream.stage.3"));
-        PipelineConfig downstream = PipelineConfigMother.createPipelineConfig("pipeline", "stage.1", "jobs");
-        downstream.add(StageConfigMother.stageConfig("stage.2"));
-        downstream.add(StageConfigMother.stageConfig("current.stage"));
-
-        downstream.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("upstream.stage.2")));
-
-        CruiseConfig cruiseConfig = configWith(upstream, downstream, unrelatedPipeline);
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
-
-        List<PipelineConfig> fetchablePipelines = goConfigService.pipelinesForFetchArtifacts("pipeline");
-
-        assertThat(fetchablePipelines.size()).isEqualTo(2);
-        assertThat(fetchablePipelines).contains(upstream);
-        assertThat(fetchablePipelines).contains(downstream);
-    }
-
-    @Test
     public void shouldUseInstanceFactoryToCreateAStageInstanceForTheSpecifiedPipelineStageCombination() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("foo-pipeline", "foo-stage", "foo-job");
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser");
@@ -622,20 +563,6 @@ public class GoConfigServiceTest {
         goConfigService.scheduleStage("foo-pipeline", "foo-stage", schedulingContext);
 
         verify(instanceFactory).createStageInstance(pipelineConfig, new CaseInsensitiveString("foo-stage"), schedulingContext, md5, clock);
-    }
-
-    @Test
-    public void shouldReturnFalseIfMD5DoesNotMatch() {
-        String staleMd5 = "oldmd5";
-        when(goConfigDao.md5OfConfigFile()).thenReturn("newmd5");
-        assertThat(goConfigService.doesMd5Match(staleMd5)).isFalse();
-    }
-
-    @Test
-    public void shouldReturnTrueIfMd5Matches() {
-        String staleMd5 = "md5";
-        when(goConfigDao.md5OfConfigFile()).thenReturn("md5");
-        assertThat(goConfigService.doesMd5Match(staleMd5)).isTrue();
     }
 
     @Test
@@ -846,15 +773,6 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldDelegateToConfig_getAllPipelinesInGroup() {
-        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-        when(goConfigDao.loadForEditing()).thenReturn(cruiseConfig);
-        goConfigService.getAllPipelinesForEditInGroup("group");
-        verify(cruiseConfig).pipelines("group");
-    }
-
-
-    @Test
     public void pipelineEditableViaUI_shouldReturnFalseWhenPipelineIsRemote() {
         PipelineConfigs group = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
@@ -914,64 +832,6 @@ public class GoConfigServiceTest {
         assertThat(schedulableDependencyMaterials.size()).isEqualTo(2);
         assertTrue(schedulableDependencyMaterials.contains(svnMaterialConfig));
         assertTrue(schedulableDependencyMaterials.contains(pluggableSCMMaterialConfig));
-    }
-
-    @Test
-    public void shouldBeAbleToEditAnExistentLocalPipelineWithAdminPrivileges() {
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-        PipelineConfig pipeline = new PipelineConfig();
-        pipeline.setName("pipeline1");
-        pipeline.setOrigin(null);
-
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
-        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(pipeline);
-        when(cruiseConfig.getGroups()).thenReturn(new GoConfigMother().cruiseConfigWithOnePipelineGroup().getGroups());
-        when(cruiseConfig.isAdministrator("admin_user")).thenReturn(true);
-
-        assertTrue(goConfigService.canEditPipeline("pipeline1", new Username("admin_user")));
-    }
-
-    @Test
-    public void shouldNotBeAbleToEditANonExistentPipeline() {
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
-        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("non_existing_pipeline"))).thenThrow(new RecordNotFoundException(EntityType.Pipeline, "non_existing_pipeline"));
-
-        assertFalse(goConfigService.canEditPipeline("non_existing_pipeline", null));
-    }
-
-    @Test
-    public void shouldNotBeAbleToEditPipelineIfUserDoesNotHaveSufficientPermissions() {
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-        PipelineConfig pipeline = new PipelineConfig();
-        pipeline.setName("pipeline1");
-
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
-        when(cruiseConfig.isSecurityEnabled()).thenReturn(true);
-        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(pipeline);
-        BasicCruiseConfig basicCruiseConfig = new GoConfigMother().cruiseConfigWithOnePipelineGroup();
-        when(cruiseConfig.getGroups()).thenReturn(basicCruiseConfig.getGroups());
-        when(cruiseConfig.findGroup("group1")).thenReturn(mock(PipelineConfigs.class));
-        when(cruiseConfig.isAdministrator("view_user")).thenReturn(false);
-        when(cruiseConfig.server()).thenReturn(new ServerConfig());
-
-        assertFalse(goConfigService.canEditPipeline("pipeline1", new Username("view_user")));
-    }
-
-    @Test
-    public void shouldNotAllowEditOfConfigRepoPipelines() {
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
-        PipelineConfig pipeline = new PipelineConfig();
-        pipeline.setName("pipeline1");
-        pipeline.setOrigin(new RepoConfigOrigin());
-        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(pipeline);
-        when(cruiseConfig.getGroups()).thenReturn(new GoConfigMother().cruiseConfigWithOnePipelineGroup().getGroups());
-        when(cruiseConfig.isAdministrator("admin_user")).thenReturn(true);
-
-        assertFalse(goConfigService.canEditPipeline("pipeline1", new Username("admin_user")));
     }
 
     @Test
@@ -1072,42 +932,6 @@ public class GoConfigServiceTest {
 
         expectLoad(config);
         assertThat(goConfigService.getSecretConfigById("invalid")).isNull();
-    }
-
-    @Test
-    public void shouldReturnAllPipelinesForASuperAdmin() {
-        GoConfigMother configMother = new GoConfigMother();
-        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
-        GoConfigMother.enableSecurityWithPasswordFilePlugin(config);
-        GoConfigMother.addUserAsSuperAdmin(config, "superadmin");
-        PipelineConfig pipelineConfig = configMother.addPipelineWithGroup(config, "group1", "p1", "s1", "j1");
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        expectLoad(config);
-
-        List<PipelineConfig> pipelines = goConfigService.getAllPipelineConfigsForEditForUser(new Username("superadmin"));
-
-        assertThat(pipelines).contains(pipelineConfig);
-    }
-
-    @Test
-    public void shouldReturnSpecificPipelinesForAGroupAdmin() {
-        GoConfigMother configMother = new GoConfigMother();
-        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
-        GoConfigMother.enableSecurityWithPasswordFilePlugin(config);
-        GoConfigMother.addUserAsSuperAdmin(config, "superadmin");
-
-        PipelineConfig pipelineConfig1 = configMother.addPipelineWithGroup(config, "group1", "p1", "s1", "j1");
-        PipelineConfig pipelineConfig2 = configMother.addPipelineWithGroup(config, "group2", "p2", "s1", "j1");
-
-        configMother.addAdminUserForPipelineGroup(config, "groupAdmin", "group1");
-
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        expectLoad(config);
-
-        List<PipelineConfig> pipelines = goConfigService.getAllPipelineConfigsForEditForUser(new Username("groupAdmin"));
-
-        assertThat(pipelines).contains(pipelineConfig1);
-        assertThat(pipelines).doesNotContain(pipelineConfig2);
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

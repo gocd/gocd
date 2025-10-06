@@ -310,15 +310,6 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return variables.hasVariable(variableName);
     }
 
-    public boolean hasTests() {
-        for (ArtifactTypeConfig artifactTypeConfig : artifactTypeConfigs) {
-            if (artifactTypeConfig.getArtifactType().isTest()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors.isEmpty();

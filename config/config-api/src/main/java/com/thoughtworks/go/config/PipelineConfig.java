@@ -883,14 +883,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return null;
     }
 
-    public List<PipelineConfig> allFirstLevelUpstreamPipelines(CruiseConfig cruiseConfig) {
-        List<PipelineConfig> pipelinesForFetchArtifact = new ArrayList<>();
-        for (DependencyMaterialConfig dependencyMaterial : dependencyMaterialConfigs()) {
-            pipelinesForFetchArtifact.add(cruiseConfig.pipelineConfigByName(dependencyMaterial.getPipelineName()));
-        }
-        return pipelinesForFetchArtifact;
-    }
-
     public CommentRenderer getCommentRenderer() {
         return trackingTool();
     }

@@ -249,15 +249,6 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         return false;
     }
 
-    public boolean hasTests() {
-        for (JobConfig job : jobConfigs) {
-            if (job.hasTests()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void setFetchMaterials(boolean fetchMaterials) {
         this.fetchMaterials = fetchMaterials;
     }

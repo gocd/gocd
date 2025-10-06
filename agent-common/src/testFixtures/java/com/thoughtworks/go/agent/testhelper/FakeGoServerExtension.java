@@ -46,7 +46,7 @@ public class FakeGoServerExtension implements BeforeEachCallback {
     }
 
     private FakeGoServer newFakeGoServer(ExtensionContext context) {
-        return context.getStore(NAMESPACE).getOrComputeIfAbsent("server", key -> startFakeGoServer(), FakeGoServer.class);
+        return context.getStore(NAMESPACE).computeIfAbsent("server", key -> startFakeGoServer(), FakeGoServer.class);
     }
 
     private FakeGoServer startFakeGoServer() {

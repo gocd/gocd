@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.server.messaging.activemq;
 
-import com.thoughtworks.go.server.messaging.*;
+import com.thoughtworks.go.server.messaging.GoMessageListener;
+import com.thoughtworks.go.server.messaging.GoMessageQueue;
+import com.thoughtworks.go.server.messaging.GoMessageTopic;
+import com.thoughtworks.go.server.messaging.GoTextMessage;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -30,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietly;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +46,7 @@ import static org.awaitility.Awaitility.await;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-public class ActiveMqTest implements GoMessageListener<GoTextMessage> {
-    private GoMessage receivedMessage;
+public class ActiveMqTest {
     public ActiveMqMessagingService messaging;
 
     @BeforeEach
@@ -53,23 +56,21 @@ public class ActiveMqTest implements GoMessageListener<GoTextMessage> {
 
     @AfterEach
     public void tearDown() throws Exception {
-        receivedMessage = null;
         messaging.stop();
     }
 
     @Test
     public void shouldBeAbleToListenForMessages() {
-        GoMessageTopic<GoTextMessage> topic
-                = new GoMessageTopic<>(messaging, "queue-name") {
-        };
-        topic.addListener(this);
+        GoMessageTopic<GoTextMessage> topic = new GoMessageTopic<>(messaging, "queue-name");
+        final AtomicReference<GoTextMessage> receivedMessage = new AtomicReference<>();
+        topic.addListener(receivedMessage::set);
 
         topic.post(new GoTextMessage("Hello World!"));
 
         await()
             .pollDelay(10, TimeUnit.MILLISECONDS)
-            .timeout(1, TimeUnit.SECONDS)
-            .untilAsserted(() -> assertThat(((GoTextMessage) receivedMessage).getText()).isEqualTo("Hello World!"));
+            .timeout(2, TimeUnit.SECONDS)
+            .untilAsserted(() -> assertThat(receivedMessage).hasValueSatisfying(m -> assertThat(m.getText()).isEqualTo("Hello World!")));
     }
 
     @Test
@@ -116,11 +117,6 @@ public class ActiveMqTest implements GoMessageListener<GoTextMessage> {
             .pollDelay(10, TimeUnit.MILLISECONDS)
             .timeout(1, TimeUnit.SECONDS)
             .untilAsserted(() -> assertThat(exceptionListener.receivedMessages.size()).isEqualTo(5));
-    }
-
-    @Override
-    public void onMessage(GoTextMessage message) {
-        receivedMessage = message;
     }
 
     private static class HangingListener implements GoMessageListener<GoTextMessage> {

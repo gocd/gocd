@@ -24,37 +24,37 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-ldap-authentication-plugin',
-    tagName: 'v3.0.0-445',
-    asset: 'gocd-ldap-authentication-plugin-3.0.0-445.jar',
-    checksum: '538dd5714854fad83978a21e87a92640cda9eeed4f9e325dedb4a093166dab9f'
+    tagName: 'v3.0.0-466',
+    asset: 'gocd-ldap-authentication-plugin-3.0.0-466.jar',
+    checksum: '49a988f4b097bfce4ba47e652ecdfa7faed3771a4244f9454fbfab96910ab0ed'
   ),
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-filebased-authentication-plugin',
-    tagName: 'v2.2.0-326',
-    asset: 'gocd-filebased-authentication-plugin-2.2.0-326.jar',
-    checksum: '7ca75aa5411f6dbaa5258160234b599bde60da46219b0641e6c6f4c5ac413d32'
+    tagName: 'v2.2.0-365',
+    asset: 'gocd-filebased-authentication-plugin-2.2.0-365.jar',
+    checksum: 'f04f18e9af23180687b1a8805aeaf2c5cf3a6e781fca1e5031916a95ad8acc0a'
   ),
   new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-yaml-config-plugin',
-    tagName: 'v1.0.0-449',
-    asset: 'yaml-config-plugin-1.0.0-449.jar',
-    checksum: '1f154d6f372f26bb23b6263c800ee8e9ee94941b94a7101ff7a8cf6b8300d304'
+    tagName: 'v1.0.0-488',
+    asset: 'yaml-config-plugin-1.0.0-488.jar',
+    checksum: 'ce6ba0ced525afeeebb2925910570aaed3f6cb93248d2de5075883bae67bb5b5'
   ),
   new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-json-config-plugin',
-    tagName: 'v1.0.0-297',
-    asset: 'json-config-plugin-1.0.0-297.jar',
-    checksum: 'a10290898c089a6ed5a49f4f07d610cd9194934e5753dd80541b4421e0e51e92'
+    tagName: 'v1.0.0-336',
+    asset: 'json-config-plugin-1.0.0-336.jar',
+    checksum: '6aef014d03c606947b42e1fec219e47f9cfe523b9130452a0da9dcfb216702c0'
   ),
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-file-based-secrets-plugin',
-    tagName: 'v1.2.0-362',
-    asset: 'gocd-file-based-secrets-plugin-1.2.0-362.jar',
-    checksum: 'a68b8380e1f43332bb2a7e0cae5523ca989f8279da3e32390ca29f451d4ab068'
+    tagName: 'v1.2.0-380',
+    asset: 'gocd-file-based-secrets-plugin-1.2.0-380.jar',
+    checksum: 'af0f98d979acad85b1a2e51d69abefd561c63ad85485091c40d2e78acd215c39'
   )
 ]
 

@@ -40,6 +40,7 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
 import javax.annotation.PostConstruct;
@@ -1138,14 +1139,10 @@ public class BasicCruiseConfig implements CruiseConfig {
         return templatesConfig;
     }
 
+    @Nullable
     @Override
     public PipelineTemplateConfig findTemplate(CaseInsensitiveString templateName) {
-        for (PipelineTemplateConfig config : templatesConfig) {
-            if (templateName.equals(config.name())) {
-                return config;
-            }
-        }
-        return null;
+        return templatesConfig.templateByName(templateName);
     }
 
     @Override
@@ -1155,11 +1152,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public PipelineTemplateConfig getTemplateByName(CaseInsensitiveString templateName) {
-        PipelineTemplateConfig template = getTemplates().templateByName(templateName);
-        if (template == null) {
-            throw new RecordNotFoundException(Template, templateName);
-        }
-        return template;
+        return Optional.ofNullable(findTemplate(templateName)).orElseThrow(() -> new RecordNotFoundException(Template, templateName));
     }
 
     @Override

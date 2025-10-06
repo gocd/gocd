@@ -33,7 +33,7 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
-    private SecurityService securityService;
+    private final SecurityService securityService;
 
     public DeleteTemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, SecurityService securityService, Username currentUser, ExternalArtifactsService externalArtifactsService) {
         super(templateConfig, result, currentUser, externalArtifactsService);

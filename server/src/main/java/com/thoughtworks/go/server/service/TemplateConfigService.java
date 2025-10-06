@@ -24,13 +24,10 @@ import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
 import com.thoughtworks.go.config.update.DeleteTemplateConfigCommand;
 import com.thoughtworks.go.config.update.UpdateTemplateAuthConfigCommand;
 import com.thoughtworks.go.config.update.UpdateTemplateConfigCommand;
-import com.thoughtworks.go.domain.Task;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +44,7 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 
 @Service
 public class TemplateConfigService {
-    private final Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
     private final EntityHashingService entityHashingService;
@@ -82,13 +79,6 @@ public class TemplateConfigService {
 
     private boolean canAuthorizedTemplateUserEditPipeline(Username username, List<Role> roles, Authorization pipelineAuthorization) {
         return securityService.isUserAdmin(username) || pipelineAuthorization.isUserAnAdmin(username.getUsername(), roles);
-    }
-
-    public void removeTemplate(String templateName, CruiseConfig cruiseConfig, String md5, HttpLocalizedOperationResult result) {
-        if (!doesTemplateExist(templateName, cruiseConfig, result)) {
-            return;
-        }
-        goConfigService.updateConfig(new DeleteTemplateCommand(templateName, md5));
     }
 
     public void createTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result) {
@@ -132,75 +122,34 @@ public class TemplateConfigService {
     }
 
     private void validatePluggableTasks(PipelineTemplateConfig templateConfig) {
-        for (PluggableTask task : getPluggableTask(templateConfig)) {
+        for (PluggableTask task : StageConfig.allPluggableTasks(templateConfig.getStages())) {
             pluggableTaskService.isValid(task);
         }
     }
 
-    private List<PluggableTask> getPluggableTask(PipelineTemplateConfig templateConfig) {
-        List<PluggableTask> pluggableTasks = new ArrayList<>();
-        for (StageConfig stage : templateConfig.getStages()) {
-            for (JobConfig job : stage.getJobs()) {
-                for (Task task : job.getTasks()) {
-                    if (task instanceof PluggableTask) {
-                        pluggableTasks.add((PluggableTask) task);
-                    }
-                }
-            }
-        }
-        return pluggableTasks;
-    }
-
     public PipelineTemplateConfig loadForView(String templateName, HttpLocalizedOperationResult result) {
-        return findTemplate(templateName, result, goConfigService.getConfigHolder());
-    }
-
-    private boolean doesTemplateExist(String templateName, CruiseConfig cruiseConfig, HttpLocalizedOperationResult result) {
-        TemplatesConfig templates = cruiseConfig.getTemplates();
-        if (!templates.hasTemplateNamed(new CaseInsensitiveString(templateName))) {
+        PipelineTemplateConfig template = goConfigService.findTemplateByName(new CaseInsensitiveString(templateName));
+        if (template == null) {
             result.notFound(EntityType.Template.notFoundMessage(templateName), general(GLOBAL));
-            return false;
         }
-        return true;
-    }
-
-    public List<PipelineConfig> allPipelinesNotUsingTemplates(Username username, LocalizedOperationResult result) {
-        if (!(securityService.isUserAdmin(username) || securityService.isUserGroupAdmin(username))) {
-            result.forbidden(LocalizedMessage.forbiddenToEdit(), HealthStateType.forbidden());
-            return null;
-        }
-        List<PipelineConfig> allPipelineConfigs = goConfigService.getAllPipelineConfigsForEditForUser(username);
-        List<PipelineConfig> allPipelinesNotUsingTemplates = new ArrayList<>();
-        for (PipelineConfig pipeline : allPipelineConfigs) {
-            if (!pipeline.hasTemplate()) {
-                allPipelinesNotUsingTemplates.add(pipeline);
-            }
-        }
-        return allPipelinesNotUsingTemplates;
-    }
-
-    private PipelineTemplateConfig findTemplate(String templateName, HttpLocalizedOperationResult result, GoConfigHolder configHolder) {
-        if (!doesTemplateExist(templateName, configHolder.configForEdit, result)) {
-            return null;
-        }
-        return configHolder.configForEdit.findTemplate(new CaseInsensitiveString(templateName));
+        return template;
     }
 
     public TemplatesConfig templateConfigsThatCanBeEditedBy(Username username) {
         CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
 
         return cruiseConfig.getTemplates()
-                .stream()
-                .filter(templateConfig -> securityService.isAuthorizedToEditTemplate(templateConfig.name(),username))
-                .collect(Collectors.toCollection(TemplatesConfig::new));
+            .stream()
+            .filter(templateConfig -> securityService.isAuthorizedToEditTemplate(templateConfig.name(), username))
+            .collect(Collectors.toCollection(TemplatesConfig::new));
     }
 
     public TemplatesConfig templateConfigsThatCanBeViewedBy(Username currentUsername) {
         CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
 
         return cruiseConfig.getTemplates()
-                .stream()
-                .filter(templateConfig -> securityService.isAuthorizedToViewTemplate(templateConfig.name(),currentUsername))
-                .collect(Collectors.toCollection(TemplatesConfig::new));
+            .stream()
+            .filter(templateConfig -> securityService.isAuthorizedToViewTemplate(templateConfig.name(), currentUsername))
+            .collect(Collectors.toCollection(TemplatesConfig::new));
     }
 }

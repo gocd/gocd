@@ -17,6 +17,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -92,6 +93,7 @@ public class TemplatesConfig extends BaseCollection<PipelineTemplateConfig> impl
         return false;
     }
 
+    @Nullable
     public PipelineTemplateConfig templateByName(CaseInsensitiveString foo) {
         for (PipelineTemplateConfig templateConfig : this) {
             if (templateConfig.name().equals(foo)) {

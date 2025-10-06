@@ -39,18 +39,12 @@ public class TemplateConfigServiceTest {
     public GoConfigService goConfigService;
     private SecurityService securityService;
     private TemplateConfigService service;
-    private EntityHashingService entityHashingService;
-    private PluggableTaskService pluggableTaskService;
-    private ExternalArtifactsService externalArtifactsService;
 
     @BeforeEach
     public void setup() {
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
-        entityHashingService = mock(EntityHashingService.class);
-        pluggableTaskService = mock(PluggableTaskService.class);
-        externalArtifactsService = mock(ExternalArtifactsService.class);
-        service = new TemplateConfigService(goConfigService, securityService, entityHashingService, pluggableTaskService, externalArtifactsService);
+        service = new TemplateConfigService(goConfigService, securityService, mock(EntityHashingService.class), mock(PluggableTaskService.class), mock(ExternalArtifactsService.class));
     }
 
     @Test
@@ -158,73 +152,11 @@ public class TemplateConfigServiceTest {
     }
 
     @Test
-    public void shouldDeleteATemplateWithAGivenName() {
-        PipelineTemplateConfig emptyTemplate = template("empty_template");
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.addTemplate(emptyTemplate);
-
-        service.removeTemplate("empty_template", cruiseConfig, "md5", new HttpLocalizedOperationResult());
-
-        verify(goConfigService).updateConfig(new DeleteTemplateCommand("empty_template", "md5"));
-    }
-
-    @Test
-    public void shouldReturn404WhenTheTemplateToBeDeletedIsNotFound() {
-        PipelineTemplateConfig emptyTemplate = template("empty_template");
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.addTemplate(emptyTemplate);
-
-        TemplateConfigService service = new TemplateConfigService(goConfigService, securityService, entityHashingService, pluggableTaskService, externalArtifactsService);
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        service.removeTemplate("not_found_template", cruiseConfig, "md5", result);
-
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(404);
-    }
-
-    @Test
-    public void shouldReturnAListOfAllPipelineConfigsThatAreNotUsedInTemplates() {
-        Username user = new Username(new CaseInsensitiveString("user"));
-        when(securityService.isUserAdmin(user)).thenReturn(true);
-
-        PipelineTemplateConfig template = template("first_template");
-        PipelineTemplateConfig another = template("another_template");
-        PipelineConfig pipelineWithoutTemplateOne = pipelineConfig("first_without_template");
-        PipelineConfig pipelineWithoutTemplateTwo = pipelineConfig("another_without_template");
-        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template),
-                createPipelineWithTemplate("second", template),
-                pipelineWithoutTemplateOne,
-                pipelineWithoutTemplateTwo,
-                createPipelineWithTemplate("fifth", another)));
-
-        cruiseConfig.addTemplate(template);
-        cruiseConfig.addTemplate(another);
-        when(goConfigService.getAllPipelineConfigsForEditForUser(user)).thenReturn(cruiseConfig.allPipelines());
-
-        List<PipelineConfig> pipelineConfigs = service.allPipelinesNotUsingTemplates(user, new HttpLocalizedOperationResult());
-        assertThat(pipelineConfigs).isEqualTo(List.of(pipelineWithoutTemplateOne, pipelineWithoutTemplateTwo));
-    }
-
-    @Test
-    public void shouldReturnUnauthorizedIfTheUserIsNotAdmin() {
-        Username user = new Username(new CaseInsensitiveString("user"));
-        when(securityService.isUserAdmin(user)).thenReturn(false);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<PipelineConfig> pipelineConfigs = service.allPipelinesNotUsingTemplates(user, result);
-
-        assertThat(result.isSuccessful()).isFalse();
-
-        assertThat(result.message()).isEqualTo("Unauthorized to edit.");
-        assertThat(pipelineConfigs).isNull();
-    }
-
-    @Test
     public void shouldLoadTemplateForViewing() {
         PipelineTemplateConfig template = template("first_template");
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template), createPipelineWithTemplate("second", template)));
         cruiseConfig.addTemplate(template);
-        when(goConfigService.getConfigHolder()).thenReturn(new GoConfigHolder(cruiseConfig, cruiseConfig));
+        when(goConfigService.findTemplateByName(template.name())).thenReturn(template);
         PipelineTemplateConfig actual = service.loadForView(template.name().toString(), new HttpLocalizedOperationResult());
 
         assertThat(template).isEqualTo(actual);
@@ -299,6 +231,7 @@ public class TemplateConfigServiceTest {
         return pipelineConfig;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private PipelineTemplateConfig template(final String name) {
         return new PipelineTemplateConfig(new CaseInsensitiveString(name), StageConfigMother.stageConfig("some_stage"));
     }

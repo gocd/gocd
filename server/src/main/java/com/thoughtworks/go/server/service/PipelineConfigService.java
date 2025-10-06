@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -203,23 +202,9 @@ public class PipelineConfigService {
     }
 
     private void validatePluggableTasks(PipelineConfig config) {
-        for (PluggableTask task : pluggableTask(config)) {
+        for (PluggableTask task : StageConfig.allPluggableTasks(config.getStages())) {
             pluggableTaskService.isValid(task);
         }
-    }
-
-    private List<PluggableTask> pluggableTask(PipelineConfig config) {
-        List<PluggableTask> tasks = new ArrayList<>();
-        for (StageConfig stageConfig : config.getStages()) {
-            for (JobConfig jobConfig : stageConfig.getJobs()) {
-                for (Task task : jobConfig.getTasks()) {
-                    if (task instanceof PluggableTask) {
-                        tasks.add((PluggableTask) task);
-                    }
-                }
-            }
-        }
-        return tasks;
     }
 
     public int totalPipelinesCount() {

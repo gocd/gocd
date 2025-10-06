@@ -156,8 +156,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         if (!canEditPipeline(pipelineName, username, result)) {
             return null;
         }
-        GoConfigHolder configHolder = getConfigHolder();
-        configHolder = cloner.deepClone(configHolder);
+        GoConfigHolder configHolder = cloner.deepClone(goConfigDao.loadConfigHolder());
         PipelineConfig config = configHolder.configForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
         return new ConfigForEdit<>(config, configHolder);
     }
@@ -793,11 +792,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return true;
     }
 
-    @Deprecated
-    public GoConfigHolder getConfigHolder() {
-        return goConfigDao.loadConfigHolder();
-    }
-
     @TestOnly
     public CruiseConfig loadCruiseConfigForEdit(Username username, HttpLocalizedOperationResult result) {
         if (!isUserAdmin(username) && !isUserTemplateAdmin(username)) {
@@ -822,7 +816,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     public ConfigForEdit<PipelineConfigs> loadGroupForEditing(String groupName,
                                                               Username username,
                                                               HttpLocalizedOperationResult result) {
-        GoConfigHolder configForEdit = cloner.deepClone(getConfigHolder());
+        GoConfigHolder configForEdit = cloner.deepClone(goConfigDao.loadConfigHolder());
         if (!isValidGroup(groupName, configForEdit.configForEdit, result)) {
             return null;
         }
@@ -944,6 +938,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public SecretConfig getSecretConfigById(String secretConfigId) {
         return this.cruiseConfig().getSecretConfigs().find(secretConfigId);
+    }
+
+    PipelineTemplateConfig findTemplateByName(CaseInsensitiveString templateName) {
+        return goConfigDao.loadConfigHolder().configForEdit.findTemplate(templateName);
     }
 
     public abstract class XmlPartialSaver<T> {

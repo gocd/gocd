@@ -15,12 +15,16 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.GoConstants;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -76,6 +80,21 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         this.cleanWorkingDir = cleanWorkingDir;
         this.approval = approval;
         this.artifactCleanupProhibited = artifactCleanupProhibited;
+    }
+
+    @NotNull
+    public static List<PluggableTask> allPluggableTasks(List<StageConfig> stages) {
+        List<PluggableTask> pluggableTasks = new ArrayList<>();
+        for (StageConfig stage : stages) {
+            for (JobConfig job : stage.getJobs()) {
+                for (Task task : job.getTasks()) {
+                    if (task instanceof PluggableTask) {
+                        pluggableTasks.add((PluggableTask) task);
+                    }
+                }
+            }
+        }
+        return pluggableTasks;
     }
 
     @Override

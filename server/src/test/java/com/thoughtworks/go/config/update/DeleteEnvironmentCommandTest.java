@@ -85,7 +85,7 @@ public class DeleteEnvironmentCommandTest {
         DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         assertFalse(command.canContinue(cruiseConfig));
         String expectedMessage = "Could not delete environment Dev Environment is partially defined in [repo1] config repositories";
-        assertEquals(result.message(), expectedMessage);
+        assertEquals(expectedMessage, result.message());
     }
 
 }

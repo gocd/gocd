@@ -90,9 +90,9 @@ public abstract class NotificationExtensionTestBase {
 
         PluginSettingsConfiguration response = notificationExtension.getPluginSettingsConfiguration(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION, apiVersion(), PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
+        assertRequest(requestArgumentCaptor.getValue(), apiVersion(), PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
         verify(pluginSettingsJSONMessageHandler()).responseMessageForPluginSettingsConfiguration(RESPONSE_BODY);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -102,9 +102,9 @@ public abstract class NotificationExtensionTestBase {
 
         String response = notificationExtension.getPluginSettingsView(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION, apiVersion(), PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
+        assertRequest(requestArgumentCaptor.getValue(), apiVersion(), PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
         verify(pluginSettingsJSONMessageHandler()).responseMessageForPluginSettingsView(RESPONSE_BODY);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -116,9 +116,9 @@ public abstract class NotificationExtensionTestBase {
 
         ValidationResult response = notificationExtension.validatePluginSettings(PLUGIN_ID, pluginSettingsConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION, apiVersion(), PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), apiVersion(), PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
         verify(pluginSettingsJSONMessageHandler()).responseMessageForPluginSettingsValidation(RESPONSE_BODY);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -128,9 +128,9 @@ public abstract class NotificationExtensionTestBase {
 
         List<String> deserializedResponse = notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION, apiVersion(), NotificationExtension.REQUEST_NOTIFICATIONS_INTERESTED_IN, null);
+        assertRequest(requestArgumentCaptor.getValue(), apiVersion(), NotificationExtension.REQUEST_NOTIFICATIONS_INTERESTED_IN, null);
         verify(jsonMessageHandler()).responseMessageForNotificationsInterestedIn(RESPONSE_BODY);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -144,13 +144,13 @@ public abstract class NotificationExtensionTestBase {
 
         Result deserializedResponse = notificationExtension.notify(PLUGIN_ID, notificationName, stageNotificationData);
 
-        assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION, apiVersion(), notificationName, jsonResponse);
+        assertRequest(requestArgumentCaptor.getValue(), apiVersion(), notificationName, jsonResponse);
         verify(jsonMessageHandler()).responseMessageForNotify(RESPONSE_BODY);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
-    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
-        assertThat(goPluginApiRequest.extension()).isEqualTo(extensionName);
+    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String version, String requestName, String requestBody) {
+        assertThat(goPluginApiRequest.extension()).isEqualTo(com.thoughtworks.go.plugin.domain.common.PluginConstants.NOTIFICATION_EXTENSION);
         assertThat(goPluginApiRequest.extensionVersion()).isEqualTo(version);
         assertThat(goPluginApiRequest.requestName()).isEqualTo(requestName);
         assertThat(goPluginApiRequest.requestBody()).isEqualTo(requestBody);

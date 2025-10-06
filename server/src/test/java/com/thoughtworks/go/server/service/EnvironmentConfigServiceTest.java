@@ -647,7 +647,7 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.patchEnvironment(environmentConfig, List.of("pipeline1"), emptyList(), emptyList(), emptyList(), user, result);
 
         assertFalse(result.isSuccessful());
-        assertEquals(result.message(), "Failed to update environment 'env_name'. ");
+        assertEquals("Failed to update environment 'env_name'. ", result.message());
     }
 
     @Test
@@ -678,7 +678,7 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.deleteEnvironment(environmentConfig, user, result);
 
         assertFalse(result.isSuccessful());
-        assertEquals(result.message(), "Failed to delete environment 'env_name'. ");
+        assertEquals("Failed to delete environment 'env_name'. ", result.message());
     }
 
     @Nested

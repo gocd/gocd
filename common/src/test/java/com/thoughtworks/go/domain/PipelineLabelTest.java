@@ -190,7 +190,7 @@ public class PipelineLabelTest {
     public void canMatchWithoutTruncation() {
         final String[][] expectedGroups = {{"svnRepo.verynice"}, {"git"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${svnRepo.verynice}-${git}", expectedGroups);
-        assertEquals(res, "release-" + SVN_REVISION + "-" + GIT_REVISION);
+        assertEquals("release-" + SVN_REVISION + "-" + GIT_REVISION, res);
     }
 
     @Test

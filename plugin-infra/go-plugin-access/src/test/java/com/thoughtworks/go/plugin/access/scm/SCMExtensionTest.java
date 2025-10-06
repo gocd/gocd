@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.access.scm;
 
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
-import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
@@ -41,7 +40,6 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SCM_EXTENSION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -84,20 +82,15 @@ public class SCMExtensionTest {
     }
 
     @Test
-    public void shouldExtendAbstractExtension() {
-        assertTrue(scmExtension instanceof AbstractExtension);
-    }
-
-    @Test
     public void shouldTalkToPluginToGetPluginSettingsConfiguration() {
         PluginSettingsConfiguration deserializedResponse = new PluginSettingsConfiguration();
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsConfiguration(responseBody)).thenReturn(deserializedResponse);
 
         PluginSettingsConfiguration response = scmExtension.getPluginSettingsConfiguration(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), SCM_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
+        assertRequest(requestArgumentCaptor.getValue(), PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsConfiguration(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -107,9 +100,9 @@ public class SCMExtensionTest {
 
         String response = scmExtension.getPluginSettingsView(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), SCM_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
+        assertRequest(requestArgumentCaptor.getValue(), PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsView(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -120,9 +113,9 @@ public class SCMExtensionTest {
 
         ValidationResult response = scmExtension.validatePluginSettings(PLUGIN_ID, pluginSettingsConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), SCM_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsValidation(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -132,9 +125,9 @@ public class SCMExtensionTest {
 
         SCMPropertyConfiguration response = scmExtension.getSCMConfiguration(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), SCM_EXTENSION, "1.0", SCMExtension.REQUEST_SCM_CONFIGURATION, null);
+        assertRequest(requestArgumentCaptor.getValue(), SCMExtension.REQUEST_SCM_CONFIGURATION, null);
         verify(jsonMessageHandler).responseMessageForSCMConfiguration(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -154,9 +147,9 @@ public class SCMExtensionTest {
 
         SCMView response = scmExtension.getSCMView(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), SCM_EXTENSION, "1.0", SCMExtension.REQUEST_SCM_VIEW, null);
+        assertRequest(requestArgumentCaptor.getValue(), SCMExtension.REQUEST_SCM_VIEW, null);
         verify(jsonMessageHandler).responseMessageForSCMView(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -167,10 +160,10 @@ public class SCMExtensionTest {
 
         ValidationResult response = scmExtension.isSCMConfigurationValid(PLUGIN_ID, scmPropertyConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), SCM_EXTENSION, "1.0", SCMExtension.REQUEST_VALIDATE_SCM_CONFIGURATION, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), SCMExtension.REQUEST_VALIDATE_SCM_CONFIGURATION, requestBody);
         verify(jsonMessageHandler).requestMessageForIsSCMConfigurationValid(scmPropertyConfiguration);
         verify(jsonMessageHandler).responseMessageForIsSCMConfigurationValid(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -181,10 +174,10 @@ public class SCMExtensionTest {
 
         Result response = scmExtension.checkConnectionToSCM(PLUGIN_ID, scmPropertyConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), SCM_EXTENSION, "1.0", SCMExtension.REQUEST_CHECK_SCM_CONNECTION, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), SCMExtension.REQUEST_CHECK_SCM_CONNECTION, requestBody);
         verify(jsonMessageHandler).requestMessageForCheckConnectionToSCM(scmPropertyConfiguration);
         verify(jsonMessageHandler).responseMessageForCheckConnectionToSCM(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -196,10 +189,10 @@ public class SCMExtensionTest {
 
         MaterialPollResult response = scmExtension.getLatestRevision(PLUGIN_ID, scmPropertyConfiguration, materialData, flyweight);
 
-        assertRequest(requestArgumentCaptor.getValue(), SCM_EXTENSION, "1.0", SCMExtension.REQUEST_LATEST_REVISION, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), SCMExtension.REQUEST_LATEST_REVISION, requestBody);
         verify(jsonMessageHandler).requestMessageForLatestRevision(scmPropertyConfiguration, materialData, flyweight);
         verify(jsonMessageHandler).responseMessageForLatestRevision(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -212,10 +205,10 @@ public class SCMExtensionTest {
 
         MaterialPollResult response = scmExtension.latestModificationSince(PLUGIN_ID, scmPropertyConfiguration, materialData, flyweight, previouslyKnownRevision);
 
-        assertRequest(requestArgumentCaptor.getValue(), SCM_EXTENSION, "1.0", SCMExtension.REQUEST_LATEST_REVISIONS_SINCE, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), SCMExtension.REQUEST_LATEST_REVISIONS_SINCE, requestBody);
         verify(jsonMessageHandler).requestMessageForLatestRevisionsSince(scmPropertyConfiguration, materialData, flyweight, previouslyKnownRevision);
         verify(jsonMessageHandler).responseMessageForLatestRevisionsSince(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -228,10 +221,10 @@ public class SCMExtensionTest {
 
         Result response = scmExtension.checkout(PLUGIN_ID, scmPropertyConfiguration, destination, revision);
 
-        assertRequest(requestArgumentCaptor.getValue(), SCM_EXTENSION, "1.0", SCMExtension.REQUEST_CHECKOUT, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), SCMExtension.REQUEST_CHECKOUT, requestBody);
         verify(jsonMessageHandler).requestMessageForCheckout(scmPropertyConfiguration, destination, revision);
         verify(jsonMessageHandler).responseMessageForCheckout(responseBody);
-        assertSame(response, deserializedResponse);
+        assertSame(deserializedResponse, response);
     }
 
     @Test
@@ -244,9 +237,9 @@ public class SCMExtensionTest {
         }
     }
 
-    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
-        assertThat(goPluginApiRequest.extension()).isEqualTo(extensionName);
-        assertThat(goPluginApiRequest.extensionVersion()).isEqualTo(version);
+    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String requestName, String requestBody) {
+        assertThat(goPluginApiRequest.extension()).isEqualTo(com.thoughtworks.go.plugin.domain.common.PluginConstants.SCM_EXTENSION);
+        assertThat(goPluginApiRequest.extensionVersion()).isEqualTo("1.0");
         assertThat(goPluginApiRequest.requestName()).isEqualTo(requestName);
         assertThat(goPluginApiRequest.requestBody()).isEqualTo(requestBody);
     }

@@ -41,22 +41,22 @@ class PipelinePermissionTest {
 
     @Test
     void shouldReturnStage1PermissionsAsPipelinePermissions() {
-        assertEquals(pipelinePermission.getPipelineOperators(), new AllowedUsers(Set.of("admin", "operator1", "operator2"), Collections.emptySet()));
+        assertEquals(new AllowedUsers(Set.of("admin", "operator1", "operator2"), Collections.emptySet()), pipelinePermission.getPipelineOperators());
     }
 
     @Test
     void shouldReturnStagePermissionsProvidedStageName() {
-        assertEquals(pipelinePermission.getStageOperators("stage1"), new AllowedUsers(Set.of("admin", "operator1", "operator2"), Collections.emptySet()));
-        assertEquals(pipelinePermission.getStageOperators("stage2"), new AllowedUsers(Set.of("admin", "operator1"), Collections.emptySet()));
+        assertEquals(new AllowedUsers(Set.of("admin", "operator1", "operator2"), Collections.emptySet()), pipelinePermission.getStageOperators("stage1"));
+        assertEquals(new AllowedUsers(Set.of("admin", "operator1"), Collections.emptySet()), pipelinePermission.getStageOperators("stage2"));
     }
 
     @Test
     void shouldNotFailWhenInvalidStageNameIsSpecified() {
-        assertEquals(pipelinePermission.getStageOperators("stageX"), null);
+        assertEquals(null, pipelinePermission.getStageOperators("stageX"));
     }
 
     @Test
     void shouldReturnEveryonePermissionWhenPipelineIsNull() {
-        assertEquals(PipelinePermission.from(null, new AllowedUsers(Collections.emptySet(), Collections.emptySet())), EveryonePermission.INSTANCE);
+        assertEquals(EveryonePermission.INSTANCE, PipelinePermission.from(null, new AllowedUsers(Collections.emptySet(), Collections.emptySet())));
     }
 }

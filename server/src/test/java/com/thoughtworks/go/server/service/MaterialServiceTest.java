@@ -426,7 +426,7 @@ public class MaterialServiceTest {
 
         Map<String, Modification> modificationsMap = materialService.getLatestModificationForEachMaterial();
 
-        assertEquals(modificationsMap.size(), 1);
+        assertEquals(1, modificationsMap.size());
         assertThat(modificationsMap.keySet()).contains(instance.getFingerprint());
         assertEquals(modificationsMap.get(instance.getFingerprint()), modification);
     }
@@ -437,7 +437,7 @@ public class MaterialServiceTest {
 
         Map<String, Modification> modificationsMap = materialService.getLatestModificationForEachMaterial();
 
-        assertEquals(modificationsMap.size(), 0);
+        assertEquals(0, modificationsMap.size());
     }
 
     @Test

@@ -29,9 +29,9 @@ public class AgentRuntimeStatusTest {
 
         for (AgentRuntimeStatus status : AgentRuntimeStatus.values()) {
             if (agentRuntimeStatuses.contains(status)) {
-                assertEquals(status.buildState(), status);
+                assertEquals(status, status.buildState());
             } else {
-                assertEquals(status.buildState(), AgentRuntimeStatus.Unknown);
+                assertEquals(AgentRuntimeStatus.Unknown, status.buildState());
             }
         }
     }
@@ -42,11 +42,11 @@ public class AgentRuntimeStatusTest {
 
         for (AgentRuntimeStatus status : AgentRuntimeStatus.values()) {
             if (agentRuntimeStatuses.contains(status)) {
-                assertEquals(status.agentState(), status);
+                assertEquals(status, status.agentState());
             } else if (status == AgentRuntimeStatus.Cancelled) {
-                assertEquals(status.agentState(), AgentRuntimeStatus.Building);
+                assertEquals(AgentRuntimeStatus.Building, status.agentState());
             } else {
-                assertEquals(status.agentState(), AgentRuntimeStatus.Unknown);
+                assertEquals(AgentRuntimeStatus.Unknown, status.agentState());
             }
         }
     }

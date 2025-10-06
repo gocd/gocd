@@ -214,28 +214,28 @@ public class ExecTaskTest {
     public void shouldBeSameIfCommandMatches() {
         ExecTask task = new ExecTask("ls", new Arguments());
 
-        assertEquals(task, new ExecTask("ls", new Arguments()));
+        assertEquals(new ExecTask("ls", new Arguments()), task);
     }
 
     @Test
     public void shouldUnEqualIfCommandsDontMatch() {
         ExecTask task = new ExecTask("ls", new Arguments());
 
-        assertNotEquals(task, new ExecTask("rm", new Arguments()));
+        assertNotEquals(new ExecTask("rm", new Arguments()), task);
     }
 
     @Test
     public void shouldUnEqualIfCommandIsNull() {
         ExecTask task = new ExecTask(null, new Arguments());
 
-        assertNotEquals(task, new ExecTask("rm", new Arguments()));
+        assertNotEquals(new ExecTask("rm", new Arguments()), task);
     }
 
     @Test
     public void shouldUnEqualIfOtherTaskCommandIsNull() {
         ExecTask task = new ExecTask("ls", new Arguments());
 
-        assertNotEquals(task, new ExecTask(null, new Arguments()));
+        assertNotEquals(new ExecTask(null, new Arguments()), task);
     }
 
     @Test

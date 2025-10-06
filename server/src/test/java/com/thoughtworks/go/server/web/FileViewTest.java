@@ -98,7 +98,7 @@ public class FileViewTest {
         File unzipHere = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         new ZipUtil().unzip(
                 new ZipInputStream(new ByteArrayInputStream(mockResponse.getContentAsByteArray())), unzipHere);
-        assertEquals(Files.readString(new File(unzipHere, file.getName()).toPath(), UTF_8), "hello");
+        assertEquals("hello", Files.readString(new File(unzipHere, file.getName()).toPath(), UTF_8));
     }
 
     @Test
@@ -111,7 +111,7 @@ public class FileViewTest {
         view.render(model, mockRequest, mockResponse);
 
         // Read from the response.  The file should not be zipped
-        assertEquals(mockResponse.getContentAsString(), "hello");
+        assertEquals("hello", mockResponse.getContentAsString());
     }
 
     @Test

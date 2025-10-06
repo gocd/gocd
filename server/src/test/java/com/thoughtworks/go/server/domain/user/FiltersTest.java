@@ -173,7 +173,7 @@ class FiltersTest {
         final Filters filters = Filters.fromJson(json);
         assertEquals(1, filters.filters().size());
         final DashboardFilter first = filters.filters().get(0);
-        assertEquals(first.name(), DEFAULT_NAME);
+        assertEquals(DEFAULT_NAME, first.name());
         assertTrue(first instanceof IncludesFilter);
         assertEquals(1, ((IncludesFilter) first).pipelines().size());
         assertTrue(((IncludesFilter) first).pipelines().contains(new CaseInsensitiveString("p1")));

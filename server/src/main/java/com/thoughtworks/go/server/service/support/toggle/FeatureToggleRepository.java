@@ -37,8 +37,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Repository
 public class FeatureToggleRepository {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureToggleRepository.class);
     private SystemEnvironment environment;
-    private final Logger LOGGER = LoggerFactory.getLogger(FeatureToggleRepository.class);
     private Gson gson;
 
     @Autowired

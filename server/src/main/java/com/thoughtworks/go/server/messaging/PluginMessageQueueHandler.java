@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public abstract class PluginMessageQueueHandler<T extends PluginAwareMessage> implements PluginChangeListener {
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginMessageQueueHandler.class);
     protected final MessagingService<T> messaging;
     protected final GoPluginExtension extension;
     protected final Map<String, PluginAwareMessageQueue<T>> queues = new ConcurrentHashMap<>();

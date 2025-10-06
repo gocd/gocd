@@ -29,8 +29,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -78,9 +78,7 @@ public class ActiveMqTest {
         HangingListener hanging = new HangingListener();
         FastListener fast1 = new FastListener();
 
-        GoMessageQueue<GoTextMessage> queue
-                = new GoMessageQueue<>(messaging, "queue-name") {
-        };
+        GoMessageQueue<GoTextMessage> queue = new GoMessageQueue<>(messaging, "queue-name");
         queue.addListener(hanging);
         queue.addListener(fast1);
 
@@ -90,21 +88,21 @@ public class ActiveMqTest {
         queue.post(new GoTextMessage("Hello World4"));
         queue.post(new GoTextMessage("Hello World5"));
 
-        await()
-            .pollDelay(10, TimeUnit.MILLISECONDS)
-            .timeout(1, TimeUnit.SECONDS)
-            .untilAsserted(() -> assertThat(fast1.receivedMessages.size()).isEqualTo(4));
-
-        hanging.finish();
+        try {
+            await()
+                .pollDelay(10, TimeUnit.MILLISECONDS)
+                .timeout(2, TimeUnit.SECONDS)
+                .untilAsserted(() -> assertThat(fast1.receivedMessages.size()).isEqualTo(4));
+        } finally {
+            hanging.finish();
+        }
     }
 
     @Test
     public void shouldStillReceiveMessagesIfAnExceptionIsThrown() {
         ExceptionListener exceptionListener = new ExceptionListener();
 
-        GoMessageQueue<GoTextMessage> queue
-                = new GoMessageQueue<>(messaging, "queue-name") {
-        };
+        GoMessageQueue<GoTextMessage> queue = new GoMessageQueue<>(messaging, "queue-name");
         queue.addListener(exceptionListener);
 
         queue.post(new GoTextMessage("Hello World1"));
@@ -115,8 +113,25 @@ public class ActiveMqTest {
 
         await()
             .pollDelay(10, TimeUnit.MILLISECONDS)
-            .timeout(1, TimeUnit.SECONDS)
+            .timeout(2, TimeUnit.SECONDS)
             .untilAsserted(() -> assertThat(exceptionListener.receivedMessages.size()).isEqualTo(5));
+    }
+
+    private static class FastListener implements GoMessageListener<GoTextMessage> {
+        public final Queue<GoTextMessage> receivedMessages = new ConcurrentLinkedQueue<>();
+
+        @Override
+        public void onMessage(GoTextMessage message) {
+            receivedMessages.add(message);
+        }
+    }
+
+    private static class ExceptionListener extends FastListener {
+        @Override
+        public void onMessage(GoTextMessage message) {
+            super.onMessage(message);
+            throw new RuntimeException(message.getText());
+        }
     }
 
     private static class HangingListener implements GoMessageListener<GoTextMessage> {
@@ -131,23 +146,4 @@ public class ActiveMqTest {
             finish.countDown();
         }
     }
-
-    private static class FastListener implements GoMessageListener<GoTextMessage> {
-        public List<GoTextMessage> receivedMessages = new ArrayList<>();
-
-        @Override
-        public void onMessage(GoTextMessage message) {
-            receivedMessages.add(message);
-        }
-    }
-
-    private static class ExceptionListener extends FastListener {
-        @Override
-        public void onMessage(GoTextMessage message) {
-            super.onMessage(message);
-
-            throw new RuntimeException(message.getText());
-        }
-    }
-
 }

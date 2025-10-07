@@ -49,15 +49,15 @@ def goVersions = new GoVersions(
   targetJavaVersion: 17,
 
   // Version of JVM to compile and test using.
-  buildJavaVersion: 21,
+  buildJavaVersion: 25,
 
   // Version to package with installers and container images by default
   packagedJavaVersion: new AdoptiumVersion(
-    feature: 21,
-    interim: 0,    // set to `null` for the first release of a new featureVersion
-    update: 8,    // set to `null` for the first release of a new featureVersion
-    patch: null, // set to `null` for most releases. Patch releases are "exceptional".
-    build: 9
+    feature: 25,
+    interim: null, // set to `null` for the first release of a new featureVersion
+    update:  null, // set to `null` for the first release of a new featureVersion
+    patch:   null, // set to `null` for most releases. Patch releases are "exceptional".
+    build:   36
   ),
 )
 ext.goVersions = goVersions

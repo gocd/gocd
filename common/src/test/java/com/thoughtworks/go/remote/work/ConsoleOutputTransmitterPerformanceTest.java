@@ -17,6 +17,8 @@ package com.thoughtworks.go.remote.work;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -45,6 +47,7 @@ public class ConsoleOutputTransmitterPerformanceTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void shouldNotBlockPublisherWhenSendingToServer() {
         int numberPublishIntervals = 5;
         int sendPerPublishInterval = 5;

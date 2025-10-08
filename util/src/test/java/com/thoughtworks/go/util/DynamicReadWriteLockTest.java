@@ -15,90 +15,97 @@
  */
 package com.thoughtworks.go.util;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.*;
 
 public class DynamicReadWriteLockTest {
-    private DynamicReadWriteLock readWriteLock;
-    private final AtomicInteger numberOfLocks = new AtomicInteger(0);
-
-    @BeforeEach
-    public void setUp() {
-        readWriteLock = new DynamicReadWriteLock();
-    }
+    private final DynamicReadWriteLock readWriteLock = spy(new DynamicReadWriteLock());
 
     @Test
     public void shouldEnforceMutualExclusionOfWriteLockForGivenName() throws InterruptedException {
         readWriteLock.acquireWriteLock("foo");
 
-        new Thread(() -> {
-            readWriteLock.acquireWriteLock("foo");
-            numberOfLocks.incrementAndGet();
-        }).start();
+        Thread thread = new Thread(() -> readWriteLock.acquireWriteLock("foo"));
+        thread.start();
 
-        Thread.sleep(1000);
-
-        assertThat(numberOfLocks.get()).isZero();
+        await()
+            .pollDelay(10, TimeUnit.MILLISECONDS)
+            .timeout(2, TimeUnit.SECONDS)
+            .untilAsserted(() -> {
+                verify(readWriteLock, times(2)).acquireWriteLock("foo");
+                assertThat(thread.isAlive()).isTrue();
+            });
+        thread.interrupt();
     }
 
     @Test
     public void shouldNotEnforceMutualExclusionOfReadLockForGivenName() throws InterruptedException {
         readWriteLock.acquireReadLock("foo");
 
-        new Thread(() -> {
-            readWriteLock.acquireReadLock("foo");
-            numberOfLocks.incrementAndGet();
-        }).start();
+        Thread thread = new Thread(() -> readWriteLock.acquireReadLock("foo"));
+        thread.start();
 
-        Thread.sleep(1000);
-
-        assertThat(numberOfLocks.get()).isEqualTo(1);
+        await()
+            .pollDelay(10, TimeUnit.MILLISECONDS)
+            .timeout(2, TimeUnit.SECONDS)
+            .untilAsserted(() -> {
+                verify(readWriteLock, times(2)).acquireReadLock("foo");
+                assertThat(thread.isAlive()).isFalse();
+            });
     }
 
     @Test
     public void shouldEnforceMutualExclusionOfReadAndWriteLockForGivenName() throws InterruptedException {
         readWriteLock.acquireReadLock("foo");
 
-        new Thread(() -> {
-            readWriteLock.acquireWriteLock("foo");
-            numberOfLocks.incrementAndGet();
-        }).start();
+        Thread thread = new Thread(() -> readWriteLock.acquireWriteLock("foo"));
+        thread.start();
 
-        Thread.sleep(1000);
-
-        assertThat(numberOfLocks.get()).isZero();
+        await()
+            .pollDelay(10, TimeUnit.MILLISECONDS)
+            .timeout(2, TimeUnit.SECONDS)
+            .untilAsserted(() -> {
+                verify(readWriteLock).acquireWriteLock("foo");
+                assertThat(thread.isAlive()).isTrue();
+            });
+        thread.interrupt();
     }
 
     @Test
     public void shouldEnforceMutualExclusionOfWriteAndReadLockForGivenName() throws InterruptedException {
         readWriteLock.acquireWriteLock("foo");
 
-        new Thread(() -> {
-            readWriteLock.acquireReadLock("foo");
-            numberOfLocks.incrementAndGet();
-        }).start();
+        Thread thread = new Thread(() -> readWriteLock.acquireReadLock("foo"));
+        thread.start();
 
-        Thread.sleep(1000);
-
-        assertThat(numberOfLocks.get()).isZero();
+        await()
+            .pollDelay(10, TimeUnit.MILLISECONDS)
+            .timeout(2, TimeUnit.SECONDS)
+            .untilAsserted(() -> {
+                verify(readWriteLock).acquireReadLock("foo");
+                assertThat(thread.isAlive()).isTrue();
+            });
+        thread.interrupt();
     }
-
 
     @Test
     public void shouldNotEnforceMutualExclusionOfWriteLockForDifferentNames() throws InterruptedException {
         readWriteLock.acquireWriteLock("foo");
 
-        new Thread(() -> {
-            readWriteLock.acquireWriteLock("bar");
-            numberOfLocks.incrementAndGet();
-        }).start();
+        Thread thread = new Thread(() -> readWriteLock.acquireWriteLock("bar"));
+        thread.start();
 
-        Thread.sleep(1000);
-
-        assertThat(numberOfLocks.get()).isEqualTo(1);
+        await()
+            .pollDelay(10, TimeUnit.MILLISECONDS)
+            .timeout(2, TimeUnit.SECONDS)
+            .untilAsserted(() -> {
+                verify(readWriteLock).acquireWriteLock("bar");
+                assertThat(thread.isAlive()).isFalse();
+            });
     }
 }

@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.util;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -24,7 +24,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Understands handling of multiple dynamically-created readWriteLocks
  */
 public class DynamicReadWriteLock {
-    private Map<String, ReadWriteLock> locks = new HashMap<>();
+    private final ConcurrentMap<String, ReadWriteLock> locks = new ConcurrentHashMap<>();
 
     public void acquireReadLock(String key) {
         getLock(key).readLock().lock();
@@ -43,14 +43,6 @@ public class DynamicReadWriteLock {
     }
 
     private ReadWriteLock getLock(String key) {
-        synchronized (key.intern()) {
-            if (locks.containsKey(key)) {
-                return locks.get(key);
-            }
-            ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-            locks.put(key, lock);
-            return lock;
-        }
+        return locks.computeIfAbsent(key, k -> new ReentrantReadWriteLock());
     }
-
 }

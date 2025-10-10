@@ -173,7 +173,7 @@ GEM
     public_suffix (6.0.2)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.19)
+    rack (2.2.20)
     rack-session (1.0.2)
       rack (< 3)
     rack-test (2.2.0)

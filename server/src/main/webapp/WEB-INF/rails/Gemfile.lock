@@ -145,7 +145,7 @@ GEM
     marcel (1.1.0)
     matrix (0.4.3)
     mini_mime (1.1.5)
-    minitest (5.25.5)
+    minitest (5.26.0)
     net-imap (0.5.12)
       date
       net-protocol

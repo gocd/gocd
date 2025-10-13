@@ -363,9 +363,11 @@ tasks.register('rspec', ExecuteUnderRailsTask) {
 }
 
 tasks.register('railsExec', ExecuteUnderRailsTask) {
+  dependsOn yarnInstall, configurations.railsRuntimeClasspath
+  classpath(configurations.railsRuntimeClasspath)
   outputs.upToDateWhen { false }
 
   description = "rails exec (pass '-Pcmd=...' to pass options)"
 
-  args = Commandline.translateCommandline(project.properties.get('cmd') as String)
+  args(Commandline.translateCommandline(project.properties.get('cmd') as String))
 }

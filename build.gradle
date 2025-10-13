@@ -117,7 +117,7 @@ def libraries = [
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:6.10.1.202505221210-r',
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',
   jruby               : 'org.jruby:jruby-complete:9.4.14.0',
-  jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:4.1.1',
+  jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:5.0.0',
   jsoup               : 'org.jsoup:jsoup:1.21.2',
   junit5Bom           : 'org.junit:junit-bom:6.0.0',
   liquibase           : 'org.liquibase:liquibase-core:5.0.1',

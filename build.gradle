@@ -29,7 +29,7 @@ import java.util.stream.Collectors
 
 plugins {
   id 'base'
-  id 'org.owasp.dependencycheck' version '12.1.6'
+  id 'org.owasp.dependencycheck' version '12.1.8'
   id 'com.autonomousapps.dependency-analysis' version '3.1.0'
   id 'com.github.hierynomus.license-base' version '0.16.1' apply false
   id 'com.github.jk1.dependency-license-report' version '2.9' apply false

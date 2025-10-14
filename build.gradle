@@ -805,6 +805,9 @@ tasks.register('unzipDependencyCheckCache', Copy) {
         target.setLastModified(details.lastModified)
       }
     }
+
+    // See https://github.com/dependency-check/DependencyCheck/issues/7759#issuecomment-3337361897
+    System.setProperty('org.apache.lucene.store.MMapDirectory.enableMemorySegments', 'false')
   }
 }
 

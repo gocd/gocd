@@ -793,7 +793,7 @@ def downloadDependencyCheckCache = tasks.register('downloadDependencyCheckCache'
 
 tasks.register('unzipDependencyCheckCache', Copy) {
   dependsOn downloadDependencyCheckCache
-  onlyIf { downloadDependencyCheckCache.map { it.dest.length() > 100 * 1024 } }
+  onlyIf { downloadDependencyCheckCache.get().dest.length() > 100 * 1024 }
   from zipTree(downloadDependencyCheckCache.map { it.dest })
   into layout.buildDirectory.dir("dependency-check-data")
   def copyDetails = [] as List<FileCopyDetails>

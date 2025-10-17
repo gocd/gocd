@@ -29,12 +29,8 @@ dependencies {
 
   testImplementation(testFixtures(project(":db-support:db-migration")))
 
-  testImplementation(project.deps.testcontainersJunit) {
-    exclude group: 'junit' // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970
-  }
-  testImplementation(project.deps.testcontainersPostgresql) {
-    exclude group: 'junit' // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970
-  }
+  testImplementation project.deps.testcontainersJunit
+  testImplementation project.deps.testcontainersPostgresql
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

@@ -196,10 +196,10 @@ def relatedLibraries = [
   springWeb               : "org.springframework:spring-web:${v.spring}",
   springWebmvc            : "org.springframework:spring-webmvc:${v.spring}",
   testcontainers          : "org.testcontainers:testcontainers",
-  testcontainersJdbc      : "org.testcontainers:jdbc",
-  testcontainersJunit     : "org.testcontainers:junit-jupiter",
-  testcontainersMysql     : "org.testcontainers:mysql",
-  testcontainersPostgresql: "org.testcontainers:postgresql",
+  testcontainersJdbc      : "org.testcontainers:testcontainers-jdbc",
+  testcontainersJunit     : "org.testcontainers:testcontainers-junit-jupiter",
+  testcontainersMysql     : "org.testcontainers:testcontainers-mysql",
+  testcontainersPostgresql: "org.testcontainers:testcontainers-postgresql",
 ]
 //noinspection GroovyAssignabilityCheck
 ext.deps = libraries + relatedLibraries

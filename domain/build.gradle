@@ -25,7 +25,7 @@ dependencies {
   implementation project(':commandline')
   implementation project(':plugin-infra:plugin-metadata-store')
   implementation(project.deps.apacheAnt)  {
-    transitive = false
+    exclude(module: 'ant-launcher')
   }
   implementation project.deps.jakartaAnnotation
   implementation project.deps.gson

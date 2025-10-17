@@ -22,7 +22,7 @@ dependencies {
   implementation project(':db-support:db-support-base')
   implementation project.deps.ztExec
   implementation(project.deps.apacheAnt) {
-    transitive = false
+    exclude(module: 'ant-launcher')
   }
 
   annotationProcessor project.deps.lombok

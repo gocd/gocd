@@ -91,17 +91,17 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
         }
 
         getEnvironments().stream()
-                .filter(env -> !repo.canRefer(ENVIRONMENT, env.name()))
-                .forEach(this::addViolationOnForbiddenEnvironment);
+            .filter(env -> !repo.canRefer(ENVIRONMENT, env.name()))
+            .forEach(this::addViolationOnForbiddenEnvironment);
 
         getGroups().stream()
-                .filter(group -> !repo.canRefer(PIPELINE_GROUP, group.getGroup()))
-                .forEach(this::addViolationOnForbiddenPipelineGroup);
+            .filter(group -> !repo.canRefer(PIPELINE_GROUP, group.getGroup()))
+            .forEach(this::addViolationOnForbiddenPipelineGroup);
 
-        getGroups().forEach(g -> g.forEach(p -> p.dependencyMaterialConfigs().stream().
-                filter(this::upstreamPipelineNotDefinedInPartial).
-                filter(d -> !repo.canRefer(PIPELINE, d.getPipelineName())).
-                forEach(this::addViolationOnForbiddenPipeline)));
+        getGroups().forEach(g -> g.forEach(p -> p.dependencyMaterialConfigs().stream()
+            .filter(this::upstreamPipelineNotDefinedInPartial)
+            .filter(d -> !repo.canRefer(PIPELINE, d.getPipelineName()))
+            .forEach(this::addViolationOnForbiddenPipeline)));
 
         ErrorCollector.getAllErrors(this).forEach(this.errors::addAll);
     }

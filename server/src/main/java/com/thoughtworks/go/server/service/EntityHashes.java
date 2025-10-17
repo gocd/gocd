@@ -38,12 +38,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class EntityHashes implements DigestMixin {
-    private static final Gson GSON = new GsonBuilder().
-            registerTypeAdapter(ConfigurationProperty.class, Serializers.CONFIGURATION_PROPERTY).
-            registerTypeAdapter(EnvironmentVariableConfig.class, Serializers.ENVIRONMENT_VARIABLE).
-            registerTypeAdapter(PluginInfo.class, Serializers.PLUGIN_INFO).
-            registerTypeAdapter(Modification.class, Serializers.MODIFICATION).
-            create();
+    private static final Gson GSON = new GsonBuilder()
+        .registerTypeAdapter(ConfigurationProperty.class, Serializers.CONFIGURATION_PROPERTY)
+        .registerTypeAdapter(EnvironmentVariableConfig.class, Serializers.ENVIRONMENT_VARIABLE)
+        .registerTypeAdapter(PluginInfo.class, Serializers.PLUGIN_INFO)
+        .registerTypeAdapter(Modification.class, Serializers.MODIFICATION)
+        .create();
 
     private final MagicalGoConfigXmlWriter xmlSerializer;
 
@@ -63,9 +63,7 @@ public class EntityHashes implements DigestMixin {
             return null;
         }
 
-        return digest(entities.stream().
-                map(this::digestDomainConfigEntity).
-                collect(Collectors.joining(SEP_CHAR)));
+        return digest(entities.stream().map(this::digestDomainConfigEntity).collect(Collectors.joining(SEP_CHAR)));
     }
 
     public String digestDomainConfigEntity(Object entity) {

@@ -96,11 +96,11 @@ public class GitCommand extends SCMCommand {
     }
 
     public int cloneWithNoCheckout(ConsoleOutputStreamConsumer outputStreamConsumer, String url) {
-        CommandLine gitClone = cloneCommand().
-                when(!hasRefSpec(), git -> git.withArgs("--branch", branch)).
-                withArg("--no-checkout").
-                withArg(new UrlArgument(url)).
-                withArg(workingDir.getAbsolutePath());
+        CommandLine gitClone = cloneCommand()
+            .when(!hasRefSpec(), git -> git.withArgs("--branch", branch))
+            .withArg("--no-checkout")
+            .withArg(new UrlArgument(url))
+            .withArg(workingDir.getAbsolutePath());
 
         if (!hasRefSpec()) {
             return run(gitClone, outputStreamConsumer);
@@ -135,10 +135,10 @@ public class GitCommand extends SCMCommand {
     // Clone repository from url with specified depth.
     // Special depth 2147483647 (Integer.MAX_VALUE) are treated as full clone
     public int clone(ConsoleOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
-        CommandLine gitClone = cloneCommand().
-                when(!hasRefSpec(), git -> git.withArgs("--branch", branch)).
-                when(depth < Integer.MAX_VALUE, git -> git.withArg(format("--depth=%s", depth))).
-                withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
+        CommandLine gitClone = cloneCommand()
+            .when(!hasRefSpec(), git -> git.withArgs("--branch", branch))
+            .when(depth < Integer.MAX_VALUE, git -> git.withArg(format("--depth=%s", depth)))
+            .withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
 
         if (!hasRefSpec()) {
             return run(gitClone, outputStreamConsumer);

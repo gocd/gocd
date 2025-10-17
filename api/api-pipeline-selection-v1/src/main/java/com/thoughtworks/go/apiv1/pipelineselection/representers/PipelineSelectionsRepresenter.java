@@ -25,11 +25,11 @@ import static com.thoughtworks.go.server.domain.user.Marshaling.CaseInsensitiveS
 import static com.thoughtworks.go.server.domain.user.Marshaling.DashboardFilterSerializer;
 
 public class PipelineSelectionsRepresenter {
-    private static final Gson GSON = new GsonBuilder().
-            registerTypeAdapter(PipelineSelectionResponse.class, new PersonalizationResponseSerializer()).
-            registerTypeAdapter(DashboardFilter.class, new DashboardFilterSerializer()).
-            registerTypeAdapter(CaseInsensitiveString.class, new CaseInsensitiveStringSerializer()).
-            create();
+    private static final Gson GSON = new GsonBuilder()
+        .registerTypeAdapter(PipelineSelectionResponse.class, new PersonalizationResponseSerializer())
+        .registerTypeAdapter(DashboardFilter.class, new DashboardFilterSerializer())
+        .registerTypeAdapter(CaseInsensitiveString.class, new CaseInsensitiveStringSerializer())
+        .create();
 
     public static String toJSON(PipelineSelectionResponse pipelineSelectionResponse) {
         return GSON.toJson(pipelineSelectionResponse, PipelineSelectionResponse.class);

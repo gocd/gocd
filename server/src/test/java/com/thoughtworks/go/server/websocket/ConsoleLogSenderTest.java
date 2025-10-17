@@ -101,8 +101,8 @@ public class ConsoleLogSenderTest {
         when(jobInstanceDao.isJobCompleted(jobIdentifier)).thenReturn(false).thenReturn(true);
         when(consoleService.doesLogExist(jobIdentifier)).thenReturn(true);
 
-        when(consoleService.getStreamer(anyLong(), eq(jobIdentifier))).
-            thenReturn(new FakeConsoleStreamer("First Output", "Second Output"));
+        when(consoleService.getStreamer(anyLong(), eq(jobIdentifier)))
+            .thenReturn(new FakeConsoleStreamer("First Output", "Second Output"));
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
@@ -136,8 +136,8 @@ public class ConsoleLogSenderTest {
         when(jobInstanceDao.isJobCompleted(jobIdentifier)).thenReturn(false).thenReturn(true);
         when(consoleService.doesLogExist(jobIdentifier)).thenReturn(true);
 
-        when(consoleService.getStreamer(anyLong(), eq(jobIdentifier))).
-            thenReturn(new ConsoleStreamer(console.toPath(), 0L));
+        when(consoleService.getStreamer(anyLong(), eq(jobIdentifier)))
+            .thenReturn(new ConsoleStreamer(console.toPath(), 0L));
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 

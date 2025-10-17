@@ -95,9 +95,11 @@ public class GitRepoContainingSubmodule extends TestRepo {
         changeFile(remoteSubmoduleRepoLocation, fileName, newContentOfFile);
         checkInOneFile(remoteSubmoduleRepoLocation, new File(fileName), comment);
 
-        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("pull").
-                withWorkingDir(new File(remoteRepoDir, submoduleNameInRepo)).
-                runOrBomb(new MaterialFingerprintTag(null));
+        CommandLine.createCommandLine("git")
+            .withEncoding(UTF_8)
+            .withArg("pull")
+            .withWorkingDir(new File(remoteRepoDir, submoduleNameInRepo))
+            .runOrBomb(new MaterialFingerprintTag(null));
         checkInOneFile(remoteRepoDir, new File(submoduleNameInRepo), comment);
 
         return latestModification();

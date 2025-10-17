@@ -25,14 +25,14 @@ import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAM
 import static com.thoughtworks.go.server.domain.user.Marshaling.*;
 
 public class Filters {
-    private static final Gson GSON = new GsonBuilder().
-            registerTypeAdapter(Filters.class, new FiltersDeserializer()).
-            registerTypeAdapter(Filters.class, new FiltersSerializer()).
-            registerTypeAdapter(DashboardFilter.class, new DashboardFilterDeserializer()).
-            registerTypeAdapter(DashboardFilter.class, new DashboardFilterSerializer()).
-            registerTypeAdapter(CaseInsensitiveString.class, new CaseInsensitiveStringDeserializer()).
-            registerTypeAdapter(CaseInsensitiveString.class, new CaseInsensitiveStringSerializer()).
-            create();
+    private static final Gson GSON = new GsonBuilder()
+        .registerTypeAdapter(Filters.class, new FiltersDeserializer())
+        .registerTypeAdapter(Filters.class, new FiltersSerializer())
+        .registerTypeAdapter(DashboardFilter.class, new DashboardFilterDeserializer())
+        .registerTypeAdapter(DashboardFilter.class, new DashboardFilterSerializer())
+        .registerTypeAdapter(CaseInsensitiveString.class, new CaseInsensitiveStringDeserializer())
+        .registerTypeAdapter(CaseInsensitiveString.class, new CaseInsensitiveStringSerializer())
+        .create();
 
     public static final DashboardFilter WILDCARD_FILTER = new ExcludesFilter(DEFAULT_NAME, Collections.emptyList(), new HashSet<>());
 

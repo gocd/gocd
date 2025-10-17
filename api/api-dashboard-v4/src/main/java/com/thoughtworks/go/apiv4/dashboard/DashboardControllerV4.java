@@ -96,7 +96,7 @@ public class DashboardControllerV4 extends ApiController implements SparkSpringC
         final DashboardFilter filter = personalization.namedFilter(getViewName(request));
 
         final boolean allowEmpty = Toggles.isToggleOn(Toggles.ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD) &&
-                "true".equalsIgnoreCase(request.queryParams("allowEmpty"));
+            "true".equalsIgnoreCase(request.queryParams("allowEmpty"));
 
         List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(filter, userName, allowEmpty);
         List<GoDashboardEnvironment> environments = goDashboardService.allEnvironmentsForDashboard(filter, userName);
@@ -110,18 +110,18 @@ public class DashboardControllerV4 extends ApiController implements SparkSpringC
         setEtagHeader(response, etag);
 
         return writerForTopLevelObject(request, response, outputWriter ->
-                DashboardRepresenter.toJSON(
-                        outputWriter,
-                        new DashboardFor(pipelineGroups, environments, userName, personalization.etag())
-                )
+            DashboardRepresenter.toJSON(
+                outputWriter,
+                new DashboardFor(pipelineGroups, environments, userName, personalization.etag())
+            )
         );
     }
 
     private String calcEtag(Username username, List<GoDashboardPipelineGroup> pipelineGroups, List<GoDashboardEnvironment> environments) {
-        final String pipelineSegment = pipelineGroups.stream().
-                map(GoDashboardPipelineGroup::etag).collect(Collectors.joining(SEP_CHAR));
-        final String environmentSegment = environments.stream().
-                map(GoDashboardEnvironment::etag).collect(Collectors.joining(SEP_CHAR));
+        final String pipelineSegment = pipelineGroups.stream()
+            .map(GoDashboardPipelineGroup::etag).collect(Collectors.joining(SEP_CHAR));
+        final String environmentSegment = environments.stream()
+            .map(GoDashboardEnvironment::etag).collect(Collectors.joining(SEP_CHAR));
         return DigestUtils.md5Hex(StringUtils.joinWith(SEP_CHAR, username.getUsername(), pipelineSegment, environmentSegment));
     }
 

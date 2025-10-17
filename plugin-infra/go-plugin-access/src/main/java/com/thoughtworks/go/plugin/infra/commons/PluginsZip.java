@@ -102,12 +102,13 @@ public class PluginsZip implements PluginChangeListener {
 
     private List<GoPluginBundleDescriptor> agentPlugins() {
         if (agentPlugins.isEmpty()) {
-            List<GoPluginBundleDescriptor> agentPlugins = pluginManager.plugins().stream().
-                    filter(predicate).
-                    sorted(PLUGIN_COMPARATOR).
-                    map(GoPluginDescriptor::bundleDescriptor).
-                    distinct().
-                toList();
+            List<GoPluginBundleDescriptor> agentPlugins = pluginManager.plugins()
+                .stream()
+                .filter(predicate)
+                .sorted(PLUGIN_COMPARATOR)
+                .map(GoPluginDescriptor::bundleDescriptor)
+                .distinct()
+                .toList();
             this.agentPlugins.addAll(agentPlugins);
         }
 

@@ -118,8 +118,8 @@ public class GoFileConfigDataSourceTest {
         List<PartialConfig> lastKnownPartials = mock();
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
-        when(fullConfigSaveNormalFlow.execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class))).
-                thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+        when(fullConfigSaveNormalFlow.execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class)))
+            .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         dataSource.writeFullConfigWithLock(updatingCommand, configHolder);
 
@@ -136,8 +136,8 @@ public class GoFileConfigDataSourceTest {
         GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
         List<PartialConfig> lastKnownPartials = mock();
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
-        when(fullConfigSaveMergeFlow.execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class))).
-                thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+        when(fullConfigSaveMergeFlow.execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class)))
+            .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         dataSource.writeFullConfigWithLock(updatingCommand, configHolder);
 
@@ -158,10 +158,10 @@ public class GoFileConfigDataSourceTest {
         GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
         when(cachedGoPartials.lastKnownPartials()).thenReturn(known);
         when(cachedGoPartials.lastValidPartials()).thenReturn(valid);
-        when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer")).
-                thenThrow(new Exception());
-        when(fullConfigSaveNormalFlow.execute(updatingCommand, valid, "loser_boozer")).
-                thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+        when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer"))
+            .thenThrow(new Exception());
+        when(fullConfigSaveNormalFlow.execute(updatingCommand, valid, "loser_boozer"))
+            .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         dataSource.writeFullConfigWithLock(updatingCommand, configHolder);
 
@@ -179,8 +179,8 @@ public class GoFileConfigDataSourceTest {
         GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(known);
-        when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer")).
-                thenThrow(new GoConfigInvalidException(configForEdit, "error"));
+        when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer"))
+            .thenThrow(new GoConfigInvalidException(configForEdit, "error"));
 
         assertThatThrownBy(() -> dataSource.writeFullConfigWithLock(updatingCommand, configHolder))
                 .isInstanceOf(RuntimeException.class);
@@ -199,8 +199,8 @@ public class GoFileConfigDataSourceTest {
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(known);
         when(cachedGoPartials.lastValidPartials()).thenReturn(valid);
-        when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer")).
-                thenThrow(new GoConfigInvalidException(configForEdit, "error"));
+        when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer"))
+            .thenThrow(new GoConfigInvalidException(configForEdit, "error"));
 
         assertThatThrownBy(() -> dataSource.writeFullConfigWithLock(updatingCommand, configHolder))
             .isInstanceOf(RuntimeException.class);

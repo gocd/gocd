@@ -112,14 +112,15 @@ public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationCont
     }
 
     private RouteToggles resolveRouteToggles() {
-        return new RouteToggles(applicationContext.getBeansWithAnnotation(ToggleRegisterLatest.class).values().stream().
-                reduce(new ArrayList<>(), (BiFunction<List<RouteToggle>, Object, List<RouteToggle>>) (all, o) -> {
-                    for (ToggleRegisterLatest meta : o.getClass().getAnnotationsByType(ToggleRegisterLatest.class)) {
-                        all.add(new RouteToggle(meta.controllerPath(), meta.apiVersion(), meta.as(), meta.includeDescendants()));
-                    }
-                    return all;
-                }, (l, r) -> r) /* ignored, not parallel */,
-                features);
+        return new RouteToggles(applicationContext.getBeansWithAnnotation(ToggleRegisterLatest.class).values()
+            .stream()
+            .reduce(new ArrayList<>(), (BiFunction<List<RouteToggle>, Object, List<RouteToggle>>) (all, o) -> {
+                for (ToggleRegisterLatest meta : o.getClass().getAnnotationsByType(ToggleRegisterLatest.class)) {
+                    all.add(new RouteToggle(meta.controllerPath(), meta.apiVersion(), meta.as(), meta.includeDescendants()));
+                }
+                return all;
+            }, (l, r) -> r) /* ignored, not parallel */,
+            features);
     }
 
     @Override

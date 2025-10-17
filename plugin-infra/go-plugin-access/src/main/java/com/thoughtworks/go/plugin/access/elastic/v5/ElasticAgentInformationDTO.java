@@ -31,11 +31,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 class ElasticAgentInformationDTO implements Serializable {
-    private static final Gson GSON = new GsonBuilder().
-            excludeFieldsWithoutExposeAnnotation().
-            serializeNulls().
-            setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).
-            create();
+    private static final Gson GSON = new GsonBuilder()
+        .excludeFieldsWithoutExposeAnnotation()
+        .serializeNulls()
+        .setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .create();
 
     @Expose
     @SerializedName("plugin_settings")

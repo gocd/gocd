@@ -139,7 +139,7 @@ public class P4Client extends SCMCommand {
 
     private void login() {
         if (useTickets && !loggedIn) {
-            loggedIn = true;//To change body of created methods use File | Settings | File Templates.
+            loggedIn = true;
             execute(p4("login"), p4passwd + "\n");
         }
     }

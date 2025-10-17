@@ -53,12 +53,12 @@ public class PluggableSCMMaterialUpdaterTest {
 
             @Override
             public Object executeWithExceptionHandling(com.thoughtworks.go.server.transaction.TransactionCallback action) throws Exception {
-                return super.executeWithExceptionHandling(action);    //To change body of overridden methods use File | Settings | File Templates.
+                return super.executeWithExceptionHandling(action);
             }
 
             @Override
             public <T extends Exception> Object transactionSurrounding(TransactionSurrounding<T> surrounding) throws T {
-                return super.transactionSurrounding(surrounding);    //To change body of overridden methods use File | Settings | File Templates.
+                return super.transactionSurrounding(surrounding);
             }
         };
         materialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);

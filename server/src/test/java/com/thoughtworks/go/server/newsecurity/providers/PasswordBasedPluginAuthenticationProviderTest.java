@@ -119,11 +119,11 @@ class PasswordBasedPluginAuthenticationProviderTest {
             securityConfig.securityAuthConfigs().add(fileAuthConfig);
             securityConfig.securityAuthConfigs().add(ldapAuthConfig);
 
-            when(authorizationExtension.authenticateUser(PLUGIN_ID_1, USERNAME, PASSWORD, List.of(fileAuthConfig), Collections.emptyList())).
-                    thenThrow(new RuntimeException());
+            when(authorizationExtension.authenticateUser(PLUGIN_ID_1, USERNAME, PASSWORD, List.of(fileAuthConfig), Collections.emptyList()))
+                .thenThrow(new RuntimeException());
 
-            when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, List.of(ldapAuthConfig), Collections.emptyList())).
-                    thenReturn(new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList()));
+            when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, List.of(ldapAuthConfig), Collections.emptyList()))
+                .thenReturn(new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList()));
 
             AuthenticationToken<UsernamePassword> authenticationToken = provider.authenticate(CREDENTIALS, null);
 
@@ -149,8 +149,8 @@ class PasswordBasedPluginAuthenticationProviderTest {
 
             InOrder inOrder = inOrder(authorizationExtension);
 
-            when(authorizationExtension.authenticateUser("ldap", USERNAME, PASSWORD, List.of(internalLDAP), Collections.emptyList())).
-                    thenReturn(new AuthenticationResponse(new User(USERNAME, null, null), Collections.emptyList()));
+            when(authorizationExtension.authenticateUser("ldap", USERNAME, PASSWORD, List.of(internalLDAP), Collections.emptyList()))
+                .thenReturn(new AuthenticationResponse(new User(USERNAME, null, null), Collections.emptyList()));
 
             provider.authenticate(CREDENTIALS, null);
 
@@ -175,8 +175,8 @@ class PasswordBasedPluginAuthenticationProviderTest {
             securityConfig.addRole(operator);
 
             InOrder inOrder = inOrder(authorizationExtension);
-            when(authorizationExtension.authenticateUser("ldap", USERNAME, PASSWORD, List.of(internalLDAP), List.of(operator))).
-                    thenReturn(new AuthenticationResponse(new User(USERNAME, null, null), Collections.emptyList()));
+            when(authorizationExtension.authenticateUser("ldap", USERNAME, PASSWORD, List.of(internalLDAP), List.of(operator)))
+                .thenReturn(new AuthenticationResponse(new User(USERNAME, null, null), Collections.emptyList()));
 
             provider.authenticate(CREDENTIALS, null);
 

@@ -21,7 +21,7 @@ import com.thoughtworks.go.spark.Routes;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 
-// This representer is only for serialization.
+// This representer is only for serialization
 
 public class ConfigXmlOriginRepresenter {
 

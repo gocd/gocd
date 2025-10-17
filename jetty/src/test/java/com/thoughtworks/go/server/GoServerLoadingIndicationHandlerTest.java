@@ -113,8 +113,13 @@ class GoServerLoadingIndicationHandlerTest {
 
         @ParameterizedTest
         @DisplayName("should respond with application/json when Accept header value after sorting by quality factor contains the word json")
-        @ValueSource(strings = {"application/json", "something/json", "text/html;q=0.5,application/json;q=0.8",
-                "application/vnd.go.cd.v3+json", "something-with-json-in-it"})
+        @ValueSource(strings = {
+            "application/json",
+            "something/json",
+            "text/html;q=0.5,application/json;q=0.8",
+            "application/vnd.go.cd.v3+json",
+            "something-with-json-in-it"
+        })
         void shouldRespondWithMessageInJSONWhenAcceptHeaderContainsJSON(String acceptHeaderValue) throws Exception {
             webAppIsStarting();
 
@@ -156,30 +161,27 @@ class GoServerLoadingIndicationHandlerTest {
     }
 
     private void assertLoadingResponseInPlainText(MockResponse response) {
-        assertTrue(response.
-                hasStatus(503).
-                withContentType("text/plain").
-                withBody("GoCD server is starting").
-                withNoCaching().
-                done());
+        assertTrue(response.hasStatus(503)
+            .withContentType("text/plain")
+            .withBody("GoCD server is starting")
+            .withNoCaching()
+            .done());
     }
 
     private void assertLoadingResponseInJSON(MockResponse response) {
-        assertTrue(response.
-                hasStatus(503).
-                withContentType("application/json").
-                withBody("{ \"message\": \"GoCD server is starting\" }").
-                withNoCaching().
-                done());
+        assertTrue(response.hasStatus(503)
+            .withContentType("application/json")
+            .withBody("{ \"message\": \"GoCD server is starting\" }")
+            .withNoCaching()
+            .done());
     }
 
     private void assertLoadingResponseInHTML(MockResponse response) throws IOException {
-        assertTrue(response.
-                hasStatus(503).
-                withContentType("text/html").
-                withBody(GoServerLoadingIndicationHandler.loadingPage()).
-                withNoCaching().
-                done());
+        assertTrue(response.hasStatus(503)
+            .withContentType("text/html")
+            .withBody(GoServerLoadingIndicationHandler.loadingPage())
+            .withNoCaching()
+            .done());
     }
 
     private MockResponse request(String target, String acceptHeaderValue) throws IOException, ServletException {
@@ -205,7 +207,7 @@ class GoServerLoadingIndicationHandlerTest {
         when(webAppContext.isAvailable()).thenReturn(true);
     }
 
-    private void landingPageIsSetTo(String landingPage) {
+    private void landingPageIsSetTo(@SuppressWarnings("SameParameterValue") String landingPage) {
         when(systemEnvironment.landingPage()).thenReturn(landingPage);
     }
 
@@ -218,7 +220,7 @@ class GoServerLoadingIndicationHandlerTest {
             this.printWriter = printWriter;
         }
 
-        MockResponse hasStatus(int expectedStatus) {
+        MockResponse hasStatus(@SuppressWarnings("SameParameterValue") int expectedStatus) {
             verify(response).setStatus(expectedStatus);
             return this;
         }
@@ -233,7 +235,7 @@ class GoServerLoadingIndicationHandlerTest {
             return this;
         }
 
-        MockResponse wasRedirectedTo(String redirectLocation) throws IOException {
+        MockResponse wasRedirectedTo(@SuppressWarnings("SameParameterValue") String redirectLocation) throws IOException {
             verify(response).sendRedirect(redirectLocation);
             return this;
         }

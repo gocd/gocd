@@ -23,9 +23,9 @@ import com.thoughtworks.go.domain.ElasticProfileUsage;
 import java.util.Collection;
 
 public class ElasticProfileUsageRepresenter {
-    private static final Gson GSON = new GsonBuilder().
-            setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-            .create();
+    private static final Gson GSON = new GsonBuilder()
+        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .create();
 
     public static String toJSON(Collection<ElasticProfileUsage> jobsUsingElasticProfile) {
         if (jobsUsingElasticProfile == null) {

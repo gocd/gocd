@@ -61,15 +61,15 @@ public class SCMDependencyNodeTest {
 
     @Test
     public void addMaterialRevisionShouldNotAllowNull() {
-        assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT").addMaterialRevision(null))
-                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT")
+            .addMaterialRevision(null)).isInstanceOf(RuntimeException.class);
     }
 
     @Test
     public void addRevisionShouldBeDisallowed() {
-        assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT").
-                addRevision(new SCMRevision(ModificationsMother.oneModifiedFile("some_revision"))))
-                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT")
+            .addRevision(new SCMRevision(ModificationsMother.oneModifiedFile("some_revision"))))
+            .isInstanceOf(RuntimeException.class);
     }
 
     @Test
@@ -77,8 +77,9 @@ public class SCMDependencyNodeTest {
         List<Revision> revisions = new ArrayList<>();
         revisions.add(new SCMRevision(ModificationsMother.oneModifiedFile("some_revision")));
 
-        assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT").addRevisions(revisions))
-        .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT")
+            .addRevisions(revisions))
+            .isInstanceOf(RuntimeException.class);
     }
 
     @Test

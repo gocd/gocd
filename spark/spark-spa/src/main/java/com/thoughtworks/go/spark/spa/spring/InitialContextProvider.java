@@ -37,24 +37,26 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 @Component
 public class InitialContextProvider {
 
-    private static final Gson GSON = new GsonBuilder().
-            registerTypeAdapter(SiteUrls.class, (JsonSerializer<SiteUrls>) (src, t, c) -> {
-                final JsonObject json = new JsonObject();
-                String url = src.getSiteUrl().getUrl();
-                if (url != null && !url.isBlank()) {
-                    json.addProperty("site_url", src.getSiteUrl().getUrl());
-                }
-                String secureUrl = src.getSecureSiteUrl().getUrl();
-                if (secureUrl != null && !secureUrl.isBlank()) {
-                    json.addProperty("secure_site_url", secureUrl);
-                }
-                return json;
-            }).
-            create();
+    private static final Gson GSON = new GsonBuilder()
+        .registerTypeAdapter(SiteUrls.class, (JsonSerializer<SiteUrls>) (src, t, c) -> {
+            final JsonObject json = new JsonObject();
+            String url = src.getSiteUrl().getUrl();
+            if (url != null && !url.isBlank()) {
+                json.addProperty("site_url", src.getSiteUrl().getUrl());
+            }
+            String secureUrl = src.getSecureSiteUrl().getUrl();
+            if (secureUrl != null && !secureUrl.isBlank()) {
+                json.addProperty("secure_site_url", secureUrl);
+            }
+            return json;
+        })
+        .create();
+    private static final Pattern CONTROLLER_NAME_PATTERN = Pattern.compile("(Delegate|Controller)");
 
     private final RailsAssetsService railsAssetsService;
     private final WebpackAssetsService webpackAssetsService;
@@ -96,7 +98,7 @@ public class InitialContextProvider {
     }
 
     private String humanizedControllerName(Class<? extends SparkController> controller) {
-        return camelCaseToSnakeCase(controller.getSimpleName().replaceAll("(Delegate|Controller)", ""));
+        return camelCaseToSnakeCase(CONTROLLER_NAME_PATTERN.matcher(controller.getSimpleName()).replaceAll(""));
     }
 
     static String camelCaseToSnakeCase(String s) {

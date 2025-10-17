@@ -378,10 +378,11 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     @Override
     public List<Stage> findStageHistoryForChart(String pipelineName, String stageName, int pageSize, int offset) {
         Map<String, Object> args =
-            arguments("pipelineName", pipelineName).
-                and("stageName", stageName).
-                and("offset", offset).
-                and("limit", pageSize).asMap();
+            arguments("pipelineName", pipelineName)
+                .and("stageName", stageName)
+                .and("offset", offset)
+                .and("limit", pageSize)
+                .asMap();
         return new Stages(getSqlMapClientTemplate().queryForList("findStageHistoryForChartPerPipeline", args));
     }
 
@@ -493,10 +494,12 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     public StageHistoryEntry findImmediateChronologicallyForwardStageHistoryEntry(StageHistoryEntry stageHistoryEntry) {
         StageIdentifier stageIdentifier = stageHistoryEntry.getIdentifier();
-        Map<String, Object> args = arguments("pipelineName", stageIdentifier.getPipelineName()).
-            and("stageName", stageIdentifier.getStageName()).
-            and("id", stageHistoryEntry.getId()).
-            and("limit", 1).asMap();
+        Map<String, Object> args =
+            arguments("pipelineName", stageIdentifier.getPipelineName())
+                .and("stageName", stageIdentifier.getStageName())
+                .and("id", stageHistoryEntry.getId())
+                .and("limit", 1)
+                .asMap();
         return getSqlMapClientTemplate().queryForObject("findStageHistoryEntryBefore", args);
     }
 
@@ -517,18 +520,22 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                                                          String stageName,
                                                          double fromNaturalOrder,
                                                          double toNaturalOrder) {
-        Map<String, Object> args = arguments("pipelineName", pipelineName).
-            and("stageName", stageName).
-            and("fromNaturalOrder", fromNaturalOrder).
-            and("toNaturalOrder", toNaturalOrder).asMap();
+        Map<String, Object> args =
+            arguments("pipelineName", pipelineName)
+                .and("stageName", stageName)
+                .and("fromNaturalOrder", fromNaturalOrder)
+                .and("toNaturalOrder", toNaturalOrder)
+                .asMap();
         return getSqlMapClientTemplate().queryForList("findFailedStagesBetween", args);
     }
 
     List<StageHistoryEntry> findStages(Pagination pagination, String pipelineName, String stageName) {
-        Map<String, Object> args = arguments("pipelineName", pipelineName).
-            and("stageName", stageName).
-            and("limit", pagination.getPageSize()).
-            and("offset", pagination.getOffset()).asMap();
+        Map<String, Object> args =
+            arguments("pipelineName", pipelineName)
+                .and("stageName", stageName)
+                .and("limit", pagination.getPageSize())
+                .and("offset", pagination.getOffset())
+                .asMap();
         return getSqlMapClientTemplate().queryForList("findStageHistoryPage", args);
     }
 
@@ -537,9 +544,9 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         Integer offset = (Integer) goCache.get(key, String.valueOf(stage.getId()));
         if (offset == null) {
             Map<String, Object> args =
-                arguments("stageId", stage.getId()).
-                    and("stageName", stage.getIdentifier().getStageName()).
-                    and("pipelineName", stage.getIdentifier().getPipelineName())
+                arguments("stageId", stage.getId())
+                    .and("stageName", stage.getIdentifier().getStageName())
+                    .and("pipelineName", stage.getIdentifier().getPipelineName())
                     .asMap();
             offset = getSqlMapClientTemplate().queryForObject("findOffsetForStage", args);
             goCache.put(key, String.valueOf(stage.getId()), offset);

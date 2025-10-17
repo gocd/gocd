@@ -67,9 +67,11 @@ public class ConfigRepoService {
     }
 
     public PartialConfig partialConfigDefinedBy(ConfigRepoConfig repo) {
-        return goConfigService.cruiseConfig().getPartials().parallelStream().
-                filter(definedByRepo(repo)).findFirst().orElseThrow(
-                () -> new RecordNotFoundException(format("Repository `%s` does not define any configurations", repo.getId()))
+        return goConfigService.cruiseConfig().getPartials()
+            .parallelStream()
+            .filter(definedByRepo(repo))
+            .findFirst()
+            .orElseThrow(() -> new RecordNotFoundException(format("Repository `%s` does not define any configurations", repo.getId()))
         );
     }
 

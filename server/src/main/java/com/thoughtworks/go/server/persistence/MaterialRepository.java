@@ -167,14 +167,17 @@ public class MaterialRepository extends HibernateDaoSupport {
                 + "     INNER JOIN materials m ON mods.materialId = m.id"
                 + " WHERE pmr.pipelineId IN (:ids)");
 
-            @SuppressWarnings("unchecked") List<Object[]> allModifications = query.
-                addEntity("mods", Modification.class).
-                addScalar("pmrPipelineId", new LongType()).
-                addScalar("pmrPipelineName", new StringType()).
-                addScalar("materialType", new StringType()).
-                addScalar("fingerprint", new StringType()).
-                setParameterList("ids", relevantToLookedUpMap.keySet().stream().map(PipelineId::getPipelineId).collect(Collectors.toList())).
-                list();
+            @SuppressWarnings("unchecked") List<Object[]> allModifications = query
+                .addEntity("mods", Modification.class)
+                .addScalar("pmrPipelineId", new LongType())
+                .addScalar("pmrPipelineName", new StringType())
+                .addScalar("materialType", new StringType())
+                .addScalar("fingerprint", new StringType())
+                .setParameterList("ids", relevantToLookedUpMap.keySet()
+                    .stream()
+                    .map(PipelineId::getPipelineId)
+                    .collect(Collectors.toList()))
+                .list();
 
             Map<Long, List<ModificationForPipeline>> modificationsForPipeline = new HashMap<>();
             CollectionUtil.CollectionValueMap<Long, ModificationForPipeline> modsForPipeline = CollectionUtil.collectionValMap(modificationsForPipeline,

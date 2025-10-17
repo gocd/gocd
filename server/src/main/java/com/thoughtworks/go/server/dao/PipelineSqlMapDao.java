@@ -358,7 +358,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 instanceModel = goCache.get(cacheKey);
                 if (instanceModel == null) {
                     instanceModel = getSqlMapClientTemplate().queryForObject("getPipelineHistoryByNameAndCounter",
-                            arguments("pipelineName", pipelineName).and("pipelineCounter", pipelineCounter).asMap());
+                        arguments("pipelineName", pipelineName).and("pipelineCounter", pipelineCounter).asMap());
                     goCache.put(cacheKey, instanceModel);
                 }
             }
@@ -373,7 +373,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     @Override
     public Pipeline findEarlierPipelineThatPassedForStage(String pipelineName, String stageName, double naturalOrder) {
         return getSqlMapClientTemplate().queryForObject("findEarlierPipelineThatPassedForStage",
-                arguments("pipelineName", pipelineName).and("stageName", stageName).and("naturalOrder", naturalOrder).asMap());
+            arguments("pipelineName", pipelineName).and("stageName", stageName).and("naturalOrder", naturalOrder).asMap());
     }
 
     public void cacheActivePipelines() {
@@ -645,9 +645,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     private List<Long> findPipelineIds(String pipelineName, FeedModifier modifier, long cursor, int pageSize) {
         Map<String, Object> params =
-                arguments("pipelineName", pipelineName)
-                        .and("cursor", cursor)
-                        .and("limit", pageSize).asMap();
+            arguments("pipelineName", pipelineName)
+                .and("cursor", cursor)
+                .and("limit", pageSize).asMap();
         return getSqlMapClientTemplate().queryForList("getPipelineIds" + modifier.suffix(), params);
     }
 
@@ -666,10 +666,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     @Override
     public PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit) {
-        Map<String, Object> args = arguments("pipelineName", pipelineName).
-                and("pattern", "%" + pattern.toLowerCase() + "%").
-                and("rawPattern", pattern.toLowerCase()).
-                and("limit", limit).asMap();
+        Map<String, Object> args =
+            arguments("pipelineName", pipelineName)
+                .and("pattern", "%" + pattern.toLowerCase() + "%")
+                .and("rawPattern", pattern.toLowerCase())
+                .and("limit", limit)
+                .asMap();
         long begin = System.currentTimeMillis();
         List<PipelineInstanceModel> matchingPIMs = getSqlMapClientTemplate().queryForList("findMatchingPipelineInstances", args);
         List<PipelineInstanceModel> exactMatchingPims = getSqlMapClientTemplate().queryForList("findExactMatchingPipelineInstances", args);
@@ -704,9 +706,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private List<Long> fetchPipelineIds(String pipelineName, int limit, int offset) {
         List<Long> ids;
         Map<String, Object> toGet =
-                arguments("pipelineName", pipelineName)
-                        .and("limit", limit)
-                        .and("offset", offset).asMap();
+            arguments("pipelineName", pipelineName)
+                .and("limit", limit)
+                .and("offset", offset).asMap();
         ids = getSqlMapClientTemplate().queryForList("getPipelineRange", toGet);
         return ids;
     }
@@ -721,8 +723,8 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
 
         Map<String, Object> args = arguments("pipelineName", pipelineName)
-                .and("from", Collections.min(ids))
-                .and("to", Collections.max(ids)).asMap();
+            .and("from", Collections.min(ids))
+            .and("to", Collections.max(ids)).asMap();
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels(
             getSqlMapClientTemplate().queryForList("getPipelineHistoryByName", args));
         for (PipelineInstanceModel pipelineInstanceModel : history) {
@@ -862,9 +864,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 pipelineIdentifiers = goCache.get(cacheKey);
                 if (pipelineIdentifiers == null) {
                     pipelineIdentifiers = getSqlMapClientTemplate().queryForList("pipelineInstancesTriggeredOutOfDependencyMaterial",
-                            arguments("pipelineName", pipelineName).and("dependencyPipelineName", dependencyPipelineIdentifier.getName())
-                                    .and("stageLocator", dependencyPipelineIdentifier.getName() + "/" + dependencyPipelineIdentifier.getCounter() + "/%/%")
-                                    .asMap());
+                        arguments("pipelineName", pipelineName).and("dependencyPipelineName", dependencyPipelineIdentifier.getName())
+                            .and("stageLocator", dependencyPipelineIdentifier.getName() + "/" + dependencyPipelineIdentifier.getCounter() + "/%/%")
+                            .asMap());
                     goCache.put(cacheKey, pipelineIdentifiers);
                 }
             }
@@ -883,7 +885,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 pipelineIdentifiers = goCache.get(cacheKey);
                 if (pipelineIdentifiers == null) {
                     pipelineIdentifiers = getSqlMapClientTemplate().queryForList("pipelineInstancesTriggeredOffOfMaterialRevision",
-                            arguments("pipelineName", pipelineName).and("materialId", materialInstance.getId()).and("materialRevision", revision).asMap());
+                        arguments("pipelineName", pipelineName).and("materialId", materialInstance.getId()).and("materialRevision", revision).asMap());
                     goCache.put(cacheKey, pipelineIdentifiers);
                 }
             }
@@ -936,10 +938,10 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
             if (DependencyMaterial.TYPE.equals(materialRevision.getMaterial().getMaterialType())) {
                 DependencyMaterialRevision dependencyMaterialRevision = (DependencyMaterialRevision) materialRevision.getRevision();
                 goCache.remove(cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipeline.getName(),
-                        dependencyMaterialRevision.getPipelineName(), dependencyMaterialRevision.getPipelineCounter()));
+                    dependencyMaterialRevision.getPipelineName(), dependencyMaterialRevision.getPipelineCounter()));
             } else {
                 goCache.remove(cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipeline.getName(),
-                        materialRevision.getMaterial().getFingerprint(), materialRevision.getRevision().getRevision()));
+                    materialRevision.getMaterial().getFingerprint(), materialRevision.getRevision().getRevision()));
             }
         }
     }

@@ -104,7 +104,8 @@ public class EnabledOnGitVersionCondition implements ExecutionCondition {
     }
 
     private Version fetchGitVersion() {
-        return new GitCommand(null, new File(""), GitMaterialConfig.DEFAULT_BRANCH, false, null).
-                version().getVersion();
+        return new GitCommand(null, new File(""), GitMaterialConfig.DEFAULT_BRANCH, false, null)
+            .version()
+            .getVersion();
     }
 }

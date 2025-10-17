@@ -43,7 +43,7 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
     }
 
     @Override public boolean add(StageInstanceModel stageInstanceModel) {
-        return super.add(stageInstanceModel);    //To change body of overridden methods use File | Settings | File Templates.
+        return super.add(stageInstanceModel);
     }
 
     @Override

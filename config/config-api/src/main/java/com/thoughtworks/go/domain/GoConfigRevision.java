@@ -61,7 +61,7 @@ public class GoConfigRevision {
         }
 
         private String getMatch(Matcher matcher) {
-            return unesc(matcher.group(offset()*GROUPS_IN_VALUE_MATCHER + 1));
+            return unesc(matcher.group(offset() * GROUPS_IN_VALUE_MATCHER + 1));
         }
     }
 
@@ -76,7 +76,7 @@ public class GoConfigRevision {
     private byte[] configXmlBytes;
     private Date time;
     private int schemaVersion;
-	private String commitSHA;
+    private String commitSHA;
 
     public GoConfigRevision(String configXml, String md5, String username, String goVersion, TimeProvider provider) {
         this(configXml);
@@ -165,15 +165,15 @@ public class GoConfigRevision {
         return schemaVersion;
     }
 
-	public String getCommitSHA() {
-		return commitSHA;
-	}
+    public String getCommitSHA() {
+        return commitSHA;
+    }
 
-	public void setCommitSHA(String commitSHA) {
-		this.commitSHA = commitSHA;
-	}
+    public void setCommitSHA(String commitSHA) {
+        this.commitSHA = commitSHA;
+    }
 
-	@Override
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -196,15 +196,16 @@ public class GoConfigRevision {
         return md5 != null ? md5.hashCode() : 0;
     }
 
-    @Override public String toString() {
-        return new ToStringBuilder(this).
-                append("time", time).
-                append("md5", md5).
-                append("username", username).
-                append("goVersion", goVersion).
-                append("goEdition", goEdition).
-                append("xml", xml).
-                append("schemaVersion", schemaVersion).
-                toString();
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+            .append("time", time)
+            .append("md5", md5)
+            .append("username", username)
+            .append("goVersion", goVersion)
+            .append("goEdition", goEdition)
+            .append("xml", xml)
+            .append("schemaVersion", schemaVersion)
+            .toString();
     }
 }

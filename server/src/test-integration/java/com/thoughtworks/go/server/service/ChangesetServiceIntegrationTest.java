@@ -307,8 +307,8 @@ public class ChangesetServiceIntegrationTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         //when to counter is a bisect
-        List<MaterialRevision> revisionList = changesetService.
-                revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
+        List<MaterialRevision> revisionList = changesetService
+            .revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
         assertThat(stringRevisions(revisionList)).isEqualTo(List.of("5", "2", "3", "4"));
 
         //When from counter is a bisect

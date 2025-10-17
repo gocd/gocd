@@ -433,9 +433,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
      * @return a single digest representing the contents of the collection
      */
     private <T> String compound(Collection<T> entities, Function<T, String> hashFn) {
-        return hashes.digest(entities.stream().
-                map(hashFn).
-                toArray(String[]::new));
+        return hashes.digest(entities.stream().map(hashFn).toArray(String[]::new));
     }
 
     private String cacheKey(Object domainObject, CaseInsensitiveString name) {

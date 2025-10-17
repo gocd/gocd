@@ -270,10 +270,12 @@ public class GitCommandTest {
         }
 
         private String git(File cwd, String... args) {
-            return CommandLine.createCommandLine("git").
-                    withEncoding(UTF_8).
-                    withWorkingDir(cwd).
-                    withArgs(args).runOrBomb(new NamedProcessTag(null)).outputAsString();
+            return CommandLine.createCommandLine("git")
+                .withEncoding(UTF_8)
+                .withWorkingDir(cwd)
+                .withArgs(args)
+                .runOrBomb(new NamedProcessTag(null))
+                .outputAsString();
         }
     }
 

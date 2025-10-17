@@ -196,9 +196,9 @@ public class EntityHashingServiceTest {
         BasicEnvironmentConfig env2 = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
         MergeEnvironmentConfig merged = new MergeEnvironmentConfig(env1, env2);
 
-        when(goCache.get(ETAG_CACHE_KEY, "com.thoughtworks.go.config.BasicEnvironmentConfig.env")).
-            thenReturn("foo").
-            thenReturn("bar");
+        when(goCache.get(ETAG_CACHE_KEY, "com.thoughtworks.go.config.BasicEnvironmentConfig.env"))
+            .thenReturn("foo")
+            .thenReturn("bar");
 
         final String type = MergeEnvironmentConfig.class.getSimpleName();
         assertEquals(digests.digest(type, "foo", "bar"), service.hashForEntity(merged));

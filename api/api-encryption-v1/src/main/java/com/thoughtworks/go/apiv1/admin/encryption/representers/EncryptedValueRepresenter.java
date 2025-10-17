@@ -24,8 +24,8 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 public interface EncryptedValueRepresenter {
     static void toJSON(OutputWriter writer, String encryptedValue) {
         writer.addLinks(outputLinkWriter ->
-            outputLinkWriter.addAbsoluteLink("doc", apiDocsUrl("#encryption")).
-                addLink("self", Routes.Encrypt.BASE))
+                outputLinkWriter.addAbsoluteLink("doc", apiDocsUrl("#encryption"))
+                    .addLink("self", Routes.Encrypt.BASE))
             .add("encrypted_value", encryptedValue);
     }
 

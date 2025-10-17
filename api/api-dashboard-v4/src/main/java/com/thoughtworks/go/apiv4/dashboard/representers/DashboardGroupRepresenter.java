@@ -30,14 +30,14 @@ public class DashboardGroupRepresenter {
 
     public static void toJSON(OutputWriter jsonOutputWriter, DashboardGroup model, Username username) {
         jsonOutputWriter
-                .addLinks(linkWriterFor(model))
-                .add("name", model.name())
-                .addChildList("pipelines", model.pipelines())
-                .add("can_administer", model.canAdminister(username))
+            .addLinks(linkWriterFor(model))
+            .add("name", model.name())
+            .addChildList("pipelines", model.pipelines())
+            .add("can_administer", model.canAdminister(username))
 
-                // defines_pipelines helps the UI distinguish between pipeline groups that have no configured
-                // pipelines from groups where the pipelines are not viewable (by filter and/or permissions)
-                .add("defines_pipelines", model.hasDefinedPipelines());
+            // defines_pipelines helps the UI distinguish between pipeline groups that have no configured
+            // pipelines from groups where the pipelines are not viewable (by filter and/or permissions)
+            .add("defines_pipelines", model.hasDefinedPipelines());
     }
 
     private static Consumer<OutputLinkWriter> linkWriterFor(DashboardGroup group) {
@@ -54,8 +54,8 @@ public class DashboardGroupRepresenter {
             throw new IllegalArgumentException("Unknown DashboardGroup type: " + group.getClass().getCanonicalName());
         }
 
-        return linksWriter -> linksWriter.
-                addAbsoluteLink("doc", doc).
-                addLink("self", self);
+        return linksWriter -> linksWriter
+            .addAbsoluteLink("doc", doc)
+            .addLink("self", self);
     }
 }

@@ -25,11 +25,11 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 class AgentMetadataDTO implements Serializable {
-    private static final Gson GSON = new GsonBuilder().
-            excludeFieldsWithoutExposeAnnotation().
-            serializeNulls().
-            setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).
-            create();
+    private static final Gson GSON = new GsonBuilder()
+        .excludeFieldsWithoutExposeAnnotation()
+        .serializeNulls()
+        .setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .create();
 
     @Expose
     @SerializedName("agent_id")

@@ -278,11 +278,13 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
             synchronized (key) {
                 jobIdentifier = goCache.get(key);
                 if (jobIdentifier == null) {
-                    Map<String, Object> params = arguments("pipelineName", stageIdentifier.getPipelineName()).
-                        and("pipelineCounter", stageIdentifier.getPipelineCounter()).
-                        and("stageName", stageIdentifier.getStageName()).
-                        and("stageCounter", Integer.parseInt(stageIdentifier.getStageCounter())).
-                        and("jobName", jobName).asMap();
+                    Map<String, Object> params =
+                        arguments("pipelineName", stageIdentifier.getPipelineName())
+                            .and("pipelineCounter", stageIdentifier.getPipelineCounter())
+                            .and("stageName", stageIdentifier.getStageName())
+                            .and("stageCounter", Integer.parseInt(stageIdentifier.getStageCounter()))
+                            .and("jobName", jobName)
+                            .asMap();
 
                     jobIdentifier = getSqlMapClientTemplate().queryForObject("findJobId", params);
 
@@ -317,11 +319,13 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                                   SortOrder order,
                                                   int offset,
                                                   int limit) {
-        Map<String, Object> params = arguments("uuid", uuid).
-            and("offset", offset).
-            and("limit", limit).
-            and("column", jobHistoryColumns.getColumnName()).
-            and("order", order.toString()).asMap();
+        Map<String, Object> params =
+            arguments("uuid", uuid)
+                .and("offset", offset)
+                .and("limit", limit)
+                .and("column", jobHistoryColumns.getColumnName())
+                .and("order", order.toString())
+                .asMap();
         return getSqlMapClientTemplate().queryForList("completedJobsOnAgent", params);
     }
 

@@ -38,15 +38,14 @@ class BitbucketRequestTest implements WithMockRequests {
     @ParameterizedTest
     @FileSource(files = "/bitbucket-push-multiple-changes.json")
     void parsePayloadWithMultipleChanges(String body) {
-        assertPayload(Set.of("release/1.0", "release/2.0", "release/3.0"),
-                bitbucket().body(body).build().parsePayload(BitbucketPush.class));
+        assertPayload(Set.of("release/1.0", "release/2.0", "release/3.0"), bitbucket().body(body).build().parsePayload(BitbucketPush.class));
     }
 
     @Test
     void authTokenHandlesUserInfoFormat() {
         assertEquals("webhook-secret", bitbucket().auth("webhook-secret").build().authToken());
-        assertEquals("webhook-secret", bitbucket().
-                auth("webhook-secret:and ignore everything after the first colon:pls:kthx").build().authToken());
+        assertEquals("webhook-secret", bitbucket()
+            .auth("webhook-secret:and ignore everything after the first colon:pls:kthx").build().authToken());
     }
 
     private void assertPayload(Set<String> expectedBranches, final BitbucketPush payload) {

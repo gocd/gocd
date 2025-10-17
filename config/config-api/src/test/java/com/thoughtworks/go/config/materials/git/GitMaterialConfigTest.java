@@ -171,51 +171,51 @@ class GitMaterialConfigTest {
 
         @Test
         void rejectsBranchWithWildcard() {
-            assertEquals("Branch names may not contain '*'", validating(git("/foo", "branch-*")).
-                    errors().on(GitMaterialConfig.BRANCH));
+            assertEquals("Branch names may not contain '*'",
+                validating(git("/foo", "branch-*")).errors().on(GitMaterialConfig.BRANCH));
         }
 
         @Test
         void rejectsMalformedRefSpec() {
             assertEquals("Refspec is missing a source ref",
-                    String.join(";", validating(git("/foo", ":a")).errors().
-                            getAllOn(GitMaterialConfig.BRANCH)));
+                    String.join(";", validating(git("/foo", ":a")).errors()
+                        .getAllOn(GitMaterialConfig.BRANCH)));
 
             assertEquals("Refspec is missing a source ref",
-                    String.join(";", validating(git("/foo", "   :b")).errors().
-                            getAllOn(GitMaterialConfig.BRANCH)));
+                    String.join(";", validating(git("/foo", "   :b")).errors()
+                        .getAllOn(GitMaterialConfig.BRANCH)));
 
             assertEquals("Refspec is missing a destination ref",
-                    String.join(";", validating(git("/foo", "refs/foo: ")).errors().
-                            getAllOn(GitMaterialConfig.BRANCH)));
+                    String.join(";", validating(git("/foo", "refs/foo: ")).errors()
+                        .getAllOn(GitMaterialConfig.BRANCH)));
 
             assertEquals("Refspec is missing a destination ref",
-                    String.join(";", validating(git("/foo", "refs/bar:")).errors().
-                            getAllOn(GitMaterialConfig.BRANCH)));
+                    String.join(";", validating(git("/foo", "refs/bar:")).errors()
+                        .getAllOn(GitMaterialConfig.BRANCH)));
 
             assertEquals("Refspec is missing a source ref;Refspec is missing a destination ref",
-                    String.join(";", validating(git("/foo", ":")).errors().
-                            getAllOn(GitMaterialConfig.BRANCH)));
+                    String.join(";", validating(git("/foo", ":")).errors()
+                        .getAllOn(GitMaterialConfig.BRANCH)));
 
             assertEquals("Refspec is missing a source ref;Refspec is missing a destination ref",
-                    String.join(";", validating(git("/foo", " : ")).errors().
-                            getAllOn(GitMaterialConfig.BRANCH)));
+                    String.join(";", validating(git("/foo", " : ")).errors()
+                        .getAllOn(GitMaterialConfig.BRANCH)));
 
             assertEquals("Refspec source must be an absolute ref (must start with `refs/`)",
-                    String.join(";", validating(git("/foo", "a:b")).errors().
-                            getAllOn(GitMaterialConfig.BRANCH)));
+                    String.join(";", validating(git("/foo", "a:b")).errors()
+                        .getAllOn(GitMaterialConfig.BRANCH)));
 
             assertEquals("Refspecs may not contain wildcards; source and destination refs must be exact",
-                    String.join(";", validating(git("/foo", "refs/heads/*:my-branch")).errors().
-                            getAllOn(GitMaterialConfig.BRANCH)));
+                    String.join(";", validating(git("/foo", "refs/heads/*:my-branch")).errors()
+                        .getAllOn(GitMaterialConfig.BRANCH)));
 
             assertEquals("Refspecs may not contain wildcards; source and destination refs must be exact",
-                    String.join(";", validating(git("/foo", "refs/heads/foo:branches/*")).errors().
-                            getAllOn(GitMaterialConfig.BRANCH)));
+                    String.join(";", validating(git("/foo", "refs/heads/foo:branches/*")).errors()
+                        .getAllOn(GitMaterialConfig.BRANCH)));
 
             assertEquals("Refspecs may not contain wildcards; source and destination refs must be exact",
-                    String.join(";", validating(git("/foo", "refs/heads/*:branches/*")).errors().
-                            getAllOn(GitMaterialConfig.BRANCH)));
+                    String.join(";", validating(git("/foo", "refs/heads/*:branches/*")).errors()
+                        .getAllOn(GitMaterialConfig.BRANCH)));
         }
 
         @Test
@@ -234,7 +234,8 @@ class GitMaterialConfigTest {
             GitMaterialConfig gitMaterialConfig = git("http://bob:pass@example.com");
             gitMaterialConfig.setUserName("user");
 
-            assertEquals("Ambiguous credentials, must be provided either in URL or as attributes.", validating(gitMaterialConfig).errors().on(GitMaterialConfig.URL));
+            assertEquals("Ambiguous credentials, must be provided either in URL or as attributes.",
+                validating(gitMaterialConfig).errors().on(GitMaterialConfig.URL));
         }
 
         @Test
@@ -242,7 +243,8 @@ class GitMaterialConfigTest {
             GitMaterialConfig gitMaterialConfig = git("http://bob:pass@example.com");
             gitMaterialConfig.setPassword("pass");
 
-            assertEquals("Ambiguous credentials, must be provided either in URL or as attributes.", validating(gitMaterialConfig).errors().on(GitMaterialConfig.URL));
+            assertEquals("Ambiguous credentials, must be provided either in URL or as attributes.",
+                validating(gitMaterialConfig).errors().on(GitMaterialConfig.URL));
         }
 
         @Test

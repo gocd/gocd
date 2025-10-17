@@ -355,9 +355,9 @@ public class PartialConfigServiceTest {
         }
 
         private boolean isLastParseResultSuccessful() {
-            return ofNullable(repoConfigDataSource.getLastParseResult(material)).
-                    map(PartialConfigParseResult::isSuccessful).
-                    orElse(false);
+            return ofNullable(repoConfigDataSource.getLastParseResult(material))
+                .map(PartialConfigParseResult::isSuccessful)
+                .orElse(false);
         }
 
         private PartialConfig stubConfigRepoParseWith(PartialConfig part) {

@@ -48,13 +48,14 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
      * @return a list of decrypted, serializable configuration properties
      */
     public static List<CRConfigurationProperty> getCrConfigurations(Configuration configuration) {
-        return configuration.stream().
-                map((prop) -> new CRConfigurationProperty(
-                        prop.getConfigKeyName(),
-                        prop.getValue(), // decrypt any secrets
-                        null
-                )).
-                collect(Collectors.toList());
+        return configuration
+            .stream()
+            .map((prop) -> new CRConfigurationProperty(
+                prop.getConfigKeyName(),
+                prop.getValue(),
+                null) // /decrypt any secrets
+            )
+            .collect(Collectors.toList());
     }
 
     @Override

@@ -99,7 +99,7 @@ public class AbstractTfsCommandTest {
         when(tfsCommand.history("10", 3)).thenReturn(modifications);
         List<Modification> actual = tfsCommand.modificationsSince(workDir, new StringRevision("7"));
 
-        assertThat(actual.containsAll(modifications)).isTrue();
+        assertThat(actual).containsExactlyElementsOf(modifications);
     }
 
     @Test

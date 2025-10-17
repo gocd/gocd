@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -161,8 +162,9 @@ public class PipelineTimelineTest {
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
         final List<PipelineTimelineEntry> entries = new ArrayList<>();
         final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, (newlyAddedEntry, timeline1) -> {
-            assertThat(timeline1.contains(newlyAddedEntry)).isTrue();
-            assertThat(timeline1.containsAll(entries)).isTrue();
+            assertThat(timeline1)
+                .contains(newlyAddedEntry)
+                .containsAll(entries);
             entries.add(newlyAddedEntry);
         });
         stubPipelineRepository(timeline, true, first, second);
@@ -243,7 +245,6 @@ public class PipelineTimelineTest {
 
         stubPipelineRepository(timeline, true, first, second);
         timeline.update();
-        allEntries = timeline.getEntriesFor("pipeline");
 
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_ROLLED_BACK, false);
 
@@ -339,15 +340,13 @@ public class PipelineTimelineTest {
     }
 
     @Test
-    public void shouldNotAllowResetingOfNaturalOrder() {
+    public void shouldNotAllowResettingOfNaturalOrder() {
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         mods.add(fourth);
         mods.add(first);
-        try {
-            mods.add(fourth);
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Calculated natural ordering 1.5 is not the same as the existing naturalOrder 1.0, for pipeline pipeline, with id 4");
-        }
+        assertThatThrownBy(() -> mods.add(fourth))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Calculated natural ordering 1.5 is not the same as the existing naturalOrder 1.0, for pipeline pipeline, with id 4");
     }
 
 }

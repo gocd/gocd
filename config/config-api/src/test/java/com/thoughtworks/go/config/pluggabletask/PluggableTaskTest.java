@@ -58,9 +58,7 @@ public class PluggableTaskTest {
         PluggableTask task = new PluggableTask(pluginConfiguration, configuration);
 
         Map<String, Map<String, String>> configMap = task.configAsMap();
-        assertThat(configMap.keySet().size()).isEqualTo(keys.size());
-        assertThat(configMap.values().size()).isEqualTo(values.size());
-        assertThat(configMap.keySet().containsAll(keys)).isTrue();
+        assertThat(configMap).containsOnlyKeys(keys);
         for (int i = 0; i < keys.size(); i++) {
             assertThat(configMap.get(keys.get(i)).get(PluggableTask.VALUE_KEY)).isEqualTo(values.get(i));
         }

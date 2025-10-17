@@ -94,10 +94,8 @@ public class PipelineConfigTest {
         PipelineConfig cloned = source.duplicate();
         EnvironmentVariablesConfig clonedEnvVariables = cloned.getPlainTextVariables();
         EnvironmentVariablesConfig sourceEnvVariables = source.getPlainTextVariables();
-        assertThat(clonedEnvVariables.size()).isEqualTo(sourceEnvVariables.size());
-        clonedEnvVariables.getPlainTextVariables().containsAll(sourceEnvVariables.getPlainTextVariables());
-        assertThat(cloned.getSecureVariables().size()).isEqualTo(source.getSecureVariables().size());
-        assertThat(cloned.getSecureVariables().containsAll(source.getSecureVariables())).isTrue();
+        assertThat(clonedEnvVariables.getPlainTextVariables()).containsExactlyElementsOf(sourceEnvVariables.getPlainTextVariables());
+        assertThat(cloned.getSecureVariables()).containsExactlyElementsOf((source.getSecureVariables()));
     }
 
     @Test

@@ -36,8 +36,7 @@ class EnvironmentAgentsConfigTest {
 
         List<String> uuids = envAgentsConfig.getUuids();
 
-        assertThat(uuids.size()).isEqualTo(3);
-        assertThat(uuids.containsAll(List.of("uuid1", "uuid2", "uuid3"))).isTrue();
+        assertThat(uuids).containsExactly("uuid1", "uuid2", "uuid3");
     }
 
     @Test

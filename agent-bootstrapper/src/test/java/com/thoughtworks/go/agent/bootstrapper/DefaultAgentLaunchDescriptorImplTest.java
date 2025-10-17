@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URL;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +36,7 @@ public class DefaultAgentLaunchDescriptorImplTest {
         DefaultAgentLaunchDescriptorImpl launchDescriptor = new DefaultAgentLaunchDescriptorImpl(bootstrapperArgs, new AgentBootstrapper());
         Map<String, String> context = launchDescriptor.context();
 
-        assertContainsAll(bootstrapperArgs.toProperties(), context);
+        assertThat(context).containsAllEntriesOf(bootstrapperArgs.toProperties());
     }
 
     @Test
@@ -47,13 +47,6 @@ public class DefaultAgentLaunchDescriptorImplTest {
         DefaultAgentLaunchDescriptorImpl launchDescriptor = new DefaultAgentLaunchDescriptorImpl(new AgentBootstrapperArgs().setServerUrl(new URL("https://www.example.com")), bootstrapper);
         Map<String, String> context = launchDescriptor.context();
 
-        assertEquals("1.2.3-1234", context.get(SystemEnvironment.AGENT_BOOTSTRAPPER_VERSION));
-    }
-
-    private void assertContainsAll(Map<String, String> expected, Map<String, String> actual) {
-        for (Map.Entry<String, String> keyValuePair : expected.entrySet()) {
-            String key = keyValuePair.getKey();
-            assertEquals(actual.get(key), expected.get(key));
-        }
+        assertThat(context.get(SystemEnvironment.AGENT_BOOTSTRAPPER_VERSION)).isEqualTo("1.2.3-1234");
     }
 }

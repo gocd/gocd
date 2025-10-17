@@ -142,7 +142,7 @@ public class PipelineGroupsTest {
         for (int i = 1; i <= matcher.groupCount(); i++) {
             actualSources.add(matcher.group(i));
         }
-        assertThat(actualSources.containsAll(expectedSources)).isTrue();
+        assertThat(actualSources).containsOnlyOnceElementsOf(expectedSources);
     }
 
     @Test

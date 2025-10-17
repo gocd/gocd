@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.Deflater;
@@ -34,8 +33,9 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ZipUtilTest {
     @TempDir
@@ -222,18 +222,16 @@ public class ZipUtilTest {
     }
 
     @Test
-    void shouldThrowUpWhileTryingToUnzipIfAnyOfTheFilePathsInArchiveHasAPathContainingDotDotSlashPath() throws URISyntaxException, IOException {
-        try {
-            zipUtil.unzip(new File(getClass().getResource("/archive_traversal_attack.zip").toURI()), destDir);
-            fail("squash.zip is capable of causing archive traversal attack and hence should not be allowed.");
-        } catch (IllegalPathException e) {
-            assertThat(e.getMessage()).isEqualTo("File ../2.txt is outside extraction target directory");
-        }
+    void shouldThrowUpWhileTryingToUnzipIfAnyOfTheFilePathsInArchiveHasAPathContainingDotDotSlashPath() {
+        assertThatThrownBy(() -> zipUtil.unzip(new File(requireNonNull(getClass().getResource("/archive_traversal_attack.zip")).toURI()), destDir))
+            .describedAs("squash.zip is capable of causing archive traversal attack and hence should not be allowed.")
+            .isInstanceOf(IllegalPathException.class)
+            .hasMessage("File ../2.txt is outside extraction target directory");
     }
 
     @Test
     void shouldReadContentFromFileInsideZip() throws IOException {
-        try (ZipInputStream zip = new ZipInputStream(getClass().getResourceAsStream("/dummy-plugins.zip"))) {
+        try (ZipInputStream zip = new ZipInputStream(requireNonNull(getClass().getResourceAsStream("/dummy-plugins.zip")))) {
             String contents = zipUtil.getFileContentInsideZip(zip, "version.txt");
             assertThat(contents).isEqualTo("13.3.0(17222-4c7fabcb9c9e9c)");
         }
@@ -241,7 +239,7 @@ public class ZipUtilTest {
 
     @Test
     void shouldReturnNullIfTheFileByTheNameDoesNotExistInsideZip() throws IOException {
-        try (ZipInputStream zip = new ZipInputStream(getClass().getResourceAsStream("/dummy-plugins.zip"))) {
+        try (ZipInputStream zip = new ZipInputStream(requireNonNull(getClass().getResourceAsStream("/dummy-plugins.zip")))) {
             String contents = zipUtil.getFileContentInsideZip(zip, "does_not_exist.txt");
             assertThat(contents).isNull();
         }

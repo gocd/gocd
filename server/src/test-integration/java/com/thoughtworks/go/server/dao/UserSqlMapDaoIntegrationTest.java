@@ -325,8 +325,7 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.findNotificationSubscribingUsers();
         subscribedUsers.sort(Comparator.comparing(User::getName));
 
-        assertThat(subscribedUsers.size()).isEqualTo(3);
-        assertThat(subscribedUsers.containsAll(List.of(user1, user2, user3))).isTrue();
+        assertThat(subscribedUsers).containsExactly(user1, user2, user3);
 
         assertThat(subscribedUsers.get(0).getNotificationFilters().size()).isEqualTo(1);
         assertThat(subscribedUsers.get(1).getNotificationFilters().size()).isEqualTo(3);

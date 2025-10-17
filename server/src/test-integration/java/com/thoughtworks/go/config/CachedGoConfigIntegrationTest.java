@@ -90,10 +90,10 @@ import static org.assertj.core.api.Assertions.*;
 @ExtendWith(ResetCipher.class)
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class CachedGoConfigIntegrationTest {
     @Autowired
@@ -260,14 +260,10 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoConfig.loadMergedForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1"))).isTrue();
 
         PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
-                "www.spring.com");
-        try {
-            goConfigDao.addPipeline(dupPipelineConfig, PipelineConfigs.DEFAULT_GROUP);
-        } catch (RuntimeException ex) {
-            assertThat(ex.getMessage()).contains("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):");
-            return;
-        }
-        fail("Should have thrown");
+            "www.spring.com");
+        assertThatThrownBy(() -> goConfigDao.addPipeline(dupPipelineConfig, PipelineConfigs.DEFAULT_GROUP))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):");
     }
 
     @Test
@@ -297,25 +293,23 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1"))).isTrue();
 
         PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
-                "www.spring.com");
-        try {
-            goConfigDao.updateConfig(new CreatePipelineConfigCommand(goConfigService, dupPipelineConfig, Username.ANONYMOUS, new DefaultLocalizedOperationResult(), "default", externalArtifactsService), Username.ANONYMOUS);
-            fail("Should have thrown");
-        } catch (RuntimeException ex) {
-            PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipe1"));
-            String errorMessage = dupPipelineConfig.errors().on(PipelineConfig.NAME);
-            assertThat(errorMessage).contains("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):");
-            Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)\\].*$").matcher(errorMessage);
-            assertThat(matcher.matches()).isTrue();
-            assertThat(matcher.groupCount()).isEqualTo(2);
-            List<String> expectedSources = List.of(dupPipelineConfig.getOriginDisplayName(), pipe1.getOriginDisplayName());
-            List<String> actualSources = new ArrayList<>();
-            for (int i = 1; i <= matcher.groupCount(); i++) {
-                actualSources.add(matcher.group(i));
-            }
-            assertThat(actualSources.size()).isEqualTo(expectedSources.size());
-            assertThat(actualSources.containsAll(expectedSources)).isTrue();
+            "www.spring.com");
+
+        assertThatThrownBy(() -> goConfigDao.updateConfig(new CreatePipelineConfigCommand(goConfigService, dupPipelineConfig, Username.ANONYMOUS, new DefaultLocalizedOperationResult(), "default", externalArtifactsService), Username.ANONYMOUS))
+            .isInstanceOf(RuntimeException.class);
+
+        PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipe1"));
+        String errorMessage = dupPipelineConfig.errors().on(PipelineConfig.NAME);
+        assertThat(errorMessage).contains("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):");
+        Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)].*$", Pattern.DOTALL).matcher(errorMessage);
+        assertThat(matcher.matches()).isTrue();
+        assertThat(matcher.groupCount()).isEqualTo(2);
+        List<String> expectedSources = List.of(dupPipelineConfig.getOriginDisplayName(), pipe1.getOriginDisplayName());
+        List<String> actualSources = new ArrayList<>();
+        for (int i = 1; i <= matcher.groupCount(); i++) {
+            actualSources.add(matcher.group(i));
         }
+        assertThat(actualSources).containsExactlyElementsOf(expectedSources);
     }
 
     @Test
@@ -325,28 +319,25 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1"))).isTrue();
 
         final PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
-                "www.spring.com");
-        try {
-            goConfigDao.updateConfig(cruiseConfig -> {
-                cruiseConfig.getGroups().first().add(dupPipelineConfig);
-                return cruiseConfig;
+            "www.spring.com");
+        assertThatThrownBy(() -> goConfigDao.updateConfig(cruiseConfig -> {
+            cruiseConfig.getGroups().first().add(dupPipelineConfig);
+            return cruiseConfig;
+        })).isInstanceOf(RuntimeException.class)
+            .satisfies(ex -> {
+                String errorMessage = ex.getMessage();
+                assertThat(errorMessage).contains("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):");
+                Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)].*$", Pattern.DOTALL).matcher(errorMessage);
+                assertThat(matcher.matches()).isTrue();
+                assertThat(matcher.groupCount()).isEqualTo(2);
+                PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipe1"));
+                List<String> expectedSources = List.of(dupPipelineConfig.getOriginDisplayName(), pipe1.getOriginDisplayName());
+                List<String> actualSources = new ArrayList<>();
+                for (int i = 1; i <= matcher.groupCount(); i++) {
+                    actualSources.add(matcher.group(i));
+                }
+                assertThat(actualSources).containsExactlyElementsOf(expectedSources);
             });
-            fail("Should have thrown");
-        } catch (RuntimeException ex) {
-            String errorMessage = ex.getMessage();
-            assertThat(errorMessage).contains("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):");
-            Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)\\].*$", Pattern.DOTALL | Pattern.MULTILINE).matcher(errorMessage);
-            assertThat(matcher.matches()).isTrue();
-            assertThat(matcher.groupCount()).isEqualTo(2);
-            PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipe1"));
-            List<String> expectedSources = List.of(dupPipelineConfig.getOriginDisplayName(), pipe1.getOriginDisplayName());
-            List<String> actualSources = new ArrayList<>();
-            for (int i = 1; i <= matcher.groupCount(); i++) {
-                actualSources.add(matcher.group(i));
-            }
-            assertThat(actualSources.size()).isEqualTo(expectedSources.size());
-            assertThat(actualSources.containsAll(expectedSources)).isTrue();
-        }
     }
 
     @Test
@@ -452,46 +443,46 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldInterpolateParamsInTemplate() {
         String content = ("""
-                <cruise schemaVersion='%d'>
-                <server>
-                <artifacts>
-                <artifactsDir>artifacts</artifactsDir>
-                </artifacts>
-                </server>
-                <pipelines>
-                <pipeline name='dev' template='abc'>
-                    <params>
-                        <param name='command'>ls</param>
-                        <param name='dir'>/tmp</param>
-                    </params>
-                    <materials>
-                      <svn url ="svnurl"/>
-                    </materials>
-                </pipeline>
-                <pipeline name='acceptance' template='abc'>
-                    <params>
-                        <param name='command'>twist</param>
-                        <param name='dir'>./acceptance</param>
-                    </params>
-                    <materials>
-                      <svn url ="svnurl"/>
-                    </materials>
-                </pipeline>
-                </pipelines>
-                <templates>
-                  <pipeline name='abc'>
-                    <stage name='stage1'>
-                      <jobs>
-                        <job name='job1'>
-                            <tasks>
-                                <exec command='/bin/#{command}' args='#{dir}'/>
-                            </tasks>
-                        </job>
-                      </jobs>
-                    </stage>
-                  </pipeline>
-                </templates>
-                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
+            <cruise schemaVersion='%d'>
+            <server>
+            <artifacts>
+            <artifactsDir>artifacts</artifactsDir>
+            </artifacts>
+            </server>
+            <pipelines>
+            <pipeline name='dev' template='abc'>
+                <params>
+                    <param name='command'>ls</param>
+                    <param name='dir'>/tmp</param>
+                </params>
+                <materials>
+                  <svn url ="svnurl"/>
+                </materials>
+            </pipeline>
+            <pipeline name='acceptance' template='abc'>
+                <params>
+                    <param name='command'>twist</param>
+                    <param name='dir'>./acceptance</param>
+                </params>
+                <materials>
+                  <svn url ="svnurl"/>
+                </materials>
+            </pipeline>
+            </pipelines>
+            <templates>
+              <pipeline name='abc'>
+                <stage name='stage1'>
+                  <jobs>
+                    <job name='job1'>
+                        <tasks>
+                            <exec command='/bin/#{command}' args='#{dir}'/>
+                        </tasks>
+                    </job>
+                  </jobs>
+                </stage>
+              </pipeline>
+            </templates>
+            </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -515,33 +506,33 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldHandleParamQuotingCorrectly() {
         String content = ("""
-                <cruise schemaVersion='%d'>
-                <server>
-                <artifacts>
-                <artifactsDir>artifacts</artifactsDir>
-                </artifacts>
-                </server>
-                <pipelines>
-                <pipeline name='dev'>
-                    <params>
-                        <param name='command'>ls#{a}</param>
-                        <param name='dir'>/tmp</param>
-                    </params>
-                    <materials>
-                      <svn url ="svnurl"/>
-                    </materials>
-                    <stage name='stage1'>
-                      <jobs>
-                        <job name='job1'>
-                            <tasks>
-                                <exec command='/bin/#{command}##{b}' args='#{dir}'/>
-                            </tasks>
-                        </job>
-                      </jobs>
-                    </stage>
-                </pipeline>
-                </pipelines>
-                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
+            <cruise schemaVersion='%d'>
+            <server>
+            <artifacts>
+            <artifactsDir>artifacts</artifactsDir>
+            </artifacts>
+            </server>
+            <pipelines>
+            <pipeline name='dev'>
+                <params>
+                    <param name='command'>ls#{a}</param>
+                    <param name='dir'>/tmp</param>
+                </params>
+                <materials>
+                  <svn url ="svnurl"/>
+                </materials>
+                <stage name='stage1'>
+                  <jobs>
+                    <job name='job1'>
+                        <tasks>
+                            <exec command='/bin/#{command}##{b}' args='#{dir}'/>
+                        </tasks>
+                    </job>
+                  </jobs>
+                </stage>
+            </pipeline>
+            </pipelines>
+            </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -555,31 +546,31 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldAllowParamsInLabelTemplates() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>\n"
-                + "<artifacts>\n"
-                + "<artifactsDir>artifacts</artifactsDir>\n"
-                + "</artifacts>\n"
-                + "</server>\n"
-                + "<pipelines>\n"
-                + "<pipeline name='dev' labeltemplate='cruise-#{VERSION}-${COUNT}'>\n"
-                + "    <params>\n"
-                + "        <param name='VERSION'>1.2</param>\n"
-                + "    </params>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>\n"
-                + "    </materials>\n"
-                + "    <stage name='stage1'>\n"
-                + "      <jobs>\n"
-                + "        <job name='job1'>\n"
-                + "            <tasks>\n"
-                + "                <exec command='/bin/ls' args='some'/>\n"
-                + "            </tasks>\n"
-                + "        </job>\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "</cruise>";
+            + "<server>\n"
+            + "<artifacts>\n"
+            + "<artifactsDir>artifacts</artifactsDir>\n"
+            + "</artifacts>\n"
+            + "</server>\n"
+            + "<pipelines>\n"
+            + "<pipeline name='dev' labeltemplate='cruise-#{VERSION}-${COUNT}'>\n"
+            + "    <params>\n"
+            + "        <param name='VERSION'>1.2</param>\n"
+            + "    </params>\n"
+            + "    <materials>\n"
+            + "      <svn url =\"svnurl\"/>\n"
+            + "    </materials>\n"
+            + "    <stage name='stage1'>\n"
+            + "      <jobs>\n"
+            + "        <job name='job1'>\n"
+            + "            <tasks>\n"
+            + "                <exec command='/bin/ls' args='some'/>\n"
+            + "            </tasks>\n"
+            + "        </job>\n"
+            + "      </jobs>\n"
+            + "    </stage>\n"
+            + "</pipeline>\n"
+            + "</pipelines>\n"
+            + "</cruise>";
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -592,35 +583,35 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldThrowErrorWhenEnvironmentVariablesAreDuplicate() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>\n"
-                + "<artifacts>\n"
-                + "<artifactsDir>artifacts</artifactsDir>\n"
-                + "</artifacts>\n"
-                + "</server>\n"
-                + "<pipelines>\n"
-                + "<pipeline name='dev'>\n"
-                + "    <params>\n"
-                + "        <param name='product'>GO</param>\n"
-                + "    </params>\n"
-                + "    <environmentvariables>\n"
-                + "        <variable name='#{product}_WORKING_DIR'><value>go_dir</value></variable>\n"
-                + "        <variable name='GO_WORKING_DIR'><value>dir</value></variable>\n"
-                + "    </environmentvariables>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>\n"
-                + "    </materials>\n"
-                + "    <stage name='stage1'>\n"
-                + "      <jobs>\n"
-                + "        <job name='job1'>\n"
-                + "            <tasks>\n"
-                + "                <exec command='/bin/ls' args='some'/>\n"
-                + "            </tasks>\n"
-                + "        </job>\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "</cruise>";
+            + "<server>\n"
+            + "<artifacts>\n"
+            + "<artifactsDir>artifacts</artifactsDir>\n"
+            + "</artifacts>\n"
+            + "</server>\n"
+            + "<pipelines>\n"
+            + "<pipeline name='dev'>\n"
+            + "    <params>\n"
+            + "        <param name='product'>GO</param>\n"
+            + "    </params>\n"
+            + "    <environmentvariables>\n"
+            + "        <variable name='#{product}_WORKING_DIR'><value>go_dir</value></variable>\n"
+            + "        <variable name='GO_WORKING_DIR'><value>dir</value></variable>\n"
+            + "    </environmentvariables>\n"
+            + "    <materials>\n"
+            + "      <svn url =\"svnurl\"/>\n"
+            + "    </materials>\n"
+            + "    <stage name='stage1'>\n"
+            + "      <jobs>\n"
+            + "        <job name='job1'>\n"
+            + "            <tasks>\n"
+            + "                <exec command='/bin/ls' args='some'/>\n"
+            + "            </tasks>\n"
+            + "        </job>\n"
+            + "      </jobs>\n"
+            + "    </stage>\n"
+            + "</pipeline>\n"
+            + "</pipelines>\n"
+            + "</cruise>";
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -745,33 +736,33 @@ public class CachedGoConfigIntegrationTest {
 
     private String configXmlWithPipeline(String pipelineName) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + CONFIG_SCHEMA_VERSION + "\">\n" +
-                "  <server serverId=\"dd8d0f5a-7e8d-4948-a1c7-ddcedbac15d0\">\n" +
-                "    <artifacts>\n" +
-                "       <artifactsDir>artifacts</artifactsDir>\n" +
-                "    </artifacts>\n" +
-                "  </server>\n" +
-                "  <pipelines group=\"another\">\n" +
-                "    <pipeline name=\"" + pipelineName + "\">\n" +
-                "      <params>\n" +
-                "        <param name=\"foo\">hg-server</param>\n" +
-                "        <param name=\"bar\">repo-name</param>\n" +
-                "      </params>\n" +
-                "      <materials>\n" +
-                "        <svn url=\"http://some/svn/url\" dest=\"svnDir\" materialName=\"url\" />\n" +
-                "        <hg url=\"http://#{foo}/#{bar}\" dest=\"folder\" />\n" +
-                "      </materials>\n" +
-                "      <stage name=\"dev\">\n" +
-                "        <jobs>\n" +
-                "          <job name=\"ant\">\n" +
-                "            <tasks><ant /></tasks>\n" +
-                "          </job>\n" +
-                "        </jobs>\n" +
-                "      </stage>\n" +
-                "    </pipeline>\n" +
-                "  </pipelines>\n" +
-                "</cruise>\n" +
-                "\n";
+            "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + CONFIG_SCHEMA_VERSION + "\">\n" +
+            "  <server serverId=\"dd8d0f5a-7e8d-4948-a1c7-ddcedbac15d0\">\n" +
+            "    <artifacts>\n" +
+            "       <artifactsDir>artifacts</artifactsDir>\n" +
+            "    </artifacts>\n" +
+            "  </server>\n" +
+            "  <pipelines group=\"another\">\n" +
+            "    <pipeline name=\"" + pipelineName + "\">\n" +
+            "      <params>\n" +
+            "        <param name=\"foo\">hg-server</param>\n" +
+            "        <param name=\"bar\">repo-name</param>\n" +
+            "      </params>\n" +
+            "      <materials>\n" +
+            "        <svn url=\"http://some/svn/url\" dest=\"svnDir\" materialName=\"url\" />\n" +
+            "        <hg url=\"http://#{foo}/#{bar}\" dest=\"folder\" />\n" +
+            "      </materials>\n" +
+            "      <stage name=\"dev\">\n" +
+            "        <jobs>\n" +
+            "          <job name=\"ant\">\n" +
+            "            <tasks><ant /></tasks>\n" +
+            "          </job>\n" +
+            "        </jobs>\n" +
+            "      </stage>\n" +
+            "    </pipeline>\n" +
+            "  </pipelines>\n" +
+            "</cruise>\n" +
+            "\n";
     }
 
     @Test
@@ -1172,8 +1163,8 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.forceReload();
 
         Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = goConfigDao.loadConfigHolder()
-                .configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"))
-                .getExternalArtifactConfigs().get(0).getConfiguration();
+            .configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"))
+            .getExternalArtifactConfigs().get(0).getConfiguration();
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("IMAGE_SECRET");
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).isEqualTo(new GoCipher().encrypt("IMAGE_SECRET"));
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue()).isNull();
@@ -1194,7 +1185,7 @@ public class CachedGoConfigIntegrationTest {
 
         PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
         Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) child
-                .get(0).getJobs().get(0).tasks().get(0)).getConfiguration();
+            .get(0).getJobs().get(0).tasks().get(0)).getConfiguration();
 
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getValue()).isEqualTo("SECRET");
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getEncryptedValue()).isEqualTo(new GoCipher().encrypt("SECRET"));

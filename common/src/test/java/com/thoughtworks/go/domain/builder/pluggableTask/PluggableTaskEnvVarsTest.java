@@ -20,7 +20,6 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,35 +28,36 @@ import static org.mockito.Mockito.verify;
 
 public class PluggableTaskEnvVarsTest {
 
-    private EnvironmentVariableContext context;
     private PluggableTaskEnvVars envVars;
-    private List<String> keys = List.of("Social Net 1", "Social Net 2", "Social Net 3");
-    private List<String> values = List.of("Twitter", "Facebook", "Mega Upload");
+
+    private final Map<String, String> props = Map.of(
+        "Social Net 1", "Twitter",
+        "Social Net 2", "Facebook",
+        "Social Net 3", "Mega Upload"
+    );
 
     @BeforeEach
     public void setUp() {
-        context = new EnvironmentVariableContext();
-        for (int i = 0; i < keys.size(); i++) {
-            context.setProperty(keys.get(i), values.get(i), i % 2 != 0);
-        }
+        EnvironmentVariableContext context = new EnvironmentVariableContext();
+        props.forEach((key, value) -> context.setProperty(key, value, keyShouldBeSecure(key)));
+
         envVars = new PluggableTaskEnvVars(context);
+    }
+
+    private static boolean keyShouldBeSecure(String key) {
+        return key.hashCode() % 2 != 0;
     }
 
     @Test
     public void shouldReturnEnvVarsMap() {
-        Map<String, String> envMap = envVars.asMap();
-        assertThat(envMap.keySet().containsAll(keys)).isTrue();
-        assertThat(envMap.values().containsAll(values)).isTrue();
-        for (int i = 0; i < keys.size(); i++) {
-            assertThat(envMap.get(keys.get(i))).isEqualTo(values.get(i));
-        }
+        assertThat(envVars.asMap()).containsExactlyInAnyOrderEntriesOf(props);
     }
 
     @Test
     public void testSecureEnvSpecifier() {
         Console.SecureEnvVarSpecifier secureEnvVarSpecifier = envVars.secureEnvSpecifier();
-        for (int i = 0; i < keys.size(); i++) {
-            assertThat(secureEnvVarSpecifier.isSecure(keys.get(i))).isEqualTo(i % 2 != 0);
+        for (String key : props.keySet()) {
+            assertThat(secureEnvVarSpecifier.isSecure(key)).isEqualTo(keyShouldBeSecure(key));
         }
     }
 

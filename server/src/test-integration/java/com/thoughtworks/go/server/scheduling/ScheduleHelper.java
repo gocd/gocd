@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -128,7 +127,7 @@ public class ScheduleHelper {
         } else {
             await()
                 .atMost(20, TimeUnit.SECONDS)
-                .untilAsserted(() -> assertThat(scheduleCompleteListener.pipelines).containsAll(List.of(pipelines)));
+                .untilAsserted(() -> assertThat(scheduleCompleteListener.pipelines).contains(pipelines));
 
             setWaitTime(System.currentTimeMillis() - startTime);
         }

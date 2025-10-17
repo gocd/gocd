@@ -39,9 +39,10 @@ import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
 
 public class SessionUtils {
+    public static final String AUTHENTICATION_TOKEN = "GOCD_SECURITY_AUTHENTICATION_TOKEN";
+    public static final String CURRENT_USER_ID = "GOCD_SECURITY_CURRENT_USER_ID";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionUtils.class);
-    private static final String AUTHENTICATION_TOKEN = "GOCD_SECURITY_AUTHENTICATION_TOKEN";
-    private static final String CURRENT_USER_ID = "GOCD_SECURITY_CURRENT_USER_ID";
     private static final String AUTHENTICATION_ERROR = "GOCD_SECURITY_AUTHENTICATION_ERROR";
     private static final String PLUGIN_AUTH_CONTEXT = "GOCD_PLUGIN_AUTH_CONTEXT";
     private static final String SAVED_REQUEST = "GOCD_SECURITY_SAVED_REQUEST";

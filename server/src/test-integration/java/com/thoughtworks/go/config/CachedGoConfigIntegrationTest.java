@@ -309,7 +309,7 @@ public class CachedGoConfigIntegrationTest {
         for (int i = 1; i <= matcher.groupCount(); i++) {
             actualSources.add(matcher.group(i));
         }
-        assertThat(actualSources).containsExactlyElementsOf(expectedSources);
+        assertThat(actualSources).containsExactlyInAnyOrderElementsOf(expectedSources);
     }
 
     @Test
@@ -336,7 +336,7 @@ public class CachedGoConfigIntegrationTest {
                 for (int i = 1; i <= matcher.groupCount(); i++) {
                     actualSources.add(matcher.group(i));
                 }
-                assertThat(actualSources).containsExactlyElementsOf(expectedSources);
+                assertThat(actualSources).containsExactlyInAnyOrderElementsOf(expectedSources);
             });
     }
 

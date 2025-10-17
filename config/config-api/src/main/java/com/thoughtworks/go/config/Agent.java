@@ -161,7 +161,7 @@ public class Agent extends PersistentObject {
     }
 
     public boolean hasErrors() {
-        return errors != null && !errors.isEmpty();
+        return !errors.isEmpty();
     }
 
     public boolean hasAllResources(Collection<String> resourcesToCheck) {

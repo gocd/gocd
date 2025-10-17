@@ -143,7 +143,7 @@ def libraries = [
   springSecurity      : 'org.springframework.security:spring-security-config:4.2.20.RELEASE',
   springTestJunit5    : 'com.github.sbrannen:spring-test-junit5:1.5.0',
   systemStubs         : 'uk.org.webcompere:system-stubs-jupiter:2.1.8',
-  testcontainersBom   : 'org.testcontainers:testcontainers-bom:1.21.3',
+  testcontainersBom   : 'org.testcontainers:testcontainers-bom:2.0.1',
   tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:3.0.0',
   urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',
   xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.10.4',
@@ -196,10 +196,10 @@ def relatedLibraries = [
   springWeb               : "org.springframework:spring-web:${v.spring}",
   springWebmvc            : "org.springframework:spring-webmvc:${v.spring}",
   testcontainers          : "org.testcontainers:testcontainers",
-  testcontainersJdbc      : "org.testcontainers:jdbc",
-  testcontainersJunit     : "org.testcontainers:junit-jupiter",
-  testcontainersMysql     : "org.testcontainers:mysql",
-  testcontainersPostgresql: "org.testcontainers:postgresql",
+  testcontainersJdbc      : "org.testcontainers:testcontainers-jdbc",
+  testcontainersJunit     : "org.testcontainers:testcontainers-junit-jupiter",
+  testcontainersMysql     : "org.testcontainers:testcontainers-mysql",
+  testcontainersPostgresql: "org.testcontainers:testcontainers-postgresql",
 ]
 //noinspection GroovyAssignabilityCheck
 ext.deps = libraries + relatedLibraries

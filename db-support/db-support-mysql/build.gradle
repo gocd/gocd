@@ -34,12 +34,8 @@ dependencies {
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher
 
-  testImplementation(project.deps.testcontainersJunit) {
-    exclude group: 'junit' // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970
-  }
-  testImplementation(project.deps.testcontainersMysql) {
-    exclude group: 'junit' // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970
-  }
+  testImplementation project.deps.testcontainersJunit
+  testImplementation project.deps.testcontainersMysql
 }
 
 test.dependsOn ':docker:configureDockerRegistryMirror'

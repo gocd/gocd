@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.policy.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,6 @@ import spark.HaltException;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.domain.ArtifactPlan.GSON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -308,14 +308,14 @@ class ApiAuthenticationHelperTest {
         void shouldRenderAppropriateForbiddenErrorMessageWhenUserDoesNotHaveViewPermissions() {
             HaltException thrown = assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));
             String expectedMessage = "User 'Bob' does not have permissions to view 'env_1' environment(s).";
-            assertThat(GSON.fromJson(thrown.body(), Map.class).get("message")).isEqualTo(expectedMessage);
+            assertThat(JsonHelper.fromJson(thrown.body(), Map.class).get("message")).isEqualTo(expectedMessage);
         }
 
         @Test
         void shouldRenderAppropriateForbiddenErrorMessageWhenUserDoesNotHaveAdministerPermissions() {
             HaltException thrown = assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, "env_1"));
             String expectedMessage = "User 'Bob' does not have permissions to administer 'env_1' environment(s).";
-            assertThat(GSON.fromJson(thrown.body(), Map.class).get("message")).isEqualTo(expectedMessage);
+            assertThat(JsonHelper.fromJson(thrown.body(), Map.class).get("message")).isEqualTo(expectedMessage);
         }
     }
 }

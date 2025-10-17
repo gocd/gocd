@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -31,13 +32,15 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class JobAgentMetadata extends PersistentObject {
+    private static final Gson GSON = new GsonBuilder()
+        .serializeNulls()
+        .setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .create();
+
     private Long jobId;
     private String elasticAgentProfileMetadata;
     private String clusterProfileMetadata;
     private String metadataVersion;
-    private static final Gson GSON = new GsonBuilder().serializeNulls().
-            setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).
-            create();
 
     private JobAgentMetadata() {
     }
@@ -49,17 +52,17 @@ public class JobAgentMetadata extends PersistentObject {
         this.metadataVersion = "2.0";
     }
 
+    @SuppressWarnings("unchecked")
     public ElasticProfile elasticProfile() {
         Map<String, Object> map = GSON.<Map<String, Object>>fromJson(elasticAgentProfileMetadata, LinkedHashMap.class);
-        String clusterProfileId = (String) map.get("clusterProfileId");
-        String id = (String) map.get("id");
-        @SuppressWarnings("unchecked") Map<String, String> properties = (Map<String, String>) map.get("properties");
 
-        Collection<ConfigurationProperty> configProperties = properties.entrySet().stream().map(entry -> new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue()))).collect(Collectors.toList());
-
-        return new ElasticProfile(id, clusterProfileId, configProperties);
+        return new ElasticProfile(
+            (String) map.get("id"),
+            (String) map.get("clusterProfileId"),
+            propertiesCollectionFor((Map<String, String>) map.get("properties")));
     }
 
+    @SuppressWarnings("unchecked")
     public ClusterProfile clusterProfile() {
         Map<String, Object> map = GSON.<Map<String, Object>>fromJson(clusterProfileMetadata, LinkedHashMap.class);
 
@@ -67,12 +70,17 @@ public class JobAgentMetadata extends PersistentObject {
             return null;
         }
 
-        String pluginId = (String) map.get("pluginId");
-        String id = (String) map.get("id");
-        @SuppressWarnings("unchecked") Map<String, String> properties = (Map<String, String>) map.get("properties");
+        return new ClusterProfile(
+            (String) map.get("id"),
+            (String) map.get("pluginId"),
+            propertiesCollectionFor((Map<String, String>) map.get("properties")));
+    }
 
-        Collection<ConfigurationProperty> configProperties = properties.entrySet().stream().map(entry -> new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue()))).collect(Collectors.toList());
-        return new ClusterProfile(id, pluginId, configProperties);
+    private static @NotNull Collection<ConfigurationProperty> propertiesCollectionFor(Map<String, String> properties) {
+        return properties.entrySet()
+            .stream()
+            .map(entry -> new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue())))
+            .collect(Collectors.toList());
     }
 
     private static String jsonizeElasticAgentProfile(ElasticProfile elasticProfile, String pluginId) {

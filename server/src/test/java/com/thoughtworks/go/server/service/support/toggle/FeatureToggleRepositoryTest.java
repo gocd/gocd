@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.server.service.support.toggle;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -200,7 +200,7 @@ public class FeatureToggleRepositoryTest {
         String currentContentOfRealAvailableTogglesFile = TestFileUtil.resourceToString(realAvailableTogglesFilePath);
 
         try {
-            new Gson().fromJson(currentContentOfRealAvailableTogglesFile, FeatureToggleRepository.FeatureToggleFileContentRepresentation.class);
+            JsonHelper.fromJson(currentContentOfRealAvailableTogglesFile, FeatureToggleRepository.FeatureToggleFileContentRepresentation.class);
         } catch (Exception e) {
             fail("Check contents of " + realAvailableTogglesFilePath + ". Contents should be valid and be equivalent" +
                     " to FeatureToggleRepository.FeatureToggleFileContentRepresentation.class. Contents were:\n" +

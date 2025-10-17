@@ -43,7 +43,6 @@ public class JsonView extends AbstractView {
     protected void renderMergedOutputModel(Map<String, Object> map, HttpServletRequest httpServletRequest,
                                            HttpServletResponse httpServletResponse) throws Exception {
         if (requestContext == null) {
-            //TODO requestContext may already exist in request; need to check it
             requestContext = new GoRequestContext(httpServletRequest);
         }
         Object json = map.get("json");

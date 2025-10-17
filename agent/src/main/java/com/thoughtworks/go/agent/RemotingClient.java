@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.agent;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -55,7 +54,6 @@ import static java.lang.String.format;
 @Component
 public class RemotingClient implements BuildRepositoryRemote {
     private static final Logger LOG = LoggerFactory.getLogger(RemotingClient.class);
-    private static final Gson GSON = Serialization.instance();
 
     private final GoAgentServerHttpClient client;
     private final DefaultAgentRegistry agent;
@@ -70,12 +68,12 @@ public class RemotingClient implements BuildRepositoryRemote {
 
     @Override
     public AgentInstruction ping(AgentRuntimeInfo info) {
-        return GSON.fromJson(post("ping", new PingRequest(info)), AgentInstruction.class);
+        return Serialization.fromJson(post("ping", new PingRequest(info)), AgentInstruction.class);
     }
 
     @Override
     public Work getWork(AgentRuntimeInfo info) {
-        return GSON.fromJson(post("get_work", new GetWorkRequest(info)), Work.class);
+        return Serialization.fromJson(post("get_work", new GetWorkRequest(info)), Work.class);
     }
 
     @Override
@@ -101,7 +99,7 @@ public class RemotingClient implements BuildRepositoryRemote {
 
     @Override
     public String getCookie(AgentRuntimeInfo info) {
-        return GSON.fromJson(post("get_cookie", new GetCookieRequest(info)), String.class);
+        return Serialization.fromJson(post("get_cookie", new GetCookieRequest(info)), String.class);
     }
 
     private String post(final String action, final AgentRequest payload) {
@@ -152,7 +150,7 @@ public class RemotingClient implements BuildRepositoryRemote {
     private HttpRequestBase postRequestFor(String action, AgentRequest payload) {
         final HttpPost request = new HttpPost(urls.remotingUrlFor(action));
         request.addHeader(HttpHeaders.ACCEPT, "application/vnd.go.cd+json");
-        request.setEntity(new StringEntity(GSON.toJson(payload, AgentRequest.class), ContentType.APPLICATION_JSON));
+        request.setEntity(new StringEntity(Serialization.toJson(payload, AgentRequest.class), ContentType.APPLICATION_JSON));
         return request;
     }
 

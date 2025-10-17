@@ -16,18 +16,16 @@
 
 package com.thoughtworks.go.apiv1.internalagent.representers;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.remote.work.Work;
 
 public class WorkRepresenter {
-    private static final Gson gson = Serialization.instance();
 
     public static String toJSON(Work work) {
-        return gson.toJson(work, Work.class);
+        return Serialization.toJson(work, Work.class);
     }
 
     public static Work fromJSON(String json) {
-        return gson.fromJson(json, Work.class);
+        return Serialization.fromJson(json, Work.class);
     }
 }

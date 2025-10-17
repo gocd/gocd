@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.google.gson.Gson;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ public class JobAgentMetadataTest {
         @Test
         @DisplayName("shouldBeNullWhenLoadingJobAgentMetadataFromDBWhereClusterProfileMetadataIsNull_This Handles Scenario Wherein A JobAgentMetaData upon migration has a null clusterprofile metadata.")
         void shouldBeNullWhenLoadingJobAgentMetadataFromDBWhereClusterProfileMetadataIsNull() {
-            final JobAgentMetadata jobAgentMetadata = new Gson().fromJson("{\"clusterProfileMetadata\": null}", JobAgentMetadata.class);
+            final JobAgentMetadata jobAgentMetadata = JsonHelper.fromJson("{\"clusterProfileMetadata\": null}", JobAgentMetadata.class);
 
             assertThat(jobAgentMetadata.clusterProfile())
                     .isNull();

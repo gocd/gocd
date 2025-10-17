@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.config.ArtifactTypeConfig;
 import com.thoughtworks.go.config.ArtifactTypeConfigs;
@@ -23,6 +22,7 @@ import com.thoughtworks.go.config.BuiltinArtifactConfig;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.FilenameUtil;
+import com.thoughtworks.go.util.json.JsonHelper;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,6 @@ import static org.apache.tools.ant.types.selectors.SelectorUtils.rtrimWildcardTo
 public class ArtifactPlan extends PersistentObject {
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactPlan.class);
     private static final String MERGED_TEST_RESULT_FOLDER = "result";
-    private static final Gson GSON = new Gson();
 
     protected final List<ArtifactPlan> testArtifactPlansForMerging = new ArrayList<>();
 
@@ -236,7 +235,7 @@ public class ArtifactPlan extends PersistentObject {
     }
 
     public Map<String, Object> getPluggableArtifactConfiguration() {
-        return GSON.fromJson(pluggableArtifactConfigJson, new TypeToken<Map<String, Object>>() {}.getType());
+        return JsonHelper.fromJson(pluggableArtifactConfigJson, new TypeToken<Map<String, Object>>() {}.getType());
     }
 
     @Override

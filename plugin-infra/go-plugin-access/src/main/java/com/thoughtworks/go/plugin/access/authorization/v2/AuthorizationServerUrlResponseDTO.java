@@ -15,19 +15,16 @@
  */
 package com.thoughtworks.go.plugin.access.authorization.v2;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationServerUrlResponse;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.Map;
 
 import static java.util.Objects.nonNull;
 
 class AuthorizationServerUrlResponseDTO {
-
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     @Expose
     @SerializedName("authorization_server_url")
@@ -51,7 +48,7 @@ class AuthorizationServerUrlResponseDTO {
     }
 
     public static AuthorizationServerUrlResponseDTO fromJSON(String json) {
-        return GSON.fromJson(json, AuthorizationServerUrlResponseDTO.class);
+        return JsonHelper.fromJsonExposeOnly(json, AuthorizationServerUrlResponseDTO.class);
     }
 
     public AuthorizationServerUrlResponse toDomainModel() {

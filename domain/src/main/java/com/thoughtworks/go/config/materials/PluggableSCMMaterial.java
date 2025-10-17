@@ -90,7 +90,7 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
 
     @Override
     public MaterialInstance createMaterialInstance() {
-        return new PluggableSCMMaterialInstance(JsonHelper.toJsonString(this), UUID.randomUUID().toString());
+        return new PluggableSCMMaterialInstance(JsonHelper.toJsonExposeOnly(this), UUID.randomUUID().toString());
     }
 
     public SCM getScmConfig() {

@@ -1125,9 +1125,9 @@ public class MaterialRepositoryIntegrationTest {
         PackageMaterialInstance savedMaterialInstance = (PackageMaterialInstance) repo.findOrCreateFrom(material);
         assertThat(savedMaterialInstance.getId() > 0).isTrue();
         assertThat(savedMaterialInstance.getFingerprint()).isEqualTo(material.getFingerprint());
-        assertThat(JsonHelper.fromJson(savedMaterialInstance.getConfiguration(), PackageMaterial.class).getPackageDefinition().getConfiguration()).isEqualTo(material.getPackageDefinition().getConfiguration());
-        assertThat(JsonHelper.fromJson(savedMaterialInstance.getConfiguration(), PackageMaterial.class).getPackageDefinition().getRepository().getPluginConfiguration().getId()).isEqualTo(material.getPackageDefinition().getRepository().getPluginConfiguration().getId());
-        assertThat(JsonHelper.fromJson(savedMaterialInstance.getConfiguration(), PackageMaterial.class).getPackageDefinition().getRepository().getConfiguration()).isEqualTo(material.getPackageDefinition().getRepository().getConfiguration());
+        assertThat(JsonHelper.fromJsonExposeOnly(savedMaterialInstance.getConfiguration(), PackageMaterial.class).getPackageDefinition().getConfiguration()).isEqualTo(material.getPackageDefinition().getConfiguration());
+        assertThat(JsonHelper.fromJsonExposeOnly(savedMaterialInstance.getConfiguration(), PackageMaterial.class).getPackageDefinition().getRepository().getPluginConfiguration().getId()).isEqualTo(material.getPackageDefinition().getRepository().getPluginConfiguration().getId());
+        assertThat(JsonHelper.fromJsonExposeOnly(savedMaterialInstance.getConfiguration(), PackageMaterial.class).getPackageDefinition().getRepository().getConfiguration()).isEqualTo(material.getPackageDefinition().getRepository().getConfiguration());
     }
 
     @Test
@@ -1141,8 +1141,8 @@ public class MaterialRepositoryIntegrationTest {
 
         assertThat(savedMaterialInstance.getId() > 0).isTrue();
         assertThat(savedMaterialInstance.getFingerprint()).isEqualTo(material.getFingerprint());
-        assertThat(JsonHelper.fromJson(savedMaterialInstance.getConfiguration(), PluggableSCMMaterial.class).getScmConfig().getConfiguration()).isEqualTo(material.getScmConfig().getConfiguration());
-        assertThat(JsonHelper.fromJson(savedMaterialInstance.getConfiguration(), PluggableSCMMaterial.class).getScmConfig().getPluginConfiguration().getId()).isEqualTo(material.getScmConfig().getPluginConfiguration().getId());
+        assertThat(JsonHelper.fromJsonExposeOnly(savedMaterialInstance.getConfiguration(), PluggableSCMMaterial.class).getScmConfig().getConfiguration()).isEqualTo(material.getScmConfig().getConfiguration());
+        assertThat(JsonHelper.fromJsonExposeOnly(savedMaterialInstance.getConfiguration(), PluggableSCMMaterial.class).getScmConfig().getPluginConfiguration().getId()).isEqualTo(material.getScmConfig().getPluginConfiguration().getId());
     }
 
     @Test
@@ -1359,7 +1359,7 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(instance).isInstanceOf(PackageMaterialInstance.class);
         assertThat(instance.getFingerprint()).isEqualTo(material.getFingerprint());
         assertThat(instance.getAdditionalData()).isNullOrEmpty();
-        PackageMaterial packageMaterial = JsonHelper.fromJson(instance.getConfiguration(), PackageMaterial.class);
+        PackageMaterial packageMaterial = JsonHelper.fromJsonExposeOnly(instance.getConfiguration(), PackageMaterial.class);
         assertThat(packageMaterial).isEqualTo(material);
     }
 
@@ -1379,7 +1379,7 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(instance).isInstanceOf(PluggableSCMMaterialInstance.class);
         assertThat(instance.getFingerprint()).isEqualTo(material.getFingerprint());
         assertThat(instance.getAdditionalData()).isNullOrEmpty();
-        PluggableSCMMaterial pluggableSCMMaterial = JsonHelper.fromJson(instance.getConfiguration(), PluggableSCMMaterial.class);
+        PluggableSCMMaterial pluggableSCMMaterial = JsonHelper.fromJsonExposeOnly(instance.getConfiguration(), PluggableSCMMaterial.class);
         assertThat(pluggableSCMMaterial).isEqualTo(material);
     }
 

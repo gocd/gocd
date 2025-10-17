@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ArtifactType;
@@ -24,6 +23,7 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -170,7 +170,7 @@ public class PluggableArtifactConfig implements ArtifactTypeConfig {
         artifactStoreAsHashMap.put("id", getId());
         artifactStoreAsHashMap.put("storeId", getStoreId());
         artifactStoreAsHashMap.put("configuration", this.getConfiguration().getConfigurationAsMap(true));
-        return new Gson().toJson(artifactStoreAsHashMap);
+        return JsonHelper.toJson(artifactStoreAsHashMap);
     }
 
     @Override

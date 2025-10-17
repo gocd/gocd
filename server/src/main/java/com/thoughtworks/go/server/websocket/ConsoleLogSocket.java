@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server.websocket;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
@@ -38,7 +38,6 @@ import java.util.Collections;
 public class ConsoleLogSocket implements SocketEndpoint {
     private static final String PING = "{\"type\":\"ping\"}";
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogSocket.class);
-    private static final Gson GSON = new Gson();
 
     private final JobIdentifier jobIdentifier;
     private final ConsoleLogSender handler;
@@ -53,7 +52,7 @@ public class ConsoleLogSocket implements SocketEndpoint {
         this.jobIdentifier = jobIdentifier;
         this.key = String.format("%s:%d", jobIdentifier, hashCode());
         this.socketHealthService = socketHealthService;
-        this.consoleLogCharsetJSONMessage = GSON.toJson(Collections.singletonMap("charset", consoleLogCharset.name()));
+        this.consoleLogCharsetJSONMessage = JsonHelper.toJson(Collections.singletonMap("charset", consoleLogCharset.name()));
     }
 
     @OnWebSocketConnect

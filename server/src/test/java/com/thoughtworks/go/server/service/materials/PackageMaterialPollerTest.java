@@ -95,7 +95,7 @@ class PackageMaterialPollerTest {
         assertThat(modifications.get(0).getModifiedTime()).isEqualTo(timestamp);
         assertThat(modifications.get(0).getUserName()).isEqualTo("user");
         assertThat(modifications.get(0).getComment()).isNotNull();
-        assertThat(modifications.get(0).getAdditionalData()).isEqualTo(JsonHelper.toJsonString(expected));
+        assertThat(modifications.get(0).getAdditionalData()).isEqualTo(JsonHelper.toJsonExposeOnly(expected));
         assertConfiguration(packageConfiguration.getValue(), material.getPackageDefinition().getConfiguration());
         assertConfiguration(repositoryConfiguration.getValue(), material.getPackageDefinition().getRepository().getConfiguration());
     }
@@ -134,7 +134,7 @@ class PackageMaterialPollerTest {
 
         Map<String, String> expected = new HashMap<>();
         expected.put(dataKey, dataValue);
-        String expectedDataString = JsonHelper.toJsonString(expected);
+        String expectedDataString = JsonHelper.toJsonExposeOnly(expected);
 
         Modification firstModification = modifications.get(0);
         assertThat(firstModification.getRevision()).isEqualTo("rev-123");

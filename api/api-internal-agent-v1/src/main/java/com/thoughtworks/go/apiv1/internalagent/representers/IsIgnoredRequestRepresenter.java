@@ -16,19 +16,17 @@
 
 package com.thoughtworks.go.apiv1.internalagent.representers;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.remote.request.AgentRequest;
 import com.thoughtworks.go.remote.request.IsIgnoredRequest;
 
 public class IsIgnoredRequestRepresenter {
-    private static final Gson gson = Serialization.instance();
 
     public static String toJSON(AgentRequest isIgnoredRequest) {
-        return gson.toJson(isIgnoredRequest, AgentRequest.class);
+        return Serialization.toJson(isIgnoredRequest, AgentRequest.class);
     }
 
     public static IsIgnoredRequest fromJSON(String json) {
-        return gson.fromJson(json, IsIgnoredRequest.class);
+        return Serialization.fromJson(json, IsIgnoredRequest.class);
     }
 }

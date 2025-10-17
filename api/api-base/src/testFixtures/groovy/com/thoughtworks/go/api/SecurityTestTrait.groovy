@@ -15,9 +15,10 @@
  */
 package com.thoughtworks.go.api
 
-import com.google.gson.Gson
+
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.api.util.HaltApiMessages
+import com.thoughtworks.go.util.json.JsonHelper
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.invocation.InvocationOnMock
 import spark.Request
@@ -34,10 +35,9 @@ trait SecurityTestTrait {
   void stubControllerAction() {
     this.reachedControllerMessage = "REACHED_CONTROLLER_${UUID.randomUUID()}".toString()
     doAnswer({ InvocationOnMock invocation ->
-      Request req = invocation.arguments.first()
       Response res = invocation.arguments.last()
       res.status(99999)
-      return new Gson().toJson([message: reachedControllerMessage])
+      return JsonHelper.toJson([message: reachedControllerMessage])
     }).when(controller)."${controllerMethodUnderTest}"(any() as Request, any() as Response)
   }
 

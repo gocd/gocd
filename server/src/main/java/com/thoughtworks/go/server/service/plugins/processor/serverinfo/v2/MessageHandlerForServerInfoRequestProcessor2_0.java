@@ -15,19 +15,13 @@
  */
 package com.thoughtworks.go.server.service.plugins.processor.serverinfo.v2;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.server.service.plugins.processor.serverinfo.MessageHandlerForServerInfoRequestProcessor;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 public class MessageHandlerForServerInfoRequestProcessor2_0 implements MessageHandlerForServerInfoRequestProcessor {
-    private final Gson gson;
-
-    public MessageHandlerForServerInfoRequestProcessor2_0() {
-        gson = new Gson();
-    }
-
     @Override
     public String serverInfoToJSON(ServerConfig serverConfig) {
         JsonObject object = new JsonObject();
@@ -40,6 +34,6 @@ public class MessageHandlerForServerInfoRequestProcessor2_0 implements MessageHa
         object.addProperty("dist_version", currentGoCDVersion.distVersion());
         object.addProperty("git_revision", currentGoCDVersion.gitRevision());
 
-        return gson.toJson(object);
+        return JsonHelper.toJson(object);
     }
 }

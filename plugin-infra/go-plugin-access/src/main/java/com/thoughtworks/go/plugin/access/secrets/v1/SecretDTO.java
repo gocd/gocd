@@ -15,17 +15,15 @@
  */
 package com.thoughtworks.go.plugin.access.secrets.v1;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.List;
 
 class SecretDTO {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     @Expose
     @SerializedName("key")
@@ -48,12 +46,11 @@ class SecretDTO {
     }
 
     public static SecretDTO fromJSON(String json) {
-        return GSON.fromJson(json, SecretDTO.class);
+        return JsonHelper.fromJsonExposeOnly(json, SecretDTO.class);
     }
 
     public static List<SecretDTO> fromJSONList(String json) {
-        return GSON.fromJson(json, new TypeToken<List<SecretDTO>>() {
-        }.getType());
+        return JsonHelper.fromJsonExposeOnly(json, new TypeToken<List<SecretDTO>>() {}.getType());
     }
 
     public Secret toDomainModel() {

@@ -243,7 +243,7 @@ class ConfigReposMaterialParseResultManagerTest {
 
         final ArgumentCaptor<ConfigChangedListener> listenerArgumentCaptor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         verify(goConfigService).register(listenerArgumentCaptor.capture());
-        assertTrue(listenerArgumentCaptor.getValue() instanceof ConfigRepoReparseListener);
+        assertInstanceOf(ConfigRepoReparseListener.class, listenerArgumentCaptor.getValue());
     }
 
     @Nested

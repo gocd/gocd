@@ -16,19 +16,17 @@
 
 package com.thoughtworks.go.apiv1.internalagent.representers;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.remote.request.AgentRequest;
 import com.thoughtworks.go.remote.request.GetCookieRequest;
 
 public class GetCookieRequestRepresenter {
-    private static final Gson gson = Serialization.instance();
 
     public static String toJSON(AgentRequest request) {
-        return gson.toJson(request, AgentRequest.class);
+        return Serialization.toJson(request, AgentRequest.class);
     }
 
     public static GetCookieRequest fromJSON(String request) {
-        return gson.fromJson(request, GetCookieRequest.class);
+        return Serialization.fromJson(request, GetCookieRequest.class);
     }
 }

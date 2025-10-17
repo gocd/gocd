@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -34,6 +33,7 @@ import com.thoughtworks.go.server.service.materials.MaterialPoller;
 import com.thoughtworks.go.server.service.materials.PluggableSCMMaterialPoller;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -136,7 +136,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         final MaterialInstance materialInstance = material.createMaterialInstance();
         Map<String, String> oldData = new HashMap<>();
         oldData.put("k1", "v1");
-        materialInstance.setAdditionalData(new GsonBuilder().create().toJson(oldData));
+        materialInstance.setAdditionalData(JsonHelper.toJson(oldData));
         materialRepository.saveOrUpdate(materialInstance);
 
         Map<String, String> newData = new HashMap<>(oldData);

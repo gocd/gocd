@@ -55,7 +55,7 @@ public class MaterialRevisionsJsonBuilderTest {
     private String buildJson() {
         materialRevisions.accept(builder);
         List<Object> json = builder.json();
-        return new Gson().toJson(json);
+        return JsonHelper.toJson(json);
     }
 
     @Test
@@ -147,10 +147,10 @@ public class MaterialRevisionsJsonBuilderTest {
         map.put("TYPE", "PACKAGE_MATERIAL");
         map.put("TRACKBACK_URL", "google.com");
         map.put("COMMENT", "comment");
-        String packageMaterialComment = JsonHelper.toJsonString(map);
+        String packageMaterialComment = JsonHelper.toJsonExposeOnly(map);
         Modification modification = new Modification("user", packageMaterialComment, "some@com", new Date(), "1234");
         materialRevisions = new MaterialRevisions(new MaterialRevision(MaterialsMother.packageMaterial(), modification));
         assertThatJson(buildJson())
-            .node("[0].modifications[0].comment").isEqualTo(JsonHelper.toJsonString(packageMaterialComment));
+            .node("[0].modifications[0].comment").isEqualTo(JsonHelper.toJsonExposeOnly(packageMaterialComment));
     }
 }

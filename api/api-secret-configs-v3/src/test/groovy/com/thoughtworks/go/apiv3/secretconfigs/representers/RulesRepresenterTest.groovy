@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.apiv3.secretconfigs.representers
 
-import com.google.gson.Gson
+
 import com.google.gson.JsonArray
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.rules.Allow
 import com.thoughtworks.go.config.rules.Deny
 import com.thoughtworks.go.config.rules.Rules
+import com.thoughtworks.go.util.json.JsonHelper
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -162,7 +163,7 @@ class RulesRepresenterTest {
       ]
 
 
-      def jsonRequest = new Gson().toJson(request).toString()
+      def jsonRequest = JsonHelper.toJson(request).toString()
       def jsonObject = GsonTransformer.instance.jsonReaderFrom(jsonRequest)
       def rules = fromJSON(jsonObject.optJsonArray("rules").get())
 
@@ -196,7 +197,7 @@ class RulesRepresenterTest {
         ]
       ]
 
-      def jsonRequest = new Gson().toJson(request).toString()
+      def jsonRequest = JsonHelper.toJson(request).toString()
       def jsonObject = GsonTransformer.instance.jsonReaderFrom(jsonRequest)
 
       Rules rules = fromJSON(jsonObject.optJsonArray("rules").get())

@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.secrets.v1;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
@@ -26,6 +24,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +36,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SecretsMessageConverterV1 implements SecretsMessageConverter {
     public static final String VERSION = "1.0";
-    private static final Gson GSON = new GsonBuilder().serializeNulls().create();
 
     @Override
     public Image getImageFromResponseBody(String responseBody) {
@@ -51,7 +49,7 @@ public class SecretsMessageConverterV1 implements SecretsMessageConverter {
 
     @Override
     public String getSecretsConfigViewFromResponse(String responseBody) {
-        String statusReportView = (String) new Gson().fromJson(responseBody, Map.class).get("template");
+        String statusReportView = (String) JsonHelper.fromJson(responseBody, Map.class).get("template");
         if (isBlank(statusReportView)) {
             throw new RuntimeException("Template is blank!");
         }
@@ -66,7 +64,7 @@ public class SecretsMessageConverterV1 implements SecretsMessageConverter {
 
     @Override
     public String validatePluginConfigurationRequestBody(Map<String, String> configuration) {
-        return GSON.toJson(mapToJsonObject(configuration));
+        return JsonHelper.toJsonWithNulls(mapToJsonObject(configuration));
     }
 
     @Override
@@ -75,7 +73,7 @@ public class SecretsMessageConverterV1 implements SecretsMessageConverter {
         requestBodyMap.put("keys", lookupStrings);
         requestBodyMap.put("configuration", mapToJsonObject(configurationAsMap));
 
-        return GSON.toJson(requestBodyMap);
+        return JsonHelper.toJsonWithNulls(requestBodyMap);
     }
 
     @Override
@@ -86,7 +84,7 @@ public class SecretsMessageConverterV1 implements SecretsMessageConverter {
     @Override
     public String getErrorMessageFromResponse(String responseBody) {
 
-        return (String) new Gson().fromJson(responseBody, Map.class).get("message");
+        return (String) JsonHelper.fromJson(responseBody, Map.class).get("message");
     }
 
     private JsonObject mapToJsonObject(Map<String, String> configuration) {

@@ -16,14 +16,12 @@
 
 package com.thoughtworks.go.apiv1.internalagent.representers;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.Serialization;
 
 public class AgentInstructionRepresenter {
-    private static final Gson gson = Serialization.instance();
 
     public static String toJSON(AgentInstruction agentInstruction) {
-        return gson.toJson(agentInstruction);
+        return Serialization.toJson(agentInstruction);
     }
 }

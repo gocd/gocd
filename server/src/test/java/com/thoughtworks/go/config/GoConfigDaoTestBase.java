@@ -34,8 +34,7 @@ import static com.thoughtworks.go.helper.ConfigFileFixture.BASIC_CONFIG;
 import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 
@@ -352,7 +351,7 @@ public abstract class GoConfigDaoTestBase {
             goConfigDao.updateConfig(command, new Username(new CaseInsensitiveString("user")));
             fail("Expected to throw exception of type:" + ConfigUpdateCheckFailedException.class.getName());
         } catch (Exception e) {
-            assertTrue(e instanceof ConfigUpdateCheckFailedException);
+            assertInstanceOf(ConfigUpdateCheckFailedException.class, e);
         }
         verify(cachedConfigService).currentConfig();
         verifyNoMoreInteractions(cachedConfigService);

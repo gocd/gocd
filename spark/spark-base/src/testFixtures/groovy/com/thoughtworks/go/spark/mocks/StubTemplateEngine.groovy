@@ -15,16 +15,15 @@
  */
 package com.thoughtworks.go.spark.mocks
 
-import com.google.gson.Gson
+
+import com.thoughtworks.go.util.json.JsonHelper
 import spark.ModelAndView
 import spark.TemplateEngine
 
 class StubTemplateEngine extends TemplateEngine {
-  private static final Gson GSON = new Gson()
-
   private static String asJson(Object model) {
     // reconstruct HashMap because Gson does not serialize anonymous inner classes
-    return GSON.toJson(new HashMap((Map) model))
+    return JsonHelper.toJson(new HashMap((Map) model))
   }
 
   @Override

@@ -174,7 +174,7 @@ class FiltersTest {
         assertEquals(1, filters.filters().size());
         final DashboardFilter first = filters.filters().get(0);
         assertEquals(DEFAULT_NAME, first.name());
-        assertTrue(first instanceof IncludesFilter);
+        assertInstanceOf(IncludesFilter.class, first);
         assertEquals(1, ((IncludesFilter) first).pipelines().size());
         assertTrue(((IncludesFilter) first).pipelines().contains(new CaseInsensitiveString("p1")));
     }

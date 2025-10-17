@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service.plugins.processor.console.v1;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
@@ -26,6 +25,7 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.plugins.processor.console.ConsoleLogRequestProcessor;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -59,7 +59,7 @@ public class ConsoleLogRequestProcessorV1Test {
         requestMap.put("text", "message1");
 
         DefaultGoApiRequest goApiRequest = new DefaultGoApiRequest(APPEND_TO_CONSOLE_LOG, VERSION_1, null);
-        goApiRequest.setRequestBody(new GsonBuilder().create().toJson(requestMap));
+        goApiRequest.setRequestBody(JsonHelper.toJson(requestMap));
 
         final ConsoleLogRequestProcessor processor = new ConsoleLogRequestProcessor(pluginRequestProcessorRegistry, consoleService);
         final GoApiResponse response = processor.process(pluginDescriptor, goApiRequest);
@@ -80,7 +80,7 @@ public class ConsoleLogRequestProcessorV1Test {
 
         assertThat(response.responseCode()).isEqualTo(DefaultGoApiResponse.INTERNAL_ERROR);
 
-        @SuppressWarnings("unchecked") final Map<String, String> responseContents = new Gson().fromJson(response.responseBody(), Map.class);
+        @SuppressWarnings("unchecked") final Map<String, String> responseContents = JsonHelper.fromJson(response.responseBody(), Map.class);
         assertThat(responseContents.get("message")).contains("Error:");
     }
 }

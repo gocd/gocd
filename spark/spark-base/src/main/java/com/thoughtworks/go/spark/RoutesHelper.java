@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.spark;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -43,7 +43,6 @@ import static spark.Spark.*;
 
 public class RoutesHelper {
     private static final Logger LOG = LoggerFactory.getLogger(RoutesHelper.class);
-    private static final Gson GSON = new Gson();
     private static final String TIMER_START = RuntimeHeaderEmitter.class.getName();
 
     private final List<SparkSpringController> controllers;
@@ -113,13 +112,13 @@ public class RoutesHelper {
         } else if (containsAny(acceptedTypes, APPLICATION_XML_VALUE, TEXT_XML_VALUE, APPLICATION_RSS_XML_VALUE, APPLICATION_ATOM_XML_VALUE)) {
             res.body(ex.asXML());
         } else {
-            res.body(GSON.toJson(Map.of("message", ex.getMessage())));
+            res.body(JsonHelper.toJson(Map.of("message", ex.getMessage())));
         }
     }
 
     private void unprocessableEntity(UnprocessableEntityException ex, Request request, Response response) {
         response.status(HttpStatus.SC_UNPROCESSABLE_ENTITY);
-        response.body(GSON.toJson(Map.of("message", "Your request could not be processed. " + ex.getMessage())));
+        response.body(JsonHelper.toJson(Map.of("message", "Your request could not be processed. " + ex.getMessage())));
     }
 
     void unhandledException(Exception ex, Request req, Response res) {
@@ -128,7 +127,7 @@ public class RoutesHelper {
         LOG.error("Unhandled exception on [{}]: {}", uri, ex.getMessage(), ex);
 
         res.status(HttpURLConnection.HTTP_INTERNAL_ERROR);
-        res.body(GSON.toJson(Map.of("error", ex.getMessage() == null ? "Internal server error" : ex.getMessage())));
+        res.body(JsonHelper.toJson(Map.of("error", ex.getMessage() == null ? "Internal server error" : ex.getMessage())));
     }
 
     private boolean containsAny(List<String> list, String... strs) {
@@ -146,7 +145,7 @@ public class RoutesHelper {
 
     private void invalidJsonPayload(JsonParseException ex, Request req, Response res) {
         res.status(HttpURLConnection.HTTP_BAD_REQUEST);
-        res.body(GSON.toJson(Map.of("error", "Payload data is not valid JSON: " + ex.getMessage())));
+        res.body(JsonHelper.toJson(Map.of("error", "Payload data is not valid JSON: " + ex.getMessage())));
     }
 
     private static class RuntimeHeaderEmitter {

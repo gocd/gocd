@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -48,7 +48,7 @@ public class JobStatusJsonPresentationModelTest {
                 agent, mock(DurationBean.class));
         Map<String, Object> json = presenter.toJsonHash();
 
-        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        assertThatJson(JsonHelper.toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "name": "test",
                   "id": "12",
@@ -64,7 +64,7 @@ public class JobStatusJsonPresentationModelTest {
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
         Map<String, Object> json = presenter.toJsonHash();
 
-        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        assertThatJson(JsonHelper.toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "name": "test",
                   "current_status": "passed"
@@ -79,7 +79,7 @@ public class JobStatusJsonPresentationModelTest {
                 new DurationBean(instance.getId(), 10L));
         Map<String, Object> json = presenter.toJsonHash();
 
-        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        assertThatJson(JsonHelper.toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "name": "test",
                   "current_status": "building",
@@ -97,7 +97,7 @@ public class JobStatusJsonPresentationModelTest {
         // the Agent object passed to the presenter, as this is the canonical definition of job assignment
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class), mock(DurationBean.class));
 
-        assertThatJson(new Gson().toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n  \"agent\": \"Not yet assigned\"\n}");
+        assertThatJson(JsonHelper.toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n  \"agent\": \"Not yet assigned\"\n}");
     }
 
     @Test
@@ -108,7 +108,7 @@ public class JobStatusJsonPresentationModelTest {
         JobStatusJsonPresentationModel presenter =
                 new JobStatusJsonPresentationModel(instance,
                         new Agent("1234", "localhost", "address", "cookie"), mock(DurationBean.class));
-        assertThatJson(new Gson().toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
+        assertThatJson(JsonHelper.toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
                 {
                   "agent": "localhost"
                 }""");

@@ -15,10 +15,9 @@
  */
 package com.thoughtworks.go.remote.work.artifact;
 
-import com.google.gson.Gson;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 public class ConsoleLogMessage {
-    private static final Gson GSON = new Gson();
     @SuppressWarnings("unused")
     private String message;
     @SuppressWarnings("unused")
@@ -33,7 +32,7 @@ public class ConsoleLogMessage {
     }
 
     public static ConsoleLogMessage fromJSON(String json) {
-        return GSON.fromJson(json, ConsoleLogMessage.class);
+        return JsonHelper.fromJson(json, ConsoleLogMessage.class);
     }
 
     enum LogLevel {

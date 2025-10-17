@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.plugin.access.common.models;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.Map;
 
@@ -24,11 +24,8 @@ import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 
 public class ImageDeserializer {
 
-    private static final Gson GSON = new Gson();
-
     public com.thoughtworks.go.plugin.domain.common.Image fromJSON(String jsonString) {
-        Map<String, String> json = GSON.fromJson(jsonString, new TypeToken<Map<String, String>>() {
-        }.getType());
+        Map<String, String> json = JsonHelper.fromJson(jsonString, new TypeToken<Map<String, String>>() {}.getType());
         String contentType = json.get("content_type");
         String data = json.get("data");
         return new com.thoughtworks.go.plugin.domain.common.Image(contentType, data, hash(contentType, data));

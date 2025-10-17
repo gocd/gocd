@@ -46,7 +46,7 @@ public final class RuntimeTypeAdapterFactoryTest {
         BillingInstrument deserialized = gson.fromJson(
             "{type:'CreditCard',cvv:234,ownerName:'Jesse'}", BillingInstrument.class);
         assertEquals("Jesse", deserialized.ownerName);
-        assertTrue(deserialized instanceof CreditCard);
+        assertInstanceOf(CreditCard.class, deserialized);
     }
 
     @Test

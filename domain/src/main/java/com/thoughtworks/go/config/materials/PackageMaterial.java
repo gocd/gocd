@@ -143,7 +143,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
 
     @Override
     public MaterialInstance createMaterialInstance() {
-        return new PackageMaterialInstance(JsonHelper.toJsonString(this), UUID.randomUUID().toString());
+        return new PackageMaterialInstance(JsonHelper.toJsonExposeOnly(this), UUID.randomUUID().toString());
     }
 
     @Override

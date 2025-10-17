@@ -15,15 +15,13 @@
  */
 package com.thoughtworks.go.plugin.access.artifact.model;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.Map;
 
 public class PublishArtifactResponse {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     public PublishArtifactResponse() {
     }
@@ -41,6 +39,6 @@ public class PublishArtifactResponse {
     }
 
     public static PublishArtifactResponse fromJSON(String json) {
-        return GSON.fromJson(json, PublishArtifactResponse.class);
+        return JsonHelper.fromJsonExposeOnly(json, PublishArtifactResponse.class);
     }
 }

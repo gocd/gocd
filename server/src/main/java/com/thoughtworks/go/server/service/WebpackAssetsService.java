@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.ServletContextAware;
@@ -105,8 +105,7 @@ public class WebpackAssetsService implements ServletContextAware {
             throw new RuntimeException("Could not load compiled manifest from 'webpack/manifest.json' - have you run `./gradlew prepare` OR `./gradlew compileAssetsWebpackDev` since last clean?");
         }
 
-        Gson gson = new Gson();
-        Map<String, Object> manifest = gson.<Map<String, Object>>fromJson(Files.readString(manifestFile.toPath(), UTF_8), Map.class);
+        Map<String, Object> manifest = JsonHelper.<Map<String, Object>>fromJson(Files.readString(manifestFile.toPath(), UTF_8), Map.class);
 
         if (manifest.containsKey("errors") && !((List<Object>) manifest.get("errors")).isEmpty()) {
             throw new RuntimeException("There were errors in manifest.json file");

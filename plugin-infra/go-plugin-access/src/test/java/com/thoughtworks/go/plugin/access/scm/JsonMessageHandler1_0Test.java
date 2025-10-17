@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.scm;
 
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedAction;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedFile;
@@ -24,6 +23,7 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SuppressWarnings("SameParameterValue")
 public class JsonMessageHandler1_0Test {
@@ -55,10 +55,10 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildSCMConfigurationFromResponseBody() {
         String responseBody = "{" +
-                "\"key-one\":{}," +
-                "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
-                "\"key-three\":{\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
-                "}";
+            "\"key-one\":{}," +
+            "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
+            "\"key-three\":{\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
+            "}";
         SCMPropertyConfiguration scmConfiguration = messageHandler.responseMessageForSCMConfiguration(responseBody);
 
         assertPropertyConfiguration((SCMProperty) scmConfiguration.get("key-one"), "key-one", "", true, true, false, "", 0);
@@ -137,7 +137,7 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildSCMRevisionFromLatestRevisionResponse() throws Exception {
         String revisionJSON = "{\"revision\":\"r1\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\",\"data\":{\"dataKeyTwo\":\"data-value-two\",\"dataKeyOne\":\"data-value-one\"}," +
-                "\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"added\"},{\"fileName\":\"f2\",\"action\":\"modified\"},{\"fileName\":\"f3\",\"action\":\"deleted\"}]}";
+            "\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"added\"},{\"fileName\":\"f2\",\"action\":\"modified\"},{\"fileName\":\"f3\",\"action\":\"deleted\"}]}";
         String responseBody = "{\"revision\": " + revisionJSON + "}";
         MaterialPollResult pollResult = messageHandler.responseMessageForLatestRevision(responseBody);
 
@@ -166,16 +166,16 @@ public class JsonMessageHandler1_0Test {
         String requestBody = messageHandler.requestMessageForLatestRevisionsSince(scmPropertyConfiguration, materialData, "flyweight", previouslyKnownRevision);
 
         String expectedValue = "{\"scm-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"scm-data\":{\"key-one\":\"value-one\"},\"flyweight-folder\":\"flyweight\"," +
-                "\"previous-revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}}";
+            "\"previous-revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}}";
         assertThat(requestBody).isEqualTo(expectedValue);
     }
 
     @Test
     public void shouldBuildSCMRevisionsFromLatestRevisionsSinceResponse() throws Exception {
         String r1 = "{\"revision\":\"r1\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\",\"data\":{\"dataKeyTwo\":\"data-value-two\",\"dataKeyOne\":\"data-value-one\"}," +
-                "\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"added\"},{\"fileName\":\"f2\",\"action\":\"modified\"},{\"fileName\":\"f3\",\"action\":\"deleted\"}]}";
+            "\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"added\"},{\"fileName\":\"f2\",\"action\":\"modified\"},{\"fileName\":\"f3\",\"action\":\"deleted\"}]}";
         String r2 = "{\"revision\":\"r2\",\"timestamp\":\"2011-07-14T19:43:37.101Z\",\"user\":\"new-user\",\"revisionComment\":\"comment\",\"data\":{\"dataKeyTwo\":\"data-value-two\",\"dataKeyOne\":\"data-value-one\"}," +
-                "\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"added\"}]}";
+            "\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"added\"}]}";
         String responseBody = "{\"revisions\":[" + r1 + "," + r2 + "]}";
         MaterialPollResult pollResult = messageHandler.responseMessageForLatestRevisionsSince(responseBody);
 
@@ -217,7 +217,7 @@ public class JsonMessageHandler1_0Test {
         String requestBody = messageHandler.requestMessageForCheckout(scmPropertyConfiguration, "destination", revision);
 
         String expectedValue = "{\"scm-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"destination-folder\":\"destination\"," +
-                "\"revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}}";
+            "\"revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}}";
         assertThat(requestBody).isEqualTo(expectedValue);
     }
 
@@ -345,66 +345,32 @@ public class JsonMessageHandler1_0Test {
     }
 
     private String errorMessageForSCMConfiguration(String message) {
-        try {
-            messageHandler.responseMessageForSCMConfiguration(message);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        return null;
+        return assertThatThrownBy(() -> messageHandler.responseMessageForSCMConfiguration(message)).extracting(Throwable::getMessage).actual();
     }
 
     private String errorMessageForSCMView(String message) {
-        try {
-            messageHandler.responseMessageForSCMView(message);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        return null;
+        return assertThatThrownBy(() -> messageHandler.responseMessageForSCMView(message)).extracting(Throwable::getMessage).actual();
     }
 
+    @SuppressWarnings("unchecked")
     private String errorMessageForSCMRevisions(String message) {
-        try {
-            @SuppressWarnings("unchecked") Map<String, Object> revisionsMap = (Map<String, Object>) new GsonBuilder().create().fromJson(message, Object.class);
-            messageHandler.toSCMRevisions(revisionsMap);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        return null;
+        Map<String, Object> revisionsMap = (Map<String, Object>) JsonHelper.fromJson(message, Object.class);
+        return assertThatThrownBy(() -> messageHandler.toSCMRevisions(revisionsMap)).extracting(Throwable::getMessage).actual();
     }
 
+    @SuppressWarnings("unchecked")
     private String errorMessageForSCMRevision(String message) {
-        try {
-            @SuppressWarnings("unchecked") Map<String, Object> revisionMap = (Map<String, Object>) new GsonBuilder().create().fromJson(message, Object.class);
-            messageHandler.toSCMRevision(revisionMap);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        return null;
+        Map<String, Object> revisionMap = (Map<String, Object>) JsonHelper.fromJson(message, Object.class);
+        return assertThatThrownBy(() -> messageHandler.toSCMRevision(revisionMap)).extracting(Throwable::getMessage).actual();
     }
 
     private String errorMessageForEachRevision(String message) {
-        try {
-            @SuppressWarnings("unchecked") Map<String, Object> revisionMap = (Map<String, Object>) new GsonBuilder().create().fromJson(message, Object.class);
-            messageHandler.getScmRevisionFromMap(revisionMap);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        return null;
+        @SuppressWarnings("unchecked") Map<String, Object> revisionMap = (Map<String, Object>) JsonHelper.fromJson(message, Object.class);
+        return assertThatThrownBy(() -> messageHandler.getScmRevisionFromMap(revisionMap)).extracting(Throwable::getMessage).actual();
     }
 
     private String errorMessageForSCMData(String message) {
-        try {
-            @SuppressWarnings("unchecked") Map<String, Object> dataMap = (Map<String, Object>) new GsonBuilder().create().fromJson(message, Object.class);
-            messageHandler.toMaterialDataMap(dataMap);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        return null;
+        @SuppressWarnings("unchecked") Map<String, Object> dataMap = (Map<String, Object>) JsonHelper.fromJson(message, Object.class);
+        return assertThatThrownBy(() -> messageHandler.toMaterialDataMap(dataMap)).extracting(Throwable::getMessage).actual();
     }
 }

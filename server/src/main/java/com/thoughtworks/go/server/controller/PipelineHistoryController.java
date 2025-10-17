@@ -35,12 +35,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotAcceptable;
-import static com.thoughtworks.go.util.json.JsonHelper.addDeveloperErrorMessage;
+import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
 
 @Controller
 public class PipelineHistoryController {
@@ -81,9 +80,7 @@ public class PipelineHistoryController {
         try {
             pagination = Pagination.pageStartingAt(startParam, pipelineHistoryService.totalCount(pipelineName), perPageParam);
         } catch (Exception e) {
-            Map<String, Object> json = new LinkedHashMap<>();
-            addDeveloperErrorMessage(json, e);
-            return jsonNotAcceptable(json).respond(response);
+            return jsonNotAcceptable(Map.of(ERROR_FOR_JSON, e.getMessage())).respond(response);
         }
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);

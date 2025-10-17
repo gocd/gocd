@@ -15,10 +15,9 @@
  */
 package com.thoughtworks.go.plugin.access.common.models;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,7 +26,6 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 public class PluginProfileMetadataKeys implements Iterable<PluginProfileMetadataKey> {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     private final List<PluginProfileMetadataKey> keys;
 
@@ -36,8 +34,7 @@ public class PluginProfileMetadataKeys implements Iterable<PluginProfileMetadata
     }
 
     public static PluginProfileMetadataKeys fromJSON(String json) {
-        List<PluginProfileMetadataKey> keys = GSON.fromJson(json, new TypeToken<ArrayList<PluginProfileMetadataKey>>() {
-        }.getType());
+        List<PluginProfileMetadataKey> keys = JsonHelper.fromJsonExposeOnly(json, new TypeToken<ArrayList<PluginProfileMetadataKey>>() {}.getType());
 
         return new PluginProfileMetadataKeys(keys);
     }

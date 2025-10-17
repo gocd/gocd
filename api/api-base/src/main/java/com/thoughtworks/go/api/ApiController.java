@@ -110,8 +110,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
     }
 
     protected Map<String, Object> readRequestBodyAsJSON(Request req) {
-        Map<String, Object> map = GsonTransformer.getInstance().fromJson(req.body(), new TypeToken<Map<String, Object>>() {
-        }.getType());
+        Map<String, Object> map = GsonTransformer.getInstance().fromJson(req.body(), new TypeToken<Map<String, Object>>() {}.getType());
         if (map == null) {
             return Collections.emptyMap();
         }

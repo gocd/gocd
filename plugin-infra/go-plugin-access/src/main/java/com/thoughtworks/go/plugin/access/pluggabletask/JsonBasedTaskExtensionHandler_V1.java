@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
@@ -25,6 +23,7 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskView;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,6 @@ import java.util.Map;
 public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionHandler {
     public static final String VERSION = "1.0";
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonBasedTaskExtensionHandler_V1.class);
-    private static final Gson GSON = new GsonBuilder().create();
 
     @Override
     public String version() {
@@ -46,7 +44,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
 
     @Override
     public String convertTaskConfigToJson(TaskConfig taskConfig) {
-        return new Gson().toJson(configPropertiesAsMap(taskConfig));
+        return JsonHelper.toJson(configPropertiesAsMap(taskConfig));
     }
 
     @Override
@@ -54,7 +52,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         final TaskConfig taskConfig = new TaskConfig();
         List<String> exceptions = new ArrayList<>();
         try {
-            Map<String, Object> configMap = (Map) GSON.fromJson(configJson, Object.class);
+            Map<String, Object> configMap = (Map) JsonHelper.fromJson(configJson, Object.class);
             if (configMap.isEmpty()) {
                 exceptions.add("The Json for Task Config cannot be empty");
             }
@@ -117,7 +115,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         ValidationResult validationResult = new ValidationResult();
         List<String> exceptions = new ArrayList<>();
         try {
-            Map result = (Map) GSON.fromJson(responseBody, Object.class);
+            Map result = (Map) JsonHelper.fromJson(responseBody, Object.class);
             if (result == null) return validationResult;
             final Map<String, Object> errors = (Map<String, Object>) result.get("errors");
             if (errors != null) {
@@ -143,7 +141,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     public TaskView toTaskView(String responseBody) {
         List<String> exceptions = new ArrayList<>();
         try {
-            final Map map = (Map) GSON.fromJson(responseBody, Object.class);
+            final Map map = (Map) JsonHelper.fromJson(responseBody, Object.class);
             if (map.isEmpty()) {
                 exceptions.add("The Json for Task View cannot be empty");
             } else {
@@ -179,7 +177,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         ExecutionResult executionResult = new ExecutionResult();
         List<String> exceptions = new ArrayList<>();
         try {
-            Map result = (Map) GSON.fromJson(responseBody, Object.class);
+            Map result = (Map) JsonHelper.fromJson(responseBody, Object.class);
             if (!(result.containsKey("success") && result.get("success") instanceof Boolean)) {
                 exceptions.add("The Json for Execution Result must contain a not-null 'success' field of type Boolean");
             }
@@ -219,7 +217,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         contextMap.put("workingDirectory", taskExecutionContext.workingDir());
         requestBody.put("context", contextMap);
         requestBody.put("config", configPropertiesAsMap(config));
-        return new Gson().toJson(requestBody);
+        return JsonHelper.toJson(requestBody);
 
     }
 

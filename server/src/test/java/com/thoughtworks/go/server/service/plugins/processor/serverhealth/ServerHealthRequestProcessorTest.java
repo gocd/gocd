@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service.plugins.processor.serverhealth;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
@@ -23,6 +22,7 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -63,7 +63,7 @@ public class ServerHealthRequestProcessorTest {
 
     @Test
     public void shouldAddDeserializedServerHealthMessages() {
-        String requestBody = new Gson().toJson(List.of(
+        String requestBody = JsonHelper.toJson(List.of(
                 new PluginHealthMessage("warning", "message 1"),
                 new PluginHealthMessage("error", "message 2")
         ));
@@ -85,7 +85,7 @@ public class ServerHealthRequestProcessorTest {
         GoApiResponse response = processor.process(descriptor, createRequest("1.0", "INVALID_JSON"));
 
         assertThat(response.responseCode()).isEqualTo(INTERNAL_ERROR);
-        assertThat(new Gson().fromJson(response.responseBody(), Map.class)).isEqualTo(Map.of("message", "Failed to deserialize message from plugin: INVALID_JSON"));
+        assertThat(JsonHelper.fromJson(response.responseBody(), Map.class)).isEqualTo(Map.of("message", "Failed to deserialize message from plugin: INVALID_JSON"));
     }
 
     private DefaultGoApiRequest createRequest(String apiVersion, String requestBody) {

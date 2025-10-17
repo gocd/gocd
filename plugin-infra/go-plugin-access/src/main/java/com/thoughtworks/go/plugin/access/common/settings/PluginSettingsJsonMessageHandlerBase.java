@@ -15,12 +15,11 @@
  */
 package com.thoughtworks.go.plugin.access.common.settings;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public abstract class PluginSettingsJsonMessageHandlerBase implements PluginSettingsJsonMessageHandler {
-    private static final Gson GSON = new GsonBuilder().create();
     private final JSONResultMessageHandler jsonResultMessageHandler;
 
     public PluginSettingsJsonMessageHandlerBase() {
@@ -97,12 +95,12 @@ public abstract class PluginSettingsJsonMessageHandlerBase implements PluginSett
     public String requestMessageForPluginSettingsValidation(PluginSettingsConfiguration configuration) {
         Map<String, Map<String, Object>> configuredValues = new LinkedHashMap<>();
         configuredValues.put("plugin-settings", jsonResultMessageHandler.configurationToMap(configuration));
-        return GSON.toJson(configuredValues);
+        return JsonHelper.toJson(configuredValues);
     }
 
     @Override
     public String requestMessageForNotifyPluginSettingsChange(Map<String, String> pluginSettings) {
-        return GSON.toJson(pluginSettings);
+        return JsonHelper.toJson(pluginSettings);
     }
 
     @Override
@@ -111,7 +109,7 @@ public abstract class PluginSettingsJsonMessageHandlerBase implements PluginSett
     }
 
     private Map<String, Object> parseResponseToMap(String responseBody) {
-        return GSON.fromJson(responseBody, new TypeToken<Map<String, Object>>() {}.getType());
+        return JsonHelper.fromJson(responseBody, new TypeToken<Map<String, Object>>() {}.getType());
     }
 
     private PluginSettingsProperty toPluginSettingsProperty(String key, Map<?, ?> configuration) {

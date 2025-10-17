@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.elastic.v5;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
@@ -33,6 +32,7 @@ import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -59,19 +59,19 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldUnJSONizeCanHandleResponseBody() {
-        assertTrue(new Gson().fromJson("true", Boolean.class));
-        assertFalse(new Gson().fromJson("false", Boolean.class));
+    public void shouldUnmarshallCanHandleResponseBody() {
+        assertTrue(JsonHelper.fromJson("true", Boolean.class));
+        assertFalse(JsonHelper.fromJson("false", Boolean.class));
     }
 
     @Test
-    public void shouldUnJSONizeShouldAssignWorkResponseFromBody() {
+    public void shouldAssignWorkResponseFromBody() {
         assertTrue(new ElasticAgentExtensionConverterV5().shouldAssignWorkResponseFromBody("true"));
         assertFalse(new ElasticAgentExtensionConverterV5().shouldAssignWorkResponseFromBody("false"));
     }
 
     @Test
-    public void shouldJSONizeCreateAgentRequestBody() {
+    public void shouldCreateAgentRequestBody() {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
@@ -96,7 +96,7 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldJSONizeShouldAssignWorkRequestBody() {
+    public void shouldAssignWorkRequestBody() {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
         Map<String, String> clusterProfileProperties = new HashMap<>();
@@ -232,13 +232,13 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldUnJSONizeGetProfileViewResponseFromBody() {
+    public void shouldUnmarshallGetProfileViewResponseFromBody() {
         String template = new ElasticAgentExtensionConverterV5().getProfileViewResponseFromBody("{\"template\":\"foo\"}");
         assertThat(template).isEqualTo("foo");
     }
 
     @Test
-    public void shouldUnJSONizeGetImageResponseFromBody() {
+    public void shouldUnmarshallGetImageResponseFromBody() {
         com.thoughtworks.go.plugin.domain.common.Image image = new ElasticAgentExtensionConverterV5().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
         assertThat(image.getContentType()).isEqualTo("foo");
         assertThat(image.getData()).isEqualTo("bar");

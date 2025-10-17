@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class PipelinePermissionTest {
 
@@ -52,7 +53,7 @@ class PipelinePermissionTest {
 
     @Test
     void shouldNotFailWhenInvalidStageNameIsSpecified() {
-        assertEquals(null, pipelinePermission.getStageOperators("stageX"));
+        assertNull(pipelinePermission.getStageOperators("stageX"));
     }
 
     @Test

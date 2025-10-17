@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.spark.spa.spring;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.spark.SparkController;
+import com.thoughtworks.go.util.json.JsonHelper;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.Map;
 
 class FreeMarkerEngine extends TemplateEngine {
-    private static final Gson GSON = new Gson();
     private final InitialContextProvider initialContextProvider;
     private final Class<? extends SparkController> controller;
     private final Configuration configuration;
@@ -53,7 +52,7 @@ class FreeMarkerEngine extends TemplateEngine {
             if (model instanceof Map) {
                 @SuppressWarnings("unchecked") Map<String, Object> context = initialContextProvider.getContext((Map<String, Object>) model, controller, modelAndView.getViewName());
                 StringWriter writer = new StringWriter();
-                context.compute("meta", (k, meta) -> GSON.toJson(meta));
+                context.compute("meta", (k, meta) -> JsonHelper.toJson(meta));
                 template.process(context, writer);
                 return writer.toString();
             } else {

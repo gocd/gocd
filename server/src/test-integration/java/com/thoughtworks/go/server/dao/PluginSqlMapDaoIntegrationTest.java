@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -173,6 +173,6 @@ public class PluginSqlMapDaoIntegrationTest {
         for (int i = 0; i < args.length - 2; i = i + 2) {
             configuration.put(args[i], args[i + 1]);
         }
-        return new GsonBuilder().create().toJson(configuration);
+        return JsonHelper.toJson(configuration);
     }
 }

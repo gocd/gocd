@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.packagematerial;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.api.config.Property;
@@ -25,6 +24,7 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
@@ -35,7 +35,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     private final JSONResultMessageHandler jsonResultMessageHandler;
@@ -76,7 +75,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     public String requestMessageForIsRepositoryConfigurationValid(RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
-        return GSON.toJson(configuredValues);
+        return JsonHelper.toJsonExposeOnly(configuredValues);
     }
 
     @Override
@@ -88,7 +87,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     public String requestMessageForCheckConnectionToRepository(RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
-        return GSON.toJson(configuredValues);
+        return JsonHelper.toJsonExposeOnly(configuredValues);
     }
 
     @Override
@@ -129,7 +128,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
         configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
-        return GSON.toJson(configuredValues);
+        return JsonHelper.toJsonExposeOnly(configuredValues);
     }
 
     @Override
@@ -142,7 +141,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
         configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
-        return GSON.toJson(configuredValues);
+        return JsonHelper.toJsonExposeOnly(configuredValues);
     }
 
     @Override
@@ -155,7 +154,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
         configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
-        return GSON.toJson(configuredValues);
+        return JsonHelper.toJsonExposeOnly(configuredValues);
     }
 
     @Override
@@ -172,7 +171,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
         configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
         configuredValues.put("previous-revision", packageRevisionToMap(previousRevision));
-        return GSON.toJson(configuredValues);
+        return JsonHelper.toJsonExposeOnly(configuredValues);
     }
 
     @Override
@@ -181,7 +180,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     private Map parseResponseToMap(String responseBody) {
-        return (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
+        return (Map) JsonHelper.fromJson(responseBody, Object.class);
     }
 
     private PackageMaterialProperty toPackageMaterialProperty(String key, Map<?, ?> configuration) {

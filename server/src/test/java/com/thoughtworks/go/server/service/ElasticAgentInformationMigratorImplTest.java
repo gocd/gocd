@@ -82,7 +82,7 @@ class ElasticAgentInformationMigratorImplTest {
         configuration.put("k2", "v2");
 
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
-        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, JsonHelper.toJsonString(configuration)));
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, JsonHelper.toJsonExposeOnly(configuration)));
         when(pluginManager.resolveExtensionVersion(goPluginDescriptor.id(), ELASTIC_AGENT_EXTENSION, ElasticAgentExtension.SUPPORTED_VERSIONS)).thenReturn(ElasticAgentExtensionV5.VERSION);
 
         PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());

@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo.v3;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
@@ -30,6 +28,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +39,7 @@ import java.util.Map;
 public class JsonMessageHandler3_0 implements JsonMessageHandler {
     public static final int CURRENT_CONTRACT_VERSION = 11;
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler3_0.class);
-    private static final Gson GSON = new GsonBuilder().create();
+
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;
 
@@ -85,7 +84,7 @@ public class JsonMessageHandler3_0 implements JsonMessageHandler {
     }
 
     private ResponseScratch parseResponseForMigration(String responseBody) {
-        return GSON.fromJson(responseBody, ResponseScratch.class);
+        return JsonHelper.fromJson(responseBody, ResponseScratch.class);
     }
 
     @Override

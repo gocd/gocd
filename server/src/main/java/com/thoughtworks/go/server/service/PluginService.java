@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
@@ -34,6 +32,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 @Service
 public class PluginService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
-    private static final Gson GSON = new GsonBuilder().serializeNulls().create();
+
     private final List<GoPluginExtension> extensions;
     private final PluginDao pluginDao;
     private final SecurityService securityService;
@@ -153,7 +152,7 @@ public class PluginService {
             plugin = new Plugin(pluginSettings.getPluginId(), null);
         }
         Map<String, String> settingsMap = pluginSettings.getSettingsAsKeyValuePair();
-        plugin.setConfiguration(GSON.toJson(settingsMap));
+        plugin.setConfiguration(JsonHelper.toJsonWithNulls(settingsMap));
         pluginDao.saveOrUpdate(plugin);
     }
 

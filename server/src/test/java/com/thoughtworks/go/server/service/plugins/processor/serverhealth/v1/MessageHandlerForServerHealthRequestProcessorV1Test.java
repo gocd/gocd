@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server.service.plugins.processor.serverhealth.v1;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.server.service.plugins.processor.serverhealth.PluginHealthMessage;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +40,7 @@ public class MessageHandlerForServerHealthRequestProcessorV1Test {
         Map<String, Object> message1 = Map.of("type", "warning", "message", "message 1");
         Map<String, Object> message2 = Map.of("type", "error", "message", "message 2");
         Map<String, Object> message3 = Map.of("type", "misspelled-type", "message", "message 3");
-        String input = new Gson().toJson(List.of(message1, message2, message3));
+        String input = JsonHelper.toJson(List.of(message1, message2, message3));
 
         List<PluginHealthMessage> messages = processor.deserializeServerHealthMessages(input);
 

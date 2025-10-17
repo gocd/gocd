@@ -31,7 +31,7 @@ public class PluggableSCMMaterialInstanceTest {
     public void shouldConvertMaterialInstanceToMaterial() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
         SCM scmConfig = material.getScmConfig();
-        PluggableSCMMaterialInstance materialInstance = new PluggableSCMMaterialInstance(JsonHelper.toJsonString(material), "flyweight");
+        PluggableSCMMaterialInstance materialInstance = new PluggableSCMMaterialInstance(JsonHelper.toJsonExposeOnly(material), "flyweight");
         materialInstance.setId(1L);
 
         PluggableSCMMaterial constructedMaterial = (PluggableSCMMaterial) materialInstance.toOldMaterial(null, null, null);
@@ -85,7 +85,7 @@ public class PluggableSCMMaterialInstanceTest {
     public void shouldSetFingerprintWhenConvertingMaterialInstanceToMaterial() {
         String fingerprint = "fingerprint";
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
-        PluggableSCMMaterialInstance materialInstance = new PluggableSCMMaterialInstance(JsonHelper.toJsonString(material), "flyweight");
+        PluggableSCMMaterialInstance materialInstance = new PluggableSCMMaterialInstance(JsonHelper.toJsonExposeOnly(material), "flyweight");
         ReflectionUtil.setField(materialInstance, "fingerprint", fingerprint);
         materialInstance.setId(1L);
 

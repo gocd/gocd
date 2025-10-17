@@ -58,7 +58,7 @@ public class PluginSettingsRequestProcessorTest {
         configuration.put("k1", "v1");
         configuration.put("k2", "v2");
 
-        lenient().when(pluginSqlMapDao.findPlugin("plugin-id-1")).thenReturn(new Plugin("plugin-id-1", JsonHelper.toJsonString(configuration)));
+        lenient().when(pluginSqlMapDao.findPlugin("plugin-id-1")).thenReturn(new Plugin("plugin-id-1", JsonHelper.toJsonExposeOnly(configuration)));
         lenient().when(pluginSqlMapDao.findPlugin("plugin-id-2")).thenReturn(null);
         lenient().when(pluginExtension.extensionName()).thenReturn("extension1");
 

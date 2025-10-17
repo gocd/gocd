@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.apiv1.webhook.helpers;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.apiv1.webhook.controller.validation.GitHub;
 import com.thoughtworks.go.apiv1.webhook.controller.validation.HostedBitbucket;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +33,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public interface PostHelper {
     String SECRET = "webhook-secret";
-    Gson GSON = new Gson();
 
     Map<String, Object> payload();
 
@@ -43,7 +42,7 @@ public interface PostHelper {
 
     static Map<String, Object> load(String resource) {
         try (InputStream is = Objects.requireNonNull(PostHelper.class.getResourceAsStream(resource))) {
-            return GSON.fromJson(new String(is.readAllBytes(), UTF_8), new TypeToken<>() {}.getType());
+            return JsonHelper.fromJson(new String(is.readAllBytes(), UTF_8), new TypeToken<>() {}.getType());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -98,7 +97,7 @@ public interface PostHelper {
 
         @Override
         public Map<String, Object> header(String event) {
-            return header(event, GitHub.calculateSignature(SECRET, GSON.toJson(payload)));
+            return header(event, GitHub.calculateSignature(SECRET, JsonHelper.toJson(payload)));
         }
 
         @Override
@@ -176,7 +175,7 @@ public interface PostHelper {
 
         @Override
         public Map<String, Object> header(String event) {
-            return header(event, HostedBitbucket.calculateSignature(SECRET, GSON.toJson(payload)));
+            return header(event, HostedBitbucket.calculateSignature(SECRET, JsonHelper.toJson(payload)));
         }
 
         @Override

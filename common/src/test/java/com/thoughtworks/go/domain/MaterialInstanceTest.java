@@ -58,7 +58,7 @@ public class MaterialInstanceTest {
         assertThat(materialInstance.requiresUpdate(new HashMap<>())).isFalse();
 
         // empty
-        materialInstance.setAdditionalData(JsonHelper.toJsonString(new HashMap<String, String>()));
+        materialInstance.setAdditionalData(JsonHelper.toJsonExposeOnly(new HashMap<String, String>()));
         assertThat(materialInstance.requiresUpdate(null)).isFalse();
         assertThat(materialInstance.requiresUpdate(new HashMap<>())).isFalse();
 
@@ -66,7 +66,7 @@ public class MaterialInstanceTest {
         Map<String, String> data = new HashMap<>();
         data.put("k1", "v1");
         data.put("k2", "v2");
-        materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
+        materialInstance.setAdditionalData(JsonHelper.toJsonExposeOnly(data));
         assertThat(materialInstance.requiresUpdate(null)).isTrue();
         assertThat(materialInstance.requiresUpdate(new HashMap<>())).isTrue();
         assertThat(materialInstance.requiresUpdate(data)).isFalse();

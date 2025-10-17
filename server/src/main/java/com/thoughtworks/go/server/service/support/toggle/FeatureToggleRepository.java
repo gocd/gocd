@@ -37,14 +37,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Repository
 public class FeatureToggleRepository {
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation().create();
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureToggleRepository.class);
-    private SystemEnvironment environment;
-    private Gson gson;
+    private final SystemEnvironment environment;
 
     @Autowired
     public FeatureToggleRepository(SystemEnvironment environment) {
         this.environment = environment;
-        gson = new GsonBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation().create();
     }
 
     public FeatureToggles availableToggles() {
@@ -89,7 +88,7 @@ public class FeatureToggleRepository {
         try {
             String existingToggleJSONContent = new String(streamForToggles.readAllBytes(), UTF_8);
 
-            FeatureToggleFileContentRepresentation toggleContent = gson.fromJson(existingToggleJSONContent, FeatureToggleFileContentRepresentation.class);
+            FeatureToggleFileContentRepresentation toggleContent = GSON.fromJson(existingToggleJSONContent, FeatureToggleFileContentRepresentation.class);
             return new FeatureToggles(toggleContent.toggles);
         } catch (Exception e) {
             LOGGER.error("Failed to read {} toggles. Saying there are no toggles.", kindOfToggle, e);
@@ -102,7 +101,7 @@ public class FeatureToggleRepository {
         representation.toggles = toggles.all();
 
         try {
-            Files.writeString(file, gson.toJson(representation), UTF_8);
+            Files.writeString(file, GSON.toJson(representation), UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

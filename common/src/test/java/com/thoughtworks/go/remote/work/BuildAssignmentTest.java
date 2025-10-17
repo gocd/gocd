@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.remote.work;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.SecretParam;
@@ -40,6 +39,7 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -163,7 +163,7 @@ public class BuildAssignmentTest {
         Map<String, String> additionalData = new HashMap<>();
         additionalData.put("a1", "v1");
         additionalData.put("a2", "v2");
-        String additionalDataAsString = new Gson().toJson(additionalData);
+        String additionalDataAsString = JsonHelper.toJson(additionalData);
         packageMaterialRevision.getModifications().first().setAdditionalData(additionalDataAsString);
         MaterialRevisions materialRevisions = new MaterialRevisions(packageMaterialRevision);
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");

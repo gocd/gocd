@@ -17,37 +17,60 @@ package com.thoughtworks.go.util.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 
 public class JsonHelper {
+    private static final Gson GSON_DEFAULT = new Gson();
+    private static final Gson GSON_EXPOSE_ONLY = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    private static final Gson GSON_W_NULLS = new GsonBuilder().serializeNulls().create();
 
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-
-    public static void addDeveloperErrorMessage(Map<String, Object> jsonMap, Exception e) {
-        addFriendlyErrorMessage(jsonMap, e.getMessage() + ": " + e.getCause() + " at " + e.getStackTrace()[0]);
+    public static JsonElement toJsonTree(Map<?, ?> map) {
+        return GSON_DEFAULT.toJsonTree(map);
     }
 
-    public static void addFriendlyErrorMessage(Map<String, Object> jsonMap, String e) {
-        jsonMap.put("error", e);
+    public static String toJson(Object object) {
+        return GSON_DEFAULT.toJson(object);
     }
 
-    public static String toJsonString(Object object) {
-        return GSON.toJson(object);
+    public static String toJsonExposeOnly(Object object) {
+        return GSON_EXPOSE_ONLY.toJson(object);
     }
 
-    public static <T> T fromJson(final String jsonString, final Class<T> clazz) {
-        return GSON.fromJson(jsonString, clazz);
+    public static String toJsonWithNulls(Object object) {
+        return GSON_W_NULLS.toJson(object);
     }
 
-    public static <T> T fromJson(final String jsonString, Type type) {
-        return GSON.fromJson(jsonString, type);
+    public static <T> T fromJson(String responseBody, Class<T> clazzOfT) {
+        return GSON_DEFAULT.fromJson(responseBody, clazzOfT);
     }
 
-    public static <T> T safeFromJson(final String jsonString, Type type) {
+    public static <T> T fromJson(String responseBody, Type typeofT) {
+        return GSON_DEFAULT.fromJson(responseBody, typeofT);
+    }
+
+    public static <T> T fromJson(String responseBody, TypeToken<T> typeOfT) {
+        return GSON_DEFAULT.fromJson(responseBody, typeOfT);
+    }
+
+    public static <T> T fromJsonExposeOnly(final String jsonString, Class<T> clazz) {
+        return GSON_EXPOSE_ONLY.fromJson(jsonString, clazz);
+    }
+
+    public static <T> T fromJsonExposeOnly(final String jsonString, Type type) {
+        return GSON_EXPOSE_ONLY.fromJson(jsonString, type);
+    }
+
+    public static <T> T fromJsonExposeOnly(String responseBody, TypeToken<T> typeOfT) {
+        return GSON_EXPOSE_ONLY.fromJson(responseBody, typeOfT);
+    }
+
+    public static <T> T safeFromJsonExposeOnly(final String jsonString, Type type) {
         try {
-            return fromJson(jsonString, type);
+            return fromJsonExposeOnly(jsonString, type);
         } catch (Exception e) {
             return null;
         }

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,7 @@ public class PluginTest {
 
     @BeforeEach
     public void setUp() {
-        plugin = new Plugin("plugin-id", new GsonBuilder().create().toJson(Map.of("k1", "v1", "k2", "v2")));
+        plugin = new Plugin("plugin-id", JsonHelper.toJson(Map.of("k1", "v1", "k2", "v2")));
     }
 
     @Test

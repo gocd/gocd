@@ -22,7 +22,7 @@ dependencies {
   if (project.deps.springContext) {
     runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
-  implementation project.deps.gson
+  api project.deps.gson
   implementation project.deps.commonsIO
   api project.deps.cloning
   implementation project.deps.jdom

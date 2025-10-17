@@ -32,7 +32,7 @@ public class PluggableSCMMaterialInstance extends MaterialInstance {
 
     @Override
     public Material toOldMaterial(String name, String folder, String password) {
-        PluggableSCMMaterial pluggableSCMMaterial = JsonHelper.fromJson(configuration, PluggableSCMMaterial.class);
+        PluggableSCMMaterial pluggableSCMMaterial = JsonHelper.fromJsonExposeOnly(configuration, PluggableSCMMaterial.class);
         pluggableSCMMaterial.setName(new CaseInsensitiveString(name));
         pluggableSCMMaterial.setId(id);
         pluggableSCMMaterial.setFolder(folder);

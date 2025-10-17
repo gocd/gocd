@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PluginProfileMetadataKeysTest {
 
     @Test
-    public void shouldUnJSONizeProfileMetadata() {
+    public void shouldUnmarshallProfileMetadata() {
         PluginProfileMetadataKeys metadata = PluginProfileMetadataKeys.fromJSON("""
                 [{
                   "key": "foo",

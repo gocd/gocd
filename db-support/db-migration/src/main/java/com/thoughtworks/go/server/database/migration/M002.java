@@ -73,6 +73,7 @@ public class M002 {
         }
     }
 
+    @SuppressWarnings("unused")
     private static class Filter {
         String name;
         String type;

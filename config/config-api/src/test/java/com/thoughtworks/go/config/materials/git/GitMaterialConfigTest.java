@@ -324,7 +324,7 @@ class GitMaterialConfigTest {
             material_2.setUserName("alice");
             material_2.setSubmoduleFolder("/var/lib/git");
 
-            assertTrue(material_1.equals(material_2));
+            assertEquals(material_1, material_2);
         }
     }
 

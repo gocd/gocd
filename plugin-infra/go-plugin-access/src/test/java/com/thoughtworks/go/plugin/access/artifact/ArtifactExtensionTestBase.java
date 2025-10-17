@@ -39,8 +39,7 @@ import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public abstract class ArtifactExtensionTestBase {
@@ -70,7 +69,7 @@ public abstract class ArtifactExtensionTestBase {
 
     @Test
     public void shouldRegisterMessageHandler() {
-        assertTrue(artifactExtension.getMessageHandler(ArtifactMessageConverterV2.VERSION) instanceof ArtifactMessageConverterV2);
+        assertInstanceOf(ArtifactMessageConverterV2.class, artifactExtension.getMessageHandler(ArtifactMessageConverterV2.VERSION));
         assertThat(artifactExtension.getMessageHandler("3.0")).isNull();
     }
 

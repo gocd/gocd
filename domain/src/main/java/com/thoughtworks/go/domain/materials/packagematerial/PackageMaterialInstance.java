@@ -34,7 +34,7 @@ public class PackageMaterialInstance extends MaterialInstance {
 
     @Override
     public Material toOldMaterial(String name, String folder, String password) {
-        PackageMaterial packageMaterial = JsonHelper.fromJson(configuration, PackageMaterial.class);
+        PackageMaterial packageMaterial = JsonHelper.fromJsonExposeOnly(configuration, PackageMaterial.class);
         packageMaterial.setName(new CaseInsensitiveString(name));
         packageMaterial.setId(id);
         packageMaterial.setFingerprint(getFingerprint());

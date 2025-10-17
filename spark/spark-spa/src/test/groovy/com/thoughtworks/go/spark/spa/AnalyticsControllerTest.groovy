@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.spark.spa
 
-import com.google.gson.Gson
+
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.spark.*
 import com.thoughtworks.go.spark.mocks.StubTemplateEngine
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.util.json.JsonHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -43,8 +44,6 @@ import static org.mockito.Mockito.*
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, SecurityServiceTrait {
-  private static final Gson GSON = new Gson()
-
   AnalyticsExtension analyticsExtension = mock(AnalyticsExtension.class)
   PipelineConfigService pipelineConfigService = mock(PipelineConfigService.class)
 
@@ -69,7 +68,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
         String expectedBody = new StubTemplateEngine().render(
           new ModelAndView([
             viewTitle: "Analytics",
-            pipelines: GSON.toJson(["pipe1", "pipe2", "pipe3", "pipe4"])
+            pipelines: JsonHelper.toJson(["pipe1", "pipe2", "pipe3", "pipe4"])
           ], "analytics/index.ftlh")
         )
 
@@ -106,7 +105,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
     class Fetch {
       @Test
       void "should return analytics data"() {
-        AnalyticsData expected = new AnalyticsData(GSON.toJson([1, 2, 3]), "/path/to/template")
+        AnalyticsData expected = new AnalyticsData(JsonHelper.toJson([1, 2, 3]), "/path/to/template")
         when(analyticsExtension.getAnalytics("pluginId", "pipeline", "metric", Map.of("pipeline_name", getPipelineName()))).thenReturn(expected)
         get(controller.controllerPath("pluginId", "pipeline", "metric") + "?pipeline_name=" + getPipelineName())
 
@@ -115,7 +114,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
       @Test
       void "should fetch analytics on a post request"() {
-        AnalyticsData expected = new AnalyticsData(GSON.toJson([1, 2, 3]), "/path/to/template")
+        AnalyticsData expected = new AnalyticsData(JsonHelper.toJson([1, 2, 3]), "/path/to/template")
 
         when(analyticsExtension.getAnalytics("pluginId", "vsm", "metric", Collections.emptyMap())).thenReturn(expected)
 

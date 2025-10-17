@@ -15,18 +15,15 @@
  */
 package com.thoughtworks.go.api.util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 
 public class GsonTransformer {
-
-    private static final Gson GSON = new GsonBuilder().create();
 
     private GsonTransformer() {
     }
@@ -40,7 +37,7 @@ public class GsonTransformer {
             if (string == null || string.isBlank()) {
                 string = "{}";
             }
-            return new JsonReader(GSON.fromJson(string, JsonElement.class).getAsJsonObject());
+            return new JsonReader(JsonHelper.fromJson(string, JsonElement.class).getAsJsonObject());
         } catch (Exception e) {
             throw new JsonParseException(e);
         }
@@ -48,18 +45,18 @@ public class GsonTransformer {
 
     public JsonReader jsonReaderFrom(Map<?, ?> map) {
         try {
-            return new JsonReader(GSON.toJsonTree(map).getAsJsonObject());
+            return new JsonReader(JsonHelper.toJsonTree(map).getAsJsonObject());
         } catch (Exception e) {
             throw new JsonParseException(e);
         }
     }
 
     public <T> T fromJson(String string, Class<T> classOfT) {
-        return GSON.fromJson(string, classOfT);
+        return JsonHelper.fromJson(string, classOfT);
     }
 
     public <T> T fromJson(String string, Type classOfT) {
-        return GSON.fromJson(string, classOfT);
+        return JsonHelper.fromJson(string, classOfT);
     }
 
     private static class SingletonHolder {

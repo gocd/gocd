@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.apiv1.versioninfos.models;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.json.JsonHelper;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class GoLatestVersion {
     private String signingPublicKeySignature;
 
     public String latestVersion() {
-        return (String) new Gson().fromJson(message, Map.class).get("latest-version");
+        return (String) JsonHelper.fromJson(message, Map.class).get("latest-version");
     }
 
     public boolean isValid() {

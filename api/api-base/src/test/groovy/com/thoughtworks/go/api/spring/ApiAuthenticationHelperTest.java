@@ -308,14 +308,14 @@ class ApiAuthenticationHelperTest {
         void shouldRenderAppropriateForbiddenErrorMessageWhenUserDoesNotHaveViewPermissions() {
             HaltException thrown = assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));
             String expectedMessage = "User 'Bob' does not have permissions to view 'env_1' environment(s).";
-            assertThat(JsonHelper.fromJson(thrown.body(), Map.class).get("message")).isEqualTo(expectedMessage);
+            assertThat(JsonHelper.fromJsonExposeOnly(thrown.body(), Map.class).get("message")).isEqualTo(expectedMessage);
         }
 
         @Test
         void shouldRenderAppropriateForbiddenErrorMessageWhenUserDoesNotHaveAdministerPermissions() {
             HaltException thrown = assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, "env_1"));
             String expectedMessage = "User 'Bob' does not have permissions to administer 'env_1' environment(s).";
-            assertThat(JsonHelper.fromJson(thrown.body(), Map.class).get("message")).isEqualTo(expectedMessage);
+            assertThat(JsonHelper.fromJsonExposeOnly(thrown.body(), Map.class).get("message")).isEqualTo(expectedMessage);
         }
     }
 }

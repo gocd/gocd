@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.plugin.access.elastic.v4;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -42,13 +42,13 @@ public class ElasticAgentExtensionConverterV4Test {
     }
 
     @Test
-    public void shouldUnJSONizeCanHandleResponseBody() {
-        assertTrue(new Gson().fromJson("true", Boolean.class));
-        assertFalse(new Gson().fromJson("false", Boolean.class));
+    public void shouldUnmarshallCanHandleResponseBody() {
+        assertTrue(JsonHelper.fromJson("true", Boolean.class));
+        assertFalse(JsonHelper.fromJson("false", Boolean.class));
     }
 
     @Test
-    public void shouldUnJSONizeShouldAssignWorkResponseFromBody() {
+    public void shouldUnmarshallShouldAssignWorkResponseFromBody() {
         assertTrue(new ElasticAgentExtensionConverterV4().shouldAssignWorkResponseFromBody("true"));
         assertFalse(new ElasticAgentExtensionConverterV4().shouldAssignWorkResponseFromBody("false"));
     }
@@ -73,7 +73,7 @@ public class ElasticAgentExtensionConverterV4Test {
     }
 
     @Test
-    public void shouldJSONizeShouldAssignWorkRequestBody() {
+    public void shouldAssignWorkRequestBody() {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
         String actual = new ElasticAgentExtensionConverterV4().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration, jobIdentifier);
@@ -163,13 +163,13 @@ public class ElasticAgentExtensionConverterV4Test {
     }
 
     @Test
-    public void shouldUnJSONizeGetProfileViewResponseFromBody() {
+    public void shouldUnmarshallGetProfileViewResponseFromBody() {
         String template = new ElasticAgentExtensionConverterV4().getProfileViewResponseFromBody("{\"template\":\"foo\"}");
         assertThat(template).isEqualTo("foo");
     }
 
     @Test
-    public void shouldUnJSONizeGetImageResponseFromBody() {
+    public void shouldUnmarshallGetImageResponseFromBody() {
         com.thoughtworks.go.plugin.domain.common.Image image = new ElasticAgentExtensionConverterV4().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
         assertThat(image.getContentType()).isEqualTo("foo");
         assertThat(image.getData()).isEqualTo("bar");

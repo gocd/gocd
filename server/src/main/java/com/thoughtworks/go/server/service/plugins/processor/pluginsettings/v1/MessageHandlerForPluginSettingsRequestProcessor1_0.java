@@ -24,6 +24,6 @@ public class MessageHandlerForPluginSettingsRequestProcessor1_0 implements Messa
 
     @Override
     public String pluginSettingsToJSON(Map<String, String> pluginSettings) {
-        return pluginSettings.isEmpty() ? null : JsonHelper.toJsonString(pluginSettings);
+        return pluginSettings.isEmpty() ? null : JsonHelper.toJsonExposeOnly(pluginSettings);
     }
 }

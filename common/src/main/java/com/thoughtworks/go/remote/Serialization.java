@@ -63,6 +63,17 @@ import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 import static org.apache.commons.io.FilenameUtils.separatorsToSystem;
 
 public class Serialization {
+    public static String toJson(Object obj) {
+        return SingletonHolder.INSTANCE.toJson(obj);
+    }
+
+    public static String toJson(Object obj, Class<?> clazz) {
+        return SingletonHolder.INSTANCE.toJson(obj, clazz);
+    }
+
+    public static <T> T fromJson(String json, Class<T> clazz) {
+        return SingletonHolder.INSTANCE.fromJson(json, clazz);
+    }
 
     private static final GoCipher DUMMY_CIPHER = new GoCipher(new DoNotEncrypter());
 
@@ -86,10 +97,6 @@ public class Serialization {
             .registerTypeAdapterFactory(fetchHandlerAdapter())
             .registerTypeAdapterFactory(agentRequestAdapter())
             .create();
-    }
-
-    public static Gson instance() {
-        return SingletonHolder.INSTANCE;
     }
 
     private static RuntimeTypeAdapterFactory<Builder> builderAdapter() {

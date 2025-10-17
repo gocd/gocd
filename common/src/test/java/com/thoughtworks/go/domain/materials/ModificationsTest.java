@@ -125,7 +125,7 @@ public class ModificationsTest {
         Map<String, String> data = new HashMap<>();
         data.put("1", "one");
         data.put("2", "two");
-        Modification modification = new Modification(null, null, null, timestamp, revisionString, JsonHelper.toJsonString(data));
+        Modification modification = new Modification(null, null, null, timestamp, revisionString, JsonHelper.toJsonExposeOnly(data));
         Modifications modifications = new Modifications(modification);
 
         Revision revision = modifications.latestRevision(new PackageMaterial());
@@ -146,7 +146,7 @@ public class ModificationsTest {
         Map<String, String> data = new HashMap<>();
         data.put("1", "one");
         data.put("2", "two");
-        Modification modification = new Modification(null, null, null, timestamp, revisionString, JsonHelper.toJsonString(data));
+        Modification modification = new Modification(null, null, null, timestamp, revisionString, JsonHelper.toJsonExposeOnly(data));
         Modifications modifications = new Modifications(modification);
 
         Revision revision = modifications.latestRevision(new PluggableSCMMaterial());

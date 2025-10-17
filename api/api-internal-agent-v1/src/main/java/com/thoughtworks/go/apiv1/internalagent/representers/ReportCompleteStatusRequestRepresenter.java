@@ -16,19 +16,17 @@
 
 package com.thoughtworks.go.apiv1.internalagent.representers;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.remote.request.AgentRequest;
 import com.thoughtworks.go.remote.request.ReportCompleteStatusRequest;
 
 public class ReportCompleteStatusRequestRepresenter {
-    private static final Gson gson = Serialization.instance();
 
     public static String toJSON(AgentRequest reportCompleteStatusRequest) {
-        return gson.toJson(reportCompleteStatusRequest, AgentRequest.class);
+        return Serialization.toJson(reportCompleteStatusRequest, AgentRequest.class);
     }
 
     public static ReportCompleteStatusRequest fromJSON(String request) {
-        return gson.fromJson(request, ReportCompleteStatusRequest.class);
+        return Serialization.fromJson(request, ReportCompleteStatusRequest.class);
     }
 }

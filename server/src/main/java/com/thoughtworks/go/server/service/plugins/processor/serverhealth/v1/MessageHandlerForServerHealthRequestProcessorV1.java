@@ -15,25 +15,18 @@
  */
 package com.thoughtworks.go.server.service.plugins.processor.serverhealth.v1;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.server.service.plugins.processor.serverhealth.MessageHandlerForServerHealthRequestProcessor;
 import com.thoughtworks.go.server.service.plugins.processor.serverhealth.PluginHealthMessage;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.List;
 
 public class MessageHandlerForServerHealthRequestProcessorV1 implements MessageHandlerForServerHealthRequestProcessor {
-
-    private final Gson gson;
-
-    public MessageHandlerForServerHealthRequestProcessorV1() {
-        gson = new Gson();
-    }
-
     @Override
     public List<PluginHealthMessage> deserializeServerHealthMessages(String requestBody) {
         try {
-            return gson.fromJson(requestBody, new TypeToken<List<PluginHealthMessage>>() {}.getType());
+            return JsonHelper.fromJson(requestBody, new TypeToken<List<PluginHealthMessage>>() {}.getType());
         } catch (Exception e) {
             throw new RuntimeException("Failed to deserialize message from plugin: " + requestBody);
         }

@@ -32,7 +32,7 @@ public class PackageMaterialInstanceTest {
     public void shouldConvertMaterialInstanceToMaterial() {
         PackageMaterial material = MaterialsMother.packageMaterial();
         PackageDefinition packageDefinition = material.getPackageDefinition();
-        PackageMaterialInstance materialInstance = new PackageMaterialInstance(JsonHelper.toJsonString(material), "flyweight");
+        PackageMaterialInstance materialInstance = new PackageMaterialInstance(JsonHelper.toJsonExposeOnly(material), "flyweight");
         materialInstance.setId(1L);
 
         PackageMaterial constructedMaterial = (PackageMaterial) materialInstance.toOldMaterial(null, null, null);
@@ -85,7 +85,7 @@ public class PackageMaterialInstanceTest {
     public void shouldSetFingerprintWhenConvertingMaterialInstanceToMaterial() {
         String fingerprint = "fingerprint";
         PackageMaterial material = MaterialsMother.packageMaterial();
-        PackageMaterialInstance materialInstance = new PackageMaterialInstance(JsonHelper.toJsonString(material), "flyweight");
+        PackageMaterialInstance materialInstance = new PackageMaterialInstance(JsonHelper.toJsonExposeOnly(material), "flyweight");
         ReflectionUtil.setField(materialInstance, "fingerprint", fingerprint);
         materialInstance.setId(1L);
 

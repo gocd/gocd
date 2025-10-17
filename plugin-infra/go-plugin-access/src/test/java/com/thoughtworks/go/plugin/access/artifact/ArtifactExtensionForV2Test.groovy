@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.plugin.access.artifact
 
-import com.google.gson.Gson
+
 import com.thoughtworks.go.config.ArtifactStore
 import com.thoughtworks.go.config.FetchPluggableArtifactTask
 import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse
+import com.thoughtworks.go.util.json.JsonHelper
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
@@ -63,7 +64,7 @@ class ArtifactExtensionForV2Test extends ArtifactExtensionTestBase {
           ]
         ]
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(new Gson().toJson(responseHash)))
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(JsonHelper.toJson(responseHash)))
         final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"))
 
         List<FetchArtifactEnvironmentVariable> environmentVariables = artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), Map.of("Version", "10.12.0"), "/temp")

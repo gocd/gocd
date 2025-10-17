@@ -76,7 +76,7 @@ class PluggableSCMMaterialTest {
 
         assertThat(materialInstance).isNotNull();
         assertThat(materialInstance.getFlyweightName()).isNotNull();
-        assertThat(materialInstance.getConfiguration()).isEqualTo(JsonHelper.toJsonString(material));
+        assertThat(materialInstance.getConfiguration()).isEqualTo(JsonHelper.toJsonExposeOnly(material));
     }
 
     @Test
@@ -169,11 +169,11 @@ class PluggableSCMMaterialTest {
         PluggableSCMMaterial pluggableSCMMaterial = new PluggableSCMMaterial();
         pluggableSCMMaterial.setSCMConfig(scmConfig);
 
-        String json = JsonHelper.toJsonString(pluggableSCMMaterial);
+        String json = JsonHelper.toJsonExposeOnly(pluggableSCMMaterial);
 
-        String expected = "{\"scm\":{\"plugin\":{\"id\":\"plugin-id\",\"version\":\"1.0\"},\"config\":[{\"configKey\":{\"name\":\"secure-key\"},\"encryptedConfigValue\":{\"value\":" + new Gson().toJson(encryptedPassword) + "}},{\"configKey\":{\"name\":\"non-secure-key\"},\"configValue\":{\"value\":\"value\"}}]}}";
+        String expected = "{\"scm\":{\"plugin\":{\"id\":\"plugin-id\",\"version\":\"1.0\"},\"config\":[{\"configKey\":{\"name\":\"secure-key\"},\"encryptedConfigValue\":{\"value\":" + JsonHelper.toJson(encryptedPassword) + "}},{\"configKey\":{\"name\":\"non-secure-key\"},\"configValue\":{\"value\":\"value\"}}]}}";
         assertThat(json).isEqualTo(expected);
-        assertThat(JsonHelper.fromJson(expected, PluggableSCMMaterial.class)).isEqualTo(pluggableSCMMaterial);
+        assertThat(JsonHelper.fromJsonExposeOnly(expected, PluggableSCMMaterial.class)).isEqualTo(pluggableSCMMaterial);
     }
 
     @Test
@@ -267,7 +267,7 @@ class PluggableSCMMaterialTest {
         material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
         Map<String, String> map = new HashMap<>();
         map.put("MY_NEW_KEY", "my_value");
-        Modification modification = new Modification("loser", "comment", "email", new Date(), "revision-123", JsonHelper.toJsonString(map));
+        Modification modification = new Modification("loser", "comment", "email", new Date(), "revision-123", JsonHelper.toJsonExposeOnly(map));
         Modifications modifications = new Modifications(modification);
 
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
@@ -291,7 +291,7 @@ class PluggableSCMMaterialTest {
         map.put("ADDITIONAL_DATA_ONE", "foobar:!secure_value:with_special_chars");
         map.put("ADDITIONAL_DATA_URL_ENCODED", "something:%21secure_value%3Awith_special_chars");
         map.put("ADDITIONAL_DATA_TWO", "foobar:secure_value_with_regular_chars");
-        Modification modification = new Modification("loser", "comment", "email", new Date(), "revision-123", JsonHelper.toJsonString(map));
+        Modification modification = new Modification("loser", "comment", "email", new Date(), "revision-123", JsonHelper.toJsonExposeOnly(map));
         Modifications modifications = new Modifications(modification);
 
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();

@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.*;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -97,7 +97,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         taskConfig.add(p2);
 
         String json = new JsonBasedTaskExtensionHandler_V1().convertTaskConfigToJson(taskConfig);
-        Map<String, Object> taskConfigMap = (Map<String, Object>) new GsonBuilder().create().fromJson(json, Object.class);
+        Map<String, Object> taskConfigMap = (Map<String, Object>) JsonHelper.fromJson(json, Object.class);
 
         Map<String, Object> property1 = (Map<String, Object>) taskConfigMap.get("k1");
         assertThat(property1.get("value").toString()).isEqualTo("value1");
@@ -392,7 +392,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         when(context.environment()).thenReturn(getEnvironmentVariables());
 
         String requestBody = new JsonBasedTaskExtensionHandler_V1().getTaskExecutionBody(config, context);
-        Map<String, Object> result = (Map<String, Object>) new GsonBuilder().create().fromJson(requestBody, Object.class);
+        Map<String, Object> result = (Map<String, Object>) JsonHelper.fromJson(requestBody, Object.class);
         Map<String, Object> taskExecutionContextFromRequest = (Map<String, Object>) result.get("context");
 
         assertThat(taskExecutionContextFromRequest.get("workingDirectory")).isEqualTo(workingDir);

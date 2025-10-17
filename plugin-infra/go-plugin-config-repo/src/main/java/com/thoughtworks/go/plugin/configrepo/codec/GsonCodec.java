@@ -25,17 +25,17 @@ public class GsonCodec {
     private final Gson gson;
 
     public GsonCodec() {
-        this(new GsonBuilder());
+        gson = fromBuilder(new GsonBuilder());
     }
 
-    public GsonCodec(GsonBuilder builder) {
+    public static Gson fromBuilder(GsonBuilder builder) {
         // here we can register extra configurations, policies, adapters
-        builder.registerTypeAdapter(CRMaterial.class, new MaterialTypeAdapter());
-        builder.registerTypeAdapter(CRTask.class, new TaskTypeAdapter());
-        builder.registerTypeAdapter(CRArtifact.class, new ArtifactTypeAdapter());
-        builder.excludeFieldsWithoutExposeAnnotation();
-
-        gson = builder.create();
+        return builder
+            .registerTypeAdapter(CRMaterial.class, new MaterialTypeAdapter())
+            .registerTypeAdapter(CRTask.class, new TaskTypeAdapter())
+            .registerTypeAdapter(CRArtifact.class, new ArtifactTypeAdapter())
+            .excludeFieldsWithoutExposeAnnotation()
+            .create();
     }
 
     public Gson getGson() {

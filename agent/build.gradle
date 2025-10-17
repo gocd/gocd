@@ -55,7 +55,6 @@ dependencies {
   implementation project.deps.jakartaAnnotation
   implementation project.deps.commonsConfiguration
   implementation project.deps.commonsIO
-  implementation project.deps.gson
   implementation project.deps.springContext
   implementation project.deps.oshi
   compileOnly project.deps.jetBrainsAnnotations

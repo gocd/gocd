@@ -73,8 +73,8 @@ public class PackageMaterialPoller implements MaterialPoller<PackageMaterial> {
             return new Modifications();
         }
         return new Modifications(
-                new Modification(packageRevision.getUser(), JsonHelper.toJsonString(getCommentParameters(packageRevision)), null,
-                        packageRevision.getTimestamp(), packageRevision.getRevision(), JsonHelper.toJsonString(packageRevision.getData())));
+                new Modification(packageRevision.getUser(), JsonHelper.toJsonExposeOnly(getCommentParameters(packageRevision)), null,
+                        packageRevision.getTimestamp(), packageRevision.getRevision(), JsonHelper.toJsonExposeOnly(packageRevision.getData())));
     }
 
     private Map<String, String> getCommentParameters(PackageRevision packageRevision) {

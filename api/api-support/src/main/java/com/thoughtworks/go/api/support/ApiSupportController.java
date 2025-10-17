@@ -43,13 +43,13 @@ import static spark.Spark.path;
 
 @Component
 public class ApiSupportController implements SparkController, ControllerMethods, SparkSpringController {
-    private final ServerStatusService serverStatusService;
-
-    private final Gson gson = new GsonBuilder()
+    private static final Gson GSON = new GsonBuilder()
         .setPrettyPrinting()
         .addSerializationExclusionStrategy(excludeLocks())
         .serializeNulls()
         .create();
+
+    private final ServerStatusService serverStatusService;
 
     @Autowired
     public ApiSupportController(ServerStatusService serverStatusService) {
@@ -74,7 +74,7 @@ public class ApiSupportController implements SparkController, ControllerMethods,
         Map<String, Object> information = serverStatusService.asJson(currentUsername(), result);
         response.type("application/json");
         if (result.isSuccessful()) {
-            gson.toJson(information, response.raw().getWriter());
+            GSON.toJson(information, response.raw().getWriter());
             return "";
         }
 

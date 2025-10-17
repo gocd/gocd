@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.elastic.v5;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -30,14 +29,13 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 
 class ElasticAgentExtensionConverterV5 {
-    private static final Gson FORCED_EXPOSE_GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    private static final Gson DEFAULT_GSON = new Gson();
     private final ElasticAgentInformationConverterV5 elasticAgentInformationConverterV5 = new ElasticAgentInformationConverterV5();
     private final CapabilitiesConverterV5 capabilitiesConverterV5 = new CapabilitiesConverterV5();
     private final AgentMetadataConverterV5 agentMetadataConverterV5 = new AgentMetadataConverterV5();
@@ -50,7 +48,7 @@ class ElasticAgentExtensionConverterV5 {
         jsonObject.addProperty("environment", environment);
         jsonObject.add("job_identifier", jobIdentifierJson(jobIdentifier));
 
-        return FORCED_EXPOSE_GSON.toJson(jsonObject);
+        return JsonHelper.toJsonExposeOnly(jsonObject);
     }
 
     String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration, Map<String, String> clusterProfileProperties, JobIdentifier identifier) {
@@ -60,7 +58,7 @@ class ElasticAgentExtensionConverterV5 {
         jsonObject.add("cluster_profile_properties", mapToJsonObject(clusterProfileProperties));
         jsonObject.add("agent", agentMetadataConverterV5.toDTO(elasticAgent).toJSON());
         jsonObject.add("job_identifier", jobIdentifierJson(identifier));
-        return FORCED_EXPOSE_GSON.toJson(jsonObject);
+        return JsonHelper.toJsonExposeOnly(jsonObject);
     }
 
     List<PluginConfiguration> getElasticProfileMetadataResponseFromBody(String responseBody) {
@@ -68,7 +66,7 @@ class ElasticAgentExtensionConverterV5 {
     }
 
     String getProfileViewResponseFromBody(String responseBody) {
-        String template = (String) DEFAULT_GSON.fromJson(responseBody, Map.class).get("template");
+        String template = (String) JsonHelper.fromJson(responseBody, Map.class).get("template");
         if (StringUtils.isBlank(template)) {
             throw new RuntimeException("Template was blank!");
         }
@@ -86,7 +84,7 @@ class ElasticAgentExtensionConverterV5 {
         }
         jsonObject.add("cluster_profile_properties", mapToJsonObject(clusterProfile));
         jsonObject.addProperty("elastic_agent_id", elasticAgentId);
-        return FORCED_EXPOSE_GSON.toJson(jsonObject);
+        return JsonHelper.toJsonExposeOnly(jsonObject);
     }
 
     ValidationResult getElasticProfileValidationResultResponseFromBody(String responseBody) {
@@ -95,15 +93,15 @@ class ElasticAgentExtensionConverterV5 {
 
     String validateElasticProfileRequestBody(Map<String, String> configuration) {
         JsonObject properties = mapToJsonObject(configuration);
-        return new GsonBuilder().serializeNulls().create().toJson(properties);
+        return JsonHelper.toJsonWithNulls(properties);
     }
 
     Boolean shouldAssignWorkResponseFromBody(String responseBody) {
-        return DEFAULT_GSON.fromJson(responseBody, Boolean.class);
+        return JsonHelper.fromJson(responseBody, Boolean.class);
     }
 
     String getStatusReportView(String responseBody) {
-        String statusReportView = (String) DEFAULT_GSON.fromJson(responseBody, Map.class).get("view");
+        String statusReportView = (String) JsonHelper.fromJson(responseBody, Map.class).get("view");
         if (StringUtils.isBlank(statusReportView)) {
             throw new RuntimeException("Status Report is blank!");
         }
@@ -111,12 +109,12 @@ class ElasticAgentExtensionConverterV5 {
     }
 
     Capabilities getCapabilitiesFromResponseBody(String responseBody) {
-        final CapabilitiesDTO capabilitiesDTO = FORCED_EXPOSE_GSON.fromJson(responseBody, CapabilitiesDTO.class);
+        final CapabilitiesDTO capabilitiesDTO = JsonHelper.fromJsonExposeOnly(responseBody, CapabilitiesDTO.class);
         return capabilitiesConverterV5.fromDTO(capabilitiesDTO);
     }
 
     public ElasticAgentInformation getElasticAgentInformationFromResponseBody(String responseBody) {
-        final ElasticAgentInformationDTO elasticAgentInformationDTO = FORCED_EXPOSE_GSON.fromJson(responseBody, ElasticAgentInformationDTO.class);
+        final ElasticAgentInformationDTO elasticAgentInformationDTO = JsonHelper.fromJsonExposeOnly(responseBody, ElasticAgentInformationDTO.class);
         return elasticAgentInformationConverterV5.fromDTO(elasticAgentInformationDTO);
     }
 
@@ -158,13 +156,13 @@ class ElasticAgentExtensionConverterV5 {
         jsonObject.add("elastic_agent_profile_properties", mapToJsonObject(elasticProfileConfiguration));
         jsonObject.add("cluster_profile_properties", mapToJsonObject(clusterProfileConfiguration));
 
-        return FORCED_EXPOSE_GSON.toJson(jsonObject);
+        return JsonHelper.toJsonExposeOnly(jsonObject);
     }
 
     public String serverPingRequestBody(List<Map<String, String>> clusterProfileConfigurations) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("all_cluster_profile_properties", mapToJsonArray(clusterProfileConfigurations));
-        return FORCED_EXPOSE_GSON.toJson(jsonObject);
+        return JsonHelper.toJsonExposeOnly(jsonObject);
     }
 
     public ElasticAgentInformationDTO getElasticAgentInformationDTO(ElasticAgentInformation elasticAgentInformation) {
@@ -174,13 +172,13 @@ class ElasticAgentExtensionConverterV5 {
     public String getClusterStatusReportRequestBody(Map<String, String> clusterProfile) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("cluster_profile_properties", mapToJsonObject(clusterProfile));
-        return FORCED_EXPOSE_GSON.toJson(jsonObject);
+        return JsonHelper.toJsonExposeOnly(jsonObject);
     }
 
     public String getPluginStatusReportRequestBody(List<Map<String, String>> clusterProfiles) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("all_cluster_profiles_properties", mapToJsonArray(clusterProfiles));
-        return FORCED_EXPOSE_GSON.toJson(jsonObject);
+        return JsonHelper.toJsonExposeOnly(jsonObject);
     }
 
     public String getClusterProfileChangedRequestBody(ClusterProfilesChangedStatus status, Map<String, String> oldClusterProfile, Map<String, String> newClusterProfile) {
@@ -197,7 +195,7 @@ class ElasticAgentExtensionConverterV5 {
         jsonObject.addProperty("status", ClusterProfilesChangedStatus.CREATED.getStatus());
         jsonObject.add("cluster_profiles_properties", mapToJsonObject(clusterProfile));
 
-        return FORCED_EXPOSE_GSON.toJson(jsonObject);
+        return JsonHelper.toJsonExposeOnly(jsonObject);
     }
 
     private String getClusterDeletedRequestBody(Map<String, String> clusterProfile) {
@@ -206,7 +204,7 @@ class ElasticAgentExtensionConverterV5 {
         jsonObject.addProperty("status", ClusterProfilesChangedStatus.DELETED.getStatus());
         jsonObject.add("cluster_profiles_properties", mapToJsonObject(clusterProfile));
 
-        return FORCED_EXPOSE_GSON.toJson(jsonObject);
+        return JsonHelper.toJsonExposeOnly(jsonObject);
     }
 
     private String getClusterUpdatedRequestBody(Map<String, String> oldClusterProfile, Map<String, String> newClusterProfile) {
@@ -216,7 +214,7 @@ class ElasticAgentExtensionConverterV5 {
         jsonObject.add("old_cluster_profiles_properties", mapToJsonObject(oldClusterProfile));
         jsonObject.add("cluster_profiles_properties", mapToJsonObject(newClusterProfile));
 
-        return FORCED_EXPOSE_GSON.toJson(jsonObject);
+        return JsonHelper.toJsonExposeOnly(jsonObject);
     }
 }
 

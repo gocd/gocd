@@ -126,7 +126,7 @@ public abstract class MaterialInstance extends PersistentObject {
 
     public void setAdditionalData(String additionalData) {
         this.additionalData = additionalData;
-        this.additionalDataMap = JsonHelper.safeFromJson(this.additionalData, TypeToken.getParameterized(Map.class, String.class, String.class).getType());
+        this.additionalDataMap = JsonHelper.safeFromJsonExposeOnly(this.additionalData, TypeToken.getParameterized(Map.class, String.class, String.class).getType());
     }
 
     public Map<String, String> getAdditionalDataMap() {

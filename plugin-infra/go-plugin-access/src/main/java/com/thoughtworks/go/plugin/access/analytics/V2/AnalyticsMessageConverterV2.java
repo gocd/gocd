@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.plugin.access.analytics.V2;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsMessageConverter;
 import com.thoughtworks.go.plugin.access.analytics.V2.models.Capabilities;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.common.Image;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -28,7 +28,6 @@ import java.util.Map;
 
 public class AnalyticsMessageConverterV2 implements AnalyticsMessageConverter {
     public static final String VERSION = "2.0";
-    private static final Gson GSON = new Gson();
 
     @Override
     public String getAnalyticsRequestBody(String type, String metricId, Map<String, ?> params) {
@@ -37,7 +36,7 @@ public class AnalyticsMessageConverterV2 implements AnalyticsMessageConverter {
         requestMap.put("id", metricId);
         requestMap.put("params", params);
 
-        return GSON.toJson(requestMap);
+        return JsonHelper.toJson(requestMap);
     }
 
     @Override
@@ -56,7 +55,7 @@ public class AnalyticsMessageConverterV2 implements AnalyticsMessageConverter {
 
     @Override
     public String getStaticAssetsFromResponseBody(String responseBody) {
-        String assets = (String) GSON.fromJson(responseBody, Map.class).get("assets");
+        String assets = (String) JsonHelper.fromJson(responseBody, Map.class).get("assets");
 
         if (StringUtils.isBlank(assets)) {
             throw new RuntimeException("No assets defined!");

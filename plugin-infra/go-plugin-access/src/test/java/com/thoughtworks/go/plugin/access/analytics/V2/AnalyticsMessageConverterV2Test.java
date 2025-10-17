@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.plugin.access.analytics.V2;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AnalyticsMessageConverterV2Test {
 
     private AnalyticsMessageConverterV2 converter;
-    private static final Gson GSON = new Gson();
 
     @BeforeEach
     public void setUp() {
@@ -72,6 +71,6 @@ public class AnalyticsMessageConverterV2Test {
                 "\"id\":\"pipeline_with_highest_wait_time\"," +
                 " \"params\":{\"pipeline_name\": \"test_pipeline\"}}";
 
-        assertEquals(GSON.fromJson(expectedRequestBody, Map.class), GSON.fromJson(analyticsRequestBody, Map.class));
+        assertEquals(JsonHelper.fromJson(expectedRequestBody, Map.class), JsonHelper.fromJson(analyticsRequestBody, Map.class));
     }
 }

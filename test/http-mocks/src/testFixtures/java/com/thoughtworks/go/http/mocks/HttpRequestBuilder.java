@@ -37,7 +37,7 @@ public class HttpRequestBuilder {
     private static final Gson GSON = new Gson();
     private static final String CONTEXT_PATH = "/go";
 
-    private MockHttpServletRequest request;
+    private final MockHttpServletRequest request;
 
     public HttpRequestBuilder() {
         this(new MockHttpServletRequest());
@@ -104,6 +104,7 @@ public class HttpRequestBuilder {
         return create().withMethod("PUT").withPathSafe(path);
     }
 
+    @SuppressWarnings("unused") // Used in groovy dynamically
     public static HttpRequestBuilder PUTChunked(String path) {
         return createChunked().withMethod("PUT").withPathSafe(path);
     }
@@ -112,6 +113,7 @@ public class HttpRequestBuilder {
         return create().withMethod("POST").withPathSafe(path);
     }
 
+    @SuppressWarnings("unused") // Used in groovy dynamically
     public static HttpRequestBuilder POSTChunked(String path) {
         return createChunked().withMethod("POST").withPathSafe(path);
     }
@@ -120,6 +122,7 @@ public class HttpRequestBuilder {
         return create().withMethod("PATCH").withPathSafe(path);
     }
 
+    @SuppressWarnings("unused") // Used in groovy dynamically
     public static HttpRequestBuilder PATCHChunked(String path) {
         return createChunked().withMethod("PATCH").withPathSafe(path);
     }

@@ -15,13 +15,11 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo.v3.models;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 public class Capabilities {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     @Expose
     @SerializedName("supports_pipeline_export")
@@ -40,7 +38,7 @@ public class Capabilities {
     private boolean supportsUserDefinedProperties;
 
     public static Capabilities fromJSON(String json) {
-        return GSON.fromJson(json, Capabilities.class);
+        return JsonHelper.fromJsonExposeOnly(json, Capabilities.class);
     }
 
     public com.thoughtworks.go.plugin.domain.configrepo.Capabilities toCapabilities() {

@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.domain.builder;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.*;
@@ -29,6 +27,7 @@ import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
+import com.thoughtworks.go.util.json.JsonHelper;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,6 @@ import static java.lang.String.format;
 
 public class FetchPluggableArtifactBuilder extends Builder {
     private static final Logger LOGGER = LoggerFactory.getLogger(FetchPluggableArtifactBuilder.class);
-    private static final Gson GSON = new GsonBuilder().create();
 
     private final JobIdentifier jobIdentifier;
     private final String artifactId;
@@ -127,7 +125,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
     private Map<String, Object> getMetadataFromFile(String artifactId) throws IOException {
         final String fileToString = Files.readString(metadataFileDest.toPath(), StandardCharsets.UTF_8);
         LOGGER.debug("Reading metadata from file {}.", metadataFileDest.getAbsolutePath());
-        final Map<String, Map<String, Object>> allArtifactsPerPlugin = GSON.fromJson(fileToString, new TypeToken<Map<String, Map<String, Object>>>() {}.getType());
+        final Map<String, Map<String, Object>> allArtifactsPerPlugin = JsonHelper.fromJson(fileToString, new TypeToken<Map<String, Map<String, Object>>>() {}.getType());
         return allArtifactsPerPlugin.get(artifactId);
     }
 

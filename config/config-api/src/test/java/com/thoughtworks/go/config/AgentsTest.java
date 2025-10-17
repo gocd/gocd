@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 class AgentsTest {
     @Nested
@@ -38,7 +38,7 @@ class AgentsTest {
         void getAgentByUUIDShouldReturnNullForUUIDThatDoesNotExist() {
             Agents agents = new Agents();
             agents.add(new Agent("1", "localhost", "2"));
-            assertTrue(agents.getAgentByUUID("uuid-that-does-not-exist") instanceof NullAgent);
+            assertInstanceOf(NullAgent.class, agents.getAgentByUUID("uuid-that-does-not-exist"));
             assertThat(agents.getAgentByUUID("uuid-that-does-not-exist").isNull()).isTrue();
         }
     }

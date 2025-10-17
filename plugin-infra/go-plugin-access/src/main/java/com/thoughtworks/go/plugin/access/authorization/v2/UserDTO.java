@@ -15,17 +15,15 @@
  */
 package com.thoughtworks.go.plugin.access.authorization.v2;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.domain.authorization.User;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.List;
 
 class UserDTO {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     @Expose
     @SerializedName("username")
@@ -90,8 +88,7 @@ class UserDTO {
     }
 
     public static List<UserDTO> fromJSONList(String json) {
-        return GSON.fromJson(json, new TypeToken<List<UserDTO>>() {
-        }.getType());
+        return JsonHelper.fromJsonExposeOnly(json, new TypeToken<List<UserDTO>>() {}.getType());
     }
 
     public User toDomainModel() {

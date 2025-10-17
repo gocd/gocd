@@ -63,7 +63,6 @@ dependencies {
   testFixturesApi(testFixtures(project(':test:http-mocks')))
   testFixturesApi project.deps.springTest
   testFixturesImplementation project(':server')
-  testFixturesImplementation project.deps.gson
 
   testFixturesApi project.deps.junit5Api
   testFixturesImplementation project.deps.mockitoCore

@@ -38,11 +38,11 @@ import static spark.Spark.*;
 
 @Component
 public class InternalDependencyPipelinesControllerV1 extends ApiController implements SparkSpringController {
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final SystemEnvironment systemEnvironment;
     private final GoConfigService goConfigService;
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
     @Autowired
     public InternalDependencyPipelinesControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
@@ -82,7 +82,7 @@ public class InternalDependencyPipelinesControllerV1 extends ApiController imple
         FetchArtifactViewHelper helper = new FetchArtifactViewHelper(systemEnvironment, config, new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), StringUtils.isNotBlank(request.queryParams("template")));
 
         response.type("application/json");
-        return gson.toJson(helper.autosuggestMap());
+        return GSON.toJson(helper.autosuggestMap());
     }
 
 }

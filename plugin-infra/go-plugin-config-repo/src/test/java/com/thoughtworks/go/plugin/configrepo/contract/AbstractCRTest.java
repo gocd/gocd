@@ -39,12 +39,10 @@ public abstract class AbstractCRTest<T extends CRBase> {
     public void setUp() {
         GsonBuilder builder = new GsonBuilder();
 
-        if (printExamples)
+        if (printExamples) {
             builder.setPrettyPrinting();
-
-        GsonCodec codec = new GsonCodec(builder);
-
-        gson = codec.getGson();
+        }
+        gson = GsonCodec.fromBuilder(builder);
     }
 
     public abstract void addGoodExamples(Map<String, T> examples);

@@ -15,18 +15,12 @@
  */
 package com.thoughtworks.go.server.service.plugins.processor.serverinfo.v1;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.server.service.plugins.processor.serverinfo.MessageHandlerForServerInfoRequestProcessor;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 public class MessageHandlerForServerInfoRequestProcessor1_0 implements MessageHandlerForServerInfoRequestProcessor {
-    private final Gson gson;
-
-    public MessageHandlerForServerInfoRequestProcessor1_0() {
-        gson = new Gson();
-    }
-
     @Override
     public String serverInfoToJSON(ServerConfig serverConfig) {
         JsonObject object = new JsonObject();
@@ -35,6 +29,6 @@ public class MessageHandlerForServerInfoRequestProcessor1_0 implements MessageHa
         object.addProperty("site_url", serverConfig.getSiteUrl().getUrl());
         object.addProperty("secure_site_url", serverConfig.getSecureSiteUrl().getUrl());
 
-        return gson.toJson(object);
+        return JsonHelper.toJson(object);
     }
 }

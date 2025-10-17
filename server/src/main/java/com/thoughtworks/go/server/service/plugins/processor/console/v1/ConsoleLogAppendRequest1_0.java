@@ -15,14 +15,12 @@
  */
 package com.thoughtworks.go.server.service.plugins.processor.console.v1;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.service.plugins.processor.console.ConsoleLogAppendRequest;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 public class ConsoleLogAppendRequest1_0 implements ConsoleLogAppendRequest {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     @Expose
     private String pipelineName;
@@ -43,7 +41,7 @@ public class ConsoleLogAppendRequest1_0 implements ConsoleLogAppendRequest {
     private String text;
 
     public static ConsoleLogAppendRequest1_0 fromJSON(String json) {
-        return GSON.fromJson(json, ConsoleLogAppendRequest1_0.class);
+        return JsonHelper.fromJsonExposeOnly(json, ConsoleLogAppendRequest1_0.class);
     }
 
     @Override

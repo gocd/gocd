@@ -73,17 +73,17 @@ public class ModificationTest {
     public void shouldSerializeAndUnserializeAllAttributes() throws IOException, ClassNotFoundException {
         Map<String, String> additionalData = new HashMap<>();
         additionalData.put("foo", "bar");
-        Modification modification = new Modification("user", "comment", "foo@bar.com", new Date(), "pipe/1/stage/2", JsonHelper.toJsonString(additionalData));
+        Modification modification = new Modification("user", "comment", "foo@bar.com", new Date(), "pipe/1/stage/2", JsonHelper.toJsonExposeOnly(additionalData));
         modification.setPipelineLabel("label-1");
 
         Modification unserializedModification = SerializationTester.objectSerializeAndDeserialize(modification);
-        assertThat(unserializedModification.getAdditionalData()).isEqualTo(JsonHelper.toJsonString(additionalData));
+        assertThat(unserializedModification.getAdditionalData()).isEqualTo(JsonHelper.toJsonExposeOnly(additionalData));
         assertThat(unserializedModification).isEqualTo(modification);
 
-        modification = new Modification("user", null, "foo@bar.com", new Date(), "pipe/1/stage/2", JsonHelper.toJsonString(additionalData));
+        modification = new Modification("user", null, "foo@bar.com", new Date(), "pipe/1/stage/2", JsonHelper.toJsonExposeOnly(additionalData));
         unserializedModification = SerializationTester.objectSerializeAndDeserialize(modification);
         assertThat(unserializedModification.getComment()).isNull();
-        assertThat(unserializedModification.getAdditionalData()).isEqualTo(JsonHelper.toJsonString(additionalData));
+        assertThat(unserializedModification.getAdditionalData()).isEqualTo(JsonHelper.toJsonExposeOnly(additionalData));
         assertThat(unserializedModification).isEqualTo(modification);
     }
 
@@ -93,7 +93,7 @@ public class ModificationTest {
         Map<String, String> additionalData = new HashMap<>();
         additionalData.put("a1", "v1");
         additionalData.put("a2", "v2");
-        modification.setAdditionalData(new Gson().toJson(additionalData));
+        modification.setAdditionalData(JsonHelper.toJson(additionalData));
         MaterialInstance original = new SvnMaterialInstance("url", "username", UUID.randomUUID().toString(), true);
         modification.setMaterialInstance(original);
         assertThat(new Modification(modification)).isEqualTo(modification);

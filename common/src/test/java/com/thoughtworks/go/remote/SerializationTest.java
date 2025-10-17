@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.remote;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -25,6 +24,7 @@ import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.helper.ReversingEncrypter;
 import com.thoughtworks.go.security.*;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,28 +54,28 @@ class SerializationTest {
     @Test
     void rejectsSerializationOfGoCipher() {
         final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                Serialization.instance().toJson(new GoCipher(mock(Encrypter.class))));
+                Serialization.toJson(new GoCipher(mock(Encrypter.class))));
         assertEquals(format("Refusing to serialize a %s instance and leak security details!", GoCipher.class.getName()), e.getMessage());
     }
 
     @Test
     void rejectsDeserializationOfGoCipher() {
         final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                Serialization.instance().fromJson("{}", GoCipher.class));
+                Serialization.fromJson("{}", GoCipher.class));
         assertEquals(format("Refusing to deserialize a %s in the JSON stream!", GoCipher.class.getName()), e.getMessage());
     }
 
     @Test
     void rejectsSerializationOfAESEncrypter() {
         final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                Serialization.instance().toJson(new AESEncrypter(mock(AESCipherProvider.class))));
+                Serialization.toJson(new AESEncrypter(mock(AESCipherProvider.class))));
         assertEquals(format("Refusing to serialize a %s instance and leak security details!", AESEncrypter.class.getName()), e.getMessage());
     }
 
     @Test
     void rejectsDeserializationOfAESEncrypter() {
         final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                Serialization.instance().fromJson("{}", AESEncrypter.class));
+                Serialization.fromJson("{}", AESEncrypter.class));
         assertEquals(format("Refusing to deserialize a %s in the JSON stream!", AESEncrypter.class.getName()), e.getMessage());
     }
 
@@ -84,7 +84,7 @@ class SerializationTest {
         final AESCipherProvider acp = new AESCipherProvider(new TempSystemEnvironment());
         try {
             final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                    Serialization.instance().toJson(acp));
+                    Serialization.toJson(acp));
             assertEquals(format("Refusing to serialize a %s instance and leak security details!", AESCipherProvider.class.getName()), e.getMessage());
         } finally {
             acp.removeCipher();
@@ -94,21 +94,21 @@ class SerializationTest {
     @Test
     void rejectsDeserializationOfAESCipherProvider() {
         final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                Serialization.instance().fromJson("{}", AESCipherProvider.class));
+                Serialization.fromJson("{}", AESCipherProvider.class));
         assertEquals(format("Refusing to deserialize a %s in the JSON stream!", AESCipherProvider.class.getName()), e.getMessage());
     }
 
     @Test
     void rejectsSerializationOfDESEncrypter() {
         final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                Serialization.instance().toJson(new DESEncrypter(mock(DESCipherProvider.class))));
+                Serialization.toJson(new DESEncrypter(mock(DESCipherProvider.class))));
         assertEquals(format("Refusing to serialize a %s instance and leak security details!", DESEncrypter.class.getName()), e.getMessage());
     }
 
     @Test
     void rejectsDeserializationOfDESEncrypter() {
         final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                Serialization.instance().fromJson("{}", DESEncrypter.class));
+                Serialization.fromJson("{}", DESEncrypter.class));
         assertEquals(format("Refusing to deserialize a %s in the JSON stream!", DESEncrypter.class.getName()), e.getMessage());
     }
 
@@ -117,7 +117,7 @@ class SerializationTest {
         final DESCipherProvider dcp = new DESCipherProvider(new TempSystemEnvironment());
         try {
             final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                    Serialization.instance().toJson(dcp));
+                    Serialization.toJson(dcp));
             assertEquals(format("Refusing to serialize a %s instance and leak security details!", DESCipherProvider.class.getName()), e.getMessage());
         } finally {
             dcp.removeCipher();
@@ -127,7 +127,7 @@ class SerializationTest {
     @Test
     void rejectsDeserializationOfDESCipherProvider() {
         final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                Serialization.instance().fromJson("{ \"whatever\": \"actual payload doesn't matter\" }", DESCipherProvider.class));
+                Serialization.fromJson("{ \"whatever\": \"actual payload doesn't matter\" }", DESCipherProvider.class));
         assertEquals(format("Refusing to deserialize a %s in the JSON stream!", DESCipherProvider.class.getName()), e.getMessage());
     }
 
@@ -135,28 +135,28 @@ class SerializationTest {
     @ValueSource(strings = { "/linux/style", "windows\\style"})
     void deserializesFilesNormalizingPathToPlatform(String rawPath) {
         String json = format("{ \"path\": \"%s\" }", escapeJson(rawPath));
-        assertThat(Serialization.instance().fromJson(json, File.class))
+        assertThat(Serialization.fromJson(json, File.class))
                 .isEqualTo(new File(separatorsToSystem(rawPath)));
     }
 
     @Test
     void serializesFiles() {
         File file = new File("/hello/world");
-        assertThatJson(Serialization.instance().toJson(file))
+        assertThatJson(Serialization.toJson(file))
                 .isEqualTo(format("{\"path\":\"%s\"}", escapeJson(separatorsToSystem(file.getPath()))));
     }
 
     @Test
     void serializesCharsets() {
-        assertThatJson(Serialization.instance().toJson(StandardCharsets.UTF_8)).isEqualTo("UTF-8");
+        assertThatJson(Serialization.toJson(StandardCharsets.UTF_8)).isEqualTo("UTF-8");
         //noinspection CharsetObjectCanBeUsed
-        assertThatJson(Serialization.instance().toJson(Charset.forName("ascii"))).isEqualTo("US-ASCII");
+        assertThatJson(Serialization.toJson(Charset.forName("ascii"))).isEqualTo("US-ASCII");
     }
 
     @Test
     void deserializesCharsets() {
-        assertEquals(StandardCharsets.UTF_8, Serialization.instance().fromJson("UTF-8", Charset.class));
-        assertEquals(StandardCharsets.US_ASCII, Serialization.instance().fromJson("ascii", Charset.class));
+        assertEquals(StandardCharsets.UTF_8, Serialization.fromJson("UTF-8", Charset.class));
+        assertEquals(StandardCharsets.US_ASCII, Serialization.fromJson("ascii", Charset.class));
     }
 
     @Nested
@@ -165,22 +165,22 @@ class SerializationTest {
 
         @Test
         void serializesDatesDeterministically() {
-            assertEquals("null", Serialization.instance().toJson((Date)null));
-            assertEquals("\"1970-01-01T00:00:00Z\"", Serialization.instance().toJson(new Date(0)));
-            assertEquals("\"2023-12-13T01:02:03.004Z\"", Serialization.instance().toJson(TEST_TIME));
+            assertEquals("null", Serialization.toJson((Date)null));
+            assertEquals("\"1970-01-01T00:00:00Z\"", Serialization.toJson(new Date(0)));
+            assertEquals("\"2023-12-13T01:02:03.004Z\"", Serialization.toJson(TEST_TIME));
         }
         @Test
         void serializesSqlTimeStampsDeterministically() {
-            assertEquals("null", Serialization.instance().toJson((Timestamp)null));
-            assertEquals("\"1970-01-01T00:00:00Z\"", Serialization.instance().toJson(new Timestamp(0)));
-            assertEquals("\"2023-12-13T01:02:03.004Z\"", Serialization.instance().toJson(new Timestamp(TEST_TIME.getTime())));
+            assertEquals("null", Serialization.toJson((Timestamp)null));
+            assertEquals("\"1970-01-01T00:00:00Z\"", Serialization.toJson(new Timestamp(0)));
+            assertEquals("\"2023-12-13T01:02:03.004Z\"", Serialization.toJson(new Timestamp(TEST_TIME.getTime())));
         }
 
         @Test
         void deserializesDatesDeterministically() {
-            assertNull(Serialization.instance().fromJson("null", Date.class));
-            assertEquals(new Date(0), Serialization.instance().fromJson("\"1970-01-01T00:00:00Z\"", Date.class));
-            assertEquals(TEST_TIME, Serialization.instance().fromJson("\"2023-12-13T01:02:03.004Z\"", Date.class));
+            assertNull(Serialization.fromJson("null", Date.class));
+            assertEquals(new Date(0), Serialization.fromJson("\"1970-01-01T00:00:00Z\"", Date.class));
+            assertEquals(TEST_TIME, Serialization.fromJson("\"2023-12-13T01:02:03.004Z\"", Date.class));
         }
     }
 
@@ -188,10 +188,10 @@ class SerializationTest {
     @Test
     void successfullySerializesConfigurationPropertyBecauseGoCipherIsHiddenFromSerialization() {
         assertDoesNotThrow(() -> {
-            final String json = Serialization.instance().toJson(new ConfigurationProperty(dumbCipher())
+            final String json = Serialization.toJson(new ConfigurationProperty(dumbCipher())
                     .withKey("hello")
                     .withEncryptedValue("dlrow"));
-            Map<String, String> actual = new Gson().fromJson(json, Map.class);
+            Map<String, String> actual = JsonHelper.fromJson(json, Map.class);
             assertEquals(2, actual.size());
             assertEquals("hello", actual.get("key"));
             assertEquals("world", actual.get("value"));
@@ -201,7 +201,7 @@ class SerializationTest {
     @Test
     void successfullyDeserializesConfigurationPropertyBecauseGoCipherIsNeverUsed() {
         assertDoesNotThrow(() -> {
-            final ConfigurationProperty store = Serialization.instance().fromJson(
+            final ConfigurationProperty store = Serialization.fromJson(
                     "{\"key\": \"one\", \"value\": \"a\"}", ConfigurationProperty.class);
             assertEquals("one", store.getConfigKeyName());
             assertEquals("a", store.getValue());
@@ -212,12 +212,12 @@ class SerializationTest {
     @Test
     void successfullySerializesArtifactStoreBecauseGoCipherIsHiddenFromSerialization() {
         assertDoesNotThrow(() -> {
-            final String json = Serialization.instance().toJson(
+            final String json = Serialization.toJson(
                     new ArtifactStore("store", "plugin",
                             plainProperty("plain", "text"),
                             secretProperty("secret", "!llet t'nod"))
             );
-            Map<String, Object> actual = new Gson().fromJson(json, Map.class);
+            Map<String, Object> actual = JsonHelper.fromJson(json, Map.class);
             List<Map<String, Object>> props = (List<Map<String, Object>>) actual.get("configuration");
             assertEquals(2, props.size());
             assertEquals("plain", props.get(0).get("key"));
@@ -230,7 +230,7 @@ class SerializationTest {
     @Test
     void successfullyDeserializesArtifactStoreBecauseGoCipherIsNeverUsed() {
         assertDoesNotThrow(() -> {
-            final ArtifactStore store = Serialization.instance().fromJson("{" +
+            final ArtifactStore store = Serialization.fromJson("{" +
                     "\"id\": \"store\"," +
                     "\"pluginId\": \"plugin\"," +
                     "\"configuration\": [" +
@@ -254,7 +254,7 @@ class SerializationTest {
                 new ConfigurationValue("{{SECRET:[test_id][password]}}"));
         configurationProperty.getSecretParams().get(0).setValue("secret");
 
-        String json = Serialization.instance().toJson(configurationProperty);
+        String json = Serialization.toJson(configurationProperty);
 
         assertThat(json).isEqualTo("{\"key\":\"db_password\",\"value\":\"secret\"}");
     }

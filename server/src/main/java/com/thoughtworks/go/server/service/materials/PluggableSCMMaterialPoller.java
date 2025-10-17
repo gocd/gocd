@@ -111,7 +111,7 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
     private void updateAdditionalData(final long materialId, final Map<String, String> materialData) {
         transactionTemplate.execute(transactionStatus -> {
             MaterialInstance materialInstance = materialRepository.find(materialId);
-            String additionalData = (materialData == null || materialData.isEmpty()) ? null : JsonHelper.toJsonString(materialData);
+            String additionalData = (materialData == null || materialData.isEmpty()) ? null : JsonHelper.toJsonExposeOnly(materialData);
             materialInstance.setAdditionalData(additionalData);
             materialRepository.saveOrUpdate(materialInstance);
             return materialInstance;
@@ -130,7 +130,7 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
     }
 
     private Modification getModification(SCMRevision scmRevision) {
-        String additionalData = (scmRevision.getData() == null || scmRevision.getData().isEmpty()) ? null : JsonHelper.toJsonString(scmRevision.getData());
+        String additionalData = (scmRevision.getData() == null || scmRevision.getData().isEmpty()) ? null : JsonHelper.toJsonExposeOnly(scmRevision.getData());
         Modification modification = new Modification(scmRevision.getUser(), scmRevision.getRevisionComment(), null,
                 scmRevision.getTimestamp(), scmRevision.getRevision(), additionalData);
         if (scmRevision.getModifiedFiles() != null && !scmRevision.getModifiedFiles().isEmpty()) {

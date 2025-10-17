@@ -79,7 +79,7 @@ class PluggableSCMMaterialPollerTest {
         MaterialInstance materialInstance = material.createMaterialInstance();
         Map<String, String> data = new HashMap<>();
         data.put("mk-1", "mv-1");
-        materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
+        materialInstance.setAdditionalData(JsonHelper.toJsonExposeOnly(data));
         when(materialRepository.findMaterialInstance(material)).thenReturn(materialInstance);
 
         poller = new PluggableSCMMaterialPoller(materialRepository, scmExtension, transactionTemplate);
@@ -134,7 +134,7 @@ class PluggableSCMMaterialPollerTest {
         assertThat(modifications.get(0).getModifiedTime()).isEqualTo(timestamp);
         assertThat(modifications.get(0).getUserName()).isEqualTo("user");
         assertThat(modifications.get(0).getComment()).isEqualTo("comment");
-        assertThat(modifications.get(0).getAdditionalData()).isEqualTo(JsonHelper.toJsonString(data));
+        assertThat(modifications.get(0).getAdditionalData()).isEqualTo(JsonHelper.toJsonExposeOnly(data));
         assertThat(modifications.get(0).getModifiedFiles().size()).isEqualTo(3);
         com.thoughtworks.go.domain.materials.ModifiedFile f1 = new com.thoughtworks.go.domain.materials.ModifiedFile("f1", null, com.thoughtworks.go.domain.materials.ModifiedAction.added);
         com.thoughtworks.go.domain.materials.ModifiedFile f2 = new com.thoughtworks.go.domain.materials.ModifiedFile("f2", null, com.thoughtworks.go.domain.materials.ModifiedAction.modified);
@@ -214,7 +214,7 @@ class PluggableSCMMaterialPollerTest {
         assertThat(firstModification.getModifiedTime()).isEqualTo(timestamp);
         assertThat(firstModification.getUserName()).isEqualTo("user");
         assertThat(firstModification.getComment()).isEqualTo("comment-123");
-        assertThat(firstModification.getAdditionalData()).isEqualTo(JsonHelper.toJsonString(expected));
+        assertThat(firstModification.getAdditionalData()).isEqualTo(JsonHelper.toJsonExposeOnly(expected));
         assertThat(firstModification.getModifiedFiles().isEmpty()).isTrue();
         assertThat(materialData.getValue().size()).isEqualTo(1);
         assertThat(materialData.getValue().get("mk-1")).isEqualTo("mv-1");
@@ -234,7 +234,7 @@ class PluggableSCMMaterialPollerTest {
             MaterialInstance materialInstance = material.createMaterialInstance();
             Map<String, String> data = new HashMap<>();
             data.put("mk-1", "mv-1");
-            materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
+            materialInstance.setAdditionalData(JsonHelper.toJsonExposeOnly(data));
             when(materialRepository.findMaterialInstance(material)).thenReturn(materialInstance);
 
             Date timestamp = new Date();
@@ -260,7 +260,7 @@ class PluggableSCMMaterialPollerTest {
             MaterialInstance materialInstance = material.createMaterialInstance();
             Map<String, String> data = new HashMap<>();
             data.put("mk-1", "mv-1");
-            materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
+            materialInstance.setAdditionalData(JsonHelper.toJsonExposeOnly(data));
             when(materialRepository.findMaterialInstance(material)).thenReturn(materialInstance);
 
             Date timestamp = new Date();
@@ -291,7 +291,7 @@ class PluggableSCMMaterialPollerTest {
             MaterialInstance materialInstance = material.createMaterialInstance();
             Map<String, String> data = new HashMap<>();
             data.put("mk-1", "mv-1");
-            materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
+            materialInstance.setAdditionalData(JsonHelper.toJsonExposeOnly(data));
             when(materialRepository.findMaterialInstance(material)).thenReturn(materialInstance);
 
             ArgumentCaptor<SCMRevision> knownSCMRevision = ArgumentCaptor.forClass(SCMRevision.class);

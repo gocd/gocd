@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.authorization.v2;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
@@ -25,9 +23,9 @@ import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 class VerifyConnectionResponseDTO {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     @Expose
     @SerializedName("status")
@@ -44,7 +42,7 @@ class VerifyConnectionResponseDTO {
     }
 
     public static VerifyConnectionResponseDTO fromJSON(String json) {
-        VerifyConnectionResponseDTO response = GSON.fromJson(json, VerifyConnectionResponseDTO.class);
+        VerifyConnectionResponseDTO response = JsonHelper.fromJsonExposeOnly(json, VerifyConnectionResponseDTO.class);
         response.validationResult = validationResult(json);
 
         return response;
@@ -68,7 +66,7 @@ class VerifyConnectionResponseDTO {
     }
 
     private static ValidationResult validationResult(String json) {
-        JsonObject jsonObject = GSON.fromJson(json, JsonObject.class);
+        JsonObject jsonObject = JsonHelper.fromJsonExposeOnly(json, JsonObject.class);
 
         JsonElement errors = jsonObject.get("errors");
 
@@ -83,7 +81,7 @@ class VerifyConnectionResponseDTO {
         @SerializedName("validation-failed")
         ValidationFailed("validation-failed");
 
-        private String status;
+        private final String status;
 
         Status(String status) {
             this.status = status;

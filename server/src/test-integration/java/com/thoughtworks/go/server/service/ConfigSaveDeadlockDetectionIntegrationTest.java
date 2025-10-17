@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
@@ -29,6 +28,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -102,7 +102,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                 && throwable.getSuppressed()[0] instanceof InterruptedException) {
             throw new RuntimeException(
                     "Test timed out, possible deadlock. Thread Dump: " +
-                            new Gson().toJson(serverStatusService.asJson(Username.ANONYMOUS, new HttpLocalizedOperationResult())),
+                            JsonHelper.toJson(serverStatusService.asJson(Username.ANONYMOUS, new HttpLocalizedOperationResult())),
                     throwable);
         }
         throw throwable;

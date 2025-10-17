@@ -15,16 +15,14 @@
  */
 package com.thoughtworks.go.plugin.access.analytics.V2.models;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Capabilities {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     @Expose
     @SerializedName("supported_analytics")
@@ -39,7 +37,7 @@ public class Capabilities {
     }
 
     public static Capabilities fromJSON(String json) {
-        return GSON.fromJson(json, Capabilities.class);
+        return JsonHelper.fromJsonExposeOnly(json, Capabilities.class);
     }
 
     public com.thoughtworks.go.plugin.domain.analytics.Capabilities toCapabilities() {

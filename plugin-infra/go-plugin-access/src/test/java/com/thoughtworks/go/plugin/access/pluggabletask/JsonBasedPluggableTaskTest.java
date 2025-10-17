@@ -35,7 +35,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.*;
 
 public class JsonBasedPluggableTaskTest {
@@ -141,6 +141,6 @@ public class JsonBasedPluggableTaskTest {
 
     @Test
     public void shouldGetTaskExecutor() {
-        assertTrue(task.executor() instanceof JsonBasedTaskExecutor);
+        assertInstanceOf(JsonBasedTaskExecutor.class, task.executor());
     }
 }

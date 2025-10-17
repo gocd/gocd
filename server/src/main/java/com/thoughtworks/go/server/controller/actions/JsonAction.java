@@ -20,7 +20,6 @@ import com.thoughtworks.go.server.web.GoRequestContext;
 import com.thoughtworks.go.server.web.JsonRenderer;
 import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.json.JsonAware;
 import org.apache.http.HttpHeaders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
@@ -105,11 +104,11 @@ public class JsonAction implements RestfulAction {
 
     public static class SimpleJsonView implements View {
         private final int status;
-        private final Object jsonAware;
+        private final Object json;
 
-        public SimpleJsonView(int status, Object jsonAware) {
+        public SimpleJsonView(int status, Object json) {
             this.status = status;
-            this.jsonAware = jsonAware;
+            this.json = json;
         }
 
         @Override
@@ -127,10 +126,6 @@ public class JsonAction implements RestfulAction {
             response.addHeader(HttpHeaders.CACHE_CONTROL, CLEAR_CACHE);
             response.setStatus(status);
             response.setContentType(getContentType());
-            Object json = jsonAware;
-            if (jsonAware instanceof JsonAware) {
-                json = ((JsonAware) jsonAware).toJson();
-            }
             PrintWriter writer = response.getWriter();
             JsonRenderer.render(json, goRequestContext, writer);
             writer.close();

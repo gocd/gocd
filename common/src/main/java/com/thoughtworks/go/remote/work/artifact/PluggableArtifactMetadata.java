@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.remote.work.artifact;
 
-import com.google.gson.Gson;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +70,7 @@ public class PluggableArtifactMetadata {
 
         try {
             LOGGER.info("Writing metadata file for plugin `{}`.", pluginId);
-            Files.writeString(new File(pluggableArtifactMetadataFolder, format("%s.json", pluginId)).toPath(), new Gson().toJson(responseMetadata), StandardCharsets.UTF_8);
+            Files.writeString(new File(pluggableArtifactMetadataFolder, format("%s.json", pluginId)).toPath(), JsonHelper.toJson(responseMetadata), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

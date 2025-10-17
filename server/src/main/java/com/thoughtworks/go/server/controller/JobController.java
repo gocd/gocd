@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationM
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ErrorHandler;
+import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,6 @@ import java.util.*;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_PAGE;
-import static com.thoughtworks.go.util.json.JsonHelper.addDeveloperErrorMessage;
 
 /*
  * Handles requests for Build Details: See urlrewrite.xml.
@@ -128,9 +128,7 @@ public class JobController {
     @ErrorHandler
     public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Exception e) {
         LOGGER.error("Job detail page error: ", e);
-        Map<String, Object> model = new HashMap<>();
-        model.put(ERROR_FOR_PAGE, e.getMessage());
-        return new ModelAndView("exceptions_page", model);
+        return new ModelAndView("exceptions_page", Map.of(ERROR_FOR_PAGE, e.getMessage()));
     }
 
     @RequestMapping(value = "/**/jobStatus.json", method = RequestMethod.GET)
@@ -148,8 +146,8 @@ public class JobController {
                     stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
             json = createBuildInfo(presenter);
         } catch (Exception e) {
-            LOGGER.warn(null, e);
-            json = errorJsonMap(e);
+            LOGGER.warn("Unexpected error rendering job status as JSON", e);
+            json = Map.of(GoConstants.ERROR_FOR_JSON, e.getMessage());
         }
         return jsonFound(json).respond(response);
     }
@@ -215,12 +213,6 @@ public class JobController {
                 data.put("elasticAgentId", agent.getElasticAgentId());
             }
         }
-    }
-
-    private Map<String, Object> errorJsonMap(Exception e) {
-        Map<String, Object> jsonMap = new LinkedHashMap<>();
-        addDeveloperErrorMessage(jsonMap, e);
-        return jsonMap;
     }
 
     private List<Map<String, Object>> createBuildInfo(JobStatusJsonPresentationModel presenter) {

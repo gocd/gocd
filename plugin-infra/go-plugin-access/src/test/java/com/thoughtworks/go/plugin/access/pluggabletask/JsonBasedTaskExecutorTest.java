@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
@@ -27,6 +26,7 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -116,7 +116,7 @@ public class JsonBasedTaskExecutorTest {
         new JsonBasedTaskExecutor(pluginId, pluginRequestHelper, handlerHashMap).execute(config(), context);
 
         assertThat(executionRequest).hasSize(1);
-        Map<String, Object> result = (Map<String, Object>) new GsonBuilder().create().fromJson(executionRequest[0].requestBody(), Object.class);
+        Map<String, Object> result = (Map<String, Object>) JsonHelper.fromJson(executionRequest[0].requestBody(), Object.class);
         Map<String, Object> context = (Map<String, Object>) result.get("context");
 
         assertThat(context.get("workingDirectory")).isEqualTo(workingDir);

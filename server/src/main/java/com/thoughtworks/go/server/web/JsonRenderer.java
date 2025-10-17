@@ -39,12 +39,13 @@ public class JsonRenderer {
     }
 
     public static void render(Object o, GoRequestContext context, Writer writer) {
-        if (o instanceof JsonAware) {
-            o = ((JsonAware) o).toJson();
-        } else if (o instanceof JsonFakeMap) {
-            o = ((JsonFakeMap) o).get("json");
+        Object toRender = o;
+        if (o instanceof JsonAware ja) {
+            toRender = ja.toJson();
+        } else if (o instanceof JsonFakeMap jfm) {
+            toRender = jfm.get("json");
         }
-        gsonBuilder(context).toJson(o, writer);
+        gsonBuilder(context).toJson(toRender, writer);
     }
 
     private static Gson gsonBuilder(final GoRequestContext requestContext) {

@@ -115,7 +115,7 @@ public class Modification extends PersistentObject implements Comparable<Modific
 
     public void setAdditionalData(String additionalData) {
         this.additionalData = additionalData;
-        this.additionalDataMap = JsonHelper.safeFromJson(this.additionalData, new TypeToken<HashMap<String, String>>() {}.getType());
+        this.additionalDataMap = JsonHelper.safeFromJsonExposeOnly(this.additionalData, new TypeToken<HashMap<String, String>>() {}.getType());
     }
 
     public void setUserName(String name) {

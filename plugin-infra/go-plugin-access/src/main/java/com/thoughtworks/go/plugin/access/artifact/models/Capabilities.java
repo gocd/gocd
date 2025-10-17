@@ -15,18 +15,16 @@
  */
 package com.thoughtworks.go.plugin.access.artifact.models;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 public class Capabilities {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     public String toJSON() {
-        return GSON.toJson(this);
+        return JsonHelper.toJsonExposeOnly(this);
     }
 
     public static Capabilities fromJSON(String json) {
-        return GSON.fromJson(json, Capabilities.class);
+        return JsonHelper.fromJsonExposeOnly(json, Capabilities.class);
     }
 
     public com.thoughtworks.go.plugin.domain.artifact.Capabilities toCapabilities() {

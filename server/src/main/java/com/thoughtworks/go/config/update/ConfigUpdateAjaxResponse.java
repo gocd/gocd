@@ -80,7 +80,7 @@ public final class ConfigUpdateAjaxResponse {
     }
 
     public String toJson() {
-        return JsonHelper.toJsonString(this);
+        return JsonHelper.toJsonExposeOnly(this);
     }
 
     public void setSubjectIdentifier(String subjectIdentifier) {

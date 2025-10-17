@@ -15,18 +15,16 @@
  */
 package com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.server.service.plugins.processor.elasticagent.ElasticAgentProcessorConverter;
+import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class ElasticAgentProcessorConverterV1 implements ElasticAgentProcessorConverter {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     private static final AgentMetadataConverterV1 agentMetadataConverter = new AgentMetadataConverterV1();
 
     @Override
@@ -35,7 +33,7 @@ public class ElasticAgentProcessorConverterV1 implements ElasticAgentProcessorCo
         for (AgentMetadata agentMetadata : metadata) {
             array.add(agentMetadataConverter.toDTO(agentMetadata).toJSON());
         }
-        return GSON.toJson(array);
+        return JsonHelper.toJsonExposeOnly(array);
     }
 
     @Override

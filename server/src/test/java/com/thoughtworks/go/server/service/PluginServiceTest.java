@@ -57,8 +57,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -295,7 +294,7 @@ public class PluginServiceTest {
 
         PluginInfo pluginInfo = pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginId);
 
-        assertTrue(pluginInfo instanceof ElasticAgentPluginInfo);
+        assertInstanceOf(ElasticAgentPluginInfo.class, pluginInfo);
         assertThat(pluginInfo).isEqualTo(elasticAgentPluginInfo);
     }
 

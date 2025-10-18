@@ -19,13 +19,8 @@ package com.thoughtworks.go.build
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.TaskAction
-import org.jruby.runtime.Constants
 
 abstract class JRuby extends JavaExec {
-  static jar = (JRuby.class.classLoader as URLClassLoader).URLs.find { it.toString().contains('jruby-complete')}.file
-
-  static bundledGemRubyVersion = "${Constants.RUBY_MAJOR_VERSION}.0"
-
   static jrubyJvmArgs = [
     '--add-opens=java.base/java.io=ALL-UNNAMED',     // JDK 17+: Enable native sub-process control by default
     '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',  //          Often needed by bundler and such to fork processes
@@ -43,8 +38,7 @@ abstract class JRuby extends JavaExec {
   private Map<String, ?> originalEnv = new LinkedHashMap<String, ?>(environment)
 
   JRuby() {
-    additionalPaths = project.additionalJRubyPaths
-    environment += project.jrubyEnvironment
+    additionalPaths = [project.jrubyScriptsDir]
 
     standardOutput = new PrintStream(System.out, true)
     errorOutput = new PrintStream(System.err, true)
@@ -52,7 +46,7 @@ abstract class JRuby extends JavaExec {
     jvmArgs += jrubyJvmArgs
     systemProperties += jrubySystemProperties
 
-    classpath(jar)
+    classpath(project.configurations.jruby)
     mainClass.set('org.jruby.Main')
   }
 

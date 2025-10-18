@@ -23,8 +23,8 @@ tasks.register('stylelintold', YarnRunTask) {
   workingDir = project.railsRoot
 
   yarnCommand = ['stylelintold']
-  source(project.file("${project.railsRoot}/app/assets/new_stylesheets"))
-  source(project.file("${project.railsRoot}/.stylelintrc.yml"))
+  source("${project.railsRoot}/app/assets/new_stylesheets")
+  source("${project.railsRoot}/.stylelintrc.yml")
 }
 
 tasks.register('eslintold', YarnRunTask) {
@@ -34,36 +34,34 @@ tasks.register('eslintold', YarnRunTask) {
   workingDir = project.railsRoot
 
   yarnCommand = ['eslintold']
-  source(project.file("${project.railsRoot}/app/assets/javascripts"))
-  source(project.file("${project.railsRoot}/spec/javascripts"))
-  source(project.file("${project.railsRoot}/.eslintrc-old.json"))
+  source("${project.railsRoot}/app/assets/javascripts")
+  source("${project.railsRoot}/spec/javascripts")
+  source("${project.railsRoot}/.eslintrc-old.json")
 }
 
 tasks.register('eslint', YarnRunTask) {
   description = "Run ESLint"
   dependsOn 'yarnInstall'
-  dependsOn 'generateJSRoutes'
 
   workingDir = project.railsRoot
 
   yarnCommand = ['eslint']
-  source(project.file("${project.railsRoot}/webpack"))
-  source(project.file("${project.railsRoot}/spec/webpack"))
-  source(project.file("${project.railsRoot}/app/assets/new_stylesheets"))
-  source(project.file("${project.railsRoot}/.eslintrc.json"))
+  source(fileTree("${project.railsRoot}/webpack", { exclude '**/gen/**' }))
+  source("${project.railsRoot}/spec/webpack")
+  source("${project.railsRoot}/app/assets/new_stylesheets")
+  source("${project.railsRoot}/.eslintrc.json")
 }
 
 tasks.register('tslint', YarnRunTask) {
   description = "Run TSLint"
   dependsOn 'yarnInstall'
-  dependsOn 'generateJSRoutes'
 
   workingDir = project.railsRoot
 
   yarnCommand = ['tslint']
-  source(project.file("${project.railsRoot}/webpack"))
-  source(project.file("${project.railsRoot}/spec/webpack"))
-  source(project.file("${project.railsRoot}/tslint.json"))
+  source(fileTree("${project.railsRoot}/webpack", { exclude '**/gen/**' }))
+  source("${project.railsRoot}/spec/webpack")
+  source("${project.railsRoot}/tslint.json")
 }
 
 tasks.register('lintNew') {

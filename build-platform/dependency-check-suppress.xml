@@ -303,8 +303,8 @@
 
   <suppress>
     <notes><![CDATA[
-    Suppress false positive from jline 2.14.16 embedded within jruby-complete. This issue appears to only apply to jline 3.x where 2.x is not vulnerable
-    after readin https://nvd.nist.gov/vuln/detail/CVE-2023-50572 and https://github.com/jline/jline3/issues/909 (different project to jline 2)
+    Suppress false positive from jline 2.14.16 embedded within jruby-complete/jruby-stdlib. This issue appears to only apply to jline 3.x where 2.x is not vulnerable
+    after reading https://nvd.nist.gov/vuln/detail/CVE-2023-50572 and https://github.com/jline/jline3/issues/909 (different project to jline 2)
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/jline/jline@2\..*$</packageUrl>
     <cve>CVE-2023-50572</cve>

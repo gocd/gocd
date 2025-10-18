@@ -22,6 +22,7 @@ abstract class ExecuteUnderRailsTask extends JRuby {
   ExecuteUnderRailsTask() {
     dependsOn(':server:initializeRailsGems')
     workingDir = project.railsRoot
+    classpath = classpath.filter { false } // Remove convenience jruby-jar and expect tasks to define their own classpath
   }
 
   @Override

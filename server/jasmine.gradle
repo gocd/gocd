@@ -28,7 +28,7 @@ Architecture currentArch = Architecture.current()
 // Firefox/gecko: See https://github.com/mozilla/geckodriver/releases and review compatibility at
 //                https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
 final Map<String, String> seleniumDrivers = [
-  chromedriver: '141.0.7390.76',
+  chromedriver: '141.0.7390.78',
   geckodriver : '0.36.0',
 ]
 

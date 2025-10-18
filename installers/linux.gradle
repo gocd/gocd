@@ -122,7 +122,7 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
   packageTask.with {
     dependsOn configuration, extractDeltaPack
     inputs.files(configuration)
-    inputs.files(extractDeltaPack.destinationDir)
+    inputs.dir(extractDeltaPack.destinationDir)
 
     def licenseSource = "${rootProject.projectDir}/LICENSE"
     inputs.file(licenseSource)

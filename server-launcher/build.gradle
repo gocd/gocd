@@ -52,7 +52,6 @@ dependencies {
 
   packagingInDefaultFilesDir project(path: ':agent-launcher', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':agent', configuration: 'fatJarConfig')
-  packagingInDefaultFilesDir project(path: ':server', configuration: 'warConfig')
   packagingInDefaultFilesDir project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
 
   packagingInLibDir project.deps.jetty

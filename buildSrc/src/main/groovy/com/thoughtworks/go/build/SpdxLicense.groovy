@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.build
 
-enum SpdxLicense {
+enum SpdxLicense implements License {
   GLIDE("Glide", "3dfx Glide License"),
   ABSTYLES("Abstyles", "Abstyles License"),
   AFL_1_1("AFL-1.1", "Academic Free License v1.1"),
@@ -340,12 +340,22 @@ enum SpdxLicense {
   ZPL_2_0("ZPL-2.0", "Zope Public License 2.0"),
   ZPL_2_1("ZPL-2.1", "Zope Public License 2.1")
 
-  public final Set<String> names
-  public final String id
+  private final String id
+  private final Set<String> names
 
   SpdxLicense(String id, String... names) {
-    this.names = names.collect { it -> it.toLowerCase() }
     this.id = id
+    this.names = names.collect { it -> it.toLowerCase() }
+  }
+
+  @Override
+  String getId() {
+    id
+  }
+
+  @Override
+  Set<String> getNames() {
+    names
   }
 
   static String normalizedLicense(String license) {

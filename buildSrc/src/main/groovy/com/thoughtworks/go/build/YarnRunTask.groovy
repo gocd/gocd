@@ -82,9 +82,9 @@ abstract class YarnRunTask extends DefaultTask {
 
   void setWorkingDir(Object workingDir) {
     this.workingDir = project.file(workingDir)
-    source(project.file("${getWorkingDir()}/package.json"))
-    source(project.file("${getWorkingDir()}/yarn.lock"))
-    source(project.file("${getWorkingDir()}/node_modules"))
+    source("${getWorkingDir()}/package.json")
+    source("${getWorkingDir()}/yarn.lock")
+    source("${getWorkingDir()}/node_modules")
   }
 
   void source(Object... sources) {

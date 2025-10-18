@@ -50,12 +50,12 @@ class YarnInstallTask extends DefaultTask {
 
   void setWorkingDir(File workingDir) {
     this.workingDir = workingDir
-    inputs.file(project.file("${getWorkingDir()}/package.json"))
-    inputs.file(project.file("${getWorkingDir()}/yarn.lock"))
-    inputs.file(project.file("${getWorkingDir()}/.yarnrc.yml"))
-    inputs.dir(project.file("${getWorkingDir()}/.yarn/patches"))
-    inputs.dir(project.file("${getWorkingDir()}/.yarn/plugins"))
-    inputs.dir(project.file("${getWorkingDir()}/.yarn/releases"))
+    inputs.file("${getWorkingDir()}/package.json")
+    inputs.file("${getWorkingDir()}/yarn.lock")
+    inputs.file("${getWorkingDir()}/.yarnrc.yml")
+    inputs.dir("${getWorkingDir()}/.yarn/patches")
+    inputs.dir("${getWorkingDir()}/.yarn/plugins")
+    inputs.dir("${getWorkingDir()}/.yarn/releases")
   }
 
   @TaskAction

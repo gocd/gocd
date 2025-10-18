@@ -14,20 +14,9 @@
  * limitations under the License.
  */
 
-plugins {
-  id 'groovy'
-}
+package com.thoughtworks.go.build
 
-repositories {
-  gradlePluginPortal()
-  mavenCentral()
-}
-
-dependencies {
-  implementation localGroovy()
-  implementation gradleApi()
-  implementation 'de.undercouch:gradle-download-task:5.6.0'
-  implementation 'com.github.jk1.dependency-license-report:com.github.jk1.dependency-license-report.gradle.plugin:2.9'
-  implementation 'org.ysb33r.gradle:grolifant-herd:4.0.0'
-  implementation 'org.freemarker:freemarker:2.3.34'
+interface License {
+  Set<String> getNames()
+  String getId()
 }

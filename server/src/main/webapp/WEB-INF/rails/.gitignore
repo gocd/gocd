@@ -4,16 +4,25 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
-# Ignore the default SQLite database.
-/db/*.sqlite3
-/db/*.sqlite3-journal
+# Ignore packages
+/node_modules/
+/gems/jruby/
+
+# Ignore generated resources
+/public/assets/
+/webpack/gen/
+/yarn-license-report/
+
+# Ignore tests outputs
+/db/config.git/
 /db/h2db/
 
 # Ignore all logfiles and tempfiles.
+/logs/
 /log/*.log
-/tmp
+/tmp/
 
-# Yarn 2 stuff
+# Yarn stuff
 .pnp.*
 .yarn/*
 !.yarn/patches

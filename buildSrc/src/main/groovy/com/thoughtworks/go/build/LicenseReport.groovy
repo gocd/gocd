@@ -16,10 +16,16 @@
 
 package com.thoughtworks.go.build
 
+import com.github.jk1.license.task.ReportTask
 import groovy.json.JsonSlurper
 import groovy.xml.MarkupBuilder
 import org.gradle.api.GradleException
-import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Provider
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -27,8 +33,9 @@ import static com.thoughtworks.go.build.NonSpdxLicense.*
 import static com.thoughtworks.go.build.SpdxLicense.*
 
 class LicenseReport {
+  private static final Logger LOGGER = Logging.getLogger(LicenseReport.class)
 
-  private static final Set<String> ALLOWED_LICENSES = [
+  private static final Set<String> ALLOWED_LICENSES = Set.<License>of(
     APACHE_1_1,
     APACHE_2_0,
     BSD_0,
@@ -56,30 +63,39 @@ class LicenseReport {
     PUBLIC_DOMAIN,
     RUBY,
     UNLICENSE,
-  ].collect { it.id }
+  ).collect { it.id }
 
-  @Deprecated
-  private final Project project
+  private final FileSystemOperations fileOps
+  private final ObjectFactory objectFactory
+
+  private final List<ReportTask> licenseReportTasks
   private final Map<String, Map<String, Object>> licensesForPackagedJarDependencies
-  private final AtomicInteger counter
+
   private final File yarnLicenseReport
-  private final File reportDir
+  private final Provider<Directory> reportDir
   private final File rubygemsLicenseReport
   private final GoVersions goVersions
 
-  LicenseReport(Project project, File reportDir, Map<String, Map<String, Object>> licensesForPackagedJarDependencies, File yarnLicenseReport, File rubygemsLicenseReport) {
+  private final AtomicInteger counter
+
+  LicenseReport(FileSystemOperations fileOps, ObjectFactory objectFactory,
+                List<ReportTask> licenseReportTasks, Provider<Directory> reportDir,
+                Map<String, Map<String, Object>> licensesForPackagedJarDependencies,
+                File yarnLicenseReport, File rubygemsLicenseReport, GoVersions goVersions) {
+    this.fileOps = fileOps
+    this.objectFactory = objectFactory
+    this.licenseReportTasks = licenseReportTasks
     this.licensesForPackagedJarDependencies = licensesForPackagedJarDependencies
     this.reportDir = reportDir
-    this.project = project
     this.yarnLicenseReport = yarnLicenseReport
     this.rubygemsLicenseReport = rubygemsLicenseReport
+    this.goVersions = goVersions
+
     this.counter = new AtomicInteger(0)
-    this.goVersions = project.goVersions
   }
 
   String generate() {
-    def rootProject = project.rootProject
-    project.file("${reportDir}/index.html").withWriter { out ->
+    reportDir.get().file('index.html').asFile.withWriter { out ->
       def markup = new MarkupBuilder(out)
 
       out << "<!DOCTYPE html>\n"
@@ -94,19 +110,19 @@ class LicenseReport {
           div(class: "header", "Dependency License Report for GoCD ${goVersions.goVersion}")
 
           licensesForPackagedJarDependencies.each { String moduleName, Map<String, Object> moduleLicenseData ->
-            // find what project contains the specific module
-            def additionalFiles = []
-            def projectWithDependency = rootProject.subprojects.find { Project eachProject ->
-              if (!eachProject.hasProperty('licenseReport')) return false
-              additionalFiles = eachProject.fileTree("${eachProject.licenseReport.outputDir}/${moduleLicenseData.moduleName.split(':').first()}-${moduleLicenseData.moduleVersion}.jar")
-              !additionalFiles.isEmpty()
-            }
-
-            // copy the embedded license files next to the report dir
-            if (projectWithDependency != null) {
-              project.copy {
-                from project.file("${projectWithDependency.licenseReport.outputDir}/${moduleLicenseData.moduleName.split(':').first()}-${moduleLicenseData.moduleVersion}.jar")
-                into "${reportDir}/${moduleLicenseData.moduleName.split(':').first()}-${moduleLicenseData.moduleVersion}"
+            def moduleNameVersion = "${(moduleLicenseData.moduleName as String).split(':').first()}-${moduleLicenseData.moduleVersion}"
+            licenseReportTasks.collect {
+              // find a project which contains the specific module
+              rt ->
+                new File(rt.outputFolder, moduleNameVersion + ".jar")
+            }.findAll { dependencyLicenseDir ->
+              // Does it have special license files embedded within the jar?
+              !objectFactory.fileTree().from(dependencyLicenseDir).isEmpty()
+            }.each { File dependencyLicenseDir ->
+              // Collate them into the report dir
+              fileOps.copy {
+                from dependencyLicenseDir
+                into reportDir.get().dir(moduleNameVersion)
               }
             }
 
@@ -114,8 +130,8 @@ class LicenseReport {
           }
 
           new JsonSlurper().parse(this.yarnLicenseReport, "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
-            def yarnLicenseReportDir = project.file(this.yarnLicenseReport).parentFile
-            project.copy {
+            def yarnLicenseReportDir = this.yarnLicenseReport.parentFile
+            fileOps.copy {
               from "${yarnLicenseReportDir}/${moduleName}-${moduleLicenseData.moduleVersion}"
               into "${reportDir}/${moduleName}-${moduleLicenseData.moduleVersion}"
             }
@@ -161,7 +177,7 @@ class LicenseReport {
 
           if (moduleLicenseData.moduleLicenses != null && !moduleLicenseData.moduleLicenses.isEmpty()) {
 
-            checkIfLicensesAreAllowed(moduleLicenseData.moduleLicenses, moduleName, moduleLicenseData.moduleVersion)
+            checkIfLicensesAreAllowed(moduleLicenseData.moduleLicenses as List<Map<String, String>>, moduleName, moduleLicenseData.moduleVersion as String)
 
             p {
               strong("Manifest license(s):")
@@ -178,11 +194,11 @@ class LicenseReport {
             throw new GradleException("Missing license information for ${moduleName}:${moduleLicenseData.moduleVersion}")
           }
 
-          def embeddedLicenseFiles = project.fileTree("${reportDir}/${moduleName.split(':').first()}-${moduleLicenseData.moduleVersion}").files
+          def embeddedLicenseFiles = objectFactory.fileTree().from(reportDir.get().dir("${moduleName.split(':').first()}-${moduleLicenseData.moduleVersion}"))
           if (!embeddedLicenseFiles.isEmpty()) {
             p {
               strong("Embedded license file(s):")
-              def baseDir = project.file(reportDir)
+              def baseDir = reportDir.get().asFile
               embeddedLicenseFiles.each { File eachLicenseFile ->
                 def relativePath = baseDir.toURI().relativize(eachLicenseFile.toURI())
                 a(href: relativePath, relativePath)
@@ -194,27 +210,23 @@ class LicenseReport {
     }
   }
 
+  @SuppressWarnings('UnnecessaryQualifiedReference')
   private static String normalizeLicense(String license) {
     return SpdxLicense.normalizedLicense(license) ?: NonSpdxLicense.normalizedLicense(license) ?: license
   }
 
-  private checkIfLicensesAreAllowed(List<Map<String, String>> moduleLicenses, String moduleName, String moduleVersion) {
+  private static checkIfLicensesAreAllowed(List<Map<String, String>> moduleLicenses, String moduleName, String moduleVersion) {
     Set<String> licenseNames = moduleLicenses.collect { it.moduleLicense }
     Set<String> normalizedLicenseNames = licenseNames
       .collect { normalizeLicense(it) }
       .findAll { it != null }
 
-    def intersect = ALLOWED_LICENSES.intersect(normalizedLicenseNames, new Comparator<String>() {
-      @Override
-      int compare(String o1, String o2) {
-        return o1.toLowerCase() <=> o2.toLowerCase()
-      }
-    })
+    def intersect = ALLOWED_LICENSES.intersect(normalizedLicenseNames, { o1, o2 -> o1.toLowerCase() <=> o2.toLowerCase() })
 
     if (intersect.isEmpty()) {
       throw new GradleException("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' are not approved! Allowed licenses are:\n${ALLOWED_LICENSES.collect{"  - ${it}"}.join("\n")}")
     } else {
-      project.logger.debug("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' is approved because of ${intersect}")
+      LOGGER.debug("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' is approved because of ${intersect}")
     }
   }
 

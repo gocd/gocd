@@ -5,7 +5,7 @@ export PATH="${additionalJRubyPaths.join(File.pathSeparator)}:\$PATH"
 
 argv=()
 jvm_args=()
-combined_classpath="${classpath.join(':')}"
+combined_classpath="${classpath.join(File.pathSeparator)}"
 watch_for_classpath=0
 
 for arg in "\$@"; do

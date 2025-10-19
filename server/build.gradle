@@ -15,12 +15,11 @@
  */
 
 import com.github.jk1.license.task.ReportTask
+import com.thoughtworks.go.build.GoVersions
 import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.TextUtils
 import com.thoughtworks.go.build.VerifyJarTask
 import groovy.json.JsonSlurper
-
-import static com.thoughtworks.go.build.JRuby.bundledGemRubyVersion
 
 description = 'GoCD Server'
 
@@ -36,32 +35,33 @@ sourceSets {
 }
 
 configurations {
-  integrationTestImplementation.extendsFrom testImplementation
-
-  warConfig
-
-  copyOnly {
-    transitive = false
-  }
-
-  copyOnlyTestData {
-    transitive = false
-  }
-
-  apiBase
-  allApis
-  spark
+  jruby { canBeResolved = true; canBeConsumed = false }
+  implementation.extendsFrom jruby
+  spark { canBeResolved = true; canBeConsumed = false }
+  apiBase { canBeResolved = true; canBeConsumed = false }
+  allApis { canBeResolved = true; canBeConsumed = false }
 
   railsRuntimeClasspath {
     extendsFrom runtimeClasspath
     extendsFrom spark
     extendsFrom apiBase
+
+    canBeResolved = true
+    canBeConsumed = false
   }
 
   railsTestRuntimeClasspath {
     extendsFrom railsRuntimeClasspath
     extendsFrom testRuntimeClasspath
+
+    canBeResolved = true
+    canBeConsumed = false
   }
+
+  integrationTestImplementation.extendsFrom testImplementation
+
+  copyOnly { canBeResolved = true; canBeConsumed = false; transitive = false }
+  copyOnlyTestData { canBeResolved = true; canBeConsumed = false; transitive = false }
 }
 
 def webAppDir = file("src/main/webapp")
@@ -129,7 +129,7 @@ dependencies {
   implementation project.deps.jdom
   implementation project.deps.dom4j
 
-  implementation project.deps.jruby
+  jruby project.deps.jruby
   runtimeOnly project.deps.rack
   implementation project.deps.apacheHttpComponents
 
@@ -433,9 +433,6 @@ tasks.register('configureWar') {
   dependsOn findGemsToNotPack
   dependsOn ':server:compileAssets'
 
-  inputs.properties([
-    bundledGemRubyVersion: bundledGemRubyVersion
-  ])
   inputs.dir(webAppDir)
 
   doFirst {
@@ -476,13 +473,13 @@ tasks.register('configureWar') {
       exclude("**/rails/webpack/")
 
       // Unnecessary Gems and related cruft
-      exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/bin/")
-      exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/bundler/")
-      exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/cache/")
-      new JsonSlurper().parse(findGemsToNotPack.outputFile).each { gem ->
-        theSpec.exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/gems/${gem}")
-        theSpec.exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/specifications/${gem}.gemspec")
-        theSpec.exclude("**/rails/gems/jruby/${bundledGemRubyVersion}/extensions/**/${gem}")
+      exclude("**/rails/gems/jruby/*/bin/")
+      exclude("**/rails/gems/jruby/*/bundler/")
+      exclude("**/rails/gems/jruby/*/cache/")
+      new JsonSlurper().parse(findGemsToNotPack.outputs.files.singleFile).each { gem ->
+        theSpec.exclude("**/rails/gems/jruby/*/gems/${gem}")
+        theSpec.exclude("**/rails/gems/jruby/*/specifications/${gem}.gemspec")
+        theSpec.exclude("**/rails/gems/jruby/*/extensions/**/${gem}")
       }
     }
   }
@@ -566,7 +563,13 @@ tasks.register('verifyWar', VerifyJarTask) {
         "ant-${project.versions.apacheAnt}.jar",
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
+        "asm-9.7.1.jar",
+        "asm-analysis-9.7.1.jar",
+        "asm-commons-9.7.1.jar",
+        "asm-tree-9.7.1.jar",
+        "asm-util-9.7.1.jar",
         "aspectjweaver-${project.versions.aspectj}.jar",
+        "backport9-1.13.jar",
         "base-${project.version}.jar",
         "bucket4j_jdk17-core-${project.versions.bucket4j}.jar",
         "bucket4j-caffeine-${project.versions.bucket4jCaffeine}.jar",
@@ -585,12 +588,14 @@ tasks.register('verifyWar', VerifyJarTask) {
         "commons-pool2-${project.versions.commonsPool}.jar",
         "config-api-${project.version}.jar",
         "config-server-${project.version}.jar",
+        "crac-1.5.0.jar",
         "db-${project.version}.jar",
         "db-migration-${project.version}.jar",
         "db-support-base-${project.version}.jar",
         "db-support-h2-${project.version}.jar",
         "db-support-mysql-${project.version}.jar",
         "db-support-postgresql-${project.version}.jar",
+        "dirgra-0.3.jar",
         "dom4j-${project.versions.dom4j}.jar",
         "domain-${project.version}.jar",
         "ehcache-core-${project.versions.ehcache}.jar",
@@ -612,6 +617,7 @@ tasks.register('verifyWar', VerifyJarTask) {
         "httpclient-${project.versions.apacheHttpComponents}.jar",
         "httpcore-4.4.16.jar",
         "httpmime-${project.versions.apacheHttpComponents}.jar",
+        "invokebinder-1.13.jar",
         "istack-commons-runtime-4.1.2.jar",
         "jackson-annotations-${project.versions.jacksonBom.replaceFirst(/\.\d+$/, '')}.jar",
         "jackson-core-${project.versions.jacksonBom}.jar",
@@ -629,17 +635,35 @@ tasks.register('verifyWar', VerifyJarTask) {
         "jaxb-runtime-${project.versions.jaxbBom}.jar",
         "jaxen-${project.versions.jaxen}.jar",
         "jcl-over-slf4j-${project.versions.slf4jBom}.jar",
+        "jcodings-1.0.63.jar",
         "jdom2-${project.versions.jdom}.jar",
+        "jffi-1.3.13.jar",
+        "jffi-1.3.13-native.jar",
+        "jitescript-0.4.1.jar",
+        "jnr-a64asm-1.0.0.jar",
+        "jnr-constants-0.10.4.jar",
+        "jnr-enxio-0.32.18.jar",
+        "jnr-ffi-2.2.17.jar",
+        "jnr-netdb-1.2.0.jar",
+        "jnr-posix-3.1.20.jar",
+        "jnr-unixsocket-0.38.23.jar",
+        "jnr-x86asm-1.0.2.jar",
+        "joda-time-2.12.7.jar",
         "jolt-core-${project.versions.jolt}.jar",
-        "jruby-complete-${project.versions.jruby}.jar",
+        "joni-2.2.5.jar",
+        "jruby-${project.versions.jruby}.jar",
+        "jruby-base-${project.versions.jruby}.jar",
         "jruby-rack-${project.versions.rack}.jar",
+        "jruby-stdlib-${project.versions.jruby}.jar",
         "json-utils-${project.versions.jolt}.jar",
+        "jzlib-1.1.5.jar",
         "liquibase-core-${project.versions.liquibase}.jar",
         "liquibase-slf4j-${project.versions.liquibaseSlf4j}.jar",
         "mybatis-${project.versions.mybatis}.jar",
         "mybatis-spring-${project.versions.mybatisSpring}.jar",
         "mysql-connector-j-${project.versions.mysql}.jar",
         "objenesis-${project.versions.objenesis}.jar",
+        "options-1.6.jar",
         "org.apache.felix.framework-${project.versions.felix}.jar",
         "org.eclipse.jgit-${project.versions.jgit}.jar",
         "org.eclipse.jgit.http.server-${project.versions.jgit}.jar",
@@ -676,16 +700,22 @@ tasks.register('verifyWar', VerifyJarTask) {
 }
 
 tasks.register('licenseReportAggregate') {
-  rootProject.subprojects.each { eachProject ->
-    def reportTasks = eachProject.tasks.withType(ReportTask)
-    if (!reportTasks.isEmpty()) {
-      licenseReportAggregate.dependsOn reportTasks
-      licenseReportAggregate.inputs.dir(eachProject.licenseReport.outputDir)
-    }
-  }
-  dependsOn generateLicenseReport
+  def licenseReportTasks = rootProject.subprojects.collectMany { prj -> prj.tasks.withType(ReportTask) }
 
-  def licenseReportAggregateOutputDir = project.file("${layout.getBuildDirectory().get()}/reports/license-report-aggregate")
+  dependsOn(licenseReportTasks)
+  licenseReportTasks.each { rt -> inputs.dir(rt.outputFolder) }
+
+  dependsOn compileAssetsWebpackProd
+  dependsOn generateRubygemsLicenseReport
+
+  def yarnLicenseReportDir = (compileAssetsWebpackProd as Task).outputs.files.find { f -> f.name == 'yarn-license-prod' } as File
+  def rubygemsReportFile = (generateRubygemsLicenseReport as Task).outputs.files.singleFile
+  def goVersions = project.goVersions as GoVersions
+  inputs.dir(yarnLicenseReportDir)
+  inputs.file(rubygemsReportFile)
+  inputs.property('goVersions', goVersions)
+
+  def licenseReportAggregateOutputDir = layout.getBuildDirectory().dir('reports/license-report-aggregate') as Provider<Directory>
   outputs.dir(licenseReportAggregateOutputDir)
 
   LinkedHashSet<Map<String, Object>> missingLicenseData = [
@@ -733,6 +763,19 @@ tasks.register('licenseReportAggregate') {
       moduleVersion : project.versions.jolt,
       moduleUrls    : [
         "https://github.com/bazaarvoice/jolt"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'Apache-2.0',
+          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'com.github.jnr:jffi',
+      moduleVersion : '1.3.13-native',
+      moduleUrls    : [
+        "http://github.com/jnr/jffi "
       ],
       moduleLicenses: [
         [
@@ -795,10 +838,9 @@ tasks.register('licenseReportAggregate') {
 
   def getAllJarDependencies = {
     // get a list of all dependencies from each gradle module
-    def allDependenciesInReport = rootProject.subprojects.inject(new LinkedHashSet<Map<String, Object>>(), { result, eachProject ->
-      if (!eachProject.hasProperty('licenseReport')) return result
 
-      def file = eachProject.file("${eachProject.licenseReport.outputDir}/index.json")
+    def allDependenciesInReport = licenseReportTasks.inject(new LinkedHashSet<Map<String, Object>>(), { result, rt ->
+      def file = new File(rt.outputFolder, 'index.json')
       if (!file.exists()) return result
 
       def json = new JsonSlurper().parse(file) as Map<String, Object>
@@ -821,10 +863,10 @@ tasks.register('licenseReportAggregate') {
     allDependenciesInReport
   }
 
-  def getLicenseDataFor = { Set<String> allJars, allDependenciesInReport ->
-    allJars.inject([:], { Map<String, Map<String, Object>> result, String eachPackagedJar ->
+  def getLicenseDataFor = { Set<String> allJars, Set<Map<String, Object>> allDependenciesInReport ->
+    allJars.inject(new LinkedHashMap<String, Map<String, Object>>(), { result, eachPackagedJar ->
       Map<String, Object> module = allDependenciesInReport.find { Map<String, Object> eachDependencyInReport ->
-        def (_, artifactId) = eachDependencyInReport.moduleName.split(':')
+        def (_, artifactId) = (eachDependencyInReport.moduleName as String).split(':')
         def version = eachDependencyInReport.moduleVersion
         eachPackagedJar == "${artifactId}-${version}.jar"
       }
@@ -833,7 +875,7 @@ tasks.register('licenseReportAggregate') {
         throw new GradleException("Expected to find packaged jar ${eachPackagedJar} but was not found in the license report")
       }
 
-      result[module.moduleName] = module
+      result.put(module.moduleName as String, module)
       result
     })
   }
@@ -842,26 +884,29 @@ tasks.register('licenseReportAggregate') {
   doFirst {
     LinkedHashSet<Map<String, Object>> allDependenciesInReport = getAllJarDependencies()
 
-    List<VerifyJarTask> verifyJarTasks = rootProject.subprojects.collect { eachProject ->
+    List<VerifyJarTask> verifyJarTasks = rootProject.subprojects.collectMany { eachProject ->
       eachProject.tasks.withType(VerifyJarTask)
-    }.flatten()
+    }
 
     // list of all jars that we package
-    Set<String> allJars = verifyJarTasks.collect { VerifyJarTask eachTask ->
+    Set<String> allJars = verifyJarTasks.collectMany { VerifyJarTask eachTask ->
       eachTask.expectedJars.values().flatten()
-    }.flatten().collect { name -> name.toString() }.sort().unique()
+    }.collect { name -> name.toString() }.sort().unique()
 
     // remove unwanted stuff, mostly nested zip files and jars with GoCD package version
     allJars.removeIf { name -> name.endsWith(".zip") || name.endsWith("-${version}.jar") || name.contains("-${version}-") }
     allJars.removeAll(goCDJarsWithoutLicenses)
 
     // get the licenses corresponding to the jars we actually package.
-    Map<String, Map<String, Object>> licensesForPackagedJarDependencies = getLicenseDataFor(allJars, allDependenciesInReport)
+    def licensesForPackagedJarDependencies = getLicenseDataFor(allJars, allDependenciesInReport) as Map<String, Map<String, Object>>
 
     injected.fileOps.delete { delete(licenseReportAggregateOutputDir) }
-    licenseReportAggregateOutputDir.mkdirs()
+    licenseReportAggregateOutputDir.get().asFile.mkdirs()
 
-    def licenseReport = new LicenseReport(project, licenseReportAggregateOutputDir, licensesForPackagedJarDependencies, compileAssetsWebpackProd.ext.yarnLicenseReportFile, generateRubygemsLicenseReport.ext.licenseReportFile)
+    def licenseReport = new LicenseReport(
+      injected.fileOps, injected.objectFactory,
+      licenseReportTasks, licenseReportAggregateOutputDir, licensesForPackagedJarDependencies,
+      new File(yarnLicenseReportDir, 'license-report.json'), rubygemsReportFile, goVersions)
     licenseReport.generate()
   }
 }

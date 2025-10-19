@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
-<% print environment.collect { entry -> """export ${entry.key}='${entry.value}'""" }.join("\n") %>
 # add jruby and rubygem binstubs to PATH
 export PATH="${additionalJRubyPaths.join(File.pathSeparator)}:\$PATH"
 
 argv=()
 jvm_args=()
-combined_classpath="${jrubyJar}"
+combined_classpath="${classpath.join(':')}"
 watch_for_classpath=0
 
 for arg in "\$@"; do

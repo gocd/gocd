@@ -40,8 +40,6 @@ dependencies {
   }
   runtimeOnly project(':jetty')
   implementation project.deps.servletApi
-  runtimeOnly project.deps.jruby
-  implementation project.deps.rack
   implementation project.deps.slf4jApi
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')

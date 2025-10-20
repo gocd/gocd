@@ -133,7 +133,7 @@ class LicenseReport {
             def yarnLicenseReportDir = this.yarnLicenseReport.parentFile
             fileOps.copy {
               from "${yarnLicenseReportDir}/${moduleName}-${moduleLicenseData.moduleVersion}"
-              into "${reportDir}/${moduleName}-${moduleLicenseData.moduleVersion}"
+              into reportDir.get().dir("${moduleName}-${moduleLicenseData.moduleVersion}")
             }
 
             renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)

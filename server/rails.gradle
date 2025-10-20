@@ -101,7 +101,7 @@ tasks.register('findGemsToNotPack', JRuby) {
     OUTPUT_FILE   : outputFile.get(),
     BUNDLE_GEMFILE: gemfile,
   ]
-  args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
+  args = ['-S', 'bundle', 'exec', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
 }
 
 tasks.register('generateRubygemsLicenseReport', JRuby) {
@@ -120,7 +120,7 @@ tasks.register('generateRubygemsLicenseReport', JRuby) {
     OUTPUT_FILE   : outputFile.get(),
     BUNDLE_GEMFILE: gemfile,
   ]
-  args = ['-S', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
+  args = ['-S', 'bundle', 'exec', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
 }
 
 def yarnInstall = tasks.register('yarnInstall', YarnInstallTask) {

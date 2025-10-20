@@ -80,6 +80,9 @@ def initializeRailsGems = tasks.register('initializeRailsGems', JRuby) {
     // Avoid issues with jar-dependencies when running via jruby-as-jar https://github.com/jruby/jruby/issues/8886
     JARS_SKIP: 'true',
   ]
+  doLast {
+    ext.setProperty('bundledGemsPath', new File(bundlePath, 'jruby').listFiles().first())
+  }
 }
 
 tasks.register('findGemsToNotPack', JRuby) {
@@ -98,7 +101,7 @@ tasks.register('findGemsToNotPack', JRuby) {
     OUTPUT_FILE   : outputFile.get(),
     BUNDLE_GEMFILE: gemfile,
   ]
-  args = ['-S', 'bundle', 'exec', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
+  args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
 }
 
 tasks.register('generateRubygemsLicenseReport', JRuby) {
@@ -117,7 +120,7 @@ tasks.register('generateRubygemsLicenseReport', JRuby) {
     OUTPUT_FILE   : outputFile.get(),
     BUNDLE_GEMFILE: gemfile,
   ]
-  args = ['-S', 'bundle', 'exec', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
+  args = ['-S', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
 }
 
 def yarnInstall = tasks.register('yarnInstall', YarnInstallTask) {
@@ -171,7 +174,7 @@ def generateJSRoutes = tasks.register('generateJSRoutes', ExecuteUnderRailsTask)
     OUTPUT_DIR:   outputDir,
   )
 
-  args = ['-S', 'bundle', 'exec', 'rake', '--trace', 'generated_js']
+  args = ['-S', 'rake', '--trace', 'generated_js']
 
   doFirst {
     delete outputDir
@@ -239,7 +242,7 @@ def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnd
   ]
 
   // Don't clobber assets; use Gradle to do this so we can avoid clobbering webpack assets in same dir
-  args = ['-S', 'bundle', 'exec', 'rake', '--trace', 'assets:precompile']
+  args = ['-S', 'rake', '--trace', 'assets:precompile']
 
   doFirst {
     delete "${workingDir}/tmp"
@@ -266,7 +269,7 @@ tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
     'RAILS_GROUPS': 'assets',
   )
 
-  args = ['-S', 'bundle', 'exec', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
+  args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
 
   def injected = project.objects.newInstance(Injected)
   doFirst {
@@ -335,7 +338,7 @@ tasks.register('rspec', ExecuteUnderRailsTask) {
 
   maxHeapSize = '256m'
   jvmArgs += (InstallerType.server.jvmInternalAccessArgs - jvmArgs) // Add additional args not already needed by JRuby alone
-  args = ['-S', 'bundle', 'exec', 'rspec', '--backtrace']
+  args = ['-S', 'rspec', '--backtrace']
   if (project.hasProperty('opts')) {
     args += Commandline.translateCommandline(project.property('opts') as String)
   }

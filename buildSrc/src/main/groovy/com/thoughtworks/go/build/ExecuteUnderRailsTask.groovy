@@ -16,18 +16,33 @@
 
 package com.thoughtworks.go.build
 
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskAction
 
 abstract class ExecuteUnderRailsTask extends JRuby {
+  private Provider<File> bundledGemsPath
+
   ExecuteUnderRailsTask() {
-    dependsOn(':server:initializeRailsGems')
+    def initTask = project.tasks.named('initializeRailsGems')
+    dependsOn(initTask)
     workingDir = project.railsRoot
     classpath = classpath.filter { false } // Remove convenience jruby-jar and expect tasks to define their own classpath
+    bundledGemsPath = initTask.map { it.extensions.extraProperties['bundledGemsPath'] as File }
   }
 
   @Override
   @TaskAction
   void exec() {
+    // Can't seem to get bundle exec to work under Windows due to some combination of issues related to
+    // https://github.com/jruby/jruby/issues/6960. The easiest way seems to be to avoid bundle exec and just use rubygems directly
+    // with a bundler-managed GEM_HOME and GEM_PATH, which we do on Linux, Mac and Windows for consistency.
+    // The issue seems to be that the Windows `bin` generated are all `@jruby.exe "%~dpn0" %*` and ignores `RUBY` env
+    // or any other attempts. Since we do not install jruby executables this does not work.
+    environment += [
+      GEM_HOME: bundledGemsPath.get(),
+      GEM_PATH: bundledGemsPath.get(),
+    ]
+    additionalPaths += [new File(bundledGemsPath.get(), 'bin')] // Needed for rspec (under Windows with the above)
     super.exec()
   }
 }

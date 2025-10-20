@@ -80,9 +80,6 @@ def initializeRailsGems = tasks.register('initializeRailsGems', JRuby) {
     // Avoid issues with jar-dependencies when running via jruby-as-jar https://github.com/jruby/jruby/issues/8886
     JARS_SKIP: 'true',
   ]
-  doLast {
-    ext.setProperty('bundledGemsPath', new File(bundlePath, 'jruby').listFiles().first())
-  }
 }
 
 tasks.register('findGemsToNotPack', JRuby) {

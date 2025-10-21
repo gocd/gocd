@@ -19,16 +19,23 @@ import com.thoughtworks.go.server.database.migration.AbstractMigratorIntegration
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+
+import java.time.Duration;
 
 @Testcontainers
 @EnabledOnOs({OS.LINUX, OS.MAC})
 class DatabaseMigratorPostgreSQLTest extends AbstractMigratorIntegrationTest {
     @Container
-    private final JdbcDatabaseContainer<?> postgresqlContainer = new PostgreSQLContainer<>("postgres:18");
+    private final PostgreSQLContainer postgresqlContainer = new PostgreSQLContainer("postgres:18")
+        .waitingFor(new WaitAllStrategy()
+            .withStrategy(Wait.forLogMessage(".*database system is ready to accept connections.*\\s", 2))
+            .withStrategy(Wait.forListeningPort())
+            .withStartupTimeout(Duration.ofSeconds(60)));
 
     @Test
     void shouldMigrate() throws Exception {

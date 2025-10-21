@@ -96,8 +96,7 @@ public class TimeConverter {
         }
 
         if (dateTo.getTime() < dateFrom.getTime()) {
-            String dateString = getHumanReadableDate(dateFrom);
-            return new ConvertedTime(dateString);
+            return new ConvertedTime(getHumanReadableDate(dateFrom));
         } else {
             return getConvertedTime((dateTo.getTime() - dateFrom.getTime()) / 1000);
         }
@@ -105,22 +104,26 @@ public class TimeConverter {
 
     public static class ConvertedTime {
         private final String message;
-        private String code;
-        private long arguments;
+        private final String code;
+        private final long arguments;
 
-        public ConvertedTime(String code, long time, String message) {
+        public ConvertedTime(String message, String code, long time) {
             this.message = message;
             this.arguments = time;
             this.code = code;
         }
 
-        public ConvertedTime(String code, String message) {
-            this.message = message;
-            this.code = code;
+        public ConvertedTime(String message, String code) {
+            this(message, code, 0);
         }
 
         public ConvertedTime(String message) {
-            this.message = message;
+           this(message, null, 0);
+        }
+
+        @SuppressWarnings("unused") // May be needed for JSON serialization?
+        public Object[] getArguments() {
+            return new Long[]{arguments};
         }
 
         /**
@@ -128,7 +131,12 @@ public class TimeConverter {
          */
         public ConvertedTime argument(long time) {
             String newMessage = Strings.CS.replace(message, "$time", String.valueOf(time));
-            return new ConvertedTime(code, time, newMessage);
+            return new ConvertedTime(newMessage, code, time);
+        }
+
+        @SuppressWarnings("unused") // May be needed for JSON serialization?
+        public String getDefaultMessage() {
+            return message;
         }
 
         @Override
@@ -145,7 +153,7 @@ public class TimeConverter {
 
         @Override
         public String toString() {
-            return message;
+            return getDefaultMessage();
         }
     }
 

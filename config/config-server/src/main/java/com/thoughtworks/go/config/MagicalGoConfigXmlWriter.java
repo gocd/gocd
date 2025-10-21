@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -121,7 +122,7 @@ public class MagicalGoConfigXmlWriter {
             XmlUtils.writeXml(element, output);
             // FIXME the lack of charset here looks rather suspicious. But unclear how to fix without possible regressions.
             // Related to similar issue in GoConfigMigration?
-            return output.toString();
+            return output.toString(Charset.defaultCharset());
         } catch (IOException e) {
             throw bomb("Unable to write xml to String");
         }

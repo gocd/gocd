@@ -132,13 +132,14 @@ public class JobInstanceModelTest {
         assertThat(scheduledJob(300, 0).getElapsedTimeForDisplay()).isEqualTo("");
         assertThat(scheduledJob(0, 0).getElapsedTimeForDisplay()).isEqualTo("");
 
-        assertThat(buildingJob(301_000, 0).getElapsedTimeForDisplay()).isEqualTo("5 minutes and 1 second");
-        assertThat(buildingJob(1_230_000, 0).getElapsedTimeForDisplay()).isEqualTo("20 minutes and 30 seconds");
+        assertThat(buildingJob(301_000, 0).getElapsedTimeForDisplay()).isEqualTo("5 minutes 1 second");
+        assertThat(buildingJob(300_000, 0).getElapsedTimeForDisplay()).isEqualTo("5 minutes");
+        assertThat(buildingJob(1_230_000, 0).getElapsedTimeForDisplay()).isEqualTo("20 minutes 30 seconds");
         assertThat(buildingJob(300, 0).getElapsedTimeForDisplay()).isEqualTo("1 second");
         assertThat(buildingJob(0, 0).getElapsedTimeForDisplay()).isEqualTo("1 second");
 
-        assertThat(completeJob(301_000, 0).getElapsedTimeForDisplay()).isEqualTo("5 minutes and 1 second");
-        assertThat(completeJob(1_230_000, 0).getElapsedTimeForDisplay()).isEqualTo("20 minutes and 30 seconds");
+        assertThat(completeJob(301_000, 0).getElapsedTimeForDisplay()).isEqualTo("5 minutes 1 second");
+        assertThat(completeJob(1_230_000, 0).getElapsedTimeForDisplay()).isEqualTo("20 minutes 30 seconds");
         assertThat(completeJob(300, 0).getElapsedTimeForDisplay()).isEqualTo("1 second");
         assertThat(completeJob(0, 0).getElapsedTimeForDisplay()).isEqualTo("1 second");
     }

@@ -17,22 +17,13 @@ package com.thoughtworks.go.server.ui;
 
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
-import org.joda.time.Duration;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class StageSummaryModel {
-    public static final PeriodFormatter PERIOD_FORMATTER = new PeriodFormatterBuilder()
-        .printZeroAlways()
-        .minimumPrintedDigits(2)
-        .appendHours().appendSeparator(":")
-        .appendMinutes().appendSeparator(":")
-        .appendSeconds().toFormatter();
-
     private final Stage stage;
     private final Stages stages;
     private final JobDurationStrategy jobDurationStrategy;
@@ -102,7 +93,7 @@ public class StageSummaryModel {
     }
 
     public String getDuration() {
-        return stage.getDuration().duration(dur -> PERIOD_FORMATTER.print(Duration.standardSeconds(dur.toSeconds()).toPeriod()));
+        return stage.getDuration().duration(dur -> DurationFormatUtils.formatDuration(dur.toMillis(), "HH:mm:ss"));
     }
 
     public RunDuration.ActualDuration getActualDuration() {

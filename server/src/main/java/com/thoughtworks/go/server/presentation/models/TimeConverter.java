@@ -16,94 +16,58 @@
 package com.thoughtworks.go.server.presentation.models;
 
 import org.apache.commons.lang3.Strings;
-import org.joda.time.Days;
-import org.joda.time.Hours;
-import org.joda.time.Minutes;
-import org.joda.time.Seconds;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static java.time.temporal.ChronoUnit.*;
+
 public class TimeConverter {
-    static final int HOUR_IN_SECONDS = 60 * 60;
+    static final ConvertedTime OVER_X_YEARS_AGO = new ConvertedTime("label.over.x.years", "over $time years ago");
+    static final ConvertedTime ABOUT_1_YEAR_AGO = new ConvertedTime("label.about.1.year", "about 1 year ago");
+    static final ConvertedTime ABOUT_X_MONTHS_AGO = new ConvertedTime("label.x.months", "$time months ago");
+    static final ConvertedTime ABOUT_1_MONTH_AGO = new ConvertedTime("label.1.month", "about 1 month ago");
+    static final ConvertedTime ABOUT_X_DAYS_AGO = new ConvertedTime("label.x.days", "$time days ago");
+    static final ConvertedTime ABOUT_1_DAY_AGO = new ConvertedTime("label.1.day", "1 day ago");
+    static final ConvertedTime ABOUT_X_HOURS_AGO = new ConvertedTime("label.x.hours", "about $time hours ago");
+    static final ConvertedTime ABOUT_1_HOUR_AGO = new ConvertedTime("label.1.hour", "about 1 hour ago");
+    static final ConvertedTime ABOUT_X_MINUTES_AGO = new ConvertedTime("label.x.minutes", "$time minutes ago");
+    static final ConvertedTime ABOUT_1_MINUTE_AGO = new ConvertedTime("label.1.minute", "1 minute ago");
+    static final ConvertedTime LESS_THAN_A_MINUTE_AGO = new ConvertedTime("label.less.1.minute", "less than a minute ago");
+    static final ConvertedTime NOT_AVAILABLE = new TimeConverter.ConvertedTime("N/A");
 
-    static final int DAY_IN_SECONDS = 24 * 60 * 60;
+    private static final DateTimeFormatter DATE_FORMATTER_WITH_TIME_ZONE = DateTimeFormatter.ofPattern("dd MMM, yyyy 'at' HH:mm:ss [Z]");
 
-    static final int MONTH_IN_SECONDS = 30 * DAY_IN_SECONDS;
-
-    static final int YEAR_IN_SECONDS = 365 * DAY_IN_SECONDS;
-
-    public static final ConvertedTime OVER_X_YEARS_AGO = new ConvertedTime("label.over.x.years",
-            "over $time years ago");
-
-    public static final ConvertedTime ABOUT_1_YEAR_AGO = new ConvertedTime("label.about.1.year", "about 1 year ago");
-
-    public static final ConvertedTime ABOUT_X_MONTHS_AGO = new ConvertedTime("label.x.months",
-            "$time months ago");
-
-    public static final ConvertedTime ABOUT_1_MONTH_AGO =
-            new ConvertedTime("label.1.month", "about 1 month ago");
-
-    public static final ConvertedTime ABOUT_X_DAYS_AGO = new ConvertedTime("label.x.days",
-            "$time days ago");
-
-    public static final ConvertedTime ABOUT_1_DAY_AGO = new ConvertedTime("label.1.day", "1 day ago");
-
-    public static final ConvertedTime ABOUT_X_HOURS_AGO = new ConvertedTime("label.x.hours",
-            "about $time hours ago");
-
-    public static final ConvertedTime ABOUT_1_HOUR_AGO = new ConvertedTime("label.1.hour", "about 1 hour ago");
-
-    public static final ConvertedTime ABOUT_X_MINUTES_AGO = new ConvertedTime("label.x.minutes",
-            "$time minutes ago");
-
-    public static final ConvertedTime ABOUT_1_MINUTE_AGO = new ConvertedTime("label.1.minute", "1 minute ago");
-
-    public static final ConvertedTime LESS_THAN_A_MINUTE_AGO = new ConvertedTime("label.less.1.minute",
-            "less than a minute ago");
-
-    public static final DateTimeFormatter dateFormatterWithTimeZone = DateTimeFormatter.ofPattern("dd MMM, yyyy 'at' HH:mm:ss [Z]");
-
-    private static final Map<Seconds, ConvertableTime> RULES = new LinkedHashMap<>();
-
+    private static final Map<Duration, ConvertableTime> RULES = new LinkedHashMap<>();
     static {
-        RULES.put(Seconds.seconds(29), new TimeConverter.LessThanAMinute());
-        RULES.put(Minutes.minutes(1).toStandardSeconds().plus(Seconds.seconds(29)),
-                new TimeConverter.AboutOneMinute());
-        RULES.put(Minutes.minutes(44).toStandardSeconds().plus(Seconds.seconds(29)),
-                new TimeConverter.From2To44Minutes());
-        RULES.put(Minutes.minutes(89).toStandardSeconds().plus(Seconds.seconds(29)),
-                new TimeConverter.AboutOneHour());
-        RULES.put(Hours.hours(23).toStandardMinutes().plus(Minutes.minutes(59)).toStandardSeconds().plus(
-                Seconds.seconds(29)), new TimeConverter.About2To24Hours());
-        RULES.put(Hours.hours(47).toStandardMinutes().plus(Minutes.minutes(59)).toStandardSeconds().plus(
-                Seconds.seconds(29)), new TimeConverter.AboutOneDay());
-        RULES.put(Days.days(29).toStandardHours().plus(Hours.hours(23)).toStandardMinutes().plus(
-                Minutes.minutes(59)).toStandardSeconds().plus(Seconds.seconds(29)),
-                new TimeConverter.From2To29Days());
-        RULES.put(Days.days(59).toStandardHours().plus(Hours.hours(23)).toStandardMinutes().plus(
-                Minutes.minutes(59)).toStandardSeconds().plus(Seconds.seconds(29)),
-                new TimeConverter.AboutOneMonth());
-        RULES.put(Days.days(365).toStandardSeconds().minus(Seconds.seconds(31)),
-                new TimeConverter.From2To12Month());
-        RULES.put(Days.days(730).toStandardSeconds().minus(Seconds.seconds(31)),
-                new TimeConverter.AboutOneYear());
+        RULES.put(Duration.ofMinutes(1).minusSeconds(31), new TimeConverter.LessThanAMinute());
+        RULES.put(Duration.ofMinutes(2).minusSeconds(31), new TimeConverter.AboutOneMinute());
+        RULES.put(Duration.ofMinutes(45).minusSeconds(31), new TimeConverter.From2To44Minutes());
+        RULES.put(Duration.ofMinutes(90).minusSeconds(31), new TimeConverter.AboutOneHour());
+        RULES.put(Duration.ofDays(1).minusSeconds(31), new TimeConverter.About2To24Hours());
+        RULES.put(Duration.ofDays(2).minusSeconds(31), new TimeConverter.AboutOneDay());
+        RULES.put(Duration.ofDays(30).minusSeconds(31), new TimeConverter.From2To29Days());
+        RULES.put(Duration.ofDays(60).minusSeconds(31), new TimeConverter.AboutOneMonth());
+        RULES.put(Duration.ofDays(365).minusSeconds(31), new TimeConverter.From2To12Month());
+        RULES.put(Duration.ofDays(730).minusSeconds(31), new TimeConverter.AboutOneYear());
     }
 
-    public ConvertedTime getConvertedTime(long duration) {
-        Set<Seconds> keys = RULES.keySet();
-        for (Seconds seconds : keys) {
-            if (duration <= seconds.getSeconds()) {
-                return RULES.get(seconds).getConvertedTime(duration);
-            }
-        }
-        return new TimeConverter.OverTwoYears().getConvertedTime(duration);
+    public ConvertedTime getConvertedTime(long durationSeconds) {
+        return RULES.entrySet()
+            .stream()
+            .filter(entry -> durationSeconds <= entry.getKey().toSeconds())
+            .findFirst()
+            .map(Map.Entry::getValue)
+            .orElseGet(OverTwoYears::new)
+            .getConvertedTime(durationSeconds);
     }
 
     public ConvertedTime getConvertedTime(Date dateFrom) {
-        return dateFrom == null ? ConvertedTime.NOT_AVAILABLE : getConvertedTime(dateFrom, new Date());
+        return dateFrom == null ? NOT_AVAILABLE : getConvertedTime(dateFrom, new Date());
     }
 
     public static String getHumanReadableDate(Date date) {
@@ -117,20 +81,20 @@ public class TimeConverter {
     }
 
     public String getHumanReadableStringWithTimeZone(Date date) {
-        return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : dateFormatterWithTimeZone.format(date.toInstant().atZone(ZoneId.systemDefault()));
+        return date == null ? NOT_AVAILABLE.toString() : DATE_FORMATTER_WITH_TIME_ZONE.format(date.toInstant().atZone(ZoneId.systemDefault()));
     }
 
-    public ConvertedTime getConvertedTime(Date dateLogFileGenerated, Date dateCheckTheDuration) {
-        if (dateCheckTheDuration.getTime() < dateLogFileGenerated.getTime()) {
-            String dateString = getHumanReadableDate(dateLogFileGenerated);
+    @VisibleForTesting
+    ConvertedTime getConvertedTime(Date start, Date end) {
+        if (end.getTime() < start.getTime()) {
+            String dateString = getHumanReadableDate(start);
             return new ConvertedTime(dateString);
         } else {
-            return getConvertedTime((dateCheckTheDuration.getTime() - dateLogFileGenerated.getTime()) / 1000);
+            return getConvertedTime((end.getTime() - start.getTime()) / 1000);
         }
     }
 
     public static class ConvertedTime {
-        public static final ConvertedTime NOT_AVAILABLE = new TimeConverter.ConvertedTime("N/A");
         private final String message;
         private String code;
         private long arguments;
@@ -168,24 +132,14 @@ public class TimeConverter {
 
         @Override
         public int hashCode() {
-            return super.hashCode();
+            return Objects.hash(message, code, arguments);
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof ConvertedTime other)) {
-                return false;
-            }
-
-            boolean eq = true;
-            eq &= Objects.equals(code, other.code);
-            eq &= Objects.equals(arguments, other.arguments);
-            eq &= Objects.equals(message, other.message);
-
-            return eq;
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            ConvertedTime that = (ConvertedTime) o;
+            return arguments == that.arguments && Objects.equals(message, that.message) && Objects.equals(code, that.code);
         }
 
         @Override
@@ -195,43 +149,43 @@ public class TimeConverter {
     }
 
     interface ConvertableTime {
-        ConvertedTime getConvertedTime(long duration);
+        ConvertedTime getConvertedTime(long durationSeconds);
     }
 
     static class LessThanAMinute implements ConvertableTime {
 
         @Override
-        public ConvertedTime getConvertedTime(long duration) {
+        public ConvertedTime getConvertedTime(long durationSeconds) {
             return LESS_THAN_A_MINUTE_AGO;
         }
     }
 
     static class AboutOneMinute implements ConvertableTime {
         @Override
-        public ConvertedTime getConvertedTime(long duration) {
+        public ConvertedTime getConvertedTime(long durationSeconds) {
             return ABOUT_1_MINUTE_AGO;
         }
     }
 
     static class From2To44Minutes implements ConvertableTime {
         @Override
-        public ConvertedTime getConvertedTime(long duration) {
-            long time = (duration + 30) / 60;
+        public ConvertedTime getConvertedTime(long durationSeconds) {
+            long time = (durationSeconds + 30) / 60;
             return ABOUT_X_MINUTES_AGO.argument(time);
         }
     }
 
     static class AboutOneHour implements ConvertableTime {
         @Override
-        public ConvertedTime getConvertedTime(long duration) {
+        public ConvertedTime getConvertedTime(long durationSeconds) {
             return ABOUT_1_HOUR_AGO;
         }
     }
 
     static class About2To24Hours implements ConvertableTime {
         @Override
-        public ConvertedTime getConvertedTime(long duration) {
-            long hours = (duration + 30 * 60 + 30) / TimeConverter.HOUR_IN_SECONDS;
+        public ConvertedTime getConvertedTime(long durationSeconds) {
+            long hours = (durationSeconds + 30 * 60 + 30) / Duration.ofHours(1).toSeconds();
             long time = hours >= 23 ? 23 : hours;
             return ABOUT_X_HOURS_AGO.argument(time);
 
@@ -240,47 +194,45 @@ public class TimeConverter {
 
     static class AboutOneDay implements ConvertableTime {
         @Override
-        public ConvertedTime getConvertedTime(long duration) {
+        public ConvertedTime getConvertedTime(long durationSeconds) {
             return ABOUT_1_DAY_AGO;
         }
     }
 
     static class From2To29Days implements ConvertableTime {
         @Override
-        public ConvertedTime getConvertedTime(long duration) {
-            long time = (duration + 30) / TimeConverter.DAY_IN_SECONDS;
+        public ConvertedTime getConvertedTime(long durationSeconds) {
+            long time = (durationSeconds + 30) / Duration.ofDays(1).toSeconds();
             return ABOUT_X_DAYS_AGO.argument(time);
         }
     }
 
     static class AboutOneMonth implements ConvertableTime {
         @Override
-        public ConvertedTime getConvertedTime(long duration) {
+        public ConvertedTime getConvertedTime(long durationSeconds) {
             return ABOUT_1_MONTH_AGO;
         }
     }
 
     static class From2To12Month implements ConvertableTime {
         @Override
-        public ConvertedTime getConvertedTime(long duration) {
-            long time = (duration + 30) / TimeConverter.MONTH_IN_SECONDS;
+        public ConvertedTime getConvertedTime(long durationSeconds) {
+            long time = (durationSeconds + 30) / Duration.of(30, DAYS).toSeconds();
             return ABOUT_X_MONTHS_AGO.argument(time);
         }
     }
 
     static class AboutOneYear implements ConvertableTime {
         @Override
-        public ConvertedTime getConvertedTime(long duration) {
+        public ConvertedTime getConvertedTime(long durationSeconds) {
             return ABOUT_1_YEAR_AGO;
         }
-
     }
 
     static class OverTwoYears implements ConvertableTime {
         @Override
-        public ConvertedTime getConvertedTime(long duration) {
-            long time = (duration + 30)
-                    / TimeConverter.YEAR_IN_SECONDS;
+        public ConvertedTime getConvertedTime(long durationSeconds) {
+            long time = (durationSeconds + 30) / Duration.of(365, DAYS).toSeconds();
             return OVER_X_YEARS_AGO.argument(time);
         }
     }

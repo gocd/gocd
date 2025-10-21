@@ -36,7 +36,7 @@ sourceSets {
 
 configurations {
   jruby { canBeResolved = true; canBeConsumed = false }
-  implementation.extendsFrom jruby
+  runtimeOnly.extendsFrom jruby
   spark { canBeResolved = true; canBeConsumed = false }
   apiBase { canBeResolved = true; canBeConsumed = false }
   allApis { canBeResolved = true; canBeConsumed = false }

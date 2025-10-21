@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.ui;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
-import org.joda.time.format.PeriodFormat;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.time.Duration;
 import java.util.Comparator;
@@ -103,7 +103,7 @@ public class JobInstanceModel {
 
     public String getElapsedTimeForDisplay() {
         long seconds = getElapsedTime().toSeconds();
-        return seconds == 0 ? "" : PeriodFormat.getDefault().print(org.joda.time.Duration.standardSeconds(seconds).toPeriod());
+        return seconds == 0 ? "" : DurationFormatUtils.formatDurationWords(Duration.ofSeconds(seconds).toMillis(), true, true);
     }
 
     public boolean isCompleted() {

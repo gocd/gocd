@@ -22,9 +22,11 @@ import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
-import static com.thoughtworks.go.helper.StageMother.completedFailedStageInstance;
-import static com.thoughtworks.go.helper.StageMother.custom;
+import static com.thoughtworks.go.helper.StageMother.*;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StageSummaryModelTest {
@@ -32,7 +34,7 @@ public class StageSummaryModelTest {
 
     @Test
     public void shouldReturnInProgressWhenTheDurationIs0() {
-        Stage stage = StageMother.scheduledStage("pipeline-name", 1, "stage", 1, "job");
+        Stage stage = scheduledStage("pipeline-name", 1, "stage", 1, "job");
         StageSummaryModel stageSummaryModel = new StageSummaryModel(stage, new Stages(), JOB_DURATION_STRATEGY, null);
         assertThat(stageSummaryModel.getDuration()).isEqualTo("In Progress");
     }
@@ -42,6 +44,22 @@ public class StageSummaryModelTest {
         Stage stage = completedFailedStageInstance("pipeline-name", "stage", "job");
         StageSummaryModel stageSummaryModel = new StageSummaryModel(stage, new Stages(), JOB_DURATION_STRATEGY, null);
         assertThat(stageSummaryModel.getDuration()).isEqualTo("00:00:00");
+    }
+
+    @Test
+    public void shouldReturnFormattedPeriodForACompletedStage() {
+        Stage stage = StageMother.passedStageInstance("pipeline-name","stage","job",
+            Instant.now().plusSeconds(668));
+        StageSummaryModel stageSummaryModel = new StageSummaryModel(stage, new Stages(), JOB_DURATION_STRATEGY, null);
+        assertThat(stageSummaryModel.getDuration()).matches("00:11:0[78]");
+    }
+
+    @Test
+    public void shouldReturnFormattedPeriodForACompletedStageAboveOneDay() {
+        Stage stage = StageMother.passedStageInstance("pipeline-name","stage","job",
+            Instant.now().plus(1, ChronoUnit.DAYS).plus(2, HOURS).plusSeconds(668));
+        StageSummaryModel stageSummaryModel = new StageSummaryModel(stage, new Stages(), JOB_DURATION_STRATEGY, null);
+        assertThat(stageSummaryModel.getDuration()).matches("26:11:0[78]");
     }
 
     @Test

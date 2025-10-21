@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    mavenCentral()
+    mavenLocal()
+  }
+}
+
 rootProject.name = 'gocd'
 
 enableFeaturePreview('GROOVY_COMPILATION_AVOIDANCE')

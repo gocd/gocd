@@ -252,10 +252,8 @@ export class PipelineRunInfo {
   pipelineId: Stream<number>;
   label: Stream<string>;
   counterOrLabel: Stream<string>;
-  scheduledDate: Stream<string>;
   scheduledTimestamp: Stream<Date>;
   buildCauseBy: Stream<string>;
-  modificationDate: Stream<string>;
   materialRevisions: Stream<MaterialRevisions>;
   stages: Stream<Stages>;
   revision: Stream<string>;
@@ -264,10 +262,8 @@ export class PipelineRunInfo {
   constructor(pipelineId: number,
               label: string,
               counterOrLabel: string,
-              scheduled_date: string,
               scheduled_timestamp: Date,
               buildCauseBy: string,
-              modification_date: string,
               materialRevisions: MaterialRevisions,
               stages: Stages,
               revision: string,
@@ -275,10 +271,8 @@ export class PipelineRunInfo {
     this.pipelineId         = Stream(pipelineId);
     this.label              = Stream(label);
     this.counterOrLabel     = Stream(counterOrLabel);
-    this.scheduledDate      = Stream(scheduled_date);
     this.scheduledTimestamp = Stream(scheduled_timestamp);
     this.buildCauseBy       = Stream(buildCauseBy);
-    this.modificationDate   = Stream(modification_date);
     this.materialRevisions  = Stream(materialRevisions);
     this.stages             = Stream(stages);
     this.revision           = Stream(revision);
@@ -289,10 +283,8 @@ export class PipelineRunInfo {
     return new PipelineRunInfo(pipelineRunInfo.pipelineId,
       pipelineRunInfo.label,
       pipelineRunInfo.counterOrLabel,
-      pipelineRunInfo.scheduled_date,
       parseDate(pipelineRunInfo.scheduled_timestamp),
       pipelineRunInfo.buildCauseBy,
-      pipelineRunInfo.modification_date,
       MaterialRevisions.fromJSON(pipelineRunInfo.materialRevisions),
       Stages.fromJSON(pipelineRunInfo.stages),
       pipelineRunInfo.revision,

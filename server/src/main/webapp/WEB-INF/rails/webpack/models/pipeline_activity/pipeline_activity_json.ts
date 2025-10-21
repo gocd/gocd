@@ -77,9 +77,7 @@ export interface HistoryJSON {
   pipelineId: number;
   label: string;
   counterOrLabel: string;
-  scheduled_date: string;
   buildCauseBy: string;
-  modification_date: string;
   materialRevisions: MaterialRevisionJSON[];
   stages: StageJSON[];
   revision: string;

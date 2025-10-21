@@ -38,7 +38,6 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
     private final PipelinePauseInfo pipelinePauseInfo;
     private final PipelineConfig pipelineConfig;
     private final Pagination pagination;
-    private final TimeConverter timeConverter = new TimeConverter();
     private final boolean canForce;
     private final boolean hasForceBuildCause;
     private final PipelineHistoryGroups pipelineHistoryGroups;
@@ -151,10 +150,8 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
             jsonMap.put("pipelineId", item.getId());
             jsonMap.put("label", item.getLabel());
             jsonMap.put("counterOrLabel", item.getPipelineIdentifier().instanceIdentifier());
-            jsonMap.put("scheduled_date", timeConverter.getHumanReadableStringWithTimeZone(item.getScheduledDate()));
             jsonMap.put("scheduled_timestamp", item.getScheduledDate() != null ? item.getScheduledDate().getTime() : null);
             jsonMap.put("buildCauseBy", item.getApprovedByForDisplay());
-            jsonMap.put("modification_date", getModificationDate(item));
             jsonMap.put("materialRevisions", materialRevisionsJson(item));
             jsonMap.put("stages", stageHistoryAsJson(item, item.getStageHistory()));
             jsonMap.put("revision", item.getRevisionOfLatestModification());
@@ -170,12 +167,6 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         jsonVisitor.setIncludeModifiedFiles(false);
         item.getBuildCause().getMaterialRevisions().accept(jsonVisitor);
         return jsonVisitor.json();
-    }
-
-    // TODO #1234 - should not get latest modified date
-    private TimeConverter.ConvertedTime getModificationDate(PipelineInstanceModel item) {
-        Date mostRecentModificationDate = item.getBuildCause().getMaterialRevisions().getDateOfLatestModification();
-        return timeConverter.getConvertedTime(mostRecentModificationDate);
     }
 
     private List<Map<String, Object>> stageHistoryAsJson(PipelineInstanceModel pipelineInstanceModel, StageInstanceModels stageHistory) {

@@ -76,10 +76,8 @@ export class PipelineActivityData {
       pipelineId: 42,
       label: "1",
       counterOrLabel: "1",
-      scheduled_date: "22 Nov, 2019 at 1:5:59 [+0530]",
       scheduled_timestamp: 1574404139615,
       buildCauseBy: "Triggered by changes",
-      modification_date: "about 22 hours ago",
       revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
       comment: "Initial commit",
       materialRevisions: [this.materialRevision(), this.materialRevision()],
@@ -123,10 +121,8 @@ export class PipelineActivityData {
           pipelineId: 42,
           label: "1",
           counterOrLabel: "1",
-          scheduled_date: "22 Nov, 2019 at 1:5:59 [+0530]",
           scheduled_timestamp: 1574404139615,
           buildCauseBy: "Triggered by changes",
-          modification_date: "about 22 hours ago",
           revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
           comment: "",
           materialRevisions: [{
@@ -182,10 +178,8 @@ export class PipelineActivityData {
               pipelineId: -1,
               label: "unknown",
               counterOrLabel: "0",
-              scheduled_date: "N/A",
               scheduled_timestamp: null,
               buildCauseBy: "Triggered by null",
-              modification_date: "N/A",
               materialRevisions: [],
               stages: [
                 {
@@ -233,10 +227,8 @@ export class PipelineActivityData {
           pipelineId: 42,
           label: "1",
           counterOrLabel: "1",
-          scheduled_date: "22 Nov, 2019 at 1:5:59 [+0530]",
           scheduled_timestamp: 1574404139615,
           buildCauseBy: "Triggered by changes",
-          modification_date: "about 22 hours ago",
           revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
           comment: "Initial commit",
           materialRevisions: [{

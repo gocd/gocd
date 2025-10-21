@@ -20,16 +20,15 @@ import com.thoughtworks.go.server.database.migration.AbstractMigratorIntegration
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.mysql.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 @EnabledOnOs({OS.LINUX, OS.MAC})
 class DatabaseMigratorMySQLTest extends AbstractMigratorIntegrationTest {
-    @SuppressWarnings("resource")
     @Container
-    private final MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:8.4")
+    private final MySQLContainer mySQLContainer = new MySQLContainer("mysql:8.4")
             .withUsername("root")
             .withPassword("")
             .withCommand("--lower-case-table-names=1");

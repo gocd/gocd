@@ -103,22 +103,22 @@ public class TimeConverter {
     }
 
     public static class ConvertedTime {
-        private final String message;
         private final String code;
+        private final String message;
         private final long arguments;
 
-        public ConvertedTime(String message, String code, long time) {
-            this.message = message;
-            this.arguments = time;
+        public ConvertedTime(String code, String message, long durationSeconds) {
             this.code = code;
+            this.message = message;
+            this.arguments = durationSeconds;
         }
 
-        public ConvertedTime(String message, String code) {
-            this(message, code, 0);
+        public ConvertedTime(String code, String message) {
+            this(code, message, 0);
         }
 
         public ConvertedTime(String message) {
-           this(message, null, 0);
+           this(null, message, 0);
         }
 
         @SuppressWarnings("unused") // May be needed for JSON serialization?
@@ -131,10 +131,10 @@ public class TimeConverter {
          */
         public ConvertedTime argument(long time) {
             String newMessage = Strings.CS.replace(message, "$time", String.valueOf(time));
-            return new ConvertedTime(newMessage, code, time);
+            return new ConvertedTime(code, newMessage, time);
         }
 
-        @SuppressWarnings("unused") // May be needed for JSON serialization?
+        @SuppressWarnings("unused") // May be needed for JSON serialization? Used within JRuby
         public String getDefaultMessage() {
             return message;
         }
@@ -197,7 +197,6 @@ public class TimeConverter {
             long hours = (durationSeconds + 30 * 60 + 30) / Duration.ofHours(1).toSeconds();
             long time = hours >= 23 ? 23 : hours;
             return ABOUT_X_HOURS_AGO.argument(time);
-
         }
     }
 

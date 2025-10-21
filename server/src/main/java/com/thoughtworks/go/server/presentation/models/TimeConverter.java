@@ -20,6 +20,7 @@ import org.jetbrains.annotations.VisibleForTesting;
 
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -67,7 +68,7 @@ public class TimeConverter {
     }
 
     public ConvertedTime getConvertedTime(Date dateFrom) {
-        return dateFrom == null ? NOT_AVAILABLE : getConvertedTime(dateFrom, new Date());
+        return getConvertedTime(dateFrom, new Date());
     }
 
     public static String getHumanReadableDate(Date date) {
@@ -81,16 +82,24 @@ public class TimeConverter {
     }
 
     public String getHumanReadableStringWithTimeZone(Date date) {
-        return date == null ? NOT_AVAILABLE.toString() : DATE_FORMATTER_WITH_TIME_ZONE.format(date.toInstant().atZone(ZoneId.systemDefault()));
+        return date == null ? null : getHumanReadableStringWithTimeZone(date.toInstant());
+    }
+
+    public String getHumanReadableStringWithTimeZone(Instant instant) {
+        return instant == null ? NOT_AVAILABLE.toString() : DATE_FORMATTER_WITH_TIME_ZONE.format(instant.atZone(ZoneId.systemDefault()));
     }
 
     @VisibleForTesting
-    ConvertedTime getConvertedTime(Date start, Date end) {
-        if (end.getTime() < start.getTime()) {
-            String dateString = getHumanReadableDate(start);
+    ConvertedTime getConvertedTime(Date dateFrom, Date dateTo) {
+        if (dateFrom == null) {
+            return NOT_AVAILABLE;
+        }
+
+        if (dateTo.getTime() < dateFrom.getTime()) {
+            String dateString = getHumanReadableDate(dateFrom);
             return new ConvertedTime(dateString);
         } else {
-            return getConvertedTime((end.getTime() - start.getTime()) / 1000);
+            return getConvertedTime((dateTo.getTime() - dateFrom.getTime()) / 1000);
         }
     }
 
@@ -114,20 +123,12 @@ public class TimeConverter {
             this.message = message;
         }
 
-        public Object[] getArguments() {
-            return new Long[]{arguments};
-        }
-
         /**
          * Create a new ConvertedTime instance based on this with new time value.
          */
         public ConvertedTime argument(long time) {
             String newMessage = Strings.CS.replace(message, "$time", String.valueOf(time));
             return new ConvertedTime(code, time, newMessage);
-        }
-
-        public String getDefaultMessage() {
-            return message;
         }
 
         @Override
@@ -144,7 +145,7 @@ public class TimeConverter {
 
         @Override
         public String toString() {
-            return getDefaultMessage();
+            return message;
         }
     }
 

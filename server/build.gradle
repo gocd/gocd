@@ -180,6 +180,7 @@ dependencies {
   testImplementation project.deps.awaitility
   testImplementation project.deps.xmlUnit
 
+  testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation(testFixtures(project(':test:http-mocks')))
 
   testImplementation project.deps.junit5Api

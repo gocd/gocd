@@ -28,36 +28,39 @@ public class PreparingToScheduleInstance extends PipelineInstanceModel {
 
     PreparingToScheduleInstance(String pipelineName, StageInstanceModels stageHistory) {
         super(pipelineName, -1, "TBD", new PreparingToScheduleBuildCause(), stageHistory);
-        canRun =false;
+        canRun = false;
         isPreparingToSchedule = true;
     }
 
-    @Override public boolean hasHistoricalData() {
+    @Override
+    public boolean hasHistoricalData() {
         return true;
     }
 
-    @Override public Revision getCurrentRevision(String requestedMaterialName) {
+    @Override
+    public Revision getCurrentRevision(String requestedMaterialName) {
         return new PreparingToScheduleRevision();
     }
 
-    @Override public Revision getCurrentRevision(MaterialConfig material) {
+    @Override
+    public Revision getCurrentRevision(MaterialConfig material) {
         return new PreparingToScheduleRevision();
     }
 
-    @Override public String getBuildCauseMessage() {
+    @Override
+    public String getBuildCauseMessage() {
         return "Preparing to schedule";
     }
 
-    @Override public Date getScheduledDate() {
+    @Override
+    public Date getScheduledDate() {
         return new Date();
     }
 
-    public static class PreparingToScheduleBuildCause extends BuildCause {
+    public static class PreparingToScheduleBuildCause extends BuildCause {}
 
-
-    }
-
-    @Override public String getPipelineStatusMessage() {
+    @Override
+    public String getPipelineStatusMessage() {
         return String.format("Preparing to schedule (%s/%s)", 0, numberOfStages());
     }
 

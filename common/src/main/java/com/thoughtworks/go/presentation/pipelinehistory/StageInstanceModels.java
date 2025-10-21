@@ -20,29 +20,26 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.StageContainer;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
+import java.util.Comparator;
 import java.util.Date;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 
 public class StageInstanceModels extends BaseCollection<StageInstanceModel> implements StageContainer {
 
-    public Date getScheduledDate() {
-        Date earliestScheduledDate = null;
-        for (StageInstanceModel stage : this) {
-            if (!stage.isScheduled()) {
-                continue;
-            }
-            Date stageDate = stage.getScheduledDate();
-            if (earliestScheduledDate == null || stageDate.before(earliestScheduledDate)) {
-                earliestScheduledDate = stageDate;
-            }
-        }
-        return earliestScheduledDate;
+    public @Nullable Date getScheduledDate() {
+        return this.stream()
+            .filter(StageInstanceModel::isScheduled)
+            .min((o1, o2) -> Comparator.<Date>nullsFirst(Comparator.naturalOrder()).compare(o1.getScheduledDate(), o2.getScheduledDate()))
+            .map(StageInstanceModel::getScheduledDate)
+            .orElse(null);
     }
 
-    @Override public boolean add(StageInstanceModel stageInstanceModel) {
+    @Override
+    public boolean add(StageInstanceModel stageInstanceModel) {
         return super.add(stageInstanceModel);
     }
 

@@ -129,7 +129,7 @@ public class UnitTestReportGenerator {
 
     private boolean isValidXml(File file) {
         try {
-            boolean isTestFile = nodeExists(file, "//test-results") || nodeExists(file, "//testsuite");
+            boolean isTestFile = nodeExists(file, "//test-results | //testsuite");
 
             if (!isTestFile) {
                 publisher.consumeLine(MessageFormat.format("Ignoring file {0} - it is not a recognised test file.", file.getName()));

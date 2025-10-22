@@ -89,7 +89,7 @@ public class UnitTestReportGeneratorTest {
         public void shouldGenerateReportForNUnit() throws Exception {
             copyAndClose(source("nunit-result-206.xml"), target("test-result.xml"));
             generator.generate(testFolder.listFiles(), "testoutput");
-            assertThat(testFolder.listFiles().length).isEqualTo(2);
+            assertThat(testFolder.listFiles()).hasSize(2);
             verify(publisher).upload(uploadedFile.capture(), any(String.class));
             assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("206");
             assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");

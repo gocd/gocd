@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.util;
 
+import org.jetbrains.annotations.NotNull;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -22,10 +23,7 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.*;
 import java.io.*;
 
 public class XpathUtils {
@@ -83,10 +81,20 @@ public class XpathUtils {
     }
 
     private static XPathExpression compile(String xpath) throws XPathExpressionException {
-        return XPathFactory.newInstance().newXPath().compile(xpath);
+        return createXPathFactory().newXPath().compile(xpath);
     }
 
-    private static DocumentBuilderFactory createDocumentBuilderFactory() {
+    private static @NotNull XPathFactory createXPathFactory() {
+        try {
+            XPathFactory factory = XPathFactory.newInstance();
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            return factory;
+        } catch (XPathFactoryConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static @NotNull DocumentBuilderFactory createDocumentBuilderFactory() {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);

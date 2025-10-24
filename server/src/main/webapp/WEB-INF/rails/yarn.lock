@@ -1401,10 +1401,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/fontawesome-free@npm:^6.7.2":
-  version: 6.7.2
-  resolution: "@fortawesome/fontawesome-free@npm:6.7.2"
-  checksum: 10/88101fee12470ede1e7f2588b86121924259d98889b950e2ccde71d934f4f344b592d1360700de4e92d81262014d3ae33fe995c7799f2be2abddcee3102413d6
+"@fortawesome/fontawesome-free@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "@fortawesome/fontawesome-free@npm:7.1.0"
+  checksum: 10/7a7bbb470b2de4e2764b4f9cc91703c5e1d5f430c834353035ef7aecba278cc9b5e2917ddaa7f1c28445530216543b3aa37598f56bb16576395fa060cbb33323
   languageName: node
   linkType: hard
 
@@ -5764,7 +5764,7 @@ __metadata:
     "@babel/eslint-parser": "npm:^7.28.5"
     "@babel/preset-env": "npm:^7.28.5"
     "@babel/preset-react": "npm:^7.28.5"
-    "@fortawesome/fontawesome-free": "npm:^6.7.2"
+    "@fortawesome/fontawesome-free": "npm:^7.1.0"
     "@shopify/draggable": "npm:1.0.0-beta.12"
     "@types/awesomplete": "npm:^1.1.16"
     "@types/fs-extra": "npm:^11.0.4"

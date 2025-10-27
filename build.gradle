@@ -145,7 +145,7 @@ def libraries = [
   testcontainersBom   : 'org.testcontainers:testcontainers-bom:2.0.1',
   tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:3.0.0',
   urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',
-  xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.10.4',
+  xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.11.0',
   ztExec              : 'org.zeroturnaround:zt-exec:1.12',
 ]
 

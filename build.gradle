@@ -131,7 +131,7 @@ def libraries = [
   oscache             : 'opensymphony:oscache:2.4.1',
   oshi                : 'com.github.oshi:oshi-core-java11:6.9.1',
   postgresql          : 'org.postgresql:postgresql:42.7.8',
-  quartz              : 'org.quartz-scheduler:quartz:2.5.0',
+  quartz              : 'org.quartz-scheduler:quartz:2.5.1',
   rack                : 'com.github.gocd-contrib:jruby-rack:1.3.0.7',
   resilience4jRetry   : 'io.github.resilience4j:resilience4j-retry:2.3.0',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',

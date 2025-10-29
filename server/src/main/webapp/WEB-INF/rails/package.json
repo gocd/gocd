@@ -108,7 +108,6 @@
     "sass-loader": "^10.5.2",
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.11",
-    "stats-webpack-plugin": "^0.7.0",
     "style-loader": "^2.0.0",
     "stylelint": "^15.11.0",
     "stylelint-config-standard-scss": "^11.1.0",
@@ -122,6 +121,7 @@
     "upath": "^2.0.1",
     "url-loader": "^4.1.1",
     "webpack": "^4.47.0",
+    "webpack-assets-manifest": "^4.0.6",
     "webpack-cli": "^4.10.0"
   },
   "resolutions": {

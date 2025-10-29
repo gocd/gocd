@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
+import com.thoughtworks.go.util.TestFileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,10 +25,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.ServletContext;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
+import java.nio.file.Path;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,56 +36,37 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class WebpackAssetsServiceTest {
 
-    @TempDir File assetsDir;
-    private WebpackAssetsService webpackAssetsService;
     @Mock
     private ServletContext context;
     @Mock
     private SystemEnvironment systemEnvironment;
-    private File manifestFile;
+
+    private WebpackAssetsService webpackAssetsService;
+    private Path manifestFile;
 
 
     @BeforeEach
-    public void setUp() {
-        manifestFile = new File(assetsDir, "public/assets/webpack/manifest.json");
-        manifestFile.getParentFile().mkdirs();
+    public void setUp(@TempDir Path assetsDir) {
+        manifestFile = assetsDir.resolve("public/assets/webpack/manifest.json");
+        manifestFile.getParent().toFile().mkdirs();
         webpackAssetsService = spy(new WebpackAssetsService(systemEnvironment));
         webpackAssetsService.setServletContext(context);
 
         when(context.getInitParameter("rails.root")).thenReturn("");
-        when(context.getRealPath("/public/assets/webpack/manifest.json")).thenReturn(manifestFile.getAbsolutePath());
+        when(context.getRealPath("/public/assets/webpack/manifest.json")).thenReturn(manifestFile.toAbsolutePath().toString());
     }
 
     @Test
     public void shouldGetAssetPathFromManifestJson() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json")) {
-            FileUtils.copyInputStreamToFile(is, manifestFile);
-        }
+        TestFileUtil.resourceToPath("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json", manifestFile);
 
-        List<String> assetPaths = webpackAssetsService.getAssetPaths("single_page_apps/agents");
+        Set<String> assetPaths = webpackAssetsService.getJSAssetPathsFor("single_page_apps/agents");
         assertThat(assetPaths).contains("/go/assets/webpack/vendor-and-helpers.chunk.js", "/go/assets/webpack/single_page_apps/agents.js");
     }
 
     @Test
-    public void shouldGetAllAssetPathsFromManifestJson() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json")) {
-            FileUtils.copyInputStreamToFile(is, manifestFile);
-        }
-
-        Set<String> assetPaths = webpackAssetsService.getAssetPathsFor("single_page_apps/agents", "single_page_apps/new_dashboard");
-        assertThat(assetPaths.size()).isEqualTo(5);
-        assertThat(assetPaths).contains("/go/assets/webpack/vendor-and-helpers.chunk.js",
-                "/go/assets/webpack/single_page_apps/agents.js",
-                "/go/assets/webpack/single_page_apps/agents.css",
-                "/go/assets/webpack/single_page_apps/new_dashboard.js",
-                "/go/assets/webpack/single_page_apps/new_dashboard.css");
-    }
-
-    @Test
     public void shouldGetJSAssetPathsFromManifestJson() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json")) {
-            FileUtils.copyInputStreamToFile(is, manifestFile);
-        }
+        TestFileUtil.resourceToPath("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json", manifestFile);
 
         Set<String> assetPaths = webpackAssetsService.getJSAssetPathsFor("single_page_apps/agents", "single_page_apps/new_dashboard");
         assertThat(assetPaths.size()).isEqualTo(3);
@@ -98,9 +77,7 @@ public class WebpackAssetsServiceTest {
 
     @Test
     public void shouldGetCSSAssetPathsFromManifestJson() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json")) {
-            FileUtils.copyInputStreamToFile(is, manifestFile);
-        }
+        TestFileUtil.resourceToPath("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json", manifestFile);
 
         Set<String> assetPaths = webpackAssetsService.getCSSAssetPathsFor("single_page_apps/agents", "single_page_apps/new_dashboard");
         assertThat(assetPaths.size()).isEqualTo(2);
@@ -110,54 +87,37 @@ public class WebpackAssetsServiceTest {
 
     @Test
     public void shouldBlowUpIfAssetPathIsNotFound() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json")) {
-            FileUtils.copyInputStreamToFile(is, manifestFile);
-        }
+        TestFileUtil.resourceToPath("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json", manifestFile);
 
-        assertThatThrownBy(() -> webpackAssetsService.getAssetPaths("junk"))
+        assertThatThrownBy(() -> webpackAssetsService.getJSAssetPathsFor("junk"))
                 .isExactlyInstanceOf(RuntimeException.class)
                 .hasMessage("Can't find entry point 'junk' in webpack manifest");
     }
 
     @Test
     public void shouldBlowUpIfManifestDoesNotContainEntrypoints() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/com/thoughtworks/go/server/service/webpackassetstest/manifest-without-entrypoints.json")) {
-            FileUtils.copyInputStreamToFile(is, manifestFile);
-        }
+        TestFileUtil.resourceToPath("/com/thoughtworks/go/server/service/webpackassetstest/manifest-without-entrypoints.json", manifestFile);
 
-        assertThatThrownBy(() -> webpackAssetsService.getAssetPaths("junk"))
+        assertThatThrownBy(() -> webpackAssetsService.getJSAssetPathsFor("junk"))
                 .isExactlyInstanceOf(RuntimeException.class)
                 .hasMessage("Could not find any entrypoints in the manifest.json file.");
     }
 
     @Test
-    public void shouldBlowUpWhenManifestHasErrors() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/com/thoughtworks/go/server/service/webpackassetstest/manifest-with-errors.json")) {
-            FileUtils.copyInputStreamToFile(is, manifestFile);
-        }
-
-        assertThatThrownBy(() -> webpackAssetsService.getAssetPaths("anything"))
-                .isExactlyInstanceOf(RuntimeException.class)
-                .hasMessage("There were errors in manifest.json file");
-    }
-
-    @Test
     public void shouldBlowUpIfManifestIsNotFound() {
-        assertThatThrownBy(() -> webpackAssetsService.getAssetPaths("junk"))
+        assertThatThrownBy(() -> webpackAssetsService.getJSAssetPathsFor("junk"))
                 .isExactlyInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Could not load compiled manifest from 'webpack/manifest.json' - have you run");
     }
 
     @Test
     public void shouldServeManifestFromCacheInProductionMode() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json")) {
-            FileUtils.copyInputStreamToFile(is, manifestFile);
-        }
+        TestFileUtil.resourceToPath("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json", manifestFile);
 
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
 
-        webpackAssetsService.getAssetPaths("single_page_apps/agents");
-        webpackAssetsService.getAssetPaths("single_page_apps/agents");
+        webpackAssetsService.getJSAssetPathsFor("single_page_apps/agents");
+        webpackAssetsService.getJSAssetPathsFor("single_page_apps/agents");
         verify(webpackAssetsService, times(1)).loadManifest();
     }
 }

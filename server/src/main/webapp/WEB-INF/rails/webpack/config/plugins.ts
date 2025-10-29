@@ -26,10 +26,10 @@ import webpack from "webpack";
 import {ConfigOptions, getEntries} from "./variables";
 import {LicensePlugins} from "./webpack-license-plugin";
 
-const jasmineCore                = require("jasmine-core");
-const StatsPlugin                = require("stats-webpack-plugin");
-const StylelintPlugin            = require("stylelint-webpack-plugin");
-const UnusedWebpackPlugin        = require("unused-webpack-plugin");
+const jasmineCore           = require("jasmine-core");
+const WebpackAssetsManifest = require("webpack-assets-manifest");
+const StylelintPlugin       = require("stylelint-webpack-plugin");
+const UnusedWebpackPlugin   = require("unused-webpack-plugin");
 
 export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
   const plugins = [
@@ -48,13 +48,12 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
                               exclude: ["config/**/*.*", "*.d.ts", 'tsconfig.json'],
                             }) as webpack.Plugin,
     new StylelintPlugin({configFile: path.join(configOptions.railsRoot, ".stylelintrc.yml"), files: configOptions.assetsDir, failOnWarning: true}) as webpack.Plugin,
-    new StatsPlugin("manifest.json", {
-      chunkModules: false,
-      source: false,
-      chunks: false,
-      modules: false,
-      assets: true
-    }) as webpack.Plugin,
+    new WebpackAssetsManifest({
+      output: "manifest.json",
+      entrypoints: true,
+      writeToDisk: true,
+      publicPath: true,
+    }),
     new webpack.ProvidePlugin({
                                 "$": "jquery",
                                 "jQuery": "jquery",

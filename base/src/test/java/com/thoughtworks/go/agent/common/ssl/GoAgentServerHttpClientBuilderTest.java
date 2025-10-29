@@ -33,6 +33,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import static com.thoughtworks.go.mothers.ServerUrlGeneratorMother.generatorFor;
@@ -115,9 +116,13 @@ class GoAgentServerHttpClientBuilderTest {
         public void shouldRaiseExceptionWhenNoAgentCertPresentedOnMtlsPort() throws Exception {
             GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(resourceToTempFile("/testdata/root-ca-ec.crt"), SslVerificationMode.FULL, null, null, null);
             assertThatThrownBy(() -> requestFor(builder, mtlsUrlGenerator()))
-                .isInstanceOf(SSLHandshakeException.class)
-                .hasMessageContaining("Received fatal alert")
-                .hasMessageContaining("certificate");
+                .satisfiesAnyOf(
+                    t -> assertThat(t).isInstanceOf(SSLHandshakeException.class)
+                        .hasMessageContaining("Received fatal alert")
+                        .hasMessageContaining("certificate"),
+                    v -> assertThat(v).isInstanceOf(SocketException.class)
+                        .hasMessage("Connection reset by peer") // Sometimes the server will forcibly close the connection before client reads the fatal alert
+                );
         }
 
         private ServerUrlGenerator mtlsUrlGenerator() {

@@ -5810,7 +5810,7 @@ __metadata:
     jasmine: "npm:^5.12.0"
     jasmine-ajax: "npm:^4.0.0"
     jasmine-browser-runner: "npm:^3.0.0"
-    jasmine-core: "npm:^5.12.0"
+    jasmine-core: "npm:^5.12.1"
     jasmine-jquery: "npm:^2.1.1"
     jquery: "npm:^3.7.1"
     karma: "npm:^6.4.4"
@@ -6782,7 +6782,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine-core@npm:^5.12.0, jasmine-core@npm:~5.12.0":
+"jasmine-core@npm:^5.12.1":
+  version: 5.12.1
+  resolution: "jasmine-core@npm:5.12.1"
+  checksum: 10/0b6934d8eecb16dc7634cfc492bc4a6b30a8476d9972d976d1a9d7dfe19ed9cc0826323e7dbda0148a88081eb6133c6b10ffe5b00750ce663b973dd25d4c6286
+  languageName: node
+  linkType: hard
+
+"jasmine-core@npm:~5.12.0":
   version: 5.12.0
   resolution: "jasmine-core@npm:5.12.0"
   checksum: 10/2a08eb32601925fa75547417957c7a03e40a43777438dc999490d1adbb350a16fdcf9c6f7071482579bc7d30074df124cf6135b9f4834b520bee6f2821ef0397

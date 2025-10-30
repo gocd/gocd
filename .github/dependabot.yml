@@ -58,5 +58,6 @@ updates:
       sass:
         patterns: ["sass*"]
     ignore:
-      - dependency-name: "active*"
-      - dependency-name: "action*"
+      - dependency-name: "active*"  # Minimise noise during rails updates
+      - dependency-name: "action*"  # Minimise noise during rails updates
+      - dependency-name: "railties" # Minimise noise during rails updates

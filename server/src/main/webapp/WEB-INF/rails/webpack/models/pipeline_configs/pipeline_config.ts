@@ -219,7 +219,7 @@ export class PipelineConfig extends ValidatableMixin {
   }
 
   firstStage(): Stage {
-    return this.stages().values().next().value;
+    return this.stages().values().next().value as Stage;
   }
 
   isUsingTemplate() {

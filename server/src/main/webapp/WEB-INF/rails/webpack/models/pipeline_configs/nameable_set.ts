@@ -91,19 +91,19 @@ export class NameableSet<T extends Nameable> extends ValidatableMixin implements
     return this._members.has(value.name());
   }
 
-  [Symbol.iterator](): IterableIterator<T> {
+  [Symbol.iterator](): SetIterator<T> {
     return this._members.values();
   }
 
-  entries(): IterableIterator<[T, T]> {
+  entries(): SetIterator<[T, T]> {
     return new Set<T>(this._members.values()).entries();
   }
 
-  keys(): IterableIterator<T> {
+  keys(): SetIterator<T> {
     return this[Symbol.iterator]();
   }
 
-  values(): IterableIterator<T> {
+  values(): SetIterator<T> {
     return this[Symbol.iterator]();
   }
 

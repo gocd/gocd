@@ -147,7 +147,7 @@ export class Stage extends ValidatableMixin {
   }
 
   firstJob(): Job {
-    return this.jobs().values().next().value;
+    return this.jobs().values().next().value as Job;
   }
 
   getOriginalName() {

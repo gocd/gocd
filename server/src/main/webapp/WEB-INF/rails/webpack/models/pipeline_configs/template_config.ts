@@ -58,8 +58,8 @@ export class TemplateConfig extends ValidatableMixin {
     return template;
   }
 
-  firstStage() {
-    return this.stages().values().next().value;
+  firstStage(): Stage {
+    return this.stages().values().next().value as Stage;
   }
 
   toApiPayload(): any {

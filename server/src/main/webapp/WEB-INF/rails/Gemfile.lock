@@ -99,8 +99,8 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
-    date (3.4.1)
-    date (3.4.1-java)
+    date (3.5.0)
+    date (3.5.0-java)
     diff-lcs (1.6.2)
     drb (2.2.3)
     erb (4.0.4)

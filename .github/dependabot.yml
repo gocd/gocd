@@ -57,3 +57,6 @@ updates:
         patterns: ["rspec*"]
       sass:
         patterns: ["sass*"]
+    ignore:
+      - dependency-name: "active*"
+      - dependency-name: "action*"

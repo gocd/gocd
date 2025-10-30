@@ -636,15 +636,24 @@ subprojects {
 }
 
 tasks.register('allDependencies') {
+  group = LifecycleBasePlugin.BUILD_GROUP
   dependsOn allprojects.collect { "$it.path:dependencies" }
 
   description = "Print dependency tree of all projects"
 }
 
+tasks.register('resolveExternalDependencies') {
+  group = LifecycleBasePlugin.BUILD_GROUP
+  dependsOn allprojects.collect { Project prj -> prj.tasks.withType(com.autonomousapps.tasks.ResolveExternalDependenciesTask)}
+  dependsOn allprojects.collect { Project prj -> prj.tasks.withType(com.thoughtworks.go.build.DownloadFile)}
+  dependsOn allprojects.collect { Project prj -> prj.tasks.withType(com.thoughtworks.go.build.DownloaderTask)}
+  dependsOn allprojects.collect { Project prj -> prj.tasks.withType(com.thoughtworks.go.build.YarnInstallTask)}
+}
+
 private allCompileTasks(Closure<Boolean> include = { t -> true }) {
   allprojects.collect { Project prj ->
-    compileAll.dependsOn(prj.getTasks().withType(JavaCompile).findAll(include))
-    compileAll.dependsOn(prj.getTasks().withType(GroovyCompile).findAll(include))
+    compileAll.dependsOn(prj.tasks.withType(JavaCompile).findAll(include))
+    compileAll.dependsOn(prj.tasks.withType(GroovyCompile).findAll(include))
   }
 }
 

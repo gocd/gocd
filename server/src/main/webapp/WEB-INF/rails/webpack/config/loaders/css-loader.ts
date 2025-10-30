@@ -19,7 +19,7 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 import webpack from "webpack";
 
-export function getMiniCssExtractLoader(configOptions: ConfigOptions): webpack.RuleSetRule {
+export function getCssLoaders(configOptions: ConfigOptions): webpack.RuleSetRule {
   return {
     test: /\.(s)?css$/,
     exclude: /node_modules/,

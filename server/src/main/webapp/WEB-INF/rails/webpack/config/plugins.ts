@@ -37,7 +37,7 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
       extensions: ["js", "msx"],
       exclude: ["node_modules", "webpack/gen"],
       failOnWarning: true,
-      threads: true
+      threads: false
     }),
     new CleanWebpackPlugin(),
     new UnusedWebpackPlugin({

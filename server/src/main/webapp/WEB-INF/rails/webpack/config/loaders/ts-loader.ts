@@ -41,9 +41,9 @@ export function getTypescriptLoader(configOptions: ConfigOptions): webpack.RuleS
       loader: loaderName,
       options: {
         configFile: path.join(configOptions.railsRoot, "tsconfig.json"),
-        transpileOnly: configOptions.watch, // perform typechecking using fork-ts-checker-webpack-plugin
+        transpileOnly: true, // perform typechecking using fork-ts-checker-webpack-plugin
         // technically, we do not use happypack, but this is still required.
-        happyPackMode: configOptions.watch,
+        happyPackMode: true,
         reportFiles: [
           "**/*.{ts,tsx}"
         ]

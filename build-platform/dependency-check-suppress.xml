@@ -319,12 +319,4 @@
     <cpe>cpe:/a:json-c:json-c</cpe>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-    Suppress all NPM audit deprecation warnings, which happen to have "null" vulnerability names right now.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:npm/.*@.*$</packageUrl>
-    <vulnerabilityName>null</vulnerabilityName>
-  </suppress>
-
 </suppressions>

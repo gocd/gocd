@@ -1,31 +1,40 @@
 {
-  "errors": [],
   "entrypoints": {
     "single_page_apps/agents": {
-      "chunks": [
-        9,
-        2
-      ],
-      "assets": [
-        "vendor-and-helpers.chunk.js",
-        "vendor-and-helpers.chunk.js.map",
-        "single_page_apps/agents.js",
-        "single_page_apps/agents.js.map",
-        "single_page_apps/agents.css"
-      ]
+      "assets": {
+        "css": [
+          "/go/assets/webpack/single_page_apps/agents.css"
+        ],
+        "js": [
+          "/go/assets/webpack/vendor-and-helpers.chunk.js",
+          "/go/assets/webpack/single_page_apps/agents.js"
+        ],
+        "css.map": [
+          "/go/assets/webpack/single_page_apps/agents.css.map"
+        ],
+        "js.map": [
+          "/go/assets/webpack/vendor-and-helpers.chunk.js.map",
+          "/go/assets/webpack/single_page_apps/agents.js.map"
+        ]
+      }
     },
     "single_page_apps/new_dashboard": {
-      "chunks": [
-        10,
-        2
-      ],
-      "assets": [
-        "vendor-and-helpers.chunk.js",
-        "vendor-and-helpers.chunk.js.map",
-        "single_page_apps/new_dashboard.js",
-        "single_page_apps/new_dashboard.js.map",
-        "single_page_apps/new_dashboard.css"
-      ]
+      "assets": {
+        "css": [
+          "/go/assets/webpack/single_page_apps/new_dashboard.css"
+        ],
+        "js": [
+          "/go/assets/webpack/vendor-and-helpers.chunk.js",
+          "/go/assets/webpack/single_page_apps/new_dashboard.js"
+        ],
+        "css.map": [
+          "/go/assets/webpack/single_page_apps/new_dashboard.css.map"
+        ],
+        "js.map": [
+          "/go/assets/webpack/vendor-and-helpers.chunk.js.map",
+          "/go/assets/webpack/single_page_apps/new_dashboard.js.map"
+        ]
+      }
     }
   }
 }

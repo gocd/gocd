@@ -50,12 +50,12 @@ module.exports = function (config) {
     preprocessors: {
       '**/*.js': ['sourcemap']
     },
-    files:         manifest.entrypoints.specRoot.assets.map((eachAsset) => {
+    files:         manifest.entrypoints.specRoot.assets.js.map((eachAsset) => {
       return {
-        pattern:  eachAsset,
-        watched:  true,
+        pattern: eachAsset.replace("/go/assets/webpack/", ""),
+        watched: true,
         included: true,
-        served:   true
+        served: true
       };
     }),
     reporters:     ['progress', 'junit', 'kjhtml', 'html', 'jasmine-seed'],

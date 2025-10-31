@@ -23,8 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import static java.nio.file.StandardOpenOption.*;
+
 public class TestFileUtil {
-    public static File createTestFile(File testFolder, String path) throws Exception {
+    public static File createTestFile(File testFolder, String path) throws IOException {
         File subfile = new File(testFolder, path);
         subfile.createNewFile();
         subfile.deleteOnExit();
@@ -38,7 +40,14 @@ public class TestFileUtil {
         return subDir;
     }
 
-    public static File resourceToTempFile(String resourcePath) throws Exception {
+    public static Path resourceToPath(String resourcePath, Path target) throws IOException {
+        try (InputStream is = openStream(resourcePath)) {
+            Files.write(target, is.readAllBytes(), CREATE, WRITE, TRUNCATE_EXISTING);
+        }
+        return target;
+    }
+
+    public static File resourceToTempFile(String resourcePath) throws IOException {
         return resourceToTempPath(resourcePath).toFile();
     }
 

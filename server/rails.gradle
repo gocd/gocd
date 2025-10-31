@@ -73,7 +73,7 @@ def initializeRailsGems = tasks.register('initializeRailsGems', JRuby) {
 
   workingDir = root
   args = ['-S', 'bundle', 'install']
-  maxHeapSize = '256m'
+  maxHeapSize = '384m'
   environment += [
     // RUBY env var needs to be forward-slashed on Windows to avoid backslashes getting stripped somewhere
     RUBY: jrubyScriptFile.get().toString().replaceAll('\\\\', '/'),

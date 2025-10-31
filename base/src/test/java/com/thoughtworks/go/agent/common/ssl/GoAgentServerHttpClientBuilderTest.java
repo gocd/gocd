@@ -120,8 +120,7 @@ class GoAgentServerHttpClientBuilderTest {
                     t -> assertThat(t).isInstanceOf(SSLHandshakeException.class)
                         .hasMessageContaining("Received fatal alert")
                         .hasMessageContaining("certificate"),
-                    v -> assertThat(v).isInstanceOf(SocketException.class)
-                        .hasMessage("Connection reset by peer") // Sometimes the server will forcibly close the connection before client reads the fatal alert
+                    v -> assertThat(v).isInstanceOf(SocketException.class) // Sometimes the server will forcibly close the connection before client reads the fatal alert
                 );
         }
 

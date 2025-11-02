@@ -128,7 +128,7 @@ GEM
       concurrent-ruby (~> 1.0)
     io-console (0.8.1)
     io-console (0.8.1-java)
-    irb (1.15.2)
+    irb (1.15.3)
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)

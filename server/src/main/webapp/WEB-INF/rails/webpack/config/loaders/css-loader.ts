@@ -39,10 +39,11 @@ export function getCssLoaders(configOptions: ConfigOptions): webpack.RuleSetRule
       {
         loader: "css-loader",
         options: {
+          esModule: false,
           modules: {
             mode: "local",
             localIdentName: "[name]__[local]___[hash:base64:5]",
-            exportLocalsConvention: "camelCase",
+            exportLocalsConvention: "camel-case",
             exportOnlyLocals: false
           },
           sourceMap: true,

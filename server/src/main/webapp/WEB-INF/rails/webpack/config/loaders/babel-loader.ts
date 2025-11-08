@@ -17,7 +17,6 @@
 import path from "path";
 import webpack from "webpack";
 import {ConfigOptions} from "../variables";
-import {getCacheLoader} from "./cache-loader";
 import {threadLoader} from "./thread-loader";
 
 export function getBabelLoader(configOptions: ConfigOptions): webpack.RuleSetRule {
@@ -28,7 +27,6 @@ export function getBabelLoader(configOptions: ConfigOptions): webpack.RuleSetRul
     exclude: /node_modules/,
     use: [
       threadLoader(configOptions),
-      getCacheLoader(configOptions),
       {
         loader: loaderName,
         options: {

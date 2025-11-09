@@ -45,6 +45,7 @@ abstract class JRuby extends JavaExec {
 
     jvmArgs += jrubyJvmArgs
     systemProperties += jrubySystemProperties
+    maxHeapSize = '128m'
 
     classpath(project.configurations.jruby)
     mainClass.set('org.jruby.Main')

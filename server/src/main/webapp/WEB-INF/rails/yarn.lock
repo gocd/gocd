@@ -1511,6 +1511,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kurkle/color@npm:^0.3.0":
+  version: 0.3.4
+  resolution: "@kurkle/color@npm:0.3.4"
+  checksum: 10/a15bfb55eec4ff92ee27cdacff54e85c7497ec1f9e8e0e8eaec3d39320cc90b82eb7f716d92792a8235fad1617003c6e0c0d2cd07f6a79b7b138ca17ec5eb6e7
+  languageName: node
+  linkType: hard
+
 "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1":
   version: 5.1.1-v1
   resolution: "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1"
@@ -1829,6 +1836,13 @@ __metadata:
     "@types/jsonfile": "npm:*"
     "@types/node": "npm:*"
   checksum: 10/acc4c1eb0cde7b1f23f3fe6eb080a14832d8fa9dc1761aa444c5e2f0f6b6fa657ed46ebae32fb580a6700fc921b6165ce8ac3e3ba030c3dd15f10ad4dd4cae98
+  languageName: node
+  linkType: hard
+
+"@types/hammerjs@npm:^2.0.45":
+  version: 2.0.46
+  resolution: "@types/hammerjs@npm:2.0.46"
+  checksum: 10/1b6502d668f45ca49fb488c01f7938d3aa75e989d70c64801c8feded7d659ca1a118f745c1b604d220efe344c93231767d5cc68c05e00e069c14539b6143cfd9
   languageName: node
   linkType: hard
 
@@ -2901,21 +2915,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chart.js@npm:^3.9.1":
-  version: 3.9.1
-  resolution: "chart.js@npm:3.9.1"
-  checksum: 10/62ee137b296181d8d12e428cb83a02351768039ff672b8ff775534f844777e9c91a3213fc8c6c46b59175a47f23d1547178fdd64ff9afc37c2c1703b2cede93e
+"chart.js@npm:^4.5.1":
+  version: 4.5.1
+  resolution: "chart.js@npm:4.5.1"
+  dependencies:
+    "@kurkle/color": "npm:^0.3.0"
+  checksum: 10/a8dd3385371ad7e4c173d35176b7aed457ae27b45550248ecc854bf60a794541f56f3921850dc1f3c65985ef43beea37172b73899eb620d9cb4908de2ce93136
   languageName: node
   linkType: hard
 
-"chartjs-plugin-zoom@npm:~2.0.1":
-  version: 2.0.1
-  resolution: "chartjs-plugin-zoom@npm:2.0.1"
+"chartjs-plugin-zoom@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "chartjs-plugin-zoom@npm:2.2.0"
   dependencies:
+    "@types/hammerjs": "npm:^2.0.45"
     hammerjs: "npm:^2.0.8"
   peerDependencies:
     chart.js: ">=3.2.0"
-  checksum: 10/ac823f9a0fff148c3763f1436f85e25bb34a6a928200901a8805e4f1a8bf9c81cf7ad0d64125f3909679ef656d0ff4134c01cf40809111d2d332f938dd836581
+  checksum: 10/4a549b1b21ed5433f9ba67038d6176ed545b2881521e12d6b8024cd2ab08fb008c36fe388ab2ac7ee2ac334bf44a8d785703570388fa0e0b4c22c18602536f9c
   languageName: node
   linkType: hard
 
@@ -4780,8 +4797,8 @@ __metadata:
     awesomplete: "npm:^1.1.7"
     babel-loader: "npm:^10.0.0"
     bourbon: "npm:~7.1.0"
-    chart.js: "npm:^3.9.1"
-    chartjs-plugin-zoom: "npm:~2.0.1"
+    chart.js: "npm:^4.5.1"
+    chartjs-plugin-zoom: "npm:^2.2.0"
     classnames: "npm:^2.5.1"
     core-js: "npm:^3.46.0"
     cross-env: "npm:^10.1.0"

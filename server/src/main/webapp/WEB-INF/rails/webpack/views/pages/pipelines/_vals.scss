@@ -23,11 +23,11 @@ $fillable-section-width-max: 1200px;
 
 // task_terminal
 $task-editor-bg: #333640;
-$task-bg: rgba(255, 255, 255, 5%);
-$task-current-bg: rgba(255, 255, 255, 10%);
+$task-bg: rgb(255, 255, 255, 5%);
+$task-current-bg: rgb(255, 255, 255, 10%);
 $task-current-prompt: #aadadb;
 $task-prompt: #999;
 $task-cmd-color: #aadbaa;
 $task-mod-color: #dbdbaa;
-$task-mod-bg: rgba(128, 128, 255, 40%);
-$task-err-bg: rgba(255, 128, 128, 20%);
+$task-mod-bg: rgb(128, 128, 255, 40%);
+$task-err-bg: rgb(255, 128, 128, 20%);

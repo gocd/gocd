@@ -69,7 +69,7 @@ $overlay-index: 10;
     display: table-cell;
     overflow-x: auto;
     white-space: pre-wrap;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
     padding: 0 8px;
     border-radius: $global-border-radius;
     border: 1px solid color.adjust($border-color, $lightness: -30%);

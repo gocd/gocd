@@ -29,7 +29,7 @@ $dashboard-tabs-border-color: #d6e0e2;
 $dashboard-tabs-border-radius: 0;
 $dashboard-tabs-pager-width: $dashboard-add-tab-width;
 $dashboard-tab-current-marker-height: 10px;
-$dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 21%);
+$dashboard-tabs-box-shadow: 0 0 10px rgb(0, 0, 0, 21%);
 
 @keyframes candystripe {
   100% {
@@ -90,8 +90,8 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 21%);
         linear-gradient(
           -45deg,
           transparent 33%,
-          rgba(255, 255, 255, 30%) 33%,
-          rgba(255, 255, 255, 30%) 66%,
+          rgb(255, 255, 255, 30%) 33%,
+          rgb(255, 255, 255, 30%) 66%,
           transparent 66%
         );
     }
@@ -119,7 +119,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 21%);
     .page-prev,
     .page-next {
       display: block;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 21%);
+      box-shadow: 0 0 10px rgb(0, 0, 0, 21%);
     }
   }
 }
@@ -223,7 +223,7 @@ button {
     background: $dashboard-tab-bg;
     line-height: $dashboard-tab-height;
     border: 0;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 21%);
+    box-shadow: 0 0 10px rgb(255, 255, 255, 21%);
     z-index: 5;
   }
 }
@@ -358,7 +358,7 @@ button {
   z-index: 9;
   overflow-y: auto;
   max-height: 65vh;
-  box-shadow: 1px 5px 11px rgba(0, 0, 0, 21%);
+  box-shadow: 1px 5px 11px rgb(0, 0, 0, 21%);
 
   li {
     @include truncate-to-width($max: 210px);
@@ -421,12 +421,8 @@ button {
   @include sort-cursor;
   @include grip-icon;
 
-  // stylelint-disable no-duplicate-selectors
-  & {
-    font-size: 12px;
-    color: #9b9b9b;
-  }
-  // stylelint-enable
+  font-size: 12px;
+  color: #9b9b9b;
 
   &:active {
     @include sort-cursor-active;

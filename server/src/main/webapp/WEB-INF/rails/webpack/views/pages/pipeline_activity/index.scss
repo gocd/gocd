@@ -99,7 +99,7 @@ $stage-action-icon-z-index: 1;
 
   .label {
     word-break: break-all;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   a {
@@ -384,7 +384,7 @@ $stage-action-icon-z-index: 1;
 .pipeline-run-comment {
   display: flex;
   padding: 5px 10px;
-  word-break: break-word;
+  overflow-wrap: break-word;
   overflow-y: auto;
   margin: 10px 0;
   min-height: 100px;

@@ -265,21 +265,13 @@ input[type="checkbox"].form-control {
   .quick-add-button {
     @include button($background-color: $btn-secondary);
 
-    // stylelint-disable no-duplicate-selectors
-    & {
-      border-radius: 0 $global-border-radius $global-border-radius 0;
-    }
-    // stylelint-enable
+    border-radius: 0 $global-border-radius $global-border-radius 0;
   }
 
   .search-button {
     @include button($background-color: $btn-secondary);
 
-    // stylelint-disable no-duplicate-selectors
-    & {
-      border-radius: 0 $global-border-radius $global-border-radius 0;
-    }
-    // stylelint-enable
+    border-radius: 0 $global-border-radius $global-border-radius 0;
   }
 }
 

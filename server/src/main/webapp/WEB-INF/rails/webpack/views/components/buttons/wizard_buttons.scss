@@ -20,12 +20,8 @@
 .btn-secondary {
   @include button($background-color: $white);
 
-  // stylelint-disable no-duplicate-selectors
-  & {
-    color: $btn-primary;
-    border: 1px solid $btn-primary;
-  }
-  // stylelint-enable
+  color: $btn-primary;
+  border: 1px solid $btn-primary;
 
   &:hover {
     color: $white;

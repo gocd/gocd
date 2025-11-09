@@ -102,7 +102,7 @@
     "sourcemapped-stacktrace": "^1.1.11",
     "style-loader": "^4.0.0",
     "stylelint": "^16.25.0",
-    "stylelint-config-standard-scss": "^13.1.0",
+    "stylelint-config-standard-scss": "^16.0.0",
     "stylelint-webpack-plugin": "^5.0.1",
     "thread-loader": "^4.0.4",
     "ts-loader": "^9.5.4",

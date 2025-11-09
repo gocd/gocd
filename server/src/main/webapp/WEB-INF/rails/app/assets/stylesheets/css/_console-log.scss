@@ -69,7 +69,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   color: #fff;
   padding: 10px 20px;
   text-align: center;
-  background-image: linear-gradient(-45deg, rgba(128, 128, 128, 20%) 25%, transparent 25%, transparent 50%, rgba(128, 128, 128, 20%) 50%, rgba(128, 128, 128, 20%) 75%, transparent 75%, transparent);
+  background-image: linear-gradient(-45deg, rgb(128, 128, 128, 20%) 25%, transparent 25%, transparent 50%, rgb(128, 128, 128, 20%) 50%, rgb(128, 128, 128, 20%) 75%, transparent 75%, transparent);
   background-size: $PROGRESS_BAR_BG_SIZE $PROGRESS_BAR_BG_SIZE;
 }
 
@@ -80,7 +80,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   white-space: pre;
   white-space: pre-wrap;
   word-break: break-all;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   padding-left: 10px;
   padding-bottom: 35px;
   min-height: calc(100vh - #{$height-of-non-console-log-elements});

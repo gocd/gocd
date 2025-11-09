@@ -17,7 +17,7 @@
 @use "sass:map";
 @import "../../global/common";
 
-$boxshadow: rgba(0, 0, 0, 15%);
+$boxshadow: rgb(0, 0, 0, 15%);
 $opacity: 0.2;
 
 .login-container {

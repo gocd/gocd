@@ -22,6 +22,7 @@ export function threadLoader(configOptions: ConfigOptions): webpack.RuleSetUseIt
     loader: "thread-loader",
     options: {
       workers: 2,
+      workerNodeArgs: ['--max-old-space-size=512'],
       // keep workers alive in watch mode
       poolTimeout: configOptions.watch ? Infinity : 500
     }

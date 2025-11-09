@@ -67,7 +67,6 @@
     "@types/shell-quote": "^1.7.5",
     "@types/underscore.string": "^0.0.42",
     "@types/url-parse": "^1.4.11",
-    "@types/uuid": "^10.0.0",
     "add-matchers": "^0.6.2",
     "babel-loader": "^10.0.0",
     "cross-env": "^10.1.0",

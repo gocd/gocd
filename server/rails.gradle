@@ -238,6 +238,7 @@ def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnd
     'RAILS_GROUPS': 'assets',
   ]
 
+  maxHeapSize = '256m'
   // Don't clobber assets; use Gradle to do this so we can avoid clobbering webpack assets in same dir
   args = ['-S', 'rake', '--trace', 'assets:precompile']
 
@@ -266,6 +267,7 @@ tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
     'RAILS_GROUPS': 'assets',
   )
 
+  maxHeapSize = '256m'
   args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
 
   def injected = project.objects.newInstance(Injected)

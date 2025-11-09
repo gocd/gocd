@@ -52,7 +52,7 @@ $selected-color: #d2ebf0;
     font-weight: normal;
     font-size: 12px;
     display: flex;
-    word-break: break-word;
+    overflow-wrap: break-word;
     white-space: normal;
     line-height: 1.8;
     margin-top: 2px;

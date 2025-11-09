@@ -26,7 +26,7 @@ $icon-size: 10px;
   .pipeline-instance-counter {
     width: 30px;
     text-align: end;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 }
 

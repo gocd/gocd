@@ -16,7 +16,7 @@
 @use "sass:color";
 @use "sass:map";
 
-$personalize-modal-err-tooltip-bg: rgba($tooltip-background-color, 0.75);
+$personalize-modal-err-tooltip-bg: rgb($tooltip-background-color, 0.75);
 $view-top-bg: $section-bg;
 $icon-color: #647984;
 

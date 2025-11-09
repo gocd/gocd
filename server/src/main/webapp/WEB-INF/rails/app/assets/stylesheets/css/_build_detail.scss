@@ -167,7 +167,7 @@ div.build_detail_container_content {
 
 @mixin console-action() {
   min-height: 25px;
-  background-color: rgba(#333, 0.6);
+  background-color: rgb(#333, 0.6);
 
   div {
     float: right;

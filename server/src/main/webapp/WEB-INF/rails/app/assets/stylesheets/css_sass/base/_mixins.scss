@@ -38,9 +38,9 @@
   text-decoration: none;
   font: 14px/100% Arial, Helvetica, sans-serif;
   padding: .5em 2em .55em;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+  text-shadow: 0 1px 1px rgb(0, 0, 0, .3);
   @include rounded();
-  @include box-shadow(0, 1px, 2px, rgba(0, 0, 0, 0.2));
+  @include box-shadow(0, 1px, 2px, rgb(0, 0, 0, 0.2));
   color: $text_color !important;
   font-weight: bold;
   border: solid 1px color.adjust($color, $lightness: -18%);

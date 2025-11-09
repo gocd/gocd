@@ -35,7 +35,7 @@
 }
 
 .shadow {
-  @include box-shadow(0,3px,3px,rgba(33, 33, 33, 0.2));
+  @include box-shadow(0,3px,3px,rgb(33, 33, 33, 0.2));
 
   border-bottom: 0 none;
 }

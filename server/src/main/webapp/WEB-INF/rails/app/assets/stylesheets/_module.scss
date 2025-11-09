@@ -733,7 +733,7 @@ li.template_form_error {
 .vsm-entity.pipeline.expanded {
   height: 195px;
   z-index: 1000;
-  box-shadow: 2px 2px 3px 3px rgba(128, 128, 128, 20%);
+  box-shadow: 2px 2px 3px 3px rgb(128, 128, 128, 20%);
   border: 1px solid #aaa;
 }
 
@@ -837,12 +837,12 @@ li.template_form_error {
   position: absolute;
   top: 96px;
   z-index: 100;
-  background-color: rgba(255, 255, 255, 100%);
+  background-color: rgb(255, 255, 255, 100%);
   border: 1px solid #bbb;
   border-bottom: 0 solid #ccc;
   line-height: 1.5em;
   border-radius: 3px;
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 20%);
+  box-shadow: 1px 1px 2px rgb(0, 0, 0, 20%);
   padding-right: 0;
 }
 
@@ -1112,7 +1112,7 @@ li.template_form_error {
 /* VSM - Overlay */
 
 #vsm-overlay {
-  background: rgba(225, 225, 225, 50%);
+  background: rgb(225, 225, 225, 50%);
   position: fixed;
   top: 93px;
   z-index: 1000;
@@ -1140,13 +1140,13 @@ li.template_form_error {
   opacity: 0.8;
   background-color: #e6e6e6;
   overflow: hidden;
-  box-shadow: 0 0 2px 2px rgba(128, 128, 128, 30%);
+  box-shadow: 0 0 2px 2px rgb(128, 128, 128, 30%);
 }
 
 .pan:hover {
   opacity: 0.9;
   border: 1px solid #888;
-  box-shadow: 0 0 3px 3px rgba(128, 128, 128, 40%);
+  box-shadow: 0 0 3px 3px rgb(128, 128, 128, 40%);
 }
 
 .pan canvas {
@@ -1175,7 +1175,7 @@ li.template_form_error {
   overflow: visible;
   position: relative;
   z-index: 11;
-  background-color: rgba(0, 0, 0, 1%);
+  background-color: rgb(0, 0, 0, 1%);
 }
 
 .wraptext {

@@ -24,11 +24,11 @@ $auth-config-plugin-icon-size: 30px;
 $auth-config-icon-text-padding: 20px;
 
 %boxshadow {
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 20%);
+  box-shadow: 0 2px 4px 0 rgb(0, 0, 0, 20%);
 }
 
 %box-shadow {
-  box-shadow: 0 3px 11px 0 rgba(0, 0, 0, 15%);
+  box-shadow: 0 3px 11px 0 rgb(0, 0, 0, 15%);
 }
 
 .button {
@@ -134,7 +134,7 @@ body {
   position: relative;
   min-height: 50px;
   box-sizing: border-box;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 21%);
+  box-shadow: 0 0 10px rgb(0, 0, 0, 21%);
 
   h1 {
     display: inline-block;
@@ -168,7 +168,7 @@ body {
     &.current,
     &.current:hover {
       background: $current-tab-bg;
-      box-shadow: 0 -1px 2px 1px rgba(0, 0, 0, 10%);
+      box-shadow: 0 -1px 2px 1px rgb(0, 0, 0, 10%);
     }
   }
 
@@ -225,7 +225,7 @@ textarea {
   padding: 0 0.5rem;
 
   &:focus {
-    background-color: rgba(182, 111, 194, 14%);
+    background-color: rgb(182, 111, 194, 14%);
     box-shadow: none;
     border-color: $border-color;
     transition: all 0.3s ease-in-out;

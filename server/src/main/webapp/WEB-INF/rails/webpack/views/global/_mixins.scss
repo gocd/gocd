@@ -37,10 +37,13 @@ $spinner-wrapper-height: 175px;
     }
   }
 
+  // Not sure how to correct this stylelint issue
+  // stylelint-disable no-invalid-position-declaration
   @media (min-width: $screen-md) {
     font-size: 13px;
     font-weight: 600;
   }
+  // stylelint-enable
 }
 
 @mixin spinner-for-modal {

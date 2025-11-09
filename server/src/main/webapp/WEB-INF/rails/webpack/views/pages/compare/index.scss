@@ -175,7 +175,7 @@ $dropdown-button-content-z-index: 5;
 
     &:nth-child(2) {
       width: 20%;
-      word-break: break-word;
+      overflow-wrap: break-word;
     }
 
     &:nth-child(3) {

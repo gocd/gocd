@@ -16,7 +16,7 @@
 
 @import "vals";
 
-.fillable {
+%fillable-section {
   background-color: $white;
   max-width: $fillable-section-width-max;
   min-width: $fillable-section-width-min;
@@ -39,4 +39,8 @@
       }
     }
   }
+}
+
+.fillable {
+  @extend %fillable-section;
 }

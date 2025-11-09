@@ -47,36 +47,24 @@
 .btn-cancel {
   @include button($background-color: transparent);
 
-  // stylelint-disable no-duplicate-selectors
-  & {
-    color: $text-color;
-  }
-  // stylelint-enable
+  color: $text-color;
 }
 
 .btn-link {
   @include button($background-color: transparent);
 
-  // stylelint-disable no-duplicate-selectors
-  & {
-    color: $text-color;
-    padding: 0;
-    text-decoration: underline;
-    line-height: normal;
-    height: auto;
-  }
-  // stylelint-enable
+  color: $text-color;
+  padding: 0;
+  text-decoration: underline;
+  line-height: normal;
+  height: auto;
 }
 
 .btn-default {
   @include button($background-color: $white);
 
-  // stylelint-disable no-duplicate-selectors
-  & {
-    color: $text-color;
-    border: 1px solid $border-color;
-  }
-  // stylelint-enable
+  color: $text-color;
+  border: 1px solid $border-color;
 }
 
 .btn-small {

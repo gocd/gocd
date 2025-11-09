@@ -216,16 +216,12 @@ $bar-spacing: 7px;
 .user_link {
   @include hover-effect-for-top-menu;
 
-  // stylelint-disable no-duplicate-selectors
-  & {
-    color: $header-text-color;
-    text-decoration: none;
-    padding: 0;
-    line-height: 40px;
-    display: inline-block;
-    font-size: 13px;
-  }
-  // stylelint-enable
+  color: $header-text-color;
+  text-decoration: none;
+  padding: 0;
+  line-height: 40px;
+  display: inline-block;
+  font-size: 13px;
 
   @media (min-width: $screen-md) {
     padding: 0 7px;

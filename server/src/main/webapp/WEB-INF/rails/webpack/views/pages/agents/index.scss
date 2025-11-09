@@ -103,7 +103,7 @@ $dropdown-button-content-z-index: 5;
     height: inherit;
     line-height: 100%;
     overflow: hidden;
-    word-break: break-word;
+    overflow-wrap: break-word;
   }
 }
 

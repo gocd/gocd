@@ -16,8 +16,8 @@
 @use "sass:map";
 @import "../../global/common";
 
-$overlay-bg: rgba(0, 0, 0, 80%);
-$modal-overlay-bg: rgba(255, 255, 255, 60%);
+$overlay-bg: rgb(0, 0, 0, 80%);
+$modal-overlay-bg: rgb(255, 255, 255, 60%);
 $overlay-header-bg: $go-darkblue;
 $overlay-width: 500px;
 $overlay-height: 500px;

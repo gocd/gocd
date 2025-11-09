@@ -37,7 +37,7 @@
     width: 300px;
     box-sizing: border-box;
     font-size: 13px;
-    box-shadow: 3px 3px 5px 0 rgba(0, 0, 0, 20%);
+    box-shadow: 3px 3px 5px 0 rgb(0, 0, 0, 20%);
 
     &::after {
       bottom: 100%;
@@ -48,7 +48,7 @@
       width: 0;
       position: absolute;
       pointer-events: none;
-      border-color: rgba(255, 255, 255, 0%);
+      border-color: rgb(255, 255, 255, 0%);
       border-bottom-color: #fff;
       border-width: 6px;
     }

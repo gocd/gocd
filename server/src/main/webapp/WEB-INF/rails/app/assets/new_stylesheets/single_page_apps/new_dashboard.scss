@@ -73,7 +73,7 @@ body {
     left: -100%;
     top: 90%;
     width: 10rem;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
 
     &::before {
       left: 35%;
@@ -236,7 +236,7 @@ body {
       }
 
       &:hover {
-        background: rgba(0, 0, 0, 20%);
+        background: rgb(0, 0, 0, 20%);
       }
     }
   }

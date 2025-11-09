@@ -25,7 +25,7 @@ $primary-color: #943a9e;
 $secondary-color: #2fa8b6;
 $global-border-radius: 3px;
 $vsm-bg: $page-body-background;
-$vsm-highlight: rgba(255, 255, 255, 18100%);
+$vsm-highlight: rgb(255, 255, 255, 18100%);
 $icon-color: #647984;
 $icon-hover-color: #1c435c;
 
@@ -294,7 +294,7 @@ $btn-default: #d6d5d5;
   font-size: 14px;
   color: #666;
   padding: 5px 10px 5px 30px;
-  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 50%);
+  box-shadow: 0 0 2px 0 rgb(0, 0, 0, 50%);
   background: #fff image_url("select-pipeline-icon.svg") no-repeat 7px 3px;
   background-size: 14px;
 }

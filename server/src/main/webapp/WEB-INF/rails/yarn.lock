@@ -1795,23 +1795,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:*":
+"@types/eslint@npm:*, @types/eslint@npm:^9.6.1":
   version: 9.6.1
   resolution: "@types/eslint@npm:9.6.1"
   dependencies:
     "@types/estree": "npm:*"
     "@types/json-schema": "npm:*"
   checksum: 10/719fcd255760168a43d0e306ef87548e1e15bffe361d5f4022b0f266575637acc0ecb85604ac97879ee8ae83c6a6d0613b0ed31d0209ddf22a0fe6d608fc56fe
-  languageName: node
-  linkType: hard
-
-"@types/eslint@npm:^8.56.10":
-  version: 8.56.12
-  resolution: "@types/eslint@npm:8.56.12"
-  dependencies:
-    "@types/estree": "npm:*"
-    "@types/json-schema": "npm:*"
-  checksum: 10/bd998b5d3f98ac430ec8db6223f1cff1820774c1e72eabda05463256875d97065fd357fba7379dd25e6bfbeb73296f28faff6f4dcbc320f890bb49b09087644d
   languageName: node
   linkType: hard
 
@@ -3996,19 +3986,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-webpack-plugin@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "eslint-webpack-plugin@npm:4.2.0"
+"eslint-webpack-plugin@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "eslint-webpack-plugin@npm:5.0.2"
   dependencies:
-    "@types/eslint": "npm:^8.56.10"
+    "@types/eslint": "npm:^9.6.1"
+    flatted: "npm:^3.3.3"
     jest-worker: "npm:^29.7.0"
-    micromatch: "npm:^4.0.5"
+    micromatch: "npm:^4.0.8"
     normalize-path: "npm:^3.0.0"
-    schema-utils: "npm:^4.2.0"
+    schema-utils: "npm:^4.3.0"
   peerDependencies:
     eslint: ^8.0.0 || ^9.0.0
     webpack: ^5.0.0
-  checksum: 10/061d11a93832b82bd0362d6c546f51fe5e3a0eb811374b86536a2929ff46fea7e5ef30e32f0d3194b9da146a7c0ae43f13b2ec5ce0f65a9ca9c4d961d9e446b3
+  checksum: 10/b50370fb530b7543366a1360639c2a86cacadb88d364b393c3055b093fec5034122b4ee0e0b9247b002b6659e360a08c68d6361d07db1b1dcf547e549331f076
   languageName: node
   linkType: hard
 
@@ -4796,7 +4787,7 @@ __metadata:
     css-loader: "npm:^7.1.2"
     eslint: "npm:^8.57.1"
     eslint-plugin-react: "npm:^7.37.5"
-    eslint-webpack-plugin: "npm:^4.2.0"
+    eslint-webpack-plugin: "npm:^5.0.2"
     file-loader: "npm:^6.2.0"
     filesize: "npm:^11.0.13"
     fork-ts-checker-webpack-plugin: "npm:^9.1.0"
@@ -4833,7 +4824,7 @@ __metadata:
     opensans: "file:vendor/assets/fonts/opensans"
     prismjs: "npm:^1.30.0"
     sass-embedded: "npm:^1.93.3"
-    sass-loader: "npm:^14.2.1"
+    sass-loader: "npm:^16.0.6"
     shell-quote: "npm:^1.8.3"
     shellwords-ts: "npm:^3.0.1"
     simulate-event: "npm:^1.4.0"
@@ -7928,9 +7919,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-loader@npm:^14.2.1":
-  version: 14.2.1
-  resolution: "sass-loader@npm:14.2.1"
+"sass-loader@npm:^16.0.6":
+  version: 16.0.6
+  resolution: "sass-loader@npm:16.0.6"
   dependencies:
     neo-async: "npm:^2.6.2"
   peerDependencies:
@@ -7950,7 +7941,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10/9cb864fd8d4c4f73d05f6cedae9ff4500f15fa742385e1f1cffcc0f994270810288fe99009f233ac6516fdc497570ce21f53c63f079c70e841c1e5bf994bc27d
+  checksum: 10/ff4d11c48a4286dbee0de0aa9c9225e96a4390039f8fccc3333e21b7d9ac27c4ed9572212ec733a31723ec740808f6d446aea20f1d05fd47e6ce0f23d4942fb8
   languageName: node
   linkType: hard
 

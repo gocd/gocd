@@ -22,6 +22,7 @@ import {
   Chart,
   ChartConfiguration,
   ChartEvent,
+  InteractionItem,
   Legend,
   LinearScale,
   LineController,
@@ -57,9 +58,9 @@ function chartDataForCounter(chartData: Data[], pipelineCounter: number, status:
     return chartData.find((datum) => datum.pipeline_counter === pipelineCounter && datum.status === status)!;
 }
 
-function statusFromSelectedItem(chartTooltipItem: TooltipItem<"line"> | { datasetIndex: number }, chart: Chart) {
-    const datasetIndex = chartTooltipItem.datasetIndex!;
-    const chartDataSet = chart.data.datasets![datasetIndex];
+function statusFromSelectedItem(item: TooltipItem<any> | InteractionItem, chart: Chart) {
+    const datasetIndex = item.datasetIndex;
+    const chartDataSet = chart.data.datasets[datasetIndex];
     return chartDataSet.label as Status;
 }
 
@@ -142,22 +143,22 @@ window.showStageDurationGraph = (title: string,
 
                     borderWidth: 1,
                     callbacks: {
-                        title(item: Array<TooltipItem<"line">>): string | string[] {
-                            const status = statusFromSelectedItem(item[0], chart);
-                            const selectedPipelineCounter = parseInt(item[0].label! as string, 10);
+                        title(items: Array<TooltipItem<any>>): string | string[] {
+                            const status = statusFromSelectedItem(items[0], chart);
+                            const selectedPipelineCounter = parseInt(items[0].label, 10);
                             const selectedPipelineData = chartDataForCounter(chartData, selectedPipelineCounter, status);
                             return `Pipeline Label: ${selectedPipelineData.pipeline_label}`;
                         },
-                        label(tooltipItem: TooltipItem<"line">): string | string[] {
-                            const status = statusFromSelectedItem(tooltipItem, chart);
-                            const pipelineCounter = parseInt(tooltipItem.label! as string, 10);
+                        label(item: TooltipItem<any>): string | string[] {
+                            const status = statusFromSelectedItem(item, chart);
+                            const pipelineCounter = parseInt(item.label, 10);
                             const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter, status);
                             const duration = timeFormatter.formattedDuration(selectedPipelineData.duration);
                             return `${selectedPipelineData.status} in ${(duration)}`;
                         },
-                        footer(item: Array<TooltipItem<"line">>): string | string[] {
-                            const status = statusFromSelectedItem(item[0], chart);
-                            const pipelineCounter = parseInt(item[0].label! as string, 10);
+                        footer(items: Array<TooltipItem<any>>): string | string[] {
+                            const status = statusFromSelectedItem(items[0], chart);
+                            const pipelineCounter = parseInt(items[0].label, 10);
                             const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter, status);
                             return `Started at ${timeFormatter.format(selectedPipelineData.schedule_date)}`;
                         }
@@ -205,7 +206,7 @@ window.showStageDurationGraph = (title: string,
                 const elementAtEvent = chart.getElementsAtEventForMode(event.native!, 'nearest', { intersect: true }, false)[0];
 
                 if (elementAtEvent) {
-                    const status = statusFromSelectedItem({datasetIndex: elementAtEvent.datasetIndex}, chart);
+                    const status = statusFromSelectedItem(elementAtEvent, chart);
                     const pipelineCounter = parseInt(chart.data.labels![elementAtEvent.index] as string, 10);
                     const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter, status);
                     parent.postMessage(JSON.stringify({openLink: selectedPipelineData.stage_link}), "*");
@@ -227,7 +228,7 @@ window.showStageDurationGraph = (title: string,
     zoomButton.style.display = 'none';
     zoomButton.addEventListener('click', (e) => {
         zoomButton.style.display = 'none';
-        (chart as any).resetZoom();
+        chart.resetZoom();
         e.preventDefault();
         return false;
     });

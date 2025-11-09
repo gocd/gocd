@@ -15,7 +15,7 @@
  */
 import _ from "lodash";
 import m from "mithril";
-import Sortable from "@shopify/draggable/lib/sortable";
+import {Sortable} from "@shopify/draggable";
 import {Editor} from "views/dashboard/personalization_editor";
 import {throttleRaf} from "helpers/throttle-raf";
 

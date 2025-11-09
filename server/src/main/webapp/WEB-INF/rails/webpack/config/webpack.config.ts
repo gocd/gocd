@@ -46,48 +46,47 @@ function getConfigOptions(argv: any, env: any): ConfigOptions {
   };
 }
 
-function getOptimization(configOptions: ConfigOptions): webpack.Options.Optimization {
-  return configOptions.production ? {
-    splitChunks: {
-      cacheGroups: {
-        vendor: {
-          name: "vendor-and-helpers.chunk",
-          chunks: "all",
-          minChunks: 2
-        }
-      }
-    },
-    minimizer: [
-      new TerserPlugin({
-        parallel: 4,
-      })
-    ]
-  } : {
-    splitChunks: {
-      chunks: "all",
-      minSize: 100_000
-    }
-  };
-}
-
 function configuration(env: any, argv: any): webpack.Configuration {
   env  = _.assign({}, env);
   argv = _.assign({}, argv);
 
   const configOptions = getConfigOptions(argv, env);
-  const optimization  = getOptimization(configOptions);
 
   return {
     entry: getEntries(configOptions),
     output: {
+      clean: true,
       path: configOptions.outputDir,
       publicPath: "/go/assets/webpack/",
       filename: configOptions.production ? "[name]-[contenthash].js" : "[name].js"
     },
-    cache: true,
+    cache: {
+      type: 'filesystem',
+      cacheDirectory: path.join(configOptions.cacheDir, "webpack-cache"),
+    },
     bail: !argv.watch,
     devtool: configOptions.production ? "source-map" : "eval-source-map",
-    optimization,
+    optimization: configOptions.production ? {
+      splitChunks: {
+        cacheGroups: {
+          vendor: {
+            name: "vendor-and-helpers.chunk",
+            chunks: "all",
+            minChunks: 2
+          }
+        }
+      },
+      minimizer: [
+        new TerserPlugin({
+          parallel: 4,
+        })
+      ]
+    } : {
+      splitChunks: {
+        chunks: "all",
+        minSize: 100_000
+      }
+    },
     resolve: {
       extensions: [".js", ".js.msx", ".msx", ".tsx", ".ts"],
       modules: getModules(configOptions),

@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.database.migration;
 
-import liquibase.Liquibase;
-import liquibase.UpdateSummaryOutputEnum;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.resource.ClassLoaderResourceAccessor;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +36,7 @@ import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LiquibaseMigrationTest {
+public class DatabaseMigratorLiquibaseTest {
     private BasicDataSource dataSource;
 
     @BeforeEach
@@ -99,12 +93,10 @@ public class LiquibaseMigrationTest {
         verifyTableDoesNotExists("USAGEDATAREPORTING");
     }
 
-    private void migrate(String migration) throws Exception {
-        Connection connection = dataSource.getConnection();
-        Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
-        Liquibase liquibase = new Liquibase("db-migration-scripts/" + migration, new ClassLoaderResourceAccessor(getClass().getClassLoader()), database);
-        liquibase.setShowSummaryOutput(UpdateSummaryOutputEnum.LOG);
-        liquibase.update();
+    private void migrate(String changeLogFile) throws Exception {
+        try (Connection connection = dataSource.getConnection()) {
+            new DatabaseMigrator().migrateSchema(changeLogFile, connection);
+        }
     }
 
     private List<String> tableList() throws SQLException {

@@ -68,7 +68,7 @@ tasks.register('initializeBuildx') {
         commandLine = ['docker', 'buildx', 'rm', '--force', '--keep-state', builderName]
         ignoreExitValue = true
       }
-      injected.execOps.exec { commandLine = ['docker', 'buildx', 'create', '--use', '--name', builderName, '--config', buildkitConfig.path, '--driver-opt', 'image=moby/buildkit:v0.19.0-rootless'] }
+      injected.execOps.exec { commandLine = ['docker', 'buildx', 'create', '--use', '--name', builderName, '--config', buildkitConfig.path, '--driver-opt', 'image=moby/buildkit:buildx-stable-1-rootless'] }
       injected.execOps.exec { commandLine = ['docker', 'buildx', 'inspect', '--bootstrap', builderName] }
     }
   }

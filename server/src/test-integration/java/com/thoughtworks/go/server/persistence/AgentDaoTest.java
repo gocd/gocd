@@ -385,6 +385,7 @@ public class AgentDaoTest {
         }
     }
 
+    @SuppressWarnings({"StringOperationCanBeSimplified", "UnnecessaryCallToStringValueOf"})
     @Test
     public void shouldReturnSameCacheKeyForDifferentStringsHoldingSameValue() {
         String uuid1 = "uuid";

@@ -99,6 +99,6 @@ public class AuthorizationMigrationTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(newConfig, buffer, false);
 
-        assertThat(new String(buffer.toByteArray()).replace("\r\n", "\n")).contains(NEW_AUTHORIZATION);
+        assertThat(buffer.toString().replace("\r\n", "\n")).contains(NEW_AUTHORIZATION);
     }
 }

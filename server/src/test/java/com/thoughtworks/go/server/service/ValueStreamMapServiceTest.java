@@ -134,7 +134,7 @@ public class ValueStreamMapServiceTest {
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("MYPIPELINE"), counter, user, result);
 
-        assertThat(graph.getCurrentPipeline().getName().toString()).isEqualTo(pipelineName);
+        assertThat(graph.getCurrentPipeline().getName()).isEqualTo(pipelineName);
         List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
         assertThat(nodesAtEachLevel.size()).isEqualTo(2);
 

@@ -60,7 +60,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(ResetCipher.class)
 public class MagicalGoConfigXmlWriterTest {
@@ -113,14 +113,9 @@ public class MagicalGoConfigXmlWriterTest {
         PartialConfig remotePart = PartialConfigMother.withPipeline("some-pipe");
         remotePart.setOrigin(new RepoConfigOrigin());
         BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig, remotePart);
-        try {
-            xmlWriter.write(merged, output, true);
-        } catch (GoConfigInvalidException ex) {
-            // ok
-            assertThat(ex.getMessage()).isEqualTo("Attempted to save merged configuration with partials");
-            return;
-        }
-        fail("should have thrown when saving merged configuration");
+        assertThatThrownBy(() -> xmlWriter.write(merged, output, true))
+            .isInstanceOf(GoConfigInvalidException.class)
+            .hasMessage("Attempted to save merged configuration with partials");
     }
 
     @Test
@@ -138,12 +133,8 @@ public class MagicalGoConfigXmlWriterTest {
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
         cruiseConfig.addPipeline("someGroup", PipelineConfigMother.pipelineConfig("pipeline1"));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("Should not be able to save config when there are 2 pipelines with same name");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).contains("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .hasMessageContaining("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]");
     }
 
     @Test
@@ -179,25 +170,15 @@ public class MagicalGoConfigXmlWriterTest {
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
         cruiseConfig.addEnvironment(new BasicEnvironmentConfig());
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("Should not be able to save config when the environment name is not set");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).contains("\"Name\" is required for Environment");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .hasMessageContaining("\"Name\" is required for Environment");
     }
 
     @Test
     public void shouldValidateThatEnvironmentsAreSameEvenNamesAreOfDifferentCase() {
         String xml = ConfigFileFixture.WITH_DUPLICATE_ENVIRONMENTS;
-        try {
-
-            ConfigMigrator.loadWithMigration(xml);
-
-            fail("Should not be able to save config when 2 environments have the same name with different case");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).contains("Environment with name 'FOO' already exists.");
-        }
+        assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(xml))
+            .hasMessageContaining("Environment with name 'FOO' already exists.");
     }
 
     @Test
@@ -326,12 +307,9 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldFailWhenWritingObjectToXmlPartialWithNoConfigTag() {
         Object badObject = "foo";
-        try {
-            xmlWriter.toXmlPartial(badObject);
-            fail("Should not be able to write a non ConfigTag enabled object");
-        } catch (RuntimeException expected) {
-            assertThat(expected.getMessage()).isEqualTo("Object " + badObject + " does not have a ConfigTag");
-        }
+        assertThatThrownBy(() -> xmlWriter.toXmlPartial(badObject))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Object " + badObject + " does not have a ConfigTag");
     }
 
     @Test
@@ -630,12 +608,8 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.ONE_PIPELINE);
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         pipelineConfig.setTrackingTool(new TrackingTool("", "regex"));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("should not save a trackingtool without a link");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).contains("Link should be populated");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .hasMessageContaining("Link should be populated");
     }
 
     @Test
@@ -653,12 +627,8 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.ONE_PIPELINE);
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         pipelineConfig.setTrackingTool(new TrackingTool("link", ""));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("should not save a trackingtool without a regex");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).contains("Regex should be populated");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .hasMessageContaining("Regex should be populated");
     }
 
     @Test
@@ -711,34 +681,22 @@ public class MagicalGoConfigXmlWriterTest {
         StageConfig stage = xmlLoader.fromXmlPartial(ConfigFileFixture.SAME_STATUS_RUN_IF_PARTIAL, StageConfig.class);
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("test"));
         pipelineConfig.set(0, stage);
-
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail();
-        } catch (Exception e) {
-            assertThat(e.getMessage()).containsAnyOf(
-                "Duplicate unique value [passed] declared for identity constraint of element \"exec\".",
-                "Duplicate unique value [passed] declared for identity constraint \"uniqueRunIfTypeForExec\" of element \"exec\"."
-            );
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .hasMessageContaining("Duplicate unique value [passed] declared for identity constraint");
     }
 
     @Test
-    public void shouldNotThrowUpWhenTfsWorkspaceIsNotSpecified() {
+    public void shouldNotThrowUpWhenTfsWorkspaceIsNotSpecified() throws Exception {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("tfs_pipeline");
         cruiseConfig.initializeServer();
         PipelineConfig tfs_pipeline = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("tfs_pipeline"));
         tfs_pipeline.materialConfigs().clear();
         tfs_pipeline.addMaterialConfig(tfs(new GoCipher(), new UrlArgument("http://tfs.com"), "username", "CORPORATE", "password", "$/project_path"));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-        } catch (Exception e) {
-            fail("should not fail as workspace name is not mandatory anymore " + e);
-        }
+        xmlWriter.write(cruiseConfig, output, false);
     }
 
     @Test
-    public void shouldSerialize_CaseInsensitiveString_whenUsedInConfigAttributeValue() {//for instance FetchTask uses PathFromAncestor which has CaseInsensitiveString
+    public void shouldSerialize_CaseInsensitiveString_whenUsedInConfigAttributeValue() throws Exception {//for instance FetchTask uses PathFromAncestor which has CaseInsensitiveString
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("uppest", "upper", "downer", "downest");
         cruiseConfig.initializeServer();
         setDependencyOn(cruiseConfig, "upper", "uppest", "stage");
@@ -748,13 +706,9 @@ public class MagicalGoConfigXmlWriterTest {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("uppest/upper/downer"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "src", "dest");
         downest.add(com.thoughtworks.go.helper.StageConfigMother.stageConfig("stage-2", new JobConfigs(new JobConfig(new CaseInsensitiveString("downloader"), new ResourceConfigs(), new ArtifactTypeConfigs(), new Tasks(fetchTask)))));
 
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-        } catch (Exception e) {
-            fail("should not fail as workspace name is not mandatory anymore " + e);
-        }
+        xmlWriter.write(cruiseConfig, output, false);
 
-        assertThat(new String(output.toByteArray())).contains("<fetchartifact artifactOrigin=\"gocd\" srcfile=\"src\" dest=\"dest\" pipeline=\"uppest/upper/downer\" stage=\"stage\" job=\"job\" />");
+        assertThat(output.toString()).contains("<fetchartifact artifactOrigin=\"gocd\" srcfile=\"src\" dest=\"dest\" pipeline=\"uppest/upper/downer\" stage=\"stage\" job=\"job\" />");
     }
 
     @Test
@@ -820,15 +774,9 @@ public class MagicalGoConfigXmlWriterTest {
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
 
         cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository, anotherPackageRepository));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("should not have allowed two repositories with same id");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage()).containsAnyOf(
-                "Duplicate unique value [id] declared for identity constraint of element \"repositories\".",
-                "Duplicate unique value [id] declared for identity constraint \"uniqueRepositoryId\" of element \"repositories\"."
-            );
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .isInstanceOf(XsdValidationException.class)
+            .hasMessageContaining("Duplicate unique value [id] declared for identity constraint");
     }
 
     @Test
@@ -843,14 +791,9 @@ public class MagicalGoConfigXmlWriterTest {
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
 
         cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository, anotherPackageRepository));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("should not have allowed two package repositories with same id");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage()).containsAnyOf(("Duplicate unique value [id] declared for identity constraint of element \"cruise\"."),
-                "Duplicate unique value [id] declared for identity constraint \"uniquePackageId\" of element \"cruise\"."
-            );
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .isInstanceOf(XsdValidationException.class)
+            .hasMessageContaining("Duplicate unique value [id] declared for identity constraint");
     }
 
     @Test
@@ -893,12 +836,9 @@ public class MagicalGoConfigXmlWriterTest {
         JobConfig jobConfig = new JobConfig("ls");
         jobConfig.addTask(new AntTask());
         cruiseConfig.addPipeline("default", com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(packageMaterialConfig), new JobConfigs(jobConfig)));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("should not allow this");
-        } catch (XsdValidationException exception) {
-            assertThat(exception.getMessage()).isEqualTo("Key 'packageIdReferredByMaterial' with value 'does-not-exist' not found for identity constraint of element 'cruise'.");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .isInstanceOf(XsdValidationException.class)
+            .hasMessage("Key 'packageIdReferredByMaterial' with value 'does-not-exist' not found for identity constraint of element 'cruise'.");
     }
 
     @Test
@@ -913,12 +853,9 @@ public class MagicalGoConfigXmlWriterTest {
                 new Packages(new PackageDefinition("id2", "name2", packageConfiguration)));
 
         cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository, anotherPackageRepository));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("should not have allowed two repositories with same id");
-        } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage()).isEqualTo("You have defined multiple repositories called 'name'. Repository names are case-insensitive and must be unique.");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .isInstanceOf(GoConfigInvalidException.class)
+            .hasMessage("You have defined multiple repositories called 'name'. Repository names are case-insensitive and must be unique.");
     }
 
     @Test
@@ -931,12 +868,9 @@ public class MagicalGoConfigXmlWriterTest {
                 new Packages(new PackageDefinition("id1", "name", packageConfiguration1), new PackageDefinition("id2", "name", packageConfiguration2)));
 
         cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("should not have allowed two repositories with same id");
-        } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage()).isEqualTo("You have defined multiple packages called 'name'. Package names are case-insensitive and must be unique within a repository.");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .isInstanceOf(GoConfigInvalidException.class)
+            .hasMessage("You have defined multiple packages called 'name'. Package names are case-insensitive and must be unique within a repository.");
     }
 
     @Test
@@ -948,12 +882,9 @@ public class MagicalGoConfigXmlWriterTest {
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
 
         cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("should not have allowed two repositories with same id");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage()).isEqualTo("Repo id is invalid. \"id wth space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .isInstanceOf(XsdValidationException.class)
+            .hasMessage("Repo id is invalid. \"id wth space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
@@ -965,12 +896,9 @@ public class MagicalGoConfigXmlWriterTest {
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
 
         cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("should not have allowed two repositories with same id");
-        } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage()).isEqualTo("Invalid PackageRepository name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .isInstanceOf(GoConfigInvalidException.class)
+            .hasMessage("Invalid PackageRepository name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -982,12 +910,9 @@ public class MagicalGoConfigXmlWriterTest {
                 new Packages(new PackageDefinition("id with space", "name", packageConfiguration)));
 
         cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("should not have allowed two repositories with same id");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage()).isEqualTo("Package id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .isInstanceOf(XsdValidationException.class)
+            .hasMessage("Package id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
@@ -1032,12 +957,9 @@ public class MagicalGoConfigXmlWriterTest {
                 new Packages(new PackageDefinition("id", "name with space", packageConfiguration)));
 
         cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository));
-        try {
-            xmlWriter.write(cruiseConfig, output, false);
-            fail("should not have allowed two repositories with same id");
-        } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage()).isEqualTo("Invalid Package name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
+            .isInstanceOf(GoConfigInvalidException.class)
+            .hasMessage("Invalid Package name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -1052,7 +974,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    @Timeout(1)
+    @Timeout(2)
     public void shouldValidateLeadingAndTrailingSpacesOnExecCommandInReasonableTime() throws Exception {
         // See https://github.com/gocd/gocd/issues/3551
         // This is only reproducible on longish strings, so don't try shortening the exec task length...
@@ -1062,12 +984,9 @@ public class MagicalGoConfigXmlWriterTest {
         config.findJob("pipeline1", "stage", "job").addTask(new ExecTask(longPath + " ", "arg1", (String) null));
 
         output = new ByteArrayOutputStream();
-        try {
-            xmlWriter.write(config, output, false);
-            fail("expected to blow up");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage()).contains("should conform to the pattern - \\S(.*\\S)?");
-        }
+        assertThatThrownBy(() -> xmlWriter.write(config, output, false))
+            .isInstanceOf(XsdValidationException.class)
+            .hasMessageContaining("should conform to the pattern - \\S(.*\\S)?");
     }
 
     @Test

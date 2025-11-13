@@ -184,7 +184,7 @@ $button-color: #2d6ca2;
 .comment {
   white-space: pre-wrap;
   max-height: 160px;
-  overflow-y: scroll;
+  overflow-y: auto;
   width: 100%;
 }
 

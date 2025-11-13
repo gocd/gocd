@@ -88,7 +88,6 @@ export class AgentsPage extends Page<null, State> {
 
     new AjaxPoller({
                      repeaterFn:      this.fetchData.bind(this, vnode),
-                     intervalSeconds: 10
                    }).start();
   }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {AjaxPoller} from "helpers/ajax_poller";
+import {AjaxPoller, defaultPollerOptions} from "helpers/ajax_poller";
 import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
@@ -104,7 +104,7 @@ export class MaterialsPage extends Page<null, State> {
       new ShowModificationsModal(material).render();
     };
 
-    new AjaxPoller({repeaterFn: this.refreshMaterials.bind(this, vnode), initialIntervalSeconds: 10}).start();
+    new AjaxPoller({repeaterFn: this.refreshMaterials.bind(this, vnode), initialIntervalMillis: defaultPollerOptions.intervalMillis}).start();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {

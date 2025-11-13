@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
+import {AjaxPoller, defaultPollerOptions} from "helpers/ajax_poller";
+import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {AjaxPoller} from "../../../../helpers/ajax_poller";
-import {ApiRequestBuilder, ApiResult, ApiVersion} from "../../../../helpers/api_request_builder";
-import {SparkRoutes} from "../../../../helpers/spark_routes";
-import {Agents} from "../../../../models/agents/agents";
-import {AgentsCRUD} from "../../../../models/agents/agents_crud";
-import {FlashMessageModelWithTimeout} from "../../../components/flash_message";
+import {Agents} from "models/agents/agents";
+import {AgentsCRUD} from "models/agents/agents_crud";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {JobsViewModel} from "./jobs_view_model";
 import {StageInstance} from "./stage_instance";
 import {Result, StageInstanceJSON, StageState} from "./types";
 
 export class StageOverviewViewModel {
-  private static POLLING_INTERVAL_IN_SECONDS = 10;
   private static STAGES_API_VERSION_HEADER = ApiVersion.latest;
   readonly stageInstance: Stream<StageInstance>;
   readonly jobsVM: Stream<JobsViewModel>;
@@ -39,12 +38,12 @@ export class StageOverviewViewModel {
   constructor(pipelineName: string, pipelineCounter: string | number,
               stageName: string, stageCounter: string | number,
               stageInstance: StageInstance, agents: Agents,
-              lastPassedStageInstance?: StageInstance, pollingInterval?: number) {
+              refreshEnabled: boolean = true, lastPassedStageInstance?: StageInstance) {
     this.stageInstance = Stream(stageInstance);
     this.lastPassedStageInstance = Stream(lastPassedStageInstance);
     this.jobsVM = Stream(new JobsViewModel(stageInstance.jobs(), agents));
     this.agents = Stream(agents);
-    this.repeater = Stream(this.createRepeater(pipelineName, pipelineCounter, stageName, stageCounter, pollingInterval));
+    this.repeater = Stream(this.createRepeater(pipelineName, pipelineCounter, stageName, stageCounter, refreshEnabled));
   }
 
   /*
@@ -90,12 +89,12 @@ export class StageOverviewViewModel {
                     stageName: string,
                     stageCounter: string | number,
                     stageStatus: StageState,
-                    pollingInterval?: number) {
+                    refreshEnabled: boolean = true) {
     // @ts-ignore
     const isCompleted = stageStatus === StageState[StageState.Cancelled] || stageStatus === StageState[StageState.Passed] || stageStatus === StageState[StageState.Failed];
 
     if (isCompleted) {
-      return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter, undefined, pollingInterval);
+      return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter, refreshEnabled, undefined);
     }
 
     return this.getLastPastStageHistoryInstance(pipelineName, stageName)
@@ -110,12 +109,12 @@ export class StageOverviewViewModel {
             return this.fetchStageInstance(passedStagePipelineName, passedStagePipelineCounter, passedStageName, passedStageCounter)
               .then((result) => {
                 return result.do((successResponse) => {
-                  return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter, successResponse.body, pollingInterval);
+                  return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter, refreshEnabled, successResponse.body);
                 });
               });
           }
 
-          return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter, undefined, pollingInterval);
+          return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter, refreshEnabled, undefined);
         });
       });
   }
@@ -126,11 +125,11 @@ export class StageOverviewViewModel {
 
   private static initializeCurrentStageInstance(pipelineName: string, pipelineCounter: string | number,
                                                 stageName: string, stageCounter: string | number,
-                                                latestStageInstance?: StageInstance, pollingInterval?: number) {
+                                                refreshEnabled: boolean, latestStageInstance?: StageInstance) {
     return Promise.all([this.fetchStageInstance(pipelineName, pipelineCounter, stageName, stageCounter), AgentsCRUD.all()]).then((result) => {
       return result[0].do((stageInstanceResponse) => {
         return result[1].do((agentsResponse) => {
-          return new StageOverviewViewModel(pipelineName, pipelineCounter, stageName, stageCounter, stageInstanceResponse.body, agentsResponse.body, latestStageInstance, pollingInterval);
+          return new StageOverviewViewModel(pipelineName, pipelineCounter, stageName, stageCounter, stageInstanceResponse.body, agentsResponse.body, refreshEnabled, latestStageInstance);
         });
       });
     });
@@ -155,7 +154,7 @@ export class StageOverviewViewModel {
   }
 
   private createRepeater(pipelineName: string, pipelineCounter: string | number,
-                         stageName: string, stageCounter: string | number, pollingInterval?: number) {
+                         stageName: string, stageCounter: string | number, refreshEnabled: boolean) {
     const repeaterFn = () => {
       return Promise.all([StageOverviewViewModel.fetchStageInstance(pipelineName, pipelineCounter, stageName, stageCounter), AgentsCRUD.all()]).then(result => {
         result[0].do((jobsSuccessResponse) => {
@@ -169,12 +168,10 @@ export class StageOverviewViewModel {
       });
     };
 
-    const interval = pollingInterval ? pollingInterval : StageOverviewViewModel.POLLING_INTERVAL_IN_SECONDS;
-
     const poller = new AjaxPoller({
       repeaterFn,
-      initialIntervalSeconds: interval,
-      intervalSeconds:        interval
+      initialIntervalMillis: refreshEnabled ? defaultPollerOptions.intervalMillis : 9999999999,
+      intervalMillis:        refreshEnabled ? defaultPollerOptions.intervalMillis : 9999999999
     });
 
     poller.start();

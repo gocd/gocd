@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {AjaxPoller} from "helpers/ajax_poller";
+import {AjaxPoller, defaultPollerOptions} from "helpers/ajax_poller";
 import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
@@ -25,7 +25,7 @@ import {ToggleConfirmModal} from "views/pages/maintenance_mode/confirm_modal";
 import {MaintenanceModeWidget} from "views/pages/maintenance_mode/maintenance_mode_widget";
 import {Page} from "views/pages/page";
 
-const CLEAR_MESSAGE_AFTER_INTERVAL_IN_SECONDS = 10;
+const CLEAR_MESSAGE_AFTER_INTERVAL_MILLIS = 10000;
 
 interface SaveOperation<T> {
   onSave: (obj: T, e: Event) => void;
@@ -50,7 +50,7 @@ export class Message {
     setTimeout(() => {
       this.message = null;
       m.redraw();
-    }, CLEAR_MESSAGE_AFTER_INTERVAL_IN_SECONDS * 1000);
+    }, CLEAR_MESSAGE_AFTER_INTERVAL_MILLIS);
   }
 }
 
@@ -103,7 +103,7 @@ export class MaintenanceModePage extends Page<null, State> {
 
     const options = {
       repeaterFn: () => this.fetchData(vnode),
-      intervalSeconds: 10
+      intervalMillis: defaultPollerOptions.intervalMillis * 2
     };
 
     new AjaxPoller(options).start();

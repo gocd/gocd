@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
+import {ErrorResponse} from "helpers/api_request_builder";
+import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {FlashMessage, FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
+import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons";
-import {ErrorResponse} from "../../../helpers/api_request_builder";
-import {MithrilComponent} from "../../../jsx/mithril-component";
-import {FlashMessage, FlashMessageModelWithTimeout, MessageType} from "../../components/flash_message";
-import {SelectField, SelectFieldOptions} from "../../components/forms/input_fields";
-import {Link} from "../../components/link";
+import {Link} from "views/components/link";
 import * as styles from "./index.scss";
 import {StageInstance} from "./models/stage_instance";
 import {StageOverviewViewModel} from "./models/stage_overview_view_model";
@@ -35,7 +35,7 @@ interface StageHeaderAttrs {
   stageInstanceFromDashboard: any;
   canAdminister: boolean;
   templateName: string | undefined | null;
-  pollingInterval?: number;
+  refreshEnabled: boolean;
   status: Stream<string>;
   flashMessage: FlashMessageModelWithTimeout;
   stageInstance: Stream<StageInstance>;
@@ -60,7 +60,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
       vnode.attrs.isLoading(true);
 
       // pass in the stage state as passed/failed, this value is just to denote whether the current stage instance has completed.
-      StageOverviewViewModel.initialize(vnode.attrs.pipelineName, vnode.attrs.pipelineCounter, vnode.attrs.stageName, vnode.attrs.userSelectedStageCounter(), StageState.Passed, vnode.attrs.pollingInterval)
+      StageOverviewViewModel.initialize(vnode.attrs.pipelineName, vnode.attrs.pipelineCounter, vnode.attrs.stageName, vnode.attrs.userSelectedStageCounter(), StageState.Passed, vnode.attrs.refreshEnabled)
         .then((result) => {
           let stageResult = result.stageInstance().result();
           if (stageResult === "Unknown") {

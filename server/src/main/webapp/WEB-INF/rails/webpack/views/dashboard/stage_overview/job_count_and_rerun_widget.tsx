@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+import {ErrorResponse} from "helpers/api_request_builder";
+import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {ErrorResponse} from "../../../helpers/api_request_builder";
-import {MithrilComponent} from "../../../jsx/mithril-component";
-import {ButtonGroup, Secondary} from "../../components/buttons";
-import {FlashMessageModelWithTimeout, MessageType} from "../../components/flash_message";
+import {ButtonGroup, Secondary} from "views/components/buttons";
+import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import * as styles from "./index.scss";
 import {JobsViewModel} from "./models/jobs_view_model";
 

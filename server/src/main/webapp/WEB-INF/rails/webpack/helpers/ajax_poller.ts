@@ -19,16 +19,16 @@ import m from "mithril";
 import Stream from "mithril/stream";
 
 export interface Options<T> {
-  intervalSeconds: number;
-  initialIntervalSeconds: number;
+  intervalMillis: number;
+  initialIntervalMillis: number;
   visibilityBackoffFactor: number;
 
   repeaterFn(currentPromise: (value: T) => any): Promise<T>;
 }
 
-const defaultOptions = {
-  intervalSeconds: CONSTANTS.SPA_REFRESH_INTERVAL / 1000,
-  initialIntervalSeconds: 0,
+export const defaultPollerOptions = {
+  intervalMillis: CONSTANTS.SPA_REFRESH_INTERVAL_MILLIS,
+  initialIntervalMillis: 0,
   visibilityBackoffFactor: 3
 };
 
@@ -51,15 +51,15 @@ export class AjaxPoller<T> {
 
   constructor(options: (() => Promise<T>) | Partial<Options<T>>) {
     // @ts-ignore
-    this.options = _.assign({}, defaultOptions, "function" === typeof options ? {repeaterFn: options} : options);
+    this.options = _.assign({}, defaultPollerOptions, "function" === typeof options ? {repeaterFn: options} : options);
     if (doesBrowserSupportPageVisibilityAPI) {
       document.addEventListener("visibilitychange", this.handleVisibilityChange.bind(this), false);
     }
   }
 
-  start(initialInterval = Math.max(this.options.initialIntervalSeconds, 0)) {
+  start(initialIntervalMillis = Math.max(this.options.initialIntervalMillis, 0)) {
     this.abort   = false;
-    this.timeout = window.setTimeout(this.fire.bind(this), initialInterval * 1000);
+    this.timeout = window.setTimeout(this.fire.bind(this), initialIntervalMillis);
   }
 
   stop() {
@@ -118,9 +118,9 @@ export class AjaxPoller<T> {
 
   private currentPollInterval() {
     if (!windowIsInForeground() || this.isPageHidden()) {
-      return this.options.intervalSeconds * this.options.visibilityBackoffFactor * 1000;
+      return this.options.intervalMillis * this.options.visibilityBackoffFactor;
     } else {
-      return this.options.intervalSeconds * 1000;
+      return this.options.intervalMillis;
     }
   }
 }

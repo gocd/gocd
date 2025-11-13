@@ -19,7 +19,7 @@ import {LRUCache} from "lru-cache";
 import moment from "moment";
 import "moment-duration-format";
 
-const utcOffsetInMinutes = CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET / 60000;
+const utcOffsetInMinutes = CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET_MINS;
 const CACHE_SIZE         = 10000;
 const DATE_FORMAT        = "DD MMM YYYY";
 const LOCAL_TIME_FORMAT  = "DD MMM, YYYY [at] HH:mm:ss [Local Time]";

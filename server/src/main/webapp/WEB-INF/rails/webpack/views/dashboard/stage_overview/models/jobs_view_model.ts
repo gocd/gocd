@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import Stream from 'mithril/stream';
-import {ApiRequestBuilder, ApiVersion} from "../../../../helpers/api_request_builder";
-import {SparkRoutes} from "../../../../helpers/spark_routes";
-import {Agents} from "../../../../models/agents/agents";
+import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import {SparkRoutes} from "helpers/spark_routes";
+import Stream from "mithril/stream";
+import {Agents} from "models/agents/agents";
 import {JobDurationStrategyHelper} from "./job_duration_stratergy_helper";
 import {JobJSON, Result} from "./types";
 

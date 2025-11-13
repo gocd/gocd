@@ -29,7 +29,7 @@ const setHeaders = (xhr: JQuery.jqXHR, version: string) => {
 };
 
 export const mrequest = {
-  timeout: CONSTANTS.SPA_REQUEST_TIMEOUT,
+  timeout: CONSTANTS.SPA_REQUEST_TIMEOUT_MILLIS,
   globalAjaxErrorHandler: () => {
     $(document).ajaxError((_event, jqXHR) => {
       if (jqXHR.status === 401) {

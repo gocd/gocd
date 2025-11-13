@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {AjaxPoller} from "helpers/ajax_poller";
+import {AjaxPoller, defaultPollerOptions} from "helpers/ajax_poller";
 import {ApiResult} from "helpers/api_request_builder";
 import {pipeline} from "helpers/utils";
 import _ from "lodash";
@@ -138,7 +138,7 @@ export class ConfigReposPage extends Page<null, State> {
     vnode.state.webhookUrlFor = (_, __) => "server url provider not initialized.";
     vnode.state.siteUrlsConfigured = () => this.siteUrls().isConfigured();
 
-    new AjaxPoller({repeaterFn: this.refreshConfigRepos.bind(this, vnode), initialIntervalSeconds: 10}).start();
+    new AjaxPoller({repeaterFn: this.refreshConfigRepos.bind(this, vnode), initialIntervalMillis: defaultPollerOptions.intervalMillis}).start();
   }
 
   oncreate(vnode: m.Vnode<null, State>) {

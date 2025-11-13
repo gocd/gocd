@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+// @ts-ignore
 import {docsUrl} from "gen/gocd_version";
-import {AjaxPoller} from "helpers/ajax_poller";
+import {AjaxPoller, defaultPollerOptions} from "helpers/ajax_poller";
 import {ApiResult} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -68,7 +69,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     super();
     this.poller = new AjaxPoller({
                                    repeaterFn: this.fetchPipelineHistory.bind(this),
-                                   initialIntervalSeconds: 10
+                                   initialIntervalMillis: defaultPollerOptions.intervalMillis
                                  });
   }
 

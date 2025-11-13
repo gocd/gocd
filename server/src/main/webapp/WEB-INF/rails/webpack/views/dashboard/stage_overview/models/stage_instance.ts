@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import * as CONSTANTS from "helpers/constants";
+import {SparkRoutes} from "helpers/spark_routes";
 import moment from "moment";
-import {ApiRequestBuilder, ApiVersion} from "../../../../helpers/api_request_builder";
-import * as CONSTANTS from "../../../../helpers/constants";
-import {SparkRoutes} from "../../../../helpers/spark_routes";
 import {JobDurationStrategyHelper} from "./job_duration_stratergy_helper";
 import {JobJSON, Result, StageInstanceJSON} from "./types";
 
@@ -47,7 +47,7 @@ export class StageInstance {
 
   triggeredOnServerTime(): string {
     const SERVER_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss Z [Server Time]";
-    const utcOffsetInMinutes = CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET / 60000;
+    const utcOffsetInMinutes = CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET_MINS;
     return moment.unix(this.stageScheduledAtInSecs()).utcOffset(utcOffsetInMinutes).format(SERVER_TIME_FORMAT);
   }
 
@@ -98,7 +98,7 @@ export class StageInstance {
     }
 
     const SERVER_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss Z [Server Time]";
-    const utcOffsetInMinutes = CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET / 60000;
+    const utcOffsetInMinutes = CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET_MINS;
     const completedTime = this.json.jobs[0].job_state_transitions.find(t => t.state === "Completed")!.state_change_time;
 
     return moment.unix(+completedTime / 1000).utcOffset(utcOffsetInMinutes).format(SERVER_TIME_FORMAT);

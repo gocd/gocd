@@ -41,12 +41,12 @@ $(() => {
   window.getStageOverviewFor = (pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number, status: string, currentStageIndex: string, totalNumberOfStages: string, canEdit: boolean, templateName: string) => {
     window.event?.stopPropagation();
     closeStageOverview();
-    const repeatInterval = 9999999;
+    const refreshEnabled = false;
 
     // @ts-ignore
     window.stageOverviewStateForVSM.show(pipelineName, pipelineCounter, stageName, stageCounter);
     // @ts-ignore
-    StageOverviewViewModel.initialize(pipelineName, pipelineCounter, stageName, stageCounter, status, repeatInterval).then((result) => window.stageOverviewStateForVSM.model(result));
+    StageOverviewViewModel.initialize(pipelineName, pipelineCounter, stageName, stageCounter, status, refreshEnabled).then((result) => window.stageOverviewStateForVSM.model(result));
 
     // Has to match div ID in Graph_Renderer.renderPipelineInstance
     const stageOverviewContainer = document.getElementById(`stage-overview-container-for-pipeline-${pipelineName}-${pipelineCounter}-stage-${stageName}-${stageCounter}`)!;
@@ -75,7 +75,7 @@ $(() => {
                               stageCounter={stageCounter}
                               stages={[]}
                               templateName={templateNameFromString}
-                              pollingInterval={repeatInterval}
+                              refreshEnabled={refreshEnabled}
                               isDisplayedOnVSMPage={true}
                               leftPositionForVSMStageOverview={leftPosition}
                               stageInstanceFromDashboard={stageInstanceFromDashboard}

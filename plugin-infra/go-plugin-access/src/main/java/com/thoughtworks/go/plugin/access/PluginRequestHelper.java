@@ -26,9 +26,9 @@ import java.util.List;
 import static java.lang.String.format;
 
 public class PluginRequestHelper {
-    protected PluginManager pluginManager;
-    private List<String> goSupportedVersions;
-    private String extensionName;
+    private final PluginManager pluginManager;
+    private final List<String> goSupportedVersions;
+    private final String extensionName;
 
     public PluginRequestHelper(PluginManager pluginManager, List<String> goSupportedVersions, String extensionName) {
         this.pluginManager = pluginManager;

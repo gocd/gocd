@@ -44,10 +44,10 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
     public static final String SECURITY_CONFIG_LAST_CHANGE = "GOCD_SECURITY_CONFIG_LAST_CHANGED_TIME";
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateAuthenticationOnSecurityConfigChangeFilter.class);
     private SecurityConfig securityConfig;
-    private GoConfigService goConfigService;
-    private Clock clock;
-    private AuthorizationExtensionCacheService authorizationExtensionCacheService;
-    private PluginRoleService pluginRoleService;
+    private final GoConfigService goConfigService;
+    private final Clock clock;
+    private final AuthorizationExtensionCacheService authorizationExtensionCacheService;
+    private final PluginRoleService pluginRoleService;
     private volatile long lastChangedTime;
 
     @Autowired

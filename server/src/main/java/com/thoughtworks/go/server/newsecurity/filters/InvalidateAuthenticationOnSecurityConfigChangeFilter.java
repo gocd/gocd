@@ -38,17 +38,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePerRequestFilter implements ConfigChangedListener, PluginRoleChangeListener {
     public static final String SECURITY_CONFIG_LAST_CHANGE = "GOCD_SECURITY_CONFIG_LAST_CHANGED_TIME";
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateAuthenticationOnSecurityConfigChangeFilter.class);
-    private SecurityConfig securityConfig;
+
     private final GoConfigService goConfigService;
     private final Clock clock;
     private final AuthorizationExtensionCacheService authorizationExtensionCacheService;
     private final PluginRoleService pluginRoleService;
-    private volatile long lastChangedTime;
+
+    private final AtomicReference<SecurityConfig> securityConfig = new AtomicReference<>();
+    private final AtomicLong lastChangedTime = new AtomicLong();
 
     @Autowired
     public InvalidateAuthenticationOnSecurityConfigChangeFilter(GoConfigService goConfigService,
@@ -67,15 +71,14 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
         goConfigService.register(new SecurityConfigChangeListener() {
             @Override
             public void onEntityConfigChange(Object entity) {
-                updateLastChangedTime();
-                authorizationExtensionCacheService.invalidateCache();
+                invalidateCache();
             }
         });
     }
 
     private void updateLastChangedTime() {
         LOGGER.info("[Configuration Changed] Security Configuration is changed. Updating the last changed time.");
-        lastChangedTime = clock.currentTimeMillis();
+        lastChangedTime.set(clock.currentTimeMillis());
     }
 
     @Override
@@ -89,13 +92,13 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
         }
 
         final AuthenticationToken<?> authenticationToken = Objects.requireNonNull(SessionUtils.getAuthenticationToken(request), "Authentication token must not be null.");
-        synchronized (request.getSession(false).getId().intern()) {
-            long localCopyOfLastChangedTime = lastChangedTime;//This is so that the volatile variable is accessed only once.
+        synchronized (SessionUtils.sessionIdMonitorFor(request)) {
+            long lastChanged = lastChangedTime.longValue();
             Long previousLastChangedTime = (Long) request.getSession().getAttribute(SECURITY_CONFIG_LAST_CHANGE);
             if (previousLastChangedTime == null) {
-                request.getSession().setAttribute(SECURITY_CONFIG_LAST_CHANGE, localCopyOfLastChangedTime);
-            } else if (previousLastChangedTime < localCopyOfLastChangedTime) {
-                request.getSession().setAttribute(SECURITY_CONFIG_LAST_CHANGE, localCopyOfLastChangedTime);
+                request.getSession().setAttribute(SECURITY_CONFIG_LAST_CHANGE, lastChanged);
+            } else if (previousLastChangedTime < lastChanged) {
+                request.getSession().setAttribute(SECURITY_CONFIG_LAST_CHANGE, lastChanged);
                 LOGGER.debug("Invalidating existing token {}", authenticationToken);
                 authenticationToken.invalidate();
             }
@@ -106,20 +109,24 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         SecurityConfig newSecurityConfig = securityConfig(newCruiseConfig);
-        if (!Objects.equals(this.securityConfig, newSecurityConfig)) {
-            updateLastChangedTime();
-            authorizationExtensionCacheService.invalidateCache();
+        SecurityConfig existingSecurityConfig = this.securityConfig.get();
+        if (!Objects.equals(existingSecurityConfig, newSecurityConfig)) {
+            invalidateCache();
+            securityConfig.compareAndSet(existingSecurityConfig, newSecurityConfig);
         }
-        this.securityConfig = newSecurityConfig;
-    }
-
-    private SecurityConfig securityConfig(CruiseConfig newCruiseConfig) {
-        return newCruiseConfig.server().security();
     }
 
     @Override
     public void onPluginRoleChange() {
+        invalidateCache();
+    }
+
+    private void invalidateCache() {
         updateLastChangedTime();
         authorizationExtensionCacheService.invalidateCache();
+    }
+
+    private SecurityConfig securityConfig(CruiseConfig config) {
+        return config.server().security();
     }
 }

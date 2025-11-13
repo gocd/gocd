@@ -80,7 +80,7 @@ public abstract class AbstractReAuthenticationFilter extends OncePerRequestFilte
     private void performReauthentication(HttpServletRequest request,
                                          HttpServletResponse response,
                                          FilterChain filterChain) throws IOException, ServletException {
-        synchronized (request.getSession(false).getId().intern()) {
+        synchronized (SessionUtils.sessionIdMonitorFor(request)) {
             if (SessionUtils.isAuthenticated(request, clock, systemEnvironment)) {
                 LOGGER.debug("Continuing chain because user is authenticated.");
                 filterChain.doFilter(request, response);

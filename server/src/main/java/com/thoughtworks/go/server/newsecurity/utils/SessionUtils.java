@@ -21,6 +21,7 @@ import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.web.PortResolver;
@@ -175,5 +176,9 @@ public class SessionUtils {
 
     public static Username currentUsername() {
         return getCurrentUser().asUsernameObject();
+    }
+
+    public static @NotNull String sessionIdMonitorFor(HttpServletRequest request) {
+        return request.getSession(false).getId().intern();
     }
 }

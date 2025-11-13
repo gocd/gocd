@@ -106,7 +106,7 @@ public abstract class AgentController {
         LOG.error("There has been a problem with one of GoCD's TLS certificates. This can be caused by a man-in-the-middle attack, or a change to the HTTPS certificates of the GoCD Server. Review the agent TLS trust settings and any mutual TLS configuration of the agent.", e);
     }
 
-    protected abstract WorkAttempt tryDoWork();
+    abstract WorkAttempt tryDoWork();
 
     protected AgentAutoRegistrationProperties getAgentAutoRegistrationProperties() {
         return agentAutoRegistrationProperties;
@@ -181,7 +181,6 @@ public abstract class AgentController {
     private void initPipelinesFolder() {
         File pipelines = new File(currentWorkingDirectory(), "pipelines");
         if (!pipelines.exists()) {
-            //noinspection ResultOfMethodCallIgnored
             pipelines.mkdirs();
         }
     }

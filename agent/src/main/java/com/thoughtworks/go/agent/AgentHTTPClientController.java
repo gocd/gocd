@@ -106,7 +106,7 @@ public class AgentHTTPClientController extends AgentController {
     }
 
     @Override
-    public WorkAttempt tryDoWork() {
+    WorkAttempt tryDoWork() {
         retrieveCookieIfNecessary();
         return doWork();
     }

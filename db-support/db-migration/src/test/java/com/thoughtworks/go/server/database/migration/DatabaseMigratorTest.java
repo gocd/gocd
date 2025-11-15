@@ -49,7 +49,7 @@ class DatabaseMigratorTest {
     void setUp() {
         this.migrator = new DatabaseMigrator() {
             @Override
-            Liquibase newLiquibaseFor(Database database) {
+            Liquibase newLiquibaseFor(String migration, Database database) {
                 return liquibase;
             }
         };

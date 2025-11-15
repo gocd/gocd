@@ -15,28 +15,23 @@
  */
 package com.thoughtworks.go.server.database.migration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 
+@Slf4j
 public class DataMigrationRunner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataMigrationRunner.class);
-
-    private DataMigrationRunner() {
-    }
-
     public static void run(Connection cxn) throws SQLException {
-        LOGGER.info("Running data migrations...");
+        log.info("Running data migrations...");
 
         exec(cxn, M001.convertPipelineSelectionsToFilters());
         exec(cxn, M002.ensureFilterStateIsNotNull());
 
-        LOGGER.info("Data migrations completed.");
+        log.info("Data migrations completed.");
     }
 
     private static void exec(Connection cxn, Migration migration) throws SQLException {
@@ -46,9 +41,9 @@ public class DataMigrationRunner {
             Instant start = Instant.now();
             migration.run(cxn);
             cxn.commit();
-            LOGGER.info("Data migration took {} ms", Duration.between(start, Instant.now()).toMillis());
+            log.info("Data migration took {} ms", Duration.between(start, Instant.now()).toMillis());
         } catch (SQLException e) {
-            LOGGER.error("Data migration failed: {}", e.getMessage(), e);
+            log.error("Data migration failed: {}", e.getMessage(), e);
             cxn.rollback();
             throw e;
         }

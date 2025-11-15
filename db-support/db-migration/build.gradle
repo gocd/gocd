@@ -21,6 +21,7 @@ dependencies {
   implementation project.deps.commonsLang3
   implementation project.deps.gson
   implementation project.deps.jakartaAnnotation
+  compileOnly project.deps.jetBrainsAnnotations
 
   implementation(project.deps.liquibase) {
     // Not needed, according to https://github.com/liquibase/liquibase/issues/1866

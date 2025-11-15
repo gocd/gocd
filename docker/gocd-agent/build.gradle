@@ -115,7 +115,7 @@ subprojects {
     task.verifyHelper = {
       def cleanContainer = { OutputStream errorStream = System.err ->
         execOps.exec {
-          commandLine = ["docker", "rm", "--force", docker.dockerImageName]
+          commandLine = ["docker", "rm", "--force", "--volumes", docker.dockerImageName]
           standardOutput = System.out
           errorOutput = errorStream
         }

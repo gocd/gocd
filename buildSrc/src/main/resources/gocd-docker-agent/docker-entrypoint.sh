@@ -61,7 +61,7 @@ if [ -e /run-docker-daemon.sh ]; then
   try sudo /run-docker-daemon.sh
 fi
 
-AGENT_WORK_DIR="/go"
+AGENT_WORK_DIR="/go-working-dir"
 
 # no arguments are passed so assume user wants to run the GoCD agent
 # we prepend "/${AGENT_WORK_DIR}/bin/go-agent console" to the argument list

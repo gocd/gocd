@@ -100,6 +100,8 @@ COPY --chown=go:root install-gocd-plugins git-clone-config /usr/local/sbin/
 
 RUN chown -R go:root /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh && \
     chmod -R g=u /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh
+VOLUME /go-working-dir
+VOLUME /godata
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

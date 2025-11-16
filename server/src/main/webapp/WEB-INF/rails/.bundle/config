@@ -2,3 +2,4 @@
 BUNDLE_PATH: "gems"
 BUNDLE_CLEAN: "true"
 BUNDLE_DEPLOYMENT: "true"
+BUNDLE_VERSION: "system"

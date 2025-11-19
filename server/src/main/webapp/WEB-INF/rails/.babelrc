@@ -5,7 +5,7 @@
       "@babel/preset-env",
       {
         "debug": false,
-        "corejs": "3.46",
+        "corejs": "3.47",
         "useBuiltIns": "entry",
         "targets": {
           "browsers": [

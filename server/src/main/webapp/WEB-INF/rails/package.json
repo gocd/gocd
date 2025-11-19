@@ -77,7 +77,7 @@
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
     "fs-extra": "^11.3.2",
-    "html-webpack-plugin": "^5.6.4",
+    "html-webpack-plugin": "^5.6.5",
     "jasmine": "^5.12.0",
     "jasmine-ajax": "^4.0.0",
     "jasmine-browser-runner": "^3.0.0",
@@ -111,8 +111,8 @@
     "typescript": "^5.9.3",
     "upath": "^2.0.1",
     "url-loader": "^4.1.1",
-    "webpack": "^5.102.1",
-    "webpack-assets-manifest": "^6.3.0",
+    "webpack": "^5.103.0",
+    "webpack-assets-manifest": "^6.4.0",
     "webpack-cli": "^6.0.1"
   },
   "resolutions": {

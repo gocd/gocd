@@ -162,7 +162,7 @@ $(() => {
           content: "Error occurred while parsing dashboard API response. Check server logs for more information."
         };
         onResponse({}, message);
-        console.error(errorThrown); // eslint-disable-line no-console
+        console.error(errorThrown);
         return;
       }
 

@@ -22,16 +22,16 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import _ from "lodash";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
-import webpack from "webpack";
+import StylelintPlugin from "stylelint-webpack-plugin";
+import {Compiler, ProvidePlugin, WebpackPluginInstance} from "webpack";
 import {WebpackAssetsManifest} from "webpack-assets-manifest";
 import {ConfigOptions, getEntries} from "./variables";
 import {LicensePlugins} from "./webpack-license-plugin";
 
 const jasmineCore           = require("jasmine-core");
-const StylelintPlugin       = require("stylelint-webpack-plugin");
 
-export function plugins(configOptions: ConfigOptions): any[] {
-  const plugins = [
+export function plugins(configOptions: ConfigOptions): WebpackPluginInstance[] {
+  const plugins: WebpackPluginInstance[] = [
     new ESLintPlugin({
       extensions: ["js", "msx"],
       exclude: ["node_modules", "webpack/gen"],
@@ -45,7 +45,7 @@ export function plugins(configOptions: ConfigOptions): any[] {
       writeToDisk: true,
       publicPath: true,
     }),
-    new webpack.ProvidePlugin({
+    new ProvidePlugin({
                                 "$": "jquery",
                                 "jQuery": "jquery",
                                 "window.jQuery": "jquery"
@@ -82,9 +82,9 @@ export function plugins(configOptions: ConfigOptions): any[] {
     };
 
     class JasmineAssetsPlugin {
-      apply(compiler: webpack.Compiler) {
+      apply(compiler: Compiler) {
         compiler.hooks.emit.tapAsync("JasmineAssetsPlugin",
-                                     (compilation: webpack.Compilation, callback: () => any) => {
+                                     (compilation, callback) => {
                                        const allJasmineAssets = jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles)
                                                                             .concat(jasmineFiles.cssFiles);
 

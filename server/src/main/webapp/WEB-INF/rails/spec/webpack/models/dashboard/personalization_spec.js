@@ -126,7 +126,7 @@ describe("Personalization", () => {
     try {
       await pers.removeFilter("foo");
       expect(true).toBe(false);
-    } catch (e) {
+    } catch {
       expect(pers.names()).toEqual(["Default", "foo"]);
     }
   });
@@ -170,7 +170,7 @@ describe("Personalization", () => {
     try {
       await pers.addOrReplaceFilter("one", newFilter);
       expect(true).toBe(false);
-    } catch (e) {
+    } catch {
       expect(pers.names()).toEqual(["Default", "one", "two"]);
     }
   });

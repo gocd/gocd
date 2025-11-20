@@ -51,7 +51,7 @@ export function getCssLoaders(configOptions: ConfigOptions): webpack.RuleSetRule
         loader: "sass-loader", // compiles Sass to CSS, defaults to Dart Sass
         options: {
           sourceMap: true,
-          implementation: require('sass-embedded'),
+          implementation: 'sass-embedded',
           sassOptions: { // Also see rails/config/application.rb for similar config for Sprockets
             quietDeps: true, // Mainly noise from FontAwesome and/or Bourbon left
             silenceDeprecations: [

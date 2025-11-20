@@ -22,13 +22,15 @@
           ]
         }
       }
-    ],
-    [
-      "@babel/preset-react",
-      {
-        "debug": true,
-        "pragma": "m"
-      }
     ]
-  ]
+  ],
+  "plugins": [
+  		[
+  			"@babel/plugin-transform-react-jsx",
+  			{
+  				"pragma": "m",
+  				"pragmaFrag": "'['"
+  			}
+  		]
+  	]
 }

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* global __dirname */
 
+import path from 'path';
 import process from 'process';
 import jasmineSeedReporter from 'karma-jasmine-seed-reporter';
 import manifest from './public/assets/webpack/manifest.json' with {type: 'json'};
@@ -57,7 +57,7 @@ export default function (config) {
     }),
     reporters: ['progress', 'junit', 'kjhtml', 'html', 'jasmine-seed'],
     htmlReporter: {
-      outputDir: '../../../../../target/karma_reports',
+      outputDir: path.resolve('../../../../../target/karma_reports'),
       templatePath: null,
       focusOnFailures: true,
       namedFiles: false,
@@ -67,7 +67,7 @@ export default function (config) {
       foldAll: false,
     },
     junitReporter: {
-      outputDir: '../../../../../target/karma_reports',
+      outputDir: path.resolve('../../../../../target/karma_reports'),
       outputFile: undefined,
       suite: '',
       useBrowserName: true,

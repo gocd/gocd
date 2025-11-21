@@ -35,7 +35,8 @@ export function plugins(configOptions: ConfigOptions): WebpackPluginInstance[] {
     new ESLintPlugin({
       extensions: ["js", "msx"],
       exclude: ["node_modules", "webpack/gen"],
-      failOnWarning: true,
+      failOnWarning: !configOptions.watch,
+      failOnError: !configOptions.watch,
       threads: false
     }),
     new StylelintPlugin({configFile: path.join(configOptions.railsRoot, ".stylelintrc.yml"), files: configOptions.assetsDir, failOnWarning: true}),

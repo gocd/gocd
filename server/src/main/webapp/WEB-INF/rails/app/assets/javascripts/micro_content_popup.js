@@ -81,13 +81,13 @@ MicroContentPopup = function() {
       }
     }
 
-    self.panel.css('left', view_port[0] + 'px');
-    self.panel.css('top', view_port[1] + 'px');
+    self.panel.css('left', `${view_port[0]}px`);
+    self.panel.css('top', `${view_port[1]}px`);
     self.panel.removeClass('hidden');
   }
 
   function register_close_handler(self) {
-    $(self.panel).click(function(event) {
+    $(self.panel).on("click", function(event) {
       if ((event.target.tagName.toLowerCase() !== "a") && !$(event.target).closest("a")) {
         event.stopPropagation();
       }

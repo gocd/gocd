@@ -49,7 +49,7 @@ describe("toggle_css_class", function () {
 
   it("test_make_collapsible", function () {
     expect(container.hasClass('hidereveal_collapsed')).toBe(true);
-    $(".hidereveal_expander").click();
+    $(".hidereveal_expander").trigger("click");
     expect(container.hasClass('hidereveal_collapsed')).toBe(false);
   });
 
@@ -58,7 +58,7 @@ describe("toggle_css_class", function () {
     $('#pare\\.nt\\.div1').on('click', function () {
       click_bubbled = true;
     });
-    $(".hidereveal_expander").click();
+    $(".hidereveal_expander").trigger("click");
     expect(click_bubbled).toBe(false);
   });
 });

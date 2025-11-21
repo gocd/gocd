@@ -70,7 +70,7 @@ describe("ajax_refresher", function () {
       opts = options;
     };
     const refresher = new AjaxRefresher("http://blah/refresh_stage_detail", {
-      time: 0, dataFetcher: function () {
+      time: 0, dataFetcher () {
         return {"foo-name": "foo-value", "bar-name": "bar-value"};
       }
     });
@@ -97,7 +97,7 @@ describe("ajax_refresher", function () {
     try {
       ajax_opts.success({elem_id: {html: "bar"}});
     } catch (e) {
-      throw "should not throw up when no parent_id or index given" + e;
+      throw `should not throw up when no parent_id or index given${e}`;
     }
     expect($('#elem_id').html()).toBe("bar");
   });
@@ -106,7 +106,7 @@ describe("ajax_refresher", function () {
     let before_elem_id, before_dom_inner_html, actual_dom_inner_html;
     const refresher = new AjaxRefresher("http://blah/refresh_stage_detail", {
       time: 0,
-      manipulateReplacement: function (elem_id, dom) {
+      manipulateReplacement (elem_id, dom) {
         before_elem_id = elem_id;
         before_dom_inner_html = dom.innerHTML;
         actual_dom_inner_html = $('#elem_id').html();
@@ -124,8 +124,8 @@ describe("ajax_refresher", function () {
   it("test_uses_dom_manipulated_by_manipulate_replacement_as_replacement", function () {
     const refresher = new AjaxRefresher("http://blah/refresh_stage_detail", {
       time: 0,
-      manipulateReplacement: function (elem_id, dom) {
-        $(dom).find('#foo_bar_baz').click(function () {
+      manipulateReplacement (elem_id, dom) {
+        $(dom).find('#foo_bar_baz').on("click", function () {
           this.innerHTML = "on click honored";
         });
         return true;
@@ -136,7 +136,7 @@ describe("ajax_refresher", function () {
 
     ajax_opts.success({elem_id: {html: "<div>new_content<span id='foo_bar_baz'>empty</span></div>", parent_id: "daddy", index: 1, type: 'type'}});
     const replaced_content_holder = $('#foo_bar_baz');
-    replaced_content_holder.click();
+    replaced_content_holder.trigger('click');
     expect(replaced_content_holder.html()).toBe("on click honored");
   });
 

@@ -26,7 +26,7 @@
     var details              = $(".job_details_content");
     var fallingBackToPolling = false;
 
-    if (!details.length) return;
+    if (!details.length) {return;}
 
     function endpointUrl(startLine) {
       var l        = document.location;
@@ -39,7 +39,7 @@
           details.data("build")
         ].join("/");
 
-      return protocol + "//" + host + context_path(path) + "?startLine=" + startLine;
+      return `${protocol}//${host}${context_path(path)}?startLine=${startLine}`;
     }
 
     function start() {

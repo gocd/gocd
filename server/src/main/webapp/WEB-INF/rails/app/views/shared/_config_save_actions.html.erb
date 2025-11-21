@@ -5,7 +5,7 @@
     </div>
     <script type="text/javascript">
         $(function() {
-           $("#reload_config").click(function() {
+           $("#reload_config").on("click", function() {
                var location = "<%= request.referer -%>";
                if (location.endsWith("#")) {
                    location = location.substring(0, location.length - 1);

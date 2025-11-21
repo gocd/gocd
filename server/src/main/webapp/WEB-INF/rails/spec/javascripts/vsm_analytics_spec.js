@@ -17,7 +17,7 @@ describe("vsm_analytics", function () {
 
   function VSMRenderer() {}
 
-  AnalyticsPanel = {
+  const AnalyticsPanel = {
     update: function downstream(source, destination, isSourceCurrent) {}
   };
 

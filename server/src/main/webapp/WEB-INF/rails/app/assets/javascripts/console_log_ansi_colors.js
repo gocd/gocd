@@ -20,46 +20,46 @@
 
     function transform(state, ansiUp) {
       if (state.text.length === 0)
-        return state.text;
+        {return state.text;}
 
       if (!state.bright && state.fg === null && state.bg === null)
-        return state.text;
+        {return state.text;}
 
       var classes = [], styles = [], node_attrs = {};
 
       var fg = state.fg, bg = state.bg;
 
       if (fg === null && state.bright)
-        fg = ansiUp.ansi_colors[1][7];
+        {fg = ansiUp.ansi_colors[1][7];}
 
       if (fg) {
         if (fg.class_name !== "truecolor") {
-          classes.push(fg.class_name + "-fg");
+          classes.push(`${fg.class_name}-fg`);
         }
         else {
-          styles.push("color:rgb(" + fg.rgb.join(",") + ")");
+          styles.push(`color:rgb(${fg.rgb.join(",")})`);
         }
       }
 
       if (bg) {
         if (bg.class_name !== "truecolor") {
-          classes.push(bg.class_name + "-bg");
+          classes.push(`${bg.class_name}-bg`);
         }
         else {
-          styles.push("background-color:rgb(" + bg.rgb.join(",") + ")");
+          styles.push(`background-color:rgb(${bg.rgb.join(",")})`);
         }
       }
 
       if (classes.length)
-        node_attrs["class"] = classes.join(" ");
+        {node_attrs["class"] = classes.join(" ");}
 
       if (styles.length)
-        node_attrs.style = styles.join(";");
+        {node_attrs.style = styles.join(";");}
       return c("span", node_attrs, state.text);
     }
 
     function compose(segments, ansiUp) {
-      if (segments.length === 1) return segments[0];
+      if (segments.length === 1) {return segments[0];}
 
       return segments;
     }

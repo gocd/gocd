@@ -25,8 +25,8 @@
     var finished        = false;
 
     function acquireLock() {
-      if (inFlight) return false;
-      if (finished) return false;
+      if (inFlight) {return false;}
+      if (finished) {return false;}
 
       inFlight = true;
       return inFlight;
@@ -46,7 +46,7 @@
         deferredResult = null;
       } else {
         // save the result in case we activate and call this function at a later time
-        if (jobResultJson) deferredResult = jobResultJson;
+        if (jobResultJson) {deferredResult = jobResultJson;}
         return;
       }
 
@@ -56,20 +56,20 @@
       //
       // Thus, just return early if acquireLock() returns false. this might be fixed
       // by upgrading jQuery.
-      if (!acquireLock()) return;
+      if (!acquireLock()) {return;}
 
       $.ajax({
-        url:      url,
+        url,
         type:     "GET",
         dataType: "text",
-        data:     {"startLineNumber": startLineNumber}
+        data:     {startLineNumber}
       }).done(function processLogOutput(data, status, xhr) {
         var lineSet, slice, nextLine = JSON.parse(xhr.getResponseHeader("X-JSON") || "[]")[0];
 
         if (nextLine !== startLineNumber) {
           lineSet = data.match(/^.*([\n\r]+|$)/gm);
 
-          if ("" === lineSet[lineSet.length - 1]) lineSet.pop(); // regex generally leaves a terminal blank line for each set
+          if ("" === lineSet[lineSet.length - 1]) {lineSet.pop();} // regex generally leaves a terminal blank line for each set
 
           // do this before the loop as the loop alters the array in-place
           startLineNumber += lineSet.length;

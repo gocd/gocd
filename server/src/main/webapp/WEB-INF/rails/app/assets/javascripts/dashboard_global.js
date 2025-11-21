@@ -29,7 +29,7 @@ var ACTIVE_STATUS = ['passed', 'failed', 'inactive', 'discontinued', 'paused', '
 function clean_active_css_class_on_element(element) {
   ACTIVE_STATUS.forEach(function (status) {
     $(element).removeClass(status);
-    $(element).removeClass('build_profile_' + status);
+    $(element).removeClass(`build_profile_${status}`);
   });
 }
 
@@ -39,7 +39,7 @@ function is_result_unknown(json) {
 
 // noinspection JSUnusedGlobalSymbols May be used from FreeMarker template
 function isEstimatable(status) {
-  if (!status) return false;
+  if (!status) {return false;}
   var buildStatus = status.toLowerCase();
   return buildStatus == 'building' || buildStatus == 'completing';
 }

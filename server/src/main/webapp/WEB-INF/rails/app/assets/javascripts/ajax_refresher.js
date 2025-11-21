@@ -31,7 +31,7 @@ function AjaxRefresher(url, options) {
   function getValue(map, key, attribute, mandatory) {
     const value = map[attribute];
     if (mandatory && value === undefined) {
-      throw "no '" + attribute + "' given for dom id '" + key + "'";
+      throw `no '${attribute}' given for dom id '${key}'`;
     }
     return value;
   }
@@ -88,15 +88,15 @@ function AjaxRefresher(url, options) {
   }
 
   function _redirectToLoginPage() {
-    window.location = window.location.protocol + '//' + window.location.host + "/go/auth/login";
+    window.location = `${window.location.protocol}//${window.location.host}/go/auth/login`;
   }
 
   const _request = function () {
-    if (in_progress) return;
+    if (in_progress) {return;}
     in_progress = true;
     ajaxRequest = $.ajax({
       data: (options.dataFetcher ? options.dataFetcher() : {}),
-      url: url,
+      url,
       context: document.body,
       dataType: 'json',
       success: _onSuccess.bind(this),
@@ -182,7 +182,7 @@ class PeriodicExecutor {
   }
 
   stop() {
-    if (!this.timer) return;
+    if (!this.timer) {return;}
     clearInterval(this.timer);
     this.timer = null;
   }

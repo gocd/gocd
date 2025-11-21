@@ -35,7 +35,7 @@ describe("stage_details_ajax_refresher", function () {
   var after_called = false;
   var options;
 
-
+  let jobs_markup_before;
   beforeEach(function () {
     after_called = false;
     $.ajax = function (opts) {
@@ -59,7 +59,7 @@ describe("stage_details_ajax_refresher", function () {
 
   it("test_invokes_callback_for_a_specified_id", function () {
     var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", {
-      jobs_failed: function () {
+      jobs_failed () {
         after_called = true;
       }
     }, {time: 0});
@@ -73,7 +73,7 @@ describe("stage_details_ajax_refresher", function () {
 
   it("test_invokes_callback_AFTER_REPLACEMENT", function () {
     var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", {
-      jobs_failed: function () {
+      jobs_failed () {
         expect($('#jobs_failed').html()).toBe("new_jobs_failed");
       }
     }, {time: 0});
@@ -86,7 +86,7 @@ describe("stage_details_ajax_refresher", function () {
   it("test_refresh_should_honor_page_number", function () {
     $("#stage-history-page").val("3");
     var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", {
-      jobs_failed: function () {
+      jobs_failed () {
         expect($('#jobs_failed').html()).toBe("new_jobs_failed");
       }
     }, {time: 0});

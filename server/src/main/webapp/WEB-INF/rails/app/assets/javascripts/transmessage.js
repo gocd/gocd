@@ -42,10 +42,10 @@ class TransMessage {
     this.options.offsetLeft = this.targetElement.width() * 0.1;
     this.trans_message.css({
       'position': 'absolute',
-      'top': (this.targetElement.position().top + this.options.offsetTop) + 'px',
-      'left': (this.targetElement.position().left + this.options.offsetLeft) + 'px',
+      'top': `${this.targetElement.position().top + this.options.offsetTop}px`,
+      'left': `${this.targetElement.position().left + this.options.offsetLeft}px`,
       'height': this.options.height,
-      'width': this.targetElement.width() * 0.8 + 'px'
+      'width': `${this.targetElement.width() * 0.8}px`
     });
     this.trans_message.show();
 
@@ -62,11 +62,11 @@ class TransMessage {
     const _me = this;
     this.trans_message.find(".r1, .r2, .r3, .r4, .transparent_message").each(function (i, elem) {
       if (_me.options.type === TransMessage.TYPE_NOTICE) {
-        $(elem).removeClass("transparent_" + TransMessage.TYPE_ERROR);
-        $(elem).addClass("transparent_" + TransMessage.TYPE_NOTICE);
+        $(elem).removeClass(`transparent_${TransMessage.TYPE_ERROR}`);
+        $(elem).addClass(`transparent_${TransMessage.TYPE_NOTICE}`);
       } else {
-        $(elem).removeClass("transparent_" + TransMessage.TYPE_NOTICE);
-        $(elem).addClass("transparent_" + TransMessage.TYPE_ERROR);
+        $(elem).removeClass(`transparent_${TransMessage.TYPE_NOTICE}`);
+        $(elem).addClass(`transparent_${TransMessage.TYPE_ERROR}`);
       }
     });
   }

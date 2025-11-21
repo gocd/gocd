@@ -23,16 +23,16 @@ function DashboardPeriodicalExecutor(url, pause_condition) {
 }
 
 DashboardPeriodicalExecutor.prototype = {
-  start: function() {
+  start() {
     if (!this.is_paused) {
       this.onRequest();
     }
   },
-  stop: function() {
+  stop() {
     clearTimeout(this.timer);
   },
-  redirectToLoginPage: function(){
-    window.location= window.location.protocol + '//' + window.location.host + context_repath('auth/login');
+  redirectToLoginPage(){
+    window.location= `${window.location.protocol}//${window.location.host}/go/auth/login`;
   },
 
   /*
@@ -40,31 +40,31 @@ DashboardPeriodicalExecutor.prototype = {
      * So we should call start() first. And when we can't wait for next automatically request,
      * then, we can use this fireNow method.
      */
-  fireNow : function() {
+  fireNow() {
     clearTimeout(this.timer);
     if (this.ongoingRequest && this.ongoingRequest.transport) {
       try {
         this.ongoingRequest.transport.abort();
-      } catch(e) {}
+      } catch {} // eslint-disable-line no-empty
     }
     this.start();
   },
 
-  onRequest: function() {
+  onRequest() {
     var executor = this;
     var requestSequenceNumber = this.generateSequenceNumber();
     this.ongoingRequest = $.ajax({
       url: executor.url,
       dataType: "json",
-      success: function(json_array) {
+      success(json_array) {
         executor._loop_observers(json_array, requestSequenceNumber);
         if (executor.pause_condition && executor.pause_condition(json_array)) {
           executor.is_paused = true;
         }
       },
-      error: function(jqXHR, textStatus) {
+      error(jqXHR, textStatus) {
       },
-      complete : function() {
+      complete() {
         //makes sure only 1 timer in this executor
         clearTimeout(executor.timer);
         delete executor.timer;
@@ -77,14 +77,14 @@ DashboardPeriodicalExecutor.prototype = {
         requestSequenceNumber = null;
       },
       statusCode: {
-        401: function () {
+        401 () {
           executor.redirectToLoginPage();
         }
       }
     });
 
   },
-  _loop_observers : function(json, requestSequenceNumber) {
+  _loop_observers(json, requestSequenceNumber) {
     if (json.error) {
       return;
     }
@@ -92,7 +92,7 @@ DashboardPeriodicalExecutor.prototype = {
     for (var index = 0; index < this.observers.length; index++) {
       var observer = this.observers[index];
 
-      if (!observer.notify) return;
+      if (!observer.notify) {return;}
 
       if (observer.dropExpiredCallback && !this.isSequenceNumberValid(requestSequenceNumber)) {
         //this request will be dropped, because it's expired
@@ -104,39 +104,39 @@ DashboardPeriodicalExecutor.prototype = {
       }
     }
   },
-  register : function() {
+  register() {
     for (var i = 0; i < arguments.length; i++) {
       this.observers.push(arguments[i]);
     }
   },
-  unregister : function(observer) {
+  unregister(observer) {
     this.observers = Array.from(this.observers);
     var position = this.observers.indexOf(observer);
     this.observers[position] = null;
     this.observers = _.compact(this.observers);
   },
-  clean : function() {
+  clean() {
     this.observers = [];
     this.is_paused = false;
   },
-  pause : function() {
+  pause() {
     this.is_paused = true;
   },
-  resume: function() {
+  resume() {
     this.is_paused = false;
   },
-  generateSequenceNumber : function() {
+  generateSequenceNumber() {
     this.sequenceNumber++;
     return this.sequenceNumber;
   },
-  isSequenceNumberValid : function(request_sequence_number){
+  isSequenceNumberValid(request_sequence_number){
     return this.sequenceNumber == request_sequence_number;
   },
-  setUrl: function(url){
+  setUrl(url){
     try{
       this.url = context_path(url);
     } catch(e){
-      this.url = '/go/' + url;
+      this.url = `/go/${url}`;
     }
   }
 };

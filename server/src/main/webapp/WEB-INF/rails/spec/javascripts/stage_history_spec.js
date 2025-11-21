@@ -46,7 +46,7 @@ describe("stage_history", function () {
 
   function stub_main_refresher() {
     AjaxRefreshers.addRefresher({
-      afterRefreshOf: function (id, fn) {
+      afterRefreshOf (id, fn) {
         expect(id).toBe('stage_history');
         afterRef = fn;
       },
@@ -60,10 +60,10 @@ describe("stage_history", function () {
     expect($('#doesnt_exist')[0]).toBeUndefined();
     expect(document.getElementById('doesnt_exist')).toBeNull();
     await StageHistory.bindHistoryLink('#doesnt_exist', "url-to-page-3", 3);
-    $(document).click();
+    $(document).trigger("click");
     expect($("#stage-history-page").val()).toBe("should-not-change");
     afterRef();
-    $(document).click();
+    $(document).trigger("click");
     expect($("#stage-history-page").val()).toBe("should-not-change");
   });
 
@@ -71,11 +71,11 @@ describe("stage_history", function () {
     stub_main_refresher();
     $("#stage-history-page").val("0");
     await StageHistory.bindHistoryLink('#stage_history_3', "url-to-page-3", 3);
-    $('#stage_history_3').click();
+    $('#stage_history_3').trigger("click");
     expect($("#stage-history-page").val()).toBe("3");
     $("#stage-history-page").val("0");
     afterRef();
-    $('#stage_history_3').click();
+    $('#stage_history_3').trigger("click");
     expect($("#stage-history-page").val()).toBe("3");
   });
 });

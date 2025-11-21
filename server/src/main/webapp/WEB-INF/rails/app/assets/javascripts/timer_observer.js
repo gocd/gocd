@@ -22,7 +22,7 @@ class TimerObserver {
 
   notify(jsonArray) {
     for (let i = 0; i < jsonArray.length; i++) {
-      if (!jsonArray[i]) return;
+      if (!jsonArray[i]) {return;}
       if (this.name && this.name != jsonArray[i].building_info.name) {
         continue;
       }

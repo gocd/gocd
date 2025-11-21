@@ -22,7 +22,7 @@
     var deferred = [];
 
     var PREFIXED_LOG_LINE = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d) (.*)/, // parses prefix, timestamp, and line content
-      LEGACY_LOG_LINE   = /^(\d\d:\d\d:\d\d\.\d\d\d )?(.*)/; // timestamps are not guaranteed on each line in the old format
+      LEGACY_LOG_LINE = /^(\d\d:\d\d:\d\d\.\d\d\d )?(.*)/; // timestamps are not guaranteed on each line in the old format
 
     consoleElement.on("click", ".toggle", function toggleSectionCollapse(e) {
       e.stopPropagation();
@@ -59,9 +59,10 @@
     }
 
     function dequeue() {
-      var entry; // entry is [fn, args]
-      while (entry = deferred.shift()) {
+      var entry = deferred.shift(); // entry is [fn, args]
+      while (entry) {
         entry[0].apply(self, entry[1]);
+        entry = deferred.shift();
       }
       deferTransform = !consoleElement.is(":visible");
     }
@@ -144,11 +145,13 @@
           }
         } else {
 
-          if (match = rawLine.match(LEGACY_LOG_LINE)) {
+          const match = rawLine.match(LEGACY_LOG_LINE);
+          if (match) {
             timestamp = $.trim(match[1] || "");
             line = match[2] || "";
           } else {
-            timestamp = "", line = rawLine;
+            timestamp = "";
+            line = rawLine;
           }
 
           currentLine = writer.insertPlain(currentSection, timestamp, line);
@@ -167,7 +170,7 @@
     }
 
     function appendNewLineIfDoesNotExists(line) {
-      return line.endsWith('\n') ? line : line + '\n';
+      return line.endsWith('\n') ? line : `${line}\n`;
     }
 
     function doesContainGoMarker(lineToProcess) {
@@ -175,9 +178,9 @@
     }
 
     function inlineMultilineExecutableTask(logLines) {
-      var logLinesToRemove         = [];
+      var logLinesToRemove = [];
       var currentExecutableTaskIndex = -1;
-      for (var i = 0; i < logLines.length; i++) {
+      for (let i = 0; i < logLines.length; i++) {
         var lineToProcess = logLines[i];
         if (isTaskLine(lineToProcess) && doesContainGoMarker(lineToProcess)) {
           currentExecutableTaskIndex = i;
@@ -189,8 +192,8 @@
         }
       }
 
-      for (var i = 0; i < logLinesToRemove.length; i++) {
-        var index = logLines.indexOf(logLinesToRemove[i]);
+      for (let j = 0; j < logLinesToRemove.length; j++) {
+        var index = logLines.indexOf(logLinesToRemove[j]);
         logLines.splice(index, 1);
       }
     }

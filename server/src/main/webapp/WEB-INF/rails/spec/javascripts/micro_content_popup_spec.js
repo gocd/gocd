@@ -43,16 +43,16 @@ describe("micro_content_popup", function () {
   });
 
   it("test_should_close_popup_when_the_link_is_clicked_again", function () {
-    show_link.click();
+    show_link.trigger("click");
     expect(content_box.hasClass("hidden")).toBe(false);
-    show_link.click();
+    show_link.trigger("click");
     expect(content_box.hasClass("hidden")).toBe(true);
   });
 
   it("test_should_close_popup_when_a_random_element_is_clicked", function () {
-    show_link.click();
+    show_link.trigger("click");
     expect(content_box.hasClass("hidden")).toBe(false);
-    $("#random_element").click();
+    $("#random_element").trigger("click");
     expect(content_box.hasClass("hidden")).toBe(true);
   });
 });

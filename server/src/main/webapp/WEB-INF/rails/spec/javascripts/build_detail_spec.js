@@ -16,6 +16,7 @@
 describe("build_detail", function () {
 
   var originalBuildDetail = BuildDetail;
+  let contextPath;
   beforeEach(function () {
     BuildDetail = originalBuildDetail;
     contextPath = "/go";
@@ -64,10 +65,10 @@ describe("build_detail", function () {
   });
 
   it("test_should_click_current_tab_element_should_not_move_current_tab", function () {
-    $('#li1').click();
+    $('#li1').trigger("click");
     expect($('#li1').hasClass('current_tab')).toBe(true);
     expect($('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
-    $('#li1').click();
+    $('#li1').trigger("click");
     expect($('#li1').hasClass('current_tab')).toBe(true);
     expect($('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
   });
@@ -76,7 +77,7 @@ describe("build_detail", function () {
     expect($('#li1').hasClass('current_tab')).toBe(true);
     expect($('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
     expect($('#tab-content-of-dummy-second-tab').is(':visible')).toBe(false);
-    $('#li2').click();
+    $('#li2').trigger("click");
     expect($('#li2').hasClass('current_tab')).toBe(true);
     expect($('#li1').hasClass('current_tab')).toBe(false);
     expect($('#tab-content-of-dummy-second-tab').is(':visible')).toBe(true);

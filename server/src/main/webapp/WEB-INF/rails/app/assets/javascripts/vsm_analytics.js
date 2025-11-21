@@ -17,7 +17,9 @@
   "use strict";
 
   var currentNodeIndex = function currentNodeIndex(vsmGraph) {
-    if (vsmGraph.current_material) return 0;
+    if (vsmGraph.current_material) {
+      return 0;
+    }
 
     return _.findIndex(vsmGraph.levels, function (level) {
       return _.find(level.nodes, function (node) {
@@ -27,8 +29,8 @@
   };
 
   var Node = function Node(type, id, index) {
-    this.id    = id;
-    this.type  = type;
+    this.id = id;
+    this.type = type;
     this.index = index;
   };
 
@@ -43,7 +45,7 @@
   };
 
   var currentNode = function currentNode(vsmGraph) {
-    if ($.trim(vsmGraph.current_pipeline)) {
+    if (vsmGraph.current_pipeline && vsmGraph.current_pipeline.trim()) {
       return new PipelineNode(vsmGraph.current_pipeline, currentNodeIndex(vsmGraph));
     } else {
       return new MaterialNode(vsmGraph.current_material, vsmGraph.levels[0].nodes[0].name, currentNodeIndex(vsmGraph));
@@ -57,7 +59,7 @@
       fetch: function fetch(url, handler) {
         var splitURL = url.split('?');
         var search = splitURL[1];
-        var jsonData = JSON.parse('{"' + decodeURIComponent(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
+        var jsonData = JSON.parse(`{"${decodeURIComponent(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"')}"}`);
         $.ajax({
           url: splitURL[0],
           type: "POST",
@@ -89,20 +91,20 @@
     $("#analytics-overlay").append(vsmModal);
 
     $.ajax({
-      url:      options.vsmAnalyticsChart.url,
+      url: options.vsmAnalyticsChart.url,
       dataType: "json",
-      data:     options.data,
-      type:     options.type || "GET"
+      data: options.data,
+      type: options.type || "GET"
     }).done(function (r) {
-      var frame     = document.createElement("iframe");
+      var frame = document.createElement("iframe");
       frame.sandbox = "allow-scripts";
-      frame.setAttribute("src", "/go/" + r.view_path);
+      frame.setAttribute("src", `/go/${r.view_path}`);
       vsmModal.appendChild(frame);
 
       frame.onload = function (_e) {
         PluginEndpoint.init(frame.contentWindow, {
-          uid:         options.vsmAnalyticsChart.id,
-          pluginId:    options.vsmAnalyticsChart.plugin_id,
+          uid: options.vsmAnalyticsChart.id,
+          pluginId: options.vsmAnalyticsChart.plugin_id,
           initialData: r.data
         });
       };
@@ -110,7 +112,7 @@
     }).fail(function (xhr) {
       if (xhr.getResponseHeader("content-type").indexOf("text/html") !== -1) {
         var frame = document.createElement("iframe");
-        frame.src = "data:text/html;charset=utf-8," + xhr.responseText;
+        frame.src = `data:text/html;charset=utf-8,${xhr.responseText}`;
         vsmModal.appendChild(frame);
         return;
       }
@@ -124,13 +126,13 @@
   }
 
   var VSMAnalytics = function VSMAnalytics(data, graphRenderer, vsmAnalyticsChart, analyticsPanel, analyticsButton) {
-    var self              = this;
-    var panel             = analyticsPanel;
-    var analyticsButton   = analyticsButton;
-    var vsmGraph          = VSMGraph.fromJSON(data);
-    var current           = currentNode(vsmGraph);
-    var graphRenderer     = graphRenderer;
-    var vsmAnalyticsChart = vsmAnalyticsChart;
+    var self = this;
+    var panel = analyticsPanel;
+    var button = analyticsButton;
+    var vsmGraph = VSMGraph.fromJSON(data);
+    var current = currentNode(vsmGraph);
+    var renderer = graphRenderer;
+    var chart = vsmAnalyticsChart;
 
     var otherNode;
 
@@ -146,53 +148,56 @@
       $("#analytics-overlay").removeClass("hide");
       $("body").addClass("noscroll");
       showAnalytics({
-        vsmAnalyticsChart: vsmAnalyticsChart,
-        type:              'POST',
-        data:              self.jsonData()
+        vsmAnalyticsChart: chart,
+        type: 'POST',
+        data: self.jsonData()
       });
     };
 
     this.jsonData = function () {
       return {
-        source:      source().toString(),
+        source: source().toString(),
         destination: destination().toString(),
-        vsm_graph:   JSON.stringify(vsmGraph)
+        vsm_graph: JSON.stringify(vsmGraph)
       };
     };
 
     this.init = function () {
-      graphRenderer.registerSelectPipelineCallback(this.selectPipeline);
-      graphRenderer.registerSelectMaterialCallback(this.selectMaterial);
+      renderer.registerSelectPipelineCallback(this.selectPipeline);
+      renderer.registerSelectMaterialCallback(this.selectMaterial);
 
       panel.registerCloseCallback(this.disableAnalytics);
       panel.registerResetCallback(this.resetAnalytics);
       panel.registerViewAnalyticsCallback(renderAnalytics);
 
-      $(analyticsButton).click(this.enableAnalytics);
+      $(button).on("click", this.enableAnalytics);
     };
 
     var clearAnalytics = function () {
-      $("#analytics-overlay").addClass("hide");
-      $("#analytics-overlay").empty();
+      const overlay = $("#analytics-overlay");
+      overlay.addClass("hide");
+      overlay.empty();
     };
 
     this.enableAnalytics = function () {
       panel.show();
-      graphRenderer.enableAnalyticsMode();
+      renderer.enableAnalyticsMode();
     };
 
     this.resetAnalytics = function () {
       clearAnalytics();
-      graphRenderer.resetAnalyticsMode();
+      renderer.resetAnalyticsMode();
     };
 
     this.disableAnalytics = function () {
       clearAnalytics();
-      graphRenderer.disableAnalyticsMode();
+      renderer.disableAnalyticsMode();
     };
 
     this.selectPipeline = function (pipelineName, level) {
-      if (!pipelineName) return;
+      if (!pipelineName) {
+        return;
+      }
 
       otherNode = new PipelineNode(pipelineName, level);
 
@@ -204,7 +209,9 @@
     };
 
     this.selectMaterial = function (materialName, fingerprint, level) {
-      if ("material" === current.type) return;
+      if ("material" === current.type) {
+        return;
+      }
 
       otherNode = new MaterialNode(fingerprint, materialName, level);
 

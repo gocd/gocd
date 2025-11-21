@@ -16,38 +16,38 @@
 var AjaxRefreshers = function () {
   var ajaxRefreshers = [];
   var mainContentRefresher = {
-    afterRefreshOf: function(_, executeThis) {
+    afterRefreshOf(_, executeThis) {
       executeThis();
     }
   };
 
   return {
-    disableAjax: function() {
+    disableAjax() {
       ajaxRefreshers.forEach(function (ajaxRefresher) {
         ajaxRefresher.stopRefresh();
       });
     },
 
-    enableAjax: function() {
+    enableAjax() {
       ajaxRefreshers.forEach(function (ajaxRefresher) {
         ajaxRefresher.restartRefresh();
       });
     },
 
-    main: function() {
+    main() {
       return mainContentRefresher;
     },
 
-    addRefresher: function(refresher, isMainContentRefresher) {
+    addRefresher(refresher, isMainContentRefresher) {
       if (isMainContentRefresher) {
         mainContentRefresher = refresher;
       }
       ajaxRefreshers.push(refresher);
     },
 
-    clear: function() {
+    clear() {
       mainContentRefresher = {
-        afterRefreshOf: function(_, executeThis) {
+        afterRefreshOf(_, executeThis) {
           executeThis();
         }
       };

@@ -35,7 +35,7 @@ function StageDetailAjaxRefresher(url, after_callback_map) {
   registerCheckboxStatesToRememberUnder('#jobs_grid');
 
   return new AjaxRefresher(url, {
-    afterRefresh: function (receiver_id) {
+    afterRefresh (receiver_id) {
       const callback = after_callback_map[receiver_id];
       callback && callback();
       if (receiver_id === 'jobs_grid') {
@@ -46,13 +46,13 @@ function StageDetailAjaxRefresher(url, after_callback_map) {
         oldCheckboxes = null;
       }
     },
-    dataFetcher: function () {
+    dataFetcher () {
       const pageElement = $("#stage-history-page");
       return pageElement ? {
         "stage-history-page": pageElement.val()
       } : {};
     },
-    manipulateReplacement: function (receiver_id, replaceElement) {
+    manipulateReplacement (receiver_id, replaceElement) {
       if (receiver_id === 'jobs_grid') {
         // We are about to replace HTML in the jobs grid. We now need to watch these so we can remember checkbox
         // selections between refreshes.
@@ -65,10 +65,10 @@ function StageDetailAjaxRefresher(url, after_callback_map) {
 
 function compare_link_handlers() {
   const individualStage = $(".stage_history .stage");
-  individualStage.mouseover(function() {
+  individualStage.on('mouseover', function() {
     $(this).find(".compare_pipeline").removeClass("hidden");
   });
-  individualStage.mouseout(function() {
+  individualStage.on('mouseout', function() {
     $(this).find(".compare_pipeline").addClass("hidden");
   });
 }

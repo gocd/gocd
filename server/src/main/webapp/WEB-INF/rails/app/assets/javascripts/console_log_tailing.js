@@ -63,7 +63,7 @@
         bottomActionBar.pinOnScroll({
           'z-index':      100,
           requiredScroll: 0,
-          bottomLimit:    function () {
+          bottomLimit () {
             return Math.min($window.height(), bottomActionBar.parent().get(0).getBoundingClientRect().bottom) - bottomActionBar.outerHeight(true);
           }
         });
@@ -80,7 +80,7 @@
 
     $(".console-area").on('consoleCompleted consoleUpdated consoleInteraction', function () {
       $(window).trigger($.Event("resetPinOnScroll"), [{
-        calcRequiredScroll: function () {
+        calcRequiredScroll () {
           return $(".console-area").offset().top - $(".page_header").outerHeight(true);
         }
       }]);

@@ -23,7 +23,7 @@ class JsonToCss {
   }
 
   update_build_list(json, id, imgSrc) {
-    const elementId = "#build_list_" + id;
+    const elementId = `#build_list_${id}`;
     const css_class_name = json.building_info.current_status.toLowerCase();
     this._renew_class_name(elementId, [css_class_name]);
     if (css_class_name === "cancelled") {

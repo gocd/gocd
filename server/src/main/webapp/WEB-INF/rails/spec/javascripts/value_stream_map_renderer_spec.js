@@ -23,7 +23,7 @@ describe("value_stream_map_renderer", function () {
       '[{"modifications": [{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
       '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
     var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "", '[]');
-    var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
+    var vsm = eval(`({"current_pipeline":"p1","levels":[{"nodes":[${hg_material}]},{"nodes":[${node_p1}]}]})`);
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
     expect(1).toBe($('#vsm-container .highlight').length);
@@ -92,7 +92,7 @@ describe("value_stream_map_renderer", function () {
 
     var current = pipelineNode("current", '["no_view_permission"]', '[]', 1, "", '[]');
 
-    var vsm = eval('({"current_pipeline":"current","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + deleted_pipeline + ']},{"nodes":[' + no_view_permission + ']},{"nodes":[' + current + ']}]})');
+    var vsm = eval(`({"current_pipeline":"current","levels":[{"nodes":[${hg_material}]},{"nodes":[${deleted_pipeline}]},{"nodes":[${no_view_permission}]},{"nodes":[${current}]}]})`);
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
     expect($("#vsm-container #no_view_permission h3").hasClass("restricted")).toBe(true);
@@ -114,7 +114,7 @@ describe("value_stream_map_renderer", function () {
       '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
     var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "", '[]');
 
-    var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
+    var vsm = eval(`({"current_pipeline":"p1","levels":[{"nodes":[${hg_material}]},{"nodes":[${node_p1}]}]})`);
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
     expect($("#vsm-container #hg_fingerprint .material_revisions").hasClass("hg")).toBe(true);
@@ -272,7 +272,7 @@ describe("value_stream_map_renderer", function () {
       '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
     var node_p1 = pipelineNode("p1", '["svn_fingerprint_1", "svn_fingerprint_2"]', '[]', 1, "", '[]');
 
-    var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + svn_material_1 + ',' + svn_material_2 + ']},{"nodes":[' + node_p1 + ']}]})');
+    var vsm = eval(`({"current_pipeline":"p1","levels":[{"nodes":[${svn_material_1},${svn_material_2}]},{"nodes":[${node_p1}]}]})`);
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
     expect($(".instances[data-materialname='svn_fingerprint_1']").is(':visible')).toBe(false);
@@ -293,9 +293,9 @@ describe("value_stream_map_renderer", function () {
 
     var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["current"]', 1,
       '[{"modifications":[{"revision": "revision1"}, {"revision": "revision2"}]}]');
-    var current = pipelineNode("current", '["hg_fingerprint"]', '[]', 1, "/go/pipeline/activity/current", '[' + current_pipeline_instance_details + ']');
+    var current = pipelineNode("current", '["hg_fingerprint"]', '[]', 1, "/go/pipeline/activity/current", `[${current_pipeline_instance_details}]`);
 
-    var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + current + ']}]})');
+    var vsm = eval(`({"current_pipeline":"p1","levels":[{"nodes":[${hg_material}]},{"nodes":[${current}]}]})`);
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
     expect($("#vsm-container #current h3 a").attr("href")).toBe("/go/pipeline/activity/current");
@@ -319,10 +319,10 @@ describe("value_stream_map_renderer", function () {
 
     var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["current"]', 1,
       '[{"modifications":[{"revision": "revision1"}, {"revision": "revision2"}]}]');
-    var current = pipelineNode("current", '["hg_fingerprint"]', '["downstream"]', 1, "/go/pipeline/activity/current", '[' + current_pipeline_instance_details + ']');
-    var downstream = pipelineNode("downstream", '["current"]', '[]', 2, "/go/pipeline/activity/downstream", '[' + downstream_pipeline_instance_details + ']');
+    var current = pipelineNode("current", '["hg_fingerprint"]', '["downstream"]', 1, "/go/pipeline/activity/current", `[${current_pipeline_instance_details}]`);
+    var downstream = pipelineNode("downstream", '["current"]', '[]', 2, "/go/pipeline/activity/downstream", `[${downstream_pipeline_instance_details}]`);
 
-    var vsm = eval('({"current_pipeline":"current","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + current + ']},{"nodes":[' + downstream + ']}]})');
+    var vsm = eval(`({"current_pipeline":"current","levels":[{"nodes":[${hg_material}]},{"nodes":[${current}]},{"nodes":[${downstream}]}]})`);
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
     expect($("#downstream .show-more").find("a").text()).toBe("1 more...");
@@ -340,9 +340,9 @@ describe("value_stream_map_renderer", function () {
       '[{modifications:[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
       '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
 
-    var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "/go/pipeline/activity/p1", '[' + completedPipeline + ']');
+    var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "/go/pipeline/activity/p1", `[${completedPipeline}]`);
 
-    var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
+    var vsm = eval(`({"current_pipeline":"p1","levels":[{"nodes":[${hg_material}]},{"nodes":[${node_p1}]}]})`);
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
     expect($("#p1 .duration").text()).toBe("Duration: 2m 6.0s");
@@ -357,30 +357,30 @@ describe("value_stream_map_renderer", function () {
       '[{modifications:[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
       '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
 
-    var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "/go/pipeline/activity/p1", '[' + inProgressPipeline + ']');
+    var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "/go/pipeline/activity/p1", `[${inProgressPipeline}]`);
 
-    var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
+    var vsm = eval(`({"current_pipeline":"p1","levels":[{"nodes":[${hg_material}]},{"nodes":[${node_p1}]}]})`);
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
     expect($("#p1 .duration").text()).toBe("Duration: In Progress");
   });
 
   function scmMaterialNode(nodeId, nodeName, type, dependents, depth, material_revisions) {
-    return '{"node_type":"' + type + '","name":"' + nodeName + '","parents":' + '[]' + ',"dependents":' + dependents +
-      ',"id":"' + nodeId + '", "depth":' + depth + ', "locator":' + '""' + ', "material_revisions":' + material_revisions + '}';
+    return `{"node_type":"${type}","name":"${nodeName}","parents":` + `[]` + `,"dependents":${dependents 
+      },"id":"${nodeId}", "depth":${depth}, "locator":` + `""` + `, "material_revisions":${material_revisions}}`;
   }
 
   function pipelineNode(nodeId, parents, dependents, depth, locator, instances) {
-    return '{"node_type":"' + "PIPELINE" + '","name":"' + nodeId + '","parents":' + parents + ',"dependents":' + dependents +
-      ',"id":"' + nodeId + '", "depth":' + depth + ', "locator":"' + locator + '", "instances":' + instances + '}';
+    return `{"node_type":"` + `PIPELINE` + `","name":"${nodeId}","parents":${parents},"dependents":${dependents 
+      },"id":"${nodeId}", "depth":${depth}, "locator":"${locator}", "instances":${instances}}`;
   }
 
   function pipelineNodeWithRestriction(type, nodeName, parents, dependents, depth, view_type, message) {
-    return '{"node_type":"' + type + '","name":"' + nodeName + '","parents":' + parents + ',"dependents":' + dependents +
-      ',"id":"' + nodeName + '", "depth":' + depth + ', "locator":' + '""' + ', "view_type":"' + view_type + '", "message":"' + message + '"}';
+    return `{"node_type":"${type}","name":"${nodeName}","parents":${parents},"dependents":${dependents 
+      },"id":"${nodeName}", "depth":${depth}, "locator":` + `""` + `, "view_type":"${view_type}", "message":"${message}"}`;
   }
 
-  VsmNode = function () {
+  const VsmNode = function () {
     var id;
     var nodePosition;
     var level;
@@ -388,11 +388,11 @@ describe("value_stream_map_renderer", function () {
     var type;
 
     this.getInfo = function () {
-      return 'id: ' + this.id + ' left: ' + this.nodePosition.left + ' width: ' + this.nodePosition.width + ' top: ' + this.nodePosition.top + ' height: ' + this.nodePosition.height + ' level: ' + this.level + ' depth: ' + this.depth + ' type:' + this.type;
+      return `id: ${this.id} left: ${this.nodePosition.left} width: ${this.nodePosition.width} top: ${this.nodePosition.top} height: ${this.nodePosition.height} level: ${this.level} depth: ${this.depth} type:${this.type}`;
     };
   };
 
-  VsmGrid = function (container) {
+  const VsmGrid = function (container) {
     var allNodes = [];
     var levelVersusNodes = [];
 
@@ -411,7 +411,7 @@ describe("value_stream_map_renderer", function () {
       var nodes = $(container).find('div.vsm-entity');
 
       $.each(nodes, function (i, node) {
-        nodeObj = new VsmNode();
+        const nodeObj = new VsmNode();
         nodeObj.id = $(this).id;
 
         nodeObj.type = ($(node).hasClass('material')) ?
@@ -421,7 +421,7 @@ describe("value_stream_map_renderer", function () {
 
         nodeObj.nodePosition = $(this).getBoundingClientRect();
 
-        if (nodeObj.type == 'current-pipeline') {
+        if (nodeObj.type === 'current-pipeline') {
           nodeObj.level = Math.round((nodeObj.nodePosition.left - svgPosition.left - horizontalOffsetFromLeft + 25) / (nodeWidth + horizontalDistanceBetweenLevels));
           nodeObj.depth = Math.round((nodeObj.nodePosition.top - svgPosition.top - verticalOffsetFromTop + 25) / (nodeHeight + verticalDistanceBetweenNodesAtSameLevel));
         } else {
@@ -442,7 +442,7 @@ describe("value_stream_map_renderer", function () {
     this.getInfo = function () {
       var str = '';
       for (var i = 0; i < allNodes.length; i++) {
-        str += allNodes[i].getInfo() + '\n';
+        str += `${allNodes[i].getInfo()}\n`;
       }
       return str;
     };

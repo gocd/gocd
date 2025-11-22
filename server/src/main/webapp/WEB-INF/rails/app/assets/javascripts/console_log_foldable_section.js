@@ -57,14 +57,14 @@
             duration = parseInt(parts[3], 10);
             cursor.annotate("duration", duration);
 
-            result += ", took: " + humanizeMilliseconds(duration);
+            result += `, took: ${humanizeMilliseconds(duration)}`;
           }
 
           if (parts[4] && !isNaN(parseInt(parts[4], 10))) {
             exitCode = parseInt(parts[4], 10);
             cursor.annotate("exitCode", exitCode);
 
-            result += ", exited: " + exitCode;
+            result += `, exited: ${exitCode}`;
           }
 
           c(node, parts[1], c("code", result));
@@ -72,7 +72,7 @@
           c(node, line); // Usually the end of an onCancel task
         }
       } else {
-        if ("" === $.trim(line)) {
+        if ("" === line.trim()) {
           c(node, "\n");
         } else {
           c(node, ansi.ansi_to(line, formatter));
@@ -93,7 +93,7 @@
     }
 
     function insertHeader(cursor, prefix, timestamp, line) {
-      var node = c("dt", {"class": "log-fs-line log-fs-line-" + ReverseTypes[prefix], "data-timestamp": timestamp});
+      var node = c("dt", {"class": `log-fs-line log-fs-line-${ReverseTypes[prefix]}`, "data-timestamp": timestamp});
 
       formatContent(cursor, node, prefix, line);
       cursor.writeHeader(node);
@@ -101,7 +101,7 @@
     }
 
     function insertContent(cursor, prefix, timestamp, line) {
-      var node = c("div", {"class": "log-fs-line log-fs-line-" + ReverseTypes[prefix], "data-timestamp": timestamp});
+      var node = c("div", {"class": `log-fs-line log-fs-line-${ReverseTypes[prefix]}`, "data-timestamp": timestamp});
 
       formatContent(cursor, node, prefix, line);
       cursor.writeBody(node);
@@ -116,11 +116,11 @@
       }
 
       if ("number" === typeof annotations.duration) {
-        node.appendChild(c("span", {class: "log-fs-duration"}, "took: " + humanizeMilliseconds(annotations.duration)));
+        node.appendChild(c("span", {class: "log-fs-duration"}, `took: ${humanizeMilliseconds(annotations.duration)}`));
       }
 
       if ("number" === typeof annotations.exitCode) {
-        node.appendChild(c("span", {class: "log-fs-exitcode"}, "exited: " + annotations.exitCode));
+        node.appendChild(c("span", {class: "log-fs-exitcode"}, `exited: ${annotations.exitCode}`));
       }
     }
 
@@ -133,12 +133,12 @@
   function SectionCursor(node, section) {
     var cursor, self = this;
 
-    if (!section) section = blankSectionElement();
+    if (!section) {section = blankSectionElement();}
 
-    if (node instanceof $) node = node[0];
-    if (section instanceof $) section = section[0];
+    if (node instanceof $) {node = node[0];}
+    if (section instanceof $) {section = section[0];}
 
-    if ("undefined" === typeof section.priv) section.priv = {};
+    if ("undefined" === typeof section.priv) {section.priv = {};}
 
     // the internal cursor reference is the Node object to append new content.
     // sometimes this is the section element, and sometimes it is the "node" argument,
@@ -150,7 +150,7 @@
     }
 
     function addAnotherCursor(parentNode) {
-      if (parentNode instanceof $) parentNode = parentNode[0]; // parentNode may be a real element or document fragment
+      if (parentNode instanceof $) {parentNode = parentNode[0];} // parentNode may be a real element or document fragment
 
       var element = blankSectionElement();
       parentNode.appendChild(element);
@@ -159,7 +159,7 @@
     }
 
     function cloneTo(newNode) {
-      if (section.body) newNode.body = section.body;
+      if (section.body) {newNode.body = section.body;}
       return new SectionCursor(newNode, section);
     }
 
@@ -263,7 +263,7 @@
       }
 
       section.classList.add("log-fs-type");
-      section.classList.add("log-fs-type-" + section.priv.type);
+      section.classList.add(`log-fs-type-${section.priv.type}`);
     }
 
     function isPartOfSection(prefix) {
@@ -323,9 +323,9 @@
   }
 
   window.FoldableSection = {
-    Types: Types,
+    Types,
     Cursor: SectionCursor,
-    LineWriter: LineWriter
+    LineWriter
   };
 
 })(jQuery, crel, _);

@@ -67,7 +67,7 @@
     scrollToBottom:  function scrollToBottom(delay) {
       var self = this;
 
-      if (!self.tailingEnabled) return;
+      if (!self.tailingEnabled) {return;}
 
       function captureScrollPosition() {
         self.previousScrollPosition = $(window).scrollTop();

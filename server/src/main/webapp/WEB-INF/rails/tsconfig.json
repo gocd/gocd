@@ -18,6 +18,7 @@
     "target": "es5",
     "jsx": "react",
     "jsxFactory": "m",
+    "jsxFragmentFactory": "m.Fragment",
     "allowJs": false,
     "strictBindCallApply": true,
     "esModuleInterop": true,

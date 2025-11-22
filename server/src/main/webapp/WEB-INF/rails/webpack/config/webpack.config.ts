@@ -16,12 +16,11 @@
 
 import _ from "lodash";
 import path from "path";
+import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
 import {loaders} from "./loaders";
 import {plugins} from "./plugins";
 import {ConfigOptions, getEntries, getModules} from "./variables";
-
-const TerserPlugin = require("terser-webpack-plugin");
 
 function getConfigOptions(argv: any, env: any): ConfigOptions {
   const assetsDir              = path.join(__dirname, "..");

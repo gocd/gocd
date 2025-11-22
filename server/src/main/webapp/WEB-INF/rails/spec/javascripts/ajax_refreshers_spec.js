@@ -30,11 +30,11 @@ describe("ajax_refreshers", function () {
 
   function mockRefresher() {
     return {
-      stopRefresh: function () {
+      stopRefresh () {
         this.stopped = true;
       },
 
-      restartRefresh: function () {
+      restartRefresh () {
         this.started = true;
       }
     };

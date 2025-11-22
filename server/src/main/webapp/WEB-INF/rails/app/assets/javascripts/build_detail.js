@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 var BuildDetail = {
-  getSubContainer: function (element) {
+  getSubContainer (element) {
     const dirContainer = $(element).parents(".dir-container")[0];
     return $(dirContainer).nextAll(".subdir-container")[0];
   },
-  expandAll: function () {
+  expandAll () {
     $('.files .directory a').each(function (i, element) {
       BuildDetail.tree_navigator(element);
     });
   },
-  collapseAll: function () {
+  collapseAll () {
     $('.files .opened_directory a').each(function (i, element) {
       BuildDetail.tree_navigator(element);
     });
   },
-  tree_navigator: function (element) {
+  tree_navigator (element) {
     const subDirElement = $(BuildDetail.getSubContainer(element));
     const spanElem = $($(element).parents()[0]);
     if (subDirElement.is(':visible')) {

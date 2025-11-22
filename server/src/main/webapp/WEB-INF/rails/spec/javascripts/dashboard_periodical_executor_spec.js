@@ -16,6 +16,7 @@
 describe("dashboard_periodical_executor", function () {
   var dashboard_periodical_executor = new DashboardPeriodicalExecutor('pipelineStatus.json');
 
+  let contextPath;
   beforeEach(function () {
     contextPath = "/go";
     setFixtures(`
@@ -41,7 +42,7 @@ describe("dashboard_periodical_executor", function () {
 
     var invoked = false;
     var fakeObserver = {
-      notify: function () {
+      notify () {
         invoked = true;
       }
     };
@@ -74,7 +75,7 @@ describe("dashboard_periodical_executor", function () {
     });
     var invoked = false;
     var fakeOb = {
-      notify: function () {
+      notify () {
         invoked = true;
       }
     };
@@ -105,7 +106,7 @@ describe("dashboard_periodical_executor", function () {
   it("test_should_remove_all_observers_after_clean", function () {
     var invoked = false;
     var fakeOb = {
-      notify: function () {
+      notify () {
         invoked = true;
       }
     };
@@ -125,7 +126,7 @@ describe("dashboard_periodical_executor", function () {
   it("test_should_remove_observer_when_unregister", function () {
     var invoked = false;
     var fakeOb = {
-      notify: function () {
+      notify () {
         invoked = true;
       }
     };
@@ -160,7 +161,7 @@ describe("dashboard_periodical_executor", function () {
     var invoked = false;
 
     var fakeOb = {
-      notify: function () {
+      notify () {
         invoked = true;
       }
     };
@@ -183,7 +184,7 @@ describe("dashboard_periodical_executor", function () {
   it("test_should_invoke_notify_method_on_observer", function () {
     var is_invoked = false;
     var observer = {
-      notify: function () {
+      notify () {
         is_invoked = true;
       }
     };

@@ -184,8 +184,11 @@ tasks.register('compileAssetsWebpackDev', YarnRunTask) {
   def yarnLicenseReportFile = layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
   outputs.dir(yarnLicenseReportFile.parentFile)
 
-  source("${project.railsRoot}/.babelrc")
+  source(fileTree(project.railsRoot) { include "eslint*.config.mjs" })
+  source("${project.railsRoot}/babel.config.json")
   source("${project.railsRoot}/tsconfig.json")
+  source("${project.railsRoot}/.stylelintrc.yml")
+
   source("${project.railsRoot}/webpack")
   source("${project.railsRoot}/vendor/assets")
   source("${project.railsRoot}/config")
@@ -205,8 +208,11 @@ tasks.register('compileAssetsWebpackProd', YarnRunTask) {
   def yarnLicenseReportFile = layout.buildDirectory.file("reports/yarn-license-prod/license-report.json").get().asFile
   outputs.dir(yarnLicenseReportFile.parentFile)
 
-  source("${project.railsRoot}/.babelrc")
+  source(fileTree(project.railsRoot) { include "eslint*.config.mjs" })
+  source("${project.railsRoot}/babel.config.json")
   source("${project.railsRoot}/tsconfig.json")
+  source("${project.railsRoot}/.stylelintrc.yml")
+
   source("${project.railsRoot}/webpack")
   source("${project.railsRoot}/vendor/assets")
   source("${project.railsRoot}/config")

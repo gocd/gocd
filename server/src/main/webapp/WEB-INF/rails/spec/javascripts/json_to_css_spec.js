@@ -26,8 +26,8 @@ describe("json_to_css", function () {
       building_info: {
         name: projectname,
         build_completed_date: "1 day ago",
-        current_status: current_status,
-        result: result
+        current_status,
+        result
       }
     };
   }

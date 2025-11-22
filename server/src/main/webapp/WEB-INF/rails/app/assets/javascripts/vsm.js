@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-VSM = function(data, container, renderer, preloader){
-  var data = data;
-  var renderer = renderer;
-  var container = $(container);
-  var preloader = $(preloader);
+VSM = function (data, container, renderer, preloader) {
+  var jContainer = $(container);
+  var jPreloader = $(preloader);
 
-  VSM.prototype.render = function() {
-    if(data.error != null){
+  VSM.prototype.render = function () {
+    if (data.error != null) {
       $('.page_header').hide();
-      preloader.hide();
-      var unableToFind = '<div class="pagenotfound"><div class="biggest">:(</div><h3>' + _.escape(data.error) + '</h3><span>Go to <a href="/go/pipelines">Pipelines</a></span></div>';
-      $('#vsm-container').css({margin:0, position:'inherit'});
-      container.html(unableToFind);
+      jPreloader.hide();
+      var unableToFind = `<div class="pagenotfound"><div class="biggest">:(</div><h3>${_.escape(data.error)}</h3><span>Go to <a href="/go/pipelines">Pipelines</a></span></div>`;
+      $('#vsm-container').css({margin: 0, position: 'inherit'});
+      jContainer.html(unableToFind);
 
-    }else{
+    } else {
       renderer.invoke(data);
-      preloader.hide();
+      jPreloader.hide();
     }
   };
 };

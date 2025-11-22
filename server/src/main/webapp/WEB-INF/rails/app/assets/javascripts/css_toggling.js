@@ -15,7 +15,7 @@
  */
 function make_collapsable(container_id) {
   const container_id_selector = Util.idToSelector(container_id);
-  $(container_id_selector + " .hidereveal_expander").click(function (event) {
+  $(`${container_id_selector} .hidereveal_expander`).on("click", function (event) {
     $(container_id_selector).toggleClass("hidereveal_collapsed");
     event.stopPropagation();
   });

@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint-disable no-var, prefer-arrow-callback, object-shorthand, prefer-template */
 
 // Fixup stack traces, using this approach: https://gist.github.com/guncha/f45ceef6d483c384290a
 import sourceMappedStackTrace from "sourcemapped-stacktrace";
-
 
 jasmine.getEnv().addReporter({
   jasmineDone () {

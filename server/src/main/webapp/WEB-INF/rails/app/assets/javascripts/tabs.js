@@ -49,9 +49,9 @@ class SubTabs {
   initializeLinkAndContent() {
     const content_name = this.element.find('a.tab_button_body_match_text').html();
     this.tab_name = content_name;
-    this.link.attr('id', 'tab-link-of-' + content_name);
+    this.link.attr('id', `tab-link-of-${content_name}`);
     this.link.attr('href', 'javascript:void(0)');
-    this.content = $('#tab-content-of-' + content_name);
+    this.content = $(`#tab-content-of-${content_name}`);
   }
 
   hideContent() {
@@ -77,8 +77,7 @@ class SubTabs {
     if (event != true) {
       try {
         window.location.hash = '#';
-      } catch (e) {
-      }
+      } catch (e) {} // eslint-disable-line no-empty
     }
     this.container.hideAllSubTabs();
     this.element.addClass('current_tab');
@@ -87,7 +86,7 @@ class SubTabs {
     }
     if (this.content.length > 0) {
       this.content.show();
-      const init_method_name = this.content.attr('id') + "_callback";
+      const init_method_name = `${this.content.attr('id')}_callback`;
       if (window[init_method_name]) {
         window[init_method_name]();
       }
@@ -140,8 +139,7 @@ class TabsManager {
       if (url.lastIndexOf('#tab-') > -1) {
         return url.substring(url.lastIndexOf('#tab-') + 5, url.length);
       }
-    } catch (e) {
-    }
+    } catch (e) {} // eslint-disable-line no-empty
 
     return null; // return undefined if no name in the tail of URL
   }
@@ -149,7 +147,7 @@ class TabsManager {
   initializeCurrentTab(tab) {
     const current_tab_content_id = this.getCurrentTab(tab);
     if (current_tab_content_id) {
-      const current_tab_link = $('#tab-link-of-' + current_tab_content_id);
+      const current_tab_link = $(`#tab-link-of-${current_tab_content_id}`);
       if (current_tab_link.length > 0) {
         current_tab_link.parent().get(0).open(true);
       }
@@ -162,7 +160,7 @@ class TabsManager {
     const url_without_hash = url.lastIndexOf('#') > -1 ? url.substring(0, url.lastIndexOf('#')) : url;
     const linkToThisPage = $('#link-to-this-page');
     if (linkToThisPage.length > 0 && linkToThisPage.attr('href')) {
-      linkToThisPage.attr('href', url_without_hash + '#tab-' + tabName);
+      linkToThisPage.attr('href', `${url_without_hash}#tab-${tabName}`);
     }
   }
 }

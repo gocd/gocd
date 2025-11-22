@@ -17,6 +17,7 @@
 
 import "core-js";
 import "regenerator-runtime/runtime";
+/* eslint-disable no-undef */
 
 function importAll(r) {
   r.keys().forEach(r);

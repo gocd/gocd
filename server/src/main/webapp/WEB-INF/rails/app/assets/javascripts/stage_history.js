@@ -16,10 +16,10 @@
 var StageHistory = function() {
   function _bindHistoryLink(id, url, page_num) {
     var elem = $(id).get(0);
-    if (!elem) return;        
+    if (!elem) {return;}        
     var element = $(elem);
-    element.unbind();
-    element.click(function() {
+    element.off();
+    element.on("click", function() {
       changePage(url, page_num);
     });
   }
@@ -27,10 +27,10 @@ var StageHistory = function() {
   function changePage(url, pageNum) {
     AjaxRefreshers.disableAjax();
     $.ajax({
-      url: url,
+      url,
       method: "GET",
       dataType: "html",
-      complete: function(response) {
+      complete(response) {
         $('.stage_history').html(response);
         AjaxRefreshers.enableAjax();
       }
@@ -59,24 +59,24 @@ var StageHistory = function() {
   };
 
   init.prototype.bindConfigChangeModal = function(modalId, contentSelector) {
-    $(".stage_history .config_change a").click(function(event) {
+    $(".stage_history .config_change a").on("click", function(event) {
       event.preventDefault();
       AjaxRefreshers.disableAjax();
       const url = $(this).attr("href");
       $.ajax({
-        url: url,
-        success: function(data) {
+        url,
+        success(data) {
           $(contentSelector).html($(data).find("#body_content").html());
           document.getElementById(modalId).showModal();
         },
-        error: function(response, textStatus) {
+        error(response, textStatus) {
           $(contentSelector).html(`<div class="callout">There was an error loading changes (${response.status} ${textStatus})</div>`);
           document.getElementById(modalId).showModal();
         }
       });
     });
 
-    $("#modal-close").click(function(event) {
+    $("#modal-close").on("click", function(event) {
       event.preventDefault();
       document.getElementById(modalId).close();
       AjaxRefreshers.enableAjax();

@@ -113,7 +113,7 @@
 
         function _onError(xhr) {
             if (xhr.status === 401) {
-                window.location = window.location.protocol + '//' + window.location.host + "/go/auth/login";
+                window.location = `${window.location.protocol}//${window.location.host}/go/auth/login`;
             }
         }
 

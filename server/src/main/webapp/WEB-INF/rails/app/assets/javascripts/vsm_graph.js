@@ -27,7 +27,7 @@
 
     data.levels.forEach(function (level) {
       level.nodes.forEach(function (node) {
-        if (node.type === "DUMMY") dummyNodeMap[node.id] = node;
+        if (node.type === "DUMMY") {dummyNodeMap[node.id] = node;}
       });
     });
 
@@ -111,8 +111,8 @@
   VSMGraph.Level.fromJSON = function (json) {
     return new VSMGraph.Level({
       nodes: json.nodes.map(function (node) {
-        if (node.node_type === "PIPELINE") return PipelineDependencyNode.fromJSON(node);
-        if (node.node_type === "DUMMY") return DummyNode.fromJSON(node);
+        if (node.node_type === "PIPELINE") {return PipelineDependencyNode.fromJSON(node);}
+        if (node.node_type === "DUMMY") {return DummyNode.fromJSON(node);}
         return SCMDependencyNode.fromJSON(node);
       })
     });

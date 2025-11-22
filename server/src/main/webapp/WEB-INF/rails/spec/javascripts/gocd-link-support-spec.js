@@ -34,7 +34,7 @@ describe("GoCD Link Support", function () {
 
     expect(window.open).toHaveBeenCalled();
     var jobDetailsPagePath = window.open.calls.mostRecent().args[0];
-    expect(jobDetailsPagePath).toBe('/go/tab/build/detail/' + params.pipeline_name + '/' + params.pipeline_counter + '/' + params.stage_name + '/' + params.stage_counter + '/' + params.job_name);
+    expect(jobDetailsPagePath).toBe(`/go/tab/build/detail/${params.pipeline_name}/${params.pipeline_counter}/${params.stage_name}/${params.stage_counter}/${params.job_name}`);
   });
 
   it('should link to vsm page', function () {
@@ -48,7 +48,7 @@ describe("GoCD Link Support", function () {
 
     expect(window.open).toHaveBeenCalled();
     var vsmPagePath = window.open.calls.mostRecent().args[0];
-    expect(vsmPagePath).toBe('/go/pipelines/value_stream_map/' + params.pipeline_name + '/' + params.pipeline_counter);
+    expect(vsmPagePath).toBe(`/go/pipelines/value_stream_map/${params.pipeline_name}/${params.pipeline_counter}`);
   });
 
   it('should link to stage details page', function () {
@@ -64,6 +64,6 @@ describe("GoCD Link Support", function () {
 
     expect(window.open).toHaveBeenCalled();
     var stageDetailsPagePath = window.open.calls.mostRecent().args[0];
-    expect(stageDetailsPagePath).toBe('/go/pipelines/' + params.pipeline_name + '/' + params.pipeline_counter + '/' + params.stage_name + '/' + params.stage_counter);
+    expect(stageDetailsPagePath).toBe(`/go/pipelines/${params.pipeline_name}/${params.pipeline_counter}/${params.stage_name}/${params.stage_counter}`);
   });
 });

@@ -15,7 +15,7 @@
  */
 Graph_Renderer = function (container) {
   'use strict';
-  var container = $(container);
+  var jContainer = $(container);
   var width = 200; // Default width of a node
   var height = 110; // Default height of a node
   var current, current_material;
@@ -32,12 +32,12 @@ Graph_Renderer = function (container) {
   var selectMaterialCallback;
 
   Graph_Renderer.prototype.invoke = function (vsm) {
-    current          = vsm.current_pipeline;
+    current = vsm.current_pipeline;
     current_material = vsm.current_material;
     levels = vsm.levels;
 
     if (current != null && current != undefined) {
-      container.append('<div class="highlight"></div>');
+      jContainer.append('<div class="highlight"></div>');
     }
 
     renderEntities(levels);
@@ -80,16 +80,16 @@ Graph_Renderer = function (container) {
 
   var addPipelineOnHoverSelectStyles = function () {
     $("<div class=\"onhover-pipeline-overlay hidden\">" +
-        "   <div class=\"plus-symbol\">+</div><div class=\"click-text\">select pipeline</div>" +
-        "</div>").appendTo('.vsm-entity.pipeline');
+      "   <div class=\"plus-symbol\">+</div><div class=\"click-text\">select pipeline</div>" +
+      "</div>").appendTo('.vsm-entity.pipeline');
 
     $(".vsm-entity.pipeline.other-node").bind('mouseover', hoverOnPipeline).bind('mouseout', hoverOutPipeline);
   };
 
   var addMaterialOnHoverSelectStyles = function () {
     $("<div class=\"onhover-material-overlay hidden\">" +
-        "    <div class=\"plus-symbol\">+</div><div class=\"click-text\">select material</div>" +
-        "</div>").appendTo('.vsm-entity.material');
+      "    <div class=\"plus-symbol\">+</div><div class=\"click-text\">select material</div>" +
+      "</div>").appendTo('.vsm-entity.material');
 
     $(".vsm-entity.material.other-node").bind('mouseover', hoverOnMaterial).bind('mouseout', hoverOutMaterial);
   };
@@ -123,10 +123,10 @@ Graph_Renderer = function (container) {
       return;
     }
     analyticsModeEnabled = true;
-    $('.vsm-entity.pipeline a').css({ "pointer-events": "none" });
+    $('.vsm-entity.pipeline a').css({"pointer-events": "none"});
     $('#vsm-container').height($('#vsm-container').height() - 92);
-    $('.vsm-entity.material').click(selectMaterial);
-    $('.vsm-entity.pipeline').click(selectPipeline);
+    $('.vsm-entity.material').on("click", selectMaterial);
+    $('.vsm-entity.pipeline').on("click", selectPipeline);
 
     $('.vsm-entity.pipeline').addClass("vsm-pipeline-node");
     $('.vsm-entity.pipeline').removeClass("expanded");
@@ -144,9 +144,9 @@ Graph_Renderer = function (container) {
 
   Graph_Renderer.prototype.disableAnalyticsMode = function () {
     analyticsModeEnabled = false;
-    $('.vsm-entity a').css({ "pointer-events": "auto" });
+    $('.vsm-entity a').css({"pointer-events": "auto"});
     $('#vsm-container').height($('#vsm-container').height() + 92);
-    $('.vsm-entity.material').css({ "pointer-events": "auto" });
+    $('.vsm-entity.material').css({"pointer-events": "auto"});
     $('.vsm-entity.material').unbind('click', selectMaterial);
     $('.vsm-entity.pipeline').unbind('click', selectPipeline);
 
@@ -205,8 +205,8 @@ Graph_Renderer = function (container) {
   };
 
   function resetContainerPosition() {
-    container.scrollTop(0);
-    container.scrollLeft(0);
+    jContainer.scrollTop(0);
+    jContainer.scrollLeft(0);
   }
 
   // Needs to match logic within stage_overview_shim_for_vsm.tsx which makes placement decisions based on nodes
@@ -223,7 +223,7 @@ Graph_Renderer = function (container) {
 
         if (node.node_type != 'PIPELINE' && node.node_type != 'DUMMY') {
           node.originalId = node.id;
-          node.id = (/\d/.test(node.id.charAt(0))) ? 'a' + node.id : node.id;
+          node.id = (/\d/.test(node.id.charAt(0))) ? `a${node.id}` : node.id;
         }
 
         if (node.id != current) {
@@ -231,24 +231,23 @@ Graph_Renderer = function (container) {
             pipeline_gui = renderMaterialCommits(node);
             var current_material_class = node.originalId === current_material ? 'current' : '';
             var material_conflicts = node.view_type == 'WARNING' ? 'conflicts' : '';
-            pipeline_gui += '<div id="' + sanitizeVsmNodeId(node.id) + '" class="vsm-entity material other-node ' + node.node_type.toLowerCase() + ' ' + current_material_class + ' ' + material_conflicts + '" style="';
-            pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 100) + 'px"';
-            pipeline_gui += 'data-material-name="' + node.name + '" data-fingerprint="' + node.originalId + '" data-level=' + i;
+            pipeline_gui += `<div id="${sanitizeVsmNodeId(node.id)}" class="vsm-entity material other-node ${node.node_type.toLowerCase()} ${current_material_class} ${material_conflicts}" style="`;
+            pipeline_gui += `top:${((height * depth) + (50 * depth)) + 50}px; left:${((width * i) + (90 * i)) + 100}px"`;
+            pipeline_gui += `data-material-name="${node.name}" data-fingerprint="${node.originalId}" data-level=${i}`;
             pipeline_gui += '>';
             pipeline_gui += renderScmEntity(node);
 
-          }
-          else {
-            pipeline_gui = '<div id="' + sanitizeVsmNodeId(node.id) + '" class="vsm-entity other-node ' + node.node_type.toLowerCase() + '" style="';
-            pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 20) + 'px"';
-            pipeline_gui += 'data-pipeline-name="' + node.id + '" data-level=' + i;
+          } else {
+            pipeline_gui = `<div id="${sanitizeVsmNodeId(node.id)}" class="vsm-entity other-node ${node.node_type.toLowerCase()}" style="`;
+            pipeline_gui += `top:${((height * depth) + (50 * depth)) + 50}px; left:${((width * i) + (90 * i)) + 20}px"`;
+            pipeline_gui += `data-pipeline-name="${node.id}" data-level=${i}`;
             pipeline_gui += '>';
           }
           isCurrent = false;
         } else {
-          $(container).find('.highlight').css({ 'left': (((width * i) + (90 * i))) });
-          pipeline_gui = '<div id="' + sanitizeVsmNodeId(node.id) + '" class="vsm-entity ' + node.node_type.toLowerCase() + ' current" style="';
-          pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 30) + 'px; left:' + (((width * i) + (90 * i))) + 'px';
+          $(jContainer).find('.highlight').css({'left': (((width * i) + (90 * i)))});
+          pipeline_gui = `<div id="${sanitizeVsmNodeId(node.id)}" class="vsm-entity ${node.node_type.toLowerCase()} current" style="`;
+          pipeline_gui += `top:${((height * depth) + (50 * depth)) + 30}px; left:${(width * i) + (90 * i)}px`;
           pipeline_gui += '">';
           isCurrent = true;
         }
@@ -259,8 +258,8 @@ Graph_Renderer = function (container) {
           pipeline_gui += renderDummyEntity(node);
         }
         pipeline_gui += '</div>';
-        container.append(pipeline_gui);
-        $(container).find('.highlight').show();
+        jContainer.append(pipeline_gui);
+        $(jContainer).find('.highlight').show();
       });
     });
   }
@@ -276,16 +275,16 @@ Graph_Renderer = function (container) {
     if (modification) {
       nodeClassName = node.node_type.toLowerCase();
       var pluginClassName = isNodeTypeScm() ? "scm " : "";
-      gui += '<div class= "material_revisions ' + pluginClassName + nodeClassName + '"></div>';
-      if (node.node_type == 'PACKAGE' && typeof(node.material_names) !== "undefined") {
+      gui += `<div class= "material_revisions ${pluginClassName}${nodeClassName}"></div>`;
+      if (node.node_type == 'PACKAGE' && typeof (node.material_names) !== "undefined") {
         node_name = node.material_names.join();
       } else {
         node_name = node.name;
       }
-      gui += '<h3 class="material_type" title="' + nodeClassName + ': ' + node_name + '">' + node_name + '</h3>';
+      gui += `<h3 class="material_type" title="${nodeClassName}: ${node_name}">${node_name}</h3>`;
 
       if (modification && modification.revision) {
-        gui += '<div title="' + parseCommentForTooltip(modification.comment) + '" class= "material_revisions_label">';
+        gui += `<div title="${parseCommentForTooltip(modification.comment)}" class= "material_revisions_label">`;
         gui += parseComment(modification.comment);
         gui += '</div>';
 
@@ -318,16 +317,16 @@ Graph_Renderer = function (container) {
       if (node.material_names != undefined) {
         for (var i = 0; i < node.material_names.length; i++) {
           material_name = node.material_names[i];
-          list_of_material_name += material_name + ', ';
+          list_of_material_name += `${material_name}, `;
         }
       }
-      gui += '<ul class="instances" data-materialname=' + node.id + ' style="display: none;">';
+      gui += `<ul class="instances" data-materialname=${node.id} style="display: none;">`;
       gui += '<li></li>';
-      for (var i = 0; i < instancesCount; i++) {
-        gui += '<li class="material_revision_header"><div title="' + node.name + '">' + node.name + '</div></li>';
-        var modificationsCount = node.material_revisions[i].modifications.length;
-        for (var j = 0; j < modificationsCount; j++) {
-          gui += renderScmInstance(node.material_revisions[i].modifications[j]);
+      for (var j = 0; j < instancesCount; j++) {
+        gui += `<li class="material_revision_header"><div title="${node.name}">${node.name}</div></li>`;
+        var modificationsCount = node.material_revisions[j].modifications.length;
+        for (var k = 0; k < modificationsCount; k++) {
+          gui += renderScmInstance(node.material_revisions[j].modifications[k]);
         }
       }
       gui += '</ul>';
@@ -338,16 +337,18 @@ Graph_Renderer = function (container) {
   function materialBoxCreation() {
     var $MaterialRevision = $('.vsm-entity.material');
 
-    $MaterialRevision.click(function (event) {
-      if(analyticsModeEnabled) return;
+    $MaterialRevision.on("click", function (event) {
+      if (analyticsModeEnabled) {
+        return;
+      }
 
-      var CommentsBox = $('ul[data-materialname="' + $(this).attr('id') + '"]');
+      var CommentsBox = $(`ul[data-materialname="${$(this).attr('id')}"]`);
       CommentsBox.slideToggle(100);
 
       var top = $(this).offset().top + $(this).height() - 3;
       var left = $(this).offset().left + ($(this).outerWidth() / 2) - ($MaterialRevision.outerWidth() / 2) - 20;
 
-      CommentsBox.offset({top: top, left: left});
+      CommentsBox.offset({top, left});
 
       //keeping last opened box on the top - start
       var index_highest = 0;
@@ -361,13 +362,13 @@ Graph_Renderer = function (container) {
       //keeping last opened box on the top - ends
 
       event.stopPropagation();
-      $(CommentsBox).click(function (event) {
+      $(CommentsBox).on("click", function (event) {
         event.stopPropagation();
       });
 
     });
 
-    $(document).click(function () {
+    $(document).on("click", function () {
       if ($('ul[data-materialname]').is(':visible')) {
         $('ul[data-materialname]').hide();
       }
@@ -377,14 +378,14 @@ Graph_Renderer = function (container) {
 
   function renderScmInstance(instance) {
 
-    return '<li class="instance">'
-                + '<div title="' + instance.revision + '" class="revision"><span>Revision: </span><a href="' + instance.locator + '">' + instance.revision + '</a>' + ' </div>'
-                + '<div class="usercomment wraptext">' + parseComment(instance.comment) + '</div>'
-                + '<div class="author">'
-                + '<p>' + _.escape(instance.user) + ' </p>'
-                + '<p>' + _.escape(instance.modified_time) + '</p>'
-                + '</div>'
-                + '</li>';
+    return `<li class="instance">`
+      + `<div title="${instance.revision}" class="revision"><span>Revision: </span><a href="${instance.locator}">${instance.revision}</a>` + ` </div>`
+      + `<div class="usercomment wraptext">${parseComment(instance.comment)}</div>`
+      + `<div class="author">`
+      + `<p>${_.escape(instance.user)} </p>`
+      + `<p>${_.escape(instance.modified_time)}</p>`
+      + `</div>`
+      + `</li>`;
   }
 
   function parseComment(comment) {
@@ -394,12 +395,12 @@ Graph_Renderer = function (container) {
       var package_comment = comment_map['COMMENT'];
       var trackback_url = comment_map['TRACKBACK_URL'];
       if (typeof package_comment !== "undefined" || package_comment != null) {
-        comment_markup = _.escape(package_comment) + "<br/>";
+        comment_markup = `${_.escape(package_comment)}<br/>`;
       }
       if (typeof trackback_url !== "undefined" || trackback_url != null) {
-        return comment_markup + 'Trackback: <a href="' + encodeURI(trackback_url) + '">' + _.escape(trackback_url) + '</a>';
+        return `${comment_markup}Trackback: <a href="${encodeURI(trackback_url)}">${_.escape(trackback_url)}</a>`;
       }
-      return comment_markup + 'Trackback: Not Provided';
+      return `${comment_markup}Trackback: Not Provided`;
     }
     return _.escape(comment);
   }
@@ -411,12 +412,12 @@ Graph_Renderer = function (container) {
       var package_comment = comment_map['COMMENT'];
       var trackback_url = comment_map['TRACKBACK_URL'];
       if (typeof package_comment !== "undefined" || package_comment != null) {
-        comment_tooltip = _.escape(package_comment) + "\n";
+        comment_tooltip = `${_.escape(package_comment)}\n`;
       }
       if (typeof trackback_url !== "undefined" || trackback_url != null) {
-        return comment_tooltip + 'Trackback: ' + _.escape(trackback_url);
+        return `${comment_tooltip}Trackback: ${_.escape(trackback_url)}`;
       }
-      return comment_tooltip + 'Trackback: Not Provided';
+      return `${comment_tooltip}Trackback: Not Provided`;
     }
     return _.escape(comment);
   }
@@ -435,10 +436,10 @@ Graph_Renderer = function (container) {
 
     var instancesCount;
     if (node.instances != null && node.instances != undefined) {
-      gui += '<h3 title="' + node.name + '"><a href="' + node.locator + '">' + node.name + '</a></h3>';
-      if(node.can_edit) {
-        var hasWarningClass = (node.view_type === 'WARNING') ? 'has-warning': '';
-        gui += '<div class="pipeline_actions '+ hasWarningClass +'"> <a class="icon16 setting" href="'+ node.edit_path + '"></a> </div>';
+      gui += `<h3 title="${node.name}"><a href="${node.locator}">${node.name}</a></h3>`;
+      if (node.can_edit) {
+        var hasWarningClass = (node.view_type === 'WARNING') ? 'has-warning' : '';
+        gui += `<div class="pipeline_actions ${hasWarningClass}"> <a class="icon16 setting" href="${node.edit_path}"></a> </div>`;
       }
       if (node.instances != undefined && node.instances.length > 0 && node.instances[0].stages) {
         gui += '<ul class="instances">';
@@ -455,7 +456,7 @@ Graph_Renderer = function (container) {
         } else if (instancesCount > 2) {
           gui += 'l';
         }
-        gui += '">' + (node.instances.length - 1) + ' more...</a></div>';
+        gui += `">${node.instances.length - 1} more...</a></div>`;
       }
     }
     gui += '<div class="actions">';
@@ -465,9 +466,9 @@ Graph_Renderer = function (container) {
 
   function renderRestrictedPipeline(node) {
     var gui = '';
-    gui += '<h3 title="' + node.name + '" class="restricted">' + node.name + '</h3>';
+    gui += `<h3 title="${node.name}" class="restricted">${node.name}</h3>`;
     if (node.message) {
-      gui += '<div class="message restricted"><span>' + _.escape(node.message) + '</span></div>';
+      gui += `<div class="message restricted"><span>${_.escape(node.message)}</span></div>`;
     }
     gui += '<div class="actions restricted">';
     gui += '<button class="pin" title="Keep dependencies highlighted" /></div>';
@@ -477,16 +478,16 @@ Graph_Renderer = function (container) {
   function renderWarning(node) {
     var gui = '';
     if (node.message) {
-      gui += '<div class="warning"><span>' + _.escape(node.message) + '</span></div>';
+      gui += `<div class="warning"><span>${_.escape(node.message)}</span></div>`;
     }
     return gui;
   }
 
   function renderDeletedPipeline(node) {
     var gui = '';
-    gui += '<h3 title="' + node.name + '" class="deleted">' + node.name + '</h3>';
+    gui += `<h3 title="${node.name}" class="deleted">${node.name}</h3>`;
     if (node.message) {
-      gui += '<div class="message deleted"><span>' + _.escape(node.message) + '</span></div>';
+      gui += `<div class="message deleted"><span>${_.escape(node.message)}</span></div>`;
     }
     gui += '<div class="actions deleted"><button class="pin" title="Keep dependencies highlighted" /></div>';
     return gui;
@@ -498,15 +499,14 @@ Graph_Renderer = function (container) {
     gui += '<li class="instance">';
     if (instance.label != '') {
       if (isCurrent) {
-        gui += '<h4 title="' + _.escape(instance.label) + '"><span class="pipeline_run_label">Instance: ' + _.escape(instance.label) + '</span></h4>';
-      }
-      else {
-        gui += '<h4 title="' + _.escape(instance.label) + '"><span class="pipeline_run_label">Instance: ' + _.escape(instance.label) + '</span><span class="vsm_link_wrapper"><a href="' + instance.locator + '">VSM</a></span></h4>';
+        gui += `<h4 title="${_.escape(instance.label)}"><span class="pipeline_run_label">Instance: ${_.escape(instance.label)}</span></h4>`;
+      } else {
+        gui += `<h4 title="${_.escape(instance.label)}"><span class="pipeline_run_label">Instance: ${_.escape(instance.label)}</span><span class="vsm_link_wrapper"><a href="${instance.locator}">VSM</a></span></h4>`;
       }
     }
-    if(instance.locator.trim() != "") {
-      var duration =  pipelineRunCompleted(instance) ? pipelineRunDuration(instance) : 'In Progress';
-      gui += '<span class="duration">Duration: ' + duration + '</span>';
+    if (instance.locator.trim() != "") {
+      var duration = pipelineRunCompleted(instance) ? pipelineRunDuration(instance) : 'In Progress';
+      gui += `<span class="duration">Duration: ${duration}</span>`;
 
       gui += '<ul class="stages">';
       stagesCount = instance.stages.length;
@@ -515,12 +515,11 @@ Graph_Renderer = function (container) {
         gui += '<li class="stage_bar ';
         gui += ((instance.stages[i].status != undefined) ? instance.stages[i].status : 'Unknown');
         if (instance.stages[i].status == 'Unknown') {
-          gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + '"></li>';
-        }
-        else {
+          gui += `" style="width:${(stagesWidth - (stagesCount * 4)) / stagesCount}px" title="${instance.stages[i].name}"></li>`;
+        } else {
           var stageTitle = instance.stages[i].name;
-          if(_.toInteger(instance.stages[i].duration) > 0){
-            stageTitle += ' (took ' + moment.duration(instance.stages[i].duration, 's').humanizeForGoCD() + ')';
+          if (_.toInteger(instance.stages[i].duration) > 0) {
+            stageTitle += ` (took ${moment.duration(instance.stages[i].duration, 's').humanizeForGoCD()})`;
           }
 
           var stageLocatorSplit = instance.stages[i].locator.split('/');
@@ -529,15 +528,15 @@ Graph_Renderer = function (container) {
           var pipelineCounter = stageLocatorSplit.pop();
           var pipelineName = stageLocatorSplit.pop();
 
-          gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + stageTitle + '"><a href="#" onclick="window.getStageOverviewFor(\''+ pipelineName + '\',\'' + pipelineCounter + '\',\'' + stageName + '\',\'' + stageCounter + '\',\'' + instance.stages[i].status + '\',\'' + i + '\',\'' + instance.stages.length + '\',\'' + node.can_edit  + '\',\'' + node.template_name +'\')"></a></li>';
-          gui += '<div id="stage-overview-container-for-pipeline-'+ pipelineName + '-' + pipelineCounter + '-stage-' + stageName + '-' + stageCounter +'"></div>';
+          gui += `" style="width:${(stagesWidth - (stagesCount * 4)) / stagesCount}px" title="${stageTitle}"><a href="#" onclick="window.getStageOverviewFor('${pipelineName}','${pipelineCounter}','${stageName}','${stageCounter}','${instance.stages[i].status}','${i}','${instance.stages.length}','${node.can_edit}','${node.template_name}')"></a></li>`;
+          gui += `<div id="stage-overview-container-for-pipeline-${pipelineName}-${pipelineCounter}-stage-${stageName}-${stageCounter}"></div>`;
         }
       }
       gui += '</ul>';
     }
 
-    if(instance.locator.trim() == "") {
-      gui += "<div style='clear:both;' class='message waiting' title='"+ noInstanceMessage +"'>";
+    if (instance.locator.trim() == "") {
+      gui += `<div style='clear:both;' class='message waiting' title='${noInstanceMessage}'>`;
       gui += noInstanceMessage;
       gui += "</div>";
     }
@@ -547,8 +546,8 @@ Graph_Renderer = function (container) {
   }
 
   function pipelineRunCompleted(instance) {
-    for(var i = 0; i < instance.stages.length; i++) {
-      if(['PASSED', 'FAILED', 'CANCELLED', 'UNKNOWN'].indexOf(instance.stages[i].status.toUpperCase()) < 0) {
+    for (var i = 0; i < instance.stages.length; i++) {
+      if (['PASSED', 'FAILED', 'CANCELLED', 'UNKNOWN'].indexOf(instance.stages[i].status.toUpperCase()) < 0) {
         return false;
       }
     }
@@ -565,7 +564,7 @@ Graph_Renderer = function (container) {
   }
 
   function renderDummyEntity(node) {
-    return '<h3><a href="#">' + node.name + '</a></h3>';
+    return `<h3><a href="#">${node.name}</a></h3>`;
   }
 
   // Edges =============================================================================================
@@ -608,15 +607,14 @@ Graph_Renderer = function (container) {
         return line(d.pathData);
       })
       .attr('class', function (d) {
-        return 'dependency ' + sanitizeVsmNodeId(d.source) + ' ' + sanitizeVsmNodeId(d.target);
+        return `dependency ${sanitizeVsmNodeId(d.source)} ${sanitizeVsmNodeId(d.target)}`;
       })
       .append('title')
       .text(function (d) {
-        if (!($('#' + d.source).hasClass('pipeline') || $('#' + d.source).hasClass('dummy'))) {
-          return $('#' + sanitizeVsmNodeId(d.source) + ' h3').attr('title') + ' -> ' + d.target;
-        }
-        else {
-          return d.source + ' -> ' + d.target;
+        if (!($(`#${d.source}`).hasClass('pipeline') || $(`#${d.source}`).hasClass('dummy'))) {
+          return `${$(`#${sanitizeVsmNodeId(d.source)} h3`).attr('title')} -> ${d.target}`;
+        } else {
+          return `${d.source} -> ${d.target}`;
         }
       });
 
@@ -679,7 +677,7 @@ Graph_Renderer = function (container) {
         {"x": x2, "y": y2}
       ];
     }
-    addDependencyArrow(source, target, arrowData, ($(Util.idToSelector(source)).text() == 'dummy-' + source));
+    addDependencyArrow(source, target, arrowData, ($(Util.idToSelector(source)).text() == `dummy-${source}`));
   }
 
   function dependencyArrow(source, target, pathData) {
@@ -705,11 +703,9 @@ Graph_Renderer = function (container) {
       currentZIndex++;
       if (sanitizeVsmNodeId(arrow.source) == source && sanitizeVsmNodeId(arrow.target) == target) {
         arrow.zIndex = currentZIndex;
-      }
-      else if (sanitizeVsmNodeId(arrow.source) == source && target == 'dependency') {
+      } else if (sanitizeVsmNodeId(arrow.source) == source && target == 'dependency') {
         arrow.zIndex = currentZIndex;
-      }
-      else if (sanitizeVsmNodeId(arrow.target) == target && source == 'dependency') {
+      } else if (sanitizeVsmNodeId(arrow.target) == target && source == 'dependency') {
         arrow.zIndex = currentZIndex;
       }
     });
@@ -719,7 +715,7 @@ Graph_Renderer = function (container) {
     var sortSelector = '';
 
     $.each(dependencyArrows, function (i, e) {
-      sortSelector += '.' + sanitizeVsmNodeId(e.source) + '.' + sanitizeVsmNodeId(e.target) + ', ';
+      sortSelector += `.${sanitizeVsmNodeId(e.source)}.${sanitizeVsmNodeId(e.target)}, `;
     });
 
     d3.selectAll('path.dependency').sort(function (a, b) {
@@ -735,7 +731,7 @@ Graph_Renderer = function (container) {
     pinnedEntities.splice(pinnedEntities.length, 0, entity);
     d3.select('svg#svg').selectAll('path.pinned').classed('pinned', false);
     $.each(pinnedEntities, function (i, e) {
-      d3.select('svg#svg').selectAll('path.' + e).classed('pinned', true);
+      d3.select('svg#svg').selectAll(`path.${e}`).classed('pinned', true);
       sortDependencyArrows(e, 'dependency');
       sortDependencyArrows('dependency', e);
     });
@@ -745,7 +741,7 @@ Graph_Renderer = function (container) {
     pinnedEntities.splice(pinnedEntities.indexOf(entity), 1);
     d3.select('svg#svg').selectAll('path.pinned').classed('pinned', false);
     $.each(pinnedEntities, function (i, e) {
-      d3.select('svg#svg').selectAll('path.' + e).classed('pinned', true);
+      d3.select('svg#svg').selectAll(`path.${e}`).classed('pinned', true);
       sortDependencyArrows(e, 'dependency');
       sortDependencyArrows('dependency', e);
     });
@@ -812,9 +808,9 @@ Graph_Renderer = function (container) {
     var priority = (maxHeight / maxWidth < 0.75) ? 'w' : 'h'; // checking 4:3 ratio
 
     if (priority == 'w') {
-      ratio = minimapWidth / ((maxWidth > container.width()) ? maxWidth : container.width());
+      ratio = minimapWidth / ((maxWidth > jContainer.width()) ? maxWidth : jContainer.width());
     } else {
-      ratio = minimapHeight / ((maxHeight > container.height()) ? maxHeight : container.height());
+      ratio = minimapHeight / ((maxHeight > jContainer.height()) ? maxHeight : jContainer.height());
     }
   }
 
@@ -830,8 +826,8 @@ Graph_Renderer = function (container) {
   }
 
   function resizeKnob() {
-    miniKnob.width(container.width() * ratio);
-    miniKnob.height(container.height() * ratio);
+    miniKnob.width(jContainer.width() * ratio);
+    miniKnob.height(jContainer.height() * ratio);
   }
 
   function renderPanCanvas(levels) {
@@ -841,7 +837,7 @@ Graph_Renderer = function (container) {
     }
 
     //scrollbar moves knob
-    $(container).bind('scroll', setKnobPosition);
+    $(jContainer).bind('scroll', setKnobPosition);
 
 
     $('.pan .constrainer').on('click', function (e) {
@@ -849,7 +845,7 @@ Graph_Renderer = function (container) {
         return;
       }
       var top = e.clientY - $(this).offset().top - (miniKnob.height() / 2);
-      var left = e.clientX - $(this).offset().left - (miniKnob.width() / 2 );
+      var left = e.clientX - $(this).offset().left - (miniKnob.width() / 2);
 
       if (top + miniKnob.height() > $('.constrainer').height()) {
         top = $('.constrainer').height() - miniKnob.height() - 3;
@@ -864,7 +860,7 @@ Graph_Renderer = function (container) {
         left = 0;
       }
 
-      miniKnob.animate({'left': left, 'top': top}, 'fast');
+      miniKnob.animate({left, top}, 'fast');
       scrollDocument(top / ratio, left / ratio);
 
     });
@@ -883,15 +879,17 @@ Graph_Renderer = function (container) {
     }
 
     function scrollDocument(top, left) {
-      container.scrollTop(top).scrollLeft(left);
+      jContainer.scrollTop(top).scrollLeft(left);
     }
 
     //knob moves scrollbar
-    $('.pan .knob').draggable({cursor: "move", containment: ".constrainer", start: function () {
-      $(container).unbind('scroll');
-    }, stop: function () {
-      $(container).bind('scroll', setKnobPosition);
-    }}).bind('drag', function (event) {
+    $('.pan .knob').draggable({
+      cursor: "move", containment: ".constrainer", start() {
+        $(jContainer).unbind('scroll');
+      }, stop() {
+        $(jContainer).bind('scroll', setKnobPosition);
+      }
+    }).bind('drag', function (event) {
       var knobPos = miniKnob.position();
       var knobX = knobPos.left;
       var knobY = knobPos.top;
@@ -920,8 +918,7 @@ Graph_Renderer = function (container) {
             context.arc(x + (w / 2), y + (h / 2), h / 2, 0, 2 * Math.PI, false);
             context.fill();
             context.stroke();
-          }
-          else {
+          } else {
             context.fillRect(x, y, w, h);
             context.strokeRect(x + 1, y + 1, w - 1, h - 1);
           }
@@ -938,12 +935,12 @@ Graph_Renderer = function (container) {
 
     $('#vsm-container .highlight').css({'height': maxHeight, 'min-height': $('#vsm-container').height() - 20}); // Expand
 
-    // Keep current in viewport when initally loaded
-    if (container && $('.pipeline.current') && $('.pipeline.current').position()) {
-      container.scrollLeft($('.pipeline.current').position().left - ($(window).width() / 2) + 100);
+    // Keep current in viewport when initially loaded
+    if (jContainer && $('.pipeline.current') && $('.pipeline.current').position()) {
+      jContainer.scrollLeft($('.pipeline.current').position().left - ($(window).width() / 2) + 100);
     }
 
-    $('#vsm-container').find('.show-more a').click(function (event) {
+    $('#vsm-container').find('.show-more a').on("click", function (event) {
       currentExpanded = $('#vsm-container .expanded').not($(this).closest('.vsm-entity'));
       if (currentExpanded.length > 0) {
         currentExpandedLink = currentExpanded.find('.show-more a');
@@ -965,7 +962,7 @@ Graph_Renderer = function (container) {
       return false;
     });
 
-    $('.vsm-entity .pin').click(function (e) {
+    $('.vsm-entity .pin').on("click", function (e) {
       e.stopPropagation();
 
       var _entity = $(this).closest('.vsm-entity');
@@ -983,13 +980,13 @@ Graph_Renderer = function (container) {
 
     $('.vsm-entity').hover(function () {
       var _id = $(this).attr('id');
-      d3.select('svg#svg').selectAll('path.' + _id).classed('hovered', true);
+      d3.select('svg#svg').selectAll(`path.${_id}`).classed('hovered', true);
       $(this).addClass('hovered');
       sortDependencyArrows(_id, 'dependency');
       sortDependencyArrows('dependency', _id);
     }, function () {
       var _id = $(this).attr('id');
-      d3.select('svg#svg').selectAll('path.' + _id).classed('hovered', false);
+      d3.select('svg#svg').selectAll(`path.${_id}`).classed('hovered', false);
       $(this).removeClass('hovered');
     });
 
@@ -1000,7 +997,7 @@ Graph_Renderer = function (container) {
         material_names = $(this).find('span');
         material_title = '';
         material_names.each(function () {
-          material_title += $(this).attr('data-title') + ', ';
+          material_title += `${$(this).attr('data-title')}, `;
         });
         material_title = material_title.substring(0, material_title.length - 2);
         return material_title;
@@ -1009,14 +1006,14 @@ Graph_Renderer = function (container) {
 
     d3.selectAll('path.dependency')
       .on('mouseover', function (d) {
-        d3.selectAll('#' + d.source).classed('hovered', true);
-        d3.selectAll('#' + d.target).classed('hovered', true);
+        d3.selectAll(`#${d.source}`).classed('hovered', true);
+        d3.selectAll(`#${d.target}`).classed('hovered', true);
         d3.select(this).classed('hovered', true);
         sortDependencyArrows(d.source, d.target);
       })
       .on('mouseout', function (d) {
-        d3.selectAll('#' + d.source).classed('hovered', false);
-        d3.selectAll('#' + d.target).classed('hovered', false);
+        d3.selectAll(`#${d.source}`).classed('hovered', false);
+        d3.selectAll(`#${d.target}`).classed('hovered', false);
         d3.select(this).classed('hovered', false);
       });
   }

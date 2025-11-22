@@ -14,45 +14,46 @@
  * limitations under the License.
  */
 Util = function() {
+  // noinspection JSUnusedGlobalSymbols used directly from some ruby/rails code
   return {
-    idToSelector: function(theId) {
-      return '#' + theId.replace(/([:.])/g,'\\$1');
+    idToSelector(theId) {
+      return `#${theId.replace(/([:.])/g,'\\$1')}`;
     },
 
-    spinny: function(elementId) {
-      if (_.isEmpty(elementId)) return;
+    spinny(elementId) {
+      if (_.isEmpty(elementId)) {return;}
 
       const element = $(Util.idToSelector(elementId));
       element.html('&nbsp;');
       element.addClass('spinny');
     },
 
-    unspinny: function(elementId) {
-      if (_.isEmpty(elementId)) return;
+    unspinny(elementId) {
+      if (_.isEmpty(elementId)) {return;}
 
       const element = $(Util.idToSelector(elementId));
       element.removeClass('spinny');
     },
 
-    ajaxUpdate: function(url, idForSpinner) {
+    ajaxUpdate(url, idForSpinner) {
       $("#message_pane").html('');
       AjaxRefreshers.disableAjax();
       Util.spinny(idForSpinner);
       $.ajax({
-        url: url,
+        url,
         type: 'post',
         dataType: 'json',
         headers: {
           'X-GoCD-Confirm': true,
           'Accept': 'application/vnd.go.cd+json'
         },
-        complete: function() {
+        complete() {
           Util.unspinny(idForSpinner);
           AjaxRefreshers.enableAjax();
         },
-        error: function(xhr) {
+        error(xhr) {
           if (xhr.status === 401) {
-            window.location = window.location.protocol + '//' + window.location.host + '/go/auth/login';
+            window.location = `${window.location.protocol}//${window.location.host}/go/auth/login`;
           }
           $("#message_pane").html(`<p class="error">${xhr.responseText}</p>`);
         }

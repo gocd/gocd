@@ -42,9 +42,9 @@
   $(function initConsolePageDomReady() {
     var jobDetails = $(".job_details_content");
 
-    if (!jobDetails.length) return;
+    if (!jobDetails.length) {return;}
 
-    var jobStatusUrl = "jobStatus.json?pipelineName=" + jobDetails.data("pipeline") + "&stageName=" + jobDetails.data("stage") + "&jobId=" + jobDetails.data("job");
+    var jobStatusUrl = `jobStatus.json?pipelineName=${jobDetails.data("pipeline")}&stageName=${jobDetails.data("stage")}&jobId=${jobDetails.data("job")}`;
     var executor     = new DashboardPeriodicalExecutor(jobStatusUrl, function detectJobCompleted(jobInfo) {
       return jobInfo[0].building_info.is_completed.toString() === "true";
     });
@@ -61,7 +61,7 @@
     });
 
     if (build.length) {
-      var consoleUrl = context_path("files/" + build.data("console-url"));
+      var consoleUrl = context_path(`files/${build.data("console-url")}`);
       var containers = build.find(".buildoutput_pre"), transformers = [];
 
       containers.on("consoleUpdated", function detectFoldable(e) {
@@ -100,7 +100,7 @@
         var consoleArea      = trigger.closest(".console-action-bar").siblings(".buildoutput_pre");
         var foldableSections = consoleArea.children(".log-fs-type");
 
-        if (!foldableSections.length) return;
+        if (!foldableSections.length) {return;}
 
         if (trigger.attr("data-collapsed") === "true") {
           foldableSections.addClass("open");
@@ -115,10 +115,10 @@
 
       var multiTransformer = new MultiplexingTransformer(transformers);
       var lifecycleOptions = {
-        onUpdate:   function () {
+        onUpdate () {
           containers.trigger("consoleUpdated");
         },
-        onComplete: function () {
+        onComplete () {
           containers.trigger("consoleCompleted");
         }
       };
@@ -149,7 +149,7 @@
     $(document).on("click.fullScreen", '#full-screen', function () {
       $(".content_wrapper_outer").toggleClass("full-screen");
       $(window).trigger($.Event("resetPinOnScroll"), [{
-        calcRequiredScroll: function () {
+        calcRequiredScroll () {
           return $(".console-area").offset().top - $(".page_header").outerHeight(true);
         }
       }]);

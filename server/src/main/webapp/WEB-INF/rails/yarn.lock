@@ -1975,10 +1975,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:4.17.19":
-  version: 4.17.19
-  resolution: "@types/lodash@npm:4.17.19"
-  checksum: 10/555e53da60dd9904ef4b6f4e663abb965cf45582079f2ea231a18b0b48df4808b60f36c978548fcf5e307bf12ccd563bd4551963039028ea120b1695c7146f7c
+"@types/lodash@npm:4.17.21":
+  version: 4.17.21
+  resolution: "@types/lodash@npm:4.17.21"
+  checksum: 10/34920830a3bc82ba619cda05e606fef00c148a69b4f19f770645d2587ccdb8e42ef3ddfc174b7884c0c709fc0a1aeb48f7326da969bad12a1464a03efbbe414c
   languageName: node
   linkType: hard
 
@@ -4838,7 +4838,7 @@ __metadata:
     "@types/jasmine-ajax": "npm:^3.3.5"
     "@types/jquery": "npm:^3.5.33"
     "@types/license-checker": "npm:^25.0.6"
-    "@types/lodash": "npm:4.17.19"
+    "@types/lodash": "npm:4.17.21"
     "@types/mithril": "npm:2.2.7"
     "@types/node": "npm:^24.10.1"
     "@types/prismjs": "npm:^1.26.5"

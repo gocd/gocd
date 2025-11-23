@@ -59,7 +59,7 @@
     "@types/jasmine-ajax": "^3.3.5",
     "@types/jquery": "^3.5.33",
     "@types/license-checker": "^25.0.6",
-    "@types/lodash": "4.17.19",
+    "@types/lodash": "4.17.21",
     "@types/mithril": "2.2.7",
     "@types/node": "^24.10.1",
     "@types/prismjs": "^1.26.5",

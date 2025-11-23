@@ -117,5 +117,5 @@
   "resolutions": {
     "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1"
   },
-  "packageManager": "yarn@4.11.0"
+  "packageManager": "yarn@4.12.0"
 }

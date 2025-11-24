@@ -63,6 +63,7 @@ tasks.register('generateResources', Copy) {
 }
 
 processTestFixturesResources.dependsOn generateResources
+licenseTestFixtures.dependsOn generateResources
 
 tasks.register('prepare') {
   dependsOn generateResources

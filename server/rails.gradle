@@ -328,6 +328,8 @@ tasks.register('compileAssets') {
   }
 }
 
+licenseMain.mustRunAfter(prepare, compileAssetsRailsTest)
+
 tasks.register('rspec', ExecuteUnderRailsTask) {
   dependsOn ':server:cleanDb', initializeRailsGems, compileAssetsRailsTest, configurations.railsTestRuntimeClasspath
   classpath(configurations.railsTestRuntimeClasspath, rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects"))

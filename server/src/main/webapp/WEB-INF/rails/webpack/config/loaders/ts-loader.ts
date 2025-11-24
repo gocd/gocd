@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import path from "path";
+import {ConfigOptions} from "config/variables";
+import path from "node:path";
 import webpack from "webpack";
-import {ConfigOptions} from "../variables";
 import {threadLoader} from "./thread-loader";
 
 export function getTypescriptLoader(configOptions: ConfigOptions): webpack.RuleSetRule {

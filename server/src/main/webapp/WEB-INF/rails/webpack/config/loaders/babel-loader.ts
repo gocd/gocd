@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import path from "path";
+import path from "node:path";
 import webpack from "webpack";
 import {ConfigOptions} from "../variables";
 import {threadLoader} from "./thread-loader";

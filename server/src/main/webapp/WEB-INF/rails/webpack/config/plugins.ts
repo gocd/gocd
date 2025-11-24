@@ -17,11 +17,11 @@
 import {Buffer} from "buffer";
 import ESLintPlugin from "eslint-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
-import fs from "fs";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import _ from "lodash";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import StylelintPlugin from "stylelint-webpack-plugin";
 import {Compiler, ProvidePlugin, WebpackPluginInstance} from "webpack";
 import {WebpackAssetsManifest} from "webpack-assets-manifest";

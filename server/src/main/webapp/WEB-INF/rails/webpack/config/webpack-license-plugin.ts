@@ -16,11 +16,11 @@
 
 /* global process */
 
-import fs from "fs";
 import fsExtra from "fs-extra";
 import licenseChecker from "license-checker";
 import _ from "lodash";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import s from "underscore.string";
 import upath from "upath";
 import webpack from "webpack";

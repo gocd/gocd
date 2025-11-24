@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import path from 'path';
-import process from 'process';
 import jasmineSeedReporter from 'karma-jasmine-seed-reporter';
+import path from 'node:path';
+import process from 'node:process';
 import manifest from './public/assets/webpack/manifest.json' with {type: 'json'};
 
 let browsers;

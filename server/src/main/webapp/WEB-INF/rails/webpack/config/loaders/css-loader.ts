@@ -16,7 +16,7 @@
 
 import {ConfigOptions} from "config/variables";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import path from "path";
+import path from "node:path";
 import webpack from "webpack";
 
 export function getCssLoaders(configOptions: ConfigOptions): webpack.RuleSetRule {
@@ -51,12 +51,10 @@ export function getCssLoaders(configOptions: ConfigOptions): webpack.RuleSetRule
         loader: "sass-loader", // compiles Sass to CSS, defaults to Dart Sass
         options: {
           sourceMap: true,
-          implementation: 'sass-embedded',
           sassOptions: { // Also see rails/config/application.rb for similar config for Sprockets
             quietDeps: true, // Mainly noise from FontAwesome and/or Bourbon left
             silenceDeprecations: [
               'import', // Can't do much about this until FontAwesome updates
-              'legacy-js-api', // Need to move away from Webpack 4
             ],
           }
         }

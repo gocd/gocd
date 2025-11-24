@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import fs from "fs";
-import os from "os";
-import path from "path";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import type {LoaderDefinitionFunction} from "webpack";
 
 // See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Reserved_keywords_as_of_ECMAScript_2015

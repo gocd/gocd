@@ -16,6 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
@@ -87,17 +88,13 @@ public class PipelineIdentifier implements Serializable {
 
         PipelineIdentifier that = (PipelineIdentifier) o;
 
-        if (counter != null ? !counter.equals(that.counter) : that.counter != null) {
+        if (!Objects.equals(counter, that.counter)) {
             return false;
         }
-        if (label != null ? !label.equals(that.label) : that.label != null) {
+        if (!Objects.equals(label, that.label)) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(name, that.name);
     }
 
     @Override

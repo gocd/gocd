@@ -73,8 +73,8 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
         String pipelineName = request.params("pipeline_name");
         String stageName = request.params("stage_name");
         String jobName = request.params("job_name");
-        Long after = getCursor(request, "after");
-        Long before = getCursor(request, "before");
+        long after = getCursor(request, "after");
+        long before = getCursor(request, "before");
         Integer pageSize = getPageSize(request);
 
         JobInstances jobInstances = jobInstanceService.getJobHistoryViaCursor(currentUsername(), pipelineName, stageName, jobName, after, before, pageSize);
@@ -87,8 +87,8 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
         String pipelineName = request.params("pipeline_name");
         String stageName = request.params("stage_name");
         String jobName = request.params("job_name");
-        Integer pipelineCounter = getValue(request, "pipeline_counter");
-        Integer stageCounter = getValue(request, "stage_counter");
+        int pipelineCounter = getValue(request, "pipeline_counter");
+        int stageCounter = getValue(request, "stage_counter");
         JobInstance jobInstance = jobInstanceService.findJobInstanceWithTransitions(pipelineName, stageName, jobName, pipelineCounter, stageCounter, currentUsername());
         if (jobInstance.isNull()) {
             throw new RecordNotFoundException(format("No job instance was found for '%s/%s/%s/%s/%s'.", pipelineName, pipelineCounter, stageName, stageCounter, jobName));
@@ -96,17 +96,15 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
         return writerForTopLevelObject(request, response, writer -> JobInstanceRepresenter.toJSON(writer, jobInstance));
     }
 
-    private Integer getValue(Request request, String paramKey) {
-        Integer value;
-        String errorMsg = format("The params '%s' must be a number greater than 0.", paramKey);
+    private int getValue(Request request, String paramKey) {
         try {
-            value = Integer.valueOf(request.params(paramKey));
+            int value = Integer.parseInt(request.params(paramKey));
             if (value < 0) {
-                throw new BadRequestException(errorMsg);
+                throw new BadRequestException(format("The params '%s' must be a number greater than 0.", paramKey));
             }
+            return value;
         } catch (NumberFormatException e) {
-            throw new BadRequestException(errorMsg);
+            throw new BadRequestException(format("The params '%s' must be a number greater than 0.", paramKey));
         }
-        return value;
     }
 }

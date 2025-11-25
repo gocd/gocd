@@ -166,8 +166,8 @@ public class StageInstanceControllerV3 extends ApiController implements SparkSpr
     public String history(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
         String stageName = request.params("stage_name");
-        Long after = getCursor(request, "after");
-        Long before = getCursor(request, "before");
+        long after = getCursor(request, "after");
+        long before = getCursor(request, "before");
         int pageSize = getPageSize(request);
 
         StageInstanceModels stageInstanceModels = stageService.findStageHistoryViaCursor(currentUsername(), pipelineName, stageName, after, before, pageSize);

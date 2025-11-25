@@ -86,8 +86,8 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
     String getHistoryInfo(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
         Integer pageSize = getPageSize(request);
-        Long after = getCursor(request, "after");
-        Long before = getCursor(request, "before");
+        long after = getCursor(request, "after");
+        long before = getCursor(request, "before");
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(currentUsername(), pipelineName, after, before, pageSize);
         PipelineRunIdInfo latestAndOldestPipelineIds = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, currentUsername());
         return writerForTopLevelObject(request, response, (outputWriter) -> PipelineInstanceModelsRepresenter.toJSON(outputWriter, pipelineInstanceModels, latestAndOldestPipelineIds));

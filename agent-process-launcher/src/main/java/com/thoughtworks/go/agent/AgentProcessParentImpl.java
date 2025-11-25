@@ -33,10 +33,9 @@ import java.util.Map;
 
 public class AgentProcessParentImpl implements AgentProcessParent {
 
-    /* 40-50 for launcher error codes*/
     private static final Logger LOG = LoggerFactory.getLogger(AgentProcessParentImpl.class);
     private static final int EXCEPTION_OCCURRED = -373;
-    static final String AGENT_STARTUP_ARGS = "AGENT_STARTUP_ARGS";
+    static final String ENV_GO_AGENT_STARTUP_ARGS = "AGENT_STARTUP_ARGS";
     static final String GO_AGENT_STDERR_LOG = "go-agent-stderr.log";
     static final String GO_AGENT_STDOUT_LOG = "go-agent-stdout.log";
 
@@ -110,7 +109,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
                                             Map<String, String> extraProperties) {
         AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
 
-        String startupArgsString = env.getOrDefault(AGENT_STARTUP_ARGS, "");
+        String startupArgsString = env.getOrDefault(ENV_GO_AGENT_STARTUP_ARGS, "");
         List<String> commandSnippets = new ArrayList<>();
         commandSnippets.add(javaCmd());
         if (!startupArgsString.isEmpty()) {

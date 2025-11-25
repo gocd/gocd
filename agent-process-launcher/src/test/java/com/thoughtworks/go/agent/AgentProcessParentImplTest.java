@@ -226,7 +226,7 @@ public class AgentProcessParentImplTest {
     public void shouldStartSubprocess_withOverriddenArgs() throws InterruptedException {
         final List<String> cmd = new ArrayList<>();
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
-        int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), Map.of(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
+        int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), Map.of(AgentProcessParentImpl.ENV_GO_AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
         String expectedAgentMd5 = TEST_AGENT.getMd5();
         String expectedAgentPluginsMd5 = TEST_AGENT_PLUGINS.getMd5();
         String expectedTfsMd5 = TEST_TFS_IMPL.getMd5();
@@ -348,7 +348,7 @@ public class AgentProcessParentImplTest {
 
         long expectedModifiedDate = AGENT_PLUGINS_ZIP.lastModified();
         AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
-        bootstrapper.run("launcher_version", "bar", getURLGenerator(), Map.of(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
+        bootstrapper.run("launcher_version", "bar", getURLGenerator(), Map.of(AgentProcessParentImpl.ENV_GO_AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
         assertThat(Downloader.AGENT_PLUGINS_ZIP.lastModified()).isEqualTo(expectedModifiedDate);
     }
 
@@ -359,7 +359,7 @@ public class AgentProcessParentImplTest {
         long original = stalePluginZip.length();
 
         AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
-        bootstrapper.run("launcher_version", "bar", getURLGenerator(), Map.of(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
+        bootstrapper.run("launcher_version", "bar", getURLGenerator(), Map.of(AgentProcessParentImpl.ENV_GO_AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
 
         assertThat(stalePluginZip.length()).isNotEqualTo(original);
     }
@@ -371,7 +371,7 @@ public class AgentProcessParentImplTest {
         long original = staleFile.length();
 
         AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
-        bootstrapper.run("launcher_version", "bar", getURLGenerator(), Map.of(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
+        bootstrapper.run("launcher_version", "bar", getURLGenerator(), Map.of(AgentProcessParentImpl.ENV_GO_AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
 
         assertThat(staleFile.length()).isNotEqualTo(original);
     }

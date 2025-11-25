@@ -147,8 +147,8 @@ public class SessionUtils {
         return (Long) request.getSession().getAttribute(CURRENT_USER_ID);
     }
 
-    public static void setUserId(HttpServletRequest request, Long id) {
-        if (id == null || id == NOT_PERSISTED) {
+    public static void setUserId(HttpServletRequest request, long id) {
+        if (id == NOT_PERSISTED) {
             LOGGER.debug("Unsetting current user id from session {}", id);
             request.getSession().removeAttribute(CURRENT_USER_ID);
         } else {

@@ -32,8 +32,4 @@ public class DummyNode extends Node {
     public List<Revision> revisions() {
         return null;
     }
-
-    @Override
-    public void addRevisions(List<Revision> revisions) {
-    }
 }

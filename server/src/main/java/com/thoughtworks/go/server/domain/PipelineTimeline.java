@@ -231,17 +231,11 @@ public class PipelineTimeline {
     }
 
     private TreeSet<PipelineTimelineEntry> initializedNaturalOrderCollection(final CaseInsensitiveString pipelineName) {
-        if (!naturalOrderPmm.containsKey(pipelineName)) {
-            naturalOrderPmm.put(pipelineName, new TreeSet<>());
-        }
-        return naturalOrderPmm.get(pipelineName);
+        return naturalOrderPmm.computeIfAbsent(pipelineName, k -> new TreeSet<>());
     }
 
     private List<PipelineTimelineEntry> initializedScheduleOrderCollection(final CaseInsensitiveString pipelineName) {
-        if (!scheduleOrderPmm.containsKey(pipelineName)) {
-            scheduleOrderPmm.put(pipelineName, new ArrayList<>());
-        }
-        return scheduleOrderPmm.get(pipelineName);
+        return scheduleOrderPmm.computeIfAbsent(pipelineName, k -> new ArrayList<>());
     }
 
     private PipelineTimelineEntry naturalOrderAfter(PipelineTimelineEntry pipelineTimelineEntry) {

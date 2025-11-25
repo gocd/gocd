@@ -31,6 +31,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.materials.MaterialChecker;
+import com.thoughtworks.go.server.service.dd.NoCompatibleUpstreamRevisionsException;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;

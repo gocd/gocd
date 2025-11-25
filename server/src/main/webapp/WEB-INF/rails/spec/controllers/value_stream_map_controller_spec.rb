@@ -79,7 +79,7 @@ describe ValueStreamMapController do
         pipeline = "P1"
         allow(@pipeline_service).to receive(:findPipelineByNameAndCounter).with("P1", 1).and_return(nil)
         vsm = ValueStreamMap.new(CaseInsensitiveString.new(pipeline), nil)
-        vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("git"), "git"), nil, CaseInsensitiveString.new(pipeline))
+        vsm.addUpstreamPipelineNode(PipelineDependencyNode.new(CaseInsensitiveString.new("git"), "git"), nil, CaseInsensitiveString.new(pipeline))
         model = vsm.presentationModel()
         expect(@value_stream_map_service).to receive(:getValueStreamMap).with(CaseInsensitiveString.new(pipeline), 1, @user, @result).and_return(model)
 
@@ -98,7 +98,7 @@ describe ValueStreamMapController do
           modifications = com.thoughtworks.go.domain.materials.Modifications.new([modification].to_java(com.thoughtworks.go.domain.materials.Modification))
         pipeline = "current"
         vsm = ValueStreamMap.new(CaseInsensitiveString.new(pipeline), nil)
-        vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new(pipeline))
+        vsm.addUpstreamPipelineNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new(pipeline))
         vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git1", "http://git.com", "Git"),CaseInsensitiveString.new("git"), CaseInsensitiveString.new("p1"), MaterialRevision.new(nil, false, modification))
         vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git2", "http://git.com", "Git"), nil, CaseInsensitiveString.new("p1"), MaterialRevision.new(nil, false, modifications))
         model = vsm.presentationModel()

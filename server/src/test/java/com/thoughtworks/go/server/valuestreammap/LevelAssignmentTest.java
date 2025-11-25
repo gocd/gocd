@@ -41,13 +41,13 @@ public class LevelAssignmentTest {
         CaseInsensitiveString current = new CaseInsensitiveString("p3");
         CaseInsensitiveString p1name = new CaseInsensitiveString("p1");
         CaseInsensitiveString p2name = new CaseInsensitiveString("p2");
-        Node p1 = new PipelineDependencyNode(p1name, p1name.toString());
-        Node p2 = new PipelineDependencyNode(p2name, p2name.toString());
-        Node gitNode = new SCMDependencyNode("git", "g", "git");
+        PipelineDependencyNode p1 = new PipelineDependencyNode(p1name, p1name.toString());
+        PipelineDependencyNode p2 = new PipelineDependencyNode(p2name, p2name.toString());
+        SCMDependencyNode gitNode = new SCMDependencyNode("git", "g", "git");
 
         ValueStreamMap valueStreamMap = new ValueStreamMap(current, new PipelineRevision(current.toString(), 1, "1"));
-        valueStreamMap.addUpstreamNode(p1, new PipelineRevision(p1name.toString(), 1, "1"), current);
-        valueStreamMap.addUpstreamNode(p2, new PipelineRevision(p2name.toString(), 1, "1"), current);
+        valueStreamMap.addUpstreamPipelineNode(p1, new PipelineRevision(p1name.toString(), 1, "1"), current);
+        valueStreamMap.addUpstreamPipelineNode(p2, new PipelineRevision(p2name.toString(), 1, "1"), current);
         valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), p1name, new MaterialRevision(null));
         valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), new CaseInsensitiveString("p3"), new MaterialRevision(null));
         valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), p2name, new MaterialRevision(null));
@@ -81,7 +81,7 @@ public class LevelAssignmentTest {
         Node p1 = new PipelineDependencyNode(p1name, p1name.toString());
         Node p2 = new PipelineDependencyNode(p2name, p2name.toString());
         Node p3 = new PipelineDependencyNode(p3name, p3name.toString());
-        Node gitNode = new SCMDependencyNode("git", "g", "git");
+        SCMDependencyNode gitNode = new SCMDependencyNode("git", "g", "git");
 
         ValueStreamMap valueStreamMap = new ValueStreamMap(current, new PipelineRevision(current.toString(), 1, "1"));
         valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), new CaseInsensitiveString("p"), new MaterialRevision(null));

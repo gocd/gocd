@@ -28,15 +28,17 @@ import com.thoughtworks.go.server.valuestreammap.LevelAssignment;
 import java.util.*;
 
 public class ValueStreamMap {
-    private Node currentPipeline;
-    private Node currentMaterial;
-    private MaterialInstance currentMaterialInstance;
-    private Map<CaseInsensitiveString, Node> nodeIdToNodeMap = new LinkedHashMap<>();
-    private List<Node> rootNodes = new ArrayList<>();
+    private static final int VALID_LATEST_REVISION_STRING_COUNT = 1;
 
-    private LevelAssignment levelAssignment = new LevelAssignment();
-    private DummyNodeCreation dummyNodeCreation = new DummyNodeCreation();
-    private CrossingMinimization crossingMinimization = new CrossingMinimization();
+    private final Map<CaseInsensitiveString, Node> nodeIdToNodeMap = new LinkedHashMap<>();
+    private final LevelAssignment levelAssignment = new LevelAssignment();
+    private final DummyNodeCreation dummyNodeCreation = new DummyNodeCreation();
+    private final CrossingMinimization crossingMinimization = new CrossingMinimization();
+
+    private PipelineDependencyNode currentPipeline;
+    private SCMDependencyNode currentMaterial;
+    private MaterialInstance currentMaterialInstance;
+    private List<Node> rootNodes = new ArrayList<>();
 
     public ValueStreamMap(CaseInsensitiveString pipeline, PipelineRevision pipelineRevision) {
         currentPipeline = new PipelineDependencyNode(pipeline, pipeline.toString());
@@ -48,7 +50,7 @@ public class ValueStreamMap {
         currentMaterial = new SCMDependencyNode(material.getFingerprint(), material.getUriForDisplay(), material.getTypeForDisplay());
         currentMaterialInstance = materialInstance;
         nodeIdToNodeMap.put(currentMaterial.getId(), currentMaterial);
-        ((SCMDependencyNode) currentMaterial).addMaterialRevision(new MaterialRevision(material, false, modification));
+        currentMaterial.addMaterialRevision(new MaterialRevision(material, false, modification));
     }
 
     //used in rails
@@ -64,15 +66,15 @@ public class ValueStreamMap {
         return currentMaterialInstance;
     }
 
-    public Node addUpstreamNode(Node node, PipelineRevision revision, CaseInsensitiveString dependentNodeId) {
-        node = addUpstreamNode(node, dependentNodeId);
-        node.addRevision(revision);
-        return node;
+    public PipelineDependencyNode addUpstreamPipelineNode(PipelineDependencyNode node, PipelineRevision revision, CaseInsensitiveString dependentNodeId) {
+        PipelineDependencyNode pipelineNode = addUpstreamNode(node, dependentNodeId);
+        pipelineNode.addRevision(revision);
+        return pipelineNode;
     }
 
-    public Node addUpstreamMaterialNode(Node node, CaseInsensitiveString materialName, CaseInsensitiveString dependentNodeId,
+    public SCMDependencyNode addUpstreamMaterialNode(SCMDependencyNode node, CaseInsensitiveString materialName, CaseInsensitiveString dependentNodeId,
                                         MaterialRevision materialRevision) {
-        SCMDependencyNode scmNode = (SCMDependencyNode) addUpstreamNode(node, dependentNodeId);
+        SCMDependencyNode scmNode = addUpstreamNode(node, dependentNodeId);
         scmNode.addMaterialRevision(materialRevision);
         if (materialName != null) {
             scmNode.addMaterialName(materialName.toString());
@@ -82,28 +84,26 @@ public class ValueStreamMap {
 
     public Node addDownstreamNode(Node node, CaseInsensitiveString parentNodeId) {
         Node parentNode = findNode(parentNodeId);
-        if (hasNode(node.getId())) {
-            node = findNode(node.getId());
-        } else {
-            nodeIdToNodeMap.put(node.getId(), node);
-        }
-        parentNode.addEdge(node);
-        return node;
+        Node resolvedNode = findOrAddNode(node);
+        parentNode.addEdge(resolvedNode);
+        return resolvedNode;
     }
 
-    private Node addUpstreamNode(Node node, CaseInsensitiveString dependentNodeId) {
+    private <T extends Node> T addUpstreamNode(T node, CaseInsensitiveString dependentNodeId) {
         Node dependentNode = findNode(dependentNodeId);
-        if (hasNode(node.getId())) {
-            node = findNode(node.getId());
-        } else {
-            nodeIdToNodeMap.put(node.getId(), node);
-        }
-        node.addEdge(dependentNode);
-        return node;
+        T resolvedNode = findOrAddNode(node);
+        resolvedNode.addEdge(dependentNode);
+        return resolvedNode;
     }
 
-    public Node findNode(CaseInsensitiveString nodeId) {
-        return nodeIdToNodeMap.get(nodeId);
+    @SuppressWarnings("unchecked")
+    public <T extends Node> T findNode(CaseInsensitiveString nodeId) {
+        return (T) nodeIdToNodeMap.get(nodeId);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Node> T findOrAddNode(T node) {
+        return (T) nodeIdToNodeMap.computeIfAbsent(node.getId(), id -> node);
     }
 
     public Collection<Node> allNodes() {
@@ -124,10 +124,6 @@ public class ValueStreamMap {
                 rootNodes.add(currentNode);
             }
         }
-    }
-
-    private boolean hasNode(CaseInsensitiveString nodeId) {
-        return nodeIdToNodeMap.containsKey(nodeId);
     }
 
     public ValueStreamMapPresentationModel presentationModel() {
@@ -169,7 +165,6 @@ public class ValueStreamMap {
     }
 
     private boolean hasMultipleLatestRevisionString(List<MaterialRevision> materialRevisions) {
-        int VALID_LATEST_REVISION_STRING_COUNT = 1;
         if (materialRevisions.size() == VALID_LATEST_REVISION_STRING_COUNT) return false;
 
         Set<String> latestRevisions = new HashSet<>();
@@ -187,10 +182,10 @@ public class ValueStreamMap {
 
     @Override
     public String toString() {
-        String s = "graph:\n";
+        StringBuilder s = new StringBuilder("graph:\n");
         for (Node currentNode : allNodes()) {
-            s += currentNode + "\n";
+            s.append(currentNode).append("\n");
         }
-        return s;
+        return s.toString();
     }
 }

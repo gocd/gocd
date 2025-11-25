@@ -30,7 +30,7 @@ import java.util.List;
 
 @Component
 public class UnrunStagesPopulator {
-    private GoConfigService goConfigService;
+    private final GoConfigService goConfigService;
 
     @Autowired
     public UnrunStagesPopulator(GoConfigService goConfigService) {

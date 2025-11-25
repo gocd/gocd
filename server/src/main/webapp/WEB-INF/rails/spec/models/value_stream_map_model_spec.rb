@@ -31,7 +31,7 @@ describe ValueStreamMapModel do
     vsm = ValueStreamMap.new(CaseInsensitiveString.new("current"), PipelineRevision.new("current", 1, "current-1"))
     pipeline_dependency_node = PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1")
     pipeline_dependency_node.setCanEdit(true)
-    vsm.addUpstreamNode(pipeline_dependency_node, PipelineRevision.new("p1", 1, "p1-1"), CaseInsensitiveString.new("current"))
+    vsm.addUpstreamPipelineNode(pipeline_dependency_node, PipelineRevision.new("p1", 1, "p1-1"), CaseInsensitiveString.new("current"))
     vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git1"), CaseInsensitiveString.new("p1"), material_revision)
     vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git2"), CaseInsensitiveString.new("current"), material_revision)
     noop_proc = proc {}
@@ -112,9 +112,9 @@ describe ValueStreamMapModel do
     revision_p3_1.addStages(Stages.new([StageMother.unrunStage("unrun_stage1"), StageMother.unrunStage("unrun_stage2")]))
 
     vsm = ValueStreamMap.new(CaseInsensitiveString.new("current"), nil)
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new("current"))
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p2"), "p2"), revision_p2_1, CaseInsensitiveString.new("current"))
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_2, CaseInsensitiveString.new("p2"))
+    vsm.addUpstreamPipelineNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new("current"))
+    vsm.addUpstreamPipelineNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p2"), "p2"), revision_p2_1, CaseInsensitiveString.new("current"))
+    vsm.addUpstreamPipelineNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_2, CaseInsensitiveString.new("p2"))
     modifications = modifications()
     vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), CaseInsensitiveString.new("p1"), material_revision)
     p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p3"), "p3"), CaseInsensitiveString.new("current"))
@@ -214,9 +214,9 @@ describe ValueStreamMapModel do
     revision_p2_1.addStages(Stages.new([StageMother.passedStageInstance("stage-1-for-p2-1", "j1", "p2"), StageMother.unrunStage("unrun_stage")]))
 
     vsm = ValueStreamMap.new(CaseInsensitiveString.new("current"), nil)
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new("current"))
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p2"), "p2"), revision_p2_1, CaseInsensitiveString.new("current"))
-    vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new("p2"))
+    vsm.addUpstreamPipelineNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new("current"))
+    vsm.addUpstreamPipelineNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p2"), "p2"), revision_p2_1, CaseInsensitiveString.new("current"))
+    vsm.addUpstreamPipelineNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new("p2"))
     vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), CaseInsensitiveString.new("p1"), material_revision)
 
     p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p3"), "p3"), CaseInsensitiveString.new("current"))

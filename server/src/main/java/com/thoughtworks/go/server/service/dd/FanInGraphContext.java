@@ -22,13 +22,21 @@ import com.thoughtworks.go.server.domain.PipelineTimeline;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
-public class FanInGraphContext {
-    int revBatchCount;
-    Map<String, MaterialConfig> fingerprintScmMaterialMap;
-    PipelineTimeline pipelineTimeline;
-    public Map<DependencyMaterialConfig, Set<MaterialConfig>> pipelineScmDepMap;
-    public Map<String, DependencyMaterialConfig> fingerprintDepMaterialMap;
-    public PipelineDao pipelineDao;
-    public int maxBackTrackLimit;
+record FanInGraphContext(
+    Map<String, MaterialConfig> fingerprintScmMaterialMap,
+    PipelineTimeline pipelineTimeline,
+    Map<DependencyMaterialConfig, Set<MaterialConfig>> pipelineScmDepMap,
+    Map<String, DependencyMaterialConfig> fingerprintDepMaterialMap,
+    PipelineDao pipelineDao,
+    Supplier<Integer> maxBackTrackLimit
+) {
+    boolean isDependencyMaterial(String fingerprint) {
+        return fingerprintDepMaterialMap.containsKey(fingerprint);
+    }
+
+    boolean isScmMaterial(String fingerprint) {
+        return fingerprintScmMaterialMap.containsKey(fingerprint);
+    }
 }

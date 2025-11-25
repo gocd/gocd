@@ -16,15 +16,11 @@
 package com.thoughtworks.go.server.service.dd;
 
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
+import org.jetbrains.annotations.NotNull;
 
-public class FaninScmMaterial {
-    String fingerprint;
-    PipelineTimelineEntry.Revision revision;
+import java.util.Objects;
 
-    public FaninScmMaterial(String fingerprint, PipelineTimelineEntry.Revision revision) {
-        this.fingerprint = fingerprint;
-        this.revision = revision;
-    }
+record FaninScmMaterial(@NotNull String fingerprint, @NotNull PipelineTimelineEntry.Revision revision) {
 
     @Override
     public boolean equals(Object o) {
@@ -37,20 +33,16 @@ public class FaninScmMaterial {
 
         FaninScmMaterial that = (FaninScmMaterial) o;
 
-        if (fingerprint != null ? !fingerprint.equals(that.fingerprint) : that.fingerprint != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(fingerprint, that.fingerprint);
     }
 
     @Override
     public int hashCode() {
-        return fingerprint != null ? fingerprint.hashCode() : 0;
+        return fingerprint.hashCode();
     }
 
     @Override
-    public String toString() {
-        return "" + revision;
+    public @NotNull String toString() {
+        return revision.toString();
     }
 }

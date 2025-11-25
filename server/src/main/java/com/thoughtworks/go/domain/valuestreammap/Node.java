@@ -16,21 +16,23 @@
 package com.thoughtworks.go.domain.valuestreammap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class Node implements Comparable<Node> {
-    protected final CaseInsensitiveString id;
-    protected final String nodeName;
+    private final CaseInsensitiveString id;
+    private final String nodeName;
     private final List<Node> parents = new ArrayList<>();
     private final List<Node> children = new ArrayList<>();
-    protected int level = 0;
-    protected Integer depth = 0;
-    protected DependencyNodeType type;
+    private final DependencyNodeType type;
+
+    private int level = 0;
+    private int depth = 0;
     private VSMViewType viewType;
 
     public Node(DependencyNodeType dependencyNodeType, CaseInsensitiveString nodeId, String nodeName) {
@@ -75,30 +77,6 @@ public abstract class Node implements Comparable<Node> {
         }
     }
 
-    private void addParent(int index, Node parentNode) {
-        if (parentNode != null && !parents.contains(parentNode)) {
-            parents.add(index, parentNode);
-        }
-    }
-
-    private void addChild(int index, Node childNode) {
-        if (childNode != null && !children.contains(childNode)) {
-            children.add(index, childNode);
-        }
-    }
-
-    private int removeParent(Node parentNode) {
-        int index = parents.indexOf(parentNode);
-        parents.remove(parentNode);
-        return index;
-    }
-
-    private int removeChild(Node childNode) {
-        int index = children.indexOf(childNode);
-        children.remove(childNode);
-        return index;
-    }
-
     public void setLevel(int level) {
         this.level = level;
     }
@@ -114,17 +92,13 @@ public abstract class Node implements Comparable<Node> {
 
         Node that = (Node) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(id, that.id);
     }
 
 
     @Override
     public int compareTo(Node other) {
-        return this.depth.compareTo(other.depth);
+        return Integer.compare(this.depth, other.depth);
     }
 
     @Override
@@ -134,22 +108,31 @@ public abstract class Node implements Comparable<Node> {
 
     @Override
     public String toString() {
-        List<String> childIds = children.stream().map(node -> node.getId().toString()).collect(Collectors.toList());
-        return String.format("id='%s' name='%s' level='%d' depth='%d' revisions='%s' children='%s'", id, nodeName, level, depth, revisions(), StringUtils.join(childIds, ','));
+        String childIds = children.stream().map(node -> node.getId().toString()).collect(Collectors.joining(","));
+        return String.format("id='%s' name='%s' level='%d' depth='%d' revisions='%s' children='%s'", id, nodeName, level, depth, revisions(), childIds);
     }
 
-    public void replaceParentWith(Node currentParentNode, Node newParentNode) {
-        int parentIndex = removeParent(currentParentNode);
-        addParent(parentIndex, newParentNode);
+    public void replaceParentWith(Node currentParentNode, @Nullable Node newParentNode) {
+        replaceNode(parents, currentParentNode, newParentNode);
     }
 
-    public void replaceChildWith(Node currentChildNode, Node newChildNode) {
-        int childIndex = removeChild(currentChildNode);
-        addChild(childIndex, newChildNode);
+    public void replaceChildWith(Node currentChildNode, @Nullable Node newChildNode) {
+        replaceNode(children, currentChildNode, newChildNode);
+    }
+
+    private void replaceNode(List<Node> nodes, Node currentNode, Node newNode) {
+        int index = nodes.indexOf(currentNode);
+        if (index != -1) {
+            if (newNode != null) {
+                nodes.set(index, newNode);
+            } else {
+                nodes.remove(index);
+            }
+        }
     }
 
     public void addEdge(Node dependentNode) {
-        this.addChildIfAbsent(dependentNode);
+        addChildIfAbsent(dependentNode);
         dependentNode.addParentIfAbsent(this);
     }
 
@@ -197,5 +180,4 @@ public abstract class Node implements Comparable<Node> {
         return false;
     }
 
-    public abstract void addRevisions(List<Revision> revisions);
 }

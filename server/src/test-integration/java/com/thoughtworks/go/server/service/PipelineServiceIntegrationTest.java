@@ -72,7 +72,7 @@ public class PipelineServiceIntegrationTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired private InstanceFactory instanceFactory;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
 
     @BeforeEach

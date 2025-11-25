@@ -142,7 +142,7 @@ public class PipelineConfigControllerV11 extends ApiController implements SparkS
 
     private boolean shouldPausePipeline(Request req) {
         String pausePipelineHeader = req.headers("X-pause-pipeline");
-        return Boolean.valueOf(pausePipelineHeader);
+        return Boolean.parseBoolean(pausePipelineHeader);
     }
 
     private String getUserSpecifiedOrDefaultPauseCause(Request req) {

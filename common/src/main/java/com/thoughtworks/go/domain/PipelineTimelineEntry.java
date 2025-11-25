@@ -126,7 +126,7 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
         return pipelineName;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 

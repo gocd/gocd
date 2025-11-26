@@ -29,6 +29,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.exceptions.RulesViolationException;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ import static org.apache.commons.lang3.StringUtils.join;
 @Service
 public class RulesService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RulesService.class);
-    private GoConfigService goConfigService;
+    private final GoConfigService goConfigService;
 
     @Autowired
     public RulesService(GoConfigService goConfigService) {
@@ -167,15 +168,10 @@ public class RulesService {
         });
     }
 
-    private void addError(Map<CaseInsensitiveString, StringBuilder> pipelinesWithErrors, CaseInsensitiveString pipelineName, String message) {
-        if (pipelinesWithErrors == null) {
-            pipelinesWithErrors = new HashMap<>();
-        }
-        if (!pipelinesWithErrors.containsKey(pipelineName)) {
-            pipelinesWithErrors.put(pipelineName, new StringBuilder());
-        }
-        StringBuilder stringBuilder = pipelinesWithErrors.get(pipelineName).append(message).append('\n');
-        pipelinesWithErrors.put(pipelineName, stringBuilder);
+    private void addError(@NotNull Map<CaseInsensitiveString, StringBuilder> pipelinesWithErrors, CaseInsensitiveString pipelineName, String message) {
+        pipelinesWithErrors.computeIfAbsent(pipelineName, k -> new StringBuilder())
+            .append(message)
+            .append('\n');
     }
 
     private String errorString(Map<CaseInsensitiveString, StringBuilder> errors) {

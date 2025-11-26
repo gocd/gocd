@@ -24,15 +24,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class AgentAssignment implements JobStatusListener {
-    private Map<String, JobInstance> map = Collections.synchronizedMap(new HashMap<>());
-    private final JobInstanceDao jobInstanceDao;
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentAssignment.class);
+
+    private final Map<String, JobInstance> map = new ConcurrentHashMap<>();
+    private final JobInstanceDao jobInstanceDao;
 
     @Autowired
     public AgentAssignment(JobInstanceDao jobInstanceDao) {
@@ -52,12 +52,11 @@ public class AgentAssignment implements JobStatusListener {
     }
 
     public JobInstance latestActiveJobOnAgent(String agentUuid) {
-        if (!map.containsKey(agentUuid)) {
-            JobInstance job = jobInstanceDao.getLatestInProgressBuildByAgentUuid(agentUuid);
-            LOGGER.debug("Getting AgentAssignment for agent with UUID [{}], got: {}", agentUuid, job);
-            map.put(agentUuid, job);
-        }
-        return map.get(agentUuid);
+        return map.computeIfAbsent(agentUuid, uuid -> {
+            JobInstance job = jobInstanceDao.getLatestInProgressBuildByAgentUuid(uuid);
+            LOGGER.debug("Getting AgentAssignment for agent with UUID [{}], got: {}", uuid, job);
+            return job;
+        });
     }
 
     public void clear() {

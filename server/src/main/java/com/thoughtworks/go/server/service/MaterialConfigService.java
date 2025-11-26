@@ -96,34 +96,34 @@ public class MaterialConfigService {
 
     public List<String> getUsagesForMaterial(String username, String fingerprint) {
         return goConfigService.groups()
+            .stream()
+            .filter(grp -> securityService.hasViewPermissionForGroup(username, grp.getGroup()))
+            .flatMap(grp -> grp.getPipelines()
                 .stream()
-                .filter((grp) -> securityService.hasViewPermissionForGroup(username, grp.getGroup()))
-                .flatMap((grp) -> grp.getPipelines()
-                        .stream()
-                        .filter((pipeline) -> pipeline.materialConfigs().getByMaterialFingerPrint(fingerprint) != null))
-                .map((pipeline) -> pipeline.name().toString())
-                .collect(toList());
+                .filter(pipeline -> pipeline.materialConfigs().getByMaterialFingerPrint(fingerprint) != null))
+            .map(pipeline -> pipeline.name().toString())
+            .collect(toList());
     }
 
-    public Map<MaterialConfig, Boolean> getMaterialConfigsWithPermissions(String username) {
+    public Map<MaterialConfig, Boolean> getMaterialConfigsToOperatePermissions(String username) {
         Map<MaterialConfig, Boolean> materialConfigs = new HashMap<>();
-        Map<String, Boolean> materialFingerprints = new HashMap<>();
+        Map<String, MaterialConfig> materialFingerprints = new HashMap<>();
         goConfigService.groups()
-                .stream()
-                .filter((grp) -> securityService.hasViewPermissionForGroup(username, grp.getGroup()))
-                .forEach((grp) -> grp.forEach((pipelineConfig) -> {
-                    boolean hasOperatePermission = securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(username), grp.getGroup());
-                    pipelineConfig.materialConfigs()
-                            .forEach((materialConfig) -> {
-                                if (!materialFingerprints.containsKey(materialConfig.getFingerprint())) {
-                                    materialFingerprints.put(materialConfig.getFingerprint(), hasOperatePermission);
-                                    materialConfigs.put(materialConfig, hasOperatePermission);
-                                } else {
-                                    Boolean existingValue = materialFingerprints.get(materialConfig.getFingerprint());
-                                    materialConfigs.replace(materialConfig, existingValue || hasOperatePermission);
-                                }
-                            });
-                }));
+            .stream()
+            .filter(grp -> securityService.hasViewPermissionForGroup(username, grp.getGroup()))
+            .forEach(grp -> grp.forEach(pipelineConfig -> {
+                boolean hasOperatePermission = securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(username), grp.getGroup());
+                pipelineConfig.materialConfigs()
+                    .forEach(materialConfig -> {
+                        // Need to canonicalise the config we use, since we can have different configs with the same fingerprint
+                        // and you are allowed to operate the de-duplicated material if you have operate permission on any of them
+                        MaterialConfig canonicalConfig = materialFingerprints.computeIfAbsent(materialConfig.getFingerprint(), k -> materialConfig);
+                        materialConfigs.compute(canonicalConfig, (key, existingValue) ->
+                            existingValue == null
+                                ? hasOperatePermission
+                                : existingValue || hasOperatePermission);
+                    });
+            }));
         return materialConfigs;
     }
 
@@ -141,7 +141,7 @@ public class MaterialConfigService {
                         materialConfig = currentMaterialConfig;
                         hasViewPermissionForMaterial = hasViewPermissionForMaterial || hasViewPermissionForGroup;
                         if (hasOperatePermissionForGroup) {
-                            hasOperatePermissionForMaterial = hasOperatePermissionForGroup;
+                            hasOperatePermissionForMaterial = true;
                             break;
                         }
                     }

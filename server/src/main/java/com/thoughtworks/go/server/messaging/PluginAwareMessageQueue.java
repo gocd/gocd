@@ -39,10 +39,8 @@ public class PluginAwareMessageQueue<T extends PluginAwareMessage> extends GoMes
         this.pluginId = pluginId;
         for (int i = 0; i < numberOfListeners; i++) {
             JMSMessageListenerAdapter<T> listenerAdapter = this.addListener(listenerFactory.create());
-            if (!listeners.containsKey(pluginId)) {
-                this.listeners.put(pluginId, new ArrayList<>());
-            }
-            this.listeners.get(pluginId).add(listenerAdapter);
+            listeners.computeIfAbsent(pluginId, key -> new ArrayList<>())
+                .add(listenerAdapter);
         }
     }
 

@@ -47,10 +47,7 @@ public class GoConfigSubtagLoader {
     }
 
     private static ConfigSubtag findSubTag(Field field) {
-        if (!isSubTags.containsKey(field)) {
-            isSubTags.put(field, field.getAnnotation(ConfigSubtag.class));
-        }
-        return isSubTags.get(field);
+        return isSubTags.computeIfAbsent(field, f -> f.getAnnotation(ConfigSubtag.class));
     }
 
     public static GoConfigSubtagLoader subtagParser(Element e, Field field, ConfigCache configCache, final ConfigElementImplementationRegistry registry,

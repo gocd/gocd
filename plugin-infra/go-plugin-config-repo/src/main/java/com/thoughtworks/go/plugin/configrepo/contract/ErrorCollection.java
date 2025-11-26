@@ -80,10 +80,7 @@ public class ErrorCollection {
     }
 
     public List<String> getOrCreateErrorList(String location) {
-        if (!errors.containsKey(location))
-            errors.put(location, new ArrayList<>());
-
-        return errors.get(location);
+        return errors.computeIfAbsent(location, k -> new ArrayList<>());
     }
 
     public void checkMissing(String location, String fieldName, Object value) {

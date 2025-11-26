@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.ui.ModificationForPipeline;
 import com.thoughtworks.go.server.ui.PipelineId;
-import com.thoughtworks.go.server.util.CollectionUtil;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.CollectionUtils;
@@ -179,9 +178,7 @@ public class MaterialRepository extends HibernateDaoSupport {
                     .collect(Collectors.toList()))
                 .list();
 
-            Map<Long, List<ModificationForPipeline>> modificationsForPipeline = new HashMap<>();
-            CollectionUtil.CollectionValueMap<Long, ModificationForPipeline> modsForPipeline = CollectionUtil.collectionValMap(modificationsForPipeline,
-                new CollectionUtil.ArrayList<>());
+            Map<Long, List<ModificationForPipeline>> modificationsForPipeline = new HashMap<>(pipelineIds.size());
             for (Object[] modAndPmr : allModifications) {
                 Modification mod = (Modification) modAndPmr[MODIFICATION];
                 Long relevantPipelineId = (Long) modAndPmr[RELEVANT_PIPELINE_ID];
@@ -191,7 +188,8 @@ public class MaterialRepository extends HibernateDaoSupport {
                 PipelineId relevantPipeline = new PipelineId(relevantPipelineName, relevantPipelineId);
                 Set<Long> longs = relevantToLookedUpMap.get(relevantPipeline);
                 for (Long lookedUpPipeline : longs) {
-                    modsForPipeline.put(lookedUpPipeline, new ModificationForPipeline(relevantPipeline, mod, materialType, materialFingerprint));
+                    modificationsForPipeline.computeIfAbsent(lookedUpPipeline, k -> new ArrayList<>())
+                        .add(new ModificationForPipeline(relevantPipeline, mod, materialType, materialFingerprint));
                 }
             }
             return modificationsForPipeline;
@@ -199,9 +197,9 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private Map<PipelineId, Set<Long>> relevantToLookedUpDependencyMap(Session session, List<Long> pipelineIds) {
-        final int LOOKED_UP_PIPELINE_ID = 2;
         final int RELEVANT_PIPELINE_ID = 0;
         final int RELEVANT_PIPELINE_NAME = 1;
+        final int LOOKED_UP_PIPELINE_ID = 2;
 
         String pipelineIdsSql = queryExtensions.queryRelevantToLookedUpDependencyMap(pipelineIds);
         SQLQuery pipelineIdsQuery = session.createSQLQuery(pipelineIdsSql);
@@ -210,13 +208,14 @@ public class MaterialRepository extends HibernateDaoSupport {
         pipelineIdsQuery.addScalar("lookedUpId", new LongType());
         @SuppressWarnings("unchecked") final List<Object[]> ids = pipelineIdsQuery.list();
 
-        Map<Long, List<PipelineId>> lookedUpToParentMap = new HashMap<>();
-        CollectionUtil.CollectionValueMap<Long, PipelineId> lookedUpToRelevantMap = CollectionUtil.collectionValMap(lookedUpToParentMap, new CollectionUtil.ArrayList<>());
+        Map<PipelineId, Set<Long>> parentToLookedUpMap = new HashMap<>(ids.size());
         for (Object[] relevantAndLookedUpId : ids) {
-            lookedUpToRelevantMap.put((Long) relevantAndLookedUpId[LOOKED_UP_PIPELINE_ID],
-                new PipelineId((String) relevantAndLookedUpId[RELEVANT_PIPELINE_NAME], (Long) relevantAndLookedUpId[RELEVANT_PIPELINE_ID]));
+            parentToLookedUpMap.computeIfAbsent(
+                new PipelineId((String) relevantAndLookedUpId[RELEVANT_PIPELINE_NAME], (Long) relevantAndLookedUpId[RELEVANT_PIPELINE_ID]),
+                k -> new HashSet<>()
+            ).add((Long) relevantAndLookedUpId[LOOKED_UP_PIPELINE_ID]);
         }
-        return CollectionUtil.reverse(lookedUpToParentMap);
+        return parentToLookedUpMap;
     }
 
     public MaterialRevisions findMaterialRevisionsForPipeline(long pipelineId) {

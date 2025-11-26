@@ -90,10 +90,7 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
     private void populateEarlierModification(Map<Date, TreeSet<Integer>> earlierMods, Date thisDate, Date thatDate) {
         int value = thisDate.before(thatDate) ? -1 : 1;
         Date actual = thisDate.before(thatDate) ? thisDate : thatDate;
-        if (!earlierMods.containsKey(actual)) {
-            earlierMods.put(actual, new TreeSet<>());
-        }
-        earlierMods.get(actual).add(value);
+        earlierMods.computeIfAbsent(actual, k -> new TreeSet<>()).add(value);
     }
 
     private boolean hasContentionOnEarliestMod(Map<Date, TreeSet<Integer>> earlierMods, Date earliestModDate) {

@@ -124,7 +124,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
 
-    public Integer size() {
+    public int size() {
         return uuidToAgentInstanceMap.size();
     }
 
@@ -140,8 +140,9 @@ public class AgentInstances implements Iterable<AgentInstance> {
     public void syncAgentInstancesFrom(Agents agentsFromDB) {
         for (Agent agentFromDB : agentsFromDB) {
             String uuid = agentFromDB.getUuid();
-            if (uuidToAgentInstanceMap.containsKey(uuid)) {
-                uuidToAgentInstanceMap.get(uuid).syncAgentFrom(agentFromDB);
+            AgentInstance existingInstance = uuidToAgentInstanceMap.get(uuid);
+            if (existingInstance != null) {
+                existingInstance.syncAgentFrom(agentFromDB);
             } else {
                 AgentInstance newAgent = createFromAgent(agentFromDB, new SystemEnvironment(), agentStatusChangeListener);
                 uuidToAgentInstanceMap.put(uuid, newAgent);
@@ -152,7 +153,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
             List<String> uuids = new ArrayList<>();
             for (String uuid : uuidToAgentInstanceMap.keySet()) {
                 AgentInstance instance = uuidToAgentInstanceMap.get(uuid);
-                if (!(instance.getStatus() == AgentStatus.Pending)) {
+                if (instance.getStatus() != AgentStatus.Pending) {
                     if (!agentsFromDB.hasAgent(uuid)) {
                         uuids.add(uuid);
                     }

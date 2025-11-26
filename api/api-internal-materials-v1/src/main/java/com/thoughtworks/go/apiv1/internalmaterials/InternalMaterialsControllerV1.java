@@ -100,11 +100,11 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
     }
 
     public String index(Request request, Response response) throws Exception {
-        Map<MaterialConfig, Boolean> materialConfigs = materialConfigService.getMaterialConfigsWithPermissions(currentUsernameString());
+        Map<MaterialConfig, Boolean> materialConfigToOperatePermission = materialConfigService.getMaterialConfigsToOperatePermissions(currentUsernameString());
         Map<String, Modification> modifications = materialService.getLatestModificationForEachMaterial();
         Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs = maintenanceModeService.getRunningMDUs();
         ServerHealthStates logs = serverHealthService.logsSorted();
-        Map<MaterialConfig, MaterialInfo> mergedMap = createMergedMap(materialConfigs, modifications, runningMDUs, logs);
+        Map<MaterialConfig, MaterialInfo> mergedMap = createMergedMap(materialConfigToOperatePermission, modifications, runningMDUs, logs);
 
         final String etag = etagFor(mergedMap);
 
@@ -134,13 +134,13 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         }
     }
 
-    private Map<MaterialConfig, MaterialInfo> createMergedMap(Map<MaterialConfig, Boolean> materialConfigs, Map<String, Modification> modificationsMap, Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs, ServerHealthStates allLogs) {
+    private Map<MaterialConfig, MaterialInfo> createMergedMap(Map<MaterialConfig, Boolean> materialConfigToOperatePermission, Map<String, Modification> modificationsMap, Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs, ServerHealthStates allLogs) {
         Map<MaterialConfig, MaterialInfo> map = new HashMap<>();
-        if (materialConfigs.isEmpty()) {
+        if (materialConfigToOperatePermission.isEmpty()) {
             return map;
         }
 
-        materialConfigs.forEach((materialConfig, hasOperatePermission) -> {
+        materialConfigToOperatePermission.forEach((materialConfig, hasOperatePermission) -> {
             if (!materialConfig.getType().equals(DependencyMaterialConfig.TYPE)) {
                 Material material = materialConfigConverter.toMaterial(materialConfig);
                 List<HealthStateScope> scopes = List.of(forMaterial(material), forMaterialUpdate(material), forMaterialConfig(materialConfig));

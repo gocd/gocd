@@ -100,10 +100,7 @@ public class PackageRepositories extends BaseCollection<PackageRepository> imple
         for (PackageRepository repository : this) {
             for (PackageDefinition packageDefinition : repository.getPackages()) {
                 String fingerprint = packageDefinition.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER);
-                if (!map.containsKey(fingerprint)) {
-                    map.put(fingerprint, new Packages());
-                }
-                map.get(fingerprint).add(packageDefinition);
+                map.computeIfAbsent(fingerprint, k -> new Packages()).add(packageDefinition);
             }
         }
 

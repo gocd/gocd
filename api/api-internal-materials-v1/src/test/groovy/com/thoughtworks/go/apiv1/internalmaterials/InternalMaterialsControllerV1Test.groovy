@@ -140,7 +140,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       def map = new HashMap<>()
       map.put(git.getFingerprint(), modifications)
 
-      when(materialConfigService.getMaterialConfigsWithPermissions(anyString())).thenReturn(materialConfigs)
+      when(materialConfigService.getMaterialConfigsToOperatePermissions(anyString())).thenReturn(materialConfigs)
       when(materialService.getLatestModificationForEachMaterial()).thenReturn(map)
       when(maintenanceModeService.getRunningMDUs()).thenReturn([])
 
@@ -184,7 +184,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       def git = MaterialConfigsMother.git("http://example.com")
       materialConfigs.put(git, false)
 
-      when(materialConfigService.getMaterialConfigsWithPermissions(anyString())).thenReturn(materialConfigs)
+      when(materialConfigService.getMaterialConfigsToOperatePermissions(anyString())).thenReturn(materialConfigs)
       when(materialService.getLatestModificationForEachMaterial()).thenReturn(emptyMap())
       when(maintenanceModeService.getRunningMDUs()).thenReturn([])
 
@@ -211,7 +211,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       map.put(git.getFingerprint(), modifications)
       map.put(dependencyConfig.getFingerprint(), modifications)
 
-      when(materialConfigService.getMaterialConfigsWithPermissions(anyString())).thenReturn(materialConfigs)
+      when(materialConfigService.getMaterialConfigsToOperatePermissions(anyString())).thenReturn(materialConfigs)
       when(materialService.getLatestModificationForEachMaterial()).thenReturn(map)
       when(maintenanceModeService.getRunningMDUs()).thenReturn([])
 

@@ -151,12 +151,8 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
                         naturalOrder = naturalOrder(row);
                     }
 
-                    String fingerprint = fingerprint(row);
-
-                    if (!revisions.containsKey(fingerprint)) {
-                        revisions.put(fingerprint, new ArrayList<>());
-                    }
-                    revisions.get(fingerprint).add(rev(row));
+                    revisions.computeIfAbsent(fingerprint(row), k -> new ArrayList<>())
+                        .add(rev(row));
 
                     int nextI = i + 1;
                     if (((nextI < matches.size() && id(matches.get(nextI)) != curId) ||//new pipeline instance starts in next record, so capture this one

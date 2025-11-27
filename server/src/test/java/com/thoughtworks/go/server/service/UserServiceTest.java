@@ -15,16 +15,15 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.exception.UncheckedValidationException;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.presentation.UserModel;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
@@ -33,8 +32,6 @@ import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -44,8 +41,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
-import static com.thoughtworks.go.helper.SecurityConfigMother.securityConfigWithRole;
-import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -56,175 +51,24 @@ public class UserServiceTest {
     private GoConfigService goConfigService;
     private SecurityService securityService;
     private UserService userService;
-    private TestTransactionTemplate transactionTemplate;
-    private TestTransactionSynchronizationManager transactionSynchronizationManager;
-    private SystemEnvironment systemEnvironment;
 
     @BeforeEach
     void setUp() {
         userDao = mock(UserDao.class);
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
-        transactionSynchronizationManager = new TestTransactionSynchronizationManager();
-        transactionTemplate = new TestTransactionTemplate(transactionSynchronizationManager);
-        systemEnvironment = mock(SystemEnvironment.class);
-        userService = new UserService(userDao, securityService, goConfigService, transactionTemplate, systemEnvironment);
+        userService = new UserService(userDao, securityService, goConfigService, new TestTransactionTemplate(new TestTransactionSynchronizationManager()));
     }
 
     @Test
-    void shouldLoadAllUsersOrderedOnUsername() {
-        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
-        User bar = new User("bar", List.of("bAR", "Bar"), "bar@go.com", true);
-        User quux = new User("quux", List.of("qUUX", "Quux"), "quux@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(List.of(foo, bar, quux)));
-
-        List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.DESC);
-        assertThat(models).isEqualTo(List.of(model(quux), model(foo), model(bar)));
-
-        models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
-        assertThat(models).isEqualTo(List.of(model(bar), model(foo), model(quux)));
-    }
-
-    @Test
-    void shouldLoadAllUsersOrderedOnEmail() {
-        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
-        User zoo = new User("bar", List.of("bAR", "Bar"), "zooboo@go.com", true);
-        User quux = new User("quux", List.of("qUUX", "Quux"), "quux@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(List.of(foo, zoo, quux)));
-
-
-        List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.EMAIL, UserService.SortDirection.DESC);
-        assertThat(models).isEqualTo(List.of(model(zoo), model(quux), model(foo)));
-
-        models = userService.allUsersForDisplay(UserService.SortableColumn.EMAIL, UserService.SortDirection.ASC);
-        assertThat(models).isEqualTo(List.of(model(foo), model(quux), model(zoo)));
-    }
-
-    @Test
-    void shouldLoadAllUsersOrderedOnRoles() {
-        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
-        User bar = new User("bar", List.of("bAR", "Bar"), "zooboo@go.com", true);
-        User quux = new User("quux", List.of("qUUX", "Quux"), "quux@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(List.of(foo, bar, quux)));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("foo"))).thenReturn(List.of(new RoleConfig(new CaseInsensitiveString("loser")
-        ), new RoleConfig(new CaseInsensitiveString("boozer"))));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("bar"))).thenReturn(List.of(new RoleConfig(new CaseInsensitiveString("user")
-        ), new RoleConfig(new CaseInsensitiveString("boozer"))));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("quux"))).thenReturn(List.of(new RoleConfig(new CaseInsensitiveString("user")
-        ), new RoleConfig(new CaseInsensitiveString("loser"))));
-
-        List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.ROLES, UserService.SortDirection.DESC);
-        UserModel quuxModel = model(quux, List.of("user", "loser"), false);
-        UserModel barModel = model(bar, List.of("user", "boozer"), false);
-        UserModel fooModel = model(foo, List.of("loser", "boozer"), false);
-        assertThat(models).isEqualTo(List.of(quuxModel, barModel, fooModel));
-
-        models = userService.allUsersForDisplay(UserService.SortableColumn.ROLES, UserService.SortDirection.ASC);
-        assertThat(models).isEqualTo(List.of(fooModel, barModel, quuxModel));
-    }
-
-    @Test
-    void shouldLoadAllUsersOrderedOnMatchers() {
-        User foo = new User("foo", List.of("abc", "def"), "foo@cruise.com", false);
-        User bar = new User("bar", List.of("ghi", "def"), "zooboo@go.com", true);
-        User quux = new User("quux", List.of("ghi", "jkl"), "quux@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(List.of(quux, foo, bar)));
-
-        List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.MATCHERS, UserService.SortDirection.DESC);
-
-        assertThat(models).isEqualTo(List.of(model(quux), model(bar), model(foo)));
-
-        models = userService.allUsersForDisplay(UserService.SortableColumn.MATCHERS, UserService.SortDirection.ASC);
-        assertThat(models).isEqualTo(List.of(model(foo), model(bar), model(quux)));
-    }
-
-    @SafeVarargs
-    public static <T> Condition<T> anyOfObject(T... objects) {
-        return new Condition<>() {
-            @Override
-            public boolean matches(T value) {
-                return List.of(objects).contains(value);
-            }
-        };
-    }
-
-    @Test
-    void shouldLoadAllUsersOrderedOnIsAdmin() {
-        User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
-        User bar = new User("bar", new ArrayList<>(), "zooboo@go.com", false);
-        User quux = new User("quux", new ArrayList<>(), "quux@cruise.go", false);
-        User baaz = new User("baaz", new ArrayList<>(), "baaz@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(List.of(quux, foo, bar, baaz)));
-
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("foo")))).thenReturn(false);
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("bar")))).thenReturn(true);
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("quux")))).thenReturn(false);
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("baaz")))).thenReturn(true);
-
-        List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.IS_ADMIN, UserService.SortDirection.DESC);
-
-
-        assertThat(models.size()).isEqualTo(4);
-        assertThat(models.get(2)).is(anyOfObject(model(quux, false), model(foo, false)));
-        assertThat(models.get(3)).is(anyOfObject(model(quux, false), model(foo, false)));
-        assertThat(models.get(0)).is(anyOfObject(model(bar, true), model(baaz, true)));
-        assertThat(models.get(1)).is(anyOfObject(model(bar, true), model(baaz, true)));
-        assertThat(models).contains(model(bar, true), model(baaz, true), model(foo, false), model(quux, false));
-
-        models = userService.allUsersForDisplay(UserService.SortableColumn.IS_ADMIN, UserService.SortDirection.ASC);
-        assertThat(models.size()).isEqualTo(4);
-        assertThat(models.get(0)).is(anyOfObject(model(quux, false), model(foo, false)));
-        assertThat(models.get(1)).is(anyOfObject(model(quux, false), model(foo, false)));
-        assertThat(models.get(2)).is(anyOfObject(model(bar, true), model(baaz, true)));
-        assertThat(models.get(3)).is(anyOfObject(model(bar, true), model(baaz, true)));
-
-        assertThat(models).contains(model(bar, true), model(baaz, true), model(foo, false), model(quux, false));
-    }
-
-    @Test
-    void shouldLoadAllUsersOrderedOnEnabled() {
-        User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
-        User bar = new User("bar", new ArrayList<>(), "zooboo@go.com", false);
-        User quux = new User("quux", new ArrayList<>(), "quux@cruise.go", false);
-        User baaz = new User("baaz", new ArrayList<>(), "baaz@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(List.of(quux, foo, bar, baaz)));
-
-        foo.disable();
-        quux.disable();
-
-        List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.ENABLED, UserService.SortDirection.DESC);
-
-        assertThat(models.size()).isEqualTo(4);
-        assertThat(models.get(2)).is(anyOfObject(model(quux), (model(foo))));
-        assertThat(models.get(3)).is(anyOfObject(model(quux), (model(foo))));
-        assertThat(models.get(0)).is(anyOfObject(model(bar), (model(baaz))));
-        assertThat(models.get(1)).is(anyOfObject(model(bar), (model(baaz))));
-        assertThat(models).contains(model(bar), model(baaz), model(foo), model(quux));
-
-        models = userService.allUsersForDisplay(UserService.SortableColumn.ENABLED, UserService.SortDirection.ASC);
-        assertThat(models.size()).isEqualTo(4);
-        assertThat(models.get(0)).is(anyOfObject(model(quux), (model(foo))));
-        assertThat(models.get(1)).is(anyOfObject(model(quux), (model(foo))));
-        assertThat(models.get(2)).is(anyOfObject(model(bar), (model(baaz))));
-        assertThat(models.get(3)).is(anyOfObject(model(bar), (model(baaz))));
-
-        assertThat(models).contains(model(bar), model(baaz), model(foo), model(quux));
-    }
-
-    @Test
-    void shouldLoadAllUsersWithRolesAndAdminFlag() {
-        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
-        User bar = new User("bar", List.of("bAR", "Bar"), "bar@go.com", true);
+    void shouldLoadAllUsernames() {
+        User foo = new User("foo", "fOO,Foo", "foo@cruise.com", false);
+        User bar = new User("bar", "bAR,Bar", "bar@go.com", true);
 
         when(userDao.allUsers()).thenReturn(new Users(List.of(foo, bar)));
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("foo")))).thenReturn(true);
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("foo"))).thenReturn(List.of(new RoleConfig(new CaseInsensitiveString("loser")
-        ), new RoleConfig(new CaseInsensitiveString("boozer"))));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("bar"))).thenReturn(List.of(new RoleConfig(new CaseInsensitiveString("user")
-        ), new RoleConfig(new CaseInsensitiveString("loser"))));
 
-        List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
-        assertThat(models).isEqualTo(List.of(model(bar, List.of("user", "loser"), false), model(foo, List.of("loser", "boozer"), true)));
+        Set<String> users = userService.allUsernames();
+        assertThat(users).containsExactlyInAnyOrder("foo", "bar");
     }
 
     @Test
@@ -243,22 +87,6 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldBeAbleToTurnOffAutoLoginWhenAdminsStillPresent() {
-        when(userDao.enabledUsers()).thenReturn(List.of(new User("Jake"), new User("Pavan"), new User("Shilpa")));
-        configureAdmin("Jake", true);
-
-        assertThat(userService.canUserTurnOffAutoLogin()).isTrue();
-    }
-
-
-    @Test
-    void shouldNotBeAbleToTurnOffAutoLoginWhenAdminsStillPresent() {
-        when(userDao.enabledUsers()).thenReturn(List.of(new User("Jake"), new User("Pavan"), new User("Shilpa")));
-
-        assertThat(userService.canUserTurnOffAutoLogin()).isFalse();
-    }
-
-    @Test
     void shouldNotFailToEnableTheSameUser() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
@@ -266,202 +94,6 @@ public class UserServiceTest {
         userService.enable(List.of("Jake"));
 
         assertThat(result.isSuccessful()).isTrue();
-    }
-
-    @Test
-    void shouldReturnUsersInSortedOrderFromPipelineGroupWhoHaveOperatePermissions() {
-        CruiseConfig config = new BasicCruiseConfig();
-        SecurityConfig securityConfig = new SecurityConfig(null);
-        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
-        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user2")),
-            new RoleUser(new CaseInsensitiveString("user3"))));
-        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role2"), new RoleUser(new CaseInsensitiveString("user4")), new RoleUser(new CaseInsensitiveString("user5")),
-            new RoleUser(new CaseInsensitiveString("user3"))));
-        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role3"), new RoleUser(new CaseInsensitiveString("user4")), new RoleUser(new CaseInsensitiveString("user5")),
-            new RoleUser(new CaseInsensitiveString("user2"))));
-        config.setServerConfig(new ServerConfig(null, securityConfig));
-
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job")));
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
-        config.addPipeline("defaultGroup", pipeline);
-        PipelineConfigs group = config.findGroup("defaultGroup");
-        group.getAuthorization().getOperationConfig().add(new AdminRole(new CaseInsensitiveString("role1")));
-        group.getAuthorization().getOperationConfig().add(new AdminRole(new CaseInsensitiveString("role3")));
-        group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("pavan")));
-        group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("admin")));
-
-        Set<String> allUsers = userService.usersThatCanOperateOnStage(config, pipeline);
-
-        assertThat(allUsers.size()).isEqualTo(7);
-        assertThat(allUsers).contains("user1");
-        assertThat(allUsers).contains("user2");
-        assertThat(allUsers).contains("user3");
-        assertThat(allUsers).contains("user4");
-        assertThat(allUsers).contains("user5");
-        assertThat(allUsers).contains("pavan");
-        assertThat(allUsers).contains("admin");
-    }
-
-    @Test
-    void shouldGetAllUsernamesAsOperatorsOfStage_IfNoSecurityHasBeenDefinedOnTheGroup_AndDefaultPermissionForGroupsWithNoAuthIsToAllowAll() {
-        CruiseConfig config = new BasicCruiseConfig();
-        SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
-        securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user2");
-        config.setServerConfig(new ServerConfig(null, securityConfig));
-
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job")));
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
-        config.addPipeline("defaultGroup", pipeline);
-
-        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
-        when(userDao.allUsers()).thenReturn(new Users(List.of(new User("user_one"), new User("user_two"))));
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_one")))).thenReturn(true);
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_two")))).thenReturn(false);
-
-        Set<String> users = userService.usersThatCanOperateOnStage(config, pipeline);
-
-        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isFalse();
-        assertThat(users.size()).isEqualTo(2);
-        assertThat(users).contains("user_one");
-        assertThat(users).contains("user_two");
-    }
-
-    @Test
-    void shouldGetOnlySystemAdminsAsOperatorsOfStageIfNoSecurityHasBeenDefinedOnTheGroup_AndDefaultPermissionForGroupsWithNoAuthIsToDeny() {
-        CruiseConfig config = new BasicCruiseConfig();
-        SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
-        securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user2");
-        config.setServerConfig(new ServerConfig(null, securityConfig));
-
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job")));
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
-        config.addPipeline("defaultGroup", pipeline);
-
-        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(false);
-        when(userDao.allUsers()).thenReturn(new Users(List.of(new User("user_one"), new User("user_two"))));
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_one")))).thenReturn(true);
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_two")))).thenReturn(false);
-
-        Set<String> users = userService.usersThatCanOperateOnStage(config, pipeline);
-
-        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isFalse();
-        assertThat(users.size()).isEqualTo(1);
-        assertThat(users).contains("user_one");
-    }
-
-    @Test
-    void shouldNotGetAnyUsernamesIfOnlyViewAndAdminPermissionsHaveBeenDefinedOnTheGroup() {
-        CruiseConfig config = new BasicCruiseConfig();
-        SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
-        securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
-        config.setServerConfig(new ServerConfig(null, securityConfig));
-
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job")));
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
-        config.addPipeline("defaultGroup", pipeline);
-        PipelineConfigs group = config.findGroup("defaultGroup");
-        group.getAuthorization().getAdminsConfig().add(new AdminUser(new CaseInsensitiveString("admin")));
-        group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("pavan")));
-        when(userDao.allUsers()).thenReturn(new Users(List.of(new User("user_one"), new User("user_two"))));
-        Set<String> users = userService.usersThatCanOperateOnStage(config, pipeline);
-
-        assertThat(group.hasAuthorizationDefined()).isTrue();
-        assertThat(group.hasOperationPermissionDefined()).isFalse();
-        assertThat(users.size()).isEqualTo(0);
-    }
-
-    @Test
-    void shouldGetAllRolesWithOperatePermissionFromPipelineGroups() {
-        CruiseConfig config = new BasicCruiseConfig();
-        SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
-        securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user2");
-        config.setServerConfig(new ServerConfig(null, securityConfig));
-
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job")));
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
-        config.addPipeline("defaultGroup", pipeline);
-        PipelineConfigs group = config.findGroup("defaultGroup");
-        group.getAuthorization().getOperationConfig().add(new AdminRole(new CaseInsensitiveString("role1")));
-        group.getAuthorization().getOperationConfig().add(new AdminRole(new CaseInsensitiveString("role3")));
-
-        Set<String> roles = userService.rolesThatCanOperateOnStage(config, pipeline);
-
-        assertThat(roles.size()).isEqualTo(2);
-        assertThat(roles).contains("role1");
-        assertThat(roles).contains("role3");
-    }
-
-    @Test
-    void shouldNotGetAnyRolesWhenGroupHasOnlyViewAndAdminPermissionDefined() {
-        CruiseConfig config = new BasicCruiseConfig();
-        SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
-        securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user2");
-        config.setServerConfig(new ServerConfig(null, securityConfig));
-
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job")));
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
-        config.addPipeline("defaultGroup", pipeline);
-        PipelineConfigs group = config.findGroup("defaultGroup");
-        group.getAuthorization().getViewConfig().add(new AdminRole(new CaseInsensitiveString("role1")));
-        group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("shilpa")));
-        group.getAuthorization().getAdminsConfig().add(new AdminRole(new CaseInsensitiveString("role3")));
-
-        Set<String> roles = userService.rolesThatCanOperateOnStage(config, pipeline);
-
-        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isTrue();
-        assertThat(config.findGroup("defaultGroup").hasOperationPermissionDefined()).isFalse();
-        assertThat(roles.size()).isEqualTo(0);
-    }
-
-    @Test
-    void shouldGetAllRolesFromConfigAsOperators_WhenGroupDoesNotHaveAnyPermissionsDefined_AndDefaultPermissionForGroupsWithNoAuthIsToAllowAll() {
-        CruiseConfig config = new BasicCruiseConfig();
-        SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
-        securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user2");
-        config.setServerConfig(new ServerConfig(null, securityConfig));
-
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job")));
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
-        config.addPipeline("defaultGroup", pipeline);
-
-        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
-        Set<String> roles = userService.rolesThatCanOperateOnStage(config, pipeline);
-
-        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isFalse();
-        assertThat(roles.size()).isEqualTo(3);
-        assertThat(roles).contains("role1");
-        assertThat(roles).contains("role2");
-        assertThat(roles).contains("role3");
-    }
-
-    @Test
-    void shouldGetNoRolesFromConfigAsOperators_WhenGroupDoesNotHaveAnyPermissionsDefined_AndDefaultPermissionForGroupsWithNoAuthIsToDeny() {
-        CruiseConfig config = new BasicCruiseConfig();
-        SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
-        securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");
-        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user2");
-        config.setServerConfig(new ServerConfig(null, securityConfig));
-
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job")));
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
-        config.addPipeline("defaultGroup", pipeline);
-
-        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(false);
-        Set<String> roles = userService.rolesThatCanOperateOnStage(config, pipeline);
-
-        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isFalse();
-        assertThat(roles.size()).isEqualTo(0);
     }
 
     @Test
@@ -676,11 +308,11 @@ public class UserServiceTest {
 
     @Test
     void shouldFindUserHavingSubscriptionAndPermissionForPipeline() {
-        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
+        User foo = new User("foo", "fOO,Foo", "foo@cruise.com", false);
         foo.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
-        User bar = new User("bar", List.of("bAR", "Bar"), "bar@go.com", true);
+        User bar = new User("bar", "bAR,Bar", "bar@go.com", true);
         bar.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
-        User quux = new User("quux", List.of("qUUX", "Quux"), "quux@cruise.go", false);
+        User quux = new User("quux", "qUUX,Quux", "quux@cruise.go", false);
         quux.addNotificationFilter(new NotificationFilter("p2", "s2", StageEvent.Passes, true));
 
         when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(List.of(foo, bar, quux)));
@@ -691,9 +323,9 @@ public class UserServiceTest {
 
     @Test
     void shouldFindUserSubscribingForAnyPipelineAndThatHasPermission() {
-        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
+        User foo = new User("foo", "fOO,Foo", "foo@cruise.com", false);
         foo.addNotificationFilter(new NotificationFilter(NotificationFilter.ANY_PIPELINE, NotificationFilter.ANY_STAGE, StageEvent.Passes, true));
-        User bar = new User("bar", List.of("bAR", "Bar"), "bar@go.com", true);
+        User bar = new User("bar", "bAR,Bar", "bar@go.com", true);
         bar.addNotificationFilter(new NotificationFilter(NotificationFilter.ANY_PIPELINE, NotificationFilter.ANY_STAGE, StageEvent.Passes, true));
 
         when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(List.of(foo, bar)));
@@ -996,17 +628,5 @@ public class UserServiceTest {
 
     private void configureAdmin(String username, boolean isAdmin) {
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString(username)))).thenReturn(isAdmin);
-    }
-
-    private UserModel model(User user) {
-        return model(user, false);
-    }
-
-    private UserModel model(User user, boolean admin) {
-        return model(user, new ArrayList<>(), admin);
-    }
-
-    private UserModel model(User user, List<String> roles, boolean isAdmin) {
-        return new UserModel(user, roles, isAdmin);
     }
 }

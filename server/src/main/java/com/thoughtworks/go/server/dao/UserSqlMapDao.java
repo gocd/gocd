@@ -45,12 +45,13 @@ import java.util.Set;
 
 @Component
 public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
-    private SessionFactory sessionFactory;
-    private TransactionTemplate transactionTemplate;
-    private GoCache goCache;
+    protected static final String ENABLED_USER_COUNT_CACHE_KEY = "ENABLED_USER_COUNT_CACHE_KEY";
+
+    private final SessionFactory sessionFactory;
+    private final TransactionTemplate transactionTemplate;
+    private final GoCache goCache;
     private final AccessTokenDao accessTokenDao;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
-    protected static final String ENABLED_USER_COUNT_CACHE_KEY = "ENABLED_USER_COUNT_CACHE_KEY";
 
     @Autowired
     public UserSqlMapDao(SessionFactory sessionFactory,

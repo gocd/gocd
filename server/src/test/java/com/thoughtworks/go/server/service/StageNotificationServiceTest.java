@@ -110,7 +110,7 @@ public class StageNotificationServiceTest {
 
     private String prepareOneMatchedUser() {
         String jezMail = "jez@cruise.com";
-        User jez = new User("jez", new String[]{"lgao"}, jezMail, true);
+        User jez = new User("jez", "lgao", jezMail, true);
         jez.setNotificationFilters(List.of(new NotificationFilter("go", "dev", StageEvent.All, true)));
         when(userService.findValidSubscribers(new StageConfigIdentifier("go", "dev"))).thenReturn(new Users(List.of(jez)));
         return jezMail;

@@ -123,10 +123,9 @@ public class StageNotificationServiceIntegrationTest {
         assertThat(inMemoryEmailNotificationTopic.emailCount(chrisMail)).isEqualTo(0);
     }
 
-
     private String prepareOneNotMatchedUser() {
         String chrisMail = "chris@cruise.com";
-        User chris = new User("chris", new String[]{"will not be matched"}, chrisMail, true);
+        User chris = new User("chris", "will not be matched", chrisMail, true);
         chris.addNotificationFilter(new NotificationFilter(pipelineFixture.pipelineName, pipelineFixture.ftStage, StageEvent.All, true));
         userDao.saveOrUpdate(chris);
         return chrisMail;
@@ -150,7 +149,7 @@ public class StageNotificationServiceIntegrationTest {
 
     private String prepareOneMatchedUser(StageEvent event) {
         String jezMail = "jez@cruise.com";
-        User jez = new User("jez", new String[]{"lgao"}, jezMail, true);
+        User jez = new User("jez", "lgao", jezMail, true);
         jez.addNotificationFilter(new NotificationFilter(pipelineFixture.pipelineName, pipelineFixture.ftStage, event, true));
         userDao.saveOrUpdate(jez);
         return jezMail;

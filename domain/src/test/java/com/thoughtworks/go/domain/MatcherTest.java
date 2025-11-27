@@ -54,15 +54,8 @@ class MatcherTest {
     }
 
     @Test
-    void shouldSplitEachElement() {
-        String[] array = new String[]{"JH", "Pavan,Jez", "HK"};
-        assertThat(new Matcher(array)).isEqualTo(new Matcher("JH,Pavan,Jez,HK"));
-    }
-
-    @Test
     void shouldRemoveTheDuplicationFromEachElement() {
-        String[] array = new String[]{"JH", "Pavan,Jez", "Pavan"};
-        assertThat(new Matcher(array)).isEqualTo(new Matcher("JH,Pavan,Jez"));
+        assertThat(new Matcher("JH,Pavan,Jez,Pavan")).isEqualTo(new Matcher("JH,Pavan,Jez"));
     }
 
     @Test
@@ -116,7 +109,7 @@ class MatcherTest {
 
     @Test
     void shouldValidateAllMatchersUsingAValidator() throws Exception {
-        new Matcher(new String[]{"aaa,a"}).validateUsing(Validator.lengthValidator(200));
+        new Matcher("aaa,a").validateUsing(Validator.lengthValidator(200));
     }
 
     @Test

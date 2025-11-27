@@ -29,7 +29,7 @@ class UserRepresenterTest {
   void 'should serialize'() {
 
     def actualJson = toObjectString({
-      UserRepresenter.toJSON(it, new User('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'] as String[], 'jdoe@example.com', true))
+      UserRepresenter.toJSON(it, new User('jdoe', 'Jon Doe', 'jdoe,jdoe@example.com', 'jdoe@example.com', true))
     })
 
     assertThatJson(actualJson).isEqualTo([
@@ -50,7 +50,7 @@ class UserRepresenterTest {
 
   @Test
   void 'should add error message if any'() {
-    def user = new User('jdoe', 'Jon Doe', ['jdoe'] as String[], 'jdoe', true)
+    def user = new User('jdoe', 'Jon Doe', 'jdoe', 'jdoe', true)
     def result = new HttpLocalizedOperationResult()
     result.badRequest("some message")
 

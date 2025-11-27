@@ -205,9 +205,9 @@ public class UserSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldFindAllUsers() {
-        User user = new User("user", new String[]{"*.*,user"}, "user@mail.com", true);
-        User loser = new User("loser", new String[]{"loser", "user"}, "loser@mail.com", true);
-        User boozer = new User("boozer", new String[]{"boozer"}, "boozer@mail.com", true);
+        User user = new User("user", "*.*,user", "user@mail.com", true);
+        User loser = new User("loser", "loser,user", "loser@mail.com", true);
+        User boozer = new User("boozer", "boozer", "boozer@mail.com", true);
         userDao.saveOrUpdate(user);
         userDao.saveOrUpdate(loser);
         userDao.saveOrUpdate(boozer);
@@ -233,12 +233,11 @@ public class UserSqlMapDaoIntegrationTest {
         assertThat(user.getNotificationFilters().get(1).getId()).isEqualTo(filter2.getId());
     }
 
-
     @Test
     public void shouldGetCountForEnabledUsersOnly() {
-        User user = new User("user", new String[]{"*.*,user"}, "user@mail.com", true);
-        User loser = new User("loser", new String[]{"loser", "user"}, "loser@mail.com", true);
-        User boozer = new User("boozer", new String[]{"boozer"}, "boozer@mail.com", true);
+        User user = new User("user", "*.*,user", "user@mail.com", true);
+        User loser = new User("loser", "loser,user", "loser@mail.com", true);
+        User boozer = new User("boozer", "boozer", "boozer@mail.com", true);
         userDao.saveOrUpdate(user);
         userDao.saveOrUpdate(loser);
         userDao.saveOrUpdate(boozer);
@@ -251,7 +250,7 @@ public class UserSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldClearCountCacheOnSaveOrStatusChange() {
-        User user = new User("user", new String[]{"*.*,user"}, "user@mail.com", true);
+        User user = new User("user", "*.*,user", "user@mail.com", true);
         userDao.saveOrUpdate(user);
         assertThat(userDao.enabledUserCount()).isEqualTo(1L);
         User loser = new User("loser", "Loser", "loser@mail.com");
@@ -271,10 +270,10 @@ public class UserSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldFetchEnabledUsersCount() {
-        User user = new User("user", new String[]{"*.*,user"}, "user@mail.com", true);
+        User user = new User("user", "*.*,user", "user@mail.com", true);
         userDao.saveOrUpdate(user);
         assertThat(userDao.enabledUserCount()).isEqualTo(1L);
-        userDao.saveOrUpdate(new User("loser", new String[]{"loser", "user"}, "loser@mail.com", true));
+        userDao.saveOrUpdate(new User("loser", "loser,user", "loser@mail.com", true));
         assertThat(userDao.enabledUserCount()).isEqualTo(2L);
     }
 
@@ -446,6 +445,6 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     private User user(String username) {
-        return new User(username, username, new String[]{"*.*"}, username + "@mail.com", true);
+        return new User(username, username, "*.*", username + "@mail.com", true);
     }
 }

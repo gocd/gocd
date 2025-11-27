@@ -19,32 +19,38 @@ import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Matcher {
-    private LinkedHashSet<String> matchers = new LinkedHashSet<>();
-    private static final String SEPARATOR = ",";
+    private static final char SEPARATOR = ',';
     private static final String[] SPECIAL_CHARS = new String[]{"\\", "[", "]", "^", "$", ".", "|", "?", "*", "+", "(", ")"};
+    private static final String[] SPECIAL_CHAR_REPLACEMENTS = Arrays.stream(SPECIAL_CHARS).map(s -> "\\" + s).toArray(String[]::new);
 
-    public Matcher(String matcherString) {
-        if (StringUtils.isNotEmpty(matcherString)) {
-            trimAndAdd(matcherString);
-        }
+    @NotNull
+    private final String matcherPattern;
+
+    private List<Pattern> patterns;
+
+    public Matcher(String matcherPattern) {
+        this.matcherPattern = normalize(matcherPattern);
     }
 
-    private void trimAndAdd(String matcherString) {
-        for (String part : StringUtils.split(matcherString, SEPARATOR)) {
-            this.matchers.add(part.trim());
-        }
+    public static String normalize(@Nullable String matcherPattern) {
+        return matcherPattern == null || matcherPattern.isBlank()
+            ? ""
+            : matchersFrom(matcherPattern).collect(Collectors.joining(SEPARATOR + ""));
     }
 
-    public Matcher(String[] array) {
-        this(StringUtils.join(array, SEPARATOR));
+    private static @NotNull Stream<String> matchersFrom(@NotNull String matcherPattern) {
+        return Arrays.stream(StringUtils.split(matcherPattern, SEPARATOR)).map(String::trim).filter(s -> !s.isEmpty()).distinct();
     }
 
     @Override
@@ -57,50 +63,48 @@ public class Matcher {
         }
 
         Matcher matcher = (Matcher) o;
-        return matchers.equals(matcher.matchers);
+        return this.matcherPattern.equals(matcher.matcherPattern);
     }
 
     @Override
     public int hashCode() {
-        return (matchers != null ? matchers.hashCode() : 0);
+        return matcherPattern.hashCode();
     }
 
     @Override
     public String toString() {
-        return StringUtils.join(matchers, ',');
+        return matcherPattern;
     }
 
     public List<String> toCollection() {
-        return new ArrayList<>(matchers);
+        return matchersFrom(matcherPattern).sorted().collect(Collectors.toList());
     }
 
     public void validateUsing(Validator<String> validator) throws ValidationException {
-        for (String matcher : matchers) {
-            ValidationBean validationBean = validator.validate(matcher);
-            if (!validationBean.isValid()) {
-                throw new ValidationException(validationBean.getError());
-            }
+        Optional<ValidationBean> result = matchersFrom(matcherPattern)
+            .map(validator::validate)
+            .filter(v -> !v.isValid())
+            .findFirst();
+
+        if (result.isPresent()) {
+            throw new ValidationException(result.get().getError());
         }
     }
 
     public boolean matches(String comment) {
-        for (String escapedMatcher : escapeMatchers()) {
-            Pattern pattern = Pattern.compile(String.join(escapedMatcher, "\\B", "\\B|\\b", "\\b"));
-            if (pattern.matcher(comment).find()) {
-                return true;
-            }
-        }
-        return false;
+        compilePatternsIfNecessary();
+        return patterns.stream().anyMatch(pattern -> pattern.matcher(comment).find());
     }
 
-    private List<String> escapeMatchers() {
-        List<String> escapedMatchers = new ArrayList<>();
-        for (String matcher : matchers) {
-            for (String specialChar : SPECIAL_CHARS) {
-                matcher = Strings.CS.replace(matcher, specialChar, "\\" + specialChar);
-            }
-            escapedMatchers.add(matcher);
+    private void compilePatternsIfNecessary() {
+        if (patterns == null) {
+            patterns = escapedMatchers()
+                .map(matcher -> Pattern.compile(String.join(matcher, "\\b", "\\b|\\B", "\\B")))
+                .collect(Collectors.toList());
         }
-        return escapedMatchers;
+    }
+
+    private Stream<String> escapedMatchers() {
+        return matchersFrom(matcherPattern).map(matcher -> StringUtils.replaceEach(matcher, SPECIAL_CHARS, SPECIAL_CHAR_REPLACEMENTS));
     }
 }

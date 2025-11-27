@@ -22,8 +22,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StageNotificationListener implements GoMessageListener<StageResultMessage> {
-    private GoConfigService goConfigService;
-    private StageNotificationService stageNotificationService;
+    private final GoConfigService goConfigService;
+    private final StageNotificationService stageNotificationService;
 
     @Autowired
     public StageNotificationListener(StageNotificationService stageNotificationService, GoConfigService goConfigService,

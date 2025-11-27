@@ -38,7 +38,7 @@ public class BaseCollection<T> extends ArrayList<T> {
         if (this.isEmpty()) {
             return null;
         }
-        return this.get(0);
+        return get(0);
     }
 
     public T last() {

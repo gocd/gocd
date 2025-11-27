@@ -17,9 +17,12 @@ package com.thoughtworks.go.i18n;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static org.apache.commons.lang3.StringUtils.join;
+import static java.lang.String.join;
 
 /**
  * Understands converting the localized message for a given key
@@ -31,11 +34,11 @@ public abstract class LocalizedMessage {
     }
 
     public static String cannotDeleteResourceBecauseOfDependentPipelines(String resourceTypeBeingDeleted, String resourceNameBeingDeleted, List<String> dependentPipelines) {
-        return "Cannot delete the " + resourceTypeBeingDeleted + " '" + resourceNameBeingDeleted + "' as it is used by pipeline(s): '" + join(dependentPipelines, ", ") + "'";
+        return "Cannot delete the " + resourceTypeBeingDeleted + " '" + resourceNameBeingDeleted + "' as it is used by pipeline(s): '" + join(", ", dependentPipelines) + "'";
     }
 
     public static String cannotDeleteResourceBecauseOfDependentResources(String resourceTypeBeingDeleted, String resourceNameBeingDeleted, String dependentResourceType, List<String> dependentResourceUUIDs) {
-        return String.format("Cannot delete %s '%s' as it is referenced from %s(s) [%s]", resourceTypeBeingDeleted, resourceNameBeingDeleted, dependentResourceType, join(dependentResourceUUIDs, ", "));
+        return "Cannot delete " + resourceTypeBeingDeleted + " '" + resourceNameBeingDeleted + "' as it is referenced from " + dependentResourceType + "(s) [" + join(", ", dependentResourceUUIDs) + "]";
     }
 
     public static String staleResourceConfig(String resourceType, String resourceName) {
@@ -79,7 +82,7 @@ public abstract class LocalizedMessage {
     }
 
     public static String composite(String... messages) {
-        return join(messages, " ");
+        return Arrays.stream(messages).filter(Objects::nonNull).collect(Collectors.joining(" "));
     }
 
     public static String resourceDeleteSuccessful(String entityType, String entityName) {
@@ -91,7 +94,7 @@ public abstract class LocalizedMessage {
     }
 
     public static String resourcesDeleteSuccessful(String entityType, List<String> names) {
-        return entityType + " '" + join(names, ", ") + "' were deleted successfully.";
+        return entityType + " '" + join(", ", names) + "' were deleted successfully.";
     }
 
 }

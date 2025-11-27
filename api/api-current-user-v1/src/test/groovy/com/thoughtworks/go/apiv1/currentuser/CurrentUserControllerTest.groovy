@@ -68,7 +68,7 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
 
       @BeforeEach
       void setUp() {
-        user = new User('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'] as String[], 'jdoe@example.com', true)
+        user = new User('jdoe', 'Jon Doe', 'jdoe,jdoe@example.com', 'jdoe@example.com', true)
         enableSecurity()
         loginAsUser()
 
@@ -119,7 +119,7 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
 
     @Nested
     class AsAuthorizedUser {
-      User user = new User('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'] as String[], 'jdoe@example.com', true)
+      User user = new User('jdoe', 'Jon Doe', 'jdoe,jdoe@example.com', 'jdoe@example.com', true)
 
       @BeforeEach
       void setUp() {
@@ -139,7 +139,7 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
           checkin_aliases: 'foo, bar'
         ]
 
-        User newUser = new User(user.name, user.displayName, data.checkin_aliases.split(', '), 'foo@example.com', false)
+        User newUser = new User(user.name, user.displayName, data.checkin_aliases, 'foo@example.com', false)
 
         doAnswer({ InvocationOnMock invocation ->
           return newUser
@@ -177,7 +177,7 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
           checkin_aliases: 'foo, bar'
         ]
 
-        User newUser = new User(user.name, user.displayName, data.checkin_aliases.split(', '), 'foo', false)
+        User newUser = new User(user.name, user.displayName, data.checkin_aliases, 'foo', false)
         def result = new HttpLocalizedOperationResult()
         result.badRequest("Some error message")
 

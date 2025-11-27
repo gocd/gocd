@@ -30,12 +30,4 @@ public class Users extends BaseCollection<User> {
     public Users filter(Predicate<User> filter) {
         return new Users(this.stream().filter(filter).collect(Collectors.toList()));
     }
-
-    public boolean containsUserNamed(String userName) {
-        for (User user : this) {
-            if (user.getName().equals(userName))
-                return true;
-        }
-        return false;
-    }
 }

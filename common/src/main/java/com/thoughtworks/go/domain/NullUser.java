@@ -17,7 +17,7 @@ package com.thoughtworks.go.domain;
 
 public class NullUser extends User {
     public NullUser() {
-        super("", new String[]{}, "", false);
+        super("", "", "", false);
     }
 
 }

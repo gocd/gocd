@@ -42,7 +42,6 @@ import java.util.Map;
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwCannotRefer;
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwSecretConfigNotFound;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.join;
 
 @Service
 public class RulesService {
@@ -175,7 +174,7 @@ public class RulesService {
     }
 
     private String errorString(Map<CaseInsensitiveString, StringBuilder> errors) {
-        return join(errors.values(), '\n').trim();
+        return String.join("\n", errors.values()).trim();
     }
 
     protected Map<CaseInsensitiveString, StringBuilder> validate(SecretParams secretParams, Class<? extends Validatable> entityClass, String entityName, String entityNameOrErrorMessagePrefix) {

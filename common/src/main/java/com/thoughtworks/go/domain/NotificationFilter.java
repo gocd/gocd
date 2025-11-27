@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import org.apache.commons.lang3.Strings;
 
+import java.util.Objects;
+
 import static java.lang.String.format;
 
 public class NotificationFilter extends PersistentObject implements Validatable {
@@ -31,10 +33,7 @@ public class NotificationFilter extends PersistentObject implements Validatable 
     private StageEvent event;
     private boolean myCheckin;
 
-    private transient ConfigErrors errors = new ConfigErrors();
-
-    private NotificationFilter() {
-    }
+    private final transient ConfigErrors errors = new ConfigErrors();
 
     public NotificationFilter(String pipelineName, String stageName, StageEvent event, boolean myCheckin) {
         this.pipelineName = pipelineName;
@@ -124,14 +123,10 @@ public class NotificationFilter extends PersistentObject implements Validatable 
         if (event != filter.event) {
             return false;
         }
-        if (pipelineName != null ? !pipelineName.equals(filter.pipelineName) : filter.pipelineName != null) {
+        if (!Objects.equals(pipelineName, filter.pipelineName)) {
             return false;
         }
-        if (stageName != null ? !stageName.equals(filter.stageName) : filter.stageName != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(stageName, filter.stageName);
     }
 
     @Override

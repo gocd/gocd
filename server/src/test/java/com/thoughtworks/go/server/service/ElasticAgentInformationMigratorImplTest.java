@@ -108,7 +108,7 @@ class ElasticAgentInformationMigratorImplTest {
     void shouldMarkPluginDescriptorInvalidIncaseOfErrors() {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
-        when(goConfigService.updateConfig(any())).thenThrow(new RuntimeException("Boom!"));
+        doThrow(new RuntimeException("Boom!")).when(goConfigService).updateConfig(any());
 
         assertThat(goPluginDescriptor.isInvalid()).isFalse();
 
@@ -141,7 +141,7 @@ class ElasticAgentInformationMigratorImplTest {
     void shouldNotDeletePluginSettingsOnWhenMigrateConfigCallFails() {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
-        when(goConfigService.updateConfig(any())).thenThrow(new RuntimeException("Boom!"));
+        doThrow(new RuntimeException("Boom!")).when(goConfigService).updateConfig(any());
 
         assertThat(goPluginDescriptor.isInvalid()).isFalse();
 

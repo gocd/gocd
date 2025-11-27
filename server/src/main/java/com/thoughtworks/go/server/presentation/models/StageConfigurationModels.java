@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.presentation.models;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.BaseCollection;
+import com.thoughtworks.go.presentation.pipelinehistory.StageConfigurationModel;
 
 import static com.thoughtworks.go.util.ExceptionUtils.methodNotImplemented;
 

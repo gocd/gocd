@@ -69,7 +69,7 @@ public class MaterialDatabaseDependencyUpdaterIntegrationTest  {
     @Test
     public void shouldInsertAllRunsAfterLastKnownOfUpstreamStage() throws Exception {
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("acceptance", "stage-name", "job");
-        goConfigService.addPipeline(mingleConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", mingleConfig);
 
         Pipeline passed1 = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
         dbHelper.passStage(passed1.getStages().get(0));

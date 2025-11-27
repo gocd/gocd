@@ -85,22 +85,22 @@ public class PipelineConfigsServiceIntegrationTest {
     @Test
     public void shouldEncryptPluginPropertiesOfPublishTask() throws Exception {
         pipelineConfigsService.updateXml("first",
-                groupSnippetWithSecurePropertiesBeforeEncryption(), goConfigService.configFileMd5(),
+                groupSnippetWithSecurePropertiesBeforeEncryption(), configHelper.currentConfig().getMd5(),
                 new Username("user"), new HttpLocalizedOperationResult());
 
 
         PipelineConfig ancestor = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"));
-        Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = ancestor
+        Configuration ancestorPluggablePublishArtifactConfigAfterEncryption = ancestor
                 .getExternalArtifactConfigs().get(0).getConfiguration();
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("SECRET");
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).startsWith("AES:");
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue()).isNull();
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("SECRET");
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).startsWith("AES:");
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getConfigValue()).isNull();
     }
 
     @Test
     public void shouldEncryptPluginPropertiesOfFetchTask() throws Exception {
         pipelineConfigsService.updateXml("first",
-                groupSnippetWithSecurePropertiesBeforeEncryption(), goConfigService.configFileMd5(),
+                groupSnippetWithSecurePropertiesBeforeEncryption(), configHelper.currentConfig().getMd5(),
                 new Username("user"), new HttpLocalizedOperationResult());
 
 

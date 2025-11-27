@@ -35,7 +35,10 @@ public class CreateEnvironmentCommand extends AgentPerformanceCommand {
     Optional<String> execute() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
-        goConfigService.addEnvironment(envConfig);
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.getEnvironments().add(envConfig);
+            return cruiseConfig;
+        });
         if (!result.isSuccessful()) {
             throw new RuntimeException(result.message());
         }

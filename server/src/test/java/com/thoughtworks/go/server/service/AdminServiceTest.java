@@ -39,23 +39,6 @@ public class AdminServiceTest {
     }
 
     @Test
-    public void shouldGenerateConfigurationJson() {
-        @SuppressWarnings("unchecked") GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = mock(GoConfigService.XmlPartialSaver.class);
-        when(fileSaver.asXml()).thenReturn("xml content");
-        when(fileSaver.getMd5()).thenReturn("md5 value");
-        when(goConfigService.fileSaver(false)).thenReturn(fileSaver);
-        String fileLocation = "file location";
-        when(goConfigService.fileLocation()).thenReturn(fileLocation);
-
-        final Map<String, Object> json = adminService.configurationJsonForSourceXml();
-
-        @SuppressWarnings("unchecked") Map<String, String> config = (Map<String, String>) json.get("config");
-        assertThat(config).containsEntry("location", fileLocation);
-        assertThat(config).containsEntry("content", "xml content");
-        assertThat(config).containsEntry("md5", "md5 value");
-    }
-
-    @Test
     public void shouldUpdateConfig() {
         Map<String, String> attributes = new HashMap<>();
         String content = "config_xml";

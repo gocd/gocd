@@ -39,7 +39,6 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
@@ -273,7 +272,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnvariablesForAPipeline() {
+    public void shouldReturnVariablesForAPipeline() {
         EnvironmentConfig env = cruiseConfig.addEnvironment("environment");
         env.addEnvironmentVariable("foo", "env-fooValue");
         env.addEnvironmentVariable("bar", "env-barValue");
@@ -291,7 +290,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnvariablesForAPipelineNotInAnEnvironment() {
+    public void shouldReturnVariablesForAPipelineNotInAnEnvironment() {
         PipelineConfig pipeline = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE));
         pipeline.addEnvironmentVariable("foo", "pipeline-fooValue");
         pipeline.addEnvironmentVariable("blah", "pipeline-blahValue");
@@ -613,7 +612,6 @@ public class GoConfigServiceTest {
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
 
         GoConfigService.XmlPartialSaver<?>partialSaver = goConfigService.groupSaver(groupName);
         String renamedGroupName = "renamed_group_name";
@@ -643,7 +641,6 @@ public class GoConfigServiceTest {
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group_name", "pipeline1", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn("md5");
         when(goConfigDao.updateFullConfig(commandArgumentCaptor.capture())).thenReturn(null);
 
         GoConfigService.XmlPartialSaver<?>partialSaver = goConfigService.groupSaver("group_name");
@@ -668,7 +665,6 @@ public class GoConfigServiceTest {
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
         when(goConfigDao.updateFullConfig(commandArgumentCaptor.capture())).thenReturn(null);
 
         GoConfigService.XmlPartialSaver<?> partialSaver = goConfigService.groupSaver(groupName);
@@ -690,12 +686,10 @@ public class GoConfigServiceTest {
     @Test
     public void shouldReturnInvalidWhenPipelineGroupPartialIsInvalid() {
         String groupName = "group_name";
-        String md5 = "md5";
         cruiseConfig = new BasicCruiseConfig();
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
 
         String pipelineGroupContent = groupXmlWithInvalidElement(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
@@ -707,12 +701,10 @@ public class GoConfigServiceTest {
     @Test
     public void shouldReturnInvalidWhenPipelineGroupPartialHasInvalidAttributeValue() {
         String groupName = "group_name";
-        String md5 = "md5";
         cruiseConfig = new BasicCruiseConfig();
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
 
         String pipelineGroupContent = groupXmlWithInvalidAttributeValue(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
@@ -729,7 +721,6 @@ public class GoConfigServiceTest {
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
 
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml("<foobar>", "md5");
         assertThat(validity.isValid()).isEqualTo((false));
@@ -761,15 +752,6 @@ public class GoConfigServiceTest {
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.httpCode()).isEqualTo(HTTP_INTERNAL_ERROR);
         assertThat(result.message()).isEqualTo("Could not retrieve config changes for this revision.");
-    }
-
-    @Test
-    public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingServerConfig() {
-        ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
-        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.any())).thenReturn(expectedSaveState);
-        ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()), "md5", null, null, null, null, "http://site",
-                "https://site");
-        assertThat(configSaveState).isEqualTo(expectedSaveState);
     }
 
     @Test

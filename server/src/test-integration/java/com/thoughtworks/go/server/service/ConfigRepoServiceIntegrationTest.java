@@ -17,13 +17,10 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
-import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -37,8 +34,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,8 +59,6 @@ public class ConfigRepoServiceIntegrationTest {
     @Autowired
     private EntityHashingService entityHashingService;
     @Autowired
-    private SecurityService securityService;
-    @Autowired
     private MaterialUpdateService materialUpdateService;
     @Autowired
     private MaterialConfigConverter materialConfigConverter;
@@ -73,25 +66,24 @@ public class ConfigRepoServiceIntegrationTest {
     @Mock
     private ConfigRepoExtension configRepoExtension;
 
-    private String repoId, pluginId;
+    private String repoId;
     private Username user;
     private ConfigRepoConfig configRepo;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp() throws Exception {
-        user = new Username(new CaseInsensitiveString("current"));
-        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(List.of(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
-        goConfigService.updateConfig(command);
-
         this.repoId = "repo-1";
-        this.pluginId = "json-config-repo-plugin";
+        String pluginId = "json-config-repo-plugin";
         MaterialConfig repoMaterial = git("https://foo.git", "master");
         this.configRepo = ConfigRepoConfig.createConfigRepoConfig(repoMaterial, pluginId, repoId);
 
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
+
+        user = new Username(new CaseInsensitiveString("current"));
+        configHelper.addAdmins(user.getUsername().toString());
 
         goConfigService.forceNotifyListeners();
     }

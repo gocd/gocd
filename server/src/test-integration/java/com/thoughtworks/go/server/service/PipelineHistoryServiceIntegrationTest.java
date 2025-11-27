@@ -215,7 +215,8 @@ public class PipelineHistoryServiceIntegrationTest {
 
     @Test
     public void shouldNotLoadDuplicatePlaceholderStages() {
-        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("pipeline", "stage", "job"), "pipeline-group");
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "job");
+        configHelper.addPipeline("pipeline-group", pipelineConfig);
 
         PipelineInstanceModels history = pipelineHistoryService.load("pipeline", Pagination.pageStartingAt(0, 1, 10), "anyone", true);
         PipelineInstanceModel instanceModel = history.first();
@@ -455,7 +456,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Test
     public void shouldLoadPipelineInstanceForGivenNameAndCounter() {
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "stage", "job");
-        goConfigService.addPipeline(mingleConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", mingleConfig);
         Pipeline instance1 = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
         dbHelper.cancelStage(instance1.getStages().get(0));
         Pipeline instance2 = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
@@ -470,7 +471,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Test
     public void shouldNotThrowUpWhenPipelineCounterIs0AndShouldReturnAnEmptyPIM() {
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "stage", "job");
-        goConfigService.addPipeline(mingleConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", mingleConfig);
         configHelper.addAuthorizedUserForPipelineGroup("user1", "pipeline-group");
 
         PipelineInstanceModel pim = pipelineHistoryService.findPipelineInstance("mingle", 0, new Username(new CaseInsensitiveString("user1")), new HttpOperationResult());
@@ -504,7 +505,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldReturnListOfPipelineInstancesByPageNumber() {
         final int limit = 1;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("mingle", "stage", "job");
-        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", pipelineConfig);
         Pipeline instance1 = dbHelper.schedulePipeline(pipelineConfig, new TimeProvider());
         dbHelper.cancelStage(instance1.getStages().get(0));
         Pipeline instance2 = dbHelper.schedulePipeline(pipelineConfig, new TimeProvider());
@@ -523,7 +524,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void findMatchingPipelineInstances_shouldMatchLabels() {
         final int limit = 10;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
-        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", pipelineConfig);
         configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-blah-1");
@@ -553,7 +554,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void findMatchingPipelineInstances_shouldEscapeUnderscoreAndPercentageSymbols() {
         final int limit = 10;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
-        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", pipelineConfig);
         configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-blah-1");
@@ -583,7 +584,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void findMatchingPipelineInstances_shouldTrimThePatternBeforeSearch() {
         final int limit = 10;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
-        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", pipelineConfig);
         configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-blah-1");
@@ -627,7 +628,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void findMatchingPipelineInstances_shouldMatchModificationsFields() {
         final int limit = 3;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
-        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", pipelineConfig);
         configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-blah-1");
@@ -658,7 +659,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void findMatchingPipelineInstances_shouldShowExactMatchesOnLabelBeforePartialMatches() {
         final int limit = 3;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
-        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", pipelineConfig);
         configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-ABC");
@@ -681,7 +682,7 @@ public class PipelineHistoryServiceIntegrationTest {
         final int limit = 2;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipeline_name");
         pipelineConfig.add(StageConfigMother.custom("stage-1", "job-1", "job-2", "job-3", "job-4"));
-        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", pipelineConfig);
         configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}");
@@ -703,7 +704,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void findMatchingPipelineInstances_shouldMatchBuildCauseMessage() {
         final int limit = 3;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
-        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", pipelineConfig);
         configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-ABC");
@@ -726,8 +727,8 @@ public class PipelineHistoryServiceIntegrationTest {
         downstreamConfig.materialConfigs().clear();
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"));
         downstreamConfig.addMaterialConfig(dependencyMaterial.config());
-        goConfigService.addPipeline(upstreamConfig, "pipeline-group");
-        goConfigService.addPipeline(downstreamConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", upstreamConfig);
+        configHelper.addPipeline("pipeline-group", downstreamConfig);
         configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         Pipeline upstreamPipeline = dbHelper.schedulePipeline(upstreamConfig, new TimeProvider());
@@ -745,7 +746,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Test
     public void findMatchingPipelineInstances_shouldReturnUnauthorizedWhenUserDoesNotHavePermission() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
-        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addPipeline("pipeline-group", pipelineConfig);
         configHelper.addAuthorizedUserForPipelineGroup("valid-user");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();

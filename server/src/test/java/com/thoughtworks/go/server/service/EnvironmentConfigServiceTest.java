@@ -428,7 +428,6 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         when(securityService.isUserAdmin(user)).thenReturn(true);
-        when(mockGoConfigService.updateConfig(any(UpdateConfigCommand.class))).thenReturn(ConfigSaveState.MERGED);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = "md5";
@@ -445,7 +444,6 @@ class EnvironmentConfigServiceTest {
         Username user = new Username(new CaseInsensitiveString("user"));
 
         when(securityService.isUserAdmin(user)).thenReturn(true);
-        when(mockGoConfigService.updateConfig(any(UpdateConfigCommand.class))).thenReturn(ConfigSaveState.UPDATED);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = "md5";
         environmentConfigService.updateEnvironment(environmentConfig.name().toString(), environmentConfig, user, md5, result);
@@ -647,7 +645,7 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.patchEnvironment(environmentConfig, List.of("pipeline1"), emptyList(), emptyList(), emptyList(), user, result);
 
         assertFalse(result.isSuccessful());
-        assertEquals("Failed to update environment 'env_name'. ", result.message());
+        assertEquals("Failed to update environment 'env_name'.", result.message());
     }
 
     @Test
@@ -678,7 +676,7 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.deleteEnvironment(environmentConfig, user, result);
 
         assertFalse(result.isSuccessful());
-        assertEquals("Failed to delete environment 'env_name'. ", result.message());
+        assertEquals("Failed to delete environment 'env_name'.", result.message());
     }
 
     @Nested

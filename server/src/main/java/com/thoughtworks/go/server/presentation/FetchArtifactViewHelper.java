@@ -24,7 +24,7 @@ import java.util.*;
 
 
 public class FetchArtifactViewHelper {
-    private SystemEnvironment systemEnvironment;
+    private final SystemEnvironment systemEnvironment;
     private final CruiseConfig cruiseConfig;
     private final CaseInsensitiveString pipelineName;
     private final CaseInsensitiveString stageName;

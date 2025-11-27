@@ -196,7 +196,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
     }
 
     private long rerunJob(String jobName, PipelineConfig pipelineConfig, Pipeline previousSuccessfulBuildWithOlderPackageConfig) {
-        Stage stage = instanceFactory.createStageForRerunOfJobs(previousSuccessfulBuildWithOlderPackageConfig.getFirstStage(), List.of(jobName), new DefaultSchedulingContext(), pipelineConfig.getFirstStageConfig(), new TimeProvider(), configHelper.getGoConfigDao().md5OfConfigFile());
+        Stage stage = instanceFactory.createStageForRerunOfJobs(previousSuccessfulBuildWithOlderPackageConfig.getFirstStage(), List.of(jobName), new DefaultSchedulingContext(), pipelineConfig.getFirstStageConfig(), new TimeProvider(), configHelper.currentConfig().getMd5());
         stage = stageService.save(previousSuccessfulBuildWithOlderPackageConfig, stage);
         return stage.getFirstJob().getId();
     }

@@ -24,14 +24,12 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
@@ -47,7 +45,6 @@ public class PipelineConfigServiceTest {
     private GoConfigService goConfigService;
     private SecurityService securityService;
     private PluggableTaskService pluggableTaskService;
-    private ExternalArtifactsService externalArtifactsService;
 
     @BeforeEach
     public void setUp() {
@@ -62,24 +59,12 @@ public class PipelineConfigServiceTest {
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
         pluggableTaskService = mock(PluggableTaskService.class);
-        externalArtifactsService = mock(ExternalArtifactsService.class);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         when(goConfigService.getMergedConfigForEditing()).thenReturn(cruiseConfig);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(cruiseConfig.getAllPipelineConfigs());
-        pipelineConfigService = new PipelineConfigService(goConfigService, securityService, pluggableTaskService, null, externalArtifactsService);
-    }
-
-    @Test
-    public void shouldBeAbleToGetTheCanDeleteStatusOfAllPipelines() {
-        Map<CaseInsensitiveString, CanDeleteResult> pipelineToCanDeleteIt = pipelineConfigService.canDeletePipelines();
-
-        assertThat(pipelineToCanDeleteIt.size()).isEqualTo(4);
-        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("down"))).isEqualTo(new CanDeleteResult(true, "Delete this pipeline."));
-        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("in_env"))).isEqualTo(new CanDeleteResult(false, "Cannot delete pipeline 'in_env' as it is present in environment 'foo'."));
-        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("pipeline"))).isEqualTo(new CanDeleteResult(false, "Cannot delete pipeline 'pipeline' as pipeline 'down' depends on it."));
-        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("remote"))).isEqualTo(new CanDeleteResult(false, "Cannot delete pipeline 'remote' defined in configuration repository 'url at revision 1234'."));
+        pipelineConfigService = new PipelineConfigService(goConfigService, securityService, pluggableTaskService, null, mock(ExternalArtifactsService.class));
     }
 
     @Test

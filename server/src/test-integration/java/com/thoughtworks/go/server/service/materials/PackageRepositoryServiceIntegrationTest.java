@@ -16,14 +16,12 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -38,8 +36,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.List;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,8 +84,7 @@ public class PackageRepositoryServiceIntegrationTest {
         goConfigService.forceNotifyListeners();
         service.setPluginManager(pluginManager);
         username = new Username("CurrentUser");
-        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(List.of(username.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
-        goConfigService.updateConfig(command);
+        configHelper.addAdmins(username.getUsername().toString());
     }
 
     @AfterEach

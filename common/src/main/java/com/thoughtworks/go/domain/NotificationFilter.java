@@ -35,6 +35,9 @@ public class NotificationFilter extends PersistentObject implements Validatable 
 
     private final transient ConfigErrors errors = new ConfigErrors();
 
+    @SuppressWarnings("unused") // for Hibernate
+    private NotificationFilter() {}
+
     public NotificationFilter(String pipelineName, String stageName, StageEvent event, boolean myCheckin) {
         this.pipelineName = pipelineName;
         this.stageName = stageName;

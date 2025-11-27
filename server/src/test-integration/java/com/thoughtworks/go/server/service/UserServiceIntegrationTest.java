@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserSqlMapDao;
@@ -37,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +60,7 @@ public class UserServiceIntegrationTest {
     @Autowired
     private GoCache goCache;
 
-    private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper(ConfigFileFixture.ONE_PIPELINE);
+    private static final GoConfigFileHelper configFileHelper = new GoConfigFileHelper(ConfigFileFixture.ONE_PIPELINE);
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -411,23 +409,10 @@ public class UserServiceIntegrationTest {
         assertThat(user.getMatcher()).isEqualTo("foo,bar");
     }
 
-    private void assertRoleSelection(TriStateSelection selection, String roleName, TriStateSelection.Action action) {
-        assertThat(selection.getValue()).isEqualTo(roleName);
-        assertThat(selection.getAction()).isEqualTo(action);
-    }
-
     private void createDisabledUser(String username) {
         User user = new User(username);
         user.disable();
         addUser(user);
-    }
-
-    private List<User> users(String... usernames) {
-        List<User> users = new ArrayList<>();
-        for (String username : usernames) {
-            users.add(new User(username, username, "foo@cruise.com"));
-        }
-        return users;
     }
 
     private void givingJezViewPermissionToMingle() {

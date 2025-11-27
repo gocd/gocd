@@ -39,46 +39,6 @@ public class ResourceConfigsTest {
     }
 
     @Test
-    public void shouldCompareBasedOnSimilarResourceList() {
-        ResourceConfigs resourceConfigsA = new ResourceConfigs();
-        ResourceConfigs resourceConfigsB = new ResourceConfigs();
-        resourceConfigsA.add(new ResourceConfig("xyz"));
-        resourceConfigsA.add(new ResourceConfig("aaa"));
-        resourceConfigsB.add(new ResourceConfig("xyz"));
-        resourceConfigsB.add(new ResourceConfig("aaa"));
-        assertThat(resourceConfigsA.compareTo(resourceConfigsB)).isEqualTo(0);
-    }
-
-    @Test
-    public void shouldCompareBasedOnResourceListItHas() {
-        ResourceConfigs resourceConfigsA = new ResourceConfigs();
-        ResourceConfigs resourceConfigsB = new ResourceConfigs();
-        resourceConfigsA.add(new ResourceConfig("xyz"));
-        resourceConfigsA.add(new ResourceConfig("aaa"));
-        resourceConfigsB.add(new ResourceConfig("xyz"));
-        resourceConfigsB.add(new ResourceConfig("bbb"));
-        assertThat(resourceConfigsA.compareTo(resourceConfigsB)).isLessThan(0);
-        assertThat(resourceConfigsB.compareTo(resourceConfigsA)).isGreaterThan(0);
-    }
-
-
-    @Test
-    public void shouldUnderstandLesserLengthResourcesAsLesser() {
-        ResourceConfigs resourceConfigsA = new ResourceConfigs();
-        ResourceConfigs resourceConfigsB = new ResourceConfigs();
-        resourceConfigsA.add(new ResourceConfig("xyz"));
-        resourceConfigsB.add(new ResourceConfig("xyz"));
-        resourceConfigsB.add(new ResourceConfig("zzz"));
-        assertThat(resourceConfigsA.compareTo(resourceConfigsB)).isLessThan(0);
-        assertThat(resourceConfigsB.compareTo(resourceConfigsA)).isGreaterThan(0);
-    }
-
-    @Test
-    public void shouldNotBombIfNoResourcesPresent() {
-        assertThat(new ResourceConfigs(new ResourceConfig("xyz")).compareTo(new ResourceConfigs())).isGreaterThan(0);
-    }
-
-    @Test
     public void shouldIgnoreCaseNamesOfResources() {
         ResourceConfigs resourceConfigs = new ResourceConfigs();
         resourceConfigs.add(new ResourceConfig("Eoo"));
@@ -148,15 +108,6 @@ public class ResourceConfigsTest {
     }
 
     @Test
-    public void shouldReturnListOfResoucesAsCommaSeperatedList() {
-        ResourceConfigs actual = new ResourceConfigs();
-        actual.add(new ResourceConfig("  a  "));
-        actual.add(new ResourceConfig("   b"));
-        actual.add(new ResourceConfig("c"));
-        assertThat(actual.exportToCsv()).isEqualTo("a, b, c, ");
-    }
-
-    @Test
     public void shouldClearAndSetPrimitiveAttributes() {
         ResourceConfigs resourceConfigs = new ResourceConfigs();
         String csv = "a, b,   c,d   ";
@@ -164,7 +115,6 @@ public class ResourceConfigsTest {
         assertThat(resourceConfigs.size()).isEqualTo(1);
         resourceConfigs.importFromCsv(csv);
         assertThat(resourceConfigs.size()).isEqualTo(4);
-        assertThat(resourceConfigs.exportToCsv()).isEqualTo("a, b, c, d, ");
     }
 
     @Test

@@ -489,7 +489,6 @@ public class ScheduleServiceIntegrationTest {
         elasticAgentPluginService.setCreateAgentQueue(createAgentQueueHandler);
 
         //add a cluster profile and elastic agent profile to the config.
-        GoConfigDao goConfigDao = configHelper.getGoConfigDao();
         goConfigDao.loadForEditing().getElasticConfig().getClusterProfiles().add(clusterProfile);
         goConfigDao.loadForEditing().getElasticConfig().getProfiles().add(elasticAgentProfile);
 

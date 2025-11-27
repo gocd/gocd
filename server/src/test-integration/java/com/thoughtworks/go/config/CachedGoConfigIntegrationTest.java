@@ -254,19 +254,6 @@ public class CachedGoConfigIntegrationTest {
     }
 
     @Test
-    public void shouldFailWhenTryingToAddPipelineDefinedRemotely() {
-        assertThat(configWatchList.getCurrentConfigRepos().size()).isEqualTo(1);
-        repoConfigDataSource.onCheckoutComplete(configRepo.getRepo(), externalConfigRepo, latestModification);
-        assertThat(cachedGoConfig.loadMergedForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1"))).isTrue();
-
-        PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
-            "www.spring.com");
-        assertThatThrownBy(() -> goConfigDao.addPipeline(dupPipelineConfig, PipelineConfigs.DEFAULT_GROUP))
-            .isInstanceOf(RuntimeException.class)
-            .hasMessageContaining("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):");
-    }
-
-    @Test
     public void shouldNotifyListenersWhenConfigChanged() {
         ConfigChangeListenerStub listener = new ConfigChangeListenerStub();
         cachedGoConfig.registerListener(listener);
@@ -898,7 +885,7 @@ public class CachedGoConfigIntegrationTest {
 
     private void setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml(String upstream, String remoteDownstreamPipelineName) {
         PipelineConfig upstreamPipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(upstream, git("FOO"));
-        goConfigService.addPipeline(upstreamPipelineConfig, "default");
+        configHelper.addPipeline("default", upstreamPipelineConfig);
         PartialConfig partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remoteDownstreamPipelineName, upstreamPipelineConfig, new RepoConfigOrigin(configRepo, "r1"));
         partialConfigService.onSuccessPartialConfig(configRepo, partialConfig);
     }
@@ -912,7 +899,7 @@ public class CachedGoConfigIntegrationTest {
         updatedConfig.server().setJobTimeout("10");
         String updatedXml = goFileConfigDataSource.configAsXml(updatedConfig, false);
         Files.writeString(Path.of(goConfigDao.fileLocation()), updatedXml, UTF_8);
-        GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(updatedXml, goConfigDao.md5OfConfigFile());
+        GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(updatedXml, configHelper.currentConfig().getMd5());
         assertThat(validity.isValid()).isTrue();
         assertThat(cachedGoPartials.lastValidPartials().isEmpty()).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().contains(invalidPartial)).isTrue();
@@ -980,7 +967,7 @@ public class CachedGoConfigIntegrationTest {
         String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
         BasicCruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
 
-        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, configHelper.currentConfig().getMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
         String configXmlFromConfigFolder = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
@@ -997,7 +984,7 @@ public class CachedGoConfigIntegrationTest {
     public void writeFullConfigWithLockShouldUpdateReloadStrategyToEnsureReloadIsSkippedInAbsenceOfConfigFileChanges() throws GitAPIException {
         BasicCruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
 
-        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, configHelper.currentConfig().getMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
         assertThat(state).isEqualTo(ConfigSaveState.UPDATED);
@@ -1020,7 +1007,7 @@ public class CachedGoConfigIntegrationTest {
 
         config.addEnvironment(UUID.randomUUID().toString());
 
-        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, configHelper.currentConfig().getMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
         String configXmlFromConfigFolder = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
@@ -1048,7 +1035,7 @@ public class CachedGoConfigIntegrationTest {
 
         config.addEnvironment(UUID.randomUUID().toString());
 
-        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, configHelper.currentConfig().getMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
         String configXmlFromConfigFolder = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
@@ -1078,7 +1065,7 @@ public class CachedGoConfigIntegrationTest {
 
         config.addEnvironment(UUID.randomUUID().toString());
 
-        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, configHelper.currentConfig().getMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
         String configXmlFromConfigFolder = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
@@ -1103,7 +1090,7 @@ public class CachedGoConfigIntegrationTest {
         editedConfig.getGroups().remove(editedConfig.findGroup("default"));
 
         try {
-            cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(editedConfig, goConfigService.configFileMd5()));
+            cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(editedConfig, configHelper.currentConfig().getMd5()));
             fail("Expected the test to fail");
         } catch (Exception e) {
             String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
@@ -1132,7 +1119,7 @@ public class CachedGoConfigIntegrationTest {
         CruiseConfig editedConfig = GoConfigMother.deepClone(originalConfig);
 
         editedConfig.addPipeline("default", upstream);
-        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(editedConfig, goConfigService.configFileMd5()));
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(editedConfig, configHelper.currentConfig().getMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
         String configXmlFromConfigFolder = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
@@ -1162,12 +1149,12 @@ public class CachedGoConfigIntegrationTest {
 
         cachedGoConfig.forceReload();
 
-        Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = goConfigDao.loadConfigHolder()
+        Configuration ancestorPluggablePublishArtifactConfigAfterEncryption = goConfigDao.loadConfigHolder()
             .configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"))
             .getExternalArtifactConfigs().get(0).getConfiguration();
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("IMAGE_SECRET");
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).isEqualTo(new GoCipher().encrypt("IMAGE_SECRET"));
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue()).isNull();
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("IMAGE_SECRET");
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).isEqualTo(new GoCipher().encrypt("IMAGE_SECRET"));
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getConfigValue()).isNull();
     }
 
     @Test

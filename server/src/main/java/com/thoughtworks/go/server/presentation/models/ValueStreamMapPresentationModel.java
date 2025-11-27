@@ -22,7 +22,7 @@ import org.jetbrains.annotations.TestOnly;
 import java.util.List;
 
 public class ValueStreamMapPresentationModel {
-    private Node currentPipeline;
+    private final Node currentPipeline;
 	private final Node currentMaterial;
     private List<List<Node>> nodeLevels;
 

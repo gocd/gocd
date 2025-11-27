@@ -439,7 +439,7 @@ public class GoConfigMigratorIntegrationTest {
     public void shouldSetServerId_toARandomUUID_ifServerTagDoesntExist() {
         GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("<cruise schemaVersion='" + 53 + "'>\n"
-                + "</cruise>", goConfigService.configFileMd5());
+                + "</cruise>", goConfigService.getCurrentConfig().getMd5());
         assertThat(configValidity.isValid()).as("Has no error").isTrue();
 
         CruiseConfig config = goConfigService.getCurrentConfig();
@@ -455,7 +455,7 @@ public class GoConfigMigratorIntegrationTest {
                 <cruise schemaVersion='55'>
                 <server artifactsdir="logs" siteUrl="http://go-server-site-url:8153" secureSiteUrl="https://go-server-site-url" jobTimeout="60">
                   </server>
-                </cruise>""", goConfigService.configFileMd5());
+                </cruise>""", goConfigService.getCurrentConfig().getMd5());
         assertThat(configValidity.isValid()).as("Has no error").isTrue();
 
         CruiseConfig config = goConfigService.getCurrentConfig();

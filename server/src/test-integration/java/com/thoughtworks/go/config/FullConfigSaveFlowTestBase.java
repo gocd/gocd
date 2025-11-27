@@ -84,26 +84,26 @@ public abstract class FullConfigSaveFlowTestBase {
     @Test
     public void shouldEncryptPluginPropertiesOfPublishTask() throws Exception {
         CruiseConfig cruiseConfig = loader.deserializeConfig(xml);
-        Configuration ancestorPluggablePublishAftifactConfigBeforeEncryption = cruiseConfig
+        Configuration ancestorPluggablePublishArtifactConfigBeforeEncryption = cruiseConfig
                 .pipelineConfigByName(new CaseInsensitiveString("ancestor"))
                 .getExternalArtifactConfigs().get(0).getConfiguration();
-        assertThat(ancestorPluggablePublishAftifactConfigBeforeEncryption.getProperty("Image").getValue()).isEqualTo("IMAGE_SECRET");
-        assertThat(ancestorPluggablePublishAftifactConfigBeforeEncryption.getProperty("Image").getEncryptedValue()).isNull();
-        assertThat(ancestorPluggablePublishAftifactConfigBeforeEncryption.getProperty("Image").getConfigValue()).isEqualTo("IMAGE_SECRET");
+        assertThat(ancestorPluggablePublishArtifactConfigBeforeEncryption.getProperty("Image").getValue()).isEqualTo("IMAGE_SECRET");
+        assertThat(ancestorPluggablePublishArtifactConfigBeforeEncryption.getProperty("Image").getEncryptedValue()).isNull();
+        assertThat(ancestorPluggablePublishArtifactConfigBeforeEncryption.getProperty("Image").getConfigValue()).isEqualTo("IMAGE_SECRET");
 
-        GoConfigHolder configHolder = getImplementer().execute(new FullConfigUpdateCommand(cruiseConfig, goConfigService.configFileMd5()), new ArrayList<>(), "Upgrade");
-        Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = configHolder.configForEdit
+        GoConfigHolder configHolder = getImplementer().execute(new FullConfigUpdateCommand(cruiseConfig, configHelper.currentConfig().getMd5()), new ArrayList<>(), "Upgrade");
+        Configuration ancestorPluggablePublishArtifactConfigAfterEncryption = configHolder.configForEdit
                 .pipelineConfigByName(new CaseInsensitiveString("ancestor"))
                 .getExternalArtifactConfigs().get(0).getConfiguration();
 
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("IMAGE_SECRET");
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).startsWith("AES:");
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue()).isNull();
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("IMAGE_SECRET");
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).startsWith("AES:");
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getConfigValue()).isNull();
 
         //verify xml on disk contains encrypted Image plugin property
-        assertThat(configHelper.getCurrentXml()).contains(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue());
+        assertThat(configHelper.getCurrentXml()).contains(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getEncryptedValue());
         //verify xml from GoConfigHolder contains encrypted Image plugin property
-        assertThat(getImplementer().toXmlString(configHolder.configForEdit)).contains(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue());
+        assertThat(getImplementer().toXmlString(configHolder.configForEdit)).contains(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getEncryptedValue());
     }
 
     @Test
@@ -118,7 +118,7 @@ public abstract class FullConfigSaveFlowTestBase {
         assertThat(childFetchConfigBeforeEncryption.getProperty("FetchProperty").getEncryptedValue()).isNull();
         assertThat(childFetchConfigBeforeEncryption.getProperty("FetchProperty").getConfigValue()).isEqualTo("SECRET");
 
-        GoConfigHolder configHolder = getImplementer().execute(new FullConfigUpdateCommand(cruiseConfig, goConfigService.configFileMd5()), new ArrayList<>(), "Upgrade");
+        GoConfigHolder configHolder = getImplementer().execute(new FullConfigUpdateCommand(cruiseConfig, configHelper.currentConfig().getMd5()), new ArrayList<>(), "Upgrade");
         Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) configHolder.configForEdit
                 .pipelineConfigByName(new CaseInsensitiveString("child"))
                 .get(0).getJobs().get(0).tasks().get(0)).getConfiguration();

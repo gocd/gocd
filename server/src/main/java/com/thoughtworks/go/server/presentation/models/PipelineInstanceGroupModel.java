@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.presentation.models;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
+import com.thoughtworks.go.presentation.pipelinehistory.StageConfigurationModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 
 import java.util.Collection;

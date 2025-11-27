@@ -81,7 +81,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(new ConfigCache(), registry).write(goConfigDao.loadForEditing(), os, true);
         assertValidContentAndStatus(HTTP_OK, "text/xml", os.toString());
-        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5)).isEqualTo(goConfigDao.md5OfConfigFile());
+        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5)).isEqualTo(configHelper.currentConfig().getMd5());
     }
 
     @Test
@@ -92,7 +92,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(goConfigDao.loadForEditing(), os, true);
         assertValidContentAndStatus(HTTP_CONFLICT, "text/plain; charset=utf-8", CONFIG_CHANGED_PLEASE_REFRESH);
-        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5)).isEqualTo(goConfigDao.md5OfConfigFile());
+        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5)).isEqualTo(configHelper.currentConfig().getMd5());
     }
 
     private void assertValidContentAndStatus(int status, String contentType, String content) throws Exception {

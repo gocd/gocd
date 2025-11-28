@@ -392,7 +392,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     private List<CaseInsensitiveString> getPipelineNamesInConfig() {
-        return configFileDao.load().getAllPipelineNames();
+        return configFileDao.currentConfig().getAllPipelineNames();
     }
 
     private void waitForLoaderThreadsToJoin(Collection<Thread> loaderThreads) {

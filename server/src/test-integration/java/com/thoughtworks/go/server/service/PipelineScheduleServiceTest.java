@@ -23,10 +23,7 @@ import com.thoughtworks.go.domain.materials.TestingMaterial;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -51,9 +48,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.helper.EnvironmentVariablesConfigMother.env;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
-import static com.thoughtworks.go.util.GoConfigFileHelper.env;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -86,7 +83,7 @@ public class PipelineScheduleServiceTest {
     @Autowired private InstanceFactory instanceFactory;
     @Autowired private AgentService agentService;
 
-    private PipelineWithTwoStages pipelineWithTwoStages;
+    private PipelineWithTwoStages pipelineFixture;
     private PipelineConfig mingleConfig;
     private PipelineConfig evolveConfig;
     private final String md5 = "md5-test";
@@ -106,7 +103,6 @@ public class PipelineScheduleServiceTest {
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
         mingleConfig = configHelper.addPipeline("mingle", STAGE_NAME, repository, "unit", "functional");
 
-
         goConfig = configHelper.addPipeline("go", STAGE_NAME, repository, "unit");
         StageConfig ftStageConfig = StageConfigMother.custom("ft", "twist");
         ftStageConfig.jobConfigByConfigName(new CaseInsensitiveString("twist")).addVariable("JOB_LVL", "job value");
@@ -124,8 +120,8 @@ public class PipelineScheduleServiceTest {
 
     @AfterEach
     public void teardown() throws Exception {
-        if (pipelineWithTwoStages != null) {
-            pipelineWithTwoStages.onTearDown();
+        if (pipelineFixture != null) {
+            pipelineFixture.onTearDown();
         }
         dbHelper.onTearDown();
         pipelineScheduleQueue.clear();
@@ -264,19 +260,19 @@ public class PipelineScheduleServiceTest {
 
     @Test
     public void shouldForceFirstStagePlan(@TempDir Path tempDir) throws Exception {
-        pipelineWithTwoStages = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        pipelineWithTwoStages.usingDbHelper(dbHelper).usingConfigHelper(configHelper).onSetUp();
-        pipelineWithTwoStages.createPipelineWithFirstStagePassedAndSecondStageRunning();
-        Pipeline pipeline = manualSchedule(pipelineWithTwoStages.pipelineName);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingDbHelper(dbHelper).usingConfigHelper(configHelper).onSetUp();
+        pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
+        Pipeline pipeline = manualSchedule(pipelineFixture.pipelineName);
         assertThat(pipeline.getFirstStage().stageState()).isEqualTo(StageState.Building);
     }
 
     @Test
     public void shouldForceFirstStagePlanWhenOtherStageIsRunning(@TempDir Path tempDir) throws Exception {
-        pipelineWithTwoStages = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        pipelineWithTwoStages.usingDbHelper(dbHelper).usingConfigHelper(configHelper).onSetUp();
-        pipelineWithTwoStages.createPipelineWithFirstStagePassedAndSecondStageRunning();
-        Pipeline pipeline = manualSchedule(pipelineWithTwoStages.pipelineName);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingDbHelper(dbHelper).usingConfigHelper(configHelper).onSetUp();
+        pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
+        Pipeline pipeline = manualSchedule(pipelineFixture.pipelineName);
         assertThat(pipeline.getFirstStage().isActive()).isEqualTo(true);
     }
 

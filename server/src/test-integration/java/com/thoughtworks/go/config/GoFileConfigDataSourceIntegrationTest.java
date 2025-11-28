@@ -226,7 +226,7 @@ public class GoFileConfigDataSourceIntegrationTest {
     public void shouldUse_UserFromSession_asConfigModifyingUserWhenNoneGiven() throws GitAPIException {
         loginAs("loser_boozer");
         updateMailHost();
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
         GoConfigRevision revision = configRepository.getRevision(cruiseConfig.getMd5());
         assertThat(revision.getUsername()).isEqualTo("loser_boozer");
     }
@@ -242,9 +242,7 @@ public class GoFileConfigDataSourceIntegrationTest {
 
     @Test
     public void shouldVersionTheCruiseConfigXmlWhenSaved() throws Exception {
-        CachedGoConfig cachedGoConfig = configHelper.getCachedGoConfig();
-        CruiseConfig configForEdit = cachedGoConfig.loadForEditing();
-        GoConfigHolder configHolder = new GoConfigHolder(cachedGoConfig.currentConfig(), configForEdit);
+        GoConfigHolder configHolder = new GoConfigHolder(goConfigDao.currentConfig(), goConfigDao.loadForEditing());
 
         GoConfigHolder afterFirstSave = dataSource.writeWithLock(new UserAwarePipelineAddingCommand("foo-pipeline", "loser"), configHolder).getConfigHolder();
 

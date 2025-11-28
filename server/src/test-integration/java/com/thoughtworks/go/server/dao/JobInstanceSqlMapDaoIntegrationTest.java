@@ -372,6 +372,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         return instances;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private JobInstance runningJob(final String name) {
         JobInstance jobInstance = JobInstanceMother.buildingInstance("pipeline", "stage", name, "1");
         jobInstanceDao.save(stageId, jobInstance);
@@ -660,6 +661,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         return newest.getId();
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void assertJobInstance(JobPlan actual, long expect, String pipelineName, String stageName) {
         assertThat(actual.getPipelineName()).isEqualTo(pipelineName);
         assertThat(actual.getStageName()).isEqualTo(stageName);
@@ -764,13 +766,12 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     public void shouldNotThrowUpWhenJobAgentMetadataIsNull() {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
-        ElasticProfile elasticProfile = null;
         JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArrayList<>(),
-                instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, null);
+                instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         jobInstanceDao.save(instance.getId(), plan);
 
         JobPlan retrieved = jobInstanceDao.loadPlan(plan.getJobId());
-        assertThat(retrieved.getElasticProfile()).isEqualTo(elasticProfile);
+        assertThat(retrieved.getElasticProfile()).isNull();
     }
 
     @Test
@@ -794,6 +795,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         assertThat(context.getProperty("TRIGGER_VAR")).isEqualTo("trigger val");
     }
 
+    @SuppressWarnings("SameParameterValue")
     private EnvironmentVariables environmentVariables(String name, String value) {
         return new EnvironmentVariables(List.of(new EnvironmentVariable(name, value, false)));
     }
@@ -1023,7 +1025,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldGetJobInstanceBasedOnParametersProvided() {
-        long stageId = createSomeJobs(JOB_NAME, 1); // create 2 instances completed, scheduled
+        createSomeJobs(JOB_NAME, 1); // create 2 instances completed, scheduled
         JobInstance jobInstance = jobInstanceDao.findJobInstance(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 1, 1);
 
         assertThat(jobInstance.isNull()).isFalse();

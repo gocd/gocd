@@ -94,7 +94,7 @@ import static org.junit.jupiter.api.Assertions.*;
 })
 public class BuildCauseProducerServiceIntegrationTest {
 
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String MINGLE_PIPELINE_NAME = "mingle";
     private static final String GO_PIPELINE_NAME = "go";
     private static final String GO_PIPELINE_UPSTREAM = "go-parent";

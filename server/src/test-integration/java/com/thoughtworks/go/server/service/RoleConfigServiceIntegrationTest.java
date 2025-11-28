@@ -46,19 +46,19 @@ public class RoleConfigServiceIntegrationTest {
     @Autowired
     GoConfigDao goConfigDao;
 
-    private GoConfigFileHelper configFileHelper;
+    private GoConfigFileHelper configHelper;
 
     @BeforeEach
     public void setUp() throws Exception {
-        configFileHelper = new GoConfigFileHelper(ConfigFileFixture.CONFIG_WITH_ADMIN_AND_SECURITY_AUTH_CONFIG);
-        configFileHelper.usingCruiseConfigDao(goConfigDao);
-        configFileHelper.onSetUp();
+        configHelper = new GoConfigFileHelper(ConfigFileFixture.CONFIG_WITH_ADMIN_AND_SECURITY_AUTH_CONFIG);
+        configHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
     }
 
     @AfterEach
     public void tearDown() {
-        configFileHelper.onTearDown();
+        configHelper.onTearDown();
     }
 
     @Test

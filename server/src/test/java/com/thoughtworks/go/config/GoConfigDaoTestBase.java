@@ -40,7 +40,6 @@ import static org.mockito.Mockito.*;
 public abstract class GoConfigDaoTestBase {
     protected GoConfigFileHelper configHelper;
     protected GoConfigDao goConfigDao;
-    protected CachedGoConfig cachedGoConfig;
 
     @Test
     public void shouldCreateCruiseConfigFromBasicConfigFile() {
@@ -63,7 +62,7 @@ public abstract class GoConfigDaoTestBase {
     public void shouldThrowExceptionIfFileIsInvalid() {
         try {
             useConfigString("invalid config file");
-            goConfigDao.load();
+            goConfigDao.currentConfig();
             fail("Should have thrown a parse exception");
         } catch (Exception expected) {
             assertThat(expected.getMessage()).contains("Content is not allowed in prolog.");
@@ -82,9 +81,9 @@ public abstract class GoConfigDaoTestBase {
 
     @Test
     public void shouldFailWhenConfigUpdateCannotBeMergedWithLatestRevision() {
-        final String originalMd5 = goConfigDao.load().getMd5();
+        final String originalMd5 = goConfigDao.currentConfig().getMd5();
         goConfigDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "stage1", "build1"));
-        final String md5WhenPipelineIsAdded = goConfigDao.load().getMd5();
+        final String md5WhenPipelineIsAdded = goConfigDao.currentConfig().getMd5();
         goConfigDao.updateConfig(configHelper.changeJobNameCommand(md5WhenPipelineIsAdded, "p1", "stage1", "build1", "new_build"));
 
         try {
@@ -146,7 +145,7 @@ public abstract class GoConfigDaoTestBase {
 
     @Test
     public void shouldNotUpdateIfCannotContinueIfTheCommandIsPreprocessable() {
-        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), false);
+        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(goConfigDao.loadForEditing().getMd5(), false);
         try {
             goConfigDao.updateConfig(command);
             fail("should have failed as check returned false");
@@ -157,7 +156,7 @@ public abstract class GoConfigDaoTestBase {
 
     @Test
     public void shouldPerformUpdateIfCanContinue() {
-        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true);
+        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(goConfigDao.loadForEditing().getMd5(), true);
         goConfigDao.updateConfig(command);
         assertThat(command.wasUpdated).isTrue();
     }
@@ -167,15 +166,15 @@ public abstract class GoConfigDaoTestBase {
         configHelper.addTemplate("my-template", "my-stage");
         configHelper.addPipeline("pipeline", "stage");
         configHelper.addPipelineWithTemplate(PipelineConfigs.DEFAULT_GROUP, "my-pipeline", "my-template");
-        CheckedTestUpdateCommand command = spy(new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true));
+        CheckedTestUpdateCommand command = spy(new CheckedTestUpdateCommand(goConfigDao.loadForEditing().getMd5(), true));
         goConfigDao.updateConfig(command);
-        verify(command).canContinue(cachedGoConfig.currentConfig());
+        verify(command).canContinue(goConfigDao.currentConfig());
     }
 
     @Test
     public void should_NOT_allowUpdateOf_serverId() throws Exception {
         useConfigString(ConfigFileFixture.CRUISE);
-        String oldServerId = goConfigDao.load().server().getServerId();
+        String oldServerId = goConfigDao.currentConfig().server().getServerId();
         Exception ex = null;
         try {
             GoConfigFileHelper.withServerIdImmutability(() -> goConfigDao.updateConfig(cruiseConfig -> {
@@ -187,7 +186,7 @@ public abstract class GoConfigDaoTestBase {
             ex = e;
         }
         assertThat(ex.getMessage()).contains("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified");
-        CruiseConfig config = goConfigDao.load();
+        CruiseConfig config = goConfigDao.currentConfig();
         assertThat(config.server().getServerId()).isEqualTo(oldServerId);
     }
 
@@ -209,7 +208,7 @@ public abstract class GoConfigDaoTestBase {
 
         ConfigSaveState configSaveState = goConfigDao.updateConfig(configHelper.addPipelineCommand(oldMd5,"p2", "stage1", "build1"));
 
-        CruiseConfig updatedConfig = goConfigDao.load();
+        CruiseConfig updatedConfig = goConfigDao.currentConfig();
         assertThat(updatedConfig.hasPipelineNamed(new CaseInsensitiveString("p2"))).isTrue();
         assertThat(updatedConfig.mailHost().getHostName()).isEqualTo("mailhost.local");
         assertThat(configSaveState).isEqualTo(ConfigSaveState.MERGED);

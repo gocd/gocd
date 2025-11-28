@@ -101,7 +101,7 @@ public class AgentServiceIntegrationTest {
     @Autowired
     private DatabaseAccessHelper dbHelper;
 
-    private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String UUID = "uuid";
     private static final String UUID2 = "uuid2";
     private static final String UUID3 = "uuid3";
@@ -110,8 +110,8 @@ public class AgentServiceIntegrationTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
-        CONFIG_HELPER.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.onSetUp();
         dbHelper.onSetUp();
         cachedGoConfig.clearListeners();
         agentDao.clearListeners();
@@ -126,7 +126,7 @@ public class AgentServiceIntegrationTest {
         dbHelper.onTearDown();
         cachedGoConfig.clearListeners();
         agentService.clearAll();
-        CONFIG_HELPER.onTearDown();
+        configHelper.onTearDown();
     }
 
     private AgentService newAgentService(AgentInstances agentInstances) {
@@ -584,8 +584,7 @@ public class AgentServiceIntegrationTest {
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
 
-            String notSpecifying = null;
-            BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(UUID, notSpecifying, notSpecifying, null, UNSET));
+            BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(UUID, null, null, null, UNSET));
             assertThat(e.getMessage()).isEqualTo("Bad Request. No operation is specified in the request to be performed on agent.");
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
@@ -664,7 +663,7 @@ public class AgentServiceIntegrationTest {
         @Test
         void shouldNotSendLostContactEmailWhenAgentStateIsLostContact() {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
-            CONFIG_HELPER.addMailHost(new MailHost("ghost.name", 25, "loser", "boozer", true, false, "go@foo.mail.com", "admin@foo.mail.com"));
+            configHelper.addMailHost(new MailHost("ghost.name", 25, "loser", "boozer", true, false, "go@foo.mail.com", "admin@foo.mail.com"));
 
             Date date = Date.from(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC));
             AgentInstance idleAgentInstance = idle(date, "CCeDev01");
@@ -1256,7 +1255,7 @@ public class AgentServiceIntegrationTest {
     }
 
     private void createEnvironment(String... environmentNames) {
-        CONFIG_HELPER.addEnvironments(environmentNames);
+        configHelper.addEnvironments(environmentNames);
         goConfigService.forceNotifyListeners();
     }
 

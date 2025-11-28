@@ -189,7 +189,7 @@ public class ScheduleServiceIntegrationTest {
         PipelineConfig cruisePlan = configHelper.addPipeline("cruise", "test", repository);
         assertThat(goConfigService.stageConfigNamed("mingle", "dev")).isNotNull();
 
-        String dir = goConfigDao.load().server().artifactsDir();
+        String dir = goConfigDao.currentConfig().server().artifactsDir();
         new File(dir).mkdirs();
         goConfigService.forceNotifyListeners();
 

@@ -169,6 +169,6 @@ public class ValueStreamMapPerformanceTest {
             previouslyCreatedPipeline = d;
             previousRun = currentRun;
         }
-        return goConfigDao.load();
+        return goConfigDao.currentConfig();
     }
 }

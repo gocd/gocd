@@ -68,33 +68,27 @@ public class StageNotificationServiceIntegrationTest {
 
     private PipelineWithTwoStages pipelineFixture;
 
-    private StageNotificationService stageNotificationService;
-
     private StageNotificationListener stageNotificationListener;
-    private InMemoryEmailNotificationTopic inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
-    private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
+    private final InMemoryEmailNotificationTopic inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private StageService stageService;
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
 
         stageService = mock(StageService.class);
-        stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService);
+        StageNotificationService stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService);
         stageNotificationListener = new StageNotificationListener(stageNotificationService, goConfigService, stageResultTopic);
 
-        dbHelper.onSetUp();
-        configFileHelper.onSetUp();
-        GoConfigFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
-        configFileHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
-        configFileHelper.enableSecurity();
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        configHelper.enableSecurity();
     }
 
     @AfterEach
     public void teardown() throws Exception {
-        dbHelper.onTearDown();
         pipelineFixture.onTearDown();
         inMemoryEmailNotificationTopic.reset();
     }

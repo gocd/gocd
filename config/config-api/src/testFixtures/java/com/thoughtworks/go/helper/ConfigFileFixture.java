@@ -1219,17 +1219,6 @@ public final class ConfigFileFixture {
                 </server></cruise>""";
     }
 
-    public static final String DEFAULT_XML_WITH_UNLIMITED_AGENTS =
-            ("""
-                    <?xml version="1.0" encoding="utf-8"?>
-                    <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-                    <server>
-                         <artifacts>
-                               <artifactsDir>./../server.logs</artifactsDir>
-                         </artifacts>
-                    </server>
-                    </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
-
     public static final String PIPELINES_WITH_DUPLICATE_STAGE_NAME
             = ("""
             <cruise schemaVersion='%d'>

@@ -39,7 +39,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -99,35 +98,30 @@ public class JobControllerIntegrationTest {
     @Autowired
     private JobAgentMetadataDao jobAgentMetadataDao;
     @Autowired
-    private SystemEnvironment systemEnvironment;
-    @Autowired
     private UuidGenerator uuidGenerator;
     @Autowired
     private SecurityService securityService;
 
-    private GoConfigFileHelper configHelper;
-    private PipelineWithTwoStages fixture;
+    private PipelineWithTwoStages pipelineFixture;
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
-        configHelper = new GoConfigFileHelper();
-        configHelper.usingCruiseConfigDao(goConfigDao);
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingConfigHelper(new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao)).usingDbHelper(dbHelper).onSetUp();
         controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
                 goConfigService, pipelineService, restfulService, artifactService, stageService, jobAgentMetadataDao, securityService);
     }
 
     @AfterEach
     public void tearDown() throws Exception {
-        fixture.onTearDown();
+        pipelineFixture.onTearDown();
     }
 
     @Test
     public void shouldSupportPipelineCounter() {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
@@ -138,7 +132,7 @@ public class JobControllerIntegrationTest {
     @Test
     public void shouldReturnErrorMessageWhenFailedToFindJob() {
         try {
-            controller.jobDetail(fixture.pipelineName, "1", fixture.devStage, "1", "invalid-job");
+            controller.jobDetail(pipelineFixture.pipelineName, "1", pipelineFixture.devStage, "1", "invalid-job");
         } catch (Exception e) {
             ModelAndView modelAndView = controller.handle(request, response, e);
             assertThat((String) modelAndView.getModel().get(GoConstants.ERROR_FOR_PAGE)).contains("invalid-job not found");
@@ -147,8 +141,8 @@ public class JobControllerIntegrationTest {
 
     @Test
     public void shouldFindJobByPipelineCounterEvenMultiplePipelinesHaveSameLabel() {
-        fixture.configLabelTemplateUsingMaterialRevision();
-        Pipeline oldPipeline = fixture.createdPipelineWithAllStagesPassed();
+        pipelineFixture.configLabelTemplateUsingMaterialRevision();
+        Pipeline oldPipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         Stage stage = oldPipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
         ModelAndView modelAndView = controller.jobDetail(oldPipeline.getName(),
@@ -161,8 +155,8 @@ public class JobControllerIntegrationTest {
     public void shouldCreateJobPresentationModelWithRightStage() {
         controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
                 goConfigService, pipelineService, restfulService, artifactService, stageService, jobAgentMetadataDao, securityService);
-        fixture.configLabelTemplateUsingMaterialRevision();
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        pipelineFixture.configLabelTemplateUsingMaterialRevision();
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         Stage devStage = pipeline.getStages().byName("dev");
         JobInstance job = devStage.getFirstJob();
 
@@ -174,7 +168,7 @@ public class JobControllerIntegrationTest {
 
     @Test
     public void jobDetailModel_shouldHaveTheElasticProfilePluginIdWhenAgentIsNotAssigned() {
-        Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
+        Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
         GoPluginDescriptor.About about = GoPluginDescriptor.About.builder().name("name").version("0.1").targetGoVersion("17.3.0").description("desc").build();
@@ -184,7 +178,7 @@ public class JobControllerIntegrationTest {
         ElasticProfile profile = new ElasticProfile("profile_id", "cluster_profile_id", Collections.emptyList());
         ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.emptyList());
 
-        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), profile, clusterProfile));
+        pipelineFixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), profile, clusterProfile));
 
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
@@ -194,7 +188,7 @@ public class JobControllerIntegrationTest {
 
     @Test
     public void jobDetailModel_shouldHaveTheElasticPluginIdAndElasticAgentIdWhenAgentIsAssigned() {
-        Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
+        Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
 
@@ -205,7 +199,7 @@ public class JobControllerIntegrationTest {
         ElasticProfile profile = new ElasticProfile("profile_id", "cluster_profile_id", Collections.emptyList());
         ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.emptyList());
 
-        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), profile, clusterProfile));
+        pipelineFixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), profile, clusterProfile));
 
         final Agent agent = new Agent(job.getAgentUuid(), "localhost", "127.0.0.1", uuidGenerator.randomUuid());
         agent.setElasticAgentId("elastic_agent_id");
@@ -221,7 +215,7 @@ public class JobControllerIntegrationTest {
 
     @Test
     public void jobDetailModel_shouldNotHaveTheElasticProfilePluginIdAndElasticAgentIdWhenAgentIsNotElasticAgent() {
-        Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
+        Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
 
@@ -237,7 +231,7 @@ public class JobControllerIntegrationTest {
 
     @Test
     public void jobDetailModel_shouldNotHaveElasticPluginIdAndElasticAgentIdForACompletedJob() {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
 

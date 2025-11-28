@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
@@ -1310,7 +1311,7 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent).contains("<agentProfile");
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
-        assertThat(cruiseConfig.getElasticConfig().getJobStarvationTimeout()).isEqualTo(1 * 60 * 1000);
+        assertThat(cruiseConfig.getElasticConfig().getJobStarvationTimeout()).isEqualTo(TimeUnit.MINUTES.toMillis(1));
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).hasSize(2);
         assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind")).isNotNull();
         assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind-docker-compose")).isNotNull();
@@ -1345,7 +1346,7 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent).doesNotContain("pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\"");
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
-        assertThat(cruiseConfig.getElasticConfig().getJobStarvationTimeout()).isEqualTo(1 * 60 * 1000);
+        assertThat(cruiseConfig.getElasticConfig().getJobStarvationTimeout()).isEqualTo(TimeUnit.MINUTES.toMillis(1));
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).hasSize(2);
         assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind")).isNotNull();
         assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind-docker-compose")).isNotNull();

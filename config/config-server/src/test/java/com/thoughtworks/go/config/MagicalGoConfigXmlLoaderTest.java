@@ -1311,8 +1311,10 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotLoadConfigWithEmptyTemplates() {
         String content = configWithTemplates(
-            "<templates>\n"
-                + "</templates>");
+            """
+                <templates>
+                </templates>
+            """);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("Should not allow empty templates block")
@@ -3633,7 +3635,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(configWithJobElasticProfile))
             .isInstanceOf(GoConfigInvalidException.class)
-            .hasMessage("Job cannot have both `resource` and `elasticProfileId`, No profile defined corresponding to profile_id 'docker.unit-test', Job cannot have both `resource` and `elasticProfileId`");
+            .hasMessage("Job cannot have both `resource` and `elasticProfileId`, No profile defined corresponding to profile_id 'docker.unit-test'");
     }
 
     @Test
@@ -3650,8 +3652,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String plainText = "user-password!";
         // "user-password!" encrypted using the above key
         String encryptedValue = "mvcX9yrQsM4iPgm1tDxN1A==";
-        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
-            "                        ").toString();
+        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n                        ").toString();
 
         String content = configWithPipeline(
             ("""
@@ -3687,8 +3688,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String plainText = "user-password!";
         // "user-password!" encrypted using the above key
         String encryptedValue = "mvcX9yrQsM4iPgm1tDxN1A==";
-        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
-            "                        ").toString();
+        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n                        ").toString();
 
         String content = configWithPluggableScm(
             ("""
@@ -3719,8 +3719,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String plainText = "user-password!";
         // "user-password!" encrypted using the above key
         String encryptedValue = "mvcX9yrQsM4iPgm1tDxN1A==";
-        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
-            "                        ").toString();
+        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n                        ").toString();
 
         String content = configWithPipeline(
             ("""
@@ -3772,8 +3771,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String plainText = "user-password!";
         // "user-password!" encrypted using the above key
         String encryptedValue = "mvcX9yrQsM4iPgm1tDxN1A==";
-        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
-            "                        ").toString();
+        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n                        ").toString();
 
         String content = config(
             ("""

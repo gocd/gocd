@@ -60,19 +60,19 @@ public class UserServiceIntegrationTest {
     @Autowired
     private GoCache goCache;
 
-    private static final GoConfigFileHelper configFileHelper = new GoConfigFileHelper(ConfigFileFixture.ONE_PIPELINE);
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper(ConfigFileFixture.ONE_PIPELINE);
 
     @BeforeEach
     public void setUp() throws Exception {
         dbHelper.onSetUp();
-        configFileHelper.onSetUp();
-        configFileHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         goCache.clear();
     }
 
     @AfterEach
     public void teardown() throws Exception {
-        configFileHelper.onTearDown();
+        configHelper.onTearDown();
         dbHelper.onTearDown();
         goCache.clear();
     }
@@ -416,10 +416,10 @@ public class UserServiceIntegrationTest {
     }
 
     private void givingJezViewPermissionToMingle() {
-        configFileHelper.enableSecurity();
-        configFileHelper.addPipeline("mingle", "dev");
-        configFileHelper.setViewPermissionForGroup("defaultGroup", "jez");
-        configFileHelper.addSecurityWithAdminConfig();
+        configHelper.enableSecurity();
+        configHelper.addPipeline("mingle", "dev");
+        configHelper.setViewPermissionForGroup("defaultGroup", "jez");
+        configHelper.addSecurityWithAdminConfig();
     }
 
     private void addUser(User user) {

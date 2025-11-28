@@ -62,13 +62,12 @@ public class PipelineConfigsServiceIntegrationTest {
     private RoleConfigService roleConfigService;
     @Autowired
     private GoConfigDao goConfigDao;
-    private String xml;
     private GoConfigFileHelper configHelper;
 
     @BeforeEach
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper();
-        xml = goConfigMigration.upgradeIfNecessary(TestFileUtil.resourceToString("/data/config_with_pluggable_artifacts_store.xml"));
+        String xml = goConfigMigration.upgradeIfNecessary(TestFileUtil.resourceToString("/data/config_with_pluggable_artifacts_store.xml"));
         setupMetadataForPlugin();
 
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -79,6 +78,7 @@ public class PipelineConfigsServiceIntegrationTest {
 
     @AfterEach
     public void tearDown() {
+        configHelper.onTearDown();
         ArtifactMetadataStore.instance().clear();
     }
 

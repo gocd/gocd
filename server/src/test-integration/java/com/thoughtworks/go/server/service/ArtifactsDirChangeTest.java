@@ -55,22 +55,22 @@ public class ArtifactsDirChangeTest {
     @Autowired private ArtifactsDirHolder artifactsDirHolder;
     @Autowired private TransactionTemplate transactionTemplate;
 
-    private GoConfigFileHelper configHelper ;
-    private PipelineWithTwoStages fixture;
+    private GoConfigFileHelper configHelper;
+    private PipelineWithTwoStages pipelineFixture;
 
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(configDao);
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         serverHealthService.removeAllLogs();
     }
 
     @AfterEach
     public void tearDown() throws Exception {
         serverHealthService.removeAllLogs();
-        fixture.onTearDown();
+        pipelineFixture.onTearDown();
     }
 
     @Test

@@ -54,7 +54,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoFileConfigDataSource dataSource;
     @Autowired private ConfigElementImplementationRegistry registry;
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private MockHttpServletResponse response;
 
     @BeforeEach

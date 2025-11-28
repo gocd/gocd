@@ -78,7 +78,6 @@ public class PipelineHistoryServiceIntegrationTest {
     @Autowired private PipelineHistoryService pipelineHistoryService;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoConfigService goConfigService;
     @Autowired private TriggerMonitor triggerMonitor;
     @Autowired private GoCache goCache;
     @Autowired private TransactionTemplate transactionTemplate;
@@ -87,7 +86,6 @@ public class PipelineHistoryServiceIntegrationTest {
     private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private PipelineWithMultipleStages pipelineOne;
     private PipelineWithTwoStages pipelineTwo;
-
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
@@ -99,9 +97,6 @@ public class PipelineHistoryServiceIntegrationTest {
         pipelineTwo.setGroupName("group2");
 
         configHelper.usingCruiseConfigDao(goConfigDao);
-        configHelper.onSetUp();
-
-        dbHelper.onSetUp();
 
         pipelineOne.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         pipelineTwo.usingConfigHelper(configHelper).usingDbHelper(dbHelper).addToSetup();
@@ -117,9 +112,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @AfterEach
     public void tearDown() throws Exception {
         notifier.enableUpdates();
-        dbHelper.onTearDown();
         pipelineOne.onTearDown();
-        configHelper.onTearDown();
     }
 
     @Test
@@ -163,7 +156,7 @@ public class PipelineHistoryServiceIntegrationTest {
         assertStageHistory(stageHistory.get(2), false, false);
     }
 
-    private void assertStageHistory(StageInstanceModel stageHistoryItem, boolean isScheduled, boolean canRun) {
+    private void assertStageHistory(StageInstanceModel stageHistoryItem, @SuppressWarnings("SameParameterValue") boolean isScheduled, boolean canRun) {
         assertThat(stageHistoryItem.isScheduled()).isEqualTo(isScheduled);
         assertThat(stageHistoryItem.getCanRun()).isEqualTo(canRun);
     }
@@ -759,7 +752,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Test
     public void shouldReturnTheLatestAndOldestPipelineRunId() {
         Pipeline pipeline1 = pipelineTwo.createdPipelineWithAllStagesPassed();
-        Pipeline pipeline2 = pipelineTwo.createdPipelineWithAllStagesPassed();
+        pipelineTwo.createdPipelineWithAllStagesPassed();
         Pipeline pipeline3 = pipelineTwo.createdPipelineWithAllStagesPassed();
 
         PipelineRunIdInfo oldestAndLatestPipelineId = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineTwo.pipelineName, new Username(new CaseInsensitiveString("admin1")));

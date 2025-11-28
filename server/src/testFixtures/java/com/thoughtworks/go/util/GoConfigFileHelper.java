@@ -42,7 +42,6 @@ import org.apache.commons.io.FileUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -67,7 +66,6 @@ public class GoConfigFileHelper {
     private final GoConfigMother goConfigMother = new GoConfigMother();
 
     private GoConfigDao goConfigDao;
-    private CachedGoConfig cachedGoConfig;
     private SystemEnvironment sysEnv;
     private String originalConfigDir;
 
@@ -82,7 +80,7 @@ public class GoConfigFileHelper {
     private GoConfigFileHelper(String xml, GoConfigDao goConfigDao) {
         new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVER_IMMUTABILITY, "N");
         this.originalXml = xml;
-        assignFileDao(goConfigDao);
+        this.goConfigDao = goConfigDao;
         try {
             Path dir = Files.createTempDirectory( "server-config-dir");
             this.configFile = new File(dir.toFile(), "cruise-config.xml");
@@ -96,7 +94,7 @@ public class GoConfigFileHelper {
     }
 
     public GoConfigFileHelper(File configFile) {
-        assignFileDao(createTestingDao());
+        this.goConfigDao = createTestingDao();
         this.configFile = configFile.getAbsoluteFile();
         try {
             saveFullConfig(Files.readString(this.configFile.toPath(), UTF_8), true);
@@ -144,10 +142,6 @@ public class GoConfigFileHelper {
         }
     }
 
-    public static GoConfigFileHelper usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents() {
-        return new GoConfigFileHelper(ConfigFileFixture.DEFAULT_XML_WITH_UNLIMITED_AGENTS);
-    }
-
     private static JobConfigs defaultBuildPlans(String... planNames) {
         JobConfigs plans = new JobConfigs();
         for (String name : planNames) {
@@ -168,14 +162,6 @@ public class GoConfigFileHelper {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static EnvironmentVariablesConfig env(String name, String value) {
-        return EnvironmentVariablesConfigMother.env(name, value);
-    }
-
-    public static EnvironmentVariablesConfig env(String[] names, String[] values) {
-        return EnvironmentVariablesConfigMother.env(names, values);
     }
 
     public static void clearConfigVersions() throws IOException {
@@ -219,15 +205,11 @@ public class GoConfigFileHelper {
         new ConfigElementImplementationRegistrar(registry).initialize();
         MagicalGoConfigXmlLoader magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
         CruiseConfig configToBeWritten = magicalGoConfigXmlLoader.deserializeConfig(configFileContent);
-        cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(configToBeWritten, cachedGoConfig.loadForEditing().getMd5()));
+        goConfigDao.updateFullConfig(new FullConfigUpdateCommand(configToBeWritten, goConfigDao.loadForEditing().getMd5()));
     }
 
     public GoConfigDao getGoConfigDao() {
         return goConfigDao;
-    }
-
-    public CachedGoConfig getCachedGoConfig() {
-        return cachedGoConfig;
     }
 
     public void setArtifactsDir(String artifactsDir) {
@@ -237,7 +219,7 @@ public class GoConfigFileHelper {
     }
 
     public GoConfigFileHelper usingCruiseConfigDao(GoConfigDao goConfigDao) {
-        assignFileDao(goConfigDao);
+        this.goConfigDao = goConfigDao;
         return this;
     }
 
@@ -890,17 +872,6 @@ public class GoConfigFileHelper {
             }
         };
 
-    }
-
-    private void assignFileDao(GoConfigDao goConfigDao) {
-        this.goConfigDao = goConfigDao;
-        try {
-            Field field = GoConfigDao.class.getDeclaredField("cachedConfigService");
-            field.setAccessible(true);
-            this.cachedGoConfig = (CachedGoConfig) field.get(goConfigDao);
-        } catch (Exception e) {
-            bomb(e);
-        }
     }
 
     private PipelineConfig addPipeline(String pipelineName, String stageName, SvnMaterialConfig svnMaterialConfig, Filter filter,

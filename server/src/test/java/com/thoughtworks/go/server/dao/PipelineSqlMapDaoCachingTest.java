@@ -84,7 +84,7 @@ class PipelineSqlMapDaoCachingTest {
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
         Session session = mock(Session.class);
         when(mockSessionFactory.getCurrentSession()).thenReturn(session);
-        when(configFileDao.load()).thenReturn(GoConfigMother.defaultCruiseConfig());
+        when(configFileDao.currentConfig()).thenReturn(GoConfigMother.defaultCruiseConfig());
     }
 
     @Test
@@ -182,7 +182,7 @@ class PipelineSqlMapDaoCachingTest {
         final String pipelineName = "pipeline";
         CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
         GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
-        when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
+        when(mockconfigFileDao.currentConfig()).thenReturn(mockCruiseConfig);
         when(mockCruiseConfig.getAllPipelineNames()).thenReturn(List.of(new CaseInsensitiveString(pipelineName)));
 
         //need to mock configFileDao for this test
@@ -202,7 +202,7 @@ class PipelineSqlMapDaoCachingTest {
         assertThat(EqualsBuilder.reflectionEquals(loaded, pims)).as(ToStringBuilder.reflectionToString(loaded) + " not equal to\n" + ToStringBuilder.reflectionToString(pipeline)).isTrue();
         verify(mockTemplate, times(1)).queryForList("allActivePipelines");
         verify(mockTemplate, times(1)).queryForObject(eq("getPipelineHistoryById"), any());
-        verify(mockconfigFileDao, times(2)).load();
+        verify(mockconfigFileDao, times(2)).currentConfig();
         verify(mockCruiseConfig, times(2)).getAllPipelineNames();
     }
 
@@ -284,7 +284,7 @@ class PipelineSqlMapDaoCachingTest {
         final String pipelineName = "pipeline";
         CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
         GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
-        when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
+        when(mockconfigFileDao.currentConfig()).thenReturn(mockCruiseConfig);
         when(mockCruiseConfig.getAllPipelineNames()).thenReturn(List.of(new CaseInsensitiveString(pipelineName)));
 
         //need to mock configfileDao for this test
@@ -321,7 +321,7 @@ class PipelineSqlMapDaoCachingTest {
         final String pipelineName = "pipeline";
         CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
         GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
-        when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
+        when(mockconfigFileDao.currentConfig()).thenReturn(mockCruiseConfig);
         when(mockCruiseConfig.getAllPipelineNames()).thenReturn(List.of(new CaseInsensitiveString(pipelineName)));
 
         //need to mock configfileDao for this test

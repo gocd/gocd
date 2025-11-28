@@ -312,7 +312,6 @@ public class SecurityServiceIntegrationTest {
 
     @Test
     public void shouldReturnAllPipelinesThatUserHasViewPermissionsFor() throws Exception {
-        configHelper.onTearDown();
         configHelper.saveFullConfig(CONFIG_WITH_2_GROUPS, true);
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("blah"))).size()).isEqualTo(0);
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin")))).isEqualTo(List.of(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("pipeline2")));
@@ -321,7 +320,6 @@ public class SecurityServiceIntegrationTest {
 
     @Test
     public void shouldReturnAllPipelinesWithNoSecurity() throws Exception {
-        configHelper.onTearDown();
         configHelper.saveFullConfig(ConfigFileFixture.multipleMaterial("<hg url='http://localhost'/>"), true);
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin")))).isEqualTo(List.of(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework")));
         assertThat(securityService.viewablePipelinesFor(Username.ANONYMOUS)).isEqualTo(List.of(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework")));

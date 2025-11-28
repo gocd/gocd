@@ -67,7 +67,7 @@ public class JobStatusListenerIntegrationTest {
     @Autowired
     private JobInstanceService jobInstanceService;
 
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String PIPELINE_NAME = "mingle";
     private static final String STAGE_NAME = "dev";
     private static final String JOB_NAME = "unit";

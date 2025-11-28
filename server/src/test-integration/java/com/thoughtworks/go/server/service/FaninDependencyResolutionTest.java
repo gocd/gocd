@@ -130,7 +130,7 @@ public class FaninDependencyResolutionTest {
         ScheduleTestUtil.MaterialDeclaration upForDown = u.m(up);
         ((DependencyMaterial) upForDown.material).setName(new CaseInsensitiveString("up-for-down"));
         ScheduleTestUtil.AddedPipeline down = u.saveConfigWith("down", u.m(mid), upForDown);
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String up_1 = u.runAndPass(up, "g1");
         String mid_1 = u.runAndPass(mid, up_1);
@@ -168,7 +168,7 @@ public class FaninDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline regression = u.saveConfigWith("regression", u.m(build), u.m(acceptance));
         ScheduleTestUtil.AddedPipeline staging = u.saveConfigWith("staging", u.m(acceptance), u.m(regression));
         ScheduleTestUtil.AddedPipeline production = u.saveConfigWith("production", u.m(staging));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         int i = 1;
 
@@ -288,7 +288,7 @@ public class FaninDependencyResolutionTest {
                 u.mr(p1, true, p1_1),
                 u.mr(p2, true, p2_1));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given);
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p3, goConfigDao.currentConfig(), given);
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -327,7 +327,7 @@ public class FaninDependencyResolutionTest {
             u.mr(p1, true, p1_2),
                 u.mr(p2, true, p2_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given)).isEqualTo(expected);
+        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.currentConfig(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -353,7 +353,7 @@ public class FaninDependencyResolutionTest {
                 u.mr(third, true, third_1),
                 u.mr(second, true, second_1));
 
-        assertThat(getRevisionsBasedOnDependencies(last, goConfigDao.load(), given)).isEqualTo(given);
+        assertThat(getRevisionsBasedOnDependencies(last, goConfigDao.currentConfig(), given)).isEqualTo(given);
     }
 
 
@@ -381,7 +381,7 @@ public class FaninDependencyResolutionTest {
                 u.mr(svn2, true, "s1")
         );
 
-        MaterialRevisions materialRevisions = getRevisionsBasedOnDependencies(third, goConfigDao.load(), given);
+        MaterialRevisions materialRevisions = getRevisionsBasedOnDependencies(third, goConfigDao.currentConfig(), given);
         assertThat(materialRevisions).isEqualTo(given);
     }
 
@@ -408,7 +408,7 @@ public class FaninDependencyResolutionTest {
                 u.mr(p1, true, p1_1),
                 u.mr(p2_s2, true, p2_s2_1));
 
-        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given);
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p3, goConfigDao.currentConfig(), given);
         assertThat(revisionsBasedOnDependencies).isEqualTo(given);
     }
 
@@ -442,7 +442,7 @@ public class FaninDependencyResolutionTest {
         String p4_2 = u.runAndPass(p4, p3_2, "git2_2");
 
         configHelper.setMaterialConfigForPipeline("P2", git3.config());
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
         p2 = new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("P2")), p2.material);
 
         u.checkinInOrder(git1, "git1_3");
@@ -468,7 +468,7 @@ u.mr(git2, true, "git2_3"),
         //bring back git2 in p2
 
         configHelper.setMaterialConfigForPipeline("P2", git2.config());
-        cruiseConfig = goConfigDao.load();
+        cruiseConfig = goConfigDao.currentConfig();
         p2 = new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("P2")), p2.material);
 
         //check wat happend to p4
@@ -582,7 +582,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p2, true, p2_4),
                 u.mr(p3, true, p3_4));
 
-        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p4, goConfigDao.load(), given);
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p4, goConfigDao.currentConfig(), given);
         assertThat(revisionsBasedOnDependencies).isEqualTo(expected);
     }
 
@@ -604,7 +604,7 @@ u.mr(git2, true, "git2_3"),
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("P1", u.m(git));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("P2", u.m(p1), u.m(git));
 
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g1");
 
@@ -649,7 +649,7 @@ u.mr(git2, true, "git2_3"),
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g2");
 
         p2 = u.changeStagenameForToPipeline("P2", "s", "new-stage");
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         MaterialRevisions given = u.mrs(u.mr(p1, true, p1_2), u.mr(git, true, "g2"));
 
@@ -672,7 +672,7 @@ u.mr(git2, true, "git2_3"),
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(git1));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(git1), u.m(p1));
 
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
         String p2_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), "g11", p1_1);
@@ -718,7 +718,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p1, true, p1_1),
                 u.mr(hg, true, "h11"));
 
-        assertThat(getRevisionsBasedOnDependencies(p2, goConfigDao.load(), given)).isEqualTo(given);
+        assertThat(getRevisionsBasedOnDependencies(p2, goConfigDao.currentConfig(), given)).isEqualTo(given);
     }
 
     @Test
@@ -748,7 +748,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(pkg1, true, "pkg1-1"),
                 u.mr(p1, true, p1_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p2, goConfigDao.load(), given)).isEqualTo(expected);
+        assertThat(getRevisionsBasedOnDependencies(p2, goConfigDao.currentConfig(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -782,7 +782,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p1, true, p1_1),
                 u.mr(p2, true, p2_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given)).isEqualTo(expected);
+        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.currentConfig(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -816,7 +816,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p1, true, p1_1),
                 u.mr(p2, true, p2_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given)).isEqualTo(expected);
+        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.currentConfig(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -846,7 +846,7 @@ u.mr(git2, true, "git2_3"),
                 u.mr(p3, true, p3_1),
                 u.mr(p4, true, p4_1));
 
-        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p5, goConfigDao.load(), given);
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p5, goConfigDao.currentConfig(), given);
         assertThat(revisionsBasedOnDependencies).isEqualTo(given);
     }
 

@@ -65,7 +65,7 @@ import static org.junit.jupiter.api.Assertions.fail;
         "classpath:/spring-all-servlet.xml",
 })
 public class BuildRepositoryServiceIntegrationTest {
-    private static final GoConfigFileHelper config = new GoConfigFileHelper();
+    private final GoConfigFileHelper config = new GoConfigFileHelper();
     private static final String HOSTNAME = "10.18.0.1";
     private static final String PIPELINE_NAME = "mingle";
     private static final String DEV_STAGE = "dev";

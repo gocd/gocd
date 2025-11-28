@@ -123,7 +123,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
     private GoDiskSpaceMonitor goDiskSpaceMonitor;
 
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     private MagicalGoConfigXmlWriter xmlWriter;
 

@@ -52,7 +52,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 
-public class PipelineWithTwoStages implements PreCondition {
+public class PipelineWithTwoStages {
     private SvnCommand svnClient;
     public String groupName = PipelineConfigs.DEFAULT_GROUP;
     public final String pipelineName;
@@ -108,7 +108,6 @@ public class PipelineWithTwoStages implements PreCondition {
         }
     }
 
-    @Override
     public void onSetUp() throws Exception {
         configHelper.onSetUp();
 
@@ -129,7 +128,6 @@ public class PipelineWithTwoStages implements PreCondition {
         dbHelper.onSetUp();
     }
 
-    @Override
     public void onTearDown() throws Exception {
         dbHelper.onTearDown();
         configHelper.onTearDown();
@@ -261,10 +259,6 @@ public class PipelineWithTwoStages implements PreCondition {
             workingFolder = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
             svnClient.checkoutTo(inMemoryConsumer(), workingFolder, SubversionRevision.HEAD);
         }
-    }
-
-    public String pipelineLabel() {
-        return dbHelper.getPipelineDao().mostRecentPipeline(pipelineName).getLabel();
     }
 
     public Integer pipelineCounter() {

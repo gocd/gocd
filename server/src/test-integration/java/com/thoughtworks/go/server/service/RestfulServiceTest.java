@@ -56,80 +56,77 @@ public class RestfulServiceTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private InstanceFactory instanceFactory;
 
-    private PipelineWithTwoStages fixture;
+    private PipelineWithTwoStages pipelineFixture;
     private GoConfigFileHelper configHelper ;
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(cruiseConfigDao);
-        configHelper.onSetUp();
-        dbHelper.onSetUp();
-        fixture.usingThreeJobs();
-        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture.usingThreeJobs();
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
     }
 
     @AfterEach
     public void teardown() throws Exception {
-        dbHelper.onTearDown();
-        fixture.onTearDown();
+        pipelineFixture.onTearDown();
     }
 
     @Test
     public void shouldShouldTranslateLatestPipelineLabel() {
-        fixture.createdPipelineWithAllStagesPassed();
-        Pipeline latestPipeline = fixture.createdPipelineWithAllStagesPassed();
-        final JobIdentifier jobIdentifier1 = new JobIdentifier(latestPipeline.getName(), 1, JobIdentifier.LATEST, fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        pipelineFixture.createdPipelineWithAllStagesPassed();
+        Pipeline latestPipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+        final JobIdentifier jobIdentifier1 = new JobIdentifier(latestPipeline.getName(), 1, JobIdentifier.LATEST, pipelineFixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
         JobIdentifier jobIdentifier = restfulService.findJob(jobIdentifier1.getPipelineName(), jobIdentifier1.getPipelineLabel(), jobIdentifier1.getStageName(), jobIdentifier1.getStageCounter(), jobIdentifier1.getBuildName());
         assertThat(jobIdentifier.getPipelineLabel()).isEqualTo(latestPipeline.getLabel());
     }
 
     @Test
     public void shouldTranslateLatestToRealPipelineLabel() {
-        fixture.createdPipelineWithAllStagesPassed();
-        Pipeline latestPipeline = fixture.createdPipelineWithAllStagesPassed();
-        JobIdentifier jobIdentifier = restfulService.findJob(latestPipeline.getName(), JobIdentifier.LATEST, fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        pipelineFixture.createdPipelineWithAllStagesPassed();
+        Pipeline latestPipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+        JobIdentifier jobIdentifier = restfulService.findJob(latestPipeline.getName(), JobIdentifier.LATEST, pipelineFixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
         assertThat(jobIdentifier.getPipelineLabel()).isEqualTo(latestPipeline.getLabel());
     }
 
 
     @Test
     public void shouldTranslateLatestToRealStageCounter() {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
 
-        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
-        assertThat(Integer.valueOf(jobIdentifier.getStageCounter())).isEqualTo(pipeline.getStages().byName(fixture.devStage).getCounter());
+        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), pipelineFixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        assertThat(Integer.valueOf(jobIdentifier.getStageCounter())).isEqualTo(pipeline.getStages().byName(pipelineFixture.devStage).getCounter());
     }
 
     @Test
     public void shouldTranslateEmtpyToLatestStageCounter() {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
-        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), fixture.devStage, "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
-        assertThat(Integer.valueOf(jobIdentifier.getStageCounter())).isEqualTo(pipeline.getStages().byName(fixture.devStage).getCounter());
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), pipelineFixture.devStage, "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        assertThat(Integer.valueOf(jobIdentifier.getStageCounter())).isEqualTo(pipeline.getStages().byName(pipelineFixture.devStage).getCounter());
     }
 
     @Test
     public void canSupportQueryingUsingPipelineNameWithDifferentCase() {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
 
-        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName().toUpperCase(), JobIdentifier.LATEST, fixture.devStage, "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName().toUpperCase(), JobIdentifier.LATEST, pipelineFixture.devStage, "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
 
         assertThat(jobIdentifier.getPipelineName()).isEqualTo(pipeline.getName());
     }
 
     @Test
     public void canSupportQueryingUsingStageNameWithDifferentCase() {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
 
-        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), fixture.devStage.toUpperCase(), "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), pipelineFixture.devStage.toUpperCase(), "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
 
-        assertThat(jobIdentifier.getStageName()).isEqualTo(fixture.devStage);
+        assertThat(jobIdentifier.getStageName()).isEqualTo(pipelineFixture.devStage);
     }
 
     @Test
     public void shouldFindJobByPipelineCounter() {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
-        Stage stage = pipeline.getStages().byName(fixture.devStage);
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+        Stage stage = pipeline.getStages().byName(pipelineFixture.devStage);
         JobInstance job = stage.getJobInstances().first();
 
         JobIdentifier result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
@@ -139,13 +136,13 @@ public class RestfulServiceTest {
 
     @Test
     public void shouldFindOriginalWhenJobCopiedForRerun() {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
-        Stage stage = pipeline.getStages().byName(fixture.devStage);
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+        Stage stage = pipeline.getStages().byName(pipelineFixture.devStage);
         JobInstance job = stage.findJob(PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
         Stage rerunStage = instanceFactory.createStageForRerunOfJobs(stage, List.of(PipelineWithTwoStages.DEV_STAGE_SECOND_JOB),
                 new DefaultSchedulingContext("loser", new Agents()),
-                fixture.pipelineConfig().getStage(
-                        new CaseInsensitiveString(fixture.devStage)), new TimeProvider(), "md5");
+                pipelineFixture.pipelineConfig().getStage(
+                        new CaseInsensitiveString(pipelineFixture.devStage)), new TimeProvider(), "md5");
         stageDao.saveWithJobs(pipeline, rerunStage);
         dbHelper.passStage(rerunStage);
 
@@ -169,11 +166,11 @@ public class RestfulServiceTest {
 
     @Test
     public void shouldReturnJobWithJobIdWhenSpecifyPipelineCounter() {
-        configHelper.setPipelineLabelTemplate(fixture.pipelineName, "label-${COUNT}");
-        Pipeline oldPipeline = fixture.createdPipelineWithAllStagesPassed();
-        fixture.createdPipelineWithAllStagesPassed();
+        configHelper.setPipelineLabelTemplate(pipelineFixture.pipelineName, "label-${COUNT}");
+        Pipeline oldPipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+        pipelineFixture.createdPipelineWithAllStagesPassed();
 
-        Stage stage = oldPipeline.getStages().byName(fixture.devStage);
+        Stage stage = oldPipeline.getStages().byName(pipelineFixture.devStage);
         JobInstance job = stage.getJobInstances().first();
 
         JobIdentifier result = restfulService.findJob(oldPipeline.getName(), String.valueOf(oldPipeline.getCounter()), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), null);
@@ -183,9 +180,9 @@ public class RestfulServiceTest {
 
     @Test
     public void shouldReturnJobWithLabelWhenSpecifyPipelineLabel() {
-        configHelper.setPipelineLabelTemplate(fixture.pipelineName, "label-${COUNT}");
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
-        Stage stage = pipeline.getStages().byName(fixture.devStage);
+        configHelper.setPipelineLabelTemplate(pipelineFixture.pipelineName, "label-${COUNT}");
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+        Stage stage = pipeline.getStages().byName(pipelineFixture.devStage);
         JobInstance job = stage.getJobInstances().first();
 
         JobIdentifier result = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(),
@@ -196,10 +193,10 @@ public class RestfulServiceTest {
 
     @Test
     public void shouldTranslateLatestStageCounter() {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         StageIdentifier stageIdentifier = restfulService.translateStageCounter(pipeline.getIdentifier(),
-                fixture.devStage, "latest");
-        assertThat(stageIdentifier).isEqualTo(new StageIdentifier(pipeline, pipeline.getStages().byName(fixture.devStage)));
+                pipelineFixture.devStage, "latest");
+        assertThat(stageIdentifier).isEqualTo(new StageIdentifier(pipeline, pipeline.getStages().byName(pipelineFixture.devStage)));
     }
 
 }

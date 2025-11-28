@@ -56,7 +56,7 @@ public class GoConfigDao {
         return cachedConfigService.loadMergedForEditing();
     }
 
-    public CruiseConfig load() {
+    public CruiseConfig currentConfig() {
         return cachedConfigService.currentConfig();
     }
 

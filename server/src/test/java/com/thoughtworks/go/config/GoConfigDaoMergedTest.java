@@ -44,7 +44,6 @@ public class GoConfigDaoMergedTest extends GoConfigDaoTestBase {
 
         configHelper = new GoConfigFileHelper();
         goConfigDao = configHelper.getGoConfigDao();
-        cachedGoConfig = configHelper.getCachedGoConfig();
     }
 
     @BeforeEach

@@ -29,9 +29,9 @@ import java.nio.file.Path;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 
-public class PipelineWithMultipleStages extends PipelineWithTwoStages implements PreCondition {
-    private int stagesSize;
-    private String[] stageNames;
+public class PipelineWithMultipleStages extends PipelineWithTwoStages {
+    private final int stagesSize;
+    private final String[] stageNames;
 
     public PipelineWithMultipleStages(int stagesSize, MaterialRepository materialRepository, final TransactionTemplate transactionTemplate, Path tempDir) {
         super(materialRepository, transactionTemplate, tempDir);

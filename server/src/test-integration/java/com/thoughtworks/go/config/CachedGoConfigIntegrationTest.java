@@ -102,7 +102,6 @@ public class CachedGoConfigIntegrationTest {
     private GoConfigRepoConfigDataSource repoConfigDataSource;
     @Autowired
     private CachedGoConfig cachedGoConfig;
-    private GoConfigFileHelper configHelper;
     @Autowired
     private ServerHealthService serverHealthService;
     @Autowired
@@ -131,6 +130,7 @@ public class CachedGoConfigIntegrationTest {
     @TempDir
     Path temporaryFolder;
 
+    private GoConfigFileHelper configHelper;
     private Modification latestModification;
     private ConfigRepoConfig configRepo;
     private File externalConfigRepo;

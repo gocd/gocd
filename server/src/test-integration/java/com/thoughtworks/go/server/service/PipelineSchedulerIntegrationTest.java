@@ -54,7 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.thoughtworks.go.util.GoConfigFileHelper.env;
+import static com.thoughtworks.go.helper.EnvironmentVariablesConfigMother.env;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
@@ -67,7 +67,7 @@ import static org.awaitility.Awaitility.await;
     "classpath:/spring-all-servlet.xml",
 })
 public class PipelineSchedulerIntegrationTest {
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     private static final String PIPELINE_NAME = "pipeline1";
     private static final String DEV_STAGE = "dev";

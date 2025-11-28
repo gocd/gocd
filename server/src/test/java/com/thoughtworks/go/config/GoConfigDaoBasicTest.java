@@ -23,7 +23,6 @@ public class GoConfigDaoBasicTest extends GoConfigDaoTestBase {
     public GoConfigDaoBasicTest() {
         configHelper = new GoConfigFileHelper();
         goConfigDao = configHelper.getGoConfigDao();
-        cachedGoConfig = configHelper.getCachedGoConfig();
     }
 
     @BeforeEach

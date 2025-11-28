@@ -259,7 +259,7 @@ public class ChangesetServiceIntegrationTest {
     public void shouldFailWhenUserDoesNotHaveAccess() {
         configHelper.enableSecurity();
         configHelper.addAdmins("admin");
-        CruiseConfig config = this.configHelper.getCachedGoConfig().loadForEditing();
+        CruiseConfig config = this.configHelper.getGoConfigDao().loadForEditing();
         config.pipelines(BasicPipelineConfigs.DEFAULT_GROUP).setAuthorization(new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("admin")))));
         configHelper.writeConfigFile(config);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -702,7 +702,7 @@ public class ChangesetServiceIntegrationTest {
         addRevisionWith2Mods(revisionsForUpstream5, git);
         Pipeline upstreamFive = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream5);
 
-        //Schedule downstream for comparision
+        //Schedule downstream for comparison
         List<MaterialRevision> revisionsForDownstream3 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForDownstream3, hg);
         dbHelper.addDependencyRevisionModification(revisionsForDownstream3, dependencyMaterial, upstreamFive);
@@ -789,7 +789,7 @@ public class ChangesetServiceIntegrationTest {
         addRevisionWith2Mods(revisionsForUpstream4, git);
         Pipeline upstreamFour = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream4);
 
-        //Schedule downstream for comparision
+        //Schedule downstream for comparison
         List<MaterialRevision> revisionsForDownstream2 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForDownstream2, hg);
         dbHelper.addDependencyRevisionModification(revisionsForDownstream2, dependencyMaterial, upstreamFour);

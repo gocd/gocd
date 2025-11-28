@@ -117,7 +117,7 @@ public class PipelineRepositoryIntegrationTest {
         GitMaterial git2 = u.wf(new GitMaterial("git"), "folder2");
 
         ScheduleTestUtil.AddedPipeline p = u.saveConfigWith("P", u.m(git1), u.m(git2));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         u.checkinInOrder(git1, u.d(i++), "g2");
 
@@ -144,7 +144,7 @@ public class PipelineRepositoryIntegrationTest {
         Collections.reverse(materials);
         configHelper.setMaterialConfigForPipeline("P", materials.toArray(new MaterialConfig[0]));
 
-        goConfigDao.load();
+        goConfigDao.currentConfig();
 
         timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         timeline.updateTimelineOnInit();

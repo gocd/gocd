@@ -99,7 +99,7 @@ public class JobInstanceServiceIntegrationTest {
     @Autowired
     private InstanceFactory instanceFactory;
 
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private PipelineWithTwoStages pipelineFixture;
     private SchedulerFixture schedulerFixture;
 
@@ -107,7 +107,6 @@ public class JobInstanceServiceIntegrationTest {
     public void setUp(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
         pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         schedulerFixture = new SchedulerFixture(dbHelper, stageDao, scheduleService);
@@ -115,7 +114,6 @@ public class JobInstanceServiceIntegrationTest {
 
     @AfterEach
     public void teardown() throws Exception {
-        dbHelper.onTearDown();
         pipelineFixture.onTearDown();
         jobStatusCache.clear();
     }
@@ -385,9 +383,9 @@ public class JobInstanceServiceIntegrationTest {
 
         configHelper.addPipeline("existingPipeline", "existingStage");
 
-        Long existingStage = stageWithId("existingPipeline", "existingStage");
+        long existingStage = stageWithId("existingPipeline", "existingStage");
 
-        Long nonExistentStage = stageWithId("existingPipeline", "removedStage");
+        long nonExistentStage = stageWithId("existingPipeline", "removedStage");
 
         JobInstance completedJob = completed("existingJob", JobResult.Passed, new Date(1));
         completedJob.setAgentUuid(agentUuid);
@@ -397,7 +395,7 @@ public class JobInstanceServiceIntegrationTest {
         jobInstanceDao.save(nonExistentStage, rescheduledJob);
         jobInstanceDao.ignore(rescheduledJob);
 
-        Long stageFromDeletedPipeline = stageWithId("deletedPipeline", "stage");
+        long stageFromDeletedPipeline = stageWithId("deletedPipeline", "stage");
 
         JobInstance cancelledJob = cancelled("job");
         cancelledJob.setAgentUuid(agentUuid);
@@ -416,7 +414,7 @@ public class JobInstanceServiceIntegrationTest {
 
     @Test
     public void shouldCompletedJobsForGivenAgent() {
-        Long stageB_Id = stageWithId("pipeline-aaa", "stage-bbb");
+        long stageB_Id = stageWithId("pipeline-aaa", "stage-bbb");
 
         String agentUuid = "special_uuid";
 
@@ -428,7 +426,7 @@ public class JobInstanceServiceIntegrationTest {
         jobInstanceDao.save(stageB_Id, rescheduledJob);
         jobInstanceDao.ignore(rescheduledJob);
 
-        Long stageC_Id = stageWithId("pipeline-bbb", "stage-ccc");
+        long stageC_Id = stageWithId("pipeline-bbb", "stage-ccc");
 
         JobInstance cancelledJob = cancelled("job3");
         cancelledJob.setAgentUuid(agentUuid);
@@ -594,7 +592,7 @@ public class JobInstanceServiceIntegrationTest {
         assertThat(job1.getArtifactPlans().get(0).getId()).isNotEqualTo(job2.getArtifactPlans().get(0).getId());
     }
 
-    private Long stageWithId(final String pipelineName, final String stageName) {
+    private long stageWithId(final String pipelineName, final String stageName) {
         PipelineConfig pipelineConfig = PipelineMother.withSingleStageWithMaterials(pipelineName, stageName, BuildPlanMother.withBuildPlans("job-random"));
         Pipeline savedPipeline = instanceFactory.createPipelineInstance(pipelineConfig, modifySomeFiles(pipelineConfig), new DefaultSchedulingContext("cruise"), "md5-test", new TimeProvider());
 

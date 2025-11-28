@@ -24,10 +24,9 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import java.nio.file.Path;
 import java.util.UUID;
 
-public class TwoPipelineGroups implements PreCondition {
+public class TwoPipelineGroups {
     private final GoConfigFileHelper configHelper;
     private TestRepo svnTestRepo;
-    private boolean isSetup = false;
     private final Path tempDir;
 
     public TwoPipelineGroups(GoConfigFileHelper configHelper, Path tempDir) {
@@ -35,10 +34,8 @@ public class TwoPipelineGroups implements PreCondition {
         this.tempDir = tempDir;
     }
 
-    @Override
     public void onSetUp() throws Exception {
-        this.isSetup = true;
-        configHelper.initializeConfigFile();
+        configHelper.onSetUp();
 
         svnTestRepo = new SvnTestRepo(tempDir);
         SvnCommand svnCommand = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
@@ -49,12 +46,9 @@ public class TwoPipelineGroups implements PreCondition {
                 "defaultJob");
     }
 
-    @Override
     public void onTearDown() {
-        if (isSetup) {
-            configHelper.onTearDown();
-            svnTestRepo.tearDown();
-        }
+        configHelper.onTearDown();
+        svnTestRepo.tearDown();
     }
 
     public CaseInsensitiveString pipelineInFirstGroup() {

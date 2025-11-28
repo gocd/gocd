@@ -123,7 +123,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     @Override
     public void initialize() {
-        this.goConfigDao.load();
+        this.goConfigDao.currentConfig();
         register(new BaseUrlChangeListener(serverConfig().getSiteUrl(), serverConfig().getSecureSiteUrl(), goCache));
         File dir = artifactsDir();
         if (!dir.exists()) {
@@ -193,7 +193,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     CruiseConfig cruiseConfig() {
-        return goConfigDao.load();
+        return goConfigDao.currentConfig();
     }
 
     public StageConfig stageConfigNamed(String pipelineName, String stageName) {

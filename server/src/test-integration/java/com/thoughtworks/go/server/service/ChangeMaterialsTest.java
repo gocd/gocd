@@ -142,7 +142,7 @@ public class ChangeMaterialsTest {
         @Test
         public void p4MaterialFromConfigShouldBeEqualWithP4MaterialFromDb() throws Exception {
             cruiseConfig.replaceMaterialConfigForPipeline(PIPELINE_NAME, p4Fixture.materialConfig("//depot/... //localhost/..."));
-            mingle = goConfigDao.load().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
+            mingle = goConfigDao.currentConfig().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
 
             assertThat(mingle.materialConfigs().get(0)).isInstanceOf(P4MaterialConfig.class);
 

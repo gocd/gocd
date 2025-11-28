@@ -192,7 +192,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
                 candidateGoExtensionClass.getSimpleName(), e.getTargetException().toString()));
         } catch (IllegalAccessException | RuntimeException e) {
             errors.add(String.format("Class [%s] is annotated with @Extension will not be registered. Reason: %s.",
-                candidateGoExtensionClass.getSimpleName(), e.toString()));
+                candidateGoExtensionClass.getSimpleName(), e));
         } catch (Throwable e) {
             errors.add(String.format("Class [%s] is annotated with @Extension but cannot be constructed or registered. Reason: [%s].",
                 candidateGoExtensionClass.getSimpleName(), e.getCause()));
@@ -328,39 +328,41 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     }
 
     private boolean isValidClass(Class<?> candidateClass) {
+        boolean doesNotHaveExtensionAnnotation = candidateClass.getAnnotation(Extension.class) == null;
+        if (doesNotHaveExtensionAnnotation) {
+            return false;
+        }
+
+        boolean isAbstract = Modifier.isAbstract(candidateClass.getModifiers());
+        if (isAbstract) {
+            errors.add(String.format("Class [%s] is annotated with @Extension but is abstract.", candidateClass.getSimpleName()));
+            return false;
+        }
+
+        boolean isNotPublic = !Modifier.isPublic(candidateClass.getModifiers());
+        if (isNotPublic) {
+            errors.add(String.format("Class [%s] is annotated with @Extension but is not public.", candidateClass.getSimpleName()));
+            return false;
+        }
+
         try {
-            boolean doesNotHaveExtensionAnnotation = candidateClass.getAnnotation(Extension.class) == null;
-            if (doesNotHaveExtensionAnnotation) {
-                return false;
-            }
-
-            boolean isAbstract = Modifier.isAbstract(candidateClass.getModifiers());
-            if (isAbstract) {
-                errors.add(String.format("Class [%s] is annotated with @Extension but is abstract.", candidateClass.getSimpleName()));
-                return false;
-            }
-
-            boolean isNotPublic = !Modifier.isPublic(candidateClass.getModifiers());
-            if (isNotPublic) {
-                errors.add(String.format("Class [%s] is annotated with @Extension but is not public.", candidateClass.getSimpleName()));
-                return false;
-            }
-
-            return isInstantiable(candidateClass);
+            checkHasConstructors(candidateClass);
         } catch (NoSuchMethodException e) {
             errors.add(String.format(
                 "Class [%s] is annotated with @Extension but cannot be constructed. Make sure it and all of its parent classes have a default constructor.", candidateClass.getSimpleName()));
             return false;
         }
+        return true;
     }
 
-    private boolean isInstantiable(Class<?> candidateClass) throws NoSuchMethodException {
+    @SuppressWarnings("ResultOfMethodCallIgnored") // we just want to see if we can find appropriate constructors
+    private void checkHasConstructors(Class<?> candidateClass) throws NoSuchMethodException {
         if (!isANonStaticInnerClass(candidateClass)) {
-            return candidateClass.getConstructor() != null;
+            candidateClass.getConstructor();
+        } else {
+            candidateClass.getConstructor(candidateClass.getDeclaringClass());
+            checkHasConstructors(candidateClass.getDeclaringClass());
         }
-
-        boolean hasAConstructorWhichTakesMyOuterClass = candidateClass.getConstructor(candidateClass.getDeclaringClass()) != null;
-        return hasAConstructorWhichTakesMyOuterClass && isInstantiable(candidateClass.getDeclaringClass());
     }
 
     private boolean isANonStaticInnerClass(Class<?> candidateClass) {

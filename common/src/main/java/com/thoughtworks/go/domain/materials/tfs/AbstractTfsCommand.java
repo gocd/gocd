@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class AbstractTfsCommand extends SCMCommand implements TfsCommand {
 
@@ -198,26 +199,22 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
 
         AbstractTfsCommand that = (AbstractTfsCommand) o;
 
-        if (domain != null ? !domain.equals(that.domain) : that.domain != null) {
+        if (!Objects.equals(domain, that.domain)) {
             return false;
         }
-        if (password != null ? !password.equals(that.password) : that.password != null) {
+        if (!Objects.equals(password, that.password)) {
             return false;
         }
-        if (projectPath != null ? !projectPath.equals(that.projectPath) : that.projectPath != null) {
+        if (!Objects.equals(projectPath, that.projectPath)) {
             return false;
         }
-        if (url != null ? !url.equals(that.url) : that.url != null) {
+        if (!Objects.equals(url, that.url)) {
             return false;
         }
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+        if (!Objects.equals(userName, that.userName)) {
             return false;
         }
-        if (workspace != null ? !workspace.equals(that.workspace) : that.workspace != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(workspace, that.workspace);
     }
 
     @Override

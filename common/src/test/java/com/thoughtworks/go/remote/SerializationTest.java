@@ -165,13 +165,13 @@ class SerializationTest {
 
         @Test
         void serializesDatesDeterministically() {
-            assertEquals("null", Serialization.toJson((Date)null));
+            assertEquals("null", Serialization.toJson(null));
             assertEquals("\"1970-01-01T00:00:00Z\"", Serialization.toJson(new Date(0)));
             assertEquals("\"2023-12-13T01:02:03.004Z\"", Serialization.toJson(TEST_TIME));
         }
         @Test
         void serializesSqlTimeStampsDeterministically() {
-            assertEquals("null", Serialization.toJson((Timestamp)null));
+            assertEquals("null", Serialization.toJson(null));
             assertEquals("\"1970-01-01T00:00:00Z\"", Serialization.toJson(new Timestamp(0)));
             assertEquals("\"2023-12-13T01:02:03.004Z\"", Serialization.toJson(new Timestamp(TEST_TIME.getTime())));
         }

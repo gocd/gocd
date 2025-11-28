@@ -256,12 +256,11 @@ public class ElasticAgentExtensionV5Test {
     @Test
     public void shouldMakeClusterProfileChangedCall() {
         ClusterProfilesChangedStatus status = ClusterProfilesChangedStatus.CREATED;
-        Map<String, String> oldClusterProfile = null;
         Map<String, String> newClusterProfile = Map.of("key1", "key2");
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
-        extensionV5.clusterProfilesChanged(PLUGIN_ID, status, oldClusterProfile, newClusterProfile);
+        extensionV5.clusterProfilesChanged(PLUGIN_ID, status, null, newClusterProfile);
 
         String expectedRequestBody = "{" +
                 "  \"status\":\"created\"," +
@@ -444,7 +443,7 @@ public class ElasticAgentExtensionV5Test {
         assertThat(REQUEST_GET_PLUGIN_SETTINGS_ICON).startsWith(REQUEST_PREFIX);
     }
 
-    private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) {
+    private void assertExtensionRequest(@SuppressWarnings("SameParameterValue") String extensionVersion, String requestName, String requestBody) {
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
         assertThat(request.requestName()).isEqualTo(requestName);
         assertThat(request.extensionVersion()).isEqualTo(extensionVersion);

@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.stream.StreamSupport.stream;
 
@@ -138,20 +139,20 @@ public class BuildAssignment implements Serializable, SecretParamAware {
 
         if (fetchMaterials != that.fetchMaterials) return false;
         if (cleanWorkingDirectory != that.cleanWorkingDirectory) return false;
-        if (builders != null ? !builders.equals(that.builders) : that.builders != null) return false;
-        if (artifactPlans != null ? !artifactPlans.equals(that.artifactPlans) : that.artifactPlans != null)
+        if (!Objects.equals(builders, that.builders)) return false;
+        if (!Objects.equals(artifactPlans, that.artifactPlans))
             return false;
-        if (artifactStores != null ? !artifactStores.equals(that.artifactStores) : that.artifactStores != null)
+        if (!Objects.equals(artifactStores, that.artifactStores))
             return false;
-        if (buildWorkingDirectory != null ? !buildWorkingDirectory.equals(that.buildWorkingDirectory) : that.buildWorkingDirectory != null)
+        if (!Objects.equals(buildWorkingDirectory, that.buildWorkingDirectory))
             return false;
-        if (jobIdentifier != null ? !jobIdentifier.equals(that.jobIdentifier) : that.jobIdentifier != null)
+        if (!Objects.equals(jobIdentifier, that.jobIdentifier))
             return false;
-        if (initialContext != null ? !initialContext.equals(that.initialContext) : that.initialContext != null)
+        if (!initialContext.equals(that.initialContext))
             return false;
-        if (materialRevisions != null ? !materialRevisions.equals(that.materialRevisions) : that.materialRevisions != null)
+        if (!materialRevisions.equals(that.materialRevisions))
             return false;
-        return approver != null ? approver.equals(that.approver) : that.approver == null;
+        return Objects.equals(approver, that.approver);
     }
 
     @Override
@@ -163,8 +164,8 @@ public class BuildAssignment implements Serializable, SecretParamAware {
         result = 31 * result + (artifactStores != null ? artifactStores.hashCode() : 0);
         result = 31 * result + (buildWorkingDirectory != null ? buildWorkingDirectory.hashCode() : 0);
         result = 31 * result + (jobIdentifier != null ? jobIdentifier.hashCode() : 0);
-        result = 31 * result + (initialContext != null ? initialContext.hashCode() : 0);
-        result = 31 * result + (materialRevisions != null ? materialRevisions.hashCode() : 0);
+        result = 31 * result + initialContext.hashCode();
+        result = 31 * result + materialRevisions.hashCode();
         result = 31 * result + (approver != null ? approver.hashCode() : 0);
         return result;
     }

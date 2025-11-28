@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.plugin.domain.common;
 
+import java.util.Objects;
+
 public class PluginConfiguration {
     private final String key;
     private final Metadata metadata;
@@ -43,15 +45,15 @@ public class PluginConfiguration {
 
         PluginConfiguration that = (PluginConfiguration) o;
 
-        if (key != null ? !key.equals(that.key) : that.key != null) return false;
-        return metadata != null ? metadata.equals(that.metadata) : that.metadata == null;
+        if (!Objects.equals(key, that.key)) return false;
+        return Objects.equals(metadata, that.metadata);
 
     }
 
     @Override
     public int hashCode() {
         int result = key != null ? key.hashCode() : 0;
-        result = 31 * result + (metadata != null ? metadata.hashCode() : 0);
+        result = 31 * result + metadata.hashCode();
         return result;
     }
 }

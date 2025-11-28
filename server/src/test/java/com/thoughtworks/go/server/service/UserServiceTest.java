@@ -180,10 +180,8 @@ public class UserServiceTest {
 
     @Test
     void shouldFailWithErrorIfNoUsersAreProvidedDuringBulkDelete() {
-        List<String> usernames = null;
-
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
-        userService.deleteUsers(usernames, "currentUser", result);
+        userService.deleteUsers(null, "currentUser", result);
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.message()).isEqualTo("No users selected.");
@@ -286,10 +284,8 @@ public class UserServiceTest {
 
     @Test
     void shouldFailWithErrorIfNoUsersAreProvidedDuringBulkEnableOrDisableUsers() {
-        List<String> usernames = null;
-
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
-        userService.bulkEnableDisableUsers(usernames, true, result);
+        userService.bulkEnableDisableUsers(null, true, result);
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.message()).isEqualTo("No users selected.");

@@ -17,8 +17,8 @@ package com.thoughtworks.go.agent.common;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.ParameterException;
+import com.thoughtworks.go.util.UrlUtil;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -26,12 +26,7 @@ public class ServerUrlValidator implements IParameterValidator {
 
     @Override
     public void validate(String name, String value) throws ParameterException {
-        URL serverUrl;
-        try {
-            serverUrl = new URL(value);
-        } catch (MalformedURLException e) {
-            throw new ParameterException(name + " is not a valid url");
-        }
+        URL serverUrl = UrlUtil.fromString(value, ignore -> new ParameterException(name + " is not a valid url"));
 
         if (!List.of("http", "https").contains(serverUrl.getProtocol())) {
             throw new ParameterException(name + " must use http or https protocol");

@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
+import com.thoughtworks.go.util.UrlUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
-import java.net.MalformedURLException;
+import java.io.File;
 import java.net.URL;
 import java.util.*;
 
@@ -63,7 +64,6 @@ public class DefaultGoPluginActivatorTest {
     @Mock private PluginRegistryService pluginRegistryService;
     @Mock private ServiceReference<LoggingService> loggingServiceReference;
     @Mock private LoggingService loggingService;
-    private Enumeration<URL> emptyListOfClassesInBundle = new Hashtable<URL, String>().keys();
 
     @BeforeEach
     public void setUp() {
@@ -74,7 +74,7 @@ public class DefaultGoPluginActivatorTest {
 
         when(context.getBundle()).thenReturn(bundle);
         when(bundle.getSymbolicName()).thenReturn(SYMBOLIC_NAME);
-        when(bundle.findEntries("/", "*.class", true)).thenReturn(emptyListOfClassesInBundle);
+        when(bundle.findEntries("/", "*.class", true)).thenReturn(Collections.emptyEnumeration());
         when(pluginRegistryService.getPluginIDOfFirstPluginInBundle(SYMBOLIC_NAME)).thenReturn(PLUGIN_ID);
 
         activator = new DefaultGoPluginActivator();
@@ -160,7 +160,7 @@ public class DefaultGoPluginActivatorTest {
     }
 
     @Test
-    public void shouldSetupTheLoggerWithTheLoggingServiceAndPluginId() throws Exception {
+    public void shouldSetupTheLoggerWithTheLoggingServiceAndPluginId() {
         setupClassesInBundle();
 
         activator.start(context);
@@ -228,6 +228,7 @@ public class DefaultGoPluginActivatorTest {
         assertLoadUnloadInvocationCount(testExtensionClass, 0);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void assertLoadUnloadInvocationCount(Class<?> testExtensionClass, int invocationCount) throws Exception {
         String simpleNameOfTestExtensionClass = testExtensionClass.getSimpleName();
         setupClassesInBundle(simpleNameOfTestExtensionClass + ".class");
@@ -421,12 +422,9 @@ public class DefaultGoPluginActivatorTest {
         assertTrue(expectedErrorMessage1.equals(actualErrorMessage) || expectedErrorMessage2.equals(actualErrorMessage));
     }
 
-    private void setupClassesInBundle(String... classes) throws MalformedURLException {
-        Hashtable<URL, String> classFileEntries = new Hashtable<>();
-        for (String aClass : classes) {
-            classFileEntries.put(new URL("file:///" + aClass), "");
-        }
-        when(bundle.findEntries("/", "*.class", true)).thenReturn(classFileEntries.keys());
+    private void setupClassesInBundle(String... classes) {
+        Collection<URL> urls = Arrays.stream(classes).map(c -> UrlUtil.fromFile(new File("/" + c))).toList();
+        when(bundle.findEntries("/", "*.class", true)).thenReturn(Collections.enumeration(urls));
     }
 
     private void verifyErrorsReported(String... errors) {
@@ -436,7 +434,7 @@ public class DefaultGoPluginActivatorTest {
         verifyNoMoreInteractions(pluginRegistryService);
     }
 
-    private void verifyErrorReportedContains(String expectedPartOfErrorMessage) {
+    private void verifyErrorReportedContains(@SuppressWarnings("SameParameterValue") String expectedPartOfErrorMessage) {
         verify(pluginRegistryService).reportErrorAndInvalidate(eq(PLUGIN_ID), errorMessageCaptor.capture());
         List<String> errors = errorMessageCaptor.getValue();
         for (String errorMessage : errors) {

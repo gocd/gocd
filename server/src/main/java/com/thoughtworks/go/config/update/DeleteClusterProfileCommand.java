@@ -52,16 +52,13 @@ public class DeleteClusterProfileCommand extends ClusterProfileCommand {
                 .map(ElasticProfile::getId)
                 .collect(Collectors.toList());
 
-        boolean isValid = usedByElasticProfiles.isEmpty();
-
-        if (!isValid) {
+        if (!usedByElasticProfiles.isEmpty()) {
             String message = cannotDeleteResourceBecauseOfDependentResources(getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), EntityType.ElasticProfile.getEntityNameLowerCase(), usedByElasticProfiles);
             result.unprocessableEntity(message);
             throw new GoConfigInvalidException(preprocessedConfig, message);
-        } else {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("Cluster Profile", profile.getId()));
         }
 
-        return isValid;
+        result.setMessage(LocalizedMessage.resourceDeleteSuccessful("Cluster Profile", profile.getId()));
+        return true;
     }
 }

@@ -82,7 +82,7 @@ public class ValueStreamMapTest {
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(P1, P1.toString()), null, currentPipeline);
         graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git2"), P1, new MaterialRevision(null));
 
-        SCMDependencyNode node = (SCMDependencyNode) graph.findNode(new CaseInsensitiveString("git_fingerprint"));
+        SCMDependencyNode node = graph.findNode(new CaseInsensitiveString("git_fingerprint"));
         HashSet<String> materialNames = new HashSet<>();
         materialNames.add("git1");
         materialNames.add("git2");
@@ -110,7 +110,7 @@ public class ValueStreamMapTest {
         graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), P1, revision1);
         graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), P2, revision2);
 
-        SCMDependencyNode node = (SCMDependencyNode) graph.findNode(new CaseInsensitiveString("git_fingerprint"));
+        SCMDependencyNode node = graph.findNode(new CaseInsensitiveString("git_fingerprint"));
 
         assertThat(node.getMaterialRevisions().size()).isEqualTo(2);
         assertTrue(node.getMaterialRevisions().contains(revision1));
@@ -131,7 +131,7 @@ public class ValueStreamMapTest {
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(P1, P1.toString()), null, currentPipeline);
         graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), P1, new MaterialRevision(null));
 
-        SCMDependencyNode node = (SCMDependencyNode) graph.findNode(new CaseInsensitiveString("git_fingerprint"));
+        SCMDependencyNode node = graph.findNode(new CaseInsensitiveString("git_fingerprint"));
         HashSet<String> materialNames = new HashSet<>();
         materialNames.add("git1");
 
@@ -152,7 +152,7 @@ public class ValueStreamMapTest {
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(P1, P1.toString()), null, currentPipeline);
         graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "http://git.com", "git"), null, P1, new MaterialRevision(null));
 
-        SCMDependencyNode node = (SCMDependencyNode) graph.findNode(new CaseInsensitiveString("git_fingerprint"));
+        SCMDependencyNode node = graph.findNode(new CaseInsensitiveString("git_fingerprint"));
 
         assertTrue(node.getMaterialNames().isEmpty());
     }

@@ -15,8 +15,12 @@
  */
 package com.thoughtworks.go.util;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 
 public class UrlUtil {
     public static String encodeInUtf8(String url) {
@@ -33,5 +37,25 @@ public class UrlUtil {
             builder.append('/');
         }
         return builder.toString();
+    }
+
+    public static URL fromString(String url) {
+        return fromString(url, RuntimeException::new);
+    }
+
+    public static URL fromString(String url, Function<MalformedURLException, RuntimeException> exceptionSupplier) {
+        try {
+            return new URL(url);
+        } catch (MalformedURLException e) {
+            throw exceptionSupplier.apply(e);
+        }
+    }
+
+    public static URL fromFile(File file) {
+        try {
+            return file.toURI().toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

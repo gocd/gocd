@@ -79,14 +79,12 @@ public class ServerVersionInfoBuilder {
     }
 
     private VersionInfo createVersionInfo() {
-        VersionInfo versionInfo = null;
         GoVersion installedVersion = installedVersion();
 
-        if (installedVersion == null) return versionInfo;
+        if (installedVersion == null) return null;
 
-        versionInfo = new VersionInfo(GO_SERVER, installedVersion);
+        VersionInfo versionInfo = new VersionInfo(GO_SERVER, installedVersion);
         versionInfoDao.saveOrUpdate(versionInfo);
-
         return versionInfo;
     }
 

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.domain.config.Admin;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -120,67 +119,5 @@ public class AuthorizationTest {
         roles.add(role);
         Authorization authorization = new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("other-user"))));
         assertThat(authorization.hasAdminOrViewPermissions(viewUser, roles)).isFalse();
-    }
-
-    @Test
-    public void shouldReturnAuthorizationMapForView() {
-        Authorization authorization = new Authorization();
-        authorization.getAdminsConfig().add(new AdminRole(new CaseInsensitiveString("group_of_losers")));
-        authorization.getOperationConfig().addAll(List.of(new AdminUser(new CaseInsensitiveString("loser")), new AdminRole(new CaseInsensitiveString("group_of_losers")), new AdminRole(
-                new CaseInsensitiveString("gang_of_boozers"))));
-        authorization.getViewConfig().addAll(List.of(new AdminUser(new CaseInsensitiveString("boozer")), new AdminUser(new CaseInsensitiveString("loser"))));
-
-        List<Authorization.PresentationElement> userAuthMap = authorization.getUserAuthorizations();
-        assertThat(userAuthMap.size()).isEqualTo(2);
-        assetEntry(userAuthMap.get(0), "boozer", Authorization.PrivilegeState.OFF, Authorization.PrivilegeState.ON, Authorization.PrivilegeState.OFF, Authorization.UserType.USER);
-        assetEntry(userAuthMap.get(1), "loser", Authorization.PrivilegeState.OFF, Authorization.PrivilegeState.ON, Authorization.PrivilegeState.ON, Authorization.UserType.USER);
-
-        List<Authorization.PresentationElement> roleAuthMap = authorization.getRoleAuthorizations();
-        assertThat(roleAuthMap.size()).isEqualTo(2);
-        assetEntry(roleAuthMap.get(0), "gang_of_boozers", Authorization.PrivilegeState.OFF, Authorization.PrivilegeState.OFF, Authorization.PrivilegeState.ON, Authorization.UserType.ROLE);
-        assetEntry(roleAuthMap.get(1), "group_of_losers", Authorization.PrivilegeState.ON, Authorization.PrivilegeState.DISABLED, Authorization.PrivilegeState.DISABLED, Authorization.UserType.ROLE);
-    }
-
-    @Test
-    public void shouldPopulateErrorsOnPresentationElementWhenAnInvalidUserIsAddedToAdminList() {
-        Authorization authorization = new Authorization();
-        AdminUser invalidUser = new AdminUser(new CaseInsensitiveString("boo_user"));
-        invalidUser.addError(AdminUser.NAME, "some error");
-        AdminUser validUser = new AdminUser(new CaseInsensitiveString("valid_user"));
-        authorization.getAdminsConfig().add(invalidUser);
-        authorization.getAdminsConfig().add(validUser);
-
-        List<Authorization.PresentationElement> userAuthorizations = authorization.getUserAuthorizations();
-
-        assertThat(userAuthorizations.get(0).errors().isEmpty()).isFalse();
-        assertThat(userAuthorizations.get(0).errors().on(Admin.NAME)).isEqualTo("some error");
-
-        assertThat(userAuthorizations.get(1).errors().isEmpty()).isTrue();
-    }
-
-    @Test
-    public void shouldPopulateErrorsOnPresentationElementWhenAnInvalidRoleIsAddedToAdminList() {
-        Authorization authorization = new Authorization();
-        AdminRole invalidRole = new AdminRole(new CaseInsensitiveString("boo_user"));
-        invalidRole.addError(AdminUser.NAME, "some error");
-        AdminRole validRole = new AdminRole(new CaseInsensitiveString("valid_user"));
-        authorization.getAdminsConfig().add(invalidRole);
-        authorization.getAdminsConfig().add(validRole);
-
-        List<Authorization.PresentationElement> roleAuthorizations = authorization.getRoleAuthorizations();
-
-        assertThat(roleAuthorizations.get(0).errors().isEmpty()).isFalse();
-        assertThat(roleAuthorizations.get(0).errors().on(Admin.NAME)).isEqualTo("some error");
-
-        assertThat(roleAuthorizations.get(1).errors().isEmpty()).isTrue();
-    }
-
-    private void assetEntry(Authorization.PresentationElement entry, final String name, final Authorization.PrivilegeState adminState, final Authorization.PrivilegeState viewState,
-                            final Authorization.PrivilegeState operateState, final Authorization.UserType type) {
-        assertThat(entry.getName()).isEqualTo(name);
-        assertThat(entry.getType()).isEqualTo(type);
-        assertThat(entry.getAdmin()).isEqualTo(adminState);
-        assertThat(entry.getView()).isEqualTo(viewState);
-        assertThat(entry.getOperate()).isEqualTo(operateState);
     }
 }

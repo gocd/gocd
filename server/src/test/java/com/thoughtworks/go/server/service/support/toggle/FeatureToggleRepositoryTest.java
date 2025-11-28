@@ -168,8 +168,8 @@ public class FeatureToggleRepositoryTest {
     public void whileChangingAToggleValue_shouldNotPersist_ValueHasBeenChangedFlag() throws Exception {
         String fieldForHasBeenChangedFlag = "hasBeenChangedFromDefault";
         assertNotNull(FeatureToggle.class.getDeclaredField(fieldForHasBeenChangedFlag),
-                "This can never be null, but can throw an exception. If you've renamed the field mentioned above" +
-                        "(in FeatureToggle class), please change it in this test too. Otherwise, this test can pass, wrongly.");
+            "This can never be null, but can throw an exception. If you've renamed the field mentioned above" +
+                "(in FeatureToggle class), please change it in this test too. Otherwise, this test can pass, wrongly.");
 
         setupAvailableToggles(new FeatureToggle("key1", "desc1", true));
         File userTogglesFile = setupUserToggles(new FeatureToggle("key1", "desc1", false).withValueHasBeenChangedFlag(true));
@@ -202,9 +202,15 @@ public class FeatureToggleRepositoryTest {
         try {
             JsonHelper.fromJson(currentContentOfRealAvailableTogglesFile, FeatureToggleRepository.FeatureToggleFileContentRepresentation.class);
         } catch (Exception e) {
-            fail("Check contents of " + realAvailableTogglesFilePath + ". Contents should be valid and be equivalent" +
-                    " to FeatureToggleRepository.FeatureToggleFileContentRepresentation.class. Contents were:\n" +
-                    currentContentOfRealAvailableTogglesFile + "\n. Exception was: " + e.getMessage());
+            fail("""
+                Check contents of %s. Contents should be valid and be equivalent to FeatureToggleRepository.FeatureToggleFileContentRepresentation.class. Contents were:
+                %s
+                . Exception was: %s"""
+                .formatted(
+                    realAvailableTogglesFilePath,
+                    currentContentOfRealAvailableTogglesFile,
+                    e.getMessage()
+                ));
         }
     }
 
@@ -234,8 +240,8 @@ public class FeatureToggleRepositoryTest {
         List<String> jsonContentForEachToggle = new ArrayList<>();
         for (FeatureToggle toggle : toggles) {
             jsonContentForEachToggle.add(MessageFormat.format(
-                    "'{'\"key\": \"{0}\", \"description\": \"{1}\", \"value\": {2}'}'",
-                    toggle.key(), toggle.description(), String.valueOf(toggle.isOn())));
+                "'{'\"key\": \"{0}\", \"description\": \"{1}\", \"value\": {2}'}'",
+                toggle.key(), toggle.description(), String.valueOf(toggle.isOn())));
         }
 
         return "{ \"version\": \"1\", \"toggles\": [" + StringUtils.join(jsonContentForEachToggle, ",").trim() + "]}";

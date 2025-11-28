@@ -369,17 +369,17 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldRemoveLicenseSection_asPartOfMigration72() {
         String licenseUser = "Go UAT Thoughtworks";
         String configWithLicenseSection =
-                "<cruise schemaVersion='71'>\n" +
-                        "<server artifactsdir=\"logs\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">\n" +
-                        "    <license user=\"" + licenseUser + "\">kTr+1ZBEr/5EiWlADIM6gUMtedtaLKPh6WRGp/2qISy1QczZpqJP5vmfydvx\n" +
-                        "            Hq6o5X+nrb69sGOaBAvmjJ4cZBaIq+/4Yb+ufQCUM2DkacG/BjdEDpIoPHRA\n" +
-                        "            fUnmjddxMnVKh2CW7gn7ZnmZUyasS9621UH2uNsfms3gfIK/1PRfbdrFuu5d\n" +
-                        "            6xQEiEhjRVhKGFH4Uq2Cb0BVYCnQ+9eJ7WNwcV4pZCt1AoaMAxo4dox4NLpS\n" +
-                        "            pKtgCp1Is/7ui+MGzKEyLCuO/LLMt0ChxWSN62vXiwdW3jl2HCEsLpb70FYR\n" +
-                        "            Gj8eif3vuIB2rkOSvLkiAXqDFdEBEmb+GNV3nA4qOw==" +
-                        "</license>\n" +
-                        "  </server>\n" +
-                        "</cruise>";
+            """
+                <cruise schemaVersion='71'>
+                <server artifactsdir="logs" commandRepositoryLocation="default" serverId="dev-id">
+                    <license user="%s">kTr+1ZBEr/5EiWlADIM6gUMtedtaLKPh6WRGp/2qISy1QczZpqJP5vmfydvx
+                            Hq6o5X+nrb69sGOaBAvmjJ4cZBaIq+/4Yb+ufQCUM2DkacG/BjdEDpIoPHRA
+                            fUnmjddxMnVKh2CW7gn7ZnmZUyasS9621UH2uNsfms3gfIK/1PRfbdrFuu5d
+                            6xQEiEhjRVhKGFH4Uq2Cb0BVYCnQ+9eJ7WNwcV4pZCt1AoaMAxo4dox4NLpS
+                            pKtgCp1Is/7ui+MGzKEyLCuO/LLMt0ChxWSN62vXiwdW3jl2HCEsLpb70FYR
+                            Gj8eif3vuIB2rkOSvLkiAXqDFdEBEmb+GNV3nA4qOw==</license>
+                  </server>
+                </cruise>""".formatted(licenseUser);
 
         String migratedContent = migrateXmlString(configWithLicenseSection, 71);
         assertThat(migratedContent).doesNotContain("license");
@@ -1119,10 +1119,10 @@ public class GoConfigMigrationIntegrationTest {
                       </pipeline>
                     </pipelines>""";
 
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<cruise schemaVersion=\"113\">\n"
-                + configContent
-                + "</cruise>";
+        String configXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <cruise schemaVersion="113">
+            %s</cruise>""".formatted(configContent);
 
         String migratedContent = ConfigMigrator.migrate(configXml, 113, 114);
 
@@ -1258,10 +1258,10 @@ public class GoConfigMigrationIntegrationTest {
                       </pipeline>
                     </pipelines>""";
 
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<cruise schemaVersion=\"115\">\n"
-                + configContent
-                + "</cruise>";
+        String configXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <cruise schemaVersion="115">
+            %s</cruise>""".formatted(configContent);
 
         String migratedContent = ConfigMigrator.migrate(configXml, 115, 116);
 
@@ -1298,10 +1298,10 @@ public class GoConfigMigrationIntegrationTest {
                     </clusterProfiles>
                   </elastic>""";
 
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<cruise schemaVersion=\"119\">\n"
-                + configContent
-                + "</cruise>";
+        String configXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <cruise schemaVersion="119">
+            %s</cruise>""".formatted(configContent);
 
         String migratedContent = migrateXmlString(configXml, 119);
 
@@ -1337,10 +1337,10 @@ public class GoConfigMigrationIntegrationTest {
                     </agentProfiles>
                   </elastic>""";
 
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<cruise schemaVersion=\"121\">\n"
-                + configContent
-                + "</cruise>";
+        String configXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <cruise schemaVersion="121">
+            %s</cruise>""".formatted(configContent);
 
         String migratedContent = migrateXmlString(configXml, 121);
         assertThat(migratedContent).doesNotContain("pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\"");
@@ -1449,12 +1449,16 @@ public class GoConfigMigrationIntegrationTest {
                   </templates>""";
 
         String configXml =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<cruise schemaVersion=\"123\">\n" + originalConfig + "</cruise>";
+            """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <cruise schemaVersion="123">
+                %s</cruise>""".formatted(originalConfig);
 
         String expectedConfig =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<cruise schemaVersion=\"124\">\n" + originalConfig + "</cruise>";
+            """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <cruise schemaVersion="124">
+                %s</cruise>""".formatted(originalConfig);
 
         final String migratedXml = ConfigMigrator.migrate(configXml, 123, 124);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
@@ -2018,12 +2022,16 @@ public class GoConfigMigrationIntegrationTest {
                   </templates>""";
 
         String configXml =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<cruise schemaVersion=\"133\">\n" + originalConfig + "</cruise>";
+            """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <cruise schemaVersion="133">
+                %s</cruise>""".formatted(originalConfig);
 
         String expectedConfig =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<cruise schemaVersion=\"134\">\n" + originalConfig + "</cruise>";
+            """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <cruise schemaVersion="134">
+                %s</cruise>""".formatted(originalConfig);
 
         final String migratedXml = ConfigMigrator.migrate(configXml, 133, 134);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
@@ -2076,8 +2084,10 @@ public class GoConfigMigrationIntegrationTest {
                   </templates>""";
 
         String configXml =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<cruise schemaVersion=\"134\">\n" + originalConfig + "</cruise>";
+            """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <cruise schemaVersion="134">
+                %s</cruise>""".formatted(originalConfig);
 
         String expectedConfig = configXml.replace("134", "135").replace("npm:my-package", "npm_my-package");
 
@@ -2211,12 +2221,16 @@ public class GoConfigMigrationIntegrationTest {
                   </templates>""";
 
         String configXml =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<cruise schemaVersion=\"137\">\n" + originalConfig + "</cruise>";
+            """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <cruise schemaVersion="137">
+                %s</cruise>""".formatted(originalConfig);
 
         String expectedConfig =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<cruise schemaVersion=\"138\">\n" + originalConfig + "</cruise>";
+            """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <cruise schemaVersion="138">
+                %s</cruise>""".formatted(originalConfig);
 
         final String migratedXml = ConfigMigrator.migrate(configXml, 137, 138);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
@@ -2247,14 +2261,17 @@ public class GoConfigMigrationIntegrationTest {
                   </templates>""";
 
         String configXml =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<cruise schemaVersion=\"138\"><server commandRepositoryLocation=\"default\"/>\n" + originalConfig + "</cruise>";
+            """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <cruise schemaVersion="138"><server commandRepositoryLocation="default"/>
+                %s</cruise>""".formatted(originalConfig);
 
 
         final String migratedXml = ConfigMigrator.migrate(configXml, 138, 139);
         XmlAssert.assertThat(migratedXml).nodesByXPath("//server").doNotHaveAttribute("commandRepositoryLocation");
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {
         assertThat(actual.replaceAll("\\r", "")).contains(substring.replaceAll("\\r", ""));
     }

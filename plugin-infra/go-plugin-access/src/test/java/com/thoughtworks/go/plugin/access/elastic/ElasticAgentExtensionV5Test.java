@@ -383,11 +383,13 @@ public class ElasticAgentExtensionV5Test {
 
     @Test
     public void shouldMigrateElasticAgentInformation() {
-        String responseBody = "{" +
-                "    \"plugin_settings\":{}," +
-                "    \"cluster_profiles\":[]," +
-                "    \"elastic_agent_profiles\":[]" +
-                "}\n";
+        String responseBody = """
+            {
+                "plugin_settings": {},
+                "cluster_profiles": [],
+                "elastic_agent_profiles": []
+            }
+            """;
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
@@ -406,11 +408,12 @@ public class ElasticAgentExtensionV5Test {
         Map<String, String> clusterProfile = Map.of("key1", "value1");
         extensionV5.getClusterStatusReport(PLUGIN_ID, clusterProfile);
 
-        final String requestBody = "{\n" +
-                "  \"cluster_profile_properties\":{" +
-                "       \"key1\":\"value1\"" +
-                "  }" +
-                "}";
+        final String requestBody = """
+            {
+              "cluster_profile_properties": {
+                   "key1": "value1"
+              }
+            }""";
 
         assertExtensionRequest("5.0", REQUEST_CLUSTER_STATUS_REPORT, requestBody);
     }

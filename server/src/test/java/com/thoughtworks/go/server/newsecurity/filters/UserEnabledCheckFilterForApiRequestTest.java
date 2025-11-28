@@ -45,6 +45,9 @@ class UserEnabledCheckFilterForApiRequestTest {
                 .isUnauthorized()
                 .hasHeader("Content-Type", "application/json;charset=utf-8")
                 .doesNotContainHeader("WWW-Authenticate")
-                .hasBody("{\n  \"message\": \"something bad happened!\"\n}");
+                .hasBody("""
+                    {
+                      "message": "something bad happened!"
+                    }""");
     }
 }

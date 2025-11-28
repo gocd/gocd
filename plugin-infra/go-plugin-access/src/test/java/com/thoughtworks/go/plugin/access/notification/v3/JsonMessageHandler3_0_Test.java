@@ -107,154 +107,165 @@ public class JsonMessageHandler3_0_Test {
         String dependencyModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(5).getLatestModification().getModifiedTime());
         String packageMaterialModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(6).getLatestModification().getModifiedTime());
         String pluggableScmModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(7).getLatestModification().getModifiedTime());
-        String expected = "{\n" +
-                " \"pipeline\": {\n" +
-                "   \"name\": \"pipeline-name\",\n" +
-                "   \"label\": \"LABEL-1\",\n" +
-                "   \"counter\": \"1\",\n" +
-                "   \"group\": \"pipeline-group\",\n" +
-                "   \"build-cause\": [{\n" +
-                "     \"material\": {\n" +
-                "       \"git-configuration\": {\n" +
-                "         \"shallow-clone\": false,\n" +
-                "         \"branch\": \"branch\",\n" +
-                "         \"url\": \"http://user:******@gitrepo.com\"\n" +
-                "       },\n" +
-                "       \"type\": \"git\"\n" +
-                "     },\n" +
-                "     \"changed\": true,\n" +
-                "     \"modifications\": [{\n" +
-                "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \"" + gitModifiedTime + "\",\n" +
-                "       \"data\": {}\n" +
-                "     }]\n" +
-                "   }, {\n" +
-                "     \"material\": {\n" +
-                "       \"type\": \"mercurial\",\n" +
-                "       \"mercurial-configuration\": {\n" +
-                "         \"url\": \"http://user:******@hgrepo.com\"\n" +
-                "       }\n" +
-                "     },\n" +
-                "     \"changed\": true,\n" +
-                "     \"modifications\": [{\n" +
-                "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \"" + hgModifiedTime + "\",\n" +
-                "       \"data\": {}\n" +
-                "     }]\n" +
-                "   }, {\n" +
-                "     \"material\": {\n" +
-                "       \"svn-configuration\": {\n" +
-                "         \"check-externals\": false,\n" +
-                "         \"url\": \"http://user:******@svnrepo.com\",\n" +
-                "         \"username\": \"username\"\n" +
-                "       },\n" +
-                "       \"type\": \"svn\"\n" +
-                "     },\n" +
-                "     \"changed\": true,\n" +
-                "     \"modifications\": [{\n" +
-                "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \"" + svnModifiedTime + "\",\n" +
-                "       \"data\": {}\n" +
-                "     }]\n" +
-                "   }, {\n" +
-                "     \"material\": {\n" +
-                "       \"type\": \"tfs\",\n" +
-                "       \"tfs-configuration\": {\n" +
-                "         \"domain\": \"domain\",\n" +
-                "         \"project-path\": \"project-path\",\n" +
-                "         \"url\": \"http://user:******@tfsrepo.com\",\n" +
-                "         \"username\": \"username\"\n" +
-                "       }\n" +
-                "     },\n" +
-                "     \"changed\": true,\n" +
-                "     \"modifications\": [{\n" +
-                "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \"" + tfsModifiedTime + "\",\n" +
-                "       \"data\": {}\n" +
-                "     }]\n" +
-                "   }, {\n" +
-                "     \"material\": {\n" +
-                "       \"perforce-configuration\": {\n" +
-                "         \"view\": \"view\",\n" +
-                "         \"use-tickets\": false,\n" +
-                "         \"url\": \"127.0.0.1:1666\",\n" +
-                "         \"username\": \"username\"\n" +
-                "       },\n" +
-                "       \"type\": \"perforce\"\n" +
-                "     },\n" +
-                "     \"changed\": true,\n" +
-                "     \"modifications\": [{\n" +
-                "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \"" + p4ModifiedTime + "\",\n" +
-                "       \"data\": {}\n" +
-                "     }]\n" +
-                "   }, {\n" +
-                "     \"material\": {\n" +
-                "       \"pipeline-configuration\": {\n" +
-                "         \"pipeline-name\": \"pipeline-name\",\n" +
-                "         \"stage-name\": \"stage-name\"\n" +
-                "       },\n" +
-                "       \"type\": \"pipeline\"\n" +
-                "     },\n" +
-                "     \"changed\": true,\n" +
-                "     \"modifications\": [{\n" +
-                "       \"revision\": \"pipeline-name/1/stage-name/1\",\n" +
-                "       \"modified-time\": \"" + dependencyModifiedTime + "\",\n" +
-                "       \"data\": {}\n" +
-                "     }]\n" +
-                "   }, {\n" +
-                "     \"material\": {\n" +
-                "       \"plugin-id\": \"pluginid\",\n" +
-                "       \"package-configuration\": {\n" +
-                "         \"k3\": \"package-v1\"\n" +
-                "       },\n" +
-                "       \"repository-configuration\": {\n" +
-                "         \"k1\": \"repo-v1\"\n" +
-                "       },\n" +
-                "       \"type\": \"package\"\n" +
-                "     },\n" +
-                "     \"changed\": true,\n" +
-                "     \"modifications\": [{\n" +
-                "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \"" + packageMaterialModifiedTime + "\",\n" +
-                "       \"data\": {}\n" +
-                "     }]\n" +
-                "   }, {\n" +
-                "     \"material\": {\n" +
-                "       \"plugin-id\": \"pluginid\",\n" +
-                "       \"scm-configuration\": {\n" +
-                "         \"k1\": \"v1\"\n" +
-                "       },\n" +
-                "       \"type\": \"scm\"\n" +
-                "     },\n" +
-                "     \"changed\": true,\n" +
-                "     \"modifications\": [{\n" +
-                "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \"" + pluggableScmModifiedTime + "\",\n" +
-                "       \"data\": {}\n" +
-                "     }]\n" +
-                "   }],\n" +
-                "   \"stage\": {\n" +
-                "     \"name\": \"stage-name\",\n" +
-                "     \"counter\": \"1\",\n" +
-                "     \"approval-type\": \"success\",\n" +
-                "     \"approved-by\": \"changes\",\n" +
-                "     \"state\": \"Passed\",\n" +
-                "     \"result\": \"Passed\",\n" +
-                "     \"create-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
-                "     \"last-transition-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
-                "     \"jobs\": [{\n" +
-                "       \"name\": \"job-name\",\n" +
-                "       \"schedule-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
-                "       \"assign-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
-                "       \"complete-time\": \"2011-07-13T14:13:37.100+0000\",\n" +
-                "       \"state\": \"Completed\",\n" +
-                "       \"result\": \"Passed\",\n" +
-                "       \"agent-uuid\": \"uuid\"\n" +
-                "     }]\n" +
-                "   }\n" +
-                " }\n" +
-                "}";
+        String expected = """
+            {
+             "pipeline": {
+               "name": "pipeline-name",
+               "label": "LABEL-1",
+               "counter": "1",
+               "group": "pipeline-group",
+               "build-cause": [{
+                 "material": {
+                   "git-configuration": {
+                     "shallow-clone": false,
+                     "branch": "branch",
+                     "url": "http://user:******@gitrepo.com"
+                   },
+                   "type": "git"
+                 },
+                 "changed": true,
+                 "modifications": [{
+                   "revision": "1",
+                   "modified-time": "%s",
+                   "data": {}
+                 }]
+               }, {
+                 "material": {
+                   "type": "mercurial",
+                   "mercurial-configuration": {
+                     "url": "http://user:******@hgrepo.com"
+                   }
+                 },
+                 "changed": true,
+                 "modifications": [{
+                   "revision": "1",
+                   "modified-time": "%s",
+                   "data": {}
+                 }]
+               }, {
+                 "material": {
+                   "svn-configuration": {
+                     "check-externals": false,
+                     "url": "http://user:******@svnrepo.com",
+                     "username": "username"
+                   },
+                   "type": "svn"
+                 },
+                 "changed": true,
+                 "modifications": [{
+                   "revision": "1",
+                   "modified-time": "%s",
+                   "data": {}
+                 }]
+               }, {
+                 "material": {
+                   "type": "tfs",
+                   "tfs-configuration": {
+                     "domain": "domain",
+                     "project-path": "project-path",
+                     "url": "http://user:******@tfsrepo.com",
+                     "username": "username"
+                   }
+                 },
+                 "changed": true,
+                 "modifications": [{
+                   "revision": "1",
+                   "modified-time": "%s",
+                   "data": {}
+                 }]
+               }, {
+                 "material": {
+                   "perforce-configuration": {
+                     "view": "view",
+                     "use-tickets": false,
+                     "url": "127.0.0.1:1666",
+                     "username": "username"
+                   },
+                   "type": "perforce"
+                 },
+                 "changed": true,
+                 "modifications": [{
+                   "revision": "1",
+                   "modified-time": "%s",
+                   "data": {}
+                 }]
+               }, {
+                 "material": {
+                   "pipeline-configuration": {
+                     "pipeline-name": "pipeline-name",
+                     "stage-name": "stage-name"
+                   },
+                   "type": "pipeline"
+                 },
+                 "changed": true,
+                 "modifications": [{
+                   "revision": "pipeline-name/1/stage-name/1",
+                   "modified-time": "%s",
+                   "data": {}
+                 }]
+               }, {
+                 "material": {
+                   "plugin-id": "pluginid",
+                   "package-configuration": {
+                     "k3": "package-v1"
+                   },
+                   "repository-configuration": {
+                     "k1": "repo-v1"
+                   },
+                   "type": "package"
+                 },
+                 "changed": true,
+                 "modifications": [{
+                   "revision": "1",
+                   "modified-time": "%s",
+                   "data": {}
+                 }]
+               }, {
+                 "material": {
+                   "plugin-id": "pluginid",
+                   "scm-configuration": {
+                     "k1": "v1"
+                   },
+                   "type": "scm"
+                 },
+                 "changed": true,
+                 "modifications": [{
+                   "revision": "1",
+                   "modified-time": "%s",
+                   "data": {}
+                 }]
+               }],
+               "stage": {
+                 "name": "stage-name",
+                 "counter": "1",
+                 "approval-type": "success",
+                 "approved-by": "changes",
+                 "state": "Passed",
+                 "result": "Passed",
+                 "create-time": "2011-07-13T14:13:37.100+0000",
+                 "last-transition-time": "2011-07-13T14:13:37.100+0000",
+                 "jobs": [{
+                   "name": "job-name",
+                   "schedule-time": "2011-07-13T14:13:37.100+0000",
+                   "assign-time": "2011-07-13T14:13:37.100+0000",
+                   "complete-time": "2011-07-13T14:13:37.100+0000",
+                   "state": "Completed",
+                   "result": "Passed",
+                   "agent-uuid": "uuid"
+                 }]
+               }
+             }
+            }"""
+            .formatted(
+                gitModifiedTime,
+                hgModifiedTime,
+                svnModifiedTime,
+                tfsModifiedTime,
+                p4ModifiedTime,
+                dependencyModifiedTime,
+                packageMaterialModifiedTime,
+                pluggableScmModifiedTime
+            );
 
         String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group"));
         assertThatJson(expected).isEqualTo(request);
@@ -263,7 +274,7 @@ public class JsonMessageHandler3_0_Test {
     @Test
     public void shouldThrowExceptionIfAnUnhandledObjectIsPassed() {
         assertThatThrownBy(() -> messageHandler.requestMessageForNotify(new Pipeline()))
-                .hasMessageContaining(String.format("Converter for %s not supported", Pipeline.class.getCanonicalName()));
+            .hasMessageContaining(String.format("Converter for %s not supported", Pipeline.class.getCanonicalName()));
     }
 
     @Test
@@ -274,21 +285,23 @@ public class JsonMessageHandler3_0_Test {
         String time = simpleDateFormat.format(transition_time);
 
         AgentNotificationData agentNotificationData = new AgentNotificationData("agent_uuid", "agent_hostname",
-                true, "127.0.0.1", "rh", "100",
-                "enabled", "building", "building", transition_time);
+            true, "127.0.0.1", "rh", "100",
+            "enabled", "building", "building", transition_time);
 
-        String expected = "{\n" +
-                "    \"agent_config_state\": \"enabled\",\n" +
-                "    \"agent_state\": \"building\",\n" +
-                "    \"build_state\": \"building\",\n" +
-                "    \"is_elastic\": true,\n" +
-                "    \"free_space\": \"100\",\n" +
-                "    \"host_name\": \"agent_hostname\",\n" +
-                "    \"ip_address\": \"127.0.0.1\",\n" +
-                "    \"operating_system\": \"rh\",\n" +
-                "    \"uuid\": \"agent_uuid\",\n" +
-                "    \"transition_time\": \"" + time + "\"\n" +
-                "}\n";
+        String expected = """
+            {
+                "agent_config_state": "enabled",
+                "agent_state": "building",
+                "build_state": "building",
+                "is_elastic": true,
+                "free_space": "100",
+                "host_name": "agent_hostname",
+                "ip_address": "127.0.0.1",
+                "operating_system": "rh",
+                "uuid": "agent_uuid",
+                "transition_time": "%s"
+            }
+            """.formatted(time);
 
         String message = messageHandler.requestMessageForNotify(agentNotificationData);
 

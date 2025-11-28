@@ -32,8 +32,7 @@ public class InMemoryStreamConsumer extends ProcessOutputStreamConsumer<InMemory
     }
 
     public String getAllOutput() {
-        return getStdOut() + "\n"
-                + getStdError();
+        return getStdOut() + "\n" + getStdError();
 
     }
 

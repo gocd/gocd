@@ -1327,10 +1327,10 @@ public class GoConfigMigratorIntegrationTest {
                   </elastic>\
                 """;
 
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<cruise schemaVersion=\"118\">\n"
-                + configContent
-                + "</cruise>";
+        String configXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <cruise schemaVersion="118">
+            %s</cruise>""".formatted(configContent);
 
         ClusterProfile azureProfile = new ClusterProfile("no-op-cluster-for-com.thoughtworks.gocd.elastic-agent.azure", "com.thoughtworks.gocd.elastic-agent.azure");
         ClusterProfile dockerProfile = new ClusterProfile("no-op-cluster-for-cd.go.contrib.elastic-agent.docker", "cd.go.contrib.elastic-agent.docker");
@@ -1392,10 +1392,10 @@ public class GoConfigMigratorIntegrationTest {
                   </agents>\
                 """;
 
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<cruise schemaVersion=\"127\">\n"
-                + configContent
-                + "</cruise>";
+        String configXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <cruise schemaVersion="127">
+            %s</cruise>""".formatted(configContent);
 
         int initialAgentCountInDb = agentDao.getAllAgents().size();
         migrateConfigAndLoadTheNewConfig(configXml);
@@ -1471,10 +1471,10 @@ public class GoConfigMigratorIntegrationTest {
                   </agents>\
                 """;
 
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<cruise schemaVersion=\"127\">\n"
-                + configContent
-                + "</cruise>";
+        String configXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <cruise schemaVersion="127">
+            %s</cruise>""".formatted(configContent);
 
         Agent agent = new Agent("one", "old-host", "old-ip", "cookie");
         agentDao.saveOrUpdate(agent);
@@ -1503,17 +1503,18 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     private String configWithTimerBasedPipeline(String valueForOnChangesInTimer) {
-        return ConfigFileFixture.configWithPipeline("<pipeline name='old-timer'>\n"
-                + "  <timer " + valueForOnChangesInTimer + ">0 0 1 * * ?</timer>\n"
-                + "  <materials>\n"
-                + "    <git url='/tmp/git' />\n"
-                + "  </materials>\n"
-                + "  <stage name='dist'>\n"
-                + "    <jobs>\n"
-                + "      <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
-                + "    </jobs>\n"
-                + "  </stage>\n"
-                + "</pipeline>", 63);
+        return ConfigFileFixture.configWithPipeline("""
+            <pipeline name='old-timer'>
+              <timer %s>0 0 1 * * ?</timer>
+              <materials>
+                <git url='/tmp/git' />
+              </materials>
+              <stage name='dist'>
+                <jobs>
+                  <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                </jobs>
+              </stage>
+            </pipeline>""".formatted(valueForOnChangesInTimer), 63);
     }
 
     private CruiseConfig migrateConfigAndLoadTheNewConfig(String content) throws Exception {

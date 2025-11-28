@@ -71,12 +71,18 @@ public class StageNotificationServiceTest {
         String body = inMemoryEmailNotificationTopic.getBody(jezMail);
         assertThat(body).contains(MATERIAL_SECTION_HEADER);
         String materialBody = textAfter(body, MATERIAL_SECTION_HEADER);
-        assertEquals("\n\nSubversion: http://some/svn/url\n"
-                + String.format("revision: 123, modified by lgao on %s\n", date)
-                + "Fixing the not checked in files\n"
-                + "added build.xml\n"
-                + "deleted some.xml\n\n"
-                + "Sent by Go on behalf of jez", materialBody);
+        assertEquals("""
+                
+                
+                Subversion: http://some/svn/url
+                revision: 123, modified by lgao on %s
+                Fixing the not checked in files
+                added build.xml
+                deleted some.xml
+                
+                Sent by Go on behalf of jez"""
+                .formatted(date),
+            materialBody);
     }
 
     @Test
@@ -99,9 +105,9 @@ public class StageNotificationServiceTest {
         svnModification.createModifiedFile("some.xml", "other_dir", ModifiedAction.deleted);
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig,
-                new ManualBuild(new Username(new CaseInsensitiveString("loser"))).onModifications(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterials(pipelineConfig.materialConfigs()).get(0), svnModification)),
-                        false, null),
-                new DefaultSchedulingContext("loser"), "md5-test", new TimeProvider());
+            new ManualBuild(new Username(new CaseInsensitiveString("loser"))).onModifications(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterials(pipelineConfig.materialConfigs()).get(0), svnModification)),
+                false, null),
+            new DefaultSchedulingContext("loser"), "md5-test", new TimeProvider());
         Stage stage = pipeline.getStages().get(0);
         when(stageService.findStageWithIdentifier(stageIdentifier)).thenReturn(stage);
         stage.setPipelineId(100L);

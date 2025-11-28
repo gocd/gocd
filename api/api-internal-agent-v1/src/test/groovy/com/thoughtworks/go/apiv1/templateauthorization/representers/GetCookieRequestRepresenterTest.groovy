@@ -29,86 +29,88 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory
 import static org.assertj.core.api.Assertions.assertThat
 
 class GetCookieRequestRepresenterTest {
-    @Test
-    void 'should deserialize request from json'() {
-        def requestJSON = "{\n" +
-                "  \"agentRuntimeInfo\": {\n" +
-                "    \"type\": \"AgentRuntimeInfo\",\n" +
-                "    \"identifier\": {\n" +
-                "      \"hostName\": \"localhost\",\n" +
-                "      \"ipAddress\": \"176.19.4.1\",\n" +
-                "      \"uuid\": \"uuid\"\n" +
-                "    },\n" +
-                "    \"runtimeStatus\": \"Idle\",\n" +
-                "    \"buildingInfo\": {\n" +
-                "      \"buildingInfo\": \"\",\n" +
-                "      \"buildLocator\": \"\"\n" +
-                "    },\n" +
-                "    \"location\": \"/some/random/location\",\n" +
-                "    \"usableSpace\": 10,\n" +
-                "    \"operatingSystemName\": \"Mac OS X\",\n" +
-                "    \"agentBootstrapperVersion\": \"20.1.0\",\n" +
-                "    \"agentVersion\": \"20.9.0\"\n" +
-                "  }\n" +
-                "}"
+  @Test
+  void 'should deserialize request from json'() {
+    def requestJSON = """
+          {
+            "agentRuntimeInfo": {
+              "type": "AgentRuntimeInfo",
+              "identifier": {
+                "hostName": "localhost",
+                "ipAddress": "176.19.4.1",
+                "uuid": "uuid"
+              },
+              "runtimeStatus": "Idle",
+              "buildingInfo": {
+                "buildingInfo": "",
+                "buildLocator": ""
+              },
+              "location": "/some/random/location",
+              "usableSpace": 10,
+              "operatingSystemName": "Mac OS X",
+              "agentBootstrapperVersion": "20.1.0",
+              "agentVersion": "20.9.0"
+            }
+          }"""
 
-        def agent = new Agent("uuid", "localhost", "176.19.4.1")
-        def expectedRuntimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-                "20.1.0", "20.9.0", () -> "Mac OS X")
-        expectedRuntimeInfo.setUsableSpace(10L)
-        expectedRuntimeInfo.setLocation("/some/random/location")
+    def agent = new Agent("uuid", "localhost", "176.19.4.1")
+    def expectedRuntimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
+      "20.1.0", "20.9.0", () -> "Mac OS X")
+    expectedRuntimeInfo.setUsableSpace(10L)
+    expectedRuntimeInfo.setLocation("/some/random/location")
 
-        def request = GetCookieRequestRepresenter.fromJSON(requestJSON)
+    def request = GetCookieRequestRepresenter.fromJSON(requestJSON)
 
-        assertThat(request.getAgentRuntimeInfo()).isEqualTo(expectedRuntimeInfo)
-    }
+    assertThat(request.getAgentRuntimeInfo()).isEqualTo(expectedRuntimeInfo)
+  }
 
-    @Test
-    void 'should deserialize json representing runtime info for elastic agents'() {
-        def requestJSON = "{\n" +
-                "  \"agentRuntimeInfo\": {\n" +
-                "    \"type\": \"ElasticAgentRuntimeInfo\",\n" +
-                "    \"elasticAgentId\": \"elastic_agent_id\",\n" +
-                "    \"elasticPluginId\": \"plugin_id\",\n" +
-                "    \"identifier\": {\n" +
-                "      \"hostName\": \"localhost\",\n" +
-                "      \"ipAddress\": \"176.19.4.1\",\n" +
-                "      \"uuid\": \"uuid\"\n" +
-                "    },\n" +
-                "    \"runtimeStatus\": \"Idle\",\n" +
-                "    \"buildingInfo\": {\n" +
-                "      \"buildingInfo\": \"\",\n" +
-                "      \"buildLocator\": \"\"\n" +
-                "    },\n" +
-                "    \"location\": \"/some/random/location\",\n" +
-                "    \"usableSpace\": 10,\n" +
-                "    \"operatingSystemName\": \"Mac OS X\",\n" +
-                "    \"agentBootstrapperVersion\": \"20.1.0\",\n" +
-                "    \"agentVersion\": \"20.9.0\"\n" +
-                "  }\n" +
-                "}"
-        def agent = new Agent("uuid", "localhost", "176.19.4.1")
-        def expectedRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-          "elastic_agent_id", "plugin_id", "20.1.0", "20.9.0", () -> "Mac OS X")
-        expectedRuntimeInfo.setUsableSpace(10L)
-        expectedRuntimeInfo.setLocation("/some/random/location")
+  @Test
+  void 'should deserialize json representing runtime info for elastic agents'() {
+    def requestJSON = """
+          {
+            "agentRuntimeInfo": {
+              "type": "ElasticAgentRuntimeInfo",
+              "elasticAgentId": "elastic_agent_id",
+              "elasticPluginId": "plugin_id",
+              "identifier": {
+                "hostName": "localhost",
+                "ipAddress": "176.19.4.1",
+                "uuid": "uuid"
+              },
+              "runtimeStatus": "Idle",
+              "buildingInfo": {
+                "buildingInfo": "",
+                "buildLocator": ""
+              },
+              "location": "/some/random/location",
+              "usableSpace": 10,
+              "operatingSystemName": "Mac OS X",
+              "agentBootstrapperVersion": "20.1.0",
+              "agentVersion": "20.9.0"
+            }
+          }"""
+    def agent = new Agent("uuid", "localhost", "176.19.4.1")
+    def expectedRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
+      "elastic_agent_id", "plugin_id", "20.1.0", "20.9.0", () -> "Mac OS X")
+    expectedRuntimeInfo.setUsableSpace(10L)
+    expectedRuntimeInfo.setLocation("/some/random/location")
 
-        def request = GetCookieRequestRepresenter.fromJSON(requestJSON)
+    def request = GetCookieRequestRepresenter.fromJSON(requestJSON)
 
-        assertThat(request.getAgentRuntimeInfo()).isEqualTo(expectedRuntimeInfo)
-    }
+    assertThat(request.getAgentRuntimeInfo()).isEqualTo(expectedRuntimeInfo)
+  }
 
-    @Test
-    void 'should ensure the serialized and deserialized objects are same'() {
-        def agent = new Agent("uuid", "localhost", "176.19.4.1")
-        def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-                "20.1.0", "20.9.0", () -> "Mac OS X")
-        runtimeInfo.setUsableSpace(10L)
-        runtimeInfo.setLocation("/some/random/location")
+  @Test
+  void 'should ensure the serialized and deserialized objects are same'() {
+    def agent = new Agent("uuid", "localhost", "176.19.4.1")
+    def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
+      "20.1.0", "20.9.0", () -> "Mac OS X")
+    runtimeInfo.setUsableSpace(10L)
+    runtimeInfo.setLocation("/some/random/location")
 
-        def requestJSON = GetCookieRequestRepresenter.toJSON(new GetCookieRequest(runtimeInfo))
-        def requestFromAgent = GetCookieRequestRepresenter.fromJSON(requestJSON)
+    def requestJSON = GetCookieRequestRepresenter.toJSON(new GetCookieRequest(runtimeInfo))
+    def requestFromAgent = GetCookieRequestRepresenter.fromJSON(requestJSON)
 
-        assertThat(EqualsBuilder.reflectionEquals(requestFromAgent, new GetCookieRequest(runtimeInfo) )).isTrue()
-    }
+    assertThat(EqualsBuilder.reflectionEquals(requestFromAgent, new GetCookieRequest(runtimeInfo))).isTrue()
+  }
 }

@@ -29,26 +29,27 @@ import static org.assertj.core.api.Assertions.assertThat
 class GetWorkRequestRepresenterTest {
     @Test
     void 'should deserialize request from json'() {
-        def requestJSON = "{\n" +
-                "  \"agentRuntimeInfo\": {\n" +
-                "    \"type\": \"AgentRuntimeInfo\",\n" +
-                "    \"identifier\": {\n" +
-                "      \"hostName\": \"localhost\",\n" +
-                "      \"ipAddress\": \"176.19.4.1\",\n" +
-                "      \"uuid\": \"uuid\"\n" +
-                "    },\n" +
-                "    \"runtimeStatus\": \"Idle\",\n" +
-                "    \"buildingInfo\": {\n" +
-                "      \"buildingInfo\": \"\",\n" +
-                "      \"buildLocator\": \"\"\n" +
-                "    },\n" +
-                "    \"location\": \"/some/random/location\",\n" +
-                "    \"usableSpace\": 10,\n" +
-                "    \"operatingSystemName\": \"Mac OS X\",\n" +
-                "    \"agentBootstrapperVersion\": \"20.1.0\",\n" +
-                "    \"agentVersion\": \"20.9.0\"\n" +
-                "  }\n" +
-                "}"
+        def requestJSON = """
+          {
+            "agentRuntimeInfo": {
+              "type": "AgentRuntimeInfo",
+              "identifier": {
+                "hostName": "localhost",
+                "ipAddress": "176.19.4.1",
+                "uuid": "uuid"
+              },
+              "runtimeStatus": "Idle",
+              "buildingInfo": {
+                "buildingInfo": "",
+                "buildLocator": ""
+              },
+              "location": "/some/random/location",
+              "usableSpace": 10,
+              "operatingSystemName": "Mac OS X",
+              "agentBootstrapperVersion": "20.1.0",
+              "agentVersion": "20.9.0"
+            }
+          }"""
 
         def agent = new Agent("uuid", "localhost", "176.19.4.1")
         def expectedRuntimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
@@ -63,28 +64,29 @@ class GetWorkRequestRepresenterTest {
 
     @Test
     void 'should deserialize json representing runtime info for elastic agents'() {
-        def requestJSON = "{\n" +
-                "  \"agentRuntimeInfo\": {\n" +
-                "    \"type\": \"ElasticAgentRuntimeInfo\",\n" +
-                "    \"elasticAgentId\": \"elastic_agent_id\",\n" +
-                "    \"elasticPluginId\": \"plugin_id\",\n" +
-                "    \"identifier\": {\n" +
-                "      \"hostName\": \"localhost\",\n" +
-                "      \"ipAddress\": \"176.19.4.1\",\n" +
-                "      \"uuid\": \"uuid\"\n" +
-                "    },\n" +
-                "    \"runtimeStatus\": \"Idle\",\n" +
-                "    \"buildingInfo\": {\n" +
-                "      \"buildingInfo\": \"\",\n" +
-                "      \"buildLocator\": \"\"\n" +
-                "    },\n" +
-                "    \"location\": \"/some/random/location\",\n" +
-                "    \"usableSpace\": 10,\n" +
-                "    \"operatingSystemName\": \"Mac OS X\",\n" +
-                "    \"agentBootstrapperVersion\": \"20.1.0\",\n" +
-                "    \"agentVersion\": \"20.9.0\"\n" +
-                "  }\n" +
-                "}"
+        def requestJSON = """
+          {
+            "agentRuntimeInfo": {
+              "type": "ElasticAgentRuntimeInfo",
+              "elasticAgentId": "elastic_agent_id",
+              "elasticPluginId": "plugin_id",
+              "identifier": {
+                "hostName": "localhost",
+                "ipAddress": "176.19.4.1",
+                "uuid": "uuid"
+              },
+              "runtimeStatus": "Idle",
+              "buildingInfo": {
+                "buildingInfo": "",
+                "buildLocator": ""
+              },
+              "location": "/some/random/location",
+              "usableSpace": 10,
+              "operatingSystemName": "Mac OS X",
+              "agentBootstrapperVersion": "20.1.0",
+              "agentVersion": "20.9.0"
+            }
+          }"""
         def agent = new Agent("uuid", "localhost", "176.19.4.1")
         def expectedRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
           "elastic_agent_id", "plugin_id", "20.1.0", "20.9.0", () -> "Mac OS X")

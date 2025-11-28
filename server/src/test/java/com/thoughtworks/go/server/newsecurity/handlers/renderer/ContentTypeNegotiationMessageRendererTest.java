@@ -31,8 +31,8 @@ class ContentTypeNegotiationMessageRendererTest {
     @ValueSource(strings = {MediaType.TEXT_XML_VALUE, MediaType.APPLICATION_XML_VALUE})
     void shouldGenerateXMLResponseMessageForContentType(String contentType) {
         final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
-                .withHeader("Accept", contentType)
-                .build();
+            .withHeader("Accept", contentType)
+            .build();
 
         final ContentTypeAwareResponse response = new ContentTypeNegotiationMessageRenderer().getResponse(request);
 
@@ -42,49 +42,59 @@ class ContentTypeNegotiationMessageRendererTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            MediaType.APPLICATION_JSON_VALUE,
-            "application/vnd.go.cd.v1+json",
-            "application/vnd.go.cd.v2+json",
-            "application/vnd.go.cd.v3+json",
-            "application/vnd.go.cd.v4+json",
-            "application/vnd.go.cd.v5+json",
-            "application/vnd.go.cd.v6+json",
-            "application/vnd.go.cd.v7+json",
-            "application/vnd.go.cd.v8+json",
-            "application/vnd.go.cd.v9+json",
-            "application/vnd.go.cd.v50+json",
-            "application/vnd.go.cd.v99+json"
+        MediaType.APPLICATION_JSON_VALUE,
+        "application/vnd.go.cd.v1+json",
+        "application/vnd.go.cd.v2+json",
+        "application/vnd.go.cd.v3+json",
+        "application/vnd.go.cd.v4+json",
+        "application/vnd.go.cd.v5+json",
+        "application/vnd.go.cd.v6+json",
+        "application/vnd.go.cd.v7+json",
+        "application/vnd.go.cd.v8+json",
+        "application/vnd.go.cd.v9+json",
+        "application/vnd.go.cd.v50+json",
+        "application/vnd.go.cd.v99+json"
     })
     void shouldGenerateJSONResponseMessageForContentType(String contentType) {
         final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
-                .withHeader("Accept", contentType)
-                .build();
+            .withHeader("Accept", contentType)
+            .build();
 
         final ContentTypeAwareResponse response = new ContentTypeNegotiationMessageRenderer().getResponse(request);
 
         assertThat(response.getContentType().toString()).isEqualTo(contentType);
-        assertThat(response.getFormattedMessage("foo")).isEqualTo("{\n  \"message\": \"foo\"\n}");
+        assertThat(response.getFormattedMessage("foo")).isEqualTo("""
+            {
+              "message": "foo"
+            }""");
     }
 
     @Test
     void shouldGenerateXMLResponseMessageWhenRequestIsForXMLFile() {
         final MockHttpServletRequest request = HttpRequestBuilder.GET("/foo.xml")
-                .build();
+            .build();
 
         final ContentTypeAwareResponse response = new ContentTypeNegotiationMessageRenderer().getResponse(request);
 
         assertThat(response.getContentType().toString()).isEqualTo("application/xml");
-        assertThat(response.getFormattedMessage("foo")).isEqualTo("<access-denied>\n  <message>foo</message>\n</access-denied>\n");
+        assertThat(response.getFormattedMessage("foo")).isEqualTo("""
+            <access-denied>
+              <message>foo</message>
+            </access-denied>
+            """);
     }
 
     @Test
     void shouldJsonResponseMessageWhenRequestIsMadeWithoutContentTypeAndItIsNotForXMLFile() {
         final MockHttpServletRequest request = HttpRequestBuilder.GET("/random")
-                .build();
+            .build();
 
         final ContentTypeAwareResponse response = new ContentTypeNegotiationMessageRenderer().getResponse(request);
 
         assertThat(response.getContentType().toString()).isEqualTo("application/json");
-        assertThat(response.getFormattedMessage("foo")).isEqualTo("{\n  \"message\": \"foo\"\n}");
+        assertThat(response.getFormattedMessage("foo")).isEqualTo("""
+            {
+              "message": "foo"
+            }""");
     }
 }

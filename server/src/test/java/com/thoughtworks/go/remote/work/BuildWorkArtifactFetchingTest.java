@@ -40,24 +40,26 @@ public class BuildWorkArtifactFetchingTest {
     private static final String AGENT_UUID = "uuid";
 
     private static final String WITH_FETCH_FILE =
-            "<job name=\"" + JOB_NAME + "\">\n"
-                    + "  <tasks>\n"
-                    + "    <fetchartifact artifactOrigin='gocd' stage='pre-mingle' job='" + JOB_NAME + "' srcfile='lib/hello.jar' dest='" + DEST + "'/>\n"
-                    + "    <ant target=\"--help\" >\n"
-                    + "      <runif status=\"failed\" />\n"
-                    + "    </ant>\n"
-                    + "  </tasks>\n"
-                    + "</job>";
+        """
+            <job name="%s">
+              <tasks>
+                <fetchartifact artifactOrigin='gocd' stage='pre-mingle' job='%s' srcfile='lib/hello.jar' dest='%s'/>
+                <ant target="--help" >
+                  <runif status="failed" />
+                </ant>
+              </tasks>
+            </job>""".formatted(JOB_NAME, JOB_NAME, DEST);
 
     private static final String WITH_FETCH_FOLDER =
-            "<job name=\"" + JOB_NAME + "\">\n"
-                    + "  <tasks>\n"
-                    + "    <fetchartifact artifactOrigin='gocd' stage='pre-mingle' job='" + JOB_NAME + "' srcdir='lib' dest='" + DEST + "'/>\n"
-                    + "    <ant target=\"--help\" >\n"
-                    + "      <runif status=\"failed\" />\n"
-                    + "    </ant>\n"
-                    + "  </tasks>\n"
-                    + "</job>";
+        """
+            <job name="%s">
+              <tasks>
+                <fetchartifact artifactOrigin='gocd' stage='pre-mingle' job='%s' srcdir='lib' dest='%s'/>
+                <ant target="--help" >
+                  <runif status="failed" />
+                </ant>
+              </tasks>
+            </job>""".formatted(JOB_NAME, JOB_NAME, DEST);
 
     private BuildWork buildWork;
     private AgentIdentifier agentIdentifier;

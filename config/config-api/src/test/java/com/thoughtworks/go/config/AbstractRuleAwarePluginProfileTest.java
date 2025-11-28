@@ -35,8 +35,8 @@ public abstract class AbstractRuleAwarePluginProfileTest {
 
         profile.validate(getValidationContext(profile));
         assertThat(profile.errors().size()).isEqualTo(2);
-        assertThat(profile.errors().on("pluginId")).isEqualTo(format("%s cannot have a blank plugin id.", getObjectDescription()));
-        assertThat(profile.errors().on("id")).isEqualTo(format("%s cannot have a blank id.", getObjectDescription()));
+        assertThat(profile.errors().firstErrorOn("pluginId")).isEqualTo(format("%s cannot have a blank plugin id.", getObjectDescription()));
+        assertThat(profile.errors().firstErrorOn("id")).isEqualTo(format("%s cannot have a blank id.", getObjectDescription()));
     }
 
     @Test
@@ -44,7 +44,7 @@ public abstract class AbstractRuleAwarePluginProfileTest {
         RuleAwarePluginProfile profile = newPluginProfile("!123", "docker");
         profile.validate(getValidationContext(profile));
         assertThat(profile.errors().size()).isEqualTo(1);
-        assertThat(profile.errors().on("id")).isEqualTo("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(profile.errors().firstErrorOn("id")).isEqualTo("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -63,8 +63,8 @@ public abstract class AbstractRuleAwarePluginProfileTest {
         assertThat(configProp1.errors().size()).isEqualTo(1);
         assertThat(configProp2.errors().size()).isEqualTo(1);
 
-        assertThat(configProp1.errors().on("configurationKey")).isEqualTo(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription()));
-        assertThat(configProp2.errors().on("configurationKey")).isEqualTo(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription()));
+        assertThat(configProp1.errors().firstErrorOn("configurationKey")).isEqualTo(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription()));
+        assertThat(configProp2.errors().firstErrorOn("configurationKey")).isEqualTo(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription()));
     }
 
     protected ValidationContext getValidationContext(RuleAwarePluginProfile profile) {

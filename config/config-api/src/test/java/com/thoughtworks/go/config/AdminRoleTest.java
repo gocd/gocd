@@ -32,7 +32,7 @@ public class AdminRoleTest {
         role.validate(ConfigSaveValidationContext.forChain(config));
         ConfigErrors configErrors = role.errors();
         assertThat(configErrors.isEmpty()).isFalse();
-        assertThat(configErrors.on(AdminRole.NAME)).isEqualTo("Role \"role2\" does not exist.");
+        assertThat(configErrors.firstErrorOn(AdminRole.NAME)).isEqualTo("Role \"role2\" does not exist.");
     }
 
     @Test
@@ -43,7 +43,7 @@ public class AdminRoleTest {
         role.validate(ConfigSaveValidationContext.forChain(config));
         ConfigErrors errors = role.errors();
         assertThat(errors.isEmpty()).isFalse();
-        assertThat(errors.on(AdminRole.NAME)).isEqualTo("Role \"role2\" does not exist.");
+        assertThat(errors.firstErrorOn(AdminRole.NAME)).isEqualTo("Role \"role2\" does not exist.");
     }
 
     @Test
@@ -56,7 +56,7 @@ public class AdminRoleTest {
         role.validate(PipelineConfigSaveValidationContext.forChain(true, "group",config, pipelineConfig));
         ConfigErrors errors = role.errors();
         assertThat(errors.isEmpty()).isFalse();
-        assertThat(errors.on(AdminRole.NAME)).isEqualTo("Role \"role2\" does not exist.");
+        assertThat(errors.firstErrorOn(AdminRole.NAME)).isEqualTo("Role \"role2\" does not exist.");
     }
 
     @Test
@@ -101,7 +101,7 @@ public class AdminRoleTest {
         role.validate(ConfigSaveValidationContext.forChain(config));
         ConfigErrors errors = role.errors();
         assertThat(errors.isEmpty()).isFalse();
-        assertThat(errors.on(AdminRole.NAME)).isEqualTo("Role \"shilpaIsNotHere\" does not exist.");
+        assertThat(errors.firstErrorOn(AdminRole.NAME)).isEqualTo("Role \"shilpaIsNotHere\" does not exist.");
     }
 
     @Test

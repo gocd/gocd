@@ -56,8 +56,8 @@ public class JobConfigsTest {
         assertThat(firstFoo.errors().isEmpty()).isTrue();
         assertThat(secondFoo.errors().isEmpty()).isTrue();
         jobs.validate(ConfigSaveValidationContext.forChain(config, config.getGroups(), config.getGroups().get(0), pipelineConfig, pipelineConfig.get(0), jobs));
-        assertThat(firstFoo.errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
-        assertThat(secondFoo.errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
+        assertThat(firstFoo.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
+        assertThat(secondFoo.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
 
     }
 
@@ -77,8 +77,8 @@ public class JobConfigsTest {
         assertThat(firstFoo.errors().isEmpty()).isTrue();
         assertThat(secondFoo.errors().isEmpty()).isTrue();
         jobs.validate(PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, pipelineConfig.get(0), jobs));
-        assertThat(firstFoo.errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
-        assertThat(secondFoo.errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
+        assertThat(firstFoo.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
+        assertThat(secondFoo.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
 
     }
 

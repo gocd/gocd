@@ -124,9 +124,9 @@ class TfsMaterialConfigTest {
 
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(tfsMaterialConfig.errors().on(URL)).isEqualTo("URL cannot be blank");
-            assertThat(tfsMaterialConfig.errors().on(TfsMaterialConfig.USERNAME)).isEqualTo("Username cannot be blank");
-            assertThat(tfsMaterialConfig.errors().on(TfsMaterialConfig.PROJECT_PATH)).isEqualTo("Project Path cannot be blank");
+            assertThat(tfsMaterialConfig.errors().firstErrorOn(URL)).isEqualTo("URL cannot be blank");
+            assertThat(tfsMaterialConfig.errors().firstErrorOn(TfsMaterialConfig.USERNAME)).isEqualTo("Username cannot be blank");
+            assertThat(tfsMaterialConfig.errors().firstErrorOn(TfsMaterialConfig.PROJECT_PATH)).isEqualTo("Project Path cannot be blank");
         }
 
         @Test
@@ -135,10 +135,10 @@ class TfsMaterialConfigTest {
 
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(tfsMaterialConfig.errors().on(MATERIAL_NAME)).isNull();
+            assertThat(tfsMaterialConfig.errors().firstErrorOn(MATERIAL_NAME)).isNull();
             tfsMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
-            assertThat(tfsMaterialConfig.errors().on(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+            assertThat(tfsMaterialConfig.errors().firstErrorOn(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }
 
         @Test
@@ -148,7 +148,7 @@ class TfsMaterialConfigTest {
 
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(tfsMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
+            assertThat(tfsMaterialConfig.errors().firstErrorOn(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
         }
 
         @Test
@@ -156,7 +156,7 @@ class TfsMaterialConfigTest {
             tfsMaterialConfig.setUrl("");
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(tfsMaterialConfig.errors().on(ScmMaterialConfig.URL)).isEqualTo("URL cannot be blank");
+            assertThat(tfsMaterialConfig.errors().firstErrorOn(ScmMaterialConfig.URL)).isEqualTo("URL cannot be blank");
         }
 
         @Test
@@ -165,7 +165,7 @@ class TfsMaterialConfigTest {
 
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(tfsMaterialConfig.errors().on(URL)).isEqualTo("URL cannot be blank");
+            assertThat(tfsMaterialConfig.errors().firstErrorOn(URL)).isEqualTo("URL cannot be blank");
         }
 
         @Test
@@ -283,7 +283,7 @@ class TfsMaterialConfigTest {
             final boolean validationResult = tfsMaterialConfig.validateTree(new ConfigSaveValidationContext(null));
 
             assertThat(validationResult).isFalse();
-            assertThat(tfsMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Encrypted password value for TfsMaterial with url '/foo/bar' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
+            assertThat(tfsMaterialConfig.errors().firstErrorOn("encryptedPassword")).isEqualTo("Encrypted password value for TfsMaterial with url '/foo/bar' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
         }
 
         @Test

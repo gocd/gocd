@@ -131,25 +131,25 @@ class SvnMaterialConfigTest {
 
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(svnMaterialConfig.errors().on(GitMaterialConfig.URL)).isEqualTo("URL cannot be blank");
+            assertThat(svnMaterialConfig.errors().firstErrorOn(GitMaterialConfig.URL)).isEqualTo("URL cannot be blank");
         }
 
         @Test
         void shouldEnsureUrlIsNotNull() {
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.URL)).isEqualTo("URL cannot be blank");
+            assertThat(svnMaterialConfig.errors().firstErrorOn(SvnMaterialConfig.URL)).isEqualTo("URL cannot be blank");
         }
 
         @Test
         void shouldEnsureMaterialNameIsValid() {
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
-            assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.MATERIAL_NAME)).isNull();
+            assertThat(svnMaterialConfig.errors().firstErrorOn(SvnMaterialConfig.MATERIAL_NAME)).isNull();
 
             svnMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+            assertThat(svnMaterialConfig.errors().firstErrorOn(SvnMaterialConfig.MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }
 
         @Test
@@ -157,7 +157,7 @@ class SvnMaterialConfigTest {
             svnMaterialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "../a"));
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
+            assertThat(svnMaterialConfig.errors().firstErrorOn(SvnMaterialConfig.FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
         }
 
         @Test
@@ -200,7 +200,7 @@ class SvnMaterialConfigTest {
             final boolean validationResult = svnMaterialConfig.validateTree(new ConfigSaveValidationContext(null));
 
             assertThat(validationResult).isFalse();
-            assertThat(svnMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Encrypted password value for SvnMaterial with url 'foo/bar' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
+            assertThat(svnMaterialConfig.errors().firstErrorOn("encryptedPassword")).isEqualTo("Encrypted password value for SvnMaterial with url 'foo/bar' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
         }
 
         @Test

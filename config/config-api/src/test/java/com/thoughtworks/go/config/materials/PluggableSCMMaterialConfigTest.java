@@ -66,7 +66,7 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(1);
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Please select a SCM");
+        assertThat(pluggableSCMMaterialConfig.errors().firstErrorOn(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Please select a SCM");
     }
 
     @Test
@@ -79,9 +79,9 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(1);
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Duplicate SCM material detected!");
+        assertThat(pluggableSCMMaterialConfig.errors().firstErrorOn(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Duplicate SCM material detected!");
         assertThat(existingMaterial.errors().getAll().size()).isEqualTo(1);
-        assertThat(existingMaterial.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Duplicate SCM material detected!");
+        assertThat(existingMaterial.errors().firstErrorOn(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Duplicate SCM material detected!");
         assertThat(nameToMaterialMap.size()).isEqualTo(2);
     }
 
@@ -120,14 +120,14 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(1);
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER)).isEqualTo("Dest folder '/usr/home' is not valid. It must be a sub-directory of the working folder.");
+        assertThat(pluggableSCMMaterialConfig.errors().firstErrorOn(PluggableSCMMaterialConfig.FOLDER)).isEqualTo("Dest folder '/usr/home' is not valid. It must be a sub-directory of the working folder.");
 
         pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "./../crap", null, false);
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(2);
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER)).isEqualTo("Invalid directory name './../crap'. It should be a valid relative path.");
+        assertThat(pluggableSCMMaterialConfig.errors().firstErrorOn(PluggableSCMMaterialConfig.FOLDER)).isEqualTo("Invalid directory name './../crap'. It should be a valid relative path.");
     }
 
 
@@ -141,7 +141,7 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateTree(validationContext);
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(1);
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find SCM for given scm-id: [scm-id].");
+        assertThat(pluggableSCMMaterialConfig.errors().firstErrorOn(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find SCM for given scm-id: [scm-id].");
     }
 
     @Test
@@ -154,7 +154,7 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateTree(configSaveValidationContext);
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size()).isEqualTo(1);
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find plugin for scm-id: [scm-id].");
+        assertThat(pluggableSCMMaterialConfig.errors().firstErrorOn(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find plugin for scm-id: [scm-id].");
     }
 
     @Test
@@ -261,6 +261,7 @@ public class PluggableSCMMaterialConfigTest {
         assertThat(p1.equals(p2)).isTrue();
 
         // null comparison
+        //noinspection ConstantValue
         assertThat(p1.equals(null)).isFalse();
     }
 
@@ -315,7 +316,7 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFolder("f1");
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf("f1/f2");
         assertFalse(pluggableSCMMaterialConfig.errors().isEmpty());
-        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER)).isEqualTo("Invalid destination directory. Every material needs a different destination directory and the directories should not be nested.");
+        assertThat(pluggableSCMMaterialConfig.errors().firstErrorOn(FOLDER)).isEqualTo("Invalid destination directory. Every material needs a different destination directory and the directories should not be nested.");
     }
 
     @Test
@@ -331,14 +332,14 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFolder("f1/../../f3");
 
         pluggableSCMMaterialConfig.validateConcreteMaterial(null);
-        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder 'f1/../../f3' is not valid. It must be a sub-directory of the working folder.");
+        assertThat(pluggableSCMMaterialConfig.errors().firstErrorOn(FOLDER)).isEqualTo("Dest folder 'f1/../../f3' is not valid. It must be a sub-directory of the working folder.");
     }
 
     @Test
     public void shouldFailValidationIfDestinationDirectoryIsNestedAfterNormalization() {
         pluggableSCMMaterialConfig.setFolder("f1/f2/../../f3");
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf("f3/f4");
-        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER)).isEqualTo("Invalid destination directory. Every material needs a different destination directory and the directories should not be nested.");
+        assertThat(pluggableSCMMaterialConfig.errors().firstErrorOn(FOLDER)).isEqualTo("Invalid destination directory. Every material needs a different destination directory and the directories should not be nested.");
     }
 
     @Test

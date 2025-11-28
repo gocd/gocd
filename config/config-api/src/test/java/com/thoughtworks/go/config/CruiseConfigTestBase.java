@@ -330,12 +330,12 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
 
         List<ConfigErrors> allErrors = config.validateAfterPreprocess();
         assertThat(allErrors.size()).isEqualTo(5);
-        assertThat(allErrors.get(0).on("uri")).isEqualTo("invalid ldap uri");
-        assertThat(allErrors.get(0).on("searchBase")).isEqualTo("invalid search base");
-        assertThat(allErrors.get(1).on("base")).isEqualTo("Some base errors");
-        assertThat(allErrors.get(2).on("role")).isEqualTo("Roles must be proper");
-        assertThat(allErrors.get(3).on(ScmMaterialConfig.FOLDER)).isEqualTo("Destination directory is required when a pipeline has multiple SCM materials.");
-        assertThat(allErrors.get(4).on("materialName")).isEqualTo("material name does not follow pattern");
+        assertThat(allErrors.get(0).firstErrorOn("uri")).isEqualTo("invalid ldap uri");
+        assertThat(allErrors.get(0).firstErrorOn("searchBase")).isEqualTo("invalid search base");
+        assertThat(allErrors.get(1).firstErrorOn("base")).isEqualTo("Some base errors");
+        assertThat(allErrors.get(2).firstErrorOn("role")).isEqualTo("Roles must be proper");
+        assertThat(allErrors.get(3).firstErrorOn(ScmMaterialConfig.FOLDER)).isEqualTo("Destination directory is required when a pipeline has multiple SCM materials.");
+        assertThat(allErrors.get(4).firstErrorOn("materialName")).isEqualTo("material name does not follow pattern");
     }
 
 
@@ -360,11 +360,11 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
 
         List<ConfigErrors> allErrors = config.getAllErrors();
         assertThat(allErrors.size()).isEqualTo(4);
-        assertThat(allErrors.get(0).on("uri")).isEqualTo("invalid ldap uri");
-        assertThat(allErrors.get(0).on("searchBase")).isEqualTo("invalid search base");
-        assertThat(allErrors.get(1).on("base")).isEqualTo("Some base errors");
-        assertThat(allErrors.get(2).on("role")).isEqualTo("Roles must be proper");
-        assertThat(allErrors.get(3).on("materialName")).isEqualTo("material name does not follow pattern");
+        assertThat(allErrors.get(0).firstErrorOn("uri")).isEqualTo("invalid ldap uri");
+        assertThat(allErrors.get(0).firstErrorOn("searchBase")).isEqualTo("invalid search base");
+        assertThat(allErrors.get(1).firstErrorOn("base")).isEqualTo("Some base errors");
+        assertThat(allErrors.get(2).firstErrorOn("role")).isEqualTo("Roles must be proper");
+        assertThat(allErrors.get(3).firstErrorOn("materialName")).isEqualTo("material name does not follow pattern");
     }
 
     @Test
@@ -388,10 +388,10 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
 
         List<ConfigErrors> allErrors = config.getAllErrorsExceptFor(p4MaterialConfig);
         assertThat(allErrors.size()).isEqualTo(3);
-        assertThat(allErrors.get(0).on("uri")).isEqualTo("invalid ldap uri");
-        assertThat(allErrors.get(0).on("searchBase")).isEqualTo("invalid search base");
-        assertThat(allErrors.get(1).on("base")).isEqualTo("Some base errors");
-        assertThat(allErrors.get(2).on("role")).isEqualTo("Roles must be proper");
+        assertThat(allErrors.get(0).firstErrorOn("uri")).isEqualTo("invalid ldap uri");
+        assertThat(allErrors.get(0).firstErrorOn("searchBase")).isEqualTo("invalid search base");
+        assertThat(allErrors.get(1).firstErrorOn("base")).isEqualTo("Some base errors");
+        assertThat(allErrors.get(2).firstErrorOn("role")).isEqualTo("Roles must be proper");
     }
 
     @Test
@@ -473,7 +473,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         goConfigMother.setDependencyOn(cruiseConfig, pipelineConfig, "pipeline1", "ft");
         cruiseConfig.validate(null);
         ConfigErrors errors = pipelineConfig.materialConfigs().errors();
-        assertThat(errors.on("base")).isEqualTo("Circular dependency: pipeline1 <- pipeline1");
+        assertThat(errors.firstErrorOn("base")).isEqualTo("Circular dependency: pipeline1 <- pipeline1");
     }
 
     @Test
@@ -849,7 +849,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
 
         cruiseConfig.validate(mock(ValidationContext.class));
         List<ConfigErrors> allErrors = cruiseConfig.getAllErrors();
-        assertThat((allErrors.get(0).on("base"))).isEqualTo("Circular dependency: p1 <- p2 <- p3 <- p1");
+        assertThat((allErrors.get(0).firstErrorOn("base"))).isEqualTo("Circular dependency: p1 <- p2 <- p3 <- p1");
 
     }
 

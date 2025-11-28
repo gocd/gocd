@@ -206,7 +206,7 @@ public class BuildTaskTest {
         List<ConfigErrors> errors = config.validateAfterPreprocess();
         assertThat(errors.size()).isEqualTo(1);
         String message = "Task of job 'job' in stage 'stage' of pipeline 'pipeline' has path '/blah' which is outside the working directory.";
-        assertThat(task.errors().on(BuildTask.WORKING_DIRECTORY)).isEqualTo(message);
+        assertThat(task.errors().firstErrorOn(BuildTask.WORKING_DIRECTORY)).isEqualTo(message);
     }
 
     @Test
@@ -223,6 +223,6 @@ public class BuildTaskTest {
         List<ConfigErrors> errors = config.validateAfterPreprocess();
         assertThat(errors.size()).isEqualTo(1);
         String message = "Task of job 'default' in stage 'manualStage' of template 'some-template' has path '/blah' which is outside the working directory.";
-        assertThat(task.errors().on(BuildTask.WORKING_DIRECTORY)).isEqualTo(message);
+        assertThat(task.errors().firstErrorOn(BuildTask.WORKING_DIRECTORY)).isEqualTo(message);
     }
 }

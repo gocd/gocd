@@ -42,6 +42,6 @@ public class FilterTest {
         IgnoredFiles ignore = new IgnoredFiles("helper/*.*");
         Filter filter = new Filter(ignore);
         filter.addError("key", "some error");
-        assertThat(filter.errors().on("key")).isEqualTo("some error");
+        assertThat(filter.errors().firstErrorOn("key")).isEqualTo("some error");
     }
 }

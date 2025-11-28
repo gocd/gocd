@@ -110,6 +110,6 @@ public class AdminsConfigServiceIntegrationTest {
         assertThat(result.httpCode()).isEqualTo(422);
         assertThat(result.message()).isEqualTo("Validations failed for admins. Error(s): [Role \"qas\" does not exist.]. Please correct and resubmit.");
         assertThat(adminsConfigService.systemAdmins().size()).isEqualTo(0);
-        assertThat(newSystemAdmins.errors().on("roles")).isEqualTo("Role \"qas\" does not exist.");
+        assertThat(newSystemAdmins.errors().firstErrorOn("roles")).isEqualTo("Role \"qas\" does not exist.");
     }
 }

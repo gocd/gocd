@@ -286,7 +286,7 @@ public class CachedGoConfigIntegrationTest {
             .isInstanceOf(RuntimeException.class);
 
         PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipe1"));
-        String errorMessage = dupPipelineConfig.errors().on(PipelineConfig.NAME);
+        String errorMessage = dupPipelineConfig.errors().firstErrorOn(PipelineConfig.NAME);
         assertThat(errorMessage).contains("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):");
         Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)].*$", Pattern.DOTALL).matcher(errorMessage);
         assertThat(matcher.matches()).isTrue();

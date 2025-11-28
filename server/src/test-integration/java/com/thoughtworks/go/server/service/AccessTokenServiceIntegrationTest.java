@@ -106,7 +106,7 @@ public class AccessTokenServiceIntegrationTest {
         assertThat(fetchedToken.getDescription()).isEqualTo(createdToken.getDescription());
         assertThat(fetchedToken.getCreatedAt()).isEqualTo(createdToken.getCreatedAt());
         assertThat(fetchedToken.getLastUsed()).isNull();
-        assertThat(fetchedToken.isRevoked()).isEqualTo(createdToken.isRevoked());
+        assertThat(fetchedToken.isRevoked()).isFalse();
     }
 
     @Test

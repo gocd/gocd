@@ -26,13 +26,13 @@ public class AdminUserTest {
     public void shouldNotValidateBlankUsers() {
         AdminUser adminUser = new AdminUser("");
         adminUser.validate(null);
-        assertThat(adminUser.errors().on(AdminUser.NAME)).isEqualTo("User cannot be blank.");
+        assertThat(adminUser.errors().firstErrorOn(AdminUser.NAME)).isEqualTo("User cannot be blank.");
     }
 
     @Test
     public void shouldValidateNonBlankUsers() {
         AdminUser adminUser = new AdminUser(new CaseInsensitiveString("foo"));
         adminUser.validate(null);
-        assertNull(adminUser.errors().on(AdminUser.NAME));
+        assertNull(adminUser.errors().firstErrorOn(AdminUser.NAME));
     }
 }

@@ -59,7 +59,7 @@ class AbstractDirectiveTest {
             directive.validate(rulesValidationContext(List.of("view"), List.of("environment")));
 
             assertThat(directive.errors()).hasSize(1);
-            assertThat(directive.errors().on("action")).isEqualTo("Invalid action, must be one of [view].");
+            assertThat(directive.errors().firstErrorOn("action")).isEqualTo("Invalid action, must be one of [view].");
         }
 
         @Test

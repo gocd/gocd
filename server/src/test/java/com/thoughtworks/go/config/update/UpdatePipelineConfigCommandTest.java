@@ -282,6 +282,6 @@ class UpdatePipelineConfigCommandTest {
         assertThat(isValid).isFalse();
         Task firstTask = preprocessedConfig.pipelineConfigByName(new CaseInsensitiveString("P1")).getFirstStageConfig().getJobs().get(0).getTasks().get(0);
         assertThat(firstTask.cancelTask().errors().size()).isEqualTo(1);
-        assertThat(firstTask.cancelTask().errors().on(ExecTask.COMMAND)).isEqualTo("Command cannot be empty");
+        assertThat(firstTask.cancelTask().errors().firstErrorOn(ExecTask.COMMAND)).isEqualTo("Command cannot be empty");
     }
 }

@@ -109,7 +109,7 @@ class DependencyMaterialConfigTest {
     void shouldAddErrorForInvalidMaterialName() {
         DependencyMaterialConfig materialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("wrong name"), new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
         materialConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), pipelineConfig));
-        assertThat(materialConfig.errors().on(AbstractMaterialConfig.MATERIAL_NAME)).isEqualTo("Invalid material name 'wrong name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(materialConfig.errors().firstErrorOn(AbstractMaterialConfig.MATERIAL_NAME)).isEqualTo("Invalid material name 'wrong name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -122,14 +122,14 @@ class DependencyMaterialConfigTest {
 
         assertThat(dependencyMaterialConfig.getPipelineStageName()).isEqualTo("invalid pipeline stage");
         assertThat(dependencyMaterialConfig.errors().isEmpty()).isFalse();
-        assertThat(dependencyMaterialConfig.errors().on(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).isEqualTo("'invalid pipeline stage' should conform to the pattern 'pipeline [stage]'");
+        assertThat(dependencyMaterialConfig.errors().firstErrorOn(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).isEqualTo("'invalid pipeline stage' should conform to the pattern 'pipeline [stage]'");
     }
 
     @Test
     void shouldNotBombValidationWhenMaterialNameIsNotSet() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
         dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), pipelineConfig));
-        assertThat(dependencyMaterialConfig.errors().on(AbstractMaterialConfig.MATERIAL_NAME)).isNull();
+        assertThat(dependencyMaterialConfig.errors().firstErrorOn(AbstractMaterialConfig.MATERIAL_NAME)).isNull();
     }
 
     @Test
@@ -138,7 +138,7 @@ class DependencyMaterialConfigTest {
         dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(config, pipelineConfig));
         ConfigErrors configErrors = dependencyMaterialConfig.errors();
         assertThat(configErrors.isEmpty()).isFalse();
-        assertThat(configErrors.on(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).contains("Stage with name 'stage-not-existing does not exist!' does not exist on pipeline 'pipeline2'");
+        assertThat(configErrors.firstErrorOn(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).contains("Stage with name 'stage-not-existing does not exist!' does not exist on pipeline 'pipeline2'");
     }
 
     @Test
@@ -149,7 +149,7 @@ class DependencyMaterialConfigTest {
         dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(config, pipelineConfig));
         ConfigErrors configErrors = dependencyMaterialConfig.errors();
         assertThat(configErrors.isEmpty()).isFalse();
-        assertThat(configErrors.on(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).contains("Pipeline with name 'pipeline-not-exist' does not exist");
+        assertThat(configErrors.firstErrorOn(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).contains("Pipeline with name 'pipeline-not-exist' does not exist");
     }
 
     @Test
@@ -188,7 +188,7 @@ class DependencyMaterialConfigTest {
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
         pipeline.setOrigin(new FileConfigOrigin());
         dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config, pipeline));
-        assertThat(dependencyMaterialConfig.errors().on(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).isEqualTo("Pipeline with name 'upstream_pipeline' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)");
+        assertThat(dependencyMaterialConfig.errors().firstErrorOn(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).isEqualTo("Pipeline with name 'upstream_pipeline' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)");
     }
 
     @Test

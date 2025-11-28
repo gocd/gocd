@@ -103,7 +103,7 @@ class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().first()));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.ARTIFACT_ORIGIN)).startsWith("\"downstream :: stage :: job\" tries to fetch artifact from job \"uppest_stream :: uppest-stage2 :: uppest-job2\" which is defined in");
+        assertThat(task.errors().firstErrorOn(FetchTask.ARTIFACT_ORIGIN)).startsWith("\"downstream :: stage :: job\" tries to fetch artifact from job \"uppest_stream :: uppest-stage2 :: uppest-job2\" which is defined in");
     }
 
     @Test
@@ -165,8 +165,8 @@ class FetchPluggableArtifactTaskTest {
 
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
 
-        assertThat(task.errors().on("artifactId").isEmpty()).isFalse();
-        assertThat(task.errors().on("artifactId")).isEqualTo("Artifact Id cannot be blank.");
+        assertThat(task.errors().firstErrorOn("artifactId").isEmpty()).isFalse();
+        assertThat(task.errors().firstErrorOn("artifactId")).isEqualTo("Artifact Id cannot be blank.");
     }
 
     @Test
@@ -175,8 +175,8 @@ class FetchPluggableArtifactTaskTest {
 
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
 
-        assertThat(task.errors().on("artifactId").isEmpty()).isFalse();
-        assertThat(task.errors().on("artifactId")).isEqualTo("Artifact Id cannot be blank.");
+        assertThat(task.errors().firstErrorOn("artifactId").isEmpty()).isFalse();
+        assertThat(task.errors().firstErrorOn("artifactId")).isEqualTo("Artifact Id cannot be blank.");
     }
 
     @Test
@@ -186,8 +186,8 @@ class FetchPluggableArtifactTaskTest {
 
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
 
-        assertThat(task.errors().on("artifactId").isEmpty()).isFalse();
-        assertThat(task.errors().on("artifactId")).isEqualTo("Pluggable artifact with id `s3` does not exist in [dummy/stage/job].");
+        assertThat(task.errors().firstErrorOn("artifactId").isEmpty()).isFalse();
+        assertThat(task.errors().firstErrorOn("artifactId")).isEqualTo("Pluggable artifact with id `s3` does not exist in [dummy/stage/job].");
     }
 
     @Test
@@ -197,8 +197,8 @@ class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new TemplatesConfig(), downstream.getStage(new CaseInsensitiveString("stage"))));
 
         assertThat(task.getConfiguration().hasErrors()).isTrue();
-        assertThat(task.getConfiguration().get(0).errors().on("configurationKey")).isEqualTo("Duplicate key 'Foo' found for Fetch pluggable artifact");
-        assertThat(task.getConfiguration().get(1).errors().on("configurationKey")).isEqualTo("Duplicate key 'Foo' found for Fetch pluggable artifact");
+        assertThat(task.getConfiguration().get(0).errors().firstErrorOn("configurationKey")).isEqualTo("Duplicate key 'Foo' found for Fetch pluggable artifact");
+        assertThat(task.getConfiguration().get(1).errors().firstErrorOn("configurationKey")).isEqualTo("Duplicate key 'Foo' found for Fetch pluggable artifact");
     }
 
     @Test
@@ -208,9 +208,9 @@ class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline \"downstream\" tries to fetch artifact from pipeline "
+        assertThat(task.errors().firstErrorOn(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline \"downstream\" tries to fetch artifact from pipeline "
                 + "\"dummy\" which is not an upstream pipeline");
-        assertThat(downstream.errors().on("base")).isEqualTo("Pipeline \"downstream\" tries to fetch artifact from pipeline \"dummy\" which is not an upstream pipeline");
+        assertThat(downstream.errors().firstErrorOn("base")).isEqualTo("Pipeline \"downstream\" tries to fetch artifact from pipeline \"dummy\" which is not an upstream pipeline");
     }
 
     @Test
@@ -220,8 +220,8 @@ class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new TemplatesConfig(), downstream.getStage(new CaseInsensitiveString("stage"))));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.STAGE)).isEqualTo("Stage is a required field.");
-        assertThat(task.errors().on(FetchTask.JOB)).isEqualTo("Job is a required field.");
+        assertThat(task.errors().firstErrorOn(FetchTask.STAGE)).isEqualTo("Stage is a required field.");
+        assertThat(task.errors().firstErrorOn(FetchTask.JOB)).isEqualTo("Job is a required field.");
     }
 
     @Test
@@ -231,8 +231,8 @@ class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, new StageConfig(), new JobConfig()));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.STAGE)).isEqualTo("Stage is a required field.");
-        assertThat(task.errors().on(FetchTask.JOB)).isEqualTo("Job is a required field.");
+        assertThat(task.errors().firstErrorOn(FetchTask.STAGE)).isEqualTo("Stage is a required field.");
+        assertThat(task.errors().firstErrorOn(FetchTask.JOB)).isEqualTo("Job is a required field.");
     }
 
     @Test
@@ -269,7 +269,7 @@ class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().first()));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage \"uppest_stream :: uppest-stage3\" which does not complete before \"downstream\" pipeline's dependencies.");
+        assertThat(task.errors().firstErrorOn(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage \"uppest_stream :: uppest-stage3\" which does not complete before \"downstream\" pipeline's dependencies.");
     }
 
     @Test
@@ -279,8 +279,8 @@ class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline named 'random_pipeline' exists, but is not an ancestor of 'downstream' as declared in 'random_pipeline/upstream'.");
-        assertThat(downstream.errors().on("base")).isEqualTo("Pipeline named 'random_pipeline' exists, but is not an ancestor of 'downstream' as declared in 'random_pipeline/upstream'.");
+        assertThat(task.errors().firstErrorOn(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline named 'random_pipeline' exists, but is not an ancestor of 'downstream' as declared in 'random_pipeline/upstream'.");
+        assertThat(downstream.errors().firstErrorOn("base")).isEqualTo("Pipeline named 'random_pipeline' exists, but is not an ancestor of 'downstream' as declared in 'random_pipeline/upstream'.");
     }
 
     @Test
@@ -291,7 +291,7 @@ class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().get(0)));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage \"downstream :: uppest-stage3\" which does not exist.");
+        assertThat(task.errors().firstErrorOn(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage \"downstream :: uppest-stage3\" which does not exist.");
     }
 
     @Test
@@ -330,8 +330,8 @@ class FetchPluggableArtifactTaskTest {
         StageConfig stage = downstream.getStage(new CaseInsensitiveString("stage"));
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().get(0)));
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
-        assertThat(downstream.errors().on("base")).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
+        assertThat(task.errors().firstErrorOn(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
+        assertThat(downstream.errors().firstErrorOn("base")).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
     }
 
     @Test
@@ -349,8 +349,8 @@ class FetchPluggableArtifactTaskTest {
         task.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config, downstream, stage, stage.getJobs().get(0)));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
-        assertThat(downstream.errors().on("base")).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
+        assertThat(task.errors().firstErrorOn(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
+        assertThat(downstream.errors().firstErrorOn("base")).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
     }
 
     @Test
@@ -373,7 +373,7 @@ class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage")), downstream.getStage(new CaseInsensitiveString("stage")).getJobs().first()));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage \"uppest_stream :: uppest-stage2\" which does not complete before \"downstream\" pipeline's dependencies.");
+        assertThat(task.errors().firstErrorOn(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage \"uppest_stream :: uppest-stage2\" which does not complete before \"downstream\" pipeline's dependencies.");
     }
 
     @Test
@@ -383,7 +383,7 @@ class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage")), downstream.getStage(new CaseInsensitiveString("stage")).getJobs().first()));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage \"upstream :: up-stage2\" which does not complete before \"downstream\" pipeline's dependencies.");
+        assertThat(task.errors().firstErrorOn(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage \"upstream :: up-stage2\" which does not complete before \"downstream\" pipeline's dependencies.");
     }
 
     @Test
@@ -394,7 +394,7 @@ class FetchPluggableArtifactTaskTest {
                 new CaseInsensitiveString("stage")), downstream.getStage(new CaseInsensitiveString("stage")).getJobs().get(0)));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage "
+        assertThat(task.errors().firstErrorOn(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage "
                 + "\"upstream :: stage-does-not-exist\" which does not exist.");
     }
 
@@ -406,7 +406,7 @@ class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().first()));
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.JOB)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from job "
+        assertThat(task.errors().firstErrorOn(FetchTask.JOB)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from job "
                 + "\"upstream :: stage :: job-does-not-exist\" which does not exist.");
     }
 

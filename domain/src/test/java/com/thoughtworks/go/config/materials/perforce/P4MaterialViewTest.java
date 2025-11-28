@@ -95,7 +95,7 @@ public class P4MaterialViewTest {
     public void shouldAddErrorsToTheErrorCollection() {
         P4MaterialView view = new P4MaterialView("//depot/... //something/...");
         view.addError("key", "some error");
-        assertThat(view.errors().on("key")).isEqualTo("some error");
+        assertThat(view.errors().firstErrorOn("key")).isEqualTo("some error");
     }
 
     private void assertMapsTo(String from, String to) {

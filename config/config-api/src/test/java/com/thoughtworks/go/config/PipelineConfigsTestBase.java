@@ -91,7 +91,7 @@ public abstract class PipelineConfigsTestBase {
     public void validate_shouldMakeSureTheNameIsAppropriate() {
         PipelineConfigs group = createEmpty();
         group.validate(null);
-        assertThat(group.errors().on(BasicPipelineConfigs.GROUP)).isEqualTo("Invalid group name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(group.errors().firstErrorOn(BasicPipelineConfigs.GROUP)).isEqualTo("Invalid group name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -108,7 +108,7 @@ public abstract class PipelineConfigsTestBase {
 
         group.validate(null);
 
-        assertThat(group.errors().on(BasicPipelineConfigs.NO_REMOTE_AUTHORIZATION)).isEqualTo("Authorization can be defined only in configuration file");
+        assertThat(group.errors().firstErrorOn(BasicPipelineConfigs.NO_REMOTE_AUTHORIZATION)).isEqualTo("Authorization can be defined only in configuration file");
     }
 
     @Test
@@ -146,8 +146,8 @@ public abstract class PipelineConfigsTestBase {
         group.addWithoutValidation(duplicate);
 
         group.validate(null);
-        assertThat(duplicate.errors().on(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique.");
-        assertThat(first.errors().on(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique.");
+        assertThat(duplicate.errors().firstErrorOn(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique.");
+        assertThat(first.errors().firstErrorOn(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique.");
 
     }
 
@@ -340,7 +340,7 @@ public abstract class PipelineConfigsTestBase {
         group2.setGroup("joe");
         group1.validateNameUniqueness(nameToConfig);
         group2.validateNameUniqueness(nameToConfig);
-        assertThat(group1.errors().on(PipelineConfigs.GROUP)).isEqualTo("Group with name 'joe' already exists");
+        assertThat(group1.errors().firstErrorOn(PipelineConfigs.GROUP)).isEqualTo("Group with name 'joe' already exists");
     }
 
     @Test

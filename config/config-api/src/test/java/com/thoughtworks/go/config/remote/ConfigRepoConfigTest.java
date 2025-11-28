@@ -62,7 +62,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         configRepoConfig1.validate(validationContext);
 
         assertThat(configRepoConfig1.errors().isEmpty()).isFalse();
-        assertThat(configRepoConfig1.errors().on("id")).isEqualTo("You have defined multiple configuration repositories with the same id - 'id_1'.");
+        assertThat(configRepoConfig1.errors().firstErrorOn("id")).isEqualTo("You have defined multiple configuration repositories with the same id - 'id_1'.");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         configRepo.validate(validationContext);
 
         assertThat(configRepo.errors().isEmpty()).isFalse();
-        assertThat(configRepo.errors().on("pluginId")).isEqualTo("Configuration repository cannot have a blank plugin id.");
+        assertThat(configRepo.errors().firstErrorOn("pluginId")).isEqualTo("Configuration repository cannot have a blank plugin id.");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         configRepoConfig1.validate(validationContext);
 
         assertThat(configRepoConfig1.errors().isEmpty()).isFalse();
-        assertThat(configRepoConfig1.errors().on("material")).isEqualTo("You have defined multiple configuration repositories with the same repository - 'url'.");
+        assertThat(configRepoConfig1.errors().firstErrorOn("material")).isEqualTo("You have defined multiple configuration repositories with the same repository - 'url'.");
     }
 
     @Test
@@ -103,7 +103,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
         configRepoConfig.validate(validationContext);
 
-        assertThat(configRepoConfig.getRepo().errors().on("url")).isEqualTo("URL cannot be blank");
+        assertThat(configRepoConfig.getRepo().errors().firstErrorOn("url")).isEqualTo("URL cannot be blank");
     }
 
     @Test
@@ -155,7 +155,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         configRepoConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(), pipeline1));
 
         assertThat(svnInConfigRepo.errors().isEmpty()).isFalse();
-        assertThat(svnInConfigRepo.errors().on("autoUpdate")).isEqualTo("The material of type Subversion (url) is used elsewhere with a different value for autoUpdate (poll for changes). All copies of this material must have the same autoUpdate setting or configuration repository must be removed.\nConfig Repository: id (auto update disabled).\nPipelines:\n badpipe (auto update enabled)");
+        assertThat(svnInConfigRepo.errors().firstErrorOn("autoUpdate")).isEqualTo("The material of type Subversion (url) is used elsewhere with a different value for autoUpdate (poll for changes). All copies of this material must have the same autoUpdate setting or configuration repository must be removed.\nConfig Repository: id (auto update disabled).\nPipelines:\n badpipe (auto update enabled)");
     }
 
     @Test

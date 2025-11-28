@@ -483,7 +483,7 @@ public class AgentServiceIntegrationTest {
             AgentInstance agentInstance = agentService.updateAgentAttributes(UUID, "some-hostname",
                     invalidResourceName, null, UNSET);
 
-            assertThat(agentInstance.getAgent().errors().on(JobConfig.RESOURCES)).isEqualTo("Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$'");
+            assertThat(agentInstance.getAgent().errors().firstErrorOn(JobConfig.RESOURCES)).isEqualTo("Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$'");
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
             assertThat(getFirstAgent().getHostname()).isEqualTo(originalHostname);
@@ -632,8 +632,8 @@ public class AgentServiceIntegrationTest {
 
             assertTrue(agentService.findAgent(UUID).isDisabled());
             assertTrue(agentService.findAgent(UUID2).isDisabled());
-            assertThat((List<ResourceConfig>) agentService.findAgent(UUID).getResourceConfigs()).contains(new ResourceConfig("resource1"));
-            assertThat((List<ResourceConfig>) agentService.findAgent(UUID2).getResourceConfigs()).contains(new ResourceConfig("resource1"));
+            assertThat(agentService.findAgent(UUID).getResourceConfigs()).contains(new ResourceConfig("resource1"));
+            assertThat(agentService.findAgent(UUID2).getResourceConfigs()).contains(new ResourceConfig("resource1"));
 
             assertThat(environmentConfigService.getEnvironmentConfig("dev").getAgents().getUuids()).contains(UUID, UUID2);
         }
@@ -707,7 +707,7 @@ public class AgentServiceIntegrationTest {
             createAnIdleAgentAndDisableIt(UUID);
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(getFirstAgent().getResourceConfigs()).isEmpty();
             assertThat(agentService.findAgent(UUID).getStatus()).isEqualTo(AgentStatus.Disabled);
 
             agentService.updateAgentAttributes(UUID, null, "linux,java", null, UNSET);
@@ -772,7 +772,7 @@ public class AgentServiceIntegrationTest {
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, resourcesToRemove, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
             assertThat(agentService.findAgent(UUID).getResourceConfigs().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) agentService.findAgent(UUID).getResourceConfigs()).contains(new ResourceConfig("resource1"));
+            assertThat(agentService.findAgent(UUID).getResourceConfigs()).contains(new ResourceConfig("resource1"));
             assertThat(agentService.findAgent(UUID2).getResourceConfigs().size()).isEqualTo(0);
         }
 
@@ -781,7 +781,7 @@ public class AgentServiceIntegrationTest {
             createAnIdleAgentAndDisableIt(UUID);
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(getFirstAgent().getResourceConfigs()).isEmpty();
             assertThat(agentService.findAgent(UUID).getStatus()).isEqualTo(AgentStatus.Disabled);
 
             AgentInstance agentInstance = agentService.updateAgentAttributes(UUID, null, "foo%", null, UNSET);
@@ -790,7 +790,7 @@ public class AgentServiceIntegrationTest {
 
             ConfigErrors configErrors = agentInstance.getAgent().errors();
             assertFalse(configErrors.isEmpty());
-            assertEquals("Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$'", configErrors.on("resources"));
+            assertEquals("Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$'", configErrors.firstErrorOn("resources"));
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
             assertThat(getFirstAgent().getResourceConfigs().resourceNames()).isEqualTo(emptyStrList);
@@ -801,7 +801,7 @@ public class AgentServiceIntegrationTest {
             createAnIdleAgentAndDisableIt(UUID);
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(getFirstAgent().getResourceConfigs()).isEmpty();
             assertThat(agentService.findAgent(UUID).getStatus()).isEqualTo(AgentStatus.Disabled);
 
             UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.bulkUpdateAgentAttributes(List.of(UUID), List.of("foo%"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
@@ -809,7 +809,7 @@ public class AgentServiceIntegrationTest {
             assertThat(e.getMessage()).isEqualTo("Validations failed for bulk update of agents. Error(s): {resources=[Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$']}");
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(getFirstAgent().getResourceConfigs()).isEmpty();
         }
     }
 
@@ -977,7 +977,7 @@ public class AgentServiceIntegrationTest {
                     List.of("a", "b", "c"), emptyStrList, UNSET, environmentConfigService);
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(getFirstAgent().getResourceConfigs()).isEmpty();
             assertThat(getFirstAgent().getAgent().getEnvironmentsAsList()).isEqualTo(List.of("a", "b", "c"));
 
             agentService.updateAgentAttributes(UUID, null, null, "c,d,e", UNSET);

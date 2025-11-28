@@ -67,7 +67,7 @@ public class ElasticProfileTest {
         ElasticProfile profile = new ElasticProfile();
 
         profile.validate(validationContext);
-        assertThat(profile.errors().on(ElasticProfile.ID)).isEqualTo("Elastic agent profile cannot have a blank id.");
+        assertThat(profile.errors().firstErrorOn(ElasticProfile.ID)).isEqualTo("Elastic agent profile cannot have a blank id.");
     }
 
     @Test
@@ -75,7 +75,7 @@ public class ElasticProfileTest {
         ElasticProfile profile = new ElasticProfile("foo", "non-existing-cluster");
 
         profile.validate(validationContext);
-        assertThat(profile.errors().on(ElasticProfile.CLUSTER_PROFILE_ID)).isEqualTo("No Cluster Profile exists with the specified cluster_profile_id 'non-existing-cluster'.");
+        assertThat(profile.errors().firstErrorOn(ElasticProfile.CLUSTER_PROFILE_ID)).isEqualTo("No Cluster Profile exists with the specified cluster_profile_id 'non-existing-cluster'.");
     }
 
     @Test
@@ -83,7 +83,7 @@ public class ElasticProfileTest {
         ElasticProfile profile = new ElasticProfile("!123", "prod-cluster");
         profile.validate(null);
         assertThat(profile.errors().size()).isEqualTo(1);
-        assertThat(profile.errors().on(ElasticProfile.ID)).isEqualTo("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(profile.errors().firstErrorOn(ElasticProfile.ID)).isEqualTo("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -99,8 +99,8 @@ public class ElasticProfileTest {
         assertThat(prop1.errors().size()).isEqualTo(1);
         assertThat(prop2.errors().size()).isEqualTo(1);
 
-        assertThat(prop1.errors().on(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'");
-        assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'");
+        assertThat(prop1.errors().firstErrorOn(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'");
+        assertThat(prop2.errors().firstErrorOn(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'");
     }
 
     @Test

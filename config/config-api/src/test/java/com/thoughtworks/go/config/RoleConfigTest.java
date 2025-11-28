@@ -118,7 +118,7 @@ public class RoleConfigTest {
         validator.validate(role, validationContext);
 
         assertThat(role.getPolicy().hasErrors()).isTrue();
-        assertThat(role.getPolicy().get(0).errors().on("action")).isEqualTo("Invalid action, must be one of [view, administer].");
+        assertThat(role.getPolicy().get(0).errors().firstErrorOn("action")).isEqualTo("Invalid action, must be one of [view, administer].");
     }
 
     interface Validator {

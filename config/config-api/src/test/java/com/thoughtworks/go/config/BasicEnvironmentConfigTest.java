@@ -176,7 +176,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
 
             assertThat(reference.errors()).isNotEmpty();
-            assertThat(reference.errors().on(EnvironmentPipelineConfig.ORIGIN)).startsWith("Environment defined in");
+            assertThat(reference.errors().firstErrorOn(EnvironmentPipelineConfig.ORIGIN)).startsWith("Environment defined in");
         }
 
         @Test
@@ -256,7 +256,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
 
             assertThat(reference.errors()).isNotEmpty();
-            assertThat(reference.errors().on(EnvironmentPipelineConfig.ORIGIN)).startsWith("Environment defined in");
+            assertThat(reference.errors().firstErrorOn(EnvironmentPipelineConfig.ORIGIN)).startsWith("Environment defined in");
         }
 
         @Test
@@ -299,7 +299,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             List<ConfigErrors> configErrors = environmentConfig.getAllErrors();
             assertThat(validate).isFalse();
             assertThat(configErrors).isNotEmpty();
-            assertThat(configErrors.get(0).on("name")).isEqualTo("Environment Variable cannot have an empty name for environment 'UAT'.");
+            assertThat(configErrors.get(0).firstErrorOn("name")).isEqualTo("Environment Variable cannot have an empty name for environment 'UAT'.");
         }
 
         @Test
@@ -346,7 +346,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         environmentConfig.addError("field-name", "some error message.");
 
         assertThat(environmentConfig.errors().size()).isEqualTo(1);
-        assertThat(environmentConfig.errors().on("field-name")).isEqualTo("some error message.");
+        assertThat(environmentConfig.errors().firstErrorOn("field-name")).isEqualTo("some error message.");
     }
 
     @Test

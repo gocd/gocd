@@ -103,7 +103,7 @@ class HgMaterialConfigTest {
     void validate_shouldEnsureUrlIsNotBlank() {
         HgMaterialConfig hgMaterialConfig = hg("", null);
         hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("URL cannot be blank");
+        assertThat(hgMaterialConfig.errors().firstErrorOn(HgMaterialConfig.URL)).isEqualTo("URL cannot be blank");
     }
 
     @Test
@@ -203,7 +203,7 @@ class HgMaterialConfigTest {
             hgMaterialConfig.setUrl("");
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(hgMaterialConfig.errors().on(ScmMaterialConfig.URL)).isEqualTo("URL cannot be blank");
+            assertThat(hgMaterialConfig.errors().firstErrorOn(ScmMaterialConfig.URL)).isEqualTo("URL cannot be blank");
         }
 
         @Test
@@ -212,24 +212,24 @@ class HgMaterialConfigTest {
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(hgMaterialConfig.errors().on(URL)).isEqualTo("URL cannot be blank");
+            assertThat(hgMaterialConfig.errors().firstErrorOn(URL)).isEqualTo("URL cannot be blank");
         }
 
         @Test
         void shouldEnsureMaterialNameIsValid() {
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
-            assertThat(hgMaterialConfig.errors().on(MATERIAL_NAME)).isNull();
+            assertThat(hgMaterialConfig.errors().firstErrorOn(MATERIAL_NAME)).isNull();
 
             hgMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
-            assertThat(hgMaterialConfig.errors().on(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+            assertThat(hgMaterialConfig.errors().firstErrorOn(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }
 
         @Test
         void shouldEnsureDestFilePathIsValid() {
             hgMaterialConfig.setConfigAttributes(Map.of(FOLDER, "../a"));
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
-            assertThat(hgMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
+            assertThat(hgMaterialConfig.errors().firstErrorOn(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
         }
 
         @Test
@@ -239,7 +239,7 @@ class HgMaterialConfigTest {
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
+            assertThat(hgMaterialConfig.errors().firstErrorOn(HgMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
         }
 
         @Test
@@ -249,7 +249,7 @@ class HgMaterialConfigTest {
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
+            assertThat(hgMaterialConfig.errors().firstErrorOn(HgMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
         }
 
         @Test
@@ -260,7 +260,7 @@ class HgMaterialConfigTest {
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isNull();
+            assertThat(hgMaterialConfig.errors().firstErrorOn(HgMaterialConfig.URL)).isNull();
         }
 
         @Test
@@ -269,7 +269,7 @@ class HgMaterialConfigTest {
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isNull();
+            assertThat(hgMaterialConfig.errors().firstErrorOn(HgMaterialConfig.URL)).isNull();
         }
 
         @Test
@@ -280,7 +280,7 @@ class HgMaterialConfigTest {
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isNull();
+            assertThat(hgMaterialConfig.errors().firstErrorOn(HgMaterialConfig.URL)).isNull();
         }
 
         @Test
@@ -290,7 +290,7 @@ class HgMaterialConfigTest {
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("Ambiguous branch, must be provided either in URL or as an attribute.");
+            assertThat(hgMaterialConfig.errors().firstErrorOn(HgMaterialConfig.URL)).isEqualTo("Ambiguous branch, must be provided either in URL or as an attribute.");
         }
 
         @Test
@@ -330,7 +330,7 @@ class HgMaterialConfigTest {
             final boolean validationResult = hgMaterialConfig.validateTree(new ConfigSaveValidationContext(null));
 
             assertThat(validationResult).isFalse();
-            assertThat(hgMaterialConfig.errors().on("encryptedPassword"))
+            assertThat(hgMaterialConfig.errors().firstErrorOn("encryptedPassword"))
                     .isEqualTo("Encrypted password value for HgMaterial with url 'http://example.com' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
         }
     }

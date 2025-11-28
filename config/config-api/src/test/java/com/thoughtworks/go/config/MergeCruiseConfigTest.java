@@ -292,7 +292,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
 
         List<ConfigErrors> allErrors = cruiseConfig.validateAfterPreprocess();
         assertThat(allErrors.size()).isEqualTo(1);
-        assertNotNull(allErrors.get(0).on("origin"));
+        assertNotNull(allErrors.get(0).firstErrorOn("origin"));
     }
 
     @Test
@@ -311,7 +311,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
 
         List<ConfigErrors> allErrors = cruiseConfig.validateAfterPreprocess();
         assertThat(allErrors.size()).isEqualTo(1);
-        assertNotNull(allErrors.get(0).on("origin"));
+        assertNotNull(allErrors.get(0).firstErrorOn("origin"));
     }
 
     @Test
@@ -333,8 +333,8 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
 
         List<ConfigErrors> allErrors = config.validateAfterPreprocess();
         assertThat(allErrors.size()).isEqualTo(2);
-        assertThat(allErrors.get(0).on("name")).isEqualTo("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
-        assertThat(allErrors.get(1).on("name")).isEqualTo("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
+        assertThat(allErrors.get(0).firstErrorOn("name")).isEqualTo("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
+        assertThat(allErrors.get(1).firstErrorOn("name")).isEqualTo("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
     }
 
     @Test
@@ -347,8 +347,8 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         List<ConfigErrors> allErrors = merged.validateAfterPreprocess();
         assertThat(remotePart.getGroups().get(0).getPipelines().get(0).errors().size()).isEqualTo(1);
         assertThat(allErrors.size()).isEqualTo(2);
-        assertThat(allErrors.get(0).on("name")).isEqualTo("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
-        assertThat(allErrors.get(1).on("name")).isEqualTo("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
+        assertThat(allErrors.get(0).firstErrorOn("name")).isEqualTo("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
+        assertThat(allErrors.get(1).firstErrorOn("name")).isEqualTo("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
     }
 
     @Test
@@ -362,8 +362,8 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
 
         List<ConfigErrors> allErrors = cloned.validateAfterPreprocess();
         assertThat(allErrors.size()).isEqualTo(2);
-        assertThat(allErrors.get(0).on("name")).isEqualTo("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
-        assertThat(allErrors.get(1).on("name")).isEqualTo("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
+        assertThat(allErrors.get(0).firstErrorOn("name")).isEqualTo("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
+        assertThat(allErrors.get(1).firstErrorOn("name")).isEqualTo("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml, http://some.git at revision 1234fed]");
     }
 
     @Test

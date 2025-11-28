@@ -54,8 +54,8 @@ public class RunIfConfigsTest {
         config.addError("status", "some error");
         configs.add(config);
         configs.addError("key", "some error");
-        assertThat(configs.errors().on("key")).isEqualTo("some error");
-        assertThat(configs.get(0).errors().on("status")).isEqualTo("some error");
+        assertThat(configs.errors().firstErrorOn("key")).isEqualTo("some error");
+        assertThat(configs.get(0).errors().firstErrorOn("status")).isEqualTo("some error");
     }
 
 }

@@ -151,7 +151,7 @@ public class SecurityAuthConfigServiceTest {
         securityAuthConfigService.create(username, securityAuthConfig, new HttpLocalizedOperationResult());
 
         assertThat(securityAuthConfig.errors().isEmpty()).isFalse();
-        assertThat(securityAuthConfig.errors().on("pluginId")).isEqualTo("Plugin with id `non-existent-plugin` is not found.");
+        assertThat(securityAuthConfig.errors().firstErrorOn("pluginId")).isEqualTo("Plugin with id `non-existent-plugin` is not found.");
     }
 
     @Test
@@ -184,7 +184,7 @@ public class SecurityAuthConfigServiceTest {
         securityAuthConfigService.update(username, "md5", securityAuthConfig, new HttpLocalizedOperationResult());
 
         assertThat(securityAuthConfig.errors().isEmpty()).isFalse();
-        assertThat(securityAuthConfig.errors().on("pluginId")).isEqualTo("Plugin with id `non-existent-plugin` is not found.");
+        assertThat(securityAuthConfig.errors().firstErrorOn("pluginId")).isEqualTo("Plugin with id `non-existent-plugin` is not found.");
     }
 
     @Test

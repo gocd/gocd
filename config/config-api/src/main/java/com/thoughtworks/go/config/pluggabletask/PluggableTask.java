@@ -31,13 +31,9 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Understands configuration of pluggable task
@@ -204,7 +200,7 @@ public class PluggableTask extends AbstractTask {
             Map<String, String> mapValue = new HashMap<>();
             mapValue.put(VALUE_KEY, property.getValue());
             if (!property.errors().isEmpty()) {
-                mapValue.put(ERRORS_KEY, StringUtils.join(property.errors().getAll(), ", "));
+                mapValue.put(ERRORS_KEY, property.errors().asString());
             }
             configMap.put(property.getConfigKeyName(), mapValue);
         }
@@ -225,14 +221,10 @@ public class PluggableTask extends AbstractTask {
 
         PluggableTask that = (PluggableTask) o;
 
-        if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) {
+        if (!Objects.equals(configuration, that.configuration)) {
             return false;
         }
-        if (!pluginConfiguration.equals(that.pluginConfiguration)) {
-            return false;
-        }
-
-        return true;
+        return pluginConfiguration.equals(that.pluginConfiguration);
     }
 
     @Override

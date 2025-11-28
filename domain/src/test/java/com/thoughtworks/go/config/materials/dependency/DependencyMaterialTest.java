@@ -213,7 +213,7 @@ class DependencyMaterialTest {
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
         pipeline.setOrigin(null);
         dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), pipeline));
-        assertThat(dependencyMaterialConfig.errors().on(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).isEqualTo("Pipeline with name 'upstream_pipeline' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)");
+        assertThat(dependencyMaterialConfig.errors().firstErrorOn(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).isEqualTo("Pipeline with name 'upstream_pipeline' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)");
     }
 
     @Test
@@ -223,7 +223,7 @@ class DependencyMaterialTest {
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("downstream"), new MaterialConfigs());
         pipeline.setOrigin(null);
         dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, pipeline));
-        assertThat(dependencyMaterialConfig.errors().on(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).isEqualTo("Stage with name 'does_not_exist' does not exist on pipeline 'upstream_pipeline', it is being referred to from pipeline 'downstream' (cruise-config.xml)");
+        assertThat(dependencyMaterialConfig.errors().firstErrorOn(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).isEqualTo("Stage with name 'does_not_exist' does not exist on pipeline 'upstream_pipeline', it is being referred to from pipeline 'downstream' (cruise-config.xml)");
     }
 
 

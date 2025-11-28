@@ -199,7 +199,7 @@ public class IgnoredFilesTest {
     public void shouldAddErrorToItsErrorCollection() {
         IgnoredFiles ignore = new IgnoredFiles("helper/*.*");
         ignore.addError("pattern", "not allowed");
-        assertThat(ignore.errors().on("pattern")).isEqualTo("not allowed");
+        assertThat(ignore.errors().firstErrorOn("pattern")).isEqualTo("not allowed");
     }
 
     @Test

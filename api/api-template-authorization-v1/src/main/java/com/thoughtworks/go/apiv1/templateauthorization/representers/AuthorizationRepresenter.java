@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -42,9 +41,9 @@ public class AuthorizationRepresenter {
 
     private static void writeUsersAndRoles(OutputWriter viewWriter, List<AdminUser> users, List<AdminRole> roles) {
         List<String> userErrors = new ArrayList<>();
-        users.stream().map(user -> user.errors().getAllOn(AdminUser.ADMIN)).filter(Objects::nonNull).forEach(userErrors::addAll);
+        users.stream().map(user -> user.errors().getAllOn(AdminUser.ADMIN)).forEach(userErrors::addAll);
         List<String> rolesErrors = new ArrayList<>();
-        roles.stream().map(role -> role.errors().getAllOn(AdminRole.ADMIN)).filter(Objects::nonNull).forEach(rolesErrors::addAll);
+        roles.stream().map(role -> role.errors().getAllOn(AdminRole.ADMIN)).forEach(rolesErrors::addAll);
 
         if (!rolesErrors.isEmpty() || !userErrors.isEmpty()) {
             viewWriter.addChild("errors", errorsWriter -> {

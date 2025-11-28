@@ -161,8 +161,8 @@ public class MaterialsTest {
         assertThat(materials.get(0).errors().isEmpty()).isFalse();
         assertThat(materials.get(1).errors().isEmpty()).isFalse();
 
-        assertThat(materials.get(0).errors().on(ScmMaterialConfig.FOLDER)).isEqualTo("The destination directory must be unique across materials.");
-        assertThat(materials.get(1).errors().on(ScmMaterialConfig.FOLDER)).isEqualTo("The destination directory must be unique across materials.");
+        assertThat(materials.get(0).errors().firstErrorOn(ScmMaterialConfig.FOLDER)).isEqualTo("The destination directory must be unique across materials.");
+        assertThat(materials.get(1).errors().firstErrorOn(ScmMaterialConfig.FOLDER)).isEqualTo("The destination directory must be unique across materials.");
     }
 
     @Test

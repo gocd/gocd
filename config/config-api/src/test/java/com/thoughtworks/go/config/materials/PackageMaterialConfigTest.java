@@ -36,7 +36,7 @@ public class PackageMaterialConfigTest {
         packageMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
 
         assertThat(packageMaterialConfig.errors().getAll().size()).isEqualTo(1);
-        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Please select a repository and package");
+        assertThat(packageMaterialConfig.errors().firstErrorOn(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Please select a repository and package");
     }
 
     @Test
@@ -51,7 +51,7 @@ public class PackageMaterialConfigTest {
         packageMaterialConfig.validateTree(configSaveValidationContext);
 
         assertThat(packageMaterialConfig.errors().getAll().size()).isEqualTo(1);
-        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find plugin for given package id:[package-id].");
+        assertThat(packageMaterialConfig.errors().firstErrorOn(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find plugin for given package id:[package-id].");
     }
 
     @Test
@@ -66,7 +66,7 @@ public class PackageMaterialConfigTest {
         packageMaterialConfig.validateTree(configSaveValidationContext);
 
         assertThat(packageMaterialConfig.errors().getAll().size()).isEqualTo(1);
-        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find plugin for given package id:[package-id].");
+        assertThat(packageMaterialConfig.errors().firstErrorOn(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find plugin for given package id:[package-id].");
     }
 
     @Test
@@ -81,9 +81,9 @@ public class PackageMaterialConfigTest {
         packageMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
         assertThat(packageMaterialConfig.errors().getAll().size()).isEqualTo(1);
-        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Duplicate package material detected!");
+        assertThat(packageMaterialConfig.errors().firstErrorOn(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Duplicate package material detected!");
         assertThat(existingMaterial.errors().getAll().size()).isEqualTo(1);
-        assertThat(existingMaterial.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Duplicate package material detected!");
+        assertThat(existingMaterial.errors().firstErrorOn(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Duplicate package material detected!");
         assertThat(nameToMaterialMap.size()).isEqualTo(2);
     }
 
@@ -173,6 +173,7 @@ public class PackageMaterialConfigTest {
         p2 = new PackageMaterialConfig();
         assertThat(p1.equals(p2)).isFalse();
 
+        //noinspection ConstantValue
         assertThat(p1.equals(null)).isFalse();
     }
 

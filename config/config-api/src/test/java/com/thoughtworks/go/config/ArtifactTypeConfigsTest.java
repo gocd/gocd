@@ -204,11 +204,11 @@ public class ArtifactTypeConfigsTest {
         artifactTypeConfigs.add(new BuildArtifactConfig("src", "../a"));
 
         artifactTypeConfigs.validateTree(null);
-        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo("Duplicate artifacts defined.");
-        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.SRC)).isEqualTo("Duplicate artifacts defined.");
-        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo("Duplicate artifacts defined.");
-        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.SRC)).isEqualTo("Duplicate artifacts defined.");
-        assertThat(artifactTypeConfigs.get(2).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo("Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN);
+        assertThat(artifactTypeConfigs.get(0).errors().firstErrorOn(BuiltinArtifactConfig.DEST)).isEqualTo("Duplicate artifacts defined.");
+        assertThat(artifactTypeConfigs.get(0).errors().firstErrorOn(BuiltinArtifactConfig.SRC)).isEqualTo("Duplicate artifacts defined.");
+        assertThat(artifactTypeConfigs.get(1).errors().firstErrorOn(BuiltinArtifactConfig.DEST)).isEqualTo("Duplicate artifacts defined.");
+        assertThat(artifactTypeConfigs.get(1).errors().firstErrorOn(BuiltinArtifactConfig.SRC)).isEqualTo("Duplicate artifacts defined.");
+        assertThat(artifactTypeConfigs.get(2).errors().firstErrorOn(BuiltinArtifactConfig.DEST)).isEqualTo("Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN);
     }
 
     @Test
@@ -220,16 +220,16 @@ public class ArtifactTypeConfigsTest {
         artifactTypeConfigs.validate(null);
 
         assertFalse(artifactTypeConfigs.get(0).errors().isEmpty());
-        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.SRC)).isEqualTo(("Duplicate artifacts defined."));
-        assertThat(artifactTypeConfigs.get(0).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo(("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(0).errors().firstErrorOn(BuiltinArtifactConfig.SRC)).isEqualTo(("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(0).errors().firstErrorOn(BuiltinArtifactConfig.DEST)).isEqualTo(("Duplicate artifacts defined."));
 
         assertFalse(artifactTypeConfigs.get(1).errors().isEmpty());
-        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.SRC)).isEqualTo(("Duplicate artifacts defined."));
-        assertThat(artifactTypeConfigs.get(1).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo(("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(1).errors().firstErrorOn(BuiltinArtifactConfig.SRC)).isEqualTo(("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(1).errors().firstErrorOn(BuiltinArtifactConfig.DEST)).isEqualTo(("Duplicate artifacts defined."));
 
         assertFalse(artifactTypeConfigs.get(2).errors().isEmpty());
-        assertThat(artifactTypeConfigs.get(2).errors().on(BuiltinArtifactConfig.SRC)).isEqualTo(("Duplicate artifacts defined."));
-        assertThat(artifactTypeConfigs.get(2).errors().on(BuiltinArtifactConfig.DEST)).isEqualTo(("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(2).errors().firstErrorOn(BuiltinArtifactConfig.SRC)).isEqualTo(("Duplicate artifacts defined."));
+        assertThat(artifactTypeConfigs.get(2).errors().firstErrorOn(BuiltinArtifactConfig.DEST)).isEqualTo(("Duplicate artifacts defined."));
     }
 
     @Test

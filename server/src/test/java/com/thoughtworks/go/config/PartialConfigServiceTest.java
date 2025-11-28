@@ -190,10 +190,10 @@ public class PartialConfigServiceTest {
         final String violationMessage = "Not allowed to refer to pipeline group 'group'. Check the 'Rules' of this config repository.";
 
         assertTrue(incoming.hasErrors(), "should have rule violations");
-        assertEquals(violationMessage, incoming.errors().on("pipeline_group"));
+        assertEquals(violationMessage, incoming.errors().firstErrorOn("pipeline_group"));
 
         assertTrue(lastValid.hasErrors(), "should have rule violations");
-        assertEquals(violationMessage, lastValid.errors().on("pipeline_group"));
+        assertEquals(violationMessage, lastValid.errors().firstErrorOn("pipeline_group"));
 
         assertTrue(cachedGoPartials.lastValidPartials().isEmpty());
 
@@ -230,7 +230,7 @@ public class PartialConfigServiceTest {
         final String violationMessage = "Not allowed to refer to pipeline group 'one'. Check the 'Rules' of this config repository.";
 
         assertTrue(incoming.hasErrors(), "should have rule violations");
-        assertEquals(violationMessage, incoming.errors().on("pipeline_group"));
+        assertEquals(violationMessage, incoming.errors().firstErrorOn("pipeline_group"));
 
         assertFalse(lastValid.hasErrors(), "should not have rule violations");
 

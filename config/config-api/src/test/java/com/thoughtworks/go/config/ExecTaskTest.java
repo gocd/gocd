@@ -50,8 +50,8 @@ public class ExecTaskTest {
         ExecTask execTask = new ExecTask("arg1 arg2", new Arguments(new Argument("arg1"), new Argument("arg2")));
         execTask.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         assertThat(execTask.errors().isEmpty()).isFalse();
-        assertThat(execTask.errors().on(ExecTask.ARGS)).isEqualTo(ExecTask.EXEC_CONFIG_ERROR);
-        assertThat(execTask.errors().on(ExecTask.ARG_LIST_STRING)).isEqualTo(ExecTask.EXEC_CONFIG_ERROR);
+        assertThat(execTask.errors().firstErrorOn(ExecTask.ARGS)).isEqualTo(ExecTask.EXEC_CONFIG_ERROR);
+        assertThat(execTask.errors().firstErrorOn(ExecTask.ARG_LIST_STRING)).isEqualTo(ExecTask.EXEC_CONFIG_ERROR);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class ExecTaskTest {
 
         execTask.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
 
-        assertThat(execTask.errors().on(ExecTask.ARG_LIST_STRING)).isEqualTo("Invalid argument, cannot be null.");
+        assertThat(execTask.errors().firstErrorOn(ExecTask.ARG_LIST_STRING)).isEqualTo("Invalid argument, cannot be null.");
     }
 
 
@@ -87,7 +87,7 @@ public class ExecTaskTest {
         assertThat(errors.size()).isEqualTo(1);
         String message = "The path of the working directory for the custom command in job 'job' in stage 'stage' of pipeline 'pipeline' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials.";
         assertThat(errors.get(0).firstError()).isEqualTo(message);
-        assertThat(task.errors().on(ExecTask.WORKING_DIR)).isEqualTo(message);
+        assertThat(task.errors().firstErrorOn(ExecTask.WORKING_DIR)).isEqualTo(message);
     }
 
     @Test
@@ -184,7 +184,7 @@ public class ExecTaskTest {
         try {
             execTask.validateTask(ConfigSaveValidationContext.forChain(cruiseConfig, template, templateStage, templateStage.getJobs().first()));
             assertThat(execTask.errors().isEmpty()).isFalse();
-            assertThat(execTask.errors().on(ExecTask.WORKING_DIR)).isEqualTo("The path of the working directory for the custom command in job 'job' in stage 'templateStage' of template 'template_name' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials.");
+            assertThat(execTask.errors().firstErrorOn(ExecTask.WORKING_DIR)).isEqualTo("The path of the working directory for the custom command in job 'job' in stage 'templateStage' of template 'template_name' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials.");
         } catch (Exception e) {
             fail("should not have failed. Exception: " + e.getMessage());
         }

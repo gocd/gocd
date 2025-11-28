@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ConfigErrors extends HashMap<String, List<String>> implements Serializable {
 
@@ -30,60 +30,37 @@ public class ConfigErrors extends HashMap<String, List<String>> implements Seria
     }
 
     public void add(String fieldName, String msg) {
-        List<String> msgList = get(fieldName);
-        if (msgList == null) {
-            msgList = new ArrayList<>();
-            put(fieldName, msgList);
-        }
+        List<String> msgList = computeIfAbsent(fieldName, k -> new ArrayList<>());
         if (!msgList.contains(msg)) {
             msgList.add(msg);
         }
     }
 
-    public List<String> getAll() {
-        List<String> allErrors = new ArrayList<>();
-        for (List<String> errorOnAnAttribute : values()) {
-            allErrors.addAll(errorOnAnAttribute);
-        }
-        return allErrors;
+    public @NotNull List<String> getAll() {
+        return streamAll().collect(Collectors.toList());
     }
 
-    public List<String> getAllOn(String fieldName) {
-        List<String> list = get(fieldName);
-        return (list == null) ? new ArrayList<>() : list;
+    private @NotNull Stream<String> streamAll() {
+        return values().stream().flatMap(Collection::stream).filter(Objects::nonNull);
     }
 
-    /**
-     * This is for Rails form helpers
-     */
-    public String on(String fieldName) {
-        return getFirstOn(fieldName);
+    public @NotNull List<String> getAllOn(String fieldName) {
+        return getOrDefault(fieldName, new ArrayList<>());
     }
 
-    private String getFirstOn(String fieldName) {
-        List<String> errors = get(fieldName);
-        if (errors != null && !errors.isEmpty()) {
-            return errors.get(0);
-        }
-        return null;
+    public @Nullable String firstErrorOn(String fieldName) {
+        return getOrDefault(fieldName, Collections.emptyList()).stream().findFirst().orElse(null);
     }
 
-    public String firstError() {
-        for (Map.Entry<String, List<String>> fieldToErrors : entrySet()) {
-            return getFirstOn(fieldToErrors.getKey());
-        }
-        return null;
+    public @Nullable String firstError() {
+        return values().stream().findFirst().flatMap(errors -> errors.stream().findFirst()).orElse(null);
     }
 
     public void addAll(ConfigErrors configErrors) {
-        for (String fieldName : configErrors.keySet()) {
-            for (String value : configErrors.get(fieldName)) {
-                this.add(fieldName, value);
-            }
-        }
+        configErrors.forEach((fieldName, errors) -> errors.forEach(error -> add(fieldName, error)));
     }
 
     public String asString() {
-        return StringUtils.join(this.getAll(), ", ");
+        return streamAll().distinct().collect(Collectors.joining(", "));
     }
 }

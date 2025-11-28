@@ -96,8 +96,8 @@ public class UpdateConfigRepoCommandTest {
 
         assertFalse(command.isValid(cruiseConfig));
         assertThat(newConfigRepo.errors().size()).isEqualTo(2);
-        assertThat(newConfigRepo.errors().on("material")).isEqualTo("You have defined multiple configuration repositories with the same repository - 'foobar.git'.");
-        assertThat(newConfigRepo.errors().on("id")).isEqualTo("You have defined multiple configuration repositories with the same id - 'new-repo'.");
+        assertThat(newConfigRepo.errors().firstErrorOn("material")).isEqualTo("You have defined multiple configuration repositories with the same repository - 'foobar.git'.");
+        assertThat(newConfigRepo.errors().firstErrorOn("id")).isEqualTo("You have defined multiple configuration repositories with the same id - 'new-repo'.");
     }
 
     @Test
@@ -108,7 +108,7 @@ public class UpdateConfigRepoCommandTest {
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(entityHashingService, oldConfigRepoId, configRepo, digest, result, configRepoExtension);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(configRepo.errors().on("id")).isEqualTo("Configuration repository id not specified");
+        assertThat(configRepo.errors().firstErrorOn("id")).isEqualTo("Configuration repository id not specified");
     }
 
     @Test
@@ -121,6 +121,6 @@ public class UpdateConfigRepoCommandTest {
         CreateConfigRepoCommand command = new CreateConfigRepoCommand(configRepo, configRepoExtension);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(configRepo.errors().on("plugin_id")).isEqualTo("Invalid plugin id: invalid_id");
+        assertThat(configRepo.errors().firstErrorOn("plugin_id")).isEqualTo("Invalid plugin id: invalid_id");
     }
 }

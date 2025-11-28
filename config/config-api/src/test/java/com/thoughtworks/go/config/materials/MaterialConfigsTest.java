@@ -62,10 +62,10 @@ public class MaterialConfigsTest {
         materialConfigs.validate(validationContext);
 
         assertThat(one.errors()).isNotEmpty();
-        assertThat(one.errors().on("materialName")).contains("You have defined multiple materials called 'sameName'. Material names are case-insensitive and must be unique.");
+        assertThat(one.errors().firstErrorOn("materialName")).contains("You have defined multiple materials called 'sameName'. Material names are case-insensitive and must be unique.");
 
         assertThat(another.errors()).isNotEmpty();
-        assertThat(another.errors().on("materialName")).contains("You have defined multiple materials called 'sameName'. Material names are case-insensitive and must be unique.");
+        assertThat(another.errors().firstErrorOn("materialName")).contains("You have defined multiple materials called 'sameName'. Material names are case-insensitive and must be unique.");
     }
 
 /*
@@ -89,7 +89,7 @@ Above scenario allowed
         materials.validate(validationContext);
 
         assertThat(invalidOne.errors()).isNotEmpty();
-        assertThat(invalidOne.errors().on("materialName")).isEqualTo("You have defined multiple materials called 'pipeline2'."
+        assertThat(invalidOne.errors().firstErrorOn("materialName")).isEqualTo("You have defined multiple materials called 'pipeline2'."
                 + " Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. "
                 + "You can override this by setting the materialName explicitly for the upstream pipeline.");
     }
@@ -124,7 +124,7 @@ Above scenario allowed
         pipeline2.materialConfigs().validate(ConfigSaveValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(), pipeline2));
         DependencyMaterialConfig invalidDependency = pipeline2.materialConfigs().findDependencyMaterial(new CaseInsensitiveString("pipeline1"));
         assertThat(invalidDependency.errors()).isNotEmpty();
-        assertThat(invalidDependency.errors().on(DependencyMaterialConfig.ORIGIN)).startsWith("Dependency from pipeline defined in");
+        assertThat(invalidDependency.errors().firstErrorOn(DependencyMaterialConfig.ORIGIN)).startsWith("Dependency from pipeline defined in");
     }
 
     @Test
@@ -175,7 +175,7 @@ Above scenario allowed
 
         ConfigErrors errors = duplicateDependencyMaterial.errors();
         assertThat(errors).isNotEmpty();
-        assertThat(errors.on("pipelineStageName")).isEqualTo("A pipeline can depend on each upstream pipeline only once. Remove one of the occurrences of 'pipeline2' from the current pipeline dependencies.");
+        assertThat(errors.firstErrorOn("pipelineStageName")).isEqualTo("A pipeline can depend on each upstream pipeline only once. Remove one of the occurrences of 'pipeline2' from the current pipeline dependencies.");
     }
 
     @Test
@@ -213,9 +213,9 @@ Above scenario allowed
         pipelineOne.materialConfigs().validate(ConfigSaveValidationContext.forChain(config));
 
         String conflictingDirMessage = "Invalid destination directory. Every material needs a different destination directory and the directories should not be nested.";
-        assertThat(pipelineOne.materialConfigs().get(0).errors().on(ScmMaterialConfig.FOLDER)).isEqualTo(conflictingDirMessage);
-        assertThat(pipelineOne.materialConfigs().get(1).errors().on(ScmMaterialConfig.FOLDER)).isEqualTo(conflictingDirMessage);
-        assertThat(pipelineOne.materialConfigs().get(2).errors().on(PluggableSCMMaterialConfig.FOLDER)).isEqualTo(conflictingDirMessage);
+        assertThat(pipelineOne.materialConfigs().get(0).errors().firstErrorOn(ScmMaterialConfig.FOLDER)).isEqualTo(conflictingDirMessage);
+        assertThat(pipelineOne.materialConfigs().get(1).errors().firstErrorOn(ScmMaterialConfig.FOLDER)).isEqualTo(conflictingDirMessage);
+        assertThat(pipelineOne.materialConfigs().get(2).errors().firstErrorOn(PluggableSCMMaterialConfig.FOLDER)).isEqualTo(conflictingDirMessage);
     }
 
     @Test
@@ -261,8 +261,8 @@ Above scenario allowed
         pipelineOne.materialConfigs().validate(ConfigSaveValidationContext.forChain(config));
 
         assertThat(pipelineOne.materialConfigs().get(0).errors().isEmpty()).isEqualTo(true);
-        assertThat(pipelineOne.materialConfigs().get(1).errors().on(ScmMaterialConfig.FOLDER)).isEqualTo("Destination directory is required when a pipeline has multiple SCM materials.");
-        assertThat(pipelineOne.materialConfigs().get(2).errors().on(PluggableSCMMaterialConfig.FOLDER)).isEqualTo("Destination directory is required when a pipeline has multiple SCM materials.");
+        assertThat(pipelineOne.materialConfigs().get(1).errors().firstErrorOn(ScmMaterialConfig.FOLDER)).isEqualTo("Destination directory is required when a pipeline has multiple SCM materials.");
+        assertThat(pipelineOne.materialConfigs().get(2).errors().firstErrorOn(PluggableSCMMaterialConfig.FOLDER)).isEqualTo("Destination directory is required when a pipeline has multiple SCM materials.");
     }
 
     @Test
@@ -276,7 +276,7 @@ Above scenario allowed
         pipelineConfig.setMaterialConfigs(materialConfigs);
         materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config));
 
-        assertThat(pipelineConfig.materialConfigs().get(0).errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find SCM for given scm-id: [scm-id].");
+        assertThat(pipelineConfig.materialConfigs().get(0).errors().firstErrorOn(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find SCM for given scm-id: [scm-id].");
     }
 
     @Test
@@ -289,7 +289,7 @@ Above scenario allowed
         pipelineConfig.setMaterialConfigs(materialConfigs);
         materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config));
 
-        assertThat(pipelineConfig.materialConfigs().get(0).errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find repository for given package id:[package-id]");
+        assertThat(pipelineConfig.materialConfigs().get(0).errors().firstErrorOn(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find repository for given package id:[package-id]");
     }
 
 
@@ -411,7 +411,7 @@ Above scenario allowed
 
         pipelineOne.materialConfigs().validate(ConfigSaveValidationContext.forChain(config));
 
-        assertThat(pipelineOne.materialConfigs().get(0).errors().on(ScmMaterialConfig.AUTO_UPDATE))
+        assertThat(pipelineOne.materialConfigs().get(0).errors().firstErrorOn(ScmMaterialConfig.AUTO_UPDATE))
             .isEqualTo("The material of type Mercurial (http://url1) is used elsewhere with a different value for autoUpdate (poll for changes). Those values should be the same. Pipelines:\n one (auto update disabled),\n two (auto update enabled)");
     }
 
@@ -634,12 +634,12 @@ Above scenario allowed
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p1"), new MaterialConfigs(svn));
         materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)), pipelineConfig));
-        assertThat(git.errors().on(GitMaterialConfig.MATERIAL_NAME)).contains("You have defined multiple materials called 'mat-name'");
-        assertThat(git.errors().on(GitMaterialConfig.URL)).isEqualTo("URL cannot be blank");
-        assertThat(svn.errors().on(SvnMaterialConfig.MATERIAL_NAME)).contains("You have defined multiple materials called 'mat-name'");
-        assertThat(p4.errors().on(P4MaterialConfig.VIEW)).contains("P4 view cannot be empty.");
-        assertThat(tfs.errors().on(TfsMaterialConfig.URL)).contains("URL cannot be blank");
-        assertThat(hg.errors().on(HgMaterialConfig.URL)).isEqualTo("URL cannot be blank");
+        assertThat(git.errors().firstErrorOn(GitMaterialConfig.MATERIAL_NAME)).contains("You have defined multiple materials called 'mat-name'");
+        assertThat(git.errors().firstErrorOn(GitMaterialConfig.URL)).isEqualTo("URL cannot be blank");
+        assertThat(svn.errors().firstErrorOn(SvnMaterialConfig.MATERIAL_NAME)).contains("You have defined multiple materials called 'mat-name'");
+        assertThat(p4.errors().firstErrorOn(P4MaterialConfig.VIEW)).contains("P4 view cannot be empty.");
+        assertThat(tfs.errors().firstErrorOn(TfsMaterialConfig.URL)).contains("URL cannot be blank");
+        assertThat(hg.errors().firstErrorOn(HgMaterialConfig.URL)).isEqualTo("URL cannot be blank");
     }
 
 

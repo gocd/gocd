@@ -120,7 +120,7 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
 
       def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
 
-      assertThat(deserializedObject.errors().on("encryptedPassword"))
+      assertThat(deserializedObject.errors().firstErrorOn("encryptedPassword"))
         .isEqualTo("Encrypted value for password is invalid. This usually happens when the cipher text is invalid.")
     }
   }

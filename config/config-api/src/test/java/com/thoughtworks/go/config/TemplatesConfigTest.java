@@ -71,8 +71,8 @@ public class TemplatesConfigTest {
 
         assertThat(template.errors().isEmpty()).isFalse();
         assertThat(duplicateTemplate.errors().isEmpty()).isFalse();
-        assertThat(template.errors().on(PipelineTemplateConfig.NAME)).isEqualTo(String.format("Template name '%s' is not unique", template.name()));
-        assertThat(duplicateTemplate.errors().on(PipelineTemplateConfig.NAME)).isEqualTo(String.format("Template name '%s' is not unique", template.name()));
+        assertThat(template.errors().firstErrorOn(PipelineTemplateConfig.NAME)).isEqualTo(String.format("Template name '%s' is not unique", template.name()));
+        assertThat(duplicateTemplate.errors().firstErrorOn(PipelineTemplateConfig.NAME)).isEqualTo(String.format("Template name '%s' is not unique", template.name()));
     }
 
     @Test

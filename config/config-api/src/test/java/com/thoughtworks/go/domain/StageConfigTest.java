@@ -205,14 +205,14 @@ public class StageConfigTest {
 
         List<ConfigErrors> allErrors = config.validateAfterPreprocess();
         assertThat(allErrors).hasSize(4);
-        assertThat(allErrors.get(0).on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
-        assertThat(allErrors.get(1).on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
-        assertThat(allErrors.get(2).on(StageConfig.NAME)).isEqualTo("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
-        assertThat(allErrors.get(3).on(JobConfig.NAME)).isEqualTo("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters.");
-        assertThat(stageConfig.getJobs().get(0).errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
-        assertThat(stageConfig.getJobs().get(1).errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
-        assertThat(newlyAddedStage.errors().on(StageConfig.NAME)).isEqualTo("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
-        assertThat(newJob.errors().on(JobConfig.NAME)).isEqualTo("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters.");
+        assertThat(allErrors.get(0).firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
+        assertThat(allErrors.get(1).firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
+        assertThat(allErrors.get(2).firstErrorOn(StageConfig.NAME)).isEqualTo("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(allErrors.get(3).firstErrorOn(JobConfig.NAME)).isEqualTo("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters.");
+        assertThat(stageConfig.getJobs().get(0).errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
+        assertThat(stageConfig.getJobs().get(1).errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
+        assertThat(newlyAddedStage.errors().firstErrorOn(StageConfig.NAME)).isEqualTo("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(newJob.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -229,13 +229,13 @@ public class StageConfigTest {
     public void shouldFailValidationWhenNameIsBlank() {
         StageConfig stageConfig = new StageConfig();
         stageConfig.validate(null);
-        assertThat(stageConfig.errors().on(StageConfig.NAME)).contains("Invalid stage name 'null'");
+        assertThat(stageConfig.errors().firstErrorOn(StageConfig.NAME)).contains("Invalid stage name 'null'");
         stageConfig.setName(null);
         stageConfig.validate(null);
-        assertThat(stageConfig.errors().on(StageConfig.NAME)).contains("Invalid stage name 'null'");
+        assertThat(stageConfig.errors().firstErrorOn(StageConfig.NAME)).contains("Invalid stage name 'null'");
         stageConfig.setName(new CaseInsensitiveString(""));
         stageConfig.validate(null);
-        assertThat(stageConfig.errors().on(StageConfig.NAME)).contains("Invalid stage name 'null'");
+        assertThat(stageConfig.errors().firstErrorOn(StageConfig.NAME)).contains("Invalid stage name 'null'");
     }
 
     @Test
@@ -248,7 +248,7 @@ public class StageConfigTest {
 
         stageConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), stageConfig));
 
-        assertThat(stageConfig.errors().on(StageConfig.NAME)).contains("Invalid stage name 'stage$'");
+        assertThat(stageConfig.errors().firstErrorOn(StageConfig.NAME)).contains("Invalid stage name 'stage$'");
         ArgumentCaptor<PipelineConfigSaveValidationContext> captor = ArgumentCaptor.forClass(PipelineConfigSaveValidationContext.class);
         verify(jobConfigs).validateTree(captor.capture());
         PipelineConfigSaveValidationContext childContext = captor.getValue();
@@ -270,7 +270,7 @@ public class StageConfigTest {
         pipelineConfig.setTemplateName(new CaseInsensitiveString("template"));
         stageConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, stageConfig));
 
-        assertThat(stageConfig.errors().on(StageConfig.NAME)).contains("Invalid stage name 'stage$'");
+        assertThat(stageConfig.errors().firstErrorOn(StageConfig.NAME)).contains("Invalid stage name 'stage$'");
     }
 
     @Test

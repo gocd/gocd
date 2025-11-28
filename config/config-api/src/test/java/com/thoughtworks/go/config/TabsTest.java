@@ -40,8 +40,8 @@ public class TabsTest {
         tabs.add(new Tab("tab1", "path1"));
         tabs.add(new Tab("tab1", "path2"));
         tabs.validate(null);
-        assertThat(tabs.get(0).errors().on(Tab.NAME)).isEqualTo("Tab name 'tab1' is not unique.");
-        assertThat(tabs.get(1).errors().on(Tab.NAME)).isEqualTo("Tab name 'tab1' is not unique.");
+        assertThat(tabs.get(0).errors().firstErrorOn(Tab.NAME)).isEqualTo("Tab name 'tab1' is not unique.");
+        assertThat(tabs.get(1).errors().firstErrorOn(Tab.NAME)).isEqualTo("Tab name 'tab1' is not unique.");
     }
 
     @Test
@@ -51,9 +51,9 @@ public class TabsTest {
         Tab tab3 = new Tab("extremely_long_name_that_is_not_allowed", "path");
         Tabs tabs = new Tabs(tab1, tab2, tab3);
         tabs.validateTree(null);
-        assertThat(tab1.errors().on(Tab.NAME)).isEqualTo("Tab name 'tab1' is not unique.");
-        assertThat(tab2.errors().on(Tab.NAME)).isEqualTo("Tab name 'tab1' is not unique.");
-        assertThat(tab3.errors().on(Tab.NAME)).isEqualTo("Tab name should not exceed 15 characters");
+        assertThat(tab1.errors().firstErrorOn(Tab.NAME)).isEqualTo("Tab name 'tab1' is not unique.");
+        assertThat(tab2.errors().firstErrorOn(Tab.NAME)).isEqualTo("Tab name 'tab1' is not unique.");
+        assertThat(tab3.errors().firstErrorOn(Tab.NAME)).isEqualTo("Tab name should not exceed 15 characters");
     }
 
 }

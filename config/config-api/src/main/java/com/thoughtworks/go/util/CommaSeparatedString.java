@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -28,6 +29,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class CommaSeparatedString {
+    private static final Pattern COMMA_STRING_PATTERN = Pattern.compile("\\s*,[,\\s]*");
+
     public static String append(String origCommaSeparatedStr, List<String> entriesToAdd) {
         if (entriesToAdd == null || entriesToAdd.isEmpty()) {
             return origCommaSeparatedStr;
@@ -95,6 +98,6 @@ public class CommaSeparatedString {
     }
 
     private static String[] commaSeparatedStrToArr(String commaSeparatedStr) {
-        return commaSeparatedStr.trim().split("\\s*,[,\\s]*");
+        return COMMA_STRING_PATTERN.split(commaSeparatedStr.trim());
     }
 }

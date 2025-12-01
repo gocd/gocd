@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
 import com.thoughtworks.go.util.UrlUtil;
+import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,8 +45,6 @@ import java.util.*;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -56,14 +55,16 @@ public class DefaultGoPluginActivatorTest {
     private static final String SYMBOLIC_NAME = "plugin-id";
     private static final String NO_EXT_ERR_MSG = "No extensions found in this plugin. Please check for @Extension annotations";
 
+    private @Captor ArgumentCaptor<List<String>> errorMessageCaptor;
+    private @Captor ArgumentCaptor<Dictionary<String, String>> propertiesCaptor;
+    private @Mock BundleContext context;
+    private @Mock(strictness = Mock.Strictness.LENIENT) Bundle bundle;
+    private @Mock ServiceReference<PluginRegistryService> pluginRegistryServiceReference;
+    private @Mock PluginRegistryService pluginRegistryService;
+    private @Mock ServiceReference<LoggingService> loggingServiceReference;
+    private @Mock LoggingService loggingService;
+
     private DefaultGoPluginActivator activator;
-    @Captor private ArgumentCaptor<List<String>> errorMessageCaptor;
-    @Mock private BundleContext context;
-    @Mock(strictness = Mock.Strictness.LENIENT) private Bundle bundle;
-    @Mock private ServiceReference<PluginRegistryService> pluginRegistryServiceReference;
-    @Mock private PluginRegistryService pluginRegistryService;
-    @Mock private ServiceReference<LoggingService> loggingServiceReference;
-    @Mock private LoggingService loggingService;
 
     @BeforeEach
     public void setUp() {
@@ -144,7 +145,7 @@ public class DefaultGoPluginActivatorTest {
         activator.start(context);
 
         verifyErrorsReported("Class [PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor] is annotated with @Extension but cannot be constructed. "
-                + "Make sure it and all of its parent classes have a default constructor.");
+            + "Make sure it and all of its parent classes have a default constructor.");
     }
 
     @Test
@@ -155,8 +156,8 @@ public class DefaultGoPluginActivatorTest {
         activator.start(context);
 
         verifyErrorsReported(
-                format("Class [PublicGoExtensionClassWhichThrowsAnExceptionInItsConstructor] is annotated with @Extension but cannot be constructed. Reason: java.lang.RuntimeException: %s.",
-                        CONSTRUCTOR_FAIL_MSG), NO_EXT_ERR_MSG);
+            format("Class [PublicGoExtensionClassWhichThrowsAnExceptionInItsConstructor] is annotated with @Extension but cannot be constructed. Reason: java.lang.RuntimeException: %s.",
+                CONSTRUCTOR_FAIL_MSG), NO_EXT_ERR_MSG);
     }
 
     @Test
@@ -259,7 +260,6 @@ public class DefaultGoPluginActivatorTest {
         when(bundle.loadClass(contains("GoExtensionWithMultipleLoadUnloadAnnotation"))).thenReturn((Class) GoExtensionWithMultipleLoadUnloadAnnotation.class);
 
         activator.start(context);
-        assertThat(activator.hasErrors()).isEqualTo(true);
         verify(pluginRegistryService).pluginIDFor(eq(SYMBOLIC_NAME), anyString());
         verifyThatOneOfTheErrorMessagesIsPresent(expectedErrorMessageWithMethodsWithIncreasingOrder, expectedErrorMessageWithMethodsWithDecreasingOrder);
 
@@ -290,7 +290,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(activator.hasErrors()).isEqualTo(false);
+        assertActivatorHasNoErrors();
         activator.stop(context);
 
         assertThat(activator.hasErrors()).isEqualTo(true);
@@ -307,15 +307,12 @@ public class DefaultGoPluginActivatorTest {
         when(bundle.loadClass("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier")).thenReturn((Class) PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class);
         when(pluginRegistryService.pluginIDFor(eq(SYMBOLIC_NAME), anyString())).thenReturn(PLUGIN_ID);
 
-        Hashtable<String, String> expectedPropertiesUponRegistration = new Hashtable<>();
-        expectedPropertiesUponRegistration.put(Constants.BUNDLE_SYMBOLICNAME, PLUGIN_ID);
-        expectedPropertiesUponRegistration.put(Constants.BUNDLE_CATEGORY, "test-extension");
-        expectedPropertiesUponRegistration.put("PLUGIN_ID", PLUGIN_ID);
-
         activator.start(context);
 
-        assertThat(activator.hasErrors()).isEqualTo(false);
-        verify(context).registerService(eq(GoPlugin.class), any(GoPlugin.class), eq(expectedPropertiesUponRegistration));
+        assertActivatorHasNoErrors();
+        verify(context).registerService(eq(GoPlugin.class), any(GoPlugin.class), propertiesCaptor.capture());
+        assertThat(propertiesCaptor.getValue().toString())
+            .isEqualTo(Map.of(Constants.BUNDLE_SYMBOLICNAME, PLUGIN_ID, Constants.BUNDLE_CATEGORY, "test-extension", "PLUGIN_ID", PLUGIN_ID).toString());
     }
 
     @Test
@@ -327,21 +324,15 @@ public class DefaultGoPluginActivatorTest {
         when(pluginRegistryService.pluginIDFor(SYMBOLIC_NAME, PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class.getCanonicalName())).thenReturn("plugin_id_1");
         when(pluginRegistryService.pluginIDFor(SYMBOLIC_NAME, PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class.getCanonicalName())).thenReturn("plugin_id_2");
 
-        Dictionary<String, String> expectedPropertiesUponRegistrationForPlugin1 = new Hashtable<>();
-        expectedPropertiesUponRegistrationForPlugin1.put(Constants.BUNDLE_SYMBOLICNAME, SYMBOLIC_NAME);
-        expectedPropertiesUponRegistrationForPlugin1.put(Constants.BUNDLE_CATEGORY, "test-extension");
-        expectedPropertiesUponRegistrationForPlugin1.put("PLUGIN_ID", "plugin_id_1");
-
-        Dictionary<String, String> expectedPropertiesUponRegistrationForPlugin2 = new Hashtable<>();
-        expectedPropertiesUponRegistrationForPlugin2.put(Constants.BUNDLE_SYMBOLICNAME, SYMBOLIC_NAME);
-        expectedPropertiesUponRegistrationForPlugin2.put(Constants.BUNDLE_CATEGORY, "test-extension-2");
-        expectedPropertiesUponRegistrationForPlugin2.put("PLUGIN_ID", "plugin_id_2");
-
         activator.start(context);
 
-        assertThat(activator.hasErrors()).isEqualTo(false);
-        verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), eq(expectedPropertiesUponRegistrationForPlugin1));
-        verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class), eq(expectedPropertiesUponRegistrationForPlugin2));
+        assertActivatorHasNoErrors();
+        verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), propertiesCaptor.capture());
+        assertThat(propertiesCaptor.getValue().toString())
+            .isEqualTo(Map.of(Constants.BUNDLE_SYMBOLICNAME, SYMBOLIC_NAME, Constants.BUNDLE_CATEGORY, "test-extension", "PLUGIN_ID", "plugin_id_1").toString());
+        verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class), propertiesCaptor.capture());
+        assertThat(propertiesCaptor.getValue().toString())
+            .isEqualTo(Map.of(Constants.BUNDLE_SYMBOLICNAME, SYMBOLIC_NAME, Constants.BUNDLE_CATEGORY, "test-extension-2", "PLUGIN_ID", "plugin_id_2").toString());
     }
 
     @Test
@@ -353,15 +344,12 @@ public class DefaultGoPluginActivatorTest {
         when(pluginRegistryService.pluginIDFor(SYMBOLIC_NAME, PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class.getCanonicalName())).thenReturn("plugin_id_1");
         when(pluginRegistryService.pluginIDFor(SYMBOLIC_NAME, PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class.getCanonicalName())).thenReturn(null);
 
-        Dictionary<String, String> expectedPropertiesUponRegistrationForPlugin1 = new Hashtable<>();
-        expectedPropertiesUponRegistrationForPlugin1.put(Constants.BUNDLE_SYMBOLICNAME, SYMBOLIC_NAME);
-        expectedPropertiesUponRegistrationForPlugin1.put(Constants.BUNDLE_CATEGORY, "test-extension");
-        expectedPropertiesUponRegistrationForPlugin1.put("PLUGIN_ID", "plugin_id_1");
-
         activator.start(context);
 
         verify(pluginRegistryService, times(2)).pluginIDFor(eq(SYMBOLIC_NAME), any());
-        verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), eq(expectedPropertiesUponRegistrationForPlugin1));
+        verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), propertiesCaptor.capture());
+        assertThat(propertiesCaptor.getValue().toString())
+            .isEqualTo(Map.of(Constants.BUNDLE_SYMBOLICNAME, SYMBOLIC_NAME, Constants.BUNDLE_CATEGORY, "test-extension", "PLUGIN_ID", "plugin_id_1").toString());
         verify(context, never()).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class), any());
 
         assertThat(activator.hasErrors()).isEqualTo(true);
@@ -375,8 +363,8 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(activator.hasErrors()).isEqualTo(true);
-        verifyErrorReportedContains("Unable to find extension type from plugin identifier in class com.thoughtworks.go.plugin.activation.PublicGoExtensionClassWhichWillLoadSuccessfullyButThrowWhenAskedForPluginIdentifier");
+        assertActivatorHasErrors()
+            .anyMatch(s -> s.contains("Unable to find extension type from plugin identifier in class com.thoughtworks.go.plugin.activation.PublicGoExtensionClassWhichWillLoadSuccessfullyButThrowWhenAskedForPluginIdentifier"));
         verify(context, times(0)).registerService(eq(GoPlugin.class), any(GoPlugin.class), any());
     }
 
@@ -391,7 +379,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        assertThat(activator.hasErrors()).isEqualTo(false);
+        assertActivatorHasNoErrors();
         verify(context, times(1)).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), any());
         verify(context, never()).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class), any());
         verify(bundle, never()).loadClass("PublicGoExtensionClassWhichWillAlsoLoadSuccessfully");
@@ -411,15 +399,16 @@ public class DefaultGoPluginActivatorTest {
         verify(pluginRegistryService).reportErrorAndInvalidate(SYMBOLIC_NAME, List.of("Extension class declared in plugin bundle is not found: com.some.InvalidClass"));
     }
 
-    private void verifyThatOneOfTheErrorMessagesIsPresent(String expectedErrorMessage1, String expectedErrorMessage2) {
-        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+    private void verifyThatOneOfTheErrorMessagesIsPresent(String... expectedErrorMessages) {
         verify(pluginRegistryService).getPluginIDOfFirstPluginInBundle(SYMBOLIC_NAME);
-        verify(pluginRegistryService).reportErrorAndInvalidate(eq(PLUGIN_ID), captor.capture());
+        verify(pluginRegistryService).reportErrorAndInvalidate(eq(PLUGIN_ID), errorMessageCaptor.capture());
         verify(pluginRegistryService).extensionClassesInBundle(SYMBOLIC_NAME);
         verifyNoMoreInteractions(pluginRegistryService);
 
-        String actualErrorMessage = (String) captor.getValue().get(0);
-        assertTrue(expectedErrorMessage1.equals(actualErrorMessage) || expectedErrorMessage2.equals(actualErrorMessage));
+        assertThat(activator.hasErrors()).isEqualTo(true);
+        assertThat(errorMessageCaptor.getValue())
+            .first()
+            .satisfies(e -> assertThat(expectedErrorMessages).contains(e));
     }
 
     private void setupClassesInBundle(String... classes) {
@@ -434,16 +423,18 @@ public class DefaultGoPluginActivatorTest {
         verifyNoMoreInteractions(pluginRegistryService);
     }
 
-    private void verifyErrorReportedContains(@SuppressWarnings("SameParameterValue") String expectedPartOfErrorMessage) {
+    private ListAssert<String> assertActivatorHasErrors() {
+        assertThat(activator.hasErrors()).isEqualTo(true);
         verify(pluginRegistryService).reportErrorAndInvalidate(eq(PLUGIN_ID), errorMessageCaptor.capture());
         List<String> errors = errorMessageCaptor.getValue();
-        for (String errorMessage : errors) {
-            if (errorMessage.contains(expectedPartOfErrorMessage)) {
-                return;
-            }
-        }
+        return assertThat(errors);
+    }
 
-        fail("Could not find error message with " + expectedPartOfErrorMessage + " in " + errors);
+    private void assertActivatorHasNoErrors() {
+        if (activator.hasErrors()) {
+            verify(pluginRegistryService).reportErrorAndInvalidate(eq(PLUGIN_ID), errorMessageCaptor.capture());
+            assertThat(errorMessageCaptor.getValue()).isEmpty();
+        }
     }
 
     @Extension
@@ -452,6 +443,7 @@ public class DefaultGoPluginActivatorTest {
 
     @Extension
     public static class PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor implements GoPlugin {
+        @SuppressWarnings("unused")
         public PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor(int x) {
         }
 

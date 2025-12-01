@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.api.info.PluginContext;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
+import org.apache.felix.framework.util.MapToDictionary;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -86,11 +87,9 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
             try {
                 unloadMethodInvoker.invokeUnloadMethod();
             } catch (InvocationTargetException e) {
-                errors.add(String.format("Invocation of unload method [%s]. Reason: %s.",
-                    unloadMethodInvoker.unloadMethod, e.getTargetException().toString()));
+                errors.add(String.format("Invocation of unload method [%s]. Reason: %s.", unloadMethodInvoker.unloadMethod, e.getTargetException().toString()));
             } catch (Throwable e) {
-                errors.add(String.format("Invocation of unload method [%s]. Reason: [%s].",
-                    unloadMethodInvoker.unloadMethod, e));
+                errors.add(String.format("Invocation of unload method [%s]. Reason: [%s].", unloadMethodInvoker.unloadMethod, e));
             }
             reportErrorsToHealthService();
         }
@@ -136,10 +135,11 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
                     }
 
                     if (extensionType != null) {
-                        Hashtable<String, String> serviceProperties = new Hashtable<>();
-                        serviceProperties.put(Constants.BUNDLE_SYMBOLICNAME, bundleSymbolicName);
-                        serviceProperties.put(Constants.BUNDLE_CATEGORY, extensionType);
-                        serviceProperties.put("PLUGIN_ID", pluginID);
+                        Dictionary<String, String> serviceProperties = new MapToDictionary(Map.of(
+                            Constants.BUNDLE_SYMBOLICNAME, bundleSymbolicName,
+                            Constants.BUNDLE_CATEGORY, extensionType,
+                            "PLUGIN_ID", pluginID
+                        ));
                         bundleContext.registerService((Class<Object>) serviceInterface, serviceImplementation, serviceProperties);
                     }
                 }

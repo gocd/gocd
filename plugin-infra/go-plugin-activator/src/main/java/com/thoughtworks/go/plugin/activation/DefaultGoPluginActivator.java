@@ -24,10 +24,10 @@ import com.thoughtworks.go.plugin.api.info.PluginContext;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
-import org.apache.felix.framework.util.MapToDictionary;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -135,7 +135,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
                     }
 
                     if (extensionType != null) {
-                        Dictionary<String, String> serviceProperties = new MapToDictionary(Map.of(
+                        Dictionary<String, String> serviceProperties = FrameworkUtil.asDictionary(Map.of(
                             Constants.BUNDLE_SYMBOLICNAME, bundleSymbolicName,
                             Constants.BUNDLE_CATEGORY, extensionType,
                             "PLUGIN_ID", pluginID

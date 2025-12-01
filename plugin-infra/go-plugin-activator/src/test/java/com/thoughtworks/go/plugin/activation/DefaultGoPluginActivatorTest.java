@@ -39,7 +39,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
-import java.io.File;
 import java.net.URL;
 import java.util.*;
 
@@ -412,7 +411,7 @@ public class DefaultGoPluginActivatorTest {
     }
 
     private void setupClassesInBundle(String... classes) {
-        Collection<URL> urls = Arrays.stream(classes).map(c -> UrlUtil.fromFile(new File("/" + c))).toList();
+        Collection<URL> urls = Arrays.stream(classes).map(c -> UrlUtil.fromString("file:///" + c)).toList();
         when(bundle.findEntries("/", "*.class", true)).thenReturn(Collections.enumeration(urls));
     }
 

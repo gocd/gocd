@@ -52,7 +52,7 @@ import static org.mockito.Mockito.*;
 public class DefaultGoPluginActivatorTest {
     private static final String CONSTRUCTOR_FAIL_MSG = "Ouch! Failed construction";
     private static final String PLUGIN_ID = "plugin-id";
-    private static final String SYMBOLIC_NAME = "plugin-id";
+    private static final String SYMBOLIC_NAME = "plugin-symbolic-id";
     private static final String NO_EXT_ERR_MSG = "No extensions found in this plugin. Please check for @Extension annotations";
 
     private @Captor ArgumentCaptor<List<String>> errorMessageCaptor;
@@ -312,7 +312,7 @@ public class DefaultGoPluginActivatorTest {
         assertActivatorHasNoErrors();
         verify(context).registerService(eq(GoPlugin.class), any(GoPlugin.class), propertiesCaptor.capture());
         assertThat(propertiesCaptor.getValue().toString())
-            .isEqualTo(Map.of(Constants.BUNDLE_SYMBOLICNAME, PLUGIN_ID, Constants.BUNDLE_CATEGORY, "test-extension", "PLUGIN_ID", PLUGIN_ID).toString());
+            .isEqualTo(Map.of(Constants.BUNDLE_SYMBOLICNAME, SYMBOLIC_NAME, Constants.BUNDLE_CATEGORY, "test-extension", "PLUGIN_ID", PLUGIN_ID).toString());
     }
 
     @Test
@@ -353,7 +353,7 @@ public class DefaultGoPluginActivatorTest {
         verify(context, never()).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class), any());
 
         assertThat(activator.hasErrors()).isEqualTo(true);
-        verifyErrorsReported("Unable to find plugin ID for extension class (com.thoughtworks.go.plugin.activation.PublicGoExtensionClassWhichWillAlsoLoadSuccessfully) in bundle plugin-id");
+        verifyErrorsReported("Unable to find plugin ID for extension class (com.thoughtworks.go.plugin.activation.PublicGoExtensionClassWhichWillAlsoLoadSuccessfully) in bundle plugin-symbolic-id");
     }
 
     @Test
@@ -401,7 +401,7 @@ public class DefaultGoPluginActivatorTest {
 
     private void verifyThatOneOfTheErrorMessagesIsPresent(String... expectedErrorMessages) {
         verify(pluginRegistryService).getPluginIDOfFirstPluginInBundle(SYMBOLIC_NAME);
-        verify(pluginRegistryService).reportErrorAndInvalidate(eq(PLUGIN_ID), errorMessageCaptor.capture());
+        verify(pluginRegistryService).reportErrorAndInvalidate(eq(SYMBOLIC_NAME), errorMessageCaptor.capture());
         verify(pluginRegistryService).extensionClassesInBundle(SYMBOLIC_NAME);
         verifyNoMoreInteractions(pluginRegistryService);
 
@@ -418,21 +418,21 @@ public class DefaultGoPluginActivatorTest {
 
     private void verifyErrorsReported(String... errors) {
         verify(pluginRegistryService).getPluginIDOfFirstPluginInBundle(SYMBOLIC_NAME);
-        verify(pluginRegistryService).reportErrorAndInvalidate(PLUGIN_ID, List.of(errors));
+        verify(pluginRegistryService).reportErrorAndInvalidate(SYMBOLIC_NAME, List.of(errors));
         verify(pluginRegistryService).extensionClassesInBundle(SYMBOLIC_NAME);
         verifyNoMoreInteractions(pluginRegistryService);
     }
 
     private ListAssert<String> assertActivatorHasErrors() {
         assertThat(activator.hasErrors()).isEqualTo(true);
-        verify(pluginRegistryService).reportErrorAndInvalidate(eq(PLUGIN_ID), errorMessageCaptor.capture());
+        verify(pluginRegistryService).reportErrorAndInvalidate(eq(SYMBOLIC_NAME), errorMessageCaptor.capture());
         List<String> errors = errorMessageCaptor.getValue();
         return assertThat(errors);
     }
 
     private void assertActivatorHasNoErrors() {
         if (activator.hasErrors()) {
-            verify(pluginRegistryService).reportErrorAndInvalidate(eq(PLUGIN_ID), errorMessageCaptor.capture());
+            verify(pluginRegistryService).reportErrorAndInvalidate(eq(SYMBOLIC_NAME), errorMessageCaptor.capture());
             assertThat(errorMessageCaptor.getValue()).isEmpty();
         }
     }

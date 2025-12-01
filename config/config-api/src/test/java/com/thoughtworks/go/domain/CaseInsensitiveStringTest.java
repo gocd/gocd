@@ -69,7 +69,7 @@ public class CaseInsensitiveStringTest {
     @Test
     public void shouldReturnNullSafeStringRepresentation() {
         assertThat(CaseInsensitiveString.str(new CaseInsensitiveString("foo"))).isEqualTo("foo");
-        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString(""))).isEqualTo("");
+        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString(""))).isEmpty();
         assertThat(CaseInsensitiveString.str(new CaseInsensitiveString(null))).isNull();
         assertThat(CaseInsensitiveString.str(null)).isNull();
     }

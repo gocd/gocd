@@ -21,10 +21,10 @@ import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv7.agents.model.AgentBulkUpdateRequest;
 import com.thoughtworks.go.apiv7.agents.model.AgentBulkUpdateRequest.Operation;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class AgentBulkUpdateRequestRepresenter extends UpdateRequestRepresenter {
     public static AgentBulkUpdateRequest fromJSON(String requestBody) {
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(requestBody);
@@ -41,22 +41,16 @@ public class AgentBulkUpdateRequestRepresenter extends UpdateRequestRepresenter 
     }
 
     public static AgentBulkUpdateRequest.Operations toOperationsFromJSON(Optional<JsonReader> optionalReader) {
-        if (optionalReader.isPresent()) {
-            final JsonReader reader = optionalReader.get();
-            return new AgentBulkUpdateRequest.Operations(
-                    toOperationFromJSON(reader.optJsonObject("environments")),
-                    toOperationFromJSON(reader.optJsonObject("resources"))
-            );
-        }
-        return new AgentBulkUpdateRequest.Operations();
+        return optionalReader
+            .map(reader -> new AgentBulkUpdateRequest.Operations(
+                toOperationFromJSON(reader.optJsonObject("environments")),
+                toOperationFromJSON(reader.optJsonObject("resources"))
+            )).orElseGet(AgentBulkUpdateRequest.Operations::new);
     }
 
     public static Operation toOperationFromJSON(Optional<JsonReader> optionalJsonReader) {
-        if (optionalJsonReader.isPresent()) {
-            JsonReader reader = optionalJsonReader.get();
-            return new Operation(extractToList(reader.optJsonArray("add")), extractToList(reader.optJsonArray("remove")));
-        }
-
-        return new Operation(Collections.emptyList(), Collections.emptyList());
+        return optionalJsonReader
+            .map(reader -> new Operation(extractToList(reader.optJsonArray("add")), extractToList(reader.optJsonArray("remove"))))
+            .orElseGet(Operation::new);
     }
 }

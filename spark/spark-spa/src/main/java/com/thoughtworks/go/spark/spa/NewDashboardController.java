@@ -78,7 +78,7 @@ public class NewDashboardController implements SparkController {
     }
 
     private boolean showAnalyticsIcon() {
-        return systemEnvironment.enableAnalyticsOnlyForAdmins() ? securityService.isUserAdmin(currentUsername()) : true;
+        return !systemEnvironment.enableAnalyticsOnlyForAdmins() || securityService.isUserAdmin(currentUsername());
     }
 }
 

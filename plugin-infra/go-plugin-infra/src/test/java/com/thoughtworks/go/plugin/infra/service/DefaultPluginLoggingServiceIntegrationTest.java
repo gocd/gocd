@@ -107,7 +107,7 @@ class DefaultPluginLoggingServiceIntegrationTest {
     void shouldNotLogDebugMessagesByDefaultSinceTheDefaultLoggingLevelIsInfo() throws IOException {
         pluginLoggingService.debug(pluginID(1), "LoggingClass", "message");
 
-        assertThat(Files.readString(pluginLog(1), Charset.defaultCharset())).isEqualTo("");
+        assertThat(Files.readString(pluginLog(1), Charset.defaultCharset())).isEmpty();
     }
 
     @Test

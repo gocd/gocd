@@ -209,7 +209,7 @@ class UrlArgumentTest {
         @Test
         void shouldReturnLineAsItIsIfLineIsBlank() {
             final UrlArgument urlArgument = new UrlArgument("http://username:password@somewhere?name=bob");
-            assertThat(urlArgument.redactFrom("")).isEqualTo("");
+            assertThat(urlArgument.redactFrom("")).isEmpty();
         }
 
         @Test

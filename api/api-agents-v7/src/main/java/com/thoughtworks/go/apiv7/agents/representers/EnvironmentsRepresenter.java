@@ -37,7 +37,7 @@ public class EnvironmentsRepresenter {
     public static void toJSON(OutputListWriter writer, Collection<EnvironmentConfig> environments, AgentInstance agentInstance) {
         EnvironmentsConfig envConfigs = new EnvironmentsConfig();
         envConfigs.addAll(environments);
-        Stream<String> agentEnvAssociationFromDB = agentInstance.getAgent().getEnvironmentsAsList().stream();
+        Stream<String> agentEnvAssociationFromDB = agentInstance.getAgent().getEnvironmentsAsStream();
         Stream<String> agentEnvAssociationFromConfigRepo = envConfigs.stream()
                 .filter(environmentConfig -> !environmentConfig.isLocal())
                 .map(environmentConfig -> environmentConfig.name().toString());

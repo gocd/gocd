@@ -61,7 +61,7 @@ public class AgentInstanceMother {
     public static AgentInstance idleWith(String uuid, String hostname, String ipAddress, String location, long space, String os, List<String> resourceList, String agentBootstrapperVersion, String agentVersion) {
 
         Agent agent = new Agent(uuid, hostname, ipAddress);
-        agent.setResourcesFromList(resourceList);
+        agent.setResourcesFrom(resourceList);
 
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, location, "cookie");
         agentRuntimeInfo.idle();

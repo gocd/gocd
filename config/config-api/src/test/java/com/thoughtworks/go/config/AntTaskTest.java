@@ -42,7 +42,7 @@ public class AntTaskTest {
 
     @Test
     public void shouldNotSetTargetOnBuilderWhenNotSet() {
-        assertThat(antTask.arguments()).isEqualTo("");
+        assertThat(antTask.arguments()).isEmpty();
     }
 
     @Test

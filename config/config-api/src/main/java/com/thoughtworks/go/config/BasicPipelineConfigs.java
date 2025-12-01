@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineConfigVisitor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -92,14 +93,11 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
-    public PipelineConfig findBy(final CaseInsensitiveString pipelineName) {
-        for (int i = 0; i < this.size(); i++) {
-            PipelineConfig pipelineConfig = this.get(i);
-            if (pipelineConfig.name().equals(pipelineName)) {
-                return pipelineConfig;
-            }
-        }
-        return null;
+    public @Nullable PipelineConfig findBy(final CaseInsensitiveString pipelineName) {
+        return stream()
+            .filter(p -> p.name().equals(pipelineName))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override

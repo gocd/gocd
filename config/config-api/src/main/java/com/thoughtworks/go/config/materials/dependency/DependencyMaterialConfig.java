@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.DependencyFilter;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -171,17 +172,13 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
             return false;
         }
         DependencyMaterialConfig that = (DependencyMaterialConfig) o;
-        if (type != null ? !type.equals(that.type) : that.type != null) {
+        if (!Objects.equals(type, that.type)) {
             return false;
         }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
+        if (!Objects.equals(pipelineName, that.pipelineName)) {
             return false;
         }
-        if (stageName != null ? !stageName.equals(that.stageName) : that.stageName != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(stageName, that.stageName);
     }
 
     @Override

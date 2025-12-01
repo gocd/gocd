@@ -195,7 +195,7 @@ class P4OutputParserTest {
                         ... //another_depot/1.txt#6 edit""";
 
         Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-        assertThat(modification.getComment()).isEqualTo("");
+        assertThat(modification.getComment()).isEmpty();
     }
 
     private static final String BUG_2503_OUTPUT = """

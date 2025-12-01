@@ -198,7 +198,7 @@ public class PluggableSCMMaterialConfigTest {
         assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("/foo/**.*,/another/**.*,bar");
 
         pluggableSCMMaterialConfig.setFilter(new Filter());
-        assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("");
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEmpty();
     }
 
     @Test

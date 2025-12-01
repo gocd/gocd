@@ -86,7 +86,7 @@ public class BuildArtifactConfigTest {
     @Test
     public void shouldNotOverrideDefaultArtifactDestinationWhenNotSpecified() {
         BuildArtifactConfig artifactConfig = new BuildArtifactConfig("src", null);
-        assertThat(artifactConfig.getDestination()).isEqualTo("");
+        assertThat(artifactConfig.getDestination()).isEmpty();
 
         TestArtifactConfig testArtifactConfig = new TestArtifactConfig("src", null);
         assertThat(testArtifactConfig.getDestination()).isEqualTo("testoutput");

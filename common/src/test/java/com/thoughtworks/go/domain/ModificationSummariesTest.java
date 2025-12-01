@@ -32,6 +32,6 @@ public class ModificationSummariesTest {
     public void shouldHandleEmptyRevisions() {
         ModificationSummaries summaries = new ModificationSummaries();
         String latest = summaries.latestRevision();
-        assertThat(latest).isEqualTo("");
+        assertThat(latest).isEmpty();
     }
 }

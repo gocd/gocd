@@ -36,7 +36,7 @@ public class ValidationBeanTest {
 
     @Test
     public void shouldHaveBasicErrorIfMessageIsEmpty() {
-        assertThat(ValidationBean.notValid("").getError()).isEqualTo("");
+        assertThat(ValidationBean.notValid("").getError()).isEmpty();
         assertThat(ValidationBean.notValid((String) null).isValid()).isFalse();
         assertThat(ValidationBean.notValid(new Exception()).isValid()).isFalse();
     }
@@ -62,7 +62,7 @@ public class ValidationBeanTest {
     @Test
     public void shouldBeValid() {
         assertThat(valid().isValid()).isTrue();
-        assertThat(valid().getError()).isEqualTo("");
+        assertThat(valid().getError()).isEmpty();
         ValidationBean bean = valid();
         assertThat(bean.isValid()).isTrue();
         assertThat(bean.toJson().get("isValid")).isEqualTo("true");

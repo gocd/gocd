@@ -20,16 +20,18 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageConfigIdentifier;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.StageStatusListener;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Hashtable;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class StageStatusCache implements StageStatusListener {
-    private Map<StageConfigIdentifier, Stage> stages = new Hashtable<>();
     private final StageDao stageDao;
+    private final Map<StageConfigIdentifier, Stage> stages = new ConcurrentHashMap<>();
 
     private static final Stage NEVER_BUILT = new NullStage("NEVER_BUILT");
 
@@ -44,16 +46,8 @@ public class StageStatusCache implements StageStatusListener {
         stages.put(configIdentifier, stage);
     }
 
-    public Stage currentStage(StageConfigIdentifier identifier) {
-        Stage instance = stages.get(identifier);
-        if (instance == null) {
-            instance = stageDao.mostRecentStage(identifier);
-            if (instance != null) {
-                stages.put(identifier, instance);
-            } else {
-                stages.put(identifier, NEVER_BUILT);
-            }
-        }
+    public @Nullable Stage currentStage(StageConfigIdentifier identifier) {
+        Stage instance = stages.computeIfAbsent(identifier, k -> Objects.requireNonNullElse(stageDao.mostRecentStage(k), NEVER_BUILT));
         return instance == NEVER_BUILT ? null : instance;
     }
 }

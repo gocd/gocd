@@ -527,16 +527,16 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Hashtable<CaseInsensitiveString, Node> getDependencyTable() {
-        final Hashtable<CaseInsensitiveString, Node> hashtable = new Hashtable<>();
-        this.accept((PipelineConfigVisitor) pipelineConfig -> hashtable.put(pipelineConfig.name(), pipelineConfig.getDependenciesAsNode()));
-        return hashtable;
+    public Map<CaseInsensitiveString, Node> getDependencyTable() {
+        final Map<CaseInsensitiveString, Node> map = new HashMap<>();
+        this.accept((PipelineConfigVisitor) pipelineConfig -> map.put(pipelineConfig.name(), pipelineConfig.getDependenciesAsNode()));
+        return map;
     }
 
     private static class DependencyTable implements PipelineDependencyState {
-        private final Hashtable<CaseInsensitiveString, Node> targetTable;
+        private final Map<CaseInsensitiveString, Node> targetTable;
 
-        public DependencyTable(Hashtable<CaseInsensitiveString, Node> targetTable) {
+        public DependencyTable(Map<CaseInsensitiveString, Node> targetTable) {
             this.targetTable = targetTable;
         }
 
@@ -553,7 +553,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     private void areThereCyclicDependencies() {
         final DFSCycleDetector dfsCycleDetector = new DFSCycleDetector();
-        final Hashtable<CaseInsensitiveString, Node> dependencyTable = getDependencyTable();
+        final Map<CaseInsensitiveString, Node> dependencyTable = getDependencyTable();
         List<PipelineConfig> pipelineConfigs = this.getAllPipelineConfigs();
         DependencyTable pipelineDependencyState = new DependencyTable(dependencyTable);
         for (PipelineConfig pipelineConfig : pipelineConfigs) {

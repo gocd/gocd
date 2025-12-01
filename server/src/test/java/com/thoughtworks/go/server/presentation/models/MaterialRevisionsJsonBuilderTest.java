@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;

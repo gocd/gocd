@@ -41,6 +41,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     private StageConfig stage;
     private JobConfig job;
     private MaterialConfigFingerprintMap materialConfigsFingerprintMap;
+    private Map<CaseInsensitiveString, Node> dependencies;
 
     private PipelineConfigSaveValidationContext(Boolean isPipelineBeingCreated, String groupName, Validatable immediateParent) {
         this.isPipelineBeingCreated = isPipelineBeingCreated;
@@ -155,12 +156,8 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         else return null;
     }
 
-
     public Node getDependencyMaterialsFor(CaseInsensitiveString pipelineName) {
-        if (getDependencies().containsKey(pipelineName)) {
-            return getDependencies().get(pipelineName);
-        }
-        return new Node(new ArrayList<>());
+        return Optional.ofNullable(getDependencies().get(pipelineName)).orElseGet(() -> new Node(new ArrayList<>()));
     }
 
     @Override
@@ -215,9 +212,9 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         return getDependencies().keySet();
     }
 
-    private Hashtable<CaseInsensitiveString, Node> getDependencies() {
+    private Map<CaseInsensitiveString, Node> getDependencies() {
         if (dependencies == null) {
-            dependencies = new Hashtable<>();
+            dependencies = new HashMap<>();
             for (PipelineConfig pipeline : cruiseConfig.getAllPipelineConfigs()) {
                 dependencies.put(pipeline.name(), pipeline.getDependenciesAsNode());
             }
@@ -225,7 +222,6 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         return dependencies;
     }
 
-    private Hashtable<CaseInsensitiveString, Node> dependencies;
 
     public PipelineGroups getGroups() {
         return cruiseConfig.getGroups();

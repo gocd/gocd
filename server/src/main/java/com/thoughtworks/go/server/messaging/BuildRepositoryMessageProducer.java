@@ -68,7 +68,7 @@ public class BuildRepositoryMessageProducer implements BuildRepositoryRemote {
 
     @Override
     public boolean isIgnored(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier) {
-        return buildRepository.isIgnored(agentRuntimeInfo, jobIdentifier);
+        return buildRepository.isIgnored(jobIdentifier);
     }
 
     @Override

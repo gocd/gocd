@@ -46,7 +46,6 @@ import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.TriState;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,13 +58,14 @@ import java.net.HttpURLConnection;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.apiv7.agents.representers.AgentRepresenter.toJSON;
 import static com.thoughtworks.go.apiv7.agents.representers.AgentUpdateRequestRepresenter.fromJSON;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
-import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToList;
+import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToTrimmed;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toMap;
@@ -205,19 +205,13 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
             return new EnvironmentsConfig();
         }
 
-        return createEnvironmentsConfigFrom(commaSeparatedStrToList(commaSeparatedEnvs));
+        return createEnvironmentsConfigFrom(commaSeparatedStrToTrimmed(commaSeparatedEnvs));
     }
 
-    private EnvironmentsConfig createEnvironmentsConfigFrom(List<String> envList) {
-        if (envList != null) {
-            return envList.stream()
-                    .filter(StringUtils::isNotBlank)
-                    .map(String::trim)
-                    .map(environmentConfigService::find)
-                    .filter(envConfig -> envConfig != null)
-                    .collect(toCollection(EnvironmentsConfig::new));
-        }
-        return new EnvironmentsConfig();
+    private EnvironmentsConfig createEnvironmentsConfigFrom(Stream<String> envList) {
+        return envList.map(environmentConfigService::find)
+                .filter(envConfig -> envConfig != null)
+                .collect(toCollection(EnvironmentsConfig::new));
     }
 
     public String deleteAgent(Request request, Response response) throws IOException {
@@ -302,15 +296,15 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
             return commaSeparatedEnvs;
         }
         if (commaSeparatedEnvs.isBlank()) {
-            return commaSeparatedEnvs.trim();
+            return "";
         }
-        List<String> filteredEnvs = commaSeparatedStrToList(commaSeparatedEnvs).stream()
-                .filter(envName -> isAgentNotAssoicatedRemotely(uuid, envName))
+        List<String> filteredEnvs = commaSeparatedStrToTrimmed(commaSeparatedEnvs)
+                .filter(envName -> isAgentNotAssociatedRemotely(uuid, envName))
                 .collect(Collectors.toList());
         return append("", filteredEnvs);
     }
 
-    private boolean isAgentNotAssoicatedRemotely(String uuid, String envName) {
+    private boolean isAgentNotAssociatedRemotely(String uuid, String envName) {
         EnvironmentConfig envConfig = environmentConfigService.find(envName);
         if (envConfig == null || !envConfig.containsAgentRemotely(uuid)) {
             return true;

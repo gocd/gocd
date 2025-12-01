@@ -17,44 +17,47 @@ package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
 public class DFSCycleDetector {
-    public final void topoSort(final CaseInsensitiveString root, final PipelineDependencyState pipelineDependencyState) throws Exception {
-        Hashtable<CaseInsensitiveString, CycleState> state = new Hashtable<>();
+    public final void topoSort(final CaseInsensitiveString root, final PipelineDependencyState pipelineDependencyState) {
+        Map<CaseInsensitiveString, CycleState> state = new HashMap<>();
         Stack<CaseInsensitiveString> visiting = new Stack<>();
 
-        if (!state.containsKey(root)) {
+        CycleState prevState = state.putIfAbsent(root, CycleState.VISITING);
+        if (prevState == null) {
             tsort(root, pipelineDependencyState, state, visiting);
-        } else if (state.get(root) == CycleState.VISITING) {
+            state.put(root, CycleState.VISITED);
+        } else if (prevState == CycleState.VISITING) {
             throw ExceptionUtils.bomb("Unexpected node in visiting state: " + root);
         }
         assertHasVisitedAllNodesInTree(state);
     }
 
-    private void tsort(final CaseInsensitiveString root, final PipelineDependencyState pipelineDependencyState, final Hashtable<CaseInsensitiveString, CycleState> state, Stack<CaseInsensitiveString> visiting) throws Exception {
-        state.put(root, CycleState.VISITING);
+    private void tsort(final CaseInsensitiveString root, final PipelineDependencyState pipelineDependencyState, final Map<CaseInsensitiveString, CycleState> state, Stack<CaseInsensitiveString> visiting) {
         visiting.push(root);
 
         // Make sure we exist
         validateRootExists(root, pipelineDependencyState, visiting);
         Node stage = pipelineDependencyState.getDependencyMaterials(root);
-        for (Node.DependencyNode cur : stage.getDependencies()) {
-            if (!state.containsKey(cur.getPipelineName())) {
-                // Not been visited
-                tsort(cur.getPipelineName(), pipelineDependencyState, state, visiting);
-            } else if (state.get(cur.getPipelineName()) == CycleState.VISITING) {
-                // Currently visiting this node, so have a cycle
-                throwCircularException(cur.getPipelineName(), visiting);
-            }
-        }
+        stage.getDependencies().stream()
+            .map(Node.DependencyNode::getPipelineName)
+            .forEach(cur -> {
+                    CycleState prevState = state.putIfAbsent(cur, CycleState.VISITING);
+                    if (prevState == null) {
+                        tsort(cur, pipelineDependencyState, state, visiting);
+                        state.put(cur, CycleState.VISITED);
+                    } else if (prevState == CycleState.VISITING) {
+                        // Currently visiting this node, so have a cycle
+                        throwCircularException(cur, visiting);
+                    }
+                });
         popAndAssertTopIsConsistent(visiting, root);
-        state.put(root, CycleState.VISITED);
     }
 
-    private void assertHasVisitedAllNodesInTree(Hashtable<CaseInsensitiveString, CycleState> state) {
+    private void assertHasVisitedAllNodesInTree(Map<CaseInsensitiveString, CycleState> state) {
         for (Map.Entry<CaseInsensitiveString, CycleState> cycleStateEntry : state.entrySet()) {
             if (cycleStateEntry.getValue() == CycleState.VISITING) {
                 throw ExceptionUtils.bomb("Unexpected node in visiting state: " + cycleStateEntry.getKey());
@@ -69,7 +72,7 @@ public class DFSCycleDetector {
         }
     }
 
-    private void validateRootExists(CaseInsensitiveString root, PipelineDependencyState pipelineDependencyState, Stack<CaseInsensitiveString> visiting) throws Exception {
+    private void validateRootExists(CaseInsensitiveString root, PipelineDependencyState pipelineDependencyState, Stack<CaseInsensitiveString> visiting) {
         if (!pipelineDependencyState.hasPipeline(root)) {
             StringBuilder sb = new StringBuilder("Pipeline '");
             sb.append(root);
@@ -81,11 +84,11 @@ public class DFSCycleDetector {
                 sb.append(parent);
                 sb.append("'.");
             }
-            throw new Exception(sb.toString());
+            throw new RuntimeException(sb.toString());
         }
     }
 
-    private static void throwCircularException(CaseInsensitiveString end, Stack<CaseInsensitiveString> stk) throws Exception {
+    private static void throwCircularException(CaseInsensitiveString end, Stack<CaseInsensitiveString> stk) {
         StringBuilder sb = new StringBuilder("Circular dependency: ");
         sb.append(end);
         CaseInsensitiveString c;
@@ -94,7 +97,7 @@ public class DFSCycleDetector {
             sb.append(" <- ");
             sb.append(c);
         } while (!c.equals(end));
-        throw new Exception(new String(sb));
+        throw new RuntimeException(new String(sb));
     }
 
     private enum CycleState {

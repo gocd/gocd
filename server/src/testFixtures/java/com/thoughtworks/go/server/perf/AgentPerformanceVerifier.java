@@ -134,7 +134,7 @@ public class AgentPerformanceVerifier {
                     }
 
                     Set<String> agentEnvsInEnvCache = environmentConfigService.getAgentEnvironmentNames(agentInCache.getUuid());
-                    HashSet<String> agentEnvsInDB = new HashSet<>(agentInDB.getEnvironmentsAsList());
+                    Set<String> agentEnvsInDB = agentInDB.getEnvironmentsAsStream().collect(Collectors.toSet());
                     bombIfAgentEnvAssociationInDBAndEnvCacheAreDifferent(agentInCache, agentEnvsInDB, agentEnvsInEnvCache);
 
                     bombIfMissingAgentKnownEnvAssociationInEnvCache(agentInCache, agentEnvsInEnvCache, agentEnvsInDB);
@@ -142,7 +142,7 @@ public class AgentPerformanceVerifier {
         LOG.debug("\n\n*************** Hurray! Verification of performance tests succeeded and there are no threading issues reported! ***************\n\n");
     }
 
-    private void bombIfMissingAgentKnownEnvAssociationInEnvCache(Agent agentInCache, Set<String> agentEnvsInEnvCache, HashSet<String> agentEnvsInDB) {
+    private void bombIfMissingAgentKnownEnvAssociationInEnvCache(Agent agentInCache, Set<String> agentEnvsInEnvCache, Set<String> agentEnvsInDB) {
         Set<String> difference = SetUtils.difference(agentEnvsInDB, agentEnvsInEnvCache);
         HashSet<String> knownEnvNames = new HashSet<>(environmentConfigService.getEnvironmentNames());
 
@@ -160,7 +160,7 @@ public class AgentPerformanceVerifier {
         }
     }
 
-    private void bombIfAgentInDBAndCacheAreDifferent(Agent agentInCache, Agent agentInDB) {
+    private void bombIfAgentInDBAndCacheAreDifferent(Agent agentInCache, @SuppressWarnings("SameParameterValue") Agent agentInDB) {
         if (!agentInCache.equals(agentInDB)) {
             LOG.error("Throwing RuntimeException as verification of agents {} in db and cache has failed.\nAgent in DB: {}\nAgent in cache: {}", agentInCache.getUuid(), agentInDB, agentInCache);
             throw new RuntimeException("WARNING : There is some threading issue found during agent performance test!!!");

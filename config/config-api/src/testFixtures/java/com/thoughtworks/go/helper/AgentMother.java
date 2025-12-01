@@ -52,7 +52,7 @@ public class AgentMother {
 
     public static Agent localAgentWithResources(String... resources) {
         Agent agent = localAgent();
-        agent.setResourcesFromList(List.of(resources));
+        agent.setResourcesFrom(List.of(resources));
 
         return agent;
     }

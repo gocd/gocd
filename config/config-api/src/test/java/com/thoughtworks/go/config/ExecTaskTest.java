@@ -96,7 +96,7 @@ public class ExecTaskTest {
         exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "my_dir"));
         assertThat(exec.command()).isEqualTo("ls");
         assertThat(exec.getArgs()).isEqualTo("-la");
-        assertThat(exec.getArgListString()).isEqualTo("");
+        assertThat(exec.getArgListString()).isEmpty();
         assertThat(exec.workingDirectory()).isEqualTo("my_dir");
 
         Map<String, Object> attributes = new HashMap<>();
@@ -105,7 +105,7 @@ public class ExecTaskTest {
         attributes.put(ExecTask.WORKING_DIR, null);
         exec.setConfigAttributes(attributes);
         assertThat(exec.command()).isNull();
-        assertThat(exec.getArgs()).isEqualTo("");
+        assertThat(exec.getArgs()).isEmpty();
         assertThat(exec.workingDirectory()).isNull();
 
         Map<String, String> attributes1 = new HashMap<>();
@@ -146,8 +146,8 @@ public class ExecTaskTest {
     public void shouldNullOutWorkingDirectoryIfGivenBlank() {
         ExecTask exec = new ExecTask("ls", "-la", "foo");
         exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "", ExecTask.ARGS, "", ExecTask.WORKING_DIR, ""));
-        assertThat(exec.command()).isEqualTo("");
-        assertThat(exec.getArgs()).isEqualTo("");
+        assertThat(exec.command()).isEmpty();
+        assertThat(exec.getArgs()).isEmpty();
         assertThat(exec.workingDirectory()).isNull();
     }
 
@@ -207,7 +207,7 @@ public class ExecTaskTest {
     @Test
     public void shouldReturnEmptyCommandArguments() {
         ExecTask task = new ExecTask("./bn", new Arguments(), "src/build");
-        assertThat(task.arguments()).isEqualTo("");
+        assertThat(task.arguments()).isEmpty();
     }
 
     @Test

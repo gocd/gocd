@@ -46,7 +46,7 @@ public class BuildersTest {
         builders.setIsCancelled(true);
         builders.build(environmentVariableContext, StandardCharsets.UTF_8);
 
-        assertThat(goPublisher.getMessage()).isEqualTo("");
+        assertThat(goPublisher.getMessage()).isEmpty();
     }
 
 

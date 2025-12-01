@@ -478,8 +478,8 @@ class AgentServiceTest {
 
                     assertThrows(RuntimeException.class, () -> agentService.updateAgentAttributes(uuid, hostname, resources, "env1,env2", state));
                     assertThat(pending.getAgentConfigStatus()).isEqualTo(Pending);
-                    assertThat(pending.getAgent().getResources()).isEqualTo("");
-                    assertThat(pending.getAgent().getEnvironments()).isEqualTo("");
+                    assertThat(pending.getAgent().getResources()).isEmpty();
+                    assertThat(pending.getAgent().getEnvironments()).isEmpty();
                     assertThat(pending.getHostname()).isEqualTo("CCeDev03");
                 }
             }
@@ -1386,7 +1386,7 @@ class AgentServiceTest {
 
             when(agentInstances.spliterator()).thenReturn(List.of(agentInstance, agentInstance1).spliterator());
 
-            assertEquals(List.of("a", "b", "c", "d", "e"), agentService.getListOfResourcesAcrossAgents());
+            assertThat(agentService.getDistinctResourcesAcrossAgents()).containsExactly("a", "b", "c", "d", "e");
         }
 
         @Test
@@ -1402,7 +1402,7 @@ class AgentServiceTest {
 
             when(agentInstances.spliterator()).thenReturn(List.of(agentInstance, agentInstance1, agentInstance2).spliterator());
 
-            assertEquals(List.of("a", "b", "c"), agentService.getListOfResourcesAcrossAgents());
+            assertThat(agentService.getDistinctResourcesAcrossAgents()).containsExactly("a", "b", "c");
         }
     }
 

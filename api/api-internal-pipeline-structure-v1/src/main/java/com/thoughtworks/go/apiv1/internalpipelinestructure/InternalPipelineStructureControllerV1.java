@@ -36,7 +36,6 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -108,7 +107,7 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
         EnvironmentsConfig environments = new EnvironmentsConfig();
         environments.addAll(environmentConfigService.getEnvironments());
 
-        Hashtable<CaseInsensitiveString, Node> dependencyTable = goConfigService.getCurrentConfig().getDependencyTable();
+        Map<CaseInsensitiveString, Node> dependencyTable = goConfigService.getCurrentConfig().getDependencyTable();
 
         PipelineStructureViewModel pipelineStructureViewModel = new PipelineStructureViewModel()
                 .setPipelineGroups(pipelineGroupsSupplier.get())

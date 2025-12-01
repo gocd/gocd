@@ -330,7 +330,7 @@ public class PackageRepository implements Serializable, Validatable, SecretParam
 
     @PostConstruct
     public void ensureIdExists() {
-        if (isBlank(getId())) {
+        if (getId() == null || getId().isBlank()) {
             setId(UUID.randomUUID().toString());
         }
     }

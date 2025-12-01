@@ -29,14 +29,15 @@ import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 import com.thoughtworks.go.plugin.access.packagematerial.*;
 import com.thoughtworks.go.plugin.api.config.Property;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static java.util.stream.Collectors.joining;
 
 @ConfigTag("package")
 @ConfigReferenceCollection(collectionName = "packages", idFieldName = "id")
@@ -140,7 +141,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
 
     @Override
     public void validate(ValidationContext validationContext) {
-        if (isBlank(name)) {
+        if (name == null || name.isBlank()) {
             errors().add(NAME, "Package name is mandatory");
         } else if (new NameTypeValidator().isNameInvalid(name)) {
             errors().add(NAME, NameTypeValidator.errorMessage("Package", name));
@@ -153,11 +154,11 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
         Packages packageDefinitionsWithSameFingerprint = packagesMap.get(fingerprint);
 
         if (packageDefinitionsWithSameFingerprint.size() > 1) {
-            List<String> packageNames = new ArrayList<>();
-            for (PackageDefinition packageDefinition : packageDefinitionsWithSameFingerprint) {
-                packageNames.add(format("[Repo Name: '%s', Package Name: '%s']", packageDefinition.getRepository().getName(), packageDefinition.getName()));
-            }
-            addError(ID, String.format("Cannot save package or repo, found duplicate packages. %s", StringUtils.join(packageNames, ", ")));
+            String packageNames =
+                packageDefinitionsWithSameFingerprint.stream()
+                    .map(packageDefinition -> format("[Repo Name: '%s', Package Name: '%s']", packageDefinition.getRepository().getName(), packageDefinition.getName()))
+                    .collect(joining(", "));
+            addError(ID, "Cannot save package or repo, found duplicate packages. " + packageNames);
         }
     }
 
@@ -187,24 +188,34 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
     }
 
     public String getFingerprint(String fingerprintDelimiter) {
-        List<String> list = new ArrayList<>();
-        list.add(format("%s=%s", "plugin-id", pluginId()));
-        handlePackageDefinitionProperties(list);
-        handlePackageRepositoryProperties(list);
-        String fingerprint = StringUtils.join(list, fingerprintDelimiter);
         // CAREFUL! the hash algorithm has to be same as the one used in 47_create_new_materials.sql
-        return DigestUtils.sha256Hex(fingerprint);
+        return DigestUtils.sha256Hex(
+            Stream.of(
+                Stream.of(format("%s=%s", "plugin-id", pluginId())),
+                fingerprintsFrom(PackageMetadataStore.getInstance().getMetadata(pluginId()), configuration),
+                fingerprintsFrom(RepositoryMetadataStore.getInstance().getMetadata(pluginId()), packageRepository.getConfiguration())
+            ).flatMap(s -> s)
+                .collect(joining(fingerprintDelimiter))
+        );
     }
 
-    private void handlePackageDefinitionProperties(List<String> list) {
-        PackageConfigurations metadata = PackageMetadataStore.getInstance().getMetadata(pluginId());
-        for (ConfigurationProperty configurationProperty : configuration) {
-            handleProperty(list, metadata, configurationProperty);
-        }
-    }
 
     private String pluginId() {
         return packageRepository.getPluginConfiguration().getId();
+    }
+
+    private Stream<String> fingerprintsFrom(@Nullable PackageConfigurations metadata, Collection<? extends ConfigurationProperty> configurationProperties) {
+        return configurationProperties.stream()
+            .flatMap(p -> {
+
+                PackageConfiguration packageConfiguration = metadata == null ? null : metadata.get(p.getConfigurationKey().getName());
+
+                if (packageConfiguration == null || packageConfiguration.getOption(PackageConfiguration.PART_OF_IDENTITY)) {
+                    return Stream.of(p.forFingerprint());
+                }
+
+                return Stream.empty();
+            });
     }
 
     public void addConfigurations(List<ConfigurationProperty> configurations) {
@@ -235,24 +246,6 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
         return packageRepository != null && RepositoryMetadataStore.getInstance().hasPlugin(pluginId());
     }
 
-    private void handlePackageRepositoryProperties(List<String> list) {
-        PackageConfigurations metadata = RepositoryMetadataStore.getInstance().getMetadata(pluginId());
-        for (ConfigurationProperty configurationProperty : packageRepository.getConfiguration()) {
-            handleProperty(list, metadata, configurationProperty);
-        }
-    }
-
-    private void handleProperty(List<String> list, PackageConfigurations metadata, ConfigurationProperty configurationProperty) {
-        PackageConfiguration packageConfiguration = null;
-
-        if (metadata != null) {
-            packageConfiguration = metadata.get(configurationProperty.getConfigurationKey().getName());
-        }
-
-        if (packageConfiguration == null || packageConfiguration.getOption(PackageConfiguration.PART_OF_IDENTITY)) {
-            list.add(configurationProperty.forFingerprint());
-        }
-    }
 
     public void applyPackagePluginMetadata(String pluginId) {
         for (ConfigurationProperty configurationProperty : configuration) {
@@ -319,7 +312,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
 
     @PostConstruct
     public void ensureIdExists() {
-        if (isBlank(getId())) {
+        if (getId() == null || getId().isBlank()) {
             setId(UUID.randomUUID().toString());
         }
     }

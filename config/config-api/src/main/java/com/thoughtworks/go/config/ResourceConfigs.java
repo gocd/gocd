@@ -17,14 +17,12 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.util.CommaSeparatedString;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @ConfigTag("resources")
 @ConfigCollection(ResourceConfig.class)
@@ -39,21 +37,11 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements V
     }
 
     public ResourceConfigs(String commaSeparatedResources) {
-        if (isNotEmpty(commaSeparatedResources)) {
-            String[] resourceArr = commaSeparatedResources.split(",");
-            Arrays.stream(resourceArr)
-                    .map(String::trim)
-                    .map(ResourceConfig::new)
-                    .forEach(this::add);
-        }
+        addAll(commaSeparatedResources);
     }
 
     public boolean hasErrors() {
         return !this.errors().isEmpty();
-    }
-
-    public String getCommaSeparatedResourceNames() {
-        return append("", resourceNames());
     }
 
     public ResourceConfigs(List<ResourceConfig> resourceConfigs) {
@@ -113,9 +101,12 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements V
 
     public void importFromCsv(String csv) {
         clear();
-        String[] resourceNames = csv.split(",");
-        Arrays.stream(resourceNames).map(String::trim)
-                .map(ResourceConfig::new)
-                .forEach(this::add);
+        addAll(csv);
+    }
+
+    private void addAll(String commaSeparatedResources) {
+        CommaSeparatedString.commaSeparatedStrToTrimmed(commaSeparatedResources)
+            .map(ResourceConfig::new)
+            .forEach(this::add);
     }
 }

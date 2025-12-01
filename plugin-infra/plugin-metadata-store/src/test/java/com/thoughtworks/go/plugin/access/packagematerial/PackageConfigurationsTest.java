@@ -50,7 +50,7 @@ public class PackageConfigurationsTest {
         assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.REQUIRED)).isEqualTo(true);
         assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.PART_OF_IDENTITY)).isEqualTo(true);
         assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.SECURE)).isEqualTo(true);
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_NAME)).isEqualTo("");
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_NAME)).isEmpty();
         assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_ORDER)).isEqualTo(0);
     }
 
@@ -67,7 +67,7 @@ public class PackageConfigurationsTest {
         assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.REQUIRED)).isEqualTo(true);
         assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.PART_OF_IDENTITY)).isEqualTo(true);
         assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.SECURE)).isEqualTo(true);
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_NAME)).isEqualTo("");
+        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_NAME)).isEmpty();
         assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_ORDER)).isEqualTo(0);
     }
 }

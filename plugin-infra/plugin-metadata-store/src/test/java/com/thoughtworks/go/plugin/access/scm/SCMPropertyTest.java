@@ -29,7 +29,7 @@ public class SCMPropertyTest {
         assertThat(scmProperty.getOption(Property.REQUIRED)).isEqualTo(true);
         assertThat(scmProperty.getOption(Property.PART_OF_IDENTITY)).isEqualTo(true);
         assertThat(scmProperty.getOption(Property.SECURE)).isEqualTo(false);
-        assertThat(scmProperty.getOption(Property.DISPLAY_NAME)).isEqualTo("");
+        assertThat(scmProperty.getOption(Property.DISPLAY_NAME)).isEmpty();
         assertThat(scmProperty.getOption(Property.DISPLAY_ORDER)).isEqualTo(0);
 
         scmProperty = new SCMProperty("Test-Property", "Dummy Value");
@@ -38,7 +38,7 @@ public class SCMPropertyTest {
         assertThat(scmProperty.getOption(Property.REQUIRED)).isEqualTo(true);
         assertThat(scmProperty.getOption(Property.PART_OF_IDENTITY)).isEqualTo(true);
         assertThat(scmProperty.getOption(Property.SECURE)).isEqualTo(false);
-        assertThat(scmProperty.getOption(Property.DISPLAY_NAME)).isEqualTo("");
+        assertThat(scmProperty.getOption(Property.DISPLAY_NAME)).isEmpty();
         assertThat(scmProperty.getOption(Property.DISPLAY_ORDER)).isEqualTo(0);
     }
 }

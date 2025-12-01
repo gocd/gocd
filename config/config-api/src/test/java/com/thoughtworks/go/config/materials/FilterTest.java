@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FilterTest {
     @Test
     public void shouldReturnEmptyTextToDisplayWhenFilterIsEmpty() {
-        assertThat(new Filter().getStringForDisplay()).isEqualTo("");
+        assertThat(new Filter().getStringForDisplay()).isEmpty();
     }
 
     @Test

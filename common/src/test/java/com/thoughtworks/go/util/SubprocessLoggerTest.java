@@ -46,7 +46,7 @@ public class SubprocessLoggerTest {
             synchronized (log) {
                 result = log.getLog();
             }
-            assertThat(result).isEqualTo("");
+            assertThat(result).isEmpty();
         }
     }
 

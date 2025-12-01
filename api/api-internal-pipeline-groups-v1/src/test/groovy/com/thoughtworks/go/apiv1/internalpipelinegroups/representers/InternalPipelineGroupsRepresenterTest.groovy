@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.helper.PipelineConfigMother
-import com.thoughtworks.go.util.Node
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -48,9 +47,6 @@ class InternalPipelineGroupsRepresenterTest {
     def environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("test_env"))
     environmentConfig.addPipeline(pipeline1.name)
     environmentConfigs.add(environmentConfig)
-
-    def hashtable = new Hashtable<CaseInsensitiveString, Node>()
-    hashtable.put(pipeline1.name, new Node(new Node.DependencyNode(pipeline2.name, pipeline2.stages[0].name())))
 
     def pipelineStructureViewModel = new PipelineGroupsViewModel(new PipelineGroups(group, group2), environmentConfigs)
 

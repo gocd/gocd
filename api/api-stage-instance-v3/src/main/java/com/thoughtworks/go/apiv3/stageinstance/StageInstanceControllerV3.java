@@ -138,7 +138,7 @@ public class StageInstanceControllerV3 extends ApiController implements SparkSpr
         }
 
         HttpLocalizedOperationResult localizedOperationResult = new HttpLocalizedOperationResult();
-        scheduleService.cancelAndTriggerRelevantStages(optionalStage.get().getId(), currentUsername(), localizedOperationResult);
+        scheduleService.cancelAndTriggerRelevantStages(optionalStage.orElseThrow().getId(), currentUsername(), localizedOperationResult);
         return renderHTTPOperationResult(localizedOperationResult, req, res);
     }
 
@@ -198,7 +198,7 @@ public class StageInstanceControllerV3 extends ApiController implements SparkSpr
             return Optional.empty();
         }
 
-        return Optional.ofNullable(stage);
+        return Optional.of(stage);
     }
 
     private void haltIfRequestBodyDoesNotContainPropertyJobs(Request req) {

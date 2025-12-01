@@ -82,8 +82,8 @@ public class ProjectStatusTest {
 
     @Test
     public void shouldAlwaysHaveEmptyStringAsXMLRepresentationOfANullProjectStatus() {
-        assertThat(new ProjectStatus.NullProjectStatus("some-name").xmlRepresentation()).isEqualTo("");
-        assertThat(new ProjectStatus.NullProjectStatus("some-other-name").xmlRepresentation()).isEqualTo("");
+        assertThat(new ProjectStatus.NullProjectStatus("some-name").xmlRepresentation()).isEmpty();
+        assertThat(new ProjectStatus.NullProjectStatus("some-other-name").xmlRepresentation()).isEmpty();
     }
 
     @Test

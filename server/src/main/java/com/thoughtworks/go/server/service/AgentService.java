@@ -49,6 +49,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
@@ -57,7 +58,6 @@ import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
-import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.TriState.TRUE;
 import static java.lang.String.format;
@@ -380,12 +380,10 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    public List<String> getListOfResourcesAcrossAgents() {
+    public Stream<String> getDistinctResourcesAcrossAgents() {
         return agents().stream()
-                .map(Agent::getResourcesAsList)
-                .flatMap(Collection::stream)
-                .distinct()
-                .collect(toList());
+                .flatMap(Agent::getResourcesAsStream)
+                .distinct();
     }
 
     @Override
@@ -492,7 +490,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private static Collection<String> getSortedEnvironmentList(AgentInstance agentInstance) {
-        return agentInstance.getAgent().getEnvironmentsAsList().stream().sorted().collect(toList());
+        return agentInstance.getAgent().getEnvironmentsAsStream().sorted().collect(toList());
     }
 
     private void bombIfAgentHasDuplicateCookie(AgentRuntimeInfo agentRuntimeInfo) {
@@ -548,8 +546,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private Agent getAgentFromDBAfterRemovingEnvFromExistingEnvs(String env, String uuid) {
         Agent agent = agentDao.getAgentByUUIDFromCacheOrDB(uuid);
-        String envsToSet = remove(agent.getEnvironments(), List.of(env));
-        agent.setEnvironments(envsToSet);
+        agent.removeEnvironment(env);
         return agent;
     }
 

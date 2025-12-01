@@ -446,7 +446,7 @@ public class ConfigRepositoryTest {
         assertThat(ConfigRepository.stripTillLastOccurrenceOf("HelloWorld@@\\nfoobar\\nquux@@keep_this", "@@")).isEqualTo("keep_this");
         assertThat(ConfigRepository.stripTillLastOccurrenceOf("HelloWorld", "@@")).isEqualTo("HelloWorld");
         assertThat(ConfigRepository.stripTillLastOccurrenceOf(null, "@@")).isNull();
-        assertThat(ConfigRepository.stripTillLastOccurrenceOf("", "@@")).isEqualTo("");
+        assertThat(ConfigRepository.stripTillLastOccurrenceOf("", "@@")).isEmpty();
     }
 
     private GoConfigRevision goConfigRevision(String fileContent, String md5) {

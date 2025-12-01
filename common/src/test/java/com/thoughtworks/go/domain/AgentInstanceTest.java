@@ -85,7 +85,7 @@ public class AgentInstanceTest {
     @Test
     void shouldReturnEmptyStringForNullOperatingSystem() {
         AgentInstance building = AgentInstanceMother.missing();
-        assertThat(building.getOperatingSystem()).isEqualTo("");
+        assertThat(building.getOperatingSystem()).isEmpty();
     }
 
     @Test

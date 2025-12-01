@@ -97,7 +97,7 @@ abstract class P4CommandTestBase extends PerforceFixture {
 
     @Test
     void shouldSync() {
-        assertThat(output.getStdOut()).isEqualTo("");
+        assertThat(output.getStdOut()).isEmpty();
         p4.sync(2, false, output);
         assertThat(output.getAllOutput()).contains("//depot/");
         assertThat(clientFolder.listFiles().length).isEqualTo(7);

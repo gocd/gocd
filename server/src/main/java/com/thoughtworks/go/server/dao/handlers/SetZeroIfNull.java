@@ -20,6 +20,7 @@ import org.apache.ibatis.type.LongTypeHandler;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class SetZeroIfNull extends LongTypeHandler {
 
@@ -39,10 +40,6 @@ public class SetZeroIfNull extends LongTypeHandler {
     }
 
     private Long valueOf(Long l) {
-        if (l == null) {
-            return 0L;
-        } else {
-            return l;
-        }
+        return Objects.requireNonNullElse(l, 0L);
     }
 }

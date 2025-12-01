@@ -24,7 +24,7 @@ import com.thoughtworks.go.util.Node;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Hashtable;
+import java.util.Map;
 
 @Data
 @Accessors(chain = true)
@@ -32,5 +32,5 @@ public class PipelineStructureViewModel {
     private PipelineGroups pipelineGroups;
     private TemplatesConfig templatesConfig;
     private EnvironmentsConfig environmentsConfig;
-    private Hashtable<CaseInsensitiveString, Node> pipelineDependencyTable;
+    private Map<CaseInsensitiveString, Node> pipelineDependencyTable;
 }

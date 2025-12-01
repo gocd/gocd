@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
 import javax.annotation.PostConstruct;
@@ -155,7 +156,7 @@ public class ConfigurationProperty implements Serializable, Validatable, SecretP
         return result;
     }
 
-    public String forFingerprint() {
+    public @NotNull String forFingerprint() {
         String value = getValue();
 
         if (isEmpty(value)) {

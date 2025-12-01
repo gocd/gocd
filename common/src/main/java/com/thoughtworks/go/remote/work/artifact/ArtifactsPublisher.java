@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.domain.ArtifactPlanType;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
-import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
+import com.thoughtworks.go.plugin.access.artifact.models.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;

@@ -32,9 +32,9 @@ import org.springframework.stereotype.Component;
 public class BuildRepositoryRemoteImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildRepositoryRemoteImpl.class);
 
-    private AgentService agentService;
-    private BuildRepositoryService buildRepositoryService;
-    private JobStatusTopic jobStatusTopic;
+    private final AgentService agentService;
+    private final BuildRepositoryService buildRepositoryService;
+    private final JobStatusTopic jobStatusTopic;
 
     @Autowired
     BuildRepositoryRemoteImpl(BuildRepositoryService buildRepositoryService, AgentService agentService, JobStatusTopic jobStatusTopic) {
@@ -104,7 +104,7 @@ public class BuildRepositoryRemoteImpl {
         }
     }
 
-    public boolean isIgnored(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier) {
+    public boolean isIgnored(JobIdentifier jobIdentifier) {
         try {
             return buildRepositoryService.isCancelledOrRescheduled(jobIdentifier.getBuildId());
         } catch (Exception e) {

@@ -87,7 +87,7 @@ public class AgentRegistrationControllerIntegrationTest {
         assertThat(agent.getHostname()).isEqualTo("hostname");
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(responseEntity.getBody()).isEqualTo("");
+        assertThat(responseEntity.getBody()).isEmpty();
     }
 
     @Test
@@ -114,7 +114,7 @@ public class AgentRegistrationControllerIntegrationTest {
         assertTrue(agent.isElastic());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(responseEntity.getBody()).isEqualTo("");
+        assertThat(responseEntity.getBody()).isEmpty();
     }
 
     @Test
@@ -168,7 +168,7 @@ public class AgentRegistrationControllerIntegrationTest {
         assertTrue(agentInstance.isPending());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(responseEntity.getBody()).isEqualTo("");
+        assertThat(responseEntity.getBody()).isEmpty();
     }
 
     @Test
@@ -182,7 +182,7 @@ public class AgentRegistrationControllerIntegrationTest {
         assertTrue(agentInstance.isIdle());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(responseEntity.getBody()).isEqualTo("");
+        assertThat(responseEntity.getBody()).isEmpty();
     }
 
     @Test
@@ -269,7 +269,7 @@ public class AgentRegistrationControllerIntegrationTest {
 
         assertTrue(agentInstance.isIdle());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody()).isEqualTo("");
+        assertThat(responseEntity.getBody()).isEmpty();
     }
 
     @Test
@@ -285,6 +285,6 @@ public class AgentRegistrationControllerIntegrationTest {
 
         assertTrue(agentInstance.isIdle());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody()).isEqualTo("");
+        assertThat(responseEntity.getBody()).isEmpty();
     }
 }

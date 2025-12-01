@@ -252,8 +252,8 @@ public class PluginServiceTest {
 
         assertThat(plugin.getPluginId()).isEqualTo(elasticAgentPluginId);
         assertThat(plugin.getConfigurationValue("key-1")).isEqualTo("v1");
-        assertThat(plugin.getConfigurationValue("key-2")).isEqualTo("");
-        assertThat(plugin.getConfigurationValue("key-3")).isEqualTo("");
+        assertThat(plugin.getConfigurationValue("key-2")).isEmpty();
+        assertThat(plugin.getConfigurationValue("key-3")).isEmpty();
     }
 
     @Test
@@ -275,8 +275,8 @@ public class PluginServiceTest {
         final Plugin plugin = pluginArgumentCaptor.getValue();
         assertThat(plugin.getPluginId()).isEqualTo(elasticAgentPluginId);
         assertThat(plugin.getConfigurationValue("key-1")).isEqualTo("v1");
-        assertThat(plugin.getConfigurationValue("key-2")).isEqualTo("");
-        assertThat(plugin.getConfigurationValue("key-3")).isEqualTo("");
+        assertThat(plugin.getConfigurationValue("key-2")).isEmpty();
+        assertThat(plugin.getConfigurationValue("key-3")).isEmpty();
     }
 
     @Test

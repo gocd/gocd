@@ -382,15 +382,6 @@ class SCMTest {
         assertThat(configuration.size()).isEqualTo(1);
     }
 
-    @Test
-    void shouldGetSCMTypeCorrectly() {
-        SCM scm = SCMMother.create("scm-id");
-        assertThat(scm.getSCMType()).isEqualTo("pluggable_material_plugin");
-
-        scm.setPluginConfiguration(new PluginConfiguration("plugin-id-2", "1"));
-        assertThat(scm.getSCMType()).isEqualTo("pluggable_material_plugin_id_2");
-    }
-
     @Nested
     class HasSecretParams {
         @Test

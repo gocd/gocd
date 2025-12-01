@@ -54,8 +54,8 @@ public class PluginSettingsTest {
         Map<String, String> settingsAsKeyValuePair = pluginSettings.getSettingsAsKeyValuePair();
         assertThat(settingsAsKeyValuePair.size()).isEqualTo(3);
         assertThat(settingsAsKeyValuePair.get("key-1")).isEqualTo("value1");
-        assertThat(settingsAsKeyValuePair.get("key-2")).isEqualTo("");
-        assertThat(settingsAsKeyValuePair.get("key-3")).isEqualTo("");
+        assertThat(settingsAsKeyValuePair.get("key-2")).isEmpty();
+        assertThat(settingsAsKeyValuePair.get("key-3")).isEmpty();
     }
 
     @Test
@@ -90,8 +90,8 @@ public class PluginSettingsTest {
 
         assertThat(configuration.size()).isEqualTo(3);
         assertThat(configuration.get("key-1").getValue()).isEqualTo("value1");
-        assertThat(configuration.get("key-2").getValue()).isEqualTo("");
-        assertThat(configuration.get("key-3").getValue()).isEqualTo("");
+        assertThat(configuration.get("key-2").getValue()).isEmpty();
+        assertThat(configuration.get("key-3").getValue()).isEmpty();
     }
 
     @Test

@@ -469,7 +469,7 @@ public class ScheduleService {
 
     // synchronized for updating job
 
-    public Stage cancelAndTriggerRelevantStages(Long stageId, Username username, LocalizedOperationResult result) throws Exception {
+    public Stage cancelAndTriggerRelevantStages(long stageId, Username username, LocalizedOperationResult result) throws Exception {
         Stage stageForId;
         LocalizedOperationResult opResult = result == null ? new DefaultLocalizedOperationResult() : result;
         try {

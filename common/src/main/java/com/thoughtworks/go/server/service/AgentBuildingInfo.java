@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
@@ -55,14 +56,10 @@ public class AgentBuildingInfo implements Serializable {
 
         AgentBuildingInfo that = (AgentBuildingInfo) o;
 
-        if (buildLocator != null ? !buildLocator.equals(that.buildLocator) : that.buildLocator != null) {
+        if (!Objects.equals(buildLocator, that.buildLocator)) {
             return false;
         }
-        if (buildingInfo != null ? !buildingInfo.equals(that.buildingInfo) : that.buildingInfo != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(buildingInfo, that.buildingInfo);
     }
 
     @Override
@@ -103,7 +100,7 @@ public class AgentBuildingInfo implements Serializable {
     }
 
     public boolean isBuilding() {
-        return !buildingInfo.equals("");
+        return !buildingInfo.isEmpty();
     }
 
     public String getBuildLocator() {

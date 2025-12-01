@@ -89,7 +89,7 @@ public class GoVersion implements Comparable<GoVersion> {
     }
 
     public boolean isGreaterThan(GoVersion o) {
-        return compareTo(o) == 1;
+        return compareTo(o) > 0;
     }
 
     public int getMajor() {

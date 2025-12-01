@@ -215,7 +215,7 @@ public class GitMaterialTest {
         @Test
         void shouldUpdateToSpecificRevision() {
             File newFile = new File(workingDir, "second.txt");
-            assertThat(outputStreamConsumer.getStdError()).isEqualTo("");
+            assertThat(outputStreamConsumer.getStdError()).isEmpty();
 
             InMemoryStreamConsumer output = inMemoryConsumer();
             git.updateTo(output, workingDir, new RevisionContext(GitTestRepo.REVISION_1, GitTestRepo.REVISION_0, 2), new TestSubprocessExecutionContext());

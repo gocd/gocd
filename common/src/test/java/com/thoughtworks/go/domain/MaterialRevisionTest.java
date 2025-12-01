@@ -286,7 +286,7 @@ public class MaterialRevisionTest {
     public void shouldReturnNullRevisionWhenThereIsNoMaterial() {
         Revision revision = new MaterialRevision(null).getRevision();
         assertThat(revision).isNotNull();
-        assertThat(revision.getRevision()).isEqualTo("");
+        assertThat(revision.getRevision()).isEmpty();
     }
 
     @Test

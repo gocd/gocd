@@ -51,7 +51,7 @@ public class InternalPipelineStructuresRepresenter {
             })));
     }
 
-    private static void renderDependantPipelines(OutputWriter pipelineWriter, PipelineConfig pipelineConfig, Hashtable<CaseInsensitiveString, Node> pipelineDependencyTable) {
+    private static void renderDependantPipelines(OutputWriter pipelineWriter, PipelineConfig pipelineConfig, Map<CaseInsensitiveString, Node> pipelineDependencyTable) {
         pipelineWriter.addChildList("dependant_pipelines", outputListWriter -> pipelineDependencyTable.forEach((key, value) -> {
             Optional<Node.DependencyNode> dependency = value.getDependency(pipelineConfig.name());
             dependency.ifPresent(dependencyNode -> outputListWriter.addChild(childWriter -> {

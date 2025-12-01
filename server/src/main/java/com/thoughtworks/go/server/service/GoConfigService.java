@@ -62,6 +62,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.StringReader;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.config.validation.GoConfigValidity.*;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditPipeline;
@@ -336,14 +337,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return currentCruiseConfig().isSmtpEnabled();
     }
 
-    public void accept(PipelineConfigVisitor visitor) {
-        getCurrentConfig().accept(visitor);
-    }
-
-    public void accept(PipelineGroupVisitor visitor) {
-        getCurrentConfig().accept(visitor);
-    }
-
     public String findGroupNameByPipeline(final CaseInsensitiveString pipelineName) {
         return getCurrentConfig().getGroups().findGroupNameByPipeline(pipelineName);
     }
@@ -487,12 +480,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().isPipelineUnlockableWhenFinished(pipelineName);
     }
 
-    public List<String> getResourceList() {
-        List<String> resources = new ArrayList<>();
-        for (ResourceConfig res : getCurrentConfig().getAllResources()) {
-            resources.add(res.getName());
-        }
-        return resources;
+    public Stream<String> getResourceNames() {
+        return getCurrentConfig().getAllResources().stream().map(ResourceConfig::getName);
     }
 
     public List<CaseInsensitiveString> pipelines(String group) {

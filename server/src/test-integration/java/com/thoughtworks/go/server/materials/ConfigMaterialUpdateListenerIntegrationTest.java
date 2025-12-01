@@ -58,7 +58,7 @@ import static org.mockito.Mockito.mock;
         "classpath:/spring-all-servlet.xml",
 })
 public class ConfigMaterialUpdateListenerIntegrationTest {
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @Autowired
     private GoConfigDao goConfigDao;

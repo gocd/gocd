@@ -89,7 +89,7 @@ class EnvironmentVariablesConfigTest {
         environmentVariablesConfig.validate(context);
 
         assertThat(one.errors().isEmpty()).isFalse();
-        assertThat(one.errors().on(EnvironmentVariableConfig.NAME)).contains("Environment Variable cannot have an empty name for pipeline 'some-pipeline'.");
+        assertThat(one.errors().firstErrorOn(EnvironmentVariableConfig.NAME)).contains("Environment Variable cannot have an empty name for pipeline 'some-pipeline'.");
     }
 
     @Test
@@ -101,7 +101,7 @@ class EnvironmentVariablesConfigTest {
         environmentVariablesConfig.validate(context);
 
         assertThat(one.errors().isEmpty()).isFalse();
-        assertThat(one.errors().on(EnvironmentVariableConfig.NAME)).contains("Environment Variable cannot start or end with spaces for pipeline 'some-pipeline'.");
+        assertThat(one.errors().firstErrorOn(EnvironmentVariableConfig.NAME)).contains("Environment Variable cannot start or end with spaces for pipeline 'some-pipeline'.");
     }
 
     @Test
@@ -113,7 +113,7 @@ class EnvironmentVariablesConfigTest {
         environmentVariablesConfig.validate(context);
 
         assertThat(one.errors().isEmpty()).isFalse();
-        assertThat(one.errors().on(EnvironmentVariableConfig.NAME)).contains("Environment Variable cannot start or end with spaces for pipeline 'some-pipeline'.");
+        assertThat(one.errors().firstErrorOn(EnvironmentVariableConfig.NAME)).contains("Environment Variable cannot start or end with spaces for pipeline 'some-pipeline'.");
     }
 
     @Test
@@ -125,7 +125,7 @@ class EnvironmentVariablesConfigTest {
         environmentVariablesConfig.validate(context);
 
         assertThat(one.errors().isEmpty()).isFalse();
-        assertThat(one.errors().on(EnvironmentVariableConfig.NAME)).contains("Environment Variable cannot start or end with spaces for pipeline 'some-pipeline'.");
+        assertThat(one.errors().firstErrorOn(EnvironmentVariableConfig.NAME)).contains("Environment Variable cannot start or end with spaces for pipeline 'some-pipeline'.");
     }
 
     @Test

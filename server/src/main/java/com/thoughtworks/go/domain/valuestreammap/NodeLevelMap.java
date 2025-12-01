@@ -19,7 +19,7 @@ import java.util.*;
 
 public class NodeLevelMap {
 
-    private Map<Integer,List<Node>> map = new HashMap<>();
+    private final Map<Integer, List<Node>> map = new HashMap<>();
 
     public void add(Node node) {
         int level = node.getLevel();

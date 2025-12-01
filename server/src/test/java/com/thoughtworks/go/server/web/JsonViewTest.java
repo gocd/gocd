@@ -44,7 +44,10 @@ public class JsonViewTest {
         map.put("key", "\r\t\n");
         view.renderMergedOutputModel(asMap(map), new MockHttpServletRequest(), response);
         String json = response.getContentAsString();
-        assertThatJson("{\n  \"key\": \"\\r\\t\\n\"\n}").isEqualTo(json);
+        assertThatJson("""
+            {
+              "key": "\\r\\t\\n"
+            }""").isEqualTo(json);
     }
 
     @Test

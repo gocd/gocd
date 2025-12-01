@@ -88,7 +88,7 @@ public class PluggableArtifactConfigTest {
         assertTrue(artifactConfig.hasErrors());
         assertThat(artifactConfig.errors().getAll()).hasSize(1);
         assertThat(artifactConfig.errors().getAllOn("storeId")).hasSize(1);
-        assertThat(artifactConfig.errors().on("storeId")).isEqualTo("Artifact store with id `Store-ID` does not exist. Please correct the `storeId` attribute on pipeline `pipe`.");
+        assertThat(artifactConfig.errors().firstErrorOn("storeId")).isEqualTo("Artifact store with id `Store-ID` does not exist. Please correct the `storeId` attribute on pipeline `pipe`.");
     }
 
     @Test
@@ -119,8 +119,8 @@ public class PluggableArtifactConfigTest {
         assertTrue(newConfig.hasErrors());
         assertTrue(existingConfig.hasErrors());
 
-        assertThat(newConfig.errors().on("id")).isEqualTo("Duplicate pluggable artifacts  with id `Artifact-ID` defined.");
-        assertThat(existingConfig.errors().on("id")).isEqualTo("Duplicate pluggable artifacts  with id `Artifact-ID` defined.");
+        assertThat(newConfig.errors().firstErrorOn("id")).isEqualTo("Duplicate pluggable artifacts  with id `Artifact-ID` defined.");
+        assertThat(existingConfig.errors().firstErrorOn("id")).isEqualTo("Duplicate pluggable artifacts  with id `Artifact-ID` defined.");
     }
 
     @Test
@@ -134,8 +134,8 @@ public class PluggableArtifactConfigTest {
         assertTrue(newConfig.hasErrors());
         assertTrue(existingConfig.hasErrors());
 
-        assertThat(newConfig.errors().on("id")).isEqualTo("Duplicate pluggable artifacts  configuration defined.");
-        assertThat(existingConfig.errors().on("id")).isEqualTo("Duplicate pluggable artifacts  configuration defined.");
+        assertThat(newConfig.errors().firstErrorOn("id")).isEqualTo("Duplicate pluggable artifacts  configuration defined.");
+        assertThat(existingConfig.errors().firstErrorOn("id")).isEqualTo("Duplicate pluggable artifacts  configuration defined.");
     }
 
     @Test
@@ -149,8 +149,8 @@ public class PluggableArtifactConfigTest {
         assertFalse(newConfig.hasErrors());
         assertFalse(existingConfig.hasErrors());
 
-        assertNull(newConfig.errors().on("id"));
-        assertNull(existingConfig.errors().on("id"));
+        assertNull(newConfig.errors().firstErrorOn("id"));
+        assertNull(existingConfig.errors().firstErrorOn("id"));
     }
 
     @Test

@@ -62,7 +62,10 @@ class BasicAuthenticationWithChallengeFailureResponseHandlerTest {
                     .isUnauthorized()
                     .hasHeader("Content-Type", "application/json;charset=utf-8")
                     .doesNotContainHeader("WWW-Authenticate")
-                    .hasBody("{\n  \"message\": \"some-error-message\"\n}");
+                    .hasBody("""
+                        {
+                          "message": "some-error-message"
+                        }""");
         }
 
         @Test
@@ -75,7 +78,10 @@ class BasicAuthenticationWithChallengeFailureResponseHandlerTest {
                     .isForbidden()
                     .hasHeader("Content-Type", "application/json;charset=utf-8")
                     .hasHeader("WWW-Authenticate", "Basic realm=\"GoCD\"")
-                    .hasBody("{\n  \"message\": \"some-error-message\"\n}");
+                    .hasBody("""
+                        {
+                          "message": "some-error-message"
+                        }""");
         }
 
     }
@@ -97,7 +103,10 @@ class BasicAuthenticationWithChallengeFailureResponseHandlerTest {
                     .isUnauthorized()
                     .hasHeader("Content-Type", "application/json;charset=utf-8")
                     .doesNotContainHeader("WWW-Authenticate")
-                    .hasBody("{\n  \"message\": \"some-error-message\"\n}");
+                    .hasBody("""
+                        {
+                          "message": "some-error-message"
+                        }""");
         }
     }
 }

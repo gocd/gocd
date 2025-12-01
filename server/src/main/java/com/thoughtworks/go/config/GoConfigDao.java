@@ -21,19 +21,14 @@ import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.util.ExceptionUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -53,21 +48,6 @@ public class GoConfigDao {
         return cachedConfigService.getFileLocation();
     }
 
-    public void updateMailHost(MailHost mailHost) {
-        updateConfig(mailHostUpdater(mailHost));
-    }
-
-    public void addPipeline(PipelineConfig pipelineConfig, String groupName) {
-        updateConfig(pipelineAdder(pipelineConfig, groupName));
-    }
-
-    public void addEnvironment(final EnvironmentConfig environmentConfig) {
-        updateConfig(cruiseConfig -> {
-            cruiseConfig.getEnvironments().add(environmentConfig);
-            return cruiseConfig;
-        });
-    }
-
     public CruiseConfig loadForEditing() {
         return cachedConfigService.loadForEditing();
     }
@@ -76,12 +56,8 @@ public class GoConfigDao {
         return cachedConfigService.loadMergedForEditing();
     }
 
-    public CruiseConfig load() {
+    public CruiseConfig currentConfig() {
         return cachedConfigService.currentConfig();
-    }
-
-    public String md5OfConfigFile() {
-        return cachedConfigService.currentConfig().getMd5();
     }
 
     public void updateConfig(EntityConfigUpdateCommand<?> command, Username currentUser) {
@@ -96,8 +72,7 @@ public class GoConfigDao {
             } catch (Exception e) {
                 LOGGER.error("Config update for entity failed", e);
                 throw e;
-            }
-            finally {
+            } finally {
                 LOGGER.info("Entity update for request by {} is completed", currentUser);
             }
         }
@@ -119,13 +94,11 @@ public class GoConfigDao {
     }
 
     private <T extends UpdateConfigCommand> ConfigSaveState doSaveWith(T command, Function<T, ConfigSaveState> configOperation) {
-        ConfigSaveState configSaveState;
         LOGGER.info("Config update request by {} is in queue - {}", SessionUtils.currentUsername().getUsername(), command);
         synchronized (GoConfigWriteLock.class) {
             try {
                 LOGGER.info("Config update request {} by {} is being processed", command, SessionUtils.currentUsername().getUsername());
-
-                configSaveState = configOperation.apply(command);
+                return configOperation.apply(command);
             } catch (Exception e) {
                 LOGGER.error("{} failed", command, e);
                 throw e;
@@ -133,7 +106,6 @@ public class GoConfigDao {
                 LOGGER.info("Config update request by {} is completed", SessionUtils.currentUsername().getUsername());
             }
         }
-        return configSaveState;
     }
 
     public GoConfigValidity checkConfigFileValid() {
@@ -152,151 +124,6 @@ public class GoConfigDao {
     @TestOnly
     public void forceReload() {
         cachedConfigService.forceReload();
-    }
-
-    public static class CompositeConfigCommand implements UpdateConfigCommand {
-        private final List<UpdateConfigCommand> commands = new ArrayList<>();
-
-        public CompositeConfigCommand(UpdateConfigCommand... commands) {
-            this.commands.addAll(Arrays.asList(commands));
-        }
-
-        public void addCommand(UpdateConfigCommand command) {
-            commands.add(command);
-        }
-
-        public List<UpdateConfigCommand> getCommands() {
-            return commands;
-        }
-
-        @Override
-        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-            for (UpdateConfigCommand command : commands) {
-                cruiseConfig = command.update(cruiseConfig);
-            }
-            return cruiseConfig;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            CompositeConfigCommand command = (CompositeConfigCommand) o;
-
-            return commands.equals(command.commands);
-        }
-
-        @Override
-        public int hashCode() {
-            return commands.hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return "CompositeConfigCommand{" +
-                    "commands=" + commands +
-                    '}';
-        }
-    }
-
-    public static class NoOverwriteCompositeConfigCommand extends CompositeConfigCommand implements NoOverwriteUpdateConfigCommand {
-        private final String md5;
-
-        public NoOverwriteCompositeConfigCommand(String md5, UpdateConfigCommand... commands) {
-            super(commands);
-            this.md5 = md5;
-        }
-
-        @Override
-        public String unmodifiedMd5() {
-            return md5;
-        }
-    }
-
-
-    private UpdateConfigCommand pipelineAdder(final PipelineConfig pipelineConfig, final String groupName) {
-        return cruiseConfig -> {
-            cruiseConfig.addPipeline(groupName, pipelineConfig);
-            return cruiseConfig;
-        };
-    }
-
-    public UpdateConfigCommand mailHostUpdater(final MailHost mailHost) {
-        return cruiseConfig -> {
-            cruiseConfig.server().updateMailHost(mailHost);
-            return cruiseConfig;
-        };
-    }
-
-    public static class ModifyRoleCommand implements UpdateConfigCommand {
-        private String user;
-        private TriStateSelection roleSelection;
-
-        public ModifyRoleCommand(String user, TriStateSelection roleSelection) {
-            this.user = user;
-            this.roleSelection = roleSelection;
-        }
-
-        @Override
-        public CruiseConfig update(CruiseConfig cruiseConfig) {
-            RolesConfig rolesConfig = cruiseConfig.server().security().getRoles();
-            String roleName = roleSelection.getValue();
-            Role role = rolesConfig.findByName(new CaseInsensitiveString(roleName));
-            switch (roleSelection.getAction()) {
-                case add:
-                    if (role == null) {
-                        role = new RoleConfig(new CaseInsensitiveString(roleName), new Users());
-                        rolesConfig.add(role);
-                    }
-                    if (!role.hasMember(new CaseInsensitiveString(user))) {
-                        role.addUser(new RoleUser(new CaseInsensitiveString(user)));
-                    }
-                    break;
-                case remove:
-                    if (role != null) {
-                        role.removeUser(new RoleUser(new CaseInsensitiveString(user)));
-                    }
-                    break;
-                case nochange:
-                    break;
-                default:
-                    throw ExceptionUtils.bomb("unrecognized Action: " + roleSelection.getAction());
-            }
-            return cruiseConfig;
-        }
-    }
-
-    public static class ModifyAdminPrivilegeCommand implements UpdateConfigCommand {
-        private String user;
-        private TriStateSelection adminPrivilegeSelection;
-
-        public static final UserRoleMatcher ALWAYS_FALSE_MATCHER = (userName, roleName) -> false;
-
-        public ModifyAdminPrivilegeCommand(String user, TriStateSelection adminPrivilege) {
-            this.user = user;
-            this.adminPrivilegeSelection = adminPrivilege;
-        }
-
-        @Override
-        public CruiseConfig update(CruiseConfig cruiseConfig) {
-            final AdminsConfig adminsConfig = cruiseConfig.server().security().adminsConfig();
-            switch (adminPrivilegeSelection.getAction()) {
-                case add:
-                    if (!adminsConfig.hasUser(new CaseInsensitiveString(user), ALWAYS_FALSE_MATCHER)) {
-                        adminsConfig.add(new AdminUser(new CaseInsensitiveString(user)));
-                    }
-                    break;
-                case remove:
-                    adminsConfig.remove(new AdminUser(new CaseInsensitiveString(user)));
-                    break;
-            }
-            return cruiseConfig;
-        }
     }
 
     public GoConfigHolder loadConfigHolder() {

@@ -78,7 +78,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
 
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
-    private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     public Subversion repository;
     public static TestRepo testRepo;
 
@@ -90,18 +90,18 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     @BeforeEach
     public void setup() throws Exception {
         dbHelper.onSetUp();
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
-        CONFIG_HELPER.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.onSetUp();
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
-        evolveConfig = CONFIG_HELPER.addPipeline("evolve", STAGE_NAME, repository, "unit");
-        CONFIG_HELPER.addPipeline("studios", "stageName", repository, "functional");
+        evolveConfig = configHelper.addPipeline("evolve", STAGE_NAME, repository, "unit");
+        configHelper.addPipeline("studios", "stageName", repository, "functional");
         goCache.clear();
     }
 
     @AfterEach
     public void teardown() throws Exception {
         dbHelper.onTearDown();
-        CONFIG_HELPER.onTearDown();
+        configHelper.onTearDown();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
     }
 

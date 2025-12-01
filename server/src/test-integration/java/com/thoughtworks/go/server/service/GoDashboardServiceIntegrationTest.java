@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.Pipeline;
@@ -87,7 +84,7 @@ public class GoDashboardServiceIntegrationTest {
 
     private GoConfigFileHelper configHelper;
     private ScheduleTestUtil u;
-    private Username user = new Username("user");
+    private final Username user = new Username("user");
 
     @BeforeEach
     public void setup() throws Exception {
@@ -130,13 +127,20 @@ public class GoDashboardServiceIntegrationTest {
         assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().size()).isEqualTo(1);
         assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo((p1_2.getId()));
 
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("environment")));
+        addDummyEnvironmentToConfig("environment");
         goDashboardService.updateCacheForAllPipelinesIn(goConfigService.cruiseConfig());
 
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user"));
         assertThat(pipelineGroupsOnDashboard).hasSize(1);
         assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().size()).isEqualTo(1);
         assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo((p1_2.getId()));
+    }
+
+    private void addDummyEnvironmentToConfig(String environmentName) {
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
+            return cruiseConfig;
+        });
     }
 
     @Test
@@ -168,7 +172,7 @@ public class GoDashboardServiceIntegrationTest {
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user"));
         assertThat(pipelineGroupsOnDashboard).hasSize(0);
 
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("environment")));
+        addDummyEnvironmentToConfig("environment");
         goDashboardService.updateCacheForAllPipelinesIn(goConfigService.cruiseConfig());
 
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user"));
@@ -180,7 +184,7 @@ public class GoDashboardServiceIntegrationTest {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1");
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(g1));
-        String p1Counter1 = u.runAndPass(p1, "g_1");
+        u.runAndPass(p1, "g_1");
 
         goDashboardConfigChangeHandler.call(goConfigService.cruiseConfig());
 
@@ -195,12 +199,12 @@ public class GoDashboardServiceIntegrationTest {
 
         assertThereIsExactlyOneInstanceOfEachPipelineOnDashboard(goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, user));
 
-        String newPipelineCounter1 = u.runAndPass(new ScheduleTestUtil.AddedPipeline(newPipeline, new DependencyMaterial(newPipeline.name(), newPipeline.first().name())), "g_1");
+        u.runAndPass(new ScheduleTestUtil.AddedPipeline(newPipeline, new DependencyMaterial(newPipeline.name(), newPipeline.first().name())), "g_1");
         goDashboardStageStatusChangeHandler.call(stageSqlMapDao.mostRecentPassed(newPipeline.name().toString(), newPipeline.first().name().toString()));
 
         assertThereIsExactlyOneInstanceOfEachPipelineOnDashboard(goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, user));
 
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("new-environment")));
+        addDummyEnvironmentToConfig("new-environment");
         goDashboardConfigChangeHandler.call(goConfigService.cruiseConfig());
 
         assertThereIsExactlyOneInstanceOfEachPipelineOnDashboard(goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, user));

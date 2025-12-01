@@ -202,8 +202,7 @@ public class ElasticAgentExtensionV4Test {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
         extensionV4.serverPing(PLUGIN_ID, null);
-        String expectedRequestBody = null;
-        assertExtensionRequest("4.0", REQUEST_SERVER_PING, expectedRequestBody);
+        assertExtensionRequest("4.0", REQUEST_SERVER_PING, null);
     }
 
     @Test
@@ -337,7 +336,7 @@ public class ElasticAgentExtensionV4Test {
         assertThat(REQUEST_GET_PLUGIN_SETTINGS_ICON).startsWith(REQUEST_PREFIX);
     }
 
-    private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) {
+    private void assertExtensionRequest(@SuppressWarnings("SameParameterValue") String extensionVersion, String requestName, String requestBody) {
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
         assertThat(request.requestName()).isEqualTo(requestName);
         assertThat(request.extensionVersion()).isEqualTo(extensionVersion);

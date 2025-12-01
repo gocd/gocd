@@ -32,6 +32,7 @@ import com.thoughtworks.go.server.materials.*;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.dd.NoCompatibleUpstreamRevisionsException;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -55,21 +56,21 @@ import static java.lang.String.format;
 public class BuildCauseProducerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildCauseProducerService.class);
 
-    private SchedulingCheckerService schedulingChecker;
-    private ServerHealthService serverHealthService;
-    private PipelineScheduleQueue pipelineScheduleQueue;
-    private GoConfigService goConfigService;
-    private MaterialChecker materialChecker;
-    private MaterialUpdateStatusNotifier materialUpdateStatusNotifier;
+    private final SchedulingCheckerService schedulingChecker;
+    private final ServerHealthService serverHealthService;
+    private final PipelineScheduleQueue pipelineScheduleQueue;
+    private final GoConfigService goConfigService;
+    private final MaterialChecker materialChecker;
+    private final MaterialUpdateStatusNotifier materialUpdateStatusNotifier;
     private final MaterialUpdateService materialUpdateService;
     private final SpecificMaterialRevisionFactory specificMaterialRevisionFactory;
     private final PipelineService pipelineService;
 
-    private TriggerMonitor triggerMonitor;
+    private final TriggerMonitor triggerMonitor;
     private final SystemEnvironment systemEnvironment;
     private final MaterialConfigConverter materialConfigConverter;
     private final MaterialExpansionService materialExpansionService;
-    private SchedulingPerformanceLogger schedulingPerformanceLogger;
+    private final SchedulingPerformanceLogger schedulingPerformanceLogger;
 
     @Autowired
     public BuildCauseProducerService(
@@ -189,7 +190,7 @@ public class BuildCauseProducerService {
                         buildCause = buildType.onEmptyModifications(pipelineConfig, latestRevisions);
                     } else {
                         LOGGER.debug("Repository for [{}] modified; scheduling...", pipelineName);
-                        buildCause = buildType.onModifications(revisions, materialConfigurationChanged, original);
+                        buildCause = buildType.onModifications(revisions, false, original);
                     }
                 }
             }
@@ -286,9 +287,10 @@ public class BuildCauseProducerService {
         private PipelineConfig pipelineConfig;
         private final BuildType buildType;
         private final ConcurrentMap<String, Material> pendingMaterials;
+        private final ScheduleOptions scheduleOptions;
+
         private Material configMaterial;
         private boolean failed;
-        private ScheduleOptions scheduleOptions;
 
         private WaitForPipelineMaterialUpdate(CaseInsensitiveString pipelineName, BuildType buildType, ScheduleOptions scheduleOptions) {
             this.pipelineConfig = goConfigService.pipelineConfigNamed(pipelineName);

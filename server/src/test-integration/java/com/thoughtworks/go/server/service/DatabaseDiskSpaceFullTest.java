@@ -54,39 +54,37 @@ public class DatabaseDiskSpaceFullTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private TransactionTemplate transactionTemplate;
 
-    private PipelineWithTwoStages fixture;
+    private PipelineWithTwoStages pipelineFixture;
     private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
         configHelper.usingCruiseConfigDao(goConfigDao);
-        configHelper.onSetUp();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         serverHealthService.removeAllLogs();
-        fixture.usingConfigHelper(configHelper).usingDbHelper(databaseAccessHelper).onSetUp();
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(databaseAccessHelper).onSetUp();
         configHelper.setupMailHost();
     }
 
     @AfterEach
     public void tearDown() throws Exception {
         serverHealthService.removeAllLogs();
-        fixture.onTearDown();
-        configHelper.onTearDown();
+        pipelineFixture.onTearDown();
     }
 
     @Test
     public void shouldNotRerunStageIfDiskspaceIsFull() {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), fixture.devStage, "anyone", result)).isFalse();
-        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), fixture.devStage, "anyone", new ServerHealthStateOperationResult())).isFalse();
+        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.devStage, "anyone", result)).isFalse();
+        assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.devStage, "anyone", new ServerHealthStateOperationResult())).isFalse();
     }
 
     @Test
     public void shouldNotManualTriggerIfDiskspaceIsFull() {
-        fixture.createdPipelineWithAllStagesPassed();
-        assertThat(schedulingChecker.canManuallyTrigger(fixture.pipelineConfig(), "anyone", new ServerHealthStateOperationResult())).isFalse();
-        assertThat(schedulingChecker.canTriggerManualPipeline(fixture.pipelineConfig(), "anyone", new ServerHealthStateOperationResult())).isFalse();
+        pipelineFixture.createdPipelineWithAllStagesPassed();
+        assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), "anyone", new ServerHealthStateOperationResult())).isFalse();
+        assertThat(schedulingChecker.canTriggerManualPipeline(pipelineFixture.pipelineConfig(), "anyone", new ServerHealthStateOperationResult())).isFalse();
     }
 
 }

@@ -189,7 +189,7 @@ public class ScheduleServiceIntegrationTest {
         PipelineConfig cruisePlan = configHelper.addPipeline("cruise", "test", repository);
         assertThat(goConfigService.stageConfigNamed("mingle", "dev")).isNotNull();
 
-        String dir = goConfigDao.load().server().artifactsDir();
+        String dir = goConfigDao.currentConfig().server().artifactsDir();
         new File(dir).mkdirs();
         goConfigService.forceNotifyListeners();
 
@@ -489,7 +489,6 @@ public class ScheduleServiceIntegrationTest {
         elasticAgentPluginService.setCreateAgentQueue(createAgentQueueHandler);
 
         //add a cluster profile and elastic agent profile to the config.
-        GoConfigDao goConfigDao = configHelper.getGoConfigDao();
         goConfigDao.loadForEditing().getElasticConfig().getClusterProfiles().add(clusterProfile);
         goConfigDao.loadForEditing().getElasticConfig().getProfiles().add(elasticAgentProfile);
 

@@ -22,21 +22,18 @@ import com.thoughtworks.go.domain.materials.Revision;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DependencyMaterialRevision implements Revision {
-    private String pipelineName;
+    private final String pipelineName;
     private final String pipelineCounter;
-    private String pipelineLabel;
-    private String stageName;
-    private int stageCounter;
+    private final String pipelineLabel;
+    private final String stageName;
+    private final int stageCounter;
 
     public static DependencyMaterialRevision create(String stringRevision, String pipelineLabel) {
         String[] strings = stringRevision.split("/");
-        return DependencyMaterialRevision.create(strings[0], Integer.parseInt(strings[1]), pipelineLabel, strings[2], Integer.valueOf(strings[3]));
+        return DependencyMaterialRevision.create(strings[0], Integer.parseInt(strings[1]), pipelineLabel, strings[2], Integer.parseInt(strings[3]));
     }
 
     private DependencyMaterialRevision(String pipelineName, String pipelineCounter, String pipelineLabel, String stageName, int stageCounter) {

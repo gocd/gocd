@@ -32,47 +32,44 @@ import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
-import com.thoughtworks.go.server.service.NoCompatibleUpstreamRevisionsException;
 import com.thoughtworks.go.server.service.NoModificationsPresentForDependentMaterialException;
-import com.thoughtworks.go.util.Pair;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.ALL_OPTIONS_EXHAUSTED;
 
 public class FanInGraph {
-    private static final int REVISION_BUFFER_SIZE = 5;
-
     private final PipelineDao pipelineDao;
     private final CruiseConfig cruiseConfig;
     private final MaterialRepository materialRepository;
     private final MaterialConfigConverter materialConfigConverter;
 
-    private final Map<String, FanInNode> nodes = new HashMap<>();
+    private final Map<String, FanInNode<?>> nodes = new HashMap<>();
     private final Map<String, MaterialConfig> fingerprintScmMaterialMap = new HashMap<>();
     private final Map<String, DependencyMaterialConfig> fingerprintDepMaterialMap = new HashMap<>();
     private final Map<DependencyMaterialConfig, Set<String>> dependencyMaterialFingerprintMap = new HashMap<>();
 
     private final DependencyFanInNode root;
     private final CaseInsensitiveString pipelineName;
-    private final SystemEnvironment systemEnvironment;
+    private final Supplier<Integer> maxBackTrackLimit;
 
-    public FanInGraph(CruiseConfig cruiseConfig, CaseInsensitiveString root, MaterialRepository materialRepository, PipelineDao pipelineDao, SystemEnvironment systemEnvironment,
-                      MaterialConfigConverter materialConfigConverter) {
+    public FanInGraph(CruiseConfig cruiseConfig, CaseInsensitiveString root, MaterialRepository materialRepository, PipelineDao pipelineDao,
+                      MaterialConfigConverter materialConfigConverter, Supplier<Integer> maxBackTrackLimit) {
         this.cruiseConfig = cruiseConfig;
         this.materialRepository = materialRepository;
         this.pipelineDao = pipelineDao;
         this.pipelineName = root;
-        this.systemEnvironment = systemEnvironment;
+        this.maxBackTrackLimit = maxBackTrackLimit;
         this.materialConfigConverter = materialConfigConverter;
 
         PipelineConfig target = cruiseConfig.pipelineConfigByName(root);
-        this.root = (DependencyFanInNode) FanInNodeFactory.create(new DependencyMaterialConfig(target.name(), target.get(0).name()));
+        this.root = (DependencyFanInNode) FanInNode.create(new DependencyMaterialConfig(target.name(), target.get(0).name()));
 
         buildGraph(target);
     }
@@ -81,14 +78,13 @@ public class FanInGraph {
         nodes.put(this.root.materialConfig.getFingerprint(), this.root);
         final Set<String> scmMaterials = new HashSet<>();
         buildRestOfTheGraph(this.root, target, scmMaterials, new HashSet<>());
-        dependencyMaterialFingerprintMap.put((DependencyMaterialConfig) this.root.materialConfig, scmMaterials);
+        dependencyMaterialFingerprintMap.put(this.root.materialConfig, scmMaterials);
     }
 
     private void buildRestOfTheGraph(DependencyFanInNode root, PipelineConfig target, Set<String> scmMaterialSet, Set<DependencyMaterialConfig> visitedNodes) {
         for (MaterialConfig material : target.materialConfigs()) {
-            FanInNode node = createNode(material);
-            root.children.add(node);
-            node.parents.add(root);
+            FanInNode<?> node = nodes.computeIfAbsent(material.getFingerprint(), k -> FanInNode.create(material));
+            root.addChild(node);
             if (node instanceof DependencyFanInNode) {
                 DependencyMaterialConfig dependencyMaterial = (DependencyMaterialConfig) material;
                 fingerprintDepMaterialMap.put(dependencyMaterial.getFingerprint(), dependencyMaterial);
@@ -118,27 +114,18 @@ public class FanInGraph {
         scmMaterialSet.addAll(scmMaterialFingerprintSet);
     }
 
-    private FanInNode createNode(MaterialConfig material) {
-        FanInNode node = nodes.get(material.getFingerprint());
-        if (node == null) {
-            node = FanInNodeFactory.create(material);
-            nodes.put(material.getFingerprint(), node);
-        }
-        return node;
-    }
-
     @TestOnly
     List<ScmMaterialConfig> getScmMaterials() {
         List<ScmMaterialConfig> scmMaterials = new ArrayList<>();
-        for (FanInNode node : nodes.values()) {
-            if (node.materialConfig instanceof ScmMaterialConfig) {
-                scmMaterials.add((ScmMaterialConfig) node.materialConfig);
+        for (FanInNode<?> node : nodes.values()) {
+            if (node.materialConfig instanceof ScmMaterialConfig scmMat) {
+                scmMaterials.add(scmMat);
             }
         }
         return scmMaterials;
     }
 
-    public Map<DependencyMaterialConfig, Set<MaterialConfig>> getPipelineScmDepMap() {
+    private Map<DependencyMaterialConfig, Set<MaterialConfig>> getPipelineScmDepMap() {
         Map<DependencyMaterialConfig, Set<MaterialConfig>> dependencyMaterialListMap = new HashMap<>();
 
         for (Map.Entry<DependencyMaterialConfig, Set<String>> materialSetEntry : dependencyMaterialFingerprintMap.entrySet()) {
@@ -155,25 +142,23 @@ public class FanInGraph {
     public MaterialRevisions computeRevisions(MaterialRevisions actualRevisions, PipelineTimeline pipelineTimeline) {
         assertAllDirectDependenciesArePresentInInput(actualRevisions, pipelineName);
 
-        Pair<List<RootFanInNode>, List<DependencyFanInNode>> scmAndDepMaterialsChildren = getScmAndDepMaterialsChildren();
-        List<RootFanInNode> scmChildren = scmAndDepMaterialsChildren.first();
-        List<DependencyFanInNode> depChildren = scmAndDepMaterialsChildren.last();
+        FanInNode.ByType children = FanInNode.ByType.from(root.children);
 
-        if (depChildren.isEmpty()) {
-            //No fanin required all are SCMs
+        if (children.isAllScm()) {
+            // No fanin required
             return actualRevisions;
         }
 
-        FanInGraphContext context = buildContext(pipelineTimeline);
+        FanInGraphContext context = contextFor(pipelineTimeline);
         root.initialize(context);
 
-        initChildren(depChildren, pipelineName, context);
+        initChildren(children.dep(), pipelineName, context);
 
-        iterateAndMakeAllUniqueScmRevisionsForChildrenSame(depChildren, pipelineName, context);
+        iterateAndMakeAllUniqueScmRevisionsForChildrenSame(children.dep(), pipelineName, context);
 
-        List<MaterialRevision> finalRevisionsForScmChildren = createFinalRevisionsForScmChildren(root.latestPipelineTimelineEntry(context), scmChildren, depChildren);
+        List<MaterialRevision> finalRevisionsForScmChildren = createFinalRevisionsForScmChildren(root.latestPipelineTimelineEntry(context), children.scm(), children.dep());
 
-        List<MaterialRevision> finalRevisionsForDepChildren = createFinalRevisionsForDepChildren(depChildren);
+        List<MaterialRevision> finalRevisionsForDepChildren = createFinalRevisionsForDepChildren(children.dep());
 
         return new MaterialRevisions(CollectionUtils.union(getMaterialsFromCurrentPipeline(finalRevisionsForScmChildren, actualRevisions), finalRevisionsForDepChildren));
     }
@@ -229,24 +214,11 @@ public class FanInGraph {
     private Set<FaninScmMaterial> scmMaterialsOfDepChildren(List<DependencyFanInNode> depChildren) {
         Set<FaninScmMaterial> allScmMaterials = new HashSet<>();
         for (DependencyFanInNode child : depChildren) {
-            allScmMaterials.addAll(child.stageIdentifierScmMaterialForCurrentRevision());
+            allScmMaterials.addAll(child.scmMaterialForCurrentRevision());
         }
         return allScmMaterials;
     }
 
-
-    private Pair<List<RootFanInNode>, List<DependencyFanInNode>> getScmAndDepMaterialsChildren() {
-        List<RootFanInNode> scmMaterials = new ArrayList<>();
-        List<DependencyFanInNode> depMaterials = new ArrayList<>();
-        for (FanInNode child : root.children) {
-            if (child instanceof RootFanInNode) {
-                scmMaterials.add((RootFanInNode) child);
-            } else {
-                depMaterials.add((DependencyFanInNode) child);
-            }
-        }
-        return new Pair<>(scmMaterials, depMaterials);
-    }
 
     private void iterateAndMakeAllUniqueScmRevisionsForChildrenSame(List<DependencyFanInNode> depChildren, CaseInsensitiveString pipelineName, FanInGraphContext context) {
         StageIdFaninScmMaterialPair revisionToSet = getRevisionToSet();
@@ -273,7 +245,7 @@ public class FanInGraph {
             .map(r -> r.getMaterial().getFingerprint())
             .collect(Collectors.toSet());
 
-        for (FanInNode child : root.children) {
+        for (FanInNode<?> child : root.children) {
             //The dependency material that is not in 'passed' state will not be found in actual revisions
             if (!actualRevFingerprints.contains(child.materialConfig.getFingerprint())) {
                 throw NoCompatibleUpstreamRevisionsException.doesNotHaveValidRevisions(pipelineName, child.materialConfig);
@@ -295,21 +267,13 @@ public class FanInGraph {
 
     private Collection<StageIdFaninScmMaterialPair> findScmRevisionsThatDiffer(List<StageIdFaninScmMaterialPair> pIdScmMaterialList) {
         for (final StageIdFaninScmMaterialPair pIdScmPair : pIdScmMaterialList) {
-            final Collection<StageIdFaninScmMaterialPair> matWithSameFingerprint = CollectionUtils.select(pIdScmMaterialList, pIdScmPair::equals);
+            List<StageIdFaninScmMaterialPair> matWithSameFingerprint = pIdScmMaterialList.stream().filter(pIdScmPair::equals).toList();
+            Optional<StageIdFaninScmMaterialPair> withDifferentRevision = matWithSameFingerprint.stream()
+                .filter(pair ->
+                    pair.stageIdentifier() != pIdScmPair.stageIdentifier() && !pair.faninScmMaterial().revision().equals(pIdScmPair.faninScmMaterial().revision())
+                ).findFirst();
 
-            boolean diffRevFound = false;
-            for (StageIdFaninScmMaterialPair pair : matWithSameFingerprint) {
-                if (pair.stageIdentifier == pIdScmPair.stageIdentifier) {
-                    continue;
-                }
-                if (pair.faninScmMaterial.revision.equals(pIdScmPair.faninScmMaterial.revision)) {
-                    continue;
-                }
-                diffRevFound = true;
-                break;
-            }
-
-            if (diffRevFound) {
+            if (withDifferentRevision.isPresent()) {
                 return matWithSameFingerprint;
             }
         }
@@ -317,36 +281,28 @@ public class FanInGraph {
         return Collections.emptyList();
     }
 
-    private StageIdFaninScmMaterialPair getSmallestScmRevision(Collection<StageIdFaninScmMaterialPair> scmWithDiffVersions) {
-        List<StageIdFaninScmMaterialPair> materialPairList = new ArrayList<>(scmWithDiffVersions);
-        materialPairList.sort((pair1, pair2) -> {
-            final PipelineTimelineEntry.Revision rev1 = pair1.faninScmMaterial.revision;
-            final PipelineTimelineEntry.Revision rev2 = pair2.faninScmMaterial.revision;
-            return rev1.date.compareTo(rev2.date);
-        });
-        return materialPairList.get(0);
+    private @NotNull StageIdFaninScmMaterialPair getSmallestScmRevision(Collection<StageIdFaninScmMaterialPair> scmWithDiffVersions) {
+        return scmWithDiffVersions
+            .stream()
+            .min(Comparator.comparing(pair -> pair.faninScmMaterial().revision().date))
+            .orElseThrow(() -> new RuntimeException("Cannot find smallest SCM revision where there are none"));
     }
 
     private List<StageIdFaninScmMaterialPair> buildPipelineIdScmMaterialMap() {
-        List<StageIdFaninScmMaterialPair> stageIdScmPairs = new ArrayList<>();
-        for (FanInNode child : root.children) {
-            if (child instanceof DependencyFanInNode) {
-                stageIdScmPairs.addAll(((DependencyFanInNode) child).getCurrentFaninScmMaterials());
-            }
-        }
-        return stageIdScmPairs;
+        return root.children.stream()
+            .filter(c -> c instanceof DependencyFanInNode)
+            .flatMap(c -> ((DependencyFanInNode) c).getCurrentFaninScmMaterials().stream())
+            .toList();
     }
 
-    private FanInGraphContext buildContext(PipelineTimeline pipelineTimeline) {
-        FanInGraphContext context = new FanInGraphContext();
-        context.revBatchCount = REVISION_BUFFER_SIZE;
-        context.pipelineTimeline = pipelineTimeline;
-        context.fingerprintScmMaterialMap = fingerprintScmMaterialMap;
-        context.pipelineScmDepMap = getPipelineScmDepMap();
-        context.fingerprintDepMaterialMap = fingerprintDepMaterialMap;
-        context.pipelineDao = pipelineDao;
-        context.maxBackTrackLimit = systemEnvironment.get(SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT);
-        return context;
+    private FanInGraphContext contextFor(PipelineTimeline pipelineTimeline) {
+        return new FanInGraphContext(
+            fingerprintScmMaterialMap,
+            pipelineTimeline,
+            getPipelineScmDepMap(),
+            fingerprintDepMaterialMap,
+            pipelineDao,
+            maxBackTrackLimit);
     }
 
     private Collection<MaterialRevision> getMaterialsFromCurrentPipeline(List<MaterialRevision> finalRevisionsForScmChildren, MaterialRevisions actualRevisions) {

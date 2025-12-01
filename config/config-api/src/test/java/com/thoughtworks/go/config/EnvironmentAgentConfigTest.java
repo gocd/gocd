@@ -38,13 +38,12 @@ class EnvironmentAgentConfigTest {
 
     @Test
     void shouldValidateToFalseIfTheUUIDAssociatedWithEnvironmentIsNull() {
-        String uuidThatWillBeValidated = null;
-        EnvironmentAgentConfig envAgentConf = new EnvironmentAgentConfig(uuidThatWillBeValidated);
+        EnvironmentAgentConfig envAgentConf = new EnvironmentAgentConfig(null);
 
         Set<String> setOfUUIDs = new HashSet<>(Set.of("uuid1", "uuid2", "uuid3"));
         boolean isPresent = envAgentConf.validateUuidPresent(new CaseInsensitiveString("env1"), setOfUUIDs);
         assertFalse(isPresent);
-        assertEquals("Environment 'env1' has an invalid agent uuid 'null'", envAgentConf.errors().on(UUID));
+        assertEquals("Environment 'env1' has an invalid agent uuid 'null'", envAgentConf.errors().firstErrorOn(UUID));
     }
 
     @Test
@@ -54,7 +53,7 @@ class EnvironmentAgentConfigTest {
 
         boolean isPresent = envAgentConf.validateUuidPresent(new CaseInsensitiveString("env1"), null);
         assertFalse(isPresent);
-        assertEquals("Environment 'env1' has an invalid agent uuid 'uuid'", envAgentConf.errors().on(UUID));
+        assertEquals("Environment 'env1' has an invalid agent uuid 'uuid'", envAgentConf.errors().firstErrorOn(UUID));
     }
 
     @Test
@@ -64,6 +63,6 @@ class EnvironmentAgentConfigTest {
 
         boolean isPresent = envAgentConf.validateUuidPresent(new CaseInsensitiveString("env1"), emptySet());
         assertFalse(isPresent);
-        assertEquals("Environment 'env1' has an invalid agent uuid 'uuid'", envAgentConf.errors().on(UUID));
+        assertEquals("Environment 'env1' has an invalid agent uuid 'uuid'", envAgentConf.errors().firstErrorOn(UUID));
     }
 }

@@ -255,7 +255,7 @@ class EnvironmentsConfigTest {
             assertThat(envsConfig.get(0).errors().isEmpty()).isTrue();
             ConfigErrors configErrors = envsConfig.get(1).errors();
             assertThat(configErrors.isEmpty()).isFalse();
-            assertThat(configErrors.on("name")).isEqualTo("Environment with name 'prod' already exists.");
+            assertThat(configErrors.firstErrorOn("name")).isEqualTo("Environment with name 'prod' already exists.");
         }
 
         @Test
@@ -270,7 +270,7 @@ class EnvironmentsConfigTest {
 
             ConfigErrors configErrors = envsConfig.get(0).errors();
             assertThat(configErrors.isEmpty()).isFalse();
-            assertThat(configErrors.on("pipeline")).isEqualTo("Environment 'prod' refers to an unknown pipeline 'non-existent-pipeline'.");
+            assertThat(configErrors.firstErrorOn("pipeline")).isEqualTo("Environment 'prod' refers to an unknown pipeline 'non-existent-pipeline'.");
         }
 
         @Test
@@ -290,7 +290,7 @@ class EnvironmentsConfigTest {
             assertThat(envsConfig.get(0).errors().isEmpty()).isTrue();
             ConfigErrors configErrors = envsConfig.get(1).errors();
             assertThat(configErrors.isEmpty()).isFalse();
-            assertThat(configErrors.on("pipeline")).isEqualTo("Associating pipeline(s) which is already part of prod environment");
+            assertThat(configErrors.firstErrorOn("pipeline")).isEqualTo("Associating pipeline(s) which is already part of prod environment");
         }
 
     }
@@ -331,7 +331,7 @@ class EnvironmentsConfigTest {
             ConfigErrors errors = envsConfig.errors();
             assertThat(errors.isEmpty()).isFalse();
             assertThat(errors.size()).isEqualTo(1);
-            assertThat(errors.on("field-name")).isEqualTo("some error message");
+            assertThat(errors.firstErrorOn("field-name")).isEqualTo("some error message");
         }
 
         @Test

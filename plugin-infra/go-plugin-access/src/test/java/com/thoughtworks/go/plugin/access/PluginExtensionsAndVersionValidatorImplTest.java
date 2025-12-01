@@ -68,8 +68,9 @@ class PluginExtensionsAndVersionValidatorImplTest {
         final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Map.of("some-invalid-extension", List.of("2.0")));
 
         assertThat(validationResult.isAFailure()).isTrue();
-        assertThat(validationResult.getMessage()).isEqualTo("Extension incompatibility detected between plugin(Some-Plugin-Id) and GoCD:\n" +
-                "  Extension(s) [some-invalid-extension] used by the plugin is not supported. GoCD Supported extensions are [authorization, elastic-agent].");
+        assertThat(validationResult.getMessage()).isEqualTo("""
+            Extension incompatibility detected between plugin(Some-Plugin-Id) and GoCD:
+              Extension(s) [some-invalid-extension] used by the plugin is not supported. GoCD Supported extensions are [authorization, elastic-agent].""");
     }
 
     @Test
@@ -78,8 +79,9 @@ class PluginExtensionsAndVersionValidatorImplTest {
 
         assertThat(validationResult.isAFailure()).isTrue();
         assertThat(validationResult.getMessage())
-                .isEqualTo("Extension incompatibility detected between plugin(Some-Plugin-Id) and GoCD:\n" +
-                        "  Expected elastic-agent extension version(s) [3.0] by plugin is unsupported. GoCD Supported versions are [1.0, 2.0].");
+                .isEqualTo("""
+                    Extension incompatibility detected between plugin(Some-Plugin-Id) and GoCD:
+                      Expected elastic-agent extension version(s) [3.0] by plugin is unsupported. GoCD Supported versions are [1.0, 2.0].""");
     }
 
     @Test

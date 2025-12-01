@@ -70,8 +70,6 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.join;
 import static spark.Spark.*;
 
 @SuppressWarnings("ALL")
@@ -176,7 +174,7 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
                     req.getAgentConfigState(),
                     environmentConfigService
             );
-            result.setMessage("Updated agent(s) with uuid(s): [" + join(req.getUuids(), ", ") + "].");
+            result.setMessage("Updated agent(s) with uuid(s): [" + String.join(", ", req.getUuids()) + "].");
         } catch (HttpException e) {
             throw e;
         } catch (Exception e) {
@@ -203,7 +201,7 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
             return null;
         }
 
-        if (isBlank(commaSeparatedEnvs)) {
+        if (commaSeparatedEnvs.isBlank()) {
             return new EnvironmentsConfig();
         }
 
@@ -303,7 +301,7 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
         if (commaSeparatedEnvs == null) {
             return commaSeparatedEnvs;
         }
-        if (isBlank(commaSeparatedEnvs)) {
+        if (commaSeparatedEnvs.isBlank()) {
             return commaSeparatedEnvs.trim();
         }
         List<String> filteredEnvs = commaSeparatedStrToList(commaSeparatedEnvs).stream()

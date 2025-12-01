@@ -15,14 +15,19 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 
+import static java.util.stream.Collectors.toCollection;
+
 
 public class Stages extends BaseCollection<Stage> implements StageContainer {
 
-    public static final Comparator<Stage> STAGE_COMPARATOR = Comparator.comparingInt(Stage::getOrderId);
+    private static final Comparator<Stage> STAGE_COMPARATOR = Comparator.comparingInt(Stage::getOrderId);
 
     public Stages() {
         super();
@@ -38,71 +43,48 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
 
     @Override
     public boolean hasStage(String stageName) {
-        for (Stage stage : this) {
-            if (stage.getName().equalsIgnoreCase(stageName)) {
-                return true;
-            }
-        }
-        return false;
+        return stream().anyMatch(s -> s.getName().equalsIgnoreCase(stageName));
     }
 
     @Override
-    public String nextStageName(String stageName) {
-        this.sort(STAGE_COMPARATOR);
-        int index = indexOf(byName(stageName));
-        if (index > -1 && index < size() - 1) {
-            return get(index + 1).getName();
-        }
-        return null;
+    public @Nullable String nextStageName(String stageName) {
+        this.sort(STAGE_COMPARATOR); // This mutates the collection; bit strange but kept for backward compatibility
+        return stream()
+            .dropWhile(s -> !stageName.equals(s.getName()))
+            .skip(1)
+            .findFirst()
+            .map(Stage::getName)
+            .orElse(null);
     }
 
-    public Stage byName(String name) {
-        for (Stage stage : this) {
-            if (name.equals(stage.getName())) {
-                return stage;
-            }
-        }
-        return new NullStage(name, new JobInstances());
+    public @NotNull Stage byName(String name) {
+        return stream()
+            .filter(s -> name.equals(s.getName()))
+            .findFirst()
+            .orElseGet(() -> new NullStage(name, new JobInstances()));
     }
 
-    public Stage byId(long stageId) {
-        for (Stage stage : this) {
-            if (stageId == stage.getId()) {
-                return stage;
-            }
-        }
-        throw new RuntimeException("Could not load stage with id " + stageId);
+    public @NotNull Stage byId(long stageId) {
+        return stream()
+            .filter(stage -> stage.getId() == stageId)
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Could not load stage with id " + stageId));
     }
 
     public boolean isAnyStageActive() {
-        for (Stage stage : this) {
-            if (stage.stageState().isActive()) {
-                return true;
-            }
-        }
-        return false;
+        return stream().anyMatch(s -> s.stageState().isActive());
     }
 
-    public Stage byCounter(int counter) {
-        for (Stage stage : this) {
-            if (stage.getCounter() == counter) {
-                return stage;
-            }
-        }
-        throw new RuntimeException(
-            "Cannot find a stage with counter '" + counter + "'."
-                + " Actual stages are: " + this.toString());
+    public @NotNull Stage byCounter(int counter) {
+        return stream()
+            .filter(stage -> stage.getCounter() == counter)
+            .findFirst()
+            .orElseThrow((() -> new RuntimeException("Cannot find a stage with counter '" + counter + "'. Actual stages are: " + this)));
     }
-
 
     public Stages latestStagesInRunOrder() {
-        Stages latestRunStages = new Stages();
-        for (Stage stage : this) {
-            if (stage.isLatestRun()) {
-                latestRunStages.add(stage);
-            }
-        }
-        latestRunStages.sort(Comparator.comparingInt(Stage::getOrderId));
-        return latestRunStages;
+        return stream().filter(Stage::isLatestRun)
+            .sorted(Comparator.comparingInt(Stage::getOrderId))
+            .collect(toCollection(Stages::new));
     }
 }

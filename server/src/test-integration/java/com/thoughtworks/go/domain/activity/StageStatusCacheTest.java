@@ -46,7 +46,7 @@ import static org.mockito.Mockito.*;
         "classpath:/spring-all-servlet.xml",
 })
 public class StageStatusCacheTest {
-    private static final GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private StageStatusCache stageStatusCache;
@@ -58,18 +58,14 @@ public class StageStatusCacheTest {
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
-        dbHelper.onSetUp();
-        configFileHelper.onSetUp();
-        GoConfigFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
-        configFileHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
     }
 
     @AfterEach
     public void teardown() throws Exception {
-        dbHelper.onTearDown();
         pipelineFixture.onTearDown();
     }
 

@@ -62,13 +62,12 @@ public class PipelineConfigsServiceIntegrationTest {
     private RoleConfigService roleConfigService;
     @Autowired
     private GoConfigDao goConfigDao;
-    private String xml;
     private GoConfigFileHelper configHelper;
 
     @BeforeEach
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper();
-        xml = goConfigMigration.upgradeIfNecessary(TestFileUtil.resourceToString("/data/config_with_pluggable_artifacts_store.xml"));
+        String xml = goConfigMigration.upgradeIfNecessary(TestFileUtil.resourceToString("/data/config_with_pluggable_artifacts_store.xml"));
         setupMetadataForPlugin();
 
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -79,28 +78,29 @@ public class PipelineConfigsServiceIntegrationTest {
 
     @AfterEach
     public void tearDown() {
+        configHelper.onTearDown();
         ArtifactMetadataStore.instance().clear();
     }
 
     @Test
     public void shouldEncryptPluginPropertiesOfPublishTask() throws Exception {
         pipelineConfigsService.updateXml("first",
-                groupSnippetWithSecurePropertiesBeforeEncryption(), goConfigService.configFileMd5(),
+                groupSnippetWithSecurePropertiesBeforeEncryption(), configHelper.currentConfig().getMd5(),
                 new Username("user"), new HttpLocalizedOperationResult());
 
 
         PipelineConfig ancestor = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"));
-        Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = ancestor
+        Configuration ancestorPluggablePublishArtifactConfigAfterEncryption = ancestor
                 .getExternalArtifactConfigs().get(0).getConfiguration();
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("SECRET");
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).startsWith("AES:");
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue()).isNull();
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("SECRET");
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).startsWith("AES:");
+        assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getConfigValue()).isNull();
     }
 
     @Test
     public void shouldEncryptPluginPropertiesOfFetchTask() throws Exception {
         pipelineConfigsService.updateXml("first",
-                groupSnippetWithSecurePropertiesBeforeEncryption(), goConfigService.configFileMd5(),
+                groupSnippetWithSecurePropertiesBeforeEncryption(), configHelper.currentConfig().getMd5(),
                 new Username("user"), new HttpLocalizedOperationResult());
 
 

@@ -76,7 +76,7 @@ public class StageSummaryModel {
         return getIdentifier().getPipelineCounter();
     }
 
-    public long getPipelineId() {
+    public Long getPipelineId() {
         return stage.getPipelineId();
     }
 

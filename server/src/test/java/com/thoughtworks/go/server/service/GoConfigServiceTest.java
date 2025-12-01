@@ -39,7 +39,6 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
@@ -61,6 +60,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
+import static com.thoughtworks.go.helper.EnvironmentVariablesConfigMother.env;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static java.lang.String.format;
@@ -107,15 +107,15 @@ public class GoConfigServiceTest {
         final PipelineConfigs newPipeline = new BasicPipelineConfigs();
 
         PipelineConfig otherPipeline = createPipelineConfig("pipeline_other", "stage_other", "plan_other");
-        otherPipeline.setVariables(GoConfigFileHelper.env("OTHER_PIPELINE_LEVEL", "other pipeline"));
-        otherPipeline.first().setVariables(GoConfigFileHelper.env("OTHER_STAGE_LEVEL", "other stage"));
-        otherPipeline.first().jobConfigByConfigName(new CaseInsensitiveString("plan_other")).setVariables(GoConfigFileHelper.env("OTHER_JOB_LEVEL", "other job"));
+        otherPipeline.setVariables(env("OTHER_PIPELINE_LEVEL", "other pipeline"));
+        otherPipeline.first().setVariables(env("OTHER_STAGE_LEVEL", "other stage"));
+        otherPipeline.first().jobConfigByConfigName(new CaseInsensitiveString("plan_other")).setVariables(env("OTHER_JOB_LEVEL", "other job"));
 
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
-        pipelineConfig.setVariables(GoConfigFileHelper.env("PIPELINE_LEVEL", "pipeline value"));
+        pipelineConfig.setVariables(env("PIPELINE_LEVEL", "pipeline value"));
         StageConfig stageConfig = pipelineConfig.first();
-        stageConfig.setVariables(GoConfigFileHelper.env("STAGE_LEVEL", "stage value"));
-        stageConfig.jobConfigByConfigName(new CaseInsensitiveString("plan")).setVariables(GoConfigFileHelper.env("JOB_LEVEL", "job value"));
+        stageConfig.setVariables(env("STAGE_LEVEL", "stage value"));
+        stageConfig.jobConfigByConfigName(new CaseInsensitiveString("plan")).setVariables(env("JOB_LEVEL", "job value"));
 
         newPipeline.add(pipelineConfig);
         newPipeline.add(otherPipeline);
@@ -144,7 +144,7 @@ public class GoConfigServiceTest {
     }
 
     private void expectLoad(final CruiseConfig result) {
-        when(goConfigDao.load()).thenReturn(result);
+        when(goConfigDao.currentConfig()).thenReturn(result);
     }
 
     private void expectLoadForEditing(final CruiseConfig result) {
@@ -273,7 +273,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnvariablesForAPipeline() {
+    public void shouldReturnVariablesForAPipeline() {
         EnvironmentConfig env = cruiseConfig.addEnvironment("environment");
         env.addEnvironmentVariable("foo", "env-fooValue");
         env.addEnvironmentVariable("bar", "env-barValue");
@@ -291,7 +291,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnvariablesForAPipelineNotInAnEnvironment() {
+    public void shouldReturnVariablesForAPipelineNotInAnEnvironment() {
         PipelineConfig pipeline = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE));
         pipeline.addEnvironmentVariable("foo", "pipeline-fooValue");
         pipeline.addEnvironmentVariable("blah", "pipeline-blahValue");
@@ -453,7 +453,7 @@ public class GoConfigServiceTest {
         SvnMaterialConfig svnMaterialConfig = svn("repo", null, null, false);
         svnMaterialConfig.setName(new CaseInsensitiveString("foo"));
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(svnMaterialConfig));
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
+        when(goConfigDao.currentConfig()).thenReturn(cruiseConfig);
 
         assertThat(goConfigService.findMaterial(new CaseInsensitiveString("pipeline"), svnMaterialConfig.getPipelineUniqueFingerprint())).isEqualTo(svnMaterialConfig);
         assertThat(goConfigService.findMaterial(new CaseInsensitiveString("piPelIne"), svnMaterialConfig.getPipelineUniqueFingerprint())).isEqualTo(svnMaterialConfig);
@@ -463,7 +463,7 @@ public class GoConfigServiceTest {
     public void shouldReturnNullIfNoMaterialMatches() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("upstream-stage"));
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(dependencyMaterialConfig));
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
+        when(goConfigDao.currentConfig()).thenReturn(cruiseConfig);
 
         assertThat(goConfigService.findMaterial(new CaseInsensitiveString("pipeline"), "missing")).isNull();
     }
@@ -472,7 +472,7 @@ public class GoConfigServiceTest {
     public void shouldFindMaterialConfigBasedOnFingerprint() {
         SvnMaterialConfig expected = svn("repo", null, null, false);
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(expected));
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
+        when(goConfigDao.currentConfig()).thenReturn(cruiseConfig);
 
         MaterialConfig actual = goConfigService.materialForPipelineWithFingerprint("pipeline", expected.getFingerprint());
         assertThat(actual).isEqualTo(expected);
@@ -482,7 +482,7 @@ public class GoConfigServiceTest {
     public void shouldThrowExceptionWhenUnableToFindMaterialBasedOnFingerprint() {
         SvnMaterialConfig svnMaterialConfig = svn("repo", null, null, false);
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(svnMaterialConfig));
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
+        when(goConfigDao.currentConfig()).thenReturn(cruiseConfig);
 
         try {
             goConfigService.materialForPipelineWithFingerprint("pipeline", "bad-fingerprint");
@@ -499,7 +499,7 @@ public class GoConfigServiceTest {
         PipelineConfig up1 = GoConfigMother.createPipelineConfigWithMaterialConfig("up1", new DependencyMaterialConfig(new CaseInsensitiveString("uppest"), new CaseInsensitiveString("first")));
         PipelineConfig up2 = GoConfigMother.createPipelineConfigWithMaterialConfig("up2", new DependencyMaterialConfig(new CaseInsensitiveString("uppest"), new CaseInsensitiveString("first")));
         PipelineConfig uppest = GoConfigMother.createPipelineConfigWithMaterialConfig("uppest", MaterialConfigsMother.hgMaterialConfig());
-        when(goConfigDao.load()).thenReturn(configWith(current, up1, up2, uppest));
+        when(goConfigDao.currentConfig()).thenReturn(configWith(current, up1, up2, uppest));
         assertThat(goConfigService.upstreamDependencyGraphOf("current")).isEqualTo(
                 new PipelineConfigDependencyGraph(current,
                         new PipelineConfigDependencyGraph(up1, new PipelineConfigDependencyGraph(uppest)),
@@ -526,7 +526,7 @@ public class GoConfigServiceTest {
     @Test
     public void shouldRegisterBaseUrlChangeListener() {
         CruiseConfig cruiseConfig = new GoConfigMother().cruiseConfigWithOnePipelineGroup();
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
+        when(goConfigDao.currentConfig()).thenReturn(cruiseConfig);
         goConfigService.initialize();
         verify(goConfigDao).registerListener(any(BaseUrlChangeListener.class));
     }
@@ -558,7 +558,7 @@ public class GoConfigServiceTest {
         CruiseConfig config = mock(BasicCruiseConfig.class);
         when(config.pipelineConfigByName(new CaseInsensitiveString("foo-pipeline"))).thenReturn(pipelineConfig);
         when(config.getMd5()).thenReturn(md5);
-        when(goConfigDao.load()).thenReturn(config);
+        when(goConfigDao.currentConfig()).thenReturn(config);
 
         goConfigService.scheduleStage("foo-pipeline", "foo-stage", schedulingContext);
 
@@ -613,7 +613,6 @@ public class GoConfigServiceTest {
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
 
         GoConfigService.XmlPartialSaver<?>partialSaver = goConfigService.groupSaver(groupName);
         String renamedGroupName = "renamed_group_name";
@@ -643,7 +642,6 @@ public class GoConfigServiceTest {
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group_name", "pipeline1", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn("md5");
         when(goConfigDao.updateFullConfig(commandArgumentCaptor.capture())).thenReturn(null);
 
         GoConfigService.XmlPartialSaver<?>partialSaver = goConfigService.groupSaver("group_name");
@@ -668,7 +666,6 @@ public class GoConfigServiceTest {
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
         when(goConfigDao.updateFullConfig(commandArgumentCaptor.capture())).thenReturn(null);
 
         GoConfigService.XmlPartialSaver<?> partialSaver = goConfigService.groupSaver(groupName);
@@ -690,12 +687,10 @@ public class GoConfigServiceTest {
     @Test
     public void shouldReturnInvalidWhenPipelineGroupPartialIsInvalid() {
         String groupName = "group_name";
-        String md5 = "md5";
         cruiseConfig = new BasicCruiseConfig();
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
 
         String pipelineGroupContent = groupXmlWithInvalidElement(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
@@ -707,12 +702,10 @@ public class GoConfigServiceTest {
     @Test
     public void shouldReturnInvalidWhenPipelineGroupPartialHasInvalidAttributeValue() {
         String groupName = "group_name";
-        String md5 = "md5";
         cruiseConfig = new BasicCruiseConfig();
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
 
         String pipelineGroupContent = groupXmlWithInvalidAttributeValue(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
@@ -729,7 +722,6 @@ public class GoConfigServiceTest {
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
 
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml("<foobar>", "md5");
         assertThat(validity.isValid()).isEqualTo((false));
@@ -764,15 +756,6 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingServerConfig() {
-        ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
-        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.any())).thenReturn(expectedSaveState);
-        ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()), "md5", null, null, null, null, "http://site",
-                "https://site");
-        assertThat(configSaveState).isEqualTo(expectedSaveState);
-    }
-
-    @Test
     public void pipelineEditableViaUI_shouldReturnFalseWhenPipelineIsRemote() {
         PipelineConfigs group = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
@@ -796,7 +779,7 @@ public class GoConfigServiceTest {
         final Username user = new Username(new CaseInsensitiveString("user"));
         expectLoad(mock(BasicCruiseConfig.class));
         goConfigService.isAdministrator(user.getUsername());
-        verify(goConfigDao.load()).isAdministrator(user.getUsername().toString());
+        verify(goConfigDao.currentConfig()).isAdministrator(user.getUsername().toString());
     }
 
     @Test

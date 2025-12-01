@@ -18,13 +18,11 @@ package com.thoughtworks.go.server.service.materials;
 import com.thoughtworks.go.config.CachedGoPartials;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -37,8 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -90,8 +86,7 @@ public class PackageDefinitionServiceIntegrationTest {
             cruiseConfig.setPackageRepositories(new PackageRepositories(npmRepo));
             return cruiseConfig;
         });
-        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(List.of(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
-        goConfigService.updateConfig(command);
+        configHelper.addAdmins(user.getUsername().toString());
     }
 
     @AfterEach

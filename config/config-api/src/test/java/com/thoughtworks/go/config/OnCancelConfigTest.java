@@ -47,7 +47,7 @@ public class OnCancelConfigTest {
     public void shouldAddErrorOnErrorCollection() {
         OnCancelConfig onCancelConfig = new OnCancelConfig();
         onCancelConfig.addError("key", "some error");
-        assertThat(onCancelConfig.errors().on("key")).isEqualTo("some error");
+        assertThat(onCancelConfig.errors().firstErrorOn("key")).isEqualTo("some error");
     }
 
     @Test

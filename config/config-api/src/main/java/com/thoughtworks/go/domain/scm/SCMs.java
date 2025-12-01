@@ -41,16 +41,15 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
     }
 
     public boolean canAdd(final SCM scm) {
-        return findDuplicate(scm) == null &&
-                findByName(scm.getName()) == null;
+        return findDuplicate(scm) == null && findByName(scm.getName()) == null;
     }
 
     public SCM findDuplicate(final SCM scm) {
-         if (find(scm.getSCMId()) != null) {
-             return find(scm.getSCMId());
-         } else if (findByFingerprint(scm.getFingerprint()) != null) {
-             return findByFingerprint(scm.getFingerprint());
-         }
+        if (find(scm.getSCMId()) != null) {
+            return find(scm.getSCMId());
+        } else if (findByFingerprint(scm.getFingerprint()) != null) {
+            return findByFingerprint(scm.getFingerprint());
+        }
         return null;
     }
 
@@ -91,10 +90,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
 
         for (SCM scm : this) {
             String name = scm.getName().toLowerCase();
-            if (!map.containsKey(name)) {
-                map.put(name, new SCMs());
-            }
-            map.get(name).add(scm);
+            map.computeIfAbsent(name, k -> new SCMs()).add(scm);
         }
 
         for (String name : map.keySet()) {
@@ -111,12 +107,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
         Map<String, SCMs> map = new HashMap<>();
 
         for (SCM scm : this) {
-            String fingerprint = scm.getFingerprint();
-            if (!map.containsKey(fingerprint)) {
-                map.put(fingerprint, new SCMs());
-            }
-
-            map.get(fingerprint).add(scm);
+            map.computeIfAbsent(scm.getFingerprint(), k -> new SCMs()).add(scm);
         }
 
         for (String fingerprint : map.keySet()) {

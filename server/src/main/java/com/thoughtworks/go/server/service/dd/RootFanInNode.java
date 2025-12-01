@@ -20,19 +20,18 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 import java.util.Set;
 
-public class RootFanInNode extends FanInNode {
+class RootFanInNode extends FanInNode<MaterialConfig> {
     PipelineTimelineEntry.Revision scmRevision;
 
     RootFanInNode(MaterialConfig material) {
         super(material);
     }
 
-    public void setScmRevision(Set<FaninScmMaterial> allScmMaterials) {
-        for (FaninScmMaterial scmMaterial : allScmMaterials) {
-            if (materialConfig.getFingerprint().equals(scmMaterial.fingerprint)) {
-                scmRevision = scmMaterial.revision;
-                break;
-            }
-        }
+    void setScmRevision(Set<FaninScmMaterial> allScmMaterials) {
+        allScmMaterials.stream()
+            .filter(scmMaterial -> materialConfig.getFingerprint().equals(scmMaterial.fingerprint()))
+            .findFirst()
+            .map(FaninScmMaterial::revision)
+            .ifPresent(rev -> scmRevision = rev);
     }
 }

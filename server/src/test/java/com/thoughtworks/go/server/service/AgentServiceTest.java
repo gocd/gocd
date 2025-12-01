@@ -540,7 +540,7 @@ class AgentServiceTest {
 
                     Agent agent = agentInstance.getAgent();
                     assertTrue(agent.hasErrors());
-                    assertThat(agent.errors().on(JobConfig.RESOURCES)).isEqualTo("Resource name 'res%^1' is not valid. Valid names much match '^[-\\w\\s|.]*$'");
+                    assertThat(agent.errors().firstErrorOn(JobConfig.RESOURCES)).isEqualTo("Resource name 'res%^1' is not valid. Valid names much match '^[-\\w\\s|.]*$'");
                 }
             }
         }

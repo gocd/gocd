@@ -21,7 +21,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
@@ -31,18 +30,6 @@ public class AdminService {
     @Autowired
     public AdminService(GoConfigService goConfigService) {
         this.goConfigService = goConfigService;
-    }
-
-
-    public Map<String, Object> configurationJsonForSourceXml() {
-        Map<String, Object> json = new LinkedHashMap<>();
-        Map<String, Object> configJson = new LinkedHashMap<>();
-        GoConfigService.XmlPartialSaver<CruiseConfig> saver = goConfigService.fileSaver(false);
-        configJson.put("location", goConfigService.fileLocation());
-        configJson.put("content", saver.asXml());
-        configJson.put("md5", saver.getMd5());
-        json.put("config", configJson);
-        return json;
     }
 
     public GoConfigValidity updateConfig(Map<String, ?> attributes, HttpLocalizedOperationResult result) {

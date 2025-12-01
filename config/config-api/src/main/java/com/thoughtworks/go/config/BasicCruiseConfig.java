@@ -1256,17 +1256,12 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         for (PipelineConfig currentPipeline : pipelineConfigs) {
             CaseInsensitiveString currentPipelineName = currentPipeline.name();
-            if (!result.containsKey(currentPipelineName)) {
-                result.put(currentPipelineName, new ArrayList<>());
-            }
+            result.computeIfAbsent(currentPipelineName, k -> new ArrayList<>());
 
             for (MaterialConfig materialConfig : currentPipeline.materialConfigs()) {
                 if (materialConfig instanceof DependencyMaterialConfig) {
                     CaseInsensitiveString pipelineWhichTriggersMe = ((DependencyMaterialConfig) materialConfig).getPipelineName();
-                    if (!result.containsKey(pipelineWhichTriggersMe)) {
-                        result.put(pipelineWhichTriggersMe, new ArrayList<>());
-                    }
-                    result.get(pipelineWhichTriggersMe).add(currentPipeline);
+                    result.computeIfAbsent(pipelineWhichTriggersMe, k -> new ArrayList<>()).add(currentPipeline);
                 }
             }
         }
@@ -1278,9 +1273,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (allTemplatesWithAssociatedPipelines == null) {
             allTemplatesWithAssociatedPipelines = new AllTemplatesWithAssociatedPipelines();
             for (PipelineTemplateConfig templateConfig : getTemplates()) {
-                if (!allTemplatesWithAssociatedPipelines.containsKey(templateConfig.name())) {
-                    allTemplatesWithAssociatedPipelines.put(templateConfig.name(), new HashMap<>());
-                }
+                allTemplatesWithAssociatedPipelines.computeIfAbsent(templateConfig.name(), k -> new HashMap<>());
             }
 
             for (PipelineConfigs pipelineConfigs : getGroups()) {

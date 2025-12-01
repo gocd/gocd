@@ -62,14 +62,14 @@ public class PipelinePauseServiceTest {
     private void setUpValidPipelineWithAuth() {
         Authorization authorization = new Authorization(new OperationConfig(new AdminUser(VALID_USER.getUsername())));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("my_group", authorization, PipelineConfigMother.pipelineConfig(VALID_PIPELINE)));
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
+        when(goConfigDao.currentConfig()).thenReturn(cruiseConfig);
         when(securityService.hasOperatePermissionForGroup(eq(VALID_USER.getUsername()), any(String.class))).thenReturn(true);
     }
 
     private void setUpValidPipelineWithInvalidAuth() {
         Authorization authorization = new Authorization(new OperationConfig(new AdminUser(INVALID_USER.getUsername())));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("my_group", authorization, PipelineConfigMother.pipelineConfig(VALID_PIPELINE)));
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
+        when(goConfigDao.currentConfig()).thenReturn(cruiseConfig);
         when(securityService.hasOperatePermissionForGroup(eq(INVALID_USER.getUsername()), any(String.class))).thenReturn(false);
     }
 
@@ -119,7 +119,7 @@ public class PipelinePauseServiceTest {
     @Test
     public void shouldPopulateHttpResult404WhenPipelineIsNotFoundForPause() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(goConfigDao.load()).thenReturn(new BasicCruiseConfig());
+        when(goConfigDao.currentConfig()).thenReturn(new BasicCruiseConfig());
 
         pipelinePauseService.pause(INVALID_PIPELINE, "cause", VALID_USER, result);
 
@@ -131,7 +131,7 @@ public class PipelinePauseServiceTest {
     @Test
     public void shouldPopulateHttpResult404WhenPipelineIsNotFoundForUnpause() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(goConfigDao.load()).thenReturn(new BasicCruiseConfig());
+        when(goConfigDao.currentConfig()).thenReturn(new BasicCruiseConfig());
 
         pipelinePauseService.unpause(INVALID_PIPELINE, VALID_USER, result);
 

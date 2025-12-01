@@ -87,8 +87,9 @@ public class GoConfigClassLoaderTest {
 
         assertThatThrownBy(loader::parse)
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Unable to determine type to generate. Type: com.thoughtworks.go.config.parser.ConfigWithAttributeAwareConfigTagAnnotation Element: \n" +
-                        "\t<example type=\"foo-bar\" />");
+                .hasMessageContaining("""
+                    Unable to determine type to generate. Type: com.thoughtworks.go.config.parser.ConfigWithAttributeAwareConfigTagAnnotation Element:\s
+                    \t<example type="foo-bar" />""");
     }
 
     @Test

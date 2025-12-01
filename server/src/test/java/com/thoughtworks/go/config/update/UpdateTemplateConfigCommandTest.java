@@ -274,7 +274,7 @@ class UpdateTemplateConfigCommandTest {
 
             assertThat(command.isValid(preprocessedConfig)).isFalse();
             assertThat(template.errors().isEmpty()).isFalse();
-            assertThat(template.errors().on("name")).isEqualTo("Error when processing params for 'a#' used in field 'name'," +
+            assertThat(template.errors().firstErrorOn("name")).isEqualTo("Error when processing params for 'a#' used in field 'name'," +
                     " # must be followed by a parameter pattern or escaped by another #");
         }
     }

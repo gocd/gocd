@@ -155,12 +155,12 @@ public class TfsMaterialTest {
 
     @Test
     void shouldBePasswordAware() {
-        assertThat(PasswordAwareMaterial.class.isAssignableFrom(TfsMaterial.class)).isTrue();
+        assertThat(PasswordAwareMaterial.class).isAssignableFrom(TfsMaterial.class);
     }
 
     @Test
     void shouldBePasswordEncrypter() {
-        assertThat(PasswordEncrypter.class.isAssignableFrom(TfsMaterial.class)).isTrue();
+        assertThat(PasswordEncrypter.class).isAssignableFrom(TfsMaterial.class);
     }
 
     @Test

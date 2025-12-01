@@ -52,11 +52,12 @@ public class EnvironmentVariableContext implements Serializable, SecretParamAwar
     }
 
     public static class EnvironmentVariable implements Serializable, SecretParamAware {
+        public static final String MASK_VALUE = "********";
+
         private final String name;
         private final String value;
         private final boolean secure;
-        public static final String MASK_VALUE = "********";
-        private SecretParams secretParams;
+        private final SecretParams secretParams;
 
         EnvironmentVariable() {
             this(null, null, false);
@@ -69,7 +70,7 @@ public class EnvironmentVariableContext implements Serializable, SecretParamAwar
         public EnvironmentVariable(String name, String value, boolean secure) {
             this.name = name;
             this.value = value;
-            secretParams = SecretParams.parse(this.value);
+            this.secretParams = SecretParams.parse(this.value);
             this.secure = secure || secretParams.hasSecretParams();
         }
 
@@ -109,11 +110,7 @@ public class EnvironmentVariableContext implements Serializable, SecretParamAwar
             if (!name.equals(that.name)) {
                 return false;
             }
-            if (!value.equals(that.value)) {
-                return false;
-            }
-
-            return true;
+            return value.equals(that.value);
         }
 
         @Override
@@ -163,14 +160,6 @@ public class EnvironmentVariableContext implements Serializable, SecretParamAwar
             return environmentVariable.value();
         }
         return null;
-    }
-
-    public List<String> getPropertyKeys() {
-        List<String> keys = new ArrayList<>(properties.size());
-        for (EnvironmentVariable property : properties) {
-            keys.add(property.name());
-        }
-        return keys;
     }
 
     public List<EnvironmentVariable> getSecureEnvironmentVariables() {
@@ -256,20 +245,12 @@ public class EnvironmentVariableContext implements Serializable, SecretParamAwar
             return false;
         }
 
-        return equals((EnvironmentVariableContext) that);
-    }
-
-    private boolean equals(EnvironmentVariableContext that) {
-        if (!this.properties.equals(that.properties)) {
-            return false;
-        }
-
-        return true;
+        return this.properties.equals(((EnvironmentVariableContext) that).properties);
     }
 
     @Override
     public int hashCode() {
-        return properties != null ? properties.hashCode() : 0;
+        return properties.hashCode();
     }
 
     public List<String> report(Collection<String> predefinedEnvs) {

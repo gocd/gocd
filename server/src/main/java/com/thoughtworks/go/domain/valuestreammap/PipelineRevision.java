@@ -19,9 +19,11 @@ import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.Stages;
 
+import java.util.Objects;
+
 public class PipelineRevision implements Revision {
-    private Stages stages = new Stages();
-    private PipelineIdentifier pipelineIdentifier;
+    private final Stages stages = new Stages();
+    private final PipelineIdentifier pipelineIdentifier;
 
     public PipelineRevision(String pipelineName, Integer pipelineCounter, String pipelineLabel) {
         this(new PipelineIdentifier(pipelineName, pipelineCounter, pipelineLabel));
@@ -67,11 +69,7 @@ public class PipelineRevision implements Revision {
 
         PipelineRevision that = (PipelineRevision) o;
 
-        if (pipelineIdentifier != null ? !pipelineIdentifier.equals(that.pipelineIdentifier) : that.pipelineIdentifier != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(pipelineIdentifier, that.pipelineIdentifier);
     }
 
     @Override
@@ -90,9 +88,5 @@ public class PipelineRevision implements Revision {
 
     public void addStages(Stages stages) {
         this.stages.addAll(stages);
-    }
-
-    public int compareTo(PipelineRevision other) {
-        return other.getCounter().compareTo(this.getCounter());
     }
 }

@@ -52,20 +52,12 @@ public class Node {
         if (this.getClass() != that.getClass()) {
             return false;
         }
-        return equals((Node) that);
-    }
-
-    private boolean equals(Node that) {
-        return dependencies.equals(that.dependencies);
+        return dependencies.equals(((Node) that).dependencies);
     }
 
     @Override
     public String toString() {
         return "<Node: " + dependencies.toString() + ">";
-    }
-
-    public boolean hasDependency(final CaseInsensitiveString pipelineName) {
-        return dependencies.stream().anyMatch(item -> item.getPipelineName().equals(pipelineName));
     }
 
     public Optional<DependencyNode> getDependency(final CaseInsensitiveString pipelineName) {

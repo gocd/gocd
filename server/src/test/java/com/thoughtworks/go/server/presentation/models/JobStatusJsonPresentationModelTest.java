@@ -45,16 +45,16 @@ public class JobStatusJsonPresentationModelTest {
         final Agent agent = new Agent("1234", "localhost", "1234", "cookie");
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance,
-                agent, mock(DurationBean.class));
+            agent, mock(DurationBean.class));
         Map<String, Object> json = presenter.toJsonHash();
 
         assertThatJson(JsonHelper.toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
-                {
-                  "name": "test",
-                  "id": "12",
-                  "agent": "localhost",
-                  "current_status": "assigned"
-                }""");
+            {
+              "name": "test",
+              "id": "12",
+              "agent": "localhost",
+              "current_status": "assigned"
+            }""");
     }
 
     @Test
@@ -65,10 +65,10 @@ public class JobStatusJsonPresentationModelTest {
         Map<String, Object> json = presenter.toJsonHash();
 
         assertThatJson(JsonHelper.toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
-                {
-                  "name": "test",
-                  "current_status": "passed"
-                }""");
+            {
+              "name": "test",
+              "current_status": "passed"
+            }""");
     }
 
     @Test
@@ -76,16 +76,16 @@ public class JobStatusJsonPresentationModelTest {
         JobInstance instance = building("test", Date.from(Instant.now().minusSeconds(5)));
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class),
-                new DurationBean(instance.getId(), 10L));
+            new DurationBean(instance.getId(), 10L));
         Map<String, Object> json = presenter.toJsonHash();
 
         assertThatJson(JsonHelper.toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
-                {
-                  "name": "test",
-                  "current_status": "building",
-                  "current_build_duration": "5",
-                  "last_build_duration": "10"
-                }""");
+            {
+              "name": "test",
+              "current_status": "building",
+              "current_build_duration": "5",
+              "last_build_duration": "10"
+            }""");
     }
 
     @Test
@@ -97,7 +97,11 @@ public class JobStatusJsonPresentationModelTest {
         // the Agent object passed to the presenter, as this is the canonical definition of job assignment
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class), mock(DurationBean.class));
 
-        assertThatJson(JsonHelper.toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n  \"agent\": \"Not yet assigned\"\n}");
+        assertThatJson(JsonHelper.toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS)
+            .isEqualTo("""
+                {
+                  "agent": "Not yet assigned"
+                }""");
     }
 
     @Test
@@ -106,12 +110,12 @@ public class JobStatusJsonPresentationModelTest {
         instance.setAgentUuid("1234");
 
         JobStatusJsonPresentationModel presenter =
-                new JobStatusJsonPresentationModel(instance,
-                        new Agent("1234", "localhost", "address", "cookie"), mock(DurationBean.class));
+            new JobStatusJsonPresentationModel(instance,
+                new Agent("1234", "localhost", "address", "cookie"), mock(DurationBean.class));
         assertThatJson(JsonHelper.toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
-                {
-                  "agent": "localhost"
-                }""");
+            {
+              "agent": "localhost"
+            }""");
     }
 
     @Test

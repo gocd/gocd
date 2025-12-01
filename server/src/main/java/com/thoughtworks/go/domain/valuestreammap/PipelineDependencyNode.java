@@ -17,13 +17,13 @@ package com.thoughtworks.go.domain.valuestreammap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class PipelineDependencyNode extends Node {
-    private Set<Revision> revisions = new HashSet<>();
+    private final Set<Revision> revisions = new HashSet<>();
     private String message;
     private boolean canEdit;
     private String templateName;
@@ -40,14 +40,15 @@ public class PipelineDependencyNode extends Node {
     }
 
     private void emptyRevisions() {
-        revisions = new HashSet<>();
+        revisions.clear();
     }
 
     @Override
     public List<Revision> revisions() {
-        List<Revision> revisions = new ArrayList<>(this.revisions);
-        revisions.sort((o1, o2) -> ((PipelineRevision) o1).compareTo((PipelineRevision) o2));
-        return revisions;
+        return this.revisions
+            .stream()
+            .sorted(Comparator.comparingInt(o -> ((PipelineRevision) o).getCounter()).reversed())
+            .toList();
     }
 
     public boolean canEdit() {
@@ -66,12 +67,6 @@ public class PipelineDependencyNode extends Node {
         this.templateName = templateName;
     }
 
-    @Override
-    public void addRevisions(List<Revision> revisions) {
-        this.revisions.addAll(revisions);
-    }
-
-    @Override
     public void setMessage(String message) {
         this.message = message;
     }

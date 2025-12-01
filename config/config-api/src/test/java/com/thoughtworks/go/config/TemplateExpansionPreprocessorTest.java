@@ -53,8 +53,8 @@ public class TemplateExpansionPreprocessorTest {
         pipelineConfig.addStageWithoutValidityAssertion(new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs()));
         preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
         assertThat(pipelineConfig.hasTemplateApplied()).isFalse();
-        assertThat(pipelineConfig.errors().on("stages")).isEqualTo("Cannot add stages to pipeline 'p' which already references template 'template'");
-        assertThat(pipelineConfig.errors().on("template")).isEqualTo("Cannot set template 'template' on pipeline 'p' because it already has stages defined");
+        assertThat(pipelineConfig.errors().firstErrorOn("stages")).isEqualTo("Cannot add stages to pipeline 'p' which already references template 'template'");
+        assertThat(pipelineConfig.errors().firstErrorOn("template")).isEqualTo("Cannot set template 'template' on pipeline 'p' because it already has stages defined");
     }
 
     @Test

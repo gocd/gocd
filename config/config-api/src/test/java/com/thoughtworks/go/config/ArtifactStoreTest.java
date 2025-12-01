@@ -82,8 +82,8 @@ public class ArtifactStoreTest {
 
         store.validate(null);
         assertThat(store.errors().size()).isEqualTo(2);
-        assertThat(store.errors().on(ArtifactStore.PLUGIN_ID)).isEqualTo("Artifact store cannot have a blank plugin id.");
-        assertThat(store.errors().on(ArtifactStore.ID)).isEqualTo("Artifact store cannot have a blank id.");
+        assertThat(store.errors().firstErrorOn(ArtifactStore.PLUGIN_ID)).isEqualTo("Artifact store cannot have a blank plugin id.");
+        assertThat(store.errors().firstErrorOn(ArtifactStore.ID)).isEqualTo("Artifact store cannot have a blank id.");
     }
 
     @Test
@@ -91,7 +91,7 @@ public class ArtifactStoreTest {
         ArtifactStore store = new ArtifactStore("!123", "docker");
         store.validate(null);
         assertThat(store.errors().size()).isEqualTo(1);
-        assertThat(store.errors().on(ArtifactStore.ID)).isEqualTo("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(store.errors().firstErrorOn(ArtifactStore.ID)).isEqualTo("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -107,8 +107,8 @@ public class ArtifactStoreTest {
         assertThat(prop1.errors().size()).isEqualTo(1);
         assertThat(prop2.errors().size()).isEqualTo(1);
 
-        assertThat(prop1.errors().on(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Artifact store 's3.plugin'");
-        assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Artifact store 's3.plugin'");
+        assertThat(prop1.errors().firstErrorOn(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Artifact store 's3.plugin'");
+        assertThat(prop2.errors().firstErrorOn(ConfigurationProperty.CONFIGURATION_KEY)).isEqualTo("Duplicate key 'USERNAME' found for Artifact store 's3.plugin'");
     }
 
     @Test

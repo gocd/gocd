@@ -223,10 +223,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
     }
 
     private void addPipelineIfNotPresent(PipelineConfig pipelineConfig, Map<String, ScheduleCheckState> pipelines) {
-        if (!pipelines.containsKey(CaseInsensitiveString.str(pipelineConfig.name()))) {
-            pipelines.put(CaseInsensitiveString.str(pipelineConfig.name()), ScheduleCheckState.IDLE);
-            LOGGER.debug("[Configuration Changed] Marking new pipeline {} as IDLE", pipelineConfig.name());
-        }
+        pipelines.putIfAbsent(CaseInsensitiveString.str(pipelineConfig.name()), ScheduleCheckState.IDLE);
     }
 
     @Override

@@ -225,7 +225,7 @@ class EnvironmentVariableConfigTest {
             environmentVariableConfig.validate(null);
             ConfigErrors error = environmentVariableConfig.errors();
             assertThat(error.isEmpty()).isFalse();
-            assertThat(error.on(EnvironmentVariableConfig.VALUE)).isEqualTo("Encrypted value for variable named 'secure_key' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
+            assertThat(error.firstErrorOn(EnvironmentVariableConfig.VALUE)).isEqualTo("Encrypted value for variable named 'secure_key' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
         }
 
         @Test

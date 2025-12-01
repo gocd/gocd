@@ -54,11 +54,11 @@ public class TrackingToolTest {
     public void shouldPopulateErrorsWhenOnlyLinkOrOnlyRegexIsSpecified() {
         trackingTool = new TrackingTool("link", "");
         trackingTool.validate(null);
-        assertThat(trackingTool.errors().on(TrackingTool.REGEX)).isEqualTo("Regex should be populated");
+        assertThat(trackingTool.errors().firstErrorOn(TrackingTool.REGEX)).isEqualTo("Regex should be populated");
 
         trackingTool = new TrackingTool("", "regex");
         trackingTool.validate(null);
-        assertThat(trackingTool.errors().on(TrackingTool.LINK)).isEqualTo("Link should be populated");
+        assertThat(trackingTool.errors().firstErrorOn(TrackingTool.LINK)).isEqualTo("Link should be populated");
     }
 
     @Test
@@ -92,18 +92,18 @@ public class TrackingToolTest {
     public void shouldValidate() {
         TrackingTool tool = new TrackingTool();
         tool.validateTree(null);
-        assertThat(tool.errors().on(TrackingTool.LINK)).isEqualTo("Link should be populated");
-        assertThat(tool.errors().on(TrackingTool.REGEX)).isEqualTo("Regex should be populated");
+        assertThat(tool.errors().firstErrorOn(TrackingTool.LINK)).isEqualTo("Link should be populated");
+        assertThat(tool.errors().firstErrorOn(TrackingTool.REGEX)).isEqualTo("Regex should be populated");
     }
 
     @Test
     public void shouldValidateLinkProtocol() {
         TrackingTool tool = new TrackingTool("file:///home/user/${ID}", "");
         tool.validate(null);
-        assertThat(tool.errors().on(TrackingTool.LINK)).isEqualTo("Link must be a URL starting with https:// or http://");
+        assertThat(tool.errors().firstErrorOn(TrackingTool.LINK)).isEqualTo("Link must be a URL starting with https:// or http://");
 
         tool = new TrackingTool("javascript:alert(${ID})", "");
         tool.validate(null);
-        assertThat(tool.errors().on(TrackingTool.LINK)).isEqualTo("Link must be a URL starting with https:// or http://");
+        assertThat(tool.errors().firstErrorOn(TrackingTool.LINK)).isEqualTo("Link must be a URL starting with https:// or http://");
     }
 }

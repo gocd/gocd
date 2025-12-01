@@ -55,21 +55,18 @@ public class JobStatusCacheTest {
     @Autowired private TransactionTemplate transactionTemplate;
 
     private PipelineWithTwoStages pipelineFixture;
-    private static final GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
-        dbHelper.onSetUp();
-        GoConfigFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
-        configFileHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
     }
 
     @AfterEach
     public void teardown() throws Exception {
-        dbHelper.onTearDown();
         pipelineFixture.onTearDown();
         jobStatusCache.clear();
     }

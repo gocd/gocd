@@ -90,8 +90,8 @@ public class PipelineGroupsTest {
         PipelineConfigs dup = createGroup("first", "pipeline");
         PipelineGroups groups = new PipelineGroups(first, dup);
         groups.validate(null);
-        assertThat(first.errors().on(BasicPipelineConfigs.GROUP)).isEqualTo("Group with name 'first' already exists");
-        assertThat(dup.errors().on(BasicPipelineConfigs.GROUP)).isEqualTo("Group with name 'first' already exists");
+        assertThat(first.errors().firstErrorOn(BasicPipelineConfigs.GROUP)).isEqualTo("Group with name 'first' already exists");
+        assertThat(dup.errors().firstErrorOn(BasicPipelineConfigs.GROUP)).isEqualTo("Group with name 'first' already exists");
     }
 
     @Test
@@ -133,7 +133,7 @@ public class PipelineGroupsTest {
 
     private void assertDuplicateNameErrorOnPipeline(PipelineConfig pipeline, List<String> expectedSources, int sourceCount) {
         assertThat(pipeline.errors().isEmpty()).isFalse();
-        String errorMessage = pipeline.errors().on(PipelineConfig.NAME);
+        String errorMessage = pipeline.errors().firstErrorOn(PipelineConfig.NAME);
         assertThat(errorMessage).contains("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s):");
         Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*),\\s(.*)\\].*$").matcher(errorMessage);
         assertThat(matcher.matches()).isTrue();
@@ -155,9 +155,9 @@ public class PipelineGroupsTest {
         pipelineGroups.validate(null);
 
         assertThat(pipeline1.errors().isEmpty()).isFalse();
-        assertThat(pipeline1.errors().on(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]");
+        assertThat(pipeline1.errors().firstErrorOn(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]");
         assertThat(pipeline2.errors().isEmpty()).isFalse();
-        assertThat(pipeline2.errors().on(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]");
+        assertThat(pipeline2.errors().firstErrorOn(PipelineConfig.NAME)).isEqualTo("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]");
     }
 
     @Test

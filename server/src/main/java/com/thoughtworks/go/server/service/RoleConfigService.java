@@ -94,11 +94,8 @@ public class RoleConfigService {
 
         getRoles().stream().<Consumer<? super Username>>map(role -> user -> {
             if (role.hasMember(user.getUsername())) {
-                if (!userToRolesMap.containsKey(user)) {
-                    userToRolesMap.put(user, new RolesConfig());
-                }
-
-                userToRolesMap.get(user).add(role);
+                userToRolesMap.computeIfAbsent(user, k -> new RolesConfig())
+                    .add(role);
             }
         }).forEach(users::forEach);
 

@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.presentation.models;
 import com.thoughtworks.go.helper.PipelineInstanceModelMother;
 import com.thoughtworks.go.helper.StageInstanceModelMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.StageConfigurationModel;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

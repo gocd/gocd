@@ -18,9 +18,7 @@ package com.thoughtworks.go.util;
 import java.util.function.Supplier;
 
 public final class ExceptionUtils {
-    private ExceptionUtils() {
-
-    }
+    private ExceptionUtils() {}
 
     public static RuntimeException bomb(String msg) {
         throw new RuntimeException(msg);

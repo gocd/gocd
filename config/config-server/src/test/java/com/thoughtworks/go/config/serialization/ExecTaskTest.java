@@ -70,7 +70,7 @@ public class ExecTaskTest {
         execTask.validateTask(null);
 
         assertThat(execTask.errors().isEmpty()).isFalse();
-        assertThat(execTask.errors().on(ExecTask.COMMAND)).isEqualTo("Command cannot be empty");
+        assertThat(execTask.errors().firstErrorOn(ExecTask.COMMAND)).isEqualTo("Command cannot be empty");
     }
 
     @Test

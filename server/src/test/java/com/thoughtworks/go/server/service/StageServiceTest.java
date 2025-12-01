@@ -51,7 +51,6 @@ import com.thoughtworks.go.server.ui.JobInstanceModel;
 import com.thoughtworks.go.server.ui.ModificationForPipeline;
 import com.thoughtworks.go.server.ui.PipelineId;
 import com.thoughtworks.go.server.ui.StageSummaryModel;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.AfterEach;
@@ -83,7 +82,6 @@ public class StageServiceTest {
 
     private StageDao stageDao;
 
-    private GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
     private JobInstanceService jobInstanceService;
     private SecurityService securityService;
     private ChangesetService changesetService;
@@ -114,7 +112,6 @@ public class StageServiceTest {
 
     @AfterEach
     public void teardown() {
-        configFileHelper.onTearDown();
         SessionUtils.unsetCurrentUser();
     }
 

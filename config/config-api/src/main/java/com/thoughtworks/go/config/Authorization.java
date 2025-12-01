@@ -21,11 +21,9 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Collections.sort;
+import java.util.Objects;
 
 @ConfigTag("authorization")
 public class Authorization implements Validatable, ParamsAttributeAware, ConfigOriginTraceable {
@@ -83,21 +81,11 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
             public AdminsConfig group(Authorization authorization) {
                 return authorization.getAdminsConfig();
             }
-
-            @Override
-            public void set(PresentationElement el) {
-                el.makeAdmin();
-            }
         },
         OPERATE {
             @Override
             public AdminsConfig group(Authorization authorization) {
                 return authorization.getOperationConfig();
-            }
-
-            @Override
-            public void set(PresentationElement el) {
-                el.makeOperator();
             }
         },
         VIEW {
@@ -105,16 +93,9 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
             public AdminsConfig group(Authorization authorization) {
                 return authorization.getViewConfig();
             }
-
-            @Override
-            public void set(PresentationElement el) {
-                el.makeViewer();
-            }
         };
 
         abstract public AdminsConfig group(Authorization authorization);
-
-        public abstract void set(PresentationElement el);
     }
 
     public enum PrivilegeState {
@@ -291,20 +272,16 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
 
         Authorization that = (Authorization) o;
 
-        if (adminsConfig != null ? !adminsConfig.equals(that.adminsConfig) : that.adminsConfig != null) {
+        if (!Objects.equals(adminsConfig, that.adminsConfig)) {
             return false;
         }
-        if (operationConfig != null ? !operationConfig.equals(that.operationConfig) : that.operationConfig != null) {
+        if (!Objects.equals(operationConfig, that.operationConfig)) {
             return false;
         }
-        if (viewConfig != null ? !viewConfig.equals(that.viewConfig) : that.viewConfig != null) {
+        if (!Objects.equals(viewConfig, that.viewConfig)) {
             return false;
         }
-        if (allowGroupAdmins != that.allowGroupAdmins) {
-            return false;
-        }
-
-        return true;
+        return allowGroupAdmins == that.allowGroupAdmins;
     }
 
     @Override
@@ -322,129 +299,8 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         operationConfig.removeRole(role);
     }
 
-    public static class PresentationElement implements Comparable<PresentationElement>, Validatable {
-        public static final String NAME = "name";
-        public static final String TYPE = "type";
-        private final String name;
-
-        private final UserType type;
-
-        private PrivilegeState adminPrivilege;
-
-        private PrivilegeState operatePrivilege;
-
-        private PrivilegeState viewPrivilege;
-
-        private final ConfigErrors configErrors = new ConfigErrors();
-
-
-        public PresentationElement(String name, UserType type) {
-            this.name = name;
-            this.type = type;
-            adminPrivilege = operatePrivilege = viewPrivilege = PrivilegeState.OFF;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public PrivilegeState getAdmin() {
-            return adminPrivilege;
-        }
-
-        public PrivilegeState getView() {
-            return viewPrivilege;
-        }
-
-        public PrivilegeState getOperate() {
-            return operatePrivilege;
-        }
-
-        public void makeAdmin() {
-            adminPrivilege = PrivilegeState.ON;
-            viewPrivilege = PrivilegeState.DISABLED;
-            operatePrivilege = PrivilegeState.DISABLED;
-        }
-
-        public void makeOperator() {
-            operatePrivilege = PrivilegeState.ON;
-        }
-
-        public void makeViewer() {
-            viewPrivilege = PrivilegeState.ON;
-        }
-
-        public UserType getType() {
-            return type;
-        }
-
-        @Override
-        public int compareTo(PresentationElement other) {
-            return this.name.compareTo(other.name);
-        }
-
-        @Override
-        public void validate(ValidationContext validationContext) {
-        }
-
-        @Override
-        public ConfigErrors errors() {
-            return configErrors;
-        }
-
-        @Override
-        public void addError(String fieldName, String message) {
-            configErrors.add(fieldName, message);
-        }
-    }
-
-    public List<PresentationElement> getUserAuthorizations() {
-        List<PresentationElement> list = new ArrayList<>();
-        Class<AdminUser> allowOnly = AdminUser.class;
-        addPrivilegesForView(list, operationConfig, PrivilegeType.OPERATE, allowOnly, UserType.USER);
-        addPrivilegesForView(list, viewConfig, PrivilegeType.VIEW, allowOnly, UserType.USER);
-        addPrivilegesForView(list, adminsConfig, PrivilegeType.ADMIN, allowOnly, UserType.USER);
-        sort(list);
-        return list;
-    }
-
-    public List<PresentationElement> getRoleAuthorizations() {
-        List<PresentationElement> list = new ArrayList<>();
-        Class<AdminRole> onlyOfType = AdminRole.class;
-        addPrivilegesForView(list, operationConfig, PrivilegeType.OPERATE, onlyOfType, UserType.ROLE);
-        addPrivilegesForView(list, viewConfig, PrivilegeType.VIEW, onlyOfType, UserType.ROLE);
-        addPrivilegesForView(list, adminsConfig, PrivilegeType.ADMIN, onlyOfType, UserType.ROLE);
-        sort(list);
-        return list;
-    }
-
     @Override
     public String toString() {
         return String.format("Authorization [view: %s] [operate: %s] [admins: %s] [allowGroupAdmins: %s]", viewConfig, operationConfig, adminsConfig, allowGroupAdmins);
-    }
-
-    private void addPrivilegesForView(List<PresentationElement> list, final AdminsConfig privilegesCollection, final PrivilegeType privilegeType, final Class<? extends Admin> allowOnly, final UserType type) {
-        for (Admin admin : privilegesCollection) {
-            if (allowOnly.isAssignableFrom(admin.getClass())) {
-                addPresentationPrivilege(admin, list, privilegeType, type);
-            }
-        }
-    }
-
-    private void addPresentationPrivilege(Admin admin, List<PresentationElement> list, PrivilegeType privilegeType, final UserType type) {
-        PresentationElement el = null;
-        for (PresentationElement presentationElement : list) {
-            if (presentationElement.getName().equals(CaseInsensitiveString.str(admin.getName()))) {
-                el = presentationElement;
-            }
-        }
-        if (el == null) {
-            el = new PresentationElement(CaseInsensitiveString.str(admin.getName()), type);
-            if (!admin.errors().isEmpty()) {
-                el.addError(Admin.NAME, admin.errors().on(Admin.NAME));
-            }
-            list.add(el);
-        }
-        privilegeType.set(el);
     }
 }

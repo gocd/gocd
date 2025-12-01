@@ -68,7 +68,7 @@ public class PipelineStateDaoCachingTest {
         pipelineStateDao.setSqlMapClientTemplate(mockTemplate);
         session = mock(Session.class);
         when(mockSessionFactory.getCurrentSession()).thenReturn(session);
-        when(configFileDao.load()).thenReturn(GoConfigMother.defaultCruiseConfig());
+        when(configFileDao.currentConfig()).thenReturn(GoConfigMother.defaultCruiseConfig());
     }
 
     @Test

@@ -381,7 +381,7 @@ public class StageService implements StageFinder {
             synchronized (key) {
                 feedEntries = goCache.get(key);
                 if (feedEntries == null) {
-                    feedEntries = stageDao.findStageFeedBy(pipelineName, pipelineCounter, null, FEED_PAGE_SIZE);
+                    feedEntries = stageDao.findStageFeedBy(pipelineName, null, null, FEED_PAGE_SIZE);
                     populateAuthors(feedEntries, pipelineName, username);
                     goCache.put(key, feedEntries);
                 }

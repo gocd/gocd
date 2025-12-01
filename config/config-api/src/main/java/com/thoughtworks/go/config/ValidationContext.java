@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.util.Map;
 
@@ -74,10 +73,6 @@ public interface ValidationContext {
     ClusterProfiles getClusterProfiles();
 
     boolean shouldNotCheckRole();
-
-    default SystemEnvironment systemEnvironment() {
-        return new SystemEnvironment();
-    }
 
     ArtifactStores artifactStores();
 

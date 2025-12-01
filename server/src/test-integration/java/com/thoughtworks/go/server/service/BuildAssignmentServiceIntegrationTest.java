@@ -153,7 +153,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
     public Subversion repository;
     public static TestRepo testRepo;
-    private PipelineWithTwoStages fixture;
+    private PipelineWithTwoStages pipelineFixture;
     private String md5 = "md5-test";
     private Username loserUser = new Username(new CaseInsensitiveString("loser"));
     private ConfigCache configCache;
@@ -170,11 +170,8 @@ public class BuildAssignmentServiceIntegrationTest {
         configCache = new ConfigCache();
         registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
-        configHelper.onSetUp();
-
-        dbHelper.onSetUp();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
 
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
         evolveConfig = configHelper.addPipeline("evolve", STAGE_NAME, repository, "unit");
@@ -192,9 +189,7 @@ public class BuildAssignmentServiceIntegrationTest {
         notifier.enableUpdates();
         goCache.clear();
         agentService.clearAll();
-        fixture.onTearDown();
-        dbHelper.onTearDown();
-        configHelper.onTearDown();
+        pipelineFixture.onTearDown();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
         agentAssignment.clear();
     }
@@ -259,7 +254,7 @@ public class BuildAssignmentServiceIntegrationTest {
         Agent agent = AgentMother.remoteAgent();
         agentService.saveOrUpdate(agent);
 
-        fixture.createPipelineWithFirstStageScheduled();
+        pipelineFixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
 
         AgentInstance agentInstance = agentService.findAgent(agent.getUuid());
@@ -272,13 +267,13 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldCancelOutOfDateBuilds() {
-        fixture.createPipelineWithFirstStageScheduled();
+        pipelineFixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
-        configHelper.removeStage(fixture.pipelineName, fixture.devStage);
+        configHelper.removeStage(pipelineFixture.pipelineName, pipelineFixture.devStage);
 
         buildAssignmentService.onConfigChange(goConfigService.getCurrentConfig());
 
-        Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
         assertThat(job.getState()).isEqualTo(JobState.Completed);
         assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
@@ -288,18 +283,18 @@ public class BuildAssignmentServiceIntegrationTest {
     public void shouldCancelBuildsForDeletedStagesWhenPipelineConfigChanges() {
         buildAssignmentService.initialize();
 
-        fixture.createPipelineWithFirstStageScheduled();
+        pipelineFixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
 
-        PipelineConfig originalPipelineConfig = configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName));
+        PipelineConfig originalPipelineConfig = goConfigDao.currentConfig().getPipelineConfigByName(new CaseInsensitiveString(pipelineFixture.pipelineName));
         PipelineConfig pipelineConfig = configHelper.deepClone(originalPipelineConfig);
-        String md5 = entityHashingService.hashForEntity(originalPipelineConfig, fixture.groupName);
-        StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
+        String md5 = entityHashingService.hashForEntity(originalPipelineConfig, pipelineFixture.groupName);
+        StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(pipelineFixture.devStage));
         pipelineConfig.remove(devStage);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, fixture.groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, pipelineFixture.groupName, md5, result);
 
-        Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
         assertThat(job.getState()).isEqualTo(JobState.Completed);
         assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
@@ -312,21 +307,21 @@ public class BuildAssignmentServiceIntegrationTest {
     @Test
     public void shouldCancelBuildsForDeletedJobsWhenPipelineConfigChanges(@TempDir Path tempDir) throws Exception {
         buildAssignmentService.initialize();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir).usingTwoJobs();
-        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
-        fixture.createPipelineWithFirstStageScheduled();
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir).usingTwoJobs();
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture.createPipelineWithFirstStageScheduled();
 
         buildAssignmentService.onTimer();
 
-        PipelineConfig originalPipelineConfig = configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName));
+        PipelineConfig originalPipelineConfig = configHelper.getGoConfigDao().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(pipelineFixture.pipelineName));
         PipelineConfig pipelineConfig = configHelper.deepClone(originalPipelineConfig);
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
-        String md5 = entityHashingService.hashForEntity(originalPipelineConfig, fixture.groupName);
-        StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
+        String md5 = entityHashingService.hashForEntity(originalPipelineConfig, pipelineFixture.groupName);
+        StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(pipelineFixture.devStage));
         devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(PipelineWithTwoStages.JOB_FOR_DEV_STAGE)));
-        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, fixture.groupName, md5, new HttpLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, pipelineFixture.groupName, md5, new HttpLocalizedOperationResult());
 
-        Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
         JobInstance deletedJob = pipeline.getFirstStage().getJobInstances().getByName(PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
         assertThat(deletedJob.getState()).isEqualTo(JobState.Completed);
         assertThat(deletedJob.getResult()).isEqualTo(JobResult.Cancelled);
@@ -343,17 +338,17 @@ public class BuildAssignmentServiceIntegrationTest {
     @Test
     public void shouldCancelBuildsForAllJobsWhenPipelineIsDeleted(@TempDir Path tempDir) throws Exception {
         buildAssignmentService.initialize();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir).usingTwoJobs();
-        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
-        fixture.createPipelineWithFirstStageScheduled();
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir).usingTwoJobs();
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture.createPipelineWithFirstStageScheduled();
 
         buildAssignmentService.onTimer();
 
-        PipelineConfig pipelineConfig = configHelper.deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+        PipelineConfig pipelineConfig = configHelper.deepClone(configHelper.getGoConfigDao().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(pipelineFixture.pipelineName)));
 
         pipelineConfigService.deletePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
 
-        Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
         JobInstance job1 = pipeline.getFirstStage().getJobInstances().getByName(PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
         JobInstance job2 = pipeline.getFirstStage().getJobInstances().getByName(PipelineWithTwoStages.DEV_STAGE_SECOND_JOB);
 
@@ -369,16 +364,16 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldCancelBuildBelongingToNonExistentPipeline() {
-        fixture.createPipelineWithFirstStageScheduled();
+        pipelineFixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
 
-        configHelper.removePipeline(fixture.pipelineName);
+        configHelper.removePipeline(pipelineFixture.pipelineName);
 
         Agent agent = AgentMother.localAgent();
         agent.setResources("some-other-resource");
 
         assertThat(buildAssignmentService.assignWorkToAgent(agent(agent))).isEqualTo((BuildAssignmentService.NO_WORK));
-        Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
         assertThat(job.getState()).isEqualTo(JobState.Completed);
         assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
@@ -389,8 +384,8 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldNotReloadScheduledJobPlansWhenAgentWorkAssignmentIsInProgress() throws Exception {
-        fixture.createPipelineWithFirstStageScheduled();
-        Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        pipelineFixture.createPipelineWithFirstStageScheduled();
+        Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
 
         final JobInstanceService mockJobInstanceService = mock(JobInstanceService.class);
@@ -424,7 +419,6 @@ public class BuildAssignmentServiceIntegrationTest {
 
                 buildAssignmentServiceUnderTest.assignWorkToAgent(agent(agent));
             } catch (Throwable e) {
-                e.printStackTrace();
                 fromThread[0] = e;
             }
         }, "assignmentThread");
@@ -439,16 +433,16 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldCancelBuildBelongingToNonExistentPipelineWhenCreatingWork() {
-        fixture.createPipelineWithFirstStageScheduled();
-        Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        pipelineFixture.createPipelineWithFirstStageScheduled();
+        Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
 
         ScheduledPipelineLoader scheduledPipelineLoader = mock(ScheduledPipelineLoader.class);
         when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(pipeline.getFirstStage().getJobInstances().first().getId())).thenThrow(
-                new RecordNotFoundException(EntityType.Pipeline, fixture.pipelineName));
+                new RecordNotFoundException(EntityType.Pipeline, pipelineFixture.pipelineName));
 
         GoConfigService mockGoConfigService = mock(GoConfigService.class);
         CruiseConfig config = configHelper.currentConfig();
-        configHelper.removePipeline(fixture.pipelineName, config);
+        configHelper.removePipeline(pipelineFixture.pipelineName, config);
         when(mockGoConfigService.getCurrentConfig()).thenReturn(config);
 
         buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService,
@@ -466,7 +460,7 @@ public class BuildAssignmentServiceIntegrationTest {
             // ok
         }
 
-        pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
 
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
         assertThat(job.getState()).isEqualTo(JobState.Completed);
@@ -665,7 +659,7 @@ public class BuildAssignmentServiceIntegrationTest {
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
 
         JobPlan loadedPlan = jobInstanceDao.loadPlan(job.getId());
-        assertThat((List<ResourceConfig>) loadedPlan.getResources().toResourceConfigs()).isEqualTo(jobConfig.resourceConfigs());
+        assertThat(loadedPlan.getResources().toResourceConfigs()).isEqualTo(jobConfig.resourceConfigs());
 
         assertThat(job.getState()).isEqualTo(JobState.Assigned);
         assertThat(job.getAgentUuid()).isEqualTo(agent.getUuid());
@@ -691,7 +685,7 @@ public class BuildAssignmentServiceIntegrationTest {
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
 
         JobPlan loadedPlan = jobInstanceDao.loadPlan(job.getId());
-        assertThat((List<ResourceConfig>) loadedPlan.getResources().toResourceConfigs()).isEqualTo(jobConfig.resourceConfigs());
+        assertThat(loadedPlan.getResources().toResourceConfigs()).isEqualTo(jobConfig.resourceConfigs());
 
         assertThat(job.getState()).isEqualTo(JobState.Scheduled);
         assertNull(job.getAgentUuid());

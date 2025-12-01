@@ -54,9 +54,6 @@ public class RescheduleJobTest {
     private GoConfigDao goConfigDao;
     @Autowired
     private DatabaseAccessHelper dbHelper;
-
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
-    private PipelineWithTwoStages fixture;
     @Autowired
     private JobInstanceService jobInstanceService;
     @Autowired
@@ -68,7 +65,10 @@ public class RescheduleJobTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
-    public static final String JOB_NAME = "unit";
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private PipelineWithTwoStages pipelineFixture;
+
+    private static final String JOB_NAME = "unit";
     private static final String STAGE_NAME = "mingle";
     private static final String PIPELINE_NAME = "studios";
     private Stage stage;
@@ -77,15 +77,15 @@ public class RescheduleJobTest {
     public void setUp(@TempDir Path tempDir) throws Exception {
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME);
         stage = dbHelper.saveBuildingStage(PIPELINE_NAME, STAGE_NAME);
     }
 
     @AfterEach
     public void teardown() throws Exception {
-        fixture.onTearDown();
+        pipelineFixture.onTearDown();
         dbHelper.onTearDown();
         configHelper.onTearDown();
     }

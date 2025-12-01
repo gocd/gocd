@@ -17,7 +17,6 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +28,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @ConfigTag("resources")
 @ConfigCollection(ResourceConfig.class)
-public class ResourceConfigs extends BaseCollection<ResourceConfig> implements Comparable<ResourceConfigs>, Validatable {
+public class ResourceConfigs extends BaseCollection<ResourceConfig> implements Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
 
     public ResourceConfigs() {
@@ -83,11 +82,6 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
         return String.join(" | ", resourceNames()).trim();
     }
 
-    @Override
-    public int compareTo(ResourceConfigs other) {
-        return new AlphaAsciiCollectionComparator<ResourceConfig>().compare(this, other);
-    }
-
     public boolean validateTree(ValidationContext validationContext) {
         boolean isValid = errors().isEmpty();
         for (ResourceConfig resourceConfig : this) {
@@ -115,19 +109,6 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
     @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
-    }
-
-    public String exportToCsv() {
-        return join(resourceNames(), ", ");
-    }
-
-    private static String join(List<String> c, String join) {
-        StringBuilder sb = new StringBuilder();
-        for (String s : c) {
-            sb.append(s);
-            sb.append(join);
-        }
-        return sb.toString();
     }
 
     public void importFromCsv(String csv) {

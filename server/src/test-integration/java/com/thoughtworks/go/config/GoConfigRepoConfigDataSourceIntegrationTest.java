@@ -69,10 +69,12 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
     @Autowired
     private PartialConfigHelper partials;
 
+    private GoConfigFileHelper configHelper;
+
 
     @BeforeEach
     public void setUp(@TempDir File templateConfigRepo) throws Exception {
-        GoConfigFileHelper configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
+        configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
@@ -95,6 +97,7 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
     @AfterEach
     public void tearDown() {
         cachedGoPartials.clear();
+        configHelper.onTearDown();
     }
 
     @Test

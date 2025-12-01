@@ -145,7 +145,7 @@ class PipelineSqlMapDaoTest {
     void shouldGetAnEmptyListOfPIMsWhenActivePipelinesListDoesNotHavePIMsForRequestedPipeline() {
         String pipelineName = "pipeline-with-no-active-instances";
 
-        when(configFileDao.load()).thenReturn(GoConfigMother.configWithPipelines(pipelineName));
+        when(configFileDao.currentConfig()).thenReturn(GoConfigMother.configWithPipelines(pipelineName));
         when(sqlMapClientTemplate.queryForList("allActivePipelines")).thenReturn(new ArrayList<>());
 
         PipelineInstanceModels models = pipelineSqlMapDao.loadActivePipelineInstancesFor(new CaseInsensitiveString(pipelineName));
@@ -161,7 +161,7 @@ class PipelineSqlMapDaoTest {
         PipelineInstanceModel pimForP1_1 = pimFor(p1, 1);
         PipelineInstanceModel pimForP1_2 = pimFor(p1, 2);
 
-        when(configFileDao.load()).thenReturn(GoConfigMother.configWithPipelines(p1, p2));
+        when(configFileDao.currentConfig()).thenReturn(GoConfigMother.configWithPipelines(p1, p2));
         when(sqlMapClientTemplate.queryForList("allActivePipelines")).thenReturn(List.of(pimForP1_1, pimForP1_2, pimFor(p2, 1), pimFor(p2, 2)));
         when(sqlMapClientTemplate.queryForObject("getPipelineHistoryById", Map.of("id", pimForP1_1.getId()))).thenReturn(pimForP1_1);
         when(sqlMapClientTemplate.queryForObject("getPipelineHistoryById", Map.of("id", pimForP1_2.getId()))).thenReturn(pimForP1_2);

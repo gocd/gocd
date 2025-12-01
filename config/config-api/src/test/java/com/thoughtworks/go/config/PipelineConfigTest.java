@@ -200,44 +200,44 @@ public class PipelineConfigTest {
         pipelineConfig.setLabelTemplate("pipeline-${COUNT}-alpha");
         pipelineConfig.validate(null);
         assertThat(pipelineConfig.errors().isEmpty()).isTrue();
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isNull();
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).isNull();
     }
 
     @Test
     public void shouldValidateMissingLabel() {
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(null);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(PipelineConfig.BLANK_LABEL_TEMPLATE_ERROR_MESSAGE);
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(PipelineConfig.BLANK_LABEL_TEMPLATE_ERROR_MESSAGE);
 
         pipelineConfig = createAndValidatePipelineLabel("");
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(PipelineConfig.BLANK_LABEL_TEMPLATE_ERROR_MESSAGE);
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(PipelineConfig.BLANK_LABEL_TEMPLATE_ERROR_MESSAGE);
     }
 
     @Test
     public void shouldValidateCorrectPipelineLabelWithoutTruncationSyntax() {
         String labelFormat = "pipeline-${COUNT}-${git}-454";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isNull();
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).isNull();
     }
 
     @Test
     public void shouldValidatePipelineLabelWithNonExistingMaterial() {
         String labelFormat = "pipeline-${COUNT}-${NoSuchMaterial}";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).startsWith("You have defined a label template in pipeline");
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).startsWith("You have defined a label template in pipeline");
     }
 
     @Test
     public void shouldValidatePipelineLabelWithEnvironmentVariable() {
         String labelFormat = "pipeline-${COUNT}-${env:SOME_VAR}";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isNull();
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).isNull();
     }
 
     @Test
     public void shouldValidateCorrectPipelineLabelWithTruncationSyntax() {
         String labelFormat = "pipeline-${COUNT}-${git[:7]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isNull();
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).isNull();
     }
 
 
@@ -246,7 +246,7 @@ public class PipelineConfigTest {
         String labelFormat = "pipeline-${COUNT}-${git[:7}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
         String expectedLabelTemplate = "Invalid label 'pipeline-${COUNT}-${git[:7}-alpha'.";
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).startsWith(expectedLabelTemplate);
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).startsWith(expectedLabelTemplate);
     }
 
     @Test
@@ -254,14 +254,14 @@ public class PipelineConfigTest {
         String labelFormat = "pipeline-${COUNT}-${git[7]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
         String expectedLabelTemplate = "Invalid label 'pipeline-${COUNT}-${git[7]}-alpha'.";
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).startsWith(expectedLabelTemplate);
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).startsWith(expectedLabelTemplate);
     }
 
     @Test
     public void shouldValidateIncorrectPipelineLabelWithTruncationSyntax() {
         String labelFormat = "pipeline-${COUNT}-${noSuch[:7]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).startsWith("You have defined a label template in pipeline");
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).startsWith("You have defined a label template in pipeline");
     }
 
     @Test
@@ -291,21 +291,21 @@ public class PipelineConfigTest {
 
     public void assertPipelineLabelTemplateIsInvalid(String labelTemplate, String expectedError) {
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelTemplate);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).contains(expectedError);
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).contains(expectedError);
     }
 
     @Test
     public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax() {
         String labelFormat = "pipeline-${COUNT}-${git[:0]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name()));
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name()));
     }
 
     @Test
     public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax2() {
         String labelFormat = "pipeline-${COUNT}-${git[:0]}${one[:00]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name()));
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).isEqualTo(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name()));
     }
 
 
@@ -424,7 +424,7 @@ public class PipelineConfigTest {
         pipelineConfig.validate(null);
 
         assertThat(pipelineConfig.errors().isEmpty()).isFalse();
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LOCK_BEHAVIOR)
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LOCK_BEHAVIOR)
             .contains("Lock behavior has an invalid value (someRandomValue). Valid values are: "));
     }
 
@@ -653,7 +653,7 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("foo bar", "stage1", "job1");
         pipelineConfig.validate(null);
         assertThat(pipelineConfig.errors().isEmpty()).isFalse();
-        assertThat(pipelineConfig.errors().on(PipelineConfig.NAME)).isEqualTo("Invalid pipeline name 'foo bar'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.NAME)).isEqualTo("Invalid pipeline name 'foo bar'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test

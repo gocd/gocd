@@ -37,10 +37,7 @@ public class GoConfigAttributeLoader {
     }
 
     private static ConfigAttribute findAttribute(Field field) {
-        if (!isAttributes.containsKey(field)) {
-            isAttributes.put(field, field.getAnnotation(ConfigAttribute.class));
-        }
-        return isAttributes.get(field);
+        return isAttributes.computeIfAbsent(field, f -> f.getAnnotation(ConfigAttribute.class));
     }
 
     public static GoConfigAttributeLoader attributeParser(Element e, Field field) {

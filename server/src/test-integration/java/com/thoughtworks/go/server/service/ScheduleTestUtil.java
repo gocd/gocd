@@ -202,10 +202,7 @@ public class ScheduleTestUtil {
         for (Material material : new MaterialConfigConverter().toMaterials(pipeline.config.materialConfigs())) {
             List<Modification> modifications = new ArrayList<>();
             for (Modification modification : modForRev(revisions[i++])) {
-                if (!identityMap.containsKey(modification)) {
-                    identityMap.put(modification, modification);
-                }
-                modifications.add(identityMap.get(modification));
+                modifications.add(identityMap.computeIfAbsent(modification, k -> k));
             }
             MaterialInstance modificationsMaterialInstance = modifications.get(0).getMaterialInstance();
             if (modMap.containsKey(material)) {

@@ -86,7 +86,7 @@ public class ApprovalTest {
 
         AdminUser user = approval.getAuthConfig().getUsers().get(0);
         assertThat(user.errors().isEmpty()).isFalse();
-        assertThat(user.errors().on("name")).isEqualTo("User \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage");
+        assertThat(user.errors().firstErrorOn("name")).isEqualTo("User \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage");
     }
 
     @Test
@@ -201,7 +201,7 @@ public class ApprovalTest {
 
         AdminUser user = approval.getAuthConfig().getUsers().get(0);
         assertThat(user.errors().isEmpty()).isFalse();
-        assertThat(user.errors().on("name")).isEqualTo("User \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage");
+        assertThat(user.errors().firstErrorOn("name")).isEqualTo("User \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage");
     }
 
     @Test
@@ -220,7 +220,7 @@ public class ApprovalTest {
 
         AdminRole user = approval.getAuthConfig().getRoles().get(0);
         assertThat(user.errors().isEmpty()).isFalse();
-        assertThat(user.errors().on("name")).isEqualTo("Role \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage");
+        assertThat(user.errors().firstErrorOn("name")).isEqualTo("Role \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage");
     }
 
     @Test

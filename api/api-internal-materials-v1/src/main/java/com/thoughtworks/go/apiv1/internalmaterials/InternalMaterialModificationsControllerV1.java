@@ -68,8 +68,8 @@ public class InternalMaterialModificationsControllerV1 extends ApiController imp
 
     public String modifications(Request request, Response response) throws Exception {
         String fingerprint = request.params("fingerprint");
-        Long after = afterCursor(request);
-        Long before = beforeCursor(request);
+        long after = afterCursor(request);
+        long before = beforeCursor(request);
         Integer pageSize = getPageSize(request);
         String pattern = request.queryParamOrDefault("pattern", "");
 

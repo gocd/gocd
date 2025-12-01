@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.presentation.models;
+package com.thoughtworks.go.presentation.pipelinehistory;
 
 public interface StageConfigurationModel {
     String getName();

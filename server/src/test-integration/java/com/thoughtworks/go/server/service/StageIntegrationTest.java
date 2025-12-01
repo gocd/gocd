@@ -62,7 +62,7 @@ public class StageIntegrationTest {
     @Autowired private ScheduleHelper scheduleHelper;
     @Autowired private AgentService agentService;
 
-    private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private PipelineConfig mingle;
     private static final String DEV_STAGE = "dev";
     private static final String FT_STAGE = "ft";
@@ -73,21 +73,21 @@ public class StageIntegrationTest {
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
-        CONFIG_HELPER.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.onSetUp();
 
         TestRepo svnTestRepo = new SvnTestRepo(tempDir);
 
         svnRepo = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
-        CONFIG_HELPER.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");
-        mingle = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, FT_STAGE, "bar");
+        configHelper.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");
+        mingle = configHelper.addStageToPipeline(PIPELINE_NAME, FT_STAGE, "bar");
         agentService.saveOrUpdate(new Agent(AGENT_UUID, HOSTNAME, "127.0.0.1", "cookie1"));
     }
 
     @AfterEach
     public void teardown() throws Exception {
         dbHelper.onTearDown();
-        CONFIG_HELPER.onTearDown();
+        configHelper.onTearDown();
     }
 
     @Test

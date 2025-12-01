@@ -46,28 +46,24 @@ public class User extends PersistentObject {
     }
 
     public User(String name, String displayName, String email) {
-        this(name, displayName, new String[]{""}, email, false);
+        this(name, displayName, "", email, false);
     }
 
-    public User(String name, List<String> matcher, String email, boolean emailMe) {
-        this(name, matcher.toArray(new String[0]), email, emailMe);
-    }
-
-    public User(String name, String[] matcher, String email, boolean emailMe) {
+    public User(String name, String matcher, String email, boolean emailMe) {
         this(name, "", matcher, email, emailMe);
     }
 
-    public User(String name, String displayName, String[] matcher, String email, boolean emailMe) {
+    public User(String name, String displayName, String matcher, String email, boolean emailMe) {
         setName(name);
-        setMatcher(new Matcher(matcher).toString());
-        setEmail(email);
         setDisplayName(displayName);
+        setMatcher(matcher);
+        setEmail(email);
         this.enabled = true;
         this.emailMe = emailMe;
     }
 
     public User(User user) {
-        this(user.name, user.displayName, new String[]{user.matcher}, user.email, user.emailMe);
+        this(user.name, user.displayName, user.matcher, user.email, user.emailMe);
         this.enabled = user.enabled;
         this.id = user.id;
         for (NotificationFilter filter : user.notificationFilters) {
@@ -103,19 +99,12 @@ public class User extends PersistentObject {
         return Username.valueOf(name);
     }
 
-    /**
-     * only used by ibatis
-     *
-     * @java.lang.Deprecated
-     */
     public String getMatcher() {
         return matcher;
     }
 
     public List<String> getMatchers() {
-        List<String> matchers = new Matcher(matcher).toCollection();
-        Collections.sort(matchers);
-        return matchers;
+        return new Matcher(matcher).toCollection();
     }
 
     public String getEmail() {
@@ -127,11 +116,11 @@ public class User extends PersistentObject {
     }
 
     public void setMatcher(String matcher) {
-        this.matcher = new Matcher(matcher).toString();
+        this.matcher = Matcher.normalize(matcher);
     }
 
     boolean matchModification(MaterialRevisions materialRevisions) {
-        if (StringUtils.isEmpty(this.matcher)) {
+        if (this.matcher == null || this.matcher.isEmpty()) {
             return false;
         }
         return materialRevisions.containsMyCheckin(new Matcher(matcher));
@@ -139,7 +128,7 @@ public class User extends PersistentObject {
 
     public boolean matchNotification(StageConfigIdentifier stageIdentifier, StageEvent event,
                                      MaterialRevisions materialRevisions) {
-        if (!shouldSendEmailToMe()) {
+        if (!shouldSendEmail()) {
             return false;
         }
         for (NotificationFilter filter : notificationFilters) {
@@ -168,19 +157,16 @@ public class User extends PersistentObject {
         if (enabled != user.enabled) {
             return false;
         }
-        if (email != null ? !email.equals(user.email) : user.email != null) {
+        if (!Objects.equals(email, user.email)) {
             return false;
         }
-        if (matcher != null ? !matcher.equals(user.matcher) : user.matcher != null) {
+        if (!Objects.equals(matcher, user.matcher)) {
             return false;
         }
-        if (name != null ? !name.equals(user.name) : user.name != null) {
+        if (!Objects.equals(name, user.name)) {
             return false;
         }
-        if (displayName != null ? !displayName.equals(user.displayName) : user.displayName != null) {
-            return false;
-        }
-        return true;
+        return Objects.equals(displayName, user.displayName);
     }
 
     @Override
@@ -208,19 +194,8 @@ public class User extends PersistentObject {
         this.notificationFilters = notificationFilters;
     }
 
-    private boolean shouldSendEmailToMe() {
-        return isEmailMe() && !StringUtils.isEmpty(email);
-    }
-
-    public void populateModel(Map<String, Object> model) {
-        model.put("matchers", matcher());
-        model.put("email", email);
-        model.put("emailMe", emailMe);
-        model.put("notificationFilters", notificationFilters);
-    }
-
-    public Matcher matcher() {
-        return new Matcher(matcher);
+    private boolean shouldSendEmail() {
+        return isEmailMe() && email != null && !email.isEmpty();
     }
 
     private void validate(Validator<String> validator, String valueToValidate) throws ValidationException {
@@ -265,27 +240,25 @@ public class User extends PersistentObject {
     }
 
     private void checkForDuplicates(NotificationFilter another) {
-        for (NotificationFilter filter : notificationFilters) {
-            if (filter.include(another)) {
+        notificationFilters.stream()
+            .filter(f -> f.include(another))
+            .findFirst()
+            .ifPresent(filter -> {
                 String message = format("Duplicate notification filter found for: {pipeline: \"%s\", stage: \"%s\", event: \"%s\"}",
                     filter.getPipelineName(), filter.getStageName(), filter.getEvent());
                 filter.addError("pipelineName", message);
                 another.addError("pipelineName", message);
                 throw new UncheckedValidationException(message);
-            }
-        }
+            });
     }
 
     public void updateNotificationFilter(NotificationFilter notificationFilter) {
-        Optional<NotificationFilter> optionalFilter = notificationFilters.stream()
+        NotificationFilter matchedFilter = notificationFilters.stream()
             .filter(filter -> filter.getId() == notificationFilter.getId())
-            .findFirst();
+            .findFirst()
+            .orElseThrow(() -> new RecordNotFoundException(EntityType.NotificationFilter, notificationFilter.getId()));
 
-        if (optionalFilter.isEmpty()) {
-            throw new RecordNotFoundException(EntityType.NotificationFilter, notificationFilter.getId());
-        }
-
-        notificationFilters.remove(optionalFilter.get());
+        notificationFilters.remove(matchedFilter);
         checkForDuplicates(notificationFilter);
         notificationFilters.add(notificationFilter);
     }
@@ -296,11 +269,6 @@ public class User extends PersistentObject {
     }
 
     public boolean hasSubscribedFor(String pipelineName, String stageName) {
-        for (NotificationFilter notificationFilter : notificationFilters) {
-            if (notificationFilter.appliesTo(pipelineName, stageName)) {
-                return true;
-            }
-        }
-        return false;
+        return notificationFilters.stream().anyMatch(filter -> filter.appliesTo(pipelineName, stageName));
     }
 }

@@ -23,9 +23,9 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.service.ScheduleService;
 
 public class SchedulerFixture {
-    private DatabaseAccessHelper dbHelper;
-    private ScheduleService scheduleService;
-    private StageDao stageDao;
+    private final DatabaseAccessHelper dbHelper;
+    private final ScheduleService scheduleService;
+    private final StageDao stageDao;
 
     public SchedulerFixture(DatabaseAccessHelper dbHelper, StageDao stageDao,
                             ScheduleService scheduleService) {

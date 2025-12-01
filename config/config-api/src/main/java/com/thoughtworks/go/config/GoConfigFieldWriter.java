@@ -150,9 +150,10 @@ public class GoConfigFieldWriter {
                 return type;
             }
         }
-        throw bomb("Unable to determine type to generate.\n"
-                + "Type: " + type.getName() + "\n"
-                + "Element: " + configUtil.elementOutput(e));
+        throw bomb("""
+            Unable to determine type to generate.
+            Type: %s
+            Element: %s""".formatted(type.getName(), configUtil.elementOutput(e)));
     }
 
     public boolean isSubtag() {

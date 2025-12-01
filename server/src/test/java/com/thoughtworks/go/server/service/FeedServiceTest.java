@@ -112,15 +112,14 @@ public class FeedServiceTest {
         @Test
         void shouldReturnsStagesXmlDocument() {
             String pipelineName = "up42";
-            Integer pipelineCounter = null;
 
             when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
-            Document document = feedService.stagesXml(username, pipelineName, pipelineCounter, BASE_URL);
+            Document document = feedService.stagesXml(username, pipelineName, null, BASE_URL);
 
             assertThat(document).isNotNull();
-            verify(stageService).findStageFeedBy(pipelineName, pipelineCounter, Before, username);
+            verify(stageService).findStageFeedBy(pipelineName, null, Before, username);
             verify(xmlApiService).write(any(FeedEntriesRepresenter.class), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
             verifyNoInteractions(pipelineHistoryService);

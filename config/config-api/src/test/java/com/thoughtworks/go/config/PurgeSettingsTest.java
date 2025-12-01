@@ -30,7 +30,7 @@ public class PurgeSettingsTest {
         purgeSettings.validate(null);
 
         assertThat(purgeSettings.errors().isEmpty()).isFalse();
-        assertThat(purgeSettings.errors().on(ServerConfig.PURGE_START)).isEqualTo("Error in artifact cleanup values. The trigger value (20.1GB) should be less than the goal (20.05GB)");
+        assertThat(purgeSettings.errors().firstErrorOn(ServerConfig.PURGE_START)).isEqualTo("Error in artifact cleanup values. The trigger value (20.1GB) should be less than the goal (20.05GB)");
     }
 
     @Test
@@ -42,7 +42,7 @@ public class PurgeSettingsTest {
         purgeSettings.validate(null);
 
         assertThat(purgeSettings.errors().isEmpty()).isFalse();
-        assertThat(purgeSettings.errors().on(ServerConfig.PURGE_START)).isEqualTo("Error in artifact cleanup values. The trigger value has to be specified when a goal is set");
+        assertThat(purgeSettings.errors().firstErrorOn(ServerConfig.PURGE_START)).isEqualTo("Error in artifact cleanup values. The trigger value has to be specified when a goal is set");
     }
 
     @Test
@@ -54,7 +54,7 @@ public class PurgeSettingsTest {
         purgeSettings.validate(null);
 
         assertThat(purgeSettings.errors().isEmpty()).isFalse();
-        assertThat(purgeSettings.errors().on(ServerConfig.PURGE_START)).isEqualTo("Error in artifact cleanup values. The trigger value has to be specified when a goal is set");
+        assertThat(purgeSettings.errors().firstErrorOn(ServerConfig.PURGE_START)).isEqualTo("Error in artifact cleanup values. The trigger value has to be specified when a goal is set");
     }
 
     @Test
@@ -88,7 +88,7 @@ public class PurgeSettingsTest {
         purgeSettings.validate(null);
 
         assertThat(purgeSettings.errors().isEmpty()).isFalse();
-        assertThat(purgeSettings.errors().on(ServerConfig.PURGE_UPTO)).isEqualTo("Error in artifact cleanup values. Please specify goal value");
+        assertThat(purgeSettings.errors().firstErrorOn(ServerConfig.PURGE_UPTO)).isEqualTo("Error in artifact cleanup values. Please specify goal value");
     }
 
     @Test
@@ -100,7 +100,7 @@ public class PurgeSettingsTest {
         purgeSettings.validate(null);
 
         assertThat(purgeSettings.errors().isEmpty()).isFalse();
-        assertThat(purgeSettings.errors().on(ServerConfig.PURGE_START)).isEqualTo("Error in artifact cleanup values. The trigger value has to be specified when a goal is set");
+        assertThat(purgeSettings.errors().firstErrorOn(ServerConfig.PURGE_START)).isEqualTo("Error in artifact cleanup values. The trigger value has to be specified when a goal is set");
     }
 
     private PurgeSettings createPurgeSettings(Double purgeStart, Double purgeUpto) {

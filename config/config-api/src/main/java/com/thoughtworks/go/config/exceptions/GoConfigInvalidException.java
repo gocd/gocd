@@ -55,10 +55,7 @@ public class GoConfigInvalidException extends RuntimeException {
     }
 
     private static String firstError(List<ConfigErrors> errors) {
-        if (!errors.isEmpty()) {
-            return errors.get(0).asString();
-        }
-        return null;
+        return errors.stream().findFirst().map(ConfigErrors::asString).orElse(null);
     }
 
     public CruiseConfig getCruiseConfig() {

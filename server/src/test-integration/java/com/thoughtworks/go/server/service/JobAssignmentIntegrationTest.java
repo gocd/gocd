@@ -57,29 +57,28 @@ public class JobAssignmentIntegrationTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private AgentService agentService;
 
-    private PipelineWithTwoStages fixture;
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private PipelineWithTwoStages pipelineFixture;
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private SystemEnvironment systemEnvironment;
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
-        configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(cruiseConfigDao);
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).usingThreeJobs().onSetUp();
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).usingThreeJobs().onSetUp();
         systemEnvironment = new SystemEnvironment();
     }
 
     @AfterEach
     public void tearDown() throws Exception {
-        fixture.onTearDown();
+        pipelineFixture.onTearDown();
     }
 
     @Test
     public void shouldAssignJobToRemoteAgent() {
         AgentInstance local = setupLocalAgent();
         AgentInstance remote = setupRemoteAgent();
-        fixture.createPipelineWithFirstStageScheduled();
+        pipelineFixture.createPipelineWithFirstStageScheduled();
 
         assignmentService.onTimer();
 
@@ -96,7 +95,7 @@ public class JobAssignmentIntegrationTest {
         AgentInstance local = setupLocalAgent();
         AgentInstance remote = setupRemoteAgent();
         AgentInstance remote2 = setupRemoteAgent();
-        fixture.createPipelineWithFirstStageScheduled();
+        pipelineFixture.createPipelineWithFirstStageScheduled();
 
         assignmentService.onConfigChange(null);
 
@@ -110,7 +109,7 @@ public class JobAssignmentIntegrationTest {
     public void shouldAssignJobToLocalAgentEvenReachedLimit() {
         AgentInstance local = setupLocalAgent();
         AgentInstance remote = setupRemoteAgent();
-        fixture.createPipelineWithFirstStageScheduled();
+        pipelineFixture.createPipelineWithFirstStageScheduled();
 
         assignmentService.onTimer();
 

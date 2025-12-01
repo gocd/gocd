@@ -127,7 +127,7 @@ public class AdminsConfigUpdateCommandTest {
 
         assertFalse(command.isValid(cruiseConfig));
         assertTrue(adminsConfigRequest.hasErrors());
-        assertThat(adminsConfigRequest.errors().on("users")).isEqualTo("User cannot be blank.");
+        assertThat(adminsConfigRequest.errors().firstErrorOn("users")).isEqualTo("User cannot be blank.");
     }
 
 }

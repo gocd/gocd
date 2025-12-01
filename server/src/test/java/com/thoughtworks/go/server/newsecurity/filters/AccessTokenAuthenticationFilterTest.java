@@ -118,8 +118,8 @@ public class AccessTokenAuthenticationFilterTest {
         @Test
         void shouldDisallowAccessWhenAnyCredentialsAreProvided() throws ServletException, IOException {
             request = HttpRequestBuilder.GET("/api/blah")
-                    .withBearerAuth(TOKEN)
-                    .build();
+                .withBearerAuth(TOKEN)
+                .build();
 
             final HttpSession originalSession = request.getSession(true);
 
@@ -129,7 +129,10 @@ public class AccessTokenAuthenticationFilterTest {
             assertThat(request.getSession(false)).isSameAs(originalSession);
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
             assertThat(response.getStatus()).isEqualTo(401);
-            assertThat(response.getContentAsString()).isEqualTo("{\n  \"message\": \"Bearer authentication credentials are not required, since security has been disabled on this server.\"\n}");
+            assertThat(response.getContentAsString()).isEqualTo("""
+                {
+                  "message": "Bearer authentication credentials are not required, since security has been disabled on this server."
+                }""");
         }
     }
 
@@ -158,8 +161,8 @@ public class AccessTokenAuthenticationFilterTest {
         @Test
         void shouldDisallowAccessWhenInvalidCredentialsAreProvided() throws Exception {
             request = HttpRequestBuilder.GET("/api/blah")
-                    .withBearerAuth(TOKEN)
-                    .build();
+                .withBearerAuth(TOKEN)
+                .build();
 
             final HttpSession originalSession = request.getSession(true);
 
@@ -172,7 +175,10 @@ public class AccessTokenAuthenticationFilterTest {
             assertThat(request.getSession(false)).isSameAs(originalSession);
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
             assertThat(response.getStatus()).isEqualTo(401);
-            assertThat(response.getContentAsString()).isEqualTo("{\n  \"message\": \"Invalid Personal Access Token.\"\n}");
+            assertThat(response.getContentAsString()).isEqualTo("""
+                {
+                  "message": "Invalid Personal Access Token."
+                }""");
         }
 
         @Test
@@ -180,8 +186,8 @@ public class AccessTokenAuthenticationFilterTest {
             when(securityAuthConfigService.findProfile(accessToken.getAuthConfigId())).thenReturn(null);
 
             request = HttpRequestBuilder.GET("/api/blah")
-                    .withBearerAuth(TOKEN)
-                    .build();
+                .withBearerAuth(TOKEN)
+                .build();
 
             final AuthenticationToken<AccessTokenCredential> authenticationToken = createAuthentication(BOB);
             when(authenticationProvider.authenticateUser(new AccessTokenCredential(accessToken), authConfig)).thenReturn(authenticationToken);
@@ -190,16 +196,21 @@ public class AccessTokenAuthenticationFilterTest {
 
             assertThat(response.getStatus()).isEqualTo(401);
 
-            assertThat(response.getContentAsString()).isEqualTo("{\n" +
-                    "  \"message\": \"Can not find authorization configuration \\\""+authConfig.getId()+"\\\" to which the requested personal access token belongs. Authorization Configuration \\\""+authConfig.getId()+"\\\" might have been renamed or deleted. Please revoke the existing token and create a new one for the same.\"\n" +
-                    "}");
+            assertThat(response.getContentAsString()).isEqualTo("""
+                {
+                  "message": "Can not find authorization configuration \\"%s\\" to which the requested personal access token belongs. Authorization Configuration \\"%s\\" might have been renamed or deleted. Please revoke the existing token and create a new one for the same."
+                }"""
+                .formatted(
+                    authConfig.getId(),
+                    authConfig.getId()
+                ));
         }
 
         @Test
         void shouldAllowAccessWhenGoodCredentialsAreProvided() throws Exception {
             request = HttpRequestBuilder.GET("/api/blah")
-                    .withBearerAuth(TOKEN)
-                    .build();
+                .withBearerAuth(TOKEN)
+                .build();
 
             final HttpSession originalSession = request.getSession(true);
             final AuthenticationToken<AccessTokenCredential> authenticationToken = createAuthentication(BOB);
@@ -218,8 +229,8 @@ public class AccessTokenAuthenticationFilterTest {
         @Test
         void shouldNotAuthenticateWhenRequestIsPreviouslyAuthenticated() throws ServletException, IOException {
             request = HttpRequestBuilder.GET("/")
-                    .withBearerAuth(TOKEN)
-                    .build();
+                .withBearerAuth(TOKEN)
+                .build();
 
             com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs(request, BOB);
             final HttpSession originalSession = request.getSession(true);

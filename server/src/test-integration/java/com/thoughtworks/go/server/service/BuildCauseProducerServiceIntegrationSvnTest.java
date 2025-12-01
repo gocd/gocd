@@ -73,7 +73,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
 
     @Autowired private DatabaseAccessHelper dbHelper;
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private SvnTestRepo svnRepository;
 
     public SvnMaterial svnMaterial;

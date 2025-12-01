@@ -68,33 +68,27 @@ public class StageNotificationServiceIntegrationTest {
 
     private PipelineWithTwoStages pipelineFixture;
 
-    private StageNotificationService stageNotificationService;
-
     private StageNotificationListener stageNotificationListener;
-    private InMemoryEmailNotificationTopic inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
-    private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
+    private final InMemoryEmailNotificationTopic inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private StageService stageService;
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
 
         stageService = mock(StageService.class);
-        stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService);
+        StageNotificationService stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService);
         stageNotificationListener = new StageNotificationListener(stageNotificationService, goConfigService, stageResultTopic);
 
-        dbHelper.onSetUp();
-        configFileHelper.onSetUp();
-        GoConfigFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
-        configFileHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
-        configFileHelper.enableSecurity();
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        configHelper.enableSecurity();
     }
 
     @AfterEach
     public void teardown() throws Exception {
-        dbHelper.onTearDown();
         pipelineFixture.onTearDown();
         inMemoryEmailNotificationTopic.reset();
     }
@@ -123,10 +117,9 @@ public class StageNotificationServiceIntegrationTest {
         assertThat(inMemoryEmailNotificationTopic.emailCount(chrisMail)).isEqualTo(0);
     }
 
-
     private String prepareOneNotMatchedUser() {
         String chrisMail = "chris@cruise.com";
-        User chris = new User("chris", new String[]{"will not be matched"}, chrisMail, true);
+        User chris = new User("chris", "will not be matched", chrisMail, true);
         chris.addNotificationFilter(new NotificationFilter(pipelineFixture.pipelineName, pipelineFixture.ftStage, StageEvent.All, true));
         userDao.saveOrUpdate(chris);
         return chrisMail;
@@ -150,7 +143,7 @@ public class StageNotificationServiceIntegrationTest {
 
     private String prepareOneMatchedUser(StageEvent event) {
         String jezMail = "jez@cruise.com";
-        User jez = new User("jez", new String[]{"lgao"}, jezMail, true);
+        User jez = new User("jez", "lgao", jezMail, true);
         jez.addNotificationFilter(new NotificationFilter(pipelineFixture.pipelineName, pipelineFixture.ftStage, event, true));
         userDao.saveOrUpdate(jez);
         return jezMail;

@@ -164,7 +164,7 @@ class PipelineConfigValidationTest {
         config.addPipeline("group", pipelineConfig);
         pipelineConfig.validateTemplate(new PipelineTemplateConfig());
         assertThat(pipelineConfig.errors().isEmpty()).isFalse();
-        assertThat(pipelineConfig.errors().on(PipelineConfig.TEMPLATE_NAME)).isEqualTo("Invalid template name '.Name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.TEMPLATE_NAME)).isEqualTo("Invalid template name '.Name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -172,7 +172,7 @@ class PipelineConfigValidationTest {
         PipelineConfig config = new PipelineConfig(new CaseInsensitiveString(".name"), new MaterialConfigs());
         config.validate(null);
         assertThat(config.errors().isEmpty()).isFalse();
-        assertThat(config.errors().on(PipelineConfig.NAME)).isEqualTo("Invalid pipeline name '.name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(config.errors().firstErrorOn(PipelineConfig.NAME)).isEqualTo("Invalid pipeline name '.name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -212,7 +212,7 @@ class PipelineConfigValidationTest {
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         pipelineConfig.addMaterialConfig(materialConfig);
         materialConfig.validate(null);
-        assertThat(materialConfig.errors().on("view")).isEqualTo("P4 view cannot be empty.");
+        assertThat(materialConfig.errors().firstErrorOn("view")).isEqualTo("P4 view cannot be empty.");
     }
 
     @Test
@@ -239,7 +239,7 @@ class PipelineConfigValidationTest {
         StageConfig s2 = new StageConfig(new CaseInsensitiveString("s2"), new JobConfigs());
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("p1"), new MaterialConfigs(), s1, s2);
         pipeline.validate(null);
-        assertThat(s1.errors().on(StageConfig.NAME).contains("Invalid stage name 'null'")).isTrue();
+        assertThat(s1.errors().firstErrorOn(StageConfig.NAME).contains("Invalid stage name 'null'")).isTrue();
     }
 
     @Test
@@ -359,7 +359,7 @@ class PipelineConfigValidationTest {
     void shouldValidateAPipelineHasAtleastOneStage() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
         pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs("group", new Authorization())), pipelineConfig));
-        assertThat(pipelineConfig.errors().on("pipeline")).isEqualTo("Pipeline 'p' does not have any stages configured. A pipeline must have at least one stage.");
+        assertThat(pipelineConfig.errors().firstErrorOn("pipeline")).isEqualTo("Pipeline 'p' does not have any stages configured. A pipeline must have at least one stage.");
     }
 
     @Test
@@ -376,7 +376,7 @@ class PipelineConfigValidationTest {
         p1.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p3"), new CaseInsensitiveString("stage")));
         p1.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().first().getGroup(), cruiseConfig, p1));
         assertThat(p1.materialConfigs().errors().isEmpty()).isFalse();
-        assertThat(p1.materialConfigs().errors().on("base")).isEqualTo("Circular dependency: p1 <- p2 <- p3 <- p1");
+        assertThat(p1.materialConfigs().errors().firstErrorOn("base")).isEqualTo("Circular dependency: p1 <- p2 <- p3 <- p1");
     }
 
     @Test
@@ -386,8 +386,8 @@ class PipelineConfigValidationTest {
         pipelineConfig.setTemplateName(new CaseInsensitiveString("template-name"));
         pipelineConfig.addStageWithoutValidityAssertion(new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs()));
         pipelineConfig.validateTemplate(null);
-        assertThat(pipelineConfig.errors().on("stages")).isEqualTo("Cannot add stages to pipeline 'wunderbar' which already references template 'template-name'");
-        assertThat(pipelineConfig.errors().on("template")).isEqualTo("Cannot set template 'template-name' on pipeline 'wunderbar' because it already has stages defined");
+        assertThat(pipelineConfig.errors().firstErrorOn("stages")).isEqualTo("Cannot add stages to pipeline 'wunderbar' which already references template 'template-name'");
+        assertThat(pipelineConfig.errors().firstErrorOn("template")).isEqualTo("Cannot set template 'template-name' on pipeline 'wunderbar' because it already has stages defined");
     }
 
     @Test
@@ -396,7 +396,7 @@ class PipelineConfigValidationTest {
         config.addPipeline("group", pipelineConfig);
         pipelineConfig.setTemplateName(new CaseInsensitiveString("does-not-exist"));
         pipelineConfig.validateTemplate(null);
-        assertThat(pipelineConfig.errors().on("pipeline")).isEqualTo("Pipeline 'wunderbar' refers to non-existent template 'does-not-exist'.");
+        assertThat(pipelineConfig.errors().firstErrorOn("pipeline")).isEqualTo("Pipeline 'wunderbar' refers to non-existent template 'does-not-exist'.");
     }
 
     @Test
@@ -423,7 +423,7 @@ class PipelineConfigValidationTest {
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, group, cruiseConfig, pipelineConfig);
 
         pipelineConfig.validateTree(validationContext);
-        assertThat(pipelineConfig.errors().on("base")).isEqualTo("Stage with name 'stage' does not exist on pipeline 'p1', it is being referred to from pipeline 'p2' (cruise-config.xml)");
+        assertThat(pipelineConfig.errors().firstErrorOn("base")).isEqualTo("Stage with name 'stage' does not exist on pipeline 'p1', it is being referred to from pipeline 'p2' (cruise-config.xml)");
     }
 
     @Test
@@ -446,7 +446,7 @@ class PipelineConfigValidationTest {
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, group, cruiseConfig, pipelineConfig);
 
         pipelineConfig.validateTree(validationContext);
-        assertThat(pipelineConfig.errors().on("base")).isEqualTo("\"p3 :: stage :: job\" tries to fetch artifact from job \"p1 :: stage :: job\" which does not exist.");
+        assertThat(pipelineConfig.errors().firstErrorOn("base")).isEqualTo("\"p3 :: stage :: job\" tries to fetch artifact from job \"p1 :: stage :: job\" which does not exist.");
     }
 
     private FetchTask fetchTaskFromSamePipeline(PipelineConfig pipelineConfig) {
@@ -473,7 +473,7 @@ class PipelineConfigValidationTest {
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, group, cruiseConfig, pipelineConfig);
 
         pipelineConfig.validateTree(validationContext);
-        assertThat(pipelineConfig.errors().on("base")).isEqualTo("\"p3 :: stage :: job\" tries to fetch artifact from job \"p1 :: stage :: job\" which does not exist.");
+        assertThat(pipelineConfig.errors().firstErrorOn("base")).isEqualTo("\"p3 :: stage :: job\" tries to fetch artifact from job \"p1 :: stage :: job\" which does not exist.");
     }
 
     @Test
@@ -485,7 +485,7 @@ class PipelineConfigValidationTest {
         cruiseConfig.addPipeline(group, p1Duplicate);
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, group, cruiseConfig, p1Duplicate);
         p1Duplicate.validateTree(context);
-        assertThat(p1Duplicate.errors().on(PipelineConfig.NAME)).isEqualTo(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): [cruise-config.xml]", p1Duplicate.name()));
+        assertThat(p1Duplicate.errors().firstErrorOn(PipelineConfig.NAME)).isEqualTo(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): [cruise-config.xml]", p1Duplicate.name()));
     }
 
     @Test
@@ -498,7 +498,7 @@ class PipelineConfigValidationTest {
         p1.validateTree(PipelineConfigSaveValidationContext.forChain(true, groupName, cruiseConfig, p1));
 
         assertThat(p1.errors().isEmpty()).isFalse();
-        assertThat(p1.errors().on(PipelineConfigs.GROUP)).isEqualTo("Invalid group name '%$-with-invalid-characters'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(p1.errors().firstErrorOn(PipelineConfigs.GROUP)).isEqualTo("Invalid group name '%$-with-invalid-characters'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
 

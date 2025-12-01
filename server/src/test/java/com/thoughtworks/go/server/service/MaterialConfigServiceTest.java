@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicPipelineConfigs;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
@@ -51,38 +50,48 @@ class MaterialConfigServiceTest {
     @Mock(strictness = Mock.Strictness.LENIENT)
     private SecurityService securityService;
 
-    private String user;
     private MaterialConfigService materialConfigService;
+
+    private final String user = "looser";
+    private final GitMaterialConfig GIT_REPO_1 = git("http://test.com");
+    private final GitMaterialConfig GIT_REPO_1_DUPLICATE = git("http://test.com");
+    private final GitMaterialConfig GIT_REPO_2 = git("http://crap.com");
+    private final GitMaterialConfig GIT_REPO_3 = git("http://another.com");
 
     @BeforeEach
     void setup() {
-
-        user = "looser";
         when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(true);
         when(securityService.hasViewPermissionForGroup(user, "group2")).thenReturn(false);
         when(securityService.hasViewPermissionForGroup(user, "group3")).thenReturn(true);
-        when(securityService.hasOperatePermissionForGroup(any(CaseInsensitiveString.class), eq("group3"))).thenReturn(true);
+        when(securityService.hasOperatePermissionForGroup(any(), eq("group3"))).thenReturn(true);
+
+        GIT_REPO_1_DUPLICATE.setFolder("non-default-folder");
+        assertThat(GIT_REPO_1)
+            .as("GIT_REPO_1 has a duplicate with the same fingerprint, but not equal")
+            .isNotEqualTo(GIT_REPO_1_DUPLICATE)
+            .extracting(GitMaterialConfig::getFingerprint)
+            .isEqualTo(GIT_REPO_1_DUPLICATE.getFingerprint());
 
         PipelineConfigs pipelineGroup1 = new BasicPipelineConfigs();
         pipelineGroup1.setGroup("group1");
         PipelineConfig pipelineConfig1 = new PipelineConfig();
         pipelineConfig1.setName("pipeline1");
-        pipelineConfig1.addMaterialConfig(git("http://test.com"));
-        pipelineConfig1.addMaterialConfig(git("http://crap.com"));
+        pipelineConfig1.addMaterialConfig(GIT_REPO_1);
+        pipelineConfig1.addMaterialConfig(GIT_REPO_2);
         pipelineGroup1.add(pipelineConfig1);
 
         PipelineConfigs pipelineGroup2 = new BasicPipelineConfigs();
         pipelineGroup2.setGroup("group2");
         PipelineConfig pipelineConfig2 = new PipelineConfig();
         pipelineConfig2.setName("pipeline2");
-        pipelineConfig2.addMaterialConfig(git("http://another.com"));
+        pipelineConfig2.addMaterialConfig(GIT_REPO_3);
         pipelineGroup2.add(pipelineConfig2);
 
         PipelineConfigs pipelineGroup3 = new BasicPipelineConfigs();
         pipelineGroup3.setGroup("group3");
         PipelineConfig pipelineConfig3 = new PipelineConfig();
         pipelineConfig3.setName("pipeline3");
-        pipelineConfig3.addMaterialConfig(git("http://test.com"));
+        pipelineConfig3.addMaterialConfig(GIT_REPO_1_DUPLICATE);
         pipelineGroup3.add(pipelineConfig3);
 
         PipelineGroups pipelineGroups = new PipelineGroups(pipelineGroup1, pipelineGroup2, pipelineGroup3);
@@ -95,9 +104,7 @@ class MaterialConfigServiceTest {
     void shouldGetUniqueMaterialConfigsToWhichUserHasViewPermission() {
         MaterialConfigs materialConfigs = materialConfigService.getMaterialConfigs(user);
 
-        assertThat(materialConfigs.size()).isEqualTo(2);
-        assertThat(materialConfigs.get(0)).isEqualTo(git("http://test.com"));
-        assertThat(materialConfigs.get(1)).isEqualTo(git("http://crap.com"));
+        assertThat(materialConfigs).containsExactly(GIT_REPO_1, GIT_REPO_2);
     }
 
     @Nested
@@ -106,10 +113,9 @@ class MaterialConfigServiceTest {
         @Test
         void shouldGetMaterialConfigByFingerprint() {
             HttpOperationResult result = new HttpOperationResult();
-            GitMaterialConfig gitMaterialConfig = git("http://crap.com");
-            MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, gitMaterialConfig.getFingerprint(), result);
+            MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, GIT_REPO_2.getFingerprint(), result);
 
-            assertThat(materialConfig).isEqualTo(gitMaterialConfig);
+            assertThat(materialConfig).isEqualTo(GIT_REPO_2);
             assertThat(result.canContinue()).isTrue();
         }
 
@@ -125,8 +131,7 @@ class MaterialConfigServiceTest {
         @Test
         void shouldPopulateErrorCorrectlyWhenUnauthorizedToViewMaterial() {
             HttpOperationResult result = new HttpOperationResult();
-            GitMaterialConfig gitMaterialConfig = git("http://another.com");
-            MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, gitMaterialConfig.getFingerprint(), result);
+            MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, GIT_REPO_3.getFingerprint(), result);
 
             assertThat(materialConfig).isNull();
             assertThat(result.httpCode()).isEqualTo(403);
@@ -135,23 +140,15 @@ class MaterialConfigServiceTest {
 
     @Nested
     class GetUsages {
-
         @Test
         void shouldReturnUsagesOfAGivenMaterial() {
-            GitMaterialConfig material = git("http://test.com");
-
-            List<String> usages = materialConfigService.getUsagesForMaterial(user, material.getFingerprint());
-
-            assertThat(usages.size()).isEqualTo(2);
+            List<String> usages = materialConfigService.getUsagesForMaterial(user, GIT_REPO_1.getFingerprint());
             assertThat(usages).containsExactly("pipeline1", "pipeline3");
         }
 
         @Test
         void shouldReturnEmptyMapIfNotUsagesFound() {
-            GitMaterialConfig material = git("http://example.com");
-
-            List<String> usages = materialConfigService.getUsagesForMaterial(user, material.getFingerprint());
-
+            List<String> usages = materialConfigService.getUsagesForMaterial(user, "unknown-fingerprint");
             assertThat(usages).isEmpty();
         }
     }
@@ -160,18 +157,31 @@ class MaterialConfigServiceTest {
     class GetMaterialConfigsWithPermissions {
         @Test
         void shouldGetUniqueMaterialConfigsWithPermissionsToWhichUserHasViewPermission() {
-            Map<MaterialConfig, Boolean> materialConfigs = materialConfigService.getMaterialConfigsWithPermissions(user);
+            Map<MaterialConfig, Boolean> materialConfigs = materialConfigService.getMaterialConfigsToOperatePermissions(user);
 
-            assertThat(materialConfigs.size()).isEqualTo(2);
-            assertThat(materialConfigs.keySet()).containsExactly(git("http://crap.com"), git("http://test.com"));
-            assertThat(materialConfigs.values()).containsExactly(false, true);
+            assertThat(materialConfigs).containsExactlyInAnyOrderEntriesOf(Map.of(
+                GIT_REPO_1, true, // Can operate via group3 permission to duplicate material
+                GIT_REPO_2, false)
+            );
+        }
+
+        @Test
+        void shouldGetUniqueMaterialConfigsWithPermissionsToWhichUserHasViewPermissionAgain() {
+            when(securityService.hasOperatePermissionForGroup(any(), eq("group1"))).thenReturn(true);
+            when(securityService.hasOperatePermissionForGroup(any(), eq("group3"))).thenReturn(true);
+
+            Map<MaterialConfig, Boolean> materialConfigs = materialConfigService.getMaterialConfigsToOperatePermissions(user);
+
+            assertThat(materialConfigs).containsExactlyInAnyOrderEntriesOf(Map.of(
+                GIT_REPO_1, true, // Can operate via either group 1 or group3 permission
+                GIT_REPO_2, true) // Can operate via either group 1 permission
+            );
         }
 
         @Test
         void shouldReturnEmptyMapIfUserDoesNotHavePermissionToViewAnyGroup() {
-            Map<MaterialConfig, Boolean> materialConfigs = materialConfigService.getMaterialConfigsWithPermissions("dummy_user");
-
-            assertThat(materialConfigs.size()).isEqualTo(0);
+            Map<MaterialConfig, Boolean> materialConfigs = materialConfigService.getMaterialConfigsToOperatePermissions("dummy_user");
+            assertThat(materialConfigs).isEmpty();
         }
     }
 
@@ -179,37 +189,29 @@ class MaterialConfigServiceTest {
     class GetMaterialConfigWithOperate {
         @Test
         void shouldGetMaterialConfigByFingerprint() {
-            GitMaterialConfig gitMaterialConfig = git("http://test.com");
-            MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, gitMaterialConfig.getFingerprint());
-
-            assertThat(materialConfig).isEqualTo(gitMaterialConfig);
+            MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, GIT_REPO_1.getFingerprint());
+            assertThat(materialConfig).isEqualTo(GIT_REPO_1_DUPLICATE);
         }
 
         @Test
         void shouldThrowRecordNotFoundExceptionIfMaterialNotFound() {
-            GitMaterialConfig gitMaterialConfig = git("http://dummy.com");
-
-            assertThatCode(() -> materialConfigService.getMaterialConfig(user, gitMaterialConfig.getFingerprint()))
-                    .isInstanceOf(RecordNotFoundException.class)
-                    .hasMessage("Material not found");
+            assertThatCode(() -> materialConfigService.getMaterialConfig(user, git("http://dummy.com").getFingerprint()))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Material not found");
         }
 
         @Test
         void shouldThrowUnAuthorizedExceptionIfViewPermissionIsFalse() {
-            GitMaterialConfig gitMaterialConfig = git("http://another.com");
-
-            assertThatCode(() -> materialConfigService.getMaterialConfig(user, gitMaterialConfig.getFingerprint()))
-                    .isInstanceOf(NotAuthorizedException.class)
-                    .hasMessage("Do not have view permission to this material");
+            assertThatCode(() -> materialConfigService.getMaterialConfig(user, GIT_REPO_3.getFingerprint()))
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("Do not have view permission to this material");
         }
 
         @Test
         void shouldThrowUnAuthorizedExceptionIfOperatePermissionIsFalse() {
-            GitMaterialConfig gitMaterialConfig = git("http://crap.com");
-
-            assertThatCode(() -> materialConfigService.getMaterialConfig(user, gitMaterialConfig.getFingerprint()))
-                    .isInstanceOf(NotAuthorizedException.class)
-                    .hasMessage("Do not have permission to trigger this material");
+            assertThatCode(() -> materialConfigService.getMaterialConfig(user, GIT_REPO_2.getFingerprint()))
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("Do not have permission to trigger this material");
         }
     }
 }

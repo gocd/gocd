@@ -109,7 +109,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
     private String generateFingerprintFromCriteria(Map<String, Object> sqlCriteria) {
         List<String> list = new ArrayList<>();
         for (Map.Entry<String, Object> criteria : sqlCriteria.entrySet()) {
-            list.add(new StringBuilder().append(criteria.getKey()).append("=").append(criteria.getValue()).toString());
+            list.add(criteria.getKey() + "=" + criteria.getValue());
         }
         String fingerprint = StringUtils.join(list, FINGERPRINT_DELIMITER);
         // CAREFUL! the hash algorithm has to be same as the one used in 47_create_new_materials.sql

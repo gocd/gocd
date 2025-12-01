@@ -133,7 +133,7 @@ public class AbstractTaskTest {
         task.validate(null);
 
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(AbstractTask.ON_CANCEL_CONFIG)).isEqualTo("Cannot nest 'oncancel' within a cancel task");
+        assertThat(task.errors().firstErrorOn(AbstractTask.ON_CANCEL_CONFIG)).isEqualTo("Cannot nest 'oncancel' within a cancel task");
     }
 
     @Test

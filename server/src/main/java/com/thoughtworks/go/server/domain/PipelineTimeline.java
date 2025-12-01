@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -44,11 +45,11 @@ public class PipelineTimeline {
 
     private final Map<CaseInsensitiveString, TreeSet<PipelineTimelineEntry>> naturalOrderPmm;
     private final Map<CaseInsensitiveString, ArrayList<PipelineTimelineEntry>> scheduleOrderPmm;
-    private volatile long maximumId;
+    private final AtomicLong maximumId = new AtomicLong(-1);
     private final PipelineRepository pipelineRepository;
-    private TransactionTemplate transactionTemplate;
-    private TransactionSynchronizationManager transactionSynchronizationManager;
-    private TimelineUpdateListener[] listeners;
+    private final TransactionTemplate transactionTemplate;
+    private final TransactionSynchronizationManager transactionSynchronizationManager;
+    private final TimelineUpdateListener[] listeners;
     private final ReadWriteLock naturalOrderLock = new ReentrantReadWriteLock();
     private final ReadWriteLock scheduleOrderLock = new ReentrantReadWriteLock();
     private final Cloner cloner = ClonerFactory.instance();
@@ -62,7 +63,6 @@ public class PipelineTimeline {
         this.listeners = ArrayUtils.nullToEmpty(listeners, TimelineUpdateListener[].class);
         naturalOrderPmm = new HashMap<>();
         scheduleOrderPmm = new HashMap<>();
-        maximumId = -1;
     }
 
     @TestOnly
@@ -80,7 +80,7 @@ public class PipelineTimeline {
     }
 
     public long maximumId() {
-        return maximumId;
+        return maximumId.get();
     }
 
     public void add(PipelineTimelineEntry pipelineTimelineEntry) {
@@ -96,7 +96,7 @@ public class PipelineTimeline {
     public void update() {
         acquireAllWriteLocks();
         try {
-            final long maximumIdBeforeUpdate = maximumId;
+            final long maximumIdBeforeUpdate = maximumId.get();
             transactionTemplate.execute(transactionStatus -> {
                 final List<PipelineTimelineEntry> newlyAddedEntries = new ArrayList<>();
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
@@ -113,7 +113,7 @@ public class PipelineTimeline {
                         for (PipelineTimelineEntry entry : newlyAddedEntries) {
                             rollbackNewEntryFor(entry);
                         }
-                        maximumId = maximumIdBeforeUpdate;
+                        maximumId.set(maximumIdBeforeUpdate);
                     }
 
                     private void rollbackNewEntryFor(PipelineTimelineEntry entry) {
@@ -182,7 +182,7 @@ public class PipelineTimeline {
 
     /**
      * @param id           for the pipeline
-     * @param pipelineName
+     * @param pipelineName name for the pipeline
      * @return PMM which was before the pipeline with this id at the time of insertion of the PTE with the id or null if there was nothing before this pipeline during insertion
      */
     public PipelineTimelineEntry runBefore(long id, final CaseInsensitiveString pipelineName) {
@@ -204,8 +204,8 @@ public class PipelineTimeline {
     }
 
     /**
-     * @param id           for the pipeline
-     * @param pipelineName
+     * @param id           id for the pipeline
+     * @param pipelineName name for the pipeline
      * @return PMM which was after the pipeline with this id at the time of insertion of the PTE with the id or null if there was nothing after this pipeline during insertion
      */
     public PipelineTimelineEntry runAfter(long id, final CaseInsensitiveString pipelineName) {
@@ -227,21 +227,15 @@ public class PipelineTimeline {
     }
 
     private void updateMaximumId(long id) {
-        maximumId = Math.max(id, maximumId);
+        maximumId.accumulateAndGet(id, Math::max);
     }
 
     private TreeSet<PipelineTimelineEntry> initializedNaturalOrderCollection(final CaseInsensitiveString pipelineName) {
-        if (!naturalOrderPmm.containsKey(pipelineName)) {
-            naturalOrderPmm.put(pipelineName, new TreeSet<>());
-        }
-        return naturalOrderPmm.get(pipelineName);
+        return naturalOrderPmm.computeIfAbsent(pipelineName, k -> new TreeSet<>());
     }
 
     private List<PipelineTimelineEntry> initializedScheduleOrderCollection(final CaseInsensitiveString pipelineName) {
-        if (!scheduleOrderPmm.containsKey(pipelineName)) {
-            scheduleOrderPmm.put(pipelineName, new ArrayList<>());
-        }
-        return scheduleOrderPmm.get(pipelineName);
+        return scheduleOrderPmm.computeIfAbsent(pipelineName, k -> new ArrayList<>());
     }
 
     private PipelineTimelineEntry naturalOrderAfter(PipelineTimelineEntry pipelineTimelineEntry) {

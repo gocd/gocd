@@ -18,7 +18,6 @@ package com.thoughtworks.go.presentation.pipelinehistory;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.StageState;
-import com.thoughtworks.go.server.presentation.models.StageConfigurationModel;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.Date;

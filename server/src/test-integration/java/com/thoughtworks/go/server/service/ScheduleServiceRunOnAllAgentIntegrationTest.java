@@ -21,8 +21,6 @@ import com.thoughtworks.go.domain.CannotScheduleException;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.svn.Subversion;
-import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
@@ -37,10 +35,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,11 +81,10 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     private GoCache goCache;
     @Autowired
     private DependencyMaterialUpdateNotifier notifier;
-
     @Autowired
     private DatabaseAccessHelper dbHelper;
-    private GoConfigFileHelper CONFIG_HELPER;
-    public Subversion repository;
+
+    private GoConfigFileHelper configHelper;
     public static TestRepo testRepo;
 
     @BeforeAll
@@ -98,20 +92,24 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
         testRepo = new SvnTestRepo(tempDir);
     }
 
+    @AfterAll
+    public static void tearDownRepos() {
+        testRepo.tearDown();
+    }
+
     @BeforeEach
     public void setup() throws Exception {
-        CONFIG_HELPER = new GoConfigFileHelper();
+        configHelper = new GoConfigFileHelper();
         dbHelper.onSetUp();
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
-        CONFIG_HELPER.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.onSetUp();
 
-        repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
         goConfigService.forceNotifyListeners();
         agentAssignment.clear();
         goCache.clear();
 
-        CONFIG_HELPER.addPipeline("blahPipeline", "blahStage", MaterialConfigsMother.hgMaterialConfig(UUID.randomUUID().toString()), "job1", "job2");
-        CONFIG_HELPER.makeJobRunOnAllAgents("blahPipeline", "blahStage", "job2");
+        configHelper.addPipeline("blahPipeline", "blahStage", MaterialConfigsMother.hgMaterialConfig(UUID.randomUUID().toString()), "job1", "job2");
+        configHelper.makeJobRunOnAllAgents("blahPipeline", "blahStage", "job2");
         notifier.disableUpdates();
 
     }
@@ -123,7 +121,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
         pipelineScheduleQueue.clear();
         agentAssignment.clear();
-        CONFIG_HELPER.onTearDown();
+        configHelper.onTearDown();
     }
 
     @Test

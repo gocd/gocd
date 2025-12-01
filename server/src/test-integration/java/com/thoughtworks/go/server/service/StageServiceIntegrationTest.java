@@ -121,8 +121,8 @@ public class StageServiceIntegrationTest {
     private Pipeline savedPipeline;
     private PipelineConfig pipelineConfig;
     private Stage stage;
-    private GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
-    private PipelineWithMultipleStages fixture;
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private PipelineWithMultipleStages pipelineFixture;
     private String md5 = "md5-test";
     private JobState receivedState;
     private JobResult receivedResult;
@@ -134,9 +134,9 @@ public class StageServiceIntegrationTest {
         pipelineConfig = PipelineMother.withSingleStageWithMaterials(PIPELINE_NAME, STAGE_NAME, withBuildPlans("unit", "dev", "blah"));
         pipelineConfig.getFirstStageConfig().setFetchMaterials(false);
         pipelineConfig.getFirstStageConfig().setCleanWorkingDir(true);
-        configFileHelper.usingCruiseConfigDao(goConfigDao);
-        configFileHelper.onSetUp();
-        configFileHelper.addPipeline(PIPELINE_NAME, STAGE_NAME);
+        configHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.onSetUp();
+        configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME);
         savedPipeline = scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), GoConstants.DEFAULT_APPROVED_BY);
         stage = savedPipeline.getStages().first();
         job = stage.getJobInstances().first();
@@ -152,11 +152,11 @@ public class StageServiceIntegrationTest {
 
     @AfterEach
     public void teardown() throws Exception {
-        if (fixture != null) {
-            fixture.onTearDown();
+        if (pipelineFixture != null) {
+            pipelineFixture.onTearDown();
         }
         dbHelper.onTearDown();
-        configFileHelper.onTearDown();
+        configHelper.onTearDown();
         notifier.enableUpdates();
     }
 
@@ -187,26 +187,26 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldReturnFalseWhenAllStagesAreCompletedInAGivenPipeline(@TempDir Path tempDir) throws Exception {
-        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, tempDir);
-        fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        pipelineFixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier())).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfAnyStageIsBuildingInAGivenPipeline(@TempDir Path tempDir) throws Exception {
-        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, tempDir);
-        fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
 
-        Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
+        Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageAssigned();
         assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier())).isTrue();
     }
 
     @Test
     public void testShouldReturnTrueIfAStageOfAPipelineHasBeenScheduled(@TempDir Path tempDir) throws Exception {
-        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, tempDir);
-        fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
-        Pipeline pipeline = fixture.createPipelineWithFirstStageScheduled();
+        pipelineFixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageScheduled();
         assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier())).isTrue();
     }
 
@@ -436,7 +436,7 @@ public class StageServiceIntegrationTest {
     // #2328
     public void shouldGetDurationBasedOnPipelineNameStageNameJobNameAndAgentUUID() {
         String pipelineName = "Cruise";
-        configFileHelper.addPipeline(pipelineName, STAGE_NAME);
+        configHelper.addPipeline(pipelineName, STAGE_NAME);
         Stage saveStage = dbHelper.saveTestPipeline(pipelineName, STAGE_NAME).getStages().first();
         JobInstance job1 = completed("unit", Passed, new Date(), Dates.from(ZonedDateTime.now().minusMinutes(1)));
         job1.setAgentUuid(UUID);
@@ -444,7 +444,7 @@ public class StageServiceIntegrationTest {
         jobInstanceDao.save(saveStage.getId(), job1);
 
         String pipeline2Name = "Cruise-1.1";
-        configFileHelper.addPipeline(pipeline2Name, STAGE_NAME);
+        configHelper.addPipeline(pipeline2Name, STAGE_NAME);
         Stage stage11 = dbHelper.saveTestPipeline(pipeline2Name, STAGE_NAME).getStages().first();
 
         final JobInstance job2 = building("unit", new Date());
@@ -514,17 +514,17 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldLoadStagesHavingArtifactsWhenStageIsNotCleanupProtected() {
-        PipelineConfig pipelineConfig = configFileHelper.addPipeline("pipeline-1", "stage-1", "job-1");
+        PipelineConfig pipelineConfig = configHelper.addPipeline("pipeline-1", "stage-1", "job-1");
 
         Pipeline completed = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
         dbHelper.pass(completed);
         List<Stage> stages = stageService.oldestStagesWithDeletableArtifacts();
         assertThat(stages.size()).isEqualTo(1);
 
-        CruiseConfig cruiseConfig = configFileHelper.currentConfig();
+        CruiseConfig cruiseConfig = configHelper.currentConfig();
         pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
         ReflectionUtil.setField(pipelineConfig.get(0), "artifactCleanupProhibited", true);
-        configFileHelper.writeConfigFile(cruiseConfig);
+        configHelper.writeConfigFile(cruiseConfig);
 
         configDbStateRepository.flushConfigState();
 
@@ -534,16 +534,16 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldLoadPageOfOldestStagesHavingArtifacts() {
-        CruiseConfig cruiseConfig = configFileHelper.currentConfig();
+        CruiseConfig cruiseConfig = configHelper.currentConfig();
         PipelineConfig mingleConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
         ReflectionUtil.setField(mingleConfig.get(0), "artifactCleanupProhibited", true);
-        configFileHelper.writeConfigFile(cruiseConfig);
+        configHelper.writeConfigFile(cruiseConfig);
 
         configDbStateRepository.flushConfigState();
 
         Pipeline[] pipelines = new Pipeline[101];
         for (int i = 0; i < 101; i++) {
-            PipelineConfig pipelineCfg = configFileHelper.addPipeline("pipeline-" + i, "stage", "job");
+            PipelineConfig pipelineCfg = configHelper.addPipeline("pipeline-" + i, "stage", "job");
             Pipeline pipeline = dbHelper.schedulePipeline(pipelineCfg, new TimeProvider());
             dbHelper.pass(pipeline);
             pipelines[i] = pipeline;
@@ -568,8 +568,8 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void findStageHistoryForChart_shouldFindLatestStageInstancesForChart() {
-        PipelineConfig pipelineConfig = configFileHelper.addPipeline("pipeline-1", "stage-1");
-        configFileHelper.turnOffSecurity();
+        PipelineConfig pipelineConfig = configHelper.addPipeline("pipeline-1", "stage-1");
+        configHelper.turnOffSecurity();
         Pipeline pipeline;
         for (int i = 0; i < 16; i++) {
             pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
@@ -586,8 +586,8 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void findStageHistoryForChart_shouldNotRetrieveCancelledStagesAndStagesWithRerunJobs() {
-        PipelineConfig pipelineConfig = configFileHelper.addPipeline("pipeline-1", "stage-1");
-        configFileHelper.turnOffSecurity();
+        PipelineConfig pipelineConfig = configHelper.addPipeline("pipeline-1", "stage-1");
+        configHelper.turnOffSecurity();
         Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
         dbHelper.pass(pipeline);
         StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10);
@@ -607,10 +607,10 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldSaveTheStageStatusProperlyUponJobCancelAfterInvalidatingTheCache(@TempDir Path tempDir) throws Exception {
-        fixture = (PipelineWithMultipleStages) new PipelineWithMultipleStages(2, materialRepository, transactionTemplate, tempDir).usingTwoJobs();
-        fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture = (PipelineWithMultipleStages) new PipelineWithMultipleStages(2, materialRepository, transactionTemplate, tempDir).usingTwoJobs();
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
 
-        Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
+        Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageAssigned();
         Stage currentStage = pipeline.getFirstStage();
         JobInstances jobs = currentStage.getJobInstances();
 
@@ -633,12 +633,12 @@ public class StageServiceIntegrationTest {
     public void shouldNotLoadStageAuthors_fromUpstreamInvisibleToUser() {
         PipelineConfig downstream = setup2DependentInstances();
 
-        configFileHelper.enableSecurity();
-        configFileHelper.addAdmins("super-hero");
+        configHelper.enableSecurity();
+        configHelper.addAdmins("super-hero");
 
-        configFileHelper.addAuthorizedUserForPipelineGroup("loser", "upstream-without-mingle");
-        configFileHelper.addAuthorizedUserForPipelineGroup("loser", "downstream");
-        configFileHelper.addAuthorizedUserForPipelineGroup("boozer", "upstream-with-mingle");
+        configHelper.addAuthorizedUserForPipelineGroup("loser", "upstream-without-mingle");
+        configHelper.addAuthorizedUserForPipelineGroup("loser", "downstream");
+        configHelper.addAuthorizedUserForPipelineGroup("boozer", "upstream-with-mingle");
 
         FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
 
@@ -683,9 +683,9 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void testShouldReturnTrueIfAStageIsActive_CaseInsensitive(@TempDir Path tempDir) throws Exception {
-        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, tempDir);
-        fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
-        Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
+        pipelineFixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        Pipeline pipeline = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         assertThat(stageService.isStageActive(pipeline.getName().toUpperCase(), "FT")).isTrue();
     }
 
@@ -769,12 +769,12 @@ public class StageServiceIntegrationTest {
         hg.setFolder("hg");
         PipelineConfig upstreamWithMingle = PipelineConfigMother.createPipelineConfig("upstream-with-mingle", "stage", "build");
         upstreamWithMingle.setMaterialConfigs(new MaterialConfigs(git.config(), hg.config()));
-        configFileHelper.addPipelineToGroup(upstreamWithMingle, "upstream-with-mingle");
+        configHelper.addPipelineToGroup(upstreamWithMingle, "upstream-with-mingle");
 
         P4Material p4 = MaterialsMother.p4Material("loser:007", "loser", "boozer", "through-the-window", true);
         PipelineConfig upstreamWithoutMingle = PipelineConfigMother.createPipelineConfig("upstream-without-mingle", "stage", "build");
         upstreamWithoutMingle.setMaterialConfigs(new MaterialConfigs(p4.config()));
-        configFileHelper.addPipelineToGroup(upstreamWithoutMingle, "upstream-without-mingle");
+        configHelper.addPipelineToGroup(upstreamWithoutMingle, "upstream-without-mingle");
 
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial(upstreamWithMingle.name().toString(), upstreamWithMingle.get(0).name().toString());
         SvnMaterial svn = MaterialsMother.svnMaterial("http://svn.com");
@@ -782,7 +782,7 @@ public class StageServiceIntegrationTest {
         PipelineConfig downstream = PipelineConfigMother.createPipelineConfig("downstream", "down-stage", "job");
         downstream.setMaterialConfigs(new MaterialConfigs(dependencyMaterial.config(), svn.config(), dependencyMaterialViaP4.config()));
 
-        configFileHelper.addPipelineToGroup(downstream, "downstream");
+        configHelper.addPipelineToGroup(downstream, "downstream");
 
         //mingle card nos.
         //svn: 1xx

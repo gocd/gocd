@@ -41,7 +41,6 @@ public class ConfigurationPropertyMother {
     }
 
     public static ConfigurationProperty createKeyOnly(String key) {
-        ConfigurationValue configurationValue = null;
-        return new ConfigurationProperty(new ConfigurationKey(key), configurationValue);
+        return new ConfigurationProperty(new ConfigurationKey(key), (ConfigurationValue) null);
     }
 }

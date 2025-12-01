@@ -79,7 +79,7 @@ public class ConfigReposConfigTest {
         // so there cannot be one repository parsed by 2 plugins.
         // This also does not seem like practical use case anyway
         repos.validate(null);
-        assertThat(repos.errors().on("material")).isEqualTo("You have defined multiple configuration repositories with the same repository.");
+        assertThat(repos.errors().firstErrorOn("material")).isEqualTo("You have defined multiple configuration repositories with the same repository.");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class ConfigReposConfigTest {
         repos.add(repo1);
         repos.add(repo2);
         repos.validate(null);
-        assertThat(repos.errors().on("id")).isEqualTo("You have defined multiple configuration repositories with the same id.");
+        assertThat(repos.errors().firstErrorOn("id")).isEqualTo("You have defined multiple configuration repositories with the same id.");
     }
 
     @Test

@@ -77,32 +77,32 @@ class AgentTest {
         void shouldFailValidationIfIPAddressIsInvalid1() {
             Agent agent = new Agent("uuid", "host", "blahinvalid");
             agent.validate();
-            assertThat(agent.errors().on(Agent.IP_ADDRESS)).isEqualTo("'blahinvalid' is an invalid IP address.");
+            assertThat(agent.errors().firstErrorOn(Agent.IP_ADDRESS)).isEqualTo("'blahinvalid' is an invalid IP address.");
 
             agent = new Agent("uuid", "host", "blah.invalid");
             agent.validate();
-            assertThat(agent.errors().on(Agent.IP_ADDRESS)).isEqualTo("'blah.invalid' is an invalid IP address.");
+            assertThat(agent.errors().firstErrorOn(Agent.IP_ADDRESS)).isEqualTo("'blah.invalid' is an invalid IP address.");
         }
 
         @Test
         void shouldFailValidationIfIPAddressIsInvalid2() {
             Agent agent = new Agent("uuid", "host", "399.0.0.1");
             agent.validate();
-            assertThat(agent.errors().on(Agent.IP_ADDRESS)).isEqualTo("'399.0.0.1' is an invalid IP address.");
+            assertThat(agent.errors().firstErrorOn(Agent.IP_ADDRESS)).isEqualTo("'399.0.0.1' is an invalid IP address.");
         }
 
         @Test
         void shouldInvalidateEmptyIpAddress() {
             Agent agent = new Agent("uuid", "host", "");
             agent.validate();
-            assertThat(agent.errors().on(Agent.IP_ADDRESS)).isEqualTo("IpAddress cannot be empty if it is present.");
+            assertThat(agent.errors().firstErrorOn(Agent.IP_ADDRESS)).isEqualTo("IpAddress cannot be empty if it is present.");
         }
 
         private void shouldBeValid(String ipAddress) {
             Agent agent = new Agent("some-dummy-uuid");
             agent.setIpaddress(ipAddress);
             agent.validate();
-            assertThat(agent.errors().on(Agent.IP_ADDRESS)).isNull();
+            assertThat(agent.errors().firstErrorOn(Agent.IP_ADDRESS)).isNull();
         }
     }
 
@@ -261,7 +261,7 @@ class AgentTest {
             agent.validate();
 
             assertEquals(1, agent.errors().size());
-            assertThat(agent.errors().on(RESOURCES)).isEqualTo("Elastic agents cannot have resources.");
+            assertThat(agent.errors().firstErrorOn(RESOURCES)).isEqualTo("Elastic agents cannot have resources.");
         }
     }
 
@@ -271,17 +271,17 @@ class AgentTest {
         void shouldPassValidationWhenUUidIsAvailable() {
             Agent agent = new Agent("uuid");
             agent.validate();
-            assertThat(agent.errors().on(Agent.UUID)).isNull();
+            assertThat(agent.errors().firstErrorOn(Agent.UUID)).isNull();
         }
 
         @Test
         void shouldFailValidationWhenUUidIsBlank() {
             Agent agent = new Agent("");
             agent.validate();
-            assertThat(agent.errors().on(Agent.UUID)).isEqualTo("UUID cannot be empty");
+            assertThat(agent.errors().firstErrorOn(Agent.UUID)).isEqualTo("UUID cannot be empty");
             agent = new Agent("");
             agent.validate();
-            assertThat(agent.errors().on(Agent.UUID)).isEqualTo("UUID cannot be empty");
+            assertThat(agent.errors().firstErrorOn(Agent.UUID)).isEqualTo("UUID cannot be empty");
         }
     }
 

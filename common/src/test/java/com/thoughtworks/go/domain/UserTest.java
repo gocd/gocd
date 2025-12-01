@@ -23,9 +23,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.thoughtworks.go.helper.ModificationsMother.aCheckIn;
 import static org.assertj.core.api.Assertions.*;
@@ -38,7 +36,7 @@ class UserTest {
 
     @Test
     void shouldTrimTheUserNameAndMatcher() {
-        user = new User(" UserName ", "Full User Name", new String[]{" README "}, " user@mail.com ", true);
+        user = new User(" UserName ", "Full User Name", " README ", " user@mail.com ", true);
         assertThat(user.getName()).isEqualTo("UserName");
         assertThat(user.getMatcher()).isEqualTo(("README"));
         assertThat(user.getEmail()).isEqualTo("user@mail.com");
@@ -48,20 +46,20 @@ class UserTest {
     @Test
     void shouldNotMatchWhenUserDidNotSetUpTheMatcher() {
         materialRevisions = new MaterialRevisions(new MaterialRevision(MaterialsMother.svnMaterial(), aCheckIn("100", "readme")));
-        assertThat(new User("UserName", new String[]{null}, "user@mail.com", true).matchModification(materialRevisions)).isFalse();
-        assertThat(new User("UserName", new String[]{""}, "user@mail.com", true).matchModification(materialRevisions)).isFalse();
+        assertThat(new User("UserName", null, "user@mail.com", true).matchModification(materialRevisions)).isFalse();
+        assertThat(new User("UserName", "", "user@mail.com", true).matchModification(materialRevisions)).isFalse();
     }
 
     @Test
     void shouldReturnFalseWhenEmailIsEmpty() {
-        assertThat(new User("UserName", new String[]{"README"}, null, true).matchNotification(null, StageEvent.All, null)).isFalse();
-        assertThat(new User("UserName", new String[]{"README"}, "", true).matchNotification(null, StageEvent.All, null)).isFalse();
+        assertThat(new User("UserName", "README", null, true).matchNotification(null, StageEvent.All, null)).isFalse();
+        assertThat(new User("UserName", "README", "", true).matchNotification(null, StageEvent.All, null)).isFalse();
     }
 
     @Test
     void shouldReturnTrueWhenNotificationFilterMatchesMyCheckinOnGivenStageFixed() {
         materialRevisions = new MaterialRevisions(new MaterialRevision(MaterialsMother.svnMaterial(), aCheckIn("100", "readme")));
-        user = new User("UserName", new String[]{"README"}, "user@mail.com", true);
+        user = new User("UserName", "README", "user@mail.com", true);
         user.setNotificationFilters(
                 List.of(new NotificationFilter("cruise", "dev", StageEvent.Fixed, true)));
         assertThat(user.matchNotification(new StageConfigIdentifier("cruise", "dev"), StageEvent.Fixed, materialRevisions)).isTrue();
@@ -70,53 +68,29 @@ class UserTest {
     @Test
     void shouldReturnTrueWhenNotificationFilterMatchesAnyCheckinOnGivenStageFixed() {
         materialRevisions = new MaterialRevisions(new MaterialRevision(MaterialsMother.svnMaterial(), aCheckIn("100", "xyz")));
-        user = new User("UserName", new String[]{"README"}, "user@mail.com", true);
+        user = new User("UserName", "README", "user@mail.com", true);
         user.setNotificationFilters(
                 List.of(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false)));
         assertThat(user.matchNotification(new StageConfigIdentifier("cruise", "dev"), StageEvent.Fixed, materialRevisions)).isTrue();
     }
 
     @Test
-    void shouldAddMultiple() {
-        user = new User("UserName", new String[]{" JH ,Pavan,JEZ,"}, "user@mail.com", true);
-        assertThat(user.matcher()).isEqualTo(new Matcher("JH,Pavan,JEZ"));
-    }
-
-    @Test
-    void shouldPopulateEmptyListWhenMatcherDoesNotInitialized() {
-        user = new User("UserName", new String[]{""}, "user@mail.com", true);
-        Map<String, Object> data = new HashMap<>();
-        user.populateModel(data);
-        Object value = data.get("matchers");
-        assertThat(value).isEqualTo(new Matcher(""));
-    }
-
-    @Test
-    void shouldPopulateMatchers() {
-        user = new User("UserName", new String[]{"Jez,Pavan"}, "user@mail.com", true);
-        Map<String, Object> data = new HashMap<>();
-        user.populateModel(data);
-        Object value = data.get("matchers");
-        assertThat(value).isEqualTo(new Matcher("Jez,Pavan"));
-    }
-
-    @Test
     void shouldValidateEmailLesserThan255() throws Exception {
-        user = new User("UserName", new String[]{"Jez,Pavan"}, "user@mail.com", true);
+        user = new User("UserName", "Jez,Pavan", "user@mail.com", true);
         user.validateEmail();
     }
 
     @Test
     void shouldValidateLoginNameIsNotBlank() {
-        user = new User("", new String[]{"Jez,Pavan"}, "user@mail.com", true);
+        user = new User("", "Jez,Pavan", "user@mail.com", true);
 
-        assertThatCode(() -> user.validateLoginName())
+        assertThatThrownBy(() -> user.validateLoginName())
                 .isInstanceOf(ValidationException.class);
     }
 
     @Test
     void shouldValidateWhenLoginNameExists() throws Exception {
-        user = new User("bob", new String[]{"Jez,Pavan"}, "user@mail.com", true);
+        user = new User("bob", "Jez,Pavan", "user@mail.com", true);
         user.validateLoginName();
     }
 
@@ -127,50 +101,44 @@ class UserTest {
 
     @Test
     void shouldInvalidateEmailWhenEmailIsNotValid() {
-        user = new User("UserName", new String[]{"Jez,Pavan"}, "mail.com", true);
-        try {
-            user.validateEmail();
-            fail("validator should capture the email");
-        } catch (ValidationException ignored) {
-        }
+        user = new User("UserName", "Jez,Pavan", "mail.com", true);
+        assertThatThrownBy(() -> user.validateEmail())
+            .isInstanceOf(ValidationException.class)
+            .hasMessage("Invalid email address.");
     }
 
     @Test
     void shouldInvalidateEmailMoreThan255Of() {
-        user = new User("UserName", new String[]{"Jez,Pavan"}, chars(256), true);
-        try {
-            user.validateEmail();
-            fail("validator should capture the email");
-        } catch (ValidationException ignored) {
-        }
+        user = new User("UserName", "Jez,Pavan", chars(256), true);
+        assertThatThrownBy(() -> user.validateEmail())
+            .isInstanceOf(ValidationException.class)
+            .hasMessage("Only 255 characters are allowed");
     }
 
     @Test
     void shouldValidateMatcherForLessThan255() throws Exception {
-        user = new User("UserName", new String[]{"Jez,Pavan"}, "user@mail.com", true);
+        user = new User("UserName", "Jez,Pavan", "user@mail.com", true);
         user.validateMatcher();
     }
 
     @Test
     void shouldInvalidateMatcherMoreThan255Of() {
-        user = new User("UserName", new String[]{onlyChars(200), onlyChars(55)}, "user@mail.com", true);
-        try {
-            user.validateMatcher();
-            fail("validator should capture the matcher");
-        } catch (ValidationException ignored) {
-        }
+        user = new User("UserName", onlyChars(256), "user@mail.com", true);
+        assertThatThrownBy(() -> user.validateMatcher())
+            .isInstanceOf(ValidationException.class)
+            .hasMessage("Only 255 characters are allowed");
     }
 
     @Test
     void shouldValidateMatcherWithSpecialCharacters() throws Exception {
-        user = new User("UserName", new String[]{"any/*?!@#$%%^&*()[]{}\\|`~"}, "user@mail.com", true);
+        user = new User("UserName", "any/*?!@#$%%^&*()[]{}\\|`~", "user@mail.com", true);
         user.validateMatcher();
     }
 
     @Test
     void shouldEquals() {
-        User user1 = new User("UserName", new String[]{"A", "b"}, "user@mail.com", true);
-        User user2 = new User("UserName", new String[]{}, "user@mail.com", true);
+        User user1 = new User("UserName", "A,b", "user@mail.com", true);
+        User user2 = new User("UserName", null, "user@mail.com", true);
         user2.setMatcher("A, b");
         assertThat(user2).isEqualTo(user1);
     }
@@ -182,14 +150,12 @@ class UserTest {
 
     @Test
     void shouldUnderstandSplittingMatcherString() {
-        User user = new User("UserName", new String[]{"A", "b"}, "user@mail.com", true);
+        User user = new User("UserName", "A,b", "user@mail.com", true);
         assertThat(user.getMatchers()).isEqualTo(List.of("A", "b"));
-        user = new User("UserName", new String[]{"A,b"}, "user@mail.com", true);
-        assertThat(user.getMatchers()).isEqualTo(List.of("A", "b"));
-        user = new User("UserName", new String[]{""}, "user@mail.com", true);
+        user = new User("UserName", "", "user@mail.com", true);
         List<String> matchers = Collections.emptyList();
         assertThat(user.getMatchers()).isEqualTo(matchers);
-        user = new User("UserName", new String[]{"b,A"}, "user@mail.com", true);
+        user = new User("UserName", "b,A", "user@mail.com", true);
         assertThat(user.getMatchers()).isEqualTo(List.of("A", "b"));
     }
 
@@ -197,29 +163,23 @@ class UserTest {
     void shouldThrowExceptionIfFilterWithAllEventAlreadyExist() {
         User user = new User("foo");
         user.addNotificationFilter(new NotificationFilter("cruise", "dev", StageEvent.All, false));
-        try {
-            user.addNotificationFilter(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false));
-            fail("shouldThrowExceptionIfFilterWithAllEventAlreadyExist");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).contains("Duplicate notification filter");
-        }
+        assertThatThrownBy(() -> user.addNotificationFilter(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false)))
+            .isInstanceOf(UncheckedValidationException.class)
+            .hasMessageContaining("Duplicate notification filter");
     }
 
     @Test
     void shouldThrowExceptionIfFilterWithSameEventAlreadyExist() {
         User user = new User("foo");
         user.addNotificationFilter(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false));
-        try {
-            user.addNotificationFilter(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false));
-            fail("shouldThrowExceptionIfFilterWithSameEventAlreadyExist");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).contains("Duplicate notification filter");
-        }
+        assertThatThrownBy(() -> user.addNotificationFilter(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false)))
+            .isInstanceOf(UncheckedValidationException.class)
+            .hasMessageContaining("Duplicate notification filter");
     }
 
     @Test
     void shouldCopyUser() {
-        User user = new User("user", "User", new String[]{"match"}, "email", false);
+        User user = new User("user", "User", "match", "email", false);
         user.setId(100);
         user.addNotificationFilter(new NotificationFilter("p1", "S1", StageEvent.Fixed, true));
         User clonedUser = new User(user);
@@ -257,7 +217,7 @@ class UserTest {
             user.setId(100L);
             when(notificationFilter.getId()).thenReturn(1L);
 
-            assertThatCode(() -> user.updateNotificationFilter(notificationFilter))
+            assertThatThrownBy(() -> user.updateNotificationFilter(notificationFilter))
                     .isInstanceOf(RecordNotFoundException.class)
                     .hasMessage("Notification filter with id '1' was not found!");
         }
@@ -272,7 +232,7 @@ class UserTest {
             user.addNotificationFilter(notifyForFixedBuild);
 
             NotificationFilter updatedFilter = notificationFilter(2L, "up42", "up42_stage", StageEvent.Breaks);
-            assertThatCode(() -> user.updateNotificationFilter(updatedFilter))
+            assertThatThrownBy(() -> user.updateNotificationFilter(updatedFilter))
                     .isInstanceOf(UncheckedValidationException.class)
                     .hasMessage("Duplicate notification filter found for: {pipeline: \"up42\", stage: \"up42_stage\", event: \"Breaks\"}");
         }
@@ -308,22 +268,17 @@ class UserTest {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     private String chars(int numbersOf) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < numbersOf - "@gmail.com".length(); i++) {
-            builder.append("A");
-        }
-        return builder.toString() + "@gmail.com";
+        return "A".repeat(Math.max(0, numbersOf - "@gmail.com".length())) + "@gmail.com";
     }
 
+    @SuppressWarnings("SameParameterValue")
     private String onlyChars(int numbersOf) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < numbersOf; i++) {
-            builder.append("A");
-        }
-        return builder.toString();
+        return "A".repeat(numbersOf);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private NotificationFilter notificationFilter(long id, String pipeline, String stage, StageEvent event) {
         NotificationFilter notifyForBreakingBuild = new NotificationFilter(pipeline, stage, event, true);
         notifyForBreakingBuild.setId(id);

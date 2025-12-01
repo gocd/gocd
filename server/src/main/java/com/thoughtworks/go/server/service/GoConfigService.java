@@ -35,7 +35,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
@@ -124,7 +123,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     @Override
     public void initialize() {
-        this.goConfigDao.load();
+        this.goConfigDao.currentConfig();
         register(new BaseUrlChangeListener(serverConfig().getSiteUrl(), serverConfig().getSecureSiteUrl(), goCache));
         File dir = artifactsDir();
         if (!dir.exists()) {
@@ -194,7 +193,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     CruiseConfig cruiseConfig() {
-        return goConfigDao.load();
+        return goConfigDao.currentConfig();
     }
 
     public StageConfig stageConfigNamed(String pipelineName, String stageName) {
@@ -237,8 +236,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().hasStageConfigNamed(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), true);
     }
 
-    public ConfigSaveState updateConfig(UpdateConfigCommand command) {
-        return goConfigDao.updateConfig(command);
+    public void updateConfig(UpdateConfigCommand command) {
+        goConfigDao.updateConfig(command);
     }
 
     public void updateConfig(EntityConfigUpdateCommand<?> command, Username currentUser) {
@@ -280,50 +279,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             return true;
         }
         return timeout != null;
-    }
-
-    @TestOnly
-    public ConfigSaveState updateServerConfig(final MailHost mailHost,
-                                              final String md5,
-                                              final String artifactsDir,
-                                              final Double purgeStart,
-                                              final Double purgeUpto,
-                                              final String jobTimeout,
-                                              final String siteUrl,
-                                              final String secureSiteUrl) {
-        final List<ConfigSaveState> result = new ArrayList<>();
-        result.add(updateConfig(
-                new GoConfigDao.NoOverwriteCompositeConfigCommand(md5,
-                        goConfigDao.mailHostUpdater(mailHost),
-                        serverConfigUpdater(artifactsDir, purgeStart, purgeUpto, jobTimeout, siteUrl, secureSiteUrl))));
-        //should not reach here with empty result
-        return result.get(0);
-    }
-
-    @TestOnly
-    private UpdateConfigCommand serverConfigUpdater(final String artifactsDir,
-                                                    final Double purgeStart,
-                                                    final Double purgeUpto,
-                                                    final String jobTimeout,
-                                                    final String siteUrl,
-                                                    final String secureSiteUrl) {
-        return cruiseConfig -> {
-            ServerConfig server = cruiseConfig.server();
-            server.setArtifactsDir(artifactsDir);
-            server.setPurgeLimits(purgeStart, purgeUpto);
-            server.setJobTimeout(jobTimeout);
-            server.setSiteUrl(siteUrl);
-            server.setSecureSiteUrl(secureSiteUrl);
-            return cruiseConfig;
-        };
-    }
-
-    public void addEnvironment(EnvironmentConfig environmentConfig) {
-        goConfigDao.addEnvironment(environmentConfig);
-    }
-
-    public void addPipeline(PipelineConfig pipeline, String groupName) {
-        goConfigDao.addPipeline(pipeline, groupName);
     }
 
     public void register(ConfigChangedListener listener) {
@@ -532,25 +487,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().isPipelineUnlockableWhenFinished(pipelineName);
     }
 
-    public GoConfigDao.CompositeConfigCommand modifyRolesCommand(List<String> users,
-                                                                 List<TriStateSelection> roleSelections) {
-        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
-        for (String user : users) {
-            for (TriStateSelection roleSelection : roleSelections) {
-                command.addCommand(new GoConfigDao.ModifyRoleCommand(user, roleSelection));
-            }
-        }
-        return command;
-    }
-
-    public UpdateConfigCommand modifyAdminPrivilegesCommand(List<String> users, TriStateSelection adminPrivilege) {
-        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
-        for (String user : users) {
-            command.addCommand(new GoConfigDao.ModifyAdminPrivilegeCommand(user, adminPrivilege));
-        }
-        return command;
-    }
-
     public List<String> getResourceList() {
         List<String> resources = new ArrayList<>();
         for (ResourceConfig res : getCurrentConfig().getAllResources()) {
@@ -628,10 +564,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public XmlPartialSaver<CruiseConfig> fileSaver(final boolean shouldUpgrade) {
         return new XmlPartialFileSaver(shouldUpgrade, registry);
-    }
-
-    public String configFileMd5() {
-        return goConfigDao.md5OfConfigFile();
     }
 
     public boolean hasVariableInScope(String pipelineName, String variableName) {

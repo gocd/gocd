@@ -131,14 +131,14 @@ class JobConfigTest {
         assertThat(createJobAndValidate(".name").errors().isEmpty()).isTrue();
         ConfigErrors configErrors = createJobAndValidate("name pavan").errors();
         assertThat(configErrors.isEmpty()).isFalse();
-        assertThat(configErrors.on(JobConfig.NAME)).isEqualTo("Invalid job name 'name pavan'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters.");
+        assertThat(configErrors.firstErrorOn(JobConfig.NAME)).isEqualTo("Invalid job name 'name pavan'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters.");
     }
 
     @Test
     void shouldFailValidationWhenJobNameIsEmpty() {
         ConfigErrors configErrors = createJobAndValidate(null).errors();
         assertThat(configErrors.isEmpty()).isFalse();
-        assertThat(configErrors.on(JobConfig.NAME)).isEqualTo("Name is a required field");
+        assertThat(configErrors.firstErrorOn(JobConfig.NAME)).isEqualTo("Name is a required field");
     }
 
     @Test
@@ -146,7 +146,7 @@ class JobConfigTest {
         String jobName = "a-runOnAll-1";
         ConfigErrors configErrors = createJobAndValidate(jobName).errors();
         assertThat(configErrors.isEmpty()).isFalse();
-        assertThat(configErrors.on(JobConfig.NAME)).isEqualTo(String.format("A job cannot have 'runOnAll' in it's name: %s because it is a reserved keyword", jobName));
+        assertThat(configErrors.firstErrorOn(JobConfig.NAME)).isEqualTo(String.format("A job cannot have 'runOnAll' in it's name: %s because it is a reserved keyword", jobName));
     }
 
     @Test
@@ -154,7 +154,7 @@ class JobConfigTest {
         String jobName = "a-runInstance-1";
         ConfigErrors configErrors = createJobAndValidate(jobName).errors();
         assertThat(configErrors.isEmpty()).isFalse();
-        assertThat(configErrors.on(JobConfig.NAME)).isEqualTo(String.format("A job cannot have 'runInstance' in it's name: %s because it is a reserved keyword", jobName));
+        assertThat(configErrors.firstErrorOn(JobConfig.NAME)).isEqualTo(String.format("A job cannot have 'runInstance' in it's name: %s because it is a reserved keyword", jobName));
     }
 
     @Test
@@ -166,7 +166,7 @@ class JobConfigTest {
 
         ConfigErrors configErrors1 = jobConfig1.errors();
         assertThat(configErrors1.isEmpty()).isFalse();
-        assertThat(configErrors1.on(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' cannot be a negative number as it represents number of instances GoCD needs to spawn during runtime.");
+        assertThat(configErrors1.firstErrorOn(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' cannot be a negative number as it represents number of instances GoCD needs to spawn during runtime.");
 
         JobConfig jobConfig2 = new JobConfig(new CaseInsensitiveString("test"));
         ReflectionUtil.setField(jobConfig2, "runInstanceCount", "abcd");
@@ -175,7 +175,7 @@ class JobConfigTest {
 
         ConfigErrors configErrors2 = jobConfig2.errors();
         assertThat(configErrors2.isEmpty()).isFalse();
-        assertThat(configErrors2.on(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' should be a valid positive integer as it represents number of instances GoCD needs to spawn during runtime.");
+        assertThat(configErrors2.firstErrorOn(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' should be a valid positive integer as it represents number of instances GoCD needs to spawn during runtime.");
 
         JobConfig jobConfig3 = new JobConfig(new CaseInsensitiveString("test"));
         ReflectionUtil.setField(jobConfig3, "runInstanceCount", "0");
@@ -184,7 +184,7 @@ class JobConfigTest {
 
         ConfigErrors configErrors3 = jobConfig3.errors();
         assertThat(configErrors3.isEmpty()).isFalse();
-        assertThat(configErrors3.on(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' cannot be 0 as it represents number of instances GoCD needs to spawn during runtime.");
+        assertThat(configErrors3.firstErrorOn(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' cannot be 0 as it represents number of instances GoCD needs to spawn during runtime.");
     }
 
     @Test
@@ -197,7 +197,7 @@ class JobConfigTest {
 
         ConfigErrors configErrors = jobConfig.errors();
         assertThat(configErrors.isEmpty()).isFalse();
-        assertThat(configErrors.on(JobConfig.RUN_TYPE)).isEqualTo("Job cannot be 'run on all agents' type and 'run multiple instance' type together.");
+        assertThat(configErrors.firstErrorOn(JobConfig.RUN_TYPE)).isEqualTo("Job cannot be 'run on all agents' type and 'run multiple instance' type together.");
     }
 
     @Test
@@ -225,8 +225,8 @@ class JobConfigTest {
         jobConfig.validate(validationContext);
 
         assertThat(jobConfig.errors().isEmpty()).isFalse();
-        assertThat(jobConfig.errors().on(JobConfig.ELASTIC_PROFILE_ID)).isEqualTo("Job cannot have both `resource` and `elasticProfileId`");
-        assertThat(jobConfig.errors().on(JobConfig.RESOURCES)).isEqualTo("Job cannot have both `resource` and `elasticProfileId`");
+        assertThat(jobConfig.errors().firstErrorOn(JobConfig.ELASTIC_PROFILE_ID)).isEqualTo("Job cannot have both `resource` and `elasticProfileId`");
+        assertThat(jobConfig.errors().firstErrorOn(JobConfig.RESOURCES)).isEqualTo("Job cannot have both `resource` and `elasticProfileId`");
     }
 
     @Test
@@ -244,7 +244,7 @@ class JobConfigTest {
         jobConfig.validate(validationContext);
 
         assertThat(jobConfig.errors().isEmpty()).isFalse();
-        assertThat(jobConfig.errors().on(JobConfig.ELASTIC_PROFILE_ID)).isEqualTo("No profile defined corresponding to profile_id 'non-existent-profile-id'");
+        assertThat(jobConfig.errors().firstErrorOn(JobConfig.ELASTIC_PROFILE_ID)).isEqualTo("No profile defined corresponding to profile_id 'non-existent-profile-id'");
     }
 
     @Test
@@ -255,13 +255,13 @@ class JobConfigTest {
         defaultJob.validateNameUniqueness(visitedConfigs);
 
         assertThat(defaultJob.errors().isEmpty()).isFalse();
-        assertThat(defaultJob.errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'defaultJob'. Job names are case-insensitive and must be unique.");
+        assertThat(defaultJob.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'defaultJob'. Job names are case-insensitive and must be unique.");
 
         JobConfig defaultJobAllLowerCase = new JobConfig("defaultjob");
         defaultJobAllLowerCase.validateNameUniqueness(visitedConfigs);
 
         assertThat(defaultJobAllLowerCase.errors().isEmpty()).isFalse();
-        assertThat(defaultJobAllLowerCase.errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'defaultjob'. Job names are case-insensitive and must be unique.");
+        assertThat(defaultJobAllLowerCase.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'defaultjob'. Job names are case-insensitive and must be unique.");
     }
 
     @Test
@@ -445,7 +445,7 @@ class JobConfigTest {
         job.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         assertThat(job.errors().isEmpty()).isFalse();
         assertThat(job.errors().size()).isEqualTo(1);
-        assertThat(job.errors().on(JobConfig.TASKS)).isEqualTo("Job 'job' must have at least one task.");
+        assertThat(job.errors().firstErrorOn(JobConfig.TASKS)).isEqualTo("Job 'job' must have at least one task.");
     }
 
     @Test
@@ -454,7 +454,7 @@ class JobConfigTest {
         job.setTimeout("5.5MN");
         job.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         assertThat(job.errors().isEmpty()).isFalse();
-        assertThat(job.errors().on(JobConfig.TIMEOUT)).isEqualTo("Timeout should be a valid number as it represents number of minutes");
+        assertThat(job.errors().firstErrorOn(JobConfig.TIMEOUT)).isEqualTo("Timeout should be a valid number as it represents number of minutes");
     }
 
     @Test
@@ -485,7 +485,7 @@ class JobConfigTest {
         jobConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
 
         assertThat(jobConfig.errors().isEmpty()).isFalse();
-        assertThat(jobConfig.errors().on(JobConfig.TIMEOUT)).isEqualTo("Timeout cannot be a negative number as it represents number of minutes");
+        assertThat(jobConfig.errors().firstErrorOn(JobConfig.TIMEOUT)).isEqualTo("Timeout cannot be a negative number as it represents number of minutes");
     }
 
     @Test
@@ -561,7 +561,7 @@ class JobConfigTest {
 
         ConfigErrors configErrors = jobConfig.errors();
         assertThat(configErrors.isEmpty()).isFalse();
-        assertThat(configErrors.on(JobConfig.RUN_TYPE)).isEqualTo("Job cannot be set to 'run on all agents' when assigned to an elastic agent");
+        assertThat(configErrors.firstErrorOn(JobConfig.RUN_TYPE)).isEqualTo("Job cannot be set to 'run on all agents' when assigned to an elastic agent");
     }
 
     @Test

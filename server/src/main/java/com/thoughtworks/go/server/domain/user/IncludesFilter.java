@@ -38,7 +38,9 @@ public class IncludesFilter extends AbstractPipelinesFilter {
 
     @Override
     public boolean allowPipeline(CaseInsensitiveString pipeline) {
-        return !pipelines.contains(pipeline) && pipelines.add(pipeline);
+        if (pipelines.contains(pipeline)) return false;
+        pipelines.add(pipeline);
+        return true;
     }
 
     @Override
@@ -47,7 +49,7 @@ public class IncludesFilter extends AbstractPipelinesFilter {
         if (o == null || getClass() != o.getClass()) return false;
         IncludesFilter that = (IncludesFilter) o;
         return Objects.equals(name(), that.name()) &&
-                Objects.equals(pipelines, that.pipelines);
+            Objects.equals(pipelines, that.pipelines);
     }
 
     @Override

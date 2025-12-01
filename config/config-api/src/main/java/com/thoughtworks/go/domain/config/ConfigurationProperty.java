@@ -237,11 +237,9 @@ public class ConfigurationProperty implements Serializable, Validatable, SecretP
 
     public boolean doesNotHaveErrorsAgainstConfigurationValue() {
         if (isSecure()) {
-            List<String> errorsOnValue = getEncryptedConfigurationValue().errors().getAllOn("value");
-            return errorsOnValue == null || errorsOnValue.isEmpty();
+            return getEncryptedConfigurationValue().errors().getAllOn("value").isEmpty();
         } else {
-            List<String> errorsOnValue = getConfigurationValue().errors().getAllOn("value");
-            return errorsOnValue == null || errorsOnValue.isEmpty();
+            return getConfigurationValue().errors().getAllOn("value").isEmpty();
         }
     }
 

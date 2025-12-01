@@ -213,13 +213,20 @@ public class P4TestRepo extends TestRepo {
     }
 
     protected static String clientConfig(String clientName, File clientFolder) {
-        return "Client: " + clientName + "\n\n"
-                + "Owner: cruise\n\n"
-                + "Root: " + clientFolder.getAbsolutePath() + "\n\n"
-                + "Options: rmdir\n\n"
-                + "LineEnd: local\n\n"
-                + "View:\n"
-                + "\t//depot/... //" + clientName + "/...\n";
+        return """
+            Client: %s
+            
+            Owner: cruise
+            
+            Root: %s
+            
+            Options: rmdir
+            
+            LineEnd: local
+            
+            View:
+            \t//depot/... //%s/...
+            """.formatted(clientName, clientFolder.getAbsolutePath(), clientName);
 
     }
 

@@ -28,13 +28,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class GitMaterialConfigTest {
     @Test
     void shouldBePasswordAwareMaterial() {
-        assertTrue(PasswordAwareMaterial.class.isAssignableFrom(GitMaterialConfig.class));
+        assertThat(PasswordAwareMaterial.class).isAssignableFrom(GitMaterialConfig.class);
     }
 
     @Test
@@ -172,7 +173,7 @@ class GitMaterialConfigTest {
         @Test
         void rejectsBranchWithWildcard() {
             assertEquals("Branch names may not contain '*'",
-                validating(git("/foo", "branch-*")).errors().on(GitMaterialConfig.BRANCH));
+                validating(git("/foo", "branch-*")).errors().firstErrorOn(GitMaterialConfig.BRANCH));
         }
 
         @Test
@@ -226,7 +227,7 @@ class GitMaterialConfigTest {
 
         @Test
         void shouldEnsureUrlIsNotBlank() {
-            assertEquals("URL cannot be blank", validating(git("")).errors().on(GitMaterialConfig.URL));
+            assertEquals("URL cannot be blank", validating(git("")).errors().firstErrorOn(GitMaterialConfig.URL));
         }
 
         @Test
@@ -235,7 +236,7 @@ class GitMaterialConfigTest {
             gitMaterialConfig.setUserName("user");
 
             assertEquals("Ambiguous credentials, must be provided either in URL or as attributes.",
-                validating(gitMaterialConfig).errors().on(GitMaterialConfig.URL));
+                validating(gitMaterialConfig).errors().firstErrorOn(GitMaterialConfig.URL));
         }
 
         @Test
@@ -244,7 +245,7 @@ class GitMaterialConfigTest {
             gitMaterialConfig.setPassword("pass");
 
             assertEquals("Ambiguous credentials, must be provided either in URL or as attributes.",
-                validating(gitMaterialConfig).errors().on(GitMaterialConfig.URL));
+                validating(gitMaterialConfig).errors().firstErrorOn(GitMaterialConfig.URL));
         }
 
         @Test
@@ -308,7 +309,7 @@ class GitMaterialConfigTest {
             assertFalse(validationResult);
             assertEquals("Encrypted password value for GitMaterial with url 'http://example.com' is " +
                             "invalid. This usually happens when the cipher text is modified to have an invalid value.",
-                    gitMaterialConfig.errors().on("encryptedPassword"));
+                    gitMaterialConfig.errors().firstErrorOn("encryptedPassword"));
         }
     }
 

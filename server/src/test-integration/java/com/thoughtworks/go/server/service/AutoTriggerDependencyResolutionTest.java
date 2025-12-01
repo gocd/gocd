@@ -38,6 +38,7 @@ import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.dd.MaxBackTrackLimitReachedException;
+import com.thoughtworks.go.server.service.dd.NoCompatibleUpstreamRevisionsException;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -159,7 +160,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("P4", u.m(hg));
         ScheduleTestUtil.AddedPipeline p5 = u.saveConfigWith("P5", u.m(git1), u.m(git2));
         ScheduleTestUtil.AddedPipeline p6 = u.saveConfigWith("P6", u.m(svn), u.m(p4), u.m(hg), u.m(p3), u.m(p1), u.m(p2), u.m(p5), u.m(git2));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "s1");
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "s2");
@@ -259,7 +260,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("P2", u.m(p1));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("P3", u.m(p1), u.m(p2));
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("P4", u.m(p3), u.m(p1));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         int extraHours5 = i++;
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(extraHours5), "g1");
@@ -306,7 +307,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("P1", u.m(git));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("P2", u.m(git));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("P3", u.m(p1), u.m(p2), u.m(git));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         int i = 0; // i counts hour, increments everytime,
         // important because we find auto-trigger compatible revision combinations based on time
@@ -419,7 +420,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("P1", u.m(git));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("P2", u.m(git));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("P3", u.m(p1), u.m(p2));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         //day 1:
         String p1_1 = u.runAndPass(p1, "g1");
@@ -428,14 +429,14 @@ public class AutoTriggerDependencyResolutionTest {
 
         //day 2:
         configHelper.setMaterialConfigForPipeline("P2", svn.config());
-        cruiseConfig = goConfigDao.load();
+        cruiseConfig = goConfigDao.currentConfig();
         String p1_2 = u.runAndPass(p1, "g2");
         String p2_2 = u.runAndPass(new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("P2")), p2.material), "s1");
         String p3_2 = u.runAndPass(p3, p1_2, p2_2);
 
         //day 3:
         configHelper.setMaterialConfigForPipeline("P2", git.config());
-        cruiseConfig = goConfigDao.load();
+        cruiseConfig = goConfigDao.currentConfig();
         String p1_3 = u.runAndPass(p1, "g2");
         String p2_3 = u.runAndPass(p2, "g2");
 
@@ -469,7 +470,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("P1", u.m(git));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("P2", u.m(p1));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("P3", u.m(p1), u.m(p2), u.m(svn));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPass(p1, "g1");
         String p2_1 = u.runAndPass(p2, p1_1);
@@ -513,7 +514,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("P1", u.m(git));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("P2", u.m(p1));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("P3", u.m(p1), u.m(p2));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g1");
         String p2_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_1);
@@ -559,7 +560,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("P2", u.m(git));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("P3", u.m(git));
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("P4", u.m(p2), u.m(p1), u.m(p3));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g1");
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g2", "g3");
@@ -616,7 +617,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("P2", u.m(git));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("P3", u.m(git));
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("P4", u.m(p2), u.m(p1), u.m(p3));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPass(p1, "g1");
         String p1_2 = u.runAndPass(p1, "g2", "g3");
@@ -675,7 +676,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(hg, true, "h3"),
             u.mr(up1, true, up1_1));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -704,7 +705,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(hg, true, "h1"),
             u.mr(up1, true, up1_1));
 
-        assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"))).isEqualTo(expected);
+        assertThat(getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"))).isEqualTo(expected);
     }
 
     @Test
@@ -740,7 +741,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(third, true, third_3),
             u.mr(second, true, second_4));
 
-        assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last"))).isEqualTo(expected);
+        assertThat(getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("last"))).isEqualTo(expected);
     }
 
     @Test
@@ -777,7 +778,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(third, true, third_3),
             u.mr(second, true, second_2));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("last"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -814,7 +815,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(third, true, third_3),
             u.mr(second, true, second_3));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("last"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -848,7 +849,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(up1, false, up1_1),
             u.mr(svn, true, "s2"));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -877,7 +878,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(up1, false, up1_1),
             u.mr(common, false, common_3));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -909,7 +910,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(up1, false, up1_1),
             u.mr(common, false, common_4));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -938,7 +939,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(hg, true, "hg2"),
             u.mr(up1, true, up1_1));
 
-        MaterialRevisions revisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
+        MaterialRevisions revisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"));
         assertThat(revisions).isEqualTo(expected);
     }
 
@@ -961,7 +962,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(hg, false, "hg1"),
             u.mr(up1, false, up1_1));
 
-        assertThat(getRevisionsBasedOnDependencies(current, goConfigDao.load(), given)).isEqualTo(expected);
+        assertThat(getRevisionsBasedOnDependencies(current, goConfigDao.currentConfig(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -986,7 +987,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(hg, false, "hg1"),
             u.mr(up1, true, up1_1));
 
-        assertThat(getRevisionsBasedOnDependencies(current, goConfigDao.load(), given)).isEqualTo(expected);
+        assertThat(getRevisionsBasedOnDependencies(current, goConfigDao.currentConfig(), given)).isEqualTo(expected);
     }
 
     @Test
@@ -1012,7 +1013,7 @@ public class AutoTriggerDependencyResolutionTest {
         given.addRevision(u.mr(up1, true, up1_1));
 
         try {
-            getRevisionsBasedOnDependencies(current, goConfigDao.load(), given);
+            getRevisionsBasedOnDependencies(current, goConfigDao.currentConfig(), given);
             fail("Should have detected no-compatible-revisions situation, as config has changed.");
         } catch (NoCompatibleUpstreamRevisionsException e) {
             //ignore
@@ -1063,7 +1064,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(second, true, second_2),
             u.mr(third, true, third_3));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("last"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -1081,7 +1082,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(git1), u.m(git2));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(git1), u.m(git2));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1), u.m(p2));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         //day 1:
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11", "g21");
@@ -1090,7 +1091,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         //day 2:
         configHelper.setMaterialConfigForPipeline("P2", git1.config());
-        cruiseConfig = goConfigDao.load();
+        cruiseConfig = goConfigDao.currentConfig();
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i), "g11", "g22");
         ScheduleTestUtil.AddedPipeline new_p2 = new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("p2")), p2.material);
         u.scheduleWith(new_p2, "g11");
@@ -1118,7 +1119,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1));
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(p2), u.m(p3));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
@@ -1162,7 +1163,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(git1));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(git1), u.m(p2));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
 
@@ -1206,7 +1207,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(git), u.m(p0));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(git), u.m(p2));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p0_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p0, u.d(i++), "h11");
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11", p0_1);
@@ -1242,7 +1243,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p5 = u.saveConfigWith("p5", u.m(p3));
         ScheduleTestUtil.AddedPipeline p6 = u.saveConfigWith("p6", u.m(p4));
         ScheduleTestUtil.AddedPipeline p7 = u.saveConfigWith("p7", u.m(p5), u.m(p6));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
         String p2_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), "g11");
@@ -1283,7 +1284,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p2));
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(p3));
         ScheduleTestUtil.AddedPipeline p5 = u.saveConfigWith("p5", u.m(git), u.m(p4));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPass(p1, "g11");
         String p2_1 = u.runAndPass(p2, p1_1);
@@ -1325,7 +1326,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("P3", u.m(p2));
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("P4", u.m(p3));
         ScheduleTestUtil.AddedPipeline p5 = u.saveConfigWith("P5", u.m(git), u.m(p4));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPass(p1, "g1");
         String p2_1 = u.runAndPass(p2, p1_1);
@@ -1343,7 +1344,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(git, true, "g1"),
             u.mr(p4, true, p4_1));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("p5"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("p5"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -1358,7 +1359,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p2));
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(p3));
         ScheduleTestUtil.AddedPipeline p5 = u.saveConfigWith("p5", u.m(git), u.m(p4));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPass(p1, "g1");
         String p2_1 = u.runAndPass(p2, p1_1);
@@ -1376,7 +1377,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(git, true, "g1"),
             u.mr(p4, true, p4_1));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("p5"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("p5"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -1397,7 +1398,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(git1));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p2), u.m(git1));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
@@ -1428,7 +1429,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(git1));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p2), u.m(git1));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
@@ -1458,7 +1459,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(git));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(git), u.m(p1));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
@@ -1498,7 +1499,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline c5 = u.saveConfigWith("c5", u.m(git2));
         ScheduleTestUtil.AddedPipeline c6 = u.saveConfigWith("c6", u.m(git1), u.m(c1), u.m(c4), u.m(c5));
 
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
 
         String c1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(c1, u.d(i++), "g11", "g21");
@@ -1559,7 +1560,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         MaterialRevisions given = u.mrs(u.mr(p8, true, p8_1));
 
-        assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("p11"))).isEqualTo(given);
+        assertThat(getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("p11"))).isEqualTo(given);
     }
 
     @Test
@@ -1685,7 +1686,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", "stage2", u.m(p1));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", "stage3", u.m(p1));
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", "stage4", u.m(p2), u.m(p3));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
@@ -1722,7 +1723,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", "stage2", u.m(p1));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", "stage3", u.m(p1));
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", "stage4", u.m(p2), u.m(p3));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
@@ -1737,7 +1738,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         p1.config.add(0, StageConfigMother.manualStage("renamed_stage"));
         configHelper.writeConfigFile(cruiseConfig);
-        cruiseConfig = goConfigDao.load();
+        cruiseConfig = goConfigDao.currentConfig();
 
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g12");
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_2);
@@ -1776,7 +1777,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p1, false, p1_1),
             u.mr(p2, false, p2_1));
 
-        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given)).isEqualTo(expected);
+        assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.currentConfig(), given)).isEqualTo(expected);
     }
 
     /* TRIANGLE TEST BEGIN */
@@ -2014,7 +2015,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1));
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(git2));
         ScheduleTestUtil.AddedPipeline p5 = u.saveConfigWith("p5", u.m(p2), u.m(p3), u.m(p4));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
@@ -2043,7 +2044,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1));
         ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(p2), u.m(p3));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
         String p2_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_1);
@@ -2082,7 +2083,7 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(git1), u.m(git2));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(git1), u.m(git2));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1), u.m(p2));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11", "g21");
         String p2_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), "g12", "g21");

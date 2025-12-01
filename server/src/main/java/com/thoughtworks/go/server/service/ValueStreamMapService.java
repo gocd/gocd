@@ -207,8 +207,8 @@ public class ValueStreamMapService {
                         Optional.ofNullable(goConfigService.findPipelineByName(new CaseInsensitiveString(pipelineName)))
                                 .map(PipelineConfig::getTemplateName)
                                 .map(CaseInsensitiveString::toString)
-                                .orElse(null))
-                ;
+                                .orElse(null)
+                );
             }
         }
     }
@@ -220,7 +220,7 @@ public class ValueStreamMapService {
                 CaseInsensitiveString upstreamPipeline = ((DependencyMaterial) material).getPipelineName();
                 DependencyMaterialRevision revision = (DependencyMaterialRevision) materialRevision.getRevision();
 
-                graph.addUpstreamNode(new PipelineDependencyNode(upstreamPipeline, upstreamPipeline.toString()), new PipelineRevision(revision.getPipelineName(), revision.getPipelineCounter(), revision.getPipelineLabel()),
+                graph.addUpstreamPipelineNode(new PipelineDependencyNode(upstreamPipeline, upstreamPipeline.toString()), new PipelineRevision(revision.getPipelineName(), revision.getPipelineCounter(), revision.getPipelineLabel()),
                         pipelineName);
 
                 if (visitedNodes.contains(materialRevision)) {
@@ -244,13 +244,12 @@ public class ValueStreamMapService {
 
     private void traverseDownstream(CaseInsensitiveString materialId, List<PipelineConfig> downstreamPipelines, Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap, ValueStreamMap graph, List<PipelineConfig> visitedNodes) {
         for (PipelineConfig downstreamPipeline : downstreamPipelines) {
-            graph.addDownstreamNode(new PipelineDependencyNode(downstreamPipeline.name(),
-                    downstreamPipeline.name().toString()), materialId);
-            if (visitedNodes.contains(downstreamPipeline)) {
-                continue;
+            graph.addDownstreamNode(new PipelineDependencyNode(downstreamPipeline.name(), downstreamPipeline.name().toString()), materialId);
+
+            if (!visitedNodes.contains(downstreamPipeline)) {
+                visitedNodes.add(downstreamPipeline);
+                traverseDownstream(downstreamPipeline.name(), pipelineToDownstreamMap, graph, visitedNodes);
             }
-            visitedNodes.add(downstreamPipeline);
-            traverseDownstream(downstreamPipeline.name(), pipelineToDownstreamMap, graph, visitedNodes);
         }
     }
 

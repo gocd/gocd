@@ -56,27 +56,19 @@ public class AutoSchedulerIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
 
     private TwoPipelineGroups twoPipelineGroups;
-    private GoConfigFileHelper configFileHelper;
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
-        configFileHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
-
         dbHelper.onSetUp();
-        configFileHelper.onSetUp();
 
-        configFileHelper.usingCruiseConfigDao(goConfigDao);
-
-        configService.forceNotifyListeners();
-
-        twoPipelineGroups = new TwoPipelineGroups(configFileHelper, tempDir);
+        twoPipelineGroups = new TwoPipelineGroups(new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao), tempDir);
         twoPipelineGroups.onSetUp();
         serverHealthService.removeAllLogs();
+        configService.forceNotifyListeners();
     }
 
     @AfterEach
     public void tearDown() throws Exception {
-        configFileHelper.onTearDown();
         dbHelper.onTearDown();
         twoPipelineGroups.onTearDown();
     }

@@ -34,12 +34,10 @@ import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
 import static com.thoughtworks.go.util.SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED;
-import static java.lang.String.format;
+import static java.lang.String.join;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.join;
 
 public class AgentInstances implements Iterable<AgentInstance> {
     private SystemEnvironment systemEnvironment;
@@ -84,7 +82,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstance loadAgentInstance(String uuid) {
-        if (isBlank(uuid)) {
+        if (uuid == null || uuid.isBlank()) {
             return new NullAgentInstance(uuid);
         }
         AgentInstance agentInstance = uuidToAgentInstanceMap.get(uuid);
@@ -124,7 +122,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
 
-    public Integer size() {
+    public int size() {
         return uuidToAgentInstanceMap.size();
     }
 
@@ -140,8 +138,9 @@ public class AgentInstances implements Iterable<AgentInstance> {
     public void syncAgentInstancesFrom(Agents agentsFromDB) {
         for (Agent agentFromDB : agentsFromDB) {
             String uuid = agentFromDB.getUuid();
-            if (uuidToAgentInstanceMap.containsKey(uuid)) {
-                uuidToAgentInstanceMap.get(uuid).syncAgentFrom(agentFromDB);
+            AgentInstance existingInstance = uuidToAgentInstanceMap.get(uuid);
+            if (existingInstance != null) {
+                existingInstance.syncAgentFrom(agentFromDB);
             } else {
                 AgentInstance newAgent = createFromAgent(agentFromDB, new SystemEnvironment(), agentStatusChangeListener);
                 uuidToAgentInstanceMap.put(uuid, newAgent);
@@ -152,7 +151,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
             List<String> uuids = new ArrayList<>();
             for (String uuid : uuidToAgentInstanceMap.keySet()) {
                 AgentInstance instance = uuidToAgentInstanceMap.get(uuid);
-                if (!(instance.getStatus() == AgentStatus.Pending)) {
+                if (instance.getStatus() != AgentStatus.Pending) {
                     if (!agentsFromDB.hasAgent(uuid)) {
                         uuids.add(uuid);
                     }
@@ -228,7 +227,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
         if (matchingElasticInstances.size() > 1) {
             Collection<String> uuids = matchingElasticInstances.stream().map(AgentInstance::getUuid).collect(toList());
-            throw new IllegalStateException(format("Found multiple agents with the same elastic agent id [%s]", join(uuids, ", ")));
+            throw new IllegalStateException("Found multiple agents with the same elastic agent id [" + join(", ", uuids) + "]");
         }
 
         return matchingElasticInstances.iterator().next();

@@ -98,10 +98,9 @@ public class EnvironmentConfigServiceIntegrationTest {
 
     @Test
     public void shouldReturnTheCorrectLocalizedMessageForDuplicatePipelinesInAnEnvironment() {
-        BasicEnvironmentConfig environmentConfig = environmentConfig("uat");
-        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
-        environmentConfig.addPipeline(new CaseInsensitiveString("foo"));
-        goConfigService.addEnvironment(environmentConfig);
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("foo", "dev", "job");
+        configHelper.addPipeline("foo-grp", pipelineConfig);
+        configHelper.addPipelineToEnvironment("uat", "foo");
 
         List<String> pipelines = new ArrayList<>();
         pipelines.add("foo");
@@ -116,7 +115,8 @@ public class EnvironmentConfigServiceIntegrationTest {
     @Test
     public void shouldPointOutDuplicatePipelinesInAnEnvironmentOnEnvironmentUpdate() {
         String pipelineName = "pipeline-1";
-        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig(pipelineName, "dev", "job"), "pipeline-1-grp");
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig(pipelineName, "dev", "job");
+        configHelper.addPipeline("pipeline-1-grp", pipelineConfig);
         Username user = new Username(new CaseInsensitiveString("any"));
         environmentConfigService.createEnvironment(env("environment-1", List.of(pipelineName), new ArrayList<>(), new ArrayList<>()), user, new HttpLocalizedOperationResult());
         String environmentBeingUpdated = "environment-2";
@@ -133,7 +133,8 @@ public class EnvironmentConfigServiceIntegrationTest {
     @Test
     public void shouldPointOutDuplicatePipelinesInAnEnvironmentOnEnvironmentPatch() {
         String pipelineName = "pipeline-1";
-        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig(pipelineName, "dev", "job"), "pipeline-1-grp");
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig(pipelineName, "dev", "job");
+        configHelper.addPipeline("pipeline-1-grp", pipelineConfig);
         Username user = new Username(new CaseInsensitiveString("any"));
         environmentConfigService.createEnvironment(env("environment-1", List.of(pipelineName), new ArrayList<>(), new ArrayList<>()), user, new HttpLocalizedOperationResult());
         String environmentBeingUpdated = "environment-2";
@@ -156,23 +157,19 @@ public class EnvironmentConfigServiceIntegrationTest {
 
     @Test
     public void shouldUpdateExistingEnvironment_ForNewUpdateEnvironmentMethod() {
-        BasicEnvironmentConfig uat = environmentConfig("uat");
-        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
-        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("bar", "dev", "job"), "foo-grp");
-        uat.addPipeline(new CaseInsensitiveString("foo"));
-        uat.addEnvironmentVariable("env-one", "ONE");
-        uat.addEnvironmentVariable("env-two", "TWO");
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("dev")));
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("qa")));
-        goConfigService.addEnvironment(uat);
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("acceptance")));
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("function_testing")));
+        PipelineConfig pipelineConfig1 = PipelineConfigMother.createPipelineConfig("foo", "dev", "job");
+        configHelper.addPipeline("foo-grp", pipelineConfig1);
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("bar", "dev", "job");
+        configHelper.addPipeline("foo-grp", pipelineConfig);
+        configHelper.addEnvironments("dev", "qa", "uat", "acceptance", "function_testing");
+        configHelper.addPipelineToEnvironment("uat", "foo");
+
         EnvironmentConfig newUat = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"));
         newUat.addPipeline(new CaseInsensitiveString("bar"));
         newUat.addEnvironmentVariable("env-three", "THREE");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String digest = entityHashingService.hashForEntity(uat);
-        environmentConfigService.updateEnvironment(uat.name().toString(), newUat, new Username(new CaseInsensitiveString("foo")), digest, result);
+        String digest = entityHashingService.hashForEntity(environmentConfigService.getEnvironmentConfig("uat"));
+        environmentConfigService.updateEnvironment("uat", newUat, new Username(new CaseInsensitiveString("foo")), digest, result);
         EnvironmentConfig updatedEnv = environmentConfigService.getEnvironmentConfig("prod");
         assertThat(updatedEnv.name()).isEqualTo(new CaseInsensitiveString("prod"));
         assertThat(updatedEnv.getPipelineNames()).isEqualTo(List.of(new CaseInsensitiveString("bar")));
@@ -219,7 +216,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     public void shouldDeleteAnEnvironment() {
         String environmentName = "dev";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
+        configHelper.addEnvironments(environmentName);
 
         assertTrue(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName)));
         environmentConfigService.deleteEnvironment(environmentConfigService.getEnvironmentConfig(environmentName), new Username(new CaseInsensitiveString("foo")), result);
@@ -246,7 +243,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         String environmentName = "dev";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CaseInsensitiveString envName = new CaseInsensitiveString(environmentName);
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(envName));
+        configHelper.addEnvironments(environmentName);
 
         Agent agent = AgentMother.approvedAgent();
         agent.addEnvironment(environmentName);
@@ -267,11 +264,9 @@ public class EnvironmentConfigServiceIntegrationTest {
     @Test
     public void shouldPatchAnEnvironment() {
         String environmentName = "env";
+        configHelper.addEnvironments(environmentName);
 
-        BasicEnvironmentConfig env = environmentConfig(environmentName);
         Username user = Username.ANONYMOUS;
-
-        goConfigService.addEnvironment(env);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         List<String> pipelinesToAdd = new ArrayList<>();
@@ -281,7 +276,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         List<String> envVarsToRemove = new ArrayList<>();
 
         environmentConfigService.patchEnvironment(environmentConfigService.getEnvironmentConfig(environmentName), pipelinesToAdd, pipelinesToRemove, envVarsToAdd, envVarsToRemove, user, result);
-        EnvironmentConfig updatedEnv = environmentConfigService.getEnvironmentConfig(env.name().toString());
+        EnvironmentConfig updatedEnv = environmentConfigService.getEnvironmentConfig(environmentName);
 
         assertThat(updatedEnv.name()).isEqualTo(new CaseInsensitiveString(environmentName));
         assertThat(updatedEnv.getVariables().hasVariable("name")).isTrue();
@@ -344,10 +339,6 @@ public class EnvironmentConfigServiceIntegrationTest {
         return configRepo.getId();
     }
 
-    private BasicEnvironmentConfig environmentConfig(String name) {
-        return new BasicEnvironmentConfig(new CaseInsensitiveString(name));
-    }
-
     public static BasicEnvironmentConfig env(String name, List<String> selectedPipelines, List<Map<String, String>> environmentVariables, List<String> selectedAgents) {
         BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
         for (String selectedPipeline : selectedPipelines) {
@@ -361,5 +352,4 @@ public class EnvironmentConfigServiceIntegrationTest {
         }
         return config;
     }
-
 }

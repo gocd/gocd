@@ -162,7 +162,7 @@ class P4MaterialConfigTest {
             final boolean validationResult = p4MaterialConfig.validateTree(new ConfigSaveValidationContext(null));
 
             assertThat(validationResult).isFalse();
-            assertThat(p4MaterialConfig.errors().on("encryptedPassword")).isEqualTo("Encrypted password value for P4Material with url '/foo/bar' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
+            assertThat(p4MaterialConfig.errors().firstErrorOn("encryptedPassword")).isEqualTo("Encrypted password value for P4Material with url '/foo/bar' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
         }
 
         @Test
@@ -186,12 +186,12 @@ class P4MaterialConfigTest {
     private void assertNoError(String port, String view, String expectedKeyForError) {
         P4MaterialConfig p4MaterialConfig = p4(port, view);
         p4MaterialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(p4MaterialConfig.errors().on(expectedKeyForError)).isNull();
+        assertThat(p4MaterialConfig.errors().firstErrorOn(expectedKeyForError)).isNull();
     }
 
     private void assertError(String port, String view, String expectedKeyForError, String expectedErrorMessage) {
         P4MaterialConfig p4MaterialConfig = p4(port, view);
         p4MaterialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(p4MaterialConfig.errors().on(expectedKeyForError)).isEqualTo(expectedErrorMessage);
+        assertThat(p4MaterialConfig.errors().firstErrorOn(expectedKeyForError)).isEqualTo(expectedErrorMessage);
     }
 }

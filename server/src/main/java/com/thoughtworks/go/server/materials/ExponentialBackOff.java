@@ -23,14 +23,17 @@ import java.time.Instant;
 
 import static java.lang.Math.round;
 import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ExponentialBackOff {
-    private static final long DEFAULT_INITIAL_INTERVAL_IN_MILLIS = 5 * 60 * 1000;
-    private static final long MAX_RETRY_INTERVAL_IN_MILLIS = 60 * 60 * 1000;
+    private static final long DEFAULT_INITIAL_INTERVAL_IN_MILLIS = MINUTES.toMillis(5);
+    static final long MAX_RETRY_INTERVAL_IN_MILLIS = MINUTES.toMillis(60);
+
     private final Clock clock;
-    private long retryIntervalMillis;
     private final double multiplier;
     private final Instant failureStartTime;
+
+    private long retryIntervalMillis;
     private Instant lastFailureTime;
 
     public ExponentialBackOff(double multiplier) {
@@ -40,30 +43,30 @@ public class ExponentialBackOff {
     protected ExponentialBackOff(double multiplier, SystemTimeClock clock) {
         this.clock = clock;
         this.retryIntervalMillis = DEFAULT_INITIAL_INTERVAL_IN_MILLIS;
-        this.lastFailureTime = this.failureStartTime = now();
+        Instant now = now();
+        this.lastFailureTime = now;
+        this.failureStartTime = now;
         this.multiplier = multiplier;
     }
 
     public BackOffResult backOffResult() {
-        boolean backOff = lastFailureTime
-                .plus(this.retryIntervalMillis, MILLIS)
-                .isAfter(now());
+        Instant nextAttempt = lastFailureTime.plus(this.retryIntervalMillis, MILLIS);
+        boolean backOff = nextAttempt.isAfter(now());
 
-        return new BackOffResult(backOff, failureStartTime, lastFailureTime,
-                lastFailureTime.plus(this.retryIntervalMillis, MILLIS));
+        return new BackOffResult(backOff, failureStartTime, lastFailureTime, nextAttempt);
     }
 
     public void failedAgain() {
         Instant now = now();
-        this.retryIntervalMillis = retryIntervalMillis(now);
+        this.retryIntervalMillis = nextRetryIntervalMillis(lastFailureTime, now);
         this.lastFailureTime = now;
     }
 
-    private long retryIntervalMillis(Instant now) {
-        long timeBetweenFailures = lastFailureTime.until(now, MILLIS);
-        long retryInterval = round(timeBetweenFailures * multiplier);
+    private long nextRetryIntervalMillis(Instant lastFailureTime, Instant now) {
+        long millisSinceLastFailure = lastFailureTime.until(now, MILLIS);
+        long retryIntervalMillis = round(millisSinceLastFailure * multiplier);
 
-        return Math.min(retryInterval, MAX_RETRY_INTERVAL_IN_MILLIS);
+        return Math.min(retryIntervalMillis, MAX_RETRY_INTERVAL_IN_MILLIS);
     }
 
     private Instant now() {

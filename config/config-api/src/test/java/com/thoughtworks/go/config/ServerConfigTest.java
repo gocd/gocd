@@ -119,7 +119,7 @@ public class ServerConfigTest {
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 10, 20, "30M");
         serverConfig.validate(null);
         assertThat(serverConfig.errors().isEmpty()).isFalse();
-        assertThat(serverConfig.errors().on(ServerConfig.JOB_TIMEOUT)).isEqualTo("Timeout should be a valid number as it represents number of minutes");
+        assertThat(serverConfig.errors().firstErrorOn(ServerConfig.JOB_TIMEOUT)).isEqualTo("Timeout should be a valid number as it represents number of minutes");
     }
 
     @Test

@@ -47,7 +47,7 @@ public class PipelineConfigTreeValidator {
             if (pipelineConfig.hasTemplateApplied()) {
                 List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(stageConfig);
                 for (ConfigErrors error : allErrors) {
-                    pipelineConfig.errors().add("template", StringUtils.join(error.getAll(), ", "));
+                    pipelineConfig.errors().add("template", error.asString());
                 }
             }
         }

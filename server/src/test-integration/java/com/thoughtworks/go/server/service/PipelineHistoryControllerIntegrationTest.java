@@ -64,19 +64,16 @@ public class PipelineHistoryControllerIntegrationTest {
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
 
-    private PipelineWithMultipleStages fixture;
+    private PipelineWithMultipleStages pipelineFixture;
     private HttpServletResponse response;
     private HttpServletRequest request;
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
-        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, tempDir);
+        pipelineFixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, tempDir);
         configHelper.usingCruiseConfigDao(goConfigDao);
-        configHelper.onSetUp();
-
-        dbHelper.onSetUp();
-        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         goConfigService.forceNotifyListeners();
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
@@ -84,14 +81,12 @@ public class PipelineHistoryControllerIntegrationTest {
 
     @AfterEach
     public void teardown() throws Exception {
-        dbHelper.onTearDown();
-        fixture.onTearDown();
-        configHelper.onTearDown();
+        pipelineFixture.onTearDown();
     }
 
     @Test
     public void shouldHaveGroupsInJson() {
-        fixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
+        pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         Map<String, Object> jsonMap = requestPipelineHistoryPage();
         List<?> groups = (List<?>) jsonMap.get("groups");
         assertThat(groups.size()).isEqualTo(1);
@@ -100,9 +95,9 @@ public class PipelineHistoryControllerIntegrationTest {
     @Test
     public void canForceShouldBeFalseForUnauthorizedAccess() {
         configHelper.addSecurityWithAdminConfig();
-        fixture.configStageAsManualApprovalWithApprovedUsers(fixture.devStage, "user");
+        pipelineFixture.configStageAsManualApprovalWithApprovedUsers(pipelineFixture.devStage, "user");
 
-        fixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
+        pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
 
         Map<String, Object> jsonMap = requestPipelineHistoryPage();
         assertThat(getItemInJson(jsonMap, "canForce")).isEqualTo("false");
@@ -111,7 +106,7 @@ public class PipelineHistoryControllerIntegrationTest {
     @Test
     public void canForceShouldBeTrueForAuthorizedUser() {
         configHelper.addSecurityWithAdminConfig();
-        fixture.configStageAsManualApprovalWithApprovedUsers(fixture.devStage, "userA");
+        pipelineFixture.configStageAsManualApprovalWithApprovedUsers(pipelineFixture.devStage, "userA");
 
         SessionUtilsHelper.loginAs("userA");
         Map<String, Object> jsonMap = requestPipelineHistoryPage();
@@ -138,16 +133,16 @@ public class PipelineHistoryControllerIntegrationTest {
 
     @Test
     public void hasModificationShouldBeTrueIfThereIsBuildCauseInBuffer() throws Exception {
-        fixture.createNewCheckin();
-        scheduleHelper.autoSchedulePipelinesWithRealMaterials(fixture.pipelineName);
+        pipelineFixture.createNewCheckin();
+        scheduleHelper.autoSchedulePipelinesWithRealMaterials(pipelineFixture.pipelineName);
         Map<String, Object> jsonMap = requestPipelineHistoryPage();
         assertThat(getItemInJson(jsonMap, "showForceBuildButton")).isEqualTo("true");
     }
 
     @Test
     public void shouldCreateGroupIfPipelineHasModificationEvenNoPipelineHistory() throws Exception {
-        fixture.createNewCheckin();
-        scheduleHelper.autoSchedulePipelinesWithRealMaterials(fixture.pipelineName);
+        pipelineFixture.createNewCheckin();
+        scheduleHelper.autoSchedulePipelinesWithRealMaterials(pipelineFixture.pipelineName);
         Map<String, Object> jsonMap = requestPipelineHistoryPage();
         List<?> groups = (List<?>) jsonMap.get("groups");
         assertThat(groups.size()).isEqualTo(1);
@@ -159,7 +154,7 @@ public class PipelineHistoryControllerIntegrationTest {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> requestPipelineHistoryPage() {
-        ModelAndView modelAndView = controller.list(fixture.pipelineName, 10, 0, null, response, request);
+        ModelAndView modelAndView = controller.list(pipelineFixture.pipelineName, 10, 0, null, response, request);
         return (Map<String, Object>) modelAndView.getModel().get("json");
     }
 

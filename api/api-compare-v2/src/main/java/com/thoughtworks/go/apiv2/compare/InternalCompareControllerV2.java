@@ -64,7 +64,7 @@ public class InternalCompareControllerV2 extends ApiController implements SparkS
 
     String list(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
-        Integer pageSize = getPageSize(request);
+        int pageSize = getPageSize(request);
         String pattern = request.queryParamOrDefault("pattern", "");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.findMatchingPipelineInstances(pipelineName, pattern, pageSize, currentUsername(), result);

@@ -31,122 +31,124 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory
 import static org.assertj.core.api.Assertions.assertThat
 
 class ReportCompleteStatusRequestRepresenterTest {
-    @Test
-    void 'should deserialize request from json'() {
-        def requestJSON = "{\n" +
-                "  \"agentRuntimeInfo\": {\n" +
-                "    \"type\": \"AgentRuntimeInfo\",\n" +
-                "    \"identifier\": {\n" +
-                "      \"hostName\": \"localhost\",\n" +
-                "      \"ipAddress\": \"176.19.4.1\",\n" +
-                "      \"uuid\": \"uuid\"\n" +
-                "    },\n" +
-                "    \"runtimeStatus\": \"Idle\",\n" +
-                "    \"buildingInfo\": {\n" +
-                "      \"buildingInfo\": \"\",\n" +
-                "      \"buildLocator\": \"\"\n" +
-                "    },\n" +
-                "    \"location\": \"/some/random/location\",\n" +
-                "    \"usableSpace\": 10,\n" +
-                "    \"operatingSystemName\": \"Mac OS X\",\n" +
-                "    \"agentBootstrapperVersion\": \"20.1.0\",\n" +
-                "    \"agentVersion\": \"20.9.0\"\n" +
-                "  },\n" +
-                "  \"jobIdentifier\": {\n" +
-                "    \"pipelineName\": \"up_42\",\n" +
-                "    \"pipelineCounter\": 100,\n" +
-                "    \"pipelineLabel\": \"100\",\n" +
-                "    \"stageName\": \"up42_stage\",\n" +
-                "    \"buildName\": \"some_job\",\n" +
-                "    \"buildId\": 1111,\n" +
-                "    \"stageCounter\": \"1\"\n" +
-                "  },\n" +
-                "  \"jobResult\":\"Passed\"\n" +
-                "}"
+  @Test
+  void 'should deserialize request from json'() {
+    def requestJSON = """
+      {
+        "agentRuntimeInfo": {
+          "type": "AgentRuntimeInfo",
+          "identifier": {
+            "hostName": "localhost",
+            "ipAddress": "176.19.4.1",
+            "uuid": "uuid"
+          },
+          "runtimeStatus": "Idle",
+          "buildingInfo": {
+            "buildingInfo": "",
+            "buildLocator": ""
+          },
+          "location": "/some/random/location",
+          "usableSpace": 10,
+          "operatingSystemName": "Mac OS X",
+          "agentBootstrapperVersion": "20.1.0",
+          "agentVersion": "20.9.0"
+        },
+        "jobIdentifier": {
+          "pipelineName": "up_42",
+          "pipelineCounter": 100,
+          "pipelineLabel": "100",
+          "stageName": "up42_stage",
+          "buildName": "some_job",
+          "buildId": 1111,
+          "stageCounter": "1"
+        },
+        "jobResult":"Passed"
+      }"""
 
-        def agent = new Agent("uuid", "localhost", "176.19.4.1")
-        def expectedRuntimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-                "20.1.0", "20.9.0", () -> "Mac OS X")
-        expectedRuntimeInfo.setUsableSpace(10L)
-        expectedRuntimeInfo.setLocation("/some/random/location")
+    def agent = new Agent("uuid", "localhost", "176.19.4.1")
+    def expectedRuntimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
+      "20.1.0", "20.9.0", () -> "Mac OS X")
+    expectedRuntimeInfo.setUsableSpace(10L)
+    expectedRuntimeInfo.setLocation("/some/random/location")
 
-        def expectedJobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
-                "1", "some_job", 1111L)
+    def expectedJobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
+      "1", "some_job", 1111L)
 
-        def request = ReportCompleteStatusRequestRepresenter.fromJSON(requestJSON)
+    def request = ReportCompleteStatusRequestRepresenter.fromJSON(requestJSON)
 
-        assertThat(request.getAgentRuntimeInfo()).isEqualTo(expectedRuntimeInfo)
-        assertThat(request.getJobIdentifier()).isEqualTo(expectedJobIdentifier)
-        assertThat(request.getJobResult()).isEqualTo(JobResult.Passed)
-    }
+    assertThat(request.getAgentRuntimeInfo()).isEqualTo(expectedRuntimeInfo)
+    assertThat(request.getJobIdentifier()).isEqualTo(expectedJobIdentifier)
+    assertThat(request.getJobResult()).isEqualTo(JobResult.Passed)
+  }
 
-    @Test
-    void 'should deserialize json representing runtime info for elastic agents'() {
-        def requestJSON = "{\n" +
-                "  \"agentRuntimeInfo\": {\n" +
-                "    \"type\": \"ElasticAgentRuntimeInfo\",\n" +
-                "    \"elasticAgentId\": \"elastic_agent_id\",\n" +
-                "    \"elasticPluginId\": \"plugin_id\",\n" +
-                "    \"identifier\": {\n" +
-                "      \"hostName\": \"localhost\",\n" +
-                "      \"ipAddress\": \"176.19.4.1\",\n" +
-                "      \"uuid\": \"uuid\"\n" +
-                "    },\n" +
-                "    \"runtimeStatus\": \"Idle\",\n" +
-                "    \"buildingInfo\": {\n" +
-                "      \"buildingInfo\": \"\",\n" +
-                "      \"buildLocator\": \"\"\n" +
-                "    },\n" +
-                "    \"location\": \"/some/random/location\",\n" +
-                "    \"usableSpace\": 10,\n" +
-                "    \"operatingSystemName\": \"Mac OS X\",\n" +
-                "    \"agentBootstrapperVersion\": \"20.1.0\",\n" +
-                "    \"agentVersion\": \"20.9.0\"\n" +
-                "  },\n" +
-                "  \"jobIdentifier\": {\n" +
-                "    \"pipelineName\": \"up_42\",\n" +
-                "    \"pipelineCounter\": 100,\n" +
-                "    \"pipelineLabel\": \"100\",\n" +
-                "    \"stageName\": \"up42_stage\",\n" +
-                "    \"buildName\": \"some_job\",\n" +
-                "    \"buildId\": 1111,\n" +
-                "    \"stageCounter\": \"1\"\n" +
-                "  },\n" +
-                "  \"jobResult\":\"Passed\"\n" +
-                "}"
+  @Test
+  void 'should deserialize json representing runtime info for elastic agents'() {
+    def requestJSON = """
+      {
+        "agentRuntimeInfo": {
+          "type": "ElasticAgentRuntimeInfo",
+          "elasticAgentId": "elastic_agent_id",
+          "elasticPluginId": "plugin_id",
+          "identifier": {
+            "hostName": "localhost",
+            "ipAddress": "176.19.4.1",
+            "uuid": "uuid"
+          },
+          "runtimeStatus": "Idle",
+          "buildingInfo": {
+            "buildingInfo": "",
+            "buildLocator": ""
+          },
+          "location": "/some/random/location",
+          "usableSpace": 10,
+          "operatingSystemName": "Mac OS X",
+          "agentBootstrapperVersion": "20.1.0",
+          "agentVersion": "20.9.0"
+        },
+        "jobIdentifier": {
+          "pipelineName": "up_42",
+          "pipelineCounter": 100,
+          "pipelineLabel": "100",
+          "stageName": "up42_stage",
+          "buildName": "some_job",
+          "buildId": 1111,
+          "stageCounter": "1"
+        },
+        "jobResult":"Passed"
+      }"""
 
-        def agent = new Agent("uuid", "localhost", "176.19.4.1")
-        def expectedRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-          "elastic_agent_id", "plugin_id", "20.1.0", "20.9.0", () -> "Mac OS X")
-        expectedRuntimeInfo.setUsableSpace(10L)
-        expectedRuntimeInfo.setLocation("/some/random/location")
+    def agent = new Agent("uuid", "localhost", "176.19.4.1")
+    def expectedRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
+      "elastic_agent_id", "plugin_id", "20.1.0", "20.9.0", () -> "Mac OS X")
+    expectedRuntimeInfo.setUsableSpace(10L)
+    expectedRuntimeInfo.setLocation("/some/random/location")
 
-        def expectedJobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
-                "1", "some_job", 1111L)
+    def expectedJobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
+      "1", "some_job", 1111L)
 
-        def request = ReportCompleteStatusRequestRepresenter.fromJSON(requestJSON)
+    def request = ReportCompleteStatusRequestRepresenter.fromJSON(requestJSON)
 
-        assertThat(request.getAgentRuntimeInfo()).isEqualTo(expectedRuntimeInfo)
-        assertThat(request.getJobIdentifier()).isEqualTo(expectedJobIdentifier)
-        assertThat(request.getJobResult()).isEqualTo(JobResult.Passed)
-    }
+    assertThat(request.getAgentRuntimeInfo()).isEqualTo(expectedRuntimeInfo)
+    assertThat(request.getJobIdentifier()).isEqualTo(expectedJobIdentifier)
+    assertThat(request.getJobResult()).isEqualTo(JobResult.Passed)
+  }
 
-    @Test
-    void 'should ensure the serialized and deserialized objects are same'() {
-        def agent = new Agent("uuid", "localhost", "176.19.4.1")
-        def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-                "20.1.0", "20.9.0", () -> "Mac OS X")
-        runtimeInfo.setUsableSpace(10L)
-        runtimeInfo.setLocation("/some/random/location")
-        def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
-                "1", "some_job", 1111L)
+  @Test
+  void 'should ensure the serialized and deserialized objects are same'() {
+    def agent = new Agent("uuid", "localhost", "176.19.4.1")
+    def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
+      "20.1.0", "20.9.0", () -> "Mac OS X")
+    runtimeInfo.setUsableSpace(10L)
+    runtimeInfo.setLocation("/some/random/location")
+    def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
+      "1", "some_job", 1111L)
 
 
-        def requestJSON = ReportCompleteStatusRequestRepresenter.toJSON(
-                new ReportCompleteStatusRequest(runtimeInfo, jobIdentifier, JobResult.Passed))
-        def requestFromAgent = ReportCompleteStatusRequestRepresenter.fromJSON(requestJSON)
+    def requestJSON = ReportCompleteStatusRequestRepresenter.toJSON(
+      new ReportCompleteStatusRequest(runtimeInfo, jobIdentifier, JobResult.Passed))
+    def requestFromAgent = ReportCompleteStatusRequestRepresenter.fromJSON(requestJSON)
 
-        assertThat(EqualsBuilder.reflectionEquals(requestFromAgent,
-                new ReportCompleteStatusRequest(runtimeInfo, jobIdentifier, JobResult.Passed))).isTrue()
-    }
+    assertThat(EqualsBuilder.reflectionEquals(requestFromAgent,
+      new ReportCompleteStatusRequest(runtimeInfo, jobIdentifier, JobResult.Passed))).isTrue()
+  }
 }

@@ -57,6 +57,7 @@ import java.util.Vector;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static com.thoughtworks.go.helper.ConfigFileFixture.VALID_XML_3169;
+import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.*;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -223,9 +224,9 @@ public class GoFileConfigDataSourceIntegrationTest {
 
     @Test
     public void shouldUse_UserFromSession_asConfigModifyingUserWhenNoneGiven() throws GitAPIException {
-        com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs("loser_boozer");
-        goConfigDao.updateMailHost(getMailHost("mailhost.local"));
-        CruiseConfig cruiseConfig = goConfigDao.load();
+        loginAs("loser_boozer");
+        updateMailHost();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
         GoConfigRevision revision = configRepository.getRevision(cruiseConfig.getMd5());
         assertThat(revision.getUsername()).isEqualTo("loser_boozer");
     }
@@ -241,9 +242,7 @@ public class GoFileConfigDataSourceIntegrationTest {
 
     @Test
     public void shouldVersionTheCruiseConfigXmlWhenSaved() throws Exception {
-        CachedGoConfig cachedGoConfig = configHelper.getCachedGoConfig();
-        CruiseConfig configForEdit = cachedGoConfig.loadForEditing();
-        GoConfigHolder configHolder = new GoConfigHolder(cachedGoConfig.currentConfig(), configForEdit);
+        GoConfigHolder configHolder = new GoConfigHolder(goConfigDao.currentConfig(), goConfigDao.loadForEditing());
 
         GoConfigHolder afterFirstSave = dataSource.writeWithLock(new UserAwarePipelineAddingCommand("foo-pipeline", "loser"), configHolder).getConfigHolder();
 
@@ -383,7 +382,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(oldMailHost.getHostName()).isEqualTo("mailhost.local.old");
         assertThat(oldMailHost.getHostName()).isNotEqualTo("mailhost.local");
 
-        goConfigDao.updateMailHost(getMailHost("mailhost.local"));
+        updateMailHost();
 
         goConfigHolder = dataSource.forceLoad(dataSource.location());
 
@@ -402,6 +401,13 @@ public class GoFileConfigDataSourceIntegrationTest {
 
         assertThat(result.getConfigHolder().config.server().mailHost().getHostName()).isEqualTo("mailhost.local");
         assertThat(result.getConfigHolder().config.hasPipelineNamed(new CaseInsensitiveString("p1"))).isTrue();
+    }
+
+    private void updateMailHost() {
+        goConfigDao.updateConfig(cruiseConfig -> {
+            cruiseConfig.server().updateMailHost(getMailHost("mailhost.local"));
+            return cruiseConfig;
+        });
     }
 
     @Test
@@ -528,7 +534,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         Thread thread1 = new Thread(() -> {
             for (int i = 0; i < 5; i++) {
                 try {
-                    goConfigDao.updateMailHost(new MailHost("hostname", 9999, "user", "password", false, false, "from@local", "admin@local"));
+                    updateMailHost();
                 } catch (Exception e) {
                     errors.add(e);
                 }

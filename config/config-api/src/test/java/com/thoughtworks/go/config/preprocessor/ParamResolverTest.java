@@ -207,7 +207,7 @@ public class ParamResolverTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("#a");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.errors().on("labelTemplate")).isEqualTo("Error when processing params for '#a' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #");
+        assertThat(pipelineConfig.errors().firstErrorOn("labelTemplate")).isEqualTo("Error when processing params for '#a' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #");
     }
 
     @Test
@@ -217,7 +217,7 @@ public class ParamResolverTest {
         pipelineConfig.get(0).getJobs().getJob(new CaseInsensitiveString("nant")).addTask(task);
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
         assertThat(task.errors().isEmpty()).isFalse();
-        assertThat(task.errors().on(FetchTask.SRC)).isEqualTo("Error when processing params for '#a' used in field 'src', # must be followed by a parameter pattern or escaped by another #");
+        assertThat(task.errors().firstErrorOn(FetchTask.SRC)).isEqualTo("Error when processing params for '#a' used in field 'src', # must be followed by a parameter pattern or escaped by another #");
     }
 
 
@@ -232,8 +232,8 @@ public class ParamResolverTest {
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
 
-        assertThat(pipelineConfig.errors().on("labelTemplate")).isEqualTo("Error when processing params for '#a' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #");
-        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES)).isEqualTo("Parameter 'not-found' is not defined. All pipelines using this parameter directly or via a template must define it.");
+        assertThat(pipelineConfig.errors().firstErrorOn("labelTemplate")).isEqualTo("Error when processing params for '#a' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #");
+        assertThat(resourceConfig.errors().firstErrorOn(JobConfig.RESOURCES)).isEqualTo("Parameter 'not-found' is not defined. All pipelines using this parameter directly or via a template must define it.");
     }
 
     @Test
@@ -241,7 +241,7 @@ public class ParamResolverTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("abc#");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.errors().on("labelTemplate")).isEqualTo("Error when processing params for 'abc#' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #");
+        assertThat(pipelineConfig.errors().firstErrorOn("labelTemplate")).isEqualTo("Error when processing params for 'abc#' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #");
     }
 
     @Test
@@ -249,7 +249,7 @@ public class ParamResolverTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("abc#{");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.errors().on("labelTemplate")).isEqualTo("Incomplete param usage in 'abc#{'");
+        assertThat(pipelineConfig.errors().firstErrorOn("labelTemplate")).isEqualTo("Incomplete param usage in 'abc#{'");
     }
 
     @Test
@@ -270,14 +270,14 @@ public class ParamResolverTest {
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(p4MaterialViewConfig);
 
-        assertThat(p4MaterialViewConfig.errors().on(P4MaterialConfig.VIEW)).isEqualTo("Error when processing params for '#' used in field 'view', # must be followed by a parameter pattern or escaped by another #");
+        assertThat(p4MaterialViewConfig.errors().firstErrorOn(P4MaterialConfig.VIEW)).isEqualTo("Error when processing params for '#' used in field 'view', # must be followed by a parameter pattern or escaped by another #");
     }
 
     @Test
     public void shouldErrorOutIfCannotResolveParamForP4View() {
         P4MaterialConfig p4MaterialConfig = p4("server:port", "#");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(p4MaterialConfig);
-        assertThat(p4MaterialConfig.getP4MaterialView().errors().on(P4MaterialConfig.VIEW)).isEqualTo("Error when processing params for '#' used in field 'view', # must be followed by a parameter pattern or escaped by another #");
+        assertThat(p4MaterialConfig.getP4MaterialView().errors().firstErrorOn(P4MaterialConfig.VIEW)).isEqualTo("Error when processing params for '#' used in field 'view', # must be followed by a parameter pattern or escaped by another #");
     }
 
     @Test

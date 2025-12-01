@@ -16,6 +16,7 @@
 package com.thoughtworks.go.agent.common;
 
 import com.beust.jcommander.Parameter;
+import com.thoughtworks.go.util.UrlUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +24,6 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,31 +95,27 @@ public class AgentBootstrapperArgs {
     }
 
     public static AgentBootstrapperArgs fromProperties(Map<String, String> properties) {
-        try {
-            AgentBootstrapperArgs agentBootstrapperArgs = new AgentBootstrapperArgs();
+        AgentBootstrapperArgs agentBootstrapperArgs = new AgentBootstrapperArgs();
 
-            agentBootstrapperArgs.setServerUrl(new URL(properties.get(SERVER_URL)));
-            agentBootstrapperArgs.setSslVerificationMode(SslMode.valueOf(properties.get(SSL_VERIFICATION_MODE)));
+        agentBootstrapperArgs.setServerUrl(UrlUtil.fromString(properties.get(SERVER_URL)));
+        agentBootstrapperArgs.setSslVerificationMode(SslMode.valueOf(properties.get(SSL_VERIFICATION_MODE)));
 
-            if (properties.containsKey(ROOT_CERT_FILE)) {
-                agentBootstrapperArgs.setRootCertFile(new File(properties.get(ROOT_CERT_FILE)));
-            }
-
-            if (properties.containsKey(PRIVATE_KEY)) {
-                agentBootstrapperArgs.setSslPrivateKeyFile(new File(properties.get(PRIVATE_KEY)));
-            }
-
-            if (properties.containsKey(PRIVATE_KEY_PASSPHRASE_FILE)) {
-                agentBootstrapperArgs.setSslPrivateKeyPassphraseFile(new File(properties.get(PRIVATE_KEY_PASSPHRASE_FILE)));
-            }
-
-            if (properties.containsKey(SSL_CERTIFICATE)) {
-                agentBootstrapperArgs.setSslCertificateFile(new File(properties.get(SSL_CERTIFICATE)));
-            }
-            return agentBootstrapperArgs;
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+        if (properties.containsKey(ROOT_CERT_FILE)) {
+            agentBootstrapperArgs.setRootCertFile(new File(properties.get(ROOT_CERT_FILE)));
         }
+
+        if (properties.containsKey(PRIVATE_KEY)) {
+            agentBootstrapperArgs.setSslPrivateKeyFile(new File(properties.get(PRIVATE_KEY)));
+        }
+
+        if (properties.containsKey(PRIVATE_KEY_PASSPHRASE_FILE)) {
+            agentBootstrapperArgs.setSslPrivateKeyPassphraseFile(new File(properties.get(PRIVATE_KEY_PASSPHRASE_FILE)));
+        }
+
+        if (properties.containsKey(SSL_CERTIFICATE)) {
+            agentBootstrapperArgs.setSslCertificateFile(new File(properties.get(SSL_CERTIFICATE)));
+        }
+        return agentBootstrapperArgs;
     }
 
 }

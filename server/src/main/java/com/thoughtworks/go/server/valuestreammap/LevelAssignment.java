@@ -27,25 +27,25 @@ public class LevelAssignment {
         Node rootNode = valueStreamMap.getCurrentPipeline() != null ? valueStreamMap.getCurrentPipeline() : valueStreamMap.getCurrentMaterial();
         rootNode.setLevel(0);
 
-		if(!rootNode.getParents().isEmpty()) {
-			assignLevelsToDependencies(rootNode, new Upstream());
-		}
+        if (!rootNode.getParents().isEmpty()) {
+            assignLevelsToDependencies(rootNode, new Upstream());
+        }
 
-		if(!rootNode.getChildren().isEmpty()) {
-			assignLevelsToDependencies(rootNode, new Downstream());
-		}
+        if (!rootNode.getChildren().isEmpty()) {
+            assignLevelsToDependencies(rootNode, new Downstream());
+        }
 
         return levelToNodesMap(valueStreamMap);
     }
 
-	private void assignLevelsToDependencies(Node rootNode, LevelAssignmentDirection direction) {
-		List<Node> topologicalOrder = new ArrayList<>();
-		getTopologicalOrder(rootNode, direction, new HashSet<>(), topologicalOrder);
-		Collections.reverse(topologicalOrder);
-		assignLevels(topologicalOrder, direction);
-	}
+    private void assignLevelsToDependencies(Node rootNode, LevelAssignmentDirection direction) {
+        List<Node> topologicalOrder = new ArrayList<>();
+        getTopologicalOrder(rootNode, direction, new HashSet<>(), topologicalOrder);
+        Collections.reverse(topologicalOrder);
+        assignLevels(topologicalOrder, direction);
+    }
 
-	private void getTopologicalOrder(Node rootNode, LevelAssignmentDirection direction, Set<Node> visitedNodes, List<Node> topologicalOrder) {
+    private void getTopologicalOrder(Node rootNode, LevelAssignmentDirection direction, Set<Node> visitedNodes, List<Node> topologicalOrder) {
         if (visitedNodes.contains(rootNode)) {
             return;
         }

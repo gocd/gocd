@@ -87,6 +87,6 @@ class DirectiveRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(this.invalid_permission_json)
     def roleConfig = DirectiveRepresenter.fromJSON(jsonReader)
     assertThat(roleConfig).isEqualTo(new DirectiveRepresenter.Unknown("blah", "view", "environment", "*"))
-    assertThat(roleConfig.errors().on("permission")).isEqualTo("Invalid permission, must be either 'allow' or 'deny'.")
+    assertThat(roleConfig.errors().firstErrorOn("permission")).isEqualTo("Invalid permission, must be either 'allow' or 'deny'.")
   }
 }

@@ -55,23 +55,19 @@ public class ScheduleServiceSecurityTest {
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
 
-    private PipelineWithTwoStages fixture;
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private PipelineWithTwoStages pipelineFixture;
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
-        configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
-
-        dbHelper.onSetUp();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
     }
 
     @AfterEach
     public void teardown() throws Exception {
-        dbHelper.onTearDown();
-        fixture.onTearDown();
+        pipelineFixture.onTearDown();
     }
 
     @Test
@@ -79,10 +75,10 @@ public class ScheduleServiceSecurityTest {
         configHelper.enableSecurity();
         configHelper.addAdmins("admin");
         configHelper.setOperatePermissionForGroup("defaultGroup", "jez");
-        Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
+        Pipeline pipeline = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         Username anonymous = new Username(new CaseInsensitiveString("anonymous"));
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        Stage resultStage = scheduleService.cancelAndTriggerRelevantStages(pipeline.getStages().byName(fixture.ftStage).getId(), anonymous, operationResult);
+        Stage resultStage = scheduleService.cancelAndTriggerRelevantStages(pipeline.getStages().byName(pipelineFixture.ftStage).getId(), anonymous, operationResult);
 
         assertThat(resultStage).isNull();
         assertThat(operationResult.isSuccessful()).isFalse();
@@ -107,11 +103,11 @@ public class ScheduleServiceSecurityTest {
         configHelper.enableSecurity();
         Username user = SessionUtils.currentUsername();
         configHelper.setOperatePermissionForGroup("defaultGroup", user.getUsername().toString());
-        Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
+        Pipeline pipeline = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
 
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
-        Stage stageForCancellation = pipeline.getStages().byName(fixture.ftStage);
+        Stage stageForCancellation = pipeline.getStages().byName(pipelineFixture.ftStage);
         Stage resultStage = scheduleService.cancelAndTriggerRelevantStages(stageForCancellation.getId(), user, operationResult);
 
         assertThat(resultStage).isNotNull();

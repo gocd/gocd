@@ -117,10 +117,9 @@ public class MaterialRevisionBuilder {
     }
 
     private void insertIfNotPresent(Material material, String key, String revision, Date modifiedTime) {
-        if (!instanceToRevision.containsKey(key)) {
-            Modification modification = new Modification("username", "comment", "email", modifiedTime, revision);
-            instanceToRevision.put(key, new MaterialRevision(material, modification));
-        }
+        instanceToRevision.computeIfAbsent(key, k ->
+            new MaterialRevision(material, new Modification("username", "comment", "email", modifiedTime, revision))
+        );
     }
 
     private String key(Object... parts) {

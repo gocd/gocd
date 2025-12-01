@@ -375,7 +375,7 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         pairEnvironmentConfig.get(1).addEnvironmentVariable("variable-name1", "variable-value2");
         pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
         assertThat(pairEnvironmentConfig.errors().isEmpty()).isFalse();
-        assertThat(pairEnvironmentConfig.errors().on(MergeEnvironmentConfig.CONSISTENT_KV)).isEqualTo("Environment variable 'variable-name1' is defined more than once with different values");
+        assertThat(pairEnvironmentConfig.errors().firstErrorOn(MergeEnvironmentConfig.CONSISTENT_KV)).isEqualTo("Environment variable 'variable-name1' is defined more than once with different values");
     }
 
     @Test
@@ -403,7 +403,7 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         pairEnvironmentConfig.addError("field-name", "some error message.");
 
         assertThat(pairEnvironmentConfig.errors().size()).isEqualTo(1);
-        assertThat(pairEnvironmentConfig.errors().on("field-name")).isEqualTo("some error message.");
+        assertThat(pairEnvironmentConfig.errors().firstErrorOn("field-name")).isEqualTo("some error message.");
     }
 
     @Test

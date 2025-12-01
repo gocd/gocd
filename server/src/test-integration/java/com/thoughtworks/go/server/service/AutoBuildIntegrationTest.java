@@ -59,7 +59,7 @@ public class AutoBuildIntegrationTest {
     @Autowired private PipelineTimeline pipelineTimeline;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil scheduleUtil;
 
     @BeforeEach
@@ -106,7 +106,7 @@ public class AutoBuildIntegrationTest {
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         currentConfig.pipelineConfigByName(new CaseInsensitiveString("down_pipe")).removeMaterialConfig(svn.config());
         configHelper.writeConfigFile(currentConfig);
-        goConfigDao.load();
+        goConfigDao.currentConfig();
 
         MaterialRevisions given = scheduleUtil.mrs(scheduleUtil.mr(up_pipe, true, up_pipe_1));
 

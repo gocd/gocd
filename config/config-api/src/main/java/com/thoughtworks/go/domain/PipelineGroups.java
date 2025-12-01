@@ -151,11 +151,11 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
             for (PipelineConfig pipeline : group) {
                 for (PipelineConfig visitedPipeline : visited) {
                     if (visitedPipeline.name().equals(pipeline.name())) {
-                        if (!duplicates.containsKey(pipeline.name())) {
-                            duplicates.put(pipeline.name(), new HashSet<>());
-                        }
-                        duplicates.get(pipeline.name()).add(pipeline.getOriginDisplayName());
-                        duplicates.get(pipeline.name()).add(visitedPipeline.getOriginDisplayName());
+                        duplicates.computeIfAbsent(pipeline.name(), k -> new HashSet<>())
+                            .addAll(List.of(
+                                pipeline.getOriginDisplayName(),
+                                visitedPipeline.getOriginDisplayName()
+                            ));
                         pipeline.errors().remove(PipelineConfig.NAME);
                         pipeline.addError(PipelineConfig.NAME, String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): %s", pipeline.name(), duplicates.get(pipeline.name())));
                         visitedPipeline.errors().remove(PipelineConfig.NAME);
@@ -186,10 +186,8 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
                         for (PipelineConfig pipelineConfig : pipelineConfigs) {
                             for (PackageMaterialConfig packageMaterialConfig : pipelineConfig.packageMaterialConfigs()) {
                                 String packageId = packageMaterialConfig.getPackageId();
-                                if (!packageToPipelineMap.containsKey(packageId)) {
-                                    packageToPipelineMap.put(packageId, new ArrayList<>());
-                                }
-                                packageToPipelineMap.get(packageId).add(new Pair<>(pipelineConfig, pipelineConfigs));
+                                packageToPipelineMap.computeIfAbsent(packageId, k -> new ArrayList<>())
+                                    .add(new Pair<>(pipelineConfig, pipelineConfigs));
                             }
                         }
                     }
@@ -218,10 +216,8 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
                         for (PipelineConfig pipelineConfig : pipelineConfigs) {
                             for (PluggableSCMMaterialConfig pluggableSCMMaterialConfig : pipelineConfig.pluggableSCMMaterialConfigs()) {
                                 String scmId = pluggableSCMMaterialConfig.getScmId();
-                                if (!pluggableSCMMaterialToPipelineMap.containsKey(scmId)) {
-                                    pluggableSCMMaterialToPipelineMap.put(scmId, new ArrayList<>());
-                                }
-                                pluggableSCMMaterialToPipelineMap.get(scmId).add(new Pair<>(pipelineConfig, pipelineConfigs));
+                                pluggableSCMMaterialToPipelineMap.computeIfAbsent(scmId, k -> new ArrayList<>())
+                                    .add(new Pair<>(pipelineConfig, pipelineConfigs));
                             }
                         }
                     }

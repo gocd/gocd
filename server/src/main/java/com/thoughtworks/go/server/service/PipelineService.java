@@ -38,7 +38,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.function.Supplier;
 
+import static com.thoughtworks.go.util.SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT;
 import static java.lang.String.format;
 
 @Service
@@ -50,8 +52,8 @@ public class PipelineService implements UpstreamPipelineResolver {
     private final PipelineLockService pipelineLockService;
     private final PipelineTimeline pipelineTimeline;
     private final MaterialRepository materialRepository;
-    private final SystemEnvironment systemEnvironment;
     private final MaterialConfigConverter materialConfigConverter;
+    private final Supplier<Integer> maxBackTrackLimit;
 
     @Autowired
     public PipelineService(PipelineSqlMapDao pipelineDao, StageService stageService, PipelineLockService pipelineLockService, PipelineTimeline pipelineTimeline, MaterialRepository materialRepository,
@@ -62,8 +64,8 @@ public class PipelineService implements UpstreamPipelineResolver {
         this.pipelineTimeline = pipelineTimeline;
         this.materialRepository = materialRepository;
         this.transactionTemplate = transactionTemplate;
-        this.systemEnvironment = systemEnvironment;
         this.materialConfigConverter = materialConfigConverter;
+        this.maxBackTrackLimit = () -> systemEnvironment.get(RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT);
     }
 
     public Pipeline fullPipelineById(long pipelineId) {
@@ -206,7 +208,7 @@ public class PipelineService implements UpstreamPipelineResolver {
     /* DIAMOND BEGIN */
 
     public MaterialRevisions getRevisionsBasedOnDependencies(MaterialRevisions actualRevisions, CruiseConfig cruiseConfig, CaseInsensitiveString pipelineName) {
-        FanInGraph fanInGraph = new FanInGraph(cruiseConfig, pipelineName, materialRepository, pipelineDao, systemEnvironment, materialConfigConverter);
+        FanInGraph fanInGraph = new FanInGraph(cruiseConfig, pipelineName, materialRepository, pipelineDao, materialConfigConverter, maxBackTrackLimit);
         final MaterialRevisions computedRevisions = fanInGraph.computeRevisions(actualRevisions, pipelineTimeline);
         fillUpNonOverridableRevisions(actualRevisions, computedRevisions);
         return restoreOriginalMaterialConfigAndMaterialOrderUsingFingerprint(actualRevisions, computedRevisions);

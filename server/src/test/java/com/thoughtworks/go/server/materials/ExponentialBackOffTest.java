@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
+import java.time.Instant;
 
 import static java.time.Clock.fixed;
 import static java.time.Instant.now;
@@ -78,18 +79,23 @@ public class ExponentialBackOffTest {
 
         @Test
         void backOffShouldLimitToMaxRetryInterval() {
-            Clock oneHourFromNow = fixed(now().plusSeconds(61 * 60 * 1000), systemDefault());
-            Clock oneHourTwoMinutesFromNow = fixed(now().plusSeconds(62 * 60 * 1000), systemDefault());
+            Instant firstFailure = now().plusMillis(ExponentialBackOff.MAX_RETRY_INTERVAL_IN_MILLIS);
+            Clock oneHourFromNow = fixed(firstFailure, systemDefault());
             when(systemTimeClock.currentTime())
-                    .thenReturn(now())
-                    .thenReturn(now(oneHourFromNow))
-                    .thenReturn(now(oneHourTwoMinutesFromNow));
+                    .thenReturn(now()) // start
+                    .thenReturn(now(oneHourFromNow)); // first failure
 
             ExponentialBackOff backOff = new ExponentialBackOff(2, systemTimeClock);
 
-            backOff.failedAgain();
+            backOff.failedAgain(); // failed after 60 minutes. Next retry would normally be after another 2 * 60 minutes but capped at 60 minutes.
 
-            assertThat(backOff.backOffResult().shouldBackOff()).isFalse();
+            when(systemTimeClock.currentTime()).thenReturn(now(fixed(firstFailure.plusMillis(ExponentialBackOff.MAX_RETRY_INTERVAL_IN_MILLIS), systemDefault()))); // backoff result
+            BackOffResult backOffResult = backOff.backOffResult();
+            assertThat(backOffResult.shouldBackOff()).isFalse();
+            assertThat(backOffResult.getNextRetryAttempt()).isBeforeOrEqualTo(firstFailure.plusMillis(ExponentialBackOff.MAX_RETRY_INTERVAL_IN_MILLIS));
+
+            when(systemTimeClock.currentTime()).thenReturn(now(fixed(firstFailure.plusMillis(ExponentialBackOff.MAX_RETRY_INTERVAL_IN_MILLIS).minusMillis(1), systemDefault()))); // backoff result
+            assertThat(backOff.backOffResult().shouldBackOff()).isTrue();
         }
     }
 }

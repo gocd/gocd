@@ -295,11 +295,7 @@ public class ConfigSaveValidationContext implements ValidationContext {
         for (PipelineConfig pipelineConfig : cruiseConfig.getAllPipelineConfigs()) {
             for (MaterialConfig material : pipelineConfig.materialConfigs()) {
                 String fingerprint = material.getFingerprint();
-                if (!fingerprintToMaterials.containsKey(fingerprint)) {
-                    fingerprintToMaterials.put(fingerprint, new MaterialConfigs());
-                }
-                MaterialConfigs materialsForFingerprint = fingerprintToMaterials.get(fingerprint);
-                materialsForFingerprint.add(material);
+                fingerprintToMaterials.computeIfAbsent(fingerprint, k -> new MaterialConfigs()).add(material);
             }
         }
     }

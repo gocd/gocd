@@ -110,20 +110,20 @@ public class GitCommand extends SCMCommand {
         final String fullLocalRef = abbrevBranch.startsWith("refs/") ? abbrevBranch : REFS_HEADS + abbrevBranch;
 
         return runCascade(outputStreamConsumer,
-                gitClone,
-                git_C().withArgs("config", "--replace-all", "remote.origin.fetch", "+" + expandRefSpec()),
-                git_C().withArgs("fetch", "--prune", "--recurse-submodules=no"),
-                // Enter a detached head state without updating/restoring files in the workspace.
-                // This covers an edge-case where the destination ref is the same as the default
-                // branch, which would otherwise cause `git branch -f <local-ref> <remote-ref>` to
-                // fail when local-ref == current-ref.
-                git_C().withArgs("update-ref", "--no-deref", "HEAD", "HEAD"),
-                // Important to create a "real" local branch and not just use `symbolic-ref`
-                // to update HEAD in order to ensure that GitMaterial#isBranchEqual() passes;
-                // failing this check will cause the working directory to be obliterated and we
-                // will re-clone the given repository every time. Yikes!
-                git_C().withArgs("branch", "-f", abbrevBranch, remoteBranch()),
-                git_C().withArgs("symbolic-ref", "HEAD", fullLocalRef)
+            gitClone,
+            git_C().withArgs("config", "--replace-all", "remote.origin.fetch", "+" + expandRefSpec()),
+            git_C().withArgs("fetch", "--prune", "--recurse-submodules=no"),
+            // Enter a detached head state without updating/restoring files in the workspace.
+            // This covers an edge-case where the destination ref is the same as the default
+            // branch, which would otherwise cause `git branch -f <local-ref> <remote-ref>` to
+            // fail when local-ref == current-ref.
+            git_C().withArgs("update-ref", "--no-deref", "HEAD", "HEAD"),
+            // Important to create a "real" local branch and not just use `symbolic-ref`
+            // to update HEAD in order to ensure that GitMaterial#isBranchEqual() passes;
+            // failing this check will cause the working directory to be obliterated and we
+            // will re-clone the given repository every time. Yikes!
+            git_C().withArgs("branch", "-f", abbrevBranch, remoteBranch()),
+            git_C().withArgs("symbolic-ref", "HEAD", fullLocalRef)
         );
     }
 
@@ -145,10 +145,10 @@ public class GitCommand extends SCMCommand {
         }
 
         return runCascade(outputStreamConsumer,
-                gitClone,
-                git_C().withArgs("config", "--replace-all", "remote.origin.fetch", "+" + expandRefSpec()),
-                git_C().withArgs("fetch", "--prune", "--recurse-submodules=no"),
-                git_C().withArgs("checkout", "-B", localBranch(), remoteBranch())
+            gitClone,
+            git_C().withArgs("config", "--replace-all", "remote.origin.fetch", "+" + expandRefSpec()),
+            git_C().withArgs("fetch", "--prune", "--recurse-submodules=no"),
+            git_C().withArgs("checkout", "-B", localBranch(), remoteBranch())
         );
     }
 
@@ -276,8 +276,8 @@ public class GitCommand extends SCMCommand {
     public void unshallow(ConsoleOutputStreamConsumer outputStreamConsumer, Integer depth) {
         log(outputStreamConsumer, "Unshallowing repository with depth {}", depth);
         CommandLine gitFetch = gitWd()
-                .withArgs("fetch", "origin")
-                .withArg(format("--depth=%d", depth));
+            .withArgs("fetch", "origin")
+            .withArg(format("--depth=%d", depth));
 
         int result = run(gitFetch, outputStreamConsumer);
         if (result != 0) {
@@ -378,9 +378,15 @@ public class GitCommand extends SCMCommand {
         for (String submoduleLine : submoduleList) {
             Matcher m = GIT_SUBMODULE_URL_PATTERN.matcher(submoduleLine);
             if (!m.find()) {
-                bomb("Unable to parse git-config output line: " + result.redactFrom(submoduleLine) + "\n"
-                        + "From output:\n"
-                        + result.redactFrom(String.join("\n", submoduleList)));
+                bomb("""
+                    Unable to parse git-config output line: %s
+                    From output:
+                    %s"""
+                    .formatted(
+                        result.redactFrom(submoduleLine),
+                        result.redactFrom(String.join("\n", submoduleList))
+                    )
+                );
             }
             submoduleUrls.put(m.group(1), m.group(2));
         }
@@ -426,9 +432,15 @@ public class GitCommand extends SCMCommand {
 
             Matcher m = matchResultLine(resultLine);
             if (!m.find()) {
-                bomb("Unable to parse git-diff-tree output line: " + consoleResult.redactFrom(resultLine) + "\n"
-                        + "From output:\n"
-                        + consoleResult.outputForDisplayAsString());
+                bomb("""
+                    Unable to parse git-diff-tree output line: %s
+                    From output:
+                    %s"""
+                    .formatted(
+                        consoleResult.redactFrom(resultLine),
+                        consoleResult.outputForDisplayAsString()
+                    )
+                );
             }
             mod.createModifiedFile(m.group(2), null, parseGitAction(m.group(1).charAt(0)));
         }
@@ -569,9 +581,15 @@ public class GitCommand extends SCMCommand {
         for (String submoduleLine : submoduleLines) {
             Matcher m = GIT_SUBMODULE_STATUS_PATTERN.matcher(submoduleLine);
             if (!m.find()) {
-                bomb("Unable to parse git-submodule output line: " + submoduleLine + "\n"
-                        + "From output:\n"
-                        + StringUtils.join(submoduleLines, "\n"));
+                bomb("""
+                    Unable to parse git-submodule output line: %s
+                    From output:
+                    %s"""
+                    .formatted(
+                        submoduleLine,
+                        String.join("\n", submoduleLines)
+                    )
+                );
             }
             submoduleFolders.add(m.group(1));
         }

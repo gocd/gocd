@@ -32,8 +32,6 @@ import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
-import com.thoughtworks.go.presentation.TriStateSelection;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
@@ -115,7 +113,7 @@ public class PipelineConfigServiceIntegrationTest {
         goConfigService.forceNotifyListeners();
         user = new Username(new CaseInsensitiveString("current"));
         pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
-        goConfigService.addPipeline(pipelineConfig, groupName);
+        configHelper.addPipeline(groupName, pipelineConfig);
         repoConfig1 = createConfigRepoWithDefaultRules(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName, "git-id1");
         repoConfig2 = createConfigRepoWithDefaultRules(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName, "git-id2");
         goConfigService.updateConfig(cruiseConfig -> {
@@ -123,10 +121,7 @@ public class PipelineConfigServiceIntegrationTest {
             cruiseConfig.getConfigRepos().add(repoConfig2);
             return cruiseConfig;
         });
-        GoCipher goCipher = new GoCipher();
-        goConfigService.updateServerConfig(new MailHost(goCipher), goConfigService.configFileMd5(), "artifacts", null, null, "0", null, null);
-        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(List.of(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
-        goConfigService.updateConfig(command);
+        configHelper.addAdmins(user.getUsername().toString());
         remoteDownstreamPipelineName = "remote-downstream";
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remoteDownstreamPipelineName, pipelineConfig, new RepoConfigOrigin(repoConfig1, "repo1_r1"));
         partialConfigService.onSuccessPartialConfig(repoConfig1, partialConfig);
@@ -269,7 +264,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.isSuccessful()).isEqualTo(false);
         assertThat(result.httpCode()).isEqualTo(422);
         assertThat(pipelineBeingCreated.errors()).isNotEmpty();
-        assertThat(pipelineBeingCreated.errors().on(PipelineConfig.NAME)).isEqualTo(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): [cruise-config.xml]", pipelineConfig.name()));
+        assertThat(pipelineBeingCreated.errors().firstErrorOn(PipelineConfig.NAME)).isEqualTo(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): [cruise-config.xml]", pipelineConfig.name()));
         assertThat(goConfigDao.loadConfigHolder()).isEqualTo(goConfigHolderBeforeUpdate);
         assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
     }
@@ -283,7 +278,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.isSuccessful()).isEqualTo(false);
         assertThat(result.httpCode()).isEqualTo(422);
         assertThat(pipelineBeingCreated.errors()).isNotEmpty();
-        assertThat(pipelineBeingCreated.errors().on(PipelineConfigs.GROUP)).contains("Invalid group name '%$-with-invalid-characters'");
+        assertThat(pipelineBeingCreated.errors().firstErrorOn(PipelineConfigs.GROUP)).contains("Invalid group name '%$-with-invalid-characters'");
         assertThat(goConfigDao.loadConfigHolder()).isEqualTo(goConfigHolderBeforeUpdate);
         assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
     }
@@ -308,7 +303,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.isSuccessful()).isEqualTo(false);
         assertThat(result.httpCode()).isEqualTo(422);
         String expectedError = String.format("Task of job 'default-job' in stage 'default-stage' of pipeline '%s' has dest path '/usr/dest' which is outside the working directory.", pipeline.name());
-        assertThat(fetchTask.errors().on("dest")).isEqualTo(expectedError);
+        assertThat(fetchTask.errors().firstErrorOn("dest")).isEqualTo(expectedError);
     }
 
     @Test
@@ -479,7 +474,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.isSuccessful()).isEqualTo(false);
         assertThat(result.httpCode()).isEqualTo(422);
         String expectedError = String.format("Task of job 'default-job' in stage 'default-stage' of pipeline '%s' has dest path '/usr/dest' which is outside the working directory.", pipelineConfig.name());
-        assertThat(fetchTask.errors().on("dest")).isEqualTo(expectedError);
+        assertThat(fetchTask.errors().firstErrorOn("dest")).isEqualTo(expectedError);
     }
 
     @Test
@@ -513,7 +508,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.isSuccessful()).isEqualTo(false);
         assertThat(result.httpCode()).isEqualTo(422);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).contains("Invalid label");
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LABEL_TEMPLATE)).contains("Invalid label");
         assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
         assertThat(goConfigDao.loadConfigHolder().configForEdit).isEqualTo(goConfigHolder.configForEdit);
         assertThat(goConfigDao.loadConfigHolder().config).isEqualTo(goConfigHolder.config);
@@ -550,8 +545,8 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful()).isEqualTo(false);
-        assertThat(pipelineConfig.errors().on("stages")).isEqualTo(String.format("Cannot add stages to pipeline '%s' which already references template '%s'", pipelineConfig.name(), templateName));
-        assertThat(pipelineConfig.errors().on("template")).isEqualTo(String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", templateName, pipelineConfig.name()));
+        assertThat(pipelineConfig.errors().firstErrorOn("stages")).isEqualTo(String.format("Cannot add stages to pipeline '%s' which already references template '%s'", pipelineConfig.name(), templateName));
+        assertThat(pipelineConfig.errors().firstErrorOn("template")).isEqualTo(String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", templateName, pipelineConfig.name()));
         assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
         assertThat(goConfigDao.loadConfigHolder().configForEdit).isEqualTo(goConfigHolder.configForEdit);
         assertThat(goConfigDao.loadConfigHolder().config).isEqualTo(goConfigHolder.config);
@@ -585,8 +580,8 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful()).isEqualTo(false);
-        assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER)).isEqualTo("Destination directory is required when a pipeline has multiple SCM materials.");
-        assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find plugin for scm-id: [scmid].");
+        assertThat(scmMaterialConfig.errors().firstErrorOn(PluggableSCMMaterialConfig.FOLDER)).isEqualTo("Destination directory is required when a pipeline has multiple SCM materials.");
+        assertThat(scmMaterialConfig.errors().firstErrorOn(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find plugin for scm-id: [scmid].");
         assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
         assertThat(goConfigDao.loadConfigHolder().configForEdit).isEqualTo(goConfigHolder.configForEdit);
         assertThat(goConfigDao.loadConfigHolder().config).isEqualTo(goConfigHolder.config);
@@ -605,7 +600,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.isSuccessful()).isEqualTo(false);
         assertThat(result.message()).isEqualTo(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name()));
 
-        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find repository for given package id:[packageid]");
+        assertThat(packageMaterialConfig.errors().firstErrorOn(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find repository for given package id:[packageid]");
         assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
         assertThat(goConfigDao.loadConfigHolder().configForEdit).isEqualTo(goConfigHolder.configForEdit);
         assertThat(goConfigDao.loadConfigHolder().config).isEqualTo(goConfigHolder.config);
@@ -614,7 +609,7 @@ public class PipelineConfigServiceIntegrationTest {
     @Test
     public void shouldDeletePipelineConfig() {
         PipelineConfig pipeline = PipelineConfigMother.createPipelineConfigWithStages(UUID.randomUUID().toString(), "stage");
-        goConfigService.addPipeline(pipeline, "default");
+        configHelper.addPipeline("default", pipeline);
         assertThat(goConfigService.hasPipelineNamed(pipeline.name())).isTrue();
 
         int pipelineCountBefore = goConfigService.getAllPipelineConfigs().size();
@@ -645,11 +640,10 @@ public class PipelineConfigServiceIntegrationTest {
 
     @Test
     public void shouldNotDeletePipelineConfigWhenItIsUsedInAnEnvironment() {
-        BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("Dev"));
         PipelineConfig pipeline = PipelineConfigMother.createPipelineConfigWithStages(UUID.randomUUID().toString(), "stage");
-        goConfigService.addPipeline(pipeline, "default");
-        env.addPipeline(pipeline.name());
-        goConfigService.addEnvironment(env);
+        configHelper.addPipeline("default", pipeline);
+        configHelper.addEnvironments("Dev");
+        configHelper.addPipelineToEnvironment("Dev", pipeline.name().toString());
 
         int pipelineCountBefore = goConfigService.getAllPipelineConfigs().size();
         assertThat(goConfigService.hasPipelineNamed(pipeline.name())).isTrue();
@@ -657,7 +651,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.deletePipelineConfig(user, pipeline, result);
 
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.message()).isEqualTo("Cannot delete pipeline '" + pipeline.name() + "' as it is present in environment '" + env.name() + "'.");
+        assertThat(result.message()).isEqualTo("Cannot delete pipeline '" + pipeline.name() + "' as it is present in environment 'Dev'.");
         assertThat(result.httpCode()).isEqualTo(422);
         int pipelineCountAfter = goConfigService.getAllPipelineConfigs().size();
         assertThat(pipelineCountAfter).isEqualTo(pipelineCountBefore);
@@ -667,7 +661,7 @@ public class PipelineConfigServiceIntegrationTest {
     @Test
     public void shouldNotDeletePipelineConfigWhenItHasDownstreamDependencies() {
         PipelineConfig dependency = GoConfigMother.createPipelineConfigWithMaterialConfig(new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
-        goConfigService.addPipeline(dependency, groupName);
+        configHelper.addPipeline(groupName, dependency);
 
         int pipelineCountBefore = goConfigService.getAllPipelineConfigs().size();
         assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name())).isTrue();
@@ -747,7 +741,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful()).isEqualTo(false);
-        assertThat(pipelineConfig.errors().on("base")).isEqualTo(String.format("Stage with name 'stage' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r1)", pipelineConfig.name()));
+        assertThat(pipelineConfig.errors().firstErrorOn("base")).isEqualTo(String.format("Stage with name 'stage' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r1)", pipelineConfig.name()));
         assertThat(result.message()).isEqualTo(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name()));
     }
 

@@ -16,13 +16,13 @@
 package com.thoughtworks.go.agent.common.util;
 
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.UrlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -93,13 +93,7 @@ public class JarUtil {
     }
 
     public static URL[] toURLs(List<File> files) {
-        return files.stream().map(file -> {
-            try {
-                return file.toURI().toURL();
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
-        }).toArray(URL[]::new);
+        return files.stream().map(UrlUtil::fromFile).toArray(URL[]::new);
     }
 
     public static URLClassLoader getClassLoaderFromJar(File aJarFile, Predicate<JarEntry> extractFilter, File outputTmpDir, ClassLoader parentClassLoader, Class<?>... allowedClasses) {

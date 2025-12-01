@@ -45,26 +45,26 @@ public class AdminsConfigServiceIntegrationTest {
     @Autowired private CachedGoConfig cachedGoConfig;
     @Autowired private EntityHashingService entityHashingService;
 
-    private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final Username USERNAME = new Username(new CaseInsensitiveString("admin"));
 
     @BeforeEach
     public void setUp() throws Exception {
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
-        CONFIG_HELPER.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.onSetUp();
         cachedGoConfig.clearListeners();
     }
 
     @AfterEach
     public void tearDown() {
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
-        CONFIG_HELPER.onTearDown();
+        configHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.onTearDown();
         cachedGoConfig.clearListeners();
     }
 
     @Test
     public void update_shouldBeAbleToUpdateSystemAdminsWithUsers() {
-        CONFIG_HELPER.addAdmins("existing_admin_user");
+        configHelper.addAdmins("existing_admin_user");
 
         assertTrue(adminsConfigService.systemAdmins().has(new AdminUser(new CaseInsensitiveString("existing_admin_user")), null));
 
@@ -83,10 +83,10 @@ public class AdminsConfigServiceIntegrationTest {
     public void update_shouldBeAbleToUpdateSystemAdminsWithRoles() {
         Role devs = new RoleConfig(new CaseInsensitiveString("devs"), new RoleUser(new CaseInsensitiveString("first")));
         Role qas = new RoleConfig(new CaseInsensitiveString("qas"), new RoleUser(new CaseInsensitiveString("first")));
-        CONFIG_HELPER.addRole(devs);
-        CONFIG_HELPER.addRole(qas);
+        configHelper.addRole(devs);
+        configHelper.addRole(qas);
 
-        CONFIG_HELPER.addAdminRoles("devs");
+        configHelper.addAdminRoles("devs");
         assertTrue(adminsConfigService.systemAdmins().has(null, List.of(devs)));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -110,6 +110,6 @@ public class AdminsConfigServiceIntegrationTest {
         assertThat(result.httpCode()).isEqualTo(422);
         assertThat(result.message()).isEqualTo("Validations failed for admins. Error(s): [Role \"qas\" does not exist.]. Please correct and resubmit.");
         assertThat(adminsConfigService.systemAdmins().size()).isEqualTo(0);
-        assertThat(newSystemAdmins.errors().on("roles")).isEqualTo("Role \"qas\" does not exist.");
+        assertThat(newSystemAdmins.errors().firstErrorOn("roles")).isEqualTo("Role \"qas\" does not exist.");
     }
 }

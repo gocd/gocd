@@ -43,7 +43,7 @@ import java.util.*;
 public class PipelineRepository extends HibernateDaoSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineRepository.class);
     private final QueryExtensions queryExtensions;
-    private GoCache goCache;
+    private final GoCache goCache;
 
     @Autowired
     public PipelineRepository(SessionFactory sessionFactory, GoCache goCache, Database databaseStrategy) {
@@ -52,7 +52,7 @@ public class PipelineRepository extends HibernateDaoSupport {
         setSessionFactory(sessionFactory);
     }
 
-    public static int updateNaturalOrderForPipeline(Session session, Long pipelineId, double naturalOrder) {
+    public static int updateNaturalOrderForPipeline(Session session, long pipelineId, double naturalOrder) {
         String sql = "UPDATE pipelines SET naturalOrder = :naturalOrder WHERE id = :pipelineId";
         SQLQuery query = session.createSQLQuery(sql);
         query.setLong("pipelineId", pipelineId);
@@ -151,12 +151,8 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
                         naturalOrder = naturalOrder(row);
                     }
 
-                    String fingerprint = fingerprint(row);
-
-                    if (!revisions.containsKey(fingerprint)) {
-                        revisions.put(fingerprint, new ArrayList<>());
-                    }
-                    revisions.get(fingerprint).add(rev(row));
+                    revisions.computeIfAbsent(fingerprint(row), k -> new ArrayList<>())
+                        .add(rev(row));
 
                     int nextI = i + 1;
                     if (((nextI < matches.size() && id(matches.get(nextI)) != curId) ||//new pipeline instance starts in next record, so capture this one

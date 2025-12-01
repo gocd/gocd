@@ -83,14 +83,9 @@ class CommaSeparatedStringTest {
     class Remove {
         @Test
         void shouldDoNothingWhenEntriesToRemoveIsNull() {
-            String result = remove(null, null);
-            assertNull(result);
-
-            result = remove("", null);
-            assertThat(result).isEqualTo("");
-
-            result = remove("e1,e2", null);
-            assertThat(result).isEqualTo("e1,e2");
+            assertThat(remove(null, null)).isNull();
+            assertThat(remove("", null)).isEqualTo("");
+            assertThat(remove("e1,e2", null)).isEqualTo("e1,e2");
         }
 
         @Test

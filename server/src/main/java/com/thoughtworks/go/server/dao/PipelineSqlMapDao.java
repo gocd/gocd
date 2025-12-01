@@ -392,7 +392,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     private List<CaseInsensitiveString> getPipelineNamesInConfig() {
-        return configFileDao.load().getAllPipelineNames();
+        return configFileDao.currentConfig().getAllPipelineNames();
     }
 
     private void waitForLoaderThreadsToJoin(Collection<Thread> loaderThreads) {
@@ -610,10 +610,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     private TreeSet<Long> initializePipelineInstances(Map<CaseInsensitiveString, TreeSet<Long>> pipelineToIds,
                                                       CaseInsensitiveString pipelineName) {
-        if (!pipelineToIds.containsKey(pipelineName)) {
-            pipelineToIds.put(pipelineName, new TreeSet<>());
-        }
-        return pipelineToIds.get(pipelineName);
+        return pipelineToIds.computeIfAbsent(pipelineName, k -> new TreeSet<>());
     }
 
     private void removeStageSpecificCache(Stage stage) {

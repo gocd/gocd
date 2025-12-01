@@ -117,7 +117,7 @@ public class PipelineTemplateConfigTest {
         PipelineTemplateConfig config = new PipelineTemplateConfig(new CaseInsensitiveString(".Abc"));
         config.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
         assertThat(config.errors().isEmpty()).isFalse();
-        assertThat(config.errors().on(PipelineTemplateConfig.NAME)).isEqualTo("Invalid template name '.Abc'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(config.errors().firstErrorOn(PipelineTemplateConfig.NAME)).isEqualTo("Invalid template name '.Abc'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -128,8 +128,8 @@ public class PipelineTemplateConfigTest {
         pipelineTemplateConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
         assertThat(pipelineTemplateConfig.get(0).errors().isEmpty()).isFalse();
         assertThat(pipelineTemplateConfig.get(1).errors().isEmpty()).isFalse();
-        assertThat(pipelineTemplateConfig.get(0).errors().on(StageConfig.NAME)).isEqualTo("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique.");
-        assertThat(pipelineTemplateConfig.get(1).errors().on(StageConfig.NAME)).isEqualTo("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique.");
+        assertThat(pipelineTemplateConfig.get(0).errors().firstErrorOn(StageConfig.NAME)).isEqualTo("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique.");
+        assertThat(pipelineTemplateConfig.get(1).errors().firstErrorOn(StageConfig.NAME)).isEqualTo("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique.");
     }
 
     @Test

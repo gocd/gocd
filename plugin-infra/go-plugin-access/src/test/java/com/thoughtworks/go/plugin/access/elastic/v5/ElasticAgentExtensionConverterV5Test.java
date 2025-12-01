@@ -453,10 +453,9 @@ public class ElasticAgentExtensionConverterV5Test {
     @Test
     public void shouldGetClusterProfilesChangedRequestBodyWhenClusterProfileIsCreated() {
         ClusterProfilesChangedStatus status = ClusterProfilesChangedStatus.CREATED;
-        Map<String, String> oldClusterProfile = null;
         Map<String, String> newClusterProfile = Map.of("key1", "key2");
 
-        String json = new ElasticAgentExtensionConverterV5().getClusterProfileChangedRequestBody(status, oldClusterProfile, newClusterProfile);
+        String json = new ElasticAgentExtensionConverterV5().getClusterProfileChangedRequestBody(status, null, newClusterProfile);
 
         assertThatJson(json).isEqualTo("{" +
                 "  \"status\":\"created\"," +
@@ -489,9 +488,8 @@ public class ElasticAgentExtensionConverterV5Test {
     public void shouldGetClusterProfilesChangedRequestBodyWhenClusterProfileIsDeleted() {
         ClusterProfilesChangedStatus status = ClusterProfilesChangedStatus.DELETED;
         Map<String, String> oldClusterProfile = Map.of("key1", "key2");
-        Map<String, String> newClusterProfile = null;
 
-        String json = new ElasticAgentExtensionConverterV5().getClusterProfileChangedRequestBody(status, oldClusterProfile, newClusterProfile);
+        String json = new ElasticAgentExtensionConverterV5().getClusterProfileChangedRequestBody(status, oldClusterProfile, null);
 
         assertThatJson(json).isEqualTo("{" +
                 "  \"status\":\"deleted\"," +

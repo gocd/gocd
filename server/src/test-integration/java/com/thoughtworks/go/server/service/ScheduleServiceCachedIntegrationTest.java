@@ -81,33 +81,28 @@ public class ScheduleServiceCachedIntegrationTest {
     @Autowired private AgentService agentService;
     @Autowired private TransactionSynchronizationManager synchronizationManager;
 
-    private PipelineWithTwoStages preCondition;
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private PipelineWithTwoStages pipelineFixture;
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
-        preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         configHelper.usingCruiseConfigDao(goConfigDao);
-        configHelper.onSetUp();
-
-        dbHelper.onSetUp();
-        preCondition.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
     }
 
     @AfterEach
     public void teardown() throws Exception {
-        dbHelper.onTearDown();
-        preCondition.onTearDown();
+        pipelineFixture.onTearDown();
         pipelineScheduleQueue.clear();
-        configHelper.onTearDown();
     }
 
     @Test
     // #2296
     public void shouldUseLatestStageStateInsteadOfCachedWhenScheduling() {
-        assertThat(stageService.isStageActive(preCondition.pipelineName, preCondition.devStage)).isFalse();
+        assertThat(stageService.isStageActive(pipelineFixture.pipelineName, pipelineFixture.devStage)).isFalse();
 
-        Pipeline pipeline0 = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
+        Pipeline pipeline0 = pipelineService.mostRecentFullPipelineByName(pipelineFixture.pipelineName);
 
         Pipeline pipeline1 = tryToScheduleAPipeline();
         assertThat(pipeline0.getId()).isNotEqualTo(pipeline1.getId());
@@ -118,9 +113,9 @@ public class ScheduleServiceCachedIntegrationTest {
 
     @Test
     public void shouldUpdateResultOfStageWhenJobCompletes() throws Exception {
-        Pipeline assigned = preCondition.createPipelineWithFirstStageAssigned();
+        Pipeline assigned = pipelineFixture.createPipelineWithFirstStageAssigned();
 
-        Stage stage = assigned.findStage(preCondition.devStage);
+        Stage stage = assigned.findStage(pipelineFixture.devStage);
         StageSummaryModel model = stageService.findStageSummaryByIdentifier(stage.getIdentifier(), new Username(new CaseInsensitiveString("foo")), new HttpLocalizedOperationResult());
         assertThat(model.getStage().getFirstJob().getState()).isEqualTo(JobState.Assigned);
         scheduleService.updateJobStatus(stage.getFirstJob().getIdentifier(), JobState.Building);
@@ -130,9 +125,9 @@ public class ScheduleServiceCachedIntegrationTest {
 
     @Test
     public void shouldUpdateResultOfStageWhenJobCompletes_irrespectiveOfOtherThreadsPrimingStageCache() throws Exception {
-        Pipeline assigned = preCondition.createPipelineWithFirstStageAssigned();
+        Pipeline assigned = pipelineFixture.createPipelineWithFirstStageAssigned();
 
-        Stage stage = assigned.findStage(preCondition.devStage);
+        Stage stage = assigned.findStage(pipelineFixture.devStage);
 
         JobIdentifier identifier = stage.getFirstJob().getIdentifier();
         scheduleService.updateJobStatus(identifier, JobState.Building);
@@ -162,9 +157,9 @@ public class ScheduleServiceCachedIntegrationTest {
                 null,null
         );
 
-        Pipeline assigned = preCondition.createPipelineWithFirstStageAssigned();
+        Pipeline assigned = pipelineFixture.createPipelineWithFirstStageAssigned();
 
-        Stage stage = assigned.findStage(preCondition.devStage);
+        Stage stage = assigned.findStage(pipelineFixture.devStage);
 
         when(stageService.stageById(stage.getId())).thenThrow(new RuntimeException("find fails"));
 
@@ -178,10 +173,10 @@ public class ScheduleServiceCachedIntegrationTest {
     }
 
     private Pipeline tryToScheduleAPipeline() {
-        BuildCause buildCause = BuildCause.createWithModifications(modifyOneFile(preCondition.pipelineConfig()), "");
+        BuildCause buildCause = BuildCause.createWithModifications(modifyOneFile(pipelineFixture.pipelineConfig()), "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
-        pipelineScheduleQueue.schedule(new CaseInsensitiveString(preCondition.pipelineName), buildCause);
+        pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineFixture.pipelineName), buildCause);
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
-        return pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
+        return pipelineService.mostRecentFullPipelineByName(pipelineFixture.pipelineName);
     }
 }

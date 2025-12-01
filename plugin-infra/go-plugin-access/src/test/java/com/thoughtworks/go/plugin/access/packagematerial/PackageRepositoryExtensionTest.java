@@ -154,8 +154,6 @@ public class PackageRepositoryExtensionTest {
 
     @Test
     public void shouldTalkToPluginToGetRepositoryConfiguration() {
-        String expectedRequestBody = null;
-
         String expectedResponseBody = "{" +
                 "\"key-one\":{}," +
                 "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
@@ -167,7 +165,7 @@ public class PackageRepositoryExtensionTest {
 
         RepositoryConfiguration repositoryConfiguration = extension.getRepositoryConfiguration(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_REPOSITORY_CONFIGURATION, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_REPOSITORY_CONFIGURATION, null);
         assertPropertyConfiguration((PackageMaterialProperty) repositoryConfiguration.get("key-one"), "key-one", "", true, true, false, "", 0);
         assertPropertyConfiguration((PackageMaterialProperty) repositoryConfiguration.get("key-two"), "key-two", "two", true, true, true, "display-two", 1);
         assertPropertyConfiguration((PackageMaterialProperty) repositoryConfiguration.get("key-three"), "key-three", "three", false, false, false, "display-three", 2);
@@ -175,8 +173,6 @@ public class PackageRepositoryExtensionTest {
 
     @Test
     public void shouldTalkToPluginToGetPackageConfiguration() {
-        String expectedRequestBody = null;
-
         String expectedResponseBody = "{" +
                 "\"key-one\":{}," +
                 "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
@@ -187,7 +183,7 @@ public class PackageRepositoryExtensionTest {
 
         com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = extension.getPackageConfiguration(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_PACKAGE_CONFIGURATION, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_PACKAGE_CONFIGURATION, null);
         assertPropertyConfiguration((PackageMaterialProperty) packageConfiguration.get("key-one"), "key-one", "", true, true, false, "", 0);
         assertPropertyConfiguration((PackageMaterialProperty) packageConfiguration.get("key-two"), "key-two", "two", true, true, true, "display-two", 1);
         assertPropertyConfiguration((PackageMaterialProperty) packageConfiguration.get("key-three"), "key-three", "three", false, false, false, "display-three", 2);

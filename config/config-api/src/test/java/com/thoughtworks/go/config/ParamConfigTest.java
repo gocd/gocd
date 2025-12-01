@@ -31,7 +31,7 @@ public class ParamConfigTest {
         assertThat(createAndValidate("name").errors().isEmpty()).isTrue();
         ConfigErrors errors = createAndValidate(".name").errors();
         assertThat(errors.isEmpty()).isFalse();
-        assertThat(errors.on(ParamConfig.NAME)).isEqualTo("Invalid parameter name '.name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(errors.firstErrorOn(ParamConfig.NAME)).isEqualTo("Invalid parameter name '.name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -46,7 +46,7 @@ public class ParamConfigTest {
         ValidationContext validationContext = mock(ValidationContext.class);
         when(validationContext.getPipeline()).thenReturn(new PipelineConfig(new CaseInsensitiveString("p"), null));
         paramConfig.validateName(new HashMap<>(), validationContext);
-        assertThat(paramConfig.errors().on(ParamConfig.NAME)).isEqualTo("Parameter cannot have an empty name for pipeline 'p'.");
+        assertThat(paramConfig.errors().firstErrorOn(ParamConfig.NAME)).isEqualTo("Parameter cannot have an empty name for pipeline 'p'.");
     }
 
     private ParamConfig createAndValidate(final String name) {

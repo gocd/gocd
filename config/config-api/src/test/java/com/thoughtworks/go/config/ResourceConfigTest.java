@@ -58,7 +58,7 @@ public class ResourceConfigTest {
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig());
         resourceConfig.validate(context);
         assertThat(resourceConfig.errors().isEmpty()).isFalse();
-        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES)).isEqualTo("Resource name '#?{45}' is not valid. Valid names can contain valid parameter syntax or valid alphanumeric with hyphens,dots or pipes");
+        assertThat(resourceConfig.errors().firstErrorOn(JobConfig.RESOURCES)).isEqualTo("Resource name '#?{45}' is not valid. Valid names can contain valid parameter syntax or valid alphanumeric with hyphens,dots or pipes");
     }
 
     @Test
@@ -67,7 +67,7 @@ public class ResourceConfigTest {
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new PipelineConfig());
         resourceConfig.validate(context);
         assertThat(resourceConfig.errors().isEmpty()).isFalse();
-        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES)).isEqualTo(String.format("Resource name '#{PARAMS}' is not valid. Valid names much match '%s'", ResourceConfig.VALID_REGEX));
+        assertThat(resourceConfig.errors().firstErrorOn(JobConfig.RESOURCES)).isEqualTo(String.format("Resource name '#{PARAMS}' is not valid. Valid names much match '%s'", ResourceConfig.VALID_REGEX));
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ResourceConfigTest {
         resourceConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         ConfigErrors configErrors = resourceConfig.errors();
         assertThat(configErrors.isEmpty()).isFalse();
-        assertThat(configErrors.on(JobConfig.RESOURCES)).isEqualTo(String.format("Resource name 'foo$bar' is not valid. Valid names much match '%s'", ResourceConfig.VALID_REGEX));
+        assertThat(configErrors.firstErrorOn(JobConfig.RESOURCES)).isEqualTo(String.format("Resource name 'foo$bar' is not valid. Valid names much match '%s'", ResourceConfig.VALID_REGEX));
     }
 
     private ResourceConfig resource(String name) {

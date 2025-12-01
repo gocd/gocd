@@ -15,17 +15,30 @@
  */
 package com.thoughtworks.go.server.service.dd;
 
+import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
+import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public abstract class FanInNode {
-    MaterialConfig materialConfig;
-    public Set<DependencyFanInNode> parents = new HashSet<>();
+abstract class FanInNode<T extends MaterialConfig> {
+    final T materialConfig;
+    final Set<DependencyFanInNode> parents = new HashSet<>();
 
-    protected FanInNode(MaterialConfig materialConfig) {
+    protected FanInNode(T materialConfig) {
         this.materialConfig = materialConfig;
+    }
+
+    static FanInNode<?> create(MaterialConfig material) {
+        if (material instanceof ScmMaterialConfig || material instanceof PackageMaterialConfig || material instanceof PluggableSCMMaterialConfig) {
+            return new RootFanInNode(material);
+        } else if (material instanceof DependencyMaterialConfig depMaterial) {
+            return new DependencyFanInNode(depMaterial);
+        }
+        throw new RuntimeException("Not a valid material type");
     }
 
     @Override
@@ -36,15 +49,26 @@ public abstract class FanInNode {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        FanInNode fanInNode = (FanInNode) o;
-        if (materialConfig != null ? !materialConfig.getFingerprint().equals(fanInNode.materialConfig.getFingerprint()) : fanInNode.materialConfig != null) {
-            return false;
-        }
-        return true;
+        FanInNode<?> fanInNode = (FanInNode<?>) o;
+        return (materialConfig != null) ? materialConfig.getFingerprint().equals(fanInNode.materialConfig.getFingerprint()) : (fanInNode.materialConfig == null);
     }
 
     @Override
     public int hashCode() {
         return materialConfig != null ? materialConfig.getFingerprint().hashCode() : 0;
+    }
+
+    record ByType(List<RootFanInNode> scm, List<DependencyFanInNode> dep) {
+        @SuppressWarnings("unchecked")
+        static ByType from(Collection<? extends FanInNode<?>> nodes) {
+            Map<Boolean, ? extends List<? extends FanInNode<?>>> result = nodes
+                .stream()
+                .collect(Collectors.partitioningBy(child -> child instanceof RootFanInNode, Collectors.toUnmodifiableList()));
+            return new ByType((List<RootFanInNode>) result.get(Boolean.TRUE), (List<DependencyFanInNode>) result.get(Boolean.FALSE));
+        }
+
+        boolean isAllScm() {
+            return dep.isEmpty();
+        }
     }
 }

@@ -84,7 +84,7 @@ public class AdminsConfigTest {
         assertFalse(adminsConfig.validateTree(validationContext));
 
         assertTrue(adminsConfig.hasErrors());
-        assertThat(adminsConfig.errors().on("users")).isEqualTo("User cannot be blank.");
+        assertThat(adminsConfig.errors().firstErrorOn("users")).isEqualTo("User cannot be blank.");
     }
 
     @Test
@@ -95,7 +95,7 @@ public class AdminsConfigTest {
         assertFalse(adminsConfig.validateTree(validationContext));
 
         assertTrue(adminsConfig.hasErrors());
-        assertThat(adminsConfig.errors().on("users")).isEqualTo("User cannot be blank.");
+        assertThat(adminsConfig.errors().firstErrorOn("users")).isEqualTo("User cannot be blank.");
     }
 
     @Test
@@ -112,6 +112,6 @@ public class AdminsConfigTest {
         assertFalse(adminsConfig.validateTree(validationContext));
 
         assertTrue(adminsConfig.hasErrors());
-        assertThat(adminsConfig.errors().on("roles")).isEqualTo("Role \"admin_role\" does not exist.");
+        assertThat(adminsConfig.errors().firstErrorOn("roles")).isEqualTo("Role \"admin_role\" does not exist.");
     }
 }

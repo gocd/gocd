@@ -110,11 +110,11 @@ public class PartialConfigServiceTest {
 
     @Test
     void mergesRemoteGroupToMain() {
-        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(invocationOnMock -> {
+        doAnswer(invocationOnMock -> {
             UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
             command.update(cruiseConfig);
             return cruiseConfig;
-        });
+        }).when(goConfigService).updateConfig(any(UpdateConfigCommand.class));
         service.onSuccessPartialConfig(configRepoConfig, withPipeline("p1"));
         assertEquals(1, cruiseConfig.getPartials().size());
         assertEquals("group", cruiseConfig.getPartials().get(0).getGroups().first().getGroup());
@@ -122,11 +122,11 @@ public class PartialConfigServiceTest {
 
     @Test
     void mergesRemoteEnvironmentToMain() {
-        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(invocationOnMock -> {
+        doAnswer(invocationOnMock -> {
             UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
             command.update(cruiseConfig);
             return cruiseConfig;
-        });
+        }).when(goConfigService).updateConfig(any(UpdateConfigCommand.class));
         service.onSuccessPartialConfig(configRepoConfig, withEnvironment("env1"));
         assertEquals(1, cruiseConfig.getPartials().size());
         assertEquals(new CaseInsensitiveString("env1"), cruiseConfig.getPartials().get(0).getEnvironments().first().name());
@@ -165,10 +165,9 @@ public class PartialConfigServiceTest {
         verify(cachedGoPartials, never()).cacheAsLastKnown(any(String.class), any(PartialConfig.class));
     }
 
-
     @Test
     void clearsLastValidPartialOnFailureWhenFailsRuleValidations() {
-        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenThrow(new RuntimeException("Nope")).thenReturn(ConfigSaveState.UPDATED);
+        doThrow(new RuntimeException("Nope")).doNothing().when(goConfigService).updateConfig(any(UpdateConfigCommand.class));
         when(partialConfigHelper.isEquivalent(any(PartialConfig.class), any(PartialConfig.class))).thenReturn(false);
 
         // an empty set guarantees violations
@@ -191,10 +190,10 @@ public class PartialConfigServiceTest {
         final String violationMessage = "Not allowed to refer to pipeline group 'group'. Check the 'Rules' of this config repository.";
 
         assertTrue(incoming.hasErrors(), "should have rule violations");
-        assertEquals(violationMessage, incoming.errors().on("pipeline_group"));
+        assertEquals(violationMessage, incoming.errors().firstErrorOn("pipeline_group"));
 
         assertTrue(lastValid.hasErrors(), "should have rule violations");
-        assertEquals(violationMessage, lastValid.errors().on("pipeline_group"));
+        assertEquals(violationMessage, lastValid.errors().firstErrorOn("pipeline_group"));
 
         assertTrue(cachedGoPartials.lastValidPartials().isEmpty());
 
@@ -203,7 +202,7 @@ public class PartialConfigServiceTest {
 
     @Test
     void keepsLastValidPartialOnFailureWhenRulesAllow() {
-        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenThrow(new RuntimeException("Nope"));
+        doThrow(new RuntimeException("Nope")).when(goConfigService).updateConfig(any(UpdateConfigCommand.class));
         when(partialConfigHelper.isEquivalent(any(PartialConfig.class), any(PartialConfig.class))).thenReturn(false);
 
         // an empty set guarantees violations
@@ -231,7 +230,7 @@ public class PartialConfigServiceTest {
         final String violationMessage = "Not allowed to refer to pipeline group 'one'. Check the 'Rules' of this config repository.";
 
         assertTrue(incoming.hasErrors(), "should have rule violations");
-        assertEquals(violationMessage, incoming.errors().on("pipeline_group"));
+        assertEquals(violationMessage, incoming.errors().firstErrorOn("pipeline_group"));
 
         assertFalse(lastValid.hasErrors(), "should not have rule violations");
 

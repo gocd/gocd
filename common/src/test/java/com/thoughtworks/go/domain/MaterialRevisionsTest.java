@@ -249,7 +249,7 @@ public class MaterialRevisionsTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(
             svnMaterialRevision(aCheckIn("100", "README"))
         );
-        assertThat(materialRevisions.containsMyCheckin(new Matcher((String) null))).isFalse();
+        assertThat(materialRevisions.containsMyCheckin(new Matcher(null))).isFalse();
     }
 
     @Test

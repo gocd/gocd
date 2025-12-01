@@ -59,12 +59,17 @@ public class P4Client extends SCMCommand {
     }
 
     private String clientSpec(String clientName, File workingFolder, String view) {
-        return "Client: " + clientName + "\n\n"
-                + "Root: " + workingFolder.getAbsolutePath() + "\n\n"
-                + "Options: clobber rmdir\n\n"
-                + "LineEnd: local\n\n"
-                + "View:\n"
-                + view;
+        return """
+            Client: %s
+            
+            Root: %s
+            
+            Options: clobber rmdir
+            
+            LineEnd: local
+            
+            View:
+            %s""".formatted(clientName, workingFolder.getAbsolutePath(), view);
     }
 
     public ConsoleResult checkConnection() {

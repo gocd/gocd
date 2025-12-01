@@ -95,10 +95,14 @@ public class ConsoleResult implements SecretRedactor {
 
     public String describe() {
         return
-                "--- EXIT CODE (" + returnValue() + ") ---\n"
-                + "--- STANDARD OUT ---\n" + outputForDisplayAsString() + "\n"
-                + "--- STANDARD ERR ---\n" + errorForDisplayAsString() + "\n"
-                + "---\n";
+            """
+                --- EXIT CODE (%d) ---
+                --- STANDARD OUT ---
+                %s
+                --- STANDARD ERR ---
+                %s
+                ---
+                """.formatted(returnValue(), outputForDisplayAsString(), errorForDisplayAsString());
     }
 
     public static ConsoleResult unknownResult() {

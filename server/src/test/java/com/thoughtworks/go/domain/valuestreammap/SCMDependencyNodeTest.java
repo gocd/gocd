@@ -25,7 +25,6 @@ import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -69,16 +68,6 @@ public class SCMDependencyNodeTest {
     public void addRevisionShouldBeDisallowed() {
         assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT")
             .addRevision(new SCMRevision(ModificationsMother.oneModifiedFile("some_revision"))))
-            .isInstanceOf(RuntimeException.class);
-    }
-
-    @Test
-    public void addRevisionsShouldBeDisallowed() {
-        List<Revision> revisions = new ArrayList<>();
-        revisions.add(new SCMRevision(ModificationsMother.oneModifiedFile("some_revision")));
-
-        assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT")
-            .addRevisions(revisions))
             .isInstanceOf(RuntimeException.class);
     }
 

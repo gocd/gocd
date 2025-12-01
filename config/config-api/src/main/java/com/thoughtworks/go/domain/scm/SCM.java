@@ -220,7 +220,7 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable, Se
             Map<String, String> mapValue = new HashMap<>();
             mapValue.put(VALUE_KEY, property.getValue());
             if (!property.errors().isEmpty()) {
-                mapValue.put(ERRORS_KEY, StringUtils.join(property.errors().getAll(), ", "));
+                mapValue.put(ERRORS_KEY, property.errors().asString());
             }
             configMap.put(property.getConfigKeyName(), mapValue);
         }

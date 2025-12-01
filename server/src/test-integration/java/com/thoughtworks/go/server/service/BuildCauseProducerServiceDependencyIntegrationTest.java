@@ -99,7 +99,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     public Subversion repository;
     public GitTestRepo gitTestRepo;
     public static SvnTestRepo svnRepository;
@@ -115,8 +115,8 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
 
     //contains stuff related to the "Mingle" pipeline
     class MinglePipeline {
-        PipelineConfig config;
-        Pipeline latest;
+        private PipelineConfig config;
+        private Pipeline latest;
 
         void setup(BuildCause buildCause) {
             config = configHelper.addPipeline(MINGLE_PIPELINE_NAME, STAGE_NAME, repository, new Filter(new IgnoredFiles("**/*.doc")), "unit", "functional");
@@ -126,22 +126,8 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
             pipelineScheduleQueue.clear();
         }
 
-        MaterialRevisions runAndPassWith(MaterialRevisions newRevs) {
-            return runAndPassWith(newRevs, null);
-        }
-
-        MaterialRevisions runAndPassWith(MaterialRevisions newRevs, MaterialRevisions revsAfterFoo) {
-            if (revsAfterFoo != null) {
-                for (MaterialRevision newRev : newRevs) {
-                    newRev.addModifications(revsAfterFoo.getModifications(newRev.getMaterial()));
-                }
-            }
-            runAndPass(newRevs);
-            return newRevs;
-        }
-
-        void runAndPass(MaterialRevisions mingleRev) {
-            BuildCause buildCause = BuildCause.createWithModifications(mingleRev, "boozer");
+        void runAndPass(MaterialRevisions rev) {
+            BuildCause buildCause = BuildCause.createWithModifications(rev, "boozer");
             latest = PipelineMother.schedule(config, buildCause);
             latest = pipelineDao.saveWithStages(latest);
             dbHelper.passStage(latest.getStages().first());
@@ -150,8 +136,8 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
 
     //contains stuff related to the "Go" pipeline
     class GoPipeline {
-        PipelineConfig config;
-        Pipeline latest;
+        private PipelineConfig config;
+        private Pipeline latest;
 
         void setup(BuildCause buildCause) {
             config = configHelper.addPipeline(GO_PIPELINE_NAME, STAGE_NAME, repository, "unit");
@@ -159,20 +145,6 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
             latest = pipelineDao.saveWithStages(latest);
             dbHelper.passStage(latest.getStages().first());
             pipelineScheduleQueue.clear();
-        }
-
-        MaterialRevisions runAndPassWith(MaterialRevisions newRevs) {
-            return runAndPassWith(newRevs, null);
-        }
-
-        MaterialRevisions runAndPassWith(MaterialRevisions newRevs, MaterialRevisions revsAfterFoo) {
-            if (revsAfterFoo != null) {
-                for (MaterialRevision newRev : newRevs) {
-                    newRev.addModifications(revsAfterFoo.getModifications(newRev.getMaterial()));
-                }
-            }
-            runAndPass(newRevs);
-            return newRevs;
         }
 
         void runAndPass(MaterialRevisions rev) {
@@ -252,7 +224,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
 
         //trigger pipeline
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);
-        minglePipeline.runAndPassWith(newRevs);
+        minglePipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(mingleDownstreamPipelineName);
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(mingleDownstreamPipelineName));
@@ -288,8 +260,8 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
 
         //trigger upstream pipelines
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);
-        minglePipeline.runAndPassWith(newRevs);
-        goPipeline.runAndPassWith(newRevs);
+        minglePipeline.runAndPass(newRevs);
+        goPipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(downstreamPipelineName));
@@ -325,8 +297,8 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
 
         //trigger upstream pipelines
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);
-        minglePipeline.runAndPassWith(newRevs);
-        goPipeline.runAndPassWith(newRevs);
+        minglePipeline.runAndPass(newRevs);
+        goPipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(downstreamPipelineName));
@@ -386,13 +358,13 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
 
         //trigger upstream pipelines
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);
-        minglePipeline.runAndPassWith(newRevs);
+        minglePipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(downstreamPipelineName));
     }
 
-    private MaterialRevisions checkinFile(SvnMaterial svn, String checkinFile, final SvnTestRepo svnRepository) throws Exception {
+    private MaterialRevisions checkinFile(SvnMaterial svn, @SuppressWarnings("SameParameterValue") String checkinFile, final SvnTestRepo svnRepository) throws Exception {
         svnRepository.checkInOneFile(checkinFile);
         materialDatabaseUpdater.updateMaterial(svn);
         return materialRepository.findLatestModification(svn);

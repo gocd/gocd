@@ -130,7 +130,7 @@ public class AgentPerformanceVerifier {
                     Agent agentInDB = agentDao.fetchAgentFromDBByUUID(agentInCache.getUuid());
                     if (agentInDB == null && !agentInstance.isPending()) {
                         LOG.debug("Agent {} is not pending but not present in DB", agentInCache.getUuid());
-                        bombIfAgentInDBAndCacheAreDifferent(agentInCache, agentInDB);
+                        bombIfAgentInDBAndCacheAreDifferent(agentInCache, null);
                     }
 
                     Set<String> agentEnvsInEnvCache = environmentConfigService.getAgentEnvironmentNames(agentInCache.getUuid());

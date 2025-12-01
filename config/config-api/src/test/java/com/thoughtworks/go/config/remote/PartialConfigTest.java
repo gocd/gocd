@@ -50,7 +50,7 @@ class PartialConfigTest {
 
         assertTrue(partial.hasErrors());
         assertEquals(1, partial.errors().size());
-        assertEquals("Not allowed to refer to pipeline group 'first'. Check the 'Rules' of this config repository.", partial.errors().on("pipeline_group"));
+        assertEquals("Not allowed to refer to pipeline group 'first'. Check the 'Rules' of this config repository.", partial.errors().firstErrorOn("pipeline_group"));
     }
 
     @Test
@@ -67,7 +67,7 @@ class PartialConfigTest {
 
         assertTrue(partial.hasErrors());
         assertEquals(1, partial.errors().size());
-        assertEquals("Not allowed to refer to pipeline group 'first'. Check the 'Rules' of this config repository.", partial.errors().on("pipeline_group"));
+        assertEquals("Not allowed to refer to pipeline group 'first'. Check the 'Rules' of this config repository.", partial.errors().firstErrorOn("pipeline_group"));
     }
 
     @Test
@@ -87,7 +87,7 @@ class PartialConfigTest {
         assertTrue(partial.hasErrors());
         assertEquals(1, partial.errors().size());
 
-        assertEquals("Not allowed to refer to environment 'uat'. Check the 'Rules' of this config repository.", partial.errors().on("environment"));
+        assertEquals("Not allowed to refer to environment 'uat'. Check the 'Rules' of this config repository.", partial.errors().firstErrorOn("environment"));
     }
 
     @Test
@@ -104,7 +104,7 @@ class PartialConfigTest {
 
         assertTrue(partial.hasErrors());
         assertEquals(1, partial.errors().size());
-        assertEquals("Not allowed to refer to pipeline 'deploy'. Check the 'Rules' of this config repository.", partial.errors().on("pipeline"));
+        assertEquals("Not allowed to refer to pipeline 'deploy'. Check the 'Rules' of this config repository.", partial.errors().firstErrorOn("pipeline"));
     }
 
     @Test

@@ -76,7 +76,7 @@ public class CreateConfigRepoCommandTest {
         command.update(cruiseConfig);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertEquals("URL cannot be blank", configRepo.getRepo().errors().on("url"));
+        assertEquals("URL cannot be blank", configRepo.getRepo().errors().firstErrorOn("url"));
     }
 
     @Test
@@ -87,7 +87,7 @@ public class CreateConfigRepoCommandTest {
         CreateConfigRepoCommand command = new CreateConfigRepoCommand(configRepo, configRepoExtension);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertEquals("Configuration repository id not specified", configRepo.errors().on("id"));
+        assertEquals("Configuration repository id not specified", configRepo.errors().firstErrorOn("id"));
     }
 
     @Test
@@ -97,6 +97,6 @@ public class CreateConfigRepoCommandTest {
         CreateConfigRepoCommand command = new CreateConfigRepoCommand(configRepo, configRepoExtension);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertEquals("Invalid plugin id: json-plugin", configRepo.errors().on("plugin_id"));
+        assertEquals("Invalid plugin id: json-plugin", configRepo.errors().firstErrorOn("plugin_id"));
     }
 }

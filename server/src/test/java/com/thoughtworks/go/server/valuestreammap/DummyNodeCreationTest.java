@@ -43,8 +43,8 @@ public class DummyNodeCreationTest {
         CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
         CaseInsensitiveString g = new CaseInsensitiveString("g");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode(d1, d1.toString()), null, d2);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d1, d1.toString()), null, d2);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g.toString(), g.toString(), "git"), null, d1, new MaterialRevision(null));
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g.toString(), g.toString(), "git"), null, currentPipeline, new MaterialRevision(null));
 
@@ -73,12 +73,12 @@ public class DummyNodeCreationTest {
         CaseInsensitiveString d3 = new CaseInsensitiveString("d3");
         CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode(d4, d4.toString()), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode(d1, d1.toString()), null, d4);
-        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, d1);
-        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, d4);
-        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, d4);
-        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, d2);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d4, d4.toString()), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d1, d1.toString()), null, d4);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d3, d3.toString()), null, d1);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d3, d3.toString()), null, d4);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d2, d2.toString()), null, d4);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d3, d3.toString()), null, d2);
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);
@@ -103,9 +103,9 @@ public class DummyNodeCreationTest {
         CaseInsensitiveString d1 = new CaseInsensitiveString("d1");
         CaseInsensitiveString g = new CaseInsensitiveString("g");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode(d1, d1.toString()), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode(d1, d1.toString()), null, d2);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d1, d1.toString()), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d1, d1.toString()), null, d2);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g.toString(), g.toString(), "git"), null, d1, new MaterialRevision(null));
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g.toString(), g.toString(), "git"), null, d2, new MaterialRevision(null));
 
@@ -140,11 +140,11 @@ public class DummyNodeCreationTest {
         CaseInsensitiveString d3 = new CaseInsensitiveString("d3");
         CaseInsensitiveString d4 = new CaseInsensitiveString("d4");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode(d4, d4.toString()), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, d4);
-        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, d4);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d3, d3.toString()), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d4, d4.toString()), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d2, d2.toString()), null, d4);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d3, d3.toString()), null, d4);
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);
@@ -174,12 +174,12 @@ public class DummyNodeCreationTest {
         CaseInsensitiveString d3 = new CaseInsensitiveString("d3");
         CaseInsensitiveString g2 = new CaseInsensitiveString("g2");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode(d1, d1.toString()), null, d2);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d1, d1.toString()), null, d2);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g1.toString(), g1.toString(), "git"), null, d1, new MaterialRevision(null));
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g1.toString(), g1.toString(), "git"), null, d2, new MaterialRevision(null));
-        graph.addUpstreamNode(new PipelineDependencyNode(d4, d4.toString()), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode(d3, d3.toString()), null, d4);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d4, d4.toString()), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(d3, d3.toString()), null, d4);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g2.toString(), g2.toString(), "git"), null, d3, new MaterialRevision(null));
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g2.toString(), g2.toString(), "git"), null, d4, new MaterialRevision(null));
 
@@ -211,20 +211,20 @@ public class DummyNodeCreationTest {
         CaseInsensitiveString p5 = new CaseInsensitiveString("p5");
         CaseInsensitiveString p3 = new CaseInsensitiveString("p3");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamNode(new PipelineDependencyNode(p4, p4.toString()), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode(p1, p1.toString()), null, p4);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(p4, p4.toString()), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(p1, p1.toString()), null, p4);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(git.toString(), git.toString(), git.toString()), null, p1, new MaterialRevision(null));
-        graph.addUpstreamNode(new PipelineDependencyNode(p2, p2.toString()), null, p4);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(p2, p2.toString()), null, p4);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(git.toString(), git.toString(), git.toString()), null, p2, new MaterialRevision(null));
 
-        graph.addUpstreamNode(new PipelineDependencyNode(p5, p5.toString()), null, currentPipeline);
-        graph.addUpstreamNode(new PipelineDependencyNode(p3, p3.toString()), null, p5);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(p5, p5.toString()), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(p3, p3.toString()), null, p5);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(git.toString(), git.toString(), git.toString()), null, p3, new MaterialRevision(null));
-        graph.addUpstreamNode(new PipelineDependencyNode(p4, p4.toString()), null, p5);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(p4, p4.toString()), null, p5);
 
-        graph.addUpstreamNode(new PipelineDependencyNode(p1, p1.toString()), null, p4);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(p1, p1.toString()), null, p4);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(git.toString(), git.toString(), git.toString()), null, p1, new MaterialRevision(null));
-        graph.addUpstreamNode(new PipelineDependencyNode(p2, p2.toString()), null, p4);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(p2, p2.toString()), null, p4);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(git.toString(), git.toString(), git.toString()), null, p2, new MaterialRevision(null));
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);

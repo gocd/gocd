@@ -101,7 +101,7 @@ public class AgentServiceIntegrationTest {
     @Autowired
     private DatabaseAccessHelper dbHelper;
 
-    private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String UUID = "uuid";
     private static final String UUID2 = "uuid2";
     private static final String UUID3 = "uuid3";
@@ -110,8 +110,8 @@ public class AgentServiceIntegrationTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
-        CONFIG_HELPER.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
+        configHelper.onSetUp();
         dbHelper.onSetUp();
         cachedGoConfig.clearListeners();
         agentDao.clearListeners();
@@ -126,7 +126,7 @@ public class AgentServiceIntegrationTest {
         dbHelper.onTearDown();
         cachedGoConfig.clearListeners();
         agentService.clearAll();
-        CONFIG_HELPER.onTearDown();
+        configHelper.onTearDown();
     }
 
     private AgentService newAgentService(AgentInstances agentInstances) {
@@ -483,7 +483,7 @@ public class AgentServiceIntegrationTest {
             AgentInstance agentInstance = agentService.updateAgentAttributes(UUID, "some-hostname",
                     invalidResourceName, null, UNSET);
 
-            assertThat(agentInstance.getAgent().errors().on(JobConfig.RESOURCES)).isEqualTo("Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$'");
+            assertThat(agentInstance.getAgent().errors().firstErrorOn(JobConfig.RESOURCES)).isEqualTo("Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$'");
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
             assertThat(getFirstAgent().getHostname()).isEqualTo(originalHostname);
@@ -584,8 +584,7 @@ public class AgentServiceIntegrationTest {
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
 
-            String notSpecifying = null;
-            BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(UUID, notSpecifying, notSpecifying, null, UNSET));
+            BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(UUID, null, null, null, UNSET));
             assertThat(e.getMessage()).isEqualTo("Bad Request. No operation is specified in the request to be performed on agent.");
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
@@ -632,8 +631,8 @@ public class AgentServiceIntegrationTest {
 
             assertTrue(agentService.findAgent(UUID).isDisabled());
             assertTrue(agentService.findAgent(UUID2).isDisabled());
-            assertThat((List<ResourceConfig>) agentService.findAgent(UUID).getResourceConfigs()).contains(new ResourceConfig("resource1"));
-            assertThat((List<ResourceConfig>) agentService.findAgent(UUID2).getResourceConfigs()).contains(new ResourceConfig("resource1"));
+            assertThat(agentService.findAgent(UUID).getResourceConfigs()).contains(new ResourceConfig("resource1"));
+            assertThat(agentService.findAgent(UUID2).getResourceConfigs()).contains(new ResourceConfig("resource1"));
 
             assertThat(environmentConfigService.getEnvironmentConfig("dev").getAgents().getUuids()).contains(UUID, UUID2);
         }
@@ -664,7 +663,7 @@ public class AgentServiceIntegrationTest {
         @Test
         void shouldNotSendLostContactEmailWhenAgentStateIsLostContact() {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
-            CONFIG_HELPER.addMailHost(new MailHost("ghost.name", 25, "loser", "boozer", true, false, "go@foo.mail.com", "admin@foo.mail.com"));
+            configHelper.addMailHost(new MailHost("ghost.name", 25, "loser", "boozer", true, false, "go@foo.mail.com", "admin@foo.mail.com"));
 
             Date date = Date.from(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC));
             AgentInstance idleAgentInstance = idle(date, "CCeDev01");
@@ -707,7 +706,7 @@ public class AgentServiceIntegrationTest {
             createAnIdleAgentAndDisableIt(UUID);
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(getFirstAgent().getResourceConfigs()).isEmpty();
             assertThat(agentService.findAgent(UUID).getStatus()).isEqualTo(AgentStatus.Disabled);
 
             agentService.updateAgentAttributes(UUID, null, "linux,java", null, UNSET);
@@ -772,7 +771,7 @@ public class AgentServiceIntegrationTest {
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, resourcesToRemove, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
             assertThat(agentService.findAgent(UUID).getResourceConfigs().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) agentService.findAgent(UUID).getResourceConfigs()).contains(new ResourceConfig("resource1"));
+            assertThat(agentService.findAgent(UUID).getResourceConfigs()).contains(new ResourceConfig("resource1"));
             assertThat(agentService.findAgent(UUID2).getResourceConfigs().size()).isEqualTo(0);
         }
 
@@ -781,7 +780,7 @@ public class AgentServiceIntegrationTest {
             createAnIdleAgentAndDisableIt(UUID);
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(getFirstAgent().getResourceConfigs()).isEmpty();
             assertThat(agentService.findAgent(UUID).getStatus()).isEqualTo(AgentStatus.Disabled);
 
             AgentInstance agentInstance = agentService.updateAgentAttributes(UUID, null, "foo%", null, UNSET);
@@ -790,7 +789,7 @@ public class AgentServiceIntegrationTest {
 
             ConfigErrors configErrors = agentInstance.getAgent().errors();
             assertFalse(configErrors.isEmpty());
-            assertEquals("Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$'", configErrors.on("resources"));
+            assertEquals("Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$'", configErrors.firstErrorOn("resources"));
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
             assertThat(getFirstAgent().getResourceConfigs().resourceNames()).isEqualTo(emptyStrList);
@@ -801,7 +800,7 @@ public class AgentServiceIntegrationTest {
             createAnIdleAgentAndDisableIt(UUID);
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(getFirstAgent().getResourceConfigs()).isEmpty();
             assertThat(agentService.findAgent(UUID).getStatus()).isEqualTo(AgentStatus.Disabled);
 
             UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.bulkUpdateAgentAttributes(List.of(UUID), List.of("foo%"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
@@ -809,7 +808,7 @@ public class AgentServiceIntegrationTest {
             assertThat(e.getMessage()).isEqualTo("Validations failed for bulk update of agents. Error(s): {resources=[Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$']}");
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(getFirstAgent().getResourceConfigs()).isEmpty();
         }
     }
 
@@ -977,7 +976,7 @@ public class AgentServiceIntegrationTest {
                     List.of("a", "b", "c"), emptyStrList, UNSET, environmentConfigService);
 
             assertThat(agentService.getAgentInstances().size()).isEqualTo(1);
-            assertThat((List<ResourceConfig>) getFirstAgent().getResourceConfigs()).isEmpty();
+            assertThat(getFirstAgent().getResourceConfigs()).isEmpty();
             assertThat(getFirstAgent().getAgent().getEnvironmentsAsList()).isEqualTo(List.of("a", "b", "c"));
 
             agentService.updateAgentAttributes(UUID, null, null, "c,d,e", UNSET);
@@ -1256,7 +1255,7 @@ public class AgentServiceIntegrationTest {
     }
 
     private void createEnvironment(String... environmentNames) {
-        CONFIG_HELPER.addEnvironments(environmentNames);
+        configHelper.addEnvironments(environmentNames);
         goConfigService.forceNotifyListeners();
     }
 

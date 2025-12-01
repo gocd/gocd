@@ -56,10 +56,10 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
                 if (!allPipelineNames.contains(pipeline.getName())) {
                     envConfig.addError("pipeline", String.format("Environment '%s' refers to an unknown pipeline '%s'.", envConfig.name(), pipeline.getName()));
                 }
-                if (pipelineToEnvMap.containsKey(pipeline.getName())) {
+
+                CaseInsensitiveString previous = pipelineToEnvMap.putIfAbsent(pipeline.getName(), envConfig.name());
+                if (previous != null) {
                     envConfig.addError("pipeline", "Associating pipeline(s) which is already part of " + pipelineToEnvMap.get(pipeline.getName()) + " environment");
-                } else {
-                    pipelineToEnvMap.put(pipeline.getName(), envConfig.name());
                 }
             }
         }

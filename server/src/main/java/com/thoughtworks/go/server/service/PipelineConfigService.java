@@ -20,20 +20,16 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
-import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
-import com.thoughtworks.go.util.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -64,55 +60,6 @@ public class PipelineConfigService {
         this.pluggableTaskService = pluggableTaskService;
         this.entityHashingService = entityHashingService;
         this.externalArtifactsService = externalArtifactsService;
-    }
-
-    public Map<CaseInsensitiveString, CanDeleteResult> canDeletePipelines() {
-        CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
-        Map<CaseInsensitiveString, CanDeleteResult> nameToCanDeleteIt = new HashMap<>();
-        Hashtable<CaseInsensitiveString, Node> hashtable = cruiseConfig.getDependencyTable();
-        List<CaseInsensitiveString> pipelineNames = cruiseConfig.getAllPipelineNames();
-
-        for (CaseInsensitiveString pipelineName : pipelineNames) {
-            ConfigOrigin origin = pipelineConfigOrigin(cruiseConfig, pipelineName);
-            if (origin != null && !origin.isLocal()) {
-                nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, "Cannot delete pipeline '" + pipelineName + "' defined in configuration repository '" + origin.displayName() + "'."));
-            } else {
-                CaseInsensitiveString envName = environmentUsedIn(cruiseConfig, pipelineName);
-                if (envName != null) {
-                    nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, "Cannot delete pipeline '" + pipelineName + "' as it is present in environment '" + envName + "'."));
-                } else {
-                    CaseInsensitiveString downStream = downstreamOf(hashtable, pipelineName);
-                    if (downStream != null) {
-                        nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, "Cannot delete pipeline '" + pipelineName + "' as pipeline '" + downStream + "' depends on it."));
-                    } else {
-                        nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(true, "Delete this pipeline."));
-                    }
-                }
-            }
-        }
-        return nameToCanDeleteIt;
-    }
-
-    private ConfigOrigin pipelineConfigOrigin(CruiseConfig cruiseConfig, final CaseInsensitiveString pipelineName) {
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(pipelineName);
-        if (pipelineConfig == null)
-            return null;
-        return pipelineConfig.getOrigin();
-    }
-
-    private CaseInsensitiveString downstreamOf(Hashtable<CaseInsensitiveString, Node> pipelineToUpstream,
-                                               final CaseInsensitiveString pipelineName) {
-        for (Map.Entry<CaseInsensitiveString, Node> entry : pipelineToUpstream.entrySet()) {
-            if (entry.getValue().hasDependency(pipelineName)) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
-
-    private CaseInsensitiveString environmentUsedIn(CruiseConfig cruiseConfig,
-                                                    final CaseInsensitiveString pipelineName) {
-        return cruiseConfig.getEnvironments().findEnvironmentNameForPipeline(pipelineName);
     }
 
     public PipelineConfig pipelineConfigNamed(String pipelineName) {
@@ -216,5 +163,4 @@ public class PipelineConfigService {
                                             Username currentUser) {
         goConfigService.updateConfig(new ExtractTemplateFromPipelineEntityConfigUpdateCommand(securityService, pipelineName, templateName, currentUser), currentUser);
     }
-
 }

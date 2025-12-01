@@ -223,7 +223,7 @@ public class PipelineSelectionsServiceTest {
     }
 
     private void expectLoad(final CruiseConfig result) {
-        when(goConfigDao.load()).thenReturn(result);
+        when(goConfigDao.currentConfig()).thenReturn(result);
     }
 
     private CruiseConfig unchangedConfig() {

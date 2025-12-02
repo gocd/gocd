@@ -27,7 +27,9 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import org.bouncycastle.operator.InputDecryptorProvider;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
+import org.bouncycastle.pkcs.PKCSException;
 
 import java.io.File;
 import java.io.FileReader;
@@ -62,7 +64,7 @@ public abstract class GoAgentServerClientBuilder<T> {
         this(systemEnvironment.getRootCertFile(), systemEnvironment.getAgentSslVerificationMode(), systemEnvironment.getAgentSslCertificate(), systemEnvironment.getAgentPrivateKeyFile(), systemEnvironment.getAgentSslPrivateKeyPassphraseFile());
     }
 
-    KeyStore agentTruststore() throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException {
+    KeyStore agentTruststore() throws GeneralSecurityException, IOException {
         KeyStore trustStore = null;
 
         List<X509Certificate> certificates = new CertificateFileParser().certificates(rootCertificate);
@@ -78,7 +80,7 @@ public abstract class GoAgentServerClientBuilder<T> {
         return trustStore;
     }
 
-    KeyStore agentKeystore() throws Exception {
+    KeyStore agentKeystore() throws GeneralSecurityException, IOException, OperatorCreationException, PKCSException {
         if (this.agentSslCertificate != null && this.agentSslCertificate.exists() && this.agentSslPrivateKey != null && this.agentSslPrivateKey.exists()) {
             return keyStoreFromPem();
         } else {
@@ -86,7 +88,7 @@ public abstract class GoAgentServerClientBuilder<T> {
         }
     }
 
-    private KeyStore keyStoreFromPem() throws Exception {
+    private KeyStore keyStoreFromPem() throws GeneralSecurityException, IOException, OperatorCreationException, PKCSException {
         KeyStore keyStore = KeyStore.getInstance("JKS");
         keyStore.load(null);
         if (agentSslCertificate != null && agentSslPrivateKey != null) {
@@ -100,7 +102,7 @@ public abstract class GoAgentServerClientBuilder<T> {
         static final Provider INSTANCE = new BouncyCastleProvider();
     }
 
-    private PrivateKey getPrivateKey() throws Exception {
+    private PrivateKey getPrivateKey() throws IOException, OperatorCreationException, PKCSException {
         PrivateKey privateKey;
         try (PEMParser reader = new PEMParser(new FileReader(this.agentSslPrivateKey, StandardCharsets.UTF_8))) {
             Object pemObject = reader.readObject();

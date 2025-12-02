@@ -39,7 +39,7 @@ public class GoAgentServerHttpClient implements Closeable {
     public void init() throws Exception {
         this.client = builder.build();
     }
-    
+
     public CloseableHttpResponse execute(HttpRequestBase request) throws IOException {
         request.setURI(request.getURI().normalize());
         return client.execute(request);
@@ -47,12 +47,12 @@ public class GoAgentServerHttpClient implements Closeable {
 
     @Override
     public synchronized void close() {
-        try {
-            if (this.client != null) {
+        if (this.client != null) {
+            try {
                 this.client.close();
+            } catch (Exception e) {
+                LOG.warn("Could not close http client", e);
             }
-        } catch (Exception e) {
-            LOG.warn("Could not close http client", e);
         }
 
         try {

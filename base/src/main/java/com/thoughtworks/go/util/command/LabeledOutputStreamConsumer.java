@@ -16,9 +16,9 @@
 package com.thoughtworks.go.util.command;
 
 public class LabeledOutputStreamConsumer implements ConsoleOutputStreamConsumer {
-    private String tag;
-    private String errorTag;
-    private ConsoleOutputStreamConsumer consumer;
+    private final String tag;
+    private final String errorTag;
+    private final ConsoleOutputStreamConsumer consumer;
 
     public LabeledOutputStreamConsumer(String tag, String errorTag, ConsoleOutputStreamConsumer consumer) {
         this.tag = tag;

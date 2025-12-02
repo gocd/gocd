@@ -28,11 +28,12 @@ public class FileSizeUtilsTest {
 
     @Test
     public void shouldConvertBytesToKilo() {
+        assertThat(FileSizeUtils.byteCountToDisplaySize(1024)).isEqualTo("1.0 KB");
         assertThat(FileSizeUtils.byteCountToDisplaySize(1024 + 512)).isEqualTo("1.5 KB");
     }
 
     @Test
-    public void shouldOnlyKeep() {
+    public void shouldOnlyKeepOneDecimal() {
         assertThat(FileSizeUtils.byteCountToDisplaySize(1024 + 512 + 256)).isEqualTo("1.8 KB");
     }
 
@@ -43,7 +44,7 @@ public class FileSizeUtilsTest {
 
     @Test
     public void shouldConvertBytesToMegaForFloat() {
-        assertThat(FileSizeUtils.byteCountToDisplaySize(1 * 1024 * 1024 + 512 * 1024)).isEqualTo("1.5 MB");
+        assertThat(FileSizeUtils.byteCountToDisplaySize(1024 * 1024 + 512 * 1024)).isEqualTo("1.5 MB");
     }
 
     @Test

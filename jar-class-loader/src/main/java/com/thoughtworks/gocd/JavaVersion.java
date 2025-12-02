@@ -65,9 +65,7 @@ public enum JavaVersion {
      * @return The version, or null if the provided value is null.
      * @throws IllegalArgumentException when the provided value cannot be converted.
      */
-    @SuppressWarnings("NullAway") // We cannot annotate it as nullable as it would be a breaking change for Kotlin clients.
     public static JavaVersion toVersion(Object value) throws IllegalArgumentException {
-        //noinspection ConstantValue
         if (value == null) {
             return null;
         }

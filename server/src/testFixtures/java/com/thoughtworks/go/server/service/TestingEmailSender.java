@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestingEmailSender implements EmailSender {
     public static final String NO_MESSAGE = "No Message Sent";
@@ -47,11 +47,6 @@ public class TestingEmailSender implements EmailSender {
     }
 
     public void assertHasMessageContaining(String body) {
-        for (SendEmailMessage message : messages) {
-            if (message.toString().contains(body)) {
-                return;
-            }
-        }
-        fail(String.format("Expected to have a message with string '%s'. Actual messages are: '%s'", body, messages));
+        assertThat(messages).anySatisfy(message -> assertThat(message.toString()).contains(body));
     }
 }

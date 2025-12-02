@@ -78,7 +78,6 @@ public class UnitTestReportGenerator {
             publisher.reportErrorMessage("Unable to publish test properties. Error was " + e.getMessage(), e);
         } finally {
             if (mergedResource != null) {
-                //noinspection ResultOfMethodCallIgnored
                 mergedResource.delete();
             }
         }

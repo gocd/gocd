@@ -36,7 +36,6 @@ public class FileUtil {
     /**
      * Makes parent directories, ignoring if it already exists
      */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void mkdirsParentQuietly(File file) {
         File directory = file.getParentFile();
         mkdirsQuietly(directory);
@@ -45,7 +44,6 @@ public class FileUtil {
     /**
      * Makes directories, ignoring if null or already exists
      */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static void mkdirsQuietly(File directory) {
         if (directory != null && !directory.exists()) {
             directory.mkdirs();
@@ -64,7 +62,6 @@ public class FileUtil {
         return false;
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void createFilesByPath(File baseDir, String... files) throws IOException {
         for (String file : files) {
             File file1 = new File(baseDir, file);

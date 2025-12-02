@@ -24,8 +24,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class InMemoryConsumer implements StreamConsumer {
-    private final Queue<String> lines = new ConcurrentLinkedQueue<>();
     private static final Logger LOG = LoggerFactory.getLogger(InMemoryConsumer.class);
+    private final Queue<String> lines = new ConcurrentLinkedQueue<>();
 
     @Override
     public void consumeLine(String line) {

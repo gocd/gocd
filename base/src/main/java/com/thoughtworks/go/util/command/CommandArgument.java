@@ -18,6 +18,7 @@ package com.thoughtworks.go.util.command;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public abstract class CommandArgument implements Serializable, SecretRedactor {
     public abstract String originalArgument();
@@ -46,9 +47,7 @@ public abstract class CommandArgument implements Serializable, SecretRedactor {
     }
 
     protected boolean equal(CommandArgument that) {
-        String originalArgument = this.originalArgument();
-        String othersOriginalArgument = that.originalArgument();
-        return originalArgument != null ? originalArgument.equals(othersOriginalArgument) : othersOriginalArgument == null;
+        return Objects.equals(this.originalArgument(), that.originalArgument());
     }
 
     @Override

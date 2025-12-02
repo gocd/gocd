@@ -26,7 +26,7 @@ public class ZipPath {
     }
 
     ZipPath(ZipPath old, File file) {
-        String prefix = old.path.equals("") ? "" : old.path + "/";
+        String prefix = old.path.isEmpty() ? "" : old.path + "/";
         this.path = prefix + file.getName();
     }
 

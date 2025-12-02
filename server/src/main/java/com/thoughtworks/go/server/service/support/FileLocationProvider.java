@@ -64,7 +64,7 @@ public class FileLocationProvider implements ServerInfoProvider {
         return json;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked", "rawtypes", "RedundantSuppression"})
     private Appender<ILoggingEvent>[] getAppenders(List<Logger> loggers) {
         Set<Appender<ILoggingEvent>> appenders = new LinkedHashSet<>();
 

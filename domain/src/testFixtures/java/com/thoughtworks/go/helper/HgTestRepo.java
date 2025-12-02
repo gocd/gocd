@@ -41,8 +41,8 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HgTestRepo extends TestRepo {
-    private File remoteRepo;
     private static final String HG_BUNDLE_FILE = "../domain/src/test/resources/data/repos/hgrepo.hgbundle";
+    private final File remoteRepo;
 
     private final HgCommand hgCommand;
 

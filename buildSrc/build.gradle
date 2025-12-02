@@ -29,5 +29,8 @@ dependencies {
   implementation 'de.undercouch:gradle-download-task:5.6.0'
   implementation 'com.github.jk1.dependency-license-report:com.github.jk1.dependency-license-report.gradle.plugin:3.0.1'
   implementation 'org.ysb33r.gradle:grolifant-herd:4.0.0'
+  constraints {
+    implementation 'org.apache.commons:commons-collections4:4.5.0'
+  }
   implementation 'org.freemarker:freemarker:2.3.34'
 }

@@ -46,6 +46,7 @@ dependencies {
         strictly project.versions.jakartaAnnotation
       }
     }
+    api project.deps.hamcrest
   }
 
   api enforcedPlatform(project.deps.junit5Bom)

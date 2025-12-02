@@ -48,5 +48,6 @@ dependencies {
 
   testFixturesApi project.deps.testcontainersJdbc
   testFixturesImplementation project.deps.assertJ_DB
+  testFixturesImplementation project.deps.assertJ
   testFixturesRuntimeOnly project.deps.logback
 }

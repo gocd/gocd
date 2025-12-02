@@ -16,36 +16,36 @@
 package com.thoughtworks.go.agent.statusapi;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.thoughtworks.go.util.Pair;
 import org.apache.http.HttpHeaders;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
-import java.util.Set;
 
 @FunctionalInterface
 interface HttpHandler extends com.sun.net.httpserver.HttpHandler {
 
-    Pair<Integer, String> response();
+    Response response();
+
+    record Response(int statusCode, String body) {}
 
     @Override
     default void handle(HttpExchange exchange) throws IOException {
-        writeResponse(exchange, isAllowed(exchange.getRequestMethod())
+        writeResponse(exchange, isAllowed(exchange.getRequestMethod().toUpperCase())
             ? response()
-            : Pair.pair(HttpURLConnection.HTTP_BAD_METHOD, "This method is not allowed. Please use GET or HEAD.")
+            : new Response(HttpURLConnection.HTTP_BAD_METHOD, "This method is not allowed. Please use GET or HEAD.")
         );
     }
 
     private static boolean isAllowed(String requestMethod) {
-        return Set.of("GET", "PUT").contains(requestMethod.toUpperCase());
+        return "GET".equals(requestMethod) || "HEAD".equals(requestMethod);
     }
 
-    private void writeResponse(HttpExchange exchange, Pair<Integer, String> response) throws IOException {
-        byte[] rawResponse = response.last().getBytes(StandardCharsets.UTF_8);
+    private void writeResponse(HttpExchange exchange, Response response) throws IOException {
+        byte[] rawResponse = response.body().getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set(HttpHeaders.CONTENT_TYPE, "text/plain; charset=utf-8");
-        exchange.sendResponseHeaders(response.first(), rawResponse.length);
+        exchange.sendResponseHeaders(response.statusCode(), rawResponse.length);
 
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(rawResponse);

@@ -275,15 +275,15 @@ public class PipelineServiceTriangleDependencyTest {
         Date date = new Date();
         MaterialRevisionBuilder builder = new MaterialRevisionBuilder(pipelineDao, materialRepository);
         PipelineConfigDependencyGraph graph = builder.depInstance("last", 1, date, builder.depInstance("third", 3, date, builder.depInstance("second", 2, date, builder.svnInstance("1", date))),
-                builder.depInstance("second", 4, date, builder.svnInstance("2", date))).getGraph();
+                builder.depInstance("second", 4, date, builder.svnInstance("2", date))).graph();
 
         MaterialRevisions actual = new MaterialRevisions();
         actual.addRevision(builder.lookingAtDep("third", 3, date).markAsChanged().revision());
         actual.addRevision(builder.lookingAtDep("second", 4, date).revision());
 
         MaterialRevisions expected = new MaterialRevisions();
-        expected.addRevision(builder.depInstance("third", 3, date).getRevision());
-        expected.addRevision(builder.depInstance("second", 2, date).getRevision());
+        expected.addRevision(builder.depInstance("third", 3, date).revision());
+        expected.addRevision(builder.depInstance("second", 2, date).revision());
 
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions).isEqualTo(expected);
@@ -305,15 +305,15 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisionBuilder builder = new MaterialRevisionBuilder(pipelineDao, materialRepository);
         PipelineConfigDependencyGraph graph = builder.depInstance("last", 1, date, builder.depInstance("third", 3, date,
                 builder.depInstance("second", 2, date, builder.svnInstance("1", date))),
-                builder.depInstance("second", 4, date, builder.svnInstance("2", date))).getGraph();
+                builder.depInstance("second", 4, date, builder.svnInstance("2", date))).graph();
 
         MaterialRevisions actual = new MaterialRevisions();
         actual.addRevision(builder.lookingAtDep("third", 3, date).revision());
         actual.addRevision(builder.lookingAtDep("second", 4, date).markAsChanged().revision());
 
         MaterialRevisions expected = new MaterialRevisions();
-        expected.addRevision(builder.depInstance("third", 3, date).getRevision());
-        expected.addRevision(builder.depInstance("second", 4, date).getRevision());
+        expected.addRevision(builder.depInstance("third", 3, date).revision());
+        expected.addRevision(builder.depInstance("second", 4, date).revision());
 
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions).isEqualTo(expected);
@@ -335,15 +335,15 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisionBuilder builder = new MaterialRevisionBuilder(pipelineDao, materialRepository);
         PipelineConfigDependencyGraph graph = builder.depInstance("last", 1, date, builder.depInstance("second", 4, date,
                 builder.svnInstance("2", date)), builder.depInstance("third", 3, date,
-                builder.depInstance("second", 2, date, builder.svnInstance("1", date)))).getGraph();
+                builder.depInstance("second", 2, date, builder.svnInstance("1", date)))).graph();
 
         MaterialRevisions actual = new MaterialRevisions();
         actual.addRevision(builder.lookingAtDep("second", 4, date).markAsChanged().revision());
         actual.addRevision(builder.lookingAtDep("third", 3, date).revision());
 
         MaterialRevisions expected = new MaterialRevisions();
-        expected.addRevision(builder.depInstance("second", 4, date).getRevision());
-        expected.addRevision(builder.depInstance("third", 3, date).getRevision());
+        expected.addRevision(builder.depInstance("second", 4, date).revision());
+        expected.addRevision(builder.depInstance("third", 3, date).revision());
 
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions).isEqualTo(expected);
@@ -364,15 +364,15 @@ public class PipelineServiceTriangleDependencyTest {
         Date date = new Date();
         MaterialRevisionBuilder builder = new MaterialRevisionBuilder(pipelineDao, materialRepository);
         PipelineConfigDependencyGraph graph = builder.depInstance("last", 1, date, builder.depInstance("third", 3, date, builder.depInstance("second", 2, date, builder.svnInstance("1", date))),
-                builder.depInstance("second", 4, date, builder.svnInstance("2", date))).getGraph();
+                builder.depInstance("second", 4, date, builder.svnInstance("2", date))).graph();
 
         MaterialRevisions actual = new MaterialRevisions();
         actual.addRevision(builder.lookingAtDep("third", 3, date).markAsChanged().revision());
         actual.addRevision(builder.lookingAtDep("second", 4, date).markAsChanged().revision());
 
         MaterialRevisions expected = new MaterialRevisions();
-        expected.addRevision(builder.depInstance("third", 3, date).getRevision());
-        expected.addRevision(builder.depInstance("second", 2, date).getRevision());
+        expected.addRevision(builder.depInstance("third", 3, date).revision());
+        expected.addRevision(builder.depInstance("second", 2, date).revision());
 
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions).isEqualTo(expected);
@@ -394,15 +394,15 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisionBuilder builder = new MaterialRevisionBuilder(pipelineDao, materialRepository);
         PipelineConfigDependencyGraph graph = builder.depInstance("last", 1, date, builder.depInstance("second", 4, date,
                 builder.svnInstance("2", date)), builder.depInstance("third", 3, date,
-                builder.depInstance("second", 2, date, builder.svnInstance("1", date)))).getGraph();
+                builder.depInstance("second", 2, date, builder.svnInstance("1", date)))).graph();
 
         MaterialRevisions actual = new MaterialRevisions();
         actual.addRevision(builder.lookingAtDep("second", 4, date).markAsChanged().revision());
         actual.addRevision(builder.lookingAtDep("third", 3, date).markAsChanged().revision());
 
         MaterialRevisions expected = new MaterialRevisions();
-        expected.addRevision(builder.depInstance("second", 2, date).getRevision());
-        expected.addRevision(builder.depInstance("third", 3, date).getRevision());
+        expected.addRevision(builder.depInstance("second", 2, date).revision());
+        expected.addRevision(builder.depInstance("third", 3, date).revision());
 
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions).isEqualTo(expected);
@@ -427,7 +427,7 @@ public class PipelineServiceTriangleDependencyTest {
         PipelineConfigDependencyGraph graph = builder.depInstance("last", 1, date, builder.hgInstance("rev2", date),
                 builder.depInstance("second", 4, date, builder.svnInstance("2", date)),
                 builder.depInstance("third", 3, date, builder.depInstance("first", 1, date, builder.hgInstance("rev1", date)),
-                        builder.depInstance("second", 2, date, builder.svnInstance("1", date)))).getGraph();
+                        builder.depInstance("second", 2, date, builder.svnInstance("1", date)))).graph();
 
         MaterialRevisions actual = new MaterialRevisions();
         actual.addRevision(builder.lookingAtHg("rev2", date).markAsChanged().revision());
@@ -435,9 +435,9 @@ public class PipelineServiceTriangleDependencyTest {
         actual.addRevision(builder.lookingAtDep("third", 3, date).markAsChanged().revision());
 
         MaterialRevisions expected = new MaterialRevisions();
-        expected.addRevision(builder.hgInstance("rev1", date).getRevision());
-        expected.addRevision(builder.depInstance("second", 2, date).getRevision());
-        expected.addRevision(builder.depInstance("third", 3, date).getRevision());
+        expected.addRevision(builder.hgInstance("rev1", date).revision());
+        expected.addRevision(builder.depInstance("second", 2, date).revision());
+        expected.addRevision(builder.depInstance("third", 3, date).revision());
 
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions).isEqualTo(expected);

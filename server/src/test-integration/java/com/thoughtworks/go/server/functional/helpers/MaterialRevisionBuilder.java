@@ -46,26 +46,7 @@ public class MaterialRevisionBuilder {
     private MaterialRevision currentRevision;
     private static final String STAGE_NAME = "stagename";
 
-    public static class Tuple {
-
-        private final PipelineConfigDependencyGraph graph;
-
-        private final MaterialRevision revision;
-
-        private Tuple(PipelineConfigDependencyGraph graph, MaterialRevision revision) {
-            this.graph = graph;
-            this.revision = revision;
-        }
-
-        public MaterialRevision getRevision() {
-            return revision;
-        }
-
-        public PipelineConfigDependencyGraph getGraph() {
-            return graph;
-        }
-
-    }
+    public record Tuple(PipelineConfigDependencyGraph graph, MaterialRevision revision) {}
 
     public MaterialRevisionBuilder(PipelineSqlMapDao pipelineDao, MaterialRepository materialRepository) {
         this.pipelineDao = pipelineDao;

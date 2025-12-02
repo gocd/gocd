@@ -27,8 +27,6 @@ import javax.annotation.PreDestroy;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 
-import static com.thoughtworks.go.util.Pair.pair;
-
 @Component
 public class AgentStatusHttpd {
 
@@ -49,7 +47,7 @@ public class AgentStatusHttpd {
     private void setupRoutes(HttpServer server) {
         server.createContext("/health/v1/isConnectedToServer", isConnectedToServer);
         server.createContext("/health/latest/isConnectedToServer", isConnectedToServer);
-        server.createContext("/", (HttpHandler) () -> pair(HttpURLConnection.HTTP_NOT_FOUND, "The page you requested was not found"));
+        server.createContext("/", (HttpHandler) () -> new HttpHandler.Response(HttpURLConnection.HTTP_NOT_FOUND, "The page you requested was not found"));
     }
 
     @PostConstruct

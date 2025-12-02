@@ -15,13 +15,10 @@
  */
 package com.thoughtworks.go.agent.statusapi;
 
-import com.thoughtworks.go.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.HttpURLConnection;
-
-import static com.thoughtworks.go.util.Pair.pair;
 
 @Component
 public class IsConnectedToServerV1 implements HttpHandler {
@@ -33,10 +30,9 @@ public class IsConnectedToServerV1 implements HttpHandler {
         this.agentHealthHolder = agentHealthHolder;
     }
 
-
     @Override
-    public Pair<Integer, String> response() {
-        return isPassed() ? pair(HttpURLConnection.HTTP_OK, "OK!") : pair(HttpURLConnection.HTTP_UNAVAILABLE, "Bad!");
+    public Response response() {
+        return isPassed() ? new Response(HttpURLConnection.HTTP_OK, "OK!") : new Response(HttpURLConnection.HTTP_UNAVAILABLE, "Bad!");
     }
 
     protected boolean isPassed() {

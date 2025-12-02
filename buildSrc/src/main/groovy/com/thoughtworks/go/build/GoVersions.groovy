@@ -38,7 +38,7 @@ class GoVersions implements Serializable {
 
   List<String> preferredJavaVersions() {
     [VERSION_11, VERSION_17, VERSION_21, VERSION_25, VERSION_29] // LTS versions
-      .findAll { v -> v.ordinal() >= toVersion(targetJavaVersion).ordinal() && v.ordinal() <= toVersion(packagedJavaVersion.feature).ordinal() }
+      .findAll { v -> v.ordinal() >= toVersion(targetJavaVersion).ordinal() && v.ordinal() <= toVersion(buildJavaVersion).ordinal() }
       .sort()
       .reverse()
       .collect { v -> v.majorVersion }

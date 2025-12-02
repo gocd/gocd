@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.dd.NoCompatibleUpstreamRevisionsException;
+import com.thoughtworks.go.server.service.dd.NoModificationsPresentForDependentMaterialException;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;

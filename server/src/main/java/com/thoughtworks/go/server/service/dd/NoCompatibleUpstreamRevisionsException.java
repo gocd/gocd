@@ -16,22 +16,25 @@
 package com.thoughtworks.go.server.service.dd;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
+import static java.lang.String.format;
+
 public class NoCompatibleUpstreamRevisionsException extends RuntimeException {
-    private NoCompatibleUpstreamRevisionsException(CaseInsensitiveString pipelineName, String message) {
-        super(String.format("Failed resolution of pipeline %s : Cause : %s", pipelineName, message));
+    private NoCompatibleUpstreamRevisionsException(String message) {
+        super(message);
     }
 
-    public static NoCompatibleUpstreamRevisionsException failedToFindCompatibleRevision(CaseInsensitiveString pipelineName, MaterialConfig materialConfig) {
-        return new NoCompatibleUpstreamRevisionsException(pipelineName, "Could not find compatible revision for material: " + materialConfig);
+    public static NoCompatibleUpstreamRevisionsException failedToFindCompatibleRevision(CaseInsensitiveString pipelineName, DependencyMaterialConfig materialConfig) {
+        return new NoCompatibleUpstreamRevisionsException(format("Failed resolution of pipeline %s as could not find compatible revision for material %s", pipelineName, materialConfig.getPipelineStageName()));
     }
 
-    public static NoCompatibleUpstreamRevisionsException noValidRevisionsForUpstream(CaseInsensitiveString pipelineName, MaterialConfig materialConfig) {
-        return new NoCompatibleUpstreamRevisionsException(pipelineName, "No valid revisions found for the upstream dependency: " + materialConfig);
+    public static NoCompatibleUpstreamRevisionsException noValidRevisionsForUpstream(CaseInsensitiveString pipelineName, DependencyMaterialConfig materialConfig) {
+        return new NoCompatibleUpstreamRevisionsException(format("Failed resolution of pipeline %s as no valid revisions were found for the upstream dependency %s", pipelineName, materialConfig.getPipelineStageName()));
     }
 
     public static NoCompatibleUpstreamRevisionsException doesNotHaveValidRevisions(CaseInsensitiveString pipelineName, MaterialConfig materialConfig) {
-        return new NoCompatibleUpstreamRevisionsException(pipelineName, String.format("Dependency material: %s does not have any valid revisions", materialConfig));
+        return new NoCompatibleUpstreamRevisionsException(format("Failed resolution of pipeline %s as %s does not have any valid revisions.", pipelineName, materialConfig));
     }
 }

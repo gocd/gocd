@@ -229,7 +229,7 @@ class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
 
     private boolean hasMoreInstances() {
         if (currentCount > maxBackTrackLimit.get()) {
-            throw new MaxBackTrackLimitReachedException(materialConfig);
+            throw new MaxBackTrackLimitReachedException(materialConfig, maxBackTrackLimit);
         }
         return currentCount < totalInstanceCount;
     }

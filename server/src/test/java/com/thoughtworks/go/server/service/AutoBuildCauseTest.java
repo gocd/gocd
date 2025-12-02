@@ -44,9 +44,9 @@ import java.util.Date;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
+import static com.thoughtworks.go.server.service.dd.NoCompatibleUpstreamRevisionsException.failedToFindCompatibleRevision;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -300,18 +300,14 @@ public class AutoBuildCauseTest {
         MaterialRevision dependencyRevision = dependencyMaterialRevision("up1", 1, "label", "first", 1, new Date());
         dependencyRevision.markAsChanged();
         revisions.addRevision(dependencyRevision);
-        NoCompatibleUpstreamRevisionsException expectedException = NoCompatibleUpstreamRevisionsException.failedToFindCompatibleRevision(new CaseInsensitiveString("downstream"), null);
+        NoCompatibleUpstreamRevisionsException expectedException = failedToFindCompatibleRevision(new CaseInsensitiveString("downstream"), mock(DependencyMaterialConfig.class));
 
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenThrow(expectedException);
 
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(true);
 
-        try {
-            new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker).onModifications(revisions, false, null);
-            fail("should have thrown exception");
-        } catch (NoCompatibleUpstreamRevisionsException e) {
-            assertThat(e).isEqualTo(expectedException);
-        }
+        assertThatThrownBy(() -> new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker).onModifications(revisions, false, null))
+                .isEqualTo(expectedException);
     }
 
     @Test
@@ -327,12 +323,8 @@ public class AutoBuildCauseTest {
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenThrow(expectedException);
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(true);
 
-        try {
-            new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker).onModifications(revisions, false, null);
-            fail("should have thrown exception");
-        } catch (RuntimeException e) {
-            assertThat(e).isEqualTo(expectedException);
-        }
+        assertThatThrownBy(() -> new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker).onModifications(revisions, false, null))
+            .isEqualTo(expectedException);
     }
 
     @Test

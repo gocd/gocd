@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
-import com.thoughtworks.go.server.service.NoModificationsPresentForDependentMaterialException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
@@ -43,6 +42,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.ALL_OPTIONS_EXHAUSTED;
+import static com.thoughtworks.go.server.service.dd.NoCompatibleUpstreamRevisionsException.doesNotHaveValidRevisions;
+import static com.thoughtworks.go.server.service.dd.NoCompatibleUpstreamRevisionsException.failedToFindCompatibleRevision;
 
 public class FanInGraph {
     private final PipelineDao pipelineDao;
@@ -69,7 +70,7 @@ public class FanInGraph {
         this.materialConfigConverter = materialConfigConverter;
 
         PipelineConfig target = cruiseConfig.pipelineConfigByName(root);
-        this.root = (DependencyFanInNode) FanInNode.create(new DependencyMaterialConfig(target.name(), target.get(0).name()));
+        this.root = (DependencyFanInNode) FanInNode.create(new DependencyMaterialConfig(target.name(), target.first().name()));
 
         buildGraph(target);
     }
@@ -226,7 +227,7 @@ public class FanInGraph {
             for (DependencyFanInNode child : depChildren) {
                 final DependencyFanInNode.RevisionAlteration revisionAlteration = child.setRevisionTo(revisionToSet, context);
                 if (revisionAlteration == ALL_OPTIONS_EXHAUSTED) {
-                    throw NoCompatibleUpstreamRevisionsException.failedToFindCompatibleRevision(pipelineName, child.materialConfig);
+                    throw failedToFindCompatibleRevision(pipelineName, child.materialConfig);
                 }
             }
             revisionToSet = getRevisionToSet();
@@ -248,7 +249,7 @@ public class FanInGraph {
         for (FanInNode<?> child : root.children) {
             //The dependency material that is not in 'passed' state will not be found in actual revisions
             if (!actualRevFingerprints.contains(child.materialConfig.getFingerprint())) {
-                throw NoCompatibleUpstreamRevisionsException.doesNotHaveValidRevisions(pipelineName, child.materialConfig);
+                throw doesNotHaveValidRevisions(pipelineName, child.materialConfig);
             }
         }
     }

@@ -35,12 +35,13 @@ import org.slf4j.LoggerFactory;
  * Understands a build that was triggered by a change in some external materials
  */
 public class AutoBuild implements BuildType {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutoBuild.class);
+
     private final GoConfigService goConfigService;
     private final PipelineService pipelineService;
     private final String pipelineName;
     private final SystemEnvironment systemEnvironment;
     private final MaterialChecker materialChecker;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AutoBuild.class);
 
     public AutoBuild(GoConfigService goConfigService, PipelineService pipelineService, String pipelineName, SystemEnvironment systemEnvironment, MaterialChecker materialChecker) {
         this.goConfigService = goConfigService;
@@ -128,10 +129,7 @@ public class AutoBuild implements BuildType {
         for (MaterialConfig materialConfig : dependencyGraph.unsharedMaterialConfigs()) {
             MaterialRevision revision = originalMaterialRevisions.findRevisionFor(materialConfig);
             if (revision == null) {
-                String message = String.format("Couldn't find material-revision for material '%s' while auto-scheduling pipeline named '%s'", materialConfig, pipelineName);
-                RuntimeException exception = new NullPointerException(message);
-                LOGGER.error(message, exception);
-                throw exception;
+                throw new NullPointerException(String.format("Couldn't find material-revision for material '%s' while auto-scheduling pipeline named '%s'", materialConfig, pipelineName));
             }
             if (revision.isChanged()) {
                 return true;

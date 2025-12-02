@@ -56,11 +56,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedAssignment"})
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
     "classpath:/applicationContext-global.xml",
@@ -215,6 +214,7 @@ public class AutoTriggerDependencyResolutionTest {
         return rel(material, wrtPipeline, 0);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private Material rel(Material material, ScheduleTestUtil.AddedPipeline wrtPipeline, int nth) {
         for (Material mat : new MaterialConfigConverter().toMaterials(wrtPipeline.config.materialConfigs())) {
             if (mat.getFingerprint().equals(material.getFingerprint())) {
@@ -1012,13 +1012,9 @@ public class AutoTriggerDependencyResolutionTest {
         given.addRevision(u.mr(hg, false, "hg1"));
         given.addRevision(u.mr(up1, true, up1_1));
 
-        try {
-            getRevisionsBasedOnDependencies(current, goConfigDao.currentConfig(), given);
-            fail("Should have detected no-compatible-revisions situation, as config has changed.");
-        } catch (NoCompatibleUpstreamRevisionsException e) {
-            //ignore
-        }
-
+        assertThatThrownBy(() -> getRevisionsBasedOnDependencies(current, goConfigDao.currentConfig(), given))
+            .isInstanceOf(NoCompatibleUpstreamRevisionsException.class)
+            .hasMessage("Failed resolution of pipeline current as no valid revisions were found for the upstream dependency up1 [s]");
     }
 
     @Test
@@ -1082,7 +1078,6 @@ public class AutoTriggerDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(git1), u.m(git2));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(git1), u.m(git2));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1), u.m(p2));
-        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         //day 1:
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11", "g21");
@@ -1091,7 +1086,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         //day 2:
         configHelper.setMaterialConfigForPipeline("P2", git1.config());
-        cruiseConfig = goConfigDao.currentConfig();
+        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i), "g11", "g22");
         ScheduleTestUtil.AddedPipeline new_p2 = new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("p2")), p2.material);
         u.scheduleWith(new_p2, "g11");
@@ -1100,12 +1095,9 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p1, true, p1_2),
             u.mr(new_p2, false, p2_1));
 
-        try {
-            assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given)).isNull();
-            fail("Should have failed. There is no compatiable revision as material configuration has changed for p2");
-        } catch (NoCompatibleUpstreamRevisionsException e) {
-            assertThat(e.getMessage()).isEqualTo("Failed resolution of pipeline p3 : Cause : No valid revisions found for the upstream dependency: DependencyMaterialConfig{pipelineName='p2', stageName='s'}");
-        }
+        assertThatThrownBy(() -> getRevisionsBasedOnDependencies(p3, cruiseConfig, given))
+            .isInstanceOf(NoCompatibleUpstreamRevisionsException.class)
+            .hasMessage("Failed resolution of pipeline p3 as no valid revisions were found for the upstream dependency p2 [s]");
     }
 
     @Test
@@ -2065,7 +2057,8 @@ public class AutoTriggerDependencyResolutionTest {
         systemEnvironment.set(SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT, 1);
 
         assertThatThrownBy(() -> getRevisionsBasedOnDependencies(p4, cruiseConfig, given))
-            .isInstanceOf(MaxBackTrackLimitReachedException.class);
+            .isInstanceOf(MaxBackTrackLimitReachedException.class)
+            .hasMessageContaining("Could not find valid fan-in revisions for dependent pipeline stage p2 [s] due to hitting the maximum backtrack limit of 1 revisions");
     }
 
     @Test
@@ -2094,6 +2087,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(p2, true, p2_2));
 
         assertThatThrownBy(() -> getRevisionsBasedOnDependencies(p3, cruiseConfig, given))
-            .isInstanceOf(NoCompatibleUpstreamRevisionsException.class);
+            .isInstanceOf(NoCompatibleUpstreamRevisionsException.class)
+            .hasMessageContaining("Failed resolution of pipeline p3 as could not find compatible revision for material p2 [s]");
     }
 }

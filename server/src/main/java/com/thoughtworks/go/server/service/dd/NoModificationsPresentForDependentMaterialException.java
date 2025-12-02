@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.service;
+package com.thoughtworks.go.server.service.dd;
 
-public class NoModificationsPresentForDependentMaterialException extends RuntimeException{
+public class NoModificationsPresentForDependentMaterialException extends RuntimeException {
     public NoModificationsPresentForDependentMaterialException(String stageLocator) {
         super(String.format("No modifications found for %s. Material Database Update for this instance has not completed.", stageLocator));
     }

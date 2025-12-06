@@ -26,7 +26,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       [ // See https://endoflife.date/alpine
-        new DistroVersion(version: '3', releaseName: '3', eolDate: parseDate('2099-01-01')),
+        new DistroVersion(version: '3', releaseName: '3.22', eolDate: parseDate('2099-01-01')),
       ]
     }
 

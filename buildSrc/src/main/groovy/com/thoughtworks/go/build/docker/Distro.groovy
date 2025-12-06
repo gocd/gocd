@@ -237,7 +237,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       [
-        new DistroVersion(version: 'dind', releaseName: '29.1.2-dind-alpine3.22', eolDate: parseDate('2099-01-01'))
+        new DistroVersion(version: 'dind', releaseName: '29.1.1-dind-alpine3.22', eolDate: parseDate('2099-01-01'))
       ]
     }
 

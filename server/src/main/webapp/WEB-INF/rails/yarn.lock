@@ -4918,7 +4918,7 @@ __metadata:
     url-parse: "npm:^1.5.10"
     uuid: "npm:^13.0.0"
     webpack: "npm:^5.103.0"
-    webpack-assets-manifest: "npm:^6.4.0"
+    webpack-assets-manifest: "npm:^6.5.0"
     webpack-cli: "npm:^6.0.1"
     what-input: "npm:^5.2.12"
   languageName: unknown
@@ -6161,15 +6161,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lockfile@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "lockfile@npm:1.0.4"
-  dependencies:
-    signal-exit: "npm:^3.0.2"
-  checksum: 10/2fe86f932c106fabd15f56ffde2a87c99b02e4ca173b5fb64886349d3d0d82417e22a2be2b413006a55f4efbeac7beb679e8a7ac7f767d91981059c25be4dc15
-  languageName: node
-  linkType: hard
-
 "lodash-inflection@npm:^1.5.0":
   version: 1.5.0
   resolution: "lodash-inflection@npm:1.5.0"
@@ -7288,6 +7279,17 @@ __metadata:
     object-assign: "npm:^4.1.1"
     react-is: "npm:^16.13.1"
   checksum: 10/7d959caec002bc964c86cdc461ec93108b27337dabe6192fb97d69e16a0c799a03462713868b40749bfc1caf5f57ef80ac3e4ffad3effa636ee667582a75e2c0
+  languageName: node
+  linkType: hard
+
+"proper-lockfile@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "proper-lockfile@npm:4.1.2"
+  dependencies:
+    graceful-fs: "npm:^4.2.4"
+    retry: "npm:^0.12.0"
+    signal-exit: "npm:^3.0.2"
+  checksum: 10/000a4875f543f591872b36ca94531af8a6463ddb0174f41c0b004d19e231d7445268b422ff1ea595e43d238655c702250cd3d27f408e7b9d97b56f1533ba26bf
   languageName: node
   linkType: hard
 
@@ -9477,17 +9479,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-assets-manifest@npm:^6.4.0":
-  version: 6.4.0
-  resolution: "webpack-assets-manifest@npm:6.4.0"
+"webpack-assets-manifest@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "webpack-assets-manifest@npm:6.5.0"
   dependencies:
     deepmerge: "npm:^4.3.1"
-    lockfile: "npm:^1.0.4"
+    proper-lockfile: "npm:^4.1.2"
     schema-utils: "npm:^4.3.3"
     tapable: "npm:^2.3.0"
   peerDependencies:
     webpack: ^5.61.0
-  checksum: 10/a6ef57dec5ea153416a60632a88b7e199cafc36ec17e33b2c165897e583e3dbd13bd7a3e75b69800d046b10dcfa8e1902ebba6995feb7455ce49fcbe57313087
+  checksum: 10/d9c613cfd09a165eb559db731b0aa50a0ed96e530476b42182628e97fd301fb85ef046bd48c6c0f8a720a760e8004d75fc7183ede450d063576e0036df937cc1
   languageName: node
   linkType: hard
 

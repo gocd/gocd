@@ -26,7 +26,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       [ // See https://endoflife.date/alpine
-        new DistroVersion(version: '3', releaseName: '3.22', eolDate: parseDate('2099-01-01')),
+        new DistroVersion(version: '3', releaseName: '3.23', eolDate: parseDate('2099-01-01')),
       ]
     }
 
@@ -116,7 +116,10 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<String> getBaseImageUpdateCommands(DistroVersion v) {
-      ['apk --no-cache upgrade']
+      [
+        'apk --no-cache upgrade --scripts=no apk-tools', // Workaround for Alpine >= 3.23.0 < 3.23.1 https://gitlab.alpinelinux.org/alpine/aports/-/issues/17775 / https://github.com/moby/buildkit/issues/6400
+        'apk --no-cache upgrade'
+      ]
     }
 
     @Override
@@ -237,7 +240,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       [
-        new DistroVersion(version: 'dind', releaseName: '29.1.1-dind-alpine3.22', eolDate: parseDate('2099-01-01'))
+        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'))
       ]
     }
 

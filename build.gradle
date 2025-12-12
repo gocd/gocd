@@ -94,7 +94,7 @@ def libraries = [
   commonsFileUpload   : 'commons-fileupload:commons-fileupload:1.6.0',
   commonsIO           : 'commons-io:commons-io:2.21.0',
   commonsLang3        : 'org.apache.commons:commons-lang3:3.20.0',
-  commonsPool         : 'org.apache.commons:commons-pool2:2.12.1',
+  commonsPool         : 'org.apache.commons:commons-pool2:2.13.0',
   commonsText         : 'org.apache.commons:commons-text:1.15.0',
   dbunit              : 'org.dbunit:dbunit:3.0.0',
   dom4j               : 'org.dom4j:dom4j:2.2.0',

@@ -70,7 +70,7 @@
     "babel-loader": "^10.0.0",
     "cross-env": "^10.1.0",
     "css-loader": "^7.1.2",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-webpack-plugin": "^5.0.2",
     "file-loader": "^6.2.0",
